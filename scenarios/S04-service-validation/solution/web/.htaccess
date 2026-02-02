@@ -1,5 +1,0 @@
-# Enable rewrite engine
-RewriteEngine On
-
-# Forward requests to the /api/ path to the proxy.php script
-RewriteRule ^api/(.*)$ proxy.php [L,QSA]
