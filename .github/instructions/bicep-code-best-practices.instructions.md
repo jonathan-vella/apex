@@ -7,13 +7,12 @@ applyTo: "**/*.bicep"
 
 ## Quick Reference
 
-| Rule          | Standard                                                             |
-| ------------- | -------------------------------------------------------------------- |
-| Region        | `swedencentral` (alt: `germanywestcentral`)                          |
-| Unique suffix | `var uniqueSuffix = uniqueString(resourceGroup().id)` in main.bicep  |
-| AVM first     | **MANDATORY** - Use Azure Verified Modules where available           |
-| Tags          | Environment, ManagedBy, Project, Owner on ALL resources              |
-| VM Backup     | Add `Backup: 'true'` tag on VMs for auto-enrollment via Azure Policy |
+| Rule          | Standard                                                            |
+| ------------- | ------------------------------------------------------------------- |
+| Region        | `swedencentral` (alt: `germanywestcentral`)                         |
+| Unique suffix | `var uniqueSuffix = uniqueString(resourceGroup().id)` in main.bicep |
+| AVM first     | **MANDATORY** - Use Azure Verified Modules where available          |
+| Tags          | Environment, ManagedBy, Project, Owner on ALL resources             |
 
 ## Naming Conventions
 

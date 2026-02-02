@@ -11,9 +11,12 @@ pre-commit:
         # Get staged markdown files
         STAGED_MD=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
         if [ -n "$STAGED_MD" ]; then
-          echo "📝 Validating $(echo "$STAGED_MD" | wc -l | tr -d ' ') markdown file(s)..."
-          # Use --no-globs to lint ONLY staged files, not all files matching glob pattern
-          echo "$STAGED_MD" | xargs markdownlint-cli2 --no-globs
+          COUNT=$(echo "$STAGED_MD" | wc -l | tr -d ' ')
+          echo "📝 Validating $COUNT markdown file(s)..."
+          # Lint staged files only, suppress verbose Finding: output
+          RESULT=$(echo "$STAGED_MD" | xargs markdownlint-cli2 --no-globs 2>&1)
+          # Show only Summary and errors, skip Finding/Linting lines
+          echo "$RESULT" | grep -v -E '^(Finding:|Linting:)' || true
         else
           echo "ℹ️  No markdown files to validate"
         fi

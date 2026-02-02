@@ -194,7 +194,6 @@ az deployment group show `
 - AVM versions or API versions match the implementation plan
 - No secrets or environment-specific values hardcoded
 - The generated Bicep compiles cleanly and passes format checks
-- **VM Backup Tag**: Add `Backup: 'true'` tag to VMs requiring automatic backup protection
 
 ## CAF & WAF Validation Checklist
 
