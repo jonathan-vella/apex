@@ -65,7 +65,7 @@ All ADRs must consider CAF best practices:
 
 When creating ADRs that impact architecture:
 
-- Reference WAF pillar assessments from Azure Principal Architect
+- Reference WAF pillar assessments from the `architect` agent
 - Document trade-offs between WAF pillars (Security, Reliability, Performance, Cost, Operations)
 - Include WAF-specific consequences in the Consequences section
 - Note which WAF pillar is being optimized and what is being sacrificed

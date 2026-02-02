@@ -38,7 +38,7 @@ handoffs:
     prompt: Create an ADR documenting this architecture. Include the generated diagram as visual reference for the architectural decision.
     send: true
   - label: Return to Architect Review
-    agent: Azure Principal Architect
+    agent: architect
     prompt: Review the architecture diagram and provide additional WAF assessment feedback or refinements.
     send: true
 ---
