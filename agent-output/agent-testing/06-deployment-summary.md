@@ -6,6 +6,31 @@
 
 ---
 
+## Preflight Validation
+
+| Property             | Value            |
+| -------------------- | ---------------- |
+| **Project Type**     | standalone-bicep |
+| **Deployment Scope** | resourceGroup    |
+| **Validation Level** | Provider         |
+| **Bicep Build**      | ✅ Pass          |
+| **What-If Status**   | ✅ Pass          |
+
+### Change Summary
+
+| Change Type  | Count | Resources Affected                                |
+| ------------ | ----- | ------------------------------------------------- |
+| Create (+)   | 15    | SWA, App Service, SQL, Container Apps, Key Vaults |
+| Delete (-)   | 0     | —                                                 |
+| Modify (~)   | 0     | —                                                 |
+| NoChange (=) | 0     | —                                                 |
+
+### Validation Issues
+
+✅ No issues found. All three scenarios deployed successfully.
+
+---
+
 ## Deployment Details
 
 | Property               | Value                                        |

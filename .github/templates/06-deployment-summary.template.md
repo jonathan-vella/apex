@@ -3,6 +3,29 @@
 > Generated: {date}  
 > Status: **{STATUS}** (Succeeded/Failed/Simulated)
 
+## Preflight Validation
+
+| Property             | Value                                           |
+| -------------------- | ----------------------------------------------- |
+| **Project Type**     | {azd-project \| standalone-bicep}               |
+| **Deployment Scope** | {resourceGroup \| subscription \| mg \| tenant} |
+| **Validation Level** | {Provider \| ProviderNoRbac}                    |
+| **Bicep Build**      | {✅ Pass \| ❌ Fail}                            |
+| **What-If Status**   | {✅ Pass \| ❌ Fail \| ⏭️ Skipped}              |
+
+### Change Summary
+
+| Change Type  | Count | Resources Affected |
+| ------------ | ----- | ------------------ |
+| Create (+)   | 0     | {resource-names}   |
+| Delete (-)   | 0     | {resource-names}   |
+| Modify (~)   | 0     | {resource-names}   |
+| NoChange (=) | 0     | {resource-names}   |
+
+### Validation Issues
+
+{no-issues-found OR list of warnings/errors with remediation}
+
 ## Deployment Details
 
 | Field               | Value |

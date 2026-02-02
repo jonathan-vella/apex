@@ -12,7 +12,7 @@ tools:
     "search",
     "web",
     "azure-mcp/*",
-    "bicep/*",
+    "bicep-(experimental)/*",
     "todo",
     "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
     "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
@@ -39,6 +39,10 @@ handoffs:
     agent: Bicep Code
     prompt: The deployment encountered errors. Review the error messages and fix the Bicep templates to resolve the issues. Then retry deployment.
     send: true
+  - label: Preflight Only (No Deploy)
+    agent: Architect
+    prompt: Preflight validation is complete. Review the what-if results and change summary before proceeding to actual deployment. See the preflight section in 06-deployment-summary.md.
+    send: true
 ---
 
 # Deploy Agent
@@ -64,20 +68,91 @@ Use this agent when:
 
 ## Core Responsibilities
 
-1. **Pre-deployment validation**
-   - Verify Azure CLI authentication (`az account show`)
+1. **Preflight validation** (ALWAYS run first)
+   - Detect project type (azd vs standalone Bicep)
    - Validate Bicep templates (`bicep build`)
-   - Run what-if analysis (`az deployment group what-if`)
+   - Run what-if analysis with appropriate scope
+   - Capture change summary and validation issues
 
-2. **Deployment execution**
+2. **Pre-deployment checks**
+   - Verify Azure CLI authentication (`az account show`)
+   - Confirm resource group exists or will be created
+   - Review what-if results with user
+
+3. **Deployment execution**
    - Execute `deploy.ps1` scripts from `infra/bicep/{project}/`
    - Monitor deployment progress
    - Capture deployment outputs
 
-3. **Post-deployment verification**
+4. **Post-deployment verification**
    - Verify all resources deployed successfully
    - Check resource health status
    - Generate deployment summary
+
+## Preflight Validation Workflow
+
+> **Reference**: [Azure Deployment Preflight Skill](../skills/azure-deployment-preflight/SKILL.md)
+
+### Step 1: Detect Project Type
+
+```bash
+# Check for azd project
+if [ -f "azure.yaml" ]; then
+  echo "azd project detected"
+else
+  echo "Standalone Bicep project"
+fi
+```
+
+### Step 2: Determine Deployment Scope
+
+Read the `targetScope` from `main.bicep` to select the correct command:
+
+| Target Scope      | Command Prefix         |
+| ----------------- | ---------------------- |
+| `resourceGroup`   | `az deployment group`  |
+| `subscription`    | `az deployment sub`    |
+| `managementGroup` | `az deployment mg`     |
+| `tenant`          | `az deployment tenant` |
+
+### Step 3: Run What-If Analysis
+
+**For azd projects:**
+
+```bash
+azd provision --preview
+```
+
+**For standalone Bicep (resource group scope):**
+
+```bash
+az deployment group what-if \
+  --resource-group rg-{project}-{env} \
+  --template-file main.bicep \
+  --parameters main.bicepparam \
+  --validation-level Provider
+```
+
+**Fallback if RBAC check fails:**
+
+```bash
+az deployment group what-if \
+  --resource-group rg-{project}-{env} \
+  --template-file main.bicep \
+  --parameters main.bicepparam \
+  --validation-level ProviderNoRbac
+```
+
+### Step 4: Categorize Changes
+
+| Symbol | Change Type | Action Required                       |
+| ------ | ----------- | ------------------------------------- |
+| `+`    | Create      | Review new resources                  |
+| `-`    | Delete      | **STOP - Requires explicit approval** |
+| `~`    | Modify      | Review property changes               |
+| `=`    | NoChange    | Safe to proceed                       |
+| `*`    | Ignore      | Check limits                          |
+| `!`    | Deploy      | Unknown changes                       |
 
 ## Deployment Workflow
 
@@ -158,16 +233,29 @@ After deployment, hand off to `Docs` for as-built documentation.
 <stopping_rules>
 STOP IMMEDIATELY if:
 
-- Bicep validation fails
-- What-if analysis shows unexpected deletions
+- Bicep validation fails (`bicep build` returns errors)
+- What-if analysis shows **Delete** (`-`) operations - require explicit user approval
+- What-if shows more than 10 resources being modified - summarize and confirm
 - User has not approved deployment
 - Azure authentication is not configured
+- Resource group doesn't exist and user hasn't approved creation
 
 ALWAYS:
 
-- Run what-if before actual deployment
-- Require explicit user approval for production deployments
-- Capture and report all deployment errors
+- Run preflight validation (Steps 1-4 above) before any deployment
+- Present what-if change summary table before proceeding
+- Require explicit user approval for:
+  - Any Delete operations
+  - Production deployments (environment tag = `prod`)
+  - First-time deployments to a new resource group
+- Capture validation level used (Provider vs ProviderNoRbac)
+- Report all deployment errors with remediation suggestions
+
+PREFLIGHT ONLY MODE:
+
+- If user selects "Preflight Only" handoff, generate `06-deployment-summary.md` with
+  preflight results but DO NOT execute actual deployment
+- Mark status as "Simulated" in the deployment summary
   </stopping_rules>
 
 <known_issues>

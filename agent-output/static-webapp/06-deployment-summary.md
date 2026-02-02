@@ -3,6 +3,29 @@
 > Generated: 2024-12-17  
 > Status: **SIMULATED** (for workflow validation)
 
+## Preflight Validation
+
+| Property             | Value            |
+| -------------------- | ---------------- |
+| **Project Type**     | standalone-bicep |
+| **Deployment Scope** | resourceGroup    |
+| **Validation Level** | N/A (simulated)  |
+| **Bicep Build**      | ⏭️ Skipped       |
+| **What-If Status**   | ⏭️ Skipped       |
+
+### Change Summary
+
+| Change Type  | Count | Resources Affected                               |
+| ------------ | ----- | ------------------------------------------------ |
+| Create (+)   | 5     | Log Analytics, App Insights, SQL Server, DB, SWA |
+| Delete (-)   | 0     | —                                                |
+| Modify (~)   | 0     | —                                                |
+| NoChange (=) | 0     | —                                                |
+
+### Validation Issues
+
+✅ No issues found (simulated deployment).
+
 ## Deployment Details
 
 | Field               | Value                                |

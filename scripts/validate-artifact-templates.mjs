@@ -43,6 +43,7 @@ const ARTIFACT_HEADINGS = {
     "## Network Policies",
   ],
   "06-deployment-summary.md": [
+    "## Preflight Validation",
     "## Deployment Details",
     "## Deployed Resources",
     "## Outputs (Expected)",
