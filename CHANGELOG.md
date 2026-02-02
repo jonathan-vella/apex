@@ -5,6 +5,10 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.5.0] - 2026-02-02
+
+- feat(mcp): upgrade Azure Pricing MCP from v2.1.0 to v3.1.0 (#62)
+
 ## [7.4.0] - 2026-01-23
 
 - feat(workflow): Implement automated versioning and branch protection (#40)
