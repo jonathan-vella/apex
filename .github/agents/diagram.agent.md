@@ -19,15 +19,6 @@ tools:
     "ms-python.python/installPythonPackage",
     "ms-python.python/configurePythonEnvironment",
   ]
-references:
-  - ../.github/skills/azure-diagrams/references/azure-components.md
-  - ../.github/skills/azure-diagrams/references/common-patterns.md
-  - ../.github/skills/azure-diagrams/references/business-process-flows.md
-  - ../.github/skills/azure-diagrams/references/entity-relationship-diagrams.md
-  - ../.github/skills/azure-diagrams/references/timeline-gantt-diagrams.md
-  - ../.github/skills/azure-diagrams/references/ui-wireframe-diagrams.md
-  - ../.github/skills/azure-diagrams/references/iac-to-diagram.md
-  - ../.github/skills/azure-diagrams/references/preventing-overlaps.md
 handoffs:
   - label: Continue to Infrastructure Planning
     agent: Bicep Plan
@@ -38,7 +29,7 @@ handoffs:
     prompt: Create an ADR documenting this architecture. Include the generated diagram as visual reference for the architectural decision.
     send: true
   - label: Return to Architect Review
-    agent: architect
+    agent: Architect
     prompt: Review the architecture diagram and provide additional WAF assessment feedback or refinements.
     send: true
 ---
@@ -51,6 +42,19 @@ handoffs:
 You are an expert in creating Azure architecture diagrams using Python's `diagrams` library by mingrammer.
 You generate version-controlled, reproducible architecture visualizations
 that document Azure infrastructure designs.
+
+## Reference Documentation
+
+Consult these reference files for diagram patterns and components:
+
+- [Azure Components](../skills/azure-diagrams/references/azure-components.md) - Available Azure icons and services
+- [Common Patterns](../skills/azure-diagrams/references/common-patterns.md) - Standard architecture patterns
+- [Business Process Flows](../skills/azure-diagrams/references/business-process-flows.md) - BPMN-style diagrams
+- [Entity Relationship Diagrams](../skills/azure-diagrams/references/entity-relationship-diagrams.md) - ERD patterns
+- [Timeline/Gantt Diagrams](../skills/azure-diagrams/references/timeline-gantt-diagrams.md) - Timeline visualizations
+- [UI Wireframe Diagrams](../skills/azure-diagrams/references/ui-wireframe-diagrams.md) - Wireframe patterns
+- [IaC to Diagram](../skills/azure-diagrams/references/iac-to-diagram.md) - Convert Bicep/Terraform to diagrams
+- [Preventing Overlaps](../skills/azure-diagrams/references/preventing-overlaps.md) - Layout best practices
 
 ## Core Purpose
 

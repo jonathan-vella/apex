@@ -106,7 +106,7 @@ Traditional infrastructure design involves:
 **Usage**: Always start with `@requirements` for multi-step infrastructure projects.
 The plan ensures all requirements are considered before any code changes.
 
-### Step 2: Azure Principal Architect (`architect`)
+### Step 2: Architect (`architect`)
 
 - **Purpose**: Azure Well-Architected Framework assessment (NO CODE CREATION)
 - **Input**: Business requirements, constraints, technical needs
@@ -566,13 +566,13 @@ Before starting, gauge your audience:
 
 ### Common Stumbling Points
 
-| Phase                    | Issue                         | How to Help                                    |
-| ------------------------ | ----------------------------- | ---------------------------------------------- |
-| Step 1 (Project Planner) | "Where's the Plan Agent?"     | Show `Ctrl+Alt+I` agent picker                 |
-| Step 2 (Architect)       | "Why no code?"                | Emphasize WAF guidance vs implementation       |
-| Step 4 (bicep-plan)      | "Too much output"             | Use collapsible sections, focus on key modules |
-| Step 5 (bicep-code)      | "Validation errors"           | Expected! Show iterative refinement            |
-| Handoffs                 | "Lost context between agents" | Demonstrate UI handoff buttons                 |
+| Phase                 | Issue                         | How to Help                                    |
+| --------------------- | ----------------------------- | ---------------------------------------------- |
+| Step 1 (Requirements) | "Where's the Plan Agent?"     | Show `Ctrl+Alt+I` agent picker                 |
+| Step 2 (Architect)    | "Why no code?"                | Emphasize WAF guidance vs implementation       |
+| Step 4 (Bicep Plan)   | "Too much output"             | Use collapsible sections, focus on key modules |
+| Step 5 (Bicep Code)   | "Validation errors"           | Expected! Show iterative refinement            |
+| Handoffs              | "Lost context between agents" | Demonstrate UI handoff buttons                 |
 
 ### Facilitation Tips
 

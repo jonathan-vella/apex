@@ -10,7 +10,6 @@ tools:
     "edit",
     "search",
     "web",
-    "microsoft-docs/*",
     "azure-mcp/*",
     "todo",
     "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
@@ -31,7 +30,7 @@ handoffs:
     prompt: Create a detailed implementation plan for the architecture decision documented in the ADR above. Include resource breakdown, dependencies, and implementation tasks.
     send: true
   - label: Generate Architecture Diagram
-    agent: Azure Diagram Generator
+    agent: Diagram
     prompt: Generate a Python architecture diagram to visualize the architectural decision documented in the ADR. Include relevant Azure resources and relationships.
     send: true
 ---
@@ -65,7 +64,7 @@ All ADRs must consider CAF best practices:
 
 When creating ADRs that impact architecture:
 
-- Reference WAF pillar assessments from the `architect` agent
+- Reference WAF pillar assessments from the `Architect` agent
 - Document trade-offs between WAF pillars (Security, Reliability, Performance, Cost, Operations)
 - Include WAF-specific consequences in the Consequences section
 - Note which WAF pillar is being optimized and what is being sacrificed

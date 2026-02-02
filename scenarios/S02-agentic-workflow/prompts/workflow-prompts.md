@@ -165,7 +165,7 @@ Click **"Hand off to implementation agent"** or manually:
 
 ---
 
-## Stage 1: Azure Principal Architect
+## Stage 1: Architect
 
 **Agent:** `architect`  
 **Objective:** Get architecture recommendations with WAF assessment and cost estimates

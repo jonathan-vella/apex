@@ -52,10 +52,10 @@ handoffs:
 
 ### `handoffs`
 
-- Use `handoffs` to connect workflow steps (for example: architect -> plan -> implement).
+- Use `handoffs` to connect workflow steps (for example: Architect -> Bicep Plan -> Bicep Code).
 - Only reference agents that actually exist in the repo.
-- Use the agent's display `name` (from frontmatter) as the `agent` value, not the file stem.
-  For example: `agent: Azure Principal Architect` (not `agent: architect`).
+- Use Title Case for the `agent` value matching the agent's display `name` (from frontmatter).
+  For example: `agent: Architect` (matching `name: Architect` in frontmatter).
 
 ## Shared Defaults (Required)
 
