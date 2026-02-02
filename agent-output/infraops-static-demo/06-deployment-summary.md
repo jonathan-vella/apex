@@ -18,12 +18,12 @@
 
 ### Change Summary
 
-| Change Type  | Count | Resources Affected                              |
-| ------------ | ----- | ----------------------------------------------- |
+| Change Type  | Count | Resources Affected                                  |
+| ------------ | ----- | --------------------------------------------------- |
 | Create (+)   | 4     | Log Analytics, App Insights, Static Web App, Config |
-| Delete (-)   | 0     | —                                               |
-| Modify (~)   | 0     | —                                               |
-| NoChange (=) | 0     | —                                               |
+| Delete (-)   | 0     | —                                                   |
+| Modify (~)   | 0     | —                                                   |
+| NoChange (=) | 0     | —                                                   |
 
 ### Validation Issues
 
@@ -240,16 +240,16 @@ az deployment group list \
 
 ### Workflow Progress
 
-| Step  | Agent                     | Artifact                          | Status               |
-| ----- | ------------------------- | --------------------------------- | -------------------- |
-| 1     | plan           | 01-requirements.md                | ✅ Complete          |
-| 2     | architect | 02-architecture-assessment.md     | ✅ Complete          |
-| 3     | diagram         | 03-des-diagram.png                | ✅ Complete          |
-| 3     | cost-estimate             | 03-des-cost-estimate.md           | ✅ Complete          |
-| 4     | bicep-plan                | 04-implementation-plan.md         | ✅ Complete          |
-| 5     | bicep-code           | infra/bicep/infraops-static-demo/ | ✅ Complete          |
-| **6** | **deploy**                | **06-deployment-summary.md**      | ✅ **This document** |
-| 7     | workload-documentation    | 07-\*.md                          | ⏳ Pending           |
+| Step  | Agent                  | Artifact                          | Status               |
+| ----- | ---------------------- | --------------------------------- | -------------------- |
+| 1     | plan                   | 01-requirements.md                | ✅ Complete          |
+| 2     | architect              | 02-architecture-assessment.md     | ✅ Complete          |
+| 3     | diagram                | 03-des-diagram.png                | ✅ Complete          |
+| 3     | cost-estimate          | 03-des-cost-estimate.md           | ✅ Complete          |
+| 4     | bicep-plan             | 04-implementation-plan.md         | ✅ Complete          |
+| 5     | bicep-code             | infra/bicep/infraops-static-demo/ | ✅ Complete          |
+| **6** | **deploy**             | **06-deployment-summary.md**      | ✅ **This document** |
+| 7     | workload-documentation | 07-\*.md                          | ⏳ Pending           |
 
 ---
 
