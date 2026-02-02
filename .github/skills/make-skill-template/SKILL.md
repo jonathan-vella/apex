@@ -1,11 +1,19 @@
 ---
 name: make-skill-template
-description: 'Create new Agent Skills for GitHub Copilot from prompts or by duplicating this template. Use when asked to "create a skill", "make a new skill", "scaffold a skill", or when building specialized AI capabilities with bundled resources. Generates SKILL.md files with proper frontmatter, directory structure, and optional scripts/references/assets folders.'
+# yamllint disable-line rule:line-length
+description: >
+  Create new Agent Skills for GitHub Copilot from prompts or by duplicating
+  this template. Use when asked to "create a skill", "make a new skill",
+  "scaffold a skill", or when building specialized AI capabilities with
+  bundled resources. Generates SKILL.md files with proper frontmatter,
+  directory structure, and optional scripts/references/assets folders.
 ---
 
 # Make Skill Template
 
-A meta-skill for creating new Agent Skills. Use this skill when you need to scaffold a new skill folder, generate a SKILL.md file, or help users understand the Agent Skills specification.
+A meta-skill for creating new Agent Skills. Use this skill when you need to scaffold
+a new skill folder, generate a SKILL.md file, or help users understand the Agent Skills
+specification.
 
 ## When to Use This Skill
 
@@ -64,7 +72,11 @@ description: '<What it does>. Use when <specific triggers, scenarios, keywords u
 **Good example:**
 
 ```yaml
-description: 'Toolkit for testing local web applications using Playwright. Use when asked to verify frontend functionality, debug UI behavior, capture browser screenshots, or view browser console logs. Supports Chrome, Firefox, and WebKit.'
+description: >
+  Toolkit for testing local web applications using Playwright.
+  Use when asked to verify frontend functionality, debug UI behavior,
+  capture browser screenshots, or view browser console logs.
+  Supports Chrome, Firefox, and WebKit.
 ```
 
 **Poor example:**

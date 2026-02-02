@@ -4,7 +4,8 @@ This reference documents common errors during preflight validation and how to ha
 
 ## Core Principle
 
-**Continue on failure.** Capture all issues in the final report rather than stopping at the first error. This gives users a complete picture of what needs to be fixed.
+**Continue on failure.** Capture all issues in the final report rather than stopping at
+the first error. This gives users a complete picture of what needs to be fixed.
 
 ---
 
@@ -96,8 +97,10 @@ to perform action '...' over scope '...'
 - **Severity:** Warning
 - **Source:** what-if
 - **Message:** Full RBAC validation failed; using read-only validation
-- **Detail:** Missing permission: `Microsoft.Resources/deployments/write` on scope `/subscriptions/xxx`
-- **Recommendation:** Request Contributor role on the target resource group, or verify deployment permissions with your administrator
+- **Detail:** Missing permission: `Microsoft.Resources/deployments/write`
+  on scope `/subscriptions/xxx`
+- **Recommendation:** Request Contributor role on the target resource group, or verify
+  deployment permissions with your administrator
 ```
 
 ### Resource Group Not Found
@@ -209,8 +212,8 @@ az: command not found
 **Handling:**
 1. Note in report
 2. Provide installation instructions.
-  - If available use the Azure MCP `extension_cli_install` tool to get installation instructions.
-  - Otherwise look for instructions at https://learn.microsoft.com/en-us/cli/azure/install-azure-cli.
+   - If available use the Azure MCP `extension_cli_install` tool to get installation instructions.
+   - Otherwise look for instructions at https://learn.microsoft.com/en-us/cli/azure/install-azure-cli.
 3. Skip az commands
 
 **Report Entry:**
