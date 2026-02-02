@@ -34,6 +34,19 @@ real-time Azure pricing information to AI assistants.
 
 [azure-pricing]: https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices
 
+## Azure Diagrams Skill Contributors
+
+The [Azure Diagrams Skill](.github/skills/azure-diagrams/) provides comprehensive technical
+diagramming capabilities for architecture documentation.
+
+### Original Author
+
+- **cmb211087** ([@cmb211087](https://github.com/cmb211087)) - Created the Azure Diagrams Skill
+
+### Source Repository
+
+- [azure-diagrams-skill](https://github.com/cmb211087/azure-diagrams-skill) - Original skill implementation
+
 ## How to Contribute
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get involved.
