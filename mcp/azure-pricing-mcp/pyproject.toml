@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "azure-pricing-mcp"
-version = "2.1.0"
+version = "3.1.0"
 description = "A Model Context Protocol server for querying Azure retail pricing information"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -37,6 +37,7 @@ dependencies = [
     "uvicorn>=0.27.0",
     "starlette>=0.36.0",
     "sse-starlette>=1.8.0",
+    "azure-identity>=1.15.0",
 ]
 
 [project.optional-dependencies]

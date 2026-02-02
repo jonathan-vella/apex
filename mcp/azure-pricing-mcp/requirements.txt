@@ -18,6 +18,9 @@ uvicorn>=0.27.0
 starlette>=0.36.0
 sse-starlette>=1.8.0
 
+# Azure authentication (for Spot VM tools)
+azure-identity>=1.15.0
+
 # Testing dependencies
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
