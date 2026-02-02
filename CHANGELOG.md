@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.5.0] - 2026-02-02
 
-- feat(mcp): upgrade Azure Pricing MCP from v2.1.0 to v3.1.0 (#62)
+### Added
+
+- **Agent-to-Skill Migration Plan** - Comprehensive plan to reduce agents from 9 to 6
+  - Convert `diagram`, `adr`, `docs` agents to skills
+  - Create new `azure-adr` and `azure-workload-docs` skills
+  - Enhance `azure-diagrams` skill with agent patterns
+  - Enhance `make-skill-template` as interactive skill-creator
+  - Plan saved to `plan-agentToSkillMigration.prompt.md`
+
+### Changed
+
+- **README.md** - Complete format overhaul to match SMB-LZ polished style
+  - Added centered robot logo from Fluent UI emoji
+  - Added project shields with reference-style markdown links
+  - Added table of contents in collapsible details block
+  - Added emoji section headers and back-to-top navigation
+  - Added Built With tech stack badges
+
+### Fixed
+
+- **Skills Lint Fixes** - Resolved 7 markdown lint errors in skill files
+  - `.github/skills/azure-deployment-preflight/SKILL.md`
+  - `.github/skills/make-skill-template/SKILL.md`
+  - `.github/skills/azure-deployment-preflight/references/ERROR-HANDLING.md`
 
 ## [7.4.0] - 2026-01-23
 

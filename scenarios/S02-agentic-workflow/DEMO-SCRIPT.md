@@ -135,7 +135,7 @@ Please help me:
 
 **[Select `architect` from Custom Agents dropdown - `Ctrl+Alt+I`]**
 
-"Now I'm switching to our **Azure Principal Architect** custom agent. The plan context carries forward automatically."
+"Now I'm switching to our **Architect** custom agent. The plan context carries forward automatically."
 
 **[Open `prompts/workflow-prompts.md` and copy Stage 1 prompt]**
 

@@ -18,12 +18,15 @@ on:
       - .github/templates/07-compliance-matrix.template.md
       - .github/templates/07-documentation-index.template.md
       # Agents
-      - .github/agents/project-planner.agent.md
-      - .github/agents/azure-principal-architect.agent.md
+      - .github/agents/requirements.agent.md
+      - .github/agents/architect.agent.md
       - .github/agents/bicep-plan.agent.md
-      - .github/agents/bicep-implement.agent.md
+      - .github/agents/bicep-code.agent.md
       - .github/agents/deploy.agent.md
-      - .github/agents/workload-documentation-generator.agent.md
+      - .github/agents/docs.agent.md
+      - .github/agents/diagram.agent.md
+      - .github/agents/adr.agent.md
+      - .github/agents/diagnose.agent.md
       # Instructions and validation
       - .github/instructions/markdown.instructions.md
       - scripts/validate-artifact-templates.mjs
@@ -44,12 +47,15 @@ on:
       - .github/templates/07-compliance-matrix.template.md
       - .github/templates/07-documentation-index.template.md
       # Agents
-      - .github/agents/project-planner.agent.md
-      - .github/agents/azure-principal-architect.agent.md
+      - .github/agents/requirements.agent.md
+      - .github/agents/architect.agent.md
       - .github/agents/bicep-plan.agent.md
-      - .github/agents/bicep-implement.agent.md
+      - .github/agents/bicep-code.agent.md
       - .github/agents/deploy.agent.md
-      - .github/agents/workload-documentation-generator.agent.md
+      - .github/agents/docs.agent.md
+      - .github/agents/diagram.agent.md
+      - .github/agents/adr.agent.md
+      - .github/agents/diagnose.agent.md
       # Instructions and validation
       - .github/instructions/markdown.instructions.md
       - scripts/validate-artifact-templates.mjs

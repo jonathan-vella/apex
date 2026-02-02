@@ -210,13 +210,13 @@ Azure Front Door (WAF) → App Service (P1v4 zone-redundant)
 
 ## Approval Gate
 
-| Checkpoint                   | Status | Approver                  |
-| ---------------------------- | ------ | ------------------------- |
-| Architecture review complete | ✅     | Azure Principal Architect |
-| Cost estimate within budget  | ✅     | ~$1,250/month             |
-| Security requirements met    | ✅     | PCI-DSS aligned           |
-| Ready for bicep-plan         | ✅     | Proceed to Step 4         |
+| Checkpoint                   | Status | Approver          |
+| ---------------------------- | ------ | ----------------- |
+| Architecture review complete | ✅     | Architect         |
+| Cost estimate within budget  | ✅     | ~$1,250/month     |
+| Security requirements met    | ✅     | PCI-DSS aligned   |
+| Ready for Bicep Plan         | ✅     | Proceed to Step 4 |
 
 ---
 
-_Assessment completed. Proceed to bicep-plan agent for implementation planning._
+_Assessment completed. Proceed to Bicep Plan agent for implementation planning._

@@ -11,25 +11,25 @@ mkdir -p "$FRAMES_DIR"
 
 echo "=== Generating workflow animation frames ==="
 
-# Step 1: Project Planner only
+# Step 1: Requirements only
 cat > "$FRAMES_DIR/step1.mmd" << 'EOF'
 %%{init: {'theme':'neutral'}}%%
 graph LR
     subgraph "Step 1: Requirements"
-        P["Project Planner"]
+        P["Requirements"]
     end
     style P fill:#e1f5fe
 EOF
 
-# Step 2: Project Planner -> architect
+# Step 2: Requirements -> Architect
 cat > "$FRAMES_DIR/step2.mmd" << 'EOF'
 %%{init: {'theme':'neutral'}}%%
 graph LR
     subgraph "Step 1: Requirements"
-        P["Project Planner"]
+        P["Requirements"]
     end
     subgraph "Step 2: Architecture"
-        A["azure-principal-<br/>architect"]
+        A["Architect"]
     end
     P -->|requirements| A
     style P fill:#e1f5fe
@@ -41,12 +41,12 @@ cat > "$FRAMES_DIR/step3.mmd" << 'EOF'
 %%{init: {'theme':'neutral'}}%%
 graph LR
     subgraph "Step 1: Requirements"
-        P["Project Planner"]
+        P["Requirements"]
     end
     subgraph "Step 2: Architecture"
-        A["azure-principal-<br/>architect"]
+        A["Architect"]
         MCP["💰 Azure Pricing<br/>MCP"]
-        D["📊 diagram-<br/>generator"]
+        D["📊 Diagram"]
     end
     P -->|requirements| A
     MCP -.->|"real-time<br/>pricing"| A
@@ -57,20 +57,20 @@ graph LR
     style D fill:#f3e5f5
 EOF
 
-# Step 4: Add bicep-plan
+# Step 4: Add Bicep Plan
 cat > "$FRAMES_DIR/step4.mmd" << 'EOF'
 %%{init: {'theme':'neutral'}}%%
 graph LR
     subgraph "Step 1: Requirements"
-        P["Project Planner"]
+        P["Requirements"]
     end
     subgraph "Step 2: Architecture"
-        A["azure-principal-<br/>architect"]
+        A["Architect"]
         MCP["💰 Azure Pricing<br/>MCP"]
-        D["📊 diagram-<br/>generator"]
+        D["📊 Diagram"]
     end
     subgraph "Step 3: Planning"
-        B["bicep-plan"]
+        B["Bicep Plan"]
     end
     P -->|requirements| A
     A --> B
@@ -88,18 +88,18 @@ cat > "$FRAMES_DIR/step5.mmd" << 'EOF'
 %%{init: {'theme':'neutral'}}%%
 graph LR
     subgraph "Step 1: Requirements"
-        P["Project Planner"]
+        P["Requirements"]
     end
     subgraph "Step 2: Architecture"
-        A["azure-principal-<br/>architect"]
+        A["Architect"]
         MCP["💰 Azure Pricing<br/>MCP"]
-        D["📊 diagram-<br/>generator"]
+        D["📊 Diagram"]
     end
     subgraph "Step 3: Planning"
-        B["bicep-plan"]
+        B["Bicep Plan"]
     end
     subgraph "Step 4: Implementation"
-        I["bicep-implement"]
+        I["Bicep Code"]
     end
     P -->|requirements| A
     A --> B

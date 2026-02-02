@@ -137,12 +137,12 @@ structured implementation plan:
 ### Recommended Next Steps
 
 1. **Document Key Decisions**: Use ADR Generator to capture architectural choices
-2. **Get Architecture Assessment**: Use Azure Principal Architect for WAF scoring
-3. **Create Implementation Plan**: Use Bicep Planning Specialist for detailed specs
-4. **Generate Infrastructure Code**: Use Bicep Implementation Specialist
+2. **Get Architecture Assessment**: Use Architect for WAF scoring
+3. **Create Implementation Plan**: Use Bicep Plan for detailed specs
+4. **Generate Infrastructure Code**: Use Bicep Code
 
 **Would you like me to hand off to the ADR Generator to document the key architectural
-decisions, or proceed directly to the Azure Principal Architect for detailed assessment?**
+decisions, or proceed directly to the Architect for detailed assessment?**
 
 ---
 
@@ -215,7 +215,7 @@ architecture-specific questions:
 ### Contoso Healthcare Patient Portal
 
 **Assessment Date**: November 2025  
-**Assessed By**: Azure Principal Architect Agent  
+**Assessed By**: Architect Agent  
 **Confidence Level**: High (comprehensive requirements provided)
 
 ---
