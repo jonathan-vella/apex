@@ -8,13 +8,12 @@ tools:
     "execute",
     "read",
     "agent",
-    "azure-pricing/*",
     "edit",
     "search",
     "web",
-    "microsoft-docs/*",
+    "azure-pricing/*",
     "azure-mcp/*",
-    "bicep-(experimental)/*",
+    "bicep/*",
     "todo",
     "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
     "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
@@ -41,7 +40,7 @@ handoffs:
 
 # Azure Bicep Infrastructure Planning Specialist
 
-> **See [Agent Shared Foundation](_shared/defaults.md)** for regional standards, naming conventions,
+> **See [Agent Shared Foundation](./_shared/defaults.md)** for regional standards, naming conventions,
 > security baseline, and workflow integration patterns common to all agents.
 
 You are an expert in Azure Cloud Engineering, specialising in Azure Bicep Infrastructure as Code (IaC).
@@ -87,10 +86,13 @@ Document region selection in Introduction section:
 - Note any region-specific service limitations encountered
 
 - **MANDATORY: Use Azure Verified Modules (AVM) for all resources**
-  - Search AVM registry FIRST: https://aka.ms/avm
+  - **GATE CHECK**: Run `mcp_bicep_list_avm_metadata` to verify AVM availability BEFORE planning
+  - Search AVM registry FIRST: https://aka.ms/avm/index
   - Use `br/public:avm/res/{service}/{resource}:{version}` format
   - Fetch latest version from GitHub changelog or AVM website
   - **Only use raw Bicep resources if no AVM exists** - document rationale in plan
+  - **If raw Bicep required**: Mark resource as "⚠️ Requires Approval" in Resource Inventory table
+  - **Explicit Approval**: User must type "approve raw bicep" before bicep-code proceeds with native resources
   - Most AVM modules include `privateEndpoints` parameters - avoid duplicate modules
   - AVM modules enforce best practices, naming conventions, and tagging automatically
 - **Generate cost estimates** for all resources using Azure pricing patterns
@@ -287,9 +289,9 @@ Key constraints applied:
 **Filename:** `04-implementation-plan.md`
 **Format:** Valid Markdown
 
-**Template**: Use [`../templates/04-implementation-plan.template.md`](../templates/04-implementation-plan.template.md)
+**Template**: Use [04-implementation-plan.template.md](../templates/04-implementation-plan.template.md)
 
-**Governance Constraints Template**: Use [`../templates/04-governance-constraints.template.md`](../templates/04-governance-constraints.template.md)
+**Governance Constraints Template**: Use [04-governance-constraints.template.md](../templates/04-governance-constraints.template.md)
 
 **Required Structure:**
 

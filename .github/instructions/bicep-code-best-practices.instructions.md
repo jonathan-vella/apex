@@ -7,22 +7,23 @@ applyTo: "**/*.bicep"
 
 ## Quick Reference
 
-| Rule | Standard |
-|------|----------|
-| Region | `swedencentral` (alt: `germanywestcentral`) |
-| Unique suffix | `var uniqueSuffix = uniqueString(resourceGroup().id)` in main.bicep |
-| AVM first | Use Azure Verified Modules when available |
-| Tags | Environment, ManagedBy, Project, Owner on ALL resources |
+| Rule          | Standard                                                             |
+| ------------- | -------------------------------------------------------------------- |
+| Region        | `swedencentral` (alt: `germanywestcentral`)                          |
+| Unique suffix | `var uniqueSuffix = uniqueString(resourceGroup().id)` in main.bicep  |
+| AVM first     | **MANDATORY** - Use Azure Verified Modules where available           |
+| Tags          | Environment, ManagedBy, Project, Owner on ALL resources              |
+| VM Backup     | Add `Backup: 'true'` tag on VMs for auto-enrollment via Azure Policy |
 
 ## Naming Conventions
 
 ### Resource Patterns
 
-| Resource | Max | Pattern | Example |
-|----------|-----|---------|---------|
-| Storage | 24 | `st{project}{env}{suffix}` | `stcontosodev7xk2` |
-| Key Vault | 24 | `kv-{project}-{env}-{suffix}` | `kv-contoso-dev-abc123` |
-| SQL Server | 63 | `sql-{project}-{env}-{suffix}` | `sql-contoso-dev-abc123` |
+| Resource   | Max | Pattern                        | Example                  |
+| ---------- | --- | ------------------------------ | ------------------------ |
+| Storage    | 24  | `st{project}{env}{suffix}`     | `stcontosodev7xk2`       |
+| Key Vault  | 24  | `kv-{project}-{env}-{suffix}`  | `kv-contoso-dev-abc123`  |
+| SQL Server | 63  | `sql-{project}-{env}-{suffix}` | `sql-contoso-dev-abc123` |
 
 ### Identifiers
 
@@ -97,34 +98,48 @@ output principalId string = resource.identity.principalId
 
 ## Azure Verified Modules (AVM)
 
+**MANDATORY: Use AVM modules for ALL resources where an AVM module exists.**
+
+Raw Bicep is only permitted when no AVM module exists AND user explicitly approves.
+Document the rationale in implementation reference.
+
 ```bicep
-// ✅ Use AVM
+// ✅ Use AVM for Key Vault
 module keyVault 'br/public:avm/res/key-vault/vault:0.11.0' = {
   params: { name: kvName, location: location, tags: tags }
 }
 
-// ❌ Only use raw resources if no AVM exists (document why)
+// ❌ Only use raw resources if no AVM exists
+// Requires explicit user approval: "approve raw bicep"
 ```
+
+### AVM Approval Workflow
+
+1. **Check AVM availability**: Use `mcp_bicep_list_avm_metadata` or https://aka.ms/avm/index
+2. **If AVM exists**: Use `br/public:avm/res/{service}/{resource}:{version}`
+3. **If no AVM**: STOP and ask user: "No AVM module found for {resource}. Type **approve raw bicep** to proceed."
+4. **If approved**: Document justification in implementation reference
 
 ## Patterns to Avoid
 
-| Anti-Pattern | Problem | Solution |
-|--------------|---------|----------|
-| Hardcoded names | Collisions | Use `uniqueString()` suffix |
-| Missing `@description` | Poor docs | Document all parameters |
-| Explicit `dependsOn` | Unnecessary | Use symbolic references |
-| Resource ID for scope | BCP036 error | Use `existing` + names |
-| S1 for zone redundancy | Policy blocks | Use P1v3+ |
-| `RequestHeaders` | ARM error | Use `RequestHeader` (singular) |
-| WAF policy hyphens | Validation fails | `wafpolicy{name}` alphanumeric only |
+| Anti-Pattern           | Problem          | Solution                            |
+| ---------------------- | ---------------- | ----------------------------------- |
+| Hardcoded names        | Collisions       | Use `uniqueString()` suffix         |
+| Missing `@description` | Poor docs        | Document all parameters             |
+| Explicit `dependsOn`   | Unnecessary      | Use symbolic references             |
+| Resource ID for scope  | BCP036 error     | Use `existing` + names              |
+| S1 for zone redundancy | Policy blocks    | Use P1v3+                           |
+| `RequestHeaders`       | ARM error        | Use `RequestHeader` (singular)      |
+| WAF policy hyphens     | Validation fails | `wafpolicy{name}` alphanumeric only |
+| Raw Bicep (no AVM)     | Policy drift     | Use AVM modules or get approval     |
 
 ## Zone Redundancy SKUs
 
-| SKU | Zone Redundancy | Use Case |
-|-----|-----------------|----------|
-| S1/S2 | ❌ Not supported | Dev/test |
-| P1v3/P2v3 | ✅ Supported | Production |
-| P1v4/P2v4 | ✅ Supported | Production (latest) |
+| SKU       | Zone Redundancy  | Use Case            |
+| --------- | ---------------- | ------------------- |
+| S1/S2     | ❌ Not supported | Dev/test            |
+| P1v3/P2v3 | ✅ Supported     | Production          |
+| P1v4/P2v4 | ✅ Supported     | Production (latest) |
 
 ## Deployment Scripts
 

@@ -125,12 +125,14 @@ If requirements are incomplete, respond:
 **Well-Architected Framework (WAF) is mandatory for all assessments.**
 Always evaluate all 5 pillars, even if not explicitly requested.
 
-**Azure Verified Modules (AVM) Preference:**
+**Azure Verified Modules (AVM) - MANDATORY:**
 
-- **Strongly recommend AVM modules** when available for infrastructure implementations
-- Document rationale if raw Bicep resources are used instead
+- **MUST use AVM modules** for all infrastructure implementations where available
+- **Verify AVM availability** at https://aka.ms/avm/index before recommending any resource
+- Document explicit rationale if raw Bicep resources are recommended instead
 - Reference AVM registry (https://aka.ms/avm) and GitHub repository for latest versions
 - AVM modules enforce best practices, naming conventions, and tagging automatically
+- **Include AVM verification** in all architecture recommendations
 
 **WAF Pillar Assessment**: For every architectural decision, evaluate against all 5 WAF pillars and provide scores:
 

@@ -32,6 +32,7 @@ All Azure resources MUST include these tags:
 | `Owner`        | ✅ Yes   | Team or individual     | `platform-team`, `john.doe`          |
 | `CostCenter`   | Optional | Billing allocation     | `CC-12345`                           |
 | `WorkloadType` | Optional | Resource category      | `app`, `data`, `network`, `security` |
+| `Backup`       | Optional | Enable VM auto-backup  | `true` (triggers Azure Policy)       |
 
 ### Bicep Tag Pattern
 
@@ -80,7 +81,22 @@ Follow Cloud Adoption Framework pattern: `{type}-{workload}-{env}-{region}-{inst
 
 ## Azure Verified Modules (AVM)
 
-**Always prefer AVM modules over raw Bicep resources.**
+**MANDATORY: MUST use AVM modules for all resources where available.**
+
+Raw Bicep resources are only permitted when:
+
+1. No AVM module exists for the resource type (verified at https://aka.ms/avm/index)
+2. User explicitly types "approve raw bicep" when prompted
+3. The rationale is documented in the implementation plan/reference
+
+### AVM Approval Workflow
+
+| Step | Action |
+|------|--------|
+| 1 | Check `mcp_bicep_list_avm_metadata` or https://aka.ms/avm/index for module availability |
+| 2 | If AVM exists: Use `br/public:avm/res/{service}/{resource}:{version}` |
+| 3 | If no AVM: **STOP** and prompt user: "No AVM module found for {resource}. Type **approve raw bicep** to proceed." |
+| 4 | If approved: Document justification in implementation artifacts |
 
 ### AVM Registry
 

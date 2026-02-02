@@ -1,6 +1,6 @@
 ---
 name: Diagram
-description: Generates Python architecture diagrams for Azure infrastructure using the 'diagrams' library by mingrammer. Creates version-controlled, reproducible architecture visualizations that can be regenerated as PNG images.
+description: Generates Python architecture diagrams for Azure infrastructure using the 'diagrams' library by mingrammer. Creates version-controlled, reproducible architecture visualizations that can be regenerated as PNG images. Supports Azure architectures, business process flows, ERD diagrams, timelines, and wireframes.
 tools:
   [
     "vscode",
@@ -19,6 +19,15 @@ tools:
     "ms-python.python/installPythonPackage",
     "ms-python.python/configurePythonEnvironment",
   ]
+references:
+  - ../.github/skills/azure-diagrams/references/azure-components.md
+  - ../.github/skills/azure-diagrams/references/common-patterns.md
+  - ../.github/skills/azure-diagrams/references/business-process-flows.md
+  - ../.github/skills/azure-diagrams/references/entity-relationship-diagrams.md
+  - ../.github/skills/azure-diagrams/references/timeline-gantt-diagrams.md
+  - ../.github/skills/azure-diagrams/references/ui-wireframe-diagrams.md
+  - ../.github/skills/azure-diagrams/references/iac-to-diagram.md
+  - ../.github/skills/azure-diagrams/references/preventing-overlaps.md
 handoffs:
   - label: Continue to Infrastructure Planning
     agent: Bicep Plan
@@ -169,6 +178,73 @@ resource1 >> [resource2, resource3]
 
 # Bidirectional
 resource1 >> resource2 >> resource1
+```
+
+## ⚠️ Professional Output Standards
+
+### The Key Setting: `labelloc='t'`
+
+To keep labels inside cluster boundaries, **put labels ABOVE icons**:
+
+```python
+node_attr = {
+    "fontname": "Arial Bold",
+    "fontsize": "11",
+    "labelloc": "t",  # KEY: Labels at TOP - stays inside clusters!
+}
+
+with Diagram("Title", node_attr=node_attr, ...):
+    # Your diagram code
+```
+
+### Full Professional Template
+
+```python
+graph_attr = {
+    "bgcolor": "white",
+    "pad": "0.8",
+    "nodesep": "0.9",
+    "ranksep": "0.9",
+    "splines": "spline",
+    "fontname": "Arial Bold",
+    "fontsize": "16",
+    "dpi": "200",              # High resolution
+}
+
+node_attr = {
+    "fontname": "Arial Bold",  # Bold for readability
+    "fontsize": "11",
+    "labelloc": "t",           # Labels ABOVE icons - KEY!
+}
+
+cluster_style = {"margin": "30", "fontname": "Arial Bold", "fontsize": "14"}
+```
+
+### Professional Standards Checklist
+
+| Check                      | Requirement                              |
+| -------------------------- | ---------------------------------------- |
+| ✅ **labelloc='t'**        | Labels above icons (stays in clusters)   |
+| ✅ **Bold fonts**          | `fontname="Arial Bold"` for readability  |
+| ✅ **Full resource names** | Actual names from IaC, not abbreviations |
+| ✅ **High DPI**            | `dpi="200"` for crisp text               |
+| ✅ **Azure icons**         | Use `diagrams.azure.*` components        |
+| ✅ **Cluster margins**     | `margin="30"` or higher                  |
+
+**⚠️ ALWAYS review the output image before delivering. If ANY text is outside boxes, increase margins or simplify clusters.**
+
+## Troubleshooting
+
+### Overlapping Nodes
+
+Increase spacing for complex diagrams:
+
+```python
+graph_attr={
+    "nodesep": "1.2",   # Horizontal (default 0.25)
+    "ranksep": "1.2",   # Vertical (default 0.5)
+    "pad": "0.5"
+}
 ```
 
 ## Output Pattern

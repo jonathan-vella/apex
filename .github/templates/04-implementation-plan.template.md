@@ -10,10 +10,11 @@ Brief description of what will be implemented.
 
 ## Resource Inventory
 
-| Resource   | Type                            | SKU | Dependencies |
-| ---------- | ------------------------------- | --- | ------------ |
-| Resource 1 | Microsoft.Provider/resourceType |     |              |
-| Resource 2 | Microsoft.Provider/resourceType |     |              |
+| Resource   | Type                            | SKU | AVM Status            | Dependencies |
+| ---------- | ------------------------------- | --- | --------------------- | ------------ |
+| Resource 1 | Microsoft.Provider/resourceType |     | ✅ AVM               |              |
+| Resource 2 | Microsoft.Provider/resourceType |     | ⚠️ Requires Approval |              |
+| Resource 3 | Microsoft.Provider/resourceType |     | ❌ No AVM (Justified) |              |
 
 ---
 

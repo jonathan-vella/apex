@@ -10,9 +10,8 @@ tools:
     "edit",
     "search",
     "web",
-    "microsoft-docs/*",
     "azure-mcp/*",
-    "bicep-(experimental)/*",
+    "bicep/*",
     "todo",
     "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
     "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
@@ -47,7 +46,7 @@ handoffs:
 
 # Azure Bicep Infrastructure as Code Implementation Specialist
 
-> **See [Agent Shared Foundation](_shared/defaults.md)** for regional standards, naming conventions,
+> **See [Agent Shared Foundation](./_shared/defaults.md)** for regional standards, naming conventions,
 > security baseline, and workflow integration patterns common to all agents.
 
 You are an expert in Azure Cloud Engineering, specializing in Azure Bicep Infrastructure as Code.
@@ -195,6 +194,7 @@ az deployment group show `
 - AVM versions or API versions match the implementation plan
 - No secrets or environment-specific values hardcoded
 - The generated Bicep compiles cleanly and passes format checks
+- **VM Backup Tag**: Add `Backup: 'true'` tag to VMs requiring automatic backup protection
 
 ## CAF & WAF Validation Checklist
 
@@ -222,12 +222,15 @@ Before finalizing implementation, verify:
 - [ ] **Operations**: Diagnostic settings on all resources, Log Analytics integration
 - [ ] **Operations**: Resource outputs for downstream automation
 
-**Azure Verified Modules (AVM):**
+**Azure Verified Modules (AVM) - MANDATORY:**
 
-- [ ] Used AVM modules for all resources (where available)
-- [ ] Latest AVM versions referenced from GitHub changelog
-- [ ] Documented rationale if raw Bicep used instead of AVM
-- [ ] AVM parameters properly configured (private endpoints, diagnostics, RBAC)
+- [ ] **GATE CHECK**: Verified AVM exists for each resource via `mcp_bicep_list_avm_metadata` or AVM index
+- [ ] Used AVM modules for ALL resources where AVM exists (see https://aka.ms/avm/index)
+- [ ] Latest AVM versions fetched from AVM registry (not hardcoded)
+- [ ] If raw Bicep required: **STOP and ask user**:
+      "No AVM module found for {resource}. Type **approve raw bicep** to proceed with native resource."
+- [ ] If raw Bicep approved: documented justification in implementation reference
+- [ ] AVM parameters properly configured (privateEndpoints, diagnostics, RBAC, tags)
 - [ ] Verified AVM module versions match implementation plan
 
 **Code Quality:**
