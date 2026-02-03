@@ -178,13 +178,13 @@ Follow these steps when generating documentation:
 
 **CRITICAL**: Templates define the H2 structure for each document.
 
-| Rule              | Requirement                                     |
-| ----------------- | ----------------------------------------------- |
-| **Exact text**    | Use template's H2 text verbatim                 |
-| **Exact order**   | Required H2s appear in template-defined order   |
-| **Anchor rule**   | Extra sections allowed only AFTER last H2       |
-| **No omissions**  | All template H2s must appear in output          |
-| **Attribution**   | Include generation date and source in header    |
+| Rule             | Requirement                                   |
+| ---------------- | --------------------------------------------- |
+| **Exact text**   | Use template's H2 text verbatim               |
+| **Exact order**  | Required H2s appear in template-defined order |
+| **Anchor rule**  | Extra sections allowed only AFTER last H2     |
+| **No omissions** | All template H2s must appear in output        |
+| **Attribution**  | Include generation date and source in header  |
 
 Example header format:
 

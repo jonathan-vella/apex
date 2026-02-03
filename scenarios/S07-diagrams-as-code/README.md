@@ -48,12 +48,12 @@ By the end of this demo, participants will understand:
 
 ## Related Resources
 
-| Resource                                                                   | Description                     |
-| -------------------------------------------------------------------------- | ------------------------------- |
-| [Azure Diagrams Skill](../../.github/skills/azure-diagrams/SKILL.md)       | Skill definition                |
-| [Workflow Guide](../../docs/workflow.md)                                   | Seven-step agentic workflow     |
-| [Presenter Toolkit](../../docs/presenter/)                                 | Demo delivery guides            |
-| [S02: Agentic Workflow](../S02-agentic-workflow/)                          | Integration with main workflow  |
+| Resource                                                             | Description                    |
+| -------------------------------------------------------------------- | ------------------------------ |
+| [Azure Diagrams Skill](../../.github/skills/azure-diagrams/SKILL.md) | Skill definition               |
+| [Workflow Guide](../../docs/workflow.md)                             | Seven-step agentic workflow    |
+| [Presenter Toolkit](../../docs/presenter/)                           | Demo delivery guides           |
+| [S02: Agentic Workflow](../S02-agentic-workflow/)                    | Integration with main workflow |
 
 ## The Challenge: Traditional Diagramming Pain Points
 

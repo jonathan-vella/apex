@@ -401,3 +401,74 @@ See `references/preventing-overlaps.md` for detailed guidance.
 | `references/preventing-overlaps.md`          | Layout troubleshooting guide                   |
 | `references/sequence-auth-flows.md`          | Authentication flow patterns                   |
 | `references/quick-reference.md`              | Copy-paste code snippets                       |
+
+## Workflow Integration
+
+This skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).
+
+| Workflow Step     | File Pattern                              | Description                         |
+| ----------------- | ----------------------------------------- | ----------------------------------- |
+| Step 3 (Design)   | `03-des-diagram.py`, `03-des-diagram.png` | Proposed architecture visualization |
+| Step 7 (As-Built) | `07-ab-diagram.py`, `07-ab-diagram.png`   | Deployed architecture documentation |
+
+### Artifact Suffix Convention
+
+Apply the appropriate suffix based on when the diagram is generated:
+
+- **`-des`**: Design diagrams (Step 3 artifacts)
+  - Example: `03-des-diagram.py`, `03-des-diagram.png`
+  - Represents: Proposed architecture, conceptual design
+  - Called after: Architecture assessment (Step 2)
+
+- **`-ab`**: As-built diagrams (Step 7 artifacts)
+  - Example: `07-ab-diagram.py`, `07-ab-diagram.png`
+  - Represents: Actual deployed infrastructure
+  - Called after: Deployment (Step 6)
+
+**Suffix Rules:**
+
+1. Design/proposal/planning language → use `-des`
+2. Deployed/implemented/current state language → use `-ab`
+
+## Generation Workflow
+
+Follow these steps when creating diagrams:
+
+1. **Gather Context** - Read Bicep templates, deployment summary, or architecture assessment
+2. **Identify Resources** - List all Azure resources to visualize
+3. **Determine Hierarchy** - Map Subscription → RG → VNet → Subnet structure
+4. **Generate Python Code** - Create diagram with proper clusters and edges
+5. **Execute Script** - Run Python to generate PNG
+6. **Verify Output** - Confirm PNG file was created successfully
+
+## Guardrails
+
+### DO
+
+- ✅ Create diagram files in `agent-output/{project}/`
+- ✅ Use step-prefixed filenames (`03-des-*` or `07-ab-*`)
+- ✅ Use valid `diagrams.azure.*` imports only
+- ✅ Include docstring with prerequisites and generation command
+- ✅ Match diagram to actual architecture design/deployment
+- ✅ Use `Cluster()` for Azure hierarchy (Subscription → RG → VNet → Subnet)
+- ✅ Include CIDR blocks in VNet/Subnet labels
+- ✅ **ALWAYS execute the Python script to generate the PNG file**
+- ✅ Verify PNG file exists after generation
+
+### DO NOT
+
+- ❌ Use invalid or made-up diagram node types
+- ❌ Create diagrams that don't match the actual architecture
+- ❌ Skip the PNG generation step
+- ❌ Overwrite existing diagrams without user consent
+- ❌ Output to legacy `docs/diagrams/` folder (use `agent-output/` instead)
+- ❌ Leave diagram in Python-only state without generating PNG
+- ❌ Use placeholder or generic names instead of actual resource names
+
+## What This Skill Does NOT Do
+
+- ❌ Generate Bicep or Terraform code (use `bicep-code` agent)
+- ❌ Create workload documentation (use `azure-workload-docs` skill)
+- ❌ Deploy resources (use `deploy` agent)
+- ❌ Create ADRs (use `azure-adr` skill)
+- ❌ Perform WAF assessments (use `architect` agent)
