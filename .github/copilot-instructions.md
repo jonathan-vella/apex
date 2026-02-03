@@ -140,7 +140,7 @@ The Azure Pricing MCP server (`.mcp/azure-pricing-mcp/`) integrates with agents 
 ```
 azure-agentic-infraops/
 ├── .github/
-│   ├── agents/                    # 6 agents for core workflow steps
+│   ├── agents/                    # Agents for core workflow steps
 │   │   ├── _shared/defaults.md    # Regions, tags, CAF naming, AVM standards
 │   │   ├── requirements.agent.md  # Step 1: Gather infrastructure needs
 │   │   ├── architect.agent.md     # Step 2: WAF assessment + cost estimates

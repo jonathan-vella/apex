@@ -4,7 +4,7 @@
 
 ## Overview
 
-Agentic InfraOps uses 6 agents and 9 skills to transform requirements into deployed Azure infrastructure.
+Agentic InfraOps uses agents and skills to transform requirements into deployed Azure infrastructure.
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%

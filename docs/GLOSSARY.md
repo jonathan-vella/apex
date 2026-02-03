@@ -16,7 +16,7 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project has 6 agents: requirements, architect, bicep-plan, bicep-code,
+Invoked via `Ctrl+Shift+A`. This project includes agents: requirements, architect, bicep-plan, bicep-code,
 deploy, diagnose.
 
 📁 **See**: [.github/agents/](../.github/agents/)
@@ -24,7 +24,7 @@ deploy, diagnose.
 ### Agentic InfraOps
 
 The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
-Azure infrastructure. Combines GitHub Copilot with 6 custom agents and 9 skills.
+Azure infrastructure. Combines GitHub Copilot with custom agents and reusable skills.
 
 ### AVM (Azure Verified Modules)
 
@@ -169,7 +169,7 @@ for Agentic InfraOps methodology.
 
 A reusable, domain-specific knowledge module in `.github/skills/` that provides specialized
 capabilities. Skills activate automatically based on prompt keywords or can be invoked explicitly.
-This project has 9 skills across document creation, workflow automation, and utility categories.
+Skills are organized across document creation, workflow automation, and utility categories.
 
 📁 **See**: [.github/skills/](../.github/skills/)
 

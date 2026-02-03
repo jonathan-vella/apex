@@ -240,9 +240,9 @@ Architecture diagrams as code using [mingrammer/diagrams](https://github.com/min
 ```
 ├── 📁 .devcontainer/          # Dev container configuration
 ├── 📁 .github/
-│   ├── 📁 agents/             # 6 Copilot agents for the 7-step workflow
+│   ├── 📁 agents/             # Copilot agents for the 7-step workflow
 │   ├── 📁 instructions/       # Guardrails and coding standards
-│   ├── 📁 skills/             # 10 agent skills (diagrams, ADR, docs, preflight)
+│   ├── 📁 skills/             # Reusable skills (diagrams, ADR, docs, preflight)
 │   ├── 📁 templates/          # Artifact output templates
 │   └── 📁 workflows/          # CI/CD and drift guard workflows
 ├── 📁 agent-output/           # Generated artifacts per project

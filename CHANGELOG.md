@@ -5,6 +5,46 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0] - 2026-02-03
+
+### Added
+
+- **Comprehensive Validation Framework** - 9-category content validation
+  - Version sync validation (`npm run lint:version-sync`)
+  - Internal/external link checking (lychee in CI)
+  - Deprecated reference detection (`npm run lint:deprecated-refs`)
+  - Grammar validation with Vale (Microsoft style)
+  - JSON/YAML syntax validation
+  - Python linting config (ruff in `pyproject.toml`)
+  - Master validation command (`npm run validate:all`)
+  - Lefthook post-commit hooks (warn mode)
+
+- **New Skills** - Agent-to-skill migration complete
+  - `azure-adr` skill for Architecture Decision Records
+  - `azure-workload-docs` skill for 7 documentation types
+  - Enhanced `azure-diagrams` skill with workflow integration
+
+- **CI Workflow** - External link checker
+  - Weekly + PR trigger for comprehensive URL validation
+  - Uses lychee for reliable external link checking
+
+### Changed
+
+- **Agent Architecture** - Reduced from 9 agents to 6
+  - Removed `diagram`, `adr`, `docs` agents (converted to skills)
+  - Updated handoffs in remaining agents to use skill invocation pattern
+  - Skills provide same functionality with better reusability
+
+- **Documentation** - Removed hardcoded agent/skill counts
+  - No more "6 agents" or "9 skills" to maintain
+  - Dynamic discovery via folder structure
+
+### Breaking Changes
+
+- **Removed Agents** - `@diagram`, `@adr`, `@docs` no longer exist
+  - Use `azure-diagrams`, `azure-adr`, `azure-workload-docs` skills instead
+  - Handoff buttons in other agents trigger skills automatically
+
 ## [7.6.0] - 2026-02-03
 
 ### Changed

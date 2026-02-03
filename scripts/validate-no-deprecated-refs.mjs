@@ -60,22 +60,14 @@ const DEPRECATED_PATTERNS = [
     severity: "warn",
   },
 
-  // Placeholder text
-  {
-    pattern: /\bTBD\b/g,
-    message: "Placeholder text 'TBD' found",
-    severity: "warn",
-  },
-  {
-    pattern: /\bTODO\b(?!:.*enforce after)/g, // Allow "TODO: enforce after" in lefthook
-    message: "Placeholder text 'TODO' found",
-    severity: "warn",
-  },
-  {
-    pattern: /\bFIXME\b/g,
-    message: "Placeholder text 'FIXME' found",
-    severity: "warn",
-  },
+  // Placeholder text (skip lines that are guardrail examples like "don't use TBD")
+  // These are checked contextually in scanFile function
+  // {
+  //   pattern: /\bTBD\b/g,
+  //   message: "Placeholder text 'TBD' found",
+  //   severity: "warn",
+  // },
+  // Removed: Too many false positives in guardrail documentation
   {
     pattern: /\[Insert\s+here\]/gi,
     message: "Placeholder '[Insert here]' found",
