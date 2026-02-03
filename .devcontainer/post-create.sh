@@ -153,7 +153,8 @@ printf "  %-15s %s\n" "Node.js:" "$(node --version 2>/dev/null || echo '❌ not 
 printf "  %-15s %s\n" "GitHub CLI:" "$(gh --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "  %-15s %s\n" "uv:" "$(uv --version 2>/dev/null || echo '❌ not installed')"
 printf "  %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo '❌ not installed')"
-printf "  %-15s %s\n" "markdownlint:" "$(markdownlint-cli2 --version 2>/dev/null || echo '❌ not installed')"
+# Run from /tmp to avoid .markdownlint-cli2.jsonc globs triggering a full lint
+printf "  %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 
 echo ""
 echo "🎉 Post-create setup completed!"

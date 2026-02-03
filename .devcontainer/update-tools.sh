@@ -58,5 +58,6 @@ echo "📊 Current tool versions:"
 printf "   %-15s %s\n" "Azure CLI:" "$(az version --query '\"azure-cli\"' -o tsv 2>/dev/null || echo 'unknown')"
 printf "   %-15s %s\n" "Bicep:" "$(az bicep version 2>/dev/null || echo 'unknown')"
 printf "   %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo 'unknown')"
-printf "   %-15s %s\n" "markdownlint:" "$(markdownlint-cli2 --version 2>/dev/null || echo 'unknown')"
+# Run from /tmp to avoid .markdownlint-cli2.jsonc globs triggering a full lint
+printf "   %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo 'unknown')"
 echo ""
