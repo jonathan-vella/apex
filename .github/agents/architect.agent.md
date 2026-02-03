@@ -152,6 +152,46 @@ Always evaluate all 5 pillars, even if not explicitly requested.
 **Include Confidence Level**: High (based on complete requirements) | Medium (some assumptions made)
 | Low (significant unknowns)
 
+## Research Requirements (MANDATORY)
+
+<research_mandate>
+**MANDATORY: Before creating WAF assessments, run comprehensive research.**
+
+### Step 1: Validate Inputs
+
+- Confirm `01-requirements.md` exists in `agent-output/{project}/`
+- Read requirements for functional/non-functional specifications
+- If missing, STOP and request requirements handoff first
+
+### Step 2: Query Azure Documentation
+
+- Use `microsoft.docs.mcp` and `azure_query_learn` for EACH Azure service
+- Search Azure Architecture Center for reference architectures
+- Query WAF assessment guidance for each pillar
+
+### Step 3: Gather Pricing Context
+
+- Use Azure Pricing MCP for SKU cost estimates
+- Compare pricing across SKU tiers (Basic, Standard, Premium)
+- Document cost implications for recommendations
+
+### Step 4: Template Preparation
+
+- Read template: `.github/templates/02-architecture-assessment.template.md`
+- Ensure all required H2 sections are understood
+- Prepare WAF pillar scores with documentation backing
+
+### Step 5: Confidence Gate
+
+Only proceed when you have **80% confidence** in:
+
+- All Azure services researched with current best practices
+- WAF pillar scores justified with documentation
+- Cost estimates grounded in Azure pricing
+
+If below 80%, use `#tool:agent` for autonomous research or ASK user.
+</research_mandate>
+
 ## Architectural Approach
 
 1. **Search Documentation First**: Use `microsoft.docs.mcp` and `azure_query_learn`

@@ -5,6 +5,26 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.6.0] - 2026-02-03
+
+### Changed
+
+- **Diagram Generation** - Simplified to Python diagrams library only
+  - Removed Draw.io MCP server (`mcp/drawio-mcp/`)
+  - Updated `@diagram` agent to use `diagrams` library exclusively
+  - Updated `azure-diagrams` skill to remove dual-format requirement
+  - Added `requirements.txt` at project root with `diagrams`, `matplotlib`, `pillow`
+  - Graphviz remains as system dependency (apt-get install)
+
+### Removed
+
+- **Draw.io MCP Server** - Removed entire `mcp/drawio-mcp/` directory (~20 files)
+- **Draw.io Extension** - Removed `hediet.vscode-drawio` from devcontainer extensions
+- **Draw.io CLI** - Removed `snap install drawio` from devcontainer setup
+- **Draw.io Reference Files** - Removed `drawio-format.md`, `drawio-azure-icons.md`, `drawio-common-patterns.md`
+- **Draw.io Scripts** - Removed `generate_drawio.py`, `find_azure_icon.py`, `convert_drawio_to_png.sh`, `dual_format_generator.py`
+- **Draw.io Templates** - Removed `.drawio` template files from skill
+
 ## [7.5.0] - 2026-02-02
 
 ### Added

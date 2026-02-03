@@ -1,0 +1,108 @@
+name: Auto Version Bump
+
+on:
+  push:
+    branches: [main]
+
+# Prevent concurrent runs and infinite loops
+concurrency:
+  group: auto-version
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    # Skip if commit is from this workflow (prevents infinite loop)
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !startsWith(github.event.head_commit.message, 'chore(release):')"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine bump type from commit
+        id: bump
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+
+          if echo "$MSG" | grep -qE '^[a-z]+(\([^)]+\))?!:|BREAKING CHANGE:'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -qE '^feat(\([^)]+\))?:'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -qE '^fix(\([^)]+\))?:'; then
+            echo "type=patch" >> $GITHUB_OUTPUT
+          else
+            echo "type=none" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump version
+        if: steps.bump.outputs.type != 'none'
+        run: |
+          # Read current version from package.json
+          CURRENT=$(jq -r .version package.json)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+          case "${{ steps.bump.outputs.type }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          NEW="${MAJOR}.${MINOR}.${PATCH}"
+          DATE=$(date +%Y-%m-%d)
+          SHA="${{ github.sha }}"
+
+          echo "Bumping $CURRENT → $NEW (${{ steps.bump.outputs.type }})"
+
+          # Update package.json
+          jq --arg v "$NEW" '.version = $v' package.json > tmp.json && mv tmp.json package.json
+
+          # Update VERSION.md
+          cat > VERSION.md << EOF
+          # Version Information
+
+          **Current Version:** $NEW
+
+          **Last Updated:** $DATE
+
+          **Build:** ${SHA:0:7}
+
+          ## Version History
+
+          See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+
+          ## Semantic Versioning
+
+          This project follows [Semantic Versioning 2.0.0](https://semver.org/):
+
+          - **MAJOR** version for incompatible API changes (breaking changes)
+          - **MINOR** version for new functionality (feat:)
+          - **PATCH** version for bug fixes (fix:)
+
+          ## Automated Versioning
+
+          Version bumps are automated via GitHub Actions based on [Conventional Commits](https://www.conventionalcommits.org/):
+
+          | Commit Type                    | Version Bump | Example                    |
+          | ------------------------------ | ------------ | -------------------------- |
+          | \`feat:\`                        | Minor        | \`feat: add new agent\`      |
+          | \`fix:\`                         | Patch        | \`fix: correct typo\`        |
+          | \`feat!:\` or \`BREAKING CHANGE:\` | Major        | \`feat!: redesign workflow\` |
+          | \`docs:\`, \`chore:\`, etc.        | None         | \`docs: update README\`      |
+          EOF
+
+      - name: Commit and push
+        if: steps.bump.outputs.type != 'none'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          NEW=$(jq -r .version package.json)
+          git add package.json VERSION.md
+          git commit -m "chore(release): bump version to $NEW [skip ci]"
+          git push
+
+          echo "✅ Version bumped to $NEW"

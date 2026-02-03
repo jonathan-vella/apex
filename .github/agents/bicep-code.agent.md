@@ -64,6 +64,47 @@ Always work from an implementation plan when available.
 - Double check Azure Verified Modules properties are correct
 - Focus on creating Azure Bicep (\*.bicep\) files only
 
+## Research Requirements (MANDATORY)
+
+<research_mandate>
+**MANDATORY: Before writing Bicep code, run comprehensive research.**
+
+### Step 1: Validate Implementation Plan
+
+- Confirm `04-implementation-plan.md` exists in `agent-output/{project}/`
+- Read the plan for resource specifications, dependencies, and AVM modules
+- If missing, STOP and request bicep-plan handoff first
+
+### Step 2: Gather Context
+
+- Search workspace for similar Bicep modules in `infra/bicep/`
+- Read existing patterns and naming conventions
+- Check for project-specific constraints in `04-governance-constraints.md`
+
+### Step 3: AVM Verification
+
+- For EACH resource in the plan, verify AVM module exists
+- Run `mcp_bicep_list_avm_metadata` if plan doesn't specify versions
+- Check AVM module parameters match planned configuration
+
+### Step 4: Module Structure Planning
+
+- Determine module organization (main.bicep + modules/)
+- Identify shared parameters (uniqueSuffix, tags, location)
+- Map resource dependencies for deployment order
+
+### Step 5: Confidence Gate
+
+Only proceed when you have **80% confidence** in:
+
+- All AVM modules identified and verified
+- Module structure planned
+- Dependencies mapped
+- Security defaults understood
+
+If below 80%, use `#tool:agent` for autonomous research or ASK user.
+</research_mandate>
+
 **Default Azure Regions (enforce in all implementations):**
 
 - **Primary**: swedencentral (default location parameter value)

@@ -5,53 +5,61 @@ description: >
   Creates Azure architecture diagrams (700+ official Microsoft icons), business process flows,
   ERD diagrams, project timelines, UI wireframes, and network topology diagrams.
   Also generates diagrams from Bicep, Terraform, and ARM templates.
+  **Output format**: PNG images via Python diagrams library (mingrammer/diagrams).
 compatibility: >
   Requires graphviz system package and Python diagrams library.
   Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
 metadata:
   author: cmb211087
-  version: "3.0"
-  repository: https://github.com/cmb211087/azure-diagrams-skill
+  version: "4.0"
+  repository: https://github.com/mingrammer/diagrams
 ---
 
 # Azure Architecture Diagrams Skill
 
 A comprehensive technical diagramming toolkit for solutions architects, presales engineers,
 and developers. Generate professional diagrams for proposals, documentation, and architecture
-reviews.
+reviews using Python's `diagrams` library.
+
+## 🎯 Output Format
+
+**Default behavior**: Generate PNG images via Python code
+
+| Format         | File Extension | Tool             | Use Case                             |
+| -------------- | -------------- | ---------------- | ------------------------------------ |
+| **Python PNG** | `.py` + `.png` | diagrams library | Programmatic, version-controlled, CI |
+| **SVG**        | `.svg`         | diagrams library | Web documentation (optional)         |
+
+### Output Naming Convention
+
+```
+agent-output/{project}/
+├── 03-des-diagram.py          # Python source (version controlled)
+├── 03-des-diagram.png         # PNG from Python diagrams
+└── 07-ab-diagram.py/.png      # As-built diagrams
+```
 
 ## ⚡ Execution Method
 
-**Always execute diagram code inline** - do not create a separate .py file:
+**Always execute diagram code inline** - do not create a separate .py file first:
 
 ```bash
 python3 << 'EOF'
 from diagrams import Diagram, Cluster
-from diagrams.azure.compute import AKS
+from diagrams.azure.compute import KubernetesServices
 from diagrams.azure.database import CosmosDb
 
-with Diagram("My Architecture", filename="/mnt/user-data/outputs/diagram", show=False):
-    AKS("aks-prod") >> CosmosDb("cosmos-prod")
-
+with Diagram("My Architecture", filename="diagram", show=False):
+    KubernetesServices("aks-prod") >> CosmosDb("cosmos-prod")
 EOF
 ```
 
 This approach:
 
 - ✅ Generates the diagram directly
-- ✅ No temporary .py files left on disk
 - ✅ Cleaner workflow
-
-**Do NOT do this:**
-
-```bash
-# ❌ Don't create a file first
-cat > diagram.py << 'EOF'
-...
-EOF
-python3 diagram.py  # Leaves diagram.py behind
-```
+- ✅ Easy to iterate
 
 ## 📊 Diagram Types
 
@@ -64,9 +72,9 @@ python3 diagram.py  # Leaves diagram.py behind
 | **UI Wireframe**              | `references/ui-wireframe-diagrams.md`        | "Design a KPI dashboard layout"                              |
 | **Common Patterns**           | `references/common-patterns.md`              | "Show a hub-spoke network topology"                          |
 
-## 🔥 Bonus: Generate from Code
+## 🔥 Generate from Infrastructure Code
 
-Can also create diagrams directly from infrastructure code:
+Create diagrams directly from Bicep, Terraform, or ARM templates:
 
 ```
 Read the Bicep files in /infra and generate an architecture diagram
@@ -76,12 +84,6 @@ Read the Bicep files in /infra and generate an architecture diagram
 Analyze our Terraform modules and create a diagram grouped by subnet
 ```
 
-```
-Read azure-pipelines.yml and create a CI/CD pipeline diagram
-```
-
-Supports: **Bicep**, **Terraform**, **ARM Templates**, **Azure Pipelines YAML**, **GitHub Actions**
-
 See `references/iac-to-diagram.md` for detailed prompts and examples.
 
 ---
@@ -89,7 +91,10 @@ See `references/iac-to-diagram.md` for detailed prompts and examples.
 ## Prerequisites
 
 ```bash
-pip install diagrams matplotlib --break-system-packages
+# Core requirements
+pip install diagrams matplotlib pillow
+
+# Graphviz (required for PNG generation)
 apt-get install -y graphviz  # Ubuntu/Debian
 # or: brew install graphviz  # macOS
 # or: choco install graphviz  # Windows
@@ -99,7 +104,7 @@ apt-get install -y graphviz  # Ubuntu/Debian
 
 ```python
 from diagrams import Diagram, Cluster, Edge
-from diagrams.azure.compute import FunctionApps, AKS, AppServices
+from diagrams.azure.compute import FunctionApps, KubernetesServices, AppServices
 from diagrams.azure.network import ApplicationGateway, LoadBalancers
 from diagrams.azure.database import CosmosDb, SQLDatabases, CacheForRedis
 from diagrams.azure.storage import BlobStorage
@@ -118,7 +123,7 @@ with Diagram("Azure Solution Architecture", show=False, direction="TB"):
     with Cluster("Backend"):
         api = APIManagement("API Management")
         functions = FunctionApps("Functions")
-        aks = AKS("AKS")
+        aks = KubernetesServices("AKS")
 
     with Cluster("Data"):
         cosmos = CosmosDb("Cosmos DB")
@@ -136,17 +141,6 @@ with Diagram("Azure Solution Architecture", show=False, direction="TB"):
     aks >> [sql, redis]
     bus >> logic >> blob
 ```
-
-## Supported Diagram Types
-
-| Type                          | Reference File                               | Use Case                                            |
-| ----------------------------- | -------------------------------------------- | --------------------------------------------------- |
-| **Azure Architecture**        | `references/azure-components.md`             | Cloud infrastructure, solution designs              |
-| **Common Patterns**           | `references/common-patterns.md`              | Web apps, microservices, serverless, data platforms |
-| **Business Process Flow**     | `references/business-process-flows.md`       | Workflows, swimlanes, decisions                     |
-| **Entity Relationship (ERD)** | `references/entity-relationship-diagrams.md` | Database schemas, data models                       |
-| **Timeline / Gantt**          | `references/timeline-gantt-diagrams.md`      | Project plans, roadmaps                             |
-| **UI Wireframe**              | `references/ui-wireframe-diagrams.md`        | Screen mockups, dashboards                          |
 
 ## Azure Service Categories
 
@@ -183,12 +177,12 @@ gateway >> AppServices("Web") >> SQLDatabases("DB")
 ### Microservices with AKS
 
 ```python
-from diagrams.azure.compute import AKS, ACR
+from diagrams.azure.compute import KubernetesServices, ContainerRegistries
 from diagrams.azure.network import ApplicationGateway
 from diagrams.azure.database import CosmosDb
 
-gateway >> AKS("Cluster") >> CosmosDb("Data")
-ACR("Registry") >> AKS("Cluster")
+gateway >> KubernetesServices("Cluster") >> CosmosDb("Data")
+ContainerRegistries("Registry") >> KubernetesServices("Cluster")
 ```
 
 ### Serverless / Event-Driven
@@ -265,20 +259,24 @@ with Diagram(
         "ranksep": "1.0",          # Vertical spacing
         "pad": "0.5",              # Graph padding
         "bgcolor": "white",        # Background color
+        "dpi": "150",              # Resolution
     }
 ):
 ```
 
-## Clusters (Grouping)
+## Clusters (Azure Hierarchy)
+
+Use `Cluster()` for proper Azure hierarchy: Subscription → Resource Group → VNet → Subnet
 
 ```python
-with Cluster("Resource Group"):
-    with Cluster("Subnet A"):
-        vm1 = VM("VM 1")
-        vm2 = VM("VM 2")
-
-    with Cluster("Subnet B"):
-        db = SQLDatabases("Database")
+with Cluster("Azure Subscription"):
+    with Cluster("rg-app-prod"):
+        with Cluster("vnet-spoke (10.1.0.0/16)"):
+            with Cluster("snet-app"):
+                vm1 = VM("VM 1")
+                vm2 = VM("VM 2")
+            with Cluster("snet-data"):
+                db = SQLDatabases("Database")
 ```
 
 Cluster styling:
@@ -287,66 +285,11 @@ Cluster styling:
 with Cluster("Styled", graph_attr={"bgcolor": "#E8F4FD", "style": "rounded"}):
 ```
 
-## Troubleshooting
-
-### Overlapping Nodes
-
-Increase spacing for complex diagrams:
-
-```python
-graph_attr={
-    "nodesep": "1.2",   # Horizontal (default 0.25)
-    "ranksep": "1.2",   # Vertical (default 0.5)
-    "pad": "0.5"
-}
-```
-
-### Floating Edge Labels
-
-Use `xlabel` instead of `label`:
-
-```python
-# Instead of Edge(label="text")
-a >> Edge(xlabel="text") >> b
-```
-
-### Excessive Whitespace
-
-Compress the output:
-
-```python
-graph_attr={"pad": "0.2", "margin": "0", "ratio": "compress"}
-```
-
-### Force Horizontal Alignment
-
-Use subgraphs with same rank:
-
-```python
-with Diagram(...):
-    # These will be on the same horizontal level
-    with Cluster("") as same_level:
-        same_level.dot.body.append('rank=same')
-        a = ServiceA("A")
-        b = ServiceB("B")
-```
-
-See `references/preventing-overlaps.md` for detailed guidance.
-
-## Output Location
-
-For Claude Code / GitHub Copilot, save to outputs:
-
-```python
-with Diagram("Name", show=False, filename="/mnt/user-data/outputs/diagram"):
-    # ...
-```
-
-## ⚠️ CRITICAL: Professional Output Standards
+## ⚠️ Professional Output Standards
 
 ### The Key Setting: `labelloc='t'`
 
-To keep labels inside cluster boundaries with the `diagrams` library, **put labels ABOVE icons**:
+To keep labels inside cluster boundaries, **put labels ABOVE icons**:
 
 ```python
 node_attr = {
@@ -363,7 +306,7 @@ with Diagram("Title", node_attr=node_attr, ...):
 
 ```python
 from diagrams import Diagram, Cluster, Edge
-from diagrams.azure.compute import AKS
+from diagrams.azure.compute import KubernetesServices
 from diagrams.azure.database import SQLDatabases
 
 graph_attr = {
@@ -374,11 +317,11 @@ graph_attr = {
     "splines": "spline",
     "fontname": "Arial Bold",
     "fontsize": "16",
-    "dpi": "200",              # High resolution
+    "dpi": "150",
 }
 
 node_attr = {
-    "fontname": "Arial Bold",  # Bold for readability
+    "fontname": "Arial Bold",
     "fontsize": "11",
     "labelloc": "t",           # Labels ABOVE icons - KEY!
 }
@@ -401,11 +344,39 @@ with Diagram("My Architecture",
 | ✅ **labelloc='t'**        | Labels above icons (stays in clusters)   |
 | ✅ **Bold fonts**          | `fontname="Arial Bold"` for readability  |
 | ✅ **Full resource names** | Actual names from IaC, not abbreviations |
-| ✅ **High DPI**            | `dpi="200"` for crisp text               |
+| ✅ **High DPI**            | `dpi="150"` or higher for crisp text     |
 | ✅ **Azure icons**         | Use `diagrams.azure.*` components        |
 | ✅ **Cluster margins**     | `margin="30"` or higher                  |
+| ✅ **CIDR blocks**         | Include IP ranges in VNet/Subnet labels  |
 
-**⚠️ ALWAYS review the output image before delivering. If ANY text is outside boxes, increase margins or simplify clusters.**
+## Troubleshooting
+
+### Overlapping Nodes
+
+Increase spacing for complex diagrams:
+
+```python
+graph_attr={
+    "nodesep": "1.2",   # Horizontal (default 0.25)
+    "ranksep": "1.2",   # Vertical (default 0.5)
+    "pad": "0.5"
+}
+```
+
+### Labels Outside Clusters
+
+Use `labelloc="t"` in `node_attr` to place labels above icons.
+
+### Missing Icons
+
+Check available icons:
+
+```python
+from diagrams.azure import network
+print(dir(network))
+```
+
+See `references/preventing-overlaps.md` for detailed guidance.
 
 ## Scripts
 

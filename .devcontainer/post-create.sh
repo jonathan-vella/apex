@@ -118,6 +118,21 @@ else
     echo "  ⚠️  MCP directory not found at $MCP_DIR"
 fi
 
+# Install Python dependencies from requirements.txt (core packages)
+# Note: This is the authoritative install; line 34 uv install is a fast-path attempt
+echo "📦 Verifying Python dependencies..."
+if [ -f "${PWD}/requirements.txt" ]; then
+    # Check if packages already installed (from uv fast-path)
+    if python3 -c "import diagrams, matplotlib, PIL, checkov" 2>/dev/null; then
+        echo "  ✅ Python dependencies already installed"
+    else
+        pip install --quiet -r "${PWD}/requirements.txt"
+        echo "  ✅ Python dependencies installed (diagrams, matplotlib, pillow, checkov)"
+    fi
+else
+    echo "  ⚠️  requirements.txt not found"
+fi
+
 # Configure Azure CLI defaults (Azure CLI installed via devcontainer feature)
 echo "☁️  Configuring Azure CLI defaults..."
 if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then

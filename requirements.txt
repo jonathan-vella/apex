@@ -1,0 +1,19 @@
+# Azure Agentic InfraOps - Core Python Dependencies
+# Install with: pip install -r requirements.txt
+# Note: graphviz system package required (apt-get install graphviz)
+#
+# Additional component-specific requirements:
+#   - mcp/azure-pricing-mcp/requirements.txt  (Azure Pricing MCP server)
+#   - scenarios/S04-*/solution/app/requirements.txt  (FastAPI validation app)
+#
+# The devcontainer post-create.sh handles all installations automatically.
+
+# Diagram generation - https://github.com/mingrammer/diagrams
+diagrams>=0.23.4
+
+# Image processing (required by diagrams for PNG generation)
+matplotlib>=3.8
+pillow>=10.0
+
+# Infrastructure validation and security scanning
+checkov>=3.0

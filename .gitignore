@@ -4,6 +4,9 @@
 .azure/
 local.settings.json
 
+# Copilot session logs
+Copilot-Processing.md
+
 # Bicep
 *.bin
 

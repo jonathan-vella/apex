@@ -91,12 +91,12 @@ Raw Bicep resources are only permitted when:
 
 ### AVM Approval Workflow
 
-| Step | Action |
-|------|--------|
-| 1 | Check `mcp_bicep_list_avm_metadata` or https://aka.ms/avm/index for module availability |
-| 2 | If AVM exists: Use `br/public:avm/res/{service}/{resource}:{version}` |
-| 3 | If no AVM: **STOP** and prompt user: "No AVM module found for {resource}. Type **approve raw bicep** to proceed." |
-| 4 | If approved: Document justification in implementation artifacts |
+| Step | Action                                                                                                            |
+| ---- | ----------------------------------------------------------------------------------------------------------------- |
+| 1    | Check `mcp_bicep_list_avm_metadata` or https://aka.ms/avm/index for module availability                           |
+| 2    | If AVM exists: Use `br/public:avm/res/{service}/{resource}:{version}`                                             |
+| 3    | If no AVM: **STOP** and prompt user: "No AVM module found for {resource}. Type **approve raw bicep** to proceed." |
+| 4    | If approved: Document justification in implementation artifacts                                                   |
 
 ### AVM Registry
 
@@ -207,3 +207,64 @@ All generated artifacts are validated by:
 - **Pre-commit hook**: `STRICTNESS=standard npm run lint:wave1-artifacts`
 - **CI workflow**: `.github/workflows/wave1-artifact-drift-guard.yml`
 - **Project-specific**: `npm run validate:{project-name}` (if available)
+
+## Research Requirements (MANDATORY)
+
+**All agents MUST perform thorough research before implementation** to ensure complete,
+one-shot execution without missing context or requiring multiple iterations.
+
+### Pre-Implementation Research Checklist
+
+Before creating ANY output files or making changes:
+
+- [ ] **Search workspace** for existing patterns (`agent-output/`, similar projects)
+- [ ] **Read relevant templates** in `.github/templates/` for output structure
+- [ ] **Query documentation** via MCP tools (Azure docs, best practices)
+- [ ] **Validate inputs** - confirm all required artifacts from previous steps exist
+- [ ] **Achieve 80% confidence** before proceeding to implementation
+
+### Research Workflow Pattern
+
+```xml
+<research_mandate>
+MANDATORY: Before producing output artifacts, run comprehensive research.
+
+Step 1: Context Gathering
+- Use semantic_search, grep_search, read_file to gather workspace context
+- Use Azure MCP tools to query documentation and best practices
+- Read template files to understand output structure
+
+Step 2: Validation Gate
+- Confirm required inputs from previous workflow steps exist
+- Verify template has been loaded
+- Check Azure guidance has been obtained
+
+Step 3: Confidence Assessment
+- Only proceed when you have 80% confidence in context understanding
+- If below 80%, use #tool:agent to delegate autonomous research
+- Or ASK the user for clarification rather than assuming
+</research_mandate>
+```
+
+### Delegation Pattern
+
+When extensive research is needed, delegate to a subagent:
+
+```markdown
+MANDATORY: Run #tool:agent tool, instructing the agent to work autonomously
+without pausing for user feedback, to gather comprehensive context.
+```
+
+### Per-Agent Research Focus
+
+| Agent            | Primary Research Focus                                            |
+| ---------------- | ----------------------------------------------------------------- |
+| **Requirements** | User needs, existing projects, compliance requirements            |
+| **Architect**    | Azure services, WAF pillars, SKU recommendations, pricing         |
+| **Bicep Plan**   | AVM availability, governance constraints, implementation patterns |
+| **Bicep Code**   | Module structure, naming conventions, security defaults           |
+| **Deploy**       | Template validation, what-if results, resource dependencies       |
+| **Diagram**      | Existing architecture, icon availability, layout patterns         |
+| **Docs**         | Deployed resources, configuration details, operational procedures |
+
+See also: [Agent Research Instructions](../instructions/agent-research-first.instructions.md)

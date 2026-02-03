@@ -1,0 +1,35 @@
+name: Template Validation
+
+on:
+  pull_request:
+    paths:
+      - .github/templates/**
+      - .github/agents/**
+      - .github/instructions/**
+      - scripts/validate-*.mjs
+  push:
+    branches: [main]
+    paths:
+      - .github/templates/**
+      - .github/agents/**
+      - .github/instructions/**
+      - scripts/validate-*.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate artifact templates
+        run: node scripts/validate-artifact-templates.mjs
+
+      - name: Validate cost estimate templates
+        run: node scripts/validate-cost-estimate-templates.mjs

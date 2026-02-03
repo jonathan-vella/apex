@@ -89,6 +89,47 @@ Use this agent when:
    - Check resource health status
    - Generate deployment summary
 
+## Research Requirements (MANDATORY)
+
+<research_mandate>
+**MANDATORY: Before deploying infrastructure, run comprehensive research.**
+
+### Step 1: Validate Bicep Templates Exist
+
+- Confirm `infra/bicep/{project}/main.bicep` exists
+- Verify `05-implementation-reference.md` exists in `agent-output/{project}/`
+- If templates missing, STOP and request bicep-code handoff first
+
+### Step 2: Template Validation
+
+- Run `bicep build` on all `.bicep` files
+- Check for linting errors or warnings
+- Verify all module references resolve correctly
+
+### Step 3: Pre-Deployment Context
+
+- Verify Azure CLI authentication: `az account show`
+- Check target subscription and resource group
+- Review any existing resources that might conflict
+
+### Step 4: What-If Analysis
+
+- Run `az deployment group what-if` BEFORE any deployment
+- Analyze changes: creates, updates, deletes, no-changes
+- Flag any destructive changes for user review
+
+### Step 5: Confidence Gate
+
+Only proceed to deployment when you have **80% confidence** in:
+
+- Templates validated successfully
+- What-if shows expected changes
+- No unexpected deletions or modifications
+- User has reviewed and approved changes
+
+If below 80%, STOP and request user confirmation.
+</research_mandate>
+
 ## Preflight Validation Workflow
 
 > **Reference**: [Azure Deployment Preflight Skill](../skills/azure-deployment-preflight/SKILL.md)

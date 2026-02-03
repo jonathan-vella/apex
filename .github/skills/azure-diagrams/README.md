@@ -2,13 +2,19 @@
 
 A comprehensive technical diagramming toolkit for **solutions architects**, **presales engineers**,
 and **developers**. Generate professional diagrams for proposals, documentation, and architecture
-reviews.
+reviews using Python's `diagrams` library.
 
-> **Credits**: This skill was created by [@cmb211087](https://github.com/cmb211087).  
-> **Original Repository**: [github.com/cmb211087/azure-diagrams-skill][repo]  
+> **Library**: [mingrammer/diagrams](https://github.com/mingrammer/diagrams)  
 > **License**: MIT
 
-[repo]: https://github.com/cmb211087/azure-diagrams-skill
+## 🎯 Output Format
+
+This skill generates **PNG images** via Python code:
+
+| Format         | File Extension | Tool             | Use Case                             |
+| -------------- | -------------- | ---------------- | ------------------------------------ |
+| **Python PNG** | `.py` + `.png` | diagrams library | Programmatic, version-controlled, CI |
+| **SVG**        | `.svg`         | diagrams library | Web documentation (optional)         |
 
 ## What You Can Create
 
@@ -22,18 +28,16 @@ reviews.
 | **Sequence Diagrams**         | Auth flows, API interactions          |
 | **Network Topology**          | Hub-spoke, VNets, hybrid cloud        |
 
-## Installation
-
-For detailed installation instructions across different platforms (Claude Code CLI, GitHub
-Copilot, Cursor, etc.), see the [main repository README][install].
-
-[install]: https://github.com/cmb211087/azure-diagrams-skill#installation
-
-### Prerequisites
+## Prerequisites
 
 ```bash
-pip install diagrams matplotlib
-apt-get install graphviz  # or: brew install graphviz (macOS) / choco install graphviz (Windows)
+# Core requirements
+pip install diagrams matplotlib pillow
+
+# Graphviz (required for PNG generation)
+apt-get install graphviz  # Ubuntu/Debian
+# or: brew install graphviz  # macOS
+# or: choco install graphviz  # Windows
 ```
 
 ## Contents
@@ -41,6 +45,7 @@ apt-get install graphviz  # or: brew install graphviz (macOS) / choco install gr
 ```
 azure-diagrams/
 ├── SKILL.md                              # Main skill instructions
+├── README.md                             # This file
 ├── references/
 │   ├── azure-components.md               # 700+ Azure components
 │   ├── common-patterns.md                # Architecture patterns
@@ -51,9 +56,13 @@ azure-diagrams/
 │   ├── iac-to-diagram.md                 # Generate from Bicep/Terraform
 │   ├── preventing-overlaps.md            # Layout troubleshooting
 │   └── quick-reference.md                # Copy-paste snippets
-└── scripts/
-    ├── generate_diagram.py               # Interactive generator
-    └── verify_installation.py            # Check prerequisites
+├── scripts/
+│   ├── generate_diagram.py               # Interactive generator
+│   ├── multi_diagram_generator.py        # Multi-type generator
+│   ├── ascii_to_diagram.py               # ASCII to diagram converter
+│   └── verify_installation.py            # Check prerequisites
+└── templates/
+    └── (Python diagram templates)
 ```
 
 ## Example Prompts
@@ -102,6 +111,6 @@ MIT License - free to use, modify, and distribute.
 
 ## Credits
 
-- [diagrams](https://diagrams.mingrammer.com/) - Diagram as Code library
+- [diagrams](https://diagrams.mingrammer.com/) - Diagram as Code library by mingrammer
 - [Graphviz](https://graphviz.org/) - Graph visualization
 - [Agent Skills](https://agentskills.io) - Open standard for AI skills

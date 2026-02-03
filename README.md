@@ -67,9 +67,9 @@ IT Pro–focused workflow for building and operating Azure environments with gua
 
 <div align="center">
 
-| ✅ Requirements to Deploy | ✅ WAF-Aligned Decisions | ✅ AVM-First Bicep | ✅ As-Built Documentation |
-| :-----------------------: | :----------------------: | :----------------: | :-----------------------: |
-|    7-step agent flow      |  Security • Reliability  | Azure Verified Modules | Runbooks • DR Plans    |
+| ✅ Requirements to Deploy | ✅ WAF-Aligned Decisions |   ✅ AVM-First Bicep   | ✅ As-Built Documentation |
+| :-----------------------: | :----------------------: | :--------------------: | :-----------------------: |
+|     7-step agent flow     |  Security • Reliability  | Azure Verified Modules |    Runbooks • DR Plans    |
 
 </div>
 
@@ -125,16 +125,16 @@ graph LR
     classDef diagnose fill:#EF4444,stroke:#DC2626,color:#fff
 ```
 
-| Step | Phase          | Agent(s)            | Output     | Description                              |
-| :--: | -------------- | ------------------- | ---------- | ---------------------------------------- |
-|  1   | Requirements   | `@requirements`     | `01-*`     | Gather and refine project requirements   |
-|  2   | Architecture   | `@architect` 🧩 💰  | `02-*`     | WAF assessment and design decisions      |
-|  3   | Design         | `@diagram`, `@adr`  | `03-des-*` | Diagrams and Architecture Decision Records |
-|  4   | Planning       | `@bicep-plan` 🧩    | `04-*`     | Implementation planning with governance  |
-|  5   | Implementation | `@bicep-code`       | `05-*`     | Generate AVM-first Bicep templates       |
-|  6   | Deployment     | `@deploy`           | `06-*`     | Azure resource provisioning              |
-|  7   | Documentation  | `@docs`             | `07-*`     | As-built documentation suite             |
-|  —   | Validation     | `@diagnose` 🧩      | `08-*`     | Resource health & troubleshooting        |
+| Step | Phase          | Agent(s)           | Output     | Description                                |
+| :--: | -------------- | ------------------ | ---------- | ------------------------------------------ |
+|  1   | Requirements   | `@requirements`    | `01-*`     | Gather and refine project requirements     |
+|  2   | Architecture   | `@architect` 🧩 💰 | `02-*`     | WAF assessment and design decisions        |
+|  3   | Design         | `@diagram`, `@adr` | `03-des-*` | Diagrams and Architecture Decision Records |
+|  4   | Planning       | `@bicep-plan` 🧩   | `04-*`     | Implementation planning with governance    |
+|  5   | Implementation | `@bicep-code`      | `05-*`     | Generate AVM-first Bicep templates         |
+|  6   | Deployment     | `@deploy`          | `06-*`     | Azure resource provisioning                |
+|  7   | Documentation  | `@docs`            | `07-*`     | As-built documentation suite               |
+|  —   | Validation     | `@diagnose` 🧩     | `08-*`     | Resource health & troubleshooting          |
 
 > **🧩** = Azure MCP Server integration | **💰** = Pricing MCP add-on | Steps 3, 7 & Validation are optional
 
@@ -185,10 +185,10 @@ Each agent asks for approval before proceeding. Say `yes` to continue, or provid
 
 **For production adoption, start with the accelerator template.**
 
-| Repository | Purpose |
-| ---------- | ------- |
-| [azure-agentic-infraops-accelerator](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator) | Clean workload repo pre-wired with the workflow |
-| This repo | Reference implementation, agents, and sample outputs |
+| Repository                                                                                                 | Purpose                                              |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [azure-agentic-infraops-accelerator](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator) | Clean workload repo pre-wired with the workflow      |
+| This repo                                                                                                  | Reference implementation, agents, and sample outputs |
 
 The accelerator is pre-configured with automation and repo structure so you can focus on
 requirements and governance, not setup.
@@ -203,12 +203,12 @@ requirements and governance, not setup.
 
 The core enabler behind "agents with real Azure context":
 
-| Feature | Description |
-| ------- | ----------- |
-| **RBAC-Aware** | Tools operate within your existing Azure permissions |
-| **Broad Coverage** | 40+ Azure service areas: platform, monitoring, governance |
-| **Day-0 to Day-2** | Discovery, validation, and troubleshooting workflows |
-| **Less Context Switching** | Fewer portal loops, faster repeatable operations |
+| Feature                    | Description                                               |
+| -------------------------- | --------------------------------------------------------- |
+| **RBAC-Aware**             | Tools operate within your existing Azure permissions      |
+| **Broad Coverage**         | 40+ Azure service areas: platform, monitoring, governance |
+| **Day-0 to Day-2**         | Discovery, validation, and troubleshooting workflows      |
+| **Less Context Switching** | Fewer portal loops, faster repeatable operations          |
 
 📖 **[Azure MCP Server README →](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md)**
 
@@ -217,6 +217,19 @@ The core enabler behind "agents with real Azure context":
 Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in this repo.
 
 📖 **[Pricing MCP Documentation →](mcp/azure-pricing-mcp/)**
+
+### 📊 Python Diagrams Library
+
+Architecture diagrams as code using [mingrammer/diagrams](https://github.com/mingrammer/diagrams). Generates PNG images from Python code with 700+ Azure icons.
+
+| Feature                | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| **Azure Icons**        | 700+ compute, networking, databases, security, AI icons |
+| **Cluster Nesting**    | Subscription → RG → VNet → Subnet hierarchy             |
+| **Version Controlled** | Python source files with PNG output                     |
+| **SVG Support**        | Optional SVG output for web documentation               |
+
+📖 **[Diagrams Library →](https://diagrams.mingrammer.com/)**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -235,7 +248,8 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 ├── 📁 agent-output/           # Generated artifacts per project
 ├── 📁 docs/                   # Documentation and guides
 ├── 📁 infra/bicep/            # Generated Bicep templates
-├── 📁 mcp/azure-pricing-mcp/  # 💰 Pricing MCP add-on
+├── 📁 mcp/
+│   └── 📁 azure-pricing-mcp/  # 💰 Pricing MCP add-on
 └── 📁 scenarios/              # 8 hands-on learning scenarios
 ```
 
@@ -247,12 +261,12 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 Explore complete workflow outputs in `agent-output/`:
 
-| Project | Description | Highlights |
-| ------- | ----------- | ---------- |
-| [agent-testing](agent-output/agent-testing/) | Agent validation framework | 16 resources, full 7-step + health validation |
-| [static-webapp](agent-output/static-webapp/) | Static Web App with Functions | Production-ready SWA pattern |
-| [ecommerce](agent-output/ecommerce/) | E-commerce platform | Multi-tier architecture |
-| [infraops-static-demo](agent-output/infraops-static-demo/) | Demo deployment | Deployed to Azure |
+| Project                                                    | Description                   | Highlights                                    |
+| ---------------------------------------------------------- | ----------------------------- | --------------------------------------------- |
+| [agent-testing](agent-output/agent-testing/)               | Agent validation framework    | 16 resources, full 7-step + health validation |
+| [static-webapp](agent-output/static-webapp/)               | Static Web App with Functions | Production-ready SWA pattern                  |
+| [ecommerce](agent-output/ecommerce/)                       | E-commerce platform           | Multi-tier architecture                       |
+| [infraops-static-demo](agent-output/infraops-static-demo/) | Demo deployment               | Deployed to Azure                             |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -262,11 +276,11 @@ Explore complete workflow outputs in `agent-output/`:
 
 **8 hands-on scenarios** from beginner to advanced (15-45 min each):
 
-| Level | Scenarios |
-| ----- | --------- |
-| **Beginner** | Bicep baseline, diagrams as code |
+| Level            | Scenarios                                                           |
+| ---------------- | ------------------------------------------------------------------- |
+| **Beginner**     | Bicep baseline, diagrams as code                                    |
 | **Intermediate** | Documentation generation, service validation, troubleshooting, SBOM |
-| **Advanced** | Full agentic workflow, async coding agent |
+| **Advanced**     | Full agentic workflow, async coding agent                           |
 
 📖 **[Full Scenarios Guide →](scenarios/README.md)**
 
@@ -278,12 +292,12 @@ Explore complete workflow outputs in `agent-output/`:
 
 Agentic InfraOps is designed to be safe, repeatable, and governance-friendly.
 
-| Guardrail | Location | Purpose |
-| --------- | -------- | ------- |
-| **Agent Definitions** | `.github/agents/` | Codify the 7-step workflow |
-| **Instruction System** | `.github/instructions/` | Enforce standards (Markdown, Bicep, agents) |
-| **Drift Guard Workflows** | `.github/workflows/` | Protect templates and docs structure |
-| **Shared Defaults** | `.github/agents/_shared/defaults.md` | AVM-first + CAF naming + required tags |
+| Guardrail                 | Location                             | Purpose                                     |
+| ------------------------- | ------------------------------------ | ------------------------------------------- |
+| **Agent Definitions**     | `.github/agents/`                    | Codify the 7-step workflow                  |
+| **Instruction System**    | `.github/instructions/`              | Enforce standards (Markdown, Bicep, agents) |
+| **Drift Guard Workflows** | `.github/workflows/`                 | Protect templates and docs structure        |
+| **Shared Defaults**       | `.github/agents/_shared/defaults.md` | AVM-first + CAF naming + required tags      |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -291,11 +305,11 @@ Agentic InfraOps is designed to be safe, repeatable, and governance-friendly.
 
 ## 📋 Requirements
 
-| Requirement | Details |
-| ----------- | ------- |
-| **VS Code** | With [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension |
-| **Dev Container** | [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [GitHub Codespaces](https://github.com/features/codespaces) |
-| **Azure subscription** | For deployments (optional for learning) |
+| Requirement            | Details                                                                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **VS Code**            | With [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension                              |
+| **Dev Container**      | [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [GitHub Codespaces](https://github.com/features/codespaces) |
+| **Azure subscription** | For deployments (optional for learning)                                                                                          |
 
 **Included in Dev Container:**
 
@@ -303,6 +317,7 @@ Agentic InfraOps is designed to be safe, repeatable, and governance-friendly.
 - ✅ PowerShell 7+ and Python 3.10+
 - ✅ All required VS Code extensions
 - ✅ Pricing MCP add-on (auto-configured)
+- ✅ Python diagrams library (auto-installed)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

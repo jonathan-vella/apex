@@ -1,6 +1,6 @@
 # Development Container for Agentic InfraOps
 
-> **Version 3.7.8**
+> **Version 7.5.0**
 
 This devcontainer provides a **complete, pre-configured development environment** for Agentic InfraOps.
 It includes all required tools, extensions, and configurations to build Azure infrastructure with AI agents.
@@ -27,6 +27,17 @@ It includes all required tools, extensions, and configurations to build Azure in
 - **Git** with common utilities
 - **GitHub CLI** (gh)
 - **graphviz**, **dos2unix**
+
+### MCP Servers (Auto-configured)
+
+- **Azure MCP Server** - RBAC-aware Azure context for agents
+- **Azure Pricing MCP** - Real-time SKU pricing for cost estimates
+
+### Python Libraries (Auto-installed)
+
+- **diagrams** - Infrastructure diagrams as code (mingrammer/diagrams)
+- **matplotlib**, **pillow** - Image processing
+- **checkov** - Infrastructure security scanner
 
 ### VS Code Extensions (27 Pre-installed)
 
