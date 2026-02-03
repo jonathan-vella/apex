@@ -26,6 +26,18 @@ tools:
     "ms-python.python/configurePythonEnvironment",
   ]
 handoffs:
+  - label: ▶ Regenerate Document
+    agent: Docs
+    prompt: Regenerate a specific documentation artifact. Which document should I regenerate? (design-document, operations-runbook, resource-inventory, backup-dr-plan, compliance-matrix)
+    send: false
+  - label: ▶ Refresh Cost Estimate
+    agent: Docs
+    prompt: Update the as-built cost estimate (07-ab-cost-estimate.md) with current Azure pricing using the Azure Pricing MCP tools.
+    send: true
+  - label: ▶ Validate Documentation
+    agent: Docs
+    prompt: Validate all generated documentation against templates. Check for missing sections and completeness.
+    send: true
   - label: Return to Architect Review
     agent: Architect
     prompt: Review the generated documentation for WAF alignment and completeness.

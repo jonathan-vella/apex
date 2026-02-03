@@ -21,6 +21,18 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Fix Linting Errors
+    agent: Bicep Code
+    prompt: Run bicep lint on all templates in the project and fix any reported errors or warnings. Show the fixes made.
+    send: true
+  - label: ▶ Add Module
+    agent: Bicep Code
+    prompt: Add a new Bicep module to the project. What resource type should I add? I'll use the appropriate AVM module if available.
+    send: false
+  - label: ▶ Validate Templates
+    agent: Bicep Code
+    prompt: Run bicep build on all templates to validate syntax and check for errors. Report validation status.
+    send: true
   - label: Deploy to Azure
     agent: Deploy
     prompt: Deploy the Bicep templates to Azure. Run what-if analysis first to preview changes, then execute deployment with user approval. Generate deployment summary upon completion.

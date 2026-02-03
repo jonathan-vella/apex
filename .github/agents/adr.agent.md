@@ -21,6 +21,18 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Update Status
+    agent: ADR
+    prompt: Update the status of an existing ADR. What status should I set? (Proposed, Accepted, Deprecated, Superseded)
+    send: false
+  - label: ▶ Add Alternative
+    agent: ADR
+    prompt: Add a new alternative option to the current ADR with pros/cons analysis.
+    send: false
+  - label: ▶ Link Related ADR
+    agent: ADR
+    prompt: Link this ADR to related architectural decisions. Search for existing ADRs in the project and add cross-references.
+    send: true
   - label: Review Against WAF Pillars
     agent: Architect
     prompt: Assess the WAF implications of the architectural decision documented above. Evaluate against all 5 pillars (Security, Reliability, Performance, Cost, Operations) and provide specific recommendations.

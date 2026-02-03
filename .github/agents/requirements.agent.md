@@ -23,6 +23,18 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Refine Requirements
+    agent: Requirements
+    prompt: Review the current requirements document and refine based on new information or clarifications. Update the 01-requirements.md file.
+    send: false
+  - label: ▶ Ask Clarifying Questions
+    agent: Requirements
+    prompt: Generate clarifying questions to fill gaps in the current requirements. Focus on NFRs, compliance, budget, and regional preferences.
+    send: true
+  - label: ▶ Validate Completeness
+    agent: Requirements
+    prompt: Validate the requirements document for completeness against the template. Check all required sections are filled and flag any gaps.
+    send: true
   - label: Architecture Assessment
     agent: Architect
     prompt: Review the requirements and create a comprehensive WAF assessment with cost estimates.

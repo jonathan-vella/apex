@@ -21,6 +21,18 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Expand Scope
+    agent: Diagnose
+    prompt: Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources.
+    send: true
+  - label: ▶ Deep Dive Logs
+    agent: Diagnose
+    prompt: Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information.
+    send: true
+  - label: ▶ Re-run Health Check
+    agent: Diagnose
+    prompt: Re-run the resource health assessment to check for status changes after remediation actions.
+    send: true
   - label: Escalate to Architect
     agent: Architect
     prompt: I've completed a resource health assessment that identified architectural issues requiring WAF evaluation. Please review the findings and provide architectural recommendations.

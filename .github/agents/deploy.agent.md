@@ -23,6 +23,18 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Run What-If Only
+    agent: Deploy
+    prompt: Execute az deployment what-if analysis without actually deploying. Show the expected changes to the target resource group.
+    send: true
+  - label: ▶ Retry Deployment
+    agent: Deploy
+    prompt: Retry the last deployment operation. Re-run preflight validation and deployment with the same parameters.
+    send: true
+  - label: ▶ Verify Resources
+    agent: Deploy
+    prompt: Query deployed resources using Azure Resource Graph to verify successful deployment. Check resource health status.
+    send: true
   - label: Generate Workload Documentation
     agent: Docs
     prompt: Generate comprehensive workload documentation for the deployed infrastructure. Include resource inventory, operations runbook, backup/DR plan, and as-built cost estimate (07-ab-cost-estimate.md).

@@ -20,6 +20,18 @@ tools:
     "ms-python.python/configurePythonEnvironment",
   ]
 handoffs:
+  - label: ▶ Refine Layout
+    agent: Diagram
+    prompt: Refine the current diagram layout. Adjust groupings, clusters, and edge routing for better visual clarity.
+    send: true
+  - label: ▶ Add Resources
+    agent: Diagram
+    prompt: Add additional resources to the current diagram. What resources should I add to the visualization?
+    send: false
+  - label: ▶ Regenerate PNG
+    agent: Diagram
+    prompt: Re-execute the Python diagram script to regenerate the PNG output. Verify the image was created successfully.
+    send: true
   - label: Continue to Infrastructure Planning
     agent: Bicep Plan
     prompt: Now create a Bicep implementation plan for the visualized architecture. Use the diagram as reference for resource dependencies and relationships.

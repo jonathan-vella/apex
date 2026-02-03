@@ -23,6 +23,18 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Refresh AVM Versions
+    agent: Bicep Plan
+    prompt: Check for latest Azure Verified Module versions using mcp_bicep_list_avm_metadata. Update the implementation plan with current versions.
+    send: true
+  - label: ▶ Refresh Governance
+    agent: Bicep Plan
+    prompt: Re-query Azure Policy constraints and update the governance-constraints.md file with current policy requirements.
+    send: true
+  - label: ▶ Add Resource to Plan
+    agent: Bicep Plan
+    prompt: Add a new resource to the implementation plan. What resource type should I add? I'll determine the appropriate AVM module and update dependencies.
+    send: false
   - label: Generate Bicep Code
     agent: Bicep Code
     prompt: Implement the Bicep templates based on the implementation plan above. Follow all resource specifications, dependencies, and best practices outlined in the plan.

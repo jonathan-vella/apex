@@ -22,6 +22,22 @@ tools:
     "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
   ]
 handoffs:
+  - label: ▶ Refresh Cost Estimate
+    agent: Architect
+    prompt: Re-query Azure Pricing MCP to update the cost estimate section with current pricing. Recalculate monthly and yearly totals.
+    send: true
+  - label: ▶ Deep Dive WAF Pillar
+    agent: Architect
+    prompt: Perform a deeper analysis on a specific WAF pillar. Which pillar should I analyze in more detail? (Security, Reliability, Performance, Cost, Operations)
+    send: false
+  - label: ▶ Compare SKU Options
+    agent: Architect
+    prompt: Compare alternative SKU options for key resources. Analyze trade-offs between cost, performance, and features.
+    send: true
+  - label: ▶ Save Assessment
+    agent: Architect
+    prompt: Save the current architecture assessment to 02-architecture-assessment.md in the project's agent-output folder.
+    send: true
   - label: Generate Architecture Diagram
     agent: Diagram
     prompt: Generate a Python architecture diagram for the assessed design using the diagrams library. Include all Azure resources, network topology, and data flow.
