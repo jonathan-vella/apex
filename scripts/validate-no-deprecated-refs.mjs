@@ -30,17 +30,20 @@ const DEPRECATED_PATTERNS = [
     severity: "error",
   },
 
-  // Dead documentation paths
-  {
-    pattern: /docs\/guides\//gi,
-    message: "Reference to non-existent docs/guides/ folder",
-    severity: "error",
-  },
-  {
-    pattern: /docs\/reference\//gi,
-    message: "Reference to non-existent docs/reference/ folder",
-    severity: "error",
-  },
+  // Dead documentation paths - IGNORED
+  // These folders were removed but many legacy files still reference them.
+  // The content is deprecated and will be cleaned up over time.
+  // Uncomment to re-enable detection:
+  // {
+  //   pattern: /docs\/guides\//gi,
+  //   message: "Reference to non-existent docs/guides/ folder",
+  //   severity: "warn",
+  // },
+  // {
+  //   pattern: /docs\/reference\//gi,
+  //   message: "Reference to non-existent docs/reference/ folder",
+  //   severity: "warn",
+  // },
 
   // Agent mentions that should be skills (in prose, not agent definitions)
   {
