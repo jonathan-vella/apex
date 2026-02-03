@@ -1,16 +1,10 @@
 {
   "ignorePatterns": [
     {
-      "pattern": "^https?://"
-    },
-    {
       "pattern": "^mailto:"
     },
     {
       "pattern": "^#"
-    },
-    {
-      "pattern": "aka\\.ms"
     }
   ],
   "replacementPatterns": [
@@ -19,9 +13,37 @@
       "replacement": "./"
     }
   ],
-  "aliveStatusCodes": [200, 206],
+  "httpHeaders": [
+    {
+      "urls": ["https://github.com"],
+      "headers": {
+        "Accept": "text/html"
+      }
+    }
+  ],
+  "aliveStatusCodes": [200, 206, 301, 302],
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "5s",
-  "timeout": "10s"
+  "timeout": "15s",
+  "ignorePatterns": [
+    {
+      "pattern": "^https?://localhost"
+    },
+    {
+      "pattern": "example\\.com"
+    },
+    {
+      "pattern": "contoso\\.com"
+    },
+    {
+      "pattern": "your-.*\\.azure"
+    },
+    {
+      "pattern": "placeholder"
+    },
+    {
+      "pattern": "aka\\.ms"
+    }
+  ]
 }

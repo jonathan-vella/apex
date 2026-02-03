@@ -63,3 +63,32 @@ commit-msg:
              feat: add new Azure App Service module
              fix(bicep): correct storage account naming
              docs: update README with deployment steps
+
+# New validation checks (warn mode until 2026-02-10)
+# TODO: Change to blocking after 2026-02-10
+post-commit:
+  commands:
+    version-sync:
+      run: |
+        echo "🔍 Checking version synchronization..."
+        node scripts/validate-version-sync.mjs || echo "⚠️  Version sync check failed (warn mode)"
+      fail_text: "Version sync warning - will enforce after 2026-02-10"
+
+    deprecated-refs:
+      glob: "*.md"
+      run: |
+        echo "🔍 Checking for deprecated references..."
+        node scripts/validate-no-deprecated-refs.mjs || echo "⚠️  Deprecated refs check failed (warn mode)"
+      fail_text: "Deprecated references warning - will enforce after 2026-02-10"
+
+    json-syntax:
+      glob: "*.json"
+      run: |
+        echo "🔍 Validating JSON syntax..."
+        STAGED_JSON=$(git diff --cached --name-only --diff-filter=ACM | grep '\.json$' | grep -v node_modules | grep -v infra || true)
+        if [ -n "$STAGED_JSON" ]; then
+          for f in $STAGED_JSON; do
+            node -e "JSON.parse(require('fs').readFileSync('$f'))" 2>/dev/null && echo "  ✓ $f" || echo "  ✗ $f - Invalid JSON"
+          done
+        fi
+      fail_text: "JSON syntax warning - will enforce after 2026-02-10"

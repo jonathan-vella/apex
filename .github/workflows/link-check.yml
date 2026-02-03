@@ -1,0 +1,67 @@
+# External Link Checker
+# Validates external URLs in markdown files
+# Runs weekly and on PRs that modify documentation
+
+name: Link Check
+
+on:
+  schedule:
+    # Weekly on Sundays at 2:00 AM UTC
+    - cron: '0 2 * * 0'
+  pull_request:
+    paths:
+      - '**.md'
+      - '.github/workflows/link-check.yml'
+  workflow_dispatch:
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check internal links (docs/)
+        run: npm run lint:links:docs
+        continue-on-error: false
+
+      - name: Check external links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --timeout 30
+            --max-retries 3
+            --exclude-path node_modules
+            --exclude-path infra
+            --exclude-path '*/_superseded/*'
+            --exclude '^https://localhost'
+            --exclude '^http://localhost'
+            --exclude 'example\.com'
+            --exclude 'contoso\.com'
+            --exclude 'your-.*\.azure'
+            --exclude 'placeholder'
+            --accept 200,204,206,301,302,403,429
+            '**/*.md'
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report results
+        if: always()
+        run: |
+          if [ -f lychee/out.md ]; then
+            echo "## Link Check Results" >> $GITHUB_STEP_SUMMARY
+            cat lychee/out.md >> $GITHUB_STEP_SUMMARY
+          fi
