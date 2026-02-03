@@ -1,13 +1,10 @@
 ---
 name: azure-diagrams
-# yamllint disable-line rule:line-length
 description: >
   Comprehensive technical diagramming toolkit for solutions architects, presales, and developers.
   Creates Azure architecture diagrams (700+ official Microsoft icons), business process flows,
   ERD diagrams, project timelines, UI wireframes, and network topology diagrams.
   Also generates diagrams from Bicep, Terraform, and ARM templates.
-  Use when asked to "create architecture diagram", "generate diagram", "visualize infrastructure",
-  "draw Azure architecture", "diagram from Bicep", or "create as-built diagram".
   **Output format**: PNG images via Python diagrams library (mingrammer/diagrams).
 compatibility: >
   Requires graphviz system package and Python diagrams library.
@@ -15,9 +12,8 @@ compatibility: >
 license: MIT
 metadata:
   author: cmb211087
-  version: "5.0"
+  version: "4.0"
   repository: https://github.com/mingrammer/diagrams
-  category: document-creation
 ---
 
 # Azure Architecture Diagrams Skill
@@ -25,44 +21,6 @@ metadata:
 A comprehensive technical diagramming toolkit for solutions architects, presales engineers,
 and developers. Generate professional diagrams for proposals, documentation, and architecture
 reviews using Python's `diagrams` library.
-
-## When to Use This Skill
-
-- User asks to "create architecture diagram" or "generate diagram"
-- User wants to "visualize infrastructure" or "draw Azure architecture"
-- User needs a "diagram from Bicep" or "diagram from Terraform"
-- User requests "design diagram" (03-des) or "as-built diagram" (07-ab)
-- After architecture assessment for design visualization
-- After deployment for as-built documentation
-
-## Do NOT Use For
-
-- Creating Bicep/Terraform templates (use bicep-code agent)
-- Architecture assessment or WAF analysis (use architect agent)
-- General documentation (use azure-workload-docs skill)
-- Deployment execution (use deploy agent)
-
----
-
-## Design vs As-Built Detection
-
-Automatically detect diagram type from context:
-
-| Context | Prefix | Filename |
-|---------|--------|----------|
-| Architecture assessment, proposal, design | `03-des-` | `03-des-diagram.py/.png` |
-| After deployment, implemented, current state | `07-ab-` | `07-ab-diagram.py/.png` |
-| Standalone request with "design" language | `03-des-` | `03-des-diagram.py/.png` |
-| Standalone request with "as-built" language | `07-ab-` | `07-ab-diagram.py/.png` |
-
-### Detection Keywords
-
-| Design Phase (03-des-) | As-Built Phase (07-ab-) |
-|------------------------|-------------------------|
-| proposed, planned, design | deployed, implemented, current |
-| will have, should include | has, contains, running |
-| architecture assessment | deployment summary |
-| before implementation | after deployment |
 
 ## 🎯 Output Format
 

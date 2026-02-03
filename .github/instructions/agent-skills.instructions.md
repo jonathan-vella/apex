@@ -8,6 +8,25 @@ applyTo: "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
 Instructions for creating effective and portable Agent Skills that enhance GitHub Copilot
 with specialized capabilities, workflows, and bundled resources.
 
+## Start With Use Cases
+
+**CRITICAL**: Before writing any skill, define 2-3 concrete use cases using the
+Trigger/Steps/Result format:
+
+```markdown
+### Use Case: [Name]
+
+- **Trigger**: What does the user say or do?
+- **Steps**: What actions does the skill perform?
+- **Result**: What output does the user receive?
+```
+
+This ensures:
+
+- Clear understanding of what the skill should do
+- Keyword-rich descriptions that enable discovery
+- Testable success criteria
+
 ## What Are Agent Skills?
 
 Agent Skills are self-contained folders with instructions and bundled resources that teach AI agents
@@ -20,6 +39,16 @@ Key characteristics:
 - **Progressive loading**: Only loaded when relevant to the user's request
 - **Resource-bundled**: Can include scripts, templates, examples alongside instructions
 - **On-demand**: Activated automatically based on prompt relevance
+
+## Skill Categories
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| **Category 1** | Document Creation | ADRs, diagrams, reports, specifications |
+| **Category 2** | Workflow Automation | Multi-step processes, deployments, migrations |
+| **Category 3** | Tool Integration | CLI wrappers, API clients, external services |
+
+Select category based on primary output type and workflow complexity.
 
 ## Directory Structure
 
@@ -87,6 +116,20 @@ The poor description fails because:
 - No specific triggers (when should Copilot load this?)
 - No keywords (what user prompts would match?)
 - No capabilities (what can it actually do?)
+
+### Negative Triggers (Do NOT Use For)
+
+**CRITICAL**: Include a "Do NOT Use For" section to prevent false positives:
+
+```markdown
+## Do NOT Use For
+
+- General documentation or meeting notes (use standard markdown)
+- One-off code snippets (not skill territory)
+- Tasks unrelated to [skill domain]
+```
+
+This prevents the skill from triggering on unrelated requests that share keywords.
 
 ### Body Content
 
@@ -260,11 +303,31 @@ Before publishing a skill:
 - [ ] `name` is lowercase with hyphens, ≤64 characters
 - [ ] `description` clearly states **WHAT** it does, **WHEN** to use it, and relevant **KEYWORDS**
 - [ ] Body includes when to use, prerequisites, and step-by-step workflows
+- [ ] **Do NOT Use For** section prevents false positives
 - [ ] SKILL.md body kept under 500 lines (split large content into `references/` folder)
 - [ ] Large workflows (>5 steps) split into `references/` folder with clear links from SKILL.md
 - [ ] Scripts include help documentation and error handling
 - [ ] Relative paths used for all resource references
 - [ ] No hardcoded credentials or secrets
+
+## Troubleshooting
+
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| **Skill won't trigger** | Description lacks keywords | Add trigger phrases from use cases |
+| **Skill triggers too often** | Description too broad | Add "Do NOT Use For" section |
+| **Wrong skill selected** | Keyword overlap with other skills | Make description more specific |
+| **Incomplete output** | Missing workflow steps | Add step-by-step instructions |
+| **Errors during execution** | Missing prerequisites | Document all dependencies |
+
+### Debugging Skill Discovery
+
+If a skill isn't being discovered:
+
+1. **Check description keywords**: Do they match the user's prompt?
+2. **Test with exact phrases**: Use trigger phrases from your use cases
+3. **Check for conflicts**: Another skill might have overlapping keywords
+4. **Verify frontmatter**: Ensure YAML is valid and `name` matches folder
 
 ## Workflow Execution Pattern
 
