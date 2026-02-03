@@ -12,7 +12,7 @@ tools:
     "search",
     "web",
     "azure-mcp/*",
-    "bicep-(experimental)/*",
+    "bicep/*",
     "todo",
     "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
     "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
