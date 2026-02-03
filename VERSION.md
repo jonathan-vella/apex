@@ -1,10 +1,10 @@
 # Version Information
 
-**Current Version:** 7.5.0
+**Current Version:** 8.0.0
 
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-04
 
-**Build:** d222744
+**Build:** docs-clean-slate
 
 ## Version History
 

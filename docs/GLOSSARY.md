@@ -1,6 +1,6 @@
 # Glossary
 
-> Version: see [VERSION.md](../VERSION.md) | Quick reference for terms used throughout Agentic InfraOps documentation.
+> Version 8.0.0 | Quick reference for terms used throughout Agentic InfraOps documentation.
 
 ---
 
@@ -11,19 +11,25 @@
 A document that captures an important architectural decision along with its context and consequences.
 Used to record "why" decisions were made for future reference.
 
-📁 **See**: docs/\_superseded/adr/ (Archived)
+📁 **Output**: `agent-output/{project}/03-des-adr-*.md`, `07-ab-adr-*.md`
+
+### Agent (Custom)
+
+A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
+Invoked via `Ctrl+Shift+A`. This project has 6 agents: requirements, architect, bicep-plan, bicep-code,
+deploy, diagnose.
+
+📁 **See**: [.github/agents/](../.github/agents/)
 
 ### Agentic InfraOps
 
-The methodology of using coordinated AI agents to transform requirements into deploy-ready Azure
-infrastructure. Combines GitHub Copilot with custom agents for structured workflow.
+The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
+Azure infrastructure. Combines GitHub Copilot with 6 custom agents and 10 skills.
 
 ### AVM (Azure Verified Modules)
 
 Microsoft's official library of pre-built, tested Bicep modules that follow Azure best
 practices. Using AVM modules ensures policy compliance and reduces custom code.
-
-📁 **See**: [ADR-003 AVM-First Approach (Archived)](_superseded/adr/ADR-003-avm-first-approach.md)
 
 🔗 **External**: [Azure Verified Modules Registry](https://aka.ms/avm)
 
@@ -50,14 +56,7 @@ Run with `bicep lint main.bicep` or automatically via VS Code extension.
 ### Copilot Chat
 
 The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Alt+I`. Supports
-custom agents via the agent picker dropdown.
-
-### Custom Agent
-
-A specialized AI assistant defined in `.github/agents/` that focuses on specific tasks. Examples:
-`architect`, `bicep-plan`, `bicep-code`.
-
-📁 **See**: [.github/agents/](../.github/agents/)
+custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
 ---
 
@@ -69,6 +68,15 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 (Azure CLI, Bicep, PowerShell) across all machines.
 
 🔗 **External**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+
+---
+
+## G
+
+### Governance Constraints
+
+Azure Policies and organizational rules that affect resource deployment. Discovered during the
+planning step and documented in `04-governance-constraints.md`.
 
 ---
 
@@ -150,12 +158,20 @@ removing public internet exposure. Essential for zero-trust architectures.
 ### SBOM (Software Bill of Materials)
 
 Inventory of all software components in an application, including dependencies and versions.
-Required for supply chain security. S08 scenario demonstrates SBOM generation.
+Required for supply chain security. S06 scenario demonstrates SBOM generation.
 
 ### SI Partner (System Integrator Partner)
 
 Microsoft partner organization that implements Azure solutions for customers. Primary audience
 for Agentic InfraOps methodology.
+
+### Skill (Copilot)
+
+A reusable, domain-specific knowledge module in `.github/skills/` that provides specialized
+capabilities. Skills activate automatically based on prompt keywords or can be invoked explicitly.
+This project has 10 skills across document creation, workflow automation, and utility categories.
+
+📁 **See**: [.github/skills/](../.github/skills/)
 
 ---
 
@@ -198,28 +214,19 @@ making actual changes. Run with `az deployment group create --what-if`.
 ### 7-Step Agentic Workflow
 
 The core Agentic InfraOps workflow: `requirements` → `architect` → Design Artifacts →
-`bicep-plan` → `bicep-code` → Deploy → As-Built Artifacts. Each step has an approval gate before proceeding.
-Steps 3 (Design Artifacts) and 7 (As-Built Artifacts) are optional for generating diagrams and ADRs.
+`bicep-plan` → `bicep-code` → `deploy` → Documentation. Each step produces artifacts in `agent-output/`.
+Steps 3 (Design Artifacts) and 7 (Documentation) use skills rather than agents.
 
-📁 **See**: [Workflow Guide](reference/workflow.md)
-
-### Requirements Agent
-
-Custom agent for Azure infrastructure requirements gathering. Starting point for the 7-step workflow.
-Gathers requirements and creates implementation plans. Defined in `requirements.agent.md`.
-
-> **Note**: VS Code includes a built-in "Plan" agent for general planning. This repository uses
-> the custom **Requirements** agent with Azure-specific instructions and workflow handoffs.
-
-🔗 **External**: [VS Code Custom Agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents)
+📁 **See**: [Workflow Guide](workflow.md)
 
 ---
 
 ## Quick Reference Table
 
-| Acronym | Full Name                                    | Category       |
+| Term    | Full Name                                    | Category       |
 | ------- | -------------------------------------------- | -------------- |
 | ADR     | Architecture Decision Record                 | Documentation  |
+| Agent   | Copilot Custom Agent                         | AI             |
 | AVM     | Azure Verified Modules                       | IaC            |
 | IaC     | Infrastructure as Code                       | Methodology    |
 | KQL     | Kusto Query Language                         | Monitoring     |
@@ -228,6 +235,7 @@ Gathers requirements and creates implementation plans. Defined in `requirements.
 | NSG     | Network Security Group                       | Networking     |
 | PCI-DSS | Payment Card Industry Data Security Standard | Compliance     |
 | SBOM    | Software Bill of Materials                   | Security       |
+| Skill   | Copilot Skill Module                         | AI             |
 | UAT     | User Acceptance Testing                      | QA             |
 | WAF     | Well-Architected Framework                   | Architecture   |
 

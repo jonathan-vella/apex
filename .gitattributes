@@ -50,6 +50,10 @@
 .gitignore text eol=lf
 .editorconfig text eol=lf
 
+# Copilot instructions (file-type specific guidance)
+.github/instructions/*.instructions.md linguist-documentation
+docs/**/*.md linguist-documentation
+
 # Docker files
 Dockerfile text eol=lf
 docker-compose*.yml text eol=lf

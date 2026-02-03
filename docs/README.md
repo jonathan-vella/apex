@@ -1,141 +1,116 @@
-# Documentation Hub
+# Agentic InfraOps Documentation
 
-> Agentic InfraOps | [Version info](../VERSION.md)
->
-> 🔗 [aka.ms/agenticinfraops](https://aka.ms/agenticinfraops)
+> Version 8.0.0 | Azure infrastructure engineered by AI agents and skills
 
-Welcome to the Agentic InfraOps documentation center.
-Choose your path based on experience level.
-
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    subgraph Start["🎯 Choose Your Path"]
-        B["🟢 Beginner<br/>New to IaC/Copilot"]
-        E["🟡 Experienced<br/>Know IaC, new to agents"]
-        P["🔴 Presenter<br/>Delivering demos"]
-    end
-
-    subgraph Resources
-        QS["📖 Quick Start"]
-        REF["📚 Reference Docs"]
-        DEMO["🎬 Demo Toolkit"]
-    end
-
-    B --> QS
-    E --> REF
-    P --> DEMO
-```
-
-| Path               | Start Here                                   |
-| ------------------ | -------------------------------------------- |
-| 🟢 **Beginner**    | [Quick Start](getting-started/quickstart.md) |
-| 🟡 **Experienced** | [Reference Docs](reference/)                 |
-| 🔴 **Presenter**   | [Demo Toolkit](presenter/)                   |
-
----
-
-## 🟢 Beginner Path — New to IaC or Copilot
-
-**Goal**: Get running in 15 minutes, understand the basics
-
-| Step | Resource                                                     | Time   |
-| ---- | ------------------------------------------------------------ | ------ |
-| 1    | [Quick Start](getting-started/quickstart.md)                 | 10 min |
-| 2    | [Your First Scenario](getting-started/first-scenario.md)     | 15 min |
-| 3    | [Copilot Getting Started](guides/copilot-getting-started.md) | 10 min |
-| 4    | Run [S01-bicep-baseline](../scenarios/S01-bicep-baseline/)   | 20 min |
-
-📚 **Next**: [Learning Paths](getting-started/learning-paths.md) for structured progression
-
----
-
-## 🟡 Experienced Path — Know IaC, New to Agents
-
-**Goal**: Understand agent workflow, run advanced scenarios
-
-| Step | Resource                                                       | Time   |
-| ---- | -------------------------------------------------------------- | ------ |
-| 1    | [Reference: Workflow](reference/workflow.md)                   | 5 min  |
-| 2    | [Reference: Agents Overview](reference/agents-overview.md)     | 5 min  |
-| 3    | Run [S02-agentic-workflow](../scenarios/S02-agentic-workflow/) | 30 min |
-| 4    | [Reference: Bicep Patterns](reference/bicep-patterns.md)       | 10 min |
-
-📚 **Deep Dive**: Use the reference docs above first.
-ADRs are archived and only referenced via explicitly labeled direct links.
-
----
-
-## 🔴 Presenter Path — Delivering Demos
-
-**Goal**: Prepare for customer/partner presentations
-
-| Step | Resource                                                    | Time   |
-| ---- | ----------------------------------------------------------- | ------ |
-| 1    | [Executive Pitch](presenter/executive-pitch.md)             | 10 min |
-| 2    | [Time Savings Evidence](presenter/time-savings-evidence.md) | 10 min |
-| 3    | [Objection Handling](presenter/objection-handling.md)       | 10 min |
-| 4    | [ROI Calculator](presenter/roi-calculator.md)               | 5 min  |
-
-📚 **Full Toolkit**: [Presenter Hub](presenter/)
-
----
-
-## 📊 Reference Materials (Single Source of Truth)
-
-| Document                                        | Purpose                               |
-| ----------------------------------------------- | ------------------------------------- |
-| [Defaults](reference/defaults.md)               | Regions, naming, tags, SKUs, security |
-| [Workflow](reference/workflow.md)               | Canonical 7-step agent workflow       |
-| [Agents Overview](reference/agents-overview.md) | All agents comparison with examples   |
-| [Bicep Patterns](reference/bicep-patterns.md)   | Unique suffix, diagnostics, policies  |
-| [Glossary](GLOSSARY.md)                         | Terms and acronyms (AVM, WAF, MCP)    |
-
----
-
-## Docs Inventory
-
-Use this table to understand what's canonical.
-
-| Section            | Purpose                           | Audience                  | Canonical entrypoint                                          |
-| ------------------ | --------------------------------- | ------------------------- | ------------------------------------------------------------- |
-| `getting-started/` | Onboarding and first run          | New users and evaluators  | [docs/getting-started/README.md](getting-started/README.md)   |
-| `guides/`          | How-to guides and troubleshooting | IT Pros and contributors  | [docs/guides/README.md](guides/README.md)                     |
-| `reference/`       | Canonical patterns and workflow   | Platform engineers        | [docs/reference/README.md](reference/README.md)               |
-| `presenter/`       | Demo assets and talk tracks       | Presenters                | [docs/presenter/README.md](presenter/README.md)               |
-| `diagrams/`        | Diagram index for this repo       | IT Pros and presenters    | [docs/diagrams/README.md](diagrams/README.md)                 |
-| `adr/`             | Architecture decision records     | Readers needing rationale | `docs/_superseded/adr/README.md` (Archived; direct link only) |
-
----
-
-## 🗂️ Additional Resources
-
-| Section                                      | Description                           |
-| -------------------------------------------- | ------------------------------------- |
-| [Workflow Guide](reference/workflow.md)      | Complete 7-step workflow with Mermaid |
-| [Diagrams](diagrams/README.md)               | Diagram catalog and how to regenerate |
-| [All Guides](guides/)                        | Consolidated how-to guides            |
-| [Troubleshooting](guides/troubleshooting.md) | Common issues and solutions           |
-
----
-
-## 🛠️ Copilot Customization
-
-| Section                                                | Description                |
-| ------------------------------------------------------ | -------------------------- |
-| [Agent Definitions](../.github/agents/)                | Custom agent `.md` files   |
-| [Shared Foundation](../.github/agents/_shared/)        | Common patterns for agents |
-| [Instructions](../.github/instructions/)               | Coding standards files     |
-| [Markdown Style Guide](guides/markdown-style-guide.md) | Documentation standards    |
-
----
+Transform Azure infrastructure requirements into deploy-ready Bicep code using coordinated
+AI agents and reusable skills, aligned with Azure Well-Architected Framework (WAF) and
+Azure Verified Modules (AVM).
 
 ## Quick Links
 
-- 📖 [Main README](../README.md) — Repository overview
-- 🎯 [Scenarios](../scenarios/) — Learning scenarios (S01-S08)
-- 💰 [Azure Pricing MCP](../mcp/azure-pricing-mcp/) — Real-time pricing tools
+| Resource | Description |
+|----------|-------------|
+| [Quickstart](quickstart.md) | Get running in 10 minutes |
+| [Workflow](workflow.md) | 7-step agent + skill workflow |
+| [Troubleshooting](troubleshooting.md) | Common issues and solutions |
+| [Glossary](GLOSSARY.md) | Terms and definitions |
+| [Scenarios](../scenarios/) | Hands-on learning |
 
 ---
 
-[Back to Main README](../README.md)
+## Agents (6)
+
+Agents are interactive AI assistants for specific workflow phases. Invoke via `Ctrl+Shift+A`.
+
+| Agent | Phase | Purpose |
+|-------|-------|---------|
+| `requirements` | 1 | Gather infrastructure requirements → `01-requirements.md` |
+| `architect` | 2 | WAF assessment and design → `02-architecture-assessment.md` |
+| `bicep-plan` | 4 | Implementation planning → `04-implementation-plan.md` |
+| `bicep-code` | 5 | Bicep template generation → `infra/bicep/{project}/` |
+| `deploy` | 6 | Azure deployment → `06-deployment-summary.md` |
+| `diagnose` | 8 | Post-deployment diagnostics → `08-resource-health-report.md` |
+
+---
+
+## Skills (10)
+
+Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
+
+### Document Creation (Category 1)
+
+| Skill | Purpose | Triggers |
+|-------|---------|----------|
+| `azure-diagrams` | Python architecture diagrams | "create diagram", "visualize architecture" |
+| `azure-adr` | Architecture Decision Records | "create ADR", "document decision" |
+
+### Workflow Automation (Category 2)
+
+| Skill | Purpose | Triggers |
+|-------|---------|----------|
+| `azure-workload-docs` | 7 documentation types (07-*.md) | "generate documentation", "create runbook" |
+| `azure-deployment-preflight` | Pre-deployment validation | "validate deployment", "preflight check" |
+| `github-issues` | GitHub issue management | "create issue", "file bug" |
+| `github-pull-requests` | Pull request management | "create PR", "merge pull request" |
+
+### Tool Integration (Category 3)
+
+| Skill | Purpose | Triggers |
+|-------|---------|----------|
+| `gh-cli` | GitHub CLI reference | "gh command", "github cli" |
+| `git-commit` | Commit message conventions | "commit", "conventional commit" |
+| `make-skill-template` | Create new skills | "create skill", "scaffold skill" |
+
+---
+
+## 7-Step Workflow
+
+```
+Requirements → Architecture → Design → Planning → Implementation → Deploy → Documentation
+     ↓             ↓           ↓          ↓             ↓           ↓           ↓
+   Agent        Agent       Skills     Agent         Agent       Agent       Skills
+```
+
+See [workflow.md](workflow.md) for detailed step-by-step guide.
+
+---
+
+## Scenarios
+
+Practice with hands-on scenarios in `scenarios/`:
+
+| Scenario | Focus | Time |
+|----------|-------|------|
+| S01-bicep-baseline | Hub-spoke network | 30 min |
+| S02-agentic-workflow | Full 7-step flow | 60 min |
+| S03-documentation-generation | Workload docs | 30 min |
+| S04-service-validation | Deployment preflight | 20 min |
+| S05-troubleshooting | Diagnose agent | 20 min |
+| S07-diagrams-as-code | Architecture diagrams | 30 min |
+| S08-coding-agent | GitHub Copilot agent | 45 min |
+| S09-skill-migration | Agent to skill conversion | 30 min |
+
+---
+
+## Project Structure
+
+```
+azure-agentic-infraops/
+├── .github/
+│   ├── agents/           # 6 agent definitions
+│   ├── skills/           # 10 skill definitions
+│   ├── instructions/     # File-type rules
+│   └── templates/        # Output templates
+├── agent-output/         # Generated artifacts
+├── infra/bicep/          # Bicep templates
+├── scenarios/            # Hands-on learning
+└── docs/                 # This documentation
+```
+
+---
+
+## Getting Help
+
+- **Issues**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
+- **Troubleshooting**: [troubleshooting.md](troubleshooting.md)
