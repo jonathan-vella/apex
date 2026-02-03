@@ -24,7 +24,7 @@ deploy, diagnose.
 ### Agentic InfraOps
 
 The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
-Azure infrastructure. Combines GitHub Copilot with 6 custom agents and 10 skills.
+Azure infrastructure. Combines GitHub Copilot with 6 custom agents and 9 skills.
 
 ### AVM (Azure Verified Modules)
 
@@ -169,7 +169,7 @@ for Agentic InfraOps methodology.
 
 A reusable, domain-specific knowledge module in `.github/skills/` that provides specialized
 capabilities. Skills activate automatically based on prompt keywords or can be invoked explicitly.
-This project has 10 skills across document creation, workflow automation, and utility categories.
+This project has 9 skills across document creation, workflow automation, and utility categories.
 
 📁 **See**: [.github/skills/](../.github/skills/)
 

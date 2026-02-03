@@ -23,38 +23,38 @@ This skill creates a complete documentation package from existing artifacts.
 
 ## When to Use This Skill
 
-| Trigger Phrase | Use Case |
-|----------------|----------|
-| "Generate workload documentation" | Create full doc package |
-| "Document the deployment" | Post-deployment documentation |
-| "Create operations runbook" | Specific runbook generation |
-| "Generate resource inventory" | List all deployed resources |
+| Trigger Phrase                    | Use Case                      |
+| --------------------------------- | ----------------------------- |
+| "Generate workload documentation" | Create full doc package       |
+| "Document the deployment"         | Post-deployment documentation |
+| "Create operations runbook"       | Specific runbook generation   |
+| "Generate resource inventory"     | List all deployed resources   |
 
 ## Output Files
 
 All documentation is saved to `agent-output/{project}/`:
 
-| File | Purpose | Template |
-|------|---------|----------|
+| File                        | Purpose                       | Template |
+| --------------------------- | ----------------------------- | -------- |
 | `07-documentation-index.md` | Master index linking all docs | Required |
-| `07-design-document.md` | 10-section technical design | Required |
-| `07-operations-runbook.md` | Day-2 operational procedures | Required |
-| `07-resource-inventory.md` | Complete resource listing | Required |
-| `07-ab-cost-estimate.md` | As-built cost analysis | Required |
-| `07-compliance-matrix.md` | Security control mapping | Optional |
-| `07-backup-dr-plan.md` | Disaster recovery procedures | Optional |
+| `07-design-document.md`     | 10-section technical design   | Required |
+| `07-operations-runbook.md`  | Day-2 operational procedures  | Required |
+| `07-resource-inventory.md`  | Complete resource listing     | Required |
+| `07-ab-cost-estimate.md`    | As-built cost analysis        | Required |
+| `07-compliance-matrix.md`   | Security control mapping      | Optional |
+| `07-backup-dr-plan.md`      | Disaster recovery procedures  | Optional |
 
 ## Source Artifacts
 
 This skill synthesizes from existing project artifacts:
 
-| Source | Information Extracted |
-|--------|----------------------|
-| `01-requirements.md` | Business context, NFRs, compliance needs |
-| `02-architecture-assessment.md` | WAF scores, SKU recommendations |
-| `04-implementation-plan.md` | Resource inventory, dependencies |
-| `06-deployment-summary.md` | Deployed resources, outputs |
-| `infra/bicep/{project}/` | Actual configuration values |
+| Source                          | Information Extracted                    |
+| ------------------------------- | ---------------------------------------- |
+| `01-requirements.md`            | Business context, NFRs, compliance needs |
+| `02-architecture-assessment.md` | WAF scores, SKU recommendations          |
+| `04-implementation-plan.md`     | Resource inventory, dependencies         |
+| `06-deployment-summary.md`      | Deployed resources, outputs              |
+| `infra/bicep/{project}/`        | Actual configuration values              |
 
 ## Example Prompts
 
@@ -80,48 +80,22 @@ Include resource names, SKUs, and monthly cost estimates.
 ### Post-Deployment
 
 ```
-Use the azure-workload-docs skill to document the infrastructure 
+Use the azure-workload-docs skill to document the infrastructure
 we just deployed. Synthesize from the deployment summary and Bicep templates.
 ```
 
 ## Document Templates
 
-### 07-design-document.md Structure
+Document structures are defined in the templates folder. Follow these when generating output:
 
-```markdown
-## 1. Introduction
-## 2. Azure Architecture Overview
-## 3. Networking
-## 4. Storage
-## 5. Compute
-## 6. Identity & Access
-## 7. Security & Compliance
-## 8. Backup & Disaster Recovery
-## 9. Management & Monitoring
-## 10. Appendix
-```
-
-### 07-operations-runbook.md Structure
-
-```markdown
-## Quick Reference
-## 1. Daily Operations
-## 2. Incident Response
-## 3. Common Procedures
-## 4. Maintenance Windows
-## 5. Contacts & Escalation
-## 6. Change Log
-```
-
-### 07-resource-inventory.md Structure
-
-```markdown
-## Summary
-## Resource Listing
-
-| Resource | Type | SKU | Location | Resource Group | Monthly Cost |
-|----------|------|-----|----------|----------------|--------------|
-```
+| Document | Template |
+|----------|----------|
+| Design Document | See `07-design-document.template.md` (10 sections) |
+| Operations Runbook | See `07-operations-runbook.template.md` (6 sections) |
+| Resource Inventory | See `07-resource-inventory.template.md` (2 sections + table) |
+| Backup/DR Plan | See `07-backup-dr-plan.template.md` (9 sections) |
+| Compliance Matrix | See `07-compliance-matrix.template.md` (6 sections) |
+| Documentation Index | See `07-documentation-index.template.md` (5 sections) |
 
 ## Integration with Workflow
 
@@ -175,3 +149,14 @@ infra/bicep/{project}/
 - [ ] Runbook procedures are specific, not generic
 - [ ] Compliance controls map to actual implementations
 - [ ] DR procedures include RTO/RPO from requirements
+
+## Template References
+
+When generating documentation, follow these template structures:
+
+- [07-documentation-index.template.md](../../templates/07-documentation-index.template.md)
+- [07-design-document.template.md](../../templates/07-design-document.template.md)
+- [07-operations-runbook.template.md](../../templates/07-operations-runbook.template.md)
+- [07-resource-inventory.template.md](../../templates/07-resource-inventory.template.md)
+- [07-backup-dr-plan.template.md](../../templates/07-backup-dr-plan.template.md)
+- [07-compliance-matrix.template.md](../../templates/07-compliance-matrix.template.md)

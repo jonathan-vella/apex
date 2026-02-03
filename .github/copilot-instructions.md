@@ -13,11 +13,11 @@ Agents coordinate through artifact handoffs via `.github/agents/*.agent.md`:
 
 1. **Requirements** (`requirements` agent) → `01-requirements.md`
 2. **Architecture** (`architect` agent) → `02-architecture-assessment.md` + cost estimates via Azure Pricing MCP
-3. **Design Artifacts** (`diagram`, `adr` agents) → `03-des-*.{py,png,md}` (optional)
+3. **Design Artifacts** (`azure-diagrams`, `azure-adr` skills) → `03-des-*.{py,png,md}` (optional)
 4. **Planning** (`bicep-plan` agent) → `04-implementation-plan.md` + governance constraints
 5. **Implementation** (`bicep-code` agent) → Bicep templates in `infra/bicep/{project}/`
 6. **Deploy** (`deploy` agent) → `06-deployment-summary.md` + resource validation
-7. **As-Built** (`diagram`, `adr`, `docs` agents) → `07-*.md` documentation suite
+7. **As-Built** (`azure-diagrams`, `azure-adr`, `azure-workload-docs` skills) → `07-*.md` documentation suite
 
 **Key Rule**: Each agent saves outputs to `agent-output/{project}/` and passes context via handoff prompts.
 
@@ -140,18 +140,16 @@ The Azure Pricing MCP server (`.mcp/azure-pricing-mcp/`) integrates with agents 
 ```
 azure-agentic-infraops/
 ├── .github/
-│   ├── agents/                    # 9 agents: requirements, architect, bicep-plan,
-│   │                              # bicep-code, deploy, diagram, adr, docs, diagnose
+│   ├── agents/                    # 6 agents for core workflow steps
 │   │   ├── _shared/defaults.md    # Regions, tags, CAF naming, AVM standards
 │   │   ├── requirements.agent.md  # Step 1: Gather infrastructure needs
 │   │   ├── architect.agent.md     # Step 2: WAF assessment + cost estimates
 │   │   ├── bicep-plan.agent.md    # Step 4: Implementation planning
 │   │   ├── bicep-code.agent.md    # Step 5: Bicep code generation
 │   │   ├── deploy.agent.md        # Step 6: Azure deployment
-│   │   ├── diagram.agent.md       # Step 3/7: Architecture diagrams
-│   │   ├── adr.agent.md           # Step 3/7: Architecture Decision Records
-│   │   ├── docs.agent.md          # Step 7: Workload documentation
 │   │   └── diagnose.agent.md      # Troubleshooting helper
+│   ├── skills/                    # 9 reusable skills (azure-diagrams, azure-adr,
+│   │                              # azure-workload-docs, azure-deployment-preflight, etc.)
 │   ├── instructions/              # Rules for specific file types (applied via .gitattributes)
 │   ├── templates/                 # H2 skeleton files for artifact generation
 │   └── copilot-instructions.md    # THIS FILE

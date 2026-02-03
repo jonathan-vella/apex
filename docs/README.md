@@ -33,7 +33,7 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 ---
 
-## Skills (10)
+## Skills (9)
 
 Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
 
@@ -98,7 +98,7 @@ Practice with hands-on scenarios in `scenarios/`:
 azure-agentic-infraops/
 ├── .github/
 │   ├── agents/           # 6 agent definitions
-│   ├── skills/           # 10 skill definitions
+│   ├── skills/           # 9 skill definitions
 │   ├── instructions/     # File-type rules
 │   └── templates/        # Output templates
 ├── agent-output/         # Generated artifacts

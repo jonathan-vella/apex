@@ -256,7 +256,7 @@ Create test cases for diverse infrastructure types:
 
 Define measurable success criteria:
 
-1. **Coverage**: All 9 agents have functional tests
+1. **Coverage**: All 6 agents and 9 skills have functional tests
 2. **Pass Rate**: ≥95% of tests pass consistently
 3. **Execution Time**: Full test suite completes in <30 minutes
 4. **Automation**: ≥90% of tests run without manual intervention
