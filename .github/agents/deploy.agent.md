@@ -35,17 +35,17 @@ handoffs:
     agent: Deploy
     prompt: Query deployed resources using Azure Resource Graph to verify successful deployment. Check resource health status.
     send: true
-  - label: Generate Workload Documentation
-    agent: Docs
-    prompt: Generate comprehensive workload documentation for the deployed infrastructure. Include resource inventory, operations runbook, backup/DR plan, and as-built cost estimate (07-ab-cost-estimate.md).
+  - label: ▶ Generate Workload Documentation
+    agent: Deploy
+    prompt: Use the azure-workload-docs skill to generate comprehensive workload documentation for the deployed infrastructure. Include resource inventory, operations runbook, backup/DR plan, and as-built cost estimate (07-ab-cost-estimate.md).
     send: true
   - label: Return to Architect Review
     agent: Architect
     prompt: Review the deployment results and validate WAF compliance of the deployed infrastructure.
     send: true
-  - label: Generate As-Built Diagram
-    agent: Diagram
-    prompt: Generate an as-built architecture diagram documenting the deployed infrastructure. Use '-ab' suffix for as-built diagram.
+  - label: ▶ Generate As-Built Diagram
+    agent: Deploy
+    prompt: Use the azure-diagrams skill to generate an as-built architecture diagram documenting the deployed infrastructure. Save as 07-ab-diagram.py.
     send: true
   - label: Fix Deployment Issues
     agent: Bicep Code

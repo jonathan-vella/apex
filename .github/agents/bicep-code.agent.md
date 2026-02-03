@@ -37,17 +37,17 @@ handoffs:
     agent: Deploy
     prompt: Deploy the Bicep templates to Azure. Run what-if analysis first to preview changes, then execute deployment with user approval. Generate deployment summary upon completion.
     send: true
-  - label: Generate Workload Documentation
-    agent: Docs
-    prompt: Generate comprehensive workload documentation package including design document, operations runbook, and resource inventory. Synthesize from existing WAF assessment, implementation plan, and Bicep code.
+  - label: ▶ Generate Workload Documentation
+    agent: Bicep Code
+    prompt: Use the azure-workload-docs skill to generate comprehensive workload documentation package including design document, operations runbook, and resource inventory. Synthesize from existing WAF assessment, implementation plan, and Bicep code.
     send: true
-  - label: Generate As-Built Diagram
-    agent: Diagram
-    prompt: Generate a Python architecture diagram documenting the implemented infrastructure. Use '-ab' suffix for as-built diagram. Include all deployed Azure resources and their relationships.
+  - label: ▶ Generate As-Built Diagram
+    agent: Bicep Code
+    prompt: Use the azure-diagrams skill to generate a Python architecture diagram documenting the implemented infrastructure. Use '07-ab-diagram.py' filename for as-built diagram. Include all deployed Azure resources and their relationships.
     send: true
-  - label: Document Implementation Decision
-    agent: ADR
-    prompt: Create an ADR documenting the infrastructure implementation, including the architectural decisions, trade-offs, and deployment approach used in the Bicep templates.
+  - label: ▶ Document Implementation Decision
+    agent: Bicep Code
+    prompt: Use the azure-adr skill to create an ADR documenting the infrastructure implementation, including the architectural decisions, trade-offs, and deployment approach used in the Bicep templates.
     send: true
   - label: Return to Architect Review
     agent: Architect

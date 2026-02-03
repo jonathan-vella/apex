@@ -38,17 +38,17 @@ handoffs:
     agent: Architect
     prompt: Save the current architecture assessment to 02-architecture-assessment.md in the project's agent-output folder.
     send: true
-  - label: Generate Architecture Diagram
-    agent: Diagram
-    prompt: Generate a Python architecture diagram for the assessed design using the diagrams library. Include all Azure resources, network topology, and data flow.
+  - label: ▶ Generate Architecture Diagram
+    agent: Architect
+    prompt: Use the azure-diagrams skill to generate a Python architecture diagram for the assessed design. Include all Azure resources, network topology, and data flow. Save as 03-des-diagram.py.
     send: true
   - label: Plan Bicep Implementation
     agent: Bicep Plan
     prompt: Create a detailed Bicep implementation plan based on the architecture assessment and recommendations above. Include all Azure resources, dependencies, and implementation tasks.
     send: true
-  - label: Create ADR from Assessment
-    agent: ADR
-    prompt: Document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale.
+  - label: ▶ Create ADR from Assessment
+    agent: Architect
+    prompt: Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale.
     send: true
 ---
 

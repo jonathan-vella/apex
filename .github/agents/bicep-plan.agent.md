@@ -43,9 +43,9 @@ handoffs:
     agent: Architect
     prompt: Review the implementation plan for WAF alignment and architectural compliance before proceeding to Bicep implementation.
     send: true
-  - label: Generate Architecture Diagram
-    agent: Diagram
-    prompt: Generate a Python architecture diagram based on the implementation plan. Visualize the planned resources and dependencies.
+  - label: ▶ Generate Architecture Diagram
+    agent: Bicep Plan
+    prompt: Use the azure-diagrams skill to generate a Python architecture diagram based on the implementation plan. Visualize the planned resources and dependencies. Save as 03-des-diagram.py.
     send: true
 ---
 

@@ -37,9 +37,9 @@ handoffs:
     agent: Architect
     prompt: I've completed a resource health assessment that identified architectural issues requiring WAF evaluation. Please review the findings and provide architectural recommendations.
     send: true
-  - label: Generate Workload Documentation
-    agent: Docs
-    prompt: Generate comprehensive as-built documentation for the diagnosed resource, incorporating the health assessment findings and implemented remediations.
+  - label: ▶ Generate Workload Documentation
+    agent: Diagnose
+    prompt: Use the azure-workload-docs skill to generate comprehensive as-built documentation for the diagnosed resource, incorporating the health assessment findings and implemented remediations.
     send: true
 ---
 
