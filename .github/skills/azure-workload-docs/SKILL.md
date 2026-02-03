@@ -88,14 +88,14 @@ we just deployed. Synthesize from the deployment summary and Bicep templates.
 
 Document structures are defined in the templates folder. Follow these when generating output:
 
-| Document | Template |
-|----------|----------|
-| Design Document | See `07-design-document.template.md` (10 sections) |
-| Operations Runbook | See `07-operations-runbook.template.md` (6 sections) |
-| Resource Inventory | See `07-resource-inventory.template.md` (2 sections + table) |
-| Backup/DR Plan | See `07-backup-dr-plan.template.md` (9 sections) |
-| Compliance Matrix | See `07-compliance-matrix.template.md` (6 sections) |
-| Documentation Index | See `07-documentation-index.template.md` (5 sections) |
+| Document            | Template                                                     |
+| ------------------- | ------------------------------------------------------------ |
+| Design Document     | See `07-design-document.template.md` (10 sections)           |
+| Operations Runbook  | See `07-operations-runbook.template.md` (6 sections)         |
+| Resource Inventory  | See `07-resource-inventory.template.md` (2 sections + table) |
+| Backup/DR Plan      | See `07-backup-dr-plan.template.md` (9 sections)             |
+| Compliance Matrix   | See `07-compliance-matrix.template.md` (6 sections)          |
+| Documentation Index | See `07-documentation-index.template.md` (5 sections)        |
 
 ## Integration with Workflow
 

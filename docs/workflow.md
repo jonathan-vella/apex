@@ -68,15 +68,15 @@ graph TB
 
 ## Workflow Steps
 
-| Step | Agent/Skill | Purpose | Output |
-|------|-------------|---------|--------|
-| 1 | `requirements` agent | Gather requirements | `01-requirements.md` |
-| 2 | `architect` agent | WAF assessment | `02-architecture-assessment.md` |
-| 3 | `azure-diagrams`, `azure-adr` skills | Design artifacts | `03-des-*.md/.py` |
-| 4 | `bicep-plan` agent | Implementation plan | `04-implementation-plan.md` |
-| 5 | `bicep-code` agent | Bicep templates | `infra/bicep/{project}/` |
-| 6 | `deploy` agent | Azure deployment | `06-deployment-summary.md` |
-| 7 | `azure-workload-docs` skill | Documentation | `07-*.md` |
+| Step | Agent/Skill                          | Purpose             | Output                          |
+| ---- | ------------------------------------ | ------------------- | ------------------------------- |
+| 1    | `requirements` agent                 | Gather requirements | `01-requirements.md`            |
+| 2    | `architect` agent                    | WAF assessment      | `02-architecture-assessment.md` |
+| 3    | `azure-diagrams`, `azure-adr` skills | Design artifacts    | `03-des-*.md/.py`               |
+| 4    | `bicep-plan` agent                   | Implementation plan | `04-implementation-plan.md`     |
+| 5    | `bicep-code` agent                   | Bicep templates     | `infra/bicep/{project}/`        |
+| 6    | `deploy` agent                       | Azure deployment    | `06-deployment-summary.md`      |
+| 7    | `azure-workload-docs` skill          | Documentation       | `07-*.md`                       |
 
 ---
 
@@ -208,27 +208,27 @@ Output: agent-output/{project}/07-*.md (7 files)
 
 **Documents**:
 
-| File | Purpose |
-|------|---------|
-| `07-documentation-index.md` | Master index |
-| `07-design-document.md` | 10-section design doc |
-| `07-operations-runbook.md` | Day-2 procedures |
-| `07-resource-inventory.md` | Resource listing |
-| `07-ab-cost-estimate.md` | As-built cost analysis |
-| `07-compliance-matrix.md` | Security controls |
-| `07-backup-dr-plan.md` | DR procedures |
+| File                        | Purpose                |
+| --------------------------- | ---------------------- |
+| `07-documentation-index.md` | Master index           |
+| `07-design-document.md`     | 10-section design doc  |
+| `07-operations-runbook.md`  | Day-2 procedures       |
+| `07-resource-inventory.md`  | Resource listing       |
+| `07-ab-cost-estimate.md`    | As-built cost analysis |
+| `07-compliance-matrix.md`   | Security controls      |
+| `07-backup-dr-plan.md`      | DR procedures          |
 
 ---
 
 ## Agents vs Skills
 
-| Aspect | Agents | Skills |
-|--------|--------|--------|
-| **Invocation** | Manual (`Ctrl+Shift+A`) | Automatic or explicit |
-| **Interaction** | Conversational | Task-focused |
-| **State** | Session context | Stateless |
-| **Output** | Multiple artifacts | Specific outputs |
-| **When to use** | Core workflow steps | Specialized tasks |
+| Aspect          | Agents                  | Skills                |
+| --------------- | ----------------------- | --------------------- |
+| **Invocation**  | Manual (`Ctrl+Shift+A`) | Automatic or explicit |
+| **Interaction** | Conversational          | Task-focused          |
+| **State**       | Session context         | Stateless             |
+| **Output**      | Multiple artifacts      | Specific outputs      |
+| **When to use** | Core workflow steps     | Specialized tasks     |
 
 ### Invoking Skills
 
@@ -254,16 +254,16 @@ architect agent → "Generate Architecture Diagram" handoff → azure-diagrams s
 
 ## Artifact Naming
 
-| Step | Prefix | Example |
-|------|--------|---------|
-| Requirements | `01-` | `01-requirements.md` |
-| Architecture | `02-` | `02-architecture-assessment.md` |
-| Design | `03-des-` | `03-des-diagram.py`, `03-des-adr-0001-*.md` |
-| Planning | `04-` | `04-implementation-plan.md` |
-| Implementation | `05-` | `05-implementation-reference.md` |
-| Deployment | `06-` | `06-deployment-summary.md` |
-| As-Built | `07-` | `07-design-document.md`, `07-ab-diagram.py` |
-| Diagnostics | `08-` | `08-resource-health-report.md` |
+| Step           | Prefix    | Example                                     |
+| -------------- | --------- | ------------------------------------------- |
+| Requirements   | `01-`     | `01-requirements.md`                        |
+| Architecture   | `02-`     | `02-architecture-assessment.md`             |
+| Design         | `03-des-` | `03-des-diagram.py`, `03-des-adr-0001-*.md` |
+| Planning       | `04-`     | `04-implementation-plan.md`                 |
+| Implementation | `05-`     | `05-implementation-reference.md`            |
+| Deployment     | `06-`     | `06-deployment-summary.md`                  |
+| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.py` |
+| Diagnostics    | `08-`     | `08-resource-health-report.md`              |
 
 ---
 

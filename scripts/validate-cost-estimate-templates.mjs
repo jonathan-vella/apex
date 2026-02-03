@@ -119,7 +119,7 @@ function validateTemplate(relPath) {
   if (coreFound.length !== CORE_HEADINGS.length) {
     error(
       `Template ${relPath} is missing one or more required core H2 headings.`,
-      { filePath: relPath, line: 1 }
+      { filePath: relPath, line: 1 },
     );
   } else {
     for (let i = 0; i < CORE_HEADINGS.length; i += 1) {
@@ -128,7 +128,7 @@ function validateTemplate(relPath) {
           `Template ${relPath} core headings are out of order. Expected '${
             CORE_HEADINGS[i]
           }' at position ${i + 1}.`,
-          { filePath: relPath, line: 1 }
+          { filePath: relPath, line: 1 },
         );
         break;
       }
@@ -139,23 +139,23 @@ function validateTemplate(relPath) {
   if (extraH2.length > 0) {
     warn(
       `Template ${relPath} contains extra H2 headings beyond the core contract: ${extraH2.join(
-        " | "
+        " | ",
       )}`,
-      { filePath: relPath, line: 1 }
+      { filePath: relPath, line: 1 },
     );
   }
 
   if (!text.includes(REQUIRED_MERMAID_INIT)) {
     error(
       `Template ${relPath} is missing the required colored Mermaid pie init line.`,
-      { filePath: relPath, line: 1 }
+      { filePath: relPath, line: 1 },
     );
   }
 
   if (!text.includes("pie showData")) {
     error(
       `Template ${relPath} is missing 'pie showData' in the Mermaid pie section.`,
-      { filePath: relPath, line: 1 }
+      { filePath: relPath, line: 1 },
     );
   }
 }
@@ -177,7 +177,7 @@ function validateAgentLinks() {
   ) {
     error(
       `Agent ${AGENT_DES} must link to ../templates/03-des-cost-estimate.template.md`,
-      { filePath: AGENT_DES, line: 1 }
+      { filePath: AGENT_DES, line: 1 },
     );
   }
 
@@ -187,7 +187,7 @@ function validateAgentLinks() {
   ) {
     error(
       `Agent ${AGENT_AB} must link to ../templates/07-ab-cost-estimate.template.md`,
-      { filePath: AGENT_AB, line: 1 }
+      { filePath: AGENT_AB, line: 1 },
     );
   }
 }
@@ -203,7 +203,7 @@ function validateNoEmbeddedSkeletons(relPath) {
       {
         filePath: relPath,
         line: 1,
-      }
+      },
     );
   }
 
@@ -219,7 +219,7 @@ function validateNoEmbeddedSkeletons(relPath) {
     if (hit) {
       error(
         `Agent ${relPath} appears to embed a cost-estimate skeleton inside a fenced block (found '${hit}').`,
-        { filePath: relPath, line: 1 }
+        { filePath: relPath, line: 1 },
       );
       return;
     }
@@ -287,7 +287,7 @@ function main() {
   if (abExamples.length === 0) {
     warn(
       "No agent-output/**/07-ab-cost-estimate.md examples found yet (warning-only).",
-      { title: TITLE_MISSING_AB }
+      { title: TITLE_MISSING_AB },
     );
   }
 

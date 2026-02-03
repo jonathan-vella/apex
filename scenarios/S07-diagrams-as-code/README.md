@@ -2,8 +2,8 @@
 
 > **Version 5.3.0** | [Back to Scenarios](../README.md)
 >
-> **🤖 Agent Available**: This scenario is also available as the `diagram` agent for integration with
-> the 7-step workflow. See `.github/agents/diagram.agent.md`.
+> **🎯 Skill Available**: This scenario uses the `azure-diagrams` skill for integration with
+> the 7-step workflow. See `.github/skills/azure-diagrams/SKILL.md`.
 
 ---
 
@@ -50,9 +50,8 @@ By the end of this demo, participants will understand:
 
 | Resource                                                                   | Description                     |
 | -------------------------------------------------------------------------- | ------------------------------- |
-| [Diagram Generator Agent](../../.github/agents/diagram.agent.md) | Agent definition                |
-| [Diagrams Output](../../docs/diagrams/)                                    | Generated architecture diagrams |
-| [Workflow Guide](../../docs/reference/workflow.md)                         | Seven-step agentic workflow     |
+| [Azure Diagrams Skill](../../.github/skills/azure-diagrams/SKILL.md)       | Skill definition                |
+| [Workflow Guide](../../docs/workflow.md)                                   | Seven-step agentic workflow     |
 | [Presenter Toolkit](../../docs/presenter/)                                 | Demo delivery guides            |
 | [S02: Agentic Workflow](../S02-agentic-workflow/)                          | Integration with main workflow  |
 
