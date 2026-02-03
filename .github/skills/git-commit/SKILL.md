@@ -15,7 +15,8 @@ allowed-tools: Bash
 
 ## Overview
 
-Create standardized, semantic git commits using the Conventional Commits specification. Analyze the actual diff to determine appropriate type, scope, and message.
+Create standardized, semantic git commits using the Conventional Commits specification.
+Analyze the actual diff to determine appropriate type, scope, and message.
 
 ## Conventional Commit Format
 

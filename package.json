@@ -12,9 +12,9 @@
     "lint:artifact-templates": "node scripts/validate-artifact-templates.mjs"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.0.0",
-    "@commitlint/config-conventional": "^19.0.0",
-    "lefthook": "^1.6.0",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
+    "lefthook": "^2.1.0",
     "markdown-link-check": "^3.12.0",
     "markdownlint-cli2": "^0.20.0"
   },
