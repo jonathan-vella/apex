@@ -17,6 +17,10 @@
     "puppeteer": "^23.11.1"
   },
   "devDependencies": {},
+  "overrides": {
+    "lodash": ">=4.17.22",
+    "lodash-es": ">=4.17.23"
+  },
   "keywords": [
     "mermaid",
     "workflow",
