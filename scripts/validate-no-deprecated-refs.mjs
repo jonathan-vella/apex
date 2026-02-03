@@ -25,7 +25,8 @@ const DEPRECATED_PATTERNS = [
   },
   {
     pattern: /\.github\/agents\/docs\.agent\.md/gi,
-    message: "Reference to removed docs.agent.md (use azure-workload-docs skill)",
+    message:
+      "Reference to removed docs.agent.md (use azure-workload-docs skill)",
     severity: "error",
   },
 
@@ -54,7 +55,8 @@ const DEPRECATED_PATTERNS = [
   },
   {
     pattern: /@docs\s+agent/gi,
-    message: "Reference to @docs agent (removed - use azure-workload-docs skill)",
+    message:
+      "Reference to @docs agent (removed - use azure-workload-docs skill)",
     severity: "warn",
   },
 

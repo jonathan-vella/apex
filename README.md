@@ -125,16 +125,16 @@ graph LR
     classDef diagnose fill:#EF4444,stroke:#DC2626,color:#fff
 ```
 
-| Step | Phase          | Agent/Skill           | Output     | Description                                |
-| :--: | -------------- | --------------------- | ---------- | ------------------------------------------ |
-|  1   | Requirements   | `@requirements`       | `01-*`     | Gather and refine project requirements     |
-|  2   | Architecture   | `@architect` 🧩 💰    | `02-*`     | WAF assessment and design decisions        |
-|  3   | Design         | Skills: diagrams, adr | `03-des-*` | Diagrams and Architecture Decision Records |
-|  4   | Planning       | `@bicep-plan` 🧩      | `04-*`     | Implementation planning with governance    |
-|  5   | Implementation | `@bicep-code`         | `05-*`     | Generate AVM-first Bicep templates         |
-|  6   | Deployment     | `@deploy`             | `06-*`     | Azure resource provisioning                |
-|  7   | Documentation  | Skill: workload-docs  | `07-*`     | As-built documentation suite               |
-|  —   | Validation     | `@diagnose` 🧩        | `08-*`     | Resource health & troubleshooting          |
+| Step | Phase          | Agent/Skill                   | Output     | Description                                |
+| :--: | -------------- | ----------------------------- | ---------- | ------------------------------------------ |
+|  1   | Requirements   | `@requirements`               | `01-*`     | Gather and refine project requirements     |
+|  2   | Architecture   | `@architect` 🧩 💰            | `02-*`     | WAF assessment and design decisions        |
+|  3   | Design         | `azure-diagrams`, `azure-adr` | `03-des-*` | Diagrams and Architecture Decision Records |
+|  4   | Planning       | `@bicep-plan` 🧩              | `04-*`     | Implementation planning with governance    |
+|  5   | Implementation | `@bicep-code`                 | `05-*`     | Generate AVM-first Bicep templates         |
+|  6   | Deployment     | `@deploy`                     | `06-*`     | Azure resource provisioning                |
+|  7   | Documentation  | `azure-workload-docs`         | `07-*`     | As-built documentation suite               |
+|  —   | Validation     | `@diagnose` 🧩                | `08-*`     | Resource health & troubleshooting          |
 
 > **🧩** = Azure MCP Server integration | **💰** = Pricing MCP add-on | Steps 3, 7 & Validation are optional
 
@@ -242,7 +242,7 @@ Architecture diagrams as code using [mingrammer/diagrams](https://github.com/min
 ├── 📁 .github/
 │   ├── 📁 agents/             # 6 Copilot agents for the 7-step workflow
 │   ├── 📁 instructions/       # Guardrails and coding standards
-│   ├── 📁 skills/             # 9 agent skills (diagrams, ADR, docs, preflight)
+│   ├── 📁 skills/             # 10 agent skills (diagrams, ADR, docs, preflight)
 │   ├── 📁 templates/          # Artifact output templates
 │   └── 📁 workflows/          # CI/CD and drift guard workflows
 ├── 📁 agent-output/           # Generated artifacts per project
