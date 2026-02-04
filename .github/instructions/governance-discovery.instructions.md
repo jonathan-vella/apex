@@ -12,7 +12,8 @@ description: "MANDATORY Azure Policy discovery requirements for governance const
 Assumed governance constraints cause deployment failures. Example:
 
 - **Assumed**: 4 tags required (Environment, ManagedBy, Project, Owner)
-- **Actual**: 9 tags required via Azure Policy (environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, tech-contact)
+- **Actual**: 9 tags required via Azure Policy (environment, owner, costcenter, application,
+  workload, sla, backup-policy, maint-window, tech-contact)
 - **Result**: Deployment denied by Azure Policy
 
 ## MANDATORY Discovery Workflow
