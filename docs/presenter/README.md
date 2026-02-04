@@ -91,6 +91,6 @@ See [Objection Handling Guide](objection-handling.md) for complete responses wit
 
 ## Related Resources
 
-- [Reference Materials](../reference/README.md) - Technical patterns and defaults
-- [Getting Started](../getting-started/README.md) - Setup and first scenario
+- [Glossary](../GLOSSARY.md) - Technical terms and patterns
+- [Quick Start](../quickstart.md) - Setup and first scenario
 - [Scenarios Index](../../scenarios/README.md) - All demo scenarios

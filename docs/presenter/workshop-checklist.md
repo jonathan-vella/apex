@@ -298,7 +298,7 @@
 
 - **Repository**: <https://github.com/jonathan-vella/azure-agentic-infraops>
 - **Documentation**: `/docs/README.md`
-- **Troubleshooting**: `/docs/guides/troubleshooting.md`
+- **Troubleshooting**: `/docs/troubleshooting.md`
 - **Character Reference**: `/docs/presenter/character-reference.md`
 
 ### Support Contacts
@@ -312,4 +312,4 @@
 **📖 See Also:**
 
 - [Character Reference](character-reference.md) - Scenario personas
-- [Troubleshooting Guide](../guides/troubleshooting.md) - Common issues and solutions
+- [Troubleshooting Guide](../troubleshooting.md) - Common issues and solutions

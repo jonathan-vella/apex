@@ -44,6 +44,21 @@
     },
     {
       "pattern": "aka\\.ms"
+    },
+    {
+      "pattern": "^https://www\\.gartner\\.com"
+    },
+    {
+      "pattern": "^https://www\\.mckinsey\\.com"
+    },
+    {
+      "pattern": "^https://hbr\\.org"
+    },
+    {
+      "pattern": "^https://sloanreview\\.mit\\.edu"
+    },
+    {
+      "pattern": "^https://trust\\.github\\.com"
     }
   ]
 }

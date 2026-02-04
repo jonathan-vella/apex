@@ -16,7 +16,7 @@ Use this guide to keep diagrams and visuals consistent across slides, demos, and
 
 ## Canonical Sources
 
-- Diagram index and regeneration guidance: [docs/diagrams/README.md](../diagrams/README.md)
+- Diagram generation: [S07 Diagrams as Code](../../scenarios/S07-diagrams-as-code/)
 - Workload evidence (time-stamped): `agent-output/{project}/` artifacts
 
 ---
