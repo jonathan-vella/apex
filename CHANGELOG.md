@@ -17,12 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Resource Monitor Extension** - Added `mutantdino.resourcemonitor` to devcontainer for system monitoring
 
+- **Terraform Support Roadmap** - Comprehensive planning for future Terraform support
+  - Added `docs/terraform-roadmap.md` with full implementation guide
+  - Created tracking issue #85 with detailed task breakdown
+  - Includes agents, skills, CI/CD, and AVM-TF module references
+
 ### Changed
 
-- **Link Check CI** - Simplified to allowlist approach
-  - Now only checks `README.md`, `docs/**/*.md`, and `agent-output/**/*.md`
-  - Removed complex exclusion patterns in favor of explicit file targeting
-  - More reliable and faster CI validation
+- **Link Check CI** - Simplified to nightly schedule with auto-issue creation
+  - Removed PR trigger (no longer blocks merges)
+  - Runs nightly at 2:00 AM UTC
+  - Auto-creates GitHub issue with `broken-links` label when problems found
+  - Only checks `README.md`, `docs/**/*.md`, and `agent-output/**/*.md`
+
+- **Version Management** - Simplified release process
+  - Removed hardcoded version numbers from README files (link to VERSION.md instead)
+  - Disabled auto-version workflow (conflicts with branch protection)
+  - Manual release process: update VERSION.md → PR → merge → create release
 
 ### Fixed
 
@@ -30,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed template relative paths
   - Fixed ADR references to `_superseded` folder
   - Fixed workflow documentation cross-references
+
+- **CI Workflow Fixes**
+  - Fixed boolean type for `workflow_dispatch` input in AVM version check
+  - Increased link-check timeout to 30 minutes
 
 ## [8.0.0] - 2026-02-03
 
