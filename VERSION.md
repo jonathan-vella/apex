@@ -1,10 +1,10 @@
 # Version Information
 
-**Current Version:** 8.0.0
+**Current Version:** 8.1.0
 
 **Last Updated:** 2026-02-04
 
-**Build:** docs-clean-slate
+**Build:** docs-styling-enhancements
 
 ## Version History
 

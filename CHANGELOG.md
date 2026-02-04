@@ -5,6 +5,32 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.1.0] - 2026-02-04
+
+### Added
+
+- **Documentation Styling Enhancements** - Comprehensive callout and formatting improvements across 75+ files
+  - Added `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]` callouts throughout documentation
+  - Added consistent `## References` sections to agents, skills, and instruction files
+  - Enhanced AVM Pitfalls documentation with region limitations and parameter constraints
+  - Improved visual hierarchy and scannability across all markdown files
+
+- **Resource Monitor Extension** - Added `mutantdino.resourcemonitor` to devcontainer for system monitoring
+
+### Changed
+
+- **Link Check CI** - Simplified to allowlist approach
+  - Now only checks `README.md`, `docs/**/*.md`, and `agent-output/**/*.md`
+  - Removed complex exclusion patterns in favor of explicit file targeting
+  - More reliable and faster CI validation
+
+### Fixed
+
+- **Broken Internal Links** - Repaired 100+ broken links across documentation
+  - Fixed template relative paths
+  - Fixed ADR references to `_superseded` folder
+  - Fixed workflow documentation cross-references
+
 ## [8.0.0] - 2026-02-03
 
 ### Added
