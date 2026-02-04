@@ -70,7 +70,8 @@
         "teamsdevapp.vscode-ai-foundry",
         "esbenp.prettier-vscode",
         "mechatroner.rainbow-csv",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "mutantdino.resourcemonitor"
       ],
       "settings": {
         "editor.formatOnSave": true,
