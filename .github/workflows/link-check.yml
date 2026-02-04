@@ -45,13 +45,20 @@ jobs:
             --max-retries 3
             --exclude-path node_modules
             --exclude-path infra
-            --exclude-path '*/_superseded/*'
+            --exclude-path docs/_superseded
+            --exclude-path _superseded
             --exclude '^https://localhost'
             --exclude '^http://localhost'
             --exclude 'example\.com'
             --exclude 'contoso\.com'
             --exclude 'your-.*\.azure'
             --exclude 'placeholder'
+            --exclude '^https://www\.gartner\.com'
+            --exclude '^https://www\.mckinsey\.com'
+            --exclude '^https://hbr\.org'
+            --exclude '^https://sloanreview\.mit\.edu'
+            --exclude '^https://trust\.github\.com'
+            --exclude '^https://aka\.ms'
             --accept 200,204,206,301,302,403,429
             '**/*.md'
           fail: true
