@@ -13,7 +13,7 @@ on:
       create_issue:
         description: "Create GitHub issue for outdated modules"
         required: false
-        default: "true"
+        default: true
         type: boolean
 
 permissions:
