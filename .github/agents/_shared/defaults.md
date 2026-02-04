@@ -3,6 +3,8 @@
 This file contains shared configuration values that all agents should reference to maintain consistency.
 
 > **Note**: Agents should import these defaults rather than duplicating them.
+>
+> **⚠️ See Also**: [AVM Pitfalls](./avm-pitfalls.md) for known AVM parameter issues and region limitations.
 
 ## Default Regions
 
@@ -11,6 +13,17 @@ This file contains shared configuration values that all agents should reference 
 | **Primary**          | `swedencentral`      | Sweden Central       | EU GDPR compliant, sustainable operations |
 | **Alternative**      | `germanywestcentral` | Germany West Central | German data residency requirements        |
 | **Preview Features** | `eastus`             | East US              | Early access to new Azure features        |
+
+### Region Limitations (IMPORTANT)
+
+Some Azure services do not support all regions:
+
+| Service            | Supported Regions                                 | Default for EU  |
+| ------------------ | ------------------------------------------------- | --------------- |
+| **Static Web App** | westus2, centralus, eastus2, westeurope, eastasia | `westeurope`    |
+| **Azure OpenAI**   | Limited - check Azure docs                        | `swedencentral` |
+
+**Action**: When planning Static Web Apps, hardcode `westeurope` region, not the location parameter.
 
 ### Region Selection Guidelines
 
@@ -79,6 +92,41 @@ Follow Cloud Adoption Framework pattern: `{type}-{workload}-{env}-{region}-{inst
 | Log Analytics          | `log-`  | `log-platform-prod-swc` |
 | Application Insights   | `appi-` | `appi-web-prod-swc`     |
 
+## Azure Pricing MCP - Service Name Reference
+
+When using Azure Pricing MCP tools (`azure_price_search`, `azure_cost_estimate`), use these **exact** service names:
+
+| Azure Service    | Correct `service_name`  | Common SKUs                                | Notes                  |
+| ---------------- | ----------------------- | ------------------------------------------ | ---------------------- |
+| SQL Database     | `SQL Database`          | `Basic`, `Standard`, `S0`, `S1`, `Premium` | Not "Azure SQL"        |
+| App Service      | `Azure App Service`     | `B1`, `S1`, `P1v3`, `P1v4`                 | Include "Azure" prefix |
+| Container Apps   | `Azure Container Apps`  | `Consumption`                              | Include "Azure" prefix |
+| Service Bus      | `Service Bus`           | `Basic`, `Standard`, `Premium`             | No prefix              |
+| Key Vault        | `Key Vault`             | `Standard`                                 | No prefix              |
+| Storage          | `Storage`               | `Standard`, `Premium`, `LRS`, `GRS`        | General category       |
+| Virtual Machines | `Virtual Machines`      | `D4s_v5`, `B2s`, `E4s_v5`                  | No "Azure" prefix      |
+| Log Analytics    | `Log Analytics`         | Per-GB ingestion pricing                   | Or `Azure Monitor`     |
+| Static Web Apps  | `Azure Static Web Apps` | `Free`, `Standard`                         | Include "Azure" prefix |
+| Cosmos DB        | `Azure Cosmos DB`       | `Serverless`, `Provisioned`                | Include "Azure" prefix |
+
+### Tier Keywords
+
+Use tier keywords (`Basic`, `Standard`, `Premium`, `Free`, `Consumption`) directly as `sku_name`.
+The MCP automatically searches both `productName` and `skuName` fields for these.
+
+### Example Queries
+
+```python
+# Correct usage
+azure_price_search(service_name="SQL Database", sku_name="Basic", region="swedencentral")
+azure_price_search(service_name="Azure App Service", sku_name="B1", region="swedencentral")
+azure_price_search(service_name="Service Bus", sku_name="Basic", region="swedencentral")
+
+# Incorrect - will return 0 results
+azure_price_search(service_name="Azure SQL", sku_name="Basic")  # Wrong service name
+azure_price_search(service_name="Container Apps", sku_name="Consumption")  # Missing "Azure" prefix
+```
+
 ## Azure Verified Modules (AVM)
 
 **MANDATORY: MUST use AVM modules for all resources where available.**
@@ -131,10 +179,36 @@ Raw Bicep resources are only permitted when:
 
 ### How to Find Latest Versions
 
+**PREFERRED: Use MCP Tool (Automated)**
+
+```bash
+# Call mcp_bicep_list_avm_metadata to get all AVM versions
+# Returns JSON with modulePath, versions[], and documentationUri
+# Latest version = LAST element in the versions array
+```
+
+**Version Extraction Pattern:**
+
+```json
+{
+  "modulePath": "avm/res/storage/storage-account",
+  "versions": ["0.8.0", "0.9.0", ..., "0.31.0"],  // ← 0.31.0 is latest
+  "documentationUri": "https://..."
+}
+```
+
+**Fallback Methods:**
+
 1. **AVM Index**: https://aka.ms/avm/index (searchable catalog)
 2. **GitHub Changelog**: Each module has a CHANGELOG.md in its folder
 3. **Bicep Registry**: `bicep restore` will fetch available versions
 4. **VS Code**: Bicep extension provides version intellisense
+
+### Automated Version Checks
+
+- **GitHub Actions**: `.github/workflows/avm-version-check.yml` runs weekly
+- **Agent Handoff**: Use "▶ Refresh AVM Versions" in Bicep Plan agent
+- **GATE CHECK**: Agents MUST call `mcp_bicep_list_avm_metadata` before planning
 
 ## Well-Architected Framework (WAF) Pillars
 
@@ -208,6 +282,41 @@ All generated artifacts are validated by:
 - **CI workflow**: `.github/workflows/wave1-artifact-drift-guard.yml`
 - **Project-specific**: `npm run validate:{project-name}` (if available)
 
+## Governance Discovery (MANDATORY for Bicep Plan)
+
+**CRITICAL**: Governance constraints MUST be discovered from Azure Resource Graph, NOT assumed.
+
+### Why This Matters
+
+Assumed governance causes deployment failures:
+
+| Assumed                                         | Discovered               | Result               |
+| ----------------------------------------------- | ------------------------ | -------------------- |
+| 4 tags (Environment, ManagedBy, Project, Owner) | 9 tags from Azure Policy | ❌ Deployment denied |
+
+### Discovery Workflow
+
+Before creating `04-governance-constraints.md`, execute these Azure Resource Graph queries:
+
+1. **Query all Policy Assignments** with effects and enforcement mode
+2. **Query Tag Policies** with actual parameter values (tag names)
+3. **Query Security Policies** for TLS, HTTPS, encryption requirements
+
+### Required Output
+
+`04-governance-constraints.md` MUST include:
+
+```markdown
+## Discovery Source
+
+| Query              | Results               | Timestamp  |
+| ------------------ | --------------------- | ---------- |
+| Policy Assignments | X policies discovered | {ISO-8601} |
+| Tag Policies       | X tags required       | {ISO-8601} |
+```
+
+See full instructions: [governance-discovery.instructions.md](../instructions/governance-discovery.instructions.md)
+
 ## Research Requirements (MANDATORY)
 
 **All agents MUST perform thorough research before implementation** to ensure complete,
@@ -257,14 +366,14 @@ without pausing for user feedback, to gather comprehensive context.
 
 ### Per-Agent Research Focus
 
-| Agent            | Primary Research Focus                                            |
-| ---------------- | ----------------------------------------------------------------- |
-| **Requirements** | User needs, existing projects, compliance requirements            |
-| **Architect**    | Azure services, WAF pillars, SKU recommendations, pricing         |
-| **Bicep Plan**   | AVM availability, governance constraints, implementation patterns |
-| **Bicep Code**   | Module structure, naming conventions, security defaults           |
-| **Deploy**       | Template validation, what-if results, resource dependencies       |
-| **Diagram**      | Existing architecture, icon availability, layout patterns         |
-| **Docs**         | Deployed resources, configuration details, operational procedures |
+| Agent            | Primary Research Focus                                                        |
+| ---------------- | ----------------------------------------------------------------------------- |
+| **Requirements** | User needs, existing projects, compliance requirements                        |
+| **Architect**    | Azure services, WAF pillars, SKU recommendations, pricing                     |
+| **Bicep Plan**   | AVM availability, **Azure Policy discovery via ARG**, implementation patterns |
+| **Bicep Code**   | Module structure, naming conventions, security defaults                       |
+| **Deploy**       | Template validation, what-if results, resource dependencies                   |
+| **Diagram**      | Existing architecture, icon availability, layout patterns                     |
+| **Docs**         | Deployed resources, configuration details, operational procedures             |
 
 See also: [Agent Research Instructions](../instructions/agent-research-first.instructions.md)

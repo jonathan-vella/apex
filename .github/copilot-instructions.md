@@ -46,6 +46,7 @@ File-type-specific rules in `.github/instructions/` are applied via `.gitattribu
 | `bicep-code-best-practices.instructions.md` | `**/*.bicep`                 | AVM-first, uniqueSuffix, required tags |
 | `markdown.instructions.md`                  | `**/*.md`                    | Formatting, link style, structure      |
 | `agents-definitions.instructions.md`        | `**/*.agent.md`              | Front matter, tools, handoffs          |
+| `governance-discovery.instructions.md`      | `**/04-governance-*.md`      | ARG query required, discovery source   |
 | `workload-documentation.instructions.md`    | `**/agent-output/**/07-*.md` | As-built documentation                 |
 
 ### Template-First Output Generation
@@ -64,7 +65,7 @@ All agent outputs go to `agent-output/{project}/` with strict naming and H2 stru
 - **01-requirements.md**: Project Overview, Functional Requirements, NFRs, Compliance, Budget, Operational, Regional
 - **02-architecture-assessment.md**: Requirements Validation, Executive Summary, WAF Pillars, SKU Recs, Decisions, Handoff
 - **04-implementation-plan.md**: Overview, Resource Inventory, Module Structure, Tasks, Dependencies, Naming, Security
-- **04-governance-constraints.md**: Azure Policy Compliance, Required Tags, Security, Cost, Network Policies
+- **04-governance-constraints.md**: Discovery Source, Azure Policy Compliance, Required Tags, Security, Cost, Network Policies
 
 See [validation rules](../scripts/validate-artifact-templates.mjs) for all artifacts.
 

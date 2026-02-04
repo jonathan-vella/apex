@@ -6,11 +6,15 @@
 **Primary Region**: {primary-region}
 **Secondary Region**: {secondary-region}
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ---
 
 ## Executive Summary
 
-This document defines the backup strategy and disaster recovery procedures for {project-name}.
+> [!IMPORTANT]
+> This document defines the backup strategy and disaster recovery procedures for {project-name}.
 
 | Metric           | Current   | Target   |
 | ---------------- | --------- | -------- |
@@ -123,7 +127,27 @@ az sql db restore \
 
 ## 9. Appendix
 
+<details>
+<summary>📋 Detailed Recovery Procedures</summary>
+
 {appendix-content}
+
+</details>
+
+---
+
+## References
+
+> [!NOTE]
+> 📚 The following Microsoft Learn resources provide DR guidance.
+
+| Topic                 | Link                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| Azure Backup Overview | [Backup Overview](https://learn.microsoft.com/azure/backup/backup-overview)                     |
+| Backup Best Practices | [Best Practices](https://learn.microsoft.com/azure/backup/backup-best-practices)                |
+| RTO/RPO Guidance      | [Reliability Metrics](https://learn.microsoft.com/azure/well-architected/reliability/metrics)   |
+| Site Recovery         | [ASR Overview](https://learn.microsoft.com/azure/site-recovery/site-recovery-overview)          |
+| Business Continuity   | [DR Planning](https://learn.microsoft.com/azure/well-architected/reliability/disaster-recovery) |
 
 ---
 

@@ -36,11 +36,20 @@ const ARTIFACT_HEADINGS = {
     "## Approval Gate",
   ],
   "04-governance-constraints.md": [
+    "## Discovery Source",
     "## Azure Policy Compliance",
     "## Required Tags",
     "## Security Policies",
     "## Cost Policies",
     "## Network Policies",
+  ],
+  "04-preflight-check.md": [
+    "## Purpose",
+    "## AVM Schema Validation Results",
+    "## Parameter Type Analysis",
+    "## Region Limitations Identified",
+    "## Pitfalls Checklist",
+    "## Ready for Implementation",
   ],
   "06-deployment-summary.md": [
     "## Preflight Validation",
@@ -118,6 +127,7 @@ const ARTIFACT_STRICTNESS = {
   "02-architecture-assessment.md": "standard",
   "04-implementation-plan.md": "standard",
   "04-governance-constraints.md": "standard",
+  "04-preflight-check.md": "standard",
   "05-implementation-reference.md": "standard",
   "06-deployment-summary.md": "standard",
   // Wave 2 artifacts - ratcheted to standard after v3.9.0 restructuring
@@ -131,17 +141,22 @@ const ARTIFACT_STRICTNESS = {
 
 // Optional sections that can appear after the anchor (last invariant H2)
 const OPTIONAL_ALLOWED = {
-  "01-requirements.md": ["## Summary for Architecture Assessment"],
-  "02-architecture-assessment.md": [],
-  "04-implementation-plan.md": [],
-  "04-governance-constraints.md": [],
+  "01-requirements.md": [
+    "## Summary for Architecture Assessment",
+    "## References",
+  ],
+  "02-architecture-assessment.md": ["## References"],
+  "04-implementation-plan.md": ["## References"],
+  "04-governance-constraints.md": ["## References"],
+  "04-preflight-check.md": ["## References"],
   "05-implementation-reference.md": [
     "## Key Implementation Notes",
     "## Next Steps",
+    "## References",
   ],
-  "06-deployment-summary.md": [],
-  "07-design-document.md": [],
-  "07-operations-runbook.md": [],
+  "06-deployment-summary.md": ["## References"],
+  "07-design-document.md": ["## References"],
+  "07-operations-runbook.md": ["## References"],
   "07-resource-inventory.md": [
     "## Resource Configuration Details",
     "## Tags Applied",
@@ -152,10 +167,14 @@ const OPTIONAL_ALLOWED = {
     "## IP Address Allocation",
     "## Module Summary",
     "## Validation Commands",
+    "## References",
   ],
-  "07-backup-dr-plan.md": ["## 3. Disaster Recovery Architecture"],
-  "07-compliance-matrix.md": ["## Security Controls Summary"],
-  "07-documentation-index.md": ["## Architecture Overview"],
+  "07-backup-dr-plan.md": [
+    "## 3. Disaster Recovery Architecture",
+    "## References",
+  ],
+  "07-compliance-matrix.md": ["## Security Controls Summary", "## References"],
+  "07-documentation-index.md": ["## Architecture Overview", "## References"],
 };
 
 const TITLE_DRIFT = "Artifact Template Drift";
@@ -170,6 +189,7 @@ const AGENTS = {
   "02-architecture-assessment.md": ".github/agents/architect.agent.md",
   "04-implementation-plan.md": ".github/agents/bicep-plan.agent.md",
   "04-governance-constraints.md": ".github/agents/bicep-plan.agent.md",
+  "04-preflight-check.md": ".github/agents/bicep-code.agent.md",
   "06-deployment-summary.md": ".github/agents/deploy.agent.md",
   "05-implementation-reference.md": ".github/agents/bicep-code.agent.md",
   "07-design-document.md": ".github/skills/azure-workload-docs/SKILL.md",
@@ -188,6 +208,7 @@ const TEMPLATES = {
     ".github/templates/04-implementation-plan.template.md",
   "04-governance-constraints.md":
     ".github/templates/04-governance-constraints.template.md",
+  "04-preflight-check.md": ".github/templates/04-preflight-check.template.md",
   "06-deployment-summary.md":
     ".github/templates/06-deployment-summary.template.md",
   "05-implementation-reference.md":
@@ -494,6 +515,62 @@ function validateArtifactCompliance(relPath) {
     warn(
       `Artifact ${relPath} contains extra H2 headings: ${extras.join(", ")}`,
       { filePath: relPath, line: 1 },
+    );
+  }
+
+  // Special validation for governance constraints: check discovery source content
+  if (artifactType === "04-governance-constraints.md") {
+    validateGovernanceDiscovery(relPath, text, strictness);
+  }
+}
+
+/**
+ * Validates that governance constraints were discovered from Azure Resource Graph,
+ * not assumed from best practices. This prevents deployment failures due to
+ * undiscovered Azure Policy requirements.
+ */
+function validateGovernanceDiscovery(relPath, text, strictness) {
+  const reportFn = strictness === "standard" ? error : warn;
+
+  // Check for Discovery Source section content (not just heading)
+  const discoverySourceMatch = text.match(
+    /## Discovery Source[\s\S]*?(?=##|$)/,
+  );
+  if (!discoverySourceMatch) {
+    reportFn(
+      `Governance constraints ${relPath} missing Discovery Source section content`,
+      { filePath: relPath, line: 1, title: "Governance Discovery Missing" },
+    );
+    return;
+  }
+
+  const discoveryContent = discoverySourceMatch[0];
+
+  // Check for evidence of actual ARG query (not placeholders)
+  const hasQueryResults =
+    /\d+\s*(policies|tags|constraints)\s*discovered/i.test(discoveryContent);
+  const hasTimestamp = /\d{4}-\d{2}-\d{2}|T\d{2}:\d{2}/i.test(discoveryContent);
+  const hasSubscription =
+    /Subscription.*?[a-f0-9-]{36}|Subscription.*?[A-Za-z]/i.test(
+      discoveryContent,
+    );
+
+  // Check for placeholder values that indicate assumption-based constraints
+  const hasPlaceholders = /\{X\}|\{subscription|UNVERIFIED/i.test(
+    discoveryContent,
+  );
+
+  if (hasPlaceholders) {
+    reportFn(
+      `Governance constraints ${relPath} contains placeholder values - constraints may be assumed, not discovered`,
+      { filePath: relPath, line: 1, title: "Governance Discovery Incomplete" },
+    );
+  }
+
+  if (!hasQueryResults && !hasTimestamp) {
+    warn(
+      `Governance constraints ${relPath} may not have been discovered from Azure Resource Graph (no query results or timestamps found)`,
+      { filePath: relPath, line: 1, title: "Governance Discovery Unverified" },
     );
   }
 }

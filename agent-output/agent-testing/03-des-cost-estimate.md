@@ -1,162 +1,168 @@
-# Azure Cost Estimate: Agent Testing & Validation Framework
+# Azure Cost Estimate: agent-testing
 
-**Generated**: 2026-01-22
+**Generated**: 2026-02-04
 **Region**: swedencentral
-**Environment**: Test
-**MCP Tools Used**: azure_cost_estimate
-**Architecture Reference**: [02-architecture-assessment.md](02-architecture-assessment.md)
+**Environment**: Development
+**MCP Tools Used**: azure_price_search, azure_cost_estimate
+**Architecture Reference**: [02-architecture-assessment.md](./02-architecture-assessment.md)
+
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../.github/agents/_shared/documentation-styling.md) for visual standards.
 
 ## 💰 Cost At-a-Glance
 
-> **Monthly Total: ~$1-5** | Annual: ~$12-60
+> **Monthly Total: ~$42** | Annual: ~$504
 >
 > ```
-> Budget: $50-100/month (soft) | Utilization: ~5% ($5 of $100)
+> Budget: ~$200/month (soft) | Utilization: 21% ($42 of $200)
 > ```
 >
-> | Status            | Indicator                           |
-> | ----------------- | ----------------------------------- |
-> | Cost Trend        | ➡️ Stable (ephemeral, auto-cleanup) |
-> | Savings Available | 💰 $0/year (already at minimum)     |
-> | Compliance        | ✅ None required                    |
+> | Status            | Indicator                      |
+> | ----------------- | ------------------------------ |
+> | Cost Trend        | ➡️ Stable                      |
+> | Savings Available | 💰 ~$50/year with Reserved SQL |
+> | Compliance        | ✅ GDPR aligned (EU regions)   |
 
 ## ✅ Decision Summary
 
-- ✅ Approved: Ephemeral test resources with auto-cleanup, GitHub Actions orchestration
-- ⏳ Deferred: Log Analytics workspace for test metrics, Azure Dashboards
-- 🔁 Redesign Trigger: If tests require persistent resources or premium SKUs
+- ✅ Approved: Basic SKUs for all services, consumption-based Container Apps
+- ⏳ Deferred: Premium SKUs, zone redundancy, private endpoints
+- 🔁 Redesign Trigger: Production promotion, >10 concurrent users, HA requirement
 
-**Confidence**: High | **Expected Variance**: ±50% (usage depends on test frequency)
+**Confidence**: High | **Expected Variance**: ±15% (usage-based services may vary)
 
 ## 🔁 Requirements → Cost Mapping
 
-| Requirement            | Architecture Decision        | Cost Impact     | Mandatory |
-| ---------------------- | ---------------------------- | --------------- | --------- |
-| 99% SLA for test infra | Ephemeral resources          | $0 (no HA)      | No        |
-| < 30 min test suite    | Parallel GitHub Actions jobs | $0 (included)   | Yes       |
-| $50-100/month budget   | Cheapest SKUs, auto-cleanup  | ~$5/month       | Yes       |
-| 5 test scenarios       | Free + Basic tier services   | ~$0.50/scenario | Yes       |
+| Requirement         | Architecture Decision     | Cost Impact    | Mandatory |
+| ------------------- | ------------------------- | -------------- | --------- |
+| Dev Environment     | Basic SKUs everywhere     | -$150/month 📉 | Yes       |
+| GDPR Compliance     | swedencentral region      | +$0            | Yes       |
+| Monitoring Required | LA + App Insights         | +$7/month      | Yes       |
+| SQL Database        | Basic (5 DTUs)            | +$5/month      | Yes       |
+| Static Web App      | Standard (ARM limitation) | +$9/month 📈   | Yes       |
+
+> [!TIP]
+> 💡 Static Web App `Free` tier is not available via ARM deployment. Using `Standard` adds ~$9/month.
 
 ## 📊 Top 5 Cost Drivers
 
-| Rank | Resource                 | Monthly Cost | % of Total | Trend |
-| ---- | ------------------------ | ------------ | ---------- | ----- |
-| 1️⃣   | App Service B1 (Linux)   | $0.36        | 36%        | ➡️    |
-| 2️⃣   | Azure SQL Database Basic | $0.14        | 14%        | ➡️    |
-| 3️⃣   | Storage Account LRS      | $0.02        | 2%         | ➡️    |
-| 4️⃣   | Service Bus Basic        | $0.01        | 1%         | ➡️    |
-| 5️⃣   | All other services       | $0.02        | 2%         | ➡️    |
+| Rank | Resource              | Monthly Cost | % of Total | Trend |
+| ---- | --------------------- | ------------ | ---------- | ----- |
+| 1️⃣   | App Service Plan (B1) | $13.14       | 31%        | ➡️    |
+| 2️⃣   | Static Web App        | $9.00        | 21%        | ➡️    |
+| 3️⃣   | Container Apps        | $5.00        | 12%        | ⬆️    |
+| 4️⃣   | SQL Database (Basic)  | $4.99        | 12%        | ➡️    |
+| 5️⃣   | Log Analytics         | $5.00        | 12%        | ⬆️    |
 
-> 💡 **Quick Win**: Already optimized — using Free tier Static Web Apps
-> and consumption-based Container Apps. No further optimization needed.
+> [!TIP]
+> 💡 **Quick Win**: Deallocate App Service during non-working hours to save ~$6/month.
 
 ## Architecture Overview
 
 ### Cost Distribution
 
 ```mermaid
-%%{init: {'theme':'base','themeVariables':{'pie1':'#0078D4','pie2':'#107C10','pie3':'#5C2D91','pie4':'#D83B01','pie5':'#FFB900'}}}%%
+%%{init: {'theme':'base','themeVariables':{'pie1':'#0078D4','pie2':'#107C10','pie3':'#5C2D91','pie4':'#D83B01','pie5':'#FFB900','pie6':'#00BCF2'}}}%%
 pie showData
     title Monthly Cost Distribution ($)
-    "💻 Compute (App Service)" : 0.36
-    "💾 Data (SQL + Storage)" : 0.16
-    "🔐 Security (Key Vault)" : 0.01
-    "📨 Messaging (Service Bus)" : 0.01
-    "🆓 Free Tier Services" : 0.00
+    "💻 App Service Plan" : 13
+    "🌐 Static Web App" : 9
+    "💻 Container Apps" : 5
+    "💾 SQL Database" : 5
+    "📊 Log Analytics" : 5
+    "🔐 Other" : 5
 ```
 
 ### Key Design Decisions Affecting Cost
 
-| Decision                 | Cost Impact | Business Rationale               | Status   |
-| ------------------------ | ----------- | -------------------------------- | -------- |
-| Ephemeral resources      | -95% 📉     | No persistent infra costs        | Required |
-| Free tier Static Web     | -100%       | Sufficient for smoke tests       | Required |
-| B1 (not S1/P1) App Svc   | -80% 📉     | Cheapest compute for validation  | Required |
-| Basic DTU (not Standard) | -70% 📉     | Minimal database for tests       | Required |
-| Auto-cleanup (2h TTL)    | -90% 📉     | Prevents orphaned resource costs | Required |
+| Decision                   | Cost Impact | Alternative                  | Savings    |
+| -------------------------- | ----------- | ---------------------------- | ---------- |
+| Basic App Service Plan     | $13/month   | Free (F1) - no custom domain | $13/month  |
+| Standard Static Web App    | $9/month    | Free (Portal only)           | $9/month   |
+| Basic SQL Database         | $5/month    | Serverless (variable)        | Variable   |
+| Consumption Container Apps | $5/month    | Premium (fixed)              | -$20/month |
 
-## 🧾 What We Are Not Paying For (Yet)
+## 💡 Optimization Recommendations
 
-- Log Analytics workspace for centralized test metrics
-- Azure Dashboards for test pass/fail visualization
-- Premium App Service for zone redundancy testing
-- Geo-replicated SQL for DR testing
-- Private endpoints for network isolation tests
-- Azure DevOps (using GitHub Actions instead)
+### Immediate Actions
 
-### Assumptions & Uncertainty
+| Action                            | Savings   | Risk Level |
+| --------------------------------- | --------- | ---------- |
+| ⏸️ Stop App Service when idle     | ~$6/month | Low        |
+| 📊 Reduce LA retention to 30 days | ~$1/month | Low        |
 
-- Test runs execute ~20 times per month (nightly + PRs)
-- Each test run uses resources for ~1 hour average
-- Static Web Apps always use Free tier
-- Container Apps scale to zero when not in use
-- No network egress charges (minimal data transfer)
+### Future Considerations
 
-## ⚠️ Cost Risk Indicators
+| Action                   | Savings   | When to Apply        |
+| ------------------------ | --------- | -------------------- |
+| 🔒 Reserved SQL (1-year) | ~$50/year | If running >6 months |
+| 💻 Dev/Test subscription | ~20%      | If available         |
 
-| Resource             | Risk Level | Issue                     | Mitigation              |
-| -------------------- | ---------- | ------------------------- | ----------------------- |
-| Orphaned resources   | 🟡 Medium  | Cleanup script fails      | Azure Automation backup |
-| Unexpected test runs | 🟢 Low     | Many PRs trigger tests    | Rate limit to 10/day    |
-| SKU drift            | 🟢 Low     | Test uses production SKUs | Enforce B1/Basic in IaC |
+> [!WARNING]
+> Do not use Reserved Instances for ephemeral dev/test environments.
 
-> **⚠️ Watch Item**: Orphaned test resources — ensure Azure Automation cleanup
-> runbook runs reliably to prevent unexpected charges.
+## 📈 Cost Trend Analysis
 
-## 🎯 Quick Decision Matrix
-
-_"If you need X, expect to pay Y more"_
-
-| Requirement              | Additional Cost | SKU Change         | Notes                      |
-| ------------------------ | --------------- | ------------------ | -------------------------- |
-| Test zone redundancy     | +$50/month      | P1v3 App Service   | Use only for ZR scenarios  |
-| Persistent test metrics  | +$10/month      | Log Analytics      | Optional observability     |
-| Test geo-replication     | +$20/month      | SQL Standard + geo | For DR scenario validation |
-| Private endpoint testing | +$15/month      | Private Link       | Network isolation tests    |
-
-## 💰 Savings Opportunities
-
-> ### Total Potential Savings: $0/year
->
-> | Commitment      | Monthly Savings | Annual Savings |
-> | --------------- | --------------- | -------------- |
-> | Already optimal | $0              | $0             |
->
-> The architecture is already at minimum cost. Further savings require
-> reducing test frequency or eliminating scenarios.
+| Period    | Estimated Cost | Notes                   |
+| --------- | -------------- | ----------------------- |
+| Week 1    | $11            | Initial deployment      |
+| Month 1   | $42            | Steady state            |
+| Quarter 1 | $126           | If running continuously |
+| Year 1    | $504           | Not recommended for dev |
 
 ## Detailed Cost Breakdown
 
 ### Assumptions
 
-- Hours: ~20 hours/month of resource runtime (tests run 20x × 1 hour average)
-- Network egress: Negligible (< 1 GB/month)
-- Storage growth: None (ephemeral, deleted after tests)
+- Hours: 730 hours/month (24x7)
+- Network egress: <1GB/month (minimal)
+- Storage growth: Negligible (<100MB)
+- Log ingestion: <1GB/month
 
 ### Line Items
 
-| Category         | Service            | SKU / Meter      | Quantity / Units | Est. Monthly |
-| ---------------- | ------------------ | ---------------- | ---------------- | ------------ |
-| 💻 Compute       | App Service        | B1 Linux         | 20 hours         | $0.36        |
-| 💾 Data Services | Azure SQL Database | Basic (5 DTU)    | 20 hours         | $0.14        |
-| 💾 Data Services | Storage Account    | Standard LRS     | 1 GB             | $0.02        |
-| 🔐 Security      | Key Vault          | Standard         | 100 operations   | $0.01        |
-| 📨 Messaging     | Service Bus        | Basic            | 1K messages      | $0.01        |
-| 🐳 Containers    | Container Apps     | Consumption      | 1 hour           | $0.01        |
-| 🌐 Web           | Static Web Apps    | Free             | 5 apps           | $0.00        |
-| ⚙️ Automation    | Azure Automation   | Free tier        | 100 minutes      | $0.00        |
-| 🔄 CI/CD         | GitHub Actions     | Included minutes | 500 minutes      | $0.00        |
-| **Total**        |                    |                  |                  | **~$0.55**   |
+| Category      | Service              | SKU / Meter  | Quantity     | Est. Monthly |
+| ------------- | -------------------- | ------------ | ------------ | ------------ |
+| 📊 Monitoring | Log Analytics        | PerGB2018    | <1 GB        | $5.00        |
+| 📊 Monitoring | Application Insights | Included     | -            | $0.00        |
+| 🔐 Security   | Key Vault            | Standard     | <100 ops     | $0.50        |
+| 📦 Storage    | Storage Account      | Standard_LRS | <1 GB        | $0.50        |
+| 💻 Compute    | App Service Plan     | B1           | 1 instance   | $13.14       |
+| 💻 Compute    | App Service          | -            | Included     | $0.00        |
+| 💻 Compute    | Container App Env    | Consumption  | -            | $0.00        |
+| 💻 Compute    | Container App        | Consumption  | 1M requests  | $5.00        |
+| 💾 Data       | SQL Server           | -            | -            | $0.00        |
+| 💾 Data       | SQL Database         | Basic        | 5 DTU        | $4.99        |
+| 📨 Messaging  | Service Bus          | Basic        | <1K messages | $0.50        |
+| 🌐 Web        | Static Web App       | Standard     | 1 site       | $9.00        |
+| **Total**     |                      |              |              | **~$42.00**  |
+
+<details>
+<summary>📋 Regional Pricing Notes</summary>
+
+| Region        | Price Modifier | Used For       |
+| ------------- | -------------- | -------------- |
+| swedencentral | Standard       | All resources  |
+| westeurope    | Standard       | Static Web App |
+
+Static Web App is not available in swedencentral, deployed to westeurope with no
+additional cross-region cost for the service itself.
+
+</details>
 
 ### Notes
 
-- All prices are Azure retail rates (pay-as-you-go) for swedencentral region
-- Actual costs may be lower due to consumption billing (pay only for execution time)
-- Reserved instances not applicable — ephemeral workload doesn't benefit from commitments
-- Dev/test pricing available if Azure subscription has Dev/Test offer enabled
-- Cost estimate is conservative — actual usage may be lower with efficient test design
+- 💡 Consumption-based services (Container Apps, Log Analytics) will vary with usage
+- ⚠️ Static Web App Standard tier required for ARM deployment
+- ✅ All costs within budget constraints
 
 ---
 
-_Cost estimate generated using Azure Pricing MCP | 2026-01-22 |
-[Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) for verification_
+## References
+
+| Topic                    | Link                                                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Azure Pricing Calculator | [Calculator](https://azure.microsoft.com/pricing/calculator/)                                                          |
+| Cost Management          | [Overview](https://learn.microsoft.com/azure/cost-management-billing/costs/overview-cost-management)                   |
+| Reserved Instances       | [Reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations) |
+| WAF Cost Optimization    | [Checklist](https://learn.microsoft.com/azure/well-architected/cost-optimization/checklist)                            |

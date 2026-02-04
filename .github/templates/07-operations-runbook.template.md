@@ -5,6 +5,9 @@
 **Environment**: {environment}
 **Region**: {region}
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ---
 
 ## Quick Reference
@@ -73,17 +76,27 @@
 
 ### 3.1 Restart Services
 
+<details>
+<summary>🔧 Restart App Service</summary>
+
 ```bash
 # Restart App Service
 {restart-command}
 ```
 
+</details>
+
 ### 3.2 Scale Resources
+
+<details>
+<summary>📈 Scale Up/Out Commands</summary>
 
 ```bash
 # Scale up/out
 {scale-command}
 ```
+
+</details>
 
 ---
 
@@ -92,6 +105,9 @@
 | Task               | Schedule   | Duration   |
 | ------------------ | ---------- | ---------- |
 | {maintenance-task} | {schedule} | {duration} |
+
+> [!TIP]
+> 💡 Schedule maintenance during low-traffic periods. Use Azure Update Manager for coordinated patching.
 
 ---
 
@@ -108,6 +124,20 @@
 | Date   | Change   | Author   |
 | ------ | -------- | -------- |
 | {date} | {change} | {author} |
+
+---
+
+## References
+
+> [!NOTE]
+> 📚 The following Microsoft Learn resources provide operational guidance.
+
+| Topic                 | Link                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------ |
+| Azure Monitor Alerts  | [Alerting Best Practices](https://learn.microsoft.com/azure/azure-monitor/best-practices-alerts) |
+| Log Analytics Queries | [KQL Reference](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries)        |
+| Incident Management   | [Azure Status](https://status.azure.com/)                                                        |
+| Service Health        | [Azure Service Health](https://learn.microsoft.com/azure/service-health/overview)                |
 
 ---
 

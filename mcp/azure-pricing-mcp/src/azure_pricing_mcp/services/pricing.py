@@ -9,6 +9,20 @@ from .retirement import RetirementService
 
 logger = logging.getLogger(__name__)
 
+# SKU tier keywords that appear in productName but not skuName
+# Maps user-friendly terms to Azure API productName patterns
+TIER_KEYWORDS = {
+    "basic": "Basic",
+    "standard": "Standard",
+    "premium": "Premium",
+    "free": "Free",
+    "general purpose": "General Purpose",
+    "business critical": "Business Critical",
+    "hyperscale": "Hyperscale",
+    "serverless": "Serverless",
+    "consumption": "Consumption",
+}
+
 
 def normalize_sku_name(sku_name: str) -> tuple[list[str], str]:
     """Normalize SKU name to handle different formats and generate search variants.
@@ -46,6 +60,17 @@ def normalize_sku_name(sku_name: str) -> tuple[list[str], str]:
     return (search_terms, display_name)
 
 
+def is_tier_keyword(sku_name: str) -> str | None:
+    """Check if sku_name is a tier keyword that should search productName instead.
+
+    Returns the proper-cased tier name if it's a tier keyword, None otherwise.
+    """
+    if not sku_name:
+        return None
+    lower = sku_name.lower().strip()
+    return TIER_KEYWORDS.get(lower)
+
+
 class PricingService:
     """Service for Azure pricing operations."""
 
@@ -65,7 +90,15 @@ class PricingService:
         discount_percentage: float | None = None,
         validate_sku: bool = True,
     ) -> dict[str, Any]:
-        """Search Azure retail prices with various filters."""
+        """Search Azure retail prices with various filters.
+
+        SKU name handling:
+        - If sku_name is a tier keyword (Basic, Standard, Premium, etc.),
+          search BOTH productName AND skuName since Azure API is inconsistent:
+          - SQL Database: skuName='B', productName='SQL Database Single Basic'
+          - Service Bus: skuName='Basic', productName='Service Bus'
+        - Otherwise, search skuName as usual.
+        """
         filter_conditions = []
 
         if service_name:
@@ -74,8 +107,21 @@ class PricingService:
             filter_conditions.append(f"serviceFamily eq '{service_family}'")
         if region:
             filter_conditions.append(f"armRegionName eq '{region}'")
-        if sku_name:
+
+        # Check if sku_name is a tier keyword that should search both productName and skuName
+        tier_keyword = is_tier_keyword(sku_name) if sku_name else None
+        if tier_keyword:
+            # Search both productName and skuName for tier keywords using OR
+            # This handles both patterns:
+            # - "contains(productName, 'Basic')" for SQL Database Single Basic
+            # - "contains(skuName, 'Basic')" for Service Bus Basic
+            filter_conditions.append(
+                f"(contains(productName, '{tier_keyword}') or contains(skuName, '{tier_keyword}'))"
+            )
+        elif sku_name:
+            # Search skuName for specific SKU names (e.g., "D2s_v3")
             filter_conditions.append(f"contains(skuName, '{sku_name}')")
+
         if price_type:
             filter_conditions.append(f"priceType eq '{price_type}'")
 

@@ -5,6 +5,9 @@
 **Environment**: {environment}
 **Region**: {region}
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ---
 
 ## Summary
@@ -58,6 +61,16 @@
 | Name   | Type   | Retention   | Location   |
 | ------ | ------ | ----------- | ---------- |
 | {name} | {type} | {retention} | {location} |
+
+---
+
+## References
+
+| Topic                | Link                                                                                                                   |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Azure Resource Types | [Resource Providers](https://learn.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types) |
+| Naming Conventions   | [CAF Naming](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)    |
+| Pricing Calculator   | [Azure Pricing](https://azure.microsoft.com/pricing/calculator/)                                                       |
 
 ---
 

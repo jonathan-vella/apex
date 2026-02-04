@@ -5,11 +5,15 @@
 **Environment**: {environment}
 **Primary Compliance Framework**: {compliance-framework}
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ---
 
 ## Executive Summary
 
-This compliance matrix maps the {project-name} security controls to {compliance-framework} requirements.
+> [!IMPORTANT]
+> This compliance matrix maps the {project-name} security controls to {compliance-framework} requirements.
 
 | Compliance Area    | Coverage | Status   |
 | ------------------ | -------- | -------- |
@@ -75,6 +79,20 @@ This compliance matrix maps the {project-name} security controls to {compliance-
 ### B. Azure Security Baseline Mapping
 
 {security-baseline}
+
+---
+
+## References
+
+> [!NOTE]
+> 📚 The following Microsoft Learn resources provide compliance guidance.
+
+| Topic                              | Link                                                                                                                        |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Microsoft Cloud Security Benchmark | [MCSB Overview](https://learn.microsoft.com/security/benchmark/azure/overview)                                              |
+| Azure Compliance Offerings         | [Compliance](https://learn.microsoft.com/azure/compliance/)                                                                 |
+| Azure Policy                       | [Policy Overview](https://learn.microsoft.com/azure/governance/policy/overview)                                             |
+| Regulatory Compliance              | [Built-in Policies](https://learn.microsoft.com/azure/governance/policy/samples/built-in-initiatives#regulatory-compliance) |
 
 ---
 

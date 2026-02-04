@@ -1,0 +1,144 @@
+# AVM Version Check Workflow
+# Checks for outdated Azure Verified Module versions in Bicep templates
+# and creates an issue when updates are available
+
+name: AVM Version Check
+
+on:
+  schedule:
+    # Run weekly on Monday at 6:00 AM UTC
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      create_issue:
+        description: "Create GitHub issue for outdated modules"
+        required: false
+        default: "true"
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-avm-versions:
+    name: Check AVM Versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Bicep CLI
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x bicep
+          sudo mv bicep /usr/local/bin/
+          bicep --version
+
+      - name: Extract AVM versions from Bicep files
+        id: extract
+        run: |
+          echo "## Current AVM Versions in Repository" > current-versions.md
+          echo "" >> current-versions.md
+          echo "| File | Module Path | Current Version |" >> current-versions.md
+          echo "|------|-------------|-----------------|" >> current-versions.md
+
+          # Find all Bicep files and extract AVM module references
+          find infra/bicep -name "*.bicep" -type f 2>/dev/null | while read -r file; do
+            grep -oP "br/public:avm/res/[^'\"]+:[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null | while read -r module; do
+              path=$(echo "$module" | sed "s/:.*//")
+              version=$(echo "$module" | grep -oP "[0-9]+\.[0-9]+\.[0-9]+$")
+              echo "| $file | $path | $version |" >> current-versions.md
+            done
+          done || true
+
+          # Also check implementation plans for documented versions
+          find agent-output -name "04-implementation-plan.md" -type f 2>/dev/null | while read -r file; do
+            grep -oP "br/public:avm/res/[^'\"]+:[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null | while read -r module; do
+              path=$(echo "$module" | sed "s/:.*//")
+              version=$(echo "$module" | grep -oP "[0-9]+\.[0-9]+\.[0-9]+$")
+              echo "| $file | $path | $version |" >> current-versions.md
+            done
+          done || true
+
+          # Count unique modules found
+          module_count=$(grep -c "br/public:avm" current-versions.md 2>/dev/null || echo "0")
+          echo "module_count=$module_count" >> $GITHUB_OUTPUT
+
+          cat current-versions.md
+
+      - name: Check for version updates
+        id: check
+        run: |
+          echo "## AVM Version Check Results" > version-report.md
+          echo "" >> version-report.md
+          echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> version-report.md
+          echo "" >> version-report.md
+
+          # Note: In a real implementation, this would query the AVM registry
+          # For now, we document the manual check process
+          echo "### Manual Verification Required" >> version-report.md
+          echo "" >> version-report.md
+          echo "To check latest AVM versions:" >> version-report.md
+          echo "1. Use \`mcp_bicep_list_avm_metadata\` tool in GitHub Copilot" >> version-report.md
+          echo "2. Or visit https://aka.ms/avm/index" >> version-report.md
+          echo "3. Compare against versions in implementation plans" >> version-report.md
+          echo "" >> version-report.md
+
+          cat current-versions.md >> version-report.md
+
+          cat version-report.md
+
+      - name: Create issue if outdated modules found
+        if: ${{ github.event.inputs.create_issue != 'false' && steps.extract.outputs.module_count != '0' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('version-report.md', 'utf8');
+
+            // Check if an open issue already exists
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'avm-versions,automation'
+            });
+
+            const existingIssue = issues.find(i => i.title.includes('AVM Module Version Check'));
+
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `## Weekly Version Check Update\n\n${report}`
+              });
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🔄 AVM Module Version Check - Review Required',
+                body: `## AVM Version Audit\n\nThis automated check identifies Azure Verified Module versions in use.\n\n${report}\n\n### Action Required\n\n1. Review each module against the latest AVM versions\n2. Update \`04-implementation-plan.md\` files with current versions\n3. Use the **Refresh AVM Versions** handoff in the Bicep Plan agent\n\n### How to Check Latest Versions\n\n\`\`\`\nUse mcp_bicep_list_avm_metadata tool in GitHub Copilot Chat\n\`\`\`\n\nOr visit: https://aka.ms/avm/index`,
+                labels: ['avm-versions', 'automation', 'documentation']
+              });
+              console.log('Created new version check issue');
+            }
+
+      - name: Upload version report
+        uses: actions/upload-artifact@v4
+        with:
+          name: avm-version-report
+          path: |
+            current-versions.md
+            version-report.md
+          retention-days: 30

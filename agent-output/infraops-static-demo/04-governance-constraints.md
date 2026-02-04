@@ -3,6 +3,16 @@
 _Discovered: 2026-01-20 13:45 UTC_
 _Subscription: (Default subscription from az login)_
 
+## Discovery Source
+
+| Query              | Results                       | Timestamp            |
+| ------------------ | ----------------------------- | -------------------- |
+| Policy Assignments | Legacy - not formally queried | 2026-01-20T13:45:00Z |
+| Tag Policies       | Legacy - not formally queried | 2026-01-20T13:45:00Z |
+
+> **Note**: This artifact predates formal Azure Resource Graph discovery requirements.
+> Constraints documented based on subscription inspection, not structured ARG queries.
+
 ## Azure Policy Compliance
 
 | Category       | Constraint         | Implementation                      |

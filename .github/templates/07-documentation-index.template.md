@@ -4,6 +4,9 @@
 **Version**: 1.0
 **Status**: Draft
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ---
 
 ## 1. Document Package Contents

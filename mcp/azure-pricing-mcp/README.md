@@ -131,6 +131,27 @@ The following tools are available to agents:
 | `spot_price_history`     | Up to 90 days of Spot VM pricing history (**NEW**)       |
 | `simulate_eviction`      | Trigger eviction simulation on Spot VMs (**NEW**)        |
 
+### ⚠️ Important: Service and SKU Names
+
+The Azure Retail Prices API requires **exact service names**. Use these mappings:
+
+| Common Name      | Correct `service_name` | Notes                                      |
+| ---------------- | ---------------------- | ------------------------------------------ |
+| SQL Database     | `SQL Database`         | Not "Azure SQL"                            |
+| App Service      | `Azure App Service`    | Include "Azure" prefix                     |
+| Container Apps   | `Azure Container Apps` | Include "Azure" prefix                     |
+| Service Bus      | `Service Bus`          | No prefix                                  |
+| Key Vault        | `Key Vault`            | No prefix                                  |
+| Storage          | `Storage`              | General; use specific product for accuracy |
+| Virtual Machines | `Virtual Machines`     | No "Azure" prefix                          |
+| Log Analytics    | `Log Analytics`        | Or search `Azure Monitor`                  |
+
+**Tier Keywords**: When searching for tiers like `Basic`, `Standard`, `Premium`:
+
+- The server automatically searches both `productName` and `skuName`
+- Examples: `sku_name="Basic"` finds SQL Database Basic, Service Bus Basic, etc.
+- For specific SKUs (e.g., `B1`, `D4s_v3`), use the exact SKU name
+
 ---
 
 ## 📋 Installation

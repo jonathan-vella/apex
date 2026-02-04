@@ -5,6 +5,16 @@
 This document captures the governance constraints and Azure Policy requirements
 that must be addressed in the Bicep implementation.
 
+## Discovery Source
+
+| Query              | Results                       | Timestamp           |
+| ------------------ | ----------------------------- | ------------------- |
+| Policy Assignments | Legacy - not formally queried | 2024-12-17 (approx) |
+| Tag Policies       | Legacy - not formally queried | 2024-12-17 (approx) |
+
+> **Note**: This artifact predates formal Azure Resource Graph discovery requirements.
+> Constraints below were documented based on best practices, not live ARG queries.
+
 ## Azure Policy Compliance
 
 | Category       | Constraint                       | Implementation                          |

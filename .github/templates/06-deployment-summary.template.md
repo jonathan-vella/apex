@@ -3,6 +3,9 @@
 > Generated: {date}  
 > Status: **{STATUS}** (Succeeded/Failed/Simulated)
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ## Preflight Validation
 
 | Property             | Value                                           |
@@ -70,6 +73,16 @@ cd infra/bicep/{project-name}
 - [ ] Task 1
 - [ ] Task 2
 - [ ] Task 3
+
+---
+
+## References
+
+| Topic                      | Link                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Azure Deployment           | [ARM Deployments](https://learn.microsoft.com/azure/azure-resource-manager/templates/deployment-tutorial-pipeline) |
+| Deployment Troubleshooting | [Common Errors](https://learn.microsoft.com/azure/azure-resource-manager/troubleshooting/common-deployment-errors) |
+| What-If Operations         | [Preview Changes](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-what-if)                   |
 
 ---
 

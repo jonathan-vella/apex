@@ -116,6 +116,41 @@ Workflow Step 6 (Deploy) → azure-workload-docs skill → Step 7 outputs
 3. **Map to compliance frameworks** - Reference specific controls
 4. **Keep runbooks actionable** - Include actual commands, not just concepts
 5. **Version documentation** - Include generation date and source artifacts
+6. **Follow visual styling** - Use callouts, emoji, collapsible sections per styling guide
+
+## Visual Styling Standards
+
+**MANDATORY**: All generated documentation MUST follow:
+
+📚 **[documentation-styling.md](../../agents/_shared/documentation-styling.md)**
+
+Key requirements:
+
+| Element        | Usage                   | Example                                         |
+| -------------- | ----------------------- | ----------------------------------------------- |
+| Callouts       | Emphasis & warnings     | `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`         |
+| Status Emoji   | Progress indicators     | ✅ ⚠️ ❌ 💡                                     |
+| Category Icons | Resource sections       | 💻 💾 🌐 🔐 📊                                  |
+| Collapsible    | Long content (>10 rows) | `<details>...</details>`                        |
+| References     | Evidence links          | Microsoft Learn URLs in `## References` section |
+
+### References Section (Required)
+
+Every document MUST include a `## References` section at the bottom with relevant Microsoft Learn links:
+
+```markdown
+---
+
+## References
+
+> [!NOTE]
+> 📚 The following Microsoft Learn resources provide additional guidance.
+
+| Topic                      | Link                                                                             |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| Well-Architected Framework | [Overview](https://learn.microsoft.com/azure/well-architected/)                  |
+| Azure Backup               | [Best Practices](https://learn.microsoft.com/azure/backup/backup-best-practices) |
+```
 
 ## What This Skill Does NOT Do
 

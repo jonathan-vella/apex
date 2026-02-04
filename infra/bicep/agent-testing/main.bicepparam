@@ -1,33 +1,35 @@
 // ============================================================================
-// Agent Testing Framework - Parameter File
+// Agent Testing Infrastructure - Parameters File
 // ============================================================================
-// Usage: az deployment group create -g <rg-name> -f main.bicep -p main.bicepparam
+// Purpose: Default parameter values for deployment
+// Usage: az deployment group create --template-file main.bicep --parameters main.bicepparam
 // ============================================================================
 
-using './main.bicep'
+using 'main.bicep'
 
-// Environment is always 'test' for this framework
-param environment = 'test'
+// =============================================================================
+// DEPLOYMENT PARAMETERS
+// =============================================================================
 
-// Primary region (CAF default)
+// Azure region for deployment
 param location = 'swedencentral'
 
-// Project identification
-param projectName = 'agent-testing'
-param owner = 'platform-engineering'
+// Environment (dev, staging, prod)
+param environment = 'dev'
 
-// Test scenario name (used in tagging)
-param scenarioName = 'all'
+// Project name for resource naming
+param projectName = 'agenttest'
 
-// Scenario toggles - set to false to skip specific scenarios
-param deployScenario1 = true  // Static Web App (smoke tests)
-param deployScenario2 = true  // API + Database
-param deployScenario3 = true  // Microservices
+// Resource owner (for tagging)
+param owner = 'platform-team'
 
-// Cleanup automation (persistent infrastructure)
-param deployCleanupAutomation = true
+// Cost center for billing allocation
+param costCenter = 'CC-AGENTOPS'
 
-// SQL Server credentials
-// IMPORTANT: Override these in CI/CD or use Key Vault reference
-param sqlAdminLogin = 'sqladmin'
-// param sqlAdminPassword = '' // Must be provided at deployment time
+// SQL Administrator Azure AD Group Object ID
+// IMPORTANT: This should be set at deployment time
+// Use: az ad group show --group "SQL Administrators" --query id -o tsv
+param sqlAdminGroupObjectId = ''  // Must be provided at deployment
+
+// SQL Administrator Azure AD Group Name
+param sqlAdminGroupName = 'SQL Administrators'

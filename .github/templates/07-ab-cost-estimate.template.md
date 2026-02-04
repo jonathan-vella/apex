@@ -7,6 +7,9 @@
 **MCP Tools Used**: {azure_price_search, azure_cost_estimate}
 **IaC Reference**: {relative link to infra/bicep/{project}/, if available}
 
+> [!NOTE]
+> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+
 ## 💰 Cost At-a-Glance
 
 > **Monthly Total: ~$X,XXX** | Annual: ~$XX,XXX
@@ -124,3 +127,14 @@ _"If you need X, expect to pay Y more"_
 ### Notes
 
 - {Call out price assumptions, gaps, and any known variances vs design}
+
+---
+
+## References
+
+| Topic                    | Link                                                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Azure Pricing Calculator | [Calculator](https://azure.microsoft.com/pricing/calculator/)                                                          |
+| Cost Management          | [Overview](https://learn.microsoft.com/azure/cost-management-billing/costs/overview-cost-management)                   |
+| Reserved Instances       | [Reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations) |
+| WAF Cost Optimization    | [Checklist](https://learn.microsoft.com/azure/well-architected/cost-optimization/checklist)                            |

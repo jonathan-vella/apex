@@ -253,6 +253,23 @@ For each recommendation:
 | `azure_discover_skus`    | List all available SKUs for a service          | What App Service Plan SKUs exist?     |
 | `azure_sku_discovery`    | Fuzzy SKU name matching                        | "vm" → "Virtual Machines"             |
 
+### ⚠️ Correct Service Names for Azure Pricing MCP
+
+The Azure Retail Prices API requires **exact service names**:
+
+| Service          | Correct `service_name` | SKU Examples                    |
+| ---------------- | ---------------------- | ------------------------------- |
+| SQL Database     | `SQL Database`         | `Basic`, `Standard`, `S0`, `S1` |
+| App Service      | `Azure App Service`    | `B1`, `S1`, `P1v3`              |
+| Container Apps   | `Azure Container Apps` | `Consumption`                   |
+| Service Bus      | `Service Bus`          | `Basic`, `Standard`, `Premium`  |
+| Key Vault        | `Key Vault`            | `Standard`                      |
+| Storage          | `Storage`              | `Standard`, `Premium`           |
+| Virtual Machines | `Virtual Machines`     | `D4s_v5`, `B2s`                 |
+
+**Tier Keywords**: Use `Basic`, `Standard`, `Premium`, `Free`, `Consumption` directly as `sku_name`.
+The MCP automatically searches both `productName` and `skuName` fields for these.
+
 **Fallback**: If MCP tools are unavailable, use [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/)
 
 **Workflow for Cost Estimation:**
