@@ -26,16 +26,16 @@ The following artifacts were used to generate this documentation:
 
 ### Workflow Artifacts
 
-| Artifact                 | Location                                                                                             | Purpose                 |
-| ------------------------ | ---------------------------------------------------------------------------------------------------- | ----------------------- |
-| Requirements             | [01-requirements.md](01-requirements.md)                                                             | Original requirements   |
-| Architecture Assessment  | [02-architecture-assessment.md](02-architecture-assessment.md)                                       | WAF assessment          |
-| Design Cost Estimate     | [03-des-cost-estimate.md](03-des-cost-estimate.md)                                                   | Pre-deployment costs    |
-| Governance Constraints   | [04-governance-constraints.md](04-governance-constraints.md)                                         | Azure Policy compliance |
-| Implementation Plan      | [04-implementation-plan.md](04-implementation-plan.md)                                               | Bicep implementation    |
-| Pre-flight Check         | [04-preflight-check.md](04-preflight-check.md)                                                       | AVM validation          |
-| Implementation Reference | [05-implementation-reference.md](05-implementation-reference.md)                                     | Bicep file structure    |
-| Deployment Summary       | [06-deployment-summary.md](06-deployment-summary.md)                                                 | Deployment results      |
+| Artifact                 | Location                                                         | Purpose                 |
+| ------------------------ | ---------------------------------------------------------------- | ----------------------- |
+| Requirements             | [01-requirements.md](01-requirements.md)                         | Original requirements   |
+| Architecture Assessment  | [02-architecture-assessment.md](02-architecture-assessment.md)   | WAF assessment          |
+| Design Cost Estimate     | [03-des-cost-estimate.md](03-des-cost-estimate.md)               | Pre-deployment costs    |
+| Governance Constraints   | [04-governance-constraints.md](04-governance-constraints.md)     | Azure Policy compliance |
+| Implementation Plan      | [04-implementation-plan.md](04-implementation-plan.md)           | Bicep implementation    |
+| Pre-flight Check         | [04-preflight-check.md](04-preflight-check.md)                   | AVM validation          |
+| Implementation Reference | [05-implementation-reference.md](05-implementation-reference.md) | Bicep file structure    |
+| Deployment Summary       | [06-deployment-summary.md](06-deployment-summary.md)             | Deployment results      |
 
 ### Infrastructure as Code
 

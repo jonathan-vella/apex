@@ -49,6 +49,7 @@ jobs:
             --exclude-path _superseded
             --exclude-path .github-archive-pre-skill-migration
             --exclude-path mcp/azure-pricing-mcp/.archive
+            --exclude-path mcp/azure-pricing-mcp
             --exclude-path .github/templates
             --exclude-path scenarios/S02-agentic-workflow/solution
             --exclude-path scenarios/S04-service-validation
@@ -56,6 +57,7 @@ jobs:
             --exclude '^http://localhost'
             --exclude 'example\.com'
             --exclude 'contoso\.com'
+            --exclude 'contoso-patient-portal'
             --exclude 'your-.*\.azure'
             --exclude 'placeholder'
             --exclude '^https://www\.gartner\.com'
@@ -67,6 +69,9 @@ jobs:
             --exclude '^https://cyclonedx\.org/tool-center'
             --exclude '^https://github\.com/msftnadavbh/AzurePricingMCP/discussions'
             --exclude '^https://learn\.microsoft\.com/azure/backup/backup-best-practices'
+            --exclude '^https://learn\.microsoft\.com/azure/azure-monitor/logs/kql-quick-reference'
+            --exclude '^https://learn\.microsoft\.com/azure/devops/repos/security/github-advanced-security'
+            --exclude '^https://learn\.microsoft\.com/security/supply-chain'
             --exclude '\.azurewebsites\.net'
             --exclude '\.vault\.azure\.net'
             --exclude '\.azurecontainerapps\.io'
