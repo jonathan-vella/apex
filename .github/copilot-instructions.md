@@ -171,7 +171,7 @@ azure-agentic-infraops/
 
 | Category            | Tools                                           |
 | ------------------- | ----------------------------------------------- |
-| **IaC**             | Bicep (primary), Terraform (optional)           |
+| **IaC**             | Bicep (Terraform support planned)               |
 | **Automation**      | PowerShell 7+, Azure CLI 2.50+, Bicep CLI 0.20+ |
 | **Platform**        | Azure (public cloud)                            |
 | **AI**              | GitHub Copilot with custom agents               |
