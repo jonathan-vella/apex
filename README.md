@@ -61,7 +61,7 @@
 
 ## 🚀 About The Project
 
-> **Version 8.0.0** | [Version info](VERSION.md) | [Changelog](CHANGELOG.md)
+> [Version info](VERSION.md) | [Changelog](CHANGELOG.md)
 
 IT Pro–focused workflow for building and operating Azure environments with guardrailed AI agents.
 

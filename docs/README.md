@@ -1,6 +1,6 @@
 # Agentic InfraOps Documentation
 
-> Version 8.0.0 | Azure infrastructure engineered by AI agents and skills
+> Azure infrastructure engineered by AI agents and skills | [Current Version](../VERSION.md)
 
 Transform Azure infrastructure requirements into deploy-ready Bicep code using coordinated
 AI agents and reusable skills, aligned with Azure Well-Architected Framework (WAF) and
