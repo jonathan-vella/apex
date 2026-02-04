@@ -497,7 +497,7 @@ See [07-resource-inventory.md](./07-resource-inventory.md)
 
 ### 10.4 Cost Breakdown
 
-See [01-cost-estimate.md](./01-cost-estimate.md)
+See [03-des-cost-estimate.md](./03-des-cost-estimate.md)
 
 **Summary:** ~$1,595/month | ~$19,140/year
 

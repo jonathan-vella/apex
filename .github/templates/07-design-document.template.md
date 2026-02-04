@@ -6,7 +6,7 @@
 **Status**: Draft
 
 > [!NOTE]
-> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+> 📚 See [documentation-styling.md](../agents/_shared/documentation-styling.md) for visual standards.
 
 ---
 

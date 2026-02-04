@@ -25,7 +25,7 @@ By the end of this demo, the audience will:
 - [ ] Test custom agent selection (`Ctrl+Alt+I`) - verify all 4 custom agents available
 - [ ] Have `prompts/workflow-prompts.md` ready in second window
 - [ ] Azure Portal open (optional - for showing deployment validation)
-- [ ] Review [Workflow Guide](../../docs/reference/workflow.md) for complete workflow documentation
+- [ ] Review [Workflow Guide](../../docs/workflow.md) for complete workflow documentation
 
 ### Presenter Preparation
 
@@ -440,7 +440,7 @@ A: The workflow pattern applies universally. You'd need to create cloud-specific
 
 - Demo Files: `scenarios/S02-agentic-workflow/`
 - Agent Configuration: `.github/agents/`
-- Full Workflow Guide: `docs/reference/workflow.md`
+- Full Workflow Guide: `docs/workflow.md`
 - Bicep Templates: `infra/bicep/contoso-patient-portal/`
 
 ---

@@ -181,7 +181,7 @@ az staticwebapp deploy \
 
 ```bash
 # Navigate to Bicep directory
-cd infra/bicep/static-webapp-test
+cd infra/bicep/static-webapp
 
 # Preview changes
 ./deploy.ps1 -WhatIf
@@ -203,7 +203,7 @@ cd infra/bicep/static-webapp-test
 ```bash
 # Redeploy from previous known-good state
 git checkout {previous-commit}
-cd infra/bicep/static-webapp-test
+cd infra/bicep/static-webapp
 ./deploy.ps1
 ```
 

@@ -29,7 +29,7 @@ These documents were generated from the following agentic workflow outputs:
 | Implementation Ref  | [05-implementation-reference.md](./05-implementation-reference.md)         | 2024-12-17 |
 | Deployment Summary  | [06-deployment-summary.md](./06-deployment-summary.md)                     | 2024-12-17 |
 | As-Built Diagram    | [07-ab-diagram.png](./07-ab-diagram.png)                                   | 2024-12-17 |
-| Bicep Code          | [`infra/bicep/static-webapp-test/`](../../infra/bicep/static-webapp-test/) | 2024-12-17 |
+| Bicep Code          | [`infra/bicep/static-webapp/`](../../infra/bicep/static-webapp/) | 2024-12-17 |
 
 ## 3. Project Summary
 
@@ -59,11 +59,11 @@ These documents were generated from the following agentic workflow outputs:
 
 ## 4. Related Resources
 
-- **Infrastructure Code**: [`infra/bicep/static-webapp-test/`](../../infra/bicep/static-webapp-test/)
-- **Workflow Documentation**: [workflow.md](../../docs/reference/workflow.md)
+- **Infrastructure Code**: [`infra/bicep/static-webapp/`](../../infra/bicep/static-webapp/)
+- **Workflow Documentation**: [workflow.md](../../docs/workflow.md)
 
 ## 5. Quick Links
 
-- [Deployment Script](../../infra/bicep/static-webapp-test/deploy.ps1)
-- [Main Bicep Template](../../infra/bicep/static-webapp-test/main.bicep)
+- [Deployment Script](../../infra/bicep/static-webapp/deploy.ps1)
+- [Main Bicep Template](../../infra/bicep/static-webapp/main.bicep)
 - [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)

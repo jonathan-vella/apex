@@ -47,9 +47,9 @@ By the end of this demo, participants will understand:
 
 | Resource                                                              | Description                 |
 | --------------------------------------------------------------------- | --------------------------- |
-| [Workflow Guide](../../docs/reference/workflow.md)                    | Seven-step agentic workflow |
-| [ADR-003: AVM-First](../../docs/adr/ADR-003-avm-first-approach.md)    | Module selection rationale  |
-| [ADR-004: Region Defaults](../../docs/adr/ADR-004-region-defaults.md) | `swedencentral` default     |
+| [Workflow Guide](../../docs/workflow.md)                    | Seven-step agentic workflow |
+| [ADR-003: AVM-First](../../docs/_superseded/adr/ADR-003-avm-first-approach.md)    | Module selection rationale  |
+| [ADR-004: Region Defaults](../../docs/_superseded/adr/ADR-004-region-defaults.md) | `swedencentral` default     |
 | [Presenter Toolkit](../../docs/presenter/)                            | Demo delivery guides        |
 | [S02: Agentic Workflow](../S02-agentic-workflow/)                     | Next: advanced workflow     |
 
@@ -344,7 +344,7 @@ How should I organize my Bicep files for a team of 5 engineers working on multip
 
 ---
 
-📖 **For general issues** (Dev Container, Azure auth, Copilot problems), see the [Troubleshooting Guide](../../docs/guides/troubleshooting.md).
+📖 **For general issues** (Dev Container, Azure auth, Copilot problems), see the [Troubleshooting Guide](../../docs/troubleshooting.md).
 
 ## Next Steps
 

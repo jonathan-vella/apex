@@ -154,7 +154,7 @@ az sql db list-restore-points \
      --location germanywestcentral
 
    # Deploy infrastructure
-   cd infra/bicep/static-webapp-test
+   cd infra/bicep/static-webapp
    ./deploy.ps1 -Environment dev -Location germanywestcentral
 
    # Restore database from geo-backup (if available)

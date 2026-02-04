@@ -334,7 +334,7 @@ in the diagrams library?
 
 ---
 
-📖 **For general issues** (Dev Container, Copilot problems, tool installation), see the [Troubleshooting Guide](../../docs/guides/troubleshooting.md).
+📖 **For general issues** (Dev Container, Copilot problems, tool installation), see the [Troubleshooting Guide](../../docs/troubleshooting.md).
 
 ## Next Steps
 
@@ -389,7 +389,7 @@ in the diagrams library?
 - [Python Diagrams Library](https://diagrams.mingrammer.com/)
 - [Azure Icons Reference](https://diagrams.mingrammer.com/docs/nodes/azure)
 - [S03: Documentation Generation](../S03-documentation-generation/)
-- [Workflow Guide](../../docs/reference/workflow.md)
+- [Workflow Guide](../../docs/workflow.md)
 
 ---
 

@@ -24,7 +24,7 @@ This plan defines the Bicep implementation for a static web application with Azu
 ## Module Structure
 
 ```
-infra/bicep/static-webapp-test/
+infra/bicep/static-webapp/
 ├── main.bicep              # Orchestration
 ├── main.bicepparam         # Parameter file
 ├── modules/

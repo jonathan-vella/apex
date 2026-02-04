@@ -4,7 +4,7 @@
 **Region**: swedencentral (Sweden Central)
 **Environment**: Production
 **MCP Tools Used**: azure_price_search, azure_region_recommend, azure_sku_discovery
-**Architecture Reference**: [Architecture Assessment](./01-architecture-assessment.md)
+**Architecture Reference**: [Architecture Assessment](./02-architecture-assessment.md)
 
 ---
 
@@ -356,7 +356,7 @@ Cost Distribution:
 ## 🔗 References
 
 - [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)
-- [Architecture Assessment](./01-architecture-assessment.md)
+- [Architecture Assessment](./02-architecture-assessment.md)
 - [Implementation Plan](./04-implementation-plan.md)
 - [As-Built Diagram](./06-asbuilt-diagram.png)
 - [Azure App Service Pricing](https://azure.microsoft.com/pricing/details/app-service/)

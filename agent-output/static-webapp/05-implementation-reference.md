@@ -4,12 +4,12 @@
 
 ## Bicep Templates Location
 
-📁 **Code Location**: [`infra/bicep/static-webapp-test/`](../../infra/bicep/static-webapp-test/)
+📁 **Code Location**: [`infra/bicep/static-webapp/`](../../infra/bicep/static-webapp/)
 
 ## File Structure
 
 ```
-infra/bicep/static-webapp-test/
+infra/bicep/static-webapp/
 ├── main.bicep              # Main orchestration template
 ├── main.bicepparam         # Parameter file
 ├── deploy.ps1              # PowerShell deployment script
@@ -43,7 +43,7 @@ infra/bicep/static-webapp-test/
 ### Quick Deploy (uses current user as SQL admin)
 
 ```powershell
-cd infra/bicep/static-webapp-test
+cd infra/bicep/static-webapp
 ./deploy.ps1
 ```
 

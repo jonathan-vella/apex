@@ -63,8 +63,8 @@ Traditional infrastructure design involves:
 | Resource                                                            | Description                          |
 | ------------------------------------------------------------------- | ------------------------------------ |
 | [Contoso Patient Portal](../../infra/bicep/contoso-patient-portal/) | Working implementation (1,070 lines) |
-| [Workflow Guide](../../docs/reference/workflow.md)                  | Complete workflow documentation      |
-| [ADR-003: AVM-First](../../docs/adr/ADR-003-avm-first-approach.md)  | Module selection rationale           |
+| [Workflow Guide](../../docs/workflow.md)                  | Complete workflow documentation      |
+| [ADR-003: AVM-First](../../docs/_superseded/adr/ADR-003-avm-first-approach.md)  | Module selection rationale           |
 | [Presenter Toolkit](../../docs/presenter/)                          | Demo delivery guides                 |
 | [S03: Documentation](../S03-documentation-generation/)              | Next: documentation automation       |
 
@@ -193,7 +193,7 @@ The plan ensures all requirements are considered before any code changes.
 
 - Visual Studio Code with GitHub Copilot (Plan Agent is built-in)
 - Azure subscription (for deployment validation)
-- Custom agents configured (see [Workflow Guide](../../docs/reference/workflow.md))
+- Custom agents configured (see [Workflow Guide](../../docs/workflow.md))
 
 ### Run the Demo
 
@@ -448,7 +448,7 @@ By the end of this demo, participants will:
 
 - [VS Code Plan Agent Documentation](https://code.visualstudio.com/docs/copilot/chat/chat-planning) -
   **Official VS Code docs for built-in Plan Agent**
-- [Workflow Guide](../../docs/reference/workflow.md) - Complete documentation with agent handoffs
+- [Workflow Guide](../../docs/workflow.md) - Complete documentation with agent handoffs
 - [Custom Agent Configuration](../../.github/agents/) - Agent definitions with swedencentral defaults
 - [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
 - [Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/)
@@ -596,7 +596,7 @@ Before starting, gauge your audience:
 Share these with participants:
 
 - 📖 This README and `examples/agentic-workflow-conversation.md`
-- 🎯 [Workflow Guide](../../docs/reference/workflow.md)
+- 🎯 [Workflow Guide](../../docs/workflow.md)
 - 📚 [VS Code Plan Agent Docs](https://code.visualstudio.com/docs/copilot/chat/chat-planning)
 - 💬 Repository issues for questions
 

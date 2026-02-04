@@ -13,10 +13,10 @@
 > See [ADR-004](../docs/_superseded/adr/ADR-004-region-defaults.md).
 >
 > **Modules**: AVM-first for policy-compliant deployments.
-> See [ADR-003](../docs/adr/ADR-003-avm-first-approach.md).
+> See [ADR-003](../docs/_superseded/adr/ADR-003-avm-first-approach.md).
 >
 > **Agent Workflow**: `Requirements` → `architect` → `bicep-plan` → `bicep-code`.
-> See [Workflow Guide](../docs/reference/workflow.md).
+> See [Workflow Guide](../docs/workflow.md).
 
 ---
 
@@ -284,10 +284,10 @@ flowchart LR
 
 ## Related Resources
 
-- [Workflow Guide](../docs/reference/workflow.md)
-- [Agents Overview](../docs/reference/agents-overview.md)
-- [Bicep Patterns](../docs/reference/bicep-patterns.md)
-- [Getting Started](../docs/getting-started/quickstart.md)
+- [Workflow Guide](../docs/workflow.md)
+- [Quickstart](../docs/quickstart.md)
+- [Glossary](../docs/GLOSSARY.md)
+- [Troubleshooting](../docs/troubleshooting.md)
 
 ---
 

@@ -7,7 +7,7 @@
 **Architecture Reference**: {relative link to assessment doc, if available}
 
 > [!NOTE]
-> 📚 See [documentation-styling.md](../../agents/_shared/documentation-styling.md) for visual standards.
+> 📚 See [documentation-styling.md](../agents/_shared/documentation-styling.md) for visual standards.
 
 ## 💰 Cost At-a-Glance
 

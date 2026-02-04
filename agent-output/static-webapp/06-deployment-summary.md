@@ -62,7 +62,7 @@
 
 ```powershell
 # Navigate to Bicep directory
-cd infra/bicep/static-webapp-test
+cd infra/bicep/static-webapp
 
 # Preview changes
 ./deploy.ps1 -WhatIf

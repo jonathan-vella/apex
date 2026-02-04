@@ -30,8 +30,6 @@ The following artifacts were used to generate this documentation:
 | ------------------------ | ---------------------------------------------------------------------------------------------------- | ----------------------- |
 | Requirements             | [01-requirements.md](01-requirements.md)                                                             | Original requirements   |
 | Architecture Assessment  | [02-architecture-assessment.md](02-architecture-assessment.md)                                       | WAF assessment          |
-| Design Diagram           | [03-des-diagram.py](03-des-diagram.py)                                                               | Architecture diagram    |
-| Design ADR               | [03-des-adr-0001-ephemeral-test-infrastructure.md](03-des-adr-0001-ephemeral-test-infrastructure.md) | Architecture decisions  |
 | Design Cost Estimate     | [03-des-cost-estimate.md](03-des-cost-estimate.md)                                                   | Pre-deployment costs    |
 | Governance Constraints   | [04-governance-constraints.md](04-governance-constraints.md)                                         | Azure Policy compliance |
 | Implementation Plan      | [04-implementation-plan.md](04-implementation-plan.md)                                               | Bicep implementation    |

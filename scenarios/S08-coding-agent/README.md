@@ -276,7 +276,7 @@ gh issue create \
 | Wrong implementation    | Doesn't match requirements     | Clarify requirements in PR comment  |
 | Takes too long          | > 30 min without PR            | Complex issues may need breakdown   |
 
-📖 **For general issues** (Dev Container, Azure auth, Copilot problems), see the [Troubleshooting Guide](../../docs/guides/troubleshooting.md).
+📖 **For general issues** (Dev Container, Azure auth, Copilot problems), see the [Troubleshooting Guide](../../docs/troubleshooting.md).
 
 ---
 

@@ -315,7 +315,7 @@ Before creating `04-governance-constraints.md`, execute these Azure Resource Gra
 | Tag Policies       | X tags required       | {ISO-8601} |
 ```
 
-See full instructions: [governance-discovery.instructions.md](../instructions/governance-discovery.instructions.md)
+See full instructions: [governance-discovery.instructions.md](../../instructions/governance-discovery.instructions.md)
 
 ## Research Requirements (MANDATORY)
 
@@ -376,4 +376,4 @@ without pausing for user feedback, to gather comprehensive context.
 | **Diagram**      | Existing architecture, icon availability, layout patterns                     |
 | **Docs**         | Deployed resources, configuration details, operational procedures             |
 
-See also: [Agent Research Instructions](../instructions/agent-research-first.instructions.md)
+See also: [Agent Research Instructions](../../instructions/agent-research-first.instructions.md)
