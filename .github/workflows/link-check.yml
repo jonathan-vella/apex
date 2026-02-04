@@ -43,17 +43,6 @@ jobs:
             --no-progress
             --timeout 30
             --max-retries 3
-            --exclude-path node_modules
-            --exclude-path infra
-            --exclude-path docs/_superseded
-            --exclude-path _superseded
-            --exclude-path .github-archive-pre-skill-migration
-            --exclude-path mcp/azure-pricing-mcp
-            --exclude-path mcp
-            --exclude-path .github/templates
-            --exclude-path scenarios/S02-agentic-workflow
-            --exclude-path scenarios/S04-service-validation
-            --exclude-path scenarios
             --exclude '^https://localhost'
             --exclude '^http://localhost'
             --exclude 'example\.com'
@@ -66,18 +55,16 @@ jobs:
             --exclude '^https://sloanreview\.mit\.edu'
             --exclude '^https://trust\.github\.com'
             --exclude '^https://aka\.ms'
-            --exclude '^https://cyclonedx\.org/tool-center'
-            --exclude '^https://github\.com/msftnadavbh/AzurePricingMCP/discussions'
-            --exclude '^https://learn\.microsoft\.com/azure/backup/backup-best-practices'
-            --exclude '^https://learn\.microsoft\.com/azure/azure-monitor/logs/kql-quick-reference'
-            --exclude '^https://learn\.microsoft\.com/azure/devops/repos/security/github-advanced-security'
-            --exclude '^https://learn\.microsoft\.com/security/supply-chain'
             --exclude '\.azurewebsites\.net'
             --exclude '\.vault\.azure\.net'
             --exclude '\.azurecontainerapps\.io'
             --exclude '\.azurestaticapps\.net'
             --accept 200,204,206,301,302,403,429
-            '**/*.md'
+            'README.md'
+            'CONTRIBUTING.md'
+            'CONTRIBUTORS.md'
+            'docs/**/*.md'
+            'agent-output/**/*.md'
           fail: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
