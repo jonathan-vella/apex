@@ -1,23 +1,19 @@
 # External Link Checker
 # Validates external URLs in markdown files
-# Runs weekly and on PRs that modify documentation
+# Runs nightly and creates an issue when broken links are found
 
 name: Link Check
 
 on:
   schedule:
-    # Weekly on Sundays at 2:00 AM UTC
-    - cron: "0 2 * * 0"
-  pull_request:
-    paths:
-      - "**.md"
-      - ".github/workflows/link-check.yml"
+    # Nightly at 2:00 AM UTC
+    - cron: "0 2 * * *"
   workflow_dispatch:
 
 jobs:
   link-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -32,10 +28,12 @@ jobs:
         run: npm ci
 
       - name: Check internal links (docs/)
+        id: internal
         run: npm run lint:links:docs
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Check external links
+        id: external
         uses: lycheeverse/lychee-action@v2
         with:
           args: >-
@@ -65,9 +63,51 @@ jobs:
             'CONTRIBUTORS.md'
             'docs/**/*.md'
             'agent-output/**/*.md'
-          fail: true
+          fail: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create issue on failure
+        if: steps.internal.outcome == 'failure' || steps.external.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '## 🔗 Broken Links Detected\n\n';
+            body += 'The nightly link check found broken links in the documentation.\n\n';
+            body += '**Run:** [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\n';
+
+            if (fs.existsSync('lychee/out.md')) {
+              body += '### External Link Results\n\n';
+              body += fs.readFileSync('lychee/out.md', 'utf8');
+            }
+
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'broken-links'
+            });
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: body
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🔗 Broken Links Found in Documentation',
+                body: body,
+                labels: ['broken-links', 'documentation']
+              });
+            }
 
       - name: Report results
         if: always()
