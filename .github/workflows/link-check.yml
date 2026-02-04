@@ -48,16 +48,16 @@ jobs:
             --exclude-path docs/_superseded
             --exclude-path _superseded
             --exclude-path .github-archive-pre-skill-migration
-            --exclude-path mcp/azure-pricing-mcp/.archive
             --exclude-path mcp/azure-pricing-mcp
+            --exclude-path mcp
             --exclude-path .github/templates
-            --exclude-path scenarios/S02-agentic-workflow/solution
+            --exclude-path scenarios/S02-agentic-workflow
             --exclude-path scenarios/S04-service-validation
+            --exclude-path scenarios
             --exclude '^https://localhost'
             --exclude '^http://localhost'
             --exclude 'example\.com'
             --exclude 'contoso\.com'
-            --exclude 'contoso-patient-portal'
             --exclude 'your-.*\.azure'
             --exclude 'placeholder'
             --exclude '^https://www\.gartner\.com'
