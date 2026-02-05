@@ -2,8 +2,8 @@ name: Azure Deprecation Tracker
 
 on:
   schedule:
-    # Run daily at 06:00 UTC
-    - cron: "0 6 * * *"
+    # Run weekly (Mondays) at 06:00 UTC
+    - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
       force_update:
