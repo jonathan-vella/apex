@@ -1,7 +1,13 @@
 ---
 name: Bicep Plan
-model: "Claude Opus 4.5"
+model: ["Claude Opus 4.5 (copilot)", "Claude Sonnet 4.5 (copilot)"]
 description: Expert Azure Bicep Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules, and designs complete infrastructure solutions with architecture diagrams.
+user-invokable: true
+agents:
+  [
+    "Bicep Code",
+    "Architect",
+  ]
 tools:
   [
     "vscode",

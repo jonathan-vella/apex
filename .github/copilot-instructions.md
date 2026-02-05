@@ -7,6 +7,26 @@
 Transform Azure infrastructure requirements into deploy-ready Bicep code using coordinated AI agents, aligned with
 Azure Well-Architected Framework (WAF) and Azure Verified Modules (AVM).
 
+## VS Code 1.109+ Agent Orchestration
+
+This project implements the **Conductor pattern** from VS Code 1.109's agent orchestration features.
+The `InfraOps Conductor` agent coordinates the 7-step workflow with mandatory human approval gates.
+
+### Quick Start with Conductor
+
+1. Open VS Code Chat (`Ctrl+Shift+I`)
+2. Select **InfraOps Conductor** from agent dropdown
+3. Describe your Azure infrastructure project
+4. The Conductor guides you through all 7 steps with approval gates
+
+### Agent Invocation Methods
+
+| Method | Description |
+|--------|-------------|
+| `Ctrl+Shift+A` | Agent picker (all agents) |
+| `InfraOps Conductor` | Master orchestrator (recommended) |
+| Individual agents | Direct invocation for specific phases |
+
 ## Agent Workflow (7 Steps)
 
 Agents coordinate through artifact handoffs via `.github/agents/*.agent.md`:
@@ -20,6 +40,28 @@ Agents coordinate through artifact handoffs via `.github/agents/*.agent.md`:
 7. **As-Built** (`azure-diagrams`, `azure-adr`, `azure-workload-docs` skills) → `07-*.md` documentation suite
 
 **Key Rule**: Each agent saves outputs to `agent-output/{project}/` and passes context via handoff prompts.
+
+### Conductor Approval Gates
+
+The InfraOps Conductor enforces mandatory pause points:
+
+| Gate | After Step | User Action |
+|------|------------|-------------|
+| 1 | Requirements | Confirm requirements complete |
+| 2 | Architecture | Approve WAF assessment |
+| 3 | Planning | Approve implementation plan |
+| 4 | Pre-Deploy | Approve lint/what-if/review results |
+| 5 | Post-Deploy | Verify deployment |
+
+### Validation Subagents
+
+Step 5 runs a TDD-style validation cycle before deployment:
+
+```
+@bicep-lint-subagent    → Syntax validation (bicep lint, bicep build)
+@bicep-whatif-subagent  → Deployment preview (az deployment what-if)
+@bicep-review-subagent  → Code review (AVM standards, security, naming)
+```
 
 ## Critical Defaults
 
@@ -143,14 +185,16 @@ azure-agentic-infraops/
 ├── .github/
 │   ├── agents/                    # Agents for core workflow steps
 │   │   ├── _shared/defaults.md    # Regions, tags, CAF naming, AVM standards
+│   │   ├── _subagents/            # Validation subagents (lint, what-if, review)
+│   │   ├── infraops-conductor.agent.md  # Master orchestrator (NEW)
 │   │   ├── requirements.agent.md  # Step 1: Gather infrastructure needs
 │   │   ├── architect.agent.md     # Step 2: WAF assessment + cost estimates
 │   │   ├── bicep-plan.agent.md    # Step 4: Implementation planning
 │   │   ├── bicep-code.agent.md    # Step 5: Bicep code generation
 │   │   ├── deploy.agent.md        # Step 6: Azure deployment
 │   │   └── diagnose.agent.md      # Troubleshooting helper
-│   ├── skills/                    # 9 reusable skills (azure-diagrams, azure-adr,
-│   │                              # azure-workload-docs, azure-deployment-preflight, etc.)
+│   ├── skills/                    # 10 reusable skills (azure-diagrams, azure-adr,
+│   │                              # azure-workload-docs, orchestration-helper, etc.)
 │   ├── instructions/              # Rules for specific file types (applied via .gitattributes)
 │   ├── templates/                 # H2 skeleton files for artifact generation
 │   └── copilot-instructions.md    # THIS FILE

@@ -1,6 +1,16 @@
 ---
 name: Bicep Code
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
+model: ["Claude Sonnet 4.5 (copilot)", "Claude Opus 4.5 (copilot)"]
+user-invokable: true
+agents:
+  [
+    "Deploy",
+    "Architect",
+    "bicep-lint-subagent",
+    "bicep-whatif-subagent",
+    "bicep-review-subagent",
+  ]
 tools:
   [
     "vscode",
@@ -38,6 +48,15 @@ handoffs:
   - label: ▶ Validate Templates
     agent: Bicep Code
     prompt: Run bicep build on all templates to validate syntax and check for errors. Report validation status.
+    send: true
+  - label: "🔍 Run Validation Cycle"
+    agent: Bicep Code
+    prompt: |
+      Run the full Bicep validation cycle before deployment:
+      1. Delegate to @bicep-lint-subagent for syntax validation
+      2. Delegate to @bicep-whatif-subagent for deployment preview
+      3. Delegate to @bicep-review-subagent for code review
+      Report consolidated results and wait for approval before proceeding.
     send: true
   - label: Deploy to Azure
     agent: Deploy
