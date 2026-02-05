@@ -1,7 +1,7 @@
 ---
 name: Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.
-model: ["Claude Opus 4.5 (copilot)", "Claude Sonnet 4.5 (copilot)"]
+model: ["Claude Opus 4.5"]
 user-invokable: true
 agents: ["*"]
 tools:

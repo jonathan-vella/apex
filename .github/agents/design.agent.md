@@ -4,7 +4,6 @@ description: >
   Step 3: Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs)
   for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill
   for formal decision records. Optional step - users can skip to Implementation Planning.
-model: ["Claude Opus 4.5 (copilot)", "Claude Sonnet 4.5 (copilot)"]
 user-invokable: true
 agents: ["*"]
 tools:

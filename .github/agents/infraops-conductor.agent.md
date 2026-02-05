@@ -5,7 +5,7 @@ description: >
   (Requirements, Architect, Design, Bicep Plan, Bicep Code, Deploy) through the complete development cycle
   with mandatory human approval gates. Maintains context efficiency by delegating to subagents
   and preserves human-in-the-loop control at critical decision points.
-model: ["Claude Opus 4.5 (copilot)", "Claude Sonnet 4.5 (copilot)"]
+model: ["Claude Opus 4.5"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invokable: true
 agents: ["*"]

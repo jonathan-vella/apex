@@ -1,6 +1,6 @@
 ---
 name: Requirements
-model: ["Claude Opus 4.5 (copilot)", "Claude Sonnet 4.5 (copilot)"]
+model: ["Claude Opus 4.5"]
 description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invokable: true

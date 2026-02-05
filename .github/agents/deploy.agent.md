@@ -2,7 +2,6 @@
 name: Deploy
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
-model: ["Claude Sonnet 4.5 (copilot)", "Claude Opus 4.5 (copilot)"]
 user-invokable: true
 agents: ["*"]
 tools:

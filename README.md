@@ -41,7 +41,9 @@
 ---
 
 <details>
-<summary><h2>What is Agentic InfraOps?</h2></summary>
+<summary>What is Agentic InfraOps?</summary>
+
+## What is Agentic InfraOps?
 
 Agentic InfraOps transforms how you build Azure infrastructure with AI agents.
 
@@ -66,7 +68,9 @@ with best practices in cloud engineering.
 ---
 
 <details>
-<summary><h2>Key Features</h2></summary>
+<summary>Key Features</summary>
+
+## Key Features
 
 ### 🎭 Multi-Agent Workflow
 
@@ -113,68 +117,14 @@ dedicated prompt. This reduces hallucinations as the context fills up.
     width="700" />
 </div>
 
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#0078D4'}}}%%
-sequenceDiagram
-    participant U as User
-    participant C as Conductor
-    participant R as Requirements
-    participant A as Architect
-    participant B as Bicep
-    participant D as Deploy
-
-    U->>C: Describe infrastructure project
-    
-    Note over C,R: Step 1: Requirements
-    C->>R: Gather requirements
-    R-->>C: Return 01-requirements.md
-    rect rgb(254, 226, 226)
-        Note over U,C: GATE 1: Requirements Approval
-    end
-    U->>C: Approve requirements
-    
-    Note over C,A: Step 2: Architecture
-    C->>A: Assess architecture (WAF)
-    A-->>C: Return 02-assessment.md + cost estimate
-    rect rgb(254, 226, 226)
-        Note over U,C: GATE 2: Architecture Approval
-    end
-    U->>C: Approve architecture
-    
-    Note over C,A: Step 4: Planning
-    C->>A: Create implementation plan
-    A-->>C: Return 04-plan.md + governance
-    rect rgb(254, 226, 226)
-        Note over U,C: GATE 3: Plan Approval
-    end
-    U->>C: Approve plan
-    
-    Note over C,B: Step 5: Implementation
-    C->>B: Generate Bicep templates
-    B-->>C: Return infra/bicep/{project}/
-    rect rgb(254, 226, 226)
-        Note over U,C: GATE 4: Pre-Deploy Approval
-    end
-    U->>C: Approve for deployment
-    
-    Note over C,D: Step 6: Deploy
-    C->>D: Execute deployment (what-if first)
-    D-->>C: Return 06-deployment-summary.md
-    rect rgb(254, 226, 226)
-        Note over U,C: GATE 5: Post-Deploy Verification
-    end
-    U->>C: Verify deployment
-    
-    Note over C: Step 7: Documentation
-    C-->>U: Workflow complete + 07-* docs
-```
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
 <details>
-<summary><h2>Architecture Overview</h2></summary>
+<summary>Architecture Overview</summary>
+
+## Architecture Overview
 
 The Agentic InfraOps system consists of specialized agents organized into three tiers:
 
@@ -222,7 +172,9 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 ---
 
 <details>
-<summary><h2>How It Works</h2></summary>
+<summary>How It Works</summary>
+
+## How It Works
 
 The Conductor agent follows a strict 7-step cycle for every infrastructure project:
 
@@ -277,7 +229,9 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 ---
 
 <details>
-<summary><h2>⚡ Quick Start</h2></summary>
+<summary>⚡ Quick Start</summary>
+
+## ⚡ Quick Start
 
 ### Prerequisites
 
@@ -334,7 +288,9 @@ provide feedback to refine.
 ---
 
 <details>
-<summary><h2>Usage Examples</h2></summary>
+<summary>Usage Examples</summary>
+
+## Usage Examples
 
 ### Example: E-Commerce Platform
 
@@ -386,7 +342,9 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 ---
 
 <details>
-<summary><h2>Skills (Reusable Capabilities)</h2></summary>
+<summary>Skills (Reusable Capabilities)</summary>
+
+## Skills (Reusable Capabilities)
 
 10 skills provide reusable capabilities across agents:
 
@@ -410,7 +368,9 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 ---
 
 <details>
-<summary><h2>Generated Artifacts</h2></summary>
+<summary>Generated Artifacts</summary>
+
+## Generated Artifacts
 
 ### Workflow Artifacts
 
@@ -444,7 +404,9 @@ Explore complete workflow outputs in [`agent-output/`](agent-output/):
 ---
 
 <details>
-<summary><h2>🧩 MCP Integration</h2></summary>
+<summary>🧩 MCP Integration</summary>
+
+## 🧩 MCP Integration
 
 ### Microsoft Azure MCP Server
 
@@ -471,7 +433,9 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 ---
 
 <details>
-<summary><h2>📁 Project Structure</h2></summary>
+<summary>📁 Project Structure</summary>
+
+## 📁 Project Structure
 
 ```
 ├── 📁 .github/
@@ -502,7 +466,9 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 ---
 
 <details>
-<summary><h2>Configuration</h2></summary>
+<summary>Configuration</summary>
+
+## Configuration
 
 ### VS Code Settings
 
@@ -545,7 +511,9 @@ Each agent is defined in a `.agent.md` file that you can modify:
 ---
 
 <details>
-<summary><h2>Best Practices</h2></summary>
+<summary>Best Practices</summary>
+
+## Best Practices
 
 1. **Use the Conductor for complete workflows** — Let it orchestrate the full 7-step cycle
 2. **Review artifacts at each gate** — The approval points are designed for human oversight
@@ -561,7 +529,9 @@ Each agent is defined in a `.agent.md` file that you can modify:
 ---
 
 <details>
-<summary><h2>🎯 Scenarios</h2></summary>
+<summary>🎯 Scenarios</summary>
+
+## 🎯 Scenarios
 
 **8 hands-on scenarios** from beginner to advanced (15-45 min each):
 
@@ -580,7 +550,9 @@ Each agent is defined in a `.agent.md` file that you can modify:
 ---
 
 <details>
-<summary><h2>📋 Requirements</h2></summary>
+<summary>📋 Requirements</summary>
+
+## 📋 Requirements
 
 | Requirement | Details |
 |-------------|---------|
@@ -603,7 +575,9 @@ Each agent is defined in a `.agent.md` file that you can modify:
 ---
 
 <details>
-<summary><h2>🤝 Contributing</h2></summary>
+<summary>🤝 Contributing</summary>
+
+## 🤝 Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
@@ -614,7 +588,9 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 ---
 
 <details>
-<summary><h2>📄 License</h2></summary>
+<summary>📄 License</summary>
+
+## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details.
 
@@ -625,7 +601,9 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 <details>
-<summary><h2>Acknowledgments</h2></summary>
+<summary>Acknowledgments</summary>
+
+## Acknowledgments
 
 This project builds upon the excellent work of:
 
