@@ -4,6 +4,9 @@
 
 name: Agent Validation
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main, feature/*]
