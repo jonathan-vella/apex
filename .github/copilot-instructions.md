@@ -15,7 +15,13 @@ The `InfraOps Conductor` agent coordinates the 7-step workflow with mandatory hu
 > **⚠️ REQUIRED SETTING**: Enable custom agents as subagents in your **User Settings**:
 >
 > ```json
-> { "chat.customAgentInSubagent.enabled": true }
+> {
+>   "github.copilot.chat": {
+>     "customAgentInSubagent": {
+>       "enabled": true
+>     }
+>   }
+> }
 > ```
 >
 > Without this, the Conductor cannot delegate to specialized agents.
