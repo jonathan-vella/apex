@@ -40,7 +40,8 @@
 
 ---
 
-## What is Agentic InfraOps?
+<details>
+<summary><h2>What is Agentic InfraOps?</h2></summary>
 
 Agentic InfraOps transforms how you build Azure infrastructure with AI agents.
 
@@ -60,9 +61,12 @@ with best practices in cloud engineering.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Key Features
+<details>
+<summary><h2>Key Features</h2></summary>
 
 ### 🎭 Multi-Agent Workflow
 
@@ -96,50 +100,7 @@ dedicated prompt. This reduces hallucinations as the context fills up.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
----
-
-## Architecture Overview
-
-The Agentic InfraOps system consists of specialized agents organized into three tiers:
-
-### Primary Agent: The Conductor
-
-| Agent | Persona | Role | Model |
-|-------|---------|------|-------|
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator managing the complete 7-step workflow | Claude Sonnet 4.5 |
-
-- Coordinates all specialized agents through handoffs
-- Manages 5 mandatory approval gates
-- Handles user interactions and pause points
-- Enforces the Requirements → Deploy → Docs cycle
-
-### Core Agents (7 Steps)
-
-| Step | Agent | Persona | Role | Model |
-|------|-------|---------|------|-------|
-| 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | Claude Sonnet 4.5 |
-| 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | Claude Sonnet 4.5 |
-| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Sonnet 4.5 |
-| 4 | `bicep-plan` | 📐 Strategist | Implementation planning with governance | Claude Sonnet 4.5 |
-| 5 | `bicep-code` | ⚒️ Forge | Generates AVM-first Bicep templates | Claude Sonnet 4.5 |
-| 6 | `deploy` | 🚀 Envoy | Azure resource provisioning | Claude Sonnet 4.5 |
-| 7 | — | 📚 — | As-built documentation (via skills) | — |
-
-### Validation Subagents
-
-| Subagent | Role | When Invoked |
-|----------|------|--------------|
-| `bicep-lint-subagent` | Syntax validation (bicep lint, bicep build) | Pre-deployment |
-| `bicep-whatif-subagent` | Deployment preview (az deployment what-if) | Pre-deployment |
-| `bicep-review-subagent` | Code review (AVM standards, security, naming) | Pre-deployment |
-
-### Diagnostic Agent
-
-| Agent | Persona | Role |
-|-------|---------|------|
-| `diagnose` | 🔍 Sentinel | Resource health assessment and troubleshooting |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+</details>
 
 ---
 
@@ -212,7 +173,56 @@ sequenceDiagram
 
 ---
 
-## How It Works
+<details>
+<summary><h2>Architecture Overview</h2></summary>
+
+The Agentic InfraOps system consists of specialized agents organized into three tiers:
+
+### Primary Agent: The Conductor
+
+| Agent | Persona | Role | Model |
+|-------|---------|------|-------|
+| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator managing the complete 7-step workflow | Claude Sonnet 4.5 |
+
+- Coordinates all specialized agents through handoffs
+- Manages 5 mandatory approval gates
+- Handles user interactions and pause points
+- Enforces the Requirements → Deploy → Docs cycle
+
+### Core Agents (7 Steps)
+
+| Step | Agent | Persona | Role | Model |
+|------|-------|---------|------|-------|
+| 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | Claude Sonnet 4.5 |
+| 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | Claude Sonnet 4.5 |
+| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Sonnet 4.5 |
+| 4 | `bicep-plan` | 📐 Strategist | Implementation planning with governance | Claude Sonnet 4.5 |
+| 5 | `bicep-code` | ⚒️ Forge | Generates AVM-first Bicep templates | Claude Sonnet 4.5 |
+| 6 | `deploy` | 🚀 Envoy | Azure resource provisioning | Claude Sonnet 4.5 |
+| 7 | — | 📚 — | As-built documentation (via skills) | — |
+
+### Validation Subagents
+
+| Subagent | Role | When Invoked |
+|----------|------|--------------|
+| `bicep-lint-subagent` | Syntax validation (bicep lint, bicep build) | Pre-deployment |
+| `bicep-whatif-subagent` | Deployment preview (az deployment what-if) | Pre-deployment |
+| `bicep-review-subagent` | Code review (AVM standards, security, naming) | Pre-deployment |
+
+### Diagnostic Agent
+
+| Agent | Persona | Role |
+|-------|---------|------|
+| `diagnose` | 🔍 Sentinel | Resource health assessment and troubleshooting |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+</details>
+
+---
+
+<details>
+<summary><h2>How It Works</h2></summary>
 
 The Conductor agent follows a strict 7-step cycle for every infrastructure project:
 
@@ -262,9 +272,12 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## ⚡ Quick Start
+<details>
+<summary><h2>⚡ Quick Start</h2></summary>
 
 ### Prerequisites
 
@@ -316,9 +329,12 @@ provide feedback to refine.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Usage Examples
+<details>
+<summary><h2>Usage Examples</h2></summary>
 
 ### Example: E-Commerce Platform
 
@@ -365,9 +381,12 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Skills (Reusable Capabilities)
+<details>
+<summary><h2>Skills (Reusable Capabilities)</h2></summary>
 
 10 skills provide reusable capabilities across agents:
 
@@ -386,9 +405,12 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Generated Artifacts
+<details>
+<summary><h2>Generated Artifacts</h2></summary>
 
 ### Workflow Artifacts
 
@@ -417,9 +439,12 @@ Explore complete workflow outputs in [`agent-output/`](agent-output/):
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 🧩 MCP Integration
+<details>
+<summary><h2>🧩 MCP Integration</h2></summary>
 
 ### Microsoft Azure MCP Server
 
@@ -441,9 +466,12 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 📁 Project Structure
+<details>
+<summary><h2>📁 Project Structure</h2></summary>
 
 ```
 ├── 📁 .github/
@@ -469,9 +497,12 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Configuration
+<details>
+<summary><h2>Configuration</h2></summary>
 
 ### VS Code Settings
 
@@ -509,9 +540,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Best Practices
+<details>
+<summary><h2>Best Practices</h2></summary>
 
 1. **Use the Conductor for complete workflows** — Let it orchestrate the full 7-step cycle
 2. **Review artifacts at each gate** — The approval points are designed for human oversight
@@ -522,9 +556,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 🎯 Scenarios
+<details>
+<summary><h2>🎯 Scenarios</h2></summary>
 
 **8 hands-on scenarios** from beginner to advanced (15-45 min each):
 
@@ -538,9 +575,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 📋 Requirements
+<details>
+<summary><h2>📋 Requirements</h2></summary>
 
 | Requirement | Details |
 |-------------|---------|
@@ -558,25 +598,34 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 🤝 Contributing
+<details>
+<summary><h2>🤝 Contributing</h2></summary>
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 📄 License
+<details>
+<summary><h2>📄 License</h2></summary>
 
 MIT License. See [LICENSE](LICENSE) for details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Acknowledgments
+<details>
+<summary><h2>Acknowledgments</h2></summary>
 
 This project builds upon the excellent work of:
 
@@ -586,6 +635,8 @@ This project builds upon the excellent work of:
   Inspiration for context conservation and parallel execution
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+</details>
 
 ---
 
