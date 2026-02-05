@@ -1,0 +1,48 @@
+# Lint Workflow
+# Required status check for PR merges - validates markdown and code quality
+
+name: lint
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "feature/*"]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint Markdown
+        run: npm run lint:md
+
+      - name: Validate artifact templates
+        run: npm run lint:artifact-templates
+
+      - name: Validate cost estimate templates
+        run: npm run lint:cost-estimate-templates
+
+      - name: Check version sync
+        run: npm run lint:version-sync
+
+      - name: Check deprecated references
+        run: npm run lint:deprecated-refs
+
+      - name: Validate JSON files
+        run: npm run lint:json
