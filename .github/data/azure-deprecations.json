@@ -1,0 +1,60 @@
+{
+  "lastUpdated": "2026-02-05T14:00:00.000Z",
+  "totalCount": 6,
+  "sources": ["manual-known", "azure-updates-rss"],
+  "deprecations": [
+    {
+      "service": "Azure CDN",
+      "sku": "Standard_Microsoft",
+      "sunsetDate": "2025-09-30",
+      "replacement": "Standard_AzureFrontDoor",
+      "source": "manual",
+      "addedDate": "2024-01-15",
+      "notes": "Microsoft Classic CDN no longer accepts new profile creation. Existing profiles continue to work until sunset date."
+    },
+    {
+      "service": "Azure CDN",
+      "sku": "Premium_Microsoft",
+      "sunsetDate": "2025-09-30",
+      "replacement": "Premium_AzureFrontDoor",
+      "source": "manual",
+      "addedDate": "2024-01-15",
+      "notes": "Microsoft Classic CDN no longer accepts new profile creation. Existing profiles continue to work until sunset date."
+    },
+    {
+      "service": "Application Gateway",
+      "sku": "Standard_v1",
+      "sunsetDate": "2026-04-28",
+      "replacement": "Standard_v2",
+      "source": "manual",
+      "addedDate": "2024-06-01",
+      "notes": "v1 SKUs are being retired. Migrate to v2 for autoscaling and zone redundancy."
+    },
+    {
+      "service": "Application Gateway",
+      "sku": "WAF_v1",
+      "sunsetDate": "2026-04-28",
+      "replacement": "WAF_v2",
+      "source": "manual",
+      "addedDate": "2024-06-01",
+      "notes": "v1 SKUs are being retired. Migrate to v2 for autoscaling and zone redundancy."
+    },
+    {
+      "service": "Azure Container Registry",
+      "sku": "Classic",
+      "sunsetDate": "2024-03-31",
+      "replacement": "Basic/Standard/Premium",
+      "source": "manual",
+      "addedDate": "2023-01-01",
+      "notes": "Classic tier has been fully retired."
+    },
+    {
+      "service": "Azure Service Bus",
+      "sku": "Basic (legacy)",
+      "sunsetDate": null,
+      "replacement": "Standard/Premium",
+      "source": "manual",
+      "notes": "Basic tier has limited features, consider Premium for production workloads."
+    }
+  ]
+}

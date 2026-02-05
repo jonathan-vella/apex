@@ -92,14 +92,15 @@ This file is automatically updated by agents as they create new outputs.
 - **Scenarios**: [`scenarios/`](../../scenarios/)
 ```
 
-## Sample Projects
+## Showcase Projects
 
-| Project                                         | Description                                        | Artifacts                                |
-| ----------------------------------------------- | -------------------------------------------------- | ---------------------------------------- |
-| [agent-testing](./agent-testing/)               | Agent validation framework with 16 Azure resources | Full 7-step workflow + health validation |
-| [static-webapp](./static-webapp/)               | Azure Static Web App with Functions backend        | Production-ready SWA pattern             |
-| [ecommerce](./ecommerce/)                       | E-commerce platform architecture                   | Multi-tier with SQL and CDN              |
-| [infraops-static-demo](./infraops-static-demo/) | Demo static web infrastructure                     | Complete workflow example                |
+| Project | Description | Highlights |
+|---------|-------------|------------|
+| [e2e-conductor-test](./e2e-conductor-test/) | End-to-end Conductor workflow validation | Full 7-step workflow, ADRs, diagrams, governance |
+| [static-webapp](./static-webapp/) | Azure Static Web App with Functions backend | Complete example with compliance matrix |
+
+> **Note**: These are curated showcase projects demonstrating the full workflow.
+> Create your own project folder when starting a new infrastructure project.
 
 ## Legacy Demo Outputs
 

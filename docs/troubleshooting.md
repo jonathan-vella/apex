@@ -2,6 +2,18 @@
 
 > Common issues and solutions for Agentic InfraOps
 
+## Agent Personas Quick Reference
+
+| Agent | Persona | Common Issues |
+|-------|---------|---------------|
+| InfraOps Conductor | 🎼 Maestro | Subagent invocation not working |
+| requirements | 📜 Scribe | Not appearing in list |
+| architect | 🏛️ Oracle | MCP pricing not connecting |
+| bicep-plan | 📐 Strategist | Governance discovery failing |
+| bicep-code | ⚒️ Forge | Validation subagents not running |
+| deploy | 🚀 Envoy | Azure auth issues |
+| diagnose | 🔍 Sentinel | — |
+
 ## Quick Decision Tree
 
 ```mermaid
@@ -62,6 +74,50 @@ head -20 .github/agents/requirements.agent.md
 ```
 
 Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
+
+---
+
+### 1.5. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
+
+**Symptom**: The InfraOps Conductor (🎼 Maestro) doesn't delegate to specialized agents.
+Responses are instant, no terminal commands execute, no files are created.
+
+**Root Cause**: The `chat.customAgentInSubagent.enabled` setting is not enabled in
+**User Settings**.
+
+**Solutions**:
+
+1. **Enable in User Settings** (not just workspace):
+   - Press `Ctrl+,` → Search for `customAgentInSubagent`
+   - Check the box to enable
+   - OR add to User Settings JSON:
+   
+   ```json
+   {
+     "chat.customAgentInSubagent.enabled": true
+   }
+   ```
+
+2. **Verify agents have `agent` tool**:
+   
+   ```bash
+   grep -l '"agent"' .github/agents/*.agent.md
+   # Should list all main agents
+   ```
+
+3. **Verify agents have wildcard `agents` array**:
+   
+   ```bash
+   grep 'agents:.*\["\*"\]' .github/agents/*.agent.md
+   # Should show agents: ["*"] in each file
+   ```
+
+4. **Use Chat Diagnostics**:
+   - Right-click in Chat view → "Diagnostics"
+   - Check all agents are loaded correctly
+
+**Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
+for experimental features. User settings take precedence.
 
 ---
 
@@ -325,9 +381,16 @@ az deployment group list -g {resource-group} --output table
 
 ### Still Stuck?
 
-Use the `diagnose` agent:
+Use the `diagnose` agent (🔍 Sentinel):
 
 ```text
 Ctrl+Shift+A → diagnose
 "My bicep-code agent isn't generating valid templates"
+```
+
+Or start the InfraOps Conductor (🎼 Maestro) for a guided workflow:
+
+```text
+Ctrl+Shift+I → InfraOps Conductor
+"Help me troubleshoot my Azure deployment"
 ```

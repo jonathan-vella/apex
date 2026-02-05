@@ -1,0 +1,139 @@
+# Agent Validation Workflow
+# Validates agent definitions, skills, and VS Code configuration
+# Triggered on changes to agents, skills, or VS Code settings
+
+name: Agent Validation
+
+on:
+  push:
+    branches: [main, feature/*]
+    paths:
+      - ".github/agents/**"
+      - ".github/skills/**"
+      - ".devcontainer/devcontainer.json"
+      - ".vscode/extensions.json"
+      - "scripts/validate-agent-frontmatter.mjs"
+      - "scripts/validate-skills-format.mjs"
+      - "scripts/validate-vscode-config.mjs"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/agents/**"
+      - ".github/skills/**"
+      - ".devcontainer/devcontainer.json"
+      - ".vscode/extensions.json"
+  workflow_dispatch:
+
+jobs:
+  validate-agents:
+    name: Validate Agent Definitions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate agent frontmatter
+        run: npm run lint:agent-frontmatter
+
+      - name: Validate skills format
+        run: npm run lint:skills-format
+
+      - name: Validate VS Code configuration
+        run: npm run validate:vscode
+
+      - name: Run full 1.109 validation suite
+        run: npm run test:1109
+
+  validate-handoffs:
+    name: Validate Handoff Graph
+    runs-on: ubuntu-latest
+    needs: validate-agents
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check handoff references
+        run: |
+          echo "🔗 Validating agent handoff references..."
+
+          # Extract all handoff agent references
+          HANDOFFS=$(grep -rh "agent:" .github/agents/*.agent.md 2>/dev/null | \
+            grep -v "^---" | \
+            sed 's/.*agent: *//' | \
+            tr -d '"' | \
+            sort -u)
+
+          # Extract all agent names
+          AGENTS=$(grep -rh "^name:" .github/agents/*.agent.md 2>/dev/null | \
+            sed 's/name: *//' | \
+            tr -d '"' | \
+            sort -u)
+
+          # Check each handoff reference exists
+          ERRORS=0
+          for handoff in $HANDOFFS; do
+            if ! echo "$AGENTS" | grep -qi "^$handoff$"; then
+              echo "❌ Invalid handoff reference: $handoff"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "❌ Found $ERRORS invalid handoff reference(s)"
+            exit 1
+          else
+            echo "✅ All handoff references are valid"
+          fi
+
+      - name: Check for circular delegations
+        run: |
+          echo "🔄 Checking for circular delegation chains..."
+
+          # Simple check: agent cannot delegate to itself
+          for file in .github/agents/*.agent.md; do
+            AGENT_NAME=$(grep -m1 "^name:" "$file" | sed 's/name: *//' | tr -d '"')
+            if grep -q "agent: $AGENT_NAME" "$file"; then
+              echo "❌ Circular delegation in $file: $AGENT_NAME delegates to itself"
+              exit 1
+            fi
+          done
+
+          echo "✅ No circular delegations detected"
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-agents, validate-handoffs]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          if [ "${{ needs.validate-agents.result }}" == "success" ] && \
+             [ "${{ needs.validate-handoffs.result }}" == "success" ]; then
+            echo "✅ All agent validations passed"
+          else
+            echo "❌ Agent validation failed"
+            exit 1
+          fi

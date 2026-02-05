@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-azuretools.vscode-bicep",
+    "DavidAnson.vscode-markdownlint",
+    "ms-vscode.copilot-mermaid-diagram",
+    "github.vscode-pull-request-github",
+    "bierner.markdown-mermaid",
+    "bierner.markdown-preview-github-styles",
+    "ms-azuretools.vscode-azureresourcegroups",
+    "ms-vscode.powershell",
+    "ms-vscode.azurecli",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode"
+  ],
+  "unwantedRecommendations": []
+}

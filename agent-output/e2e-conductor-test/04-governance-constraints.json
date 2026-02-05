@@ -1,0 +1,117 @@
+{
+  "discoveredAt": "2026-02-05T10:30:00Z",
+  "subscription": {
+    "name": "corp",
+    "id": "6edac528-da7f-4bef-a790-45b7eccd3ae3"
+  },
+  "managementGroup": {
+    "id": "2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+  },
+  "policySummary": {
+    "totalAssignments": 127,
+    "denyPoliciesAnalyzed": 10,
+    "blockers": 0
+  },
+  "requiredTags": [
+    "environment",
+    "owner",
+    "costcenter",
+    "application",
+    "workload",
+    "sla",
+    "backup-policy",
+    "maint-window",
+    "technical-contact"
+  ],
+  "policies": [
+    {
+      "name": "Block Azure RM Resource Creation",
+      "assignmentName": "918465337cff47588b23a6e9",
+      "effect": "Deny",
+      "scope": "Management Group",
+      "actuallyBlocks": "Classic resources only (Microsoft.ClassicCompute/*, Microsoft.ClassicStorage/*, Microsoft.ClassicNetwork/*)",
+      "impactOnArchitecture": "NONE - Static Web App and CDN use modern ARM resource types",
+      "status": "cleared"
+    },
+    {
+      "name": "Deny network interfaces having a public IP associated",
+      "assignmentName": "Deny-Public-IP-On-NIC",
+      "effect": "Deny",
+      "scope": "Management Group",
+      "actuallyBlocks": "NICs with public IP association",
+      "impactOnArchitecture": "NONE - No NICs in architecture (PaaS only)",
+      "status": "compliant"
+    },
+    {
+      "name": "Deny vWAN/ER/VPN gateway resources",
+      "assignmentName": "Deny-HybridNetworking",
+      "effect": "Deny",
+      "scope": "Connectivity subscription",
+      "actuallyBlocks": "VPN/ExpressRoute gateways",
+      "impactOnArchitecture": "NONE - No networking gateways in architecture",
+      "status": "compliant"
+    },
+    {
+      "name": "Deny vNet peering cross subscription",
+      "assignmentName": "52d02f71102d42c2a4243af6",
+      "effect": "Deny",
+      "scope": "Management Group",
+      "actuallyBlocks": "Cross-subscription vNet peering",
+      "impactOnArchitecture": "NONE - No vNet peering in architecture",
+      "status": "compliant"
+    },
+    {
+      "name": "Deny the creation of private DNS",
+      "assignmentName": "c5c065ead56d436eaa7024df",
+      "effect": "Deny",
+      "scope": "Specific scopes",
+      "actuallyBlocks": "Private DNS zones",
+      "impactOnArchitecture": "NONE - No private DNS zones in architecture",
+      "status": "compliant"
+    },
+    {
+      "name": "Deny virtual machines without managed disk",
+      "assignmentName": "Deny-UnmanagedDisk",
+      "effect": "Deny",
+      "scope": "Subscription",
+      "actuallyBlocks": "VMs with unmanaged disks",
+      "impactOnArchitecture": "NONE - No VMs in architecture",
+      "status": "compliant"
+    }
+  ],
+  "autoAppliedPolicies": [
+    {
+      "name": "JV - Inherit Multiple Tags from Resource Group",
+      "effect": "Modify",
+      "description": "Tags from resource group will be auto-inherited to child resources"
+    }
+  ],
+  "constraints": {
+    "tagging": {
+      "required": true,
+      "enforcement": "Deny",
+      "tagCount": 9
+    },
+    "security": {
+      "tlsVersion": "1.2",
+      "httpsOnly": true
+    },
+    "network": {
+      "publicIpOnNic": false,
+      "crossSubVnetPeering": false,
+      "privateDnsZones": false
+    },
+    "compute": {
+      "classicResources": false,
+      "unmanagedDisks": false
+    }
+  },
+  "architectureCompliance": {
+    "staticWebApp": "compliant",
+    "cdnProfile": "compliant",
+    "cdnEndpoint": "compliant",
+    "logAnalytics": "compliant",
+    "actionGroup": "compliant",
+    "metricAlert": "compliant"
+  }
+}

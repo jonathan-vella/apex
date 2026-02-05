@@ -74,6 +74,15 @@
         "mutantdino.resourcemonitor"
       ],
       "settings": {
+        "chat.customAgentInSubagent.enabled": true,
+        "chat.agentFilesLocations": {
+          ".github/agents": true,
+          ".github/agents/_subagents": true
+        },
+        "chat.agentSkillsLocations": {
+          ".github/skills": true
+        },
+        "chat.useAgentSkills": true,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.rulers": [120],

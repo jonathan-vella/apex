@@ -1,0 +1,68 @@
+name: Azure Deprecation Tracker
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: "Force update even if no changes detected"
+        required: false
+        default: "false"
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  track-deprecations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create data directory
+        run: mkdir -p .github/data
+
+      - name: Fetch Azure Updates RSS
+        id: fetch-updates
+        run: |
+          node scripts/fetch-azure-deprecations.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet .github/data/azure-deprecations.json 2>/dev/null; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit deprecation data
+        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/data/azure-deprecations.json
+          git commit -m "chore(data): update Azure deprecation tracking [skip ci]" || exit 0
+          git push
+
+      - name: Log deprecation summary
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          echo "📋 Deprecation data updated"
+          echo "File: .github/data/azure-deprecations.json"
+          echo "Bicep Plan agent will check this during planning phase"
+          cat .github/data/azure-deprecations.json | jq '.totalCount, .lastUpdated'

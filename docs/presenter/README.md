@@ -4,6 +4,23 @@
 
 Complete toolkit for demonstrating Agentic InfraOps to customers, partners, and internal teams.
 
+## Agent Personas Quick Reference
+
+Use these personas when introducing agents to audiences:
+
+| Agent | Persona | Role |
+|-------|---------|------|
+| InfraOps Conductor | 🎼 Maestro | Master orchestrator |
+| requirements | 📜 Scribe | Requirements capture |
+| architect | 🏛️ Oracle | WAF assessment |
+| design | 🎨 Artisan | Diagrams and ADRs |
+| bicep-plan | 📐 Strategist | Implementation planning |
+| bicep-code | ⚒️ Forge | Bicep generation |
+| deploy | 🚀 Envoy | Azure deployment |
+| diagnose | 🔍 Sentinel | Troubleshooting |
+
+---
+
 ## Quick Navigation
 
 | Resource                                          | Purpose                       | Prep Time |

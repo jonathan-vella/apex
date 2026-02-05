@@ -38,14 +38,50 @@ pre-commit:
     artifact-validation:
       glob: "agent-output/**/*.md"
       run: |
-        # Check if any core artifacts are staged
-        STAGED_CORE=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(01-requirements|02-architecture-assessment|04-implementation-plan|04-governance-constraints|06-deployment-summary)\.md$' || true)
-        if [ -n "$STAGED_CORE" ]; then
-          echo "📋 Validating core artifact structure..."
-          npm run lint:artifact-templates
+        # Check if any agent-output artifacts are staged
+        STAGED_ARTIFACTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^agent-output/.*\.md$' || true)
+        if [ -n "$STAGED_ARTIFACTS" ]; then
+          COUNT=$(echo "$STAGED_ARTIFACTS" | wc -l | tr -d ' ')
+          echo "📋 Validating $COUNT artifact(s) against templates..."
+          # Run full artifact validation - blocks on any H2 mismatch
+          if ! npm run lint:artifact-templates; then
+            echo ""
+            echo "❌ Artifact template validation failed!"
+            echo ""
+            echo "🔧 To fix:"
+            echo "   1. Check .github/instructions/artifact-h2-reference.instructions.md"
+            echo "   2. Use EXACT H2 headings from that file"
+            echo "   3. Run: npm run fix:artifact-h2 <file> --apply"
+            echo "   4. Re-stage and commit"
+            echo ""
+            exit 1
+          fi
         else
-          echo "ℹ️  No core artifacts to validate"
+          echo "ℹ️  No agent-output artifacts to validate"
         fi
+      fail_text: |
+        ❌ Artifact H2 structure validation failed!
+
+        📚 Reference: .github/instructions/artifact-h2-reference.instructions.md
+        🔧 Auto-fix: npm run fix:artifact-h2 <file> --apply
+
+    agent-frontmatter:
+      glob: "**/*.agent.md"
+      run: |
+        # Check if any agent files are staged
+        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.agent\.md$' || true)
+        if [ -n "$STAGED_AGENTS" ]; then
+          COUNT=$(echo "$STAGED_AGENTS" | wc -l | tr -d ' ')
+          echo "🤖 Validating $COUNT agent file(s)..."
+          npm run lint:agent-frontmatter
+        else
+          echo "ℹ️  No agent files to validate"
+        fi
+      fail_text: |
+        ❌ Agent frontmatter validation failed!
+
+        🔧 Check YAML syntax in agent definitions
+        📚 Reference: .github/instructions/agents-definitions.instructions.md
 
 commit-msg:
   commands:

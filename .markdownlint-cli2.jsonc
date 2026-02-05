@@ -118,6 +118,9 @@
     "node_modules/**",
     "**/node_modules/**",
 
+    // Temporary working files (gitignored)
+    "Copilot-Processing.md",
+
     // Python virtual environments
     ".venv/**",
     "venv/**",

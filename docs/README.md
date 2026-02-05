@@ -23,6 +23,8 @@ See [orchestration-helper skill](../.github/skills/orchestration-helper/SKILL.md
 | ------------------------------------- | ----------------------------- |
 | [Quickstart](quickstart.md)           | Get running in 10 minutes     |
 | [Workflow](workflow.md)               | 7-step agent + skill workflow |
+| [Dev Containers](dev-containers.md)   | Docker setup and alternatives |
+| [Copilot Tips](copilot-tips.md)       | Best practices for prompting  |
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions   |
 | [Glossary](GLOSSARY.md)               | Terms and definitions         |
 | [Scenarios](../scenarios/)            | Hands-on learning             |
@@ -35,20 +37,21 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 ### Conductor (Master Orchestrator)
 
-| Agent               | Purpose                                                     |
-| ------------------- | ----------------------------------------------------------- |
-| `InfraOps Conductor` | Orchestrates all 7 steps with mandatory human approval gates |
+| Agent | Persona | Purpose |
+|-------|---------|---------|
+| `InfraOps Conductor` | 🎼 Maestro | Orchestrates all 7 steps with mandatory approval gates |
 
 ### Primary Agents (User-Invokable)
 
-| Agent          | Phase | Purpose                                                      |
-| -------------- | ----- | ------------------------------------------------------------ |
-| `requirements` | 1     | Gather infrastructure requirements → `01-requirements.md`    |
-| `architect`    | 2     | WAF assessment and design → `02-architecture-assessment.md`  |
-| `bicep-plan`   | 4     | Implementation planning → `04-implementation-plan.md`        |
-| `bicep-code`   | 5     | Bicep template generation → `infra/bicep/{project}/`         |
-| `deploy`       | 6     | Azure deployment → `06-deployment-summary.md`                |
-| `diagnose`     | —     | Post-deployment diagnostics → `08-resource-health-report.md` |
+| Agent | Persona | Phase | Purpose |
+|-------|---------|-------|---------|
+| `requirements` | 📜 Scribe | 1 | Gather infrastructure requirements |
+| `architect` | 🏛️ Oracle | 2 | WAF assessment and design |
+| `design` | 🎨 Artisan | 3 | Diagrams and ADRs |
+| `bicep-plan` | 📐 Strategist | 4 | Implementation planning |
+| `bicep-code` | ⚒️ Forge | 5 | Bicep template generation |
+| `deploy` | 🚀 Envoy | 6 | Azure deployment |
+| `diagnose` | 🔍 Sentinel | — | Post-deployment diagnostics |
 
 ### Validation Subagents (Conductor-Invoked)
 

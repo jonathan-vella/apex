@@ -37,7 +37,7 @@ agent coordinates specialized subagents through a structured development workflo
 ```
 Step 1: Requirements      →  @Requirements      →  01-requirements.md
 Step 2: Architecture      →  @Architect         →  02-architecture-assessment.md
-Step 3: Design (optional) →  Skills             →  03-des-*.md/py
+Step 3: Design (optional) →  @Design            →  03-des-*.md/py/png
 Step 4: Planning          →  @Bicep Plan        →  04-implementation-plan.md
 Step 5: Implementation    →  @Bicep Code        →  infra/bicep/{project}/
 Step 6: Deploy            →  @Deploy            →  06-deployment-summary.md
@@ -85,6 +85,7 @@ Before deployment, the Bicep Code agent runs a TDD-style validation:
 | InfraOps Conductor | Master orchestrator | Claude Opus 4.5 |
 | Requirements | Requirements gathering | Claude Opus 4.5 |
 | Architect | WAF assessment | Claude Opus 4.5 |
+| Design | Diagrams & ADRs | Claude Sonnet 4.5 |
 | Bicep Plan | Implementation planning | Claude Opus 4.5 |
 | Bicep Code | Template generation | Claude Sonnet 4.5 |
 | Deploy | Azure deployment | Claude Sonnet 4.5 |
@@ -157,6 +158,41 @@ Enable in `.vscode/settings.json`:
 2. Select "InfraOps Conductor" from agent dropdown
 3. Describe your Azure infrastructure project
 4. The Conductor will guide you through all 7 steps with approval gates
+
+## 🔘 Understanding Handoff Buttons
+
+When the Conductor responds, you'll see multiple handoff buttons. Here's when to use each:
+
+### Navigation Buttons
+
+| Button | When to Use |
+|--------|-------------|
+| **▶ Start New Project** | Begin a fresh project from Step 1 |
+| **▶ Resume Workflow** | Continue from where you left off (checks existing artifacts) |
+| **▶ Review Artifacts** | View summary of all generated artifacts for current project |
+
+### Step Buttons
+
+| Button | Purpose |
+|--------|---------|
+| **Step 1: Gather Requirements** | Jump to requirements gathering |
+| **Step 2: Architecture Assessment** | Jump to WAF assessment |
+| **Step 4: Implementation Plan** | Jump to planning (skips optional Step 3) |
+| **Step 5: Generate Bicep** | Jump to code generation |
+| **Step 6: Deploy** | Jump to deployment |
+
+### Utility Buttons
+
+| Button | Purpose |
+|--------|---------|
+| **Diagnose Issues** | Troubleshoot Azure resource problems |
+
+### Best Practices
+
+1. **Sequential workflow**: Use step buttons in order (1 → 2 → 4 → 5 → 6)
+2. **After completing a step**: Click the next step button or use "Resume Workflow"
+3. **Returning to a session**: Use "Resume Workflow" to detect existing artifacts
+4. **Reviewing progress**: Use "Review Artifacts" before continuing
 
 ## Example Session
 

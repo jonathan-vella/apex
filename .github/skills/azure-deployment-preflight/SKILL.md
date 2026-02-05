@@ -81,6 +81,9 @@ azd provision --preview --environment <env-name>
 
 #### For Standalone Bicep (no azure.yaml)
 
+> **CRITICAL**: Always use **default output format** (no `--output` flag) for what-if commands.
+> This enables VS Code's formatted rendering with tables, icons, and color-coded status.
+
 Determine the deployment scope from the Bicep file's `targetScope` declaration:
 
 | Target Scope | Command |
@@ -93,14 +96,14 @@ Determine the deployment scope from the Bicep file's `targetScope` declaration:
 **Run with Provider validation level first:**
 
 ```bash
-# Resource Group scope (most common)
+# Resource Group scope (most common) - NO --output flag
 az deployment group what-if \
   --resource-group <rg-name> \
   --template-file <bicep-file> \
   --parameters <param-file> \
   --validation-level Provider
 
-# Subscription scope
+# Subscription scope - NO --output flag
 az deployment sub what-if \
   --location <location> \
   --template-file <bicep-file> \

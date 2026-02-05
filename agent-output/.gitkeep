@@ -1,2 +1,0 @@
-# This file ensures the agent-output directory is tracked by git
-# Project-specific output folders will be created here during workflow execution

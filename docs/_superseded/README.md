@@ -20,23 +20,15 @@ files are moved here rather than deleted. This approach:
 
 ## Contents
 
-| Folder             | Description                        | Active Replacement                                           |
-| ------------------ | ---------------------------------- | ------------------------------------------------------------ |
-| `adr/`             | Architecture Decision Records      | Linked only via labeled "(Archived)" references where needed |
-| `diagrams/`        | Generated architecture diagrams    | `docs/diagrams/` index + `agent-output/{project}/` evidence  |
-| `getting-started/` | Snapshot of getting-started guides | `docs/getting-started/`                                      |
-| `guides/`          | Snapshot of how-to guides          | `docs/guides/`                                               |
-| `presenter/`       | Snapshot of presenter materials    | `docs/presenter/`                                            |
-| `reference/`       | Snapshot of reference docs         | `docs/reference/`                                            |
+| Folder             | Description                     | Status                                 |
+| ------------------ | ------------------------------- | -------------------------------------- |
+| `adr/`             | Architecture Decision Records   | Historical reference                   |
+| `diagrams/`        | Generated architecture diagrams | Replaced by agent-output/{project}/    |
+| `getting-started/` | Legacy getting-started guides   | Replaced by docs/quickstart.md         |
+| `reference/`       | Legacy reference docs           | Replaced by docs/workflow.md           |
 
----
-
-## Notable Archived Files
-
-| File                                  | Reason Archived                                                      |
-| ------------------------------------- | -------------------------------------------------------------------- |
-| `guides/terraform-extension-guide.md` | Project is Bicep-only; guide preserved for future Terraform adoption |
-| `guides/getting-started-journey.md`   | Consolidated with `getting-started/learning-paths.md`                |
+> **Cleaned up Feb 2026**: Removed `guides/`, `presenter/`, `v7-*` folders.
+> Valuable content consolidated into `docs/dev-containers.md` and `docs/copilot-tips.md`.
 
 ---
 

@@ -147,7 +147,11 @@ const OPTIONAL_ALLOWED = {
   ],
   "02-architecture-assessment.md": ["## References"],
   "04-implementation-plan.md": ["## References"],
-  "04-governance-constraints.md": ["## References"],
+  "04-governance-constraints.md": [
+    "## Plan Adaptations Based on Policies",
+    "## Deployment Blockers",
+    "## References",
+  ],
   "04-preflight-check.md": ["## References"],
   "05-implementation-reference.md": [
     "## Key Implementation Notes",

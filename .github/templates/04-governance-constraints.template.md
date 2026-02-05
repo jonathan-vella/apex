@@ -27,6 +27,32 @@ that must be addressed in the Bicep implementation.
 > If this section shows "UNVERIFIED" or is empty, governance constraints were
 > assumed rather than discovered. Deployment may fail due to undiscovered policies.
 
+### Policy Definition Analysis
+
+> [!IMPORTANT]
+> **MANDATORY**: For all Deny and DeployIfNotExists policies, document analysis of policy definition JSON (policyRule).
+
+**Purpose**: Prevent false positives from misleading policy display names.
+Verify actual blocking behavior before documenting constraints.
+
+**Required for each Deny/DeployIfNotExists policy**:
+
+| Policy Display Name | Assignment Scope | Effect | Actually Blocks | Evidence from policyRule.if |
+|---------------------|------------------|--------|----------------|----------------------------|
+| {Policy Name} | {Subscription/RG} | Deny | {What it really blocks} | `field: "type", equals: "Microsoft.{Type}"` |
+
+**Example**:
+
+| Policy Display Name | Assignment Scope | Effect | Actually Blocks | Evidence from policyRule.if |
+|---------------------|------------------|--------|----------------|----------------------------|
+| Block Azure RM Resource Creation | Management Group | Deny | Classic resources only (ClassicCompute, ClassicStorage, ClassicNetwork) | `anyOf` with 7 conditions checking `field: "type"` for Microsoft.Classic* types |
+| Enforce storage encryption | Subscription | DeployIfNotExists | Nothing (auto-remediates) | Adds encryption config automatically |
+
+**Analysis Notes**:
+- Document any policies initially flagged as blockers but cleared after JSON analysis
+- List conditional logic (tag requirements, resource type filters, configuration checks)
+- Note deployment modifications from Modify/DeployIfNotExists policies
+
 ## Azure Policy Compliance
 
 | Category       | Constraint         | Implementation   |
@@ -35,6 +61,78 @@ that must be addressed in the Bicep implementation.
 | Tagging        | {tagging-policy}   | {implementation} |
 | Security       | {security-policy}  | {implementation} |
 | Data Residency | {residency-policy} | {implementation} |
+
+## Plan Adaptations Based on Policies
+
+> [!NOTE]
+> This section documents how the implementation plan was adapted to comply with discovered Azure Policies.
+
+### Architectural Changes
+
+*Document any changes made to the original architecture to comply with Deny policies.*
+
+| Original Design | Blocking Policy | Effect | Adaptation Applied |
+|-----------------|----------------|--------|-------------------|
+| Example: Public storage | Deny public access | Deny | Changed to private endpoints + vNet integration |
+
+*If no adaptations were needed, note: "✅ Original architecture complies with all discovered policies."*
+
+### Auto-Applied Resources
+
+*Document resources that will be auto-deployed by DeployIfNotExists policies.*
+
+| Policy | Effect | Auto-Applied Resource |
+|--------|--------|----------------------|
+| Example: Deploy diag settings | DeployIfNotExists | Log Analytics diagnostic settings |
+
+*If none, note: "✅ No additional resources will be auto-deployed."*
+
+### Auto-Modified Configurations
+
+*Document configuration changes that will be automatically applied by Modify policies.*
+
+| Policy | Effect | Auto-Applied Change |
+|--------|--------|-------------------|
+| Example: Inherit tags from RG | Modify | Tags auto-inherited from resource group |
+
+*If none, note: "✅ No auto-modifications expected."*
+
+## Deployment Blockers
+
+> [!CAUTION]
+> **CRITICAL**: This section lists policies that BLOCK deployment. Resolution required before proceeding to code generation.
+
+*If no blockers, show: "✅ No deployment blockers detected."*
+
+*Otherwise, document each blocker:*
+
+### {Policy Display Name}
+
+- **Policy ID**: `{policy-id}`
+- **Effect**: Deny
+- **Scope**: {management-group / subscription / resource-group}
+- **Enforcement Mode**: {Default / DoNotEnforce}
+- **Impact**: {description of what is blocked}
+- **Assessment Date**: {YYYY-MM-DD}
+
+**Resolution Options**:
+
+1. **Request Policy Exemption**:
+   - **Justification**: {reason}
+   - **Duration**: {temporary / permanent}
+   - **Risk Level**: {low / medium / high}
+   - **Approval Process**: {steps}
+   
+2. **Alternative Architecture**:
+   - {Description of compliant alternative}
+   - **Trade-offs**: {performance / cost / complexity impacts}
+
+**Status**: ⚠️ **DEPLOYMENT CANNOT PROCEED WITHOUT RESOLUTION**
+
+**Next Steps**:
+- [ ] User confirms exemption approval
+- [ ] OR User approves alternative architecture
+- [ ] OR User provides timeline for exemption
 
 ## Required Tags
 
@@ -87,5 +185,5 @@ tags: {
 
 ---
 
-_Governance constraints discovered from Azure Resource Graph._
-_See [governance-discovery.instructions.md](../../.github/instructions/governance-discovery.instructions.md) for discovery methodology._
+*Governance constraints discovered from Azure Resource Graph.*
+*See [governance-discovery.instructions.md](../../.github/instructions/governance-discovery.instructions.md) for discovery methodology.*
