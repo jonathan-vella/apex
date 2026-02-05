@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.2.0] - 2026-02-05
 
+### Added
+
+- **Agent Model Configuration** - Documented model selection rules in `agents-definitions.instructions.md`
+  - Opus-first agents (requirements, architect, bicep-plan, infraops-conductor) require advanced reasoning
+  - Model field is optional per VS Code 1.109 spec (uses default when omitted)
+
 ### Changed
+
+- **README Restructure** - Improved readability and accessibility
+  - All sections now collapsible using `<details><summary>` tags
+  - Agent Interaction Flow moved after Key Features (NOT collapsible for visibility)
+  - Fixed accessibility: H2 headings inside `<details>` block, not `<summary>` tag
+  - Removed Mermaid code block (PNG diagram only for consistent rendering)
 
 - **Agent Workflow Diagram** - Corrected to show all 5 approval gates (was showing 1)
   - Gate 1: Requirements Approval
@@ -16,7 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Gate 4: Pre-Deploy Approval
   - Gate 5: Post-Deploy Verification
   - Regenerated `docs/presenter/infographics/generated/agent-workflow-sequence.png`
-  - Updated mermaid sequence diagram in README.md
+
+### Fixed
+
+- **Copilot Review Suggestions** (PR #94)
+  - `lint.yml`: Simplified markdown-lint trigger paths
+  - `azure-deployment-preflight/SKILL.md`: Fixed template path references
+  - `04-governance-constraints.template.md`: Fixed missing header text
+  - `agents-definitions.instructions.md`: Added model selection documentation
 
 ## [8.1.0] - 2026-02-04
 

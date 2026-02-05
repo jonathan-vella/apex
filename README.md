@@ -132,7 +132,7 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 
 | Agent | Persona | Role | Model |
 |-------|---------|------|-------|
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator managing the complete 7-step workflow | Claude Sonnet 4.5 |
+| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator managing the complete 7-step workflow | Claude Opus 4.5 |
 
 - Coordinates all specialized agents through handoffs
 - Manages 5 mandatory approval gates
@@ -143,10 +143,10 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 
 | Step | Agent | Persona | Role | Model |
 |------|-------|---------|------|-------|
-| 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | Claude Sonnet 4.5 |
-| 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | Claude Sonnet 4.5 |
-| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Sonnet 4.5 |
-| 4 | `bicep-plan` | 📐 Strategist | Implementation planning with governance | Claude Sonnet 4.5 |
+| 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | Claude Opus 4.5 |
+| 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | Claude Opus 4.5 |
+| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Haiku 4.5 |
+| 4 | `bicep-plan` | 📐 Strategist | Implementation planning with governance | Claude Opus 4.5 |
 | 5 | `bicep-code` | ⚒️ Forge | Generates AVM-first Bicep templates | Claude Sonnet 4.5 |
 | 6 | `deploy` | 🚀 Envoy | Azure resource provisioning | Claude Sonnet 4.5 |
 | 7 | — | 📚 — | As-built documentation (via skills) | — |
