@@ -24,15 +24,13 @@ on:
       - ".vscode/extensions.json"
   workflow_dispatch:
 
-# Minimal permissions required for this workflow
 permissions:
   contents: read
 
 jobs:
-  validate-agents:
-    name: Validate Agent Definitions
+  validate:
+    name: Validate Agents & Skills
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,37 +44,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate agent frontmatter
-        run: npm run lint:agent-frontmatter
-
-      - name: Validate skills format
-        run: npm run lint:skills-format
-
-      - name: Validate VS Code configuration
-        run: npm run validate:vscode
-
-      - name: Run full 1.109 validation suite
+      - name: Run VS Code 1.109 validation suite
         run: npm run test:1109
 
-  validate-handoffs:
-    name: Validate Handoff Graph
-    runs-on: ubuntu-latest
-    needs: validate-agents
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check handoff references
+      - name: Validate handoff references
         run: |
           echo "🔗 Validating agent handoff references..."
 
@@ -93,7 +64,7 @@ jobs:
             tr -d '"' | \
             sort -u > /tmp/agents.txt
 
-          # Check each handoff reference exists (use while read to preserve spaces)
+          # Check each handoff reference exists
           ERRORS=0
           while IFS= read -r handoff; do
             [ -z "$handoff" ] && continue
@@ -104,49 +75,22 @@ jobs:
           done < /tmp/handoffs.txt
 
           if [ $ERRORS -gt 0 ]; then
-            echo ""
             echo "❌ Found $ERRORS invalid handoff reference(s)"
             exit 1
           else
             echo "✅ All handoff references are valid"
           fi
 
-      - name: Check for circular delegations
+      - name: Report self-handoffs
         run: |
-          echo "🔄 Checking for circular delegation chains..."
-
-          # Note: Self-handoffs are intentional (e.g., "Refresh Cost Estimate")
-          # We only log them as info, not errors
+          echo "🔄 Checking self-handoffs (intentional loop-back actions)..."
           SELF_LOOPS=0
           for file in .github/agents/*.agent.md; do
             AGENT_NAME=$(grep -m1 "^name:" "$file" | sed 's/name: *//' | tr -d '"')
             COUNT=$(grep -c "agent: $AGENT_NAME" "$file" 2>/dev/null || echo "0")
             if [ "$COUNT" -gt 0 ]; then
-              echo "ℹ️  $AGENT_NAME has $COUNT self-handoff(s) (intentional loop-back actions)"
+              echo "ℹ️  $AGENT_NAME: $COUNT self-handoff(s)"
               SELF_LOOPS=$((SELF_LOOPS + COUNT))
             fi
           done
-
-          if [ $SELF_LOOPS -gt 0 ]; then
-            echo ""
-            echo "✅ Found $SELF_LOOPS intentional self-handoff(s) - these are valid loop-back actions"
-          else
-            echo "✅ No self-handoffs detected"
-          fi
-
-  summary:
-    name: Validation Summary
-    runs-on: ubuntu-latest
-    needs: [validate-agents, validate-handoffs]
-    if: always()
-
-    steps:
-      - name: Check results
-        run: |
-          if [ "${{ needs.validate-agents.result }}" == "success" ] && \
-             [ "${{ needs.validate-handoffs.result }}" == "success" ]; then
-            echo "✅ All agent validations passed"
-          else
-            echo "❌ Agent validation failed"
-            exit 1
-          fi
+          echo "✅ Total: $SELF_LOOPS intentional self-handoffs"
