@@ -186,4 +186,4 @@ tags: {
 ---
 
 *Governance constraints discovered from Azure Resource Graph.*
-*See [governance-discovery.instructions.md](../../.github/instructions/governance-discovery.instructions.md) for discovery methodology.*
+*See [governance-discovery.instructions.md](/.github/instructions/governance-discovery.instructions.md) for discovery methodology.*

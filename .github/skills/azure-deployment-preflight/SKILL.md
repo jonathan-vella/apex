@@ -81,8 +81,10 @@ azd provision --preview --environment <env-name>
 
 #### For Standalone Bicep (no azure.yaml)
 
-> **CRITICAL**: Always use **default output format** (no `--output` flag) for what-if commands.
-> This enables VS Code's formatted rendering with tables, icons, and color-coded status.
+> [!IMPORTANT]
+> For detailed guidance on `what-if` output formatting, refer to the Deploy agent instructions
+> (single source of truth). Use default output format (no `--output` flag) to enable VS Code's
+> formatted rendering with tables, icons, and color-coded status.
 
 Determine the deployment scope from the Bicep file's `targetScope` declaration:
 

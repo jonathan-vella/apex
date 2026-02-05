@@ -57,6 +57,24 @@ handoffs:
 - Use Title Case for the `agent` value matching the agent's display `name` (from frontmatter).
   For example: `agent: Architect` (matching `name: Architect` in frontmatter).
 
+### `model`
+
+> [!IMPORTANT]
+> **Model selection is intentional and must not be changed without explicit approval.**
+
+Agents that specify `Claude Opus 4.5` as priority model do so deliberately:
+
+- **Opus-first agents** (requirements, architect, bicep-plan) require advanced reasoning
+  for accurate planning decisions, WAF assessments, and governance discovery
+- **Sonnet-first agents** (bicep-code, deploy) prioritize speed for implementation tasks
+
+**Rules:**
+
+1. **Never reorder models** to put Sonnet before Opus if Opus is currently first
+2. **Planning accuracy trumps cost/speed** - incorrect plans waste more resources than Opus costs
+3. When adding `model` arrays, match the pattern of similar workflow-stage agents
+4. Document any model changes in PR description with justification
+
 ## Shared Defaults (Required)
 
 All top-level workflow agents in `.github/agents/` MUST include this near the top of the file:
