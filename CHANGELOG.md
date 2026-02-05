@@ -5,6 +5,19 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.0] - 2026-02-05
+
+### Changed
+
+- **Agent Workflow Diagram** - Corrected to show all 5 approval gates (was showing 1)
+  - Gate 1: Requirements Approval
+  - Gate 2: Architecture Approval
+  - Gate 3: Plan Approval
+  - Gate 4: Pre-Deploy Approval
+  - Gate 5: Post-Deploy Verification
+  - Regenerated `docs/presenter/infographics/generated/agent-workflow-sequence.png`
+  - Updated mermaid sequence diagram in README.md
+
 ## [8.1.0] - 2026-02-04
 
 ### Added

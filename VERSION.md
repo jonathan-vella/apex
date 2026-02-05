@@ -1,10 +1,10 @@
 # Version Information
 
-**Current Version:** 8.1.0
+**Current Version:** 8.2.0
 
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-05
 
-**Build:** docs-styling-enhancements
+**Build:** readme-5-gate-workflow
 
 ## Version History
 

@@ -156,41 +156,56 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 %%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#0078D4'}}}%%
 sequenceDiagram
     participant U as User
-    participant C as Conductor (Maestro)
-    participant R as Requirements (Scribe)
-    participant A as Architect (Oracle)
-    participant D as Deploy (Envoy)
+    participant C as Conductor
+    participant R as Requirements
+    participant A as Architect
+    participant B as Bicep
+    participant D as Deploy
 
     U->>C: Describe infrastructure project
+    
+    Note over C,R: Step 1: Requirements
     C->>R: Gather requirements
     R-->>C: Return 01-requirements.md
-    C->>A: Assess architecture (WAF)
-    A-->>C: Return 02-assessment.md
-    C->>U: Present implementation plan
-    
     rect rgb(254, 226, 226)
-        Note over U,C: GATE 1: Approve Plan
+        Note over U,C: GATE 1: Requirements Approval
     end
+    U->>C: Approve requirements
     
+    Note over C,A: Step 2: Architecture
+    C->>A: Assess architecture (WAF)
+    A-->>C: Return 02-assessment.md + cost estimate
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 2: Architecture Approval
+    end
+    U->>C: Approve architecture
+    
+    Note over C,A: Step 4: Planning
+    C->>A: Create implementation plan
+    A-->>C: Return 04-plan.md + governance
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 3: Plan Approval
+    end
     U->>C: Approve plan
     
-    loop For each workflow step
-        C->>A: Execute workflow step
-        A-->>C: Report artifacts
-        C->>D: Validate outputs
-        D-->>C: Return status
-        
-        alt Approved
-            C->>U: Present summary & proceed
-            U->>C: Continue to next step
-        else Needs Revision
-            C->>A: Revise with feedback
-        else Failed
-            C->>U: Request guidance
-        end
+    Note over C,B: Step 5: Implementation
+    C->>B: Generate Bicep templates
+    B-->>C: Return infra/bicep/{project}/
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 4: Pre-Deploy Approval
     end
+    U->>C: Approve for deployment
     
-    C->>U: Workflow complete + 07-* docs
+    Note over C,D: Step 6: Deploy
+    C->>D: Execute deployment (what-if first)
+    D-->>C: Return 06-deployment-summary.md
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 5: Post-Deploy Verification
+    end
+    U->>C: Verify deployment
+    
+    Note over C: Step 7: Documentation
+    C-->>U: Workflow complete + 07-* docs
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
