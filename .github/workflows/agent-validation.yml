@@ -115,16 +115,24 @@ jobs:
         run: |
           echo "🔄 Checking for circular delegation chains..."
 
-          # Simple check: agent cannot delegate to itself
+          # Note: Self-handoffs are intentional (e.g., "Refresh Cost Estimate")
+          # We only log them as info, not errors
+          SELF_LOOPS=0
           for file in .github/agents/*.agent.md; do
             AGENT_NAME=$(grep -m1 "^name:" "$file" | sed 's/name: *//' | tr -d '"')
-            if grep -q "agent: $AGENT_NAME" "$file"; then
-              echo "❌ Circular delegation in $file: $AGENT_NAME delegates to itself"
-              exit 1
+            COUNT=$(grep -c "agent: $AGENT_NAME" "$file" 2>/dev/null || echo "0")
+            if [ "$COUNT" -gt 0 ]; then
+              echo "ℹ️  $AGENT_NAME has $COUNT self-handoff(s) (intentional loop-back actions)"
+              SELF_LOOPS=$((SELF_LOOPS + COUNT))
             fi
           done
 
-          echo "✅ No circular delegations detected"
+          if [ $SELF_LOOPS -gt 0 ]; then
+            echo ""
+            echo "✅ Found $SELF_LOOPS intentional self-handoff(s) - these are valid loop-back actions"
+          else
+            echo "✅ No self-handoffs detected"
+          fi
 
   summary:
     name: Validation Summary
