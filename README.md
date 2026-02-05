@@ -40,7 +40,8 @@
 
 ---
 
-## What is Agentic InfraOps?
+<details>
+<summary><h2>What is Agentic InfraOps?</h2></summary>
 
 Agentic InfraOps transforms how you build Azure infrastructure with AI agents.
 
@@ -60,9 +61,12 @@ with best practices in cloud engineering.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Key Features
+<details>
+<summary><h2>Key Features</h2></summary>
 
 ### 🎭 Multi-Agent Workflow
 
@@ -96,9 +100,81 @@ dedicated prompt. This reduces hallucinations as the context fills up.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Architecture Overview
+## Agent Interaction Flow
+
+<div align="center">
+  <img
+    src="docs/presenter/infographics/generated/agent-workflow-sequence.png"
+    alt="Agent workflow sequence diagram"
+    width="700" />
+</div>
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#0078D4'}}}%%
+sequenceDiagram
+    participant U as User
+    participant C as Conductor
+    participant R as Requirements
+    participant A as Architect
+    participant B as Bicep
+    participant D as Deploy
+
+    U->>C: Describe infrastructure project
+    
+    Note over C,R: Step 1: Requirements
+    C->>R: Gather requirements
+    R-->>C: Return 01-requirements.md
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 1: Requirements Approval
+    end
+    U->>C: Approve requirements
+    
+    Note over C,A: Step 2: Architecture
+    C->>A: Assess architecture (WAF)
+    A-->>C: Return 02-assessment.md + cost estimate
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 2: Architecture Approval
+    end
+    U->>C: Approve architecture
+    
+    Note over C,A: Step 4: Planning
+    C->>A: Create implementation plan
+    A-->>C: Return 04-plan.md + governance
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 3: Plan Approval
+    end
+    U->>C: Approve plan
+    
+    Note over C,B: Step 5: Implementation
+    C->>B: Generate Bicep templates
+    B-->>C: Return infra/bicep/{project}/
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 4: Pre-Deploy Approval
+    end
+    U->>C: Approve for deployment
+    
+    Note over C,D: Step 6: Deploy
+    C->>D: Execute deployment (what-if first)
+    D-->>C: Return 06-deployment-summary.md
+    rect rgb(254, 226, 226)
+        Note over U,C: GATE 5: Post-Deploy Verification
+    end
+    U->>C: Verify deployment
+    
+    Note over C: Step 7: Documentation
+    C-->>U: Workflow complete + 07-* docs
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+<details>
+<summary><h2>Architecture Overview</h2></summary>
 
 The Agentic InfraOps system consists of specialized agents organized into three tiers:
 
@@ -141,63 +217,12 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
----
-
-## Agent Interaction Flow
-
-<div align="center">
-  <img
-    src="docs/presenter/infographics/generated/agent-workflow-sequence.png"
-    alt="Agent workflow sequence diagram"
-    width="700" />
-</div>
-
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#0078D4'}}}%%
-sequenceDiagram
-    participant U as User
-    participant C as Conductor (Maestro)
-    participant R as Requirements (Scribe)
-    participant A as Architect (Oracle)
-    participant D as Deploy (Envoy)
-
-    U->>C: Describe infrastructure project
-    C->>R: Gather requirements
-    R-->>C: Return 01-requirements.md
-    C->>A: Assess architecture (WAF)
-    A-->>C: Return 02-assessment.md
-    C->>U: Present implementation plan
-    
-    rect rgb(254, 226, 226)
-        Note over U,C: GATE 1: Approve Plan
-    end
-    
-    U->>C: Approve plan
-    
-    loop For each workflow step
-        C->>A: Execute workflow step
-        A-->>C: Report artifacts
-        C->>D: Validate outputs
-        D-->>C: Return status
-        
-        alt Approved
-            C->>U: Present summary & proceed
-            U->>C: Continue to next step
-        else Needs Revision
-            C->>A: Revise with feedback
-        else Failed
-            C->>U: Request guidance
-        end
-    end
-    
-    C->>U: Workflow complete + 07-* docs
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+</details>
 
 ---
 
-## How It Works
+<details>
+<summary><h2>How It Works</h2></summary>
 
 The Conductor agent follows a strict 7-step cycle for every infrastructure project:
 
@@ -247,9 +272,12 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## ⚡ Quick Start
+<details>
+<summary><h2>⚡ Quick Start</h2></summary>
 
 ### Prerequisites
 
@@ -301,9 +329,12 @@ provide feedback to refine.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Usage Examples
+<details>
+<summary><h2>Usage Examples</h2></summary>
 
 ### Example: E-Commerce Platform
 
@@ -350,9 +381,12 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Skills (Reusable Capabilities)
+<details>
+<summary><h2>Skills (Reusable Capabilities)</h2></summary>
 
 10 skills provide reusable capabilities across agents:
 
@@ -371,9 +405,12 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Generated Artifacts
+<details>
+<summary><h2>Generated Artifacts</h2></summary>
 
 ### Workflow Artifacts
 
@@ -402,9 +439,12 @@ Explore complete workflow outputs in [`agent-output/`](agent-output/):
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 🧩 MCP Integration
+<details>
+<summary><h2>🧩 MCP Integration</h2></summary>
 
 ### Microsoft Azure MCP Server
 
@@ -426,9 +466,12 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 📁 Project Structure
+<details>
+<summary><h2>📁 Project Structure</h2></summary>
 
 ```
 ├── 📁 .github/
@@ -454,9 +497,12 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Configuration
+<details>
+<summary><h2>Configuration</h2></summary>
 
 ### VS Code Settings
 
@@ -494,9 +540,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Best Practices
+<details>
+<summary><h2>Best Practices</h2></summary>
 
 1. **Use the Conductor for complete workflows** — Let it orchestrate the full 7-step cycle
 2. **Review artifacts at each gate** — The approval points are designed for human oversight
@@ -507,9 +556,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 🎯 Scenarios
+<details>
+<summary><h2>🎯 Scenarios</h2></summary>
 
 **8 hands-on scenarios** from beginner to advanced (15-45 min each):
 
@@ -523,9 +575,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 📋 Requirements
+<details>
+<summary><h2>📋 Requirements</h2></summary>
 
 | Requirement | Details |
 |-------------|---------|
@@ -543,25 +598,34 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 🤝 Contributing
+<details>
+<summary><h2>🤝 Contributing</h2></summary>
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## 📄 License
+<details>
+<summary><h2>📄 License</h2></summary>
 
 MIT License. See [LICENSE](LICENSE) for details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+</details>
+
 ---
 
-## Acknowledgments
+<details>
+<summary><h2>Acknowledgments</h2></summary>
 
 This project builds upon the excellent work of:
 
@@ -571,6 +635,8 @@ This project builds upon the excellent work of:
   Inspiration for context conservation and parallel execution
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+</details>
 
 ---
 

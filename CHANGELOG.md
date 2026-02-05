@@ -5,6 +5,57 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.0] - 2026-02-05
+
+### Added
+
+- **VS Code 1.109 Orchestration Testing Suite** - Comprehensive testing infrastructure
+  - Added `scripts/validate-vscode-config.mjs` for VS Code configuration validation
+  - Added `docs/testing/vscode-1109-checklist.md` manual testing checklist
+  - Added `scenarios/S09-orchestration-test/` end-to-end test scenario
+  - Added `.vscode/extensions.json` with recommended extensions
+  - Added `npm run test:1109` command for full validation
+
+- **Agent Validation CI** - New `.github/workflows/agent-validation.yml`
+  - Validates agent/skill frontmatter (YAML format, required fields)
+  - Validates handoff references point to existing agents
+  - Reports intentional self-handoffs (37 found - loop-back actions)
+  - Unified from 3 jobs to 1 for efficiency (91 lines vs 153)
+
+- **Lint CI Workflow** - New `.github/workflows/lint.yml`
+  - Required status check for PR merges
+  - Runs markdown lint, artifact templates, cost estimates, version sync, deprecated refs, JSON validation
+
+### Changed
+
+- **README Reorganization** - Improved navigation and readability
+  - Made all major sections collapsible with `<details><summary>` tags
+  - Moved "Agent Interaction Flow" after "Key Features" (not collapsible)
+  - Updated mermaid sequence diagram to show all 5 approval gates
+
+- **Agent Workflow Diagram** - Corrected to show 5 gates (was showing 1)
+  - Gate 1: Requirements Approval
+  - Gate 2: Architecture Approval  
+  - Gate 3: Plan Approval
+  - Gate 4: Pre-Deploy Approval
+  - Gate 5: Post-Deploy Verification
+  - Regenerated `docs/presenter/infographics/generated/agent-workflow-sequence.png`
+
+- **CI Workflow Optimizations**
+  - Standardized Node.js to v22 across all workflows
+  - Added permissions blocks to agent-validation.yml and link-check.yml
+  - Deleted duplicate `template-validation.yml` (merged into lint.yml)
+
+- **DevContainer Configuration** - Enhanced for orchestration
+  - Added `chat.customAgentInSubagent.enabled: true` setting
+  - Added `chat.agentFilesLocations` and `chat.agentSkillsLocations` paths
+
+### Fixed
+
+- **Multi-word Agent Names** - Fixed handoff validation splitting "Bicep Code" into "Bicep" and "Code"
+- **Boolean Default** - Fixed `workflow_dispatch` input type in azure-deprecation-tracker.yml
+- **Self-Handoff Check** - Changed from error to info (intentional loop-back actions)
+
 ## [8.1.0] - 2026-02-04
 
 ### Added
