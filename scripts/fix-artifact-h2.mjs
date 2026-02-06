@@ -164,7 +164,9 @@ const HEADING_FIXES = {
   "## 10. Deployment & CI/CD": "## 10. Appendix",
   // 07-operations-runbook.md variants
   "## 3. Common Operational Procedures": "## 3. Common Procedures",
-  "## 5. Monitoring & Alerting": "## 5. Contacts & Escalation",
+  // NOTE: "## 5. Monitoring & Alerting" is NOT mapped here — monitoring content
+  // belongs under "## 4. Maintenance Windows" as a subsection (e.g. ### 4.3 KPIs),
+  // not as a rename to "## 5. Contacts & Escalation". Manual restructuring required.
   "## 6. Contact Information": "## 6. Change Log",
   // 07-backup-dr-plan.md variants
   "## 3. Disaster Recovery Architecture": "## 3. Disaster Recovery Procedures",
