@@ -108,12 +108,12 @@ dedicated prompt. This reduces hallucinations as the context fills up.
 
 ---
 
-## Agent Interaction Flow
+## Agentic Workflow
 
 <div align="center">
   <img
-    src="docs/presenter/infographics/generated/agent-workflow-sequence.png"
-    alt="Agent workflow sequence diagram"
+    src="docs/presenter/infographics/generated/agentic-infraops-workflow.svg"
+    alt="Agentic InfraOps workflow diagram showing 7 pipeline steps from Requirements to Documentation with WAF guardrails and AVM enforcement"
     width="900" />
 </div>
 
