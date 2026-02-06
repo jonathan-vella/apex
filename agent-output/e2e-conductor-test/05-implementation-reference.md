@@ -137,7 +137,7 @@ All resources tagged with:
 - `maint-window`: weekends
 - `technical-contact`: Email
 
-## Pre-flight Check Results
+### Pre-flight Check Results
 
 ✅ **AVM Schema Validation**: [See 04-preflight-check.md](./04-preflight-check.md)
 
@@ -153,7 +153,7 @@ All resources tagged with:
 3. **Test**: Validate deployed resources
 4. **Document**: Generate as-built documentation (Step 7)
 
-## Known Issues
+### Known Issues
 
 **None** - All build and lint checks passed.
 

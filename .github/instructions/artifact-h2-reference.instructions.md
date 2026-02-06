@@ -32,6 +32,18 @@ description: "MANDATORY template compliance rules for artifact generation"
 ## References  <!-- Optional, add at end -->
 ```
 
+**H3 subsections** (within H2s above):
+
+- `## Functional Requirements` → Core Capabilities, User Types, Integrations,
+  Data Types, Architecture Pattern
+- `## Non-Functional Requirements (NFRs)` → Availability & Reliability,
+  Performance, Scalability
+- `## Compliance & Security Requirements` → Regulatory Frameworks,
+  Data Residency, Auth & Authorization, Network Security,
+  Recommended Security Controls
+- `## Budget` → Cost Optimization Priorities (optional)
+- `## Operational Requirements` → Monitoring & Alerting, Support & Maintenance, Backup & Disaster Recovery
+
 ---
 
 ### 02-architecture-assessment.md

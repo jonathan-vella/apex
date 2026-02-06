@@ -219,32 +219,258 @@ Requirements describe what the USER or downstream agents will implement later.
 </stopping_rules>
 
 <workflow>
-Comprehensive context gathering for Azure requirements planning:
+Interactive requirements discovery using UI question pickers:
 
-## 1. Context Gathering and Research
+## Phase 1: Business Discovery (askQuestions)
 
-MANDATORY: Run #tool:agent tool, instructing the agent to work autonomously without pausing
-for user feedback, following <requirements_research> to gather context to return to you.
+MANDATORY FIRST STEP — understand the business before suggesting technology.
 
-DO NOT do any other tool calls after #tool:agent returns!
+Use `#tool:vscode/askQuestions` to ask:
 
-If #tool:agent tool is NOT available, run <requirements_research> via tools yourself.
+```json
+{
+  "questions": [
+    {
+      "header": "Project",
+      "question": "What is the project name? (lowercase, hyphens allowed)",
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Problem",
+      "question": "What business problem does this workload solve?",
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Environment",
+      "question": "Which environments do you need?",
+      "options": [
+        {"label": "Production only"},
+        {"label": "Dev + Production", "recommended": true},
+        {"label": "Dev + Staging + Production"},
+        {"label": "Dev + Test + Staging + Production"}
+      ]
+    },
+    {
+      "header": "Timeline",
+      "question": "What is your target go-live timeline?",
+      "options": [
+        {"label": "1-2 weeks (POC/demo)"},
+        {"label": "1-3 months", "recommended": true},
+        {"label": "3-6 months"},
+        {"label": "6+ months (enterprise rollout)"}
+      ]
+    }
+  ]
+}
+```
 
-## 2. Present Requirements Draft for Iteration
+After receiving answers, acknowledge and proceed to Phase 2.
 
-1. Follow <requirements_style_guide> which mirrors the canonical template EXACTLY.
-   The draft MUST include ALL 8 H2 sections from <invariant_sections> with their H3 subsections.
-   Start with `# Step 1: Requirements - {project-name}` and the attribution line.
-2. Use #tool:vscode/askQuestions to interactively clarify any missing critical information
-   (see <must_have_info>). This presents questions as UI pickers instead of chat text.
-   If askQuestions is unavailable, list questions inline in chat.
-3. MANDATORY: Pause for user feedback, framing this as a draft for review.
+## Phase 2: Workload Pattern Detection (askQuestions)
 
-## 3. Handle User Feedback
+Based on Phase 1 answers, detect the workload pattern and confirm with the user.
+Reference the **Service Recommendation Matrix** in `_shared/defaults.md` for detection signals.
 
-Once the user replies, restart <workflow> to gather additional context for refining requirements.
+Use `#tool:vscode/askQuestions`:
 
-MANDATORY: DON'T start implementation, but run the <workflow> again based on new information.
+```json
+{
+  "questions": [
+    {
+      "header": "Workload",
+      "question": "Which best describes your workload? (Based on what you described, I'm suggesting the most likely pattern)",
+      "options": [
+        {"label": "Static Site / SPA", "description": "React, Vue, Angular, no server-side logic"},
+        {"label": "N-Tier Web App", "description": "Web frontend + API + database (classic 3-tier)", "recommended": true},
+        {"label": "API-First / Microservices", "description": "Multiple APIs, containers, service mesh"},
+        {"label": "Event-Driven / Serverless", "description": "Functions, triggers, queue processing"},
+        {"label": "Data Platform / Analytics", "description": "ETL, data warehouse, reporting"},
+        {"label": "IoT / Edge", "description": "Devices, sensors, telemetry"}
+      ]
+    },
+    {
+      "header": "Users",
+      "question": "How many concurrent users do you expect?",
+      "options": [
+        {"label": "< 100 (internal tool)"},
+        {"label": "100-1,000 (department-level)", "recommended": true},
+        {"label": "1,000-10,000 (organization-wide)"},
+        {"label": "10,000+ (public-facing)"}
+      ]
+    },
+    {
+      "header": "Budget",
+      "question": "What is your approximate monthly Azure budget?",
+      "options": [
+        {"label": "< $50/month (minimal/POC)"},
+        {"label": "$50-200/month (small workload)", "recommended": true},
+        {"label": "$200-1,000/month (production)"},
+        {"label": "$1,000+/month (enterprise)"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Data",
+      "question": "What kind of data will this workload handle?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Public data only"},
+        {"label": "Internal/confidential business data", "recommended": true},
+        {"label": "PII (personally identifiable information)"},
+        {"label": "Financial/payment data (PCI-DSS)"},
+        {"label": "Health data (HIPAA)"},
+        {"label": "No data storage needed"}
+      ]
+    }
+  ]
+}
+```
+
+## Phase 3: Service Recommendations (askQuestions)
+
+Based on the detected workload pattern + budget tier, present 2-3 service options
+from the **Service Recommendation Matrix** in `_shared/defaults.md`.
+
+Use `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Service Tier",
+      "question": "Based on your {workload_pattern} workload and ${budget} budget, here are recommended Azure service stacks:",
+      "options": [
+        {"label": "Option A: Cost-Optimized", "description": "{services from matrix}"},
+        {"label": "Option B: Balanced", "description": "{services from matrix}", "recommended": true},
+        {"label": "Option C: Enterprise", "description": "{services from matrix}"}
+      ]
+    },
+    {
+      "header": "SLA",
+      "question": "What availability level does this workload need?",
+      "options": [
+        {"label": "99.0% (~7h downtime/month)", "description": "Dev/test workloads"},
+        {"label": "99.9% (~43min downtime/month)", "description": "Standard production", "recommended": true},
+        {"label": "99.95% (~22min downtime/month)", "description": "Business-critical"},
+        {"label": "99.99% (~4min downtime/month)", "description": "Mission-critical (higher cost)"}
+      ]
+    },
+    {
+      "header": "Recovery",
+      "question": "If something goes wrong, how quickly must you recover?",
+      "options": [
+        {"label": "RTO: 24h / RPO: 24h", "description": "Best-effort recovery"},
+        {"label": "RTO: 4h / RPO: 1h", "description": "Standard recovery", "recommended": true},
+        {"label": "RTO: 1h / RPO: 15min", "description": "Fast recovery (geo-redundancy needed)"},
+        {"label": "RTO: 0 / RPO: 0", "description": "Zero-loss (active-active, highest cost)"}
+      ]
+    }
+  ]
+}
+```
+
+If the user's pattern is N-Tier, also ask about application layers:
+
+```json
+{
+  "questions": [
+    {
+      "header": "N-Tier Layers",
+      "question": "Which layers does your N-Tier application need?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Web frontend (HTML/JS)", "recommended": true},
+        {"label": "API tier (REST/GraphQL)", "recommended": true},
+        {"label": "Background workers / jobs"},
+        {"label": "Database tier", "recommended": true},
+        {"label": "Caching layer (Redis)"},
+        {"label": "Message queue (Service Bus)"}
+      ]
+    }
+  ]
+}
+```
+
+## Phase 4: Security & Compliance Posture (askQuestions)
+
+Recommend security best practices based on the workload pattern and data sensitivity,
+then ask the user to confirm which controls they need.
+
+Use `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Compliance",
+      "question": "Which compliance frameworks apply to this workload?",
+      "multiSelect": true,
+      "options": [
+        {"label": "None (internal tool)", "recommended": true},
+        {"label": "GDPR (EU data protection)"},
+        {"label": "SOC 2 (security controls)"},
+        {"label": "ISO 27001 (information security)"},
+        {"label": "PCI-DSS (payment card data)"},
+        {"label": "HIPAA (health data)"}
+      ]
+    },
+    {
+      "header": "Security",
+      "question": "Based on your workload, I recommend these security controls. Confirm which you need:",
+      "multiSelect": true,
+      "options": [
+        {"label": "Managed Identity (recommended over keys)", "recommended": true},
+        {"label": "Key Vault for secrets", "recommended": true},
+        {"label": "Private Endpoints for data services"},
+        {"label": "WAF (Web Application Firewall)"},
+        {"label": "VNet integration"},
+        {"label": "TLS 1.2+ enforcement", "recommended": true}
+      ]
+    },
+    {
+      "header": "Auth",
+      "question": "How will users authenticate?",
+      "options": [
+        {"label": "Microsoft Entra ID (Azure AD)", "recommended": true},
+        {"label": "Microsoft Entra ID + B2C (external users)"},
+        {"label": "Third-party IdP (Okta, Auth0)"},
+        {"label": "API keys / service-to-service only"},
+        {"label": "No authentication needed"}
+      ]
+    },
+    {
+      "header": "Region",
+      "question": "Which Azure region for deployment?",
+      "options": [
+        {"label": "Sweden Central (EU, GDPR)", "description": "Default - sustainable, compliant", "recommended": true},
+        {"label": "West Europe (Netherlands)", "description": "Required for Static Web Apps EU"},
+        {"label": "Germany West Central", "description": "German data sovereignty"},
+        {"label": "UK South", "description": "UK GDPR requirements"},
+        {"label": "East US", "description": "US workloads"}
+      ],
+      "allowFreeformInput": true
+    }
+  ]
+}
+```
+
+## Phase 5: Draft & Confirm
+
+1. MANDATORY: Run research via `#tool:agent` subagent (following <requirements_research>)
+   to gather any additional context from Azure documentation for the selected services.
+2. Generate the full requirements document following <requirements_style_guide>.
+   Populate ALL sections using the answers from Phases 1-4.
+   Include the new `### Architecture Pattern` and `### Recommended Security Controls` H3 sections.
+3. Present the draft in chat and ask the user to review.
+4. If the user requests changes, use `#tool:vscode/askQuestions` for structured follow-ups
+   or update based on chat feedback, then repeat Phase 5.
+
+## Handle Follow-Up
+
+Once the user approves, save to `agent-output/{project-name}/01-requirements.md`.
+Then present handoff options to the Architect agent.
+
+If the user requests changes at any point, restart from the relevant Phase.
 </workflow>
 
 ## Research Requirements (MANDATORY)
@@ -292,183 +518,54 @@ Stop research when you reach 80% confidence you have enough context to draft req
 </requirements_research>
 
 <must_have_info>
-Critical information to gather (ask if missing):
+Critical information gathered across the 5-phase discovery flow:
 
-| Requirement      | Default Value                       | Question to Ask                              |
-| ---------------- | ----------------------------------- | -------------------------------------------- |
-| Project name     | (required)                          | What is the project/workload name?           |
-| Budget           | (required)                          | What is your approximate monthly budget?     |
-| SLA target       | 99.9%                               | What uptime is required? (99.9%, 99.95%...?) |
-| RTO              | 4 hours                             | Maximum acceptable downtime?                 |
-| RPO              | 1 hour                              | Maximum acceptable data loss window?         |
-| Compliance       | None                                | Any regulatory requirements? (HIPAA, PCI...) |
-| Scale            | (required)                          | Expected users, transactions, data volume?   |
-| Region           | `swedencentral`                     | Preferred Azure region?                      |
-| Authentication   | Azure AD                            | How will users authenticate?                 |
-| Network Security | Public endpoints with Azure AD auth | Network isolation requirements?              |
+| Requirement      | Gathered In | Default Value                       |
+| ---------------- | ----------- | ----------------------------------- |
+| Project name     | Phase 1     | (required)                          |
+| Business problem | Phase 1     | (required)                          |
+| Environment      | Phase 1     | Dev + Production                    |
+| Timeline         | Phase 1     | 1-3 months                          |
+| Workload pattern | Phase 2     | (required)                          |
+| Budget           | Phase 2     | (required)                          |
+| Scale (users)    | Phase 2     | 100-1,000                           |
+| Data sensitivity | Phase 2     | Internal/confidential               |
+| Service tier     | Phase 3     | Balanced                            |
+| SLA target       | Phase 3     | 99.9%                               |
+| RTO / RPO        | Phase 3     | 4 hours / 1 hour                    |
+| Compliance       | Phase 4     | None                                |
+| Security controls| Phase 4     | Managed Identity + Key Vault + TLS  |
+| Authentication   | Phase 4     | Microsoft Entra ID                  |
+| Region           | Phase 4     | `swedencentral`                     |
 
+If `askQuestions` is unavailable, gather this information via chat questions instead.
 </must_have_info>
 
 <requirements_style_guide>
 Follow the canonical template structure from `.github/templates/01-requirements.template.md` EXACTLY.
 The document MUST use this skeleton — do not invent alternative H2 headings or flatten subsections.
 
-```markdown
-# Step 1: Requirements - {project-name}
+H2 sections in order (see `<invariant_sections>` for full list):
 
-> Generated by @requirements agent | {YYYY-MM-DD}
+1. Project Overview — table with name, type, timeline, stakeholder, context
+2. Functional Requirements — H3s: Core Capabilities, User Types, Integrations, Data Types, Architecture Pattern
+3. Non-Functional Requirements (NFRs) — H3s: Availability & Reliability, Performance, Scalability
+4. Compliance & Security Requirements — H3s: Regulatory Frameworks, Data Residency,
+   Auth & Authorization, Network Security, Recommended Security Controls
+5. Budget — table with monthly/annual budget and hard/soft limit
+6. Operational Requirements — H3s: Monitoring & Alerting, Support & Maintenance, Backup & DR
+7. Regional Preferences — table with primary/failover region and availability zones
+8. Summary for Architecture Assessment (optional) — brief summary for Architect agent
+9. References (optional) — links to WAF, Azure Regions, Compliance docs
 
-## Project Overview
+Key formatting rules:
 
-| Field                   | Value                              |
-| ----------------------- | ---------------------------------- |
-| **Project Name**        | {kebab-case name}                  |
-| **Project Type**        | {Web App / API / Data Platform...} |
-| **Timeline**            | {target go-live}                   |
-| **Primary Stakeholder** | {team or person}                   |
-| **Business Context**    | {1-2 sentence problem statement}   |
-
-## Functional Requirements
-
-### Core Capabilities
-
-1. {capability with measurable acceptance criteria}
-
-### User Types
-
-| User Type | Description | Estimated Count |
-| --------- | ----------- | --------------- |
-| {type}    | {role}      | {count}         |
-
-### Integrations
-
-- {system/API and direction (inbound/outbound)}
-
-### Data Types
-
-| Data Category | Sensitivity               | Estimated Volume |
-| ------------- | ------------------------- | ---------------- |
-| {category}    | {PII/Public/Confidential} | {size}           |
-
-## Non-Functional Requirements (NFRs)
-
-### Availability & Reliability
-
-| Metric  | Target  | Justification       |
-| ------- | ------- | ------------------- |
-| **SLA** | {99.9%} | {rationale}         |
-| **RTO** | {4h}    | {recovery strategy} |
-| **RPO** | {1h}    | {backup approach}   |
-
-### Performance
-
-| Metric            | Target  |
-| ----------------- | ------- |
-| Page Load Time    | {< Xs}  |
-| API Response Time | {< Xms} |
-| Concurrent Users  | {count} |
-
-### Scalability
-
-| Metric           | Current | 12-Month Projection |
-| ---------------- | ------- | ------------------- |
-| Users            | {now}   | {projected}         |
-| Data Volume      | {now}   | {projected}         |
-| Transactions/Day | {now}   | {projected}         |
-
-## Compliance & Security Requirements
-
-### Regulatory Frameworks
-
-- [ ] HIPAA - [ ] PCI-DSS - [ ] GDPR - [ ] SOC 2 - [ ] ISO 27001 - [x] None
-
-### Data Residency
-
-| Field                    | Value           |
-| ------------------------ | --------------- |
-| Primary Region           | {swedencentral} |
-| Data Sovereignty         | {EU/none}       |
-| Cross-Region Replication | {yes/no}        |
-
-### Authentication & Authorization
-
-| Field             | Value         |
-| ----------------- | ------------- |
-| Identity Provider | {Azure AD}    |
-| MFA Required      | {yes/no}      |
-| RBAC Model        | {description} |
-
-### Network Security
-
-- [ ] Private endpoints - [ ] VNet integration - [x] Public endpoints acceptable - [ ] WAF required
-
-## Budget
-
-| Field           | Value       |
-| --------------- | ----------- |
-| Monthly Budget  | {~$X/month} |
-| Annual Budget   | {optional}  |
-| Hard/Soft Limit | {hard/soft} |
-
-> **Note**: The Azure Pricing MCP server generates detailed cost estimates during
-> architecture assessment (Step 2). Provide an approximate budget here.
-
-## Operational Requirements
-
-### Monitoring & Alerting
-
-| Requirement      | Value                  |
-| ---------------- | ---------------------- |
-| Monitoring Tool  | {Application Insights} |
-| Log Analytics    | {yes/no}               |
-| Alert Recipients | {team/email}           |
-
-### Support & Maintenance
-
-| Field               | Value            |
-| ------------------- | ---------------- |
-| Support Hours       | {business hours} |
-| On-Call Requirement | {yes/no}         |
-| Maintenance Windows | {schedule}       |
-
-### Backup & Disaster Recovery
-
-| Component | Backup Frequency | Retention |
-| --------- | ---------------- | --------- |
-| {service} | {daily/hourly}   | {X days}  |
-
-## Regional Preferences
-
-| Field              | Value                |
-| ------------------ | -------------------- |
-| Primary Region     | {swedencentral}      |
-| Failover Region    | {germanywestcentral} |
-| Availability Zones | {yes/no}             |
-
----
-
-## Summary for Architecture Assessment
-
-{Brief summary of key constraints and recommended approach for the Architect agent.}
-
----
-
-## References
-
-| Topic                      | Link                                                                          |
-| -------------------------- | ----------------------------------------------------------------------------- |
-| Well-Architected Framework | https://learn.microsoft.com/azure/well-architected/                           |
-| Azure Regions              | https://azure.microsoft.com/explore/global-infrastructure/products-by-region/ |
-| Compliance Offerings       | https://learn.microsoft.com/azure/compliance/                                 |
-```
-
-IMPORTANT rules for writing requirements:
-
-- Follow the H2/H3 structure above EXACTLY — validator rejects missing sections
-- DON'T show Bicep code blocks — describe requirements, not implementation
+- Start with `# Step 1: Requirements - {project-name}` and attribution line
 - Use tables for constraints, metrics, and comparisons throughout
 - Populate all H3 subsections even if with defaults or "TBD"
-- Include the attribution line (`> Generated by @requirements agent | {date}`)
+- Include `### Architecture Pattern` under Functional Requirements (from Phase 3)
+- Include `### Recommended Security Controls` under Compliance & Security (from Phase 4)
+- DON'T show Bicep code blocks — describe requirements, not implementation
 - ONLY write requirements, without implementation details
   </requirements_style_guide>
 
@@ -476,9 +573,9 @@ IMPORTANT rules for writing requirements:
 When creating the full requirements document, include these H2 sections **in order**:
 
 1. `## Project Overview` — Name, type, timeline, stakeholder, context
-2. `## Functional Requirements` — Core capabilities, user types, integrations
+2. `## Functional Requirements` — Core capabilities, user types, integrations, data types, **architecture pattern**
 3. `## Non-Functional Requirements (NFRs)` — Availability, performance, scalability
-4. `## Compliance & Security Requirements` — Frameworks, data residency, auth
+4. `## Compliance & Security Requirements` — Frameworks, data residency, auth, network, **recommended security controls**
 5. `## Budget` — User's approximate budget (MCP generates detailed estimates)
 6. `## Operational Requirements` — Monitoring, support, backup/DR
 7. `## Regional Preferences` — Primary region, failover, availability zones
@@ -488,6 +585,8 @@ Template compliance rules:
 
 - Do not add any additional `##` (H2) headings.
 - If you need extra structure, use `###` (H3) headings inside the nearest required H2.
+- Include `### Architecture Pattern` under Functional Requirements (from Phase 3 selection)
+- Include `### Recommended Security Controls` under Compliance & Security (from Phase 4 confirmation)
 
 Validation: Files validated by `scripts/validate-artifact-templates.mjs`
 </invariant_sections>

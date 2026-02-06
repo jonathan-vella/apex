@@ -398,7 +398,7 @@ graph TD
 
 ---
 
-## Cost Estimate
+### Cost Estimate
 
 | Resource                | SKU/Tier           | Monthly Cost | Notes                           |
 | ----------------------- | ------------------ | ------------ | ------------------------------- |

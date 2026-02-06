@@ -46,7 +46,7 @@ discovered via Azure Resource Graph that must be addressed in the Bicep implemen
 | Naming         | CAF naming conventions            | Follow pattern: `{type}-{project}-{env}-{region}`   |
 | Data Residency | EU region recommended             | Using westeurope                                    |
 
-## Plan Adaptations Based on Policies
+### Plan Adaptations Based on Policies
 
 > [!NOTE]
 > This section documents how the implementation plan was adapted to comply with discovered Azure Policies.
@@ -65,7 +65,7 @@ No architectural changes required. The Static Web App architecture does not trig
 
 ✅ **No auto-modifications expected.**
 
-## Deployment Blockers
+### Deployment Blockers
 
 ✅ **No deployment blockers detected.**
 

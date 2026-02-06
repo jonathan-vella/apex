@@ -33,6 +33,17 @@ List external systems, APIs, or services to integrate with.
 
 Table of data categories, sensitivity levels, and estimated volumes.
 
+### Architecture Pattern
+
+Table showing:
+
+| Field              | Value                                                  |
+| ------------------ | ------------------------------------------------------ |
+| Workload Pattern   | {Static Site / N-Tier / API-First / Serverless / Data} |
+| Recommended Option | {Option from Service Recommendation Matrix}            |
+| Tier               | {Cost-Optimized / Balanced / Enterprise}               |
+| Justification      | {Why this pattern fits the requirements}                |
+
 ## Non-Functional Requirements (NFRs)
 
 ### Availability & Reliability
@@ -81,6 +92,21 @@ Checklist for:
 - VNet integration
 - Public endpoints acceptable
 - WAF required
+
+### Recommended Security Controls
+
+Table of recommended controls based on workload pattern and compliance requirements:
+
+| Control                | Recommended | User Confirmed | Notes                    |
+| ---------------------- | ----------- | -------------- | ------------------------ |
+| Managed Identity       | {yes/no}    | {yes/no}       | {Prefer over keys}       |
+| Private Endpoints      | {yes/no}    | {yes/no}       | {For data services}      |
+| WAF                    | {yes/no}    | {yes/no}       | {For public endpoints}   |
+| Key Vault for Secrets  | {yes/no}    | {yes/no}       | {Centralized secrets}    |
+| Diagnostic Settings    | {yes/no}    | {yes/no}       | {Audit logging}          |
+| TLS 1.2 Minimum        | {yes/no}    | {yes/no}       | {Always recommended}     |
+| Encryption at Rest     | {yes/no}    | {yes/no}       | {Platform default}       |
+| Network Isolation      | {yes/no}    | {yes/no}       | {VNet/NSG/Private Link}  |
 
 ## Budget
 

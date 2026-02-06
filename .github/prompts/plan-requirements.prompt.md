@@ -1,29 +1,32 @@
 ---
-description: "Gather Azure workload requirements through structured interview"
+description: "Gather Azure workload requirements through interactive discovery"
 agent: "Requirements"
 model: "Claude Opus 4.6"
 tools:
   - edit/createFile
   - edit/editFiles
+  - vscode/askQuestions
 ---
 
 # Plan Requirements
 
-Conduct a structured requirements gathering session for a new Azure workload.
-Guide the user through all necessary NFR categories and produce a complete
-`01-requirements.md` artifact.
+Conduct an interactive requirements discovery session for a new Azure workload.
+Guide the user through the 5-phase discovery flow using UI question pickers
+and produce a complete `01-requirements.md` artifact.
 
 ## Mission
 
-Interview the user to capture comprehensive Azure workload requirements,
-ensuring all critical non-functional requirements (NFRs) are addressed before
-proceeding to architecture assessment.
+Discover and capture comprehensive Azure workload requirements by asking
+targeted questions in sequence — first understanding business context,
+then detecting workload patterns, recommending services, and confirming
+security posture before generating the artifact.
 
 ## Scope & Preconditions
 
 - User has a project concept but may not have documented requirements
 - Output will be saved to `agent-output/${input:projectName}/01-requirements.md`
 - Follow the template structure from `.github/templates/01-requirements.template.md`
+- Use the Service Recommendation Matrix from `_shared/defaults.md`
 
 ## Inputs
 
@@ -34,76 +37,59 @@ proceeding to architecture assessment.
 
 ## Workflow
 
-### Step 1: Project Context
+Follow the agent's 5-phase interactive discovery flow:
 
-Ask the user to describe:
+### Phase 1: Business Discovery
 
-1. **Project name** (lowercase, alphanumeric, hyphens only)
-2. **Business problem** this workload solves
-3. **Target environment** (dev, staging, prod, or all)
-4. **Timeline** (target go-live date)
+Use `askQuestions` UI to gather:
 
-### Step 2: Functional Requirements
+1. **Project name** — kebab-case identifier
+2. **Business problem** — what this workload solves
+3. **Target environments** — dev, staging, prod
+4. **Timeline** — target go-live date
 
-Gather information about:
+### Phase 2: Workload Pattern Detection
 
-1. **Core capabilities** - What must this workload do?
-2. **User types and load** - Who uses it and how many?
-3. **Integration requirements** - What systems must it connect to?
-4. **Data requirements** - Volume, retention, sensitivity
+Use `askQuestions` UI to identify:
 
-### Step 3: Non-Functional Requirements (NFRs)
+1. **Workload pattern** — Static Site, N-Tier, API-First, Serverless, Data Platform, IoT
+2. **Expected user scale** — concurrent users
+3. **Monthly budget** — approximate Azure spend
+4. **Data sensitivity** — public, confidential, PII, PCI, HIPAA
 
-For each category, prompt the user if not provided:
+### Phase 3: Service Recommendations
 
-| Category         | Key Questions                                                  |
-| ---------------- | -------------------------------------------------------------- |
-| **Availability** | SLA target? RTO? RPO? Maintenance window?                      |
-| **Performance**  | Response time target? Throughput? Concurrent users?            |
-| **Scalability**  | Current vs. 12-month projection for users, data, transactions? |
+Based on pattern + budget, use `askQuestions` UI to present:
 
-### Step 4: Compliance & Security
+1. **Service tier options** — Cost-Optimized / Balanced / Enterprise from the matrix
+2. **SLA target** — 99.0% to 99.99%
+3. **Recovery targets** — RTO/RPO combinations
+4. **N-Tier layers** (if applicable) — frontend, API, workers, DB, cache, queue
 
-Identify applicable requirements:
+### Phase 4: Security & Compliance Posture
 
-- **Regulatory**: HIPAA, PCI-DSS, GDPR, SOC 2, ISO 27001, FedRAMP, NIST
-- **Data residency**: Primary region, sovereignty requirements
-- **Security controls**: Authentication, encryption, network isolation
+Use `askQuestions` UI for:
 
-### Step 5: Budget
+1. **Compliance frameworks** — GDPR, SOC 2, PCI-DSS, HIPAA, ISO 27001, None
+2. **Security controls** — recommended controls with user confirmation
+3. **Authentication method** — Entra ID, B2C, third-party, API keys
+4. **Deployment region** — swedencentral (default) or alternatives
 
-Capture the user's budget (approximate is fine):
+### Phase 5: Draft & Confirm
 
-- Monthly budget (e.g., ~$50/month)
-- Annual budget (optional)
-- One-time setup budget (optional)
-
-> The Azure Pricing MCP server will generate detailed cost estimates during
-> architecture assessment (Step 2).
-
-### Step 6: Operational Requirements
-
-Document operational needs:
-
-- Monitoring and observability approach
-- Support model (24/7, business hours, best effort)
-- Backup and DR strategy
-
-### Step 7: Regional Preferences
-
-Confirm deployment regions:
-
-- **Primary**: `swedencentral` (default - sustainable, GDPR-compliant)
-- **Secondary**: `germanywestcentral` (for quota or DR)
-- Override reasons if not using defaults
+1. Run research subagent for additional Azure context
+2. Generate `01-requirements.md` with all sections populated from Phases 1-4
+3. Present draft for user review
+4. Iterate on feedback until approved
 
 ## Output Expectations
 
 Generate `agent-output/{projectName}/01-requirements.md` with:
 
-1. All sections from the template populated
-2. Clear ✅/⚠️/❌ indicators for requirement completeness
-3. Summary section ready for architecture assessment handoff
+1. All H2 sections from the template populated
+2. `### Architecture Pattern` subsection with selected workload + service tier
+3. `### Recommended Security Controls` subsection with confirmed controls
+4. Summary section ready for architecture assessment handoff
 
 ### File Structure
 
@@ -117,11 +103,13 @@ agent-output/{projectName}/
 
 Before completing, verify:
 
+- [ ] All 5 discovery phases completed
 - [ ] Project name follows naming convention
-- [ ] At least one functional requirement defined
-- [ ] SLA/RTO/RPO specified (or explicitly marked N/A)
+- [ ] Workload pattern identified and service tier selected
+- [ ] SLA/RTO/RPO specified
+- [ ] Security controls confirmed by user
 - [ ] Compliance requirements identified
-- [ ] Budget provided (approximate OK - MCP generates estimates)
+- [ ] Budget provided
 - [ ] Primary region confirmed
 
 ## Next Steps

@@ -32,7 +32,7 @@ handoffs:
     send: true
   - label: "Step 1: Gather Requirements"
     agent: Requirements
-    prompt: Gather comprehensive infrastructure requirements for this project. Save to 01-requirements.md.
+    prompt: Start interactive requirements discovery for this project. Guide the user through business context, workload pattern detection, service recommendations, and security posture using askQuestions UI before generating 01-requirements.md.
     send: false
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 2: Architecture Assessment"
@@ -212,7 +212,9 @@ Delegate early and often to preserve context window - you orchestrate, subagents
 ### Research & Requirements Delegation
 Use `#runSubagent` to invoke Requirements agent:
 ```
-#runSubagent invoke Requirements: Gather requirements for {project description}
+#runSubagent invoke Requirements: Start interactive requirements
+discovery for {project description}. Guide through business context,
+workload patterns, service recommendations, and security posture.
 ```
 
 ### Architecture Assessment Delegation

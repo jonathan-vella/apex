@@ -364,6 +364,43 @@ MANDATORY: Run #tool:agent tool, instructing the agent to work autonomously
 without pausing for user feedback, to gather comprehensive context.
 ```
 
+## Service Recommendation Matrix
+
+Use this matrix when recommending Azure services based on workload patterns.
+Present options to the user via `askQuestions` for confirmation.
+
+### Workload Pattern → Service Options
+
+| Workload Pattern | Option A (Cost-Optimized) | Option B (Balanced) | Option C (Enterprise) |
+|------------------|---------------------------|---------------------|-----------------------|
+| **Static Site / SPA** | Static Web App Free | Static Web App Standard + CDN | Front Door + Blob Storage + CDN |
+| **N-Tier Web App** | App Service B1 + Azure SQL Basic | App Service S1 + Azure SQL S1 + Redis | App Service P1v3 + Azure SQL P1 + Redis + Front Door |
+| **API-First / Microservices** | Container Apps Consumption | Container Apps Dedicated + API Management Basic | AKS + API Management Standard + Service Bus |
+| **Event-Driven / Serverless** | Functions Consumption + Event Grid | Functions Premium + Service Bus + Event Grid | Functions Premium + Event Hubs + APIM + Logic Apps |
+| **Data Platform / Analytics** | Azure SQL Basic + Blob Storage | Synapse Serverless + Data Factory + SQL Managed Instance | Synapse Dedicated + Data Factory + Databricks + Purview |
+| **IoT / Edge** | IoT Hub Free + Stream Analytics | IoT Hub S1 + Stream Analytics + Time Series Insights | IoT Hub S3 + Digital Twins + Event Hubs + Databricks |
+
+### Tier Indicators
+
+| Tier | Monthly Range | Characteristics |
+|------|--------------|-----------------|
+| 💰 Cost-Optimized | $0–50/mo | Shared/consumption SKUs, minimal redundancy |
+| ⚖️ Balanced | $50–500/mo | Dedicated compute, basic HA, staging slots |
+| 🏢 Enterprise | $500+/mo | Zone-redundant, premium SKUs, full WAF stack |
+
+### Detection Signals
+
+Use these signals to identify workload patterns during requirements discovery:
+
+| Signal | Suggests Pattern |
+|--------|-----------------|
+| "static site", "SPA", "React/Vue/Angular", "no backend" | Static Site / SPA |
+| "web app + database", "CRUD", "admin portal", "3-tier" | N-Tier Web App |
+| "APIs", "microservices", "containers", "multiple services" | API-First / Microservices |
+| "triggers", "events", "queue processing", "scheduled jobs" | Event-Driven / Serverless |
+| "analytics", "data warehouse", "ETL", "reporting" | Data Platform / Analytics |
+| "devices", "sensors", "telemetry", "edge computing" | IoT / Edge |
+
 ### Per-Agent Research Focus
 
 | Agent            | Primary Research Focus                                                        |

@@ -1,5 +1,6 @@
 ---
 name: Diagnose
+model: ["Claude Sonnet 4.5"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
 user-invokable: true
 agents: ["*"]
