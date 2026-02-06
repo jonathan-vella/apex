@@ -61,8 +61,16 @@ Pre-fill for the demo scenario. Use `askQuestions`:
       ]
     },
     {
-      "header": "Describe",
-      "question": "Describe what you need in your own words:",
+      "header": "System",
+      "question": "What kind of system do you need?",
+      "options": [
+        {"label": "Online store / ecommerce platform", "recommended": true},
+        {"label": "Customer or employee portal"},
+        {"label": "Company website or marketing site"},
+        {"label": "Business reporting / analytics dashboard"},
+        {"label": "Backend API for mobile or web apps"},
+        {"label": "Automated processing (orders, invoices, notifications)"}
+      ],
       "allowFreeformInput": true
     },
     {

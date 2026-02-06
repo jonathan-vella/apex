@@ -36,7 +36,7 @@ recommendations before generating the artifact.
 | Variable               | Description                                          | Default  |
 | ---------------------- | ---------------------------------------------------- | -------- |
 | `${input:projectName}` | Project name (kebab-case) — asked in Phase 5         | Required |
-| `${input:businessDesc}` | Describe your business and what you need (free text) | Required |
+| `${input:businessDesc}` | Describe your business need (or select from guided options) | Required |
 
 ## Workflow
 
@@ -48,13 +48,12 @@ Use `askQuestions` UI to gather:
 
 1. **Industry / vertical** — Retail, Healthcare, Finance, etc.
 2. **Company size** — Startup, Mid-Market, Enterprise
-3. **System description** — what they need, in their own words
+3. **System type** — guided picker (ecommerce, portal, website, analytics, API, automation)
 4. **Scenario** — greenfield, migration, modernization, or extension
 
 **Adaptive Round 2** (if needed):
 
 - If **migration/modernization**: current platform, pain points, what to preserve
-- If **vague description**: system type clarification, user types
 
 ### Phase 2: Workload Pattern Detection (Agent-Inferred)
 

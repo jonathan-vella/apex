@@ -268,8 +268,17 @@ Use `#tool:vscode/askQuestions` to ask:
       ]
     },
     {
-      "header": "Describe",
-      "question": "Describe what you need in your own words — what system or capability are you building or changing?",
+      "header": "System",
+      "question": "What kind of system do you need?",
+      "options": [
+        {"label": "Online store / ecommerce platform"},
+        {"label": "Customer or employee portal"},
+        {"label": "Company website or marketing site"},
+        {"label": "Business reporting / analytics dashboard"},
+        {"label": "Backend API for mobile or web apps"},
+        {"label": "Automated processing (orders, invoices, notifications)"
+        }
+      ],
       "allowFreeformInput": true
     },
     {
@@ -290,9 +299,7 @@ Use `#tool:vscode/askQuestions` to ask:
 
 After Round 1, check:
 - If the user selected **migration or modernization**, ask migration-specific follow-ups
-- If the free-text description is **vague** (< 20 words, no system type mentioned), ask
-  clarifying questions
-- If both industry + description give **clear signal** (e.g., "Retail" + "online store"),
+- If both industry + system type give **clear signal** (e.g., "Retail" + "Online store"),
   skip Round 2 and proceed to Phase 2
 
 **Migration/modernization follow-up** — use `#tool:vscode/askQuestions`:
@@ -334,40 +341,6 @@ After Round 1, check:
         {"label": "Third-party integrations"},
         {"label": "Custom business logic / code"},
         {"label": "Nothing — complete rebuild is fine"}
-      ]
-    }
-  ]
-}
-```
-
-**Vague description follow-up** — use `#tool:vscode/askQuestions`:
-
-```json
-{
-  "questions": [
-    {
-      "header": "System Type",
-      "question": "Which best describes what you're building? (in business terms)",
-      "options": [
-        {"label": "Online store / ecommerce platform"},
-        {"label": "Customer or employee portal"},
-        {"label": "Company website or marketing site"},
-        {"label": "Business reporting / analytics dashboard"},
-        {"label": "Backend API for mobile or web apps"},
-        {"label": "Automated processing (orders, invoices, notifications)"}
-      ],
-      "allowFreeformInput": true
-    },
-    {
-      "header": "Users",
-      "question": "Who will use this system?",
-      "multiSelect": true,
-      "options": [
-        {"label": "External customers"},
-        {"label": "Internal employees"},
-        {"label": "Business partners / suppliers"},
-        {"label": "Developers / technical users"},
-        {"label": "No human users (automated / system-to-system)"}
       ]
     }
   ]
