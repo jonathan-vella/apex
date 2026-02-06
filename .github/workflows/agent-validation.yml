@@ -64,10 +64,17 @@ jobs:
             tr -d '"' | \
             sort -u > /tmp/agents.txt
 
+          # VS Code built-in agent names (not custom agents, but valid handoff targets)
+          BUILTIN_AGENTS="agent"
+
           # Check each handoff reference exists
           ERRORS=0
           while IFS= read -r handoff; do
             [ -z "$handoff" ] && continue
+            # Skip known VS Code built-in agents
+            if echo "$BUILTIN_AGENTS" | grep -qiw "$handoff"; then
+              continue
+            fi
             if ! grep -qi "^${handoff}$" /tmp/agents.txt; then
               echo "❌ Invalid handoff reference: $handoff"
               ERRORS=$((ERRORS + 1))

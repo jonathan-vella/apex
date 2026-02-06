@@ -210,7 +210,9 @@ Follow these steps when generating documentation:
 5. **Generate Documents** - Create each document following template H2 structure
 6. **Cross-Reference** - Ensure consistency across all documents
 7. **Create Index** - Generate `07-documentation-index.md` linking all documents
-8. **Validate H2 Compliance** - Run `node scripts/fix-artifact-h2.mjs agent-output/{project}/07-*.md` to verify all H2 headings match templates. Fix any drift before committing.
+8. **Validate H2 Compliance** - Run the heading validator to verify
+   all H2 headings match templates. Fix any drift before committing.
+   Command: `node scripts/fix-artifact-h2.mjs agent-output/{project}/07-*.md`
 
 ## Template Compliance Rules
 
