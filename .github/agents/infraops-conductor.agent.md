@@ -32,7 +32,7 @@ handoffs:
     send: true
   - label: "Step 1: Gather Requirements"
     agent: Requirements
-    prompt: Start interactive requirements discovery for this project. Guide the user through business context, workload pattern detection, service recommendations, and security posture using askQuestions UI before generating 01-requirements.md.
+    prompt: Start business-first requirements discovery. Begin by understanding the user's industry, company size, and business objectives — do NOT ask for technical architecture details upfront. Infer the workload pattern from business context, present recommendations for confirmation, and use business-friendly language throughout. Guide through all 5 phases using askQuestions UI before generating 01-requirements.md.
     send: false
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 2: Architecture Assessment"
@@ -212,9 +212,11 @@ Delegate early and often to preserve context window - you orchestrate, subagents
 ### Research & Requirements Delegation
 Use `#runSubagent` to invoke Requirements agent:
 ```
-#runSubagent invoke Requirements: Start interactive requirements
-discovery for {project description}. Guide through business context,
-workload patterns, service recommendations, and security posture.
+#runSubagent invoke Requirements: Start business-first requirements
+discovery for {project description}. Begin with industry, company size,
+and business objectives. Infer workload patterns from business context —
+do NOT ask the user to pick technical categories. Use business-friendly
+language and askQuestions UI throughout all 5 phases.
 ```
 
 ### Architecture Assessment Delegation

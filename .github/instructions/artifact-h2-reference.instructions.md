@@ -34,6 +34,7 @@ description: "MANDATORY template compliance rules for artifact generation"
 
 **H3 subsections** (within H2s above):
 
+- `## Project Overview` → Business Context
 - `## Functional Requirements` → Core Capabilities, User Types, Integrations,
   Data Types, Architecture Pattern
 - `## Non-Functional Requirements (NFRs)` → Availability & Reliability,

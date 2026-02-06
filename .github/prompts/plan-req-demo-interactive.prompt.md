@@ -1,5 +1,5 @@
 ---
-description: "Quick demo: Static Web App requirements (interactive wizard)"
+description: "Quick demo: EU ecommerce migration (business-first wizard)"
 agent: "Requirements"
 model: "Claude Opus 4.6"
 tools:
@@ -7,138 +7,275 @@ tools:
   - vscode/askQuestions
 ---
 
-# Static Web App Demo - Interactive Requirements Wizard
+# EU Ecommerce Migration Demo - Business-First Requirements Wizard
 
-Use the `askQuestions` UI to guide the user through a fast, structured requirements
-gathering process for a Static Web App demo. Optimized for live demos.
+Use the `askQuestions` UI to guide the user through a business-first requirements
+discovery for a mid-size EU retailer migrating their ecommerce platform to Azure.
+Demonstrates how the agent translates business context into technical requirements.
 
 ## Mission
 
-Create a polished UI-driven experience that captures essentials for a Static Web App.
-Keep it fast for live demos while letting users pick options from dropdowns instead of typing.
+Create a polished UI-driven experience starting from a business-level prompt —
+no Azure jargon upfront. Show how the agent infers architecture from business
+context, asks smart follow-ups for migration scenarios, and presents services
+in business-friendly language.
 
 ## Behavior Rules
 
 1. **Use `askQuestions` tool** for ALL questions — present UI pickers, not chat text
 2. **Batch related questions** into single `askQuestions` calls (max 4 per call)
-3. **Acknowledge each batch** with a brief confirmation before the next
-4. **Offer smart defaults** via `recommended: true` on common options
+3. **Start with business** — do NOT mention Azure services until Phase 3
+4. **Acknowledge each batch** with a brief summary showing you understood
 5. **Show progress** — tell user which step they're on
+6. **Infer, don't ask** — recommend the workload pattern instead of asking the user to pick
 
 ---
 
 ## Conversation Flow
 
-### Step 1: Project Basics (askQuestions)
+### Step 1: Business Context (askQuestions)
 
-Use `askQuestions` with these questions:
+Pre-fill for the demo scenario. Use `askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Industry",
+      "question": "What industry is this project for?",
+      "options": [
+        {"label": "Retail / Ecommerce", "recommended": true},
+        {"label": "Healthcare"},
+        {"label": "Financial Services"},
+        {"label": "Technology / SaaS"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Company Size",
+      "question": "How large is your organization?",
+      "options": [
+        {"label": "Startup / Small (< 50 employees)"},
+        {"label": "Mid-Market (50-500 employees)", "recommended": true},
+        {"label": "Enterprise (500+ employees)"}
+      ]
+    },
+    {
+      "header": "Describe",
+      "question": "Describe what you need in your own words:",
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Scenario",
+      "question": "Is this a new project or are you changing an existing system?",
+      "options": [
+        {"label": "New project (greenfield)"},
+        {"label": "Migrating an existing system to Azure", "recommended": true},
+        {"label": "Modernizing / re-architecting an existing system"},
+        {"label": "Extending an existing Azure deployment"}
+      ]
+    }
+  ]
+}
+```
+
+Acknowledge: summarize what you heard in business terms.
+
+### Step 2: Migration Follow-Up (askQuestions)
+
+Since this is a migration scenario, ask about the current system:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Current",
+      "question": "What does your current ecommerce system run on?",
+      "options": [
+        {"label": "On-premises servers (Windows/Linux)", "recommended": true},
+        {"label": "Hosted platform (Shopify, Magento Cloud)"},
+        {"label": "Another cloud (AWS, GCP)"},
+        {"label": "Legacy or custom-built system"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Pain Points",
+      "question": "What are the main problems driving this change?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Scaling limitations — can't handle growth", "recommended": true},
+        {"label": "High maintenance costs"},
+        {"label": "Security or compliance concerns", "recommended": true},
+        {"label": "Performance issues"},
+        {"label": "End of life / vendor support ending"},
+        {"label": "Need new features the current system can't support"}
+      ]
+    },
+    {
+      "header": "Keep",
+      "question": "What parts of the current system must be preserved?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Existing database and data", "recommended": true},
+        {"label": "Current user accounts and authentication"},
+        {"label": "Third-party integrations", "recommended": true},
+        {"label": "Custom business logic / code"},
+        {"label": "Nothing — complete rebuild is fine"}
+      ]
+    }
+  ]
+}
+```
+
+Acknowledge: explain what migration approach the answers point to.
+
+### Step 3: Pattern Inference + Service Recommendation (askQuestions)
+
+Based on "ecommerce" + "migration" + "on-prem", infer N-Tier Web App
+and present the recommendation:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Pattern",
+      "question": "Based on your ecommerce platform, I recommend a **web app with database backend** (N-Tier). Sound right?",
+      "options": [
+        {"label": "Yes, that sounds right", "recommended": true},
+        {"label": "Not quite — let me pick differently"}
+      ]
+    },
+    {
+      "header": "Customers",
+      "question": "How many customers visit your store daily?",
+      "options": [
+        {"label": "Under 100 (small shop)"},
+        {"label": "100-1,000 (growing business)", "recommended": true},
+        {"label": "1,000-10,000 (established retailer)"},
+        {"label": "10,000+ (large-scale retail)"}
+      ]
+    },
+    {
+      "header": "Budget",
+      "question": "Approximate monthly cloud budget?",
+      "options": [
+        {"label": "Under $50/month (testing first)"},
+        {"label": "$200-1,000/month (production)", "recommended": true},
+        {"label": "$1,000+/month (enterprise scale)"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Data",
+      "question": "What customer data does your store handle?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Personal customer data (names, emails, addresses)", "recommended": true},
+        {"label": "Payment or credit card data", "recommended": true},
+        {"label": "Internal business data"},
+        {"label": "Public product catalog only"}
+      ]
+    }
+  ]
+}
+```
+
+### Step 4: Security & Region (askQuestions)
+
+Pre-select based on EU + Retail + payment data:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Compliance",
+      "question": "As an EU retailer handling payment data, these frameworks apply. Confirm which you need:",
+      "multiSelect": true,
+      "options": [
+        {"label": "EU data protection (GDPR)", "recommended": true},
+        {"label": "Payment card security (PCI-DSS)", "recommended": true},
+        {"label": "Security controls audit (SOC 2)"},
+        {"label": "None of these apply"}
+      ]
+    },
+    {
+      "header": "Security",
+      "question": "Recommended security measures for ecommerce:",
+      "multiSelect": true,
+      "options": [
+        {"label": "Passwordless service connections (Managed Identity)", "recommended": true},
+        {"label": "Centralized secrets management (Key Vault)", "recommended": true},
+        {"label": "Private database connections (Private Endpoints)", "recommended": true},
+        {"label": "Web application firewall (WAF)", "recommended": true},
+        {"label": "Encrypted connections (TLS 1.2+)", "recommended": true}
+      ]
+    },
+    {
+      "header": "Auth",
+      "question": "How will customers log in to your store?",
+      "options": [
+        {"label": "Customer accounts (Entra ID B2C)", "recommended": true,
+         "description": "For external customer sign-up and login"},
+        {"label": "Company accounts (Entra ID)",
+         "description": "For internal admin users only"},
+        {"label": "Third-party login (social, Okta)"}
+      ]
+    },
+    {
+      "header": "Region",
+      "question": "Where should your store be hosted?",
+      "options": [
+        {"label": "Sweden (EU, GDPR-compliant)", "recommended": true,
+         "description": "Default — sustainable, GDPR-compliant"},
+        {"label": "Netherlands (Western Europe)"},
+        {"label": "Germany (strict data sovereignty)"}
+      ]
+    }
+  ]
+}
+```
+
+### Step 5: Operational Details & Confirmation
 
 ```json
 {
   "questions": [
     {
       "header": "Project",
-      "question": "What would you like to call this Static Web App project? (lowercase, hyphens allowed)",
+      "question": "Project name? (lowercase, hyphens — used for file naming)",
       "allowFreeformInput": true
     },
     {
-      "header": "Framework",
-      "question": "Which frontend framework are you using?",
+      "header": "Environment",
+      "question": "Which environments do you need?",
       "options": [
-        {"label": "React", "recommended": true},
-        {"label": "Vue"},
-        {"label": "Angular"},
-        {"label": "Vanilla JS / HTML"},
-        {"label": "Next.js (static export)"},
-        {"label": "Astro"}
+        {"label": "Dev + Production", "recommended": true},
+        {"label": "Dev + Staging + Production"},
+        {"label": "Dev + Test + Staging + Production"}
       ]
     },
     {
-      "header": "Repository",
-      "question": "Do you have a GitHub repository for CI/CD?",
+      "header": "Timeline",
+      "question": "Target go-live timeline?",
       "options": [
-        {"label": "Yes, I'll provide the URL"},
-        {"label": "No, manual deployment", "recommended": true},
-        {"label": "Create one for me"}
-      ],
-      "allowFreeformInput": true
-    },
-    {
-      "header": "Budget",
-      "question": "Static Web Apps Standard tier costs ~$9/month + App Insights (~$5-10/month). Monthly budget?",
-      "options": [
-        {"label": "Free tier ($0)", "description": "Limited features, no staging"},
-        {"label": "~$15/month", "description": "Standard tier + monitoring", "recommended": true},
-        {"label": "~$50/month", "description": "Standard + CDN + custom domain"},
-        {"label": "~$100+/month", "description": "Enterprise with Front Door"}
+        {"label": "1-3 months", "recommended": true},
+        {"label": "3-6 months"},
+        {"label": "6+ months (phased migration)"}
       ]
     }
   ]
 }
 ```
 
-Acknowledge answers and proceed to Step 2.
-
-### Step 2: Security & Region (askQuestions)
-
-Use `askQuestions`:
-
-```json
-{
-  "questions": [
-    {
-      "header": "Auth",
-      "question": "How will users authenticate to your Static Web App?",
-      "options": [
-        {"label": "No authentication (public site)", "recommended": true},
-        {"label": "Microsoft Entra ID (corporate)"},
-        {"label": "GitHub login"},
-        {"label": "Custom auth provider"}
-      ]
-    },
-    {
-      "header": "Region",
-      "question": "Deployment region?",
-      "options": [
-        {"label": "West Europe", "description": "Optimal for Static Web Apps EU", "recommended": true},
-        {"label": "East US 2", "description": "US workloads"},
-        {"label": "East Asia", "description": "APAC workloads"}
-      ]
-    },
-    {
-      "header": "Features",
-      "question": "Which additional features do you need?",
-      "multiSelect": true,
-      "options": [
-        {"label": "Custom domain", "recommended": true},
-        {"label": "Staging environments"},
-        {"label": "API backend (Azure Functions)"},
-        {"label": "Application Insights monitoring", "recommended": true},
-        {"label": "CDN / Front Door"}
-      ]
-    }
-  ]
-}
-```
-
-### Step 3: Confirmation
-
-Present a summary table in chat showing:
-
-- All user selections from Steps 1-2
-- Pre-configured defaults (SKU, SLA, tags, security controls)
-- Azure resources that will be created
-
-Ask: "Does this look correct? Want to proceed or change anything?"
-
-Use `askQuestions` for confirmation:
+Present a summary table in chat showing all selections, then confirm:
 
 ```json
 {
   "questions": [
     {
       "header": "Confirm",
-      "question": "Requirements summary looks good. Ready to generate the document?",
+      "question": "Requirements summary ready. Generate the document?",
       "options": [
         {"label": "Yes, generate requirements", "recommended": true},
         {"label": "Let me change something"},
@@ -149,13 +286,15 @@ Use `askQuestions` for confirmation:
 }
 ```
 
-### Step 4: Generate & Handoff
+### Step 6: Generate & Handoff
 
 If confirmed:
+
 1. Generate `agent-output/{projectName}/01-requirements.md` using the standard template
-2. Populate with user selections + Static Web App defaults
-3. Include `### Architecture Pattern` (Static Site / SPA, Cost-Optimized or Standard tier)
-4. Include `### Recommended Security Controls` (HTTPS, managed cert, TLS 1.2)
+2. Populate `### Business Context` with industry (Retail), size (Mid-Market),
+   scenario (Migration), migration source, pain points, and success criteria
+3. Populate `### Architecture Pattern` (N-Tier, Balanced tier, migration justification)
+4. Populate `### Recommended Security Controls` (GDPR + PCI-DSS stack)
 
 Present next step options:
 
@@ -184,4 +323,4 @@ Present next step options:
 
 Generate `agent-output/{projectName}/01-requirements.md` using the standard template
 from `.github/templates/01-requirements.template.md`, populated with user responses
-and pre-configured defaults for Static Web Apps.
+and demonstrating the business-to-technical translation in every section.

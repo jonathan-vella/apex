@@ -219,11 +219,26 @@ Requirements describe what the USER or downstream agents will implement later.
 </stopping_rules>
 
 <workflow>
-Interactive requirements discovery using UI question pickers:
+Interactive requirements discovery using UI question pickers.
+The agent supports BOTH business-level prompts ("I'm a mid-size EU retailer wanting
+to modernize my ecommerce") AND technical prompts ("I need a 3-tier web app with SQL").
+Adapt the depth and language of each phase based on the user's technical fluency.
 
-## Phase 1: Business Discovery (askQuestions)
+## Phase 1: Business Discovery (askQuestions) — Adaptive Depth
 
 MANDATORY FIRST STEP — understand the business before suggesting technology.
+
+**Adaptive logic**: Analyze the user's initial prompt BEFORE asking questions.
+
+- If the prompt is **business-level** (mentions industry, company, business problem,
+  migration, modernization, but no Azure services or architecture patterns):
+  → Ask Round 1 business questions, then Round 2 follow-ups
+- If the prompt is **technical** (mentions specific patterns, services, tiers):
+  → Ask abbreviated Round 1 (project name + confirmation), skip Round 2
+- If the prompt is **mixed** (some business context + some tech):
+  → Ask Round 1, skip Round 2 if gaps are filled
+
+### Round 1: Core Business Context (always)
 
 Use `#tool:vscode/askQuestions` to ask:
 
@@ -231,13 +246,437 @@ Use `#tool:vscode/askQuestions` to ask:
 {
   "questions": [
     {
-      "header": "Project",
-      "question": "What is the project name? (lowercase, hyphens allowed)",
+      "header": "Industry",
+      "question": "What industry or sector is this project for?",
+      "options": [
+        {"label": "Retail / Ecommerce"},
+        {"label": "Healthcare"},
+        {"label": "Financial Services"},
+        {"label": "Government / Public Sector"},
+        {"label": "Education"},
+        {"label": "Technology / SaaS"}
+      ],
       "allowFreeformInput": true
     },
     {
-      "header": "Problem",
-      "question": "What business problem does this workload solve?",
+      "header": "Company Size",
+      "question": "How large is your organization?",
+      "options": [
+        {"label": "Startup / Small (< 50 employees)"},
+        {"label": "Mid-Market (50-500 employees)", "recommended": true},
+        {"label": "Enterprise (500+ employees)"}
+      ]
+    },
+    {
+      "header": "Describe",
+      "question": "Describe what you need in your own words — what system or capability are you building or changing?",
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Scenario",
+      "question": "Is this a new project or are you changing an existing system?",
+      "options": [
+        {"label": "New project (greenfield)"},
+        {"label": "Migrating an existing system to Azure"},
+        {"label": "Modernizing / re-architecting an existing system"},
+        {"label": "Extending an existing Azure deployment"}
+      ]
+    }
+  ]
+}
+```
+
+### Round 2: Adaptive Follow-Up (if prompt was vague or migration selected)
+
+After Round 1, check:
+- If the user selected **migration or modernization**, ask migration-specific follow-ups
+- If the free-text description is **vague** (< 20 words, no system type mentioned), ask
+  clarifying questions
+- If both industry + description give **clear signal** (e.g., "Retail" + "online store"),
+  skip Round 2 and proceed to Phase 2
+
+**Migration/modernization follow-up** — use `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Current",
+      "question": "What does your current system run on?",
+      "options": [
+        {"label": "On-premises servers (Windows/Linux)"},
+        {"label": "Hosted / managed platform (e.g., Shopify, WordPress)"},
+        {"label": "Another cloud provider (AWS, GCP)"},
+        {"label": "Legacy mainframe or custom system"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Pain Points",
+      "question": "What are the main problems driving this change?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Scaling limitations — can't handle growth"},
+        {"label": "High maintenance costs"},
+        {"label": "Security or compliance concerns"},
+        {"label": "Performance issues"},
+        {"label": "End of life / vendor support ending"},
+        {"label": "Need new features the current system can't support"}
+      ]
+    },
+    {
+      "header": "Keep",
+      "question": "What parts of the current system must be preserved?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Existing database and data"},
+        {"label": "Current user accounts and authentication"},
+        {"label": "Third-party integrations"},
+        {"label": "Custom business logic / code"},
+        {"label": "Nothing — complete rebuild is fine"}
+      ]
+    }
+  ]
+}
+```
+
+**Vague description follow-up** — use `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "System Type",
+      "question": "Which best describes what you're building? (in business terms)",
+      "options": [
+        {"label": "Online store / ecommerce platform"},
+        {"label": "Customer or employee portal"},
+        {"label": "Company website or marketing site"},
+        {"label": "Business reporting / analytics dashboard"},
+        {"label": "Backend API for mobile or web apps"},
+        {"label": "Automated processing (orders, invoices, notifications)"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Users",
+      "question": "Who will use this system?",
+      "multiSelect": true,
+      "options": [
+        {"label": "External customers"},
+        {"label": "Internal employees"},
+        {"label": "Business partners / suppliers"},
+        {"label": "Developers / technical users"},
+        {"label": "No human users (automated / system-to-system)"}
+      ]
+    }
+  ]
+}
+```
+
+After Phase 1, acknowledge the business context and proceed to Phase 2.
+**Capture project name, environments, and timeline in Phase 5** (they are
+operational details that interrupt business flow if asked too early).
+
+## Phase 2: Workload Pattern Detection (Agent-Inferred)
+
+**DO NOT ask the user to self-classify into technical categories.**
+Instead, use the **Business Domain Signals** and **Detection Signals** tables
+from `_shared/defaults.md` to INFER the workload pattern from Phase 1 answers.
+
+### Inference Logic
+
+1. Match the user's description + industry against Business Domain Signals
+2. If confidence is High → present as recommendation for confirmation
+3. If confidence is Medium → present recommendation with brief explanation
+4. If confidence is Low (migration) → use Migration Source mapping table
+5. If no match → fall back to business-friendly picker
+
+### High/Medium Confidence — Present Recommendation
+
+Present your inference as a recommendation using `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Pattern",
+      "question": "Based on your description, I recommend **{inferred pattern}**. {one-sentence explanation}. Sound right?",
+      "options": [
+        {"label": "Yes, that sounds right", "recommended": true},
+        {"label": "Not quite — let me pick"}
+      ]
+    },
+    {
+      "header": "Customers",
+      "question": "How many people will use this system daily?",
+      "options": [
+        {"label": "Under 100 (internal team tool)"},
+        {"label": "100-1,000 (department or small business)", "recommended": true},
+        {"label": "1,000-10,000 (company-wide or regional)"},
+        {"label": "10,000+ (public-facing, large scale)"}
+      ]
+    },
+    {
+      "header": "Budget",
+      "question": "What is your approximate monthly cloud budget?",
+      "options": [
+        {"label": "Under $50/month (proof of concept)"},
+        {"label": "$50-200/month (small workload)", "recommended": true},
+        {"label": "$200-1,000/month (production system)"},
+        {"label": "$1,000+/month (enterprise scale)"}
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "Data",
+      "question": "What kind of data will this system handle?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Public content only"},
+        {"label": "Internal business data", "recommended": true},
+        {"label": "Personal customer data (names, emails, addresses)"},
+        {"label": "Payment or financial data"},
+        {"label": "Health or medical records"},
+        {"label": "No data storage needed"}
+      ]
+    }
+  ]
+}
+```
+
+**Use Company Size Heuristics** from `_shared/defaults.md` to set `recommended: true`
+on the budget and user scale options that match the company size from Phase 1.
+
+### Fallback — Business-Friendly Picker
+
+If the user picks "Not quite — let me pick", or if no signal matched, show
+business-friendly labels (NOT technical jargon):
+
+```json
+{
+  "questions": [
+    {
+      "header": "Workload",
+      "question": "Which best describes what you're building?",
+      "options": [
+        {"label": "A website or web app that people visit",
+         "description": "Online store, portal, dashboard, company site"},
+        {"label": "A content/marketing website with no backend",
+         "description": "Blog, docs site, portfolio, landing page"},
+        {"label": "Backend services or APIs for apps",
+         "description": "Mobile app backend, SaaS platform, integrations"},
+        {"label": "Automated processing or workflows",
+         "description": "Order processing, notifications, scheduled jobs"},
+        {"label": "Data analytics or business intelligence",
+         "description": "Reporting dashboards, data warehouse, ETL"},
+        {"label": "Connected devices or sensors",
+         "description": "IoT fleet, smart building, industrial monitoring"}
+      ]
+    }
+  ]
+}
+```
+
+Map selections: website/web app → N-Tier, content site → Static Site,
+backend/APIs → API-First, automation → Event-Driven,
+analytics → Data Platform, devices → IoT.
+
+## Phase 3: Service Recommendations (Business-Friendly Labels)
+
+Based on the detected workload pattern + budget tier, present service options
+from the **Service Recommendation Matrix** in `_shared/defaults.md`.
+
+**CRITICAL**: Use business-friendly descriptions with Azure service names in
+parentheses. Do NOT lead with Azure product names.
+
+Use `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Service Tier",
+      "question": "Based on your {workload_description} and ~${budget} budget, here are your options:",
+      "options": [
+        {"label": "Cost-Optimized",
+         "description": "Basic hosting + storage — good for getting started ({services})"},
+        {"label": "Balanced",
+         "description": "Dedicated hosting + caching + monitoring — production-ready ({services})",
+         "recommended": true},
+        {"label": "Enterprise",
+         "description": "Premium hosting + global delivery + full security stack ({services})"}
+      ]
+    },
+    {
+      "header": "Availability",
+      "question": "How important is uptime for this system?",
+      "options": [
+        {"label": "Some downtime is OK (dev/test workloads)",
+         "description": "~7 hours downtime per month allowed (99.0%)"},
+        {"label": "Reliable — minimal interruptions",
+         "description": "~43 minutes downtime per month (99.9%)",
+         "recommended": true},
+        {"label": "Highly available — business depends on it",
+         "description": "~22 minutes downtime per month (99.95%)"},
+        {"label": "Mission-critical — near-zero downtime",
+         "description": "~4 minutes downtime per month (99.99%, higher cost)"}
+      ]
+    },
+    {
+      "header": "Recovery",
+      "question": "If something goes wrong, how fast do you need to recover?",
+      "options": [
+        {"label": "Recover within a day — best effort",
+         "description": "Restore from backup, up to 24h data loss"},
+        {"label": "Recover within hours — standard",
+         "description": "4-hour recovery, up to 1 hour data loss",
+         "recommended": true},
+        {"label": "Recover within minutes — fast",
+         "description": "1-hour recovery, minimal data loss (geo-redundancy)"},
+        {"label": "Instant failover — zero data loss",
+         "description": "Active-active setup, highest cost"}
+      ]
+    }
+  ]
+}
+```
+
+If the pattern is N-Tier, also ask about application layers using business language:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Layers",
+      "question": "Which parts does your system need?",
+      "multiSelect": true,
+      "options": [
+        {"label": "Website or web interface that users visit",
+         "description": "Web frontend (App Service / Static Web App)",
+         "recommended": true},
+        {"label": "Backend logic and data processing",
+         "description": "API tier (App Service / Container Apps)",
+         "recommended": true},
+        {"label": "Background tasks (reports, emails, cleanup)",
+         "description": "Background workers (Functions / WebJobs)"},
+        {"label": "Database for storing data",
+         "description": "Database tier (Azure SQL / Cosmos DB)",
+         "recommended": true},
+        {"label": "Fast data access for frequently used content",
+         "description": "Caching layer (Azure Cache for Redis)"},
+        {"label": "Reliable message passing between components",
+         "description": "Message queue (Service Bus)"}
+      ]
+    }
+  ]
+}
+```
+
+## Phase 4: Security & Compliance Posture (Business Language)
+
+Recommend security best practices based on the workload pattern, data sensitivity,
+and industry from Phase 1. Use the **Industry Compliance Mapping** table from
+`_shared/defaults.md` to pre-select compliance frameworks.
+
+**CRITICAL**: Use business-friendly descriptions for all security controls.
+Put technical Azure terms in parentheses.
+
+Use `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Compliance",
+      "question": "Based on your {industry} sector, these compliance frameworks likely apply. Confirm which you need:",
+      "multiSelect": true,
+      "options": [
+        {"label": "EU data protection (GDPR)", "recommended": true},
+        {"label": "Payment card security (PCI-DSS)"},
+        {"label": "Health data protection (HIPAA)"},
+        {"label": "Security controls audit (SOC 2)"},
+        {"label": "Information security standard (ISO 27001)"},
+        {"label": "None of these apply"}
+      ]
+    },
+    {
+      "header": "Security",
+      "question": "I recommend these security measures for your system. Confirm which you need:",
+      "multiSelect": true,
+      "options": [
+        {"label": "Passwordless service connections (Managed Identity)",
+         "description": "More secure than passwords or API keys",
+         "recommended": true},
+        {"label": "Centralized secrets management (Key Vault)",
+         "description": "Safely store passwords, certificates, and keys",
+         "recommended": true},
+        {"label": "Private network connections (Private Endpoints)",
+         "description": "Keep database traffic off the public internet"},
+        {"label": "Web application firewall (WAF)",
+         "description": "Protect web apps from common attacks"},
+        {"label": "Network isolation (VNet Integration)",
+         "description": "Run services in a private virtual network"},
+        {"label": "Encrypted connections (TLS 1.2+ enforcement)",
+         "description": "All traffic encrypted in transit",
+         "recommended": true}
+      ]
+    },
+    {
+      "header": "Auth",
+      "question": "How will people log in to this system?",
+      "options": [
+        {"label": "Company accounts (Microsoft Entra ID)",
+         "description": "For employees and internal users",
+         "recommended": true},
+        {"label": "Customer accounts (Entra ID + B2C)",
+         "description": "For external customers or partners"},
+        {"label": "Third-party login (Okta, Auth0, etc.)",
+         "description": "Existing identity provider"},
+        {"label": "API keys only (no human users)",
+         "description": "System-to-system communication"},
+        {"label": "No login required (public access)"}
+      ]
+    },
+    {
+      "header": "Region",
+      "question": "Where should your system be hosted?",
+      "options": [
+        {"label": "Sweden (EU data protection)",
+         "description": "Default — sustainable, GDPR-compliant",
+         "recommended": true},
+        {"label": "Netherlands (Western Europe)",
+         "description": "Required for Static Web Apps in EU"},
+        {"label": "Germany (strict data sovereignty)",
+         "description": "German regulatory compliance"},
+        {"label": "United Kingdom",
+         "description": "UK data residency requirements"},
+        {"label": "United States (East)",
+         "description": "US-based workloads"}
+      ],
+      "allowFreeformInput": true
+    }
+  ]
+}
+```
+
+**Pre-selection logic**: Based on the Industry Compliance Mapping from
+`_shared/defaults.md`, set `recommended: true` on the compliance frameworks
+that match the user's industry from Phase 1. For example, if the user
+selected "Retail / Ecommerce", pre-check PCI-DSS and GDPR (if EU).
+If the user mentioned EU location, always pre-check GDPR.
+
+## Phase 5: Draft & Confirm
+
+1. **Capture operational details** — Now that business and technical context is clear,
+   ask for project name, environments, and timeline via `#tool:vscode/askQuestions`:
+
+```json
+{
+  "questions": [
+    {
+      "header": "Project",
+      "question": "What should we call this project? (lowercase, hyphens — used for file naming)",
       "allowFreeformInput": true
     },
     {
@@ -254,209 +693,17 @@ Use `#tool:vscode/askQuestions` to ask:
       "header": "Timeline",
       "question": "What is your target go-live timeline?",
       "options": [
-        {"label": "1-2 weeks (POC/demo)"},
+        {"label": "1-2 weeks (proof of concept)"},
         {"label": "1-3 months", "recommended": true},
         {"label": "3-6 months"},
-        {"label": "6+ months (enterprise rollout)"}
+        {"label": "6+ months (phased rollout)"}
       ]
     }
   ]
 }
 ```
 
-After receiving answers, acknowledge and proceed to Phase 2.
-
-## Phase 2: Workload Pattern Detection (askQuestions)
-
-Based on Phase 1 answers, detect the workload pattern and confirm with the user.
-Reference the **Service Recommendation Matrix** in `_shared/defaults.md` for detection signals.
-
-Use `#tool:vscode/askQuestions`:
-
-```json
-{
-  "questions": [
-    {
-      "header": "Workload",
-      "question": "Which best describes your workload? (Based on what you described, I'm suggesting the most likely pattern)",
-      "options": [
-        {"label": "Static Site / SPA", "description": "React, Vue, Angular, no server-side logic"},
-        {"label": "N-Tier Web App", "description": "Web frontend + API + database (classic 3-tier)", "recommended": true},
-        {"label": "API-First / Microservices", "description": "Multiple APIs, containers, service mesh"},
-        {"label": "Event-Driven / Serverless", "description": "Functions, triggers, queue processing"},
-        {"label": "Data Platform / Analytics", "description": "ETL, data warehouse, reporting"},
-        {"label": "IoT / Edge", "description": "Devices, sensors, telemetry"}
-      ]
-    },
-    {
-      "header": "Users",
-      "question": "How many concurrent users do you expect?",
-      "options": [
-        {"label": "< 100 (internal tool)"},
-        {"label": "100-1,000 (department-level)", "recommended": true},
-        {"label": "1,000-10,000 (organization-wide)"},
-        {"label": "10,000+ (public-facing)"}
-      ]
-    },
-    {
-      "header": "Budget",
-      "question": "What is your approximate monthly Azure budget?",
-      "options": [
-        {"label": "< $50/month (minimal/POC)"},
-        {"label": "$50-200/month (small workload)", "recommended": true},
-        {"label": "$200-1,000/month (production)"},
-        {"label": "$1,000+/month (enterprise)"}
-      ],
-      "allowFreeformInput": true
-    },
-    {
-      "header": "Data",
-      "question": "What kind of data will this workload handle?",
-      "multiSelect": true,
-      "options": [
-        {"label": "Public data only"},
-        {"label": "Internal/confidential business data", "recommended": true},
-        {"label": "PII (personally identifiable information)"},
-        {"label": "Financial/payment data (PCI-DSS)"},
-        {"label": "Health data (HIPAA)"},
-        {"label": "No data storage needed"}
-      ]
-    }
-  ]
-}
-```
-
-## Phase 3: Service Recommendations (askQuestions)
-
-Based on the detected workload pattern + budget tier, present 2-3 service options
-from the **Service Recommendation Matrix** in `_shared/defaults.md`.
-
-Use `#tool:vscode/askQuestions`:
-
-```json
-{
-  "questions": [
-    {
-      "header": "Service Tier",
-      "question": "Based on your {workload_pattern} workload and ${budget} budget, here are recommended Azure service stacks:",
-      "options": [
-        {"label": "Option A: Cost-Optimized", "description": "{services from matrix}"},
-        {"label": "Option B: Balanced", "description": "{services from matrix}", "recommended": true},
-        {"label": "Option C: Enterprise", "description": "{services from matrix}"}
-      ]
-    },
-    {
-      "header": "SLA",
-      "question": "What availability level does this workload need?",
-      "options": [
-        {"label": "99.0% (~7h downtime/month)", "description": "Dev/test workloads"},
-        {"label": "99.9% (~43min downtime/month)", "description": "Standard production", "recommended": true},
-        {"label": "99.95% (~22min downtime/month)", "description": "Business-critical"},
-        {"label": "99.99% (~4min downtime/month)", "description": "Mission-critical (higher cost)"}
-      ]
-    },
-    {
-      "header": "Recovery",
-      "question": "If something goes wrong, how quickly must you recover?",
-      "options": [
-        {"label": "RTO: 24h / RPO: 24h", "description": "Best-effort recovery"},
-        {"label": "RTO: 4h / RPO: 1h", "description": "Standard recovery", "recommended": true},
-        {"label": "RTO: 1h / RPO: 15min", "description": "Fast recovery (geo-redundancy needed)"},
-        {"label": "RTO: 0 / RPO: 0", "description": "Zero-loss (active-active, highest cost)"}
-      ]
-    }
-  ]
-}
-```
-
-If the user's pattern is N-Tier, also ask about application layers:
-
-```json
-{
-  "questions": [
-    {
-      "header": "N-Tier Layers",
-      "question": "Which layers does your N-Tier application need?",
-      "multiSelect": true,
-      "options": [
-        {"label": "Web frontend (HTML/JS)", "recommended": true},
-        {"label": "API tier (REST/GraphQL)", "recommended": true},
-        {"label": "Background workers / jobs"},
-        {"label": "Database tier", "recommended": true},
-        {"label": "Caching layer (Redis)"},
-        {"label": "Message queue (Service Bus)"}
-      ]
-    }
-  ]
-}
-```
-
-## Phase 4: Security & Compliance Posture (askQuestions)
-
-Recommend security best practices based on the workload pattern and data sensitivity,
-then ask the user to confirm which controls they need.
-
-Use `#tool:vscode/askQuestions`:
-
-```json
-{
-  "questions": [
-    {
-      "header": "Compliance",
-      "question": "Which compliance frameworks apply to this workload?",
-      "multiSelect": true,
-      "options": [
-        {"label": "None (internal tool)", "recommended": true},
-        {"label": "GDPR (EU data protection)"},
-        {"label": "SOC 2 (security controls)"},
-        {"label": "ISO 27001 (information security)"},
-        {"label": "PCI-DSS (payment card data)"},
-        {"label": "HIPAA (health data)"}
-      ]
-    },
-    {
-      "header": "Security",
-      "question": "Based on your workload, I recommend these security controls. Confirm which you need:",
-      "multiSelect": true,
-      "options": [
-        {"label": "Managed Identity (recommended over keys)", "recommended": true},
-        {"label": "Key Vault for secrets", "recommended": true},
-        {"label": "Private Endpoints for data services"},
-        {"label": "WAF (Web Application Firewall)"},
-        {"label": "VNet integration"},
-        {"label": "TLS 1.2+ enforcement", "recommended": true}
-      ]
-    },
-    {
-      "header": "Auth",
-      "question": "How will users authenticate?",
-      "options": [
-        {"label": "Microsoft Entra ID (Azure AD)", "recommended": true},
-        {"label": "Microsoft Entra ID + B2C (external users)"},
-        {"label": "Third-party IdP (Okta, Auth0)"},
-        {"label": "API keys / service-to-service only"},
-        {"label": "No authentication needed"}
-      ]
-    },
-    {
-      "header": "Region",
-      "question": "Which Azure region for deployment?",
-      "options": [
-        {"label": "Sweden Central (EU, GDPR)", "description": "Default - sustainable, compliant", "recommended": true},
-        {"label": "West Europe (Netherlands)", "description": "Required for Static Web Apps EU"},
-        {"label": "Germany West Central", "description": "German data sovereignty"},
-        {"label": "UK South", "description": "UK GDPR requirements"},
-        {"label": "East US", "description": "US workloads"}
-      ],
-      "allowFreeformInput": true
-    }
-  ]
-}
-```
-
-## Phase 5: Draft & Confirm
-
-1. MANDATORY: Run research via `#tool:agent` subagent (following <requirements_research>)
+2. MANDATORY: Run research via `#tool:agent` subagent (following <requirements_research>)
    to gather any additional context from Azure documentation for the selected services.
 2. Generate the full requirements document following <requirements_style_guide>.
    Populate ALL sections using the answers from Phases 1-4.
@@ -520,23 +767,28 @@ Stop research when you reach 80% confidence you have enough context to draft req
 <must_have_info>
 Critical information gathered across the 5-phase discovery flow:
 
-| Requirement      | Gathered In | Default Value                       |
-| ---------------- | ----------- | ----------------------------------- |
-| Project name     | Phase 1     | (required)                          |
-| Business problem | Phase 1     | (required)                          |
-| Environment      | Phase 1     | Dev + Production                    |
-| Timeline         | Phase 1     | 1-3 months                          |
-| Workload pattern | Phase 2     | (required)                          |
-| Budget           | Phase 2     | (required)                          |
-| Scale (users)    | Phase 2     | 100-1,000                           |
-| Data sensitivity | Phase 2     | Internal/confidential               |
-| Service tier     | Phase 3     | Balanced                            |
-| SLA target       | Phase 3     | 99.9%                               |
-| RTO / RPO        | Phase 3     | 4 hours / 1 hour                    |
-| Compliance       | Phase 4     | None                                |
-| Security controls| Phase 4     | Managed Identity + Key Vault + TLS  |
-| Authentication   | Phase 4     | Microsoft Entra ID                  |
-| Region           | Phase 4     | `swedencentral`                     |
+| Requirement       | Gathered In | Default Value                       |
+| ----------------- | ----------- | ----------------------------------- |
+| Industry/vertical | Phase 1     | Technology / SaaS                   |
+| Company size      | Phase 1     | Mid-Market                          |
+| System description| Phase 1     | (required — free text)              |
+| Scenario          | Phase 1     | Greenfield                          |
+| Migration source  | Phase 1 R2  | N/A (greenfield)                    |
+| Pain points       | Phase 1 R2  | N/A (greenfield)                    |
+| Workload pattern  | Phase 2     | (agent-inferred, user-confirmed)    |
+| Budget            | Phase 2     | (required)                          |
+| Scale (users)     | Phase 2     | 100-1,000                           |
+| Data sensitivity  | Phase 2     | Internal business data              |
+| Service tier      | Phase 3     | Balanced                            |
+| SLA target        | Phase 3     | 99.9%                               |
+| RTO / RPO         | Phase 3     | 4 hours / 1 hour                    |
+| Compliance        | Phase 4     | Based on industry mapping           |
+| Security controls | Phase 4     | Managed Identity + Key Vault + TLS  |
+| Authentication    | Phase 4     | Microsoft Entra ID                  |
+| Region            | Phase 4     | `swedencentral`                     |
+| Project name      | Phase 5     | (required)                          |
+| Environments      | Phase 5     | Dev + Production                    |
+| Timeline          | Phase 5     | 1-3 months                          |
 
 If `askQuestions` is unavailable, gather this information via chat questions instead.
 </must_have_info>
@@ -547,7 +799,8 @@ The document MUST use this skeleton — do not invent alternative H2 headings or
 
 H2 sections in order (see `<invariant_sections>` for full list):
 
-1. Project Overview — table with name, type, timeline, stakeholder, context
+1. Project Overview — table with name, type, timeline, stakeholder, context;
+   **H3: Business Context** (industry, company size, current state, migration source, drivers, success criteria)
 2. Functional Requirements — H3s: Core Capabilities, User Types, Integrations, Data Types, Architecture Pattern
 3. Non-Functional Requirements (NFRs) — H3s: Availability & Reliability, Performance, Scalability
 4. Compliance & Security Requirements — H3s: Regulatory Frameworks, Data Residency,
@@ -572,7 +825,8 @@ Key formatting rules:
 <invariant_sections>
 When creating the full requirements document, include these H2 sections **in order**:
 
-1. `## Project Overview` — Name, type, timeline, stakeholder, context
+1. `## Project Overview` — Name, type, timeline, stakeholder, context;
+   **`### Business Context`** (industry, company size, current state, migration details, drivers)
 2. `## Functional Requirements` — Core capabilities, user types, integrations, data types, **architecture pattern**
 3. `## Non-Functional Requirements (NFRs)` — Availability, performance, scalability
 4. `## Compliance & Security Requirements` — Frameworks, data residency, auth, network, **recommended security controls**

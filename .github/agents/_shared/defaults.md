@@ -401,6 +401,67 @@ Use these signals to identify workload patterns during requirements discovery:
 | "analytics", "data warehouse", "ETL", "reporting" | Data Platform / Analytics |
 | "devices", "sensors", "telemetry", "edge computing" | IoT / Edge |
 
+### Business Domain Signals
+
+When users describe their project in business terms (not technical), use these
+signals to **infer** the workload pattern. Present the inference as a recommendation
+for user confirmation — do not ask the user to self-classify into technical categories.
+
+| Business Signal | Inferred Pattern | Confidence |
+|----------------|-----------------|------------|
+| "ecommerce", "online store", "shopping cart", "product catalog" | N-Tier Web App | High |
+| "customer portal", "patient portal", "employee portal" | N-Tier Web App | High |
+| "CRM", "ERP", "internal tool", "admin panel", "back-office" | N-Tier Web App | High |
+| "company website", "marketing site", "landing page", "blog" | Static Site / SPA | High |
+| "documentation site", "portfolio", "brochure site" | Static Site / SPA | High |
+| "order processing", "payment processing", "invoice automation" | Event-Driven / N-Tier | Medium |
+| "notification system", "email campaigns", "scheduling" | Event-Driven / Serverless | Medium |
+| "data warehouse", "business intelligence", "KPI dashboard" | Data Platform / Analytics | High |
+| "reporting", "data lake", "ETL pipeline" | Data Platform / Analytics | High |
+| "mobile app backend", "REST API", "multi-tenant SaaS" | API-First / Microservices | High |
+| "chatbot", "AI assistant", "recommendation engine" | API-First / Microservices | Medium |
+| "fleet management", "sensor monitoring", "smart building" | IoT / Edge | High |
+| "migrate from on-prem", "modernize legacy", "lift and shift" | (use follow-up questions) | Low |
+| "replace existing system", "re-platform" | (use follow-up questions) | Low |
+
+**Low-confidence signals** (migration/modernization): When the user mentions migration
+or modernization, you MUST ask follow-up questions about the current system before
+inferring a pattern. Migration source determines target pattern:
+
+| Migration Source | Typical Target Pattern |
+|-----------------|----------------------|
+| On-prem web app + SQL Server | N-Tier Web App |
+| Legacy APIs / SOA services | API-First / Microservices |
+| File-based data processing | Event-Driven / Serverless |
+| On-prem data warehouse | Data Platform / Analytics |
+| WordPress / Drupal / static sites | Static Site / SPA |
+| Custom industrial / SCADA systems | IoT / Edge |
+
+### Company Size Heuristics
+
+Use company size to suggest appropriate default budget tier and scale expectations.
+These are starting points — always confirm with the user.
+
+| Company Size | Typical Budget Tier | Default User Scale | Notes |
+|-------------|--------------------|--------------------|-------|
+| Startup / Small (< 50 employees) | Cost-Optimized | < 1,000 users | Consumption-based, minimal redundancy |
+| Mid-Market (50-500 employees) | Balanced | 1,000-10,000 users | Dedicated compute, staging environments |
+| Enterprise (500+ employees) | Enterprise | 10,000+ users | Zone-redundant, premium SKUs, full WAF |
+
+### Industry Compliance Mapping
+
+When a user mentions their industry, pre-select applicable compliance frameworks
+using `recommended: true` in askQuestions options.
+
+| Industry | Primary Frameworks | Additional Considerations |
+|----------|-------------------|--------------------------|
+| Retail / Ecommerce | PCI-DSS, GDPR (if EU) | Payment processing, customer PII |
+| Healthcare | HIPAA, GDPR (if EU) | PHI data, audit logging |
+| Financial Services | SOC 2, PCI-DSS, GDPR (if EU) | Transaction integrity, encryption at rest |
+| Government / Public Sector | ISO 27001, SOC 2 | Data sovereignty, air-gapped options |
+| Education | GDPR (if EU), FERPA (if US) | Student data protection |
+| General / Technology | GDPR (if EU), SOC 2 | Standard security baseline |
+
 ### Per-Agent Research Focus
 
 | Agent            | Primary Research Focus                                                        |

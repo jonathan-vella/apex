@@ -15,6 +15,19 @@ Provide a table with:
 - Primary Stakeholder
 - Business Context
 
+### Business Context
+
+Capture the business context gathered during Phase 1 discovery:
+
+| Field | Value |
+| ----- | ----- |
+| Industry / Vertical | {Retail, Healthcare, Financial Services, etc.} |
+| Company Size | {Startup, Mid-Market, Enterprise} |
+| Current State | {Greenfield / Migration / Modernization / Extension} |
+| Migration Source | {On-prem, other cloud, legacy platform — or N/A if greenfield} |
+| Business Drivers | {Why this project? Cost savings, growth, compliance, etc.} |
+| Success Criteria | {How will business success be measured?} |
+
 ## Functional Requirements
 
 ### Core Capabilities

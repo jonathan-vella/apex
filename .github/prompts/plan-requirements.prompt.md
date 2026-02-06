@@ -1,5 +1,5 @@
 ---
-description: "Gather Azure workload requirements through interactive discovery"
+description: "Gather Azure workload requirements through business-first discovery"
 agent: "Requirements"
 model: "Claude Opus 4.6"
 tools:
@@ -10,86 +10,97 @@ tools:
 
 # Plan Requirements
 
-Conduct an interactive requirements discovery session for a new Azure workload.
-Guide the user through the 5-phase discovery flow using UI question pickers
-and produce a complete `01-requirements.md` artifact.
+Conduct a business-first requirements discovery session for a new Azure workload.
+The user may describe their needs in business terms (industry, company size, what
+they want to achieve) — NOT necessarily in technical Azure terms. Your job is to
+translate business context into infrastructure requirements.
 
 ## Mission
 
-Discover and capture comprehensive Azure workload requirements by asking
-targeted questions in sequence — first understanding business context,
-then detecting workload patterns, recommending services, and confirming
-security posture before generating the artifact.
+Discover and capture comprehensive Azure workload requirements by starting with
+business context, adaptively deepening the conversation based on how much the user
+already knows, inferring technical patterns from business signals, and confirming
+recommendations before generating the artifact.
 
 ## Scope & Preconditions
 
-- User has a project concept but may not have documented requirements
+- User has a business need but may not know Azure services or architecture patterns
+- Support both business-level prompts ("modernize my ecommerce") and technical
+  prompts ("3-tier web app with SQL")
 - Output will be saved to `agent-output/${input:projectName}/01-requirements.md`
 - Follow the template structure from `.github/templates/01-requirements.template.md`
-- Use the Service Recommendation Matrix from `_shared/defaults.md`
+- Use the Service Recommendation Matrix and Business Domain Signals from `_shared/defaults.md`
 
 ## Inputs
 
-| Variable               | Description                             | Default  |
-| ---------------------- | --------------------------------------- | -------- |
-| `${input:projectName}` | Project name (kebab-case)               | Required |
-| `${input:projectType}` | Web App, API, Data Platform, IoT, AI/ML | Web App  |
+| Variable               | Description                                          | Default  |
+| ---------------------- | ---------------------------------------------------- | -------- |
+| `${input:projectName}` | Project name (kebab-case) — asked in Phase 5         | Required |
+| `${input:businessDesc}` | Describe your business and what you need (free text) | Required |
 
 ## Workflow
 
-Follow the agent's 5-phase interactive discovery flow:
+Follow the agent's 5-phase business-first discovery flow:
 
-### Phase 1: Business Discovery
+### Phase 1: Business Discovery (Adaptive Depth)
 
 Use `askQuestions` UI to gather:
 
-1. **Project name** — kebab-case identifier
-2. **Business problem** — what this workload solves
-3. **Target environments** — dev, staging, prod
-4. **Timeline** — target go-live date
+1. **Industry / vertical** — Retail, Healthcare, Finance, etc.
+2. **Company size** — Startup, Mid-Market, Enterprise
+3. **System description** — what they need, in their own words
+4. **Scenario** — greenfield, migration, modernization, or extension
 
-### Phase 2: Workload Pattern Detection
+**Adaptive Round 2** (if needed):
 
-Use `askQuestions` UI to identify:
+- If **migration/modernization**: current platform, pain points, what to preserve
+- If **vague description**: system type clarification, user types
 
-1. **Workload pattern** — Static Site, N-Tier, API-First, Serverless, Data Platform, IoT
-2. **Expected user scale** — concurrent users
-3. **Monthly budget** — approximate Azure spend
-4. **Data sensitivity** — public, confidential, PII, PCI, HIPAA
+### Phase 2: Workload Pattern Detection (Agent-Inferred)
 
-### Phase 3: Service Recommendations
+The agent infers the workload pattern from business context — do NOT ask the user
+to pick from technical categories like "N-Tier" or "Event-Driven".
+
+1. **Agent recommends** a pattern based on Business Domain Signals
+2. **User confirms** or rejects the recommendation
+3. **Daily users** — in business terms ("How many people use this daily?")
+4. **Budget** — approximate monthly cloud spend
+5. **Data sensitivity** — personal data, payment data, health records, etc.
+
+### Phase 3: Service Recommendations (Business-Friendly)
 
 Based on pattern + budget, use `askQuestions` UI to present:
 
-1. **Service tier options** — Cost-Optimized / Balanced / Enterprise from the matrix
-2. **SLA target** — 99.0% to 99.99%
-3. **Recovery targets** — RTO/RPO combinations
-4. **N-Tier layers** (if applicable) — frontend, API, workers, DB, cache, queue
+1. **Service tier options** — business descriptions with Azure names in parentheses
+2. **Availability** — in business terms ("How important is uptime?")
+3. **Recovery** — in business terms ("How fast must you recover?")
+4. **Application layers** (if N-Tier) — business descriptions
 
 ### Phase 4: Security & Compliance Posture
 
-Use `askQuestions` UI for:
+Use `askQuestions` UI, pre-selecting frameworks based on industry:
 
-1. **Compliance frameworks** — GDPR, SOC 2, PCI-DSS, HIPAA, ISO 27001, None
-2. **Security controls** — recommended controls with user confirmation
-3. **Authentication method** — Entra ID, B2C, third-party, API keys
-4. **Deployment region** — swedencentral (default) or alternatives
+1. **Compliance frameworks** — pre-checked based on industry from Phase 1
+2. **Security controls** — business-friendly labels with Azure terms in parentheses
+3. **Authentication** — in business terms ("How will people log in?")
+4. **Hosting region** — business-friendly location names
 
-### Phase 5: Draft & Confirm
+### Phase 5: Operational Details & Draft
 
-1. Run research subagent for additional Azure context
-2. Generate `01-requirements.md` with all sections populated from Phases 1-4
-3. Present draft for user review
-4. Iterate on feedback until approved
+1. **Project name, environments, timeline** — captured here, not Phase 1
+2. Run research subagent for additional Azure context
+3. Generate `01-requirements.md` with all sections including `### Business Context`
+4. Present draft for review, iterate on feedback
 
 ## Output Expectations
 
 Generate `agent-output/{projectName}/01-requirements.md` with:
 
 1. All H2 sections from the template populated
-2. `### Architecture Pattern` subsection with selected workload + service tier
-3. `### Recommended Security Controls` subsection with confirmed controls
-4. Summary section ready for architecture assessment handoff
+2. `### Business Context` subsection under Project Overview (industry, size, drivers)
+3. `### Architecture Pattern` subsection with inferred workload + service tier
+4. `### Recommended Security Controls` subsection with confirmed controls
+5. Summary section ready for architecture assessment handoff
 
 ### File Structure
 
