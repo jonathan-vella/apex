@@ -227,15 +227,24 @@ description: "MANDATORY template compliance rules for artifact generation"
 
 ### 07-ab-cost-estimate.md
 
+> **NOTE**: Cost estimate files follow a separate template with emoji-prefixed headings
+> and are validated by `validate-cost-estimate-templates.mjs`, NOT the artifact template validator.
+> See the actual template for the definitive heading structure:
+
+**Template**: `.github/templates/07-ab-cost-estimate.template.md`
+
 ```markdown
-## Executive Summary
-## Architecture Context
-## Resource Breakdown
-## Total Monthly Cost
-## Annual Projections
-## Cost Optimization Opportunities
-## Assumptions and Limitations
-## References  <!-- Optional, add at end -->
+## 💰 Cost At-a-Glance
+## ✅ Decision Summary
+## 🔁 Requirements → Cost Mapping
+## 📊 Top 5 Cost Drivers
+## Architecture Overview
+## 🧾 What We Are Not Paying For (Yet)
+## ⚠️ Cost Risk Indicators
+## 🎯 Quick Decision Matrix
+## 💰 Savings Opportunities
+## Detailed Cost Breakdown
+## References  <!-- Required -->
 ```
 
 ---
@@ -303,4 +312,4 @@ contains extra H2 headings: ## Cost Summary
 | 07-inventory | `## Summary` | `## Resource Listing` |
 | 07-backup-dr | `## Executive Summary` | `## 9. Appendix` |
 | 07-compliance | `## Executive Summary` | `## 6. Appendix` |
-| 07-cost | `## Executive Summary` | `## Assumptions and Limitations` |
+| 07-cost | `## 💰 Cost At-a-Glance` | `## Detailed Cost Breakdown` |

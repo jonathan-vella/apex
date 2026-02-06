@@ -63,7 +63,7 @@ The e2e-conductor-test project is an end-to-end validation test of the 7-step ag
 
 ---
 
-## 2. Architecture Overview
+## 2. Azure Architecture Overview
 
 ### 2.1 High-Level Architecture
 
@@ -118,7 +118,7 @@ The e2e-conductor-test project is an end-to-end validation test of the 7-step ag
 
 ---
 
-## 3. Network Architecture
+## 3. Networking
 
 ### 3.1 Network Topology
 
@@ -144,7 +144,7 @@ User Browser → Azure Static Web App Edge Node → Origin (westeurope)
 
 ---
 
-## 4. Storage Architecture
+## 4. Storage
 
 ### 4.1 Storage Design
 
@@ -161,7 +161,7 @@ User Browser → Azure Static Web App Edge Node → Origin (westeurope)
 
 ---
 
-## 5. Compute Architecture
+## 5. Compute
 
 ### 5.1 Compute Resources
 
@@ -179,15 +179,23 @@ User Browser → Azure Static Web App Edge Node → Origin (westeurope)
 
 ---
 
-## 6. Security Architecture
+## 6. Identity & Access
 
-### 6.1 Identity & Access Management
+### 6.1 Authentication
 
 **Azure AD Authentication**: Not configured (public content)
 
 **Managed Identities**: None required (no service-to-service calls)
 
-### 6.2 Network Security
+### 6.2 Authorization
+
+**RBAC**: Contributor role assigned to deployment service principal. No end-user authorization required (public static site).
+
+---
+
+## 7. Security & Compliance
+
+### 7.1 Network Security
 
 | Control                | Implementation       | Status |
 | ---------------------- | -------------------- | ------ |
@@ -196,33 +204,19 @@ User Browser → Azure Static Web App Edge Node → Origin (westeurope)
 | Web Application Firewall | Not configured     | ⏭️ Skipped (test workload) |
 | Private Endpoints      | Not configured       | ⏭️ Skipped (public content) |
 
-### 6.3 Data Protection
+### 7.2 Data Protection
 
 - **Data at Rest**: Static content only, no encryption required
 - **Data in Transit**: HTTPS enforced via managed SSL certificates
 - **Secrets Management**: No secrets required (stateless application)
 
-### 6.4 Monitoring & Auditing
-
-**Log Collection**:
-- Azure Static Web Apps diagnostic logs → Log Analytics
-- Retention: 90 days (Free tier default)
-
-**Alerts Configured**:
-- Static Web App health monitoring
-- Action Group notifications via email
-
----
-
-## 7. Compliance & Governance
-
-### 7.1 Regulatory Requirements
+### 7.3 Compliance
 
 **Applicable Frameworks**: None (test/demo workload)
 
 **Compliance Status**: N/A
 
-### 7.2 Azure Policy
+### 7.4 Azure Policy
 
 **Policy Compliance** (from 04-governance-constraints.md):
 - 127 Azure Policies analyzed
@@ -237,16 +231,33 @@ User Browser → Azure Static Web App Edge Node → Origin (westeurope)
 
 ---
 
-## 8. Operations & Monitoring
+## 8. Backup & Disaster Recovery
 
-### 8.1 Monitoring Strategy
+### 8.1 Recovery Objectives
+
+- **RTO**: 4 hours
+- **RPO**: 24 hours
+
+### 8.2 Backup Strategy
+
+Source code in GitHub (no separate backup required).
+
+### 8.3 Disaster Recovery
+
+Redeploy from GitHub Actions in alternate region if needed. See [07-backup-dr-plan.md](07-backup-dr-plan.md) for full DR procedures.
+
+---
+
+## 9. Management & Monitoring
+
+### 9.1 Monitoring Strategy
 
 **Key Metrics**:
 - Static Web App availability (target: 99.9%)
 - Response time (target: < 100ms TTFB)
 - Error rate (target: < 0.1%)
 
-**Log Analytics Queries**:
+### 9.2 Log Analytics Queries
 
 ```kusto
 // Health check query
@@ -256,21 +267,21 @@ AzureDiagnostics
 | summarize Count=count() by ResultCode=tostring(sc_status_s)
 ```
 
-### 8.2 Backup & DR
+### 9.3 Security Auditing
 
-**Recovery Objectives**:
-- RTO: 4 hours
-- RPO: 24 hours
+**Log Collection**:
+- Azure Static Web Apps diagnostic logs → Log Analytics
+- Retention: 90 days (Free tier default)
 
-**Backup Strategy**: Source code in GitHub (no separate backup required)
-
-**Disaster Recovery**: Redeploy from GitHub Actions in alternate region if needed
+**Alerts Configured**:
+- Static Web App health monitoring
+- Action Group notifications via email
 
 ---
 
-## 9. Cost Management
+## 10. Appendix
 
-### 9.1 Cost Breakdown
+### 10.1 Cost Summary
 
 | Resource              | Monthly Cost | Annual Cost | Notes              |
 | --------------------- | ------------ | ----------- | ------------------ |
@@ -280,23 +291,13 @@ AzureDiagnostics
 | Metric Alert          | $0.10        | $1.20       | 1 alert rule       |
 | **Total**             | **$0.10**    | **$1.20**   | 99% under budget   |
 
-### 9.2 Cost Optimization
-
-**Implemented Strategies**:
+**Cost Optimization**:
 - ✅ Free tier for Static Web Apps (no bandwidth charges up to 100 GB)
 - ✅ Free tier for Log Analytics (10 GB/month included)
 - ✅ Disabled CDN due to deprecated SKU ($5/month savings)
 - ✅ Email-only alerts (no SMS/webhook charges)
 
-**Future Optimization**:
-- Monitor bandwidth usage (upgrade to Standard tier only if > 100 GB/month)
-- Review log retention (reduce from 90 days if not needed)
-
----
-
-## 10. Deployment & CI/CD
-
-### 10.1 Deployment Strategy
+### 10.2 Deployment Strategy
 
 **Infrastructure as Code**:
 - Tool: Azure Bicep
@@ -312,7 +313,7 @@ az deployment sub create \
   --parameters main.bicepparam
 ```
 
-### 10.2 CI/CD Pipeline
+### 10.3 CI/CD Pipeline
 
 **GitHub Actions Integration**:
 - Trigger: Push to `main` branch

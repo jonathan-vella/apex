@@ -111,7 +111,7 @@ az staticwebapp show \
 
 ---
 
-## 3. Disaster Recovery Architecture
+## 3. Disaster Recovery Procedures
 
 ### 3.1 DR Strategy
 
@@ -121,7 +121,7 @@ az staticwebapp show \
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Primary Region: westeurore (Active)                        │
+│  Primary Region: westeurope (Active)                        │
 │  - Static Web App (swa-e2e-conductor-test-dev)              │
 │  - Log Analytics (log-e2e-conductor-test-dev)               │
 └─────────────────────────────────────────────────────────────┘
@@ -145,11 +145,206 @@ az staticwebapp show \
 | Regional Azure outage        | Execute regional failover        | 4 hours       |
 | Data center catastrophic failure | Execute regional failover    | 4 hours       |
 
+### 3.3 Regional Failover
+
+**Trigger**: Primary region (westeurope) outage > 4 hours
+
+**Pre-Failover Checklist**:
+- [ ] Verify Azure Service Health shows regional outage
+- [ ] Confirm RTO threshold exceeded (4 hours)
+- [ ] Notify stakeholders of failover decision
+- [ ] Identify alternate region (recommend: northeurope)
+
+**Failover Steps**:
+
+```bash
+# Step 1: Update Bicep parameter for alternate region
+cd infra/bicep/e2e-conductor-test
+# Edit main.bicepparam: location = 'northeurope'
+
+# Step 2: Deploy to alternate region
+az deployment sub create \
+  --location northeurope \
+  --template-file main.bicep \
+  --parameters main.bicepparam \
+  --parameters location=northeurope \
+  --name dr-failover-$(date +%Y%m%d-%H%M%S)
+
+# Step 3: Verify new Static Web App
+az staticwebapp show \
+  --name swa-e2e-conductor-test-dev \
+  --resource-group rg-e2e-conductor-test-dev-neu \
+  --query "defaultHostname" -o tsv
+
+# Step 4: Test application
+NEW_HOSTNAME=$(az staticwebapp show \
+  --name swa-e2e-conductor-test-dev \
+  --resource-group rg-e2e-conductor-test-dev-neu \
+  --query "defaultHostname" -o tsv)
+curl -I https://$NEW_HOSTNAME
+
+# Step 5: Update DNS (if custom domain configured)
+# Point CNAME to new hostname
+
+# Step 6: Document failover
+echo "Failover completed: $(date)" >> dr-failover-log.txt
+```
+
+**Estimated Duration**: 2 hours
+
+### 3.4 Failback Procedure
+
+**Trigger**: Primary region restored and stable for 24 hours
+
+```bash
+# Step 1: Verify primary region health
+# Check Azure Service Health for westeurope
+
+# Step 2: Redeploy to primary region
+cd infra/bicep/e2e-conductor-test
+az deployment sub create \
+  --location swedencentral \
+  --template-file main.bicep \
+  --parameters main.bicepparam \
+  --parameters location=westeurope \
+  --name dr-failback-$(date +%Y%m%d-%H%M%S)
+
+# Step 3: Verify primary Static Web App
+az staticwebapp show \
+  --name swa-e2e-conductor-test-dev \
+  --resource-group rg-e2e-conductor-test-dev-weu
+
+# Step 4: Update DNS back to primary hostname
+# Point CNAME to original hostname
+
+# Step 5: Clean up secondary region resources
+az group delete \
+  --name rg-e2e-conductor-test-dev-neu \
+  --yes --no-wait
+
+# Step 6: Document failback
+echo "Failback completed: $(date)" >> dr-failover-log.txt
+```
+
+**Estimated Duration**: 2 hours
+
 ---
 
-## 4. Recovery Procedures
+## 4. Testing Schedule
 
-### 4.1 Full Infrastructure Recovery
+### 4.1 DR Test Schedule
+
+| Test Type           | Frequency  | Last Tested | Next Test  |
+| ------------------- | ---------- | ----------- | ---------- |
+| Configuration Backup| Monthly    | TBD         | 2026-03-01 |
+| Full DR Failover    | Quarterly  | TBD         | 2026-04-01 |
+| Failback Procedure  | Quarterly  | TBD         | 2026-04-01 |
+| Recovery Time Test  | Annually   | TBD         | 2026-06-01 |
+
+### 4.2 Test Scenarios
+
+**Scenario 1: Configuration Rollback Test**
+- Duration: 30 minutes
+- Impact: None (test in dev environment)
+- Success Criteria: Configuration rolled back to previous version within 15 minutes
+
+**Scenario 2: Regional Failover Test**
+- Duration: 2 hours
+- Impact: Brief downtime during DNS cutover
+- Success Criteria: Application accessible from alternate region within RTO (4 hours)
+
+### 4.3 Validation Checklist
+
+After DR exercise, verify:
+
+- [ ] Static Web App accessible via HTTPS
+- [ ] All static assets loading correctly
+- [ ] Log Analytics receiving diagnostic logs
+- [ ] Monitoring alerts configured and firing
+- [ ] DNS resolution working (if custom domain)
+- [ ] GitHub Actions deployment pipeline functional
+- [ ] Resource tags applied correctly
+- [ ] Cost within expected range
+
+---
+
+## 5. Communication Plan
+
+### 5.1 Stakeholder Notification
+
+**Pre-Failover**:
+- Notify DevOps team via email
+- Post status update in team chat
+- Create incident ticket in tracking system
+
+**During Failover**:
+- Send progress updates every 30 minutes
+- Maintain open communication channel
+- Document all steps taken
+
+**Post-Failover**:
+- Send completion notification
+- Document lessons learned
+- Update runbooks with any improvements
+
+### 5.2 Communication Templates
+
+**Failover Notification Template**:
+
+```
+Subject: [DR] e2e-conductor-test Regional Failover - [START|PROGRESS|COMPLETE]
+
+Status: IN PROGRESS
+Region: westeurope → northeurope
+Start Time: 2026-02-06 14:00 UTC
+Estimated Completion: 2026-02-06 16:00 UTC
+Impact: Static Web App temporarily unavailable
+
+Actions Taken:
+- [List steps completed]
+
+Next Steps:
+- [List pending actions]
+
+Contact: devops-oncall@example.com
+```
+
+---
+
+## 6. Roles and Responsibilities
+
+| Role                | Responsibilities                          | Contact               |
+| ------------------- | ----------------------------------------- | --------------------- |
+| **Incident Manager**| Coordinate DR activities, stakeholder comms | devops@example.com    |
+| **Infrastructure Lead** | Execute Bicep deployments, verify Azure resources | platform@example.com |
+| **Application Owner**   | Verify application functionality post-failover | devops@example.com   |
+| **Communication Lead**  | Send notifications, update status pages    | devops@example.com    |
+
+---
+
+## 7. Dependencies
+
+### 7.1 External Dependencies
+
+| Service       | Dependency      | DR Impact                     | Mitigation         |
+| ------------- | --------------- | ----------------------------- | ------------------ |
+| GitHub        | Source control  | Cannot redeploy if unavailable| Cache Git repo locally |
+| Azure Portal  | Management UI   | Use Azure CLI instead         | CLI pre-configured |
+| Azure AD      | Authentication  | Service Principal in use      | Pre-configured SP  |
+
+### 7.2 Service Level Agreements
+
+| Service             | Azure SLA | Our Target | Gap      |
+| ------------------- | --------- | ---------- | -------- |
+| Static Web Apps     | 99.95%    | 99.9%      | ✅ Met   |
+| Log Analytics       | 99.9%     | 99.9%      | ✅ Met   |
+| Action Groups       | 99.9%     | 99.9%      | ✅ Met   |
+
+---
+
+## 8. Recovery Runbooks
+
+### 8.1 Full Infrastructure Recovery
 
 **Scenario**: Complete region failure, need to redeploy in alternate region
 
@@ -201,7 +396,7 @@ echo "DR failover complete. New endpoint: [new-hostname]"
 
 **Estimated Duration**: 60 minutes
 
-### 4.2 Static Web App Restore
+### 8.2 Static Web App Restore
 
 **Scenario**: Static Web App corrupted or deleted
 
@@ -227,7 +422,7 @@ curl -I https://victorious-sea-04f1fdb03.6.azurestaticapps.net
 
 **Estimated Duration**: 30 minutes
 
-### 4.3 Configuration Rollback
+### 8.3 Configuration Rollback
 
 **Scenario**: Bad configuration deployed, need to rollback
 
@@ -256,202 +451,22 @@ az staticwebapp show \
 
 ---
 
-## 5. Failover Procedures
+## 9. Appendix
 
-### 5.1 Regional Failover
+### 9.1 Document Change Log
 
-**Trigger**: Primary region (westeurope) outage > 4 hours
+| Date       | Version | Author                      | Description              |
+| ---------- | ------- | --------------------------- | ------------------------ |
+| 2026-02-06 | 1.0     | azure-workload-docs skill   | Initial DR plan creation |
 
-**Pre-Failover Checklist**:
-- [ ] Verify Azure Service Health shows regional outage
-- [ ] Confirm RTO threshold exceeded (4 hours)
-- [ ] Notify stakeholders of failover decision
-- [ ] Identify alternate region (recommend: northeurope)
+### 9.2 Glossary
 
-**Failover Steps**:
-
-```bash
-# Step 1: Update Bicep parameter for alternate region
-cd infra/bicep/e2e-conductor-test
-# Edit main.bicepparam: location = 'northeurope'
-
-# Step 2: Deploy to alternate region
-az deployment sub create \
-  --location northeurope \
-  --template-file main.bicep \
-  --parameters main.bicepparam \
-  --parameters location=northeurope \
-  --name dr-failover-$(date +%Y%m%d-%H%M%S)
-
-# Step 3: Verify new Static Web App
-az staticwebapp show \
-  --name swa-e2e-conductor-test-dev \
-  --resource-group rg-e2e-conductor-test-dev-neu \
-  --query "defaultHostname" -o tsv
-
-# Step 4: Test application
-NEW_HOSTNAME=$(az staticwebapp show \
-  --name swa-e2e-conductor-test-dev \
-  --resource-group rg-e2e-conductor-test-dev-neu \
-  --query "defaultHostname" -o tsv)
-curl -I https://$NEW_HOSTNAME
-
-# Step 5: Update DNS (if custom domain configured)
-# Point CNAME to new hostname
-
-# Step 6: Document failover
-echo "Failover completed: $(date)" >> dr-failover-log.txt
-```
-
-**Estimated Duration**: 2 hours
-
-### 5.2 Failback Procedure
-
-**Trigger**: Primary region restored and stable for 24 hours
-
-```bash
-# Step 1: Verify primary region health
-# Check Azure Service Health for westeurope
-
-# Step 2: Redeploy to primary region
-cd infra/bicep/e2e-conductor-test
-az deployment sub create \
-  --location swedencentral \
-  --template-file main.bicep \
-  --parameters main.bicepparam \
-  --parameters location=westeurope \
-  --name dr-failback-$(date +%Y%m%d-%H%M%S)
-
-# Step 3: Verify primary Static Web App
-az staticwebapp show \
-  --name swa-e2e-conductor-test-dev \
-  --resource-group rg-e2e-conductor-test-dev-weu
-
-# Step 4: Update DNS back to primary hostname
-# Point CNAME to original hostname
-
-# Step 5: Clean up secondary region resources
-az group delete \
-  --name rg-e2e-conductor-test-dev-neu \
-  --yes --no-wait
-
-# Step 6: Document failback
-echo "Failback completed: $(date)" >> dr-failover-log.txt
-```
-
-**Estimated Duration**: 2 hours
-
----
-
-## 6. Testing & Validation
-
-### 6.1 DR Test Schedule
-
-| Test Type           | Frequency  | Last Tested | Next Test  |
-| ------------------- | ---------- | ----------- | ---------- |
-| Configuration Backup| Monthly    | TBD         | 2026-03-01 |
-| Full DR Failover    | Quarterly  | TBD         | 2026-04-01 |
-| Failback Procedure  | Quarterly  | TBD         | 2026-04-01 |
-| Recovery Time Test  | Annually   | TBD         | 2026-06-01 |
-
-### 6.2 Test Scenarios
-
-**Scenario 1: Configuration Rollback Test**
-- Duration: 30 minutes
-- Impact: None (test in dev environment)
-- Success Criteria: Configuration rolled back to previous version within 15 minutes
-
-**Scenario 2: Regional Failover Test**
-- Duration: 2 hours
-- Impact: Brief downtime during DNS cutover
-- Success Criteria: Application accessible from alternate region within RTO (4 hours)
-
-### 6.3 Validation Checklist
-
-After DR exercise, verify:
-
-- [ ] Static Web App accessible via HTTPS
-- [ ] All static assets loading correctly
-- [ ] Log Analytics receiving diagnostic logs
-- [ ] Monitoring alerts configured and firing
-- [ ] DNS resolution working (if custom domain)
-- [ ] GitHub Actions deployment pipeline functional
-- [ ] Resource tags applied correctly
-- [ ] Cost within expected range
-
----
-
-## 7. Communication Plan
-
-### 7.1 Stakeholder Notification
-
-**Pre-Failover**:
-- Notify DevOps team via email
-- Post status update in team chat
-- Create incident ticket in tracking system
-
-**During Failover**:
-- Send progress updates every 30 minutes
-- Maintain open communication channel
-- Document all steps taken
-
-**Post-Failover**:
-- Send completion notification
-- Document lessons learned
-- Update runbooks with any improvements
-
-### 7.2 Communication Templates
-
-**Failover Notification Template**:
-
-```
-Subject: [DR] e2e-conductor-test Regional Failover - [START|PROGRESS|COMPLETE]
-
-Status: IN PROGRESS
-Region: westeurope → northeurope
-Start Time: 2026-02-06 14:00 UTC
-Estimated Completion: 2026-02-06 16:00 UTC
-Impact: Static Web App temporarily unavailable
-
-Actions Taken:
-- [List steps completed]
-
-Next Steps:
-- [List pending actions]
-
-Contact: devops-oncall@example.com
-```
-
----
-
-## 8. Roles & Responsibilities
-
-| Role                | Responsibilities                          | Contact               |
-| ------------------- | ----------------------------------------- | --------------------- |
-| **Incident Manager**| Coordinate DR activities, stakeholder comms | devops@example.com    |
-| **Infrastructure Lead** | Execute Bicep deployments, verify Azure resources | platform@example.com |
-| **Application Owner**   | Verify application functionality post-failover | devops@example.com   |
-| **Communication Lead**  | Send notifications, update status pages    | devops@example.com    |
-
----
-
-## 9. Dependencies & External Services
-
-### 9.1 External Dependencies
-
-| Service       | Dependency      | DR Impact                     | Mitigation         |
-| ------------- | --------------- | ----------------------------- | ------------------ |
-| GitHub        | Source control  | Cannot redeploy if unavailable| Cache Git repo locally |
-| Azure Portal  | Management UI   | Use Azure CLI instead         | CLI pre-configured |
-| Azure AD      | Authentication  | Service Principal in use      | Pre-configured SP  |
-
-### 9.2 Service Level Agreements
-
-| Service             | Azure SLA | Our Target | Gap      |
-| ------------------- | --------- | ---------- | -------- |
-| Static Web Apps     | 99.95%    | 99.9%      | ✅ Met   |
-| Log Analytics       | 99.9%     | 99.9%      | ✅ Met   |
-| Action Groups       | 99.9%     | 99.9%      | ✅ Met   |
+| Term | Definition |
+| ---- | ---------- |
+| **RTO** | Recovery Time Objective — maximum acceptable downtime |
+| **RPO** | Recovery Point Objective — maximum acceptable data loss |
+| **DR**  | Disaster Recovery |
+| **SWA** | Azure Static Web Apps |
 
 ---
 

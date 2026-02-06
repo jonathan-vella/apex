@@ -128,31 +128,55 @@ const ARTIFACT_HEADINGS = {
     "## 5. Remediation Tracker",
     "## 6. Appendix",
   ],
-  "07-ab-cost-estimate.md": [
-    "## Executive Summary",
-    "## Architecture Context",
-    "## Resource Breakdown",
-    "## Total Monthly Cost",
-    "## Annual Projections",
-    "## Cost Optimization Opportunities",
-    "## Assumptions and Limitations",
-  ],
+  // Note: 07-ab-cost-estimate.md is excluded - it uses emoji headings
+  // and is validated by validate-cost-estimate-templates.mjs separately
 };
 
 // Common heading mappings for auto-fix
+// Synced with observed agent drift patterns
 const HEADING_FIXES = {
+  // 06-deployment-summary.md variants
   "## Outputs": "## Outputs (Expected)",
   "## Output": "## Outputs (Expected)",
   "## Expected Outputs": "## Outputs (Expected)",
+  "## Deployment Outputs": "## Outputs (Expected)",
+  "## Post-Deployment Configuration": "## Post-Deployment Tasks",
+  "## Deployment Summary": "## Preflight Validation",
+  // 07-documentation-index.md variants
   "## Project Summary": "## 3. Project Summary",
   "## Document Package Contents": "## 1. Document Package Contents",
   "## Source Artifacts": "## 2. Source Artifacts",
   "## Related Resources": "## 4. Related Resources",
   "## Quick Links": "## 5. Quick Links",
+  // 07-resource-inventory.md variants
   "## Resource Details": "## Resource Listing",
   "## Resources": "## Resource Listing",
-  "## Deployment Summary": "## Preflight Validation",
+  // 07-design-document.md variants
   "## Introduction": "## 1. Introduction",
+  "## 2. Architecture Overview": "## 2. Azure Architecture Overview",
+  "## 3. Network Architecture": "## 3. Networking",
+  "## 4. Storage Architecture": "## 4. Storage",
+  "## 5. Compute Architecture": "## 5. Compute",
+  "## 6. Security Architecture": "## 6. Identity & Access",
+  "## 7. Compliance & Governance": "## 7. Security & Compliance",
+  "## 8. Operations & Monitoring": "## 8. Backup & Disaster Recovery",
+  "## 9. Cost Management": "## 9. Management & Monitoring",
+  "## 10. Deployment & CI/CD": "## 10. Appendix",
+  // 07-operations-runbook.md variants
+  "## 3. Common Operational Procedures": "## 3. Common Procedures",
+  "## 5. Monitoring & Alerting": "## 5. Contacts & Escalation",
+  "## 6. Contact Information": "## 6. Change Log",
+  // 07-backup-dr-plan.md variants
+  "## 3. Disaster Recovery Architecture": "## 3. Disaster Recovery Procedures",
+  "## 4. Recovery Procedures": "## 4. Testing Schedule",
+  "## 5. Failover Procedures": "## 5. Communication Plan",
+  "## 6. Testing & Validation": "## 6. Roles and Responsibilities",
+  "## 8. Roles & Responsibilities": "## 8. Recovery Runbooks",
+  "## 9. Dependencies & External Services": "## 9. Appendix",
+  "## 9. Improvement Roadmap": "## 9. Appendix",
+  // 05-implementation-reference.md variants
+  "## Overview": "## Bicep Templates Location",
+  "## Resource Mapping": "## Resources Created",
 };
 
 function getArtifactType(filePath) {

@@ -184,6 +184,8 @@ infra/bicep/{project}/
 - [ ] Runbook procedures are specific, not generic
 - [ ] Compliance controls map to actual implementations
 - [ ] DR procedures include RTO/RPO from requirements
+- [ ] H2 headings validated with `npm run lint:artifact-templates`
+- [ ] Content under each H2 semantically matches the heading text
 
 ## Template References
 
@@ -208,6 +210,7 @@ Follow these steps when generating documentation:
 5. **Generate Documents** - Create each document following template H2 structure
 6. **Cross-Reference** - Ensure consistency across all documents
 7. **Create Index** - Generate `07-documentation-index.md` linking all documents
+8. **Validate H2 Compliance** - Run `node scripts/fix-artifact-h2.mjs agent-output/{project}/07-*.md` to verify all H2 headings match templates. Fix any drift before committing.
 
 ## Template Compliance Rules
 
@@ -235,6 +238,8 @@ Example header format:
 ### DO
 
 - ✅ Read templates BEFORE generating any output
+- ✅ Run `npm run lint:artifact-templates` AFTER generating all outputs
+- ✅ Verify content under each H2 semantically matches the heading text
 - ✅ Parse actual Bicep for resource configurations
 - ✅ Include specific Azure CLI/PowerShell commands in runbooks
 - ✅ Map compliance controls to actual resource configurations

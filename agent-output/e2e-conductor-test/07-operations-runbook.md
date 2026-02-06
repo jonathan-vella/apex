@@ -163,7 +163,7 @@ az monitor metrics alert update \
 
 ---
 
-## 3. Common Operational Procedures
+## 3. Common Procedures
 
 ### 3.1 Restart Static Web App
 
@@ -266,9 +266,7 @@ No customer-managed patching required.
 
 ---
 
-## 5. Monitoring & Alerting
-
-### 5.1 Key Performance Indicators
+### 4.3 Key Performance Indicators
 
 | Metric               | Target    | Alert Threshold | Action              |
 | -------------------- | --------- | --------------- | ------------------- |
@@ -277,13 +275,13 @@ No customer-managed patching required.
 | Error Rate           | < 0.1%    | > 1%            | Investigate         |
 | Log Ingestion Volume | < 5 GB/mo | > 8 GB/mo       | Review retention    |
 
-### 5.2 Alert Rules Configured
+### 4.4 Alert Rules Configured
 
 | Alert Name          | Condition                  | Severity | Action Group             |
 | ------------------- | -------------------------- | -------- | ------------------------ |
 | swa-health-alert    | Availability < 99%         | High     | ag-e2e-conductor-test-dev|
 
-### 5.3 Dashboard Links
+### 4.5 Dashboard Links
 
 - **Azure Portal**: [Resource Group](https://portal.azure.com/#@/resource/subscriptions/YOUR-SUB-ID/resourceGroups/rg-e2e-conductor-test-dev-weu)
 - **Static Web App**: [Portal Link](https://portal.azure.com/#@/resource/subscriptions/YOUR-SUB-ID/resourceGroups/rg-e2e-conductor-test-dev-weu/providers/Microsoft.Web/staticSites/swa-e2e-conductor-test-dev)
@@ -291,7 +289,7 @@ No customer-managed patching required.
 
 ---
 
-## 6. Contact Information
+## 5. Contacts & Escalation
 
 ### On-Call Schedule
 
@@ -305,6 +303,14 @@ No customer-managed patching required.
 1. **L1 Support**: DevOps Team (respond within 15 minutes for P1)
 2. **L2 Support**: Platform Engineering (escalate after 1 hour)
 3. **L3 Support**: Azure Support (vendor escalation for platform issues)
+
+---
+
+## 6. Change Log
+
+| Date | Version | Author | Description |
+| ---- | ------- | ------ | ----------- |
+| 2026-02-06 | 1.0 | azure-workload-docs skill | Initial runbook creation |
 
 ---
 
