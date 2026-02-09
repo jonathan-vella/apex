@@ -117,6 +117,56 @@ dedicated prompt. This reduces hallucinations as the context fills up.
     width="900" />
 </div>
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant Conductor
+    participant Requirements
+    participant Architect
+    participant Bicep
+    participant Deploy
+
+    User->>Conductor: Describe infrastructure project
+    Conductor->>Requirements: Gather requirements
+    Requirements-->>Conductor: Return 01-requirements.md
+    Conductor->>User: Present requirements
+    User-->>Conductor: Approve requirements
+
+    Conductor->>Architect: Assess architecture (WAF)
+    Architect-->>Conductor: Return 02-assessment.md + cost estimate
+    Conductor->>User: Present architecture
+    User-->>Conductor: Approve architecture
+
+    Note over Conductor: Step 3 (optional): Design diagrams & ADRs
+
+    Conductor->>Architect: Create implementation plan
+    Architect-->>Conductor: Return 04-plan.md + governance
+    Conductor->>User: Present plan
+    User-->>Conductor: Approve plan
+
+    Conductor->>Bicep: Generate Bicep templates
+    Bicep-->>Conductor: Return infra/bicep/{project}/
+
+    alt Validation passes
+        Conductor->>User: Present templates for deployment
+        User-->>Conductor: Approve for deployment
+    else Validation fails
+        Conductor->>Bicep: Revise with feedback
+    end
+
+    Conductor->>Deploy: Execute deployment (what-if first)
+    Deploy-->>Conductor: Return 06-deployment-summary.md
+
+    alt Deployment succeeds
+        Conductor->>User: Present deployment summary
+        User-->>Conductor: Verify deployment
+    else Deployment fails
+        Conductor->>User: Request guidance
+    end
+
+    Conductor->>User: Workflow complete + 07-* documentation suite
+```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
