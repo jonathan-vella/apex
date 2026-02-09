@@ -166,7 +166,7 @@ az resource list --resource-group rg-s09-test --output table
 
 ### Step 7: Documentation
 
-**Expected Agent**: Skills (azure-workload-docs)
+**Expected Agent**: Skills (azure-artifacts)
 
 **Expected Artifacts**:
 

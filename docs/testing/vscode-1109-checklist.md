@@ -73,9 +73,8 @@ npm run validate:agents    # Agent frontmatter + skills
 | azure-defaults | Azure conventions & defaults |
 | azure-diagrams | Python architecture diagrams |
 | docs-writer | Repo-aware docs maintenance |
-| gh-cli | GitHub CLI operations |
 | git-commit | Conventional commits |
-| github-operations | Issue & PR management |
+| github-operations | Issues, PRs, CLI, Actions, releases |
 | make-skill-template | Skill scaffolding |
 
 ---

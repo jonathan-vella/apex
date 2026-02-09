@@ -30,8 +30,7 @@ All outputs → `agent-output/{project}/`. Context flows via artifact files + ha
 | `azure-artifacts` | Template H2 structures, styling, generation rules |
 | `azure-diagrams` | Python architecture diagram generation |
 | `azure-adr` | Architecture Decision Records |
-| `github-operations` | GitHub issues and PR management |
-| `gh-cli` | GitHub CLI reference (fallback) |
+| `github-operations` | GitHub issues, PRs, CLI, Actions, releases |
 | `git-commit` | Commit message conventions |
 | `docs-writer` | Documentation generation |
 

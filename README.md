@@ -396,7 +396,7 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 ## Skills (Reusable Capabilities)
 
-9 skills provide reusable capabilities across agents:
+8 skills provide reusable capabilities across agents:
 
 | Skill | Purpose | Output |
 |-------|---------|--------|
@@ -405,9 +405,8 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 | `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing, tags | — |
 | `azure-diagrams` | Architecture diagrams (700+ Azure icons) | `.py` + `.png` |
 | `docs-writer` | Repo-aware documentation maintenance | — |
-| `gh-cli` | GitHub CLI reference (fallback to MCP) | — |
 | `git-commit` | Conventional commit messages | — |
-| `github-operations` | GitHub issue & PR management | — |
+| `github-operations` | GitHub issues, PRs, CLI, Actions, releases | — |
 | `make-skill-template` | Create new skills from template | — |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -499,7 +498,7 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 │   │   ├── diagnose.agent.md            # 🔍 Sentinel - Diagnostics
 │   │   └── 📁 _subagents/               # Validation subagents
 │   ├── 📁 instructions/       # Guardrails and coding standards
-│   └── 📁 skills/             # 9 reusable skills
+    └── 📁 skills/             # 8 reusable skills
 ├── 📁 agent-output/           # Generated artifacts per project
 ├── 📁 docs/                   # Documentation and guides
 ├── 📁 infra/bicep/            # Generated Bicep templates

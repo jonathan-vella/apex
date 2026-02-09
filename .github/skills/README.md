@@ -5,29 +5,28 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ## Available Skills
 
-### Category 1: Document Creation
+### Category 1: Azure Conventions
+
+| Skill            | Description                                         | Triggers                                   |
+| ---------------- | --------------------------------------------------- | ------------------------------------------ |
+| `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing, tags  | "azure defaults", "naming", "AVM"          |
+| `azure-artifacts` | Template H2 structures, styling, generation rules  | "generate documentation", "create runbook" |
+
+### Category 2: Document Creation
 
 | Skill            | Description                                           | Triggers                                 |
 | ---------------- | ----------------------------------------------------- | ---------------------------------------- |
 | `azure-diagrams` | Generate Azure architecture diagrams (PNG via Python) | "create diagram", "architecture diagram" |
 | `azure-adr`      | Create Architecture Decision Records with WAF mapping | "create ADR", "document decision"        |
 
-### Category 2: Azure Defaults & Artifacts
+### Category 3: Workflow & Tool Integration
 
-| Skill              | Description                                         | Triggers                                   |
-| ------------------ | --------------------------------------------------- | ------------------------------------------ |
-| `azure-defaults`   | Azure conventions, naming, AVM, WAF, pricing, tags  | "azure defaults", "naming", "AVM"          |
-| `azure-artifacts`  | Template H2 structures, styling, generation rules   | "generate documentation", "create runbook" |
-
-### Category 3: Development & Documentation Utilities
-
-| Skill                 | Description                             | Triggers                              |
-| --------------------- | --------------------------------------- | ------------------------------------- |
-| `docs-writer`         | Repo-aware documentation maintenance    | "update docs", "check staleness"      |
-| `git-commit`          | Create conventional commit messages     | "commit", "git commit"                |
-| `gh-cli`              | GitHub CLI reference (fallback to MCP)  | "gh command", "github cli"            |
-| `github-operations`   | Create/manage GitHub issues and PRs     | "create issue", "create PR"           |
-| `make-skill-template` | Create new skills from template         | "create skill", "new skill"           |
+| Skill                 | Description                                         | Triggers                                        |
+| --------------------- | --------------------------------------------------- | ----------------------------------------------- |
+| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases          | "create issue", "create PR", "gh command"       |
+| `git-commit`          | Create conventional commit messages                 | "commit", "git commit"                          |
+| `docs-writer`         | Repo-aware documentation maintenance                | "update docs", "check staleness"                |
+| `make-skill-template` | Create new skills from template                     | "create skill", "new skill"                     |
 
 ## Usage
 

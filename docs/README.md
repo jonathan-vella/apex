@@ -63,7 +63,7 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 ---
 
-## Skills (9)
+## Skills (8)
 
 Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
 
@@ -83,13 +83,12 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 
 ### Workflow & Tool Integration (Category 3)
 
-| Skill                 | Purpose                         | Triggers                                      |
-| --------------------- | ------------------------------- | --------------------------------------------- |
-| `github-operations`   | GitHub issue & PR management    | "create issue", "create PR", "file bug"       |
-| `gh-cli`              | GitHub CLI reference            | "gh command", "github cli"                    |
-| `git-commit`          | Commit message conventions      | "commit", "conventional commit"               |
-| `docs-writer`         | Repo-aware docs maintenance     | "audit docs", "fix counts", "freshness check" |
-| `make-skill-template` | Create new skills               | "create skill", "scaffold skill"              |
+| Skill                 | Purpose                                       | Triggers                                      |
+| --------------------- | --------------------------------------------- | --------------------------------------------- |
+| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases    | "create issue", "create PR", "gh command"     |
+| `git-commit`          | Commit message conventions                    | "commit", "conventional commit"               |
+| `docs-writer`         | Repo-aware docs maintenance                   | "audit docs", "fix counts", "freshness check" |
+| `make-skill-template` | Create new skills                             | "create skill", "scaffold skill"              |
 
 ---
 
@@ -129,7 +128,7 @@ Practice with hands-on scenarios in `scenarios/`:
 azure-agentic-infraops/
 ├── .github/
 │   ├── agents/           # 8 agent definitions + 3 subagents
-│   ├── skills/           # 9 skill definitions
+│   ├── skills/           # 8 skill definitions
 │   └── instructions/     # File-type rules
 ├── agent-output/         # Generated artifacts
 ├── infra/bicep/          # Bicep templates

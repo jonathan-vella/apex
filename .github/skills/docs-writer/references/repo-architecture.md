@@ -9,7 +9,7 @@ azure-agentic-infraops/
 ├── .github/
 │   ├── agents/              # 8 agent definitions + 3 subagents
 │   │   └── _subagents/      # Validation subagents (lint, what-if, review)
-│   ├── skills/              # 9 skill definitions (incl. docs-writer)
+│   ├── skills/              # 8 skill definitions (incl. docs-writer)
 │   │   └── azure-artifacts/templates/ # 16 artifact templates
 │   ├── instructions/        # 15 file-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
@@ -55,7 +55,7 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `azure-defaults` | `defaults.md`, `avm-pitfalls.md`, `research-patterns.md`, `service-lifecycle-validation.md` |
 | `azure-artifacts` | `documentation-styling.md`, all template H2 structures |
 
-## Skill Catalog (9 Skills)
+## Skill Catalog (8 Skills)
 
 | Skill | Folder | Category | Triggers |
 | --- | --- | --- | --- |
@@ -64,9 +64,8 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `azure-defaults` | `azure-defaults/` | Azure Conventions | "azure defaults", "naming" |
 | `azure-diagrams` | `azure-diagrams/` | Document Creation | "create diagram" |
 | `docs-writer` | `docs-writer/` | Documentation | "update the docs" |
-| `gh-cli` | `gh-cli/` | Tool Integration | "gh command" |
 | `git-commit` | `git-commit/` | Tool Integration | "commit" |
-| `github-operations` | `github-operations/` | Workflow | "create issue", "create PR" |
+| `github-operations` | `github-operations/` | Workflow | "create issue", "create PR", "gh command" |
 | `make-skill-template` | `make-skill-template/` | Meta | "create skill" |
 
 ## Scenario Index (9 Scenarios)
@@ -195,7 +194,6 @@ These skills are explicitly referenced in agent body text via mandatory
 Discovered purely by prompt keyword matching — no agent explicitly
 references them:
 
-- `gh-cli` — Triggered by "gh command", "GitHub CLI" prompts
 - `git-commit` — Triggered by "commit", "git commit" prompts
 - `docs-writer` — Triggered by "update docs", "check staleness" prompts
 - `make-skill-template` — Triggered by "create skill", "new skill" prompts

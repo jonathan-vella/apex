@@ -51,7 +51,7 @@ no longer exist.
 **Source of truth**: List `.github/skills/*/` directories
 (exclude `README.md` file).
 
-**Expected count** (as of 2026-02-09): **11 skills**
+**Expected count** (as of 2026-02-09): **8 skills**
 
 **Files to check**:
 
@@ -110,7 +110,7 @@ tables that no longer have folders.
 
 **Source of truth**: List `.github/instructions/*.instructions.md` files.
 
-**Expected count** (as of 2026-02-09): **16 instruction files**
+**Expected count** (as of 2026-02-09): **15 instruction files**
 
 **Files to check**: Only relevant if `docs/README.md` or the root
 `README.md` lists instruction files.

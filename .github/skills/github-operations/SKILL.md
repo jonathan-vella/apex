@@ -1,30 +1,30 @@
 ---
 name: github-operations
 description: >
-  Manage GitHub issues and pull requests using MCP tools. Use this skill for
-  creating/updating issues, filing bugs, feature requests, creating PRs,
-  merging branches, requesting reviews, or any GitHub issue/PR lifecycle task.
-  Triggers: "create issue", "file bug", "feature request", "create PR",
-  "merge branch", "request review", "update PR", "check PR status".
+  Manage all GitHub operations: issues, PRs, repos, Actions, releases, secrets,
+  and API calls. Uses MCP tools first for issues/PRs; falls back to GitHub CLI
+  (gh) for Actions, releases, repos, and advanced operations. Triggers: "create
+  issue", "file bug", "feature request", "create PR", "merge branch", "request
+  review", "gh cli", "workflow run", "gh api", "gh release", "gh repo".
 license: MIT
 metadata:
   author: azure-agentic-infraops
-  version: "1.0"
+  version: "2.0"
   category: github
 ---
 
 # GitHub Operations
 
-Manage GitHub issues and pull requests using MCP tools.
+Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallback).
 
-> **Prefer MCP tools** over `gh` CLI for all GitHub operations — no extra
-> auth required, more reliable, and works in all environments.
+> **MCP-first**: Use MCP tools for issues and PRs — no extra auth, works everywhere.
+> **CLI fallback**: Use `gh` CLI for Actions, releases, repos, secrets, and API calls.
 
 ---
 
-## Issues
+## Issues (MCP Tools)
 
-### MCP Tools
+### Available Tools
 
 | Tool | Purpose |
 | --- | --- |
@@ -63,9 +63,9 @@ Manage GitHub issues and pull requests using MCP tools.
 
 ---
 
-## Pull Requests
+## Pull Requests (MCP Tools)
 
-### MCP Tools
+### Available Tools
 
 | Tool | Purpose |
 | --- | --- |
@@ -115,13 +115,172 @@ Use `mcp_github_pull_request_review_write` with `method: "create"`:
 
 ---
 
+## Repositories (gh CLI)
+
+```bash
+# Create
+gh repo create my-project --public --clone --gitignore python --license mit
+
+# Clone / Fork
+gh repo clone owner/repo
+gh repo fork owner/repo --clone
+
+# View / Edit
+gh repo view owner/repo --json name,description
+gh repo edit --default-branch main --delete-branch-on-merge
+
+# Sync fork
+gh repo sync
+
+# Set default repo (avoid --repo flag)
+gh repo set-default owner/repo
+```
+
+---
+
+## GitHub Actions (gh CLI)
+
+### Workflows
+
+```bash
+gh workflow list
+gh workflow run ci.yml --ref main
+gh workflow enable ci.yml
+gh workflow disable ci.yml
+```
+
+### Runs
+
+```bash
+gh run list --workflow ci.yml --limit 5
+gh run watch <run-id>
+gh run view <run-id> --log
+gh run rerun <run-id>
+gh run rerun <run-id> --failed    # Only failed jobs
+gh run download <run-id> --dir ./artifacts
+gh run cancel <run-id>
+```
+
+### CI/CD Pattern
+
+```bash
+gh workflow run ci.yml --ref main
+RUN_ID=$(gh run list --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch "$RUN_ID"
+gh run download "$RUN_ID" --dir ./artifacts
+```
+
+---
+
+## Releases (gh CLI)
+
+```bash
+# Create
+gh release create v1.0.0 --title "v1.0.0" --notes "Release notes"
+gh release create v1.0.0 --generate-notes    # Auto-generate notes
+gh release create v1.0.0 ./dist/*.tar.gz     # With assets
+
+# List / View / Download
+gh release list
+gh release view v1.0.0
+gh release download v1.0.0 --dir ./download
+
+# Delete
+gh release delete v1.0.0 --yes
+```
+
+---
+
+## Secrets & Variables (gh CLI)
+
+```bash
+# Secrets
+gh secret set MY_SECRET --body "secret_value"
+gh secret list
+gh secret delete MY_SECRET
+
+# Variables
+gh variable set MY_VAR --body "value"
+gh variable list
+gh variable get MY_VAR
+```
+
+---
+
+## API Requests (gh CLI)
+
+```bash
+# GET
+gh api /user
+gh api /repos/owner/repo --jq '.stargazers_count'
+
+# POST
+gh api --method POST /repos/owner/repo/issues \
+  --field title="Issue title" \
+  --field body="Issue body"
+
+# Pagination
+gh api /user/repos --paginate
+
+# GraphQL
+gh api graphql -f query='{
+  viewer { login repositories(first: 5) { nodes { name } } }
+}'
+```
+
+> **IMPORTANT**: `gh api -f` does not support object values. Use multiple
+> `-f` flags with hierarchical keys and string values instead.
+
+---
+
+## Auth & Search (gh CLI)
+
+```bash
+# Auth
+gh auth login
+gh auth status
+gh auth token
+
+# Labels
+gh label create bug --color "d73a4a" --description "Bug report"
+gh label list
+
+# Search
+gh search repos "azure bicep" --language hcl
+gh search code "uniqueString" --repo owner/repo
+gh search issues "label:bug is:open" --repo owner/repo
+```
+
+---
+
+## Global Flags
+
+| Flag | Description |
+| --- | --- |
+| `--repo OWNER/REPO` | Target specific repository |
+| `--json FIELDS` | Output JSON with fields |
+| `--jq EXPRESSION` | Filter JSON output |
+| `--web` | Open in browser |
+| `--paginate` | Fetch all pages |
+
+---
+
 ## DO / DON'T
 
-- **DO**: Use MCP tools first, `gh` CLI as fallback only
+- **DO**: Use MCP tools first for issues and PRs
+- **DO**: Use `gh` CLI for Actions, releases, repos, secrets, API
 - **DO**: Confirm repository context before creating issues/PRs
 - **DO**: Search for existing issues/PRs before creating duplicates
 - **DO**: Check for PR templates before creating PRs
 - **DO**: Ask for missing critical information rather than guessing
 - **DON'T**: Create issues/PRs without confirming repo owner and name
 - **DON'T**: Merge PRs without user confirmation
-- **DON'T**: Use `gh` CLI when MCP tools are available
+- **DON'T**: Use `gh` CLI for issues/PRs when MCP tools are available
+
+---
+
+## References
+
+- GitHub CLI Manual: https://cli.github.com/manual/
+- REST API: https://docs.github.com/en/rest
+- GraphQL API: https://docs.github.com/en/graphql
