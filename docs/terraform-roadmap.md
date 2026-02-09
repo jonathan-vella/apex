@@ -215,8 +215,8 @@ tools:
 |-------------|---------------------|---------|
 | `azure-adr` | `terraform-adr` | Architecture Decision Records |
 | `azure-diagrams` | `terraform-diagrams` | Generate diagrams from `.tf` files |
-| `azure-workload-docs` | `terraform-workload-docs` | Resource inventory, runbooks |
-| `azure-deployment-preflight` | `terraform-deployment-preflight` | Pre-deployment validation |
+| `azure-artifacts` | `terraform-workload-docs` | Resource inventory, runbooks |
+| deploy agent | `terraform-deployment-preflight` | Pre-deployment validation |
 | N/A | `terraform-cost-estimate` | Infracost integration |
 
 ### terraform-deployment-preflight Skill

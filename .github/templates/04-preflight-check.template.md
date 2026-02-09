@@ -4,7 +4,7 @@
 > Status: **{PASS|FAIL|PENDING}**
 
 > [!NOTE]
-> 📚 See [documentation-styling.md](../agents/_shared/documentation-styling.md) for visual standards.
+> 📚 See [SKILL.md](../skills/azure-artifacts/SKILL.md) for visual standards.
 
 ## Purpose
 
@@ -43,7 +43,7 @@ Prevents:
 
 ## Pitfalls Checklist
 
-Based on [avm-pitfalls.md](../../.github/agents/_shared/avm-pitfalls.md):
+Based on [Azure Defaults Skill](../../.github/skills/azure-defaults/SKILL.md):
 
 - [ ] Log Analytics `dailyQuotaGb` uses string type
 - [ ] Container App Environment uses `appLogsConfiguration` object

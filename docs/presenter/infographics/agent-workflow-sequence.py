@@ -267,7 +267,7 @@ def create_sequence_diagram():
     # Step 7: Documentation
     step_badge(y, 7, 'Documentation')
     y -= 0.018
-    note_text(co, y, '[ azure-workload-docs skill ]')
+    note_text(co, y, '[ azure-artifacts skill ]')
     y -= 0.020
     solid_arrow(co, u, y, 'Workflow complete  ·  07-* documentation suite')
 

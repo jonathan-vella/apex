@@ -6,7 +6,7 @@
 **Region**: {region}
 
 > [!NOTE]
-> 📚 See [documentation-styling.md](../agents/_shared/documentation-styling.md) for visual standards.
+> 📚 See [SKILL.md](../skills/azure-artifacts/SKILL.md) for visual standards.
 
 ---
 

@@ -12,22 +12,21 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | `azure-diagrams` | Generate Azure architecture diagrams (PNG via Python) | "create diagram", "architecture diagram" |
 | `azure-adr`      | Create Architecture Decision Records with WAF mapping | "create ADR", "document decision"        |
 
-### Category 2: Workflow Automation
+### Category 2: Azure Defaults & Artifacts
 
-| Skill                        | Description                                    | Triggers                                   |
-| ---------------------------- | ---------------------------------------------- | ------------------------------------------ |
-| `azure-workload-docs`        | Generate 7 workload doc types from deployments | "generate documentation", "create runbook" |
-| `azure-deployment-preflight` | Validate deployments before execution          | "preflight check", "validate deployment"   |
+| Skill              | Description                                         | Triggers                                   |
+| ------------------ | --------------------------------------------------- | ------------------------------------------ |
+| `azure-defaults`   | Azure conventions, naming, AVM, WAF, pricing, tags  | "azure defaults", "naming", "AVM"          |
+| `azure-artifacts`  | Template H2 structures, styling, generation rules   | "generate documentation", "create runbook" |
 
 ### Category 3: Development Utilities
 
-| Skill                  | Description                             | Triggers                    |
-| ---------------------- | --------------------------------------- | --------------------------- |
-| `git-commit`           | Create conventional commit messages     | "commit", "git commit"      |
-| `gh-cli`               | GitHub CLI command generation           | "gh command", "github cli"  |
-| `github-issues`        | Create and manage GitHub issues via MCP | "create issue", "file bug"  |
-| `github-pull-requests` | Create and manage PRs via MCP           | "create PR", "pull request" |
-| `make-skill-template`  | Create new skills from template         | "create skill", "new skill" |
+| Skill                 | Description                             | Triggers                    |
+| --------------------- | --------------------------------------- | --------------------------- |
+| `git-commit`          | Create conventional commit messages     | "commit", "git commit"      |
+| `gh-cli`              | GitHub CLI command generation           | "gh command", "github cli"  |
+| `github-operations`   | Create/manage GitHub issues and PRs     | "create issue", "create PR" |
+| `make-skill-template` | Create new skills from template         | "create skill", "new skill" |
 
 ## Usage
 

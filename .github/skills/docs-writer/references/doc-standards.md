@@ -101,7 +101,7 @@ These agents were removed and converted to skills. Never reference them:
 | --- | --- |
 | `diagram.agent.md` | `azure-diagrams` skill |
 | `adr.agent.md` | `azure-adr` skill |
-| `docs.agent.md` | `azure-workload-docs` skill |
+| `docs.agent.md` | `azure-artifacts` skill |
 
 Also avoid references to removed paths:
 

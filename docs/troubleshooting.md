@@ -35,7 +35,7 @@ flowchart TD
     SKILL1 -->|No| SKILL2["Add explicit keywords<br/>or reference skill by name"]
     SKILL1 -->|Yes| SKILL3["Check SKILL.md file<br/>for correct triggers"]
     
-    DEPLOY --> DEPLOY1["Run preflight first:<br/>azure-deployment-preflight skill"]
+    DEPLOY --> DEPLOY1["Run preflight first:<br/>deploy agent preflight check"]
     
     VALIDATE --> VALIDATE1["Run: npm run validate"]
     

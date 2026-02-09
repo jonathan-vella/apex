@@ -15,7 +15,7 @@ This project now implements the **Conductor pattern** from VS Code 1.109:
 - **New Frontmatter**: `user-invokable`, `agents` list, model fallbacks
 - **Skills GA**: Skills are now generally available with enhanced discovery
 
-See [orchestration-helper skill](../.github/skills/orchestration-helper/SKILL.md) for details.
+See the [conductor agent](../.github/agents/infraops-conductor.agent.md) for orchestration details.
 
 ## Quick Links
 
@@ -63,7 +63,7 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 ---
 
-## Skills (11)
+## Skills (9)
 
 Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
 
@@ -78,10 +78,8 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 
 | Skill                        | Purpose                          | Triggers                                   |
 | ---------------------------- | -------------------------------- | ------------------------------------------ |
-| `azure-workload-docs`        | 7 documentation types (07-\*.md) | "generate documentation", "create runbook" |
-| `azure-deployment-preflight` | Pre-deployment validation        | "validate deployment", "preflight check"   |
-| `github-issues`              | GitHub issue management          | "create issue", "file bug"                 |
-| `github-pull-requests`       | Pull request management          | "create PR", "merge pull request"          |
+| `azure-artifacts`            | 7 documentation types (07-\*.md) | "generate documentation", "create runbook" |
+| `github-operations`          | GitHub issue & PR management     | "create issue", "create PR", "file bug"    |
 
 ### Tool Integration (Category 3)
 
@@ -91,7 +89,6 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 | `git-commit`          | Commit message conventions      | "commit", "conventional commit"               |
 | `docs-writer`         | Repo-aware docs maintenance     | "audit docs", "fix counts", "freshness check"    |
 | `make-skill-template` | Create new skills               | "create skill", "scaffold skill"              |
-| `orchestration-helper`| Conductor pattern documentation | "how does conductor work", "agent orchestration" |
 
 ---
 

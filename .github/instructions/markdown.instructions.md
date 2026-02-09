@@ -124,7 +124,7 @@ When generating core workflow artifacts, agents **MUST** follow the canonical te
 
 **MANDATORY**: All agent-generated documentation MUST follow the styling standards defined in:
 
-📚 **[documentation-styling.md](../agents/_shared/documentation-styling.md)**
+📚 **[Azure Artifacts Skill](../skills/azure-artifacts/SKILL.md)**
 
 ### Quick Reference
 

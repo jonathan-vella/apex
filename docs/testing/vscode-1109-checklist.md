@@ -62,22 +62,21 @@ npm run validate:agents    # Agent frontmatter + skills
 |------|-------|----------|--------|
 | Skills load | Open Copilot Chat | No skill loading errors | ☐ |
 | Skill invocation | `/azure-diagrams` command | Skill responds | ☐ |
-| 10 skills available | Check agent context | All 10 skills discoverable | ☐ |
+| 9 skills available | Check agent context | All 9 skills discoverable | ☐ |
 
-### Expected Skills (10)
+### Expected Skills (9)
 
 | Skill | Purpose |
 |-------|---------|
 | azure-adr | Architecture Decision Records |
-| azure-deployment-preflight | Pre-deployment validation |
+| azure-artifacts | Artifact & workload documentation |
+| azure-defaults | Azure conventions & defaults |
 | azure-diagrams | Python architecture diagrams |
-| azure-workload-docs | Workload documentation |
+| docs-writer | Repo-aware docs maintenance |
 | gh-cli | GitHub CLI operations |
 | git-commit | Conventional commits |
-| github-issues | Issue management |
-| github-pull-requests | PR workflows |
+| github-operations | Issue & PR management |
 | make-skill-template | Skill scaffolding |
-| orchestration-helper | Workflow guidance |
 
 ---
 

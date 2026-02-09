@@ -12,6 +12,43 @@ const ROOT = process.cwd();
 
 // Patterns to detect (case-insensitive where noted)
 const DEPRECATED_PATTERNS = [
+  // Removed shared directory references (migrated to skills)
+  {
+    pattern: /agents\/_shared\//gi,
+    message:
+      "Reference to removed _shared/ directory (use azure-defaults skill)",
+    severity: "error",
+  },
+  // Removed skill references (consolidated)
+  {
+    pattern: /skills\/orchestration-helper/gi,
+    message: "Reference to removed orchestration-helper skill (deleted)",
+    severity: "error",
+  },
+  {
+    pattern: /skills\/azure-deployment-preflight/gi,
+    message:
+      "Reference to removed azure-deployment-preflight skill (merged into deploy agent)",
+    severity: "error",
+  },
+  {
+    pattern: /skills\/azure-workload-docs/gi,
+    message:
+      "Reference to removed azure-workload-docs skill (use azure-artifacts skill)",
+    severity: "error",
+  },
+  {
+    pattern: /skills\/github-issues/gi,
+    message:
+      "Reference to removed github-issues skill (use github-operations skill)",
+    severity: "error",
+  },
+  {
+    pattern: /skills\/github-pull-requests/gi,
+    message:
+      "Reference to removed github-pull-requests skill (use github-operations skill)",
+    severity: "error",
+  },
   // Removed agent file references
   {
     pattern: /\.github\/agents\/diagram\.agent\.md/gi,
@@ -26,7 +63,7 @@ const DEPRECATED_PATTERNS = [
   {
     pattern: /\.github\/agents\/docs\.agent\.md/gi,
     message:
-      "Reference to removed docs.agent.md (use azure-workload-docs skill)",
+      "Reference to removed docs.agent.md (use azure-artifacts skill)",
     severity: "error",
   },
 
@@ -59,7 +96,7 @@ const DEPRECATED_PATTERNS = [
   {
     pattern: /@docs\s+agent/gi,
     message:
-      "Reference to @docs agent (removed - use azure-workload-docs skill)",
+      "Reference to @docs agent (removed - use azure-artifacts skill)",
     severity: "warn",
   },
 
@@ -98,6 +135,8 @@ const EXCLUDE_PATTERNS = [
   /node_modules/,
   /\.github-archive/,
   /infra\//,
+  /CHANGELOG\.md$/, // Historical log — old names are intentional
+  /agent-output\//, // Generated artifacts may contain old references
 ];
 
 let errorCount = 0;

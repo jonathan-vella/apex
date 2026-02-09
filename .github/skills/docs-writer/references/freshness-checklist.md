@@ -30,7 +30,7 @@
 ### 2. Agent Count and Table
 
 **Source of truth**: List `.github/agents/*.agent.md` files
-(exclude `_shared/` and `_subagents/` directories).
+(exclude `_subagents/` directory).
 
 **Expected count** (as of 2026-02-09): **8 agents**
 

@@ -18,7 +18,7 @@ Before creating ANY output files or making changes, agents MUST:
 - [ ] **Read relevant templates** in `.github/templates/` for output structure
 - [ ] **Query documentation** via MCP tools (Azure docs, best practices)
 - [ ] **Validate inputs** - confirm all required artifacts from previous steps exist
-- [ ] **Check shared defaults** in `.github/agents/_shared/defaults.md`
+- [ ] **Check shared defaults** in `.github/skills/azure-defaults/SKILL.md`
 - [ ] **Achieve 80% confidence** before proceeding to implementation
 
 ## Research Workflow Pattern
@@ -116,5 +116,5 @@ This research-first pattern integrates with the 7-step workflow:
 3. Each step should query relevant Azure documentation
 4. Each step should achieve 80% confidence before proceeding
 
-See [Agent Shared Foundation](../agents/_shared/defaults.md) for the complete
+See [Azure Defaults Skill](../../.github/skills/azure-defaults/SKILL.md) for the complete
 research requirements specification.

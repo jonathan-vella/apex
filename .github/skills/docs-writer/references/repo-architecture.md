@@ -8,9 +8,8 @@
 azure-agentic-infraops/
 ├── .github/
 │   ├── agents/              # 8 agent definitions + 3 subagents
-│   │   ├── _shared/         # Shared context (defaults, styling, patterns)
 │   │   └── _subagents/      # Validation subagents (lint, what-if, review)
-│   ├── skills/              # 11 skill definitions (incl. docs-writer)
+│   ├── skills/              # 9 skill definitions (incl. docs-writer)
 │   ├── instructions/        # 16 file-type instruction files
 │   └── templates/           # 16 artifact templates + README
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
@@ -48,31 +47,28 @@ azure-agentic-infraops/
 | bicep-whatif-subagent | `bicep-whatif-subagent.agent.md` | Deployment preview |
 | bicep-review-subagent | `bicep-review-subagent.agent.md` | AVM code review |
 
-### Shared Context (in `_shared/`)
+### Shared Knowledge (via Skills)
 
-| File | Purpose |
+All shared context previously in `_shared/` is now consolidated into skills:
+
+| Skill | Replaces |
 | --- | --- |
-| `defaults.md` | Regions, tags, CAF naming, AVM standards, security |
-| `documentation-styling.md` | Formatting conventions for agent output |
-| `avm-pitfalls.md` | Common Azure Verified Module issues |
-| `research-patterns.md` | How agents research before implementing |
-| `service-lifecycle-validation.md` | Azure service retirement checks |
+| `azure-defaults` | `defaults.md`, `avm-pitfalls.md`, `research-patterns.md`, `service-lifecycle-validation.md` |
+| `azure-artifacts` | `documentation-styling.md`, all template H2 structures |
 
-## Skill Catalog (11 Skills)
+## Skill Catalog (9 Skills)
 
 | Skill | Folder | Category | Triggers |
 | --- | --- | --- | --- |
 | `azure-adr` | `azure-adr/` | Document Creation | "create ADR", "document decision" |
-| `azure-deployment-preflight` | `azure-deployment-preflight/` | Workflow | "validate deployment" |
+| `azure-artifacts` | `azure-artifacts/` | Artifact Generation | "generate documentation" |
+| `azure-defaults` | `azure-defaults/` | Azure Conventions | "azure defaults", "naming" |
 | `azure-diagrams` | `azure-diagrams/` | Document Creation | "create diagram" |
-| `azure-workload-docs` | `azure-workload-docs/` | Workflow | "generate documentation" |
 | `docs-writer` | `docs-writer/` | Documentation | "update the docs" |
 | `gh-cli` | `gh-cli/` | Tool Integration | "gh command" |
 | `git-commit` | `git-commit/` | Tool Integration | "commit" |
-| `github-issues` | `github-issues/` | Workflow | "create issue" |
-| `github-pull-requests` | `github-pull-requests/` | Workflow | "create PR" |
+| `github-operations` | `github-operations/` | Workflow | "create issue", "create PR" |
 | `make-skill-template` | `make-skill-template/` | Meta | "create skill" |
-| `orchestration-helper` | `orchestration-helper/` | Meta | "how does conductor work" |
 
 ## Scenario Index (9 Scenarios)
 
@@ -186,23 +182,22 @@ in the SKILL.md frontmatter — not through `tools:` arrays in agent definitions
 
 ### Agent-Referenced Skills
 
-These skills are explicitly mentioned in agent body text and invoked by name:
+These skills are explicitly referenced in agent body text via mandatory
+"Read skills FIRST" instructions:
 
 | Skill | Referenced By |
 | --- | --- |
+| `azure-defaults` | all 8 primary agents |
+| `azure-artifacts` | requirements, architect, bicep-plan, deploy, conductor |
 | `azure-diagrams` | design, architect agents |
 | `azure-adr` | design agent |
-| `azure-workload-docs` | deploy agent, conductor |
-| `azure-deployment-preflight` | deploy agent |
-| `orchestration-helper` | conductor agent |
+| `github-operations` | conductor, bicep-plan agents |
 
 ### General-Purpose Skills
 
 Discovered purely by prompt keyword matching — no agent explicitly
 references them:
 
-- `github-issues` — Triggered by "create issue", "file bug" prompts
-- `github-pull-requests` — Triggered by "create PR", "pull request" prompts
 - `gh-cli` — Triggered by "gh command", "GitHub CLI" prompts
 - `git-commit` — Triggered by "commit", "git commit" prompts
 - `docs-writer` — Triggered by "update docs", "check staleness" prompts

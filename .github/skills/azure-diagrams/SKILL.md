@@ -468,7 +468,7 @@ Follow these steps when creating diagrams:
 ## What This Skill Does NOT Do
 
 - ❌ Generate Bicep or Terraform code (use `bicep-code` agent)
-- ❌ Create workload documentation (use `azure-workload-docs` skill)
+- ❌ Create workload documentation (use `azure-artifacts` skill)
 - ❌ Deploy resources (use `deploy` agent)
 - ❌ Create ADRs (use `azure-adr` skill)
 - ❌ Perform WAF assessments (use `architect` agent)

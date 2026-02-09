@@ -188,6 +188,11 @@ const TITLE_MISSING = "Missing Template or Agent";
 const GLOBAL_STRICTNESS = process.env.STRICTNESS;
 
 // Core artifacts validated by agents/skills
+// The azure-artifacts skill intentionally embeds template H2 structures
+// (consolidates all 16 templates for agent convenience). Skip it from
+// agent-link and embedded-skeleton checks.
+const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
+
 const AGENTS = {
   "01-requirements.md": ".github/agents/requirements.agent.md",
   "02-architecture-assessment.md": ".github/agents/architect.agent.md",
@@ -196,12 +201,12 @@ const AGENTS = {
   "04-preflight-check.md": ".github/agents/bicep-code.agent.md",
   "06-deployment-summary.md": ".github/agents/deploy.agent.md",
   "05-implementation-reference.md": ".github/agents/bicep-code.agent.md",
-  "07-design-document.md": ".github/skills/azure-workload-docs/SKILL.md",
-  "07-operations-runbook.md": ".github/skills/azure-workload-docs/SKILL.md",
-  "07-resource-inventory.md": ".github/skills/azure-workload-docs/SKILL.md",
-  "07-backup-dr-plan.md": ".github/skills/azure-workload-docs/SKILL.md",
-  "07-compliance-matrix.md": ".github/skills/azure-workload-docs/SKILL.md",
-  "07-documentation-index.md": ".github/skills/azure-workload-docs/SKILL.md",
+  "07-design-document.md": ".github/skills/azure-artifacts/SKILL.md",
+  "07-operations-runbook.md": ".github/skills/azure-artifacts/SKILL.md",
+  "07-resource-inventory.md": ".github/skills/azure-artifacts/SKILL.md",
+  "07-backup-dr-plan.md": ".github/skills/azure-artifacts/SKILL.md",
+  "07-compliance-matrix.md": ".github/skills/azure-artifacts/SKILL.md",
+  "07-documentation-index.md": ".github/skills/azure-artifacts/SKILL.md",
 };
 
 const TEMPLATES = {
@@ -368,6 +373,7 @@ function validateTemplate(artifactName) {
 function validateAgentLinks() {
   for (const [artifactName, agentPath] of Object.entries(AGENTS)) {
     if (!agentPath) continue; // Skip if no agent (e.g., Plan or manual)
+    if (agentPath === CONSOLIDATED_SKILL) continue; // H2s embedded by design
 
     if (!exists(agentPath)) {
       error(`Missing agent file: ${agentPath}`, {
@@ -381,15 +387,20 @@ function validateAgentLinks() {
     const agentText = readText(agentPath);
     const templatePath = TEMPLATES[artifactName];
 
-    // Check that agent links to template
+    // Check that agent links to template directly OR via azure-artifacts skill
     const relativeTemplatePath = path.relative(
       path.dirname(agentPath),
       templatePath,
     );
 
-    if (!agentText.includes(relativeTemplatePath)) {
+    const refsTemplate = agentText.includes(relativeTemplatePath);
+    const refsSkill =
+      agentText.includes("azure-artifacts") ||
+      agentText.includes("azure-defaults");
+
+    if (!refsTemplate && !refsSkill) {
       error(
-        `Agent ${agentPath} must reference template ${relativeTemplatePath}`,
+        `Agent ${agentPath} must reference template ${relativeTemplatePath} or azure-artifacts skill`,
         { filePath: agentPath, line: 1 },
       );
     }
@@ -399,6 +410,7 @@ function validateAgentLinks() {
 function validateNoEmbeddedSkeletons() {
   for (const [artifactName, agentPath] of Object.entries(AGENTS)) {
     if (!agentPath || !exists(agentPath)) continue;
+    if (agentPath === CONSOLIDATED_SKILL) continue; // H2s embedded by design
 
     const text = readText(agentPath);
     const required = ARTIFACT_HEADINGS[artifactName];

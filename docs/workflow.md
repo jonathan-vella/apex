@@ -51,7 +51,7 @@ graph TB
     end
 
     subgraph "Step 7: Documentation"
-        DOCS["azure-workload-docs<br/>📚 Skill"]
+        DOCS["azure-artifacts<br/>📚 Skill"]
     end
 
     COND -->|"delegates"| REQ
@@ -273,7 +273,7 @@ Output: agent-output/{project}/06-deployment-summary.md
 
 ### Step 7: Documentation (📚 Skills)
 
-**Skill**: `azure-workload-docs`
+**Skill**: `azure-artifacts`
 
 Generate comprehensive workload documentation.
 
@@ -338,7 +338,7 @@ Output: agent-output/{project}/07-*.md
 **Explicit**: Reference the skill by name:
 
 ```text
-"Use the azure-workload-docs skill to generate documentation"
+"Use the azure-artifacts skill to generate documentation"
 ```
 
 ---

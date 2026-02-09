@@ -9,7 +9,7 @@ applyTo: "**/agent-output/**/07-*.md"
 
 **MANDATORY**: All documentation MUST follow the styling standards in:
 
-📚 **[documentation-styling.md](../agents/_shared/documentation-styling.md)**
+📚 **[Azure Artifacts Skill](../skills/azure-artifacts/SKILL.md)**
 
 Key requirements:
 

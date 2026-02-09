@@ -155,7 +155,7 @@ infra/bicep/my-webapp/
 | Understand the full workflow | [workflow.md](workflow.md) |
 | Try a complete scenario | [S02-agentic-workflow](../scenarios/S02-agentic-workflow/) |
 | Generate architecture diagrams | Use `azure-diagrams` skill |
-| Create documentation | Use `azure-workload-docs` skill |
+| Create documentation | Use `azure-artifacts` skill |
 | Troubleshoot issues | [troubleshooting.md](troubleshooting.md) |
 
 ---
@@ -180,7 +180,7 @@ Skills activate automatically based on your prompt:
 
 - "Create an architecture diagram" → `azure-diagrams`
 - "Generate an ADR" → `azure-adr`
-- "Create workload documentation" → `azure-workload-docs`
+- "Create workload documentation" → `azure-artifacts`
 
 Or invoke explicitly:
 

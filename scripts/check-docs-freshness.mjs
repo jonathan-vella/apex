@@ -76,7 +76,7 @@ async function checkAgentCount() {
       (e) =>
         e.isFile() &&
         e.name.endsWith(".agent.md") &&
-        !["_subagents", "_shared"].includes(e.name),
+        !["_subagents"].includes(e.name),
     )
     .map((e) => e.name);
   const actual = agentFiles.length;
