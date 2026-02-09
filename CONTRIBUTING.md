@@ -70,7 +70,7 @@ This repository uses [markdownlint](https://github.com/DavidAnson/markdownlint) 
 # Check for issues
 npm run lint:md
 
-# Check links (docs/ only; excludes docs/_superseded)
+# Check links (docs/ only)
 npm run lint:links
 
 # Auto-fix issues

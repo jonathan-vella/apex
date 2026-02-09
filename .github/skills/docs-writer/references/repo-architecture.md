@@ -10,11 +10,10 @@ azure-agentic-infraops/
 │   ├── agents/              # 8 agent definitions + 3 subagents
 │   │   └── _subagents/      # Validation subagents (lint, what-if, review)
 │   ├── skills/              # 9 skill definitions (incl. docs-writer)
+│   │   └── azure-artifacts/templates/ # 16 artifact templates
 │   ├── instructions/        # 16 file-type instruction files
-│   └── templates/           # 16 artifact templates + README
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
-│   ├── _superseded/         # Archived content (do not link)
 │   ├── presenter/           # Presentation materials
 │   └── testing/             # Test checklists
 ├── infra/bicep/             # Bicep module library
@@ -86,7 +85,7 @@ All shared context previously in `_shared/` is now consolidated into skills:
 
 ## Template Inventory (16 Templates)
 
-All in `.github/templates/`. Naming: `{step}-{name}.template.md`.
+All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.template.md`.
 
 | Template | Artifact | Validation |
 | --- | --- | --- |
@@ -171,7 +170,6 @@ updating when agents, skills, or scenarios change:
 | `dev-containers.md` | Dev container setup |
 | `terraform-roadmap.md` | Future Terraform support plans |
 | `GLOSSARY.md` | Terms and definitions |
-| `_superseded/` | Archived docs (do not link from live docs) |
 | `presenter/` | Presentation materials (pptx, ROI, infographics) |
 | `testing/` | Test checklists |
 

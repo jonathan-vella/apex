@@ -26,8 +26,8 @@ Cost estimates provide:
 
 The canonical cost-estimate structure is defined in these templates:
 
-- `.github/templates/03-des-cost-estimate.template.md` (design estimate)
-- `.github/templates/07-ab-cost-estimate.template.md` (as-built estimate)
+- `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md` (design estimate)
+- `.github/skills/azure-artifacts/templates/07-ab-cost-estimate.template.md` (as-built estimate)
 
 Agents MUST start from the appropriate template and fill it in.
 Do not re-embed long templates in agent bodies.

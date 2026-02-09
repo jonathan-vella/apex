@@ -28,7 +28,7 @@ recommendations before generating the artifact.
 - Support both business-level prompts ("modernize my ecommerce") and technical
   prompts ("3-tier web app with SQL")
 - Output will be saved to `agent-output/${input:projectName}/01-requirements.md`
-- Follow the template structure from `.github/templates/01-requirements.template.md`
+- Follow the template structure from `.github/skills/azure-artifacts/templates/01-requirements.template.md`
 - Use the Service Recommendation Matrix and Business Domain Signals from `_shared/defaults.md`
 
 ## Inputs

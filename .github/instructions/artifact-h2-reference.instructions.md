@@ -231,7 +231,7 @@ description: "MANDATORY template compliance rules for artifact generation"
 > and are validated by `validate-cost-estimate-templates.mjs`, NOT the artifact template validator.
 > See the actual template for the definitive heading structure:
 
-**Template**: `.github/templates/07-ab-cost-estimate.template.md`
+**Template**: `.github/skills/azure-artifacts/templates/07-ab-cost-estimate.template.md`
 
 ```markdown
 ## 💰 Cost At-a-Glance

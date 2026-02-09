@@ -153,7 +153,7 @@ async function checkProhibitedRefs() {
 
   const mdFiles = [];
   for (const dir of scanPaths) {
-    mdFiles.push(...(await collectMdFiles(dir, ["_superseded"])));
+    mdFiles.push(...(await collectMdFiles(dir, [])));
   }
   for (const f of singleFiles) {
     if (await exists(f)) mdFiles.push(f);
@@ -181,11 +181,13 @@ async function checkProhibitedRefs() {
   }
 }
 
-// ── Check 5: Superseded links ───────────────────────────────────────
+// ── Check 5: Deprecated path links ──────────────────────────────────
 
 async function checkSupersededLinks() {
   const docsDir = join(ROOT, "docs");
-  const mdFiles = await collectMdFiles(docsDir, ["_superseded", "presenter"]);
+  const mdFiles = await collectMdFiles(docsDir, ["presenter"]);
+
+  const deprecatedPaths = [/_superseded\//, /\.github\/templates\//];
 
   for (const file of mdFiles) {
     const content = await readText(file);
@@ -193,13 +195,15 @@ async function checkSupersededLinks() {
     const rel = relative(ROOT, file);
     const lines = content.split("\n");
     for (let i = 0; i < lines.length; i++) {
-      if (/_superseded\//.test(lines[i])) {
-        addFinding(
-          rel,
-          i + 1,
-          "Link to _superseded/ content in live docs",
-          "MEDIUM",
-        );
+      for (const pattern of deprecatedPaths) {
+        if (pattern.test(lines[i])) {
+          addFinding(
+            rel,
+            i + 1,
+            "Link to removed directory in live docs",
+            "MEDIUM",
+          );
+        }
       }
     }
   }

@@ -48,8 +48,8 @@ By the end of this demo, participants will understand:
 | Resource                                                              | Description                 |
 | --------------------------------------------------------------------- | --------------------------- |
 | [Workflow Guide](../../docs/workflow.md)                    | Seven-step agentic workflow |
-| [ADR-003: AVM-First](../../docs/_superseded/adr/ADR-003-avm-first-approach.md)    | Module selection rationale  |
-| [ADR-004: Region Defaults](../../docs/_superseded/adr/ADR-004-region-defaults.md) | `swedencentral` default     |
+| [ADR-003: AVM-First](../../.github/skills/azure-defaults/SKILL.md)    | Module selection rationale  |
+| [ADR-004: Region Defaults](../../.github/skills/azure-defaults/SKILL.md) | `swedencentral` default     |
 | [Presenter Toolkit](../../docs/presenter/)                            | Demo delivery guides        |
 | [S02: Agentic Workflow](../S02-agentic-workflow/)                     | Next: advanced workflow     |
 

@@ -330,5 +330,5 @@ Present next step options:
 ## Output Artifact
 
 Generate `agent-output/{projectName}/01-requirements.md` using the standard template
-from `.github/templates/01-requirements.template.md`, populated with user responses
+from `.github/skills/azure-artifacts/templates/01-requirements.template.md`, populated with user responses
 and demonstrating the business-to-technical translation in every section.

@@ -121,7 +121,7 @@ const SCAN_FOLDERS = [
   ".github/agents",
   ".github/skills",
   ".github/instructions",
-  ".github/templates",
+  ".github/skills/azure-artifacts/templates",
   "agent-output",
   "scenarios",
 ];
@@ -131,9 +131,7 @@ const SCAN_ROOT_FILES = ["README.md", "CONTRIBUTING.md", "CHANGELOG.md"];
 
 // Folders/files to exclude
 const EXCLUDE_PATTERNS = [
-  /_superseded/,
   /node_modules/,
-  /\.github-archive/,
   /infra\//,
   /CHANGELOG\.md$/, // Historical log — old names are intentional
   /agent-output\//, // Generated artifacts may contain old references

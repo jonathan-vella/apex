@@ -4,7 +4,7 @@
 >
 > **Duration:** 5 minutes | **Audience:** C-level, IT Directors, Partner Leadership
 
-![78% Time Saved on Infrastructure Tasks](../_superseded/presenter/infographics/generated/exec-pitch-banner.png)
+<!-- Banner image was in docs/_superseded/ (removed) — regenerate if needed -->
 
 ---
 
@@ -145,7 +145,7 @@ _The challenges below are drawn from hundreds of conversations with IT professio
 
 ## The One-Slide Summary
 
-![Executive One-Slide Summary](../_superseded/presenter/infographics/generated/executive-one-slide-web.png)
+<!-- One-slide summary image was in docs/_superseded/ (removed) — regenerate if needed -->
 
 ---
 

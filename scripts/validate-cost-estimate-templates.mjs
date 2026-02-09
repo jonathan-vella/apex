@@ -23,8 +23,9 @@ const TITLE_MISSING_AB = "Missing As-Built Examples";
 const AGENT_DES = ".github/agents/architect.agent.md";
 const AGENT_AB = ".github/skills/azure-artifacts/SKILL.md";
 
-const TEMPLATE_DES = ".github/templates/03-des-cost-estimate.template.md";
-const TEMPLATE_AB = ".github/templates/07-ab-cost-estimate.template.md";
+const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
+const TEMPLATE_DES = `${TEMPLATE_DIR}/03-des-cost-estimate.template.md`;
+const TEMPLATE_AB = `${TEMPLATE_DIR}/07-ab-cost-estimate.template.md`;
 
 const STANDARD_DOC = ".github/instructions/cost-estimate.instructions.md";
 
@@ -177,22 +178,22 @@ function validateAgentLinks() {
 
   if (
     exists(AGENT_DES) &&
-    !desText.includes("../templates/03-des-cost-estimate.template.md") &&
+    !desText.includes("03-des-cost-estimate.template.md") &&
     !desText.includes(CONSOLIDATED_SKILL_REF)
   ) {
     error(
-      `Agent ${AGENT_DES} must link to ../templates/03-des-cost-estimate.template.md or azure-artifacts skill`,
+      `Agent ${AGENT_DES} must link to 03-des-cost-estimate.template.md or azure-artifacts skill`,
       { filePath: AGENT_DES, line: 1 },
     );
   }
 
   if (
     exists(AGENT_AB) &&
-    !abText.includes("../templates/07-ab-cost-estimate.template.md") &&
+    !abText.includes("07-ab-cost-estimate.template.md") &&
     !abText.includes(CONSOLIDATED_SKILL_REF)
   ) {
     error(
-      `Agent ${AGENT_AB} must link to ../templates/07-ab-cost-estimate.template.md or azure-artifacts skill`,
+      `Agent ${AGENT_AB} must link to 07-ab-cost-estimate.template.md or azure-artifacts skill`,
       { filePath: AGENT_AB, line: 1 },
     );
   }

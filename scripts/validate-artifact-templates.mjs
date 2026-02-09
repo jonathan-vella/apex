@@ -209,29 +209,31 @@ const AGENTS = {
   "07-documentation-index.md": ".github/skills/azure-artifacts/SKILL.md",
 };
 
+const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
+
 const TEMPLATES = {
-  "01-requirements.md": ".github/templates/01-requirements.template.md",
+  "01-requirements.md": `${TEMPLATE_DIR}/01-requirements.template.md`,
   "02-architecture-assessment.md":
-    ".github/templates/02-architecture-assessment.template.md",
+    `${TEMPLATE_DIR}/02-architecture-assessment.template.md`,
   "04-implementation-plan.md":
-    ".github/templates/04-implementation-plan.template.md",
+    `${TEMPLATE_DIR}/04-implementation-plan.template.md`,
   "04-governance-constraints.md":
-    ".github/templates/04-governance-constraints.template.md",
-  "04-preflight-check.md": ".github/templates/04-preflight-check.template.md",
+    `${TEMPLATE_DIR}/04-governance-constraints.template.md`,
+  "04-preflight-check.md": `${TEMPLATE_DIR}/04-preflight-check.template.md`,
   "06-deployment-summary.md":
-    ".github/templates/06-deployment-summary.template.md",
+    `${TEMPLATE_DIR}/06-deployment-summary.template.md`,
   "05-implementation-reference.md":
-    ".github/templates/05-implementation-reference.template.md",
-  "07-design-document.md": ".github/templates/07-design-document.template.md",
+    `${TEMPLATE_DIR}/05-implementation-reference.template.md`,
+  "07-design-document.md": `${TEMPLATE_DIR}/07-design-document.template.md`,
   "07-operations-runbook.md":
-    ".github/templates/07-operations-runbook.template.md",
+    `${TEMPLATE_DIR}/07-operations-runbook.template.md`,
   "07-resource-inventory.md":
-    ".github/templates/07-resource-inventory.template.md",
-  "07-backup-dr-plan.md": ".github/templates/07-backup-dr-plan.template.md",
+    `${TEMPLATE_DIR}/07-resource-inventory.template.md`,
+  "07-backup-dr-plan.md": `${TEMPLATE_DIR}/07-backup-dr-plan.template.md`,
   "07-compliance-matrix.md":
-    ".github/templates/07-compliance-matrix.template.md",
+    `${TEMPLATE_DIR}/07-compliance-matrix.template.md`,
   "07-documentation-index.md":
-    ".github/templates/07-documentation-index.template.md",
+    `${TEMPLATE_DIR}/07-documentation-index.template.md`,
 };
 
 const STANDARD_DOC = ".github/instructions/markdown.instructions.md";

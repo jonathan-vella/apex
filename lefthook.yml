@@ -25,8 +25,8 @@ pre-commit:
     link-check:
       glob: "docs/**/*.md"
       run: |
-        # Get staged docs markdown files, excluding _superseded
-        STAGED_DOCS=$(git diff --cached --name-only --diff-filter=ACM | grep '^docs/.*\.md$' | grep -v '_superseded' || true)
+        # Get staged docs markdown files
+        STAGED_DOCS=$(git diff --cached --name-only --diff-filter=ACM | grep '^docs/.*\.md$' || true)
         if [ -n "$STAGED_DOCS" ]; then
           echo "🔗 Checking links in $(echo "$STAGED_DOCS" | wc -l | tr -d ' ') doc file(s)..."
           # Use npx to run from local node_modules (avoids Node.js 24 global install bug)

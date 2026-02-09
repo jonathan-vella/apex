@@ -60,7 +60,7 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | --- | --- |
 | `agent-output/**/*.md` | `artifact-generation.instructions.md` + validators |
 | `.github/agents/*.agent.md` | `agents-definitions.instructions.md` |
-| `.github/templates/` | Read-only reference (do not modify) |
+| `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify) |
 | `**/*.bicep` | `bicep-code-best-practices.instructions.md` |
 
 ## Step-by-Step Workflows
@@ -106,7 +106,6 @@ When a new agent, skill, or scenario is added to the repo:
    - Agent/skill/scenario counts match filesystem
    - Tables list all entities present in filesystem
    - No references to removed/renamed agents
-   - `_superseded/` content not linked from live docs
 3. **Report findings**: Present a table of issues found with:
    - File path, line number, issue description, suggested fix
 4. **Auto-fix**: For each issue, propose the exact edit and apply it
@@ -212,7 +211,7 @@ issue with `docs-freshness` label
 ## Guardrails
 
 - **Never modify** files in `agent-output/`, `.github/agents/`,
-  or `.github/templates/`
+  or `.github/skills/azure-artifacts/templates/`
 - **Always read** the latest file version before editing
 - **Always verify** line length ≤ 120 characters after edits
 - **Preserve** existing Mermaid diagram theme directives

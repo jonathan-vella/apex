@@ -64,7 +64,7 @@ Traditional infrastructure design involves:
 | ------------------------------------------------------------------- | ------------------------------------ |
 | [Contoso Patient Portal](../../infra/bicep/contoso-patient-portal/) | Working implementation (1,070 lines) |
 | [Workflow Guide](../../docs/workflow.md)                  | Complete workflow documentation      |
-| [ADR-003: AVM-First](../../docs/_superseded/adr/ADR-003-avm-first-approach.md)  | Module selection rationale           |
+| [AVM-First Policy](../../.github/skills/azure-defaults/SKILL.md)  | Module selection rationale           |
 | [Presenter Toolkit](../../docs/presenter/)                          | Demo delivery guides                 |
 | [S03: Documentation](../S03-documentation-generation/)              | Next: documentation automation       |
 

@@ -235,7 +235,7 @@ cat scripts/validate-artifact-templates.mjs | grep -A20 "ARTIFACT_HEADINGS"
 **Fix order issues**: Compare with template:
 
 ```bash
-diff -u .github/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
+diff -u .github/skills/azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
 ```
 
 ---
@@ -377,7 +377,7 @@ az deployment group list -g {resource-group} --output table
 1. **Check scenarios**: `scenarios/` folder has working examples
 2. **Read agent definitions**: `.github/agents/*.agent.md`
 3. **Check skill files**: `.github/skills/*/SKILL.md`
-4. **Review templates**: `.github/templates/`
+4. **Review templates**: `.github/skills/azure-artifacts/templates/`
 
 ### Still Stuck?
 

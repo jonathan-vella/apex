@@ -98,11 +98,11 @@ tables that no longer have folders.
 **Auto-fix**: Replace with the correct skill reference
 (see `references/doc-standards.md` → Prohibited References table).
 
-### 6. Superseded Content Links
+### 6. Deprecated Path Links
 
-**Rule**: No live doc should link to files in `docs/_superseded/`.
+**Rule**: No live doc should link to removed directories.
 
-**Check**: Grep all in-scope markdown files for `_superseded/` links.
+**Check**: Grep all in-scope markdown files for links to non-existent paths.
 
 **Auto-fix**: Remove the link or replace with the current equivalent.
 
@@ -119,7 +119,7 @@ tables that no longer have folders.
 
 ### 8. Template Inventory Sync
 
-**Source of truth**: List `.github/templates/*.template.md` files.
+**Source of truth**: List `.github/skills/azure-artifacts/templates/*.template.md` files.
 
 **Expected count** (as of 2026-02-09): **16 templates**
 

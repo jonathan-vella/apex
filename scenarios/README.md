@@ -10,10 +10,10 @@
 ## Defaults & Workflow
 
 > **Region**: `swedencentral` (fallback: `germanywestcentral`).
-> See [ADR-004](../docs/_superseded/adr/ADR-004-region-defaults.md).
+> See [Azure Defaults Skill](../.github/skills/azure-defaults/SKILL.md).
 >
 > **Modules**: AVM-first for policy-compliant deployments.
-> See [ADR-003](../docs/_superseded/adr/ADR-003-avm-first-approach.md).
+> See [Azure Defaults Skill](../.github/skills/azure-defaults/SKILL.md).
 >
 > **Agent Workflow**: `requirements` → `architect` → `design` (optional) → `bicep-plan`
 > → `bicep-code` → `deploy` → documentation.
