@@ -19,14 +19,15 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | `azure-defaults`   | Azure conventions, naming, AVM, WAF, pricing, tags  | "azure defaults", "naming", "AVM"          |
 | `azure-artifacts`  | Template H2 structures, styling, generation rules   | "generate documentation", "create runbook" |
 
-### Category 3: Development Utilities
+### Category 3: Development & Documentation Utilities
 
-| Skill                 | Description                             | Triggers                    |
-| --------------------- | --------------------------------------- | --------------------------- |
-| `git-commit`          | Create conventional commit messages     | "commit", "git commit"      |
-| `gh-cli`              | GitHub CLI command generation           | "gh command", "github cli"  |
-| `github-operations`   | Create/manage GitHub issues and PRs     | "create issue", "create PR" |
-| `make-skill-template` | Create new skills from template         | "create skill", "new skill" |
+| Skill                 | Description                             | Triggers                              |
+| --------------------- | --------------------------------------- | ------------------------------------- |
+| `docs-writer`         | Repo-aware documentation maintenance    | "update docs", "check staleness"      |
+| `git-commit`          | Create conventional commit messages     | "commit", "git commit"                |
+| `gh-cli`              | GitHub CLI reference (fallback to MCP)  | "gh command", "github cli"            |
+| `github-operations`   | Create/manage GitHub issues and PRs     | "create issue", "create PR"           |
+| `make-skill-template` | Create new skills from template         | "create skill", "new skill"           |
 
 ## Usage
 

@@ -67,27 +67,28 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
 
-### Document Creation (Category 1)
+### Azure Conventions (Category 1)
+
+| Skill            | Purpose                                      | Triggers                                      |
+| ---------------- | -------------------------------------------- | --------------------------------------------- |
+| `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing | "azure defaults", "naming", "AVM"              |
+| `azure-artifacts` | Template H2 structures, styling, generation | "generate documentation", "create runbook"     |
+
+### Document Creation (Category 2)
 
 | Skill            | Purpose                       | Triggers                                   |
 | ---------------- | ----------------------------- | ------------------------------------------ |
 | `azure-diagrams` | Python architecture diagrams  | "create diagram", "visualize architecture" |
 | `azure-adr`      | Architecture Decision Records | "create ADR", "document decision"          |
 
-### Workflow Automation (Category 2)
-
-| Skill                        | Purpose                          | Triggers                                   |
-| ---------------------------- | -------------------------------- | ------------------------------------------ |
-| `azure-artifacts`            | 7 documentation types (07-\*.md) | "generate documentation", "create runbook" |
-| `github-operations`          | GitHub issue & PR management     | "create issue", "create PR", "file bug"    |
-
-### Tool Integration (Category 3)
+### Workflow & Tool Integration (Category 3)
 
 | Skill                 | Purpose                         | Triggers                                      |
 | --------------------- | ------------------------------- | --------------------------------------------- |
+| `github-operations`   | GitHub issue & PR management    | "create issue", "create PR", "file bug"       |
 | `gh-cli`              | GitHub CLI reference            | "gh command", "github cli"                    |
 | `git-commit`          | Commit message conventions      | "commit", "conventional commit"               |
-| `docs-writer`         | Repo-aware docs maintenance     | "audit docs", "fix counts", "freshness check"    |
+| `docs-writer`         | Repo-aware docs maintenance     | "audit docs", "fix counts", "freshness check" |
 | `make-skill-template` | Create new skills               | "create skill", "scaffold skill"              |
 
 ---
@@ -127,10 +128,9 @@ Practice with hands-on scenarios in `scenarios/`:
 ```
 azure-agentic-infraops/
 ├── .github/
-│   ├── agents/           # 8 agent definitions
-│   ├── skills/           # 11 skill definitions
-│   ├── instructions/     # File-type rules
-│   └── templates/        # Output templates
+│   ├── agents/           # 8 agent definitions + 3 subagents
+│   ├── skills/           # 9 skill definitions
+│   └── instructions/     # File-type rules
 ├── agent-output/         # Generated artifacts
 ├── infra/bicep/          # Bicep templates
 ├── scenarios/            # Hands-on learning

@@ -195,7 +195,7 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 |------|-------|---------|------|-------|
 | 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | Claude Opus 4.6 |
 | 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | Claude Opus 4.6 |
-| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Haiku 4.5 |
+| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Sonnet 4.5 |
 | 4 | `bicep-plan` | 📐 Strategist | Implementation planning with governance | Claude Opus 4.6 |
 | 5 | `bicep-code` | ⚒️ Forge | Generates AVM-first Bicep templates | Claude Sonnet 4.5 |
 | 6 | `deploy` | 🚀 Envoy | Azure resource provisioning | Claude Sonnet 4.5 |
@@ -269,7 +269,7 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 
 ### Step 7: Documentation
 
-- **As-Built Suite** — `azure-workload-docs` skill generates comprehensive documentation
+- **As-Built Suite** — `azure-artifacts` skill generates comprehensive documentation
 - **Output** — `agent-output/{project}/07-*.md` (design doc, runbook, DR plan, inventory)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -367,7 +367,7 @@ Conductor:
   │
   │   [GATE 3: User verifies deployment]
   │
-  └─ azure-workload-docs skill → 07-*.md (design doc, runbook, DR plan)
+  └─ azure-artifacts skill → 07-*.md (design doc, runbook, DR plan)
 ```
 
 ### Direct Agent Invocation
@@ -396,20 +396,19 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 ## Skills (Reusable Capabilities)
 
-10 skills provide reusable capabilities across agents:
+9 skills provide reusable capabilities across agents:
 
 | Skill | Purpose | Output |
 |-------|---------|--------|
-| `azure-diagrams` | Architecture diagrams (700+ Azure icons) | `.py` + `.png` |
 | `azure-adr` | Architecture Decision Records | `03-des-adr-*.md` |
-| `azure-workload-docs` | As-built documentation suite | `07-*.md` |
-| `azure-deployment-preflight` | Pre-deployment validation | Validation report |
-| `gh-cli` | GitHub CLI operations | — |
+| `azure-artifacts` | Template H2 structures, styling, generation rules | `01-07` artifacts |
+| `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing, tags | — |
+| `azure-diagrams` | Architecture diagrams (700+ Azure icons) | `.py` + `.png` |
+| `docs-writer` | Repo-aware documentation maintenance | — |
+| `gh-cli` | GitHub CLI reference (fallback to MCP) | — |
 | `git-commit` | Conventional commit messages | — |
-| `github-issues` | Issue management | — |
-| `github-pull-requests` | PR creation and management | — |
-| `orchestration-helper` | Workflow orchestration utilities | — |
-| `make-skill-template` | Create new skills | — |
+| `github-operations` | GitHub issue & PR management | — |
+| `make-skill-template` | Create new skills from template | — |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -489,7 +488,7 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 ```
 ├── 📁 .github/
-│   ├── 📁 agents/             # 7 main agents + 3 validation subagents
+│   ├── 📁 agents/             # 8 main agents + 3 validation subagents
 │   │   ├── infraops-conductor.agent.md  # 🎼 Maestro - Master orchestrator
 │   │   ├── requirements.agent.md        # 📜 Scribe - Requirements capture
 │   │   ├── architect.agent.md           # 🏛️ Oracle - WAF assessment
@@ -500,13 +499,12 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 │   │   ├── diagnose.agent.md            # 🔍 Sentinel - Diagnostics
 │   │   └── 📁 _subagents/               # Validation subagents
 │   ├── 📁 instructions/       # Guardrails and coding standards
-│   ├── 📁 skills/             # 10 reusable skills
-│   └── 📁 templates/          # Artifact output templates
+│   └── 📁 skills/             # 9 reusable skills
 ├── 📁 agent-output/           # Generated artifacts per project
 ├── 📁 docs/                   # Documentation and guides
 ├── 📁 infra/bicep/            # Generated Bicep templates
 ├── 📁 mcp/azure-pricing-mcp/  # 💰 Pricing MCP add-on
-└── 📁 scenarios/              # 8 hands-on learning scenarios
+└── 📁 scenarios/              # 9 hands-on learning scenarios
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -583,13 +581,13 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 ## 🎯 Scenarios
 
-**8 hands-on scenarios** from beginner to advanced (15-45 min each):
+**9 hands-on scenarios** from beginner to advanced (15-45 min each):
 
 | Level | Scenarios |
 |-------|-----------|
 | **Beginner** | Bicep baseline, diagrams as code |
 | **Intermediate** | Documentation generation, service validation, troubleshooting, SBOM |
-| **Advanced** | Full agentic workflow, async coding agent |
+| **Advanced** | Full agentic workflow, async coding agent, orchestration test |
 
 📖 **[Full Scenarios Guide →](scenarios/README.md)**
 
