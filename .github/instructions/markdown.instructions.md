@@ -16,7 +16,7 @@ Follow these guidelines to ensure documentation quality across the repository.
 - Use LF line endings (enforced by `.gitattributes`)
 - Include meaningful alt text for all images
 - Validate with `markdownlint` before committing
-- Refer to `docs/guides/markdown-style-guide.md` for quick rules and examples
+- These standards serve as the canonical style reference for all markdown in this repository
 
 ## Line Length Guidelines
 

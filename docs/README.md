@@ -31,7 +31,7 @@ See [orchestration-helper skill](../.github/skills/orchestration-helper/SKILL.md
 
 ---
 
-## Agents (7 + 3 Subagents)
+## Agents (8 + 3 Subagents)
 
 Agents are interactive AI assistants for specific workflow phases. Invoke via `Ctrl+Shift+A`.
 
@@ -63,7 +63,7 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 ---
 
-## Skills (10)
+## Skills (11)
 
 Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
 
@@ -89,6 +89,7 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 | --------------------- | ------------------------------- | --------------------------------------------- |
 | `gh-cli`              | GitHub CLI reference            | "gh command", "github cli"                    |
 | `git-commit`          | Commit message conventions      | "commit", "conventional commit"               |
+| `docs-writer`         | Repo-aware docs maintenance     | "audit docs", "fix counts", "freshness check"    |
 | `make-skill-template` | Create new skills               | "create skill", "scaffold skill"              |
 | `orchestration-helper`| Conductor pattern documentation | "how does conductor work", "agent orchestration" |
 
@@ -117,9 +118,10 @@ Practice with hands-on scenarios in `scenarios/`:
 | S03-documentation-generation | Workload docs             | 30 min |
 | S04-service-validation       | Deployment preflight      | 20 min |
 | S05-troubleshooting          | Diagnose agent            | 20 min |
+| S06-sbom-generator           | SBOM generation           | 30 min |
 | S07-diagrams-as-code         | Architecture diagrams     | 30 min |
 | S08-coding-agent             | GitHub Copilot agent      | 45 min |
-| S09-skill-migration          | Agent to skill conversion | 30 min |
+| S09-orchestration-test       | Orchestration testing     | 30 min |
 
 ---
 
@@ -128,8 +130,8 @@ Practice with hands-on scenarios in `scenarios/`:
 ```
 azure-agentic-infraops/
 ├── .github/
-│   ├── agents/           # 6 agent definitions
-│   ├── skills/           # 9 skill definitions
+│   ├── agents/           # 8 agent definitions
+│   ├── skills/           # 11 skill definitions
 │   ├── instructions/     # File-type rules
 │   └── templates/        # Output templates
 ├── agent-output/         # Generated artifacts

@@ -176,7 +176,7 @@ az deployment group what-if --template-file main.json ...
 
 ### MCP Integration
 
-The Azure Pricing MCP server (`.mcp/azure-pricing-mcp/`) integrates with agents to fetch real-time SKU pricing:
+The Azure Pricing MCP server (`mcp/azure-pricing-mcp/`) integrates with agents to fetch real-time SKU pricing:
 
 - Used by `architect` agent for cost estimations in WAF assessments
 - Used by `bicep-plan` agent for SKU recommendations
@@ -195,7 +195,7 @@ The Azure Pricing MCP server (`.mcp/azure-pricing-mcp/`) integrates with agents 
 | `mcp/azure-pricing-mcp/`                  | Azure Pricing MCP server for cost estimation                |
 | `.vscode/mcp.json`                        | MCP server configuration (pre-configured)                   |
 | `scripts/validate-artifact-templates.mjs` | CI validation of artifact H2 structure                      |
-| `scenarios/`                              | Demo scenarios (S01-S08) for workflow examples              |
+| `scenarios/`                              | Demo scenarios (S01-S09) for workflow examples              |
 
 ## Project Structure
 
@@ -212,7 +212,7 @@ azure-agentic-infraops/
 │   │   ├── bicep-code.agent.md    # Step 5: Bicep code generation
 │   │   ├── deploy.agent.md        # Step 6: Azure deployment
 │   │   └── diagnose.agent.md      # Troubleshooting helper
-│   ├── skills/                    # 10 reusable skills (azure-diagrams, azure-adr,
+│   ├── skills/                    # 11 reusable skills (azure-diagrams, azure-adr,
 │   │                              # azure-workload-docs, orchestration-helper, etc.)
 │   ├── instructions/              # Rules for specific file types (applied via .gitattributes)
 │   ├── templates/                 # H2 skeleton files for artifact generation

@@ -1,6 +1,6 @@
 # Quickstart
 
-> Version 8.1.0 | Get running in 10 minutes
+> [Current Version](../VERSION.md) | Get running in 10 minutes
 
 ## Prerequisites
 

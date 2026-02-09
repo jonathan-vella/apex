@@ -1,6 +1,6 @@
 # Scenarios Overview
 
-> **Version 5.3.0** | [Changelog](../VERSION.md)
+> [Current Version](../VERSION.md) | [Changelog](../VERSION.md)
 >
 > **Hands-on learning scenarios demonstrating Agentic InfraOps as an efficiency multiplier
 > for IT Professionals.**
@@ -15,7 +15,8 @@
 > **Modules**: AVM-first for policy-compliant deployments.
 > See [ADR-003](../docs/_superseded/adr/ADR-003-avm-first-approach.md).
 >
-> **Agent Workflow**: `Requirements` → `architect` → `bicep-plan` → `bicep-code`.
+> **Agent Workflow**: `requirements` → `architect` → `design` (optional) → `bicep-plan`
+> → `bicep-code` → `deploy` → documentation.
 > See [Workflow Guide](../docs/workflow.md).
 
 ---
@@ -42,6 +43,7 @@
 | S06 | [SBOM Generator](#s06-sbom-generator)                     | Sarah Chen      | Software Bill of Materials             | 75 min    | 🟡 Intermediate |
 | S07 | [Diagrams as Code](#s07-diagrams-as-code)                 | David Kim       | Python-generated architecture diagrams | 20 min    | 🟢 Beginner     |
 | S08 | [Coding Agent](#s08-coding-agent)                         | Alex Petrov     | Async implementation via GitHub Issues | 30 min    | 🔴 Advanced     |
+| S09 | [Orchestration Test](#s09-orchestration-test)             | —               | End-to-end orchestration test of the full 7-step workflow | 60 min | 🔴 Advanced |
 
 **Difficulty Legend:**
 
@@ -243,6 +245,23 @@ via GitHub Issues.
 - Agent collaboration patterns
 
 **Key Insight**: Offload implementation to an **async agent** while focusing on higher-value work.
+
+---
+
+### S09: Orchestration Test
+
+**[📁 View Scenario](S09-orchestration-test/)**
+
+**Challenge**: End-to-end orchestration test of the full 7-step workflow.
+
+**What You'll Learn**:
+
+- Full Conductor-driven workflow from requirements to deployment
+- Approval gate interactions at each checkpoint
+- Artifact handoff validation across all 7 steps
+- End-to-end integration testing patterns
+
+**Key Insight**: Validates the complete **agent orchestration pipeline** in a single run.
 
 ---
 

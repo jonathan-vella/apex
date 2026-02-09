@@ -71,3 +71,4 @@ scratch/
 
 # Extracted sample apps (use .zip files instead to avoid Dependabot alerts)
 scenarios/S06-sbom-generator/sample-app/
+freshness-report.json

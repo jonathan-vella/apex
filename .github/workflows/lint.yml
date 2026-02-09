@@ -46,3 +46,7 @@ jobs:
 
       - name: Validate JSON files
         run: npm run lint:json
+
+      - name: Docs freshness check
+        run: npm run lint:docs-freshness
+        continue-on-error: true

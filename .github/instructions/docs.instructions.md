@@ -16,7 +16,7 @@ Every doc file must start with:
 ```markdown
 # {Title}
 
-> Version 8.0.0 | {One-line description}
+> [Current Version](../VERSION.md) | {One-line description}
 ```
 
 ### Single H1 Rule
@@ -31,18 +31,20 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 ## Current Architecture (as of 2026-02-03)
 
-### Agents (6 total)
+### Agents (8 total)
 
 | Agent | Purpose |
 |-------|---------|
+| `infraops-conductor` | Master orchestrator with approval gates |
 | `requirements` | Gather infrastructure requirements |
 | `architect` | WAF assessment and architecture design |
+| `design` | Architecture diagrams and ADRs |
 | `bicep-plan` | Implementation planning and governance |
 | `bicep-code` | Bicep template generation |
 | `deploy` | Azure deployment execution |
 | `diagnose` | Post-deployment health diagnostics |
 
-### Skills (10 total)
+### Skills (11 total)
 
 | Skill | Category | Purpose |
 |-------|----------|---------|
@@ -54,7 +56,9 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `github-pull-requests` | Workflow Automation | PR management |
 | `gh-cli` | Tool Integration | GitHub CLI reference |
 | `git-commit` | Tool Integration | Commit conventions |
+| `docs-writer` | Documentation | Repo-aware docs maintenance |
 | `make-skill-template` | Meta | Skill creation helper |
+| `orchestration-helper` | Meta | Conductor pattern documentation |
 
 ## Prohibited References
 

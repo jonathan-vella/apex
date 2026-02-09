@@ -1,6 +1,6 @@
 # Glossary
 
-> Version 8.0.0 | Quick reference for terms used throughout Agentic InfraOps documentation.
+> [Current Version](../VERSION.md) | Quick reference for terms used throughout Agentic InfraOps documentation.
 
 ---
 
@@ -16,8 +16,8 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes agents: requirements, architect, bicep-plan, bicep-code,
-deploy, diagnose.
+Invoked via `Ctrl+Shift+A`. This project includes agents: requirements, architect, design, bicep-plan,
+bicep-code, deploy, diagnose, InfraOps Conductor.
 
 📁 **See**: [.github/agents/](../.github/agents/)
 
@@ -55,12 +55,23 @@ Run with `bicep lint main.bicep` or automatically via VS Code extension.
 
 ### Copilot Chat
 
-The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Alt+I`. Supports
+The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Shift+I`. Supports
 custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
+
+### Conductor
+
+See [InfraOps Conductor](#infraops-conductor).
 
 ---
 
 ## D
+
+### Design Agent
+
+Step 3 agent that generates architecture diagrams and Architecture Decision Records (ADRs).
+Optional step in the workflow. Uses `azure-diagrams` and `azure-adr` skills.
+
+📁 **Output**: `agent-output/{project}/03-des-*.{py,png,md}`
 
 ### Dev Container
 
@@ -85,7 +96,7 @@ planning step and documented in `04-governance-constraints.md`.
 ### HIPAA (Health Insurance Portability and Accountability Act)
 
 US regulation governing protected health information (PHI). Azure provides HIPAA-compliant services
-when properly configured. S03 scenario demonstrates HIPAA-compliant architecture.
+when properly configured. S04 Service Validation scenario demonstrates HIPAA-compliant architecture.
 
 ### Hub-Spoke Network
 
@@ -95,6 +106,14 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 ---
 
 ## I
+
+### InfraOps Conductor
+
+The master orchestrator agent that coordinates all 7 steps of the infrastructure workflow with
+mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
+orchestration features.
+
+📁 **See**: [.github/agents/infraops-conductor.agent.md](../.github/agents/infraops-conductor.agent.md)
 
 ### IaC (Infrastructure as Code)
 
@@ -108,7 +127,7 @@ portal clicks. Enables version control, automation, and repeatability.
 ### KQL (Kusto Query Language)
 
 Query language used in Azure Monitor, Log Analytics, and Application Insights. Used for
-troubleshooting and diagnostics (see S07 Troubleshooting scenario).
+troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 
 🔗 **External**: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 
@@ -143,8 +162,8 @@ Essential for microsegmentation and defense-in-depth.
 
 ### PCI-DSS (Payment Card Industry Data Security Standard)
 
-Security standard for organizations handling credit card data. S04 E-Commerce scenario demonstrates
-PCI-DSS compliant architecture patterns.
+Security standard for organizations handling credit card data. S04 Service Validation scenario
+demonstrates PCI-DSS compliant architecture patterns.
 
 ### Private Endpoint
 
@@ -158,7 +177,7 @@ removing public internet exposure. Essential for zero-trust architectures.
 ### SBOM (Software Bill of Materials)
 
 Inventory of all software components in an application, including dependencies and versions.
-Required for supply chain security. S06 scenario demonstrates SBOM generation.
+Required for supply chain security. S06 SBOM Generator scenario demonstrates SBOM generation.
 
 ### SI Partner (System Integrator Partner)
 
@@ -167,11 +186,18 @@ for Agentic InfraOps methodology.
 
 ### Skill (Copilot)
 
-A reusable, domain-specific knowledge module in `.github/skills/` that provides specialized
-capabilities. Skills activate automatically based on prompt keywords or can be invoked explicitly.
+A reusable knowledge module stored in `.github/skills/` that agents can invoke. Unlike agents,
+skills don't have their own chat persona — they provide domain knowledge that agents use.
 Skills are organized across document creation, workflow automation, and utility categories.
 
 📁 **See**: [.github/skills/](../.github/skills/)
+
+### Subagent
+
+A specialized validation agent invoked by other agents for specific tasks (lint, what-if, review).
+Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`.
+
+📁 **See**: [.github/agents/_subagents/](../.github/agents/_subagents/)
 
 ---
 
@@ -188,8 +214,7 @@ Required tags in this project: Environment, ManagedBy, Project, Owner.
 
 ### UAT (User Acceptance Testing)
 
-Final testing phase where end users verify the system meets business requirements. S06 scenario
-demonstrates automated UAT validation.
+Final testing phase where end users verify the system meets business requirements.
 
 ---
 

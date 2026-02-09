@@ -1,0 +1,130 @@
+# Docs Freshness Check Workflow
+# Validates documentation counts, references, and links remain in sync
+# with the actual filesystem. Creates/updates an issue when drift is found.
+
+name: Docs Freshness Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/agents/**"
+      - ".github/skills/**"
+      - ".github/instructions/**"
+      - "scenarios/**"
+  schedule:
+    - cron: "0 8 * * 1" # Monday 8am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  freshness-check:
+    name: Docs Freshness Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run docs freshness check
+        id: freshness
+        run: node scripts/check-docs-freshness.mjs
+        continue-on-error: true
+
+      - name: Run deprecated refs check
+        run: npm run lint:deprecated-refs
+        continue-on-error: true
+
+      - name: Run skills format check
+        run: npm run lint:skills-format
+        continue-on-error: true
+
+      - name: Create or update issue
+        if: steps.freshness.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let reportBody = '';
+            try {
+              const report = JSON.parse(fs.readFileSync('freshness-report.json', 'utf8'));
+              reportBody += '| File | Line | Issue | Severity |\n';
+              reportBody += '|------|------|-------|----------|\n';
+              for (const f of report.findings) {
+                const loc = f.line > 0 ? `${f.file}:${f.line}` : f.file;
+                reportBody += `| \`${loc}\` | ${f.line || '—'} | ${f.issue} | ${f.severity} |\n`;
+              }
+              reportBody += `\n**Summary**: ${report.summary}`;
+            } catch {
+              reportBody = '⚠️ Could not parse freshness-report.json — check workflow logs.';
+            }
+
+            const body = [
+              '## 📋 Docs Freshness Report',
+              '',
+              `**Run**: [Workflow Run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+              `**Date**: ${new Date().toISOString().slice(0, 10)}`,
+              '',
+              '### Findings',
+              '',
+              reportBody,
+              '',
+              '### Suggested Fix',
+              '',
+              'Use the **docs-writer** skill with Workflow 7 (Process Freshness Issues):',
+              '```',
+              'Fix the docs freshness issues listed above',
+              '```',
+            ].join('\n');
+
+            // Search for existing open issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'docs-freshness,automation'
+            });
+
+            const existing = issues.find(i => i.title.includes('Docs Freshness Check'));
+
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: `## Weekly Update\n\n${body}`
+              });
+              console.log(`Updated existing issue #${existing.number}`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '📋 Docs Freshness Check — Issues Found',
+                body,
+                labels: ['docs-freshness', 'automation', 'documentation'],
+                assignees: ['copilot']
+              });
+              console.log('Created new freshness issue');
+            }
+
+      - name: Upload freshness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freshness-report
+          path: freshness-report.json
+          retention-days: 30
+          if-no-files-found: ignore
