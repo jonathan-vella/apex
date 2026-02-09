@@ -6,25 +6,7 @@ argument-hint: Deploy the Bicep templates for a specific project
 user-invokable: true
 agents: ["*"]
 tools:
-  [
-    "vscode",
-    "execute",
-    "read",
-    "agent",
-    "edit",
-    "search",
-    "web",
-    "azure-mcp/*",
-    "bicep/*",
-    "todo",
-    "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
-    "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
-    "ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context",
-    "ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context",
-    "ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags",
-    "ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag",
-    "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
-  ]
+  ['vscode/extensions', 'vscode/getProjectSetupInfo', 'vscode/installExtension', 'vscode/newWorkspace', 'vscode/openSimpleBrowser', 'vscode/runCommand', 'vscode/askQuestions', 'vscode/vscodeAPI', 'execute/getTerminalOutput', 'execute/awaitTerminal', 'execute/killTerminal', 'execute/createAndRunTask', 'execute/runTests', 'execute/runNotebookCell', 'execute/testFailure', 'execute/runInTerminal', 'read/terminalSelection', 'read/terminalLastCommand', 'read/getNotebookSummary', 'read/problems', 'read/readFile', 'read/readNotebookCellOutput', 'agent/runSubagent', 'edit/createDirectory', 'edit/createFile', 'edit/createJupyterNotebook', 'edit/editFiles', 'edit/editNotebook', 'search/changes', 'search/codebase', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'web/fetch', 'web/githubRepo', 'azure-mcp/acr', 'azure-mcp/aks', 'azure-mcp/appconfig', 'azure-mcp/applens', 'azure-mcp/applicationinsights', 'azure-mcp/appservice', 'azure-mcp/azd', 'azure-mcp/azureterraformbestpractices', 'azure-mcp/bicepschema', 'azure-mcp/cloudarchitect', 'azure-mcp/communication', 'azure-mcp/confidentialledger', 'azure-mcp/cosmos', 'azure-mcp/datadog', 'azure-mcp/deploy', 'azure-mcp/documentation', 'azure-mcp/eventgrid', 'azure-mcp/eventhubs', 'azure-mcp/extension_azqr', 'azure-mcp/extension_cli_generate', 'azure-mcp/extension_cli_install', 'azure-mcp/foundry', 'azure-mcp/functionapp', 'azure-mcp/get_bestpractices', 'azure-mcp/grafana', 'azure-mcp/group_list', 'azure-mcp/keyvault', 'azure-mcp/kusto', 'azure-mcp/loadtesting', 'azure-mcp/managedlustre', 'azure-mcp/marketplace', 'azure-mcp/monitor', 'azure-mcp/mysql', 'azure-mcp/postgres', 'azure-mcp/quota', 'azure-mcp/redis', 'azure-mcp/resourcehealth', 'azure-mcp/role', 'azure-mcp/search', 'azure-mcp/servicebus', 'azure-mcp/signalr', 'azure-mcp/speech', 'azure-mcp/sql', 'azure-mcp/storage', 'azure-mcp/subscription_list', 'azure-mcp/virtualdesktop', 'azure-mcp/workbooks', 'bicep/decompile_arm_parameters_file', 'bicep/decompile_arm_template_file', 'bicep/format_bicep_file', 'bicep/get_az_resource_type_schema', 'bicep/get_bicep_best_practices', 'bicep/get_bicep_file_diagnostics', 'bicep/get_deployment_snapshot', 'bicep/get_file_references', 'bicep/list_avm_metadata', 'bicep/list_az_resource_types_for_provider', 'todo', 'memory', 'ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes', 'ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph', 'ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag', 'ms-azuretools.vscode-azureresourcegroups/azureActivityLog']
 handoffs:
   - label: ▶ Run What-If Only
     agent: Deploy
