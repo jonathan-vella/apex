@@ -96,29 +96,33 @@ graph LR
 
 ## Template-First Approach for Workflow Artifacts
 
-**MANDATORY for Wave 1 artifacts (01, 02, 04, 06):**
+**MANDATORY for all workflow artifacts:**
 
-When generating core workflow artifacts, agents **MUST** follow the canonical templates:
+When generating workflow artifacts, agents **MUST** follow the canonical templates in
+`.github/skills/azure-artifacts/templates/`. Key examples:
 
-| Artifact                        | Template                                                   | Producing Agent           |
-| ------------------------------- | ---------------------------------------------------------- | ------------------------- |
-| `01-requirements.md`            | `.github/skills/azure-artifacts/templates/01-requirements.template.md`            | @requirements (custom)    |
-| `02-architecture-assessment.md` | `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md` | architect                 |
-| `04-implementation-plan.md`     | `.github/skills/azure-artifacts/templates/04-implementation-plan.template.md`     | bicep-plan                |
-| `06-deployment-summary.md`      | `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`      | Deployment tooling/manual |
+| Artifact                        | Template                                           | Producing Agent |
+| ------------------------------- | -------------------------------------------------- | --------------- |
+| `01-requirements.md`            | `01-requirements.template.md`                      | requirements    |
+| `02-architecture-assessment.md` | `02-architecture-assessment.template.md`            | architect       |
+| `04-implementation-plan.md`     | `04-implementation-plan.template.md`                | bicep-plan      |
+| `06-deployment-summary.md`      | `06-deployment-summary.template.md`                 | deploy          |
+
+All 15 artifact types have corresponding templates. See `artifact-h2-reference.instructions.md`
+for the complete heading reference.
 
 **Requirements:**
 
 1. **Preserve H2 heading order**: Templates define invariant H2 sections that MUST appear in order
 2. **No embedded skeletons**: Agents must link to templates, never embed structure inline
 3. **Optional sections**: May appear after the last required H2 (anchor), with warnings if before
-4. **Validation**: All artifacts are validated by `scripts/validate-wave1-artifacts.mjs`
+4. **Validation**: All artifacts are validated by `scripts/validate-artifact-templates.mjs`
 
 **Enforcement:**
 
-- CI drift guard runs on PR/push when templates, agents, or instructions change
-- Strictness mode starts `relaxed` (warnings), ratchets to `standard` (failures) after workflow proven
-- See `.github/workflows/` for drift guard configuration
+- Pre-commit hooks via Lefthook run validation on every commit
+- CI validates on PR/push via GitHub Actions
+- Auto-fix available: `npm run fix:artifact-h2`
 
 ## Visual Styling Standards
 

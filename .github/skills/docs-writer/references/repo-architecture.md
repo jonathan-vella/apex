@@ -11,7 +11,7 @@ azure-agentic-infraops/
 │   │   └── _subagents/      # Validation subagents (lint, what-if, review)
 │   ├── skills/              # 9 skill definitions (incl. docs-writer)
 │   │   └── azure-artifacts/templates/ # 16 artifact templates
-│   ├── instructions/        # 16 file-type instruction files
+│   ├── instructions/        # 15 file-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
 │   ├── presenter/           # Presentation materials
@@ -106,14 +106,13 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-resource-inventory.template.md` | Resource Inventory | Relaxed |
 | `PROJECT-README.template.md` | Project README | — |
 
-## Instruction File Map (16 Files)
+## Instruction File Map (15 Files)
 
 | Instruction | Applies To (glob) |
 | --- | --- |
 | `agent-research-first.instructions.md` | `**/*.agent.md` |
 | `agent-skills.instructions.md` | `**/.github/skills/**/SKILL.md` |
 | `agents-definitions.instructions.md` | `**/*.agent.md` |
-| `artifact-generation.instructions.md` | `**/agent-output/**/*.md` |
 | `artifact-h2-reference.instructions.md` | `**/agent-output/**/*.md` |
 | `bicep-code-best-practices.instructions.md` | `**/*.bicep` |
 | `copilot-thought-logging.instructions.md` | `**` |

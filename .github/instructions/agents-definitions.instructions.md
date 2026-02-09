@@ -77,15 +77,16 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
 ## Shared Defaults (Required)
 
-All top-level workflow agents in `.github/agents/` MUST include this near the top of the file:
+All top-level workflow agents in `.github/agents/` MUST read the `azure-defaults` skill for shared
+knowledge. Include a reference near the top of the agent body:
 
 ```text
-> **See \[Agent Shared Foundation\]\(_shared/defaults.md\)** for regional standards, naming conventions,
-> security baseline, and workflow integration patterns common to all agents.
+Read `.github/skills/azure-defaults/SKILL.md` FIRST for regional standards, naming conventions,
+security baseline, and workflow integration patterns common to all agents.
 ```
 
-If you author scenario-local agents (for example under `scenarios/**/agents/`), link to the shared
-foundation using a correct relative path from that folder.
+If you author scenario-local agents (for example under `scenarios/**/agents/`), use the correct
+relative path from that folder.
 
 ## Authoritative Standards (Avoid Drift)
 
@@ -121,6 +122,6 @@ If an agent contains an embedded template in its body, it MUST match the relevan
 
 - `tools:` only contains valid tool IDs/patterns
 - `handoffs:` only references real agents
-- The link to `_shared/defaults.md` works
+- The `azure-defaults` skill reference is correct
 - Embedded templates match `.github/instructions/*` standards
 - `npm run lint:md` passes

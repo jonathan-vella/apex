@@ -44,7 +44,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `deploy` | Azure deployment execution |
 | `diagnose` | Post-deployment health diagnostics |
 
-### Skills (9 total)
+### Skills (8 total)
 
 | Skill | Category | Purpose |
 |-------|----------|---------|
@@ -52,8 +52,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `azure-artifacts` | Artifact Generation | Template H2s, styling, generation rules |
 | `azure-defaults` | Azure Conventions | Regions, naming, AVM, WAF, pricing, tags |
 | `azure-diagrams` | Document Creation | Python architecture diagrams |
-| `github-operations` | Workflow Automation | Issue and PR management |
-| `gh-cli` | Tool Integration | GitHub CLI reference |
+| `github-operations` | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
 | `git-commit` | Tool Integration | Commit conventions |
 | `docs-writer` | Documentation | Repo-aware docs maintenance |
 | `make-skill-template` | Meta | Skill creation helper |
@@ -69,6 +68,7 @@ Do NOT reference these removed agents/skills:
 - ❌ `azure-deployment-preflight` skill → Merged into deploy agent
 - ❌ `orchestration-helper` skill → Deleted (absorbed into conductor)
 - ❌ `github-issues` / `github-pull-requests` skills → Use `github-operations`
+- ❌ `gh-cli` skill → Merged into `github-operations`
 - ❌ `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills
 
 ## Content Principles
