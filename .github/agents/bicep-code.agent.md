@@ -56,6 +56,8 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Use `take()` for length-constrained resources (Key Vault ≤24, Storage ≤24)
 - ✅ Generate `deploy.ps1` PowerShell deployment script
 - ✅ Generate `.bicepparam` parameter file for each environment
+- ✅ If plan specifies phased deployment, add `phase` parameter to
+  `main.bicep` that conditionally deploys resource groups per phase
 - ✅ Run `bicep build` and `bicep lint` after generating templates
 - ✅ Save implementation reference to `05-implementation-reference.md`
 
@@ -99,7 +101,17 @@ Before writing ANY Bicep code, validate AVM compatibility:
 
 ### Phase 2: Progressive Implementation
 
-Build templates in dependency order:
+Build templates in dependency order.
+
+**Check `04-implementation-plan.md` for deployment strategy:**
+
+- If **phased**: add a `@allowed` `phase` parameter to `main.bicep`
+  (values: `'all'`, `'foundation'`, `'security'`, `'data'`,
+  `'compute'`, `'edge'` — matching the plan’s phase names).
+  Wrap each module call in a conditional:
+  `if phase == 'all' || phase == '{phaseName}'`.
+  This lets `deploy.ps1` deploy one phase at a time.
+- If **single**: no `phase` parameter needed; deploy everything.
 
 **Round 1 — Foundation:**
 
@@ -139,6 +151,10 @@ Generate `infra/bicep/{project}/deploy.ps1` with:
 Script must include:
 
 - Parameter validation (ResourceGroup, Location, Environment)
+- **Phase parameter** (`-Phase` with default `all`):
+  - If phased plan: accept phase names from the implementation plan
+  - Loop through phases sequentially with approval prompts between
+  - If single plan: ignore phase parameter, deploy everything
 - `az group create` for resource group
 - `az deployment group create` with `--template-file` and `--parameters`
 - Output parsing with deployment results table

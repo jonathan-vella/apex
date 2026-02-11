@@ -63,6 +63,8 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Define tasks as YAML-structured specs (resource, module, dependencies, config)
 - ✅ Generate both `04-implementation-plan.md` and `04-governance-constraints.md`
 - ✅ Match H2 headings from azure-artifacts skill exactly
+- ✅ Ask user for deployment strategy (phased vs single) — MANDATORY GATE
+- ✅ Default recommendation: phased deployment (especially for >5 resources)
 - ✅ Wait for user approval before handoff to bicep-code
 
 ### DON'T
@@ -155,6 +157,32 @@ Use deprecation research patterns from azure-defaults skill:
 
 If deprecation detected: document alternative, adjust plan.
 
+### Phase 3.5: Deployment Strategy Gate (MANDATORY)
+
+> [!CAUTION]
+> This is a **mandatory gate**. You MUST ask the user before generating
+> the implementation plan. Do NOT assume single or phased — ask.
+
+Use `askQuestions` to present the deployment strategy choice:
+
+- **Phased deployment** (recommended) — deploy in logical phases with
+  approval gates between each. Reduces blast radius, isolates failures,
+  enables incremental validation. Recommended for >5 resources or any
+  production/compliance workload.
+- **Single deployment** — deploy all resources in one operation.
+  Suitable only for small dev/test environments with <5 resources.
+
+**Default: Phased** (pre-selected as recommended).
+
+If the user selects phased, also ask for phase grouping preference:
+
+- **Standard** (recommended): Foundation → Security → Data → Compute →
+  Edge/Integration
+- **Custom**: Let the user define phase boundaries
+
+Record the user's choice and use it to structure the `## Deployment
+Phases` section of the implementation plan.
+
 ### Phase 4: Implementation Plan Generation
 
 Generate structured plan with these elements per resource:
@@ -177,6 +205,10 @@ Include:
 - Resource inventory with SKUs and dependencies
 - Module structure (`main.bicep` + `modules/`)
 - Implementation tasks in dependency order
+- **Deployment Phases** section (from user's Phase 3.5 choice):
+  - If **phased**: group tasks into phases with approval gates,
+    validation criteria, and estimated deploy time per phase
+  - If **single**: note single deployment with one what-if gate
 - Mermaid dependency graph
 - Naming conventions table (from azure-defaults CAF section)
 - Security configuration matrix
@@ -189,8 +221,9 @@ Present plan summary and wait for approval:
 ```
 📝 Implementation Plan Complete
 
-Resources: {count} | AVM Modules: {count} | Custom Resources: {count}
+Resources: {count} | AVM Modules: {count} | Custom: {count}
 Governance: {blocker_count} blockers, {warning_count} warnings
+Deployment: {Phased (N phases) | Single}
 Est. Implementation: {time}
 
 Reply "approve" to proceed to bicep-code, or provide feedback.

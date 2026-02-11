@@ -12,6 +12,19 @@ handoffs:
     agent: Deploy
     prompt: Execute az deployment what-if analysis without actually deploying. Show the expected changes to the target resource group.
     send: true
+  - label: ▶ Deploy Next Phase
+    agent: Deploy
+    prompt: >-
+      Deploy the next phase from the implementation plan.
+      Read 04-implementation-plan.md for phase definitions
+      and deploy the next uncompleted phase with approval.
+    send: true
+  - label: ▶ Deploy All Phases
+    agent: Deploy
+    prompt: >-
+      Deploy all remaining phases sequentially from the
+      implementation plan with approval gates between each.
+    send: true
   - label: ▶ Retry Deployment
     agent: Deploy
     prompt: Retry the last deployment operation. Re-run preflight validation and deployment with the same parameters.
@@ -58,6 +71,8 @@ handoffs:
 ### DO
 
 - ✅ ALWAYS run preflight validation BEFORE deployment (Steps 1-4 below)
+- ✅ Check `04-implementation-plan.md` for deployment strategy (phased/single)
+- ✅ If phased: deploy one phase at a time with approval gates between
 - ✅ Use **default output** for what-if commands (no `--output` flag) for VS Code rendering
 - ✅ Check Azure authentication first (`az account show`)
 - ✅ Present what-if change summary and wait for user approval before deploying
@@ -69,6 +84,7 @@ handoffs:
 ### DON'T
 
 - ❌ Deploy without running what-if first
+- ❌ Skip phase gates when plan specifies phased deployment
 - ❌ Use `--output yaml` or `--output json` for what-if (disables VS Code rendering)
 - ❌ Auto-approve production deployments (require explicit user confirmation)
 - ❌ Proceed if what-if shows Delete operations without user approval
@@ -168,6 +184,21 @@ If detected, STOP and report.
 Present summary table and wait for user approval.
 
 ## Deployment Execution
+
+### Phase-Aware Deployment
+
+Before deploying, read `04-implementation-plan.md` and check the
+`## Deployment Phases` section:
+
+- If **phased**: deploy each phase sequentially
+  1. Run what-if for the current phase:
+     `pwsh -File deploy.ps1 -Phase {phaseName} -WhatIf`
+  2. Present what-if results and wait for user approval
+  3. Execute: `pwsh -File deploy.ps1 -Phase {phaseName}`
+  4. Verify phase resources via ARG query
+  5. Present phase completion summary with approval gate
+  6. Repeat for next phase
+- If **single**: deploy everything in one what-if + deploy cycle
 
 ### Option 1: PowerShell Script (Recommended)
 

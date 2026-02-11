@@ -47,7 +47,10 @@ handoffs:
     model: "Claude Sonnet 4.5 (copilot)"
   - label: "Step 6: Deploy"
     agent: Deploy
-    prompt: Deploy the Bicep templates to Azure after preflight validation.
+    prompt: >-
+      Deploy the Bicep templates to Azure after preflight
+      validation. Check 04-implementation-plan.md for deployment
+      strategy (phased or single) and follow accordingly.
     send: false
     model: "Claude Sonnet 4.5 (copilot)"
   - label: "🔧 Diagnose Issues"
@@ -128,6 +131,7 @@ Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
 Governance: agent-output/{project}/04-governance-constraints.md
+Deployment: {Phased (N phases) | Single}
 ✅ Next: Bicep Implementation (Step 5)
 ❓ Review plan and confirm to proceed
 ```

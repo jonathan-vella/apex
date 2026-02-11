@@ -93,6 +93,40 @@ Example configuration snippet
 
 ---
 
+## Deployment Phases
+
+> Deployment strategy: **{Phased|Single}** (chosen during planning)
+
+### Phase 1: Foundation
+
+| Order | Module | Resources | Validation |
+| ----- | ------ | --------- | ---------- |
+| 1 | ... | ... | ... |
+
+**Approval Gate**: Verify foundation resources before proceeding.
+
+### Phase 2: Security & Data
+
+| Order | Module | Resources | Validation |
+| ----- | ------ | --------- | ---------- |
+| 2 | ... | ... | ... |
+
+**Approval Gate**: Verify security controls before CDE resources.
+
+### Phase N: ...
+
+_(Repeat for each phase)_
+
+### Phase Summary
+
+| Phase | Resources | Est. Deploy Time | Approval Gate |
+| ----- | --------- | ---------------- | ------------- |
+| 1 | X | X min | ✅ |
+| 2 | X | X min | ✅ |
+| N | X | X min | ✅ |
+
+---
+
 ## Dependency Graph
 
 ```mermaid
