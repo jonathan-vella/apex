@@ -1,0 +1,352 @@
+{
+  "metadata": {
+    "project": "the-test",
+    "subscription": "noalz",
+    "subscriptionId": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+    "tenantId": "2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+    "discoveryMethod": "REST API (/providers/Microsoft.Authorization/policyAssignments)",
+    "discoveryTimestamp": "2026-02-11T12:00:00Z",
+    "totalAssignments": 21,
+    "scopeBreakdown": {
+      "subscriptionScoped": 5,
+      "resourceGroupScoped": 7,
+      "managementGroupInherited": 9
+    }
+  },
+  "blockers": [
+    {
+      "severity": "critical",
+      "policy": "JV-Enforce Resource Group Tags v3",
+      "effect": "Deny",
+      "description": "9 lowercase tags required on all resource groups",
+      "resolution": "Add all 9 tags to RG deployments with correct lowercase casing",
+      "tags": [
+        "environment",
+        "owner",
+        "costcenter",
+        "application",
+        "workload",
+        "sla",
+        "backup-policy",
+        "maint-window",
+        "technical-contact"
+      ]
+    },
+    {
+      "severity": "medium",
+      "policy": "MCAPSGov Deny Policies - KeyVaultManagedHSM_PurgeProtectionEnabled",
+      "effect": "Deny",
+      "description": "Key Vault Managed HSM requires purge protection",
+      "resolution": "Set enablePurgeProtection: true on Key Vault"
+    },
+    {
+      "severity": "low",
+      "policy": "MCAPSGov Deny Policies - VMSS_LimitNodesCount",
+      "effect": "Deny",
+      "description": "VMSS node count limit may affect AKS autoscaler",
+      "resolution": "Verify VMSS limit parameter and ensure AKS max nodes comply"
+    }
+  ],
+  "policies": {
+    "managementGroupInherited": [
+      {
+        "displayName": "MCAPSGov Deny Policies",
+        "assignmentId": "MCAPSGovDenyPolicies",
+        "policyDefinitionId": "MCAPSGovDenyPolicies",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "MCAPSGov Deploy and Modify Policies",
+        "assignmentId": "MCAPSGovDeployPolicies",
+        "policyDefinitionId": "MCAPSGovDeployPolicies",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "Microsoft Azure Multi Factor Authentication Enforcement for Resource Delete Actions",
+        "assignmentId": "sys.mfa-delete",
+        "policyDefinitionId": "f69cd8b8-9a6e-46b4-be84-244e8b127944",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "Azure Security Baseline",
+        "assignmentId": "Azure_Security_Baseline",
+        "policyDefinitionId": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "MCAPSGov Audit Policies",
+        "assignmentId": "MCAPSGovAuditPolicies",
+        "policyDefinitionId": "MCAPSGovAuditPolicies",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "JV - Inherit Multiple Tags from Resource Group",
+        "assignmentId": "558bced8a4e7433e8662e202",
+        "policyDefinitionId": "965dc15a-655c-46be-b95e-72c2b6821ec6",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "Block Azure RM Resource Creation",
+        "assignmentId": "918465337cff47588b23a6e9",
+        "policyDefinitionId": "f0b6d104-1292-4b81-a05d-c2d8db5a651d",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "Microsoft Azure Multi Factor Authentication Enforcement for Resource Write Actions",
+        "assignmentId": "sys.mfa-write",
+        "policyDefinitionId": "54f51f64-eaa5-44cf-8674-830bcfd14d21",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      },
+      {
+        "displayName": "JV-Enforce Resource Group Tags v3",
+        "assignmentId": "b1ad1a690a5148ec8707ff17",
+        "policyDefinitionId": "27833bcf-5909-4a37-891c-16a3cb06856d",
+        "enforcementMode": "Default",
+        "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+      }
+    ],
+    "subscriptionScoped": [
+      {
+        "displayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+        "assignmentId": "60a5fd56-f433-4006-9a32",
+        "policyDefinitionId": "7326812a-86a4-40c8-af7c-8945de9c4913",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9"
+      },
+      {
+        "displayName": "PCI DSS v4",
+        "assignmentId": "0c8e19ce-ea7d-40ec-a305",
+        "policyDefinitionId": "c676748e-3af9-4e22-bc28-50feed564afb",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9"
+      },
+      {
+        "displayName": "ASC DataProtection (subscription: 00858ffc-dded-4f0f-8bbf-e17fff0d47d9)",
+        "assignmentId": "DataProtectionSecurityCenter",
+        "policyDefinitionId": "9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9"
+      },
+      {
+        "displayName": "ASC OpenSourceRelationalDatabasesProtection (subscription: 00858ffc-dded-4f0f-8bbf-e17fff0d47d9)",
+        "assignmentId": "OpenSourceRelationalDatabasesProtectionSecurityCenter",
+        "policyDefinitionId": "e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9"
+      },
+      {
+        "displayName": "Defender for SQL Servers on Machines provisioning (subscription: 00858ffc-dded-4f0f-8bbf-e17fff0d47d9)",
+        "assignmentId": "SqlVmAndArcSqlServersProtection",
+        "policyDefinitionId": "c1529623-9fc2-45bc-b84b-b14cd0b7484e",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9"
+      }
+    ],
+    "resourceGroupScoped": [
+      {
+        "displayName": "(ArcBox) Enable SSH Posture Control audit",
+        "assignmentId": "(ArcBox) Enable SSH Posture Control audit",
+        "policyDefinitionId": "a8f3e6a6-dcd2-434c-b0f7-6f309ce913b4",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      },
+      {
+        "displayName": "(ArcBox) Enable Azure Update Manager for Arc-enabled Windows machines",
+        "assignmentId": "(ArcBox) Enable Azure Update Manager for Windows hybrid machines",
+        "policyDefinitionId": "bfea026e-043f-4ff4-9d1b-bf301ca7ff46",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      },
+      {
+        "displayName": "(unnamed)",
+        "assignmentId": "(ArcBox) Tag resources-Solution",
+        "policyDefinitionId": "4f9dc7db-30c1-420c-b61a-e1d640128d26",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      },
+      {
+        "displayName": "(unnamed)",
+        "assignmentId": "(ArcBox) Enable Azure Monitor for Hybrid VMs with AMA",
+        "policyDefinitionId": "59e9c3eb-d8df-473b-8059-23fd38ddd0f0",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      },
+      {
+        "displayName": "(ArcBox) Enable Azure Update Manager for Arc-enabled Linux machines",
+        "assignmentId": "(ArcBox) Enable Azure Update Manager for Linux hybrid machines",
+        "policyDefinitionId": "bfea026e-043f-4ff4-9d1b-bf301ca7ff46",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      },
+      {
+        "displayName": "(ArcBox) Enable Azure Update Manager for Azure Windows machines",
+        "assignmentId": "(ArcBox) Enable Azure Update Manager for Azure Windows machines",
+        "policyDefinitionId": "59efceea-0c96-497e-a4a1-4eb2290dac15",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      },
+      {
+        "displayName": "(ArcBox) Enable Azure Update Manager for Azure Linux machines",
+        "assignmentId": "(ArcBox) Enable Azure Update Manager for Azure Linux machines",
+        "policyDefinitionId": "59efceea-0c96-497e-a4a1-4eb2290dac15",
+        "enforcementMode": "Default",
+        "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourcegroups/rg-arcbox-swc01",
+        "resourceGroup": "rg-arcbox-swc01"
+      }
+    ]
+  },
+  "requiredTags": {
+    "policyName": "JV-Enforce Resource Group Tags v3",
+    "policyDefinitionId": "27833bcf-5909-4a37-891c-16a3cb06856d",
+    "effect": "Deny",
+    "scope": "resourceGroups",
+    "caseSensitive": true,
+    "tags": [
+      {
+        "name": "environment",
+        "required": true,
+        "examples": [
+          "dev",
+          "staging",
+          "prod"
+        ]
+      },
+      {
+        "name": "owner",
+        "required": true,
+        "examples": [
+          "team-payments"
+        ]
+      },
+      {
+        "name": "costcenter",
+        "required": true,
+        "examples": [
+          "CC-12345"
+        ]
+      },
+      {
+        "name": "application",
+        "required": true,
+        "examples": [
+          "the-test"
+        ]
+      },
+      {
+        "name": "workload",
+        "required": true,
+        "examples": [
+          "payment-gateway"
+        ]
+      },
+      {
+        "name": "sla",
+        "required": true,
+        "examples": [
+          "99.99"
+        ]
+      },
+      {
+        "name": "backup-policy",
+        "required": true,
+        "examples": [
+          "daily"
+        ]
+      },
+      {
+        "name": "maint-window",
+        "required": true,
+        "examples": [
+          "Sun:02:00-06:00"
+        ]
+      },
+      {
+        "name": "technical-contact",
+        "required": true,
+        "examples": [
+          "ops@contoso.com"
+        ]
+      }
+    ],
+    "excludedResourceGroups": [
+      "AzureBackupRG*",
+      "ResourceMover*",
+      "databricks-rg*",
+      "NetworkWatcherRG",
+      "microsoft-network",
+      "LogAnalyticsDefaultResources",
+      "rg-amba-*",
+      "DynamicsDeployments*",
+      "MC_myResourceGroup*"
+    ]
+  },
+  "vmSkuRestrictions": {
+    "blockedFamilies": [
+      "H-series",
+      "M-series",
+      "N-series"
+    ],
+    "blockedSkuCount": {
+      "H": 17,
+      "M": 44,
+      "N": 64
+    },
+    "allowedForProject": [
+      "Standard_D8s_v5",
+      "Standard_D4s_v5",
+      "Standard_D2s_v5"
+    ],
+    "source": "MCAPSGov Deny Policies (BlockVMSKUs_H/M/N)"
+  },
+  "aksConstraints": {
+    "maxAgentPoolProfiles": 10,
+    "projectPools": 2,
+    "compliant": true,
+    "source": "MCAPSGov Deny Policies (AKS_LimitNodeCount)"
+  },
+  "keyVaultConstraints": {
+    "purgeProtectionRequired": true,
+    "condition": "When CostControl tag != Ignore",
+    "source": "MCAPSGov Deny Policies (KeyVaultManagedHSM_PurgeProtectionEnabled)"
+  },
+  "complianceFrameworks": [
+    {
+      "name": "PCI DSS v4",
+      "controlCount": 269,
+      "effect": "Audit",
+      "scope": "subscription"
+    },
+    {
+      "name": "EU GDPR 2016/679",
+      "controlCount": 285,
+      "effect": "Audit",
+      "scope": "subscription"
+    },
+    {
+      "name": "Azure Security Baseline",
+      "controlCount": 224,
+      "effect": "Audit",
+      "scope": "managementGroup"
+    },
+    {
+      "name": "MCAPSGov Audit Policies",
+      "controlCount": 44,
+      "effect": "Audit",
+      "scope": "managementGroup"
+    }
+  ]
+}
