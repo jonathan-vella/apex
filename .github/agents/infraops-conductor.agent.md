@@ -39,18 +39,15 @@ handoffs:
     agent: Bicep Plan
     prompt: Create a detailed Bicep implementation plan based on the architecture. Save to 04-implementation-plan.md.
     send: true
-    model: "Claude Sonnet 4.5 (copilot)"
+    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Bicep"
     agent: Bicep Code
     prompt: Implement the Bicep templates according to the plan. Proceed directly to completion - Deploy agent will validate.
     send: true
-    model: "Claude Sonnet 4.5 (copilot)"
+    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 6: Deploy"
     agent: Deploy
-    prompt: >-
-      Deploy the Bicep templates to Azure after preflight
-      validation. Check 04-implementation-plan.md for deployment
-      strategy (phased or single) and follow accordingly.
+    prompt: Deploy the Bicep templates to Azure after preflight validation. Check 04-implementation-plan.md for deployment strategy (phased or single) and follow accordingly.
     send: false
     model: "Claude Sonnet 4.5 (copilot)"
   - label: "🔧 Diagnose Issues"

@@ -10,31 +10,37 @@
 
 ## 7-Step Workflow
 
-| Step | Agent | Output | Gate |
-| --- | --- | --- | --- |
-| 1 | Requirements | `01-requirements.md` | Approval |
-| 2 | Architect | `02-architecture-assessment.md` + cost estimate | Approval |
-| 3 | Design (opt) | `03-des-*.{py,png,md}` | — |
-| 4 | Bicep Plan | `04-implementation-plan.md` + governance | Approval |
-| 5 | Bicep Code | `infra/bicep/{project}/` | Validation |
-| 6 | Deploy | `06-deployment-summary.md` | Approval |
-| 7 | As-Built | `07-*.md` documentation suite | — |
+| Step | Agent        | Output                                          | Gate       |
+| ---- | ------------ | ----------------------------------------------- | ---------- |
+| 1    | Requirements | `01-requirements.md`                            | Approval   |
+| 2    | Architect    | `02-architecture-assessment.md` + cost estimate | Approval   |
+| 3    | Design (opt) | `03-des-*.{py,png,md}`                          | —          |
+| 4    | Bicep Plan   | `04-implementation-plan.md` + governance        | Approval   |
+| 5    | Bicep Code   | `infra/bicep/{project}/`                        | Validation |
+| 6    | Deploy       | `06-deployment-summary.md`                      | Approval   |
+| 7    | As-Built     | `07-*.md` documentation suite                   | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
 
 ## Skills (Auto-Invoked by Agents)
 
-| Skill | Purpose |
-| --- | --- |
-| `azure-defaults` | Regions, tags, naming, AVM, security, governance, pricing |
-| `azure-artifacts` | Template H2 structures, styling, generation rules |
-| `azure-diagrams` | Python architecture diagram generation |
-| `azure-adr` | Architecture Decision Records |
-| `github-operations` | GitHub issues, PRs, CLI, Actions, releases |
-| `git-commit` | Commit message conventions |
-| `docs-writer` | Documentation generation |
+| Skill               | Purpose                                                   |
+| ------------------- | --------------------------------------------------------- |
+| `azure-defaults`    | Regions, tags, naming, AVM, security, governance, pricing |
+| `azure-artifacts`   | Template H2 structures, styling, generation rules         |
+| `azure-diagrams`    | Python architecture diagram generation                    |
+| `azure-adr`         | Architecture Decision Records                             |
+| `github-operations` | GitHub issues, PRs, CLI, Actions, releases                |
+| `git-commit`        | Commit message conventions                                |
+| `docs-writer`       | Documentation generation                                  |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
+
+## Chat Triggers
+
+- If a user message starts with `gh`, treat it as a GitHub operation.
+  Examples: `gh pr create ...`, `gh workflow run ...`, `gh api ...`.
+- Automatically follow the `github-operations` skill guidance (MCP-first, `gh` CLI fallback) from `.github/skills/github-operations/SKILL.md`.
 
 ## Key Conventions
 
@@ -48,15 +54,15 @@ Full details in `.github/skills/azure-defaults/SKILL.md`.
 
 ## Key Files
 
-| Path | Purpose |
-| --- | --- |
-| `.github/agents/*.agent.md` | Agent definitions |
-| `.github/skills/*/SKILL.md` | Reusable skill knowledge |
-| `.github/instructions/` | File-type rules (Bicep, Markdown, etc.) |
-| `agent-output/{project}/` | Agent-generated artifacts |
-| `infra/bicep/{project}/` | Bicep templates |
-| `mcp/azure-pricing-mcp/` | Azure Pricing MCP server |
-| `.vscode/mcp.json` | MCP server configuration |
+| Path                        | Purpose                                 |
+| --------------------------- | --------------------------------------- |
+| `.github/agents/*.agent.md` | Agent definitions                       |
+| `.github/skills/*/SKILL.md` | Reusable skill knowledge                |
+| `.github/instructions/`     | File-type rules (Bicep, Markdown, etc.) |
+| `agent-output/{project}/`   | Agent-generated artifacts               |
+| `infra/bicep/{project}/`    | Bicep templates                         |
+| `mcp/azure-pricing-mcp/`    | Azure Pricing MCP server                |
+| `.vscode/mcp.json`          | MCP server configuration                |
 
 ## Validation
 

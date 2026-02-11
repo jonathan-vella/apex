@@ -119,52 +119,76 @@ dedicated prompt. This reduces hallucinations as the context fills up.
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Conductor
-    participant Requirements
-    participant Architect
-    participant Bicep
-    participant Deploy
+    autonumber
+    participant U as 👤 User
+    participant C as 🎼 Conductor (Orchestrator)
+    participant R as 📋 Requirements Agent
+    participant A as 🏗️ Architecture Agent
+    participant B as 🧩 IaC Agent (Bicep)
+    participant D as 🚀 Deployment Agent
 
-    User->>Conductor: Describe infrastructure project
-    Conductor->>Requirements: Gather requirements
-    Requirements-->>Conductor: Return 01-requirements.md
-    Conductor->>User: Present requirements
-    User-->>Conductor: Approve requirements
+    Note over C: ORCHESTRATION LAYER<br/>AI prepares. Humans decide.
 
-    Conductor->>Architect: Assess architecture (WAF)
-    Architect-->>Conductor: Return 02-assessment.md + cost estimate
-    Conductor->>User: Present architecture
-    User-->>Conductor: Approve architecture
-
-    Note over Conductor: Step 3 (optional): Design diagrams & ADRs
-
-    Conductor->>Architect: Create implementation plan
-    Architect-->>Conductor: Return 04-plan.md + governance
-    Conductor->>User: Present plan
-    User-->>Conductor: Approve plan
-
-    Conductor->>Bicep: Generate Bicep templates
-    Bicep-->>Conductor: Return infra/bicep/{project}/
-
-    alt Validation passes
-        Conductor->>User: Present templates for deployment
-        User-->>Conductor: Approve for deployment
-    else Validation fails
-        Conductor->>Bicep: Revise with feedback
+    %% --- Intent & Requirements ---
+    U->>C: Describe infrastructure intent
+    C->>R: Translate intent into structured requirements
+    R-->>C: 01-requirements.md
+    C->>U: Present requirements
+    
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 HUMAN APPROVAL GATE
+    U-->>C: Approve requirements
     end
 
-    Conductor->>Deploy: Execute deployment (what-if first)
-    Deploy-->>Conductor: Return 06-deployment-summary.md
-
-    alt Deployment succeeds
-        Conductor->>User: Present deployment summary
-        User-->>Conductor: Verify deployment
-    else Deployment fails
-        Conductor->>User: Request guidance
+    %% --- Architecture Assessment ---
+    C->>A: Assess architecture (WAF + Cost)
+    A-->>C: 02-assessment.md + cost estimate
+    C->>U: Present architecture
+    
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 HUMAN APPROVAL GATE
+    U-->>C: Approve architecture
     end
 
-    Conductor->>User: Workflow complete + 07-* documentation suite
+    %% --- Planning & Governance ---
+    C->>A: Create implementation plan + governance
+    A-->>C: 04-plan.md
+    C->>U: Present plan
+    
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 HUMAN APPROVAL GATE
+    U-->>C: Approve plan
+    end
+
+    %% --- IaC Generation ---
+    C->>B: Generate Bicep templates
+    B-->>C: infra/bicep/{project}
+
+    %% --- Validation Loop ---
+    rect rgba(0, 150, 255, 0.08)
+    Note over C,B: 🔍 Validation & Governance Loop
+    alt ✅ Validation passes
+        C->>U: Present templates for deployment
+        rect rgba(255, 200, 0, 0.15)
+        Note over U,C: 🛑 HUMAN APPROVAL GATE
+        U-->>C: Approve for deployment
+        end
+    else ⚠️ Validation fails
+        C->>B: Revise with feedback
+    end
+    end
+
+    %% --- Deployment ---
+    C->>D: Execute deployment (what-if first)
+    D-->>C: 06-deployment-summary.md
+    C->>U: Present deployment summary
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,D: 🛑 HUMAN VERIFICATION
+    U-->>C: Verify deployment
+    end
+
+    Note over U,D: ✅ AI Orchestrated. Human Governed. Azure Ready.
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
