@@ -52,7 +52,10 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 
 ### DO
 
-- ✅ Run governance discovery via ARG BEFORE planning (see azure-defaults skill)
+- ✅ Verify Azure connectivity (`az account show`) FIRST — governance is a hard gate
+- ✅ Use REST API for policy discovery (includes management group-inherited policies)
+- ✅ Validate REST API count matches Azure Portal (Policy > Assignments) total
+- ✅ Run governance discovery via REST API + ARG BEFORE planning (see azure-defaults skill)
 - ✅ Check AVM availability for EVERY resource via `mcp_bicep_list_avm_metadata`
 - ✅ Use AVM module defaults for SKUs — add deprecation research only for overrides
 - ✅ Check service deprecation status for non-AVM / custom SKU selections
@@ -65,12 +68,15 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 ### DON'T
 
 - ❌ Write ANY Bicep code — this agent plans, bicep-code implements
-- ❌ Skip governance discovery (policy constraints prevent deployment failures)
+- ❌ Skip governance discovery — this is a HARD GATE, not optional
+- ❌ Use `az policy assignment list` alone — it misses management group-inherited policies
+- ❌ Proceed with incomplete policy data (if REST API fails, STOP)
 - ❌ Assume SKUs are valid without checking deprecation status
 - ❌ Hardcode SKUs without AVM verification or live deprecation research
 - ❌ Proceed to bicep-code without explicit user approval
 - ❌ Add H2 headings not in the template (use H3 inside nearest H2)
 - ❌ Ignore policy `effect` field — `Deny` = blocker, `Audit` = warning only
+- ❌ Generate governance constraints from best-practice assumptions
 
 ## Prerequisites Check
 
@@ -82,10 +88,36 @@ architecture decisions, and compliance requirements.
 
 ## Core Workflow
 
-### Phase 1: Governance Discovery (MANDATORY)
+### Phase 1: Governance Discovery (MANDATORY GATE)
 
-Query Azure Resource Graph to discover active policies BEFORE planning.
-See azure-defaults skill → Governance Discovery section for ARG query and patterns.
+> [!CAUTION]
+> This is a **hard gate**. If Azure connectivity fails or policies cannot be fully discovered
+> (including management group-inherited policies), STOP and inform the user.
+> Do NOT proceed to Phase 2 with incomplete policy data.
+
+**Step 1**: Verify Azure connectivity: `az account show`
+
+**Step 2**: Use REST API to discover ALL effective policy assignments (MANDATORY):
+
+```bash
+SUB_ID=$(az account show --query id -o tsv)
+az rest --method GET \
+  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  -o json
+```
+
+> [!WARNING]
+> Do NOT use `az policy assignment list` as the primary command — it only returns
+> subscription-scoped assignments and misses management group-inherited policies.
+> Use the REST API above which returns ALL effective assignments.
+
+**Step 3**: For each Deny or DeployIfNotExists policy, drill into the actual policy definition
+JSON to verify the real impact (see governance-discovery instructions for details).
+
+**Step 4**: Document ALL findings in `04-governance-constraints.md` and `04-governance-constraints.json`.
+
+See azure-defaults skill → Governance Discovery section for full query patterns.
 
 **Policy Effect Decision Tree:**
 

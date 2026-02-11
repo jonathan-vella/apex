@@ -5,7 +5,8 @@ description: "MANDATORY Azure Policy discovery requirements for governance const
 
 # Governance Discovery Instructions
 
-**CRITICAL**: Governance constraints MUST be discovered from Azure Resource Graph, NOT assumed from best practices.
+**CRITICAL**: Governance constraints MUST be discovered from the live Azure environment, NOT assumed from best practices.
+**GATE**: This is a mandatory gate. If Azure connectivity fails or policies cannot be retrieved, STOP and inform the user. Do NOT generate governance constraints from assumptions.
 
 ## Why This Matters
 
@@ -16,14 +17,58 @@ Assumed governance constraints cause deployment failures. Example:
   workload, sla, backup-policy, maint-window, tech-contact)
 - **Result**: Deployment denied by Azure Policy
 
+**Management group-inherited policies are invisible to basic queries.** Example:
+
+- **`az policy assignment list`**: Returns only 5 subscription-scoped policies
+- **Portal shows**: 19 total (includes 7 inherited from management groups)
+- **Missed**: `MCAPSGov Deny Policies`, `Block Azure RM Resource Creation` — actual deployment blockers!
+
 ## MANDATORY Discovery Workflow
+
+### Pre-Flight: Verify Azure Connectivity
+
+Before any policy queries, verify Azure CLI authentication:
+
+```bash
+az account show --query "{name:name, id:id, tenantId:tenantId}" -o json
+```
+
+If this fails, STOP. Azure connectivity is required. Do NOT proceed with assumed policies.
+
+### Step 0: Use REST API for Complete Policy Discovery (MANDATORY)
+
+> [!CAUTION]
+> **`az policy assignment list` misses management group-inherited policies.**
+> The Azure Portal "Policy | Assignments" view shows ALL effective policies including
+> those inherited from management groups. The CLI command `az policy assignment list`
+> only returns subscription-scoped assignments by default, even with `--disable-scope-strict-match`.
+>
+> **ALWAYS use the REST API** to get the complete picture matching the portal view.
+
+```bash
+# MANDATORY: Use REST API to list ALL effective policy assignments
+# This includes subscription-scoped AND management group-inherited policies
+az rest --method GET \
+  --url "https://management.azure.com/subscriptions/{subscription-id}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  -o json
+```
+
+**Validation**: Compare the count returned by REST API with the total shown in Azure Portal
+(Policy > Assignments). If they don't match, investigate missing policies.
 
 ### Step 1: Query Azure Policy Assignments
 
 ```text
-MANDATORY: Before creating 04-governance-constraints.md, execute Azure Resource Graph query
-to discover all active Azure Policy assignments in the target subscription.
+MANDATORY: Before creating 04-governance-constraints.md, query ALL effective Azure Policy
+assignments in the target subscription using the REST API (Step 0 above).
+Do NOT rely on `az policy assignment list` alone — it misses management group-inherited policies.
 ```
+
+Use the REST API approach from Step 0, then for each policy with Deny or DeployIfNotExists effects,
+query the actual policy definition JSON to verify impact.
+
+For Azure Resource Graph queries (supplemental, NOT primary):
 
 Use `azure_resources-query_azure_resource_graph` with intent:
 
@@ -94,7 +139,13 @@ policyresources
           description
 ```
 
-#### Method 2: Azure CLI (Fallback for individual policies)
+#### Method 2: Azure CLI (Fallback — INCOMPLETE without REST API)
+
+> [!WARNING]
+> `az policy assignment list` only returns subscription-scoped assignments.
+> Management group-inherited policies (often the most critical — Deny policies, tag enforcement)
+> are NOT returned. Always use the REST API from Step 0 as the primary discovery method.
+> Use CLI only for drilling into individual policy definitions after REST API discovery.
 
 ```bash
 # Step 1: Get all Deny/DeployIfNotExists policy assignments
@@ -209,25 +260,40 @@ The `04-governance-constraints.md` file MUST include:
 ```markdown
 ## Discovery Source
 
+> [!IMPORTANT]
+> Governance constraints discovered via REST API including management group-inherited policies.
+
 | Query              | Result                  | Timestamp  |
 | ------------------ | ----------------------- | ---------- |
-| Policy Assignments | {X} policies discovered | {ISO-8601} |
+| REST API Total     | {X} assignments total   | {ISO-8601} |
+| Subscription-scope | {X} direct assignments  | {ISO-8601} |
+| MG-inherited       | {X} inherited policies  | {ISO-8601} |
+| Deny-effect        | {X} blockers found      | {ISO-8601} |
 | Tag Policies       | {X} tags required       | {ISO-8601} |
 | Security Policies  | {X} constraints         | {ISO-8601} |
 
-**Discovery Method**: Azure Resource Graph via MCP
-**Subscription**: {subscription-name or ID}
-**Scope**: {management-group, subscription, or resource-group}
+**Discovery Method**: REST API (`/providers/Microsoft.Authorization/policyAssignments`)
+**Subscription**: {subscription-name} (`{subscription-id}`)
+**Tenant**: {tenant-id}
+**Scope**: All effective (subscription + management group inherited)
+**Portal Validation**: {X} assignments shown in Portal — matches REST API count: {Y/N}
 ```
 
-### Fail-Safe: If ARG Query Fails
+**GATE CHECK**: If `Portal Validation` shows a mismatch, STOP and investigate.
+All policies visible in the Portal must be captured in the governance document.
 
-If Azure Resource Graph is unavailable:
+### Fail-Safe: If Queries Fail
 
-1. Document the failure in the governance constraints file
-2. Mark all constraints as "⚠️ UNVERIFIED - Query Failed"
-3. Add warning: "Deployment may fail due to undiscovered policy requirements"
-4. Recommend: "Run `az policy assignment list --scope /subscriptions/{id}` manually"
+If Azure REST API or Resource Graph is unavailable:
+
+1. **STOP** — Do NOT proceed to implementation planning
+2. Document the failure in the governance constraints file
+3. Mark all constraints as "⚠️ UNVERIFIED - Query Failed"
+4. Add warning: "⛔ GATE BLOCKED: Deployment CANNOT proceed due to undiscovered policy requirements"
+5. Provide manual commands for the user to run:
+   - `az rest --method GET --url "https://management.azure.com/subscriptions/{id}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" -o json`
+   - `az policy assignment list --disable-scope-strict-match -o table`
+6. **Do NOT generate assumed/best-practice policies as a fallback**
 
 ## Validation Checklist
 
@@ -259,7 +325,40 @@ Discovered from Azure Policy assignment "JV-Inherit Multiple Tags" (effect: modi
 - environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, tech-contact
 ```
 
-## KQL Reference Queries
+## Query Reference
+
+### Primary: REST API (Complete — includes MG-inherited)
+
+```bash
+# List ALL effective policy assignments (subscription + management group inherited)
+SUB_ID=$(az account show --query id -o tsv)
+az rest --method GET \
+  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  -o json
+
+# For policy SETS (initiatives), get the policy count and individual policies
+az policy set-definition show --name "{policySetDefinitionGuid}" \
+  --query "{displayName:displayName, policyCount:policyDefinitions | length(@), policies:policyDefinitions[].{id:policyDefinitionReferenceId}}" \
+  -o json
+
+# For individual policy definitions, get the actual policyRule
+az policy definition show --name "{policyDefinitionGuid}" \
+  --query "{displayName:displayName, effect:policyRule.then.effect, conditions:policyRule.if}" \
+  -o json
+
+# For management group-scoped custom policies
+az policy definition show --name "{policyDefinitionGuid}" \
+  --management-group "{managementGroupId}" \
+  --query "{displayName:displayName, effect:policyRule.then.effect, conditions:policyRule.if}" \
+  -o json
+```
+
+### Supplemental: KQL Reference Queries (ARG — subscription-scoped only)
+
+> [!WARNING]
+> ARG queries only return policies stored in the subscription's resource graph.
+> Management group-inherited policies may not appear. Use REST API above as primary.
 
 ### All Policy Assignments
 
