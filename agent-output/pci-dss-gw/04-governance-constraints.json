@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "project": "the-test",
+    "project": "pci-dss-gw",
     "subscription": "noalz",
     "subscriptionId": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
     "tenantId": "2d04cb4c-999b-4e60-a3a7-e8993edc768b",
@@ -243,7 +243,7 @@
         "name": "application",
         "required": true,
         "examples": [
-          "the-test"
+          "pci-dss-gw"
         ]
       },
       {
