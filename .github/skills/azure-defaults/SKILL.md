@@ -363,8 +363,14 @@ Do NOT proceed to implementation planning with incomplete policy data.
 ```bash
 SUB_ID=$(az account show --query id -o tsv)
 az rest --method GET \
-  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
-  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  --url "https://management.azure.com/subscriptions/\
+${SUB_ID}/providers/Microsoft.Authorization/\
+policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, \
+displayName:properties.displayName, \
+scope:properties.scope, \
+enforcementMode:properties.enforcementMode, \
+policyDefinitionId:properties.policyDefinitionId}" \
   -o json
 ```
 
@@ -377,13 +383,21 @@ az rest --method GET \
 
 ```bash
 # For built-in or subscription-scoped policies
-az policy definition show --name "{guid}" --query "{displayName:displayName, effect:policyRule.then.effect, conditions:policyRule.if}" -o json
+az policy definition show --name "{guid}" \
+  --query "{displayName:displayName, \
+effect:policyRule.then.effect, \
+conditions:policyRule.if}" -o json
 
 # For management-group-scoped custom policies  
-az policy definition show --name "{guid}" --management-group "{mgId}" --query "{displayName:displayName, effect:policyRule.then.effect}" -o json
+az policy definition show --name "{guid}" \
+  --management-group "{mgId}" \
+  --query "{displayName:displayName, \
+effect:policyRule.then.effect}" -o json
 
 # For policy set definitions (initiatives)
-az policy set-definition show --name "{guid}" --query "{displayName:displayName, policyCount:policyDefinitions | length(@)}" -o json
+az policy set-definition show --name "{guid}" \
+  --query "{displayName:displayName, \
+policyCount:policyDefinitions | length(@)}" -o json
 ```
 
 **3. ARG KQL (supplemental — subscription-scoped only)**:

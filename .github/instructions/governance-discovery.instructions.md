@@ -5,8 +5,11 @@ description: "MANDATORY Azure Policy discovery requirements for governance const
 
 # Governance Discovery Instructions
 
-**CRITICAL**: Governance constraints MUST be discovered from the live Azure environment, NOT assumed from best practices.
-**GATE**: This is a mandatory gate. If Azure connectivity fails or policies cannot be retrieved, STOP and inform the user. Do NOT generate governance constraints from assumptions.
+**CRITICAL**: Governance constraints MUST be discovered from the live Azure
+environment, NOT assumed from best practices.
+**GATE**: This is a mandatory gate. If Azure connectivity fails or policies
+cannot be retrieved, STOP and inform the user.
+Do NOT generate governance constraints from assumptions.
 
 ## Why This Matters
 
@@ -49,8 +52,14 @@ If this fails, STOP. Azure connectivity is required. Do NOT proceed with assumed
 # MANDATORY: Use REST API to list ALL effective policy assignments
 # This includes subscription-scoped AND management group-inherited policies
 az rest --method GET \
-  --url "https://management.azure.com/subscriptions/{subscription-id}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
-  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  --url "https://management.azure.com/subscriptions/\
+{subscription-id}/providers/Microsoft.Authorization/\
+policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, \
+displayName:properties.displayName, \
+scope:properties.scope, \
+enforcementMode:properties.enforcementMode, \
+policyDefinitionId:properties.policyDefinitionId}" \
   -o json
 ```
 
@@ -291,7 +300,9 @@ If Azure REST API or Resource Graph is unavailable:
 3. Mark all constraints as "⚠️ UNVERIFIED - Query Failed"
 4. Add warning: "⛔ GATE BLOCKED: Deployment CANNOT proceed due to undiscovered policy requirements"
 5. Provide manual commands for the user to run:
-   - `az rest --method GET --url "https://management.azure.com/subscriptions/{id}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" -o json`
+   - `az rest --method GET --url "https://management.azure.com/`\
+     `subscriptions/{id}/providers/Microsoft.Authorization/`\
+     `policyAssignments?api-version=2022-06-01" -o json`
    - `az policy assignment list --disable-scope-strict-match -o table`
 6. **Do NOT generate assumed/best-practice policies as a fallback**
 
@@ -330,16 +341,26 @@ Discovered from Azure Policy assignment "JV-Inherit Multiple Tags" (effect: modi
 ### Primary: REST API (Complete — includes MG-inherited)
 
 ```bash
-# List ALL effective policy assignments (subscription + management group inherited)
+# List ALL effective policy assignments
+# (subscription + management group inherited)
 SUB_ID=$(az account show --query id -o tsv)
 az rest --method GET \
-  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
-  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  --url "https://management.azure.com/subscriptions/\
+${SUB_ID}/providers/Microsoft.Authorization/\
+policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, \
+displayName:properties.displayName, \
+scope:properties.scope, \
+enforcementMode:properties.enforcementMode, \
+policyDefinitionId:properties.policyDefinitionId}" \
   -o json
 
 # For policy SETS (initiatives), get the policy count and individual policies
-az policy set-definition show --name "{policySetDefinitionGuid}" \
-  --query "{displayName:displayName, policyCount:policyDefinitions | length(@), policies:policyDefinitions[].{id:policyDefinitionReferenceId}}" \
+az policy set-definition show \
+  --name "{policySetDefinitionGuid}" \
+  --query "{displayName:displayName, \
+policyCount:policyDefinitions | length(@), \
+policies:policyDefinitions[].{id:policyDefinitionReferenceId}}" \
   -o json
 
 # For individual policy definitions, get the actual policyRule

@@ -102,8 +102,11 @@ architecture decisions, and compliance requirements.
 ```bash
 SUB_ID=$(az account show --query id -o tsv)
 az rest --method GET \
-  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
-  --query "value[].{name:name, displayName:properties.displayName, scope:properties.scope, enforcementMode:properties.enforcementMode, policyDefinitionId:properties.policyDefinitionId}" \
+  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/\
+Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
+  --query "value[].{name:name, displayName:properties.displayName, \
+scope:properties.scope, enforcementMode:properties.enforcementMode, \
+policyDefinitionId:properties.policyDefinitionId}" \
   -o json
 ```
 
