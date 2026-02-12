@@ -236,10 +236,11 @@ Reply "approve" to proceed to bicep-code, or provide feedback.
 
 ## Output Files
 
-| File                   | Location                                              | Template                   |
-| ---------------------- | ----------------------------------------------------- | -------------------------- |
-| Implementation Plan    | `agent-output/{project}/04-implementation-plan.md`    | From azure-artifacts skill |
-| Governance Constraints | `agent-output/{project}/04-governance-constraints.md` | From azure-artifacts skill |
+| File                        | Location                                               | Template                   |
+| --------------------------- | ------------------------------------------------------ | -------------------------- |
+| Implementation Plan         | `agent-output/{project}/04-implementation-plan.md`     | From azure-artifacts skill |
+| Governance Constraints      | `agent-output/{project}/04-governance-constraints.md`  | From azure-artifacts skill |
+| Governance Constraints JSON | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data |
 
 Include attribution header from the template file (do not hardcode).
 
