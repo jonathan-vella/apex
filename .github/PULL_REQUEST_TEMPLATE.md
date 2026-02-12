@@ -12,7 +12,7 @@ Fixes #
 
 <!-- Mark the appropriate option with an "x" -->
 
-- [ ] 🆕 New scenario (S01-S09 format)
+- [ ] 🆕 New prompt guide section
 - [ ] 🏗️ New infrastructure module (Bicep/Terraform)
 - [ ] 🤖 Agent definition update (.github/agents/)
 - [ ] 📝 Documentation update
@@ -71,6 +71,13 @@ Fixes #
 ## Pre-Submission Checklist
 
 <!-- Verify all items before requesting review -->
+
+### PR Hygiene
+
+- [ ] PR touches < 50 files (split larger changes into stacked PRs)
+- [ ] All CI checks pass locally (`npm run validate:all`)
+- [ ] Commit messages follow conventional commits format
+- [ ] Review conversations resolved before requesting re-review
 
 ### Code Standards
 

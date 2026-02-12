@@ -10,16 +10,19 @@ on:
     paths:
       - ".github/agents/**"
       - ".github/skills/**"
+      - ".github/instructions/**"
       - ".devcontainer/devcontainer.json"
       - ".vscode/extensions.json"
       - "scripts/validate-agent-frontmatter.mjs"
       - "scripts/validate-skills-format.mjs"
       - "scripts/validate-vscode-config.mjs"
+      - "scripts/validate-instruction-frontmatter.mjs"
   pull_request:
     branches: [main]
     paths:
       - ".github/agents/**"
       - ".github/skills/**"
+      - ".github/instructions/**"
       - ".devcontainer/devcontainer.json"
       - ".vscode/extensions.json"
   workflow_dispatch:
@@ -46,6 +49,9 @@ jobs:
 
       - name: Run VS Code 1.109 validation suite
         run: npm run test:1109
+
+      - name: Validate instruction file frontmatter
+        run: npm run lint:instruction-frontmatter
 
       - name: Validate handoff references
         run: |
