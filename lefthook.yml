@@ -36,7 +36,7 @@ pre-commit:
         fi
 
     artifact-validation:
-      glob: "agent-output/**/*.md"
+      glob: "{agent-output,.github/skills/azure-artifacts/templates}/**/*.md"
       run: |
         # Check if any agent-output artifacts are staged
         STAGED_ARTIFACTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^agent-output/.*\.md$' || true)
@@ -82,6 +82,23 @@ pre-commit:
 
         🔧 Check YAML syntax in agent definitions
         📚 Reference: .github/instructions/agents-definitions.instructions.md
+
+    instruction-frontmatter:
+      glob: "**/*.instructions.md"
+      run: |
+        STAGED_INSTR=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.instructions\.md$' || true)
+        if [ -n "$STAGED_INSTR" ]; then
+          COUNT=$(echo "$STAGED_INSTR" | wc -l | tr -d ' ')
+          echo "📋 Validating $COUNT instruction file(s)..."
+          npm run lint:instruction-frontmatter
+        else
+          echo "ℹ️  No instruction files to validate"
+        fi
+      fail_text: |
+        ❌ Instruction frontmatter validation failed!
+
+        📚 Allowed fields: description, applyTo
+        🔧 Remove any non-standard fields from YAML frontmatter
 
 commit-msg:
   commands:

@@ -102,6 +102,7 @@ All templates live in `.github/skills/azure-artifacts/templates/`:
 ## Resource Inventory
 ## Module Structure
 ## Implementation Tasks
+## Deployment Phases
 ## Dependency Graph
 ## Naming Conventions
 ## Security Configuration

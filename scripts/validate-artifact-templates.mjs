@@ -30,6 +30,7 @@ const ARTIFACT_HEADINGS = {
     "## Resource Inventory",
     "## Module Structure",
     "## Implementation Tasks",
+    "## Deployment Phases",
     "## Dependency Graph",
     "## Naming Conventions",
     "## Security Configuration",
