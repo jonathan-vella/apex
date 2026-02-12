@@ -1,6 +1,6 @@
 # Repo Architecture Reference
 
-> For use by the `docs-writer` skill. Last verified: 2026-02-09.
+> For use by the `docs-writer` skill. Last verified: 2026-02-12.
 
 ## Workspace Root Structure
 
@@ -11,7 +11,7 @@ azure-agentic-infraops/
 │   │   └── _subagents/      # Validation subagents (lint, what-if, review)
 │   ├── skills/              # 8 skill definitions (incl. docs-writer)
 │   │   └── azure-artifacts/templates/ # 16 artifact templates
-│   ├── instructions/        # 15 file-type instruction files
+│   ├── instructions/        # 20 file-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
 │   ├── prompt-guide/        # Agent & skill prompt examples
@@ -91,7 +91,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-resource-inventory.template.md` | Resource Inventory | Relaxed |
 | `PROJECT-README.template.md` | Project README | — |
 
-## Instruction File Map (15 Files)
+## Instruction File Map (20 Files)
 
 | Instruction | Applies To (glob) |
 | --- | --- |
@@ -100,6 +100,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `agents-definitions.instructions.md` | `**/*.agent.md` |
 | `artifact-h2-reference.instructions.md` | `**/agent-output/**/*.md` |
 | `bicep-code-best-practices.instructions.md` | `**/*.bicep` |
+| `code-review.instructions.md` | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
 | `copilot-thought-logging.instructions.md` | `**` |
 | `cost-estimate.instructions.md` | `**/03-des-cost-estimate.md`, etc. |
 | `docs.instructions.md` | `docs/**/*.md` |
@@ -107,8 +108,12 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `governance-discovery.instructions.md` | `**/04-governance-*.md` |
 | `instructions.instructions.md` | `**/*.instructions.md` |
 | `markdown.instructions.md` | `**/*.md` |
+| `no-heredoc.instructions.md` | `**` |
 | `powershell.instructions.md` | `**/*.ps1`, `**/*.psm1` |
 | `prompt.instructions.md` | `**/*.prompt.md` |
+| `self-explanatory-code-commenting.instructions.md` | `**` |
+| `shell.instructions.md` | `**/*.sh` |
+| `update-docs-on-code-change.instructions.md` | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
 | `workload-documentation.instructions.md` | `**/agent-output/**/07-*.md` |
 
 ## Artifact Flow (7-Step Workflow)

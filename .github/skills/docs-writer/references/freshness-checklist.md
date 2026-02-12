@@ -106,7 +106,7 @@ appropriate category table. Remove entries for deleted skills.
 
 **Source of truth**: List `.github/instructions/*.instructions.md` files.
 
-**Expected count** (as of 2026-02-09): **15 instruction files**
+**Expected count** (as of 2026-02-12): **20 instruction files**
 
 **Files to check**: Only relevant if `docs/README.md` or the root
 `README.md` lists instruction files.
@@ -137,7 +137,7 @@ When reporting audit results, use this format:
 
 ## Known Issues
 
-No known issues. Last audit: 2026-02-09.
+No known issues. Last audit: 2026-02-12.
 
 All 21 discrepancies identified during the initial audit have been
 resolved (Tasks A–D). Fixes included:

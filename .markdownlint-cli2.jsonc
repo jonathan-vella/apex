@@ -120,6 +120,7 @@
 
     // Temporary working files (gitignored)
     "Copilot-Processing.md",
+    "tmp/**",
 
     // Python virtual environments
     ".venv/**",
@@ -145,16 +146,5 @@
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
 
-    // Scenario demo content (examples, not production code)
-    "scenarios/**/solution/**",
-    "scenarios/**/examples/**",
-    "scenarios/**/sample-app/**",
-    "scenarios/**/prompts/**",
-    "scenarios/**/templates/**",
-    "scenarios/**/scenario/**",
-    "scenarios/**/agents/**",
-    "scenarios/**/validation/**",
-    "scenarios/**/DEMO-SCRIPT.md",
-    "scenarios/S08-sbom-generator/README.md",
   ],
 }
