@@ -374,7 +374,7 @@ az deployment group list -g {resource-group} --output table
 
 ## Getting Help
 
-1. **Check prompt guide**: [docs/prompt-guide/](prompt-guide/) has usage examples
+1. **Check prompt guide**: [Prompt Guide](prompt-guide/) has usage examples
 2. **Read agent definitions**: `.github/agents/*.agent.md`
 3. **Check skill files**: `.github/skills/*/SKILL.md`
 4. **Review templates**: `.github/skills/azure-artifacts/templates/`

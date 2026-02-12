@@ -25,8 +25,10 @@ Instructions for writing clean, safe, and maintainable shell scripts for bash, s
 
 ## Error Handling & Safety
 
-- Always enable `set -euo pipefail` to fail fast on errors, catch
-  unset variables, and surface pipeline failures
+- For Bash scripts: enable `set -euo pipefail` to fail fast on errors,
+  catch unset variables, and surface pipeline failures
+- For POSIX `sh` scripts: use `set -eu` only (`pipefail` is not
+  supported in POSIX sh)
 - Validate all required parameters before execution
 - Provide clear error messages with context
 - Use `trap` to clean up temporary resources or handle unexpected
@@ -38,7 +40,8 @@ Instructions for writing clean, safe, and maintainable shell scripts for bash, s
 
 ## Script Structure
 
-- Start with a clear shebang: `#!/bin/bash` unless specified otherwise
+- Start with a clear shebang: `#!/usr/bin/env bash` for Bash scripts,
+  `#!/bin/sh` for POSIX-portable scripts
 - Include a header comment explaining the script's purpose
 - Define default values for all variables at the top
 - Use functions for reusable code blocks

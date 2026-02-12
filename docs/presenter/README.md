@@ -41,12 +41,12 @@ Use these personas when introducing agents to audiences:
 
 ### Demo Prompts
 
-Use prompts from the [Prompt Guide](../prompt-guide/) to demonstrate agent capabilities:
+Use prompts from the [Prompt Guide](../prompt-guide/README.md) to demonstrate agent capabilities:
 
 | Demo | Duration | Audience | Guide Section |
-| --- | --- | --- | --- |
-| Requirements + Architecture | 15 min | Technical | [Steps 1-2](../prompt-guide/#step-1-requirements--scribe) |
-| Full 7-Step Workflow | 30 min | Mixed | [End-to-End](../prompt-guide/#end-to-end-conductor) |
+| --- | --- | --- |
+| Requirements + Architecture | 15 min | Technical | [Prompt Guide - Steps 1-2](../prompt-guide/README.md) |
+| Full 7-Step Workflow | 30 min | Mixed | [Prompt Guide - End-to-End](../prompt-guide/README.md) |
 
 ---
 
