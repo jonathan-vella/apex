@@ -188,12 +188,14 @@ Just faster execution.
 
 ## 🎯 Next Steps
 
-| If you're...                     | Do this                                                                                                                    |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Ready to see a demo**          | [Book a session](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or explore [Scenarios](../../scenarios/) |
-| **Building a business case**     | Use our [ROI Calculator](roi-calculator.md) with your team's numbers                                                       |
-| **Want to try it yourself**      | [Quick Start Guide](../quickstart.md) — 10 minutes to first demo                                                           |
-| **Need evidence for leadership** | Share [Time Savings Evidence](time-savings-evidence.md) with peer-reviewed research                                        |
+| If you're...                     | Do this                                    |
+| -------------------------------- | ------------------------------------------ |
+| **Ready to see a demo**          | [Book a session][issues] or see the [Prompt Guide](../prompt-guide/) |
+| **Building a business case**     | Use our [ROI Calculator](roi-calculator.md) |
+| **Want to try it yourself**      | [Quick Start Guide](../quickstart.md)      |
+| **Need evidence for leadership** | [Time Savings Evidence](time-savings-evidence.md) |
+
+[issues]: https://github.com/jonathan-vella/azure-agentic-infraops/issues
 
 ---
 

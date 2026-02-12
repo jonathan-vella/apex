@@ -117,7 +117,7 @@ Also avoid references to removed paths:
 | **Current state** | No historical context in main docs |
 | **Action-oriented** | Every section answers "how do I...?" |
 | **Minimal** | If it doesn't help users today, remove it |
-| **Scenarios for depth** | Point to `scenarios/` for hands-on |
+| **Prompt guide for depth** | Point to `docs/prompt-guide/` for examples |
 
 ## Validation Commands
 
@@ -144,7 +144,6 @@ When `VERSION.md` is updated, check these files for version references:
 
 - `docs/*.md` — header lines with `> Version X.Y.Z`
 - `docs.instructions.md` — header template example
-- `scenarios/README.md` — may reference version
 - `CHANGELOG.md` — new version entry needed
 
 ## Emoji Conventions in Agent/Skill Tables

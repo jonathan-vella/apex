@@ -292,7 +292,7 @@ Create the following testing assets:
    - Azure authentication setup
    - Test execution and reporting
 
-4. **Baseline Outputs** (`scenarios/*/expected-outputs/`)
+4. **Baseline Outputs** (`agent-output/` reference projects)
    - Known-good outputs for regression testing
    - Version controlled for diff comparison
 

@@ -83,9 +83,9 @@ az account set --subscription "<your-subscription-id>"
 # 3. Verify tools are installed (auto-displayed after setup)
 az bicep version && pwsh --version
 
-# 4. Explore demos and infrastructure
-cd scenarios/ && ls -la
-cd ../infra/bicep/ && tree -L 2
+# 4. Explore docs and infrastructure
+cd docs/prompt-guide/ && ls -la
+cd ../../infra/bicep/ && tree -L 2
 ```
 
 ## 📁 Environment Configuration
@@ -170,7 +170,7 @@ sudo npm update -g markdownlint-cli           # markdownlint
 ## 📚 Related Documentation
 
 - [Workflow Guide](../docs/workflow.md)
-- [Scenarios](../scenarios/)
+- [Prompt Guide](../docs/prompt-guide/)
 - [Copilot Instructions](../.github/copilot-instructions.md)
 - [Repository README](../README.md)
 

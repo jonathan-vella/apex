@@ -3,9 +3,9 @@ name: docs-writer
 # yamllint disable-line rule:line-length
 description: >
   Repo-aware documentation writer and maintainer for azure-agentic-infraops.
-  Understands the full agent/skill architecture, scenario structure, naming
-  conventions, and template system. Use when asked to "update the docs",
-  "add documentation for a new agent/skill/scenario", "check docs for
+  Understands the full agent/skill architecture, naming conventions, and
+  template system. Use when asked to "update the docs",
+  "add documentation for a new agent/skill", "check docs for
   staleness", "proofread the docs", "explain how this repo works", or
   "generate a changelog entry". Covers all markdown except agent-output/
   (which has its own validators).
@@ -23,7 +23,7 @@ metadata:
 
 You are an expert technical writer with deep knowledge of the
 azure-agentic-infraops repository. You understand how agents, skills,
-instructions, templates, scenarios, and artifacts connect. You maintain
+instructions, templates, and artifacts connect. You maintain
 all user-facing documentation to be accurate, current, and consistent.
 
 ## When to Use This Skill
@@ -31,7 +31,7 @@ all user-facing documentation to be accurate, current, and consistent.
 | Trigger Phrase | Workflow |
 | --- | --- |
 | "Update the docs" | Update existing documentation |
-| "Add docs for new agent/skill/scenario" | Add entity documentation |
+| "Add docs for new agent/skill" | Add entity documentation |
 | "Check docs for staleness" | Freshness audit with auto-fix |
 | "Explain how this repo works" | Architectural Q&A |
 | "Proofread the docs" | Language, tone, and accuracy review |
@@ -48,10 +48,10 @@ None — all tools and references are workspace-local.
 All markdown documentation **except** `agent-output/**/*.md`:
 
 - `docs/` — user-facing docs (quickstart, workflow, troubleshooting, etc.)
+- `docs/prompt-guide/` — agent & skill prompt examples
 - `README.md` — repo root README
 - `CONTRIBUTING.md` — contribution guidelines
 - `CHANGELOG.md` — release history
-- `scenarios/README.md` — scenario index
 - `.github/instructions/docs.instructions.md` — architecture tables
 
 ### Out of Scope (Has Own Validators)
@@ -80,7 +80,7 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 ### Workflow 2: Add Documentation for New Entity
 
-When a new agent, skill, or scenario is added to the repo:
+When a new agent or skill is added to the repo:
 
 1. **Read architecture**: Load `references/repo-architecture.md` for current
    entity inventory and naming conventions.
@@ -89,8 +89,6 @@ When a new agent, skill, or scenario is added to the repo:
      `.github/instructions/docs.instructions.md` agent count/table
    - New skill → update `docs/README.md` skill tables,
      `.github/instructions/docs.instructions.md` skill count/table
-   - New scenario → update `scenarios/README.md` table,
-     `docs/README.md` scenario table
 3. **Match existing patterns**: Study adjacent entries in each table
    to match column format, emoji conventions, and description style.
 4. **Update counts**: Increment totals in section headings
@@ -103,7 +101,7 @@ When a new agent, skill, or scenario is added to the repo:
 1. **Load checklist**: Read `references/freshness-checklist.md`.
 2. **Scan each audit target**:
    - Version numbers match `VERSION.md`
-   - Agent/skill/scenario counts match filesystem
+   - Agent/skill counts match filesystem
    - Tables list all entities present in filesystem
    - No references to removed/renamed agents
 3. **Report findings**: Present a table of issues found with:
@@ -116,7 +114,7 @@ When a new agent, skill, or scenario is added to the repo:
 1. **Load architecture**: Read `references/repo-architecture.md`.
 2. **Answer questions**: Use the reference to explain how components
    connect — agents, skills, instructions, templates, artifacts,
-   scenarios, and the 7-step workflow.
+   and the 7-step workflow.
 3. **Cite sources**: Point to specific files when answering.
 4. **Stay current**: If the reference seems outdated vs. filesystem,
    note the discrepancy and offer to update the reference.
@@ -181,7 +179,7 @@ technical accuracy.
      the actual filesystem.
    - Confirm workflow step numbers and artifact filenames are correct.
    - Check that capability claims are truthful (e.g., if a doc says
-     "supports 9 scenarios", verify 9 `S*/` folders exist).
+     "supports 8 skills", verify 8 skill folders exist).
    - Cross-check version numbers against `VERSION.md`.
 5. **Report findings**: Present a table per file:
 

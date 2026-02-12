@@ -32,7 +32,7 @@
     ·
     <a href="agent-output/">Sample Outputs</a>
     ·
-    <a href="scenarios/">Scenarios</a>
+    <a href="docs/prompt-guide/">Prompt Guide</a>
     ·
     <a href="https://github.com/jonathan-vella/azure-agentic-infraops/issues/new?labels=bug">Report Bug</a>
   </p>
@@ -525,9 +525,9 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
     └── 📁 skills/             # 8 reusable skills
 ├── 📁 agent-output/           # Generated artifacts per project
 ├── 📁 docs/                   # Documentation and guides
+│   └── 📁 prompt-guide/       # Prompt examples for all agents & skills
 ├── 📁 infra/bicep/            # Generated Bicep templates
-├── 📁 mcp/azure-pricing-mcp/  # 💰 Pricing MCP add-on
-└── 📁 scenarios/              # 9 hands-on learning scenarios
+└── 📁 mcp/azure-pricing-mcp/  # 💰 Pricing MCP add-on
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -600,19 +600,20 @@ Each agent is defined in a `.agent.md` file that you can modify:
 ---
 
 <details>
-<summary>🎯 Scenarios</summary>
+<summary>🎯 Prompt Guide</summary>
 
-## 🎯 Scenarios
+## 🎯 Prompt Guide
 
-**9 hands-on scenarios** from beginner to advanced (15-45 min each):
+Ready-to-use prompt examples for every agent and skill:
 
-| Level | Scenarios |
-|-------|-----------|
-| **Beginner** | Bicep baseline, diagrams as code |
-| **Intermediate** | Documentation generation, service validation, troubleshooting, SBOM |
-| **Advanced** | Full agentic workflow, async coding agent, orchestration test |
+| Section | What You'll Find |
+|---------|------------------|
+| **7-Step Workflow** | Prompts for each step (Requirements → Deploy) |
+| **Standalone Agents** | Conductor and Diagnose agent examples |
+| **Skills Reference** | Independent skill usage with examples |
+| **Tips & Patterns** | Advanced prompting, chaining, context priming |
 
-📖 **[Full Scenarios Guide →](scenarios/README.md)**
+📖 **[Full Prompt Guide →](docs/prompt-guide/)**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

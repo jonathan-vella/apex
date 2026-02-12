@@ -415,30 +415,14 @@ infra/
 
 ---
 
-## 9. Scenarios
+## 9. Learning Resources
 
-### S09-terraform-baseline
+Refer to the [Prompt Guide](prompt-guide/) for Terraform agent prompt examples
+once the Terraform agents are implemented.
 
-```
-scenarios/S09-terraform-baseline/
-├── README.md
-├── DEMO-SCRIPT.md
-├── prompts/
-│   ├── 01-requirements.prompt.md
-│   ├── 02-architecture.prompt.md
-│   └── 03-implement.prompt.md
-├── solution/
-│   ├── main.tf
-│   ├── variables.tf
-│   ├── outputs.tf
-│   ├── providers.tf
-│   └── modules/
-│       ├── networking/
-│       └── compute/
-└── validation/
-    ├── validate.sh
-    └── test/
-        └── baseline_test.go
+```text
+docs/prompt-guide/
+└── README.md          # Includes future Terraform section
 ```
 
 ---
@@ -505,7 +489,7 @@ Azure Storage backend provides automatic state locking via blob leases.
 | **Skills** | `.github/skills/terraform-*/` |
 | **Instructions** | `.github/instructions/terraform-*.instructions.md` |
 | **Infrastructure** | `infra/terraform/{project}/` |
-| **Scenarios** | `scenarios/S09-terraform-baseline/` |
+| **Prompt Guide** | `docs/prompt-guide/` (future Terraform section) |
 | **CI/CD** | `.github/workflows/terraform-*.yml` |
 
 > [!IMPORTANT]

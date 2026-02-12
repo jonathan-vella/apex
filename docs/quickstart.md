@@ -153,7 +153,7 @@ infra/bicep/my-webapp/
 | Goal | Resource |
 |------|----------|
 | Understand the full workflow | [workflow.md](workflow.md) |
-| Try a complete scenario | [S02-agentic-workflow](../scenarios/S02-agentic-workflow/) |
+| Try a complete workflow | [Prompt Guide](prompt-guide/) |
 | Generate architecture diagrams | Use `azure-diagrams` skill |
 | Create documentation | Use `azure-artifacts` skill |
 | Troubleshoot issues | [troubleshooting.md](troubleshooting.md) |

@@ -89,7 +89,7 @@ This file is automatically updated by agents as they create new outputs.
 ## Related Resources
 
 - **Bicep Code**: [`infra/bicep/{project}/`](../../infra/bicep/{project}/)
-- **Scenarios**: [`scenarios/`](../../scenarios/)
+- **Prompt Guide**: [`docs/prompt-guide/`](../../docs/prompt-guide/)
 ```
 
 ## Showcase Projects

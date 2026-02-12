@@ -23,7 +23,6 @@
 | --- | --- |
 | `docs/*.md` | `> Version X.Y.Z` in header line |
 | `.github/instructions/docs.instructions.md` | Version in header template example |
-| `scenarios/README.md` | Any version reference |
 
 **Auto-fix**: Replace old version string with current from `VERSION.md`.
 
@@ -64,21 +63,18 @@ no longer exist.
 **Auto-fix**: Update count in heading. Add missing skills to the
 appropriate category table. Remove entries for deleted skills.
 
-### 4. Scenario Index
+### 4. Prompt Guide Currency
 
-**Source of truth**: List `scenarios/S*/` directories.
-
-**Expected count** (as of 2026-02-09): **9 scenarios** (S01–S09)
+**Source of truth**: `docs/prompt-guide/README.md` agent/skill tables.
 
 **Files to check**:
 
 | File | What to verify |
 | --- | --- |
-| `scenarios/README.md` | Table lists all S* folders |
-| `docs/README.md` | Scenario table lists all S* folders |
+| `docs/prompt-guide/README.md` | Agent and skill tables match filesystem |
+| `docs/README.md` | Prompt Guide section links are valid |
 
-**Auto-fix**: Add missing scenarios to tables. Flag scenarios in
-tables that no longer have folders.
+**Auto-fix**: Update tables to match current agent/skill inventory.
 
 ### 5. Prohibited References
 
@@ -110,7 +106,7 @@ tables that no longer have folders.
 
 **Source of truth**: List `.github/instructions/*.instructions.md` files.
 
-**Expected count** (as of 2026-02-09): **15 instruction files**
+**Expected count** (as of 2026-02-12): **20 instruction files**
 
 **Files to check**: Only relevant if `docs/README.md` or the root
 `README.md` lists instruction files.
@@ -141,13 +137,14 @@ When reporting audit results, use this format:
 
 ## Known Issues
 
-No known issues. Last audit: 2026-02-09.
+No known issues. Last audit: 2026-02-12.
 
 All 21 discrepancies identified during the initial audit have been
 resolved (Tasks A–D). Fixes included:
 
 - Version headers migrated to `[Current Version](../VERSION.md)` links
-- Agent counts corrected to 8, skill counts to 11, scenario counts to 9
+- Agent counts corrected to 8, skill counts to 8
 - Conductor model corrected to Claude Opus 4.6, approval gates to 5
-- MCP path fixed, broken link removed, S09 added to scenario table
+- MCP path fixed, broken link removed
 - Glossary cross-references fixed, keyboard shortcut corrected, new terms added
+- Scenarios directory removed; replaced by docs/prompt-guide/

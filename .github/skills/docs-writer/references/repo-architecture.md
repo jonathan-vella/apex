@@ -1,6 +1,6 @@
 # Repo Architecture Reference
 
-> For use by the `docs-writer` skill. Last verified: 2026-02-09.
+> For use by the `docs-writer` skill. Last verified: 2026-02-12.
 
 ## Workspace Root Structure
 
@@ -11,14 +11,14 @@ azure-agentic-infraops/
 │   │   └── _subagents/      # Validation subagents (lint, what-if, review)
 │   ├── skills/              # 8 skill definitions (incl. docs-writer)
 │   │   └── azure-artifacts/templates/ # 16 artifact templates
-│   ├── instructions/        # 15 file-type instruction files
+│   ├── instructions/        # 20 file-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
+│   ├── prompt-guide/        # Agent & skill prompt examples
 │   ├── presenter/           # Presentation materials
 │   └── testing/             # Test checklists
 ├── infra/bicep/             # Bicep module library
 ├── mcp/azure-pricing-mcp/   # Azure Pricing MCP server
-├── scenarios/               # 9 demo scenarios (S01-S09)
 ├── scripts/                 # Validation and automation scripts
 └── temp/                    # Scratch space (gitignored for outputs)
 ```
@@ -68,20 +68,6 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `github-operations` | `github-operations/` | Workflow | "create issue", "create PR", "gh command" |
 | `make-skill-template` | `make-skill-template/` | Meta | "create skill" |
 
-## Scenario Index (9 Scenarios)
-
-| ID | Folder | Focus | Difficulty |
-| --- | --- | --- | --- |
-| S01 | `S01-bicep-baseline/` | Hub-spoke network (Bicep) | 🟢 Beginner |
-| S02 | `S02-agentic-workflow/` | Full 7-step agentic flow | 🟡 Intermediate |
-| S03 | `S03-documentation-generation/` | Workload documentation | 🟢 Beginner |
-| S04 | `S04-service-validation/` | Deployment preflight | 🟢 Beginner |
-| S05 | `S05-troubleshooting/` | Diagnose agent | 🟢 Beginner |
-| S06 | `S06-sbom-generator/` | SBOM generation | 🟡 Intermediate |
-| S07 | `S07-diagrams-as-code/` | Architecture diagrams | 🟡 Intermediate |
-| S08 | `S08-coding-agent/` | GitHub Copilot coding agent | 🔴 Advanced |
-| S09 | `S09-orchestration-test/` | Conductor orchestration | 🟡 Intermediate |
-
 ## Template Inventory (16 Templates)
 
 All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.template.md`.
@@ -105,7 +91,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-resource-inventory.template.md` | Resource Inventory | Relaxed |
 | `PROJECT-README.template.md` | Project README | — |
 
-## Instruction File Map (15 Files)
+## Instruction File Map (20 Files)
 
 | Instruction | Applies To (glob) |
 | --- | --- |
@@ -114,6 +100,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `agents-definitions.instructions.md` | `**/*.agent.md` |
 | `artifact-h2-reference.instructions.md` | `**/agent-output/**/*.md` |
 | `bicep-code-best-practices.instructions.md` | `**/*.bicep` |
+| `code-review.instructions.md` | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
 | `copilot-thought-logging.instructions.md` | `**` |
 | `cost-estimate.instructions.md` | `**/03-des-cost-estimate.md`, etc. |
 | `docs.instructions.md` | `docs/**/*.md` |
@@ -121,8 +108,12 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `governance-discovery.instructions.md` | `**/04-governance-*.md` |
 | `instructions.instructions.md` | `**/*.instructions.md` |
 | `markdown.instructions.md` | `**/*.md` |
+| `no-heredoc.instructions.md` | `**` |
 | `powershell.instructions.md` | `**/*.ps1`, `**/*.psm1` |
 | `prompt.instructions.md` | `**/*.prompt.md` |
+| `self-explanatory-code-commenting.instructions.md` | `**` |
+| `shell.instructions.md` | `**/*.sh` |
+| `update-docs-on-code-change.instructions.md` | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
 | `workload-documentation.instructions.md` | `**/agent-output/**/07-*.md` |
 
 ## Artifact Flow (7-Step Workflow)
@@ -145,13 +136,13 @@ Implementation → Deploy       → Documentation
 ## Key Files for Documentation Maintenance
 
 These files contain counts, tables, or version references that need
-updating when agents, skills, or scenarios change:
+updating when agents or skills change:
 
 | File | Contains |
 | --- | --- |
-| `docs/README.md` | Agent tables, skill tables, scenario table, structure tree |
+| `docs/README.md` | Agent tables, skill tables, structure tree |
 | `docs.instructions.md` | Agent count/table, skill count/table |
-| `scenarios/README.md` | Scenario index table |
+| `docs/prompt-guide/README.md` | Agent & skill prompt examples |
 | `VERSION.md` | Canonical version number |
 | `CHANGELOG.md` | Release history |
 | `README.md` (root) | Overview, project structure, tech stack |
@@ -163,11 +154,11 @@ updating when agents, skills, or scenarios change:
 | `README.md` | Documentation hub with quick links |
 | `quickstart.md` | 10-minute getting started guide |
 | `workflow.md` | Detailed 7-step workflow reference |
-| `copilot-tips.md` | Prompting best practices |
 | `troubleshooting.md` | Common issues and fixes |
 | `dev-containers.md` | Dev container setup |
 | `terraform-roadmap.md` | Future Terraform support plans |
 | `GLOSSARY.md` | Terms and definitions |
+| `prompt-guide/` | Agent & skill prompt examples and best practices |
 | `presenter/` | Presentation materials (pptx, ROI, infographics) |
 | `testing/` | Test checklists |
 

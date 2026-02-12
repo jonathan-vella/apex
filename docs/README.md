@@ -24,10 +24,9 @@ See the [conductor agent](../.github/agents/infraops-conductor.agent.md) for orc
 | [Quickstart](quickstart.md)           | Get running in 10 minutes     |
 | [Workflow](workflow.md)               | 7-step agent + skill workflow |
 | [Dev Containers](dev-containers.md)   | Docker setup and alternatives |
-| [Copilot Tips](copilot-tips.md)       | Best practices for prompting  |
+| [Prompt Guide](prompt-guide/)        | Agent & skill prompt examples |
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions   |
 | [Glossary](GLOSSARY.md)               | Terms and definitions         |
-| [Scenarios](../scenarios/)            | Hands-on learning             |
 
 ---
 
@@ -104,21 +103,19 @@ See [workflow.md](workflow.md) for detailed step-by-step guide.
 
 ---
 
-## Scenarios
+## Prompt Guide
 
-Practice with hands-on scenarios in `scenarios/`:
+Learn how to interact with every agent and skill through ready-to-use
+prompt examples in `docs/prompt-guide/`:
 
-| Scenario                     | Focus                     | Time   |
-| ---------------------------- | ------------------------- | ------ |
-| S01-bicep-baseline           | Hub-spoke network         | 30 min |
-| S02-agentic-workflow         | Full 7-step flow          | 60 min |
-| S03-documentation-generation | Workload docs             | 30 min |
-| S04-service-validation       | Deployment preflight      | 20 min |
-| S05-troubleshooting          | Diagnose agent            | 20 min |
-| S06-sbom-generator           | SBOM generation           | 30 min |
-| S07-diagrams-as-code         | Architecture diagrams     | 30 min |
-| S08-coding-agent             | GitHub Copilot agent      | 45 min |
-| S09-orchestration-test       | Orchestration testing     | 30 min |
+| Section | Content |
+| --- | --- |
+| 7-Step Workflow Prompts | Step-by-step examples for each agent |
+| Standalone Agents | Conductor and Diagnose usage |
+| Skill Reference | Independent skill invocation |
+| Tips & Patterns | Advanced prompting techniques |
+
+See [prompt-guide/](prompt-guide/) for the full guide.
 
 ---
 
@@ -132,7 +129,7 @@ azure-agentic-infraops/
 │   └── instructions/     # File-type rules
 ├── agent-output/         # Generated artifacts
 ├── infra/bicep/          # Bicep templates
-├── scenarios/            # Hands-on learning
+├── docs/prompt-guide/    # Prompt examples for agents & skills
 └── docs/                 # This documentation
 ```
 
