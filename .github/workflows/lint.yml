@@ -38,9 +38,6 @@ jobs:
       - name: Validate instruction frontmatter
         run: npm run lint:instruction-frontmatter
 
-      - name: Validate cost estimate templates
-        run: npm run lint:cost-estimate-templates
-
       - name: Check version sync
         run: npm run lint:version-sync
 

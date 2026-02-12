@@ -5,7 +5,6 @@
  * Validates .instructions.md files have correct YAML frontmatter:
  * - Required fields: description, applyTo
  * - No unknown fields (catches stray name, title, etc.)
- * - applyTo uses valid glob patterns
  *
  * @example
  * node scripts/validate-instruction-frontmatter.mjs
@@ -18,7 +17,6 @@ const INSTRUCTIONS_DIR = ".github/instructions";
 const ALLOWED_FIELDS = ["description", "applyTo"];
 
 let errors = 0;
-let warnings = 0;
 
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
@@ -82,8 +80,8 @@ for (const file of files) {
 
 console.log(`\n${"=".repeat(50)}`);
 if (errors > 0) {
-  console.log(`❌ ${errors} error(s), ${warnings} warning(s)`);
+  console.log(`❌ ${errors} error(s)`);
   process.exit(1);
 } else {
-  console.log(`✅ All instruction files valid (${warnings} warning(s))`);
+  console.log(`✅ All instruction files valid`);
 }

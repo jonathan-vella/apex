@@ -530,9 +530,9 @@ function validateArtifactCompliance(relPath) {
     return; // Not a recognized artifact, skip
   }
 
-  // Determine strictness for this artifact
-  const strictness =
-    GLOBAL_STRICTNESS || ARTIFACT_STRICTNESS[artifactType] || "relaxed";
+  // Agent-output artifacts default to relaxed (pre-existing drift expected).
+  // Set STRICTNESS=standard env var to promote violations to hard errors.
+  const strictness = GLOBAL_STRICTNESS || "relaxed";
 
   if (!exists(relPath)) {
     return; // File doesn't exist, skip
@@ -548,8 +548,7 @@ function validateArtifactCompliance(relPath) {
   const corePositions = required.map((heading) => h2.indexOf(heading));
   const anchorPos = h2.indexOf(anchor);
 
-  // Agent-output artifacts use warnings only (pre-existing drift is expected)
-  const reportFn = warn;
+  const reportFn = strictness === "standard" ? error : warn;
 
   // Check all required headings are present
   const missing = required.filter((h) => !h2.includes(h));

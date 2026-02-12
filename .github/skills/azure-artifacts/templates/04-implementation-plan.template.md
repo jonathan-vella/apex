@@ -1,6 +1,6 @@
 # Step 4: Implementation Plan - {project-name}
 
-![Step](https://img.shields.io/badge/Step-4b-blue)
+![Step](https://img.shields.io/badge/Step-4-blue)
 ![Status](https://img.shields.io/badge/Status-Draft-orange)
 ![Agent](https://img.shields.io/badge/Agent-Bicep%20Plan-purple)
 
