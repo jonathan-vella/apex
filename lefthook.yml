@@ -35,6 +35,22 @@ pre-commit:
           echo "ℹ️  No docs to check links"
         fi
 
+    h2-sync:
+      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/artifact-h2-reference*,scripts/validate-artifact-templates*}"
+      run: |
+        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|artifact-h2-reference|validate-artifact-templates)' || true)
+        if [ -n "$STAGED_SYNC" ]; then
+          echo "🔄 Checking H2 heading sync across sources..."
+          npm run lint:h2-sync
+        else
+          echo "ℹ️  No H2-source files to sync-check"
+        fi
+      fail_text: |
+        ❌ H2 heading sync failed!
+
+        Sources must match: SKILL.md ↔ artifact-h2-reference ↔ validator
+        🔧 Run: npm run lint:h2-sync
+
     artifact-validation:
       glob: "{agent-output,.github/skills/azure-artifacts/templates}/**/*.md"
       run: |

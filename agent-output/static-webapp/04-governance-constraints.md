@@ -24,6 +24,14 @@ that must be addressed in the Bicep implementation.
 | Security       | SQL Azure AD-only auth           | Must use Azure AD auth, no SQL auth     |
 | Data Residency | Allowed locations: swedencentral | Set location parameter to swedencentral |
 
+## Plan Adaptations Based on Policies
+
+No policy-driven plan adaptations required. The static web app architecture complies with all discovered constraints.
+
+## Deployment Blockers
+
+No deployment blockers detected. All governance constraints can be satisfied by the planned implementation.
+
 ## Required Tags
 
 All resources must include the following tags:

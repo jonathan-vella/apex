@@ -35,6 +35,9 @@ jobs:
       - name: Validate artifact templates
         run: npm run lint:artifact-templates
 
+      - name: Validate H2 heading sync
+        run: npm run lint:h2-sync
+
       - name: Validate instruction frontmatter
         run: npm run lint:instruction-frontmatter
 

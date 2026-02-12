@@ -61,6 +61,16 @@
 | 4 | **PostgreSQL Flexible Server** | $1,501 | ~9% | Start with General Purpose ($1,092/mo). RI saves 35%. |
 | 5 | **Azure Firewall Premium** | $1,278 | ~8% | Fixed cost — required for PCI IDPS |
 
+```mermaid
+%%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900'}}}%%
+pie showData
+    "DDoS Network Protection" : 2944
+    "API Management Premium" : 2795
+    "AKS Compute" : 1787
+    "PostgreSQL Flexible" : 1501
+    "Azure Firewall Premium" : 1278
+```
+
 > [!WARNING]
 > PCI-DSS compliance costs (Firewall + DDoS + APIM + Key Vault HSM) account for **~43% of total spend** ($7,039/mo). These are non-negotiable for Level 1 compliance.
 

@@ -357,6 +357,16 @@ if ($WhatIf) {
 
 ---
 
+## Deployment Phases
+
+| Phase | Resources | Dependencies | Estimated Duration |
+| ----- | --------- | ------------ | ------------------ |
+| 1 - Foundation | Resource Group, Log Analytics, Action Group | None | 5 minutes |
+| 2 - Application | Static Web App | Phase 1 | 5 minutes |
+| 3 - CDN & Monitoring | CDN Profile + Endpoint, Metric Alert | Phase 2 (Static Web App hostname) | 5 minutes |
+
+---
+
 ## Dependency Graph
 
 ```mermaid

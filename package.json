@@ -11,6 +11,7 @@
     "lint:links:docs": "find docs -name '*.md' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
     "lint:cost-estimate-templates": "echo '⚠️  Merged into lint:artifact-templates' && node scripts/validate-artifact-templates.mjs",
     "lint:artifact-templates": "node scripts/validate-artifact-templates.mjs",
+    "lint:h2-sync": "node scripts/validate-h2-sync.mjs",
     "fix:artifact-h2": "node scripts/fix-artifact-h2.mjs",
     "lint:version-sync": "node scripts/validate-version-sync.mjs",
     "lint:deprecated-refs": "node scripts/validate-no-deprecated-refs.mjs",
@@ -25,7 +26,7 @@
     "validate:agents": "npm run lint:agent-frontmatter && npm run lint:skills-format",
     "test:1109": "npm run validate:vscode && npm run validate:agents && echo '✅ VS Code 1.109 validation passed'",
     "fetch:deprecations": "node scripts/fetch-azure-deprecations.mjs",
-    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:json && echo '✅ All validations passed'"
+    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:json && echo '✅ All validations passed'"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

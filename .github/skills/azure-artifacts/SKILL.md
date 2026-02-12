@@ -30,6 +30,7 @@ Replaces individual template file lookups with embedded H2 definitions.
 
 | Rule | Requirement |
 | --- | --- |
+| **Template skeleton** | Read `.template.md` file and replicate its structure |
 | **Exact text** | Use H2 text from this skill verbatim |
 | **Exact order** | Required H2s appear in the order listed below |
 | **Anchor rule** | Extra sections allowed ONLY after last required H2 |
@@ -216,6 +217,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 ## Resource Inventory
 ## Module Structure
 ## Implementation Tasks
+## Deployment Phases
 ## Dependency Graph
 ## Naming Conventions
 ## Security Configuration

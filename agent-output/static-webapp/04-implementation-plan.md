@@ -168,6 +168,16 @@ properties: {
 
 ---
 
+## Deployment Phases
+
+| Phase | Resources | Dependencies | Estimated Duration |
+| ----- | --------- | ------------ | ------------------ |
+| 1 - Foundation | Resource Group, Log Analytics, Application Insights | None | 5 minutes |
+| 2 - Data | SQL Server, SQL Database | Phase 1 | 5 minutes |
+| 3 - Application | Static Web App | Phase 1 | 5 minutes |
+
+---
+
 ## Dependency Graph
 
 ```mermaid

@@ -61,6 +61,66 @@
 | 5    | Resource Group             | $0.00        | $0.00       | 0%         | N/A                    |
 |      | **Total**                  | **$0.10**    | **$1.20**   | **100%**   | **✅ Fully optimized** |
 
+## Architecture Overview
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900'}}}%%
+pie showData
+    "Metric Alert" : 0.10
+    "Static Web App (Free)" : 0
+    "Log Analytics (Free)" : 0
+    "Action Group" : 0
+```
+
+```
+Azure Static Web App (Free) → Built-in CDN → Users
+       ↓
+Log Analytics (Free) ← Metric Alert → Action Group (Email)
+```
+
+The deployed architecture consists of a Free-tier Azure Static Web App with monitoring via Log Analytics (Free tier), a single metric alert, and an email action group.
+
+## 🧾 What We Are Not Paying For (Yet)
+
+| Service | Potential Cost | When Needed |
+| ------- | -------------- | ----------- |
+| Azure CDN (Standard_Microsoft) | ~$5.00/month | Deprecated SKU — replaced by built-in SWA CDN |
+| Static Web App Standard tier | $9.00/month | Traffic exceeds 100 GB/month |
+| Private Endpoints | ~$7.20/month per endpoint | If private connectivity required |
+
+## ⚠️ Cost Risk Indicators
+
+| Risk | Likelihood | Impact | Mitigation |
+| ---- | ---------- | ------ | ---------- |
+| Bandwidth exceeds Free tier (100 GB) | Low | +$9.00/month (Standard upgrade) | Monitor bandwidth via metrics |
+| Log ingestion exceeds 10 GB/month | Low | ~$3.00/GB overage | Set daily ingestion cap |
+
+## 🎯 Quick Decision Matrix
+
+| If you want to... | Do this | Save | Trade-off |
+| ------------------ | ------- | ---- | --------- |
+| Eliminate all costs | Remove metric alert | $0.10/month | No proactive alerting |
+| Add custom domain SSL | Upgrade to Standard tier | N/A (+$9.00) | Required for custom domains |
+
+## 💰 Savings Opportunities
+
+| Opportunity | Potential Savings | Effort | Risk |
+| ----------- | ----------------- | ------ | ---- |
+| Remove metric alert | $0.10/month | Low | Medium — no alerting |
+| Reduce Log Analytics retention | $0.00 (already Free tier) | N/A | N/A |
+
+Current configuration is fully optimized. No further savings available without removing functionality.
+
+## Detailed Cost Breakdown
+
+| Category | Resource | SKU | Monthly Cost | Annual Cost |
+| -------- | -------- | --- | ------------ | ----------- |
+| Compute | Static Web App | Free | $0.00 | $0.00 |
+| Monitoring | Log Analytics Workspace | Free | $0.00 | $0.00 |
+| Monitoring | Metric Alert | Standard | $0.10 | $1.20 |
+| Monitoring | Action Group (Email) | N/A | $0.00 | $0.00 |
+| **Total** | | | **$0.10** | **$1.20** |
+
 ## 💻 Compute Costs
 
 ### Azure Static Web Apps
