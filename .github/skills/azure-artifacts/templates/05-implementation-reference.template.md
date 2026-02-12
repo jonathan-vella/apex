@@ -39,10 +39,11 @@ infra/bicep/{project-name}/
 
 ## Validation Status
 
-| Check         | Status   |
-| ------------- | -------- |
-| `bicep build` | {status} |
-| `bicep lint`  | {status} |
+| Check         | Result | Details |
+| ------------- | ------ | ------- |
+| `bicep build` | ✅ / ❌ | {details or error message} |
+| `bicep lint`  | ✅ / ⚠️ / ❌ | {details or warning count} |
+| `what-if`     | ✅ / ❌ | {resource count or error} |
 
 ## Resources Created
 
@@ -50,22 +51,41 @@ infra/bicep/{project-name}/
 | ---------- | ------------ | -------- |
 | {resource} | {bicep-type} | {module} |
 
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+graph TD
+    MAIN["main.bicep"] --> MOD1["{module1}"]
+    MAIN --> MOD2["{module2}"]
+    MOD1 --> R1["💻 {resource1}"]
+    MOD2 --> R2["💾 {resource2}"]
+    MOD2 --> R3["🌐 {resource3}"]
+```
+
+> Replace with actual module and resource names from generated Bicep.
+
 ## Deployment Instructions
 
-### Quick Deploy
+<details>
+<summary><strong>🟢 Quick Deploy (PowerShell)</strong></summary>
 
 ```powershell
 cd infra/bicep/{project-name}
 ./deploy.ps1
 ```
 
-### Preview Changes (What-If)
+</details>
+
+<details>
+<summary><strong>🔍 Preview Changes (What-If)</strong></summary>
 
 ```powershell
 ./deploy.ps1 -WhatIf
 ```
 
-### Custom Parameters
+</details>
+
+<details>
+<summary><strong>⚙️ Custom Parameters</strong></summary>
 
 ```powershell
 ./deploy.ps1 `
@@ -74,9 +94,26 @@ cd infra/bicep/{project-name}
     -Environment "{env}"
 ```
 
+</details>
+
+<details>
+<summary><strong>🚀 Azure CLI</strong></summary>
+
+```bash
+az deployment group create \
+  --resource-group "rg-{project}-{env}" \
+  --template-file main.bicep \
+  --parameters main.bicepparam
+```
+
+</details>
+
 ## Key Implementation Notes
 
-### Unique Resource Naming
+| Note | Impact | Reference |
+| ---- | ------ | --------- |
+| Unique suffix via `uniqueString(resourceGroup().id)` | All resource names | main.bicep |
+| {additional note} | {impact area} | {module/file} |
 
 ```bicep
 var uniqueSuffix = uniqueString(resourceGroup().id)

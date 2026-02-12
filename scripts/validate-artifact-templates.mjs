@@ -420,6 +420,7 @@ const MERMAID_REQUIRED_TEMPLATES = [
   "04-governance-constraints.md",
   "04-implementation-plan.md",
   "04-preflight-check.md",
+  "05-implementation-reference.md",
   "07-ab-cost-estimate.md",
 ];
 
@@ -440,6 +441,8 @@ function validateMermaidPresence(filePath, text, reportFn = warn) {
 const TRAFFIC_LIGHT_TEMPLATES = [
   "02-architecture-assessment.md",
   "04-governance-constraints.md",
+  "05-implementation-reference.md",
+  "06-deployment-summary.md",
   "07-ab-cost-estimate.md",
 ];
 
@@ -469,6 +472,8 @@ const COLLAPSIBLE_TEMPLATES = [
   "02-architecture-assessment.md",
   "03-des-cost-estimate.md",
   "04-preflight-check.md",
+  "05-implementation-reference.md",
+  "06-deployment-summary.md",
   "07-ab-cost-estimate.md",
 ];
 
