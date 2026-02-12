@@ -126,7 +126,7 @@ Before completing, verify:
 
 After requirements are captured and approved:
 
-1. User invokes `@architect` for architecture assessment
-2. Architecture agent validates requirements and produces WAF assessment
+1. User invokes the **Architect** agent for architecture assessment
+2. Architect agent validates requirements and produces WAF assessment
 3. Workflow continues through remaining 5 steps
 ---

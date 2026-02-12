@@ -1,7 +1,7 @@
 ---
 description: "Deploy Bicep templates to Azure with what-if analysis"
 agent: "Deploy"
-model: "Claude Opus 4.6"
+model: "Claude Sonnet 4.5"
 tools:
   - execute/runInTerminal
   - read
@@ -113,7 +113,7 @@ If deployment fails:
 
 1. Capture the full error message
 2. Identify the root cause (quota, naming, permissions, etc.)
-3. Offer to hand off to `@bicep-code` to fix the templates
+3. Offer to hand off to the **Bicep Code** agent to fix the templates
 4. After fixes, retry deployment from Step 2
 
 ## Next Steps
@@ -122,6 +122,6 @@ After successful deployment, suggest:
 
 > "Deployment complete! Next steps:
 >
-> - `@docs` → Generate ops runbook and documentation
-> - `@diagram` → Create as-built architecture diagram
-> - `@architect` → Review deployed resources for WAF compliance"
+> - **Deploy** agent → Generate workload documentation (Step 7)
+> - **Design** agent → Create as-built architecture diagram
+> - **Architect** agent → Review deployed resources for WAF compliance"

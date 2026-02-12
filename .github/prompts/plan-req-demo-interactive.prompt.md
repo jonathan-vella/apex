@@ -4,6 +4,7 @@ agent: "Requirements"
 model: "Claude Opus 4.6"
 tools:
   - edit/createFile
+  - edit/editFiles
   - vscode/askQuestions
 ---
 
@@ -313,10 +314,10 @@ Present next step options:
       "header": "Next Step",
       "question": "Requirements captured! What would you like to do next?",
       "options": [
-        {"label": "Architecture Assessment (@architect)",
+        {"label": "Architecture Assessment (Architect agent)",
          "description": "Full WAF assessment + cost estimates",
          "recommended": true},
-        {"label": "Jump to Implementation (@bicep-plan)",
+        {"label": "Jump to Implementation (Bicep Plan agent)",
          "description": "Skip assessment for simple workloads"},
         {"label": "Review the document first"}
       ]
