@@ -85,7 +85,7 @@ az bicep version && pwsh --version
 
 # 4. Explore docs and infrastructure
 cd docs/prompt-guide/ && ls -la
-cd ../infra/bicep/ && tree -L 2
+cd ../../infra/bicep/ && tree -L 2
 ```
 
 ## 📁 Environment Configuration

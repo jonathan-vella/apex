@@ -420,11 +420,9 @@ infra/
 Refer to the [Prompt Guide](prompt-guide/) for Terraform agent prompt examples
 once the Terraform agents are implemented.
 
-```
+```text
 docs/prompt-guide/
-├── README.md          # Includes future Terraform section
-```
-        └── baseline_test.go
+└── README.md          # Includes future Terraform section
 ```
 
 ---

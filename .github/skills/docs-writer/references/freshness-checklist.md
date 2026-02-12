@@ -143,7 +143,7 @@ All 21 discrepancies identified during the initial audit have been
 resolved (Tasks A–D). Fixes included:
 
 - Version headers migrated to `[Current Version](../VERSION.md)` links
-- Agent counts corrected to 8, skill counts to 11
+- Agent counts corrected to 8, skill counts to 8
 - Conductor model corrected to Claude Opus 4.6, approval gates to 5
 - MCP path fixed, broken link removed
 - Glossary cross-references fixed, keyboard shortcut corrected, new terms added
