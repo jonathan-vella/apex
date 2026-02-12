@@ -44,15 +44,15 @@
 
 ### 💻 Compute Resources
 
-| Name   | Type   | SKU   | Location   | Purpose   |
-| ------ | ------ | ----- | ---------- | --------- |
-| {name} | {type} | {sku} | {location} | {purpose} |
+| Name   | Type   | SKU   | Location   | Monthly Cost | Purpose   | Portal |
+| ------ | ------ | ----- | ---------- | ------------ | --------- | ------ |
+| {name} | {type} | {sku} | {location} | ${X}         | {purpose} | [View](https://portal.azure.com/#@/resource/{resource-id}) |
 
 ### 💾 Data Services
 
-| Name   | Type   | SKU   | Configuration | Location   |
-| ------ | ------ | ----- | ------------- | ---------- |
-| {name} | {type} | {sku} | {config}      | {location} |
+| Name   | Type   | SKU   | Configuration | Location   | Monthly Cost |
+| ------ | ------ | ----- | ------------- | ---------- | ------------ |
+| {name} | {type} | {sku} | {config}      | {location} | ${X}         |
 
 ### 🌐 Networking Resources
 
@@ -77,6 +77,22 @@
 | Name   | Type   | Retention   | Location   |
 | ------ | ------ | ----------- | ---------- |
 | {name} | {type} | {retention} | {location} |
+
+---
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900',pie6:'#008575'}}}%%
+pie showData
+    title Resource Distribution by Category
+    "💻 Compute" : 0
+    "💾 Data" : 0
+    "🌐 Networking" : 0
+    "📨 Messaging" : 0
+    "🔐 Security" : 0
+    "📊 Monitoring" : 0
+```
+
+> Replace values with actual resource counts per category.
 
 ---
 

@@ -422,9 +422,12 @@ const MERMAID_REQUIRED_TEMPLATES = [
   "04-preflight-check.md",
   "05-implementation-reference.md",
   "07-ab-cost-estimate.md",
+  "07-backup-dr-plan.md",
+  "07-compliance-matrix.md",
   "07-design-document.md",
   "07-documentation-index.md",
   "07-operations-runbook.md",
+  "07-resource-inventory.md",
 ];
 
 /**
@@ -447,6 +450,7 @@ const TRAFFIC_LIGHT_TEMPLATES = [
   "05-implementation-reference.md",
   "06-deployment-summary.md",
   "07-ab-cost-estimate.md",
+  "07-compliance-matrix.md",
   "07-design-document.md",
 ];
 
@@ -479,6 +483,8 @@ const COLLAPSIBLE_TEMPLATES = [
   "05-implementation-reference.md",
   "06-deployment-summary.md",
   "07-ab-cost-estimate.md",
+  "07-backup-dr-plan.md",
+  "07-compliance-matrix.md",
   "07-design-document.md",
   "07-operations-runbook.md",
 ];

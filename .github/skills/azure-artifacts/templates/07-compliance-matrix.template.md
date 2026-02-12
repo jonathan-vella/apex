@@ -38,12 +38,12 @@
 
 | Compliance Area    | Coverage | Status   |
 | ------------------ | -------- | -------- |
-| Network Security   | {%}      | {status} |
-| Data Protection    | {%}      | {status} |
-| Access Control     | {%}      | {status} |
-| Monitoring & Audit | {%}      | {status} |
-| Incident Response  | {%}      | {status} |
-| Overall            | {%}      | {status} |
+| Network Security   | {%}      | ✅ / ⚠️ / ❌ |
+| Data Protection    | {%}      | ✅ / ⚠️ / ❌ |
+| Access Control     | {%}      | ✅ / ⚠️ / ❌ |
+| Monitoring & Audit | {%}      | ✅ / ⚠️ / ❌ |
+| Incident Response  | {%}      | ✅ / ⚠️ / ❌ |
+| Overall            | {%}      | ✅ / ⚠️ / ❌ |
 
 ---
 
@@ -53,33 +53,58 @@
 
 | Control   | Requirement   | Implementation   | Status   |
 | --------- | ------------- | ---------------- | -------- |
-| {control} | {requirement} | {implementation} | {status} |
+| {control} | {requirement} | {implementation} | ✅ / ⚠️ / ❌ |
+
+<details>
+<summary><strong>📎 Evidence</strong></summary>
 
 **Evidence Location**: {evidence-path}
+
+| Evidence Item | Type | Date Collected |
+| ------------- | ---- | -------------- |
+| {item}        | {type} | {date}       |
+
+</details>
 
 ---
 
 ## 2. Gap Analysis
 
-| Gap   | Risk Level | Remediation   | Timeline   |
-| ----- | ---------- | ------------- | ---------- |
-| {gap} | {risk}     | {remediation} | {timeline} |
+| Gap   | Severity | Risk Level | Remediation   | Timeline   |
+| ----- | -------- | ---------- | ------------- | ---------- |
+| {gap} | 🔴 / 🟡 / 🟢 | {risk} | {remediation} | {timeline} |
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#D83B01"}}}%%
+xychart-beta
+    title "Compliance Gaps by Severity"
+    x-axis ["Critical", "High", "Medium", "Low"]
+    y-axis "Count" 0 --> 10
+    bar [0, 0, 0, 0]
+```
+
+> Replace bar values with actual gap counts.
 
 ---
 
 ## 3. Evidence Collection
 
+<details>
+<summary><strong>📁 Evidence Items</strong></summary>
+
 | Control   | Evidence Type   | Location   | Last Collected |
 | --------- | --------------- | ---------- | -------------- |
 | {control} | {evidence-type} | {location} | {date}         |
+
+</details>
 
 ---
 
 ## 4. Audit Trail
 
-| Date   | Auditor   | Finding   | Status   |
-| ------ | --------- | --------- | -------- |
-| {date} | {auditor} | {finding} | {status} |
+| Date   | Auditor   | Finding   | Status   | Commit |
+| ------ | --------- | --------- | -------- | ------ |
+| {date} | {auditor} | {finding} | {status} | [{sha}]({repo-url}/commit/{sha}) |
 
 ---
 
@@ -87,7 +112,7 @@
 
 | Finding   | Owner   | Due Date   | Status   |
 | --------- | ------- | ---------- | -------- |
-| {finding} | {owner} | {due-date} | {status} |
+| {finding} | {owner} | {due-date} | ⬜ Todo / 🔄 In Progress / ✅ Done |
 
 ---
 

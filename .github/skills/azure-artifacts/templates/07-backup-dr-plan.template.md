@@ -54,9 +54,9 @@
 
 | Tier      | RTO Target | Services   |
 | --------- | ---------- | ---------- |
-| Critical  | {time}     | {services} |
-| Important | {time}     | {services} |
-| Standard  | {time}     | {services} |
+| 🔴 Critical  | {time}     | {services} |
+| 🟠 Important | {time}     | {services} |
+| 🟢 Standard  | {time}     | {services} |
 
 ### 1.2 Recovery Point Objective (RPO)
 
@@ -64,11 +64,31 @@
 | ----------- | ---------- | ----------------- |
 | {data-type} | {target}   | {backup-strategy} |
 
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+gantt
+    title RPO / RTO Targets by Tier
+    dateFormat HH:mm
+    axisFormat %H:%M
+    section Critical
+        RPO :crit, rpo1, 00:00, 15min
+        RTO :crit, rto1, 00:00, 1h
+    section Important
+        RPO :rpo2, 00:00, 1h
+        RTO :rto2, 00:00, 4h
+    section Standard
+        RPO :rpo3, 00:00, 4h
+        RTO :rto3, 00:00, 24h
+```
+
+> Replace durations with actual RPO/RTO targets.
+
 ---
 
 ## 2. Backup Strategy
 
-### 2.1 Azure SQL Database
+<details>
+<summary><strong>💾 Azure SQL Database</strong></summary>
 
 | Setting             | Configuration |
 | ------------------- | ------------- |
@@ -88,24 +108,39 @@ az sql db restore \
   --time "{timestamp}"
 ```
 
-### 2.2 Azure Key Vault
+</details>
+
+<details>
+<summary><strong>🔐 Azure Key Vault</strong></summary>
 
 | Setting          | Configuration |
 | ---------------- | ------------- |
 | Soft Delete      | {config}      |
 | Purge Protection | {config}      |
 
+</details>
+
 ---
 
 ## 3. Disaster Recovery Procedures
+
+<details>
+<summary><strong>🌍 Region Failover</strong></summary>
 
 ### 3.1 Failover Procedure
 
 {failover-procedure}
 
+</details>
+
+<details>
+<summary><strong>↩️ Failback Procedure</strong></summary>
+
 ### 3.2 Failback Procedure
 
 {failback-procedure}
+
+</details>
 
 ---
 
@@ -114,6 +149,21 @@ az sql db restore \
 | Test Type   | Frequency   | Last Test   | Next Test   |
 | ----------- | ----------- | ----------- | ----------- |
 | {test-type} | {frequency} | {last-test} | {next-test} |
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+gantt
+    title DR Testing Schedule
+    dateFormat YYYY-MM-DD
+    section Backup Validation
+        Backup restore test   :a1, 2025-01-15, 1d
+    section Failover
+        Region failover drill :b1, 2025-03-01, 1d
+    section Full DR
+        Full DR exercise      :c1, 2025-06-01, 2d
+```
+
+> Replace with actual testing schedule.
 
 ---
 
@@ -146,6 +196,25 @@ az sql db restore \
 | Scenario   | Runbook   | Owner   |
 | ---------- | --------- | ------- |
 | {scenario} | {runbook} | {owner} |
+
+<details>
+<summary><strong>📖 Runbook: {Scenario Name}</strong></summary>
+
+**Trigger**: {trigger condition}
+**Estimated Duration**: {time}
+
+1. {step-1}
+2. {step-2}
+3. {step-3}
+
+**Validation**:
+
+```bash
+# Verify recovery
+{validation-command}
+```
+
+</details>
 
 ---
 
