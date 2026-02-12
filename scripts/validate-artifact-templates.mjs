@@ -412,6 +412,68 @@ function validateStandardComponents(filePath, text, reportFn = warn) {
   }
 }
 
+// Artifacts that should contain at least one Mermaid diagram (Phase 3)
+const MERMAID_REQUIRED_TEMPLATES = [
+  "01-requirements.md",
+  "02-architecture-assessment.md",
+];
+
+/**
+ * Validates that templates requiring Mermaid diagrams contain at least one
+ * fenced mermaid block. Advisory for agent-output (warn), enforced for templates (error).
+ */
+function validateMermaidPresence(filePath, text, reportFn = warn) {
+  if (!/```mermaid/.test(text)) {
+    reportFn(
+      `${filePath} should contain at least one Mermaid diagram block.`,
+      { filePath, line: 1 },
+    );
+  }
+}
+
+// Artifacts that should contain traffic-light status indicators (Phase 3)
+const TRAFFIC_LIGHT_TEMPLATES = [
+  "02-architecture-assessment.md",
+];
+
+/**
+ * Validates that templates requiring traffic-light indicators contain
+ * the expected status emoji set (✅/⚠️/❌).
+ */
+function validateTrafficLight(filePath, text, reportFn = warn) {
+  const hasGreen = text.includes("✅");
+  const hasYellow = text.includes("⚠️");
+  const hasRed = text.includes("❌");
+  if (!hasGreen || !hasYellow || !hasRed) {
+    const missing = [];
+    if (!hasGreen) missing.push("✅");
+    if (!hasYellow) missing.push("⚠️");
+    if (!hasRed) missing.push("❌");
+    reportFn(
+      `${filePath} should contain traffic-light indicators (missing: ${missing.join(", ")}).`,
+      { filePath, line: 1 },
+    );
+  }
+}
+
+// Artifacts that should contain collapsible <details> blocks (Phase 3)
+const COLLAPSIBLE_TEMPLATES = [
+  "01-requirements.md",
+  "02-architecture-assessment.md",
+];
+
+/**
+ * Validates that templates requiring collapsible sections contain <details> blocks.
+ */
+function validateCollapsibleBlocks(filePath, text, reportFn = warn) {
+  if (!text.includes("<details>")) {
+    reportFn(
+      `${filePath} should contain collapsible <details> blocks.`,
+      { filePath, line: 1 },
+    );
+  }
+}
+
 function validateTemplate(artifactName) {
   const templatePath = TEMPLATES[artifactName];
 
@@ -472,6 +534,17 @@ function validateTemplate(artifactName) {
   // Cost-estimate templates require Mermaid pie chart
   if (COST_ESTIMATE_ARTIFACTS.includes(artifactName)) {
     validateCostMermaid(templatePath, text);
+  }
+
+  // Phase 3 visual element checks (error for templates)
+  if (MERMAID_REQUIRED_TEMPLATES.includes(artifactName)) {
+    validateMermaidPresence(templatePath, text, error);
+  }
+  if (TRAFFIC_LIGHT_TEMPLATES.includes(artifactName)) {
+    validateTrafficLight(templatePath, text, error);
+  }
+  if (COLLAPSIBLE_TEMPLATES.includes(artifactName)) {
+    validateCollapsibleBlocks(templatePath, text, error);
   }
 
   // Validate standard visual components (badges, TOC, attribution, nav)
@@ -657,6 +730,17 @@ function validateArtifactCompliance(relPath) {
   // Validate standard visual components (badges, TOC, attribution, nav)
   // Warn-only for agent-output to avoid blocking pre-existing artifacts
   validateStandardComponents(relPath, text, warn);
+
+  // Phase 3 visual element checks (warn for agent-output)
+  if (MERMAID_REQUIRED_TEMPLATES.includes(artifactType)) {
+    validateMermaidPresence(relPath, text, warn);
+  }
+  if (TRAFFIC_LIGHT_TEMPLATES.includes(artifactType)) {
+    validateTrafficLight(relPath, text, warn);
+  }
+  if (COLLAPSIBLE_TEMPLATES.includes(artifactType)) {
+    validateCollapsibleBlocks(relPath, text, warn);
+  }
 }
 
 /**

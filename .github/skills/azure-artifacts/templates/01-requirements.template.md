@@ -27,13 +27,13 @@
 
 ## Project Overview
 
-Provide a table with:
-
-- Project Name
-- Project Type
-- Timeline
-- Primary Stakeholder
-- Business Context
+| Field | Value |
+| ----- | ----- |
+| **Project Name** | {project-name} |
+| **Project Type** | {Static Site / API Backend / Full-Stack / Data Platform} |
+| **Timeline** | {Start date} → {Target go-live} |
+| **Primary Stakeholder** | {name / role} |
+| **Business Context** | {one-line summary} |
 
 ### Business Context
 
@@ -48,83 +48,156 @@ Capture the business context gathered during Phase 1 discovery:
 | Business Drivers | {Why this project? Cost savings, growth, compliance, etc.} |
 | Success Criteria | {How will business success be measured?} |
 
+### State Transition
+
+```mermaid
+flowchart LR
+    A["🏢 Current State<br/>{current-state}"] -->|"Migration Path"| B["☁️ Desired State<br/>{desired-state}"]
+    B --> C["✅ Success Criteria<br/>{success-criteria}"]
+```
+
 ## Functional Requirements
 
 ### Core Capabilities
 
-List the core capabilities of the system.
+| # | Capability | Priority | Acceptance Criteria |
+| - | ---------- | -------- | ------------------- |
+| 1 | {capability} | 🔴 Must / 🟡 Should / 🟢 Could | {measurable criterion} |
+| 2 | {capability} | 🔴 Must / 🟡 Should / 🟢 Could | {measurable criterion} |
 
 ### User Types
 
-Table showing user types, descriptions, and estimated counts.
+| User Type | Description | Est. Count | Access Level |
+| --------- | ----------- | ---------- | ------------ |
+| {type} | {description} | {count} | {Admin / Contributor / Reader} |
 
 ### Integrations
 
-List external systems, APIs, or services to integrate with.
+| System | Direction | Protocol | Auth Method | SLA |
+| ------ | --------- | -------- | ----------- | --- |
+| {system} | Inbound / Outbound / Bidirectional | REST / gRPC / Event | {OAuth / API Key / MI} | {SLA} |
 
 ### Data Types
 
-Table of data categories, sensitivity levels, and estimated volumes.
+| Category | Sensitivity | Est. Volume | Retention | Residency |
+| -------- | ----------- | ----------- | --------- | --------- |
+| {category} | 🔴 High / 🟡 Medium / 🟢 Low | {volume} | {period} | {region} |
 
 ### Architecture Pattern
 
-Table showing:
-
-| Field              | Value                                                  |
-| ------------------ | ------------------------------------------------------ |
-| Workload Pattern   | {Static Site / N-Tier / API-First / Serverless / Data} |
-| Recommended Option | {Option from Service Recommendation Matrix}            |
-| Tier               | {Cost-Optimized / Balanced / Enterprise}               |
-| Justification      | {Why this pattern fits the requirements}                |
+| Field | Value |
+| ----- | ----- |
+| Workload Pattern | {Static Site / N-Tier / API-First / Serverless / Data} |
+| Recommended Option | {Option from Service Recommendation Matrix} |
+| Tier | {Cost-Optimized / Balanced / Enterprise} |
+| Justification | {Why this pattern fits the requirements} |
 
 ## Non-Functional Requirements (NFRs)
 
-### Availability & Reliability
-
-| Metric  | Target | Justification |
-| ------- | ------ | ------------- |
-| **SLA** |        |               |
-| **RTO** |        |               |
-| **RPO** |        |               |
-
-### Performance
-
-Table showing performance metrics and targets (e.g., page load time, API response time, concurrent users).
+| WAF Pillar | Metric | Target | Current | Gap |
+| ---------- | ------ | ------ | ------- | --- |
+| 🔄 Reliability | SLA | {target %} | {current or N/A} | {gap} |
+| 🔄 Reliability | RTO | {target} | {current or N/A} | {gap} |
+| 🔄 Reliability | RPO | {target} | {current or N/A} | {gap} |
+| ⚡ Performance | Page Load | {target ms} | {current or N/A} | {gap} |
+| ⚡ Performance | API Response (p95) | {target ms} | {current or N/A} | {gap} |
+| ⚡ Performance | Concurrent Users | {target} | {current or N/A} | {gap} |
+| 🔒 Security | Auth Method | {MFA / SSO / Certificate} | — | — |
+| 🔒 Security | Encryption | {At-rest + In-transit} | — | — |
+| 💰 Cost | Monthly Budget | {amount} | — | — |
+| 🔧 Operations | Uptime Monitoring | {Yes / No} | — | — |
 
 ### Scalability
 
-Table showing current and projected capacity (users, data volume, transactions/day).
+| Dimension | Current | 6-Month Projection | 12-Month Projection |
+| --------- | ------- | ------------------ | ------------------- |
+| Users | {count} | {count} | {count} |
+| Data Volume | {size} | {size} | {size} |
+| Transactions/day | {count} | {count} | {count} |
 
 ## Compliance & Security Requirements
 
 ### Regulatory Frameworks
 
-Checklist of applicable frameworks (HIPAA, PCI-DSS, GDPR, SOC 2, ISO 27001, or None).
+<details>
+<summary><strong>PCI-DSS</strong> — {Applicable / Not Applicable}</summary>
+
+| Requirement | Applicability | Notes |
+| ----------- | ------------- | ----- |
+| Cardholder data storage | {Yes / No} | {details} |
+| Network segmentation | {Yes / No} | {details} |
+| Encryption requirements | {Yes / No} | {details} |
+
+</details>
+
+<details>
+<summary><strong>SOC 2</strong> — {Applicable / Not Applicable}</summary>
+
+| Trust Principle | Applicability | Notes |
+| --------------- | ------------- | ----- |
+| Security | {Yes / No} | {details} |
+| Availability | {Yes / No} | {details} |
+| Confidentiality | {Yes / No} | {details} |
+
+</details>
+
+<details>
+<summary><strong>HIPAA</strong> — {Applicable / Not Applicable}</summary>
+
+| Requirement | Applicability | Notes |
+| ----------- | ------------- | ----- |
+| PHI handling | {Yes / No} | {details} |
+| BAA required | {Yes / No} | {details} |
+| Audit logging | {Yes / No} | {details} |
+
+</details>
+
+<details>
+<summary><strong>GDPR</strong> — {Applicable / Not Applicable}</summary>
+
+| Requirement | Applicability | Notes |
+| ----------- | ------------- | ----- |
+| EU data subjects | {Yes / No} | {details} |
+| Data residency | {Yes / No} | {details} |
+| Right to erasure | {Yes / No} | {details} |
+
+</details>
+
+<details>
+<summary><strong>ISO 27001</strong> — {Applicable / Not Applicable}</summary>
+
+| Control Area | Applicability | Notes |
+| ------------ | ------------- | ----- |
+| Access control | {Yes / No} | {details} |
+| Asset management | {Yes / No} | {details} |
+| Incident management | {Yes / No} | {details} |
+
+</details>
 
 ### Data Residency
 
-Table showing:
-
-- Primary Region
-- Data Sovereignty requirements
-- Cross-region replication needs
+| Requirement | Value |
+| ----------- | ----- |
+| Primary Region | {region} |
+| Data Sovereignty | {EU-only / No restriction / Country-specific} |
+| Cross-region Replication | {Required / Not required} |
 
 ### Authentication & Authorization
 
-Table showing:
-
-- Identity Provider
-- MFA requirement
-- RBAC Model
+| Requirement | Value |
+| ----------- | ----- |
+| Identity Provider | {Entra ID / B2C / External IdP} |
+| MFA Requirement | {Required / Conditional / Not required} |
+| RBAC Model | {Azure RBAC / Custom / Application-level} |
 
 ### Network Security
 
-Checklist for:
-
-- Private endpoints
-- VNet integration
-- Public endpoints acceptable
-- WAF required
+| Control | Required | Notes |
+| ------- | -------- | ----- |
+| Private endpoints | ✅ / ❌ | {details} |
+| VNet integration | ✅ / ❌ | {details} |
+| Public endpoints acceptable | ✅ / ❌ | {details} |
+| WAF required | ✅ / ❌ | {details} |
 
 ### Recommended Security Controls
 
@@ -143,57 +216,84 @@ Table of recommended controls based on workload pattern and compliance requireme
 
 ## Budget
 
-Table showing:
-
-| Field           | Value                                        |
-| --------------- | -------------------------------------------- |
-| Monthly Budget  | {approximate amount, e.g., ~$50}             |
-| Annual Budget   | {optional}                                   |
-| Hard/Soft Limit | {hard = cannot exceed, soft = can negotiate} |
-
-> **Note**: The Azure Pricing MCP server generates detailed cost estimates during
+> [!NOTE]
+> The Azure Pricing MCP server generates detailed cost estimates during
 > architecture assessment (Step 2). Provide an approximate budget here.
 
-### Cost Optimization Priorities (Optional)
+| Field | Value |
+| ----- | ----- |
+| 💰 Monthly Budget | {approximate amount, e.g., ~$50} |
+| 📅 Annual Budget | {optional — monthly × 12 if not specified} |
+| 🚦 Limit Type | {🔴 Hard = cannot exceed / 🟡 Soft = can negotiate} |
+| 📊 Cost Model Pref | {Consumption / Committed / Hybrid} |
 
-Checklist of priorities if known:
+### Cost Optimization Priorities
 
-- [ ] Minimize compute costs
-- [ ] Prefer consumption-based pricing
-- [ ] Reserved instances acceptable
-- [ ] Spot instances acceptable for non-critical workloads
+| Priority | Selected | Impact |
+| -------- | -------- | ------ |
+| Minimize compute costs | ☐ | {High / Medium / Low} |
+| Prefer consumption-based pricing | ☐ | {High / Medium / Low} |
+| Reserved instances acceptable | ☐ | {High / Medium / Low} |
+| Spot instances for non-critical | ☐ | {High / Medium / Low} |
 
 ## Operational Requirements
 
 ### Monitoring & Alerting
 
-Table showing monitoring requirements (Application Insights, Log Analytics, alert recipients, dashboard needs).
+| Capability | Required | Tool / Service | Notes |
+| ---------- | -------- | -------------- | ----- |
+| Application monitoring | ✅ / ❌ | Application Insights | {details} |
+| Log aggregation | ✅ / ❌ | Log Analytics | {details} |
+| Alert notifications | ✅ / ❌ | {Email / Teams / PagerDuty} | {recipients} |
+| Custom dashboards | ✅ / ❌ | Azure Monitor / Grafana | {details} |
 
 ### Support & Maintenance
 
-Table showing:
-
-- Support Hours
-- On-call requirement
-- Maintenance Windows
+| Requirement | Value |
+| ----------- | ----- |
+| Support Hours | {24/7 / Business hours / Best-effort} |
+| On-call Requirement | {Yes / No} |
+| Maintenance Windows | {Day / Time / Frequency} |
+| Change Management | {Formal CAB / Team approval / Self-service} |
 
 ### Backup & Disaster Recovery
 
-Table showing backup frequency and retention per component.
+| Component | Backup Frequency | Retention | Recovery Method |
+| --------- | ---------------- | --------- | --------------- |
+| {component} | {Daily / Hourly / Continuous} | {30d / 90d / 1yr} | {Automated / Manual} |
 
 ## Regional Preferences
 
-Table showing:
-
-- Primary Region (default: swedencentral)
-- Failover Region
-- Availability Zones
+| Preference | Value | Justification |
+| ---------- | ----- | ------------- |
+| Primary Region | swedencentral | {default — override if required} |
+| Failover Region | {region or N/A} | {compliance / latency / cost} |
+| Availability Zones | {Required / Preferred / Not needed} | {SLA / cost trade-off} |
 
 ---
 
 ## Summary for Architecture Assessment
 
-Brief summary of key constraints and recommended approach.
+### Handoff Summary
+
+| Aspect | Key Points |
+| ------ | ---------- |
+| Critical Constraints | {top 3 constraints driving architecture} |
+| Key Decisions | {decisions made during requirements that affect architecture} |
+| Open Risks | {unresolved items that architect must address} |
+| Recommended Pattern | {workload pattern from Functional Requirements} |
+| Budget Envelope | {monthly budget from Budget section} |
+
+### Requirements Completeness
+
+| Section | Status | Notes |
+| ------- | ------ | ----- |
+| Project Overview | ✅ / ⚠️ / ❌ | {notes} |
+| Functional Requirements | ✅ / ⚠️ / ❌ | {notes} |
+| NFRs | ✅ / ⚠️ / ❌ | {notes} |
+| Compliance & Security | ✅ / ⚠️ / ❌ | {notes} |
+| Budget | ✅ / ⚠️ / ❌ | {notes} |
+| Operational Requirements | ✅ / ⚠️ / ❌ | {notes} |
 
 ---
 

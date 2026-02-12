@@ -26,14 +26,17 @@
 
 ## Requirements Validation ✅
 
-Table validating presence of:
+| Requirement Area | Status | Validation Notes |
+| ---------------- | ------ | ---------------- |
+| NFRs (SLA, RTO, RPO) | ✅ Defined / ⚠️ Partial / ❌ Missing | {notes} |
+| Compliance requirements | ✅ Defined / ⚠️ Partial / ❌ Missing | {notes} |
+| Budget (approximate) | ✅ Defined / ⚠️ Partial / ❌ Missing | {notes} |
+| Scale requirements | ✅ Defined / ⚠️ Partial / ❌ Missing | {notes} |
+| Security controls | ✅ Defined / ⚠️ Partial / ❌ Missing | {notes} |
+| Data residency | ✅ Defined / ⚠️ Partial / ❌ Missing | {notes} |
 
-- NFRs (SLA, RTO, RPO)
-- Compliance requirements
-- Budget (approximate - MCP generates detailed estimates)
-- Scale requirements
-
-Status indicators: ✅ Defined / ⚠️ Partial / ❌ Missing
+> [!WARNING]
+> Any ❌ items above must be resolved before proceeding to implementation.
 
 ---
 
@@ -43,9 +46,27 @@ Brief narrative summary of the workload and recommended approach.
 
 ### Recommended Architecture
 
+```mermaid
+flowchart TB
+    User["\U0001F464 Users"] --> FD["\U0001F6E1\uFE0F Front Door / CDN"]
+    FD --> App["\U0001F4BB App Service"]
+    App --> DB[("\U0001F5C4\uFE0F Database")]
+    App --> KV["\U0001F511 Key Vault"]
+    App --> Storage["\U0001F4E6 Storage"]
+    App --> Monitor["\U0001F4CA Monitor"]
+
+    subgraph Security
+        KV
+        NSG["\U0001F6E1\uFE0F NSG"]
+    end
+
+    subgraph Data
+        DB
+        Storage
+    end
 ```
-Diagram or text-based representation of the proposed architecture.
-```
+
+> Replace the above with actual architecture for the project.
 
 ---
 
@@ -53,16 +74,27 @@ Diagram or text-based representation of the proposed architecture.
 
 ### Overall Scores
 
-| Pillar                    | Score | Confidence | Summary |
-| ------------------------- | ----- | ---------- | ------- |
-| 🔒 Security               |       |            |         |
-| 🔄 Reliability            |       |            |         |
-| ⚡ Performance            |       |            |         |
-| 💰 Cost Optimization      |       |            |         |
-| 🔧 Operational Excellence |       |            |         |
+| Pillar | Score | Confidence | Summary |
+| ------ | ----- | ---------- | ------- |
+| 🔒 Security | /10 | High / Med / Low | |
+| 🔄 Reliability | /10 | High / Med / Low | |
+| ⚡ Performance | /10 | High / Med / Low | |
+| 💰 Cost Optimization | /10 | High / Med / Low | |
+| 🔧 Operational Excellence | /10 | High / Med / Low | |
 
-**Primary Pillar Optimized**: {pillar}  
+**Primary Pillar Optimized**: {pillar}
 **Trade-offs Accepted**: {trade-offs}
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#4FC3F7"}}}%%
+xychart-beta
+    title "WAF Pillar Scores"
+    x-axis ["Security", "Reliability", "Performance", "Cost", "Operations"]
+    y-axis "Score" 0 --> 10
+    bar [0, 0, 0, 0, 0]
+```
+
+> Replace bar values with actual pillar scores.
 
 ---
 
@@ -142,10 +174,35 @@ Diagram or text-based representation of the proposed architecture.
 
 ## Resource SKU Recommendations
 
-| Service   | Recommended SKU | Configuration | Justification |
-| --------- | --------------- | ------------- | ------------- |
-| Service 1 |                 |               |               |
-| Service 2 |                 |               |               |
+| Service | Recommended SKU | Configuration | Monthly Est. | Justification |
+| ------- | --------------- | ------------- | ------------ | ------------- |
+| {service} | {sku} | {config} | ${amount} | {why} |
+
+<details>
+<summary><strong>{Service 1}</strong> — Pricing Tier Comparison</summary>
+
+| Tier | vCPU | RAM | Price/mo | Fits? |
+| ---- | ---- | --- | -------- | ----- |
+| Basic | {spec} | {spec} | ${price} | ❌ / ⚠️ / ✅ |
+| Standard | {spec} | {spec} | ${price} | ❌ / ⚠️ / ✅ |
+| Premium | {spec} | {spec} | ${price} | ❌ / ⚠️ / ✅ |
+
+**Selected**: {tier} — {justification}
+
+</details>
+
+<details>
+<summary><strong>{Service 2}</strong> — Pricing Tier Comparison</summary>
+
+| Tier | Capacity | Price/mo | Fits? |
+| ---- | -------- | -------- | ----- |
+| Basic | {spec} | ${price} | ❌ / ⚠️ / ✅ |
+| Standard | {spec} | ${price} | ❌ / ⚠️ / ✅ |
+| Premium | {spec} | ${price} | ❌ / ⚠️ / ✅ |
+
+**Selected**: {tier} — {justification}
+
+</details>
 
 ---
 
@@ -164,41 +221,54 @@ Diagram or text-based representation of the proposed architecture.
 
 The architecture is approved for implementation with the following key parameters:
 
-```yaml
-region: {region}
-environment: {env}
-budget: ${budget}/month (estimated: ${actual})
+| Parameter | Value |
+| --------- | ----- |
+| Region | {region} |
+| Environment | {env} |
+| Budget | ${budget}/month (estimated: ${actual}) |
+| Resource Count | {count} |
 
-resources:
-  - Resource 1
-  - Resource 2
+### Resources to Provision
 
-security:
-  - Security feature 1
-  - Security feature 2
+| # | Resource | SKU | Key Config |
+| - | -------- | --- | ---------- |
+| 1 | {resource} | {sku} | {config} |
+| 2 | {resource} | {sku} | {config} |
 
-monitoring:
-  - Monitoring feature 1
-  - Monitoring feature 2
-```
+### Security Requirements for Implementation
+
+| Requirement | Implementation |
+| ----------- | -------------- |
+| {security feature} | {how to implement in Bicep} |
+
+### Monitoring Requirements for Implementation
+
+| Requirement | Implementation |
+| ----------- | -------------- |
+| {monitoring feature} | {how to implement in Bicep} |
 
 ---
 
 ## Approval Gate
 
+> [!IMPORTANT]
 > **🏗️ Architecture Assessment Complete**
 >
-> | Pillar      | Score |
-> | ----------- | ----- |
-> | Security    | X/10  |
-> | Reliability | X/10  |
-> | Performance | X/10  |
-> | Cost        | X/10  |
-> | Operations  | X/10  |
+> | Pillar | Score |
+> | ------ | ----- |
+> | Security | X/10 |
+> | Reliability | X/10 |
+> | Performance | X/10 |
+> | Cost | X/10 |
+> | Operations | X/10 |
 >
-> **Estimated Monthly Cost**: ~$X (status)
+> **Estimated Monthly Cost**: ~$X ({within budget / over budget by $Y})
 >
-> **Confidence Level**: {High/Medium/Low}
+> **Confidence Level**: {High / Medium / Low}
+>
+> - [ ] **Approved** — proceed to bicep-plan
+> - Approver: {name}
+> - Date: {date}
 >
 > Reply **"approve"** to proceed to bicep-plan, or provide feedback for revisions.
 
