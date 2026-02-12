@@ -123,8 +123,9 @@ above the first H2 heading. The validator checks for their presence.
 ## References  <!-- Required -->
 ```
 
-> **NOTE**: Cost estimate files use emoji-prefixed headings and are also
-> validated by `validate-cost-estimate-templates.mjs`.
+> **NOTE**: Cost estimate files use emoji-prefixed headings and are validated
+> by the unified `validate-artifact-templates.mjs` validator.
+> The legacy `validate-cost-estimate-templates.mjs` remains as an optional helper.
 
 ---
 

@@ -13,10 +13,24 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const INSTRUCTIONS_DIR = ".github/instructions";
+const INSTRUCTIONS_DIRS = [".github/instructions"];
 const ALLOWED_FIELDS = ["description", "applyTo"];
 
 let errors = 0;
+
+function collectInstructionFiles(dirs) {
+  const files = [];
+  for (const dir of dirs) {
+    if (!fs.existsSync(dir)) continue;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true, recursive: true })) {
+      const full = path.join(entry.parentPath || entry.path, entry.name);
+      if (entry.isFile() && entry.name.endsWith(".instructions.md")) {
+        files.push(full);
+      }
+    }
+  }
+  return files;
+}
 
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
@@ -67,10 +81,7 @@ function validateFile(filePath) {
 
 console.log("🔍 Instruction File Frontmatter Validator\n");
 
-const files = fs
-  .readdirSync(INSTRUCTIONS_DIR)
-  .filter((f) => f.endsWith(".instructions.md"))
-  .map((f) => path.join(INSTRUCTIONS_DIR, f));
+const files = collectInstructionFiles(INSTRUCTIONS_DIRS);
 
 console.log(`Found ${files.length} instruction file(s)\n`);
 

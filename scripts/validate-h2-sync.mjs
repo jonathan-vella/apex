@@ -12,7 +12,6 @@
  */
 
 import fs from "node:fs";
-import path from "node:path";
 
 const SKILL_PATH = ".github/skills/azure-artifacts/SKILL.md";
 const H2_REF_PATH =
@@ -124,8 +123,9 @@ function parseValidatorHeadings(text) {
 /**
  * Filters out ## References from heading lists for comparison.
  * The validator ARTIFACT_HEADINGS intentionally excludes ## References
- * (it's always optional/allowed), while SKILL.md and H2-reference
- * include it for documentation completeness.
+ * (it's always optional/allowed). Most SKILL.md and H2-reference
+ * blocks include it for documentation completeness, but some artifacts
+ * (e.g. 04-preflight-check, 05-implementation-reference) omit it.
  */
 function stripReferences(headings) {
   return headings.filter((h) => h !== "## References");
