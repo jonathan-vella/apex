@@ -61,6 +61,7 @@ All templates live in `.github/skills/azure-artifacts/templates/`:
 ## Budget
 ## Operational Requirements
 ## Regional Preferences
+## Summary for Architecture Assessment
 ## References  <!-- Optional, add at end -->
 ```
 
@@ -116,12 +117,12 @@ All templates live in `.github/skills/azure-artifacts/templates/`:
 ```markdown
 ## Discovery Source
 ## Azure Policy Compliance
+## Plan Adaptations Based on Policies
+## Deployment Blockers
 ## Required Tags
 ## Security Policies
 ## Cost Policies
 ## Network Policies
-## Plan Adaptations Based on Policies  <!-- Optional, add after Network Policies -->
-## Deployment Blockers  <!-- Optional, add after Plan Adaptations -->
 ## References  <!-- Optional, add at end -->
 ```
 
@@ -149,6 +150,7 @@ All templates live in `.github/skills/azure-artifacts/templates/`:
 ## Validation Status
 ## Resources Created
 ## Deployment Instructions
+## Key Implementation Notes
 ## References  <!-- Optional, add at end -->
 ```
 
@@ -341,12 +343,12 @@ contains extra H2 headings: ## Cost Summary
 
 | Artifact | First H2 | Last Required H2 |
 |----------|----------|------------------|
-| 01-requirements | `## Project Overview` | `## Regional Preferences` |
+| 01-requirements | `## Project Overview` | `## Summary for Architecture Assessment` |
 | 02-architecture | `## Requirements Validation ✅` | `## Approval Gate` |
 | 04-implementation-plan | `## Overview` | `## Approval Gate` |
 | 04-governance | `## Discovery Source` | `## Network Policies` |
 | 04-preflight | `## Purpose` | `## Ready for Implementation` |
-| 05-implementation-ref | `## Bicep Templates Location` | `## Deployment Instructions` |
+| 05-implementation-ref | `## Bicep Templates Location` | `## Key Implementation Notes` |
 | 06-deployment | `## Preflight Validation` | `## Post-Deployment Tasks` |
 | 07-doc-index | `## 1. Document Package Contents` | `## 5. Quick Links` |
 | 07-design | `## 1. Introduction` | `## 10. Appendix` |

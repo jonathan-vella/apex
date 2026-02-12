@@ -9,7 +9,7 @@
     "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'",
     "lint:links": "find . -name '*.md' ! -path './node_modules/*' ! -path './infra/*' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
     "lint:links:docs": "find docs -name '*.md' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
-    "lint:cost-estimate-templates": "node scripts/validate-cost-estimate-templates.mjs",
+    "lint:cost-estimate-templates": "echo '⚠️  Merged into lint:artifact-templates' && node scripts/validate-artifact-templates.mjs",
     "lint:artifact-templates": "node scripts/validate-artifact-templates.mjs",
     "fix:artifact-h2": "node scripts/fix-artifact-h2.mjs",
     "lint:version-sync": "node scripts/validate-version-sync.mjs",
@@ -24,7 +24,7 @@
     "validate:agents": "npm run lint:agent-frontmatter && npm run lint:skills-format",
     "test:1109": "npm run validate:vscode && npm run validate:agents && echo '✅ VS Code 1.109 validation passed'",
     "fetch:deprecations": "node scripts/fetch-azure-deprecations.mjs",
-    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:cost-estimate-templates && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:json && echo '✅ All validations passed'"
+    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:json && echo '✅ All validations passed'"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

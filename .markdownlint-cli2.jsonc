@@ -145,6 +145,5 @@
 
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
-
   ],
 }

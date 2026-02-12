@@ -1,10 +1,28 @@
 # Step 6: Deployment Summary - {project-name}
 
-> Generated: {date}  
+![Step](https://img.shields.io/badge/Step-6-blue)
+![Status](https://img.shields.io/badge/Status-Draft-orange)
+![Agent](https://img.shields.io/badge/Agent-Deploy-purple)
+
+<details>
+<summary><strong>📑 Table of Contents</strong></summary>
+
+- [Preflight Validation](#preflight-validation)
+- [Deployment Details](#deployment-details)
+- [Deployed Resources](#deployed-resources)
+- [Outputs (Expected)](#outputs-expected)
+- [To Actually Deploy](#to-actually-deploy)
+- [Post-Deployment Tasks](#post-deployment-tasks)
+- [References](#references)
+
+</details>
+
+> Generated: {date}
 > Status: **{STATUS}** (Succeeded/Failed/Simulated)
 
-> [!NOTE]
-> 📚 See [SKILL.md](../skills/azure-artifacts/SKILL.md) for visual standards.
+| ⬅️ Previous | 📑 Index | Next ➡️ |
+| --- | --- | --- |
+| [05-implementation-reference.md](05-implementation-reference.md) | [README](README.md) | [07-documentation-index.md](07-documentation-index.md) |
 
 ## Preflight Validation
 
@@ -87,3 +105,8 @@ cd infra/bicep/{project-name}
 ---
 
 _Deployment summary for {project-name}._
+
+---
+
+| ⬅️ [05-implementation-reference.md](05-implementation-reference.md) | 🏠 [Project Index](README.md) | ➡️ [07-documentation-index.md](07-documentation-index.md) |
+| --- | --- | --- |

@@ -14,6 +14,7 @@ const ARTIFACT_HEADINGS = {
     "## Budget",
     "## Operational Requirements",
     "## Regional Preferences",
+    "## Summary for Architecture Assessment",
   ],
   "02-architecture-assessment.md": [
     "## Requirements Validation ✅",
@@ -38,6 +39,8 @@ const ARTIFACT_HEADINGS = {
   "04-governance-constraints.md": [
     "## Discovery Source",
     "## Azure Policy Compliance",
+    "## Plan Adaptations Based on Policies",
+    "## Deployment Blockers",
     "## Required Tags",
     "## Security Policies",
     "## Cost Policies",
@@ -66,6 +69,7 @@ const ARTIFACT_HEADINGS = {
     "## Validation Status",
     "## Resources Created",
     "## Deployment Instructions",
+    "## Key Implementation Notes",
   ],
   "07-design-document.md": [
     "## 1. Introduction",
@@ -117,6 +121,39 @@ const ARTIFACT_HEADINGS = {
     "## 4. Related Resources",
     "## 5. Quick Links",
   ],
+  // Cost-estimate artifacts (shared structure for design + as-built)
+  "03-des-cost-estimate.md": [
+    "## 💰 Cost At-a-Glance",
+    "## ✅ Decision Summary",
+    "## 🔁 Requirements → Cost Mapping",
+    "## 📊 Top 5 Cost Drivers",
+    "## Architecture Overview",
+    "## 🧾 What We Are Not Paying For (Yet)",
+    "## ⚠️ Cost Risk Indicators",
+    "## 🎯 Quick Decision Matrix",
+    "## 💰 Savings Opportunities",
+    "## Detailed Cost Breakdown",
+  ],
+  "07-ab-cost-estimate.md": [
+    "## 💰 Cost At-a-Glance",
+    "## ✅ Decision Summary",
+    "## 🔁 Requirements → Cost Mapping",
+    "## 📊 Top 5 Cost Drivers",
+    "## Architecture Overview",
+    "## 🧾 What We Are Not Paying For (Yet)",
+    "## ⚠️ Cost Risk Indicators",
+    "## 🎯 Quick Decision Matrix",
+    "## 💰 Savings Opportunities",
+    "## Detailed Cost Breakdown",
+  ],
+  // Project README (content headings only — template has meta-headings)
+  "README.md": [
+    "## 📋 Project Summary",
+    "## ✅ Workflow Progress",
+    "## 🏛️ Architecture",
+    "## 📄 Generated Artifacts",
+    "## 🔗 Related Resources",
+  ],
 };
 
 // Per-artifact strictness configuration
@@ -137,27 +174,19 @@ const ARTIFACT_STRICTNESS = {
   "07-backup-dr-plan.md": "standard",
   "07-compliance-matrix.md": "standard",
   "07-documentation-index.md": "standard",
+  "03-des-cost-estimate.md": "standard",
+  "07-ab-cost-estimate.md": "standard",
+  "README.md": "relaxed",
 };
 
 // Optional sections that can appear after the anchor (last invariant H2)
 const OPTIONAL_ALLOWED = {
-  "01-requirements.md": [
-    "## Summary for Architecture Assessment",
-    "## References",
-  ],
+  "01-requirements.md": ["## References"],
   "02-architecture-assessment.md": ["## References"],
   "04-implementation-plan.md": ["## References"],
-  "04-governance-constraints.md": [
-    "## Plan Adaptations Based on Policies",
-    "## Deployment Blockers",
-    "## References",
-  ],
+  "04-governance-constraints.md": ["## References"],
   "04-preflight-check.md": ["## References"],
-  "05-implementation-reference.md": [
-    "## Key Implementation Notes",
-    "## Next Steps",
-    "## References",
-  ],
+  "05-implementation-reference.md": ["## Next Steps", "## References"],
   "06-deployment-summary.md": ["## References"],
   "07-design-document.md": ["## References"],
   "07-operations-runbook.md": ["## References"],
@@ -179,6 +208,9 @@ const OPTIONAL_ALLOWED = {
   ],
   "07-compliance-matrix.md": ["## Security Controls Summary", "## References"],
   "07-documentation-index.md": ["## Architecture Overview", "## References"],
+  "03-des-cost-estimate.md": ["## References"],
+  "07-ab-cost-estimate.md": ["## References"],
+  "README.md": [],
 };
 
 const TITLE_DRIFT = "Artifact Template Drift";
@@ -207,6 +239,9 @@ const AGENTS = {
   "07-backup-dr-plan.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-compliance-matrix.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-documentation-index.md": ".github/skills/azure-artifacts/SKILL.md",
+  "03-des-cost-estimate.md": ".github/agents/architect.agent.md",
+  "07-ab-cost-estimate.md": ".github/skills/azure-artifacts/SKILL.md",
+  "README.md": null,
 };
 
 const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
@@ -234,9 +269,22 @@ const TEMPLATES = {
     `${TEMPLATE_DIR}/07-compliance-matrix.template.md`,
   "07-documentation-index.md":
     `${TEMPLATE_DIR}/07-documentation-index.template.md`,
+  "03-des-cost-estimate.md":
+    `${TEMPLATE_DIR}/03-des-cost-estimate.template.md`,
+  "07-ab-cost-estimate.md":
+    `${TEMPLATE_DIR}/07-ab-cost-estimate.template.md`,
+  "README.md": `${TEMPLATE_DIR}/PROJECT-README.template.md`,
 };
 
 const STANDARD_DOC = ".github/instructions/markdown.instructions.md";
+
+const COST_ESTIMATE_ARTIFACTS = [
+  "03-des-cost-estimate.md",
+  "07-ab-cost-estimate.md",
+];
+
+const REQUIRED_MERMAID_INIT =
+  "%%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900'}}}%%";
 
 let hasHardFailure = false;
 let hasWarning = false;
@@ -318,6 +366,22 @@ function extractFencedBlocks(text) {
   return blocks;
 }
 
+function validateCostMermaid(filePath, text) {
+  if (!text.includes(REQUIRED_MERMAID_INIT)) {
+    error(
+      `${filePath} is missing the required colored Mermaid pie init line.`,
+      { filePath, line: 1 },
+    );
+  }
+
+  if (!text.includes("pie showData")) {
+    error(
+      `${filePath} is missing 'pie showData' in the Mermaid pie section.`,
+      { filePath, line: 1 },
+    );
+  }
+}
+
 function validateTemplate(artifactName) {
   const templatePath = TEMPLATES[artifactName];
 
@@ -362,13 +426,22 @@ function validateTemplate(artifactName) {
   // Check for extra headings (warn only)
   const allowed = [...required, ...(OPTIONAL_ALLOWED[artifactName] || [])];
   const extraH2 = h2.filter((h) => !allowed.includes(h));
-  if (extraH2.length > 0) {
+  // PROJECT-README has meta-headings (Template Instructions, Required Structure)
+  // that are expected in the template but not in generated output
+  const META_HEADINGS = ["## Template Instructions", "## Required Structure"];
+  const trueExtras = extraH2.filter((h) => !META_HEADINGS.includes(h));
+  if (trueExtras.length > 0) {
     warn(
-      `Template ${templatePath} contains extra H2 headings: ${extraH2.join(
+      `Template ${templatePath} contains extra H2 headings: ${trueExtras.join(
         ", ",
       )}`,
       { filePath: templatePath, line: 1 },
     );
+  }
+
+  // Cost-estimate templates require Mermaid pie chart
+  if (COST_ESTIMATE_ARTIFACTS.includes(artifactName)) {
+    validateCostMermaid(templatePath, text);
   }
 }
 
@@ -540,6 +613,11 @@ function validateArtifactCompliance(relPath) {
   if (artifactType === "04-governance-constraints.md") {
     validateGovernanceDiscovery(relPath, text, strictness);
   }
+
+  // Cost-estimate artifacts require Mermaid pie chart
+  if (COST_ESTIMATE_ARTIFACTS.includes(artifactType)) {
+    validateCostMermaid(relPath, text);
+  }
 }
 
 /**
@@ -614,6 +692,9 @@ function findArtifacts() {
         entry.isFile() &&
         artifactPatterns.some((pattern) => entry.name.endsWith(pattern))
       ) {
+        // README.md: only match project-level READMEs (agent-output/{project}/README.md)
+        // not the top-level agent-output/README.md
+        if (entry.name === "README.md" && dir === baseDir) continue;
         matches.push(path.relative(process.cwd(), full));
       }
     }
