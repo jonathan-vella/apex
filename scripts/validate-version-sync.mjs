@@ -14,9 +14,6 @@ const ROOT = process.cwd();
 const VERSION_FILE = "VERSION.md";
 const FILES_TO_CHECK = [
   { path: "package.json", pattern: /"version":\s*"(\d+\.\d+\.\d+)"/ },
-  { path: "README.md", pattern: /Version:\s*(\d+\.\d+\.\d+)/i },
-  { path: "README.md", pattern: /badge\/version-v?(\d+\.\d+\.\d+)/i },
-  { path: "docs/README.md", pattern: /Version:\s*(\d+\.\d+\.\d+)/i },
   { path: "CHANGELOG.md", pattern: /##\s*\[?v?(\d+\.\d+\.\d+)\]?/i },
 ];
 

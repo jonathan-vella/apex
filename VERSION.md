@@ -1,10 +1,10 @@
 # Version Information
 
-**Current Version:** 8.2.0
+**Current Version:** 0.9.0
 
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-02-12
 
-**Build:** readme-5-gate-workflow
+**Build:** pre-production-reversion
 
 ## Version History
 

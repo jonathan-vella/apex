@@ -1,6 +1,6 @@
 # Workshop Delivery Checklist
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > A comprehensive checklist for trainers delivering Agentic InfraOps workshops.
 > Use this before, during, and after your sessions to ensure smooth delivery.

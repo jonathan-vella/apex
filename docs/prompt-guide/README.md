@@ -1,6 +1,6 @@
 # Prompt Guide
 
-> Version 8.2.0 | Best-practices prompt examples for all Agentic InfraOps agents and skills
+> [Version](../VERSION.md) | Best-practices prompt examples for all Agentic InfraOps agents and skills
 
 This guide provides ready-to-use prompt examples for every agent and skill in the
 Agentic InfraOps project. It is written for **end users** — those who interact with
@@ -47,6 +47,34 @@ infrastructure.
 | `bicep-lint-subagent` | Bicep Code | Runs `bicep lint` and `bicep build` validation |
 | `bicep-review-subagent` | Bicep Code | Reviews templates against AVM standards |
 | `bicep-whatif-subagent` | Bicep Code | Runs `az deployment group what-if` preview |
+
+### Prompt Files
+
+Reusable `.prompt.md` files in `.github/prompts/` provide one-click access
+to pre-configured agent workflows. In VS Code, type `/` in Copilot Chat
+to see available prompts.
+
+#### Core Workflow Prompts
+
+| Prompt File | Agent | Step | Purpose |
+| --- | --- | --- | --- |
+| `run-conductor` | InfraOps Conductor | All | End-to-end 7-step orchestration |
+| `plan-requirements` | Requirements | 1 | Business-first requirements discovery |
+| `assess-architecture` | Architect | 2 | WAF assessment with cost estimates |
+| `design-diagram` | Design | 3 | Python architecture diagram generation |
+| `design-adr` | Design | 3 | Architecture Decision Record creation |
+| `plan-bicep` | Bicep Plan | 4 | Governance discovery and implementation planning |
+| `generate-bicep` | Bicep Code | 5 | AVM-first Bicep template generation |
+| `deploy` | Deploy | 6 | What-if analysis and deployment |
+| `generate-docs` | Deploy | 7 | As-built documentation suite |
+| `diagnose-resources` | Diagnose | — | Resource health diagnostics |
+
+#### Demo Prompts
+
+| Prompt File | Agent | Purpose |
+| --- | --- | --- |
+| `conductor-demo` | InfraOps Conductor | Full workflow demo (Static Web App scenario) |
+| `plan-req-demo-interactive` | Requirements | Interactive EU ecommerce migration demo |
 
 ---
 

@@ -1,6 +1,6 @@
 # GitHub Copilot Pilot Success Checklist
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > A structured guide for planning, executing, and evaluating a GitHub Copilot pilot for IT Professionals.
 

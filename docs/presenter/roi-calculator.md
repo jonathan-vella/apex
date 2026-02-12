@@ -1,6 +1,6 @@
 # ROI Calculator for GitHub Copilot
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > Build a business case for GitHub Copilot adoption using measured time savings from real Infrastructure-as-Code
 > workflows.

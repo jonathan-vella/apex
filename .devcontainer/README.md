@@ -1,6 +1,6 @@
 # Development Container for Agentic InfraOps
 
-> **Version 7.5.0**
+> **[Version](../VERSION.md)**
 
 This devcontainer provides a **complete, pre-configured development environment** for Agentic InfraOps.
 It includes all required tools, extensions, and configurations to build Azure infrastructure with AI agents.

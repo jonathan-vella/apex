@@ -1,6 +1,6 @@
 # Azure Pricing MCP Server 💰
 
-> **Version 3.1.0**
+> **[Version](../../VERSION.md)**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![MCP](https://img.shields.io/badge/MCP-1.0+-green.svg)](https://modelcontextprotocol.io/)

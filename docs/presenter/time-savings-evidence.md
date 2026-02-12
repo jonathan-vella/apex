@@ -1,6 +1,6 @@
 # Evidence-Based Time Savings Methodology
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > **TL;DR**: All time savings estimates in this repository are grounded in peer-reviewed research and industry studies,
 > using conservative lower-bound figures.

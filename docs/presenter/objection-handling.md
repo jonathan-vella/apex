@@ -1,6 +1,6 @@
 # Objection Handling Guide
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 
 This guide provides evidence-based responses to common concerns about GitHub Copilot for IT Professionals. Each
 objection includes the underlying concern, a recommended response, and supporting evidence.

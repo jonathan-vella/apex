@@ -5,6 +5,27 @@ All notable changes to **Agentic InfraOps** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-02-12
+
+### Changed
+
+- **Pre-Production Re-Versioning** - Reset project version from `8.2.0` to `0.9.0`
+  - Per [Semantic Versioning 2.0.0](https://semver.org/), `0.x.y` signals pre-production software
+  - Previous `1.0.0`–`8.2.0` history preserved below as development milestones
+  - Synchronized version across `VERSION.md`, `package.json`, `pyproject.toml`, and docs
+  - First stable production release will be `1.0.0`
+
+- **Single Source of Truth for Version** - Removed hardcoded version numbers from all docs
+  - `VERSION.md` is now the only file (besides `CHANGELOG.md`) containing the version number
+  - 10 markdown files replaced inline versions with `[Version](../../VERSION.md)` links
+  - Updated `validate-version-sync.mjs` to only check `package.json` and `CHANGELOG.md`
+  - Prevents future version drift across documentation
+
+---
+
+> **Note:** Versions below (`8.2.0` and earlier) represent the pre-release development history.
+> They are retained for traceability but pre-date the semver-compliant numbering reset.
+
 ## [8.2.0] - 2026-02-05
 
 ### Added
@@ -631,6 +652,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This project uses [Semantic Versioning](https://semver.org/):
 
+- **0.x.y**: Pre-production development (current)
+- **1.0.0**: First stable production release (upcoming)
 - **MAJOR**: Breaking changes to workflow or agent interfaces
 - **MINOR**: New agents, demos, or significant feature additions
 - **PATCH**: Bug fixes, documentation improvements, minor enhancements

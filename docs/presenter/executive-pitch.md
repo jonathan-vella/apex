@@ -1,6 +1,6 @@
 # GitHub Copilot for IT Pros: Executive Pitch
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > **Duration:** 5 minutes | **Audience:** C-level, IT Directors, Partner Leadership
 

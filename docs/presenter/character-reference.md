@@ -1,6 +1,6 @@
 # Character Reference Card
 
-> **Version 5.3.0** | [Back to Presenter Resources](README.md)
+> **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > Quick reference for all personas used across the Agentic InfraOps scenarios.
 > Use these characters to add storytelling depth to your demos and presentations.
