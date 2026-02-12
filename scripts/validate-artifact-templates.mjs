@@ -248,31 +248,20 @@ const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
 
 const TEMPLATES = {
   "01-requirements.md": `${TEMPLATE_DIR}/01-requirements.template.md`,
-  "02-architecture-assessment.md":
-    `${TEMPLATE_DIR}/02-architecture-assessment.template.md`,
-  "04-implementation-plan.md":
-    `${TEMPLATE_DIR}/04-implementation-plan.template.md`,
-  "04-governance-constraints.md":
-    `${TEMPLATE_DIR}/04-governance-constraints.template.md`,
+  "02-architecture-assessment.md": `${TEMPLATE_DIR}/02-architecture-assessment.template.md`,
+  "04-implementation-plan.md": `${TEMPLATE_DIR}/04-implementation-plan.template.md`,
+  "04-governance-constraints.md": `${TEMPLATE_DIR}/04-governance-constraints.template.md`,
   "04-preflight-check.md": `${TEMPLATE_DIR}/04-preflight-check.template.md`,
-  "06-deployment-summary.md":
-    `${TEMPLATE_DIR}/06-deployment-summary.template.md`,
-  "05-implementation-reference.md":
-    `${TEMPLATE_DIR}/05-implementation-reference.template.md`,
+  "06-deployment-summary.md": `${TEMPLATE_DIR}/06-deployment-summary.template.md`,
+  "05-implementation-reference.md": `${TEMPLATE_DIR}/05-implementation-reference.template.md`,
   "07-design-document.md": `${TEMPLATE_DIR}/07-design-document.template.md`,
-  "07-operations-runbook.md":
-    `${TEMPLATE_DIR}/07-operations-runbook.template.md`,
-  "07-resource-inventory.md":
-    `${TEMPLATE_DIR}/07-resource-inventory.template.md`,
+  "07-operations-runbook.md": `${TEMPLATE_DIR}/07-operations-runbook.template.md`,
+  "07-resource-inventory.md": `${TEMPLATE_DIR}/07-resource-inventory.template.md`,
   "07-backup-dr-plan.md": `${TEMPLATE_DIR}/07-backup-dr-plan.template.md`,
-  "07-compliance-matrix.md":
-    `${TEMPLATE_DIR}/07-compliance-matrix.template.md`,
-  "07-documentation-index.md":
-    `${TEMPLATE_DIR}/07-documentation-index.template.md`,
-  "03-des-cost-estimate.md":
-    `${TEMPLATE_DIR}/03-des-cost-estimate.template.md`,
-  "07-ab-cost-estimate.md":
-    `${TEMPLATE_DIR}/07-ab-cost-estimate.template.md`,
+  "07-compliance-matrix.md": `${TEMPLATE_DIR}/07-compliance-matrix.template.md`,
+  "07-documentation-index.md": `${TEMPLATE_DIR}/07-documentation-index.template.md`,
+  "03-des-cost-estimate.md": `${TEMPLATE_DIR}/03-des-cost-estimate.template.md`,
+  "07-ab-cost-estimate.md": `${TEMPLATE_DIR}/07-ab-cost-estimate.template.md`,
   "README.md": `${TEMPLATE_DIR}/PROJECT-README.template.md`,
 };
 
@@ -375,10 +364,10 @@ function validateCostMermaid(filePath, text) {
   }
 
   if (!text.includes("pie showData")) {
-    error(
-      `${filePath} is missing 'pie showData' in the Mermaid pie section.`,
-      { filePath, line: 1 },
-    );
+    error(`${filePath} is missing 'pie showData' in the Mermaid pie section.`, {
+      filePath,
+      line: 1,
+    });
   }
 }
 
