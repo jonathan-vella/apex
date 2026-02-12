@@ -416,6 +416,8 @@ function validateStandardComponents(filePath, text, reportFn = warn) {
 const MERMAID_REQUIRED_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
+  "03-des-cost-estimate.md",
+  "07-ab-cost-estimate.md",
 ];
 
 /**
@@ -424,16 +426,17 @@ const MERMAID_REQUIRED_TEMPLATES = [
  */
 function validateMermaidPresence(filePath, text, reportFn = warn) {
   if (!/```mermaid/.test(text)) {
-    reportFn(
-      `${filePath} should contain at least one Mermaid diagram block.`,
-      { filePath, line: 1 },
-    );
+    reportFn(`${filePath} should contain at least one Mermaid diagram block.`, {
+      filePath,
+      line: 1,
+    });
   }
 }
 
 // Artifacts that should contain traffic-light status indicators (Phase 3)
 const TRAFFIC_LIGHT_TEMPLATES = [
   "02-architecture-assessment.md",
+  "07-ab-cost-estimate.md",
 ];
 
 /**
@@ -460,6 +463,8 @@ function validateTrafficLight(filePath, text, reportFn = warn) {
 const COLLAPSIBLE_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
+  "03-des-cost-estimate.md",
+  "07-ab-cost-estimate.md",
 ];
 
 /**
@@ -467,10 +472,10 @@ const COLLAPSIBLE_TEMPLATES = [
  */
 function validateCollapsibleBlocks(filePath, text, reportFn = warn) {
   if (!text.includes("<details>")) {
-    reportFn(
-      `${filePath} should contain collapsible <details> blocks.`,
-      { filePath, line: 1 },
-    );
+    reportFn(`${filePath} should contain collapsible <details> blocks.`, {
+      filePath,
+      line: 1,
+    });
   }
 }
 

@@ -58,10 +58,22 @@
 
 ### Design vs As-Built Summary
 
-| Metric           | Design Estimate | As-Built | Variance    |
-| ---------------- | --------------- | -------- | ----------- |
-| Monthly Estimate | ${X}            | ${X}     | {+$X / -$X} |
-| Annual Estimate  | ${X}            | ${X}     | {+$X / -$X} |
+| Metric | Design Estimate | As-Built | Variance | Status |
+| ------ | --------------- | -------- | -------- | ------ |
+| Monthly Estimate | ${X} | ${X} | {+$X / -$X} | ✅ / ⚠️ / ❌ |
+| Annual Estimate | ${X} | ${X} | {+$X / -$X} | ✅ / ⚠️ / ❌ |
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#0078D4"}}}%%
+xychart-beta
+    title "Design vs As-Built Cost ($)"
+    x-axis ["Compute", "Data", "Network", "Security", "Monitor", "Total"]
+    y-axis "Monthly Cost ($)" 0 --> 5000
+    bar [0, 0, 0, 0, 0, 0]
+    bar [0, 0, 0, 0, 0, 0]
+```
+
+> First bar = Design estimate, second bar = As-Built actual. Replace values.
 
 ## 🔁 Requirements → Cost Mapping
 
@@ -73,11 +85,30 @@
 
 ## 📊 Top 5 Cost Drivers
 
-| Rank | Resource        | Monthly Cost | % of Total | Trend |
-| ---- | --------------- | ------------ | ---------- | ----- |
-| 1️⃣   | {service / SKU} | ${X}         | {Y%}       | ➡️    |
+| Rank | Resource | Monthly Cost | % of Total | Trend | Optimization |
+| ---- | -------- | ------------ | ---------- | ----- | ------------ |
+| 1️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 2️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 3️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 4️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 5️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
 
 > 💡 **Quick Win**: {one low-effort action that saves meaningful cost}
+
+<details>
+<summary><strong>Cost Driver Details</strong></summary>
+
+#### 1️⃣ {Top Driver Name}
+
+| Aspect | Detail |
+| ------ | ------ |
+| Current SKU | {sku} |
+| Monthly Cost | ${X} |
+| Cost Breakdown | {compute: $X, storage: $Y, network: $Z} |
+| Optimization | {specific action to reduce cost} |
+| Potential Savings | ${X}/month with {RI/SP/right-sizing} |
+
+</details>
 
 ## Architecture Overview
 
@@ -91,6 +122,19 @@ pie showData
     "💾 Data Services" : 466
     "🌐 Networking" : 376
 ```
+
+### Month-over-Month Projection
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#0078D4"}}}%%
+xychart-beta
+    title "6-Month Cost Projection ($)"
+    x-axis ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6"]
+    y-axis "Monthly Cost ($)" 0 --> 5000
+    bar [0, 0, 0, 0, 0, 0]
+```
+
+> Replace bar values with actual projected costs.
 
 ### Key Design Decisions Affecting Cost
 
@@ -117,28 +161,33 @@ pie showData
 
 _"If you need X, expect to pay Y more"_
 
-| Requirement           | Additional Cost | SKU Change | Notes   |
-| --------------------- | --------------- | ---------- | ------- |
-| {Example: 99.99% SLA} | +$.../month     | {SKU move} | {notes} |
+| Requirement | Additional Cost | SKU Change | Verdict | Notes |
+| ----------- | --------------- | ---------- | ------- | ----- |
+| {Example: 99.99% SLA} | +$.../month | {SKU move} | 🟢 Go / 🟡 Monitor / 🔴 Investigate | {notes} |
+| {Example: Private Endpoints} | +$.../month | {config} | 🟢 Go / 🟡 Monitor / 🔴 Investigate | {notes} |
 
 ## 💰 Savings Opportunities
 
 > ### Total Potential Savings: ${X}/year
 >
-> | Commitment | Monthly Savings | Annual Savings |
-> | ---------- | --------------- | -------------- |
-> | {1-year}   | ${...}          | ${...}         |
+> | Strategy | Commitment | Monthly Savings | Annual Savings | % Reduction |
+> | -------- | ---------- | --------------- | -------------- | ----------- |
+> | Reserved Instances (RI) | 1-year | ${...} | ${...} | {X%} |
+> | Reserved Instances (RI) | 3-year | ${...} | ${...} | {X%} |
+> | Savings Plan (SP) | 1-year | ${...} | ${...} | {X%} |
+> | Right-sizing | N/A | ${...} | ${...} | {X%} |
+> | Dev/Test Pricing | N/A | ${...} | ${...} | {X%} |
 
 ## Detailed Cost Breakdown
 
 ### IaC / Pricing Coverage
 
-| Signal             | Value       |
-| ------------------ | ----------- |
-| Templates scanned  | {n}         |
-| Resources detected | {n}         |
-| Resources priced   | {n}         |
-| Unpriced resources | {list or 0} |
+| Signal | Value | Status |
+| ------ | ----- | ------ |
+| Templates scanned | {n} | ✅ |
+| Resources detected | {n} | ✅ |
+| Resources priced | {n} | ✅ / ⚠️ |
+| Unpriced resources | {list or 0} | ✅ / ❌ |
 
 ### Line Items
 

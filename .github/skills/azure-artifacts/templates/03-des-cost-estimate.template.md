@@ -65,11 +65,39 @@
 
 ## 📊 Top 5 Cost Drivers
 
-| Rank | Resource        | Monthly Cost | % of Total | Trend |
-| ---- | --------------- | ------------ | ---------- | ----- |
-| 1️⃣   | {service / SKU} | ${X}         | {Y%}       | ➡️    |
+| Rank | Resource | Monthly Cost | % of Total | Trend | Optimization |
+| ---- | -------- | ------------ | ---------- | ----- | ------------ |
+| 1️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 2️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 3️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 4️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
+| 5️⃣ | {service / SKU} | ${X} | {Y%} | ➡️ | {action} |
 
 > 💡 **Quick Win**: {one low-effort action that saves meaningful cost}
+
+<details>
+<summary><strong>Cost Driver Details</strong></summary>
+
+#### 1️⃣ {Top Driver Name}
+
+| Aspect | Detail |
+| ------ | ------ |
+| Current SKU | {sku} |
+| Monthly Cost | ${X} |
+| Cost Breakdown | {compute: $X, storage: $Y, network: $Z} |
+| Optimization | {specific action to reduce cost} |
+| Potential Savings | ${X}/month with {RI/SP/right-sizing} |
+
+#### 2️⃣ {Second Driver Name}
+
+| Aspect | Detail |
+| ------ | ------ |
+| Current SKU | {sku} |
+| Monthly Cost | ${X} |
+| Optimization | {specific action} |
+| Potential Savings | ${X}/month |
+
+</details>
 
 ## Architecture Overview
 
@@ -83,6 +111,19 @@ pie showData
     "💾 Data Services" : 466
     "🌐 Networking" : 376
 ```
+
+### Month-over-Month Projection
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#0078D4"}}}%%
+xychart-beta
+    title "6-Month Cost Projection ($)"
+    x-axis ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6"]
+    y-axis "Monthly Cost ($)" 0 --> 5000
+    bar [0, 0, 0, 0, 0, 0]
+```
+
+> Replace bar values with actual projected costs.
 
 ### Key Design Decisions Affecting Cost
 
@@ -114,17 +155,24 @@ pie showData
 
 _"If you need X, expect to pay Y more"_
 
-| Requirement           | Additional Cost | SKU Change | Notes   |
-| --------------------- | --------------- | ---------- | ------- |
-| {Example: 99.99% SLA} | +$.../month     | {SKU move} | {notes} |
+| Requirement | Additional Cost | SKU Change | Verdict | Notes |
+| ----------- | --------------- | ---------- | ------- | ----- |
+| {Example: 99.99% SLA} | +$.../month | {SKU move} | 🟢 Go / 🟡 Monitor / 🔴 Investigate | {notes} |
+| {Example: Private Endpoints} | +$.../month | {config} | 🟢 Go / 🟡 Monitor / 🔴 Investigate | {notes} |
+| {Example: Multi-region} | +$.../month | {SKU move} | 🟢 Go / 🟡 Monitor / 🔴 Investigate | {notes} |
 
 ## 💰 Savings Opportunities
 
 > ### Total Potential Savings: ${X}/year
 >
-> | Commitment | Monthly Savings | Annual Savings |
-> | ---------- | --------------- | -------------- |
-> | {1-year}   | ${...}          | ${...}         |
+> | Strategy | Commitment | Monthly Savings | Annual Savings | % Reduction |
+> | -------- | ---------- | --------------- | -------------- | ----------- |
+> | Reserved Instances (RI) | 1-year | ${...} | ${...} | {X%} |
+> | Reserved Instances (RI) | 3-year | ${...} | ${...} | {X%} |
+> | Savings Plan (SP) | 1-year | ${...} | ${...} | {X%} |
+> | Spot Instances | N/A | ${...} | ${...} | {X%} |
+> | Right-sizing | N/A | ${...} | ${...} | {X%} |
+> | Dev/Test Pricing | N/A | ${...} | ${...} | {X%} |
 
 ## Detailed Cost Breakdown
 
