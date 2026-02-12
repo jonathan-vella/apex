@@ -68,15 +68,19 @@ When generating a project README, agents MUST:
 
 | Step | Phase | Status | Artifact |
 |:----:|-------|:------:|----------|
-| 1 | Requirements | {step1-status} | [01-requirements.md](./01-requirements.md) |
-| 2 | Architecture | {step2-status} | [02-architecture-assessment.md](./02-architecture-assessment.md) |
-| 3 | Design | {step3-status} | [03-des-*.md](.) |
-| 4 | Planning | {step4-status} | [04-implementation-plan.md](./04-implementation-plan.md) |
-| 5 | Implementation | {step5-status} | [05-implementation-reference.md](./05-implementation-reference.md) |
-| 6 | Deployment | {step6-status} | [06-deployment-summary.md](./06-deployment-summary.md) |
-| 7 | Documentation | {step7-status} | [07-documentation-index.md](./07-documentation-index.md) |
+| 1 | Requirements | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [01-requirements.md](./01-requirements.md) |
+| 2 | Architecture | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [02-architecture-assessment.md](./02-architecture-assessment.md) |
+| 3 | Design | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [03-des-*.md](.) |
+| 4 | Planning | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-implementation-plan.md](./04-implementation-plan.md) |
+| 5 | Implementation | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [05-implementation-reference.md](./05-implementation-reference.md) |
+| 6 | Deployment | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [06-deployment-summary.md](./06-deployment-summary.md) |
+| 7 | Documentation | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [07-documentation-index.md](./07-documentation-index.md) |
 
-> **Legend**: ✅ Complete | 🔄 In Progress | ⏳ Pending | ⏭️ Skipped
+> **Legend**:
+> ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) Complete
+> | ![WIP](https://img.shields.io/badge/-WIP-yellow?style=flat-square) In Progress
+> | ![Pending](https://img.shields.io/badge/-Pending-lightgrey?style=flat-square) Pending
+> | ![Skip](https://img.shields.io/badge/-Skipped-blue?style=flat-square) Skipped
 
 ---
 
@@ -108,39 +112,39 @@ When generating a project README, agents MUST:
 <details>
 <summary><strong>📁 Step 1-3: Requirements, Architecture & Design</strong></summary>
 
-| File | Description | Created |
-|------|-------------|---------|
-| [01-requirements.md](./01-requirements.md) | Project requirements with NFRs | {created-date} |
-| [02-architecture-assessment.md](./02-architecture-assessment.md) | WAF assessment with pillar scores | {created-date} |
-| [03-des-cost-estimate.md](./03-des-cost-estimate.md) | Azure pricing estimate | {created-date} |
-| [03-des-diagram.py](./03-des-diagram.py) | Architecture diagram source | {created-date} |
-| [03-des-diagram.png](./03-des-diagram.png) | Architecture diagram image | {created-date} |
+| File | Description | Status | Created |
+|------|-------------|:------:|--------|
+| [01-requirements.md](./01-requirements.md) | Project requirements with NFRs | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [02-architecture-assessment.md](./02-architecture-assessment.md) | WAF assessment with pillar scores | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [03-des-cost-estimate.md](./03-des-cost-estimate.md) | Azure pricing estimate | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [03-des-diagram.py](./03-des-diagram.py) | Architecture diagram source | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [03-des-diagram.png](./03-des-diagram.png) | Architecture diagram image | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 
 </details>
 
 <details>
 <summary><strong>📁 Step 4-6: Planning, Implementation & Deployment</strong></summary>
 
-| File | Description | Created |
-|------|-------------|---------|
-| [04-governance-constraints.md](./04-governance-constraints.md) | Azure Policy constraints | {created-date} |
-| [04-implementation-plan.md](./04-implementation-plan.md) | Bicep implementation plan | {created-date} |
-| [05-implementation-reference.md](./05-implementation-reference.md) | Link to Bicep code | {created-date} |
-| [06-deployment-summary.md](./06-deployment-summary.md) | Deployment results | {created-date} |
+| File | Description | Status | Created |
+|------|-------------|:------:|--------|
+| [04-governance-constraints.md](./04-governance-constraints.md) | Azure Policy constraints | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [04-implementation-plan.md](./04-implementation-plan.md) | Bicep implementation plan | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [05-implementation-reference.md](./05-implementation-reference.md) | Link to Bicep code | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [06-deployment-summary.md](./06-deployment-summary.md) | Deployment results | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 
 </details>
 
 <details>
 <summary><strong>📁 Step 7: As-Built Documentation</strong></summary>
 
-| File | Description | Created |
-|------|-------------|---------|
-| [07-documentation-index.md](./07-documentation-index.md) | Documentation master index | {created-date} |
-| [07-design-document.md](./07-design-document.md) | Comprehensive design document | {created-date} |
-| [07-operations-runbook.md](./07-operations-runbook.md) | Day-2 operational procedures | {created-date} |
-| [07-resource-inventory.md](./07-resource-inventory.md) | Complete resource inventory | {created-date} |
-| [07-backup-dr-plan.md](./07-backup-dr-plan.md) | Backup & disaster recovery plan | {created-date} |
-| [07-ab-cost-estimate.md](./07-ab-cost-estimate.md) | As-built cost estimate | {created-date} |
+| File | Description | Status | Created |
+|------|-------------|:------:|--------|
+| [07-documentation-index.md](./07-documentation-index.md) | Documentation master index | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [07-design-document.md](./07-design-document.md) | Comprehensive design document | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [07-operations-runbook.md](./07-operations-runbook.md) | Day-2 operational procedures | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [07-resource-inventory.md](./07-resource-inventory.md) | Complete resource inventory | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [07-backup-dr-plan.md](./07-backup-dr-plan.md) | Backup & disaster recovery plan | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [07-ab-cost-estimate.md](./07-ab-cost-estimate.md) | As-built cost estimate | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 
 </details>
 
