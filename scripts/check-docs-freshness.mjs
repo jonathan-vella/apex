@@ -114,31 +114,7 @@ async function checkSkillCount() {
   }
 }
 
-// ── Check 3: Scenario count ─────────────────────────────────────────
-
-async function checkScenarioCount() {
-  const scenarioDir = join(ROOT, "scenarios");
-  const dirs = await listDirs(scenarioDir);
-  const actual = dirs.filter((d) => d.startsWith("S")).length;
-
-  const readme = await readText(join(ROOT, "docs", "README.md"));
-  if (!readme) return;
-  // Count table rows in the Scenarios section
-  const scenarioSection = readme.split(/^## Scenarios/m)[1];
-  if (!scenarioSection) return;
-  const tableRows = scenarioSection.match(/^\| S\d+/gm);
-  const documented = tableRows ? tableRows.length : 0;
-  if (documented > 0 && documented !== actual) {
-    addFinding(
-      "docs/README.md",
-      0,
-      `Scenario count mismatch: docs table has ${documented} rows, filesystem has ${actual} S* dirs`,
-      "MEDIUM",
-    );
-  }
-}
-
-// ── Check 4: Prohibited references ──────────────────────────────────
+// ── Check 3: Prohibited references ──────────────────────────────────
 
 async function checkProhibitedRefs() {
   const prohibited = [
@@ -181,7 +157,7 @@ async function checkProhibitedRefs() {
   }
 }
 
-// ── Check 5: Deprecated path links ──────────────────────────────────
+// ── Check 4: Deprecated path links ──────────────────────────────────
 
 async function checkSupersededLinks() {
   const docsDir = join(ROOT, "docs");
@@ -209,7 +185,7 @@ async function checkSupersededLinks() {
   }
 }
 
-// ── Check 6: Agent table verification ───────────────────────────────
+// ── Check 5: Agent table verification ───────────────────────────────
 
 async function checkAgentTable() {
   const readme = await readText(join(ROOT, "docs", "README.md"));
@@ -241,7 +217,7 @@ async function checkAgentTable() {
   }
 }
 
-// ── Check 7: Skill table verification ───────────────────────────────
+// ── Check 6: Skill table verification ───────────────────────────────
 
 async function checkSkillTable() {
   const readme = await readText(join(ROOT, "docs", "README.md"));
@@ -266,7 +242,7 @@ async function checkSkillTable() {
   }
 }
 
-// ── Check 8: Hardcoded version headers ──────────────────────────────
+// ── Check 7: Hardcoded version headers ──────────────────────────────
 
 async function checkVersionHeaders() {
   const docsDir = join(ROOT, "docs");
@@ -302,9 +278,6 @@ async function main() {
   console.log("─── Agent & Skill Counts ───");
   await checkAgentCount();
   await checkSkillCount();
-
-  console.log("─── Scenario Count ───");
-  await checkScenarioCount();
 
   console.log("─── Prohibited References ───");
   await checkProhibitedRefs();

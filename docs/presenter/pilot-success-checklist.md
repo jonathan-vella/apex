@@ -222,7 +222,7 @@ _Document what worked, what didn't, and recommendations for rollout_
 | **ROI Calculator**        | [roi-calculator.md](roi-calculator.md)               |
 | **Executive Pitch**       | [executive-pitch.md](executive-pitch.md)             |
 | **Time Savings Evidence** | [time-savings-evidence.md](time-savings-evidence.md) |
-| **Demo Scenarios**        | [scenarios/](../../scenarios/)                       |
+| **Prompt Guide**          | [docs/prompt-guide/](../prompt-guide/)               |
 
 ---
 

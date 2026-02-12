@@ -39,12 +39,14 @@ Use these personas when introducing agents to audiences:
 - [Presentation Deck](agentic-infraops.pptx) - PowerPoint presentation
 - [Time Savings Evidence](time-savings-evidence.md) - Metrics and methodology
 
-### Scenario Scripts
+### Demo Prompts
 
-| Scenario             | Duration | Audience  | Script                                                             |
-| -------------------- | -------- | --------- | ------------------------------------------------------------------ |
-| S01 Bicep Baseline   | 15 min   | Technical | [Demo Script](../../scenarios/S01-bicep-baseline/DEMO-SCRIPT.md)   |
-| S02 Agentic Workflow | 30 min   | Mixed     | [Demo Script](../../scenarios/S02-agentic-workflow/DEMO-SCRIPT.md) |
+Use prompts from the [Prompt Guide](../prompt-guide/) to demonstrate agent capabilities:
+
+| Demo | Duration | Audience | Guide Section |
+| --- | --- | --- | --- |
+| Requirements + Architecture | 15 min | Technical | [Steps 1-2](../prompt-guide/#step-1-requirements--scribe) |
+| Full 7-Step Workflow | 30 min | Mixed | [End-to-End](../prompt-guide/#end-to-end-conductor) |
 
 ---
 
@@ -109,5 +111,5 @@ See [Objection Handling Guide](objection-handling.md) for complete responses wit
 ## Related Resources
 
 - [Glossary](../GLOSSARY.md) - Technical terms and patterns
-- [Quick Start](../quickstart.md) - Setup and first scenario
-- [Scenarios Index](../../scenarios/README.md) - All demo scenarios
+- [Quick Start](../quickstart.md) - Setup and first demo
+- [Prompt Guide](../prompt-guide/) - Agent & skill prompt examples

@@ -85,8 +85,8 @@ Read `.github/skills/azure-defaults/SKILL.md` FIRST for regional standards, nami
 security baseline, and workflow integration patterns common to all agents.
 ```
 
-If you author scenario-local agents (for example under `scenarios/**/agents/`), use the correct
-relative path from that folder.
+All agent definitions live in `.github/agents/`. Subagents live in
+`.github/agents/_subagents/`.
 
 ## Authoritative Standards (Avoid Drift)
 

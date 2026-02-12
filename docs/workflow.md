@@ -355,3 +355,10 @@ Output: agent-output/{project}/07-*.md
 | Deployment | `06-` | `06-deployment-summary.md` |
 | As-Built | `07-` | `07-design-document.md`, `07-ab-diagram.py` |
 | Diagnostics | `08-` | `08-resource-health-report.md` |
+
+---
+
+## Next Steps
+
+- [Prompt Guide](prompt-guide/) — ready-to-use prompts for every agent and skill
+- [Quickstart](quickstart.md) — 10-minute getting started walkthrough

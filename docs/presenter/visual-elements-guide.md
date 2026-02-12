@@ -16,7 +16,7 @@ Use this guide to keep diagrams and visuals consistent across slides, demos, and
 
 ## Canonical Sources
 
-- Diagram generation: [S07 Diagrams as Code](../../scenarios/S07-diagrams-as-code/)
+- Diagram generation: [Prompt Guide — azure-diagrams](../prompt-guide/#azure-diagrams)
 - Workload evidence (time-stamped): `agent-output/{project}/` artifacts
 
 ---
@@ -52,4 +52,4 @@ Regenerate diagrams when any of these change:
 - Network boundaries (VNets, subnets, private endpoints)
 - Security model (managed identities, Key Vault/RBAC)
 
-Start with: [S07 Diagrams as Code](../../scenarios/S07-diagrams-as-code/)
+Start with: [Prompt Guide — azure-diagrams skill](../prompt-guide/#azure-diagrams)
