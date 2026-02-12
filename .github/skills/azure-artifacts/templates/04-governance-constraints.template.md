@@ -75,12 +75,15 @@ Verify actual blocking behavior before documenting constraints.
 
 ## Azure Policy Compliance
 
-| Category       | Constraint         | Implementation   |
-| -------------- | ------------------ | ---------------- |
-| Naming         | {naming-standard}  | {implementation} |
-| Tagging        | {tagging-policy}   | {implementation} |
-| Security       | {security-policy}  | {implementation} |
-| Data Residency | {residency-policy} | {implementation} |
+| Category       | Constraint         | Implementation   | Status |
+| -------------- | ------------------ | ---------------- | ------ |
+| Naming         | {naming-standard}  | {implementation} | ✅ / ⚠️ / ❌ |
+| Tagging        | {tagging-policy}   | {implementation} | ✅ / ⚠️ / ❌ |
+| Security       | {security-policy}  | {implementation} | ✅ / ⚠️ / ❌ |
+| Data Residency | {residency-policy} | {implementation} | ✅ / ⚠️ / ❌ |
+
+> [!WARNING]
+> Any ❌ items are deployment blockers — resolve before proceeding to code generation.
 
 ## Plan Adaptations Based on Policies
 
@@ -166,6 +169,19 @@ tags: {
   Owner: owner
 }
 ```
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    MG["Management Group Tags"] -->|inherited| SUB["Subscription Tags"]
+    SUB -->|inherited| RG["Resource Group Tags"]
+    RG -->|inherited| RES["Resource Tags"]
+    POL["Azure Policy\n(Modify effect)"] -->|auto-applies| RES
+    style POL fill:#FFB900,stroke:#333
+    style RES fill:#0078D4,color:#fff,stroke:#333
+```
+
+> Replace tag keys with actual discovered policy requirements.
 
 ## Security Policies
 

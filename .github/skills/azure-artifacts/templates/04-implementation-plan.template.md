@@ -35,11 +35,11 @@ Brief description of what will be implemented.
 
 ## Resource Inventory
 
-| Resource   | Type                            | SKU | AVM Status            | Dependencies |
-| ---------- | ------------------------------- | --- | --------------------- | ------------ |
-| Resource 1 | Microsoft.Provider/resourceType |     | ✅ AVM                |              |
-| Resource 2 | Microsoft.Provider/resourceType |     | ⚠️ Requires Approval  |              |
-| Resource 3 | Microsoft.Provider/resourceType |     | ❌ No AVM (Justified) |              |
+| Resource   | Type                            | SKU | AVM Status            | Dependencies | Status |
+| ---------- | ------------------------------- | --- | --------------------- | ------------ | ------ |
+| Resource 1 | Microsoft.Provider/resourceType |     | ✅ AVM                |              | ⬜ Todo |
+| Resource 2 | Microsoft.Provider/resourceType |     | ⚠️ Requires Approval  |              | ⬜ Todo |
+| Resource 3 | Microsoft.Provider/resourceType |     | ❌ No AVM (Justified) |              | ⬜ Todo |
 
 ---
 
@@ -55,6 +55,12 @@ infra/bicep/{project-name}/
 │   └── module3.bicep
 └── deploy.ps1
 ```
+
+| Module | AVM Source | Version | Purpose |
+| ------ | ---------- | ------- | ------- |
+| module1.bicep | `br/public:avm/res/{provider}/{type}` | {x.x.x} | {purpose} |
+| module2.bicep | `br/public:avm/res/{provider}/{type}` | {x.x.x} | {purpose} |
+| module3.bicep | `br/public:avm/res/{provider}/{type}` | {x.x.x} | {purpose} |
 
 ---
 
@@ -156,16 +162,20 @@ _(Repeat for each phase)_
 graph TD
     RG[Resource Group] --> M1[module1]
     M1 --> M2[module2]
+    click M1 "#task-2-modulesmodule1bicep" "Go to module1 task"
+    click M2 "#task-3-modulesmodule2bicep" "Go to module2 task"
 ```
+
+> Add `click` directives to link each node to its Implementation Task heading.
 
 ---
 
 ## Naming Conventions
 
-| Resource       | Pattern                  | Example            |
-| -------------- | ------------------------ | ------------------ |
-| Resource Group | rg-{project}-{env}       | rg-project-dev     |
-| Resource 1     | {prefix}-{project}-{env} | prefix-project-dev |
+| Resource       | Pattern                  | Example            | Generated Name |
+| -------------- | ------------------------ | ------------------ | -------------- |
+| Resource Group | rg-{project}-{env}       | rg-project-dev     | {actual name} |
+| Resource 1     | {prefix}-{project}-{env} | prefix-project-dev | {actual name} |
 
 ---
 
@@ -194,10 +204,16 @@ graph TD
 > [!IMPORTANT]
 > **📋 Implementation Plan Ready**
 >
-> - X Azure resources planned
-> - X Bicep modules to create
-> - Governance constraints addressed
-> - CAF naming conventions applied
+> | Metric | Value |
+> | ------ | ----- |
+> | Azure resources planned | {X} |
+> | Bicep modules to create | {X} |
+> | Governance constraints addressed | ✅ / ❌ |
+> | CAF naming conventions applied | ✅ / ❌ |
+>
+> - [ ] **Approved** — proceed to bicep-code
+> - **Approver**: _______________
+> - **Date**: _______________
 >
 > Reply **"approve"** to proceed to bicep-code, or provide feedback.
 

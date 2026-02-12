@@ -37,6 +37,19 @@ Prevents:
 
 ## AVM Schema Validation Results
 
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    A["Discover AVM\nModules"] --> B["Validate\nSchema"]
+    B --> C["Check\nParameters"]
+    C --> D["Verify\nRegions"]
+    D --> E{"Pass?"}
+    E -- Yes --> F["✅ Ready"]
+    E -- No --> G["❌ Blocked"]
+    style F fill:#107C10,color:#fff
+    style G fill:#D83B01,color:#fff
+```
+
 | Resource     | AVM Module Path            | Version | Status |
 | ------------ | -------------------------- | ------- | ------ |
 | {Resource 1} | `br/public:avm/res/{path}` | x.x.x   | ✅/⚠️  |
@@ -44,12 +57,35 @@ Prevents:
 
 ## Parameter Type Analysis
 
-| Resource          | Parameter          | Expected Type | Notes                    |
-| ----------------- | ------------------ | ------------- | ------------------------ |
-| Log Analytics     | `dailyQuotaGb`     | `string`      | NOT int                  |
-| Container App Env | Logs config        | `object`      | Use appLogsConfiguration |
-| SQL Database      | `sku`              | `object`      | Not flat skuName/skuTier |
-| SQL Database      | `availabilityZone` | `int`         | Use -1 for no zone       |
+<details>
+<summary><strong>Log Analytics Parameters</strong></summary>
+
+| Parameter          | Expected Type | Notes                    |
+| ------------------ | ------------- | ------------------------ |
+| `dailyQuotaGb`     | `string`      | NOT int                  |
+
+</details>
+
+<details>
+<summary><strong>Container App Parameters</strong></summary>
+
+| Parameter          | Expected Type | Notes                    |
+| ------------------ | ------------- | ------------------------ |
+| Logs config        | `object`      | Use appLogsConfiguration |
+
+</details>
+
+<details>
+<summary><strong>SQL Database Parameters</strong></summary>
+
+| Parameter          | Expected Type | Notes                    |
+| ------------------ | ------------- | ------------------------ |
+| `sku`              | `object`      | Not flat skuName/skuTier |
+| `availabilityZone` | `int`         | Use -1 for no zone       |
+
+</details>
+
+> Replace with actual parameter groups discovered during AVM validation.
 
 ## Region Limitations Identified
 
@@ -78,9 +114,18 @@ Based on [Azure Defaults Skill](../../.github/skills/azure-defaults/SKILL.md):
 | Region limitations handled | ✅/❌  |       |
 | Pitfalls addressed         | ✅/❌  |       |
 
-**Overall Status**: ✅ **READY** / ❌ **BLOCKED**
-
-{If BLOCKED, list specific blockers and required actions}
+> [!IMPORTANT]
+> **Go / No-Go Verdict**
+>
+> | Signal | Status |
+> | ------ | ------ |
+> | AVM Modules | ✅ / ❌ |
+> | Parameters | ✅ / ❌ |
+> | Regions | ✅ / ❌ |
+> | Pitfalls | ✅ / ❌ |
+> | **Overall** | **✅ READY / ❌ BLOCKED** |
+>
+> {If BLOCKED, list specific blockers and required actions}
 
 ---
 

@@ -417,6 +417,9 @@ const MERMAID_REQUIRED_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
   "03-des-cost-estimate.md",
+  "04-governance-constraints.md",
+  "04-implementation-plan.md",
+  "04-preflight-check.md",
   "07-ab-cost-estimate.md",
 ];
 
@@ -436,6 +439,7 @@ function validateMermaidPresence(filePath, text, reportFn = warn) {
 // Artifacts that should contain traffic-light status indicators (Phase 3)
 const TRAFFIC_LIGHT_TEMPLATES = [
   "02-architecture-assessment.md",
+  "04-governance-constraints.md",
   "07-ab-cost-estimate.md",
 ];
 
@@ -464,6 +468,7 @@ const COLLAPSIBLE_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
   "03-des-cost-estimate.md",
+  "04-preflight-check.md",
   "07-ab-cost-estimate.md",
 ];
 
