@@ -1,6 +1,6 @@
 # Step 4b: Pre-Flight AVM Check - {project-name}
 
-![Step](https://img.shields.io/badge/Step-4c-blue)
+![Step](https://img.shields.io/badge/Step-4b-blue)
 ![Status](https://img.shields.io/badge/Status-Draft-orange)
 ![Agent](https://img.shields.io/badge/Agent-Bicep%20Code-purple)
 

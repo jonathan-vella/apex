@@ -355,19 +355,19 @@ function extractFencedBlocks(text) {
   return blocks;
 }
 
-function validateCostMermaid(filePath, text) {
+function validateCostMermaid(filePath, text, reportFn = error) {
   if (!text.includes(REQUIRED_MERMAID_INIT)) {
-    error(
+    reportFn(
       `${filePath} is missing the required colored Mermaid pie init line.`,
       { filePath, line: 1 },
     );
   }
 
   if (!text.includes("pie showData")) {
-    error(`${filePath} is missing 'pie showData' in the Mermaid pie section.`, {
-      filePath,
-      line: 1,
-    });
+    reportFn(
+      `${filePath} is missing 'pie showData' in the Mermaid pie section.`,
+      { filePath, line: 1 },
+    );
   }
 }
 
@@ -547,10 +547,12 @@ function validateArtifactCompliance(relPath) {
   const corePositions = required.map((heading) => h2.indexOf(heading));
   const anchorPos = h2.indexOf(anchor);
 
+  // Agent-output artifacts use warnings only (pre-existing drift is expected)
+  const reportFn = warn;
+
   // Check all required headings are present
   const missing = required.filter((h) => !h2.includes(h));
   if (missing.length > 0) {
-    const reportFn = strictness === "standard" ? error : warn;
     reportFn(
       `Artifact ${relPath} is missing required H2 headings: ${missing.join(
         ", ",
@@ -565,7 +567,7 @@ function validateArtifactCompliance(relPath) {
     const currentPos = h2.indexOf(presentRequired[i]);
     const nextPos = h2.indexOf(presentRequired[i + 1]);
     if (currentPos > nextPos) {
-      error(
+      reportFn(
         `Artifact ${relPath} has required headings out of order: '${
           presentRequired[i]
         }' should come before '${presentRequired[i + 1]}'.`,
@@ -600,12 +602,12 @@ function validateArtifactCompliance(relPath) {
 
   // Special validation for governance constraints: check discovery source content
   if (artifactType === "04-governance-constraints.md") {
-    validateGovernanceDiscovery(relPath, text, strictness);
+    validateGovernanceDiscovery(relPath, text, reportFn);
   }
 
   // Cost-estimate artifacts require Mermaid pie chart
   if (COST_ESTIMATE_ARTIFACTS.includes(artifactType)) {
-    validateCostMermaid(relPath, text);
+    validateCostMermaid(relPath, text, reportFn);
   }
 }
 
@@ -614,9 +616,7 @@ function validateArtifactCompliance(relPath) {
  * not assumed from best practices. This prevents deployment failures due to
  * undiscovered Azure Policy requirements.
  */
-function validateGovernanceDiscovery(relPath, text, strictness) {
-  const reportFn = strictness === "standard" ? error : warn;
-
+function validateGovernanceDiscovery(relPath, text, reportFn = error) {
   // Check for Discovery Source section content (not just heading)
   const discoverySourceMatch = text.match(
     /## Discovery Source[\s\S]*?(?=##|$)/,

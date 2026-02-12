@@ -65,12 +65,14 @@ Use Shields.io static badges for visual scanning:
 ![Step](https://img.shields.io/badge/Step-{n}-blue)
 ![Status](https://img.shields.io/badge/Status-{Draft|Complete}-{orange|brightgreen})
 ![Agent](https://img.shields.io/badge/Agent-{agent--name}-purple)
-![Date](https://img.shields.io/badge/Generated-{YYYY--MM--DD}-grey)
 ```
 
 Badge values use `--` for hyphens (Shields.io escaping).
 The `Status` badge is `Draft|orange` on first generation and
 `Complete|brightgreen` after review.
+Agents may optionally add a fourth `Date` badge
+(`![Date](https://img.shields.io/badge/Generated-{YYYY--MM--DD}-grey)`)
+when generating final artifacts.
 
 ### Collapsible Table of Contents
 

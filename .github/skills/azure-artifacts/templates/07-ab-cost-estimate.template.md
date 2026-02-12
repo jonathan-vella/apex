@@ -1,4 +1,4 @@
-# As-Built Cost Estimate: {Project Name}
+# As-Built Cost Estimate: {project-name}
 
 ![Step](https://img.shields.io/badge/Step-7g-blue)
 ![Status](https://img.shields.io/badge/Status-Draft-orange)
@@ -13,7 +13,7 @@
 - [📊 Top 5 Cost Drivers](#-top-5-cost-drivers)
 - [Architecture Overview](#architecture-overview)
 - [🧾 What We Are Not Paying For (Yet)](#-what-we-are-not-paying-for-yet)
-- [⚠️ Cost Risk Indicators](#️-cost-risk-indicators)
+- [⚠️ Cost Risk Indicators](#-cost-risk-indicators)
 - [🎯 Quick Decision Matrix](#-quick-decision-matrix)
 - [💰 Savings Opportunities](#-savings-opportunities)
 - [Detailed Cost Breakdown](#detailed-cost-breakdown)
