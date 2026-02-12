@@ -63,6 +63,7 @@ This step is **optional**. Users can skip directly to Step 4 (Implementation Pla
 - ✅ Save cost estimates to `agent-output/{project}/03-des-cost-estimate.md`
 - ✅ Include all Azure resources from the architecture in diagrams
 - ✅ Match H2 headings from azure-artifacts skill for cost estimates
+- ✅ Update `agent-output/{project}/README.md` — mark Step 3 complete, add your artifacts (see azure-artifacts skill)
 
 ### DON'T
 

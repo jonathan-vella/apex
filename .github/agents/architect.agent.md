@@ -72,6 +72,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Ask clarifying questions when critical requirements are missing
 - ✅ Wait for user approval before handoff to bicep-plan
 - ✅ Match H2 headings from azure-artifacts skill exactly
+- ✅ Update `agent-output/{project}/README.md` — mark Step 2 complete, add your artifacts (see azure-artifacts skill)
 
 ### DON'T
 

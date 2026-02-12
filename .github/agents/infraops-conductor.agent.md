@@ -83,6 +83,7 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 - ✅ Track progress by checking artifact files in `agent-output/{project}/`
 - ✅ Summarize subagent results concisely (don't dump raw output)
 - ✅ Create `agent-output/{project}/` directory at project start
+- ✅ Ensure `agent-output/{project}/README.md` exists — Requirements agent creates it, all agents update it
 
 ### DON'T
 
@@ -176,7 +177,7 @@ If user explicitly requests validation:
 
 1. Determine project name from user request (or ask)
 2. Create `agent-output/{project-name}/`
-3. Delegate to Requirements agent for Step 1
+3. Delegate to Requirements agent for Step 1 (creates initial `README.md` from PROJECT-README template)
 4. Wait for Gate 1 approval
 
 ## Resuming a Project
@@ -190,6 +191,7 @@ If user explicitly requests validation:
 
 | Step | Artifact | Check |
 | --- | --- | --- |
+| — | `README.md` | Exists? (mandatory) |
 | 1 | `01-requirements.md` | Exists? |
 | 2 | `02-architecture-assessment.md` | Exists? |
 | 3 | `03-des-*.md`, `03-des-*.py` | Optional |

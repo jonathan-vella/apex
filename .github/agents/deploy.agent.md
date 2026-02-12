@@ -82,6 +82,7 @@ handoffs:
 - ✅ Generate `06-deployment-summary.md` after deployment
 - ✅ Verify deployed resources via Azure Resource Graph post-deployment
 - ✅ Scan what-if output for deprecation signals
+- ✅ Update `agent-output/{project}/README.md` — mark Step 6 complete, add your artifacts (see azure-artifacts skill)
 
 ### DON'T
 

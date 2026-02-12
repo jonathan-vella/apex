@@ -55,10 +55,17 @@ This name is used to create the project folder and is inherited by all subsequen
 If an `agent-output/{project}/` folder already exists, agents will suggest reusing it
 to continue work on an existing project.
 
-## Auto-Generated Project README
+## Auto-Generated Project README (MANDATORY)
 
-Each project folder contains a `README.md` that serves as an index of all generated artifacts.
-This file is automatically updated by agents as they create new outputs.
+Every project folder **MUST** contain a `README.md` that serves as an index of all generated artifacts.
+
+- The **Requirements agent** (Step 1) creates the initial README from
+  `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`
+- **Every subsequent agent** updates the README when saving their step artifacts
+  (marking their step complete, adding artifact files, updating progress percentage)
+
+If a project is missing its README (e.g., created before this requirement), any agent
+working on that project should create it from the template and backfill completed steps.
 
 ### Template
 

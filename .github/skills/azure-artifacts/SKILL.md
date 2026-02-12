@@ -52,6 +52,31 @@ Replaces individual template file lookups with embedded H2 definitions.
 
 ---
 
+## Mandatory: Project README
+
+Every project in `agent-output/{project}/` **MUST** have a `README.md`.
+This is a cross-agent requirement — not owned by a single step.
+
+| Responsibility | Agent |
+| --- | --- |
+| **Create** initial README from `PROJECT-README.template.md` | Requirements (Step 1) |
+| **Update** workflow progress after saving step artifacts | Every step agent (Steps 2-7) |
+
+### README Update Rules (All Agents)
+
+After saving your step artifact(s), update `agent-output/{project}/README.md`:
+
+1. Mark your step as **complete** in the `## ✅ Workflow Progress` table
+2. Add your artifact files to the `## 📄 Generated Artifacts` section
+3. Update the `Last Updated` date in `## 📋 Project Summary`
+4. Update the progress bar percentage (each of the 7 steps = ~14%)
+5. If README doesn't exist (e.g., resuming a mid-workflow project), create it
+   from `PROJECT-README.template.md` and backfill completed steps
+
+Template: `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`
+
+---
+
 ## Standard Components
 
 Reusable building blocks that templates embed. Agents copy these patterns

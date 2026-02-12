@@ -44,6 +44,8 @@ You are a PLANNING AGENT for Azure infrastructure projects, NOT an implementatio
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `01-requirements.md`
 3. **Read** `.github/skills/azure-artifacts/templates/01-requirements.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
+4. **Read** `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`
+   — project README template (mandatory first artifact for every new project)
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 
@@ -62,7 +64,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 
 ### DON'T
 
-- ❌ Create ANY files other than `agent-output/{project}/01-requirements.md`
+- ❌ Create ANY files other than `agent-output/{project}/01-requirements.md` and `agent-output/{project}/README.md`
 - ❌ Modify existing Bicep code or implement infrastructure
 - ❌ Show Bicep code blocks — describe requirements, not implementation
 - ❌ Skip Phase 1 business discovery
@@ -137,8 +139,13 @@ Security measures (multi-select with business descriptions), Authentication meth
 
 1. Create `agent-output/{project}/` if needed
 2. Save to `agent-output/{project}/01-requirements.md`
-3. Run `npm run lint:artifact-templates` — if errors appear for your artifact, fix them before continuing
-4. Confirm save, present handoff options to Architect agent
+3. **Create `agent-output/{project}/README.md`** using `PROJECT-README.template.md` as skeleton:
+   - Mark Step 1 as complete, all other steps as Pending
+   - Populate Project Summary with project name, region, environment from requirements
+   - Set status badge to `In Progress`, step badge to `Step 1 of 7`
+   - This is **MANDATORY** for every new project — do NOT skip
+4. Run `npm run lint:artifact-templates` — if errors appear for your artifact, fix them before continuing
+5. Confirm save, present handoff options to Architect agent
 
 ## Must-Have Information
 

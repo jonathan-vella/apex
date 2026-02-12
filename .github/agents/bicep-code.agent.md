@@ -64,6 +64,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
   `main.bicep` that conditionally deploys resource groups per phase
 - ✅ Run `bicep build` and `bicep lint` after generating templates
 - ✅ Save implementation reference to `05-implementation-reference.md`
+- ✅ Update `agent-output/{project}/README.md` — mark Step 5 complete, add your artifacts (see azure-artifacts skill)
 
 ### DON'T
 

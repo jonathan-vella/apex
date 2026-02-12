@@ -1,6 +1,6 @@
 # Prompt Guide
 
-> [Version](../VERSION.md) | Best-practices prompt examples for all Agentic InfraOps agents and skills
+> [Version](../../VERSION.md) | Best-practices prompt examples for all Agentic InfraOps agents and skills
 
 This guide provides ready-to-use prompt examples for every agent and skill in the
 Agentic InfraOps project. It is written for **end users** — those who interact with
