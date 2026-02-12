@@ -42,9 +42,9 @@
 
 ### Critical Resources
 
-| Resource   | Name   | Resource Group   |
-| ---------- | ------ | ---------------- |
-| {resource} | {name} | {resource-group} |
+| Resource   | Name   | Resource Group   | Severity |
+| ---------- | ------ | ---------------- | -------- |
+| {resource} | {name} | {resource-group} | 🔴 P1 / 🟠 P2 / 🟢 P3 |
 
 ---
 
@@ -60,10 +60,15 @@
 
 **KQL Query - System Health Overview:**
 
+<details>
+<summary><strong>📊 Health Check KQL</strong></summary>
+
 ```kusto
 // Health query example
 {kql-query}
 ```
+
+</details>
 
 ### 1.2 Log Review
 
@@ -81,9 +86,22 @@
 
 | Severity | Definition   | Response Time |
 | -------- | ------------ | ------------- |
-| P1       | {definition} | {time}        |
-| P2       | {definition} | {time}        |
-| P3       | {definition} | {time}        |
+| 🔴 P1  | {definition} | {time}        |
+| 🟠 P2  | {definition} | {time}        |
+| 🟢 P3  | {definition} | {time}        |
+
+### Incident Response Flow
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    D["🔍 Detect"] --> T["🎯 Triage"]
+    T --> E["⚠️ Escalate"]
+    E --> R["🛠️ Resolve"]
+    R --> P["📝 Postmortem"]
+    style D fill:#D83B01,color:#fff
+    style R fill:#107C10,color:#fff
+```
 
 ### 2.2 Runbooks by Alert
 
@@ -127,6 +145,20 @@
 | ------------------ | ---------- | ---------- |
 | {maintenance-task} | {schedule} | {duration} |
 
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+gantt
+    title Maintenance Schedule
+    dateFormat YYYY-MM-DD
+    section Patching
+        OS Patching       :a1, 2025-01-15, 1d
+        App Updates       :a2, 2025-02-01, 1d
+    section DR Testing
+        Failover Test     :b1, 2025-03-01, 1d
+```
+
+> Replace with actual maintenance schedule.
+
 > [!TIP]
 > 💡 Schedule maintenance during low-traffic periods. Use Azure Update Manager for coordinated patching.
 
@@ -134,9 +166,19 @@
 
 ## 5. Contacts & Escalation
 
-| Role   | Contact   | Phone   |
-| ------ | --------- | ------- |
-| {role} | {contact} | {phone} |
+| Role   | Contact   | Phone   | On-Call Rotation |
+| ------ | --------- | ------- | ---------------- |
+| {role} | {contact} | {phone} | {schedule / N/A} |
+
+### Escalation Path
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    L1["🟢 L1: On-Call Engineer"] --> L2["🟠 L2: Team Lead"]
+    L2 --> L3["🔴 L3: Service Owner"]
+    L3 --> MGMT["⚠️ Management"]
+```
 
 ---
 

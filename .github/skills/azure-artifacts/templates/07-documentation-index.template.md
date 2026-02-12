@@ -31,11 +31,11 @@
 
 | Document                                         | Description                        | Status   |
 | ------------------------------------------------ | ---------------------------------- | -------- |
-| [Design Document](./07-design-document.md)       | Comprehensive architecture design  | {status} |
-| [Operations Runbook](./07-operations-runbook.md) | Day-2 operational procedures       | {status} |
-| [Resource Inventory](./07-resource-inventory.md) | Complete resource listing from IaC | {status} |
-| [Compliance Matrix](./07-compliance-matrix.md)   | Security controls mapping          | {status} |
-| [Backup & DR Plan](./07-backup-dr-plan.md)       | Recovery procedures and failover   | {status} |
+| [Design Document](./07-design-document.md)       | Comprehensive architecture design  | ![Generated](https://img.shields.io/badge/-Generated-success) / ![Pending](https://img.shields.io/badge/-Pending-lightgrey) |
+| [Operations Runbook](./07-operations-runbook.md) | Day-2 operational procedures       | ![Generated](https://img.shields.io/badge/-Generated-success) / ![Pending](https://img.shields.io/badge/-Pending-lightgrey) |
+| [Resource Inventory](./07-resource-inventory.md) | Complete resource listing from IaC | ![Generated](https://img.shields.io/badge/-Generated-success) / ![Pending](https://img.shields.io/badge/-Pending-lightgrey) |
+| [Compliance Matrix](./07-compliance-matrix.md)   | Security controls mapping          | ![Generated](https://img.shields.io/badge/-Generated-success) / ![Pending](https://img.shields.io/badge/-Pending-lightgrey) |
+| [Backup & DR Plan](./07-backup-dr-plan.md)       | Recovery procedures and failover   | ![Generated](https://img.shields.io/badge/-Generated-success) / ![Pending](https://img.shields.io/badge/-Pending-lightgrey) |
 
 ---
 
@@ -50,6 +50,26 @@ These documents were generated from the following agentic workflow outputs:
 | Cost Estimate       | {source} | {date}    |
 | Implementation Plan | {source} | {date}    |
 | Bicep Code          | {source} | {date}    |
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+graph LR
+    S1["01 Requirements"] --> S7a["07 Design Doc"]
+    S2["02 Architecture"] --> S7a
+    S2 --> S7c["07 Runbook"]
+    S3["03 Cost Estimate"] --> S7e["07 Cost (As-Built)"]
+    S4["04 Impl Plan"] --> S7d["07 Resource Inventory"]
+    S5["05 Impl Reference"] --> S7d
+    S6["06 Deployment"] --> S7c
+    S6 --> S7b["07 Compliance Matrix"]
+    style S7a fill:#0078D4,color:#fff
+    style S7b fill:#0078D4,color:#fff
+    style S7c fill:#0078D4,color:#fff
+    style S7d fill:#0078D4,color:#fff
+    style S7e fill:#0078D4,color:#fff
+```
+
+> Shows which workflow artifacts feed into each Step 7 document.
 
 ---
 
@@ -75,9 +95,9 @@ These documents were generated from the following agentic workflow outputs:
 
 ## 5. Quick Links
 
-- [Deployment Script](../../infra/bicep/{project}/deploy.ps1)
-- [Main Bicep Template](../../infra/bicep/{project}/main.bicep)
-- [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
+- 📂 **Code**: [Deployment Script](../../infra/bicep/{project}/deploy.ps1) | [Main Bicep Template](../../infra/bicep/{project}/main.bicep)
+- 📄 **Docs**: [Design Document](./07-design-document.md) | [Runbook](./07-operations-runbook.md) | [Compliance](./07-compliance-matrix.md)
+- 🔗 **External**: [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/) | [AVM Index](https://aka.ms/avm/index)
 
 ---
 

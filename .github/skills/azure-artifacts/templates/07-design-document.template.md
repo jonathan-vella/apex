@@ -92,7 +92,18 @@ development efforts.
 
 ### 2.1 Architecture Diagram
 
-{architecture-diagram}
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+C4Context
+    title System Context Diagram - {project-name}
+    Person(user, "End User", "Accesses the application")
+    System(app, "{project-name}", "Azure-hosted workload")
+    System_Ext(ext, "External Service", "Third-party integration")
+    Rel(user, app, "Uses", "HTTPS")
+    Rel(app, ext, "Calls", "HTTPS")
+```
+
+> Replace with actual C4 context or deployment diagram for the project.
 
 ### 2.2 Resource Summary
 
@@ -106,6 +117,21 @@ development efforts.
 ---
 
 ## 3. Networking
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+graph TD
+    VNET["VNet\n10.0.0.0/16"] --> SUB1["Subnet: app\n10.0.1.0/24"]
+    VNET --> SUB2["Subnet: data\n10.0.2.0/24"]
+    VNET --> SUB3["Subnet: mgmt\n10.0.3.0/24"]
+    SUB1 --> NSG1["NSG: app-nsg"]
+    SUB2 --> NSG2["NSG: data-nsg"]
+    SUB2 --> PEP["Private Endpoints"]
+    style VNET fill:#0078D4,color:#fff
+    style PEP fill:#5C2D91,color:#fff
+```
+
+> Replace with actual network topology.
 
 {networking-details}
 
@@ -131,6 +157,27 @@ development efforts.
 
 ## 7. Security & Compliance
 
+<details>
+<summary><strong>🔒 Security Controls</strong></summary>
+
+| Control | Implementation | Evidence |
+| ------- | -------------- | -------- |
+| TLS 1.2+ | {implementation} | {evidence link} |
+| HTTPS-only | {implementation} | {evidence link} |
+| Managed Identity | {implementation} | {evidence link} |
+| Network isolation | {implementation} | {evidence link} |
+
+</details>
+
+<details>
+<summary><strong>📋 Compliance Mapping</strong></summary>
+
+| Framework | Control ID | Status |
+| --------- | ---------- | ------ |
+| {framework} | {control} | ✅ / ⚠️ / ❌ |
+
+</details>
+
 {security-details}
 
 ---
@@ -153,6 +200,15 @@ development efforts.
 <summary>📋 Detailed Resource Configuration</summary>
 
 {appendix-content}
+
+</details>
+
+<details>
+<summary>📚 Reference Architecture Links</summary>
+
+| Architecture | Link |
+| ------------ | ---- |
+| {reference-name} | {url} |
 
 </details>
 
