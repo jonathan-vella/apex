@@ -1,6 +1,10 @@
 ---
 name: azure-diagrams
-description: Generates Azure and technical architecture diagrams (PNG via Python diagrams) from requirements or IaC, including topology, process flow, ERD, and wireframe visuals.
+description: >
+  Azure architecture diagram generation skill for high-quality, non-Mermaid outputs.
+  Produces deterministic Python `diagrams` + Graphviz artifacts (`.py` + `.png`/`.svg`) for
+  design and as-built documentation. Use for Step 3 and Step 7 architecture visuals,
+  dependency visuals, and topology diagrams with enforced layout and naming conventions.
 compatibility: Requires graphviz system package and Python diagrams library; works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
 metadata:
@@ -35,35 +39,62 @@ agent-output/{project}/
 
 ## ⚡ Execution Method
 
-**Always execute diagram code inline** - do not create a separate .py file first:
+**Always save diagram source to file first**, then execute it:
 
 ```bash
-python3 << 'EOF'
-from diagrams import Diagram, Cluster
-from diagrams.azure.compute import KubernetesServices
-from diagrams.azure.database import CosmosDb
+# Example (Design phase)
+python3 agent-output/{project}/03-des-diagram.py
 
-with Diagram("My Architecture", filename="diagram", show=False):
-    KubernetesServices("aks-prod") >> CosmosDb("cosmos-prod")
-EOF
+# Example (As-built phase)
+python3 agent-output/{project}/07-ab-diagram.py
 ```
 
-This approach:
+Required workflow:
 
-- ✅ Generates the diagram directly
-- ✅ Cleaner workflow
-- ✅ Easy to iterate
+- ✅ Generate and save `.py` source in `agent-output/{project}/`
+- ✅ Execute saved script to produce `.png` (and optional `.svg`)
+- ✅ Keep source version-controlled for deterministic regeneration
+- ✅ Never use inline heredoc execution for diagram generation
 
-## 📊 Diagram Types
+## 📊 Architecture Diagram Contract (Mandatory)
 
-| Type                          | Reference File                               | Example Prompt                                               |
-| ----------------------------- | -------------------------------------------- | ------------------------------------------------------------ |
-| **Azure Architecture**        | `references/azure-components.md`             | "Design a microservices architecture with AKS and Cosmos DB" |
-| **Business Process Flow**     | `references/business-process-flows.md`       | "Create a swimlane for invoice approval workflow"            |
-| **Entity Relationship (ERD)** | `references/entity-relationship-diagrams.md` | "Generate an ERD for customer and order entities"            |
-| **Timeline / Gantt**          | `references/timeline-gantt-diagrams.md`      | "Create a 6-month migration roadmap"                         |
-| **UI Wireframe**              | `references/ui-wireframe-diagrams.md`        | "Design a KPI dashboard layout"                              |
-| **Common Patterns**           | `references/common-patterns.md`              | "Show a hub-spoke network topology"                          |
+For Azure workflow artifacts, generate **non-Mermaid** diagrams using Python `diagrams` only.
+
+### Required outputs
+
+- `03-des-diagram.py` + `03-des-diagram.png` (Step 3)
+- `04-dependency-diagram.py` + `04-dependency-diagram.png` (Step 4)
+- `04-runtime-diagram.py` + `04-runtime-diagram.png` (Step 4)
+- `07-ab-diagram.py` + `07-ab-diagram.png` (Step 7, when requested)
+
+### Required naming conventions
+
+- Cluster vars: `clu_<scope>_<slug>` where scope ∈ `sub|rg|net|tier|zone|ext`
+- Node vars: `n_<domain>_<service>_<role>` where domain ∈ `edge|web|app|data|id|sec|ops|int`
+- Edge vars (if reused): `e_<source>_to_<target>_<flow>`
+- Flow taxonomy only: `auth|request|response|read|write|event|replicate|secret|telemetry|admin`
+
+### Required layout/style defaults
+
+- `direction="LR"` unless explicitly justified
+- deterministic spacing via `graph_attr` (`nodesep`, `ranksep`, `splines`)
+- short labels (2–4 words)
+- max 3 edge styles (runtime/control/observability)
+
+### Quality gate (score /10)
+
+1. Readable at 100% zoom
+2. No major label overlap
+3. Minimal line crossing
+4. Clear tier grouping
+5. Correct Azure icons
+6. Security boundary visible
+7. Data flow direction clear
+8. Identity/auth flow visible
+9. Telemetry path visible
+10. Naming conventions followed
+
+If score < 9/10, regenerate once with simplification.
 
 ## 🔥 Generate from Infrastructure Code
 

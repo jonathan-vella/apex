@@ -1,7 +1,7 @@
 ---
 description: 'Generate production-ready Bicep templates from the implementation plan'
 agent: 'Bicep Code'
-model: 'Claude Sonnet 4.5'
+model: 'GPT-5.3-Codex'
 tools:
   - read/readFile
   - edit/createFile

@@ -1,7 +1,7 @@
 ---
 description: 'Generate as-built workload documentation suite (Step 7)'
 agent: 'Deploy'
-model: 'Claude Sonnet 4.5'
+model: 'GPT-5.3-Codex'
 tools:
   - read/readFile
   - edit/createFile

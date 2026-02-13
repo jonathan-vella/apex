@@ -1,7 +1,7 @@
 ---
 description: "Deploy Bicep templates to Azure with what-if analysis"
 agent: "Deploy"
-model: "Claude Sonnet 4.5"
+model: "GPT-5.3-Codex"
 tools:
   - execute/runInTerminal
   - read

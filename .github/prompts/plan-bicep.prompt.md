@@ -1,7 +1,7 @@
 ---
-description: 'Create a Bicep implementation plan with governance discovery'
-agent: 'Bicep Plan'
-model: 'Claude Opus 4.6'
+description: "Create a Bicep implementation plan with governance discovery"
+agent: "Bicep Plan"
+model: "Claude Opus 4.6"
 tools:
   - read/readFile
   - edit/createFile
@@ -36,8 +36,8 @@ strategy.
 
 ## Inputs
 
-| Variable | Description | Default |
-| --- | --- | --- |
+| Variable               | Description                                      | Default  |
+| ---------------------- | ------------------------------------------------ | -------- |
 | `${input:projectName}` | Project name matching the `agent-output/` folder | Required |
 
 ## Workflow
@@ -87,6 +87,8 @@ Save to `agent-output/{projectName}/`:
 
 - `04-implementation-plan.md` — resource inventory, module structure,
   deployment phases, parameter specifications
+- `04-dependency-diagram.py` + `04-dependency-diagram.png` — Step 4 dependency view
+- `04-runtime-diagram.py` + `04-runtime-diagram.png` — Step 4 runtime-only flow view
 - `04-governance-constraints.md` — discovered policies and adaptations
 - `04-governance-constraints.json` — machine-readable policy data
 

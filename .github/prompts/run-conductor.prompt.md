@@ -1,7 +1,7 @@
 ---
-description: 'Run the full 7-step Azure infrastructure workflow end-to-end'
-agent: 'InfraOps Conductor'
-model: 'Claude Opus 4.6'
+description: "Run the full 7-step Azure infrastructure workflow end-to-end"
+agent: "InfraOps Conductor"
+model: "Claude Opus 4.6"
 tools:
   - agent/runSubagent
   - edit/createFile
@@ -35,9 +35,9 @@ Design → Bicep Plan → Bicep Code → Deploy → As-Built Documentation.
 
 ## Inputs
 
-| Variable | Description | Default |
-| --- | --- | --- |
-| `${input:projectName}` | Project name (kebab-case) | Required |
+| Variable                      | Description                                       | Default  |
+| ----------------------------- | ------------------------------------------------- | -------- |
+| `${input:projectName}`        | Project name (kebab-case)                         | Required |
 | `${input:projectDescription}` | Business or technical description of the workload | Required |
 
 ## Workflow
@@ -97,6 +97,10 @@ agent-output/{projectName}/
 ├── 03-des-adr-*.md            (if Step 3 selected)
 ├── 04-governance-constraints.md
 ├── 04-implementation-plan.md
+├── 04-dependency-diagram.py
+├── 04-dependency-diagram.png
+├── 04-runtime-diagram.py
+├── 04-runtime-diagram.png
 ├── 04-preflight-check.md
 ├── 05-implementation-reference.md
 ├── 06-deployment-summary.md

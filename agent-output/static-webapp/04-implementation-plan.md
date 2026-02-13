@@ -170,31 +170,27 @@ properties: {
 
 ## Deployment Phases
 
-| Phase | Resources | Dependencies | Estimated Duration |
-| ----- | --------- | ------------ | ------------------ |
-| 1 - Foundation | Resource Group, Log Analytics, Application Insights | None | 5 minutes |
-| 2 - Data | SQL Server, SQL Database | Phase 1 | 5 minutes |
-| 3 - Application | Static Web App | Phase 1 | 5 minutes |
+| Phase           | Resources                                           | Dependencies | Estimated Duration |
+| --------------- | --------------------------------------------------- | ------------ | ------------------ |
+| 1 - Foundation  | Resource Group, Log Analytics, Application Insights | None         | 5 minutes          |
+| 2 - Data        | SQL Server, SQL Database                            | Phase 1      | 5 minutes          |
+| 3 - Application | Static Web App                                      | Phase 1      | 5 minutes          |
 
 ---
 
 ## Dependency Graph
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-graph TD
-    RG[Resource Group] --> MON[monitoring.bicep]
-    RG --> SQL[sql-server.bicep]
-    MON --> SQLDB[sql-database.bicep]
-    SQL --> SQLDB
-    MON --> SWA[static-web-app.bicep]
+![Module Dependency Graph](./04-dependency-diagram.png)
 
-    style RG fill:#e1f5fe
-    style MON fill:#fff3e0
-    style SQL fill:#e8f5e9
-    style SQLDB fill:#e8f5e9
-    style SWA fill:#fce4ec
-```
+Source: [04-dependency-diagram.py](./04-dependency-diagram.py)
+
+---
+
+## Runtime Flow Diagram
+
+![Runtime Flow Diagram](./04-runtime-diagram.png)
+
+Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
 
 ---
 

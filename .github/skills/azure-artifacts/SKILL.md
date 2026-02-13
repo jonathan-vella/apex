@@ -237,6 +237,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 ## Implementation Tasks
 ## Deployment Phases
 ## Dependency Graph
+## Runtime Flow Diagram
 ## Naming Conventions
 ## Security Configuration
 ## Estimated Implementation Time
@@ -558,9 +559,9 @@ Use for lengthy content (>10 rows, reference material, code examples):
 
 Templates and generated artifacts are validated by the unified validator in `scripts/`:
 
-| Script                            | Scope                                                                                         | npm Command                       |
-| --------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- |
-| `validate-artifact-templates.mjs` | All 16 artifact types — H2 order, required headings, strictness, cost-specific Mermaid checks | `npm run lint:artifact-templates` |
+| Script                            | Scope                                                                                                                           | npm Command                       |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `validate-artifact-templates.mjs` | All 16 artifact types — H2 order, required headings, strictness, and required diagram/chart artifact checks (non-Mermaid-first) | `npm run lint:artifact-templates` |
 
 Run `npm run validate:all` to execute all validators together.
 

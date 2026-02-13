@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD033 MD041 -->
+
 <a id="readme-top"></a>
 
 <div align="center">
@@ -19,16 +20,16 @@
 
 ## 📋 Project Summary
 
-| Property | Value |
-|----------|-------|
-| **Created** | 2026-02-05 |
-| **Last Updated** | 2026-02-06 |
-| **Region** | `westeurope` |
-| **Environment** | Development |
-| **Estimated Cost** | ~$0.10/month |
-| **AVM Coverage** | 100% (3/3 modules deployed) |
-| **Purpose** | Validate Conductor workflow E2E |
-| **Status** | ✅ Complete |
+| Property           | Value                           |
+| ------------------ | ------------------------------- |
+| **Created**        | 2026-02-05                      |
+| **Last Updated**   | 2026-02-06                      |
+| **Region**         | `westeurope`                    |
+| **Environment**    | Development                     |
+| **Estimated Cost** | ~$0.10/month                    |
+| **AVM Coverage**   | 100% (3/3 modules deployed)     |
+| **Purpose**        | Validate Conductor workflow E2E |
+| **Status**         | ✅ Complete                     |
 
 ---
 
@@ -38,15 +39,15 @@
 [████████████████████] 100% Complete
 ```
 
-| Step | Phase | Status | Artifact |
-|:----:|-------|:------:|----------|
-| 1 | Requirements | ✅ | [01-requirements.md](./01-requirements.md) |
-| 2 | Architecture | ✅ | [02-architecture-assessment.md](./02-architecture-assessment.md) |
-| 3 | Design | ✅ | [03-des-diagram.py](./03-des-diagram.py), [03-des-adr-0001-static-webapp-with-cdn.md](./03-des-adr-0001-static-webapp-with-cdn.md) |
-| 4 | Planning | ✅ | [04-implementation-plan.md](./04-implementation-plan.md), [04-governance-constraints.md](./04-governance-constraints.md), [04-preflight-check.md](./04-preflight-check.md) |
-| 5 | Implementation | ✅ | [05-implementation-reference.md](./05-implementation-reference.md) |
-| 6 | Deployment | ✅ | [06-deployment-summary.md](./06-deployment-summary.md) |
-| 7 | Documentation | ✅ | [07-documentation-index.md](./07-documentation-index.md), [07-resource-inventory.md](./07-resource-inventory.md), +5 more |
+| Step | Phase          | Status | Artifact                                                                                                                                                                                                                                                                             |
+| :--: | -------------- | :----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|  1   | Requirements   |   ✅   | [01-requirements.md](./01-requirements.md)                                                                                                                                                                                                                                           |
+|  2   | Architecture   |   ✅   | [02-architecture-assessment.md](./02-architecture-assessment.md)                                                                                                                                                                                                                     |
+|  3   | Design         |   ✅   | [03-des-diagram.py](./03-des-diagram.py), [03-des-adr-0001-static-webapp-with-cdn.md](./03-des-adr-0001-static-webapp-with-cdn.md)                                                                                                                                                   |
+|  4   | Planning       |   ✅   | [04-implementation-plan.md](./04-implementation-plan.md), [04-governance-constraints.md](./04-governance-constraints.md), [04-dependency-diagram.py](./04-dependency-diagram.py), [04-runtime-diagram.py](./04-runtime-diagram.py), [04-preflight-check.md](./04-preflight-check.md) |
+|  5   | Implementation |   ✅   | [05-implementation-reference.md](./05-implementation-reference.md)                                                                                                                                                                                                                   |
+|  6   | Deployment     |   ✅   | [06-deployment-summary.md](./06-deployment-summary.md)                                                                                                                                                                                                                               |
+|  7   | Documentation  |   ✅   | [07-documentation-index.md](./07-documentation-index.md), [07-resource-inventory.md](./07-resource-inventory.md), +5 more                                                                                                                                                            |
 
 > **Legend**: ✅ Complete | 🔄 In Progress | ⏳ Pending | ⏭️ Skipped
 
@@ -58,20 +59,20 @@
 
 ![Architecture Diagram](./03-des-diagram.png)
 
-*Generated with [azure-diagrams](../../.github/skills/azure-diagrams/SKILL.md) skill*
+_Generated with [azure-diagrams](../../.github/skills/azure-diagrams/SKILL.md) skill_
 
 </div>
 
 ### Key Resources
 
-| Resource | Type | SKU | Purpose |
-|----------|------|-----|---------|
-| Static Web App | `Microsoft.Web/staticSites` | Free | Host static content |
-| CDN Profile | `Microsoft.Cdn/profiles` | Standard_Microsoft | Global content delivery |
-| Log Analytics | `Microsoft.OperationalInsights/workspaces` | Free tier | Centralized logging |
-| Action Group | `Microsoft.Insights/actionGroups` | N/A | Alert notifications |
-| Metric Alert | `Microsoft.Insights/metricAlerts` | N/A | CDN health monitoring |
-| Resource Group | `Microsoft.Resources/resourceGroups` | N/A | Deployment scope |
+| Resource       | Type                                       | SKU                | Purpose                 |
+| -------------- | ------------------------------------------ | ------------------ | ----------------------- |
+| Static Web App | `Microsoft.Web/staticSites`                | Free               | Host static content     |
+| CDN Profile    | `Microsoft.Cdn/profiles`                   | Standard_Microsoft | Global content delivery |
+| Log Analytics  | `Microsoft.OperationalInsights/workspaces` | Free tier          | Centralized logging     |
+| Action Group   | `Microsoft.Insights/actionGroups`          | N/A                | Alert notifications     |
+| Metric Alert   | `Microsoft.Insights/metricAlerts`          | N/A                | CDN health monitoring   |
+| Resource Group | `Microsoft.Resources/resourceGroups`       | N/A                | Deployment scope        |
 
 ---
 
@@ -80,24 +81,28 @@
 <details open>
 <summary><strong>📁 Step 1-3: Requirements, Architecture & Design</strong></summary>
 
-| File | Description | Created |
-|------|-------------|---------|
-| [01-requirements.md](./01-requirements.md) | Project requirements with NFRs | 2026-02-05 |
-| [02-architecture-assessment.md](./02-architecture-assessment.md) | WAF assessment with pillar scores | 2026-02-05 |
-| [03-des-diagram.py](./03-des-diagram.py) | Architecture diagram source | 2026-02-05 |
-| [03-des-diagram.png](./03-des-diagram.png) | Architecture diagram image | 2026-02-05 |
-| [03-des-adr-0001-static-webapp-caching.md](./03-des-adr-0001-static-webapp-caching.md) | ADR: Caching strategy decision | 2026-02-05 |
+| File                                                                                   | Description                       | Created    |
+| -------------------------------------------------------------------------------------- | --------------------------------- | ---------- |
+| [01-requirements.md](./01-requirements.md)                                             | Project requirements with NFRs    | 2026-02-05 |
+| [02-architecture-assessment.md](./02-architecture-assessment.md)                       | WAF assessment with pillar scores | 2026-02-05 |
+| [03-des-diagram.py](./03-des-diagram.py)                                               | Architecture diagram source       | 2026-02-05 |
+| [03-des-diagram.png](./03-des-diagram.png)                                             | Architecture diagram image        | 2026-02-05 |
+| [03-des-adr-0001-static-webapp-caching.md](./03-des-adr-0001-static-webapp-caching.md) | ADR: Caching strategy decision    | 2026-02-05 |
 
 </details>
 
 <details open>
 <summary><strong>📁 Step 4: Planning & Governance</strong></summary>
 
-| File | Description | Created |
-|------|-------------|---------|
-| [04-governance-constraints.md](./04-governance-constraints.md) | Azure Policy constraints (127 policies analyzed) | 2026-02-05 |
-| [04-governance-constraints.json](./04-governance-constraints.json) | Machine-readable governance data | 2026-02-05 |
-| [04-implementation-plan.md](./04-implementation-plan.md) | Bicep implementation plan (6 resources, 100% AVM) | 2026-02-05 |
+| File                                                               | Description                                       | Created    |
+| ------------------------------------------------------------------ | ------------------------------------------------- | ---------- |
+| [04-governance-constraints.md](./04-governance-constraints.md)     | Azure Policy constraints (127 policies analyzed)  | 2026-02-05 |
+| [04-governance-constraints.json](./04-governance-constraints.json) | Machine-readable governance data                  | 2026-02-05 |
+| [04-implementation-plan.md](./04-implementation-plan.md)           | Bicep implementation plan (6 resources, 100% AVM) | 2026-02-05 |
+| [04-dependency-diagram.py](./04-dependency-diagram.py)             | Step 4 dependency diagram source                  | 2026-02-13 |
+| [04-dependency-diagram.png](./04-dependency-diagram.png)           | Step 4 dependency diagram image                   | 2026-02-13 |
+| [04-runtime-diagram.py](./04-runtime-diagram.py)                   | Step 4 runtime diagram source                     | 2026-02-13 |
+| [04-runtime-diagram.png](./04-runtime-diagram.png)                 | Step 4 runtime diagram image                      | 2026-02-13 |
 
 </details>
 
@@ -138,23 +143,23 @@
 
 ## 💰 Cost Summary
 
-| Resource | Monthly Cost | Notes |
-|----------|-------------|-------|
-| Static Web App | $0.00 | Free tier |
-| CDN | $0.00 | Disabled (deprecated SKU) |
-| Log Analytics | $0.00 | Free tier (10 GB/month) |
-| Monitoring | $0.10 | Alert rules |
-| **Total** | **~$0.10** | 99% under $20 budget |
+| Resource       | Monthly Cost | Notes                     |
+| -------------- | ------------ | ------------------------- |
+| Static Web App | $0.00        | Free tier                 |
+| CDN            | $0.00        | Disabled (deprecated SKU) |
+| Log Analytics  | $0.00        | Free tier (10 GB/month)   |
+| Monitoring     | $0.10        | Alert rules               |
+| **Total**      | **~$0.10**   | 99% under $20 budget      |
 
 ---
 
 ## 🔗 Related Resources
 
-| Resource | Path |
-|----------|------|
+| Resource            | Path                                                                       |
+| ------------------- | -------------------------------------------------------------------------- |
 | **Bicep Templates** | [`infra/bicep/e2e-conductor-test/`](../../infra/bicep/e2e-conductor-test/) |
-| **Workflow Docs** | [`docs/workflow.md`](../../docs/workflow.md) |
-| **Troubleshooting** | [`docs/troubleshooting.md`](../../docs/troubleshooting.md) |
+| **Workflow Docs**   | [`docs/workflow.md`](../../docs/workflow.md)                               |
+| **Troubleshooting** | [`docs/troubleshooting.md`](../../docs/troubleshooting.md)                 |
 
 ---
 

@@ -134,7 +134,7 @@ sequenceDiagram
     C->>R: Translate intent into structured requirements
     R-->>C: 01-requirements.md
     C->>U: Present requirements
-    
+
     rect rgba(255, 200, 0, 0.15)
     Note over U,C: 🛑 HUMAN APPROVAL GATE
     U-->>C: Approve requirements
@@ -144,7 +144,7 @@ sequenceDiagram
     C->>A: Assess architecture (WAF + Cost)
     A-->>C: 02-assessment.md + cost estimate
     C->>U: Present architecture
-    
+
     rect rgba(255, 200, 0, 0.15)
     Note over U,C: 🛑 HUMAN APPROVAL GATE
     U-->>C: Approve architecture
@@ -154,7 +154,7 @@ sequenceDiagram
     C->>A: Create implementation plan + governance
     A-->>C: 04-plan.md
     C->>U: Present plan
-    
+
     rect rgba(255, 200, 0, 0.15)
     Note over U,C: 🛑 HUMAN APPROVAL GATE
     U-->>C: Approve plan
@@ -204,8 +204,8 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 
 ### Primary Agent: The Conductor
 
-| Agent | Persona | Role | Model |
-|-------|---------|------|-------|
+| Agent                  | Persona    | Role                                                      | Model           |
+| ---------------------- | ---------- | --------------------------------------------------------- | --------------- |
 | **InfraOps Conductor** | 🎼 Maestro | Master orchestrator managing the complete 7-step workflow | Claude Opus 4.6 |
 
 - Coordinates all specialized agents through handoffs
@@ -215,28 +215,28 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 
 ### Core Agents (7 Steps)
 
-| Step | Agent | Persona | Role | Model |
-|------|-------|---------|------|-------|
-| 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | Claude Opus 4.6 |
-| 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | Claude Opus 4.6 |
-| 3 | `design` | 🎨 Artisan | Diagrams and Architecture Decision Records | Claude Sonnet 4.5 |
-| 4 | `bicep-plan` | 📐 Strategist | Implementation planning with governance | Claude Opus 4.6 |
-| 5 | `bicep-code` | ⚒️ Forge | Generates AVM-first Bicep templates | Claude Sonnet 4.5 |
-| 6 | `deploy` | 🚀 Envoy | Azure resource provisioning | Claude Sonnet 4.5 |
-| 7 | — | 📚 — | As-built documentation (via skills) | — |
+| Step | Agent          | Persona       | Role                                       | Model           |
+| ---- | -------------- | ------------- | ------------------------------------------ | --------------- |
+| 1    | `requirements` | 📜 Scribe     | Captures infrastructure requirements       | Claude Opus 4.6 |
+| 2    | `architect`    | 🏛️ Oracle     | WAF assessment and design decisions        | Claude Opus 4.6 |
+| 3    | `design`       | 🎨 Artisan    | Diagrams and Architecture Decision Records | GPT-5.3-Codex   |
+| 4    | `bicep-plan`   | 📐 Strategist | Implementation planning with governance    | Claude Opus 4.6 |
+| 5    | `bicep-code`   | ⚒️ Forge      | Generates AVM-first Bicep templates        | GPT-5.3-Codex   |
+| 6    | `deploy`       | 🚀 Envoy      | Azure resource provisioning                | GPT-5.3-Codex   |
+| 7    | —              | 📚 —          | As-built documentation (via skills)        | —               |
 
 ### Validation Subagents
 
-| Subagent | Role | When Invoked |
-|----------|------|--------------|
-| `bicep-lint-subagent` | Syntax validation (bicep lint, bicep build) | Pre-deployment |
-| `bicep-whatif-subagent` | Deployment preview (az deployment what-if) | Pre-deployment |
+| Subagent                | Role                                          | When Invoked   |
+| ----------------------- | --------------------------------------------- | -------------- |
+| `bicep-lint-subagent`   | Syntax validation (bicep lint, bicep build)   | Pre-deployment |
+| `bicep-whatif-subagent` | Deployment preview (az deployment what-if)    | Pre-deployment |
 | `bicep-review-subagent` | Code review (AVM standards, security, naming) | Pre-deployment |
 
 ### Diagnostic Agent
 
-| Agent | Persona | Role |
-|-------|---------|------|
+| Agent      | Persona     | Role                                           |
+| ---------- | ----------- | ---------------------------------------------- |
 | `diagnose` | 🔍 Sentinel | Resource health assessment and troubleshooting |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -275,8 +275,9 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 
 - **Governance Discovery** — Discovers Azure Policy constraints in target subscription
 - **Implementation Plan** — `bicep-plan` agent creates detailed, phased implementation plan
+- **Auto-Generated Diagrams** — `bicep-plan` also generates Step 4 dependency and runtime diagrams
 - **GATE: Plan Approval** — User reviews and approves before implementation
-- **Output** — `agent-output/{project}/04-implementation-plan.md`
+- **Output** — `agent-output/{project}/04-implementation-plan.md`, `04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png`
 
 ### Step 5: Implementation (Forge)
 
@@ -309,12 +310,12 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 
 ### Prerequisites
 
-| Requirement | Details |
-|-------------|---------|
-| 🐳 Docker Desktop | Or Podman, Colima, Rancher Desktop |
-| 💻 VS Code | With [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension |
-| 🤖 GitHub Copilot | Active subscription with Chat extension |
-| ☁️ Azure subscription | Optional for learning, required for deployment |
+| Requirement           | Details                                                                                                                 |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 🐳 Docker Desktop     | Or Podman, Colima, Rancher Desktop                                                                                      |
+| 💻 VS Code            | With [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension |
+| 🤖 GitHub Copilot     | Active subscription with Chat extension                                                                                 |
+| ☁️ Azure subscription | Optional for learning, required for deployment                                                                          |
 
 ### 1️⃣ Clone and Open
 
@@ -422,16 +423,16 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 8 skills provide reusable capabilities across agents:
 
-| Skill | Purpose | Output |
-|-------|---------|--------|
-| `azure-adr` | Architecture Decision Records | `03-des-adr-*.md` |
-| `azure-artifacts` | Template H2 structures, styling, generation rules | `01-07` artifacts |
-| `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing, tags | — |
-| `azure-diagrams` | Architecture diagrams (700+ Azure icons) | `.py` + `.png` |
-| `docs-writer` | Repo-aware documentation maintenance | — |
-| `git-commit` | Conventional commit messages | — |
-| `github-operations` | GitHub issues, PRs, CLI, Actions, releases | — |
-| `make-skill-template` | Create new skills from template | — |
+| Skill                 | Purpose                                            | Output            |
+| --------------------- | -------------------------------------------------- | ----------------- |
+| `azure-adr`           | Architecture Decision Records                      | `03-des-adr-*.md` |
+| `azure-artifacts`     | Template H2 structures, styling, generation rules  | `01-07` artifacts |
+| `azure-defaults`      | Azure conventions, naming, AVM, WAF, pricing, tags | —                 |
+| `azure-diagrams`      | Architecture diagrams (700+ Azure icons)           | `.py` + `.png`    |
+| `docs-writer`         | Repo-aware documentation maintenance               | —                 |
+| `git-commit`          | Conventional commit messages                       | —                 |
+| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases         | —                 |
+| `make-skill-template` | Create new skills from template                    | —                 |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -446,28 +447,30 @@ Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
 
 ### Workflow Artifacts
 
-| Phase | Artifact | Description |
-|-------|----------|-------------|
-| 1 | `01-requirements.md` | Functional, non-functional, compliance requirements |
-| 2 | `02-architecture-assessment.md` | WAF analysis, SKU recommendations, cost estimate |
-| 3 | `03-des-*.md/.py/.png` | Diagrams, ADRs, cost estimates |
-| 4 | `04-implementation-plan.md` | Phased implementation plan with governance |
-| 4 | `04-governance-constraints.md` | Azure Policy discovery results |
-| 5 | `05-implementation-reference.md` | Bicep module inventory and validation status |
-| 6 | `06-deployment-summary.md` | Deployed resources and verification |
-| 7 | `07-design-document.md` | Technical design documentation |
-| 7 | `07-operations-runbook.md` | Day-2 operations procedures |
-| 7 | `07-backup-dr-plan.md` | Backup and disaster recovery plan |
-| 7 | `07-resource-inventory.md` | Complete resource inventory |
+| Phase | Artifact                         | Description                                         |
+| ----- | -------------------------------- | --------------------------------------------------- |
+| 1     | `01-requirements.md`             | Functional, non-functional, compliance requirements |
+| 2     | `02-architecture-assessment.md`  | WAF analysis, SKU recommendations, cost estimate    |
+| 3     | `03-des-*.md/.py/.png`           | Diagrams, ADRs, cost estimates                      |
+| 4     | `04-implementation-plan.md`      | Phased implementation plan with governance          |
+| 4     | `04-dependency-diagram.py/.png`  | Module dependency visualization                     |
+| 4     | `04-runtime-diagram.py/.png`     | Runtime flow visualization                          |
+| 4     | `04-governance-constraints.md`   | Azure Policy discovery results                      |
+| 5     | `05-implementation-reference.md` | Bicep module inventory and validation status        |
+| 6     | `06-deployment-summary.md`       | Deployed resources and verification                 |
+| 7     | `07-design-document.md`          | Technical design documentation                      |
+| 7     | `07-operations-runbook.md`       | Day-2 operations procedures                         |
+| 7     | `07-backup-dr-plan.md`           | Backup and disaster recovery plan                   |
+| 7     | `07-resource-inventory.md`       | Complete resource inventory                         |
 
 ### Sample Outputs
 
 Explore complete workflow outputs in [`agent-output/`](agent-output/):
 
-| Project | Description | Highlights |
-|---------|-------------|------------|
-| [e2e-conductor-test](agent-output/e2e-conductor-test/) | End-to-end Conductor validation | Full 7-step workflow |
-| [static-webapp](agent-output/static-webapp/) | Static Web App with Functions | Production-ready pattern |
+| Project                                                | Description                     | Highlights               |
+| ------------------------------------------------------ | ------------------------------- | ------------------------ |
+| [e2e-conductor-test](agent-output/e2e-conductor-test/) | End-to-end Conductor validation | Full 7-step workflow     |
+| [static-webapp](agent-output/static-webapp/)           | Static Web App with Functions   | Production-ready pattern |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -484,11 +487,11 @@ Explore complete workflow outputs in [`agent-output/`](agent-output/):
 
 The core enabler behind "agents with real Azure context":
 
-| Feature | Description |
-|---------|-------------|
-| **RBAC-Aware** | Tools operate within your existing Azure permissions |
+| Feature            | Description                                               |
+| ------------------ | --------------------------------------------------------- |
+| **RBAC-Aware**     | Tools operate within your existing Azure permissions      |
 | **Broad Coverage** | 40+ Azure service areas: platform, monitoring, governance |
-| **Day-0 to Day-2** | Discovery, validation, and troubleshooting workflows |
+| **Day-0 to Day-2** | Discovery, validation, and troubleshooting workflows      |
 
 📖 **[Azure MCP Server →](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md)**
 
@@ -606,12 +609,12 @@ Each agent is defined in a `.agent.md` file that you can modify:
 
 Ready-to-use prompt examples for every agent and skill:
 
-| Section | What You'll Find |
-|---------|------------------|
-| **7-Step Workflow** | Prompts for each step (Requirements → Deploy) |
-| **Standalone Agents** | Conductor and Diagnose agent examples |
-| **Skills Reference** | Independent skill usage with examples |
-| **Tips & Patterns** | Advanced prompting, chaining, context priming |
+| Section               | What You'll Find                              |
+| --------------------- | --------------------------------------------- |
+| **7-Step Workflow**   | Prompts for each step (Requirements → Deploy) |
+| **Standalone Agents** | Conductor and Diagnose agent examples         |
+| **Skills Reference**  | Independent skill usage with examples         |
+| **Tips & Patterns**   | Advanced prompting, chaining, context priming |
 
 📖 **[Full Prompt Guide →](docs/prompt-guide/)**
 
@@ -626,11 +629,11 @@ Ready-to-use prompt examples for every agent and skill:
 
 ## 📋 Requirements
 
-| Requirement | Details |
-|-------------|---------|
-| **VS Code** | With [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) |
-| **Dev Container** | [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Codespaces |
-| **Azure subscription** | For deployments (optional for learning) |
+| Requirement            | Details                                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| **VS Code**            | With [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) |
+| **Dev Container**      | [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Codespaces           |
+| **Azure subscription** | For deployments (optional for learning)                                                   |
 
 **Included in Dev Container:**
 

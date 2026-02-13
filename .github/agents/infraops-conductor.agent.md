@@ -32,12 +32,12 @@ handoffs:
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 3: Design Artifacts"
     agent: Design
-    prompt: Generate architecture diagrams and ADRs based on the architecture assessment. This step is optional - you can skip to Step 4.
+    prompt: Generate non-Mermaid architecture diagrams and ADRs based on the architecture assessment. Diagrams must be Python diagrams outputs (`03-des-diagram.py` + `.png`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 4.
     send: false
-    model: "Claude Sonnet 4.5 (copilot)"
+    model: "GPT-5.3-Codex (copilot)"
   - label: "Step 4: Implementation Plan"
     agent: Bicep Plan
-    prompt: Create a detailed Bicep implementation plan based on the architecture. Save to 04-implementation-plan.md.
+    prompt: Create a detailed Bicep implementation plan based on the architecture. Save 04-implementation-plan.md plus mandatory Step 4 diagrams: 04-dependency-diagram.py/.png and 04-runtime-diagram.py/.png.
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Bicep"
@@ -49,7 +49,7 @@ handoffs:
     agent: Deploy
     prompt: Deploy the Bicep templates to Azure after preflight validation. Check 04-implementation-plan.md for deployment strategy (phased or single) and follow accordingly.
     send: false
-    model: "Claude Sonnet 4.5 (copilot)"
+    model: "GPT-5.3-Codex (copilot)"
   - label: "🔧 Diagnose Issues"
     agent: Diagnose
     prompt: Troubleshoot issues with the current workflow or Azure resources.
@@ -99,7 +99,7 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 Step 1: Requirements    →  [APPROVAL GATE]  →  01-requirements.md
 Step 2: Architecture    →  [APPROVAL GATE]  →  02-architecture-assessment.md
 Step 3: Design (opt)    →                   →  03-des-*.md/py
-Step 4: Planning        →  [APPROVAL GATE]  →  04-implementation-plan.md
+Step 4: Planning        →  [APPROVAL GATE]  →  04-implementation-plan.md + 04-dependency-diagram.* + 04-runtime-diagram.*
 Step 5: Implementation  →  [VALIDATION]     →  infra/bicep/{project}/
 Step 6: Deploy          →  [APPROVAL GATE]  →  06-deployment-summary.md
 Step 7: Documentation   →                   →  07-*.md
@@ -108,6 +108,7 @@ Step 7: Documentation   →                   →  07-*.md
 ## Mandatory Approval Gates
 
 ### Gate 1: After Requirements
+
 ```
 📋 REQUIREMENTS COMPLETE
 Artifact: agent-output/{project}/01-requirements.md
@@ -116,6 +117,7 @@ Artifact: agent-output/{project}/01-requirements.md
 ```
 
 ### Gate 2: After Architecture
+
 ```
 🏗️ ARCHITECTURE ASSESSMENT COMPLETE
 Artifact: agent-output/{project}/02-architecture-assessment.md
@@ -125,16 +127,20 @@ Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ```
 
 ### Gate 3: After Planning
+
 ```
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
 Governance: agent-output/{project}/04-governance-constraints.md
+Dependency Diagram: agent-output/{project}/04-dependency-diagram.py/.png
+Runtime Diagram: agent-output/{project}/04-runtime-diagram.py/.png
 Deployment: {Phased (N phases) | Single}
 ✅ Next: Bicep Implementation (Step 5)
 ❓ Review plan and confirm to proceed
 ```
 
 ### Gate 4: After Implementation
+
 ```
 🔍 BICEP IMPLEMENTATION COMPLETE
 Templates: infra/bicep/{project}/
@@ -144,6 +150,7 @@ Reference: agent-output/{project}/05-implementation-reference.md
 ```
 
 ### Gate 5: After Deployment
+
 ```
 🚀 DEPLOYMENT COMPLETE
 Summary: agent-output/{project}/06-deployment-summary.md
@@ -155,20 +162,21 @@ Summary: agent-output/{project}/06-deployment-summary.md
 
 Use `#runSubagent` for each workflow step:
 
-| Step | Agent | Key Prompt |
-| --- | --- | --- |
-| 1 | Requirements | Start business-first requirements discovery for {project} |
-| 2 | Architect | Create WAF assessment for requirements in 01-requirements.md |
-| 3 | Design | Generate architecture diagrams and ADRs (optional) |
-| 4 | Bicep Plan | Create implementation plan for architecture in 02-architecture-assessment.md |
-| 5 | Bicep Code | Implement Bicep templates per 04-implementation-plan.md |
-| 6 | Deploy | Deploy templates in infra/bicep/{project}/ to Azure |
+| Step | Agent        | Key Prompt                                                                   |
+| ---- | ------------ | ---------------------------------------------------------------------------- |
+| 1    | Requirements | Start business-first requirements discovery for {project}                    |
+| 2    | Architect    | Create WAF assessment for requirements in 01-requirements.md                 |
+| 3    | Design       | Generate architecture diagrams and ADRs (optional)                           |
+| 4    | Bicep Plan   | Create implementation plan for architecture in 02-architecture-assessment.md |
+| 5    | Bicep Code   | Implement Bicep templates per 04-implementation-plan.md                      |
+| 6    | Deploy       | Deploy templates in infra/bicep/{project}/ to Azure                          |
 
 ### Optional Validation Cycle (Step 5 — Power Users)
 
 Most users skip this — Deploy agent runs preflight automatically.
 
 If user explicitly requests validation:
+
 1. `bicep-lint-subagent` → Syntax validation
 2. `bicep-whatif-subagent` → Deployment preview
 3. `bicep-review-subagent` → Code review
@@ -189,25 +197,27 @@ If user explicitly requests validation:
 
 ## Artifact Tracking
 
-| Step | Artifact | Check |
-| --- | --- | --- |
-| — | `README.md` | Exists? (mandatory) |
-| 1 | `01-requirements.md` | Exists? |
-| 2 | `02-architecture-assessment.md` | Exists? |
-| 3 | `03-des-*.md`, `03-des-*.py` | Optional |
-| 4 | `04-implementation-plan.md` | Exists? |
-| 4 | `04-governance-constraints.md` | Governance checked? |
-| 5 | `infra/bicep/{project}/` | Templates valid? |
-| 6 | `06-deployment-summary.md` | Deployed? |
-| 7 | `07-*.md` | Docs generated? |
+| Step | Artifact                            | Check               |
+| ---- | ----------------------------------- | ------------------- |
+| —    | `README.md`                         | Exists? (mandatory) |
+| 1    | `01-requirements.md`                | Exists?             |
+| 2    | `02-architecture-assessment.md`     | Exists?             |
+| 3    | `03-des-*.md`, `03-des-*.py`        | Optional            |
+| 4    | `04-implementation-plan.md`         | Exists?             |
+| 4    | `04-governance-constraints.md`      | Governance checked? |
+| 4    | `04-dependency-diagram.py` / `.png` | Generated?          |
+| 4    | `04-runtime-diagram.py` / `.png`    | Generated?          |
+| 5    | `infra/bicep/{project}/`            | Templates valid?    |
+| 6    | `06-deployment-summary.md`          | Deployed?           |
+| 7    | `07-*.md`                           | Docs generated?     |
 
 ## Model Selection
 
-| Agent | Model | Rationale |
-| --- | --- | --- |
-| Requirements | Opus 4.6 | Deep understanding |
-| Architect | Opus 4.6 | WAF analysis + cost |
-| Bicep Plan | Sonnet 4.5 | Efficient planning |
-| Bicep Code | Sonnet 4.5 | Code generation |
-| Deploy | Sonnet 4.5 | Deployment execution |
-| Subagents | Haiku 4.5 | Fast validation |
+| Agent        | Model      | Rationale            |
+| ------------ | ---------- | -------------------- |
+| Requirements | Opus 4.6   | Deep understanding   |
+| Architect    | Opus 4.6   | WAF analysis + cost  |
+| Bicep Plan   | Sonnet 4.5 | Efficient planning   |
+| Bicep Code   | Sonnet 4.5 | Code generation      |
+| Deploy       | Sonnet 4.5 | Deployment execution |
+| Subagents    | Haiku 4.5  | Fast validation      |

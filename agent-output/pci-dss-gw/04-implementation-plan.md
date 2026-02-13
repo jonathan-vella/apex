@@ -24,28 +24,28 @@ protection required by MCAPSGov. Classic ARM resources blocked.
 
 ## Resource Inventory
 
-| # | Resource | Type | SKU | AVM Module | Version | Dependencies |
-|---|----------|------|-----|------------|---------|--------------|
-| 1 | Hub VNet | `Microsoft.Network/virtualNetworks` | — | `avm/res/network/virtual-network` | 0.7.2 | Resource Group |
-| 2 | Spoke VNet | `Microsoft.Network/virtualNetworks` | — | `avm/res/network/virtual-network` | 0.7.2 | Resource Group |
-| 3 | Hub NSGs (×3) | `Microsoft.Network/networkSecurityGroups` | — | `avm/res/network/network-security-group` | 0.5.2 | Hub VNet |
-| 4 | Spoke NSGs (×4) | `Microsoft.Network/networkSecurityGroups` | — | `avm/res/network/network-security-group` | 0.5.2 | Spoke VNet |
-| 5 | DDoS Protection | `Microsoft.Network/ddosProtectionPlans` | Network Protection | `avm/res/network/ddos-protection-plan` | 0.3.2 | Resource Group |
-| 6 | Log Analytics | `Microsoft.OperationalInsights/workspaces` | PerGB2018 | `avm/res/operational-insights/workspace` | 0.15.0 | Resource Group |
-| 7 | App Insights | `Microsoft.Insights/components` | — | `avm/res/insights/component` | 0.7.1 | Log Analytics |
-| 8 | User Managed Identity | `Microsoft.ManagedIdentity/userAssignedIdentities` | — | `avm/res/managed-identity/user-assigned-identity` | 0.5.0 | Resource Group |
-| 9 | Key Vault (HSM) | `Microsoft.KeyVault/vaults` | Premium | `avm/res/key-vault/vault` | 0.13.3 | VNets, Managed Identity |
-| 10 | Azure Firewall | `Microsoft.Network/azureFirewalls` | Premium | `avm/res/network/azure-firewall` | 0.9.2 | Hub VNet, Public IP |
-| 11 | Firewall Public IP | `Microsoft.Network/publicIPAddresses` | Standard | `avm/res/network/public-ip-address` | 0.12.0 | Resource Group |
-| 12 | Azure Bastion | `Microsoft.Network/bastionHosts` | Standard | `avm/res/network/bastion-host` | 0.8.2 | Hub VNet, Public IP |
-| 13 | Bastion Public IP | `Microsoft.Network/publicIPAddresses` | Standard | `avm/res/network/public-ip-address` | 0.12.0 | Resource Group |
-| 14 | PostgreSQL Flex | `Microsoft.DBforPostgreSQL/flexibleServers` | E16s_v5 (HA) | `avm/res/db-for-postgre-sql/flexible-server` | 0.15.1 | Spoke VNet, Key Vault |
-| 15 | Cosmos DB | `Microsoft.DocumentDB/databaseAccounts` | NoSQL (autoscale) | `avm/res/document-db/database-account` | 0.18.0 | Spoke VNet, Key Vault |
-| 16 | Service Bus | `Microsoft.ServiceBus/namespaces` | Premium (1 MU) | `avm/res/service-bus/namespace` | 0.16.1 | Spoke VNet, Key Vault |
-| 17 | Container Registry | `Microsoft.ContainerRegistry/registries` | Premium | `avm/res/container-registry/registry` | 0.10.0 | Spoke VNet |
-| 18 | AKS | `Microsoft.ContainerService/managedClusters` | Standard | `avm/res/container-service/managed-cluster` | 0.12.0 | Spoke VNet, ACR, Key Vault, Log Analytics |
-| 19 | Front Door + WAF | `Microsoft.Cdn/profiles` | Premium | `avm/res/cdn/profile` | 0.17.1 | AKS, Firewall |
-| 20 | API Management | `Microsoft.ApiManagement/service` | Premium (1 unit) | `avm/res/api-management/service` | 0.14.0 | Spoke VNet, Key Vault, App Insights |
+| #   | Resource              | Type                                               | SKU                | AVM Module                                        | Version | Dependencies                              |
+| --- | --------------------- | -------------------------------------------------- | ------------------ | ------------------------------------------------- | ------- | ----------------------------------------- |
+| 1   | Hub VNet              | `Microsoft.Network/virtualNetworks`                | —                  | `avm/res/network/virtual-network`                 | 0.7.2   | Resource Group                            |
+| 2   | Spoke VNet            | `Microsoft.Network/virtualNetworks`                | —                  | `avm/res/network/virtual-network`                 | 0.7.2   | Resource Group                            |
+| 3   | Hub NSGs (×3)         | `Microsoft.Network/networkSecurityGroups`          | —                  | `avm/res/network/network-security-group`          | 0.5.2   | Hub VNet                                  |
+| 4   | Spoke NSGs (×4)       | `Microsoft.Network/networkSecurityGroups`          | —                  | `avm/res/network/network-security-group`          | 0.5.2   | Spoke VNet                                |
+| 5   | DDoS Protection       | `Microsoft.Network/ddosProtectionPlans`            | Network Protection | `avm/res/network/ddos-protection-plan`            | 0.3.2   | Resource Group                            |
+| 6   | Log Analytics         | `Microsoft.OperationalInsights/workspaces`         | PerGB2018          | `avm/res/operational-insights/workspace`          | 0.15.0  | Resource Group                            |
+| 7   | App Insights          | `Microsoft.Insights/components`                    | —                  | `avm/res/insights/component`                      | 0.7.1   | Log Analytics                             |
+| 8   | User Managed Identity | `Microsoft.ManagedIdentity/userAssignedIdentities` | —                  | `avm/res/managed-identity/user-assigned-identity` | 0.5.0   | Resource Group                            |
+| 9   | Key Vault (HSM)       | `Microsoft.KeyVault/vaults`                        | Premium            | `avm/res/key-vault/vault`                         | 0.13.3  | VNets, Managed Identity                   |
+| 10  | Azure Firewall        | `Microsoft.Network/azureFirewalls`                 | Premium            | `avm/res/network/azure-firewall`                  | 0.9.2   | Hub VNet, Public IP                       |
+| 11  | Firewall Public IP    | `Microsoft.Network/publicIPAddresses`              | Standard           | `avm/res/network/public-ip-address`               | 0.12.0  | Resource Group                            |
+| 12  | Azure Bastion         | `Microsoft.Network/bastionHosts`                   | Standard           | `avm/res/network/bastion-host`                    | 0.8.2   | Hub VNet, Public IP                       |
+| 13  | Bastion Public IP     | `Microsoft.Network/publicIPAddresses`              | Standard           | `avm/res/network/public-ip-address`               | 0.12.0  | Resource Group                            |
+| 14  | PostgreSQL Flex       | `Microsoft.DBforPostgreSQL/flexibleServers`        | E16s_v5 (HA)       | `avm/res/db-for-postgre-sql/flexible-server`      | 0.15.1  | Spoke VNet, Key Vault                     |
+| 15  | Cosmos DB             | `Microsoft.DocumentDB/databaseAccounts`            | NoSQL (autoscale)  | `avm/res/document-db/database-account`            | 0.18.0  | Spoke VNet, Key Vault                     |
+| 16  | Service Bus           | `Microsoft.ServiceBus/namespaces`                  | Premium (1 MU)     | `avm/res/service-bus/namespace`                   | 0.16.1  | Spoke VNet, Key Vault                     |
+| 17  | Container Registry    | `Microsoft.ContainerRegistry/registries`           | Premium            | `avm/res/container-registry/registry`             | 0.10.0  | Spoke VNet                                |
+| 18  | AKS                   | `Microsoft.ContainerService/managedClusters`       | Standard           | `avm/res/container-service/managed-cluster`       | 0.12.0  | Spoke VNet, ACR, Key Vault, Log Analytics |
+| 19  | Front Door + WAF      | `Microsoft.Cdn/profiles`                           | Premium            | `avm/res/cdn/profile`                             | 0.17.1  | AKS, Firewall                             |
+| 20  | API Management        | `Microsoft.ApiManagement/service`                  | Premium (1 unit)   | `avm/res/api-management/service`                  | 0.14.0  | Spoke VNet, Key Vault, App Insights       |
 
 **AVM Coverage**: 20/20 resources (100%) — all use Azure Verified Modules.
 
@@ -445,12 +445,12 @@ $phases = @{
 
 ### Phase 1: Foundation
 
-| Order | Module | Resources | Validation |
-|-------|--------|-----------|------------|
-| 1.1 | networking-hub.bicep | Hub VNet, 3 NSGs, DDoS Plan | VNet created, subnets exist, DDoS associated |
-| 1.2 | networking-spoke.bicep | Spoke VNet, 4 NSGs, VNet peering | Peering connected, subnets exist |
-| 1.3 | monitoring.bicep | Log Analytics, App Insights | Workspace accessible, retention = 365 days |
-| 1.4 | identity.bicep | User Managed Identity | Identity created, principalId available |
+| Order | Module                 | Resources                        | Validation                                   |
+| ----- | ---------------------- | -------------------------------- | -------------------------------------------- |
+| 1.1   | networking-hub.bicep   | Hub VNet, 3 NSGs, DDoS Plan      | VNet created, subnets exist, DDoS associated |
+| 1.2   | networking-spoke.bicep | Spoke VNet, 4 NSGs, VNet peering | Peering connected, subnets exist             |
+| 1.3   | monitoring.bicep       | Log Analytics, App Insights      | Workspace accessible, retention = 365 days   |
+| 1.4   | identity.bicep         | User Managed Identity            | Identity created, principalId available      |
 
 **Estimated Deploy Time**: 5-8 minutes
 
@@ -464,11 +464,11 @@ az monitor log-analytics workspace show -g rg-pci-dss-gw-{env} -n log-pci-dss-gw
 
 ### Phase 2: Security
 
-| Order | Module | Resources | Validation |
-|-------|--------|-----------|------------|
-| 2.1 | key-vault.bicep | Key Vault Premium + private endpoint | `enablePurgeProtection: true`, RBAC enabled |
-| 2.2 | firewall.bicep | Firewall Premium + public IP | IDPS Alert & Deny, zones 1-2-3 |
-| 2.3 | bastion.bicep | Bastion Standard + public IP | Native client enabled |
+| Order | Module          | Resources                            | Validation                                  |
+| ----- | --------------- | ------------------------------------ | ------------------------------------------- |
+| 2.1   | key-vault.bicep | Key Vault Premium + private endpoint | `enablePurgeProtection: true`, RBAC enabled |
+| 2.2   | firewall.bicep  | Firewall Premium + public IP         | IDPS Alert & Deny, zones 1-2-3              |
+| 2.3   | bastion.bicep   | Bastion Standard + public IP         | Native client enabled                       |
 
 **Estimated Deploy Time**: 8-12 minutes
 
@@ -482,12 +482,12 @@ az network firewall show -g rg-pci-dss-gw-{env} -n fw-pci-dss-gw-{env} --query "
 
 ### Phase 3: Data
 
-| Order | Module | Resources | Validation |
-|-------|--------|-----------|------------|
-| 3.1 | postgresql.bicep | PostgreSQL Flex E16s_v5 + private endpoint | Zone-redundant HA, 35-day backup |
-| 3.2 | cosmos-db.bicep | Cosmos DB NoSQL + private endpoint | Session consistency, autoscale active |
-| 3.3 | service-bus.bicep | Service Bus Premium + private endpoint | 2 queues created, DLQ enabled |
-| 3.4 | container-registry.bicep | ACR Premium + private endpoint | Geo-replication to germanywestcentral |
+| Order | Module                   | Resources                                  | Validation                            |
+| ----- | ------------------------ | ------------------------------------------ | ------------------------------------- |
+| 3.1   | postgresql.bicep         | PostgreSQL Flex E16s_v5 + private endpoint | Zone-redundant HA, 35-day backup      |
+| 3.2   | cosmos-db.bicep          | Cosmos DB NoSQL + private endpoint         | Session consistency, autoscale active |
+| 3.3   | service-bus.bicep        | Service Bus Premium + private endpoint     | 2 queues created, DLQ enabled         |
+| 3.4   | container-registry.bicep | ACR Premium + private endpoint             | Geo-replication to germanywestcentral |
 
 **Estimated Deploy Time**: 15-20 minutes
 
@@ -503,9 +503,9 @@ az cosmosdb show -g rg-pci-dss-gw-{env} -n cosmos-pci-dss-gw-{env} \
 
 ### Phase 4: Compute
 
-| Order | Module | Resources | Validation |
-|-------|--------|-----------|------------|
-| 4.1 | aks.bicep | AKS Standard + system pool + CDE pool | Workload Identity, KEDA, Defender |
+| Order | Module    | Resources                             | Validation                        |
+| ----- | --------- | ------------------------------------- | --------------------------------- |
+| 4.1   | aks.bicep | AKS Standard + system pool + CDE pool | Workload Identity, KEDA, Defender |
 
 **Estimated Deploy Time**: 10-15 minutes
 
@@ -520,10 +520,10 @@ az aks addon show -g rg-pci-dss-gw-{env} -n aks-pci-dss-gw-{env} -a keda
 
 ### Phase 5: Edge & Integration
 
-| Order | Module | Resources | Validation |
-|-------|--------|-----------|------------|
-| 5.1 | front-door.bicep | Front Door Premium + WAF policy | OWASP 3.2, bot protection enabled |
-| 5.2 | api-management.bicep | APIM Premium (VNet-integrated) | Internal mode, subnet bound |
+| Order | Module               | Resources                       | Validation                        |
+| ----- | -------------------- | ------------------------------- | --------------------------------- |
+| 5.1   | front-door.bicep     | Front Door Premium + WAF policy | OWASP 3.2, bot protection enabled |
+| 5.2   | api-management.bicep | APIM Premium (VNet-integrated)  | Internal mode, subnet bound       |
 
 **Estimated Deploy Time**: 35-50 minutes (APIM is slow)
 
@@ -538,147 +538,111 @@ az apim show -g rg-pci-dss-gw-{env} -n apim-pci-dss-gw-{env} \
 
 ### Phase Summary
 
-| Phase | Resources | Est. Deploy Time | Approval Gate |
-|-------|-----------|------------------|---------------|
-| 1 — Foundation | 11 (VNets, NSGs, DDoS, Log Analytics, Identity) | 5-8 min | ✅ Network topology verified |
-| 2 — Security | 5 (Key Vault, Firewall, Bastion + PIPs) | 8-12 min | ✅ Security controls verified |
-| 3 — Data | 4 (PostgreSQL, Cosmos DB, Service Bus, ACR) | 15-20 min | ✅ Data tier verified |
-| 4 — Compute | 1 (AKS with 2 node pools) | 10-15 min | ✅ Cluster operational |
-| 5 — Edge | 2 (Front Door, APIM) | 35-50 min | ✅ Edge endpoints verified |
-| **Total** | **23 resource deployments** | **~73-105 min** | **5 approval gates** |
+| Phase          | Resources                                       | Est. Deploy Time | Approval Gate                 |
+| -------------- | ----------------------------------------------- | ---------------- | ----------------------------- |
+| 1 — Foundation | 11 (VNets, NSGs, DDoS, Log Analytics, Identity) | 5-8 min          | ✅ Network topology verified  |
+| 2 — Security   | 5 (Key Vault, Firewall, Bastion + PIPs)         | 8-12 min         | ✅ Security controls verified |
+| 3 — Data       | 4 (PostgreSQL, Cosmos DB, Service Bus, ACR)     | 15-20 min        | ✅ Data tier verified         |
+| 4 — Compute    | 1 (AKS with 2 node pools)                       | 10-15 min        | ✅ Cluster operational        |
+| 5 — Edge       | 2 (Front Door, APIM)                            | 35-50 min        | ✅ Edge endpoints verified    |
+| **Total**      | **23 resource deployments**                     | **~73-105 min**  | **5 approval gates**          |
 
 ---
 
 ## Dependency Graph
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-graph TD
-    subgraph "Phase 1: Foundation"
-        RG[Resource Groups<br/>9 tags enforced] --> HUB[Hub VNet + NSGs]
-        RG --> SPOKE[Spoke VNet + NSGs]
-        RG --> DDOS[DDoS Protection Plan]
-        RG --> LOG[Log Analytics<br/>365-day retention]
-        RG --> ID[Managed Identity]
-        HUB --> PEER[VNet Peering]
-        SPOKE --> PEER
-        DDOS --> HUB
-        LOG --> APPI[App Insights]
-    end
+![Module Dependency Graph](./04-dependency-diagram.png)
 
-    subgraph "Phase 2: Security"
-        HUB --> FW[Azure Firewall Premium<br/>IDPS enabled]
-        HUB --> BAS[Azure Bastion Standard]
-        SPOKE --> KV[Key Vault Premium<br/>HSM + purge protection]
-        ID --> KV
-    end
+Source: [04-dependency-diagram.py](./04-dependency-diagram.py)
 
-    subgraph "Phase 3: Data"
-        SPOKE --> PSQL[PostgreSQL Flex<br/>E16s_v5 HA]
-        SPOKE --> COSMOS[Cosmos DB NoSQL<br/>10K-50K RU/s]
-        SPOKE --> SB[Service Bus Premium<br/>1 MU]
-        SPOKE --> ACR[ACR Premium<br/>Geo-replicated]
-        KV --> PSQL
-        KV --> COSMOS
-        KV --> SB
-    end
+---
 
-    subgraph "Phase 4: Compute"
-        SPOKE --> AKS[AKS Standard<br/>D4s+D8s_v5 nodes]
-        ACR --> AKS
-        KV --> AKS
-        LOG --> AKS
-        ID --> AKS
-    end
+## Runtime Flow Diagram
 
-    subgraph "Phase 5: Edge"
-        AKS --> FD[Front Door Premium<br/>WAF + DDoS]
-        SPOKE --> APIM[APIM Premium<br/>VNet-integrated]
-        KV --> APIM
-        APPI --> APIM
-    end
-```
+![Runtime Flow Diagram](./04-runtime-diagram.png)
+
+Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
 
 ---
 
 ## Naming Conventions
 
-| Resource | Pattern | Example |
-|----------|---------|---------|
-| Resource Group | `rg-{project}-{env}` | `rg-pci-dss-gw-prod` |
-| Hub VNet | `vnet-hub-{project}-{env}` | `vnet-hub-pci-dss-gw-prod` |
-| Spoke VNet | `vnet-spoke-{project}-{env}` | `vnet-spoke-pci-dss-gw-prod` |
-| Subnet | `snet-{purpose}-{env}` | `snet-aks-cde-prod` |
-| NSG | `nsg-{purpose}-{env}` | `nsg-aks-cde-prod` |
-| DDoS Plan | `ddos-{project}-{env}` | `ddos-pci-dss-gw-prod` |
-| Log Analytics | `log-{project}-{env}` | `log-pci-dss-gw-prod` |
-| App Insights | `appi-{project}-{env}` | `appi-pci-dss-gw-prod` |
-| Managed Identity | `id-{project}-{env}` | `id-pci-dss-gw-prod` |
-| Key Vault | `kv-{short}-{env}-{suffix}` | `kv-thetest-prod-a1b2` |
-| Azure Firewall | `fw-{project}-{env}` | `fw-pci-dss-gw-prod` |
-| Bastion | `bas-{project}-{env}` | `bas-pci-dss-gw-prod` |
-| Public IP | `pip-{purpose}-{project}-{env}` | `pip-fw-pci-dss-gw-prod` |
-| PostgreSQL | `psql-{project}-{env}` | `psql-pci-dss-gw-prod` |
-| Cosmos DB | `cosmos-{project}-{env}` | `cosmos-pci-dss-gw-prod` |
-| Service Bus | `sb-{project}-{env}` | `sb-pci-dss-gw-prod` |
-| Container Registry | `cr{short}{env}{suffix}` | `crthetestproda1b2` |
-| AKS | `aks-{project}-{env}` | `aks-pci-dss-gw-prod` |
-| Front Door | `fd-{project}-{env}` | `fd-pci-dss-gw-prod` |
-| APIM | `apim-{project}-{env}` | `apim-pci-dss-gw-prod` |
+| Resource           | Pattern                         | Example                      |
+| ------------------ | ------------------------------- | ---------------------------- |
+| Resource Group     | `rg-{project}-{env}`            | `rg-pci-dss-gw-prod`         |
+| Hub VNet           | `vnet-hub-{project}-{env}`      | `vnet-hub-pci-dss-gw-prod`   |
+| Spoke VNet         | `vnet-spoke-{project}-{env}`    | `vnet-spoke-pci-dss-gw-prod` |
+| Subnet             | `snet-{purpose}-{env}`          | `snet-aks-cde-prod`          |
+| NSG                | `nsg-{purpose}-{env}`           | `nsg-aks-cde-prod`           |
+| DDoS Plan          | `ddos-{project}-{env}`          | `ddos-pci-dss-gw-prod`       |
+| Log Analytics      | `log-{project}-{env}`           | `log-pci-dss-gw-prod`        |
+| App Insights       | `appi-{project}-{env}`          | `appi-pci-dss-gw-prod`       |
+| Managed Identity   | `id-{project}-{env}`            | `id-pci-dss-gw-prod`         |
+| Key Vault          | `kv-{short}-{env}-{suffix}`     | `kv-thetest-prod-a1b2`       |
+| Azure Firewall     | `fw-{project}-{env}`            | `fw-pci-dss-gw-prod`         |
+| Bastion            | `bas-{project}-{env}`           | `bas-pci-dss-gw-prod`        |
+| Public IP          | `pip-{purpose}-{project}-{env}` | `pip-fw-pci-dss-gw-prod`     |
+| PostgreSQL         | `psql-{project}-{env}`          | `psql-pci-dss-gw-prod`       |
+| Cosmos DB          | `cosmos-{project}-{env}`        | `cosmos-pci-dss-gw-prod`     |
+| Service Bus        | `sb-{project}-{env}`            | `sb-pci-dss-gw-prod`         |
+| Container Registry | `cr{short}{env}{suffix}`        | `crthetestproda1b2`          |
+| AKS                | `aks-{project}-{env}`           | `aks-pci-dss-gw-prod`        |
+| Front Door         | `fd-{project}-{env}`            | `fd-pci-dss-gw-prod`         |
+| APIM               | `apim-{project}-{env}`          | `apim-pci-dss-gw-prod`       |
 
 ---
 
 ## Security Configuration
 
-| Resource | Setting | Value | Source |
-|----------|---------|-------|--------|
-| Key Vault | `enablePurgeProtection` | `true` | MCAPSGov Deny |
-| Key Vault | `enableRbacAuthorization` | `true` | PCI Req 8 |
-| Key Vault | `sku` | `premium` (HSM) | PCI Req 3 |
-| Key Vault | `publicNetworkAccess` | `Disabled` | PCI Req 1 |
-| PostgreSQL | `authConfig` | Azure AD + password | PCI Req 8 |
-| PostgreSQL | `highAvailability.mode` | `ZoneRedundant` | PCI Req 6 |
-| Cosmos DB | `publicNetworkAccess` | `Disabled` | PCI Req 1 |
-| Cosmos DB | `consistencyPolicy` | `Session` | ADR-005 |
-| Azure Firewall | `tier` | `Premium` (IDPS) | PCI Req 1 |
-| Azure Firewall | IDPS mode | `Alert and Deny` | PCI Req 11 |
-| AKS | `networkPolicy` | `calico` | PCI Req 1 |
-| AKS | `workloadIdentity` | `true` | PCI Req 8 |
-| AKS | Defender profile | Enabled | PCI Req 11 |
-| AKS | Azure Policy add-on | Enabled | PCI Req 6 |
-| Front Door | WAF ruleset | OWASP 3.2 | PCI Req 6 |
-| Front Door | Bot protection | Enabled | PCI Req 6 |
-| APIM | VNet type | `Internal` | PCI Req 1 |
-| Service Bus | `publicNetworkAccess` | `Disabled` | PCI Req 1 |
-| ACR | Content trust | Enabled | PCI Req 6 |
-| Log Analytics | Retention | 365 days | PCI § 10.7 |
-| All services | TLS | 1.2 minimum | PCI Req 4 |
-| All services | Auth | Managed Identity | PCI Req 8 |
+| Resource       | Setting                   | Value               | Source        |
+| -------------- | ------------------------- | ------------------- | ------------- |
+| Key Vault      | `enablePurgeProtection`   | `true`              | MCAPSGov Deny |
+| Key Vault      | `enableRbacAuthorization` | `true`              | PCI Req 8     |
+| Key Vault      | `sku`                     | `premium` (HSM)     | PCI Req 3     |
+| Key Vault      | `publicNetworkAccess`     | `Disabled`          | PCI Req 1     |
+| PostgreSQL     | `authConfig`              | Azure AD + password | PCI Req 8     |
+| PostgreSQL     | `highAvailability.mode`   | `ZoneRedundant`     | PCI Req 6     |
+| Cosmos DB      | `publicNetworkAccess`     | `Disabled`          | PCI Req 1     |
+| Cosmos DB      | `consistencyPolicy`       | `Session`           | ADR-005       |
+| Azure Firewall | `tier`                    | `Premium` (IDPS)    | PCI Req 1     |
+| Azure Firewall | IDPS mode                 | `Alert and Deny`    | PCI Req 11    |
+| AKS            | `networkPolicy`           | `calico`            | PCI Req 1     |
+| AKS            | `workloadIdentity`        | `true`              | PCI Req 8     |
+| AKS            | Defender profile          | Enabled             | PCI Req 11    |
+| AKS            | Azure Policy add-on       | Enabled             | PCI Req 6     |
+| Front Door     | WAF ruleset               | OWASP 3.2           | PCI Req 6     |
+| Front Door     | Bot protection            | Enabled             | PCI Req 6     |
+| APIM           | VNet type                 | `Internal`          | PCI Req 1     |
+| Service Bus    | `publicNetworkAccess`     | `Disabled`          | PCI Req 1     |
+| ACR            | Content trust             | Enabled             | PCI Req 6     |
+| Log Analytics  | Retention                 | 365 days            | PCI § 10.7    |
+| All services   | TLS                       | 1.2 minimum         | PCI Req 4     |
+| All services   | Auth                      | Managed Identity    | PCI Req 8     |
 
 ---
 
 ## Estimated Implementation Time
 
-| Task | Estimated Duration |
-|------|-------------------|
-| main.bicep + parameters | 45 min |
-| networking-hub.bicep | 30 min |
-| networking-spoke.bicep | 30 min |
-| monitoring.bicep | 15 min |
-| identity.bicep | 10 min |
-| key-vault.bicep | 20 min |
-| firewall.bicep | 30 min |
-| bastion.bicep | 15 min |
-| postgresql.bicep | 30 min |
-| cosmos-db.bicep | 25 min |
-| service-bus.bicep | 20 min |
-| container-registry.bicep | 20 min |
-| aks.bicep | 45 min |
-| front-door.bicep | 30 min |
-| api-management.bicep | 25 min |
-| deploy.ps1 | 30 min |
-| Testing & validation | 60 min |
-| **Total** | **~7.5 hours** |
+| Task                     | Estimated Duration |
+| ------------------------ | ------------------ |
+| main.bicep + parameters  | 45 min             |
+| networking-hub.bicep     | 30 min             |
+| networking-spoke.bicep   | 30 min             |
+| monitoring.bicep         | 15 min             |
+| identity.bicep           | 10 min             |
+| key-vault.bicep          | 20 min             |
+| firewall.bicep           | 30 min             |
+| bastion.bicep            | 15 min             |
+| postgresql.bicep         | 30 min             |
+| cosmos-db.bicep          | 25 min             |
+| service-bus.bicep        | 20 min             |
+| container-registry.bicep | 20 min             |
+| aks.bicep                | 45 min             |
+| front-door.bicep         | 30 min             |
+| api-management.bicep     | 25 min             |
+| deploy.ps1               | 30 min             |
+| Testing & validation     | 60 min             |
+| **Total**                | **~7.5 hours**     |
 
 ---
 
@@ -704,18 +668,18 @@ graph TD
 > [!NOTE]
 > The following Microsoft Learn resources inform this implementation.
 
-| Topic | Link |
-|-------|------|
-| Azure Verified Modules | [AVM Index](https://aka.ms/avm/index) |
-| Bicep Best Practices | [Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/best-practices) |
-| CAF Naming Conventions | [Naming Rules](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) |
+| Topic                  | Link                                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Azure Verified Modules | [AVM Index](https://aka.ms/avm/index)                                                                                         |
+| Bicep Best Practices   | [Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/best-practices)                                |
+| CAF Naming Conventions | [Naming Rules](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)         |
 | Resource Abbreviations | [Abbreviations](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations) |
-| AKS PCI-DSS Baseline | [AKS Regulated Cluster](https://learn.microsoft.com/azure/aks/operator-best-practices-cluster-security) |
-| PostgreSQL Flex HA | [HA Concepts](https://learn.microsoft.com/azure/postgresql/flexible-server/concepts-high-availability) |
-| Cosmos DB Consistency | [Consistency Levels](https://learn.microsoft.com/azure/cosmos-db/consistency-levels) |
-| Azure Firewall Premium | [IDPS Features](https://learn.microsoft.com/azure/firewall/premium-features) |
-| PCI-DSS on Azure | [Compliance](https://learn.microsoft.com/azure/compliance/offerings/offering-pci-dss) |
-| Hub-Spoke Topology | [Reference Architecture](https://learn.microsoft.com/azure/architecture/networking/architecture/hub-spoke) |
+| AKS PCI-DSS Baseline   | [AKS Regulated Cluster](https://learn.microsoft.com/azure/aks/operator-best-practices-cluster-security)                       |
+| PostgreSQL Flex HA     | [HA Concepts](https://learn.microsoft.com/azure/postgresql/flexible-server/concepts-high-availability)                        |
+| Cosmos DB Consistency  | [Consistency Levels](https://learn.microsoft.com/azure/cosmos-db/consistency-levels)                                          |
+| Azure Firewall Premium | [IDPS Features](https://learn.microsoft.com/azure/firewall/premium-features)                                                  |
+| PCI-DSS on Azure       | [Compliance](https://learn.microsoft.com/azure/compliance/offerings/offering-pci-dss)                                         |
+| Hub-Spoke Topology     | [Reference Architecture](https://learn.microsoft.com/azure/architecture/networking/architecture/hub-spoke)                    |
 
 ---
 

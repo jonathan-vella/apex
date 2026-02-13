@@ -5,7 +5,110 @@ model: ["Claude Opus 4.6"]
 user-invokable: true
 agents: ["*"]
 tools:
-  ['vscode/extensions', 'vscode/getProjectSetupInfo', 'vscode/installExtension', 'vscode/newWorkspace', 'vscode/openSimpleBrowser', 'vscode/runCommand', 'vscode/askQuestions', 'vscode/vscodeAPI', 'execute/getTerminalOutput', 'execute/awaitTerminal', 'execute/killTerminal', 'execute/createAndRunTask', 'execute/runTests', 'execute/runNotebookCell', 'execute/testFailure', 'execute/runInTerminal', 'read/terminalSelection', 'read/terminalLastCommand', 'read/getNotebookSummary', 'read/problems', 'read/readFile', 'read/readNotebookCellOutput', 'agent/runSubagent', 'edit/createDirectory', 'edit/createFile', 'edit/createJupyterNotebook', 'edit/editFiles', 'edit/editNotebook', 'search/changes', 'search/codebase', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'web/fetch', 'web/githubRepo', 'azure-mcp/acr', 'azure-mcp/aks', 'azure-mcp/appconfig', 'azure-mcp/applens', 'azure-mcp/applicationinsights', 'azure-mcp/appservice', 'azure-mcp/azd', 'azure-mcp/azureterraformbestpractices', 'azure-mcp/bicepschema', 'azure-mcp/cloudarchitect', 'azure-mcp/communication', 'azure-mcp/confidentialledger', 'azure-mcp/cosmos', 'azure-mcp/datadog', 'azure-mcp/deploy', 'azure-mcp/documentation', 'azure-mcp/eventgrid', 'azure-mcp/eventhubs', 'azure-mcp/extension_azqr', 'azure-mcp/extension_cli_generate', 'azure-mcp/extension_cli_install', 'azure-mcp/foundry', 'azure-mcp/functionapp', 'azure-mcp/get_bestpractices', 'azure-mcp/grafana', 'azure-mcp/group_list', 'azure-mcp/keyvault', 'azure-mcp/kusto', 'azure-mcp/loadtesting', 'azure-mcp/managedlustre', 'azure-mcp/marketplace', 'azure-mcp/monitor', 'azure-mcp/mysql', 'azure-mcp/postgres', 'azure-mcp/quota', 'azure-mcp/redis', 'azure-mcp/resourcehealth', 'azure-mcp/role', 'azure-mcp/search', 'azure-mcp/servicebus', 'azure-mcp/signalr', 'azure-mcp/speech', 'azure-mcp/sql', 'azure-mcp/storage', 'azure-mcp/subscription_list', 'azure-mcp/virtualdesktop', 'azure-mcp/workbooks', 'bicep/decompile_arm_parameters_file', 'bicep/decompile_arm_template_file', 'bicep/format_bicep_file', 'bicep/get_az_resource_type_schema', 'bicep/get_bicep_best_practices', 'bicep/get_bicep_file_diagnostics', 'bicep/get_deployment_snapshot', 'bicep/get_file_references', 'bicep/list_avm_metadata', 'bicep/list_az_resource_types_for_provider', 'todo', 'ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes', 'ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph', 'ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag', 'ms-azuretools.vscode-azureresourcegroups/azureActivityLog']
+  [
+    "vscode/extensions",
+    "vscode/getProjectSetupInfo",
+    "vscode/installExtension",
+    "vscode/newWorkspace",
+    "vscode/openSimpleBrowser",
+    "vscode/runCommand",
+    "vscode/askQuestions",
+    "vscode/vscodeAPI",
+    "execute/getTerminalOutput",
+    "execute/awaitTerminal",
+    "execute/killTerminal",
+    "execute/createAndRunTask",
+    "execute/runTests",
+    "execute/runNotebookCell",
+    "execute/testFailure",
+    "execute/runInTerminal",
+    "read/terminalSelection",
+    "read/terminalLastCommand",
+    "read/getNotebookSummary",
+    "read/problems",
+    "read/readFile",
+    "read/readNotebookCellOutput",
+    "agent/runSubagent",
+    "edit/createDirectory",
+    "edit/createFile",
+    "edit/createJupyterNotebook",
+    "edit/editFiles",
+    "edit/editNotebook",
+    "search/changes",
+    "search/codebase",
+    "search/fileSearch",
+    "search/listDirectory",
+    "search/searchResults",
+    "search/textSearch",
+    "search/usages",
+    "web/fetch",
+    "web/githubRepo",
+    "azure-mcp/acr",
+    "azure-mcp/aks",
+    "azure-mcp/appconfig",
+    "azure-mcp/applens",
+    "azure-mcp/applicationinsights",
+    "azure-mcp/appservice",
+    "azure-mcp/azd",
+    "azure-mcp/azureterraformbestpractices",
+    "azure-mcp/bicepschema",
+    "azure-mcp/cloudarchitect",
+    "azure-mcp/communication",
+    "azure-mcp/confidentialledger",
+    "azure-mcp/cosmos",
+    "azure-mcp/datadog",
+    "azure-mcp/deploy",
+    "azure-mcp/documentation",
+    "azure-mcp/eventgrid",
+    "azure-mcp/eventhubs",
+    "azure-mcp/extension_azqr",
+    "azure-mcp/extension_cli_generate",
+    "azure-mcp/extension_cli_install",
+    "azure-mcp/foundry",
+    "azure-mcp/functionapp",
+    "azure-mcp/get_bestpractices",
+    "azure-mcp/grafana",
+    "azure-mcp/group_list",
+    "azure-mcp/keyvault",
+    "azure-mcp/kusto",
+    "azure-mcp/loadtesting",
+    "azure-mcp/managedlustre",
+    "azure-mcp/marketplace",
+    "azure-mcp/monitor",
+    "azure-mcp/mysql",
+    "azure-mcp/postgres",
+    "azure-mcp/quota",
+    "azure-mcp/redis",
+    "azure-mcp/resourcehealth",
+    "azure-mcp/role",
+    "azure-mcp/search",
+    "azure-mcp/servicebus",
+    "azure-mcp/signalr",
+    "azure-mcp/speech",
+    "azure-mcp/sql",
+    "azure-mcp/storage",
+    "azure-mcp/subscription_list",
+    "azure-mcp/virtualdesktop",
+    "azure-mcp/workbooks",
+    "bicep/decompile_arm_parameters_file",
+    "bicep/decompile_arm_template_file",
+    "bicep/format_bicep_file",
+    "bicep/get_az_resource_type_schema",
+    "bicep/get_bicep_best_practices",
+    "bicep/get_bicep_file_diagnostics",
+    "bicep/get_deployment_snapshot",
+    "bicep/get_file_references",
+    "bicep/list_avm_metadata",
+    "bicep/list_az_resource_types_for_provider",
+    "todo",
+    "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
+    "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
+    "ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context",
+    "ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context",
+    "ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags",
+    "ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag",
+    "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
+  ]
 handoffs:
   - label: ▶ Refresh Governance
     agent: Bicep Plan
@@ -24,14 +127,10 @@ handoffs:
     agent: Bicep Code
     prompt: Implement the Bicep templates according to the implementation plan. Use AVM modules, generate deploy.ps1, and save to infra/bicep/{project}/.
     send: true
-    model: "Claude Sonnet 4.5 (copilot)"
+    model: "GPT-5.3-Codex (copilot)"
   - label: ▶ Compare AVM Modules
     agent: Bicep Plan
     prompt: Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps.
-    send: true
-  - label: ▶ Generate Dependency Diagram
-    agent: Design
-    prompt: Generate a Mermaid dependency diagram showing module relationships and deployment order.
     send: true
 ---
 
@@ -48,7 +147,7 @@ handoffs:
 3. **Read** the template files for your artifacts:
    - `.github/skills/azure-artifacts/templates/04-implementation-plan.template.md`
    - `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
-   Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
+     Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 
@@ -66,6 +165,9 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Include governance constraints in the implementation plan
 - ✅ Define tasks as YAML-structured specs (resource, module, dependencies, config)
 - ✅ Generate both `04-implementation-plan.md` and `04-governance-constraints.md`
+- ✅ Auto-generate Step 4 diagrams in the same run:
+  - `04-dependency-diagram.py` + `04-dependency-diagram.png`
+  - `04-runtime-diagram.py` + `04-runtime-diagram.png`
 - ✅ Match H2 headings from azure-artifacts skill exactly
 - ✅ Update `agent-output/{project}/README.md` — mark Step 4 complete, add your artifacts (see azure-artifacts skill)
 - ✅ Ask user for deployment strategy (phased vs single) — MANDATORY GATE
@@ -215,7 +317,8 @@ Include:
   - If **phased**: group tasks into phases with approval gates,
     validation criteria, and estimated deploy time per phase
   - If **single**: note single deployment with one what-if gate
-- Mermaid dependency graph
+- Python dependency diagram artifact (`04-dependency-diagram.py` + `.png`)
+- Python runtime flow diagram artifact (`04-runtime-diagram.py` + `.png`)
 - Naming conventions table (from azure-defaults CAF section)
 - Security configuration matrix
 - Estimated implementation time
@@ -237,11 +340,15 @@ Reply "approve" to proceed to bicep-code, or provide feedback.
 
 ## Output Files
 
-| File                        | Location                                               | Template                   |
-| --------------------------- | ------------------------------------------------------ | -------------------------- |
-| Implementation Plan         | `agent-output/{project}/04-implementation-plan.md`     | From azure-artifacts skill |
-| Governance Constraints      | `agent-output/{project}/04-governance-constraints.md`  | From azure-artifacts skill |
+| File                        | Location                                                | Template                     |
+| --------------------------- | ------------------------------------------------------- | ---------------------------- |
+| Implementation Plan         | `agent-output/{project}/04-implementation-plan.md`      | From azure-artifacts skill   |
+| Governance Constraints      | `agent-output/{project}/04-governance-constraints.md`   | From azure-artifacts skill   |
 | Governance Constraints JSON | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data |
+| Dependency Diagram Source   | `agent-output/{project}/04-dependency-diagram.py`       | Python diagrams              |
+| Dependency Diagram Image    | `agent-output/{project}/04-dependency-diagram.png`      | Generated from source        |
+| Runtime Diagram Source      | `agent-output/{project}/04-runtime-diagram.py`          | Python diagrams              |
+| Runtime Diagram Image       | `agent-output/{project}/04-runtime-diagram.png`         | Generated from source        |
 
 Include attribution header from the template file (do not hardcode).
 
@@ -256,4 +363,6 @@ Include attribution header from the template file (do not hardcode).
 - [ ] All 4 required tags listed for every resource
 - [ ] Security configuration includes managed identity where applicable
 - [ ] Approval gate presented before handoff
-- [ ] Both output files saved to `agent-output/{project}/`
+- [ ] 04-implementation-plan and governance artifacts saved to `agent-output/{project}/`
+- [ ] `04-dependency-diagram.py/.png` generated and referenced in plan
+- [ ] `04-runtime-diagram.py/.png` generated and referenced in plan

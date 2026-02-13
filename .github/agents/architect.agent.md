@@ -25,9 +25,9 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: Design
-    prompt: Generate architecture diagrams and/or ADRs based on the architecture assessment above. This step is optional but recommended for documentation. Save to 03-des-*.{py,md} files.
+    prompt: Generate non-Mermaid architecture diagrams and/or ADRs based on the architecture assessment above. For diagrams, use Python diagrams contract and save 03-des-diagram.py + 03-des-diagram.png; ADRs remain 03-des-*.md.
     send: false
-    model: "Claude Sonnet 4.5 (copilot)"
+    model: "GPT-5.3-Codex (copilot)"
   - label: "⏭️ Skip to Step 4: Implementation Plan"
     agent: Bicep Plan
     prompt: Create a detailed Bicep implementation plan based on the architecture assessment and recommendations above. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation.
@@ -35,7 +35,7 @@ handoffs:
     model: "Claude Opus 4.6 (copilot)"
   - label: ▶ Generate Architecture Diagram
     agent: Architect
-    prompt: Use the azure-diagrams skill to generate a Python architecture diagram for the assessed design. Include all Azure resources, network topology, and data flow. Save as 03-des-diagram.py.
+    prompt: Use the azure-diagrams skill contract to generate a non-Mermaid Python architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output 03-des-diagram.py + 03-des-diagram.png with quality score >= 9/10.
     send: true
   - label: ▶ Create ADR from Assessment
     agent: Architect

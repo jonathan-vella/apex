@@ -1,6 +1,6 @@
 ---
 name: Deploy
-model: ["Claude Sonnet 4.5"]
+model: ["GPT-5.3-Codex"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invokable: true
@@ -43,7 +43,7 @@ handoffs:
     send: true
   - label: ▶ Generate As-Built Diagram
     agent: Deploy
-    prompt: Use the azure-diagrams skill to generate an as-built architecture diagram documenting the deployed infrastructure. Save as 07-ab-diagram.py.
+    prompt: Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output 07-ab-diagram.py + 07-ab-diagram.png with deterministic layout and quality score >= 9/10.
     send: true
   - label: Fix Deployment Issues
     agent: Bicep Code

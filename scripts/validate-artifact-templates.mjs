@@ -32,6 +32,7 @@ const ARTIFACT_HEADINGS = {
     "## Implementation Tasks",
     "## Deployment Phases",
     "## Dependency Graph",
+    "## Runtime Flow Diagram",
     "## Naming Conventions",
     "## Security Configuration",
     "## Estimated Implementation Time",
@@ -273,8 +274,28 @@ const COST_ESTIMATE_ARTIFACTS = [
   "07-ab-cost-estimate.md",
 ];
 
-const REQUIRED_MERMAID_INIT =
-  "%%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900'}}}%%";
+const DIAGRAM_ARTIFACT_EXPECTATIONS = {
+  "04-implementation-plan.md": [
+    {
+      image: "./04-dependency-diagram.png",
+      source: "./04-dependency-diagram.py",
+    },
+    {
+      image: "./04-runtime-diagram.png",
+      source: "./04-runtime-diagram.py",
+    },
+  ],
+  "07-design-document.md": [
+    {
+      image: "./03-des-diagram.png",
+      source: "./03-des-diagram.py",
+    },
+    {
+      image: "./03-des-network-diagram.png",
+      source: "./03-des-network-diagram.py",
+    },
+  ],
+};
 
 let hasHardFailure = false;
 let hasWarning = false;
@@ -356,19 +377,75 @@ function extractFencedBlocks(text) {
   return blocks;
 }
 
-function validateCostMermaid(filePath, text, reportFn = error) {
-  if (!text.includes(REQUIRED_MERMAID_INIT)) {
+function validateCostDistribution(filePath, text, reportFn = error) {
+  const costDistributionSection = text.match(
+    /### Cost Distribution[\s\S]*?(?=\n### |\n## |$)/,
+  );
+
+  const sectionText = costDistributionSection?.[0] ?? text;
+  const hasMarkdownTable = /\|[^\n]+\|\n\|[\s:-]+\|/.test(sectionText);
+  const hasChartImage = /!\[[^\]]*\]\((?:\.\/)?[^)]+\.(png|svg)\)/i.test(
+    sectionText,
+  );
+
+  if (!hasMarkdownTable && !hasChartImage) {
     reportFn(
-      `${filePath} is missing the required colored Mermaid pie init line.`,
+      `${filePath} must include a cost distribution markdown table or a linked chart image (.png/.svg).`,
       { filePath, line: 1 },
     );
   }
+}
 
-  if (!text.includes("pie showData")) {
-    reportFn(
-      `${filePath} is missing 'pie showData' in the Mermaid pie section.`,
-      { filePath, line: 1 },
+function validateDiagramArtifactReferences(
+  filePath,
+  artifactName,
+  text,
+  reportFn = error,
+) {
+  const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
+
+  for (const expected of expectedReferences) {
+    if (!text.includes(expected.image)) {
+      reportFn(
+        `${filePath} is missing required diagram image reference: ${expected.image}`,
+        { filePath, line: 1 },
+      );
+    }
+
+    if (!text.includes(expected.source)) {
+      reportFn(
+        `${filePath} is missing required diagram source reference: ${expected.source}`,
+        { filePath, line: 1 },
+      );
+    }
+  }
+}
+
+function validateDiagramArtifactFiles(filePath, artifactName, reportFn = warn) {
+  const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
+  const artifactDir = path.dirname(filePath);
+
+  for (const expected of expectedReferences) {
+    const imagePath = path.normalize(
+      path.join(artifactDir, expected.image.replace(/^\.\//, "")),
     );
+    const sourcePath = path.normalize(
+      path.join(artifactDir, expected.source.replace(/^\.\//, "")),
+    );
+
+    if (!exists(imagePath)) {
+      reportFn(
+        `${filePath} requires diagram image artifact: ${expected.image}`,
+        { filePath, line: 1 },
+      );
+    }
+
+    if (!exists(sourcePath)) {
+      reportFn(
+        `${filePath} requires diagram source artifact: ${expected.source}`,
+        { filePath, line: 1 },
+      );
+    }
   }
 }
 
@@ -416,15 +493,11 @@ function validateStandardComponents(filePath, text, reportFn = warn) {
 const MERMAID_REQUIRED_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
-  "03-des-cost-estimate.md",
   "04-governance-constraints.md",
-  "04-implementation-plan.md",
   "04-preflight-check.md",
   "05-implementation-reference.md",
-  "07-ab-cost-estimate.md",
   "07-backup-dr-plan.md",
   "07-compliance-matrix.md",
-  "07-design-document.md",
   "07-documentation-index.md",
   "07-operations-runbook.md",
   "07-resource-inventory.md",
@@ -558,10 +631,12 @@ function validateTemplate(artifactName) {
     );
   }
 
-  // Cost-estimate templates require Mermaid pie chart
+  // Cost-estimate templates require cost distribution table or chart image
   if (COST_ESTIMATE_ARTIFACTS.includes(artifactName)) {
-    validateCostMermaid(templatePath, text);
+    validateCostDistribution(templatePath, text);
   }
+
+  validateDiagramArtifactReferences(templatePath, artifactName, text, error);
 
   // Phase 3 visual element checks (error for templates)
   if (MERMAID_REQUIRED_TEMPLATES.includes(artifactName)) {
@@ -749,9 +824,16 @@ function validateArtifactCompliance(relPath) {
     validateGovernanceDiscovery(relPath, text, reportFn);
   }
 
-  // Cost-estimate artifacts require Mermaid pie chart
+  // Cost-estimate artifacts require cost distribution table or chart image
+  // (warn-only for existing agent-output artifacts during transition)
   if (COST_ESTIMATE_ARTIFACTS.includes(artifactType)) {
-    validateCostMermaid(relPath, text, reportFn);
+    validateCostDistribution(relPath, text, warn);
+  }
+
+  // Step 4 diagrams are mandatory outputs and enforced by artifact strictness.
+  if (artifactType === "04-implementation-plan.md") {
+    validateDiagramArtifactReferences(relPath, artifactType, text, reportFn);
+    validateDiagramArtifactFiles(relPath, artifactType, reportFn);
   }
 
   // Validate standard visual components (badges, TOC, attribution, nav)

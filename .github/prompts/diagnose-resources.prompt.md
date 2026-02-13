@@ -1,7 +1,7 @@
 ---
 description: 'Diagnose Azure resource health issues and generate a remediation report'
 agent: 'Diagnose'
-model: 'Claude Sonnet 4.5'
+model: 'GPT-5.3-Codex'
 tools:
   - read/readFile
   - edit/createFile

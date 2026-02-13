@@ -30,14 +30,14 @@ This plan was generated AFTER discovering and analyzing Azure Policy constraints
 
 ## Resource Inventory
 
-| Resource                   | Type                                   | SKU/Tier           | AVM Module                              | Region      | Dependencies |
-| -------------------------- | -------------------------------------- | ------------------ | --------------------------------------- | ----------- | ------------ |
-| Resource Group             | Microsoft.Resources/resourceGroups     | N/A                | `avm/res/resources/resource-group:0.4.3` | westeurope  | (foundation) |
-| Static Web App             | Microsoft.Web/staticSites              | Free               | `avm/res/web/static-site:0.9.3`         | westeurope  | Resource Group |
-| CDN Profile                | Microsoft.Cdn/profiles                 | Standard_Microsoft | `avm/res/cdn/profile:0.17.1`            | global      | Static Web App |
-| Log Analytics Workspace    | Microsoft.OperationalInsights/workspaces | Free tier        | `avm/res/operational-insights/workspace:0.15.0` | westeurope | Resource Group |
-| Action Group               | Microsoft.Insights/actionGroups        | N/A                | `avm/res/insights/action-group:0.8.0`   | global      | Resource Group |
-| Metric Alert               | Microsoft.Insights/metricAlerts        | N/A                | `avm/res/insights/metric-alert:0.4.1`   | global      | CDN, Action Group |
+| Resource                | Type                                     | SKU/Tier           | AVM Module                                      | Region     | Dependencies      |
+| ----------------------- | ---------------------------------------- | ------------------ | ----------------------------------------------- | ---------- | ----------------- |
+| Resource Group          | Microsoft.Resources/resourceGroups       | N/A                | `avm/res/resources/resource-group:0.4.3`        | westeurope | (foundation)      |
+| Static Web App          | Microsoft.Web/staticSites                | Free               | `avm/res/web/static-site:0.9.3`                 | westeurope | Resource Group    |
+| CDN Profile             | Microsoft.Cdn/profiles                   | Standard_Microsoft | `avm/res/cdn/profile:0.17.1`                    | global     | Static Web App    |
+| Log Analytics Workspace | Microsoft.OperationalInsights/workspaces | Free tier          | `avm/res/operational-insights/workspace:0.15.0` | westeurope | Resource Group    |
+| Action Group            | Microsoft.Insights/actionGroups          | N/A                | `avm/res/insights/action-group:0.8.0`           | global     | Resource Group    |
+| Metric Alert            | Microsoft.Insights/metricAlerts          | N/A                | `avm/res/insights/metric-alert:0.4.1`           | global     | CDN, Action Group |
 
 ✅ **All 6 resources have AVM modules available** - Zero raw Bicep resources required
 
@@ -73,26 +73,26 @@ infra/bicep/e2e-conductor-test/
 
 **Parameters**:
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `projectName` | string | `'e2e-conductor-test'` | Project identifier for naming |
-| `environment` | string | `'dev'` | Environment (dev/staging/prod) |
-| `location` | string | `'westeurope'` | Primary Azure region |
-| `owner` | string | - | Owner for tagging (required) |
-| `technicalContact` | string | - | Technical contact email (required) |
-| `costCenter` | string | `'IT-001'` | Cost center code |
+| Parameter          | Type   | Default                | Description                        |
+| ------------------ | ------ | ---------------------- | ---------------------------------- |
+| `projectName`      | string | `'e2e-conductor-test'` | Project identifier for naming      |
+| `environment`      | string | `'dev'`                | Environment (dev/staging/prod)     |
+| `location`         | string | `'westeurope'`         | Primary Azure region               |
+| `owner`            | string | -                      | Owner for tagging (required)       |
+| `technicalContact` | string | -                      | Technical contact email (required) |
+| `costCenter`       | string | `'IT-001'`             | Cost center code                   |
 
 **Variables**:
 
-| Variable | Formula | Purpose |
-|----------|---------|---------|
-| `uniqueSuffix` | `uniqueString(subscription().subscriptionId, projectName, environment)` | 13-char unique identifier |
-| `resourceGroupName` | `'rg-${projectName}-${environment}-weu'` | CAF-compliant RG name |
-| `staticWebAppName` | `'stapp-${take(projectName, 10)}-${environment}'` | Static Web App name |
-| `cdnProfileName` | `'cdn-${projectName}-${environment}'` | CDN Profile name |
-| `cdnEndpointName` | `'cdnep-${take(projectName, 8)}-${take(uniqueSuffix, 8)}'` | Globally unique CDN endpoint |
-| `logAnalyticsName` | `'log-${projectName}-${environment}'` | Log Analytics name |
-| `actionGroupName` | `'ag-${projectName}-${environment}'` | Action Group name |
+| Variable            | Formula                                                                 | Purpose                      |
+| ------------------- | ----------------------------------------------------------------------- | ---------------------------- |
+| `uniqueSuffix`      | `uniqueString(subscription().subscriptionId, projectName, environment)` | 13-char unique identifier    |
+| `resourceGroupName` | `'rg-${projectName}-${environment}-weu'`                                | CAF-compliant RG name        |
+| `staticWebAppName`  | `'stapp-${take(projectName, 10)}-${environment}'`                       | Static Web App name          |
+| `cdnProfileName`    | `'cdn-${projectName}-${environment}'`                                   | CDN Profile name             |
+| `cdnEndpointName`   | `'cdnep-${take(projectName, 8)}-${take(uniqueSuffix, 8)}'`              | Globally unique CDN endpoint |
+| `logAnalyticsName`  | `'log-${projectName}-${environment}'`                                   | Log Analytics name           |
+| `actionGroupName`   | `'ag-${projectName}-${environment}'`                                    | Action Group name            |
 
 **Required Tags** (from governance policy):
 
@@ -324,10 +324,10 @@ module cdnAlert 'br/public:avm/res/insights/metric-alert:0.4.1' = {
 param(
     [Parameter(Mandatory=$true)]
     [string]$Owner,
-    
+
     [Parameter(Mandatory=$true)]
     [string]$TechnicalContact,
-    
+
     [string]$Environment = 'dev',
     [string]$Location = 'westeurope',
     [switch]$WhatIf
@@ -359,77 +359,77 @@ if ($WhatIf) {
 
 ## Deployment Phases
 
-| Phase | Resources | Dependencies | Estimated Duration |
-| ----- | --------- | ------------ | ------------------ |
-| 1 - Foundation | Resource Group, Log Analytics, Action Group | None | 5 minutes |
-| 2 - Application | Static Web App | Phase 1 | 5 minutes |
-| 3 - CDN & Monitoring | CDN Profile + Endpoint, Metric Alert | Phase 2 (Static Web App hostname) | 5 minutes |
+| Phase                | Resources                                   | Dependencies                      | Estimated Duration |
+| -------------------- | ------------------------------------------- | --------------------------------- | ------------------ |
+| 1 - Foundation       | Resource Group, Log Analytics, Action Group | None                              | 5 minutes          |
+| 2 - Application      | Static Web App                              | Phase 1                           | 5 minutes          |
+| 3 - CDN & Monitoring | CDN Profile + Endpoint, Metric Alert        | Phase 2 (Static Web App hostname) | 5 minutes          |
 
 ---
 
 ## Dependency Graph
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-graph TD
-    SUB[Subscription Scope] --> RG[Resource Group]
-    RG --> STAPP[Static Web App]
-    RG --> LOG[Log Analytics]
-    RG --> AG[Action Group]
-    STAPP --> CDN[CDN Profile + Endpoint]
-    CDN --> ALERT[Metric Alert]
-    AG --> ALERT
-```
+![Module Dependency Graph](./04-dependency-diagram.png)
+
+Source: [04-dependency-diagram.py](./04-dependency-diagram.py)
+
+---
+
+## Runtime Flow Diagram
+
+![Runtime Flow Diagram](./04-runtime-diagram.png)
+
+Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
 
 ---
 
 ## Naming Conventions
 
-| Resource             | Pattern                                    | Example                          |
-| -------------------- | ------------------------------------------ | -------------------------------- |
-| Resource Group       | `rg-{project}-{env}-{region}`              | `rg-e2e-conductor-test-dev-weu`  |
-| Static Web App       | `stapp-{project}-{env}`                    | `stapp-e2e-conduc-dev`           |
-| CDN Profile          | `cdn-{project}-{env}`                      | `cdn-e2e-conductor-test-dev`     |
-| CDN Endpoint         | `cdnep-{project}-{suffix}`                 | `cdnep-e2e-cond-a1b2c3d4`        |
-| Log Analytics        | `log-{project}-{env}`                      | `log-e2e-conductor-test-dev`     |
-| Action Group         | `ag-{project}-{env}`                       | `ag-e2e-conductor-test-dev`      |
+| Resource       | Pattern                       | Example                         |
+| -------------- | ----------------------------- | ------------------------------- |
+| Resource Group | `rg-{project}-{env}-{region}` | `rg-e2e-conductor-test-dev-weu` |
+| Static Web App | `stapp-{project}-{env}`       | `stapp-e2e-conduc-dev`          |
+| CDN Profile    | `cdn-{project}-{env}`         | `cdn-e2e-conductor-test-dev`    |
+| CDN Endpoint   | `cdnep-{project}-{suffix}`    | `cdnep-e2e-cond-a1b2c3d4`       |
+| Log Analytics  | `log-{project}-{env}`         | `log-e2e-conductor-test-dev`    |
+| Action Group   | `ag-{project}-{env}`          | `ag-e2e-conductor-test-dev`     |
 
 ---
 
 ## Security Configuration
 
-| Resource          | Security Setting                | Value                |
-| ----------------- | ------------------------------- | -------------------- |
-| Static Web App    | Staging Environment             | Enabled              |
-| Static Web App    | TLS Version                     | 1.2+ (enforced)      |
-| CDN Endpoint      | HTTP Allowed                    | `false`              |
-| CDN Endpoint      | HTTPS Allowed                   | `true`               |
-| CDN Endpoint      | Compression                     | Enabled              |
+| Resource       | Security Setting    | Value           |
+| -------------- | ------------------- | --------------- |
+| Static Web App | Staging Environment | Enabled         |
+| Static Web App | TLS Version         | 1.2+ (enforced) |
+| CDN Endpoint   | HTTP Allowed        | `false`         |
+| CDN Endpoint   | HTTPS Allowed       | `true`          |
+| CDN Endpoint   | Compression         | Enabled         |
 
 ---
 
 ### Cost Estimate
 
-| Resource                | SKU/Tier           | Monthly Cost | Notes                           |
-| ----------------------- | ------------------ | ------------ | ------------------------------- |
-| Static Web App          | Free               | $0.00        | 100GB bandwidth included        |
-| CDN Profile + Endpoint  | Standard_Microsoft | ~$5.00       | Based on 10GB @ $0.07/GB        |
-| Log Analytics Workspace | Free tier          | $0.00        | 500MB/day, 7-day retention      |
-| Action Group            | N/A                | $0.00        | No charge for action groups     |
-| Metric Alert            | N/A                | ~$0.10       | 1 alert rule                    |
-| **Total Estimated**     |                    | **~$5.10/mo** | **74% under $20 budget**       |
+| Resource                | SKU/Tier           | Monthly Cost  | Notes                       |
+| ----------------------- | ------------------ | ------------- | --------------------------- |
+| Static Web App          | Free               | $0.00         | 100GB bandwidth included    |
+| CDN Profile + Endpoint  | Standard_Microsoft | ~$5.00        | Based on 10GB @ $0.07/GB    |
+| Log Analytics Workspace | Free tier          | $0.00         | 500MB/day, 7-day retention  |
+| Action Group            | N/A                | $0.00         | No charge for action groups |
+| Metric Alert            | N/A                | ~$0.10        | 1 alert rule                |
+| **Total Estimated**     |                    | **~$5.10/mo** | **74% under $20 budget**    |
 
 ---
 
 ## Estimated Implementation Time
 
-| Task                          | Estimated Duration |
-| ----------------------------- | ------------------ |
-| Bicep modules (6 resources)   | 30 minutes         |
-| Testing (lint, build, what-if)| 15 minutes         |
-| Deployment                    | 10 minutes         |
-| Validation                    | 10 minutes         |
-| **Total**                     | **~65 minutes**    |
+| Task                           | Estimated Duration |
+| ------------------------------ | ------------------ |
+| Bicep modules (6 resources)    | 30 minutes         |
+| Testing (lint, build, what-if) | 15 minutes         |
+| Deployment                     | 10 minutes         |
+| Validation                     | 10 minutes         |
+| **Total**                      | **~65 minutes**    |
 
 ---
 

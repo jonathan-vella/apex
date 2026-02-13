@@ -86,34 +86,34 @@ graph TB
 
 ### Primary Orchestrator
 
-| Agent | Persona | Role | Model |
-|-------|---------|------|-------|
+| Agent                  | Persona    | Role                                    | Model           |
+| ---------------------- | ---------- | --------------------------------------- | --------------- |
 | **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 7-step workflow | Claude Opus 4.6 |
 
 ### Core Agents (7 Steps)
 
-| Step | Agent | Persona | Role | Artifact |
-|------|-------|---------|------|----------|
-| 1 | `requirements` | 📜 Scribe | Captures infrastructure requirements | `01-requirements.md` |
-| 2 | `architect` | 🏛️ Oracle | WAF assessment and design decisions | `02-architecture-assessment.md` |
-| 3 | `design` | 🎨 Artisan | Diagrams and ADRs | `03-des-*.md/.py/.png` |
-| 4 | `bicep-plan` | 📐 Strategist | Implementation planning | `04-implementation-plan.md` |
-| 5 | `bicep-code` | ⚒️ Forge | Bicep template generation | `infra/bicep/{project}/` |
-| 6 | `deploy` | 🚀 Envoy | Azure deployment | `06-deployment-summary.md` |
-| 7 | — | — | Documentation (via skills) | `07-*.md` |
+| Step | Agent          | Persona       | Role                                 | Artifact                                             |
+| ---- | -------------- | ------------- | ------------------------------------ | ---------------------------------------------------- |
+| 1    | `requirements` | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                 |
+| 2    | `architect`    | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                      |
+| 3    | `design`       | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.md/.py/.png`                               |
+| 4    | `bicep-plan`   | 📐 Strategist | Implementation planning              | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
+| 5    | `bicep-code`   | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                             |
+| 6    | `deploy`       | 🚀 Envoy      | Azure deployment                     | `06-deployment-summary.md`                           |
+| 7    | —              | —             | Documentation (via skills)           | `07-*.md`                                            |
 
 ### Validation Subagents
 
-| Subagent | Purpose | Invoked By |
-|----------|---------|------------|
-| `bicep-lint-subagent` | Syntax validation (`bicep lint`, `bicep build`) | `bicep-code` |
-| `bicep-whatif-subagent` | Deployment preview (`az deployment what-if`) | `bicep-code`, `deploy` |
-| `bicep-review-subagent` | Code review (AVM, security, naming) | `bicep-code` |
+| Subagent                | Purpose                                         | Invoked By             |
+| ----------------------- | ----------------------------------------------- | ---------------------- |
+| `bicep-lint-subagent`   | Syntax validation (`bicep lint`, `bicep build`) | `bicep-code`           |
+| `bicep-whatif-subagent` | Deployment preview (`az deployment what-if`)    | `bicep-code`, `deploy` |
+| `bicep-review-subagent` | Code review (AVM, security, naming)             | `bicep-code`           |
 
 ### Diagnostic Agent
 
-| Agent | Persona | Role |
-|-------|---------|------|
+| Agent      | Persona     | Role                                           |
+| ---------- | ----------- | ---------------------------------------------- |
 | `diagnose` | 🔍 Sentinel | Resource health assessment and troubleshooting |
 
 ---
@@ -122,13 +122,13 @@ graph TB
 
 The Conductor enforces mandatory pause points for human oversight:
 
-| Gate | After Step | User Action |
-|------|------------|-------------|
-| **Gate 1** | Requirements (Step 1) | Confirm requirements complete |
-| **Gate 2** | Architecture (Step 2) | Approve WAF assessment |
-| **Gate 3** | Planning (Step 4) | Approve implementation plan |
-| **Gate 4** | Pre-Deploy (Step 5) | Approve lint/what-if/review results |
-| **Gate 5** | Post-Deploy (Step 6) | Verify deployment |
+| Gate       | After Step            | User Action                         |
+| ---------- | --------------------- | ----------------------------------- |
+| **Gate 1** | Requirements (Step 1) | Confirm requirements complete       |
+| **Gate 2** | Architecture (Step 2) | Approve WAF assessment              |
+| **Gate 3** | Planning (Step 4)     | Approve implementation plan         |
+| **Gate 4** | Pre-Deploy (Step 5)   | Approve lint/what-if/review results |
+| **Gate 5** | Post-Deploy (Step 6)  | Verify deployment                   |
 
 ---
 
@@ -211,6 +211,7 @@ Output: agent-output/{project}/04-implementation-plan.md, 04-governance-constrai
 - Azure Policy compliance discovery
 - AVM module selection
 - Resource dependency mapping
+- Auto-generated Step 4 diagrams (`04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`)
 - Naming convention validation
 - Phased implementation approach
 
@@ -239,10 +240,10 @@ Output: agent-output/{project}/05-implementation-reference.md
 
 **Preflight Validation** (via subagents):
 
-| Subagent | Validation |
-|----------|------------|
-| `bicep-lint-subagent` | Syntax check, linting rules |
-| `bicep-whatif-subagent` | Deployment what-if preview |
+| Subagent                | Validation                    |
+| ----------------------- | ----------------------------- |
+| `bicep-lint-subagent`   | Syntax check, linting rules   |
+| `bicep-whatif-subagent` | Deployment what-if preview    |
 | `bicep-review-subagent` | AVM compliance, security scan |
 
 **Gate 2**: User approves preflight validation results.
@@ -284,27 +285,27 @@ Output: agent-output/{project}/07-*.md
 
 **Document Suite**:
 
-| File | Purpose |
-|------|---------|
-| `07-documentation-index.md` | Master index with links |
-| `07-design-document.md` | Technical design documentation |
-| `07-operations-runbook.md` | Day-2 operational procedures |
-| `07-resource-inventory.md` | Complete resource listing |
-| `07-ab-cost-estimate.md` | As-built cost analysis |
-| `07-compliance-matrix.md` | Security control mapping |
-| `07-backup-dr-plan.md` | Disaster recovery procedures |
+| File                        | Purpose                        |
+| --------------------------- | ------------------------------ |
+| `07-documentation-index.md` | Master index with links        |
+| `07-design-document.md`     | Technical design documentation |
+| `07-operations-runbook.md`  | Day-2 operational procedures   |
+| `07-resource-inventory.md`  | Complete resource listing      |
+| `07-ab-cost-estimate.md`    | As-built cost analysis         |
+| `07-compliance-matrix.md`   | Security control mapping       |
+| `07-backup-dr-plan.md`      | Disaster recovery procedures   |
 
 ---
 
 ## Agents vs Skills
 
-| Aspect | Agents | Skills |
-|--------|--------|--------|
-| **Invocation** | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit |
-| **Interaction** | Conversational with handoffs | Task-focused |
-| **State** | Session context | Stateless |
-| **Output** | Multiple artifacts | Specific outputs |
-| **When to use** | Core workflow steps | Specialized capabilities |
+| Aspect          | Agents                                   | Skills                   |
+| --------------- | ---------------------------------------- | ------------------------ |
+| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit    |
+| **Interaction** | Conversational with handoffs             | Task-focused             |
+| **State**       | Session context                          | Stateless                |
+| **Output**      | Multiple artifacts                       | Specific outputs         |
+| **When to use** | Core workflow steps                      | Specialized capabilities |
 
 ---
 
@@ -345,16 +346,16 @@ Output: agent-output/{project}/07-*.md
 
 ## Artifact Naming Convention
 
-| Step | Prefix | Example |
-|------|--------|---------|
-| Requirements | `01-` | `01-requirements.md` |
-| Architecture | `02-` | `02-architecture-assessment.md` |
-| Design | `03-des-` | `03-des-diagram.py`, `03-des-adr-0001-*.md` |
-| Planning | `04-` | `04-implementation-plan.md`, `04-governance-constraints.md` |
-| Implementation | `05-` | `05-implementation-reference.md` |
-| Deployment | `06-` | `06-deployment-summary.md` |
-| As-Built | `07-` | `07-design-document.md`, `07-ab-diagram.py` |
-| Diagnostics | `08-` | `08-resource-health-report.md` |
+| Step           | Prefix    | Example                                                     |
+| -------------- | --------- | ----------------------------------------------------------- |
+| Requirements   | `01-`     | `01-requirements.md`                                        |
+| Architecture   | `02-`     | `02-architecture-assessment.md`                             |
+| Design         | `03-des-` | `03-des-diagram.py`, `03-des-adr-0001-*.md`                 |
+| Planning       | `04-`     | `04-implementation-plan.md`, `04-governance-constraints.md` |
+| Implementation | `05-`     | `05-implementation-reference.md`                            |
+| Deployment     | `06-`     | `06-deployment-summary.md`                                  |
+| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.py`                 |
+| Diagnostics    | `08-`     | `08-resource-health-report.md`                              |
 
 ---
 

@@ -71,28 +71,23 @@ param location string = 'swedencentral'
 ```
 ````
 
-## Mermaid Diagrams
+## Diagram Embeds
 
-Always include the theme directive for dark mode compatibility:
+For Azure architecture artifacts, prefer **non-Mermaid** diagram files generated via
+Python diagrams (`.png`/`.svg`) and embed with Markdown images.
 
-### Good Example - Mermaid with theme directive
-
-```markdown
-​`mermaid
-%%{init: {'theme':'neutral'}}%%
-graph LR
-    A[Start] --> B[End]
-​`
-```
-
-### Bad Example - Missing theme directive
+### Good Example - External diagram embed
 
 ```markdown
-​`mermaid
-graph LR
-    A[Start] --> B[End]
-​`
+![Design Architecture](./03-des-diagram.png)
+
+Source: [03-des-diagram.py](./03-des-diagram.py)
 ```
+
+### Mermaid Usage
+
+Mermaid is allowed only when explicitly required by template/instruction.
+If Mermaid is used, include a neutral theme directive for dark mode compatibility.
 
 ## Template-First Approach for Workflow Artifacts
 

@@ -138,6 +138,7 @@ above the first H2 heading. The validator checks for their presence.
 ## Implementation Tasks
 ## Deployment Phases
 ## Dependency Graph
+## Runtime Flow Diagram
 ## Naming Conventions
 ## Security Configuration
 ## Estimated Implementation Time

@@ -1,7 +1,7 @@
 ---
 description: 'Generate a Python architecture diagram for an Azure project'
 agent: 'Design'
-model: 'Claude Sonnet 4.5'
+model: 'GPT-5.3-Codex'
 tools:
   - read/readFile
   - edit/createFile

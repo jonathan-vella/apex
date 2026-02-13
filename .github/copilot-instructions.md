@@ -10,15 +10,15 @@
 
 ## 7-Step Workflow
 
-| Step | Agent        | Output                                          | Gate       |
-| ---- | ------------ | ----------------------------------------------- | ---------- |
-| 1    | Requirements | `01-requirements.md`                            | Approval   |
-| 2    | Architect    | `02-architecture-assessment.md` + cost estimate | Approval   |
-| 3    | Design (opt) | `03-des-*.{py,png,md}`                          | —          |
-| 4    | Bicep Plan   | `04-implementation-plan.md` + governance        | Approval   |
-| 5    | Bicep Code   | `infra/bicep/{project}/`                        | Validation |
-| 6    | Deploy       | `06-deployment-summary.md`                      | Approval   |
-| 7    | As-Built     | `07-*.md` documentation suite                   | —          |
+| Step | Agent        | Output                                                                                                    | Gate       |
+| ---- | ------------ | --------------------------------------------------------------------------------------------------------- | ---------- |
+| 1    | Requirements | `01-requirements.md`                                                                                      | Approval   |
+| 2    | Architect    | `02-architecture-assessment.md` + cost estimate                                                           | Approval   |
+| 3    | Design (opt) | `03-des-*.{py,png,md}`                                                                                    | —          |
+| 4    | Bicep Plan   | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Approval   |
+| 5    | Bicep Code   | `infra/bicep/{project}/`                                                                                  | Validation |
+| 6    | Deploy       | `06-deployment-summary.md`                                                                                | Approval   |
+| 7    | As-Built     | `07-*.md` documentation suite                                                                             | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
 

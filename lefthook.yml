@@ -133,22 +133,21 @@ commit-msg:
              fix(bicep): correct storage account naming
              docs: update README with deployment steps
 
-# New validation checks (warn mode until 2026-02-10)
-# TODO: Change to blocking after 2026-02-10
+# Post-commit validation checks (enforced)
 post-commit:
   commands:
     version-sync:
       run: |
         echo "🔍 Checking version synchronization..."
-        node scripts/validate-version-sync.mjs || echo "⚠️  Version sync check failed (warn mode)"
-      fail_text: "Version sync warning - will enforce after 2026-02-10"
+        node scripts/validate-version-sync.mjs
+      fail_text: "❌ Version sync check failed"
 
     deprecated-refs:
       glob: "*.md"
       run: |
         echo "🔍 Checking for deprecated references..."
-        node scripts/validate-no-deprecated-refs.mjs || echo "⚠️  Deprecated refs check failed (warn mode)"
-      fail_text: "Deprecated references warning - will enforce after 2026-02-10"
+        node scripts/validate-no-deprecated-refs.mjs
+      fail_text: "❌ Deprecated references check failed"
 
     json-syntax:
       glob: "*.json"
@@ -157,7 +156,7 @@ post-commit:
         STAGED_JSON=$(git diff --cached --name-only --diff-filter=ACM | grep '\.json$' | grep -v node_modules | grep -v infra || true)
         if [ -n "$STAGED_JSON" ]; then
           for f in $STAGED_JSON; do
-            node -e "JSON.parse(require('fs').readFileSync('$f'))" 2>/dev/null && echo "  ✓ $f" || echo "  ✗ $f - Invalid JSON"
+            node -e "JSON.parse(require('fs').readFileSync('$f'))" 2>/dev/null && echo "  ✓ $f" || { echo "  ✗ $f - Invalid JSON"; exit 1; }
           done
         fi
-      fail_text: "JSON syntax warning - will enforce after 2026-02-10"
+      fail_text: "❌ JSON syntax validation failed"

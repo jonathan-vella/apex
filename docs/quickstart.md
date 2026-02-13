@@ -4,13 +4,13 @@
 
 ## Prerequisites
 
-| Requirement | How to Get |
-|-------------|------------|
-| GitHub account | [Sign up](https://github.com/signup) |
-| GitHub Copilot license | [Get Copilot](https://github.com/features/copilot) |
-| VS Code | [Download](https://code.visualstudio.com/) |
-| Docker Desktop | [Download](https://www.docker.com/products/docker-desktop/) |
-| Azure subscription | Optional for learning |
+| Requirement            | How to Get                                                  |
+| ---------------------- | ----------------------------------------------------------- |
+| GitHub account         | [Sign up](https://github.com/signup)                        |
+| GitHub Copilot license | [Get Copilot](https://github.com/features/copilot)          |
+| VS Code                | [Download](https://code.visualstudio.com/)                  |
+| Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
+| Azure subscription     | Optional for learning                                       |
 
 ---
 
@@ -105,15 +105,15 @@ Invoke agents directly for specific tasks:
 
 The agents work in sequence with handoffs:
 
-| Step | Agent | Persona | What Happens |
-|------|-------|---------|--------------|
-| 1 | `requirements` | 📜 Scribe | Captures requirements |
-| 2 | `architect` | 🏛️ Oracle | WAF assessment |
-| 3 | `design` | 🎨 Artisan | Diagrams/ADRs (optional) |
-| 4 | `bicep-plan` | 📐 Strategist | Implementation plan |
-| 5 | `bicep-code` | ⚒️ Forge | Bicep templates |
-| 6 | `deploy` | 🚀 Envoy | Azure deployment |
-| 7 | — | 📚 — | Documentation (skills) |
+| Step | Agent          | Persona       | What Happens             |
+| ---- | -------------- | ------------- | ------------------------ |
+| 1    | `requirements` | 📜 Scribe     | Captures requirements    |
+| 2    | `architect`    | 🏛️ Oracle     | WAF assessment           |
+| 3    | `design`       | 🎨 Artisan    | Diagrams/ADRs (optional) |
+| 4    | `bicep-plan`   | 📐 Strategist | Implementation plan      |
+| 5    | `bicep-code`   | ⚒️ Forge      | Bicep templates          |
+| 6    | `deploy`       | 🚀 Envoy      | Azure deployment         |
+| 7    | —              | 📚 —          | Documentation (skills)   |
 
 **Approval Gates**: The Conductor pauses at key points:
 
@@ -132,6 +132,10 @@ agent-output/my-webapp/
 ├── 01-requirements.md          # Captured requirements
 ├── 02-architecture-assessment.md  # WAF analysis
 ├── 04-implementation-plan.md   # Phased plan
+├── 04-dependency-diagram.py     # Step 4 dependency diagram source
+├── 04-dependency-diagram.png    # Step 4 dependency diagram image
+├── 04-runtime-diagram.py        # Step 4 runtime diagram source
+├── 04-runtime-diagram.png       # Step 4 runtime diagram image
 ├── 04-governance-constraints.md   # Policy discovery
 ├── 05-implementation-reference.md # Module inventory
 ├── 06-deployment-summary.md    # Deployed resources
@@ -150,13 +154,13 @@ infra/bicep/my-webapp/
 
 ## Next Steps
 
-| Goal | Resource |
-|------|----------|
-| Understand the full workflow | [workflow.md](workflow.md) |
-| Try a complete workflow | [Prompt Guide](prompt-guide/) |
-| Generate architecture diagrams | Use `azure-diagrams` skill |
-| Create documentation | Use `azure-artifacts` skill |
-| Troubleshoot issues | [troubleshooting.md](troubleshooting.md) |
+| Goal                           | Resource                                 |
+| ------------------------------ | ---------------------------------------- |
+| Understand the full workflow   | [workflow.md](workflow.md)               |
+| Try a complete workflow        | [Prompt Guide](prompt-guide/)            |
+| Generate architecture diagrams | Use `azure-diagrams` skill               |
+| Create documentation           | Use `azure-artifacts` skill              |
+| Troubleshoot issues            | [troubleshooting.md](troubleshooting.md) |
 
 ---
 
@@ -192,13 +196,13 @@ Use the azure-diagrams skill to create a diagram for my-webapp
 
 ## Agent Personas
 
-| Agent | Persona | Role |
-|-------|---------|------|
-| InfraOps Conductor | 🎼 Maestro | Master orchestrator |
-| requirements | 📜 Scribe | Requirements capture |
-| architect | 🏛️ Oracle | WAF assessment |
-| design | 🎨 Artisan | Diagrams and ADRs |
-| bicep-plan | 📐 Strategist | Implementation planning |
-| bicep-code | ⚒️ Forge | Bicep generation |
-| deploy | 🚀 Envoy | Azure deployment |
-| diagnose | 🔍 Sentinel | Troubleshooting |
+| Agent              | Persona       | Role                    |
+| ------------------ | ------------- | ----------------------- |
+| InfraOps Conductor | 🎼 Maestro    | Master orchestrator     |
+| requirements       | 📜 Scribe     | Requirements capture    |
+| architect          | 🏛️ Oracle     | WAF assessment          |
+| design             | 🎨 Artisan    | Diagrams and ADRs       |
+| bicep-plan         | 📐 Strategist | Implementation planning |
+| bicep-code         | ⚒️ Forge      | Bicep generation        |
+| deploy             | 🚀 Envoy      | Azure deployment        |
+| diagnose           | 🔍 Sentinel   | Troubleshooting         |
