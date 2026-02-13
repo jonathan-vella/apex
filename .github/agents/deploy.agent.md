@@ -6,7 +6,111 @@ argument-hint: Deploy the Bicep templates for a specific project
 user-invokable: true
 agents: ["*"]
 tools:
-  ['vscode/extensions', 'vscode/getProjectSetupInfo', 'vscode/installExtension', 'vscode/newWorkspace', 'vscode/openSimpleBrowser', 'vscode/runCommand', 'vscode/askQuestions', 'vscode/vscodeAPI', 'execute/getTerminalOutput', 'execute/awaitTerminal', 'execute/killTerminal', 'execute/createAndRunTask', 'execute/runTests', 'execute/runNotebookCell', 'execute/testFailure', 'execute/runInTerminal', 'read/terminalSelection', 'read/terminalLastCommand', 'read/getNotebookSummary', 'read/problems', 'read/readFile', 'read/readNotebookCellOutput', 'agent/runSubagent', 'edit/createDirectory', 'edit/createFile', 'edit/createJupyterNotebook', 'edit/editFiles', 'edit/editNotebook', 'search/changes', 'search/codebase', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'web/fetch', 'web/githubRepo', 'azure-mcp/acr', 'azure-mcp/aks', 'azure-mcp/appconfig', 'azure-mcp/applens', 'azure-mcp/applicationinsights', 'azure-mcp/appservice', 'azure-mcp/azd', 'azure-mcp/azureterraformbestpractices', 'azure-mcp/bicepschema', 'azure-mcp/cloudarchitect', 'azure-mcp/communication', 'azure-mcp/confidentialledger', 'azure-mcp/cosmos', 'azure-mcp/datadog', 'azure-mcp/deploy', 'azure-mcp/documentation', 'azure-mcp/eventgrid', 'azure-mcp/eventhubs', 'azure-mcp/extension_azqr', 'azure-mcp/extension_cli_generate', 'azure-mcp/extension_cli_install', 'azure-mcp/foundry', 'azure-mcp/functionapp', 'azure-mcp/get_bestpractices', 'azure-mcp/grafana', 'azure-mcp/group_list', 'azure-mcp/keyvault', 'azure-mcp/kusto', 'azure-mcp/loadtesting', 'azure-mcp/managedlustre', 'azure-mcp/marketplace', 'azure-mcp/monitor', 'azure-mcp/mysql', 'azure-mcp/postgres', 'azure-mcp/quota', 'azure-mcp/redis', 'azure-mcp/resourcehealth', 'azure-mcp/role', 'azure-mcp/search', 'azure-mcp/servicebus', 'azure-mcp/signalr', 'azure-mcp/speech', 'azure-mcp/sql', 'azure-mcp/storage', 'azure-mcp/subscription_list', 'azure-mcp/virtualdesktop', 'azure-mcp/workbooks', 'bicep/decompile_arm_parameters_file', 'bicep/decompile_arm_template_file', 'bicep/format_bicep_file', 'bicep/get_az_resource_type_schema', 'bicep/get_bicep_best_practices', 'bicep/get_bicep_file_diagnostics', 'bicep/get_deployment_snapshot', 'bicep/get_file_references', 'bicep/list_avm_metadata', 'bicep/list_az_resource_types_for_provider', 'todo', 'memory', 'ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes', 'ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph', 'ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag', 'ms-azuretools.vscode-azureresourcegroups/azureActivityLog']
+  [
+    "vscode/extensions",
+    "vscode/getProjectSetupInfo",
+    "vscode/installExtension",
+    "vscode/newWorkspace",
+    "vscode/openSimpleBrowser",
+    "vscode/runCommand",
+    "vscode/askQuestions",
+    "vscode/vscodeAPI",
+    "execute/getTerminalOutput",
+    "execute/awaitTerminal",
+    "execute/killTerminal",
+    "execute/createAndRunTask",
+    "execute/runTests",
+    "execute/runNotebookCell",
+    "execute/testFailure",
+    "execute/runInTerminal",
+    "read/terminalSelection",
+    "read/terminalLastCommand",
+    "read/getNotebookSummary",
+    "read/problems",
+    "read/readFile",
+    "read/readNotebookCellOutput",
+    "agent/runSubagent",
+    "edit/createDirectory",
+    "edit/createFile",
+    "edit/createJupyterNotebook",
+    "edit/editFiles",
+    "edit/editNotebook",
+    "search/changes",
+    "search/codebase",
+    "search/fileSearch",
+    "search/listDirectory",
+    "search/searchResults",
+    "search/textSearch",
+    "search/usages",
+    "web/fetch",
+    "web/githubRepo",
+    "azure-mcp/acr",
+    "azure-mcp/aks",
+    "azure-mcp/appconfig",
+    "azure-mcp/applens",
+    "azure-mcp/applicationinsights",
+    "azure-mcp/appservice",
+    "azure-mcp/azd",
+    "azure-mcp/azureterraformbestpractices",
+    "azure-mcp/bicepschema",
+    "azure-mcp/cloudarchitect",
+    "azure-mcp/communication",
+    "azure-mcp/confidentialledger",
+    "azure-mcp/cosmos",
+    "azure-mcp/datadog",
+    "azure-mcp/deploy",
+    "azure-mcp/documentation",
+    "azure-mcp/eventgrid",
+    "azure-mcp/eventhubs",
+    "azure-mcp/extension_azqr",
+    "azure-mcp/extension_cli_generate",
+    "azure-mcp/extension_cli_install",
+    "azure-mcp/foundry",
+    "azure-mcp/functionapp",
+    "azure-mcp/get_bestpractices",
+    "azure-mcp/grafana",
+    "azure-mcp/group_list",
+    "azure-mcp/keyvault",
+    "azure-mcp/kusto",
+    "azure-mcp/loadtesting",
+    "azure-mcp/managedlustre",
+    "azure-mcp/marketplace",
+    "azure-mcp/monitor",
+    "azure-mcp/mysql",
+    "azure-mcp/postgres",
+    "azure-mcp/quota",
+    "azure-mcp/redis",
+    "azure-mcp/resourcehealth",
+    "azure-mcp/role",
+    "azure-mcp/search",
+    "azure-mcp/servicebus",
+    "azure-mcp/signalr",
+    "azure-mcp/speech",
+    "azure-mcp/sql",
+    "azure-mcp/storage",
+    "azure-mcp/subscription_list",
+    "azure-mcp/virtualdesktop",
+    "azure-mcp/workbooks",
+    "bicep/decompile_arm_parameters_file",
+    "bicep/decompile_arm_template_file",
+    "bicep/format_bicep_file",
+    "bicep/get_az_resource_type_schema",
+    "bicep/get_bicep_best_practices",
+    "bicep/get_bicep_file_diagnostics",
+    "bicep/get_deployment_snapshot",
+    "bicep/get_file_references",
+    "bicep/list_avm_metadata",
+    "bicep/list_az_resource_types_for_provider",
+    "todo",
+    "memory",
+    "ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes",
+    "ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph",
+    "ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context",
+    "ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context",
+    "ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags",
+    "ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag",
+    "ms-azuretools.vscode-azureresourcegroups/azureActivityLog",
+  ]
 handoffs:
   - label: ▶ Run What-If Only
     agent: Deploy
@@ -76,7 +180,7 @@ handoffs:
 - ✅ Check `04-implementation-plan.md` for deployment strategy (phased/single)
 - ✅ If phased: deploy one phase at a time with approval gates between
 - ✅ Use **default output** for what-if commands (no `--output` flag) for VS Code rendering
-- ✅ Check Azure authentication first (`az account show`)
+- ✅ Check Azure authentication with **token validation** (`az account get-access-token`) — NOT just `az account show`
 - ✅ Present what-if change summary and wait for user approval before deploying
 - ✅ Require explicit approval for ANY Delete (`-`) operations
 - ✅ Generate `06-deployment-summary.md` after deployment
@@ -101,6 +205,35 @@ Before starting, validate:
 1. `infra/bicep/{project}/main.bicep` exists
 2. `05-implementation-reference.md` exists in `agent-output/{project}/`
 3. If either missing, STOP and request handoff to Bicep Code agent
+
+## MANDATORY: Azure CLI Token Validation
+
+> **CRITICAL**: `az account show` can succeed with stale cached metadata even when
+> no valid ARM token exists. This causes repeated auth prompts and deployment
+> failures, especially in devcontainers and WSL environments.
+
+**ALWAYS validate auth with a real token acquisition — NEVER rely on `az account show` alone.**
+
+```bash
+# Step 1: Quick context check (informational only — NOT sufficient for auth)
+az account show --output table
+
+# Step 2: MANDATORY — Validate real ARM token acquisition
+az account get-access-token --resource https://management.azure.com/ --output none
+```
+
+**If Step 2 fails** ("User does not exist in MSAL token cache"):
+
+1. Run `az login --use-device-code` (works reliably in devcontainers/WSL/Codespaces)
+2. Run `az account set --subscription {subscription-id}`
+3. Re-run Step 2 to confirm token is valid
+4. Only then proceed with what-if/deployment
+
+**Why this matters**: Azure CLI stores account metadata (`~/.azure/azureProfile.json`)
+separately from MSAL tokens. Container restarts, session timeouts, or interrupted
+logins can leave metadata intact while tokens are missing or expired.
+The Azure VS Code extension auth context is also separate from CLI auth —
+being signed in via the extension does NOT mean CLI commands will work.
 
 ## Preflight Validation Workflow
 
@@ -250,11 +383,13 @@ with preflight results but DO NOT execute deployment. Mark status as "Simulated"
 
 ## Known Issues
 
-| Issue                            | Workaround                              |
-| -------------------------------- | --------------------------------------- |
-| What-if fails (RG doesn't exist) | Create RG first: `az group create ...`  |
-| deploy.ps1 JSON parsing errors   | Use direct `az deployment group create` |
-| RBAC permission errors           | Use `--validation-level ProviderNoRbac` |
+| Issue                                     | Workaround                                                                                                                                                                              |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What-if fails (RG doesn't exist)          | Create RG first: `az group create ...`                                                                                                                                                  |
+| deploy.ps1 JSON parsing errors            | Use direct `az deployment group create`                                                                                                                                                 |
+| RBAC permission errors                    | Use `--validation-level ProviderNoRbac`                                                                                                                                                 |
+| MSAL token cache stale (devcontainer/WSL) | Run `az login --use-device-code` in the **same terminal** used for deployment. `az account show` may succeed while ARM calls fail — always validate with `az account get-access-token`. |
+| Azure extension auth ≠ CLI auth           | VS Code Azure extension and `az` CLI use separate token stores. Being signed in via the extension does NOT authenticate CLI commands. Always validate CLI auth independently.           |
 
 ## Output Files
 
@@ -267,7 +402,7 @@ After saving, run `npm run lint:artifact-templates` and fix any errors for your 
 
 ## Validation Checklist
 
-- [ ] Azure CLI authenticated (`az account show` succeeds)
+- [ ] Azure CLI authenticated (`az account get-access-token --resource https://management.azure.com/` succeeds)
 - [ ] `bicep build` passes with no errors
 - [ ] What-if analysis completed and reviewed
 - [ ] No unapproved Delete operations
