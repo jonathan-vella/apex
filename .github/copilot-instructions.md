@@ -42,6 +42,12 @@ Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their bod
   Examples: `gh pr create ...`, `gh workflow run ...`, `gh api ...`.
 - Automatically follow the `github-operations` skill guidance (MCP-first, `gh` CLI fallback) from `.github/skills/github-operations/SKILL.md`.
 
+### GitHub MCP Priority (Mandatory)
+
+- For issues and pull requests, always prefer GitHub MCP tools over `gh` CLI.
+- Only use `gh` for operations that have no equivalent MCP write tool in the current environment.
+- In devcontainers, do not run `gh auth` commands unless the user explicitly asks for CLI authentication troubleshooting.
+
 ## Key Conventions
 
 - **Default region**: `swedencentral` (exception: Static Web Apps → `westeurope`)

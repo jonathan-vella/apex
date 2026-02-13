@@ -15,6 +15,7 @@
     "fix:artifact-h2": "node scripts/fix-artifact-h2.mjs",
     "lint:version-sync": "node scripts/validate-version-sync.mjs",
     "lint:deprecated-refs": "node scripts/validate-no-deprecated-refs.mjs",
+    "lint:mcp-config": "node scripts/validate-mcp-config.mjs",
     "lint:docs-freshness": "node scripts/check-docs-freshness.mjs",
     "lint:agent-frontmatter": "node scripts/validate-agent-frontmatter.mjs",
     "lint:skills-format": "node scripts/validate-skills-format.mjs",
@@ -26,7 +27,7 @@
     "validate:agents": "npm run lint:agent-frontmatter && npm run lint:skills-format",
     "test:1109": "npm run validate:vscode && npm run validate:agents && echo '✅ VS Code 1.109 validation passed'",
     "fetch:deprecations": "node scripts/fetch-azure-deprecations.mjs",
-    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:json && echo '✅ All validations passed'"
+    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:mcp-config && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:json && echo '✅ All validations passed'"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

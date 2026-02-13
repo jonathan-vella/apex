@@ -50,6 +50,9 @@ jobs:
       - name: Validate JSON files
         run: npm run lint:json
 
+      - name: Validate MCP config
+        run: npm run lint:mcp-config
+
       - name: Docs freshness check
         run: npm run lint:docs-freshness
         continue-on-error: true

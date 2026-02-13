@@ -140,6 +140,49 @@ if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null;
 fi
 az config set auto-upgrade.enable=no --only-show-errors 2>/dev/null || true
 
+# Ensure workspace MCP config includes required servers
+echo "🔌 Ensuring MCP server configuration..."
+MCP_CONFIG_PATH="${PWD}/.vscode/mcp.json"
+mkdir -p "${PWD}/.vscode"
+python3 - "$MCP_CONFIG_PATH" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+config_path = Path(sys.argv[1])
+
+default_azure_pricing = {
+    "type": "stdio",
+    "command": "${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
+    "args": ["-m", "azure_pricing_mcp"],
+    "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src",
+}
+
+default_github = {
+    "type": "http",
+    "url": "https://api.githubcopilot.com/mcp/",
+}
+
+data = {"servers": {}}
+
+if config_path.exists():
+    raw = config_path.read_text(encoding="utf-8").strip()
+    if raw:
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            backup = config_path.with_suffix(config_path.suffix + ".bak")
+            backup.write_text(raw + "\n", encoding="utf-8")
+            data = {"servers": {}}
+
+servers = data.setdefault("servers", {})
+servers.setdefault("azure-pricing", default_azure_pricing)
+servers.setdefault("github", default_github)
+
+config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+print("  ✅ MCP config ensured (.vscode/mcp.json)")
+PY
+
 # Verify installations
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

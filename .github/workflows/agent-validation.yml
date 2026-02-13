@@ -12,9 +12,11 @@ on:
       - ".github/skills/**"
       - ".github/instructions/**"
       - ".devcontainer/devcontainer.json"
+      - ".vscode/mcp.json"
       - ".vscode/extensions.json"
       - "scripts/validate-agent-frontmatter.mjs"
       - "scripts/validate-skills-format.mjs"
+      - "scripts/validate-mcp-config.mjs"
       - "scripts/validate-vscode-config.mjs"
       - "scripts/validate-instruction-frontmatter.mjs"
   pull_request:
@@ -24,11 +26,16 @@ on:
       - ".github/skills/**"
       - ".github/instructions/**"
       - ".devcontainer/devcontainer.json"
+      - ".vscode/mcp.json"
       - ".vscode/extensions.json"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -49,6 +56,9 @@ jobs:
 
       - name: Run VS Code 1.109 validation suite
         run: npm run test:1109
+
+      - name: Validate MCP config
+        run: npm run lint:mcp-config
 
       - name: Validate instruction file frontmatter
         run: npm run lint:instruction-frontmatter
