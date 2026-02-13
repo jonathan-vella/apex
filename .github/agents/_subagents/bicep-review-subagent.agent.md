@@ -5,7 +5,8 @@ model: "GPT-5.3-Codex (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools: ["read", "search", "web"]
+tools:
+  [read, search, web, 'azure-mcp/*', 'bicep/*', ms-azuretools.vscode-azureresourcegroups/azureActivityLog]
 ---
 
 # Bicep Review Subagent

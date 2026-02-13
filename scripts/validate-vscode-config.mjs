@@ -27,7 +27,7 @@ const REQUIRED_SETTINGS = [
 // Required extensions for full orchestration support
 const REQUIRED_EXTENSIONS = [
   "GitHub.copilot-chat",
-  "ms-azuretools.vscode-azure-github-copilot",
+  "ms-azuretools.vscode-azure-mcp-server",
   "ms-azuretools.vscode-bicep",
   "DavidAnson.vscode-markdownlint",
 ];

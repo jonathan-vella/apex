@@ -5,7 +5,110 @@ description: Interactive diagnostic agent that guides users through Azure resour
 user-invokable: true
 agents: ["*"]
 tools:
-  ['vscode/extensions', 'vscode/getProjectSetupInfo', 'vscode/installExtension', 'vscode/newWorkspace', 'vscode/openSimpleBrowser', 'vscode/runCommand', 'vscode/askQuestions', 'vscode/vscodeAPI', 'execute/getTerminalOutput', 'execute/awaitTerminal', 'execute/killTerminal', 'execute/createAndRunTask', 'execute/runTests', 'execute/runNotebookCell', 'execute/testFailure', 'execute/runInTerminal', 'read/terminalSelection', 'read/terminalLastCommand', 'read/getNotebookSummary', 'read/problems', 'read/readFile', 'read/readNotebookCellOutput', 'agent/runSubagent', 'edit/createDirectory', 'edit/createFile', 'edit/createJupyterNotebook', 'edit/editFiles', 'edit/editNotebook', 'search/changes', 'search/codebase', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'web/fetch', 'web/githubRepo', 'azure-mcp/acr', 'azure-mcp/aks', 'azure-mcp/appconfig', 'azure-mcp/applens', 'azure-mcp/applicationinsights', 'azure-mcp/appservice', 'azure-mcp/azd', 'azure-mcp/azureterraformbestpractices', 'azure-mcp/bicepschema', 'azure-mcp/cloudarchitect', 'azure-mcp/communication', 'azure-mcp/confidentialledger', 'azure-mcp/cosmos', 'azure-mcp/datadog', 'azure-mcp/deploy', 'azure-mcp/documentation', 'azure-mcp/eventgrid', 'azure-mcp/eventhubs', 'azure-mcp/extension_azqr', 'azure-mcp/extension_cli_generate', 'azure-mcp/extension_cli_install', 'azure-mcp/foundry', 'azure-mcp/functionapp', 'azure-mcp/get_bestpractices', 'azure-mcp/grafana', 'azure-mcp/group_list', 'azure-mcp/keyvault', 'azure-mcp/kusto', 'azure-mcp/loadtesting', 'azure-mcp/managedlustre', 'azure-mcp/marketplace', 'azure-mcp/monitor', 'azure-mcp/mysql', 'azure-mcp/postgres', 'azure-mcp/quota', 'azure-mcp/redis', 'azure-mcp/resourcehealth', 'azure-mcp/role', 'azure-mcp/search', 'azure-mcp/servicebus', 'azure-mcp/signalr', 'azure-mcp/speech', 'azure-mcp/sql', 'azure-mcp/storage', 'azure-mcp/subscription_list', 'azure-mcp/virtualdesktop', 'azure-mcp/workbooks', 'todo', 'memory', 'ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes', 'ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph', 'ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag', 'ms-azuretools.vscode-azureresourcegroups/azureActivityLog']
+  [
+    vscode/extensions,
+    vscode/getProjectSetupInfo,
+    vscode/installExtension,
+    vscode/newWorkspace,
+    vscode/openSimpleBrowser,
+    vscode/runCommand,
+    vscode/askQuestions,
+    vscode/vscodeAPI,
+    execute/getTerminalOutput,
+    execute/awaitTerminal,
+    execute/killTerminal,
+    execute/createAndRunTask,
+    execute/runTests,
+    execute/runNotebookCell,
+    execute/testFailure,
+    execute/runInTerminal,
+    read/terminalSelection,
+    read/terminalLastCommand,
+    read/getNotebookSummary,
+    read/problems,
+    read/readFile,
+    read/readNotebookCellOutput,
+    agent/runSubagent,
+    edit/createDirectory,
+    edit/createFile,
+    edit/createJupyterNotebook,
+    edit/editFiles,
+    edit/editNotebook,
+    search/changes,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/searchResults,
+    search/textSearch,
+    search/usages,
+    search/searchSubagent,
+    web/fetch,
+    web/githubRepo,
+    azure-mcp/acr,
+    azure-mcp/aks,
+    azure-mcp/appconfig,
+    azure-mcp/applens,
+    azure-mcp/applicationinsights,
+    azure-mcp/appservice,
+    azure-mcp/azd,
+    azure-mcp/azureterraformbestpractices,
+    azure-mcp/bicepschema,
+    azure-mcp/cloudarchitect,
+    azure-mcp/communication,
+    azure-mcp/confidentialledger,
+    azure-mcp/cosmos,
+    azure-mcp/datadog,
+    azure-mcp/deploy,
+    azure-mcp/documentation,
+    azure-mcp/eventgrid,
+    azure-mcp/eventhubs,
+    azure-mcp/extension_azqr,
+    azure-mcp/extension_cli_generate,
+    azure-mcp/extension_cli_install,
+    azure-mcp/foundry,
+    azure-mcp/functionapp,
+    azure-mcp/get_bestpractices,
+    azure-mcp/grafana,
+    azure-mcp/group_list,
+    azure-mcp/keyvault,
+    azure-mcp/kusto,
+    azure-mcp/loadtesting,
+    azure-mcp/managedlustre,
+    azure-mcp/marketplace,
+    azure-mcp/monitor,
+    azure-mcp/mysql,
+    azure-mcp/postgres,
+    azure-mcp/quota,
+    azure-mcp/redis,
+    azure-mcp/resourcehealth,
+    azure-mcp/role,
+    azure-mcp/search,
+    azure-mcp/servicebus,
+    azure-mcp/signalr,
+    azure-mcp/speech,
+    azure-mcp/sql,
+    azure-mcp/storage,
+    azure-mcp/subscription_list,
+    azure-mcp/virtualdesktop,
+    azure-mcp/workbooks,
+    bicep/decompile_arm_parameters_file,
+    bicep/decompile_arm_template_file,
+    bicep/format_bicep_file,
+    bicep/get_az_resource_type_schema,
+    bicep/get_bicep_best_practices,
+    bicep/get_bicep_file_diagnostics,
+    bicep/get_deployment_snapshot,
+    bicep/get_file_references,
+    bicep/list_avm_metadata,
+    bicep/list_az_resource_types_for_provider,
+    todo,
+    vscode.mermaid-chat-features/renderMermaidDiagram,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+    ms-python.python/getPythonEnvironmentInfo,
+    ms-python.python/getPythonExecutableCommand,
+    ms-python.python/installPythonPackage,
+    ms-python.python/configurePythonEnvironment,
+  ]
 handoffs:
   - label: ▶ Expand Scope
     agent: Diagnose
@@ -42,12 +145,12 @@ for troubleshooting existing deployments.
 
 ## Core Principles
 
-| Principle | Description |
-| --- | --- |
+| Principle          | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
 | **Approval-First** | Present ALL commands before execution; wait for user confirmation |
-| **Flexible Scope** | Support single-resource OR resource-group-level diagnostics |
-| **Interactive** | Ask clarifying questions at each phase transition |
-| **Educational** | Explain what each diagnostic step reveals and why |
+| **Flexible Scope** | Support single-resource OR resource-group-level diagnostics       |
+| **Interactive**    | Ask clarifying questions at each phase transition                 |
+| **Educational**    | Explain what each diagnostic step reveals and why                 |
 
 ## DO / DON'T
 
@@ -72,6 +175,7 @@ for troubleshooting existing deployments.
 ### Phase 1: Resource Discovery
 
 Ask user to identify the target:
+
 - Specific resource, resource group, or resource type across subscription
 - Use Azure Resource Graph for discovery (preferred over `az resource list`)
 
@@ -88,13 +192,13 @@ Ask which aspects concern the user: availability, performance, errors, costs, or
 
 Run resource-type-specific health checks:
 
-| Resource Type | Key Commands |
-| --- | --- |
+| Resource Type      | Key Commands                                                        |
+| ------------------ | ------------------------------------------------------------------- |
 | Web App / Function | `az webapp show`, `az monitor metrics list` (Http5xx, ResponseTime) |
-| VM | `az vm show --show-details`, `az vm boot-diagnostics` |
-| Storage | `az storage account show`, metrics (Availability, Latency) |
-| SQL Database | `az sql db show`, metrics (DTU%, CPU%, Storage%) |
-| Static Web App | `az staticwebapp show`, `curl -I` health check |
+| VM                 | `az vm show --show-details`, `az vm boot-diagnostics`               |
+| Storage            | `az storage account show`, metrics (Availability, Latency)          |
+| SQL Database       | `az sql db show`, metrics (DTU%, CPU%, Storage%)                    |
+| Static Web App     | `az staticwebapp show`, `curl -I` health check                      |
 
 **Checkpoint**: Present health summary table (metric, status, value, threshold).
 
@@ -116,12 +220,12 @@ Present each query with explanation before execution.
 
 Categorize findings by severity:
 
-| Severity | Icon | Criteria |
-| --- | --- | --- |
-| Critical | 🔴 | Service unavailable, data loss risk, security breach |
-| High | 🟠 | Significant degradation, intermittent failures |
-| Medium | 🟡 | Noticeable impact, suboptimal performance |
-| Low | 🟢 | Minor issues, optimization opportunities |
+| Severity | Icon | Criteria                                             |
+| -------- | ---- | ---------------------------------------------------- |
+| Critical | 🔴   | Service unavailable, data loss risk, security breach |
+| High     | 🟠   | Significant degradation, intermittent failures       |
+| Medium   | 🟡   | Noticeable impact, suboptimal performance            |
+| Low      | 🟢   | Minor issues, optimization opportunities             |
 
 Root cause categories: Configuration, Resource Constraints, Network, Application, External, Security.
 
@@ -132,10 +236,12 @@ Root cause categories: Configuration, Resource Constraints, Network, Application
 For EACH remediation action, present:
 
 > ⚠️ **Remediation Action Approval**
-> **Issue**: {description}  |  **Action**: {fix}  |  **Risk**: {side effects}  |  **Rollback**: {undo}
+> **Issue**: {description} | **Action**: {fix} | **Risk**: {side effects} | **Rollback**: {undo}
+>
 > ```bash
 > {command}
 > ```
+>
 > 👉 **Execute?** (y/n/skip)
 
 Common actions: scale up/out, restart, config changes, enable diagnostics.
@@ -152,27 +258,33 @@ Save to `agent-output/{project}/08-resource-health-report.md`:
 **Resource**: {full-resource-id}
 
 ## Executive Summary
+
 | Metric | Before | After | Status |
 ...
 
 ## Resource Details
+
 ## Issues Identified (by severity)
+
 ## Remediation Actions Taken
+
 ## Monitoring Recommendations
+
 ## Prevention Recommendations
+
 ## Next Steps
 ```
 
 ## Error Handling
 
-| Error | Response |
-| --- | --- |
-| Resource not found | Ask for correct name, offer search |
-| Auth failed | Guide through `az login` |
-| Insufficient permissions | List required RBAC roles |
-| No logs available | Suggest enabling diagnostics |
-| Query timeout | Break into smaller time windows |
-| MCP tool unavailable | Fall back to Azure CLI |
+| Error                    | Response                           |
+| ------------------------ | ---------------------------------- |
+| Resource not found       | Ask for correct name, offer search |
+| Auth failed              | Guide through `az login`           |
+| Insufficient permissions | List required RBAC roles           |
+| No logs available        | Suggest enabling diagnostics       |
+| Query timeout            | Break into smaller time windows    |
+| MCP tool unavailable     | Fall back to Azure CLI             |
 
 ## Validation Checklist
 

@@ -1,11 +1,12 @@
 ---
 name: bicep-lint-subagent
 description: Bicep syntax validation subagent. Runs bicep lint and bicep build to validate template syntax and catch errors before deployment. Returns structured PASS/FAIL with diagnostics.
-model: "Claude Haiku 4.5 (copilot)"
+model: "GPT-5.3-Codex (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools: ["execute", "read", "search"]
+tools:
+  [execute, read, search, 'azure-mcp/*', 'bicep/*', ms-azuretools.vscode-azureresourcegroups/azureActivityLog]
 ---
 
 # Bicep Lint Subagent

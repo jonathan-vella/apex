@@ -79,7 +79,7 @@ query the actual policy definition JSON to verify impact.
 
 For Azure Resource Graph queries (supplemental, NOT primary):
 
-Use `azure_resources-query_azure_resource_graph` with intent:
+Use `az graph query` (Azure CLI) or Azure MCP `azure-mcp/search` with intent:
 
 ```text
 Query ALL Azure Policy assignments including their display names, effects (deny/audit/modify),
@@ -108,7 +108,7 @@ policyresources
     policyresources
     | where type =~ 'microsoft.authorization/policydefinitions'
     | extend policyDefId = tolower(id)
-    | project policyDefId, 
+    | project policyDefId,
               policyRule = properties.policyRule,
               description = properties.description
 ) on policyDefId
@@ -135,7 +135,7 @@ policyresources
     policyresources
     | where type =~ 'microsoft.authorization/policydefinitions'
     | extend policyDefId = tolower(id)
-    | project policyDefId, 
+    | project policyDefId,
               policyRule = properties.policyRule,
               description = properties.description
 ) on policyDefId
@@ -171,7 +171,7 @@ for assignment in $(jq -r '.[].definitionId' policy-assignments.json); do
     # Custom policy - extract management group ID
     mgId=$(echo $assignment | grep -oP '/managementGroups/\K[^/]+')
     policyId=$(echo $assignment | grep -oP '/policyDefinitions/\K.*')
-    
+
     az policy definition show \
       --name "$policyId" \
       --management-group "$mgId" \
@@ -180,7 +180,7 @@ for assignment in $(jq -r '.[].definitionId' policy-assignments.json); do
   else
     # Built-in policy
     policyId=$(echo $assignment | grep -oP '/policyDefinitions/\K.*')
-    
+
     az policy definition show \
       --name "$policyId" \
       --query "{displayName:displayName, description:description, policyRule:policyRule, parameters:parameters}" \
@@ -194,12 +194,14 @@ done
 When analyzing `policyRule.if` conditions, extract:
 
 1. **Resource Types Affected**:
+
    ```json
    "field": "type",
    "equals": "Microsoft.Storage/storageAccounts"  // Only affects Storage Accounts
    ```
 
 2. **Conditional Logic**:
+
    ```json
    "allOf": [  // ALL conditions must be true
      {"field": "type", "equals": "Microsoft.ClassicCompute/virtualMachines"},
@@ -216,12 +218,12 @@ When analyzing `policyRule.if` conditions, extract:
 
 **Red Flags for Misleading Names**:
 
-| Policy Name Pattern | Likely Actual Behavior | Verify By Checking |
-|---------------------|----------------------|-------------------|
-| "Block Azure RM..." | May only block Classic resources | policyRule.if contains "ClassicCompute", "ClassicStorage", etc. |
-| "Require [feature]" | May only apply to specific resource types | policyRule.if.field == "type" |
-| "Deny [action]" with tag reference | May only apply if specific tags exist | policyRule.if contains resourceGroup().tags |
-| "Enforce [setting]" | May only modify, not deny | policyRule.then.effect == "modify" or "deployIfNotExists" |
+| Policy Name Pattern                | Likely Actual Behavior                    | Verify By Checking                                              |
+| ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------- |
+| "Block Azure RM..."                | May only block Classic resources          | policyRule.if contains "ClassicCompute", "ClassicStorage", etc. |
+| "Require [feature]"                | May only apply to specific resource types | policyRule.if.field == "type"                                   |
+| "Deny [action]" with tag reference | May only apply if specific tags exist     | policyRule.if contains resourceGroup().tags                     |
+| "Enforce [setting]"                | May only modify, not deny                 | policyRule.then.effect == "modify" or "deployIfNotExists"       |
 
 **Validation Checklist** (complete before documenting policy impact):
 
@@ -272,14 +274,14 @@ The `04-governance-constraints.md` file MUST include:
 > [!IMPORTANT]
 > Governance constraints discovered via REST API including management group-inherited policies.
 
-| Query              | Result                  | Timestamp  |
-| ------------------ | ----------------------- | ---------- |
-| REST API Total     | {X} assignments total   | {ISO-8601} |
-| Subscription-scope | {X} direct assignments  | {ISO-8601} |
-| MG-inherited       | {X} inherited policies  | {ISO-8601} |
-| Deny-effect        | {X} blockers found      | {ISO-8601} |
-| Tag Policies       | {X} tags required       | {ISO-8601} |
-| Security Policies  | {X} constraints         | {ISO-8601} |
+| Query              | Result                 | Timestamp  |
+| ------------------ | ---------------------- | ---------- |
+| REST API Total     | {X} assignments total  | {ISO-8601} |
+| Subscription-scope | {X} direct assignments | {ISO-8601} |
+| MG-inherited       | {X} inherited policies | {ISO-8601} |
+| Deny-effect        | {X} blockers found     | {ISO-8601} |
+| Tag Policies       | {X} tags required      | {ISO-8601} |
+| Security Policies  | {X} constraints        | {ISO-8601} |
 
 **Discovery Method**: REST API (`/providers/Microsoft.Authorization/policyAssignments`)
 **Subscription**: {subscription-name} (`{subscription-id}`)
@@ -422,13 +424,13 @@ policyresources
 
 ### Effect-Based Actions
 
-| Policy Effect | Impact | Required Action |
-|--------------|--------|----------------|
-| **Deny** | Deployment blocked if non-compliant | Adapt architecture OR flag exemption requirement |
-| **DeployIfNotExists** | Missing resources auto-deployed | Include expected resources in plan |
-| **Modify** | Resources auto-modified at deployment | Document expected modifications |
-| **Audit** | Non-compliance logged but allowed | Document compliance expectations |
-| **Disabled** | Policy not enforced | Note for awareness |
+| Policy Effect         | Impact                                | Required Action                                  |
+| --------------------- | ------------------------------------- | ------------------------------------------------ |
+| **Deny**              | Deployment blocked if non-compliant   | Adapt architecture OR flag exemption requirement |
+| **DeployIfNotExists** | Missing resources auto-deployed       | Include expected resources in plan               |
+| **Modify**            | Resources auto-modified at deployment | Document expected modifications                  |
+| **Audit**             | Non-compliance logged but allowed     | Document compliance expectations                 |
+| **Disabled**          | Policy not enforced                   | Note for awareness                               |
 
 ### Critical Decision Tree
 
@@ -463,9 +465,9 @@ Does it apply to this deployment?
 
 ### Architectural Changes
 
-| Original Design | Blocking Policy | Effect | Adaptation Applied |
-|-----------------|----------------|--------|-------------------|
-| Public blob storage | "Deny public storage accounts" | Deny | Private endpoints + vNet integration |
+| Original Design     | Blocking Policy                | Effect | Adaptation Applied                   |
+| ------------------- | ------------------------------ | ------ | ------------------------------------ |
+| Public blob storage | "Deny public storage accounts" | Deny   | Private endpoints + vNet integration |
 ```
 
 **Example 2: Required Diagnostic Settings**
@@ -475,8 +477,8 @@ Does it apply to this deployment?
 
 ### Auto-Applied Resources
 
-| Policy | Effect | Auto-Applied Resource |
-|--------|--------|----------------------|
+| Policy                                   | Effect            | Auto-Applied Resource             |
+| ---------------------------------------- | ----------------- | --------------------------------- |
 | "Deploy diagnostic settings for Storage" | DeployIfNotExists | Log Analytics diagnostic settings |
 ```
 
@@ -503,7 +505,6 @@ Does it apply to this deployment?
    - **Duration**: Temporary (7 days)
    - **Risk Level**: Low (dev/test subscription)
    - **Approval Process**: Submit via Azure Portal or contact governance team
-   
 2. **Alternative Architecture**:
    - Use Azure CLI/PowerShell scripts instead of Bicep
    - **Not Recommended**: Defeats purpose of IaC validation
@@ -511,6 +512,7 @@ Does it apply to this deployment?
 **Status**: ⚠️ **DEPLOYMENT CANNOT PROCEED WITHOUT EXEMPTION APPROVAL**
 
 **Next Steps**:
+
 - [ ] User confirms exemption is in place
 - [ ] OR User provides exemption approval timeline
 - [ ] OR User selects alternative deployment method

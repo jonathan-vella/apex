@@ -1,7 +1,7 @@
 {
   "recommendations": [
     "GitHub.copilot-chat",
-    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-azuretools.vscode-azure-mcp-server",
     "ms-azuretools.vscode-bicep",
     "DavidAnson.vscode-markdownlint",
     "ms-vscode.copilot-mermaid-diagram",

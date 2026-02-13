@@ -5,7 +5,106 @@ model: ["Claude Opus 4.6"]
 user-invokable: true
 agents: ["*"]
 tools:
-  ['vscode/extensions', 'vscode/getProjectSetupInfo', 'vscode/installExtension', 'vscode/newWorkspace', 'vscode/openSimpleBrowser', 'vscode/runCommand', 'vscode/askQuestions', 'vscode/vscodeAPI', 'execute/getTerminalOutput', 'execute/awaitTerminal', 'execute/killTerminal', 'execute/createAndRunTask', 'execute/runTests', 'execute/runNotebookCell', 'execute/testFailure', 'execute/runInTerminal', 'read/terminalSelection', 'read/terminalLastCommand', 'read/getNotebookSummary', 'read/problems', 'read/readFile', 'read/readNotebookCellOutput', 'agent/runSubagent', 'edit/createDirectory', 'edit/createFile', 'edit/createJupyterNotebook', 'edit/editFiles', 'edit/editNotebook', 'search/changes', 'search/codebase', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'web/fetch', 'web/githubRepo', 'azure-pricing/azure_cost_estimate', 'azure-pricing/azure_discover_skus', 'azure-pricing/azure_price_compare', 'azure-pricing/azure_price_search', 'azure-pricing/azure_region_recommend', 'azure-pricing/azure_ri_pricing', 'azure-pricing/azure_sku_discovery', 'azure-pricing/get_customer_discount', 'azure-pricing/simulate_eviction', 'azure-pricing/spot_eviction_rates', 'azure-pricing/spot_price_history', 'azure-mcp/acr', 'azure-mcp/aks', 'azure-mcp/appconfig', 'azure-mcp/applens', 'azure-mcp/applicationinsights', 'azure-mcp/appservice', 'azure-mcp/azd', 'azure-mcp/azureterraformbestpractices', 'azure-mcp/bicepschema', 'azure-mcp/cloudarchitect', 'azure-mcp/communication', 'azure-mcp/confidentialledger', 'azure-mcp/cosmos', 'azure-mcp/datadog', 'azure-mcp/deploy', 'azure-mcp/documentation', 'azure-mcp/eventgrid', 'azure-mcp/eventhubs', 'azure-mcp/extension_azqr', 'azure-mcp/extension_cli_generate', 'azure-mcp/extension_cli_install', 'azure-mcp/foundry', 'azure-mcp/functionapp', 'azure-mcp/get_bestpractices', 'azure-mcp/grafana', 'azure-mcp/group_list', 'azure-mcp/keyvault', 'azure-mcp/kusto', 'azure-mcp/loadtesting', 'azure-mcp/managedlustre', 'azure-mcp/marketplace', 'azure-mcp/monitor', 'azure-mcp/mysql', 'azure-mcp/postgres', 'azure-mcp/quota', 'azure-mcp/redis', 'azure-mcp/resourcehealth', 'azure-mcp/role', 'azure-mcp/search', 'azure-mcp/servicebus', 'azure-mcp/signalr', 'azure-mcp/speech', 'azure-mcp/sql', 'azure-mcp/storage', 'azure-mcp/subscription_list', 'azure-mcp/virtualdesktop', 'azure-mcp/workbooks', 'todo', 'memory', 'ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes', 'ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph', 'ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag', 'ms-azuretools.vscode-azureresourcegroups/azureActivityLog']
+  [
+    vscode/extensions,
+    vscode/getProjectSetupInfo,
+    vscode/installExtension,
+    vscode/newWorkspace,
+    vscode/openSimpleBrowser,
+    vscode/runCommand,
+    vscode/askQuestions,
+    vscode/vscodeAPI,
+    execute/getTerminalOutput,
+    execute/awaitTerminal,
+    execute/killTerminal,
+    execute/createAndRunTask,
+    execute/runTests,
+    execute/runNotebookCell,
+    execute/testFailure,
+    execute/runInTerminal,
+    read/terminalSelection,
+    read/terminalLastCommand,
+    read/getNotebookSummary,
+    read/problems,
+    read/readFile,
+    read/readNotebookCellOutput,
+    agent/runSubagent,
+    edit/createDirectory,
+    edit/createFile,
+    edit/createJupyterNotebook,
+    edit/editFiles,
+    edit/editNotebook,
+    search/changes,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/searchResults,
+    search/textSearch,
+    search/usages,
+    search/searchSubagent,
+    web/fetch,
+    web/githubRepo,
+    azure-mcp/acr,
+    azure-mcp/aks,
+    azure-mcp/appconfig,
+    azure-mcp/applens,
+    azure-mcp/applicationinsights,
+    azure-mcp/appservice,
+    azure-mcp/azd,
+    azure-mcp/azureterraformbestpractices,
+    azure-mcp/bicepschema,
+    azure-mcp/cloudarchitect,
+    azure-mcp/communication,
+    azure-mcp/confidentialledger,
+    azure-mcp/cosmos,
+    azure-mcp/datadog,
+    azure-mcp/deploy,
+    azure-mcp/documentation,
+    azure-mcp/eventgrid,
+    azure-mcp/eventhubs,
+    azure-mcp/extension_azqr,
+    azure-mcp/extension_cli_generate,
+    azure-mcp/extension_cli_install,
+    azure-mcp/foundry,
+    azure-mcp/functionapp,
+    azure-mcp/get_bestpractices,
+    azure-mcp/grafana,
+    azure-mcp/group_list,
+    azure-mcp/keyvault,
+    azure-mcp/kusto,
+    azure-mcp/loadtesting,
+    azure-mcp/managedlustre,
+    azure-mcp/marketplace,
+    azure-mcp/monitor,
+    azure-mcp/mysql,
+    azure-mcp/postgres,
+    azure-mcp/quota,
+    azure-mcp/redis,
+    azure-mcp/resourcehealth,
+    azure-mcp/role,
+    azure-mcp/search,
+    azure-mcp/servicebus,
+    azure-mcp/signalr,
+    azure-mcp/speech,
+    azure-mcp/sql,
+    azure-mcp/storage,
+    azure-mcp/subscription_list,
+    azure-mcp/virtualdesktop,
+    azure-mcp/workbooks,
+    azure-pricing/azure_cost_estimate,
+    azure-pricing/azure_discover_skus,
+    azure-pricing/azure_price_compare,
+    azure-pricing/azure_price_search,
+    azure-pricing/azure_region_recommend,
+    azure-pricing/azure_ri_pricing,
+    azure-pricing/azure_sku_discovery,
+    azure-pricing/get_customer_discount,
+    azure-pricing/simulate_eviction,
+    azure-pricing/spot_eviction_rates,
+    azure-pricing/spot_price_history,
+    todo,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 handoffs:
   - label: ▶ Refresh Cost Estimate
     agent: Architect
@@ -56,7 +155,7 @@ handoffs:
 3. **Read** the template files for your artifacts:
    - `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md`
    - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
-   Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
+     Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 
@@ -107,8 +206,8 @@ Verify these are documented (ask user if missing):
 4. **Estimate costs** — Use Azure Pricing MCP for real-time SKU pricing
 5. **Generate assessment** — Save `02-architecture-assessment.md` following template H2s
 6. **Generate cost estimate** — Save `03-des-cost-estimate.md` following template H2s
-8. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
-9. **Approval gate** — Present summary, wait for user approval before handoff
+7. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
+8. **Approval gate** — Present summary, wait for user approval before handoff
 
 ## Cost Estimation (MANDATORY)
 
