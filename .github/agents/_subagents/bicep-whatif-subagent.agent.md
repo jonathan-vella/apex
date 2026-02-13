@@ -31,15 +31,17 @@ You are a **DEPLOYMENT PREVIEW SUBAGENT** called by a parent CONDUCTOR agent.
 
 1. **Receive template path and parameters** from parent agent
 2. **Verify Azure authentication** using `azure_get_auth_context`
-3. **Run what-if analysis**:
+3. **Validate CLI token** — run `az account get-access-token --resource https://management.azure.com/ --output none`.
+   If this fails, instruct user to run `az login --use-device-code` (NOT just `az account show`, which can succeed with stale metadata).
+4. **Run what-if analysis**:
    ```bash
    az deployment group what-if \
      --resource-group {rg-name} \
      --template-file {template-path} \
      --parameters {params-file}
    ```
-4. **Analyze results** for policy violations, changes, and cost impact
-5. **Return structured summary** to parent
+5. **Analyze results** for policy violations, changes, and cost impact
+6. **Return structured summary** to parent
 
 ## Output Format
 
@@ -78,6 +80,7 @@ Recommendation: {proceed/review/block}
 ## What-If Commands
 
 ### Basic What-If
+
 ```bash
 az deployment group what-if \
   --resource-group rg-{project}-{env}-{region} \
@@ -86,6 +89,7 @@ az deployment group what-if \
 ```
 
 ### What-If with Subscription Scope
+
 ```bash
 az deployment sub what-if \
   --location swedencentral \
@@ -93,6 +97,7 @@ az deployment sub what-if \
 ```
 
 ### What-If Output as JSON (for parsing)
+
 ```bash
 az deployment group what-if \
   --resource-group rg-{project}-{env}-{region} \
@@ -102,14 +107,14 @@ az deployment group what-if \
 
 ## Change Types Analysis
 
-| Change Type | Symbol | Action |
-|-------------|--------|--------|
-| Create | + | New resource being created |
-| Delete | - | Resource being removed |
-| Modify | ~ | Existing resource changing |
-| Deploy | = | No change detected |
-| Ignore | * | Resource excluded from deployment |
-| NoChange | | Resource unchanged |
+| Change Type | Symbol | Action                            |
+| ----------- | ------ | --------------------------------- |
+| Create      | +      | New resource being created        |
+| Delete      | -      | Resource being removed            |
+| Modify      | ~      | Existing resource changing        |
+| Deploy      | =      | No change detected                |
+| Ignore      | \*     | Resource excluded from deployment |
+| NoChange    |        | Resource unchanged                |
 
 ## Policy Violation Detection
 
@@ -123,13 +128,13 @@ Watch for these patterns in what-if output:
 
 ## Result Interpretation
 
-| Condition | Status | Recommendation |
-|-----------|--------|----------------|
-| No policy violations, expected changes | PASS | Proceed to code review |
-| Policy warnings only | WARNING | Review warnings, proceed if acceptable |
-| Any policy violations | FAIL | Must resolve violations |
-| Unexpected deletions | WARNING | Verify deletions are intentional |
-| High cost impact | WARNING | Review cost estimate |
+| Condition                              | Status  | Recommendation                         |
+| -------------------------------------- | ------- | -------------------------------------- |
+| No policy violations, expected changes | PASS    | Proceed to code review                 |
+| Policy warnings only                   | WARNING | Review warnings, proceed if acceptable |
+| Any policy violations                  | FAIL    | Must resolve violations                |
+| Unexpected deletions                   | WARNING | Verify deletions are intentional       |
+| High cost impact                       | WARNING | Review cost estimate                   |
 
 ## Constraints
 
@@ -137,4 +142,4 @@ Watch for these patterns in what-if output:
 - **NO MODIFICATIONS**: Do not change templates
 - **REPORT ONLY**: Return findings to parent agent
 - **STRUCTURED OUTPUT**: Always use the exact format above
-- **CHECK AUTH**: Verify authentication before running what-if
+- **CHECK AUTH**: Verify authentication using `az account get-access-token` — NOT `az account show` (which can succeed with stale MSAL cache, especially in devcontainers/WSL)
