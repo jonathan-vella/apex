@@ -5,7 +5,7 @@
  * Validates that VS Code 1.109 orchestration settings are correctly configured:
  * 1. Required settings exist in devcontainer.json
  * 2. Extensions.json includes all required extensions
- * 3. Devcontainer.json extensions match extensions.json
+ * 3. Devcontainer.json extension drift is explicitly allowlisted
  */
 
 import { readFileSync, existsSync } from "fs";
@@ -26,15 +26,58 @@ const REQUIRED_SETTINGS = [
 
 // Required extensions for full orchestration support
 const REQUIRED_EXTENSIONS = [
-  "GitHub.copilot",
   "GitHub.copilot-chat",
   "ms-azuretools.vscode-azure-github-copilot",
   "ms-azuretools.vscode-bicep",
   "DavidAnson.vscode-markdownlint",
 ];
 
+// Extensions intentionally installed only in devcontainer.json.
+// Keep this list explicit and minimal to avoid silent drift.
+const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
+  "github.vscode-github-actions",
+  "mechatroner.rainbow-csv",
+  "ms-azuretools.azure-dev",
+  "ms-azuretools.vscode-azurecontainerapps",
+  "ms-azuretools.vscode-azurestaticwebapps",
+  "ms-azuretools.vscode-containers",
+  "ms-kubernetes-tools.vscode-aks-tools",
+  "ms-kubernetes-tools.vscode-kubernetes-tools",
+  "ms-vscode.vscode-websearchforcopilot",
+  "mutantdino.resourcemonitor",
+]);
+
 let errors = [];
 let warnings = [];
+
+function normalizeExtensionId(extensionId) {
+  return String(extensionId || "")
+    .trim()
+    .toLowerCase();
+}
+
+function findDuplicateExtensions(extensions) {
+  const counts = new Map();
+  for (const extension of extensions) {
+    const key = normalizeExtensionId(extension);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([id]) => id)
+    .sort();
+}
+
+function checkRequiredExtensionsInList(sourceName, extensions) {
+  const normalized = new Set(extensions.map(normalizeExtensionId));
+  for (const requiredExtension of REQUIRED_EXTENSIONS) {
+    if (!normalized.has(normalizeExtensionId(requiredExtension))) {
+      errors.push(
+        `❌ Missing required extension in ${sourceName}: ${requiredExtension}`,
+      );
+    }
+  }
+}
 
 /**
  * Parse JSON with comments (JSONC) - handles devcontainer.json format
@@ -42,7 +85,7 @@ let warnings = [];
 function parseJsonc(content) {
   // Step 1: Remove block comments /* ... */
   let result = content.replace(/\/\*[\s\S]*?\*\//g, "");
-  
+
   // Step 2: Remove single-line comments // ... but not in strings
   // We do this line by line to be safe
   const lines = result.split("\n");
@@ -52,34 +95,34 @@ function parseJsonc(content) {
     let escapeNext = false;
     for (let i = 0; i < line.length - 1; i++) {
       const char = line[i];
-      
+
       if (escapeNext) {
         escapeNext = false;
         continue;
       }
-      
+
       if (char === "\\") {
         escapeNext = true;
         continue;
       }
-      
+
       if (char === '"') {
         inString = !inString;
         continue;
       }
-      
+
       if (!inString && char === "/" && line[i + 1] === "/") {
         return line.substring(0, i);
       }
     }
     return line;
   });
-  
+
   result = processedLines.join("\n");
-  
+
   // Step 3: Remove trailing commas before } or ]
   result = result.replace(/,(\s*[\]}])/g, "$1");
-  
+
   return JSON.parse(result);
 }
 
@@ -87,7 +130,10 @@ function parseJsonc(content) {
  * Check devcontainer.json for required settings
  */
 function validateDevcontainer() {
-  const devcontainerPath = resolve(REPO_ROOT, ".devcontainer/devcontainer.json");
+  const devcontainerPath = resolve(
+    REPO_ROOT,
+    ".devcontainer/devcontainer.json",
+  );
 
   if (!existsSync(devcontainerPath)) {
     errors.push("❌ .devcontainer/devcontainer.json not found");
@@ -115,7 +161,7 @@ function validateDevcontainer() {
     // Check if subagent setting is true
     if (settings["chat.customAgentInSubagent.enabled"] !== true) {
       errors.push(
-        "❌ chat.customAgentInSubagent.enabled must be true for Conductor orchestration"
+        "❌ chat.customAgentInSubagent.enabled must be true for Conductor orchestration",
       );
     }
 
@@ -126,7 +172,7 @@ function validateDevcontainer() {
     }
     if (!agentPaths[".github/agents/_subagents"]) {
       warnings.push(
-        "⚠️  .github/agents/_subagents not in chat.agentFilesLocations"
+        "⚠️  .github/agents/_subagents not in chat.agentFilesLocations",
       );
     }
 
@@ -136,7 +182,15 @@ function validateDevcontainer() {
       warnings.push("⚠️  .github/skills not in chat.agentSkillsLocations");
     }
 
-    // Store extensions for cross-check
+    checkRequiredExtensionsInList("devcontainer.json", extensions);
+
+    const duplicates = findDuplicateExtensions(extensions);
+    for (const duplicate of duplicates) {
+      warnings.push(
+        `⚠️  Duplicate extension in devcontainer.json: ${duplicate}`,
+      );
+    }
+
     return extensions;
   } catch (e) {
     errors.push(`❌ Failed to parse devcontainer.json: ${e.message}`);
@@ -152,7 +206,7 @@ function validateExtensions() {
 
   if (!existsSync(extensionsPath)) {
     warnings.push(
-      "⚠️  .vscode/extensions.json not found (optional but recommended)"
+      "⚠️  .vscode/extensions.json not found (optional but recommended)",
     );
     return [];
   }
@@ -164,15 +218,20 @@ function validateExtensions() {
     const config = JSON.parse(content);
     const recommendations = config?.recommendations || [];
 
+    checkRequiredExtensionsInList("extensions.json", recommendations);
+
     for (const ext of REQUIRED_EXTENSIONS) {
       const found = recommendations.some(
-        (r) => r.toLowerCase() === ext.toLowerCase()
+        (r) => normalizeExtensionId(r) === normalizeExtensionId(ext),
       );
-      if (!found) {
-        warnings.push(`⚠️  Missing recommended extension: ${ext}`);
-      } else {
+      if (found) {
         console.log(`   ✓ ${ext}`);
       }
+    }
+
+    const duplicates = findDuplicateExtensions(recommendations);
+    for (const duplicate of duplicates) {
+      warnings.push(`⚠️  Duplicate extension in extensions.json: ${duplicate}`);
     }
 
     return recommendations;
@@ -192,19 +251,41 @@ function crossCheckExtensions(devcontainerExts, extensionsJsonExts) {
 
   console.log("\n🔗 Cross-checking extension lists...");
 
-  const devLower = devcontainerExts.map((e) => e.toLowerCase());
-  const extLower = extensionsJsonExts.map((e) => e.toLowerCase());
+  const devSet = new Set(devcontainerExts.map(normalizeExtensionId));
+  const extSet = new Set(extensionsJsonExts.map(normalizeExtensionId));
 
-  // Check for required extensions in devcontainer
-  for (const ext of REQUIRED_EXTENSIONS) {
-    const lower = ext.toLowerCase();
-    if (!devLower.includes(lower)) {
-      warnings.push(`⚠️  ${ext} in extensions.json but not in devcontainer.json`);
+  const onlyInDevcontainer = [...devSet]
+    .filter((extension) => !extSet.has(extension))
+    .sort();
+  const onlyInExtensionsJson = [...extSet]
+    .filter((extension) => !devSet.has(extension))
+    .sort();
+
+  for (const extension of onlyInDevcontainer) {
+    if (!ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS.has(extension)) {
+      errors.push(
+        `❌ Non-allowlisted extension only in devcontainer.json: ${extension}`,
+      );
     }
   }
 
-  console.log(`   ✓ ${devcontainerExts.length} extensions in devcontainer.json`);
-  console.log(`   ✓ ${extensionsJsonExts.length} extensions in extensions.json`);
+  for (const extension of onlyInExtensionsJson) {
+    errors.push(`❌ Extension only in extensions.json: ${extension}`);
+  }
+
+  const allowlistedPresent = onlyInDevcontainer.filter((extension) =>
+    ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS.has(extension),
+  );
+  for (const extension of allowlistedPresent) {
+    console.log(`   ℹ allowlisted devcontainer-only extension: ${extension}`);
+  }
+
+  console.log(
+    `   ✓ ${devcontainerExts.length} extensions in devcontainer.json`,
+  );
+  console.log(
+    `   ✓ ${extensionsJsonExts.length} extensions in extensions.json`,
+  );
 }
 
 // Main execution

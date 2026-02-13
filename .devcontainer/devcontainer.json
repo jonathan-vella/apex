@@ -48,7 +48,6 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "GitHub.copilot",
         "GitHub.copilot-chat",
         "ms-azuretools.vscode-azureresourcegroups",
         "ms-azuretools.vscode-bicep",
