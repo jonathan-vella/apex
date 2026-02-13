@@ -6,7 +6,14 @@ user-invokable: false
 disable-model-invocation: false
 agents: []
 tools:
-  [read, search, web, 'azure-mcp/*', 'bicep/*', ms-azuretools.vscode-azureresourcegroups/azureActivityLog]
+  [
+    read,
+    search,
+    web,
+    "azure-mcp/*",
+    "bicep/*",
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 ---
 
 # Bicep Review Subagent
