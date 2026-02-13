@@ -39,11 +39,7 @@ Each skill **must** have its own subdirectory containing at minimum a `SKILL.md`
 ```yaml
 ---
 name: webapp-testing
-description: >
-  Toolkit for testing local web applications using Playwright.
-  Use when asked to verify frontend functionality, debug UI behavior,
-  capture browser screenshots, check for visual regressions, or view
-  browser console logs. Supports Chrome, Firefox, and WebKit browsers.
+description: Toolkit for testing local web applications using Playwright. Use when asked to verify frontend functionality, debug UI behavior, capture browser screenshots, check for visual regressions, or view browser console logs. Supports Chrome, Firefox, and WebKit browsers.license: Complete terms in LICENSE.txt
 license: Complete terms in LICENSE.txt
 ---
 ```
@@ -69,11 +65,7 @@ If your description is vague, the skill will never be activated.
 **Good description:**
 
 ```yaml
-description: >
-  Toolkit for testing local web applications using Playwright.
-  Use when asked to verify frontend functionality, debug UI behavior,
-  capture browser screenshots, check for visual regressions, or view
-  browser console logs. Supports Chrome, Firefox, and WebKit browsers.
+description: Toolkit for testing local web applications using Playwright. Use when asked to verify frontend functionality, debug UI behavior, capture browser screenshots, check for visual regressions, or view browser console logs. Supports Chrome, Firefox, and WebKit browsers.
 ```
 
 **Poor description:**

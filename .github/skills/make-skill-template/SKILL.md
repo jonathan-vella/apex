@@ -1,12 +1,6 @@
 ---
 name: make-skill-template
-# yamllint disable-line rule:line-length
-description: >
-  Create new Agent Skills for GitHub Copilot from prompts or by duplicating
-  this template. Use when asked to "create a skill", "make a new skill",
-  "scaffold a skill", or when building specialized AI capabilities with
-  bundled resources. Generates SKILL.md files with proper frontmatter,
-  directory structure, and optional scripts/references/assets folders.
+description: Scaffolds new GitHub Copilot Agent Skills from prompts or templates, generating SKILL.md frontmatter, folder structure, and optional bundled resources.
 ---
 
 # Make Skill Template
@@ -46,20 +40,20 @@ Every skill requires YAML frontmatter with `name` and `description`:
 ```yaml
 ---
 name: <skill-name>
-description: '<What it does>. Use when <specific triggers, scenarios, keywords users might say>.'
+description: "<What it does>. Use when <specific triggers, scenarios, keywords users might say>."
 ---
 ```
 
 #### Frontmatter Field Requirements
 
-| Field | Required | Constraints |
-|-------|----------|-------------|
-| `name` | **Yes** | 1-64 chars, lowercase letters/numbers/hyphens only, must match folder name |
-| `description` | **Yes** | 1-1024 chars, must describe WHAT it does AND WHEN to use it |
-| `license` | No | License name or reference to bundled LICENSE.txt |
-| `compatibility` | No | 1-500 chars, environment requirements if needed |
-| `metadata` | No | Key-value pairs for additional properties |
-| `allowed-tools` | No | Space-delimited list of pre-approved tools (experimental) |
+| Field           | Required | Constraints                                                                |
+| --------------- | -------- | -------------------------------------------------------------------------- |
+| `name`          | **Yes**  | 1-64 chars, lowercase letters/numbers/hyphens only, must match folder name |
+| `description`   | **Yes**  | 1-1024 chars, must describe WHAT it does AND WHEN to use it                |
+| `license`       | No       | License name or reference to bundled LICENSE.txt                           |
+| `compatibility` | No       | 1-500 chars, environment requirements if needed                            |
+| `metadata`      | No       | Key-value pairs for additional properties                                  |
+| `allowed-tools` | No       | Space-delimited list of pre-approved tools (experimental)                  |
 
 #### Description Best Practices
 
@@ -82,30 +76,30 @@ description: >
 **Poor example:**
 
 ```yaml
-description: 'Web testing helpers'
+description: "Web testing helpers"
 ```
 
 ### Step 3: Write the Skill Body
 
 After the frontmatter, add markdown instructions. Recommended sections:
 
-| Section | Purpose |
-|---------|---------|
-| `# Title` | Brief overview |
+| Section                     | Purpose                         |
+| --------------------------- | ------------------------------- |
+| `# Title`                   | Brief overview                  |
 | `## When to Use This Skill` | Reinforces description triggers |
-| `## Prerequisites` | Required tools, dependencies |
-| `## Step-by-Step Workflows` | Numbered steps for tasks |
-| `## Troubleshooting` | Common issues and solutions |
-| `## References` | Links to bundled docs |
+| `## Prerequisites`          | Required tools, dependencies    |
+| `## Step-by-Step Workflows` | Numbered steps for tasks        |
+| `## Troubleshooting`        | Common issues and solutions     |
+| `## References`             | Links to bundled docs           |
 
 ### Step 4: Add Optional Directories (If Needed)
 
-| Folder | Purpose | When to Use |
-|--------|---------|-------------|
-| `scripts/` | Executable code (Python, Bash, JS) | Automation that performs operations |
-| `references/` | Documentation agent reads | API references, schemas, guides |
-| `assets/` | Static files used AS-IS | Images, fonts, templates |
-| `templates/` | Starter code agent modifies | Scaffolds to extend |
+| Folder        | Purpose                            | When to Use                         |
+| ------------- | ---------------------------------- | ----------------------------------- |
+| `scripts/`    | Executable code (Python, Bash, JS) | Automation that performs operations |
+| `references/` | Documentation agent reads          | API references, schemas, guides     |
+| `assets/`     | Static files used AS-IS            | Images, fonts, templates            |
+| `templates/`  | Starter code agent modifies        | Scaffolds to extend                 |
 
 ## Example: Complete Skill Structure
 
@@ -147,12 +141,12 @@ my-awesome-skill/
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Skill not discovered | Improve description with more keywords and triggers |
+| Issue                    | Solution                                                 |
+| ------------------------ | -------------------------------------------------------- |
+| Skill not discovered     | Improve description with more keywords and triggers      |
 | Validation fails on name | Ensure lowercase, no consecutive hyphens, matches folder |
-| Description too short | Add capabilities, triggers, and keywords |
-| Assets not found | Use relative paths from skill root |
+| Description too short    | Add capabilities, triggers, and keywords                 |
+| Assets not found         | Use relative paths from skill root                       |
 
 ## References
 

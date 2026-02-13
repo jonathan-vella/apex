@@ -1,11 +1,6 @@
 ---
 name: github-operations
-description: >
-  Manage all GitHub operations: issues, PRs, repos, Actions, releases, secrets,
-  and API calls. Uses MCP tools first for issues/PRs; falls back to GitHub CLI
-  (gh) for Actions, releases, repos, and advanced operations. Triggers: "create
-  issue", "file bug", "feature request", "create PR", "merge branch", "request
-  review", "gh cli", "workflow run", "gh api", "gh release", "gh repo".
+description: Handles GitHub issues, pull requests, repositories, Actions, releases, and API tasks using MCP-first workflows with gh CLI fallback for advanced operations.
 license: MIT
 metadata:
   author: azure-agentic-infraops
@@ -26,13 +21,13 @@ Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallbac
 
 ### Available Tools
 
-| Tool | Purpose |
-| --- | --- |
-| `mcp_github_list_issues` | List repository issues |
-| `mcp_github_issue_read` | Fetch issue details |
-| `mcp_github_issue_write` | Create/update issues |
-| `mcp_github_search_issues` | Search issues |
-| `mcp_github_add_issue_comment` | Add comments |
+| Tool                           | Purpose                |
+| ------------------------------ | ---------------------- |
+| `mcp_github_list_issues`       | List repository issues |
+| `mcp_github_issue_read`        | Fetch issue details    |
+| `mcp_github_issue_write`       | Create/update issues   |
+| `mcp_github_search_issues`     | Search issues          |
+| `mcp_github_add_issue_comment` | Add comments           |
 
 ### Creating Issues
 
@@ -40,26 +35,27 @@ Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallbac
 **Optional**: `labels`, `assignees`, `milestone`
 
 **Title guidelines**:
+
 - Prefix with type: `[Bug]`, `[Feature]`, `[Docs]`
 - Be specific and actionable
 - Keep under 72 characters
 
 **Body templates by type**:
 
-| User says | Template sections |
-| --- | --- |
-| Bug, error, broken | Description, Steps to Reproduce, Expected/Actual, Environment |
-| Feature, enhancement | Summary, Motivation, Proposed Solution, Acceptance Criteria |
-| Task, chore, refactor | Description, Tasks checklist, Acceptance Criteria |
+| User says             | Template sections                                             |
+| --------------------- | ------------------------------------------------------------- |
+| Bug, error, broken    | Description, Steps to Reproduce, Expected/Actual, Environment |
+| Feature, enhancement  | Summary, Motivation, Proposed Solution, Acceptance Criteria   |
+| Task, chore, refactor | Description, Tasks checklist, Acceptance Criteria             |
 
 ### Common Labels
 
-| Label | Use For |
-| --- | --- |
-| `bug` | Something isn't working |
-| `enhancement` | New feature or improvement |
-| `documentation` | Documentation updates |
-| `high-priority` | Urgent issues |
+| Label           | Use For                    |
+| --------------- | -------------------------- |
+| `bug`           | Something isn't working    |
+| `enhancement`   | New feature or improvement |
+| `documentation` | Documentation updates      |
+| `high-priority` | Urgent issues              |
 
 ---
 
@@ -67,15 +63,15 @@ Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallbac
 
 ### Available Tools
 
-| Tool | Purpose |
-| --- | --- |
-| `mcp_github_create_pull_request` | Create new PRs |
-| `mcp_github_merge_pull_request` | Merge PRs |
-| `mcp_github_update_pull_request` | Update PR details |
+| Tool                                   | Purpose               |
+| -------------------------------------- | --------------------- |
+| `mcp_github_create_pull_request`       | Create new PRs        |
+| `mcp_github_merge_pull_request`        | Merge PRs             |
+| `mcp_github_update_pull_request`       | Update PR details     |
 | `mcp_github_pull_request_review_write` | Create/submit reviews |
-| `mcp_github_request_copilot_review` | Copilot code review |
-| `mcp_github_search_pull_requests` | Search PRs |
-| `mcp_github_list_pull_requests` | List PRs |
+| `mcp_github_request_copilot_review`    | Copilot code review   |
+| `mcp_github_search_pull_requests`      | Search PRs            |
+| `mcp_github_list_pull_requests`        | List PRs              |
 
 ### Creating PRs
 
@@ -83,6 +79,7 @@ Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallbac
 **Optional**: `body`, `draft`
 
 **Title guidelines** (conventional commit):
+
 - `feat:`, `fix:`, `docs:`, `refactor:`
 - Be specific, under 72 characters
 
@@ -102,13 +99,14 @@ Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallbac
 
 Use `mcp_github_pull_request_review_write` with `method: "create"`:
 
-| Event | Use When |
-| --- | --- |
-| `APPROVE` | Changes ready to merge |
-| `REQUEST_CHANGES` | Issues must be fixed |
-| `COMMENT` | Feedback without blocking |
+| Event             | Use When                  |
+| ----------------- | ------------------------- |
+| `APPROVE`         | Changes ready to merge    |
+| `REQUEST_CHANGES` | Issues must be fixed      |
+| `COMMENT`         | Feedback without blocking |
 
 **Complex review workflow**:
+
 1. `create` (pending review)
 2. `add_comment_to_pending_review` (line comments)
 3. `submit_pending` (finalize)
@@ -255,13 +253,13 @@ gh search issues "label:bug is:open" --repo owner/repo
 
 ## Global Flags
 
-| Flag | Description |
-| --- | --- |
+| Flag                | Description                |
+| ------------------- | -------------------------- |
 | `--repo OWNER/REPO` | Target specific repository |
-| `--json FIELDS` | Output JSON with fields |
-| `--jq EXPRESSION` | Filter JSON output |
-| `--web` | Open in browser |
-| `--paginate` | Fetch all pages |
+| `--json FIELDS`     | Output JSON with fields    |
+| `--jq EXPRESSION`   | Filter JSON output         |
+| `--web`             | Open in browser            |
+| `--paginate`        | Fetch all pages            |
 
 ---
 

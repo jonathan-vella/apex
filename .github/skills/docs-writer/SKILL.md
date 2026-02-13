@@ -1,21 +1,11 @@
 ---
 name: docs-writer
-# yamllint disable-line rule:line-length
-description: >
-  Repo-aware documentation writer and maintainer for azure-agentic-infraops.
-  Understands the full agent/skill architecture, naming conventions, and
-  template system. Use when asked to "update the docs",
-  "add documentation for a new agent/skill", "check docs for
-  staleness", "proofread the docs", "explain how this repo works", or
-  "generate a changelog entry". Covers all markdown except agent-output/
-  (which has its own validators).
+description: Maintains repository documentation accuracy and freshness; use for doc updates, agent or skill changes, staleness checks, changelog entries, and repo explanation requests.
 license: MIT
-compatibility: >
-  Works with GitHub Copilot, VS Code, and any Agent Skills compatible tool.
-  No external dependencies required.
+compatibility: Works with GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
 metadata:
   author: jonathan-vella
-  version: '1.0'
+  version: "1.0"
   category: documentation
 ---
 
@@ -28,14 +18,14 @@ all user-facing documentation to be accurate, current, and consistent.
 
 ## When to Use This Skill
 
-| Trigger Phrase | Workflow |
-| --- | --- |
-| "Update the docs" | Update existing documentation |
-| "Add docs for new agent/skill" | Add entity documentation |
-| "Check docs for staleness" | Freshness audit with auto-fix |
-| "Explain how this repo works" | Architectural Q&A |
-| "Proofread the docs" | Language, tone, and accuracy review |
-| "Generate a changelog entry" | Changelog from git history |
+| Trigger Phrase                 | Workflow                            |
+| ------------------------------ | ----------------------------------- |
+| "Update the docs"              | Update existing documentation       |
+| "Add docs for new agent/skill" | Add entity documentation            |
+| "Check docs for staleness"     | Freshness audit with auto-fix       |
+| "Explain how this repo works"  | Architectural Q&A                   |
+| "Proofread the docs"           | Language, tone, and accuracy review |
+| "Generate a changelog entry"   | Changelog from git history          |
 
 ## Prerequisites
 
@@ -56,12 +46,12 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 ### Out of Scope (Has Own Validators)
 
-| Path | Governed By |
-| --- | --- |
-| `agent-output/**/*.md` | `artifact-h2-reference.instructions.md` + validators |
-| `.github/agents/*.agent.md` | `agents-definitions.instructions.md` |
-| `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify) |
-| `**/*.bicep` | `bicep-code-best-practices.instructions.md` |
+| Path                                        | Governed By                                          |
+| ------------------------------------------- | ---------------------------------------------------- |
+| `agent-output/**/*.md`                      | `artifact-h2-reference.instructions.md` + validators |
+| `.github/agents/*.agent.md`                 | `agents-definitions.instructions.md`                 |
+| `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify)                  |
+| `**/*.bicep`                                | `bicep-code-best-practices.instructions.md`          |
 
 ## Step-by-Step Workflows
 
@@ -184,11 +174,11 @@ technical accuracy.
 5. **Report findings**: Present a table per file:
 
    ```markdown
-   | # | Line | Layer | Issue | Suggestion |
-   |---|------|-------|-------|------------|
-   | 1 | 12 | Language | Passive voice | Rewrite actively |
-   | 2 | 34 | Terminology | "IaC tool" not in glossary | Use "Bicep" |
-   | 3 | 56 | Accuracy | Says 6 agents, actual is 8 | Update count |
+   | #   | Line | Layer       | Issue                      | Suggestion       |
+   | --- | ---- | ----------- | -------------------------- | ---------------- |
+   | 1   | 12   | Language    | Passive voice              | Rewrite actively |
+   | 2   | 34   | Terminology | "IaC tool" not in glossary | Use "Bicep"      |
+   | 3   | 56   | Accuracy    | Says 6 agents, actual is 8 | Update count     |
    ```
 
 6. **Apply fixes**: After user review, apply corrections. For
@@ -217,12 +207,12 @@ issue with `docs-freshness` label
 
 ## Troubleshooting
 
-| Issue | Solution |
-| --- | --- |
-| Lint fails on line length | Break lines at 120 chars after punctuation |
-| Link validation fails | Check relative paths resolve; use `[text](file.md)` format |
-| Version mismatch | Read `VERSION.md` and propagate to all docs |
-| Count mismatch | List `.github/agents/` and `.github/skills/` directories |
+| Issue                     | Solution                                                        |
+| ------------------------- | --------------------------------------------------------------- |
+| Lint fails on line length | Break lines at 120 chars after punctuation                      |
+| Link validation fails     | Check relative paths resolve; use standard markdown link format |
+| Version mismatch          | Read `VERSION.md` and propagate to all docs                     |
+| Count mismatch            | List `.github/agents/` and `.github/skills/` directories        |
 
 ## References
 

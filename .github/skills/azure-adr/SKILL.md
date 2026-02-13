@@ -1,14 +1,7 @@
 ---
 name: azure-adr
-description: >
-  Creates Architecture Decision Records (ADRs) for Azure infrastructure decisions.
-  Documents architectural choices with WAF pillar mapping, alternatives analysis,
-  and consequence assessment. Outputs follow the standard ADR format with Azure-specific
-  sections for compliance, cost impact, and operational considerations.
-  **Triggers**: "create ADR", "document decision", "architecture decision record"
-compatibility: >
-  Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
-  No external dependencies required.
+description: Creates Azure Architecture Decision Records (ADRs) with WAF mapping, alternatives, consequences, and implementation guidance; use for architecture decision documentation requests.
+compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
 license: MIT
 metadata:
   author: jonathan-vella
@@ -165,10 +158,10 @@ the architecture assessment above as a formal ADR.
 
 This skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).
 
-| Workflow Step     | ADR Prefix       | Status Default | Purpose                               |
-| ----------------- | ---------------- | -------------- | ------------------------------------- |
-| Step 3 (Design)   | `03-des-adr-`    | Proposed       | Document decisions before build       |
-| Step 7 (As-Built) | `07-ab-adr-`     | Accepted       | Document implemented decisions        |
+| Workflow Step     | ADR Prefix    | Status Default | Purpose                         |
+| ----------------- | ------------- | -------------- | ------------------------------- |
+| Step 3 (Design)   | `03-des-adr-` | Proposed       | Document decisions before build |
+| Step 7 (As-Built) | `07-ab-adr-`  | Accepted       | Document implemented decisions  |
 
 ### Artifact Suffix Rules
 

@@ -1,14 +1,7 @@
 ---
 name: azure-diagrams
-description: >
-  Comprehensive technical diagramming toolkit for solutions architects, presales, and developers.
-  Creates Azure architecture diagrams (700+ official Microsoft icons), business process flows,
-  ERD diagrams, project timelines, UI wireframes, and network topology diagrams.
-  Also generates diagrams from Bicep, Terraform, and ARM templates.
-  **Output format**: PNG images via Python diagrams library (mingrammer/diagrams).
-compatibility: >
-  Requires graphviz system package and Python diagrams library.
-  Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
+description: Generates Azure and technical architecture diagrams (PNG via Python diagrams) from requirements or IaC, including topology, process flow, ERD, and wireframe visuals.
+compatibility: Requires graphviz system package and Python diagrams library; works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
 metadata:
   author: cmb211087

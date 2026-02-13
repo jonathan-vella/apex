@@ -1,9 +1,6 @@
 ---
-description: >
-  Trigger conditions for updating documentation when code changes.
-  Defines WHEN docs need updating — not HOW to write them (see
-  docs.instructions.md and markdown.instructions.md for formatting).
-applyTo: '**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}'
+description: Trigger conditions for updating documentation when code changes. Defines WHEN docs need updating — not HOW to write them (see docs.instructions.md and markdown.instructions.md for formatting).
+applyTo: "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
 ---
 
 # Update Documentation on Code Change
@@ -39,7 +36,7 @@ Check if documentation updates are needed when any of these occur:
 
 ## What to Update
 
-### README.md (root)
+### [README.md (root)](../../README.md)
 
 Update when:
 
@@ -47,21 +44,21 @@ Update when:
 - Project structure changes (update tree diagram)
 - New capabilities are introduced (update feature list)
 
-### docs/README.md
+### [docs/README.md](../../docs/README.md)
 
 Update when:
 
 - Agent or skill inventory changes (update tables)
 - New documentation files are added (update quick links)
 
-### docs/prompt-guide/README.md
+### [docs/prompt-guide/README.md](../../docs/prompt-guide/README.md)
 
 Update when:
 
 - Agents or skills are added, renamed, or removed
 - Agent capabilities change significantly
 
-### CHANGELOG.md
+### [CHANGELOG.md](../../CHANGELOG.md)
 
 Update when:
 

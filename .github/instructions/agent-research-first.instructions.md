@@ -1,6 +1,6 @@
 ---
-applyTo: "**/*.agent.md"
 description: "MANDATORY research-before-implementation requirements for all agents"
+applyTo: "*"
 ---
 
 # Agent Research Requirements

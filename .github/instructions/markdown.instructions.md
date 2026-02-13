@@ -101,12 +101,12 @@ graph LR
 When generating workflow artifacts, agents **MUST** follow the canonical templates in
 `.github/skills/azure-artifacts/templates/`. Key examples:
 
-| Artifact                        | Template                                           | Producing Agent |
-| ------------------------------- | -------------------------------------------------- | --------------- |
-| `01-requirements.md`            | `01-requirements.template.md`                      | requirements    |
-| `02-architecture-assessment.md` | `02-architecture-assessment.template.md`            | architect       |
-| `04-implementation-plan.md`     | `04-implementation-plan.template.md`                | bicep-plan      |
-| `06-deployment-summary.md`      | `06-deployment-summary.template.md`                 | deploy          |
+| Artifact                        | Template                                 | Producing Agent |
+| ------------------------------- | ---------------------------------------- | --------------- |
+| `01-requirements.md`            | `01-requirements.template.md`            | requirements    |
+| `02-architecture-assessment.md` | `02-architecture-assessment.template.md` | architect       |
+| `04-implementation-plan.md`     | `04-implementation-plan.template.md`     | bicep-plan      |
+| `06-deployment-summary.md`      | `06-deployment-summary.template.md`      | deploy          |
 
 All 15 artifact types have corresponding templates. See `artifact-h2-reference.instructions.md`
 for the complete heading reference.
@@ -248,14 +248,14 @@ Prerequisites:
 ### Good Example - Descriptive links
 
 ```markdown
-See the [getting started guide](../../docs/getting-started/quickstart.md) for setup instructions.
+See the [getting started guide](../../docs/quickstart.md) for setup instructions.
 Refer to [Azure Bicep documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/) for syntax details.
 ```
 
 ### Bad Example - Non-descriptive links
 
 ```markdown
-Click [here](../../docs/getting-started/quickstart.md) for more info.
+Click [here](../../docs/quickstart.md) for more info.
 ```
 
 ## Front Matter (Optional)
@@ -296,7 +296,7 @@ Run these commands before committing markdown:
 markdownlint '**/*.md' --ignore node_modules --config .markdownlint.json
 
 # Check for broken links (if using markdown-link-check)
-markdown-link-check README.md
+markdown-link-check ../../README.md
 ```
 
 ## Maintenance

@@ -1,14 +1,7 @@
 ---
 name: azure-defaults
-description: >
-  Azure infrastructure defaults, naming conventions, security baselines, AVM modules,
-  WAF assessment criteria, governance discovery patterns, service lifecycle validation,
-  research workflows, and region/tag/SKU configuration for all agents.
-  **Triggers**: "Azure defaults", "naming conventions", "required tags", "AVM modules",
-  "WAF assessment", "security baseline", "governance discovery", "research patterns",
-  "service lifecycle", "region defaults", "pricing MCP", "CAF naming", "unique suffix"
-compatibility: >
-  Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
+description: Provides Azure defaults for naming, regions, tags, AVM-first modules, security baselines, WAF criteria, governance discovery, and pricing guidance across all agents.
+compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
 metadata:
   author: jonathan-vella
@@ -27,21 +20,21 @@ Replaces individual `_shared/` file lookups with one consolidated reference.
 
 ### Default Regions
 
-| Service | Default Region | Reason |
-| --- | --- | --- |
-| **All resources** | `swedencentral` | EU GDPR-compliant |
-| **Static Web Apps** | `westeurope` | Not available in swedencentral |
-| **Azure OpenAI** | `swedencentral` | Limited availability — verify first |
-| **Failover** | `germanywestcentral` | EU paired alternative |
+| Service             | Default Region       | Reason                              |
+| ------------------- | -------------------- | ----------------------------------- |
+| **All resources**   | `swedencentral`      | EU GDPR-compliant                   |
+| **Static Web Apps** | `westeurope`         | Not available in swedencentral      |
+| **Azure OpenAI**    | `swedencentral`      | Limited availability — verify first |
+| **Failover**        | `germanywestcentral` | EU paired alternative               |
 
 ### Required Tags (Azure Policy Enforced)
 
-| Tag | Required | Example Values |
-| --- | --- | --- |
-| `Environment` | Yes | `dev`, `staging`, `prod` |
-| `ManagedBy` | Yes | `Bicep` |
-| `Project` | Yes | Project identifier |
-| `Owner` | Yes | Team or individual name |
+| Tag           | Required | Example Values           |
+| ------------- | -------- | ------------------------ |
+| `Environment` | Yes      | `dev`, `staging`, `prod` |
+| `ManagedBy`   | Yes      | `Bicep`                  |
+| `Project`     | Yes      | Project identifier       |
+| `Owner`       | Yes      | Team or individual name  |
 
 Bicep pattern:
 
@@ -69,14 +62,14 @@ module keyVault 'modules/key-vault.bicep' = {
 
 ### Security Baseline
 
-| Setting | Value | Applies To |
-| --- | --- | --- |
-| `supportsHttpsTrafficOnly` | `true` | Storage accounts |
-| `minimumTlsVersion` | `'TLS1_2'` | All services |
-| `allowBlobPublicAccess` | `false` | Storage accounts |
-| `publicNetworkAccess` | `'Disabled'` (prod) | Data services |
-| Authentication | Managed Identity | Prefer over keys/strings |
-| SQL Auth | Azure AD-only | `azureADOnlyAuthentication: true` |
+| Setting                    | Value               | Applies To                        |
+| -------------------------- | ------------------- | --------------------------------- |
+| `supportsHttpsTrafficOnly` | `true`              | Storage accounts                  |
+| `minimumTlsVersion`        | `'TLS1_2'`          | All services                      |
+| `allowBlobPublicAccess`    | `false`             | Storage accounts                  |
+| `publicNetworkAccess`      | `'Disabled'` (prod) | Data services                     |
+| Authentication             | Managed Identity    | Prefer over keys/strings          |
+| SQL Auth                   | Azure AD-only       | `azureADOnlyAuthentication: true` |
 
 ---
 
@@ -84,26 +77,26 @@ module keyVault 'modules/key-vault.bicep' = {
 
 ### Standard Abbreviations
 
-| Resource | Abbreviation | Name Pattern | Max Length |
-| --- | --- | --- | --- |
-| Resource Group | `rg` | `rg-{project}-{env}` | 90 |
-| Virtual Network | `vnet` | `vnet-{project}-{env}` | 64 |
-| Subnet | `snet` | `snet-{purpose}-{env}` | 80 |
-| NSG | `nsg` | `nsg-{purpose}-{env}` | 80 |
-| Key Vault | `kv` | `kv-{short}-{env}-{suffix}` | **24** |
-| Storage Account | `st` | `st{short}{env}{suffix}` | **24** |
-| App Service Plan | `asp` | `asp-{project}-{env}` | 40 |
-| App Service | `app` | `app-{project}-{env}` | 60 |
-| SQL Server | `sql` | `sql-{project}-{env}` | 63 |
-| SQL Database | `sqldb` | `sqldb-{project}-{env}` | 128 |
-| Static Web App | `stapp` | `stapp-{project}-{env}` | 40 |
-| CDN / Front Door | `fd` | `fd-{project}-{env}` | 64 |
-| Log Analytics | `log` | `log-{project}-{env}` | 63 |
-| App Insights | `appi` | `appi-{project}-{env}` | 255 |
-| Container App | `ca` | `ca-{project}-{env}` | 32 |
-| Container Env | `cae` | `cae-{project}-{env}` | 60 |
-| Cosmos DB | `cosmos` | `cosmos-{project}-{env}` | 44 |
-| Service Bus | `sb` | `sb-{project}-{env}` | 50 |
+| Resource         | Abbreviation | Name Pattern                | Max Length |
+| ---------------- | ------------ | --------------------------- | ---------- |
+| Resource Group   | `rg`         | `rg-{project}-{env}`        | 90         |
+| Virtual Network  | `vnet`       | `vnet-{project}-{env}`      | 64         |
+| Subnet           | `snet`       | `snet-{purpose}-{env}`      | 80         |
+| NSG              | `nsg`        | `nsg-{purpose}-{env}`       | 80         |
+| Key Vault        | `kv`         | `kv-{short}-{env}-{suffix}` | **24**     |
+| Storage Account  | `st`         | `st{short}{env}{suffix}`    | **24**     |
+| App Service Plan | `asp`        | `asp-{project}-{env}`       | 40         |
+| App Service      | `app`        | `app-{project}-{env}`       | 60         |
+| SQL Server       | `sql`        | `sql-{project}-{env}`       | 63         |
+| SQL Database     | `sqldb`      | `sqldb-{project}-{env}`     | 128        |
+| Static Web App   | `stapp`      | `stapp-{project}-{env}`     | 40         |
+| CDN / Front Door | `fd`         | `fd-{project}-{env}`        | 64         |
+| Log Analytics    | `log`        | `log-{project}-{env}`       | 63         |
+| App Insights     | `appi`       | `appi-{project}-{env}`      | 255        |
+| Container App    | `ca`         | `ca-{project}-{env}`        | 32         |
+| Container Env    | `cae`        | `cae-{project}-{env}`       | 60         |
+| Cosmos DB        | `cosmos`     | `cosmos-{project}-{env}`    | 44         |
+| Service Bus      | `sb`         | `sb-{project}-{env}`        | 50         |
 
 ### Length-Constrained Resources
 
@@ -140,24 +133,24 @@ var stName = 'st${take(replace(projectName, '-', ''), 8)}${take(environment, 3)}
 
 ### Common AVM Modules
 
-| Resource | Module Path | Min Version |
-| --- | --- | --- |
-| Key Vault | `br/public:avm/res/key-vault/vault` | `0.11.0` |
-| Virtual Network | `br/public:avm/res/network/virtual-network` | `0.5.0` |
-| Storage Account | `br/public:avm/res/storage/storage-account` | `0.14.0` |
-| App Service Plan | `br/public:avm/res/web/serverfarm` | `0.4.0` |
-| App Service | `br/public:avm/res/web/site` | `0.12.0` |
-| SQL Server | `br/public:avm/res/sql/server` | `0.10.0` |
-| Log Analytics | `br/public:avm/res/operational-insights/workspace` | `0.9.0` |
-| App Insights | `br/public:avm/res/insights/component` | `0.4.0` |
-| NSG | `br/public:avm/res/network/network-security-group` | `0.5.0` |
-| Static Web App | `br/public:avm/res/web/static-site` | `0.4.0` |
-| Container App | `br/public:avm/res/app/container-app` | `0.11.0` |
-| Container Env | `br/public:avm/res/app/managed-environment` | `0.8.0` |
-| Cosmos DB | `br/public:avm/res/document-db/database-account` | `0.10.0` |
-| Front Door | `br/public:avm/res/cdn/profile` | `0.7.0` |
-| Service Bus | `br/public:avm/res/service-bus/namespace` | `0.10.0` |
-| Container Registry | `br/public:avm/res/container-registry/registry` | `0.6.0` |
+| Resource           | Module Path                                        | Min Version |
+| ------------------ | -------------------------------------------------- | ----------- |
+| Key Vault          | `br/public:avm/res/key-vault/vault`                | `0.11.0`    |
+| Virtual Network    | `br/public:avm/res/network/virtual-network`        | `0.5.0`     |
+| Storage Account    | `br/public:avm/res/storage/storage-account`        | `0.14.0`    |
+| App Service Plan   | `br/public:avm/res/web/serverfarm`                 | `0.4.0`     |
+| App Service        | `br/public:avm/res/web/site`                       | `0.12.0`    |
+| SQL Server         | `br/public:avm/res/sql/server`                     | `0.10.0`    |
+| Log Analytics      | `br/public:avm/res/operational-insights/workspace` | `0.9.0`     |
+| App Insights       | `br/public:avm/res/insights/component`             | `0.4.0`     |
+| NSG                | `br/public:avm/res/network/network-security-group` | `0.5.0`     |
+| Static Web App     | `br/public:avm/res/web/static-site`                | `0.4.0`     |
+| Container App      | `br/public:avm/res/app/container-app`              | `0.11.0`    |
+| Container Env      | `br/public:avm/res/app/managed-environment`        | `0.8.0`     |
+| Cosmos DB          | `br/public:avm/res/document-db/database-account`   | `0.10.0`    |
+| Front Door         | `br/public:avm/res/cdn/profile`                    | `0.7.0`     |
+| Service Bus        | `br/public:avm/res/service-bus/namespace`          | `0.10.0`    |
+| Container Registry | `br/public:avm/res/container-registry/registry`    | `0.6.0`     |
 
 ### Finding Latest AVM Version
 
@@ -189,48 +182,55 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.11.0' = {
 
 ### Region Limitations
 
-| Service | Limitation | Workaround |
-| --- | --- | --- |
-| Static Web Apps | Only 5 regions: `westus2`, `centralus`, `eastus2`, `westeurope`, `eastasia` | Use `westeurope` for EU |
-| Azure OpenAI | Limited regions per model | Check availability before planning |
-| Container Apps | Most regions but not all | Verify `cae` environment in target region |
+| Service         | Limitation                                                                  | Workaround                                |
+| --------------- | --------------------------------------------------------------------------- | ----------------------------------------- |
+| Static Web Apps | Only 5 regions: `westus2`, `centralus`, `eastus2`, `westeurope`, `eastasia` | Use `westeurope` for EU                   |
+| Azure OpenAI    | Limited regions per model                                                   | Check availability before planning        |
+| Container Apps  | Most regions but not all                                                    | Verify `cae` environment in target region |
 
 ### Parameter Type Mismatches
 
 Known issues when using AVM modules — verify before coding:
 
 **Log Analytics Workspace** (`operational-insights/workspace`):
+
 - `dailyQuotaGb` is `int` in AVM, not `string`
 - **DO**: `dailyQuotaGb: 5`
 - **DON'T**: `dailyQuotaGb: '5'`
 
 **Container Apps Managed Environment** (`app/managed-environment`):
+
 - `appLogsConfiguration` deprecated in newer versions
 - **DO**: Use `logsConfiguration` with destination object
 - **DON'T**: Use `appLogsConfiguration.destination: 'log-analytics'`
 
 **Container Apps** (`app/container-app`):
+
 - `scaleSettings` is an object, not array of rules
 - **DO**: Check AVM schema for exact object shape
 - **DON'T**: Assume `scaleRules: [...]` array format
 
 **SQL Server** (`sql/server`):
+
 - `sku` parameter is a typed object `{name, tier, capacity}`
 - **DO**: Pass full SKU object matching schema
 - **DON'T**: Pass just string `'S0'`
 - `availabilityZone` requires specific format per region
 
 **App Service** (`web/site`):
+
 - `APPINSIGHTS_INSTRUMENTATIONKEY` deprecated
 - **DO**: Use `APPLICATIONINSIGHTS_CONNECTION_STRING` instead
 - **DON'T**: Set instrumentation key directly
 
 **Key Vault** (`key-vault/vault`):
+
 - `softDeleteRetentionInDays` is immutable after creation
 - **DO**: Set correctly on first deploy (default: 90)
 - **DON'T**: Try to change after vault exists
 
 **Static Web App** (`web/static-site`):
+
 - Free SKU may not be deployable via ARM in all regions
 - **DO**: Use `Standard` SKU for reliable ARM deployment
 - **DON'T**: Assume Free tier works everywhere via Bicep
@@ -241,23 +241,23 @@ Known issues when using AVM modules — verify before coding:
 
 ### Scoring Scale
 
-| Score | Definition |
-| --- | --- |
-| 9-10 | Exceeds best practices, production-ready |
-| 7-8 | Meets best practices with minor gaps |
-| 5-6 | Adequate but improvements needed |
-| 3-4 | Significant gaps, address before production |
-| 1-2 | Critical deficiencies, not production-ready |
+| Score | Definition                                  |
+| ----- | ------------------------------------------- |
+| 9-10  | Exceeds best practices, production-ready    |
+| 7-8   | Meets best practices with minor gaps        |
+| 5-6   | Adequate but improvements needed            |
+| 3-4   | Significant gaps, address before production |
+| 1-2   | Critical deficiencies, not production-ready |
 
 ### Pillar Definitions
 
-| Pillar | Icon | Focus Areas |
-| --- | --- | --- |
-| Security | 🔒 | Identity, network, data protection, threat detection |
-| Reliability | 🔄 | SLA, redundancy, disaster recovery, health monitoring |
-| Performance | ⚡ | Response time, scalability, caching, load testing |
-| Cost | 💰 | Right-sizing, reserved instances, monitoring spend |
-| Operations | 🔧 | IaC, CI/CD, monitoring, incident response, documentation |
+| Pillar      | Icon | Focus Areas                                              |
+| ----------- | ---- | -------------------------------------------------------- |
+| Security    | 🔒   | Identity, network, data protection, threat detection     |
+| Reliability | 🔄   | SLA, redundancy, disaster recovery, health monitoring    |
+| Performance | ⚡   | Response time, scalability, caching, load testing        |
+| Cost        | 💰   | Right-sizing, reserved instances, monitoring spend       |
+| Operations  | 🔧   | IaC, CI/CD, monitoring, incident response, documentation |
 
 ### Assessment Rules
 
@@ -274,18 +274,18 @@ Known issues when using AVM modules — verify before coding:
 
 Exact names for the Azure Pricing MCP tool. Using wrong names returns 0 results.
 
-| Azure Service | Correct `service_name` | Common SKUs |
-| --- | --- | --- |
-| SQL Database | `SQL Database` | `Basic`, `Standard`, `S0`, `S1`, `Premium` |
-| App Service | `Azure App Service` | `B1`, `S1`, `P1v3`, `P1v4` |
-| Container Apps | `Azure Container Apps` | `Consumption` |
-| Service Bus | `Service Bus` | `Basic`, `Standard`, `Premium` |
-| Key Vault | `Key Vault` | `Standard` |
-| Storage | `Storage` | `Standard`, `Premium`, `LRS`, `GRS` |
-| Virtual Machines | `Virtual Machines` | `D4s_v5`, `B2s`, `E4s_v5` |
-| Static Web Apps | `Azure Static Web Apps` | `Free`, `Standard` |
-| Cosmos DB | `Azure Cosmos DB` | `Serverless`, `Provisioned` |
-| Front Door | `Azure Front Door` | `Standard`, `Premium` |
+| Azure Service    | Correct `service_name`  | Common SKUs                                |
+| ---------------- | ----------------------- | ------------------------------------------ |
+| SQL Database     | `SQL Database`          | `Basic`, `Standard`, `S0`, `S1`, `Premium` |
+| App Service      | `Azure App Service`     | `B1`, `S1`, `P1v3`, `P1v4`                 |
+| Container Apps   | `Azure Container Apps`  | `Consumption`                              |
+| Service Bus      | `Service Bus`           | `Basic`, `Standard`, `Premium`             |
+| Key Vault        | `Key Vault`             | `Standard`                                 |
+| Storage          | `Storage`               | `Standard`, `Premium`, `LRS`, `GRS`        |
+| Virtual Machines | `Virtual Machines`      | `D4s_v5`, `B2s`, `E4s_v5`                  |
+| Static Web Apps  | `Azure Static Web Apps` | `Free`, `Standard`                         |
+| Cosmos DB        | `Azure Cosmos DB`       | `Serverless`, `Provisioned`                |
+| Front Door       | `Azure Front Door`      | `Standard`, `Premium`                      |
 
 - **DO**: Use exact names from the table above
 - **DON'T**: Use "Azure SQL" (returns 0 results) — use "SQL Database"
@@ -297,54 +297,54 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns 0 results.
 
 ### Workload Patterns
 
-| Pattern | Cost-Optimized Tier | Balanced Tier | Enterprise Tier |
-| --- | --- | --- | --- |
-| **Static Site** | SWA Free + Blob | SWA Std + CDN + KV | SWA Std + FD + KV + Monitor |
-| **API-First** | App Svc B1 + SQL Basic | App Svc S1 + SQL S1 + KV | App Svc P1v3 + SQL Premium + APIM |
-| **N-Tier Web** | App Svc B1 + SQL Basic | App Svc S1 + SQL S1 + Redis + KV | App Svc P1v4 + SQL Premium + Redis + FD |
-| **Serverless** | Functions Consumption | Functions Premium + CosmosDB | Functions Premium + CosmosDB + APIM |
-| **Container** | Container Apps Consumption | Container Apps + ACR + KV | AKS + ACR + KV + Monitor |
-| **Data Platform** | SQL Basic + Blob | Synapse Serverless + ADLS | Synapse Dedicated + ADLS + Purview |
+| Pattern           | Cost-Optimized Tier        | Balanced Tier                    | Enterprise Tier                         |
+| ----------------- | -------------------------- | -------------------------------- | --------------------------------------- |
+| **Static Site**   | SWA Free + Blob            | SWA Std + CDN + KV               | SWA Std + FD + KV + Monitor             |
+| **API-First**     | App Svc B1 + SQL Basic     | App Svc S1 + SQL S1 + KV         | App Svc P1v3 + SQL Premium + APIM       |
+| **N-Tier Web**    | App Svc B1 + SQL Basic     | App Svc S1 + SQL S1 + Redis + KV | App Svc P1v4 + SQL Premium + Redis + FD |
+| **Serverless**    | Functions Consumption      | Functions Premium + CosmosDB     | Functions Premium + CosmosDB + APIM     |
+| **Container**     | Container Apps Consumption | Container Apps + ACR + KV        | AKS + ACR + KV + Monitor                |
+| **Data Platform** | SQL Basic + Blob           | Synapse Serverless + ADLS        | Synapse Dedicated + ADLS + Purview      |
 
 ### Detection Signals
 
 Map user language to workload pattern:
 
-| User Says | Likely Pattern |
-| --- | --- |
-| "website", "landing page", "blog" | Static Site |
-| "REST API", "microservices", "backend" | API-First |
-| "web app", "portal", "dashboard" | N-Tier Web |
-| "event-driven", "triggers", "webhooks" | Serverless |
-| "Docker", "Kubernetes", "containers" | Container |
-| "analytics", "data warehouse", "ETL" | Data Platform |
+| User Says                              | Likely Pattern |
+| -------------------------------------- | -------------- |
+| "website", "landing page", "blog"      | Static Site    |
+| "REST API", "microservices", "backend" | API-First      |
+| "web app", "portal", "dashboard"       | N-Tier Web     |
+| "event-driven", "triggers", "webhooks" | Serverless     |
+| "Docker", "Kubernetes", "containers"   | Container      |
+| "analytics", "data warehouse", "ETL"   | Data Platform  |
 
 ### Business Domain Signals
 
-| Industry | Common Compliance | Default Security |
-| --- | --- | --- |
-| Healthcare | HIPAA | Private endpoints, encryption at rest |
-| Financial | PCI-DSS, SOC 2 | WAF, private endpoints, audit logging |
-| Government | FedRAMP, IL4/5 | Azure Gov, private endpoints |
-| Retail/E-commerce | PCI-DSS | WAF, DDoS protection |
-| Education | FERPA | Data residency, access controls |
+| Industry          | Common Compliance | Default Security                      |
+| ----------------- | ----------------- | ------------------------------------- |
+| Healthcare        | HIPAA             | Private endpoints, encryption at rest |
+| Financial         | PCI-DSS, SOC 2    | WAF, private endpoints, audit logging |
+| Government        | FedRAMP, IL4/5    | Azure Gov, private endpoints          |
+| Retail/E-commerce | PCI-DSS           | WAF, DDoS protection                  |
+| Education         | FERPA             | Data residency, access controls       |
 
 ### Company Size Heuristics
 
-| Size | Budget Signal | Default Tier | Security Posture |
-| --- | --- | --- | --- |
-| Startup (<50) | "$50-200/mo" | Cost-Optimized | Basic managed identity |
-| Mid-Market (50-500) | "$500-2000/mo" | Balanced | Private endpoints, KV |
-| Enterprise (500+) | "$2000+/mo" | Enterprise | Full WAF compliance |
+| Size                | Budget Signal  | Default Tier   | Security Posture       |
+| ------------------- | -------------- | -------------- | ---------------------- |
+| Startup (<50)       | "$50-200/mo"   | Cost-Optimized | Basic managed identity |
+| Mid-Market (50-500) | "$500-2000/mo" | Balanced       | Private endpoints, KV  |
+| Enterprise (500+)   | "$2000+/mo"    | Enterprise     | Full WAF compliance    |
 
 ### Industry Compliance Pre-Selection
 
-| Industry | Auto-Select |
-| --- | --- |
+| Industry   | Auto-Select                       |
+| ---------- | --------------------------------- |
 | Healthcare | HIPAA checkbox, private endpoints |
-| Finance | PCI-DSS + SOC 2, WAF required |
-| Government | Data residency, enhanced audit |
-| Retail | PCI-DSS if payments, DDoS |
+| Finance    | PCI-DSS + SOC 2, WAF required     |
+| Government | Data residency, enhanced audit    |
+| Retail     | PCI-DSS if payments, DDoS         |
 
 ---
 
@@ -388,7 +388,7 @@ az policy definition show --name "{guid}" \
 effect:policyRule.then.effect, \
 conditions:policyRule.if}" -o json
 
-# For management-group-scoped custom policies  
+# For management-group-scoped custom policies
 az policy definition show --name "{guid}" \
   --management-group "{mgId}" \
   --query "{displayName:displayName, \
@@ -428,13 +428,13 @@ Before creating implementation plans, discover active policies:
 
 ### Common Policy Constraints
 
-| Policy | Impact | Solution |
-| --- | --- | --- |
-| Required tags | Deployment fails without tags | Include all 4 required tags |
-| Allowed locations | Resources rejected outside list | Use `swedencentral` default |
-| SQL AAD-only auth | SQL password auth blocked | Use `azureADOnlyAuthentication: true` |
-| Storage shared key | Shared key access denied | Use managed identity RBAC |
-| Zone redundancy | Non-zonal SKUs rejected | Use P1v4+ for App Service Plans |
+| Policy             | Impact                          | Solution                              |
+| ------------------ | ------------------------------- | ------------------------------------- |
+| Required tags      | Deployment fails without tags   | Include all 4 required tags           |
+| Allowed locations  | Resources rejected outside list | Use `swedencentral` default           |
+| SQL AAD-only auth  | SQL password auth blocked       | Use `azureADOnlyAuthentication: true` |
+| Storage shared key | Shared key access denied        | Use managed identity RBAC             |
+| Zone redundancy    | Non-zonal SKUs rejected         | Use P1v4+ for App Service Plans       |
 
 ---
 
@@ -449,11 +449,11 @@ Before creating implementation plans, discover active policies:
 
 ### Confidence Levels
 
-| Level | Indicators | Action |
-| --- | --- | --- |
-| High (80-100%) | All critical info available | Proceed |
-| Medium (60-79%) | Some assumptions needed | Document assumptions, ask for critical gaps |
-| Low (0-59%) | Major gaps | STOP — request clarification |
+| Level           | Indicators                  | Action                                      |
+| --------------- | --------------------------- | ------------------------------------------- |
+| High (80-100%)  | All critical info available | Proceed                                     |
+| Medium (60-79%) | Some assumptions needed     | Document assumptions, ask for critical gaps |
+| Low (0-59%)     | Major gaps                  | STOP — request clarification                |
 
 ### Context Reuse Rules
 
@@ -466,13 +466,13 @@ Before creating implementation plans, discover active policies:
 
 ### Agent-Specific Research Focus
 
-| Agent | Primary Research | Skip (Already in Artifacts) |
-| --- | --- | --- |
-| Requirements | User needs, business context | — |
-| Architect | WAF gaps, SKU comparisons, pricing | Service list (from 01) |
-| Bicep Plan | AVM availability, governance policies | Architecture decisions (from 02) |
-| Bicep Code | AVM schemas, parameter types | Resource list (from 04) |
-| Deploy | Azure state (what-if), credentials | Template structure (from 05) |
+| Agent        | Primary Research                      | Skip (Already in Artifacts)      |
+| ------------ | ------------------------------------- | -------------------------------- |
+| Requirements | User needs, business context          | —                                |
+| Architect    | WAF gaps, SKU comparisons, pricing    | Service list (from 01)           |
+| Bicep Plan   | AVM availability, governance policies | Architecture decisions (from 02) |
+| Bicep Code   | AVM schemas, parameter types          | Resource list (from 04)          |
+| Deploy       | Azure state (what-if), credentials    | Template structure (from 05)     |
 
 ---
 
@@ -481,28 +481,29 @@ Before creating implementation plans, discover active policies:
 ### AVM Default Trust
 
 When using AVM modules with default SKU parameters:
+
 - Trust the AVM default — Microsoft maintains these
 - No additional deprecation research needed for defaults
 - If overriding SKU parameter, run deprecation research
 
 ### Deprecation Research (For Non-AVM or Custom SKUs)
 
-| Source | Query Pattern | Reliability |
-| --- | --- | --- |
-| Azure Updates | `azure.microsoft.com/updates/?query={service}+deprecated` | High |
-| Microsoft Learn | Check "Important" / "Note" callouts on service pages | High |
-| Azure CLI | `az provider show --namespace {provider}` for API versions | Medium |
-| Resource Provider | Check available SKUs in target region | High |
+| Source            | Query Pattern                                              | Reliability |
+| ----------------- | ---------------------------------------------------------- | ----------- |
+| Azure Updates     | `azure.microsoft.com/updates/?query={service}+deprecated`  | High        |
+| Microsoft Learn   | Check "Important" / "Note" callouts on service pages       | High        |
+| Azure CLI         | `az provider show --namespace {provider}` for API versions | Medium      |
+| Resource Provider | Check available SKUs in target region                      | High        |
 
 ### Known Deprecation Patterns
 
-| Pattern | Status | Replacement |
-| --- | --- | --- |
-| "Classic" anything | DEPRECATED | ARM equivalents |
-| CDN `Standard_Microsoft` | DEPRECATED 2027 | Azure Front Door |
-| App Gateway v1 | DEPRECATED | App Gateway v2 |
-| "v1" suffix services | Likely deprecated | Check for v2 |
-| Old API versions (2020-xx) | Outdated | Use latest stable API |
+| Pattern                    | Status            | Replacement           |
+| -------------------------- | ----------------- | --------------------- |
+| "Classic" anything         | DEPRECATED        | ARM equivalents       |
+| CDN `Standard_Microsoft`   | DEPRECATED 2027   | Azure Front Door      |
+| App Gateway v1             | DEPRECATED        | App Gateway v2        |
+| "v1" suffix services       | Likely deprecated | Check for v2          |
+| Old API versions (2020-xx) | Outdated          | Use latest stable API |
 
 ### What-If Deprecation Signals
 
@@ -517,29 +518,29 @@ If detected, STOP and report before deployment.
 
 ### Mandatory Compliance
 
-| Rule | Requirement |
-| --- | --- |
-| Exact text | Use template H2 text verbatim |
-| Exact order | Required H2s appear in template-defined order |
-| Anchor rule | Extra sections allowed only AFTER last required H2 |
-| No omissions | All template H2s must appear in output |
-| Attribution | Include `> Generated by {agent} agent \| {YYYY-MM-DD}` |
+| Rule         | Requirement                                            |
+| ------------ | ------------------------------------------------------ |
+| Exact text   | Use template H2 text verbatim                          |
+| Exact order  | Required H2s appear in template-defined order          |
+| Anchor rule  | Extra sections allowed only AFTER last required H2     |
+| No omissions | All template H2s must appear in output                 |
+| Attribution  | Include `> Generated by {agent} agent \| {YYYY-MM-DD}` |
 
 ### Output Location
 
 All agent outputs go to `agent-output/{project}/`:
 
-| Step | Output File | Agent |
-| --- | --- | --- |
-| 1 | `01-requirements.md` | Requirements |
-| 2 | `02-architecture-assessment.md` | Architect |
-| 3 | `03-des-*.{py,md}` | Design |
-| 4 | `04-implementation-plan.md` | Bicep Plan |
-| 4 | `04-governance-constraints.md` | Bicep Plan |
-| 4 | `04-preflight-check.md` | Bicep Code (pre-flight) |
-| 5 | `05-implementation-reference.md` | Bicep Code |
-| 6 | `06-deployment-summary.md` | Deploy |
-| 7 | `07-*.md` (7 documents) | azure-artifacts skill |
+| Step | Output File                      | Agent                   |
+| ---- | -------------------------------- | ----------------------- |
+| 1    | `01-requirements.md`             | Requirements            |
+| 2    | `02-architecture-assessment.md`  | Architect               |
+| 3    | `03-des-*.{py,md}`               | Design                  |
+| 4    | `04-implementation-plan.md`      | Bicep Plan              |
+| 4    | `04-governance-constraints.md`   | Bicep Plan              |
+| 4    | `04-preflight-check.md`          | Bicep Code (pre-flight) |
+| 5    | `05-implementation-reference.md` | Bicep Code              |
+| 6    | `06-deployment-summary.md`       | Deploy                  |
+| 7    | `07-*.md` (7 documents)          | azure-artifacts skill   |
 
 ### Header Format
 

@@ -16,8 +16,10 @@ Every doc file must start with:
 ```markdown
 # {Title}
 
-> [Current Version](../VERSION.md) | {One-line description}
+> [Current Version](../../VERSION.md) | {One-line description}
 ```
+
+Adjust path depth for nested folders (for example: `../../VERSION.md`, `../../../VERSION.md`).
 
 ### Single H1 Rule
 
@@ -25,7 +27,9 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 ### Link Style
 
-- Use relative links for internal docs: `[Quickstart](quickstart.md)`
+- Use relative links for internal docs (example pattern: `Quickstart -> quickstart.md`)
+- For root file references, increase `../` depth based on folder nesting (for example: `../VERSION.md`,
+  `../../VERSION.md`)
 - Use reference-style links for external URLs
 - No broken links (validated in CI)
 
@@ -33,29 +37,29 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 ### Agents (8 total)
 
-| Agent | Purpose |
-|-------|---------|
+| Agent                | Purpose                                 |
+| -------------------- | --------------------------------------- |
 | `infraops-conductor` | Master orchestrator with approval gates |
-| `requirements` | Gather infrastructure requirements |
-| `architect` | WAF assessment and architecture design |
-| `design` | Architecture diagrams and ADRs |
-| `bicep-plan` | Implementation planning and governance |
-| `bicep-code` | Bicep template generation |
-| `deploy` | Azure deployment execution |
-| `diagnose` | Post-deployment health diagnostics |
+| `requirements`       | Gather infrastructure requirements      |
+| `architect`          | WAF assessment and architecture design  |
+| `design`             | Architecture diagrams and ADRs          |
+| `bicep-plan`         | Implementation planning and governance  |
+| `bicep-code`         | Bicep template generation               |
+| `deploy`             | Azure deployment execution              |
+| `diagnose`           | Post-deployment health diagnostics      |
 
 ### Skills (8 total)
 
-| Skill | Category | Purpose |
-|-------|----------|---------|
-| `azure-adr` | Document Creation | Architecture Decision Records |
-| `azure-artifacts` | Artifact Generation | Template H2s, styling, generation rules |
-| `azure-defaults` | Azure Conventions | Regions, naming, AVM, WAF, pricing, tags |
-| `azure-diagrams` | Document Creation | Python architecture diagrams |
-| `github-operations` | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
-| `git-commit` | Tool Integration | Commit conventions |
-| `docs-writer` | Documentation | Repo-aware docs maintenance |
-| `make-skill-template` | Meta | Skill creation helper |
+| Skill                 | Category            | Purpose                                    |
+| --------------------- | ------------------- | ------------------------------------------ |
+| `azure-adr`           | Document Creation   | Architecture Decision Records              |
+| `azure-artifacts`     | Artifact Generation | Template H2s, styling, generation rules    |
+| `azure-defaults`      | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags   |
+| `azure-diagrams`      | Document Creation   | Python architecture diagrams               |
+| `github-operations`   | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
+| `git-commit`          | Tool Integration    | Commit conventions                         |
+| `docs-writer`         | Documentation       | Repo-aware docs maintenance                |
+| `make-skill-template` | Meta                | Skill creation helper                      |
 
 ## Prohibited References
 
@@ -73,12 +77,12 @@ Do NOT reference these removed agents/skills:
 
 ## Content Principles
 
-| Principle | Application |
-|-----------|-------------|
-| **DRY** | Single source of truth per topic |
-| **Current state** | No historical context in main docs |
-| **Action-oriented** | Every section answers "how do I...?" |
-| **Minimal** | If it doesn't help users today, remove it |
+| Principle                  | Application                                |
+| -------------------------- | ------------------------------------------ |
+| **DRY**                    | Single source of truth per topic           |
+| **Current state**          | No historical context in main docs         |
+| **Action-oriented**        | Every section answers "how do I...?"       |
+| **Minimal**                | If it doesn't help users today, remove it  |
 | **Prompt guide for depth** | Point to `docs/prompt-guide/` for examples |
 
 ## Validation
@@ -86,6 +90,6 @@ Do NOT reference these removed agents/skills:
 Documentation is validated in CI (warn-only):
 
 - No references to removed agents
-- Version numbers match VERSION.md
+- Version numbers match [VERSION.md](../../VERSION.md)
 - No broken internal links
 - Markdown lint passes
