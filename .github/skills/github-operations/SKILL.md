@@ -26,9 +26,12 @@ Follow this protocol for every GitHub task:
 
 ### Devcontainer Reliability Rule
 
-- Do not run `gh auth login` or `gh auth status` in devcontainer workflows unless the user explicitly asks for CLI auth troubleshooting.
+- Do not run `gh auth login` or `gh auth status` in devcontainer workflows
+  unless the user explicitly asks for CLI auth troubleshooting.
 - For PR/issue creation, rely on MCP tool authentication by default.
-- If MCP write tools are missing in the current environment, report the limitation explicitly and provide a no-auth fallback path (for example, PR compare URL).
+- If MCP write tools are missing in the current environment,
+  report the limitation explicitly and provide a no-auth fallback path
+  (for example, PR compare URL).
 
 ---
 

@@ -84,8 +84,8 @@ Framework: Security, Reliability, Performance, Cost Optimization, and Operationa
 
 ### 🔍 Preflight Validation
 
-3 validation subagents (lint, what-if, review) provide quality gates before deployment—catching
-issues early when they're cheap to fix.
+5 specialized subagents (cost estimation, governance discovery, lint, what-if, review) provide
+quality gates throughout the workflow—catching issues early when they're cheap to fix.
 
 ### ⏸️ Mandatory Approval Gates
 
@@ -121,15 +121,17 @@ dedicated prompt. This reduces hallucinations as the context fills up.
 sequenceDiagram
     autonumber
     participant U as 👤 User
-    participant C as 🎼 Conductor (Orchestrator)
-    participant R as 📋 Requirements Agent
-    participant A as 🏗️ Architecture Agent
-    participant B as 🧩 IaC Agent (Bicep)
-    participant D as 🚀 Deployment Agent
+    participant C as 🎼 Conductor
+    participant R as 📋 Requirements
+    participant A as 🏛️ Architect
+    participant P as 📐 Bicep Plan
+    participant B as ⚒️ Bicep Code
+    participant D as 🚀 Deploy
+    participant W as 📚 As-Built
 
     Note over C: ORCHESTRATION LAYER<br/>AI prepares. Humans decide.
 
-    %% --- Intent & Requirements ---
+    %% --- Step 1: Requirements ---
     U->>C: Describe infrastructure intent
     C->>R: Translate intent into structured requirements
     R-->>C: 01-requirements.md
@@ -140,9 +142,10 @@ sequenceDiagram
     U-->>C: Approve requirements
     end
 
-    %% --- Architecture Assessment ---
+    %% --- Step 2: Architecture Assessment ---
     C->>A: Assess architecture (WAF + Cost)
-    A-->>C: 02-assessment.md + cost estimate
+    Note right of A: cost-estimate-subagent<br/>handles pricing queries
+    A-->>C: 02-assessment.md + 03-cost-estimate.md
     C->>U: Present architecture
 
     rect rgba(255, 200, 0, 0.15)
@@ -150,9 +153,10 @@ sequenceDiagram
     U-->>C: Approve architecture
     end
 
-    %% --- Planning & Governance ---
-    C->>A: Create implementation plan + governance
-    A-->>C: 04-plan.md
+    %% --- Step 4: Planning & Governance ---
+    C->>P: Create implementation plan + governance
+    Note right of P: governance-discovery-subagent<br/>queries Azure Policy via REST API
+    P-->>C: 04-plan.md + governance constraints
     C->>U: Present plan
 
     rect rgba(255, 200, 0, 0.15)
@@ -160,13 +164,13 @@ sequenceDiagram
     U-->>C: Approve plan
     end
 
-    %% --- IaC Generation ---
-    C->>B: Generate Bicep templates
+    %% --- Step 5: IaC Generation & Validation ---
+    C->>B: Generate Bicep templates (AVM-first)
     B-->>C: infra/bicep/{project}
 
-    %% --- Validation Loop ---
     rect rgba(0, 150, 255, 0.08)
-    Note over C,B: 🔍 Validation & Governance Loop
+    Note over C,B: 🔍 Subagent Validation Loop
+    Note right of B: bicep-lint-subagent → PASS/FAIL<br/>bicep-review-subagent → APPROVED/REVISION
     alt ✅ Validation passes
         C->>U: Present templates for deployment
         rect rgba(255, 200, 0, 0.15)
@@ -178,8 +182,9 @@ sequenceDiagram
     end
     end
 
-    %% --- Deployment ---
-    C->>D: Execute deployment (what-if first)
+    %% --- Step 6: Deployment ---
+    C->>D: Execute deployment
+    Note right of D: bicep-whatif-subagent<br/>previews changes first
     D-->>C: 06-deployment-summary.md
     C->>U: Present deployment summary
 
@@ -188,7 +193,13 @@ sequenceDiagram
     U-->>C: Verify deployment
     end
 
-    Note over U,D: ✅ AI Orchestrated. Human Governed. Azure Ready.
+    %% --- Step 7: As-Built Documentation ---
+    C->>W: Generate workload documentation
+    Note right of W: Reads all prior artifacts (01-06)<br/>+ queries deployed resource state
+    W-->>C: 07-*.md documentation suite
+    C->>U: Present as-built docs
+
+    Note over U,W: ✅ AI Orchestrated. Human Governed. Azure Ready.
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -215,23 +226,25 @@ The Agentic InfraOps system consists of specialized agents organized into three 
 
 ### Core Agents (7 Steps)
 
-| Step | Agent          | Persona       | Role                                       | Model           |
-| ---- | -------------- | ------------- | ------------------------------------------ | --------------- |
-| 1    | `requirements` | 📜 Scribe     | Captures infrastructure requirements       | Claude Opus 4.6 |
-| 2    | `architect`    | 🏛️ Oracle     | WAF assessment and design decisions        | Claude Opus 4.6 |
-| 3    | `design`       | 🎨 Artisan    | Diagrams and Architecture Decision Records | GPT-5.3-Codex   |
-| 4    | `bicep-plan`   | 📐 Strategist | Implementation planning with governance    | Claude Opus 4.6 |
-| 5    | `bicep-code`   | ⚒️ Forge      | Generates AVM-first Bicep templates        | GPT-5.3-Codex   |
-| 6    | `deploy`       | 🚀 Envoy      | Azure resource provisioning                | GPT-5.3-Codex   |
-| 7    | —              | 📚 —          | As-built documentation (via skills)        | —               |
+| Step | Agent          | Persona       | Role                                       | Model                     |
+| ---- | -------------- | ------------- | ------------------------------------------ | ------------------------- |
+| 1    | `requirements` | 📜 Scribe     | Captures infrastructure requirements       | Claude Opus 4.6           |
+| 2    | `architect`    | 🏛️ Oracle     | WAF assessment and design decisions        | Claude Opus 4.6           |
+| 3    | `design`       | 🎨 Artisan    | Diagrams and Architecture Decision Records | GPT-5.3-Codex             |
+| 4    | `bicep-plan`   | 📐 Strategist | Implementation planning with governance    | Claude Opus 4.6           |
+| 5    | `bicep-code`   | ⚒️ Forge      | Generates AVM-first Bicep templates        | Claude Opus 4.6 / GPT-5.3 |
+| 6    | `deploy`       | 🚀 Envoy      | Azure resource provisioning                | GPT-5.3-Codex             |
+| 7    | `as-built`     | 📚 Chronicler | As-built documentation suite               | GPT-5.3-Codex             |
 
-### Validation Subagents
+### Subagents
 
-| Subagent                | Role                                          | When Invoked   |
-| ----------------------- | --------------------------------------------- | -------------- |
-| `bicep-lint-subagent`   | Syntax validation (bicep lint, bicep build)   | Pre-deployment |
-| `bicep-whatif-subagent` | Deployment preview (az deployment what-if)    | Pre-deployment |
-| `bicep-review-subagent` | Code review (AVM standards, security, naming) | Pre-deployment |
+| Subagent                        | Parent Agent | Role                                          |
+| ------------------------------- | ------------ | --------------------------------------------- |
+| `cost-estimate-subagent`        | Architect    | Azure Pricing MCP queries                     |
+| `governance-discovery-subagent` | Bicep Plan   | Azure Policy REST API discovery               |
+| `bicep-lint-subagent`           | Bicep Code   | Syntax validation (bicep lint, bicep build)   |
+| `bicep-review-subagent`         | Bicep Code   | Code review (AVM standards, security, naming) |
+| `bicep-whatif-subagent`         | Deploy       | Deployment preview (az deployment what-if)    |
 
 ### Diagnostic Agent
 
@@ -262,8 +275,8 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 ### Step 2: Architecture (Oracle)
 
 - **WAF Assessment** — `architect` agent evaluates requirements against Well-Architected Framework
-- **Cost Estimation** — Azure Pricing MCP provides real-time SKU pricing
-- **Output** — `agent-output/{project}/02-architecture-assessment.md`
+- **Cost Estimation** — Delegated to `cost-estimate-subagent` for isolated pricing queries
+- **Output** — `agent-output/{project}/02-architecture-assessment.md` + `03-des-cost-estimate.md`
 
 ### Step 3: Design Artifacts (Artisan | Optional)
 
@@ -273,7 +286,7 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 
 ### Step 4: Planning (Strategist)
 
-- **Governance Discovery** — Discovers Azure Policy constraints in target subscription
+- **Governance Discovery** — Delegated to `governance-discovery-subagent` for Azure Policy REST API queries
 - **Implementation Plan** — `bicep-plan` agent creates detailed, phased implementation plan
 - **Auto-Generated Diagrams** — `bicep-plan` also generates Step 4 dependency and runtime diagrams
 - **GATE: Plan Approval** — User reviews and approves before implementation
@@ -282,20 +295,20 @@ The Conductor agent follows a strict 7-step cycle for every infrastructure proje
 ### Step 5: Implementation (Forge)
 
 - **Bicep Generation** — `bicep-code` agent creates AVM-first Bicep templates
-- **Preflight Validation** — Lint, what-if, and review subagents validate code
+- **Preflight Validation** — `bicep-lint-subagent` and `bicep-review-subagent` validate code
 - **GATE: Pre-Deploy** — User reviews validation results
 - **Output** — `infra/bicep/{project}/` with `05-implementation-reference.md`
 
 ### Step 6: Deployment (Envoy)
 
-- **Azure Provisioning** — `deploy` agent executes deployment with what-if preview
+- **Azure Provisioning** — `deploy` agent executes deployment; `bicep-whatif-subagent` previews changes first
 - **GATE: Post-Deploy** — User verifies deployed resources
 - **Output** — `agent-output/{project}/06-deployment-summary.md`
 
-### Step 7: Documentation
+### Step 7: Documentation (Chronicler)
 
-- **As-Built Suite** — `azure-artifacts` skill generates comprehensive documentation
-- **Output** — `agent-output/{project}/07-*.md` (design doc, runbook, DR plan, inventory)
+- **As-Built Suite** — `as-built` agent reads all prior artifacts (01-06) and deployed resource state
+- **Output** — `agent-output/{project}/07-*.md` (design doc, runbook, cost estimate, compliance, DR plan, inventory)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

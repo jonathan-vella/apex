@@ -1,9 +1,9 @@
 ---
-description: 'Demo: End-to-end Static Web App workflow with pre-filled approvals'
-agent: 'InfraOps Conductor'
-model: 'Claude Opus 4.6'
+description: "Demo: End-to-end Static Web App workflow with pre-filled approvals"
+agent: "InfraOps Conductor"
+model: "Claude Opus 4.6"
 tools:
-  - agent/runSubagent
+  - agent
   - edit/createFile
   - edit/editFiles
   - read/readFile

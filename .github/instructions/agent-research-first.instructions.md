@@ -1,6 +1,6 @@
 ---
 description: "MANDATORY research-before-implementation requirements for all agents"
-applyTo: "*"
+applyTo: "**/*.agent.md, **/agent-output/**/*.md, **/.github/skills/**/SKILL.md"
 ---
 
 # Agent Research Requirements
@@ -101,11 +101,11 @@ This pattern enables thorough investigation without interrupting the workflow.
 | ---------------- | ----------------------------------------------------------------- |
 | **Requirements** | User needs, existing projects, compliance requirements            |
 | **Architect**    | Azure services, WAF pillars, SKU recommendations, pricing         |
+| **Design**       | Existing architecture, icon availability, layout patterns         |
 | **Bicep Plan**   | AVM availability, governance constraints, implementation patterns |
 | **Bicep Code**   | Module structure, naming conventions, security defaults           |
 | **Deploy**       | Template validation, what-if results, resource dependencies       |
-| **Diagram**      | Existing architecture, icon availability, layout patterns         |
-| **Docs**         | Deployed resources, configuration details, operational procedures |
+| **As-Built**     | Deployed resources, configuration details, operational procedures |
 
 ## Integration with Workflow
 
@@ -116,5 +116,5 @@ This research-first pattern integrates with the 7-step workflow:
 3. Each step should query relevant Azure documentation
 4. Each step should achieve 80% confidence before proceeding
 
-See [Azure Defaults Skill](../../.github/skills/azure-defaults/SKILL.md) for the complete
+See [Azure Defaults Skill](../skills/azure-defaults/SKILL.md) for the complete
 research requirements specification.

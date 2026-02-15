@@ -3,7 +3,7 @@ description: "Run the full 7-step Azure infrastructure workflow end-to-end"
 agent: "InfraOps Conductor"
 model: "Claude Opus 4.6"
 tools:
-  - agent/runSubagent
+  - agent
   - edit/createFile
   - edit/editFiles
   - read/readFile

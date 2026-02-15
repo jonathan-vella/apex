@@ -1,11 +1,110 @@
 ---
 name: Bicep Code
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
-model: ["Claude Opus 4.6" "GPT-5.3-Codex"]
+model: ["Claude Opus 4.6", "GPT-5.3-Codex"]
 user-invokable: true
 agents: ["*"]
 tools:
-  [vscode/extensions, vscode/getProjectSetupInfo, vscode/installExtension, vscode/newWorkspace, vscode/openSimpleBrowser, vscode/runCommand, vscode/askQuestions, vscode/vscodeAPI, execute/getTerminalOutput, execute/awaitTerminal, execute/killTerminal, execute/createAndRunTask, execute/runTests, execute/runNotebookCell, execute/testFailure, execute/runInTerminal, read/terminalSelection, read/terminalLastCommand, read/getNotebookSummary, read/problems, read/readFile, read/readNotebookCellOutput, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/searchResults, search/textSearch, search/usages, search/searchSubagent, web/fetch, web/githubRepo, azure-mcp/acr, azure-mcp/aks, azure-mcp/appconfig, azure-mcp/applens, azure-mcp/applicationinsights, azure-mcp/appservice, azure-mcp/azd, azure-mcp/azureterraformbestpractices, azure-mcp/bicepschema, azure-mcp/cloudarchitect, azure-mcp/communication, azure-mcp/confidentialledger, azure-mcp/cosmos, azure-mcp/datadog, azure-mcp/deploy, azure-mcp/documentation, azure-mcp/eventgrid, azure-mcp/eventhubs, azure-mcp/extension_azqr, azure-mcp/extension_cli_generate, azure-mcp/extension_cli_install, azure-mcp/foundry, azure-mcp/functionapp, azure-mcp/get_bestpractices, azure-mcp/grafana, azure-mcp/group_list, azure-mcp/keyvault, azure-mcp/kusto, azure-mcp/loadtesting, azure-mcp/managedlustre, azure-mcp/marketplace, azure-mcp/monitor, azure-mcp/mysql, azure-mcp/postgres, azure-mcp/quota, azure-mcp/redis, azure-mcp/resourcehealth, azure-mcp/role, azure-mcp/search, azure-mcp/servicebus, azure-mcp/signalr, azure-mcp/speech, azure-mcp/sql, azure-mcp/storage, azure-mcp/subscription_list, azure-mcp/virtualdesktop, azure-mcp/workbooks, bicep/decompile_arm_parameters_file, bicep/decompile_arm_template_file, bicep/format_bicep_file, bicep/get_az_resource_type_schema, bicep/get_bicep_best_practices, bicep/get_bicep_file_diagnostics, bicep/get_deployment_snapshot, bicep/get_file_references, bicep/list_avm_metadata, bicep/list_az_resource_types_for_provider, todo, vscode.mermaid-chat-features/renderMermaidDiagram, ms-azuretools.vscode-azureresourcegroups/azureActivityLog]
+  [
+    vscode/extensions,
+    vscode/getProjectSetupInfo,
+    vscode/installExtension,
+    vscode/newWorkspace,
+    vscode/openSimpleBrowser,
+    vscode/runCommand,
+    vscode/askQuestions,
+    vscode/vscodeAPI,
+    execute/getTerminalOutput,
+    execute/awaitTerminal,
+    execute/killTerminal,
+    execute/createAndRunTask,
+    execute/runTests,
+    execute/runNotebookCell,
+    execute/testFailure,
+    execute/runInTerminal,
+    read/terminalSelection,
+    read/terminalLastCommand,
+    read/getNotebookSummary,
+    read/problems,
+    read/readFile,
+    read/readNotebookCellOutput,
+    agent,
+    edit/createDirectory,
+    edit/createFile,
+    edit/createJupyterNotebook,
+    edit/editFiles,
+    edit/editNotebook,
+    search/changes,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/searchResults,
+    search/textSearch,
+    search/usages,
+    search/searchSubagent,
+    web/fetch,
+    web/githubRepo,
+    azure-mcp/acr,
+    azure-mcp/aks,
+    azure-mcp/appconfig,
+    azure-mcp/applens,
+    azure-mcp/applicationinsights,
+    azure-mcp/appservice,
+    azure-mcp/azd,
+    azure-mcp/azureterraformbestpractices,
+    azure-mcp/bicepschema,
+    azure-mcp/cloudarchitect,
+    azure-mcp/communication,
+    azure-mcp/confidentialledger,
+    azure-mcp/cosmos,
+    azure-mcp/datadog,
+    azure-mcp/deploy,
+    azure-mcp/documentation,
+    azure-mcp/eventgrid,
+    azure-mcp/eventhubs,
+    azure-mcp/extension_azqr,
+    azure-mcp/extension_cli_generate,
+    azure-mcp/extension_cli_install,
+    azure-mcp/foundry,
+    azure-mcp/functionapp,
+    azure-mcp/get_bestpractices,
+    azure-mcp/grafana,
+    azure-mcp/group_list,
+    azure-mcp/keyvault,
+    azure-mcp/kusto,
+    azure-mcp/loadtesting,
+    azure-mcp/managedlustre,
+    azure-mcp/marketplace,
+    azure-mcp/monitor,
+    azure-mcp/mysql,
+    azure-mcp/postgres,
+    azure-mcp/quota,
+    azure-mcp/redis,
+    azure-mcp/resourcehealth,
+    azure-mcp/role,
+    azure-mcp/search,
+    azure-mcp/servicebus,
+    azure-mcp/signalr,
+    azure-mcp/speech,
+    azure-mcp/sql,
+    azure-mcp/storage,
+    azure-mcp/subscription_list,
+    azure-mcp/virtualdesktop,
+    azure-mcp/workbooks,
+    bicep/decompile_arm_parameters_file,
+    bicep/decompile_arm_template_file,
+    bicep/format_bicep_file,
+    bicep/get_az_resource_type_schema,
+    bicep/get_bicep_best_practices,
+    bicep/get_bicep_file_diagnostics,
+    bicep/get_deployment_snapshot,
+    bicep/get_file_references,
+    bicep/list_avm_metadata,
+    bicep/list_az_resource_types_for_provider,
+    todo,
+    vscode.mermaid-chat-features/renderMermaidDiagram,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 handoffs:
   - label: ▶ Run Preflight Check
     agent: Bicep Code
@@ -165,19 +264,29 @@ Script must include:
 - Output parsing with deployment results table
 - Error handling with meaningful messages
 
-### Phase 4: Validation
+### Phase 4: Validation (Subagent-Driven)
 
-Run these commands and capture results:
+Delegate validation to specialized subagents for thorough, isolated analysis:
 
-```bash
-# Build all templates
-bicep build infra/bicep/{project}/main.bicep
+**Step 1 — Lint Validation** (run in parallel with Step 2):
 
-# Lint for best practices
-bicep lint infra/bicep/{project}/main.bicep
-```
+Delegate to `bicep-lint-subagent`:
+- Provide the project path: `infra/bicep/{project}/main.bicep`
+- Expect PASS/FAIL result with diagnostics
+- If FAIL: fix errors, then re-run lint subagent
 
-Fix any errors before proceeding. Save validation status in `05-implementation-reference.md`.
+**Step 2 — Code Review** (run in parallel with Step 1):
+
+Delegate to `bicep-review-subagent`:
+- Provide the project path: `infra/bicep/{project}/`
+- Expect APPROVED/NEEDS_REVISION/FAILED verdict
+- If NEEDS_REVISION: address feedback, then re-run review subagent
+- If FAILED: address critical issues before proceeding
+
+**Step 3 — Finalize**:
+
+Both subagents must return passing results before proceeding.
+Save validation status (including subagent verdicts) in `05-implementation-reference.md`.
 Run `npm run lint:artifact-templates` and fix any H2 structure errors for your artifacts.
 
 ## File Structure
@@ -240,7 +349,7 @@ Include attribution header from the template file (do not hardcode).
 - [ ] CAF naming conventions followed (from azure-defaults skill)
 - [ ] Length constraints respected (Key Vault ≤24, Storage ≤24)
 - [ ] No deprecated parameters used (checked against AVM pitfalls)
-- [ ] `bicep build` passes with no errors
-- [ ] `bicep lint` passes with no errors
+- [ ] `bicep-lint-subagent` returns PASS
+- [ ] `bicep-review-subagent` returns APPROVED
 - [ ] `deploy.ps1` generated with proper error handling
 - [ ] `05-implementation-reference.md` saved with validation status

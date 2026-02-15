@@ -28,7 +28,7 @@ tools:
     read/problems,
     read/readFile,
     read/readNotebookCellOutput,
-    agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -122,7 +122,6 @@ handoffs:
     agent: Bicep Code
     prompt: Implement the Bicep templates according to the implementation plan. Use AVM modules, generate deploy.ps1, and save to infra/bicep/{project}/.
     send: true
-    model: "GPT-5.3-Codex (copilot)"
   - label: ▶ Compare AVM Modules
     agent: Bicep Plan
     prompt: Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps.
@@ -195,36 +194,18 @@ architecture decisions, and compliance requirements.
 ### Phase 1: Governance Discovery (MANDATORY GATE)
 
 > [!CAUTION]
-> This is a **hard gate**. If Azure connectivity fails or policies cannot be fully discovered
-> (including management group-inherited policies), STOP and inform the user.
+> This is a **hard gate**. If governance discovery fails, STOP and inform the user.
 > Do NOT proceed to Phase 2 with incomplete policy data.
 
-**Step 1**: Verify Azure connectivity: `az account show`
+Delegate governance discovery to `governance-discovery-subagent`:
 
-**Step 2**: Use REST API to discover ALL effective policy assignments (MANDATORY):
-
-```bash
-SUB_ID=$(az account show --query id -o tsv)
-az rest --method GET \
-  --url "https://management.azure.com/subscriptions/${SUB_ID}/providers/\
-Microsoft.Authorization/policyAssignments?api-version=2022-06-01" \
-  --query "value[].{name:name, displayName:properties.displayName, \
-scope:properties.scope, enforcementMode:properties.enforcementMode, \
-policyDefinitionId:properties.policyDefinitionId}" \
-  -o json
-```
-
-> [!WARNING]
-> Do NOT use `az policy assignment list` as the primary command — it only returns
-> subscription-scoped assignments and misses management group-inherited policies.
-> Use the REST API above which returns ALL effective assignments.
-
-**Step 3**: For each Deny or DeployIfNotExists policy, drill into the actual policy definition
-JSON to verify the real impact (see governance-discovery instructions for details).
-
-**Step 4**: Document ALL findings in `04-governance-constraints.md` and `04-governance-constraints.json`.
-
-See azure-defaults skill → Governance Discovery section for full query patterns.
+1. **Delegate** to `governance-discovery-subagent` — it verifies Azure connectivity, queries ALL
+   effective policy assignments via REST API (including management group-inherited), classifies
+   effects, and returns a structured governance report
+2. **Review the subagent's result** — check Status is COMPLETE (if PARTIAL or FAILED, STOP)
+3. **Integrate findings** — use the Blockers/Warnings/Auto-Remediation tables from the subagent
+   output to populate `04-governance-constraints.md` and `04-governance-constraints.json`
+4. **Adapt plan** — any `Deny` policies are hard blockers; adjust the implementation plan accordingly
 
 **Policy Effect Decision Tree:**
 

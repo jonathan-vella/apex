@@ -1,14 +1,14 @@
 ---
-description: 'Generate production-ready Bicep templates from the implementation plan'
-agent: 'Bicep Code'
-model: 'GPT-5.3-Codex'
+description: "Generate production-ready Bicep templates from the implementation plan"
+agent: "Bicep Code"
+model: "GPT-5.3-Codex"
 tools:
   - read/readFile
   - edit/createFile
   - edit/editFiles
   - execute/runInTerminal
   - search/codebase
-  - agent/runSubagent
+  - agent
   - bicep/list_avm_metadata
   - bicep/get_az_resource_type_schema
   - bicep/get_bicep_file_diagnostics
@@ -37,8 +37,8 @@ with lint and review subagents, and produce an implementation reference.
 
 ## Inputs
 
-| Variable | Description | Default |
-| --- | --- | --- |
+| Variable               | Description                                      | Default  |
+| ---------------------- | ------------------------------------------------ | -------- |
 | `${input:projectName}` | Project name matching the `agent-output/` folder | Required |
 
 ## Workflow

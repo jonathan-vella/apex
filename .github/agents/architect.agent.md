@@ -28,7 +28,7 @@ tools:
     read/problems,
     read/readFile,
     read/readNotebookCellOutput,
-    agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -211,7 +211,14 @@ Verify these are documented (ask user if missing):
 
 ## Cost Estimation (MANDATORY)
 
-Use Azure Pricing MCP tools for every assessment:
+Delegate pricing work to `cost-estimate-subagent` to keep your context focused on WAF analysis:
+
+1. **Prepare resource list** — compile resource types, SKUs, region, and quantities from your assessment
+2. **Delegate to `cost-estimate-subagent`** — provide the resource list and region
+3. **Receive cost breakdown** — structured table with monthly/yearly totals
+4. **Integrate into assessment** — use the subagent's output to populate `03-des-cost-estimate.md`
+
+The subagent uses these Azure Pricing MCP tools on your behalf:
 
 | Tool                     | Purpose                                  |
 | ------------------------ | ---------------------------------------- |
