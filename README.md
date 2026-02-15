@@ -11,6 +11,12 @@
 [![MIT License][license-shield]][license-url]
 [![Azure][azure-shield]][azure-url]
 
+<div align="center">
+  <img
+    src="https://capsule-render.vercel.app/api?type=waving&height=180&color=0:0A66C2,50:0078D4,100:00B7C3&text=Agentic%20InfraOps&fontSize=44&fontColor=FFFFFF&fontAlignY=34&desc=Azure%20infrastructure%20engineered%20by%20agents&descAlignY=56"
+    alt="Agentic InfraOps banner" />
+</div>
+
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -109,13 +115,6 @@ dedicated prompt. This reduces hallucinations as the context fills up.
 ---
 
 ## Agentic Workflow
-
-<div align="center">
-  <img
-    src="docs/presenter/infographics/generated/agentic-infraops-workflow.svg"
-    alt="Agentic InfraOps workflow diagram showing 7 pipeline steps from Requirements to Documentation with WAF guardrails and AVM enforcement"
-    width="900" />
-</div>
 
 ```mermaid
 sequenceDiagram
