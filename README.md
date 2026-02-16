@@ -717,7 +717,7 @@ This project builds upon the excellent work of:
     </a>
   </p>
   <p>
-    🔗 <strong>Shortlink</strong>: <a href="https://aka.ms/agenticinfraops">aka.ms/agenticinfraops</a>
+    🎓 <strong>Hands-on Workshop</strong>: <a href="https://github.com/jonathan-vella/azure-agentic-infraops-workshop">azure-agentic-infraops-workshop</a>
   </p>
 </div>
 

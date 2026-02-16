@@ -1,650 +1,491 @@
 # Changelog
 
-All notable changes to **Agentic InfraOps** will be documented in this file.
+All notable changes to **Agentic InfraOps** are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- feat(pricing-mcp): release Azure Pricing MCP v4.0 improvements.
+- feat(azure-pricing-mcp): release v4.1.0 with error boundaries, bulk concurrency, cache stats,
+  and lint cleanup (#150).
+- feat(step-4): enforce dependency and runtime diagram outputs.
+- feat(devcontainer): add visible post-create progress steps.
+
+### Changed
+
+- refactor(azure-mcp): migrate from `vscode-azure-github-copilot` to
+  `vscode-azure-mcp-server` (#143).
+- refactor(conductor): update InfraOps Conductor prompts and tool usage (#146, #147).
+- chore(agents): enforce subagent-only pricing for Steps 2 and 7.
+- chore(agents): update deploy and Bicep subagent definitions.
+- docs(readme): add top banner and remove workflow SVG embed.
+- chore(governance): normalize instruction links and skill frontmatter.
+- chore(ci): tighten VS Code extension drift policy and MCP setup checks.
+- chore(sync): sync source-of-truth and pricing delegation updates.
+
+### Fixed
+
+- fix(azure-pricing-mcp): align bulk estimate formatter with indices response shape (#151).
+- fix(actions): switch deprecation tracker automation to PR flow (#155).
+- fix(mcp): correct healthcheck behavior and remove unused dependencies.
 
 ## [0.9.0] - 2026-02-12
 
 ### Changed
 
-- **Pre-Production Re-Versioning** - Reset project version from `8.2.0` to `0.9.0`
-  - Per [Semantic Versioning 2.0.0](https://semver.org/), `0.x.y` signals pre-production software
-  - Previous `1.0.0`–`8.2.0` history preserved below as development milestones
-  - Synchronized version across `VERSION.md`, `package.json`, `pyproject.toml`, and docs
-  - First stable production release will be `1.0.0`
-
-- **Single Source of Truth for Version** - Removed hardcoded version numbers from all docs
-  - `VERSION.md` is now the only file (besides `CHANGELOG.md`) containing the version number
-  - 10 markdown files replaced inline versions with `[Version](../../VERSION.md)` links
-  - Updated `validate-version-sync.mjs` to only check `package.json` and `CHANGELOG.md`
-  - Prevents future version drift across documentation
+- chore(version): reset project version from `8.2.0` to `0.9.0` for pre-production semantics.
+- chore(version): align `VERSION.md`, `package.json`, and `pyproject.toml`.
+- docs(version): make `VERSION.md` the documentation source of truth for version display.
+- build(version): simplify `validate-version-sync.mjs` checks to version-bearing files.
 
 ---
 
-> **Note:** Versions below (`8.2.0` and earlier) represent the pre-release development history.
-> They are retained for traceability but pre-date the semver-compliant numbering reset.
+> **Note:** Versions below (`8.2.0` and earlier) are pre-release development milestones.
 
 ## [8.2.0] - 2026-02-05
 
 ### Added
 
-- **Agent Model Configuration** - Documented model selection rules in `agents-definitions.instructions.md`
-  - Opus-first agents (requirements, architect, bicep-plan, infraops-conductor) require advanced reasoning
-  - Model field is optional per VS Code 1.109 spec (uses default when omitted)
+- docs(agents): document model selection guidance in `agents-definitions.instructions.md`.
 
 ### Changed
 
-- **README Restructure** - Improved readability and accessibility
-  - All sections now collapsible using `<details><summary>` tags
-  - Agent Interaction Flow moved after Key Features (NOT collapsible for visibility)
-  - Fixed accessibility: H2 headings inside `<details>` block, not `<summary>` tag
-  - Removed Mermaid code block (PNG diagram only for consistent rendering)
-
-- **Agent Workflow Diagram** - Corrected to show all 5 approval gates (was showing 1)
-  - Gate 1: Requirements Approval
-  - Gate 2: Architecture Approval
-  - Gate 3: Plan Approval
-  - Gate 4: Pre-Deploy Approval
-  - Gate 5: Post-Deploy Verification
-  - Regenerated `docs/presenter/infographics/generated/agent-workflow-sequence.png`
+- docs(readme): restructure README with collapsible sections and accessibility fixes.
+- docs(diagram): correct workflow sequence to show all five approval gates.
 
 ### Fixed
 
-- **Copilot Review Suggestions** (PR #94)
-  - `lint.yml`: Simplified markdown-lint trigger paths
-  - `azure-deployment-preflight/SKILL.md`: Fixed template path references
-  - `04-governance-constraints.template.md`: Fixed missing header text
-  - `agents-definitions.instructions.md`: Added model selection documentation
+- fix(lint-yml): simplify markdown-lint trigger paths.
+- fix(skills): correct template paths in deployment preflight skill docs.
+- fix(templates): restore missing header text in governance constraints template.
 
 ## [8.1.0] - 2026-02-04
 
 ### Added
 
-- **Documentation Styling Enhancements** - Comprehensive callout and formatting improvements across 75+ files
-  - Added `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]` callouts throughout documentation
-  - Added consistent `## References` sections to agents, skills, and instruction files
-  - Enhanced AVM Pitfalls documentation with region limitations and parameter constraints
-  - Improved visual hierarchy and scannability across all markdown files
-
-- **Resource Monitor Extension** - Added `mutantdino.resourcemonitor` to devcontainer for system monitoring
-
-- **Terraform Support Roadmap** - Comprehensive planning for future Terraform support
-  - Added `docs/terraform-roadmap.md` with full implementation guide
-  - Created tracking issue #85 with detailed task breakdown
-  - Includes agents, skills, CI/CD, and AVM-TF module references
+- docs(styling): add callouts and references sections across documentation.
+- chore(devcontainer-extensions): add `mutantdino.resourcemonitor`.
+- docs(terraform): add `docs/terraform-roadmap.md` and tracking issue #85.
 
 ### Changed
 
-- **Link Check CI** - Simplified to nightly schedule with auto-issue creation
-  - Removed PR trigger (no longer blocks merges)
-  - Runs nightly at 2:00 AM UTC
-  - Auto-creates GitHub issue with `broken-links` label when problems found
-  - Only checks `README.md`, `docs/**/*.md`, and `agent-output/**/*.md`
-
-- **Version Management** - Simplified release process
-  - Removed hardcoded version numbers from README files (link to VERSION.md instead)
-  - Disabled auto-version workflow (conflicts with branch protection)
-  - Manual release process: update VERSION.md → PR → merge → create release
+- ci(link-check): move to nightly schedule with issue auto-creation on failures.
+- chore(versioning): simplify manual release flow and remove auto-version workflow.
 
 ### Fixed
 
-- **Broken Internal Links** - Repaired 100+ broken links across documentation
-  - Fixed template relative paths
-  - Fixed ADR references to `_superseded` folder
-  - Fixed workflow documentation cross-references
-
-- **CI Workflow Fixes**
-  - Fixed boolean type for `workflow_dispatch` input in AVM version check
-  - Increased link-check timeout to 30 minutes
+- docs(links): repair broad internal-link drift across docs and artifacts.
+- ci(workflows): fix `workflow_dispatch` input typing and increase link-check timeout.
 
 ## [8.0.0] - 2026-02-03
 
 ### Added
 
-- **Comprehensive Validation Framework** - 9-category content validation
-  - Version sync validation (`npm run lint:version-sync`)
-  - Internal/external link checking (lychee in CI)
-  - Deprecated reference detection (`npm run lint:deprecated-refs`)
-  - Grammar validation with Vale (Microsoft style)
-  - JSON/YAML syntax validation
-  - Python linting config (ruff in `pyproject.toml`)
-  - Master validation command (`npm run validate:all`)
-  - Lefthook post-commit hooks (warn mode)
-
-- **New Skills** - Agent-to-skill migration complete
-  - `azure-adr` skill for Architecture Decision Records
-  - `azure-workload-docs` skill for 7 documentation types
-  - Enhanced `azure-diagrams` skill with workflow integration
-
-- **CI Workflow** - External link checker
-  - Weekly + PR trigger for comprehensive URL validation
-  - Uses lychee for reliable external link checking
+- feat(validation): add 9-category validation framework and `validate:all` workflow.
+- feat(skills): complete agent-to-skill migration with new ADR/workload docs capabilities.
+- ci(links): add external link checker workflow using lychee.
 
 ### Changed
 
-- **Agent Architecture** - Reduced from 9 agents to 6
-  - Removed `diagram`, `adr`, `docs` agents (converted to skills)
-  - Updated handoffs in remaining agents to use skill invocation pattern
-  - Skills provide same functionality with better reusability
-
-- **Documentation** - Removed hardcoded agent/skill counts
-  - No more "6 agents" or "9 skills" to maintain
-  - Dynamic discovery via folder structure
+- refactor(agents): reduce agent count by converting `diagram`, `adr`, and `docs` to skills.
+- docs(counts): remove hardcoded agent/skill totals in documentation.
 
 ### Breaking Changes
 
-- **Removed Agents** - `@diagram`, `@adr`, `@docs` no longer exist
-  - Use `azure-diagrams`, `azure-adr`, `azure-workload-docs` skills instead
-  - Handoff buttons in other agents trigger skills automatically
+- chore(agents): remove `@diagram`, `@adr`, and `@docs`; replace with skill-based workflows.
 
 ## [7.6.0] - 2026-02-03
 
 ### Changed
 
-- **Diagram Generation** - Simplified to Python diagrams library only
-  - Removed Draw.io MCP server (`mcp/drawio-mcp/`)
-  - Updated `@diagram` agent to use `diagrams` library exclusively
-  - Updated `azure-diagrams` skill to remove dual-format requirement
-  - Added `requirements.txt` at project root with `diagrams`, `matplotlib`, `pillow`
-  - Graphviz remains as system dependency (apt-get install)
+- refactor(diagrams): standardize on Python diagrams library generation only.
+- build(diagrams): add `diagrams`, `matplotlib`, and `pillow` requirements.
 
 ### Removed
 
-- **Draw.io MCP Server** - Removed entire `mcp/drawio-mcp/` directory (~20 files)
-- **Draw.io Extension** - Removed `hediet.vscode-drawio` from devcontainer extensions
-- **Draw.io CLI** - Removed `snap install drawio` from devcontainer setup
-- **Draw.io Reference Files** - Removed `drawio-format.md`, `drawio-azure-icons.md`, `drawio-common-patterns.md`
-- **Draw.io Scripts** - Removed `generate_drawio.py`, `find_azure_icon.py`, `convert_drawio_to_png.sh`, `dual_format_generator.py`
-- **Draw.io Templates** - Removed `.drawio` template files from skill
+- chore(drawio): remove Draw.io MCP server, templates, scripts, and extension integration.
 
 ## [7.5.0] - 2026-02-02
 
 ### Added
 
-- **Agent-to-Skill Migration Plan** - Comprehensive plan to reduce agents from 9 to 6
-  - Convert `diagram`, `adr`, `docs` agents to skills
-  - Create new `azure-adr` and `azure-workload-docs` skills
-  - Enhance `azure-diagrams` skill with agent patterns
-  - Enhance `make-skill-template` as interactive skill-creator
-  - Plan saved to `plan-agentToSkillMigration.prompt.md`
+- docs(plan): add agent-to-skill migration plan (`plan-agentToSkillMigration.prompt.md`).
 
 ### Changed
 
-- **README.md** - Complete format overhaul to match SMB-LZ polished style
-  - Added centered robot logo from Fluent UI emoji
-  - Added project shields with reference-style markdown links
-  - Added table of contents in collapsible details block
-  - Added emoji section headers and back-to-top navigation
-  - Added Built With tech stack badges
+- docs(readme): overhaul README layout, navigation, and badge presentation.
 
 ### Fixed
 
-- **Skills Lint Fixes** - Resolved 7 markdown lint errors in skill files
-  - `.github/skills/azure-deployment-preflight/SKILL.md`
-  - `.github/skills/make-skill-template/SKILL.md`
-  - `.github/skills/azure-deployment-preflight/references/ERROR-HANDLING.md`
+- fix(skills): resolve markdown lint issues in deployment preflight and skill template files.
 
 ## [7.4.0] - 2026-01-23
 
-- feat(workflow): Implement automated versioning and branch protection (#40)
+### Changed
+
+- feat(workflow): implement automated versioning and branch protection (#40).
 
 ## [7.3.0] - 2026-01-22
 
-- feat(agent-testing): add complete agent validation framework
+### Added
 
-## [7.2.0] - 2026-01-22
-
-- feat(agents): rename @plan agent to @requirements
+- feat(agent-testing): introduce complete agent validation framework.
 
 ## [7.2.0] - 2026-01-22
 
 ### Changed
 
-- **Renamed `@plan` agent to `@requirements`** - Avoids conflict with VS Code's built-in `@plan` agent
-  - Renamed `.github/agents/plan.agent.md` → `.github/agents/requirements.agent.md`
-  - Updated all documentation and workflow references
-  - Custom agent now accessible as `@requirements` in VS Code agent picker
-  - No functional changes to the agent's behavior
+- feat(agents): rename `@plan` to `@requirements` to avoid collision with VS Code built-in Plan.
+- refactor(agents): rename `plan.agent.md` to `requirements.agent.md` and update references.
 
 ## [7.1.0] - 2026-01-21
 
-- feat: add comprehensive agent testing plan prompt
+### Added
+
+- feat(testing): add comprehensive agent testing plan prompt.
 
 ## [7.0.3] - 2026-01-21
 
-- fix: resolve permission issues in dev container post-create script
+### Fixed
+
+- fix(devcontainer): resolve post-create permission issues.
 
 ## [7.0.2] - 2026-01-21
 
-- fix: remove invalid PATH from containerEnv that broke container startup
+### Fixed
+
+- fix(devcontainer): remove invalid `PATH` override that blocked container startup.
 
 ## [7.0.1] - 2026-01-21
 
-- fix: update remaining old agent references in embedded docs
+### Fixed
+
+- fix(docs): update remaining legacy agent references in embedded docs.
 
 ## [7.0.0] - 2026-01-21
 
-- feat(agents)!: rename agents to shorter verb-based names
+### Breaking Changes
+
+- feat(agents)!: rename agents to shorter verb-based names.
 
 ## [6.1.0] - 2026-01-21
 
-- feat(agents): integrate deploy agent into workflow
+### Added
+
+- feat(agents): integrate deploy agent into the workflow.
 
 ## [6.0.0] - 2026-01-21
 
-- feat: remove Terraform and replace Husky with lefthook
+### Breaking Changes
 
-## [6.0.0] - 2026-01-21
-
-### BREAKING CHANGES
-
-- **Terraform support removed** - Project is now Bicep-only
-  - Removed Terraform, tfsec, Terragrunt from dev container
-  - Removed Go tooling (was used for Terratest)
-  - Removed HashiCorp.terraform and Azure Terraform VS Code extensions
-  - Removed all Terraform references from documentation and agents
-  - See `docs/guides/terraform-extension-guide.md` for adding Terraform support back
+- chore(terraform): remove Terraform support and move repository to Bicep-only operation.
 
 ### Added
 
-- **lefthook** - Replaced deprecated Husky with lefthook for Git hooks
-  - Faster, dependency-free Go binary
-  - Same functionality: pre-commit (markdownlint) and commit-msg (commitlint)
-- **Terraform Extension Guide** - New guide documenting how to add Terraform support
-  - Located at `docs/guides/terraform-extension-guide.md`
-  - Covers dev container, agents, instructions, and CI/CD setup
-- **Pylance type checking** - Added `python.analysis.typeCheckingMode: basic` to dev container
+- feat(git-hooks): replace Husky with lefthook.
+- docs(terraform): add Terraform re-enable guide at `docs/guides/terraform-extension-guide.md`.
+- chore(devcontainer-python): enable basic Pylance type checking.
 
 ### Changed
 
-- **Markdownlint verification** - Fixed false negative in post-create.sh
-  - Now uses `npm list -g` instead of `command -v` for reliable detection
-- **Markdownlint config** - Consolidated to single `.markdownlint-cli2.jsonc` file
-  - Removed duplicate `.markdownlint.json`
-- **MCP health check** - Fixed unreliable stdio-based check
-  - Now uses Python import verification
-- **Documentation** - Updated 40+ files to remove Terraform references
-  - All agents, guides, scenarios, and presenter materials updated
+- fix(markdownlint): improve markdownlint detection in post-create checks.
+- chore(config): consolidate markdownlint config to `.markdownlint-cli2.jsonc`.
+- fix(mcp): replace unreliable stdio healthcheck with Python import verification.
+- docs(terraform): update repository docs to remove Terraform assumptions.
 
 ### Removed
 
-- `.husky/` directory and husky dependency
-- `.markdownlint.json` (duplicate config)
-- Terraform, tfsec, Go version checks from post-create.sh and update-tools.sh
-- Terraform entries from .gitignore and .gitattributes
-- Terraform from package.json keywords
+- chore(husky): remove Husky directory and dependency.
+- chore(terraform): remove Terraform tooling, references, and related config entries.
 
 ## [5.3.0] - 2026-01-20
 
-- feat: add Azure Resource Health Diagnostician agent
+### Added
+
+- feat(diagnose): add Azure Resource Health Diagnostician agent.
 
 ## [5.2.1] - 2026-01-19
 
-- fix(ci): Fix version auto-update workflow to correctly extract version
+### Fixed
+
+- fix(ci): correct version auto-update extraction logic.
 
 ## [5.2.0] - 2026-01-19
 
 ### Added
 
-- **Deploy Agent activated** - Step 6 now has a fully operational custom agent
-  - Enhanced deployment workflow with Option 1 (PowerShell) and Option 2 (Azure CLI) paths
-  - Added known issues section for common deployment troubleshooting
-  - Added "Generate As-Built Cost Estimate" handoff option
+- feat(deploy-agent): activate deploy agent for Step 6 workflows.
+- docs(deploy-agent): add dual-path deployment guidance and troubleshooting notes.
 
 ### Changed
 
-- Updated all workflow diagrams to reference "Deploy Agent" instead of "Azure CLI/PowerShell"
-- Updated agents-overview.md with Deploy Agent section and Quick Reference entry
-- Updated template and instruction references from "Deployment tooling/manual" to "Deploy Agent"
+- docs(workflow): update diagrams and references to use Deploy Agent terminology.
 
 ## [5.1.0] - 2026-01-19
 
-- feat: Add dark-themed workflow diagram for presentations
+### Added
+
+- feat(presenter): add dark-themed workflow diagram for presentations.
 
 ## [5.0.0] - 2026-01-19
 
-- chore: bump version to 4.0.0
+### Changed
+
+- chore(release): prepare release transition to `4.0.0` baseline.
 
 ## [4.0.0] - 2026-01-19
 
-### BREAKING CHANGES
+### Breaking Changes
 
-- **Scenario renumbering** - All scenario numbers have changed (11 → 8 scenarios)
-  - S02-terraform-baseline: DELETED
-  - S04-ecommerce-platform: DELETED
-  - S11-quick-demos: DELETED
-  - S03-agentic-workflow → S02-agentic-workflow
-  - S05-documentation-generation → S03-documentation-generation
-  - S06-service-validation → S04-service-validation
-  - S07-troubleshooting → S05-troubleshooting
-  - S08-sbom-generator → S06-sbom-generator
-  - S09-diagrams-as-code → S07-diagrams-as-code
-  - S10-coding-agent → S08-coding-agent
+- refactor(scenarios): renumber and reduce scenarios from 11 to 8.
 
 ### Changed
 
-- **Docs consolidation** - `docs/workflow/WORKFLOW.md` → `docs/reference/workflow.md`
-- **Removed duplicate guides** - Cleaned up redundant documentation files
-- **Budget terminology** - Changed "Cost Constraints" to "Budget" throughout
-- **Updated ~50 files** with new scenario numbers and paths
+- docs(workflow): consolidate workflow docs to `docs/reference/workflow.md`.
+- docs(cleanup): remove duplicate guides and standardize budget terminology.
+- chore(paths): update scenario references and paths across the repo.
 
 ### Removed
 
-- `scenarios/scenario-output/` - Replaced by `agent-output/`
-- `docs/workflow/` folder - Merged into `docs/reference/`
-- `docs/audit-checklists/` folder
-- `docs/cost-estimates/` folder
-- `infra/bicep/contoso-patient-portal/` - Legacy example
+- chore(legacy): remove `scenarios/scenario-output/` and legacy docs folders.
+- chore(example): remove `infra/bicep/contoso-patient-portal/`.
 
 ## [3.11.0] - 2026-01-14
 
-- feat: add demo prompt for 30-min live workflow demo
+### Added
+
+- feat(demo): add prompt for 30-minute live workflow demo.
 
 ## [3.10.1] - 2026-01-14
 
-- fix: convert plan-requirements to proper prompt file format
+### Fixed
+
+- fix(prompts): convert plan-requirements to proper prompt-file format.
 
 ## [3.10.0] - 2026-01-14
 
-- feat: v3.9.0 - complete artifact template compliance
+### Added
+
+- feat(artifacts): complete artifact template compliance rollout.
 
 ## [3.9.0] - 2026-01-14
 
 ### Added
 
-- **All 12 artifacts now at standard strictness** - Complete template compliance across the repository
+- feat(artifacts): reach standard strictness across all 12 artifact types.
 
 ### Changed
 
-- **Restructured all Wave 2 artifacts** (07-\*) to match template standards:
-  - `07-documentation-index.md` - Added numbered section prefixes
-  - `07-design-document.md` - Removed Table of Contents sections
-  - `07-operations-runbook.md` - Reordered sections to match template sequence
-  - `07-backup-dr-plan.md` - Added Recovery Objectives, renamed sections
-  - `07-compliance-matrix.md` - Restructured with numbered sections
-- **Restructured legacy artifacts** to match current templates:
-  - `02-architecture-assessment.md` (ecommerce) - Complete rewrite with all required sections
-  - `05-implementation-reference.md` (ecommerce) - Restructured to template format
-- **Ratcheted strictness** from relaxed to standard for all artifact types
-- **Expanded optional sections** allowed in validation for common extra content
+- refactor(wave2): align all `07-*` artifacts with template structure.
+- refactor(legacy): align ecommerce legacy artifacts with current templates.
+- chore(strictness): raise validation strictness from relaxed to standard.
+- chore(validation): expand allowed optional sections for common additions.
 
 ### Fixed
 
-- Duplicate version line in package.json
-- Removed outdated TOC sections from design documents
+- fix(package): remove duplicate version line.
+- fix(docs): remove outdated design document TOC sections.
 
 ## [3.8.1] - 2026-01-14
 
 ### Added
 
-- **8 new artifact templates** for comprehensive workflow coverage:
-  - `04-governance-constraints.template.md` - Azure policy and governance constraints
-  - `05-implementation-reference.template.md` - Bicep code location and deployment instructions
-  - `07-design-document.template.md` - 10-section architecture design document
-  - `07-operations-runbook.template.md` - 6-section day-2 operations guide
-  - `07-resource-inventory.template.md` - Complete resource listing from IaC
-  - `07-backup-dr-plan.template.md` - 9-section backup and DR procedures
-  - `07-compliance-matrix.template.md` - 6-section security controls mapping
-  - `07-documentation-index.template.md` - 5-section documentation package index
-- **Per-artifact strictness configuration** in validation script (core=standard, wave2=relaxed)
+- feat(templates): add 8 new artifact templates for governance, implementation, and as-built outputs.
+- feat(validation): add per-artifact strictness configuration.
 
 ### Changed
 
-- **Generalized artifact template validation** from Wave 1 to all 12 artifact types:
-  - Renamed `validate-wave1-artifacts.mjs` → `validate-artifact-templates.mjs`
-  - Renamed `wave1-artifact-drift-guard.yml` → `artifact-template-drift-guard.yml`
-  - Renamed `lint:wave1-artifacts` → `lint:artifact-templates` in package.json
-- **Redesigned README.md workflow tables**:
-  - Updated Mermaid diagram with display names (Project Planner, Azure Architect, etc.)
-  - New 4-column Step table (Step, Phase, Agent, Output)
-  - Simplified Legend table (Phase-focused with color + description)
-- **Renamed ecommerce artifacts** to match standard naming convention:
-  - `01-architecture-assessment.md` → `02-architecture-assessment.md`
-  - `01-cost-estimate.md` → `03-des-cost-estimate.md`
-- Updated husky pre-commit to use new script name and add `04-governance-constraints`
-- Expanded workflow trigger paths to include all 12 templates and 6 agents
+- refactor(validation): generalize Wave 1 validation to all 12 artifact types.
+- docs(readme): redesign workflow tables and legend.
+- chore(artifacts): rename ecommerce artifacts to standard naming convention.
+- ci(workflows): expand trigger paths for templates and agent changes.
 
 ### Fixed
 
-- Ecommerce `07-documentation-index.md` references to renamed artifacts
-
-## [3.8.0] - 2026-01-14
-
-- feat: refactor agents and add deploy agent (v3.8.0)
+- fix(docs): correct renamed artifact references in ecommerce documentation index.
 
 ## [3.8.0] - 2026-01-14
 
 ### Added
 
-- **Deploy agent** (`.github/agents/deploy.agent.md`) - New Step 6 agent for deployment workflows
-- **GitHub issues skill** with MCP tools: `.github/skills/github-issues/`
-- **Wave 1 artifact template validation system**:
-  - `scripts/validate-wave1-artifacts.mjs` - Validates 01-requirements, 02-architecture-assessment, 04-implementation-plan
-  - `.github/workflows/wave1-artifact-drift-guard.yml` - CI workflow for template compliance
-  - `.github/templates/01-requirements.template.md`
-  - `.github/templates/02-architecture-assessment.template.md`
-  - `.github/templates/04-implementation-plan.template.md`
-- **Golden cost estimate templates**:
-  - `.github/templates/03-des-cost-estimate.template.md`
-  - `.github/templates/07-ab-cost-estimate.template.md`
-- **Drift guard for cost estimate templates**:
-  - `scripts/validate-cost-estimate-templates.mjs`
-  - `.github/workflows/cost-estimate-template-drift-guard.yml`
-- **docs/reference/** - Single-source-of-truth folder:
-  - `defaults.md` - Regions, CAF naming, tags, SKUs, security baseline
-  - `agents-overview.md` - All 7 agents comparison table with examples
-  - `workflow.md` - Canonical 7-step workflow diagram
-  - `bicep-patterns.md` - Unique suffix, diagnostic settings, policy workarounds
-- **docs/getting-started/** - Consolidated getting-started folder:
-  - `quickstart.md` - Merged quickstart + prerequisites (10-min guide)
-  - `first-scenario.md` - Detailed S01 Bicep Baseline walkthrough
-  - `learning-paths.md` - Complete learning journey paths
-- **docs/presenter/** - Merged presenter folder (from presenter-toolkit + value-proposition)
-- **Persona-based navigation** in docs/README.md with Mermaid diagram
-- **Emoji difficulty tags** in scenarios/README.md (🟢 Beginner, 🟡 Intermediate, 🔴 Advanced)
-- Strictness ratcheting tracker: `docs/guides/strictness-ratcheting-tracker.md`
-- Agent definitions instruction file: `.github/instructions/agents-definitions.instructions.md`
+- feat(deploy): add Step 6 deploy agent.
+- feat(skills): add GitHub issues skill and template drift guards.
+- feat(docs): introduce `docs/reference/`, `docs/getting-started/`, and merged presenter docs.
+- feat(validation): add Wave 1 artifact and cost estimate template validation pipelines.
 
 ### Changed
 
-- **Refactored Project Planner agent** to follow built-in Plan agent pattern:
-  - Updated tools list with correct names (`agent`, `search/usages`, `read/problems`, etc.)
-  - Added iterative `<workflow>` with research → draft → feedback loop
-  - Added `<requirements_style_guide>` for consistent output format
-- **Added edit tool clarification** to `azure-principal-architect` and `bicep-plan` agents (markdown only, not code)
-- **Standardized shared defaults links** across all 8 agents (hyperlinks to `_shared/defaults.md`)
-- **Updated handoff documentation** in `agents-definitions.instructions.md` to require display names
-- Upgraded Wave 1 validation strictness from `relaxed` to `standard`
-- Renamed `static-webapp-test` to `static-webapp` for consistency
-- Updated all agent files to use relative template paths
-- Fixed version references in documentation
+- refactor(project-planner): align planner workflow/tooling with modern custom agent patterns.
+- chore(agents): standardize shared defaults and relative template links across agents.
+- chore(validation): increase Wave 1 strictness to standard.
 
 ### Fixed
 
-- **Agent tool names** - Updated deprecated tool names (`runSubagent`→`agent`, `fetch`→`web/fetch`, etc.)
-- **YAML frontmatter** in `github-actions.instructions.md` - Fixed multiline description format
-- **Example links** in instruction files - Escaped brackets/parentheses to prevent path validation errors
-- **Broken terraform reference** - Removed deleted `terraform-azure.instructions.md` from authoritative standards
-- **Backslash escaping** in `bicep-implement.agent.md` - Fixed `\icep` → `bicep` and `\ar` → `var`
-- Resolved 165 markdown linting violations in instruction files
-- Fixed ecommerce `04-implementation-plan.md` to match Wave 1 template structure
-- Fixed 30+ broken links to old folder paths
+- fix(tools): update deprecated tool-name references in agent docs.
+- fix(links): resolve markdown lint and broken-link issues across instruction and artifact files.
 
 ### Removed
 
-- `terraform-azure.instructions.md` - No Terraform agent exists (removed unused file)
-- `docs/presenter-toolkit/` - Merged into `docs/presenter/`
-- `docs/value-proposition/` - Merged into `docs/presenter/`
+- chore(terraform-doc): remove obsolete `terraform-azure.instructions.md`.
+- chore(docs): merge and remove `docs/presenter-toolkit/` and `docs/value-proposition/`.
 
 ## [3.7.9] - 2026-01-13
 
 ### Changed
 
-- **Renamed @plan agent to Project Planner** - Updated 100+ files to use custom agent naming
-  - All documentation now references "Project Planner" instead of "@plan"
-  - Fixed agent invocation instructions: `Ctrl+Alt+I` → agent picker (not `Ctrl+Shift+A`)
-  - Added clarification note distinguishing from VS Code's built-in "Plan" agent
-  - Regenerated workflow diagrams (SVG/PNG) with updated agent naming
+- refactor(agents): rename `@plan` display references to Project Planner across docs.
+- docs(usage): correct invocation guidance and regenerate workflow diagrams.
 
 ## [3.7.8] - 2025-12-18
 
 ### Fixed
 
-- Update Azure Pricing Calculator URLs with locale
+- fix(pricing): update Azure Pricing Calculator URLs with locale-aware links.
 
 ## [3.7.7] - 2025-12-18
 
 ### Fixed
 
-- Correct broken relative paths in `azure-principal-architect.agent.md`
+- fix(paths): correct relative paths in `azure-principal-architect.agent.md`.
 
 ## [3.7.6] - 2025-12-18
 
 ### Fixed
 
-- Correct shared foundation link path in all agents
+- fix(paths): correct shared foundation link path in all agents.
 
 ## [3.7.5] - 2025-12-18
 
 ### Fixed
 
-- Correct link paths in README table
+- fix(readme): correct table link paths.
 
 ## [3.7.4] - 2025-12-18
 
 ### Fixed
 
-- Remove non-functional Mermaid click links, add link table
+- fix(readme): remove non-functional Mermaid click links and add link table.
 
 ## [3.7.3] - 2025-12-18
 
 ### Fixed
 
-- Use absolute GitHub URLs for Mermaid click links
+- fix(readme): switch Mermaid click links to absolute GitHub URLs.
 
 ## [3.7.2] - 2025-12-18
 
 ### Fixed
 
-- Correct Mermaid click links in README
+- fix(readme): correct Mermaid click links.
 
 ## [3.7.1] - 2025-12-18
 
 ### Fixed
 
-- Complete docs rebuild cleanup - fix broken links and old path references
+- fix(docs): clean up docs rebuild path/link breakage.
 
 ## [3.7.0] - 2025-12-17
 
 ### Added
 
-- Static-webapp-test workflow validation example
+- feat(validation): add `static-webapp-test` workflow validation example.
 
 ## [3.6.0] - 2025-12-17
 
 ### Changed
 
-- Integrate requirements template into workflow
-- **Restructure to 7-step workflow** with Deploy as new Step 6:
-  - Step 1: @plan → `01-requirements.md`
-  - Step 2: azure-principal-architect → `02-*` files
-  - Step 3: Design Artifacts → `03-des-*` files (optional)
-  - Step 4: bicep-plan → `04-*` files
-  - Step 5: bicep-implement → `05-*` + Bicep code
-  - Step 6: Deploy → `06-deployment-summary.md` (NEW)
-  - Step 7: As-Built Artifacts → `07-*` files (optional)
-- Standardized artifact suffixes: `-des` (design), `-ab` (as-built)
-- Cost estimates moved to Step 3 as design artifacts
-- Added Azure Pricing MCP fallback chain to copilot-instructions.md
+- feat(workflow): integrate requirements template into the workflow.
+- refactor(workflow): restructure to 7-step lifecycle with Deploy as Step 6.
+- chore(artifacts): standardize `-des` and `-ab` artifact suffixes.
+- refactor(costing): move cost estimates to Step 3 design artifacts.
+- docs(pricing): add Azure Pricing MCP fallback chain guidance.
 
 ## [3.5.0] - 2025-12-17
 
 ### Added
 
-- Workflow diagram generator initial setup
+- feat(diagrams): add workflow diagram generator setup.
 
 ## [3.4.0] - 2025-12-17
 
 ### Added
 
-- Workload documentation generator agent (optional Step 7)
+- feat(docs-agent): add workload documentation generator agent for optional Step 7.
 
 ## [3.3.0] - 2025-12-17
 
 ### Added
 
-- Centralized agent outputs and automated versioning
+- feat(outputs): centralize agent outputs and automate versioning.
 
 ## [3.2.0] - 2025-12-07
 
 ### Added
 
-- **Character Reference Card** with all 11 personas
-- GitHub Actions CI workflow with 5 validation jobs
-- Shared agent configuration (`_shared/defaults.md`)
-- Healthcare, analytics, and static website demo scenarios
-- Architecture Decision Records (ADR-001 through ADR-004)
-- Project improvements plan
+- feat(personas): add character reference card for all personas.
+- ci(actions): add GitHub Actions workflow with five validation jobs.
+- feat(shared): add `_shared/defaults.md` configuration.
+- feat(scenarios): add healthcare, analytics, and static website demo scenarios.
+- docs(adr): add ADR-001 through ADR-004.
+- docs(roadmap): add project improvements plan.
 
 ### Changed
 
-- Scenario restructure: Renumbered S01-S11
-- Character collision resolution (Jennifer Chen, Maya Patel, David Kim)
-- Azure Pricing MCP server improvements (caching, timeouts, session handling)
+- refactor(scenarios): renumber scenarios S01-S11.
+- refactor(personas): resolve character naming collisions.
+- feat(pricing-mcp): improve caching, timeouts, and session handling.
 
 ### Fixed
 
-- Duplicate S04 folders
-- Character name collisions across scenarios
-- MCP server "Connector is closed" errors
+- fix(scenarios): remove duplicate S04 folders.
+- fix(personas): fix character-name collisions across scenarios.
+- fix(mcp): resolve "Connector is closed" server errors.
 
 ## [3.1.0] - 2025-12-03
 
 ### Changed
 
-- **Reorganized docs/ folder structure** with new subfolders:
-  - `docs/workflow/` - Workflow documentation
-  - `docs/getting-started/` - Quick start and prerequisites
-  - `docs/guides/` - Troubleshooting and how-tos
-  - `docs/value-proposition/` - ROI, time savings, executive pitch
-  - `docs/cost-estimates/` - Azure pricing examples
-- **Reorganized scenarios/ folder** with quick-demos subfolder
+- refactor(docs): reorganize docs into workflow, getting-started, guides, value-proposition,
+  and cost-estimates subfolders.
+- refactor(scenarios): reorganize scenarios with `quick-demos` subfolder.
 
 ### Breaking Changes (File Paths)
 
-- `docs/WORKFLOW.md` → `docs/workflow/WORKFLOW.md`
-- `docs/QUICKSTART.md` → `docs/getting-started/QUICKSTART.md`
-- `docs/troubleshooting.md` → `docs/guides/troubleshooting.md`
+- chore(paths): move `docs/WORKFLOW.md` to `docs/workflow/WORKFLOW.md`.
+- chore(paths): move `docs/QUICKSTART.md` to `docs/getting-started/QUICKSTART.md`.
+- chore(paths): move `docs/troubleshooting.md` to `docs/guides/troubleshooting.md`.
 
 ## [2.0.0] - 2025-12-01
 
 ### Changed
 
-- **Breaking**: Repository restructured to focus on 7-step agent workflow
-- Simplified folder structure (removed legacy scenarios folder)
+- refactor(repo): restructure repository around the 7-step agent workflow.
+- chore(structure): simplify folder layout by removing legacy scenario structure.
 
 ### Added
 
-- 6 custom agents for Azure infrastructure workflow
-- Comprehensive workflow documentation
-- E-commerce platform scenario prompts
-- Azure Pricing MCP server
-- Dev container with pre-configured tooling
+- feat(agents): add custom agents for Azure infrastructure workflow.
+- docs(workflow): add comprehensive workflow documentation.
+- feat(prompts): add e-commerce scenario prompts.
+- feat(pricing-mcp): add Azure Pricing MCP server.
+- feat(devcontainer): add pre-configured development container.
 
 ### Removed
 
-- Legacy scenarios and resources folders
+- chore(legacy): remove legacy scenarios/resources folders.
 
 ## [1.0.0] - 2024-06-01
 
 ### Added
 
-- Initial repository structure
-- Basic Bicep templates
-- PowerShell deployment scripts
-- GitHub Copilot instructions file
+- feat(init): add initial repository structure.
+- feat(bicep): add basic Bicep templates.
+- feat(deploy): add PowerShell deployment scripts.
+- docs(copilot): add initial Copilot instructions.
 
 ---
 
@@ -652,11 +493,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This project uses [Semantic Versioning](https://semver.org/):
 
-- **0.x.y**: Pre-production development (current)
-- **1.0.0**: First stable production release (upcoming)
-- **MAJOR**: Breaking changes to workflow or agent interfaces
-- **MINOR**: New agents, demos, or significant feature additions
-- **PATCH**: Bug fixes, documentation improvements, minor enhancements
+- **0.x.y**: pre-production development (current).
+- **1.0.0**: first stable production release (upcoming).
+- **MAJOR**: breaking changes to workflow or agent interfaces.
+- **MINOR**: new agents, demos, or significant feature additions.
+- **PATCH**: bug fixes, documentation improvements, and minor enhancements.
 
 ## Links
 
