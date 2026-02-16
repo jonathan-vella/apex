@@ -492,8 +492,9 @@ def format_bulk_estimate_response(result: dict[str, Any]) -> str:
         lines.append("| # | Service | SKU | Region | Qty | Monthly | Yearly |")
         lines.append("|---|---------|-----|--------|-----|---------|--------|")
         for item in result["line_items"]:
+            item_nums = ", ".join(str(i + 1) for i in item.get("indices", []))
             lines.append(
-                f"| {item['index']+1} | {item['service_name']} | {item['sku_name']} "
+                f"| {item_nums} | {item['service_name']} | {item['sku_name']} "
                 f"| {item['region']} | {item['quantity']} "
                 f"| ${item['monthly_cost']:,.2f} | ${item['yearly_cost']:,.2f} |"
             )
@@ -505,7 +506,8 @@ def format_bulk_estimate_response(result: dict[str, Any]) -> str:
     if result["errors"]:
         lines.append("\n#### Errors")
         for err in result["errors"]:
-            lines.append(f"- Item {err['index']+1}: {err['error']}")
+            err_nums = ", ".join(str(i + 1) for i in err.get("indices", []))
+            lines.append(f"- Item(s) {err_nums}: {err['error']}")
 
     return "\n".join(lines)
 
