@@ -61,7 +61,7 @@ Notes:
 **Generated**: {YYYY-MM-DD}
 **Region**: {primary-region}
 **Environment**: {Production|Staging|Development}
-**MCP Tools Used**: {azure_price_search, azure_cost_estimate, azure_region_recommend, azure_sku_discovery}
+**MCP Tools Used**: {azure_price_search, azure_cost_estimate, azure_bulk_estimate, azure_region_recommend, azure_sku_discovery}
 **Architecture Reference**: {relative link to assessment doc, if available}
 ```
 
@@ -202,19 +202,19 @@ Include both subsections:
 Cost distribution is required for all workloads. Preferred format is a markdown table.
 Optional: include a generated chart image (PNG/SVG) when available.
 
-````markdown
+```markdown
 ## Architecture Overview
 
 ### Cost Distribution
 
-| Category | Monthly Cost (USD) | Share |
-| --- | ---: | ---: |
-| 💻 Compute | 535 | 39% |
-| 💾 Data Services | 466 | 34% |
-| 🌐 Networking | 376 | 27% |
+| Category         | Monthly Cost (USD) | Share |
+| ---------------- | -----------------: | ----: |
+| 💻 Compute       |                535 |   39% |
+| 💾 Data Services |                466 |   34% |
+| 🌐 Networking    |                376 |   27% |
 
 ![Monthly Cost Distribution](./03-des-cost-distribution.png)
-````
+```
 
 ### Key Design Decisions Affecting Cost
 
@@ -410,7 +410,7 @@ Always include links to:
 
 ## Pricing Sources (Priority Order)
 
-1. Azure Pricing MCP (`azure_price_search`, `azure_cost_estimate`)
+1. Azure Pricing MCP (`azure_price_search`, `azure_cost_estimate`, `azure_bulk_estimate`)
 2. Azure Pricing Calculator (manual validation)
 3. Azure Retail Prices API (programmatic)
 

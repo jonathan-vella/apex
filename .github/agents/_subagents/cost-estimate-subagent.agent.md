@@ -5,14 +5,7 @@ model: "GPT-5.3-Codex (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools:
-  [
-    read,
-    search,
-    web,
-    "azure-pricing/*",
-    "azure-mcp/*",
-  ]
+tools: [read, search, web, "azure-pricing/*", "azure-mcp/*"]
 ---
 
 # Cost Estimate Subagent
@@ -40,16 +33,20 @@ You are a **COST ESTIMATION SUBAGENT** called by the Architect agent.
 
 ## Azure Pricing MCP Tools
 
-| Tool                     | When to Use                              |
-| ------------------------ | ---------------------------------------- |
-| `azure_price_search`     | Query current retail prices with filters |
-| `azure_price_compare`    | Compare pricing across regions or SKUs   |
-| `azure_cost_estimate`    | Calculate monthly/yearly costs           |
-| `azure_region_recommend` | Find cheapest region for a SKU           |
-| `azure_discover_skus`    | List available SKUs for a service        |
+| Tool                     | When to Use                                                   |
+| ------------------------ | ------------------------------------------------------------- |
+| `azure_price_search`     | Query current retail prices with filters                      |
+| `azure_price_compare`    | Compare pricing across regions or SKUs                        |
+| `azure_cost_estimate`    | Calculate monthly/yearly costs for a single resource          |
+| `azure_bulk_estimate`    | Estimate costs for multiple resources in one call (preferred) |
+| `azure_region_recommend` | Find cheapest region for a SKU                                |
+| `azure_discover_skus`    | List available SKUs for a service                             |
+
+Prefer `azure_bulk_estimate` for full-stack estimates — it accepts a `resources` array with per-resource `quantity` and returns aggregated totals. Use `output_format: "compact"` to reduce response size.
 
 Use EXACT `service_name` values from the azure-defaults skill.
 Common mistakes to avoid:
+
 - "Azure SQL" → use "SQL Database"
 - "App Service" → use "Azure App Service"
 - "Cosmos" → use "Azure Cosmos DB"
@@ -74,7 +71,7 @@ Resource Cost Breakdown:
 Summary:
   Monthly Total: ${total}
   Yearly Total: ${total * 12}
-  
+
 Cost Optimization Notes:
   {region comparison results if requested}
   {reserved instance savings if applicable}
@@ -93,23 +90,23 @@ Confidence: {High|Medium|Low}
 
 ## Pricing Assumptions
 
-| Assumption            | Default Value |
-| --------------------- | ------------- |
-| Hours per month       | 730           |
-| Data transfer (egress)| 100 GB/month  |
-| Storage transactions  | 100K/month    |
-| Currency              | USD           |
+| Assumption             | Default Value |
+| ---------------------- | ------------- |
+| Hours per month        | 730           |
+| Data transfer (egress) | 100 GB/month  |
+| Storage transactions   | 100K/month    |
+| Currency               | USD           |
 
 Override defaults with values from `01-requirements.md` if available.
 
 ## Error Handling
 
-| Error                  | Action                                         |
-| ---------------------- | ---------------------------------------------- |
-| SKU not found          | Try alternative SKU name, note in output       |
-| Region not available   | Use nearest available region, flag difference   |
-| API timeout            | Retry once, then mark as "Estimate"            |
-| No pricing data        | Use Azure Pricing Calculator URL as fallback   |
+| Error                | Action                                        |
+| -------------------- | --------------------------------------------- |
+| SKU not found        | Try alternative SKU name, note in output      |
+| Region not available | Use nearest available region, flag difference |
+| API timeout          | Retry once, then mark as "Estimate"           |
+| No pricing data      | Use Azure Pricing Calculator URL as fallback  |
 
 ## Constraints
 

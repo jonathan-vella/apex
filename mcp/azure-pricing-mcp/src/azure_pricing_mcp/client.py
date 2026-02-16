@@ -7,9 +7,11 @@ from typing import Any
 
 import aiohttp
 
+from .cache import PricingCache
 from .config import (
     AZURE_PRICING_BASE_URL,
     DEFAULT_API_VERSION,
+    MAX_PAGINATION_PAGES,
     MAX_RESULTS_PER_REQUEST,
     MAX_RETRIES,
     RATE_LIMIT_RETRY_BASE_WAIT,
@@ -26,6 +28,7 @@ class AzurePricingClient:
         self.session: aiohttp.ClientSession | None = None
         self._base_url = AZURE_PRICING_BASE_URL
         self._api_version = DEFAULT_API_VERSION
+        self._cache = PricingCache()
 
     async def __aenter__(self) -> "AzurePricingClient":
         """Async context manager entry."""
@@ -139,7 +142,41 @@ class AzurePricingClient:
         if limit and limit < MAX_RESULTS_PER_REQUEST:
             params["$top"] = str(limit)
 
-        return await self.make_request(params=params)
+        cache_hit = self._cache.get(filter_conditions, currency_code)
+        if cache_hit is not None:
+            return cache_hit
+
+        result = await self.make_request(params=params)
+        self._cache.put(filter_conditions, currency_code, result)
+        return result
+
+    async def fetch_all_prices(
+        self,
+        filter_conditions: list[str] | None = None,
+        currency_code: str = "USD",
+        max_pages: int = MAX_PAGINATION_PAGES,
+    ) -> dict[str, Any]:
+        """Fetch all pages of results by following NextPageLink.
+
+        Returns a single merged response with all items.
+        """
+        first_page = await self.fetch_prices(filter_conditions, currency_code)
+        all_items: list[dict[str, Any]] = list(first_page.get("Items", []))
+        next_link: str | None = first_page.get("NextPageLink")
+        pages_fetched = 1
+
+        while next_link and pages_fetched < max_pages:
+            page = await self.make_request(url=next_link)
+            all_items.extend(page.get("Items", []))
+            next_link = page.get("NextPageLink")
+            pages_fetched += 1
+            logger.debug("Fetched page %d (%d items so far)", pages_fetched, len(all_items))
+
+        return {
+            "Items": all_items,
+            "Count": len(all_items),
+            "TotalPages": pages_fetched,
+        }
 
     async def fetch_text(self, url: str, timeout: float = 10.0) -> str:
         """Fetch text content from a URL.

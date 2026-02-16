@@ -1,13 +1,14 @@
 ---
-description: 'Assess architecture using Well-Architected Framework with cost estimates'
-agent: 'Architect'
-model: 'Claude Opus 4.6'
+description: "Assess architecture using Well-Architected Framework with cost estimates"
+agent: "Architect"
+model: "Claude Opus 4.6"
 tools:
   - read/readFile
   - edit/createFile
   - edit/editFiles
   - search/codebase
   - web/fetch
+  - azure-pricing/azure_bulk_estimate
   - azure-pricing/azure_cost_estimate
   - azure-pricing/azure_price_search
   - azure-pricing/azure_price_compare
@@ -37,8 +38,8 @@ Pricing MCP tools.
 
 ## Inputs
 
-| Variable | Description | Default |
-| --- | --- | --- |
+| Variable               | Description                                      | Default  |
+| ---------------------- | ------------------------------------------------ | -------- |
 | `${input:projectName}` | Project name matching the `agent-output/` folder | Required |
 
 ## Workflow

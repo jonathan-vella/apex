@@ -19,7 +19,7 @@ from mcp.types import TextContent, Tool
 
 from .client import AzurePricingClient
 from .handlers import ToolHandlers
-from .services import PricingService, RetirementService, SKUService
+from .services import BulkEstimateService, PricingService, RetirementService, SKUService
 from .tools import get_tool_definitions
 
 # Configure logging
@@ -43,7 +43,12 @@ class AzurePricingServer:
         self._retirement_service = RetirementService(self._client)
         self._pricing_service = PricingService(self._client, self._retirement_service)
         self._sku_service = SKUService(self._pricing_service)
-        self._tool_handlers = ToolHandlers(self._pricing_service, self._sku_service)
+        self._bulk_service = BulkEstimateService(self._pricing_service)
+        self._tool_handlers = ToolHandlers(
+            self._pricing_service,
+            self._sku_service,
+            bulk_service=self._bulk_service,
+        )
         self._session_active = False
 
     async def __aenter__(self) -> "AzurePricingServer":
@@ -120,6 +125,8 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
             return await handlers.handle_ri_pricing(arguments)
         elif name == "get_customer_discount":
             return await handlers.handle_customer_discount(arguments)
+        elif name == "azure_bulk_estimate":
+            return await handlers.handle_bulk_estimate(arguments)
         elif name == "spot_eviction_rates":
             return await handlers.handle_spot_eviction_rates(arguments)
         elif name == "spot_price_history":

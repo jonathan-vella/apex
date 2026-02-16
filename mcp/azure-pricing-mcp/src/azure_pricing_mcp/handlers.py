@@ -8,6 +8,8 @@ from mcp.types import TextContent
 from .config import DEFAULT_CUSTOMER_DISCOUNT
 from .formatters import (
     _get_discount_tip,
+    format_bulk_estimate_response,
+    format_compact,
     format_cost_estimate_response,
     format_customer_discount_response,
     format_discover_skus_response,
@@ -20,7 +22,7 @@ from .formatters import (
     format_spot_eviction_rates_response,
     format_spot_price_history_response,
 )
-from .services import PricingService, SKUService, SpotService
+from .services import BulkEstimateService, PricingService, SKUService, SpotService
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +35,12 @@ class ToolHandlers:
         pricing_service: PricingService,
         sku_service: SKUService,
         spot_service: SpotService | None = None,
+        bulk_service: BulkEstimateService | None = None,
     ) -> None:
         self._pricing_service = pricing_service
         self._sku_service = sku_service
         self._spot_service = spot_service
+        self._bulk_service = bulk_service
 
     def _resolve_discount(self, arguments: dict[str, Any]) -> tuple[float, bool, bool]:
         """Resolve discount settings from arguments.
@@ -93,14 +97,17 @@ class ToolHandlers:
 
     async def handle_price_search(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_price_search tool calls."""
+        output_format = arguments.pop("output_format", "verbose")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.search_prices(**arguments)
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
 
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
+
         response_text = format_price_search_response(result)
 
-        # Add discount tip if appropriate
         discount_tip = _get_discount_tip(result)
         if discount_tip:
             response_text += f"\n\n{discount_tip}"
@@ -109,30 +116,42 @@ class ToolHandlers:
 
     async def handle_price_compare(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_price_compare tool calls."""
+        output_format = arguments.pop("output_format", "verbose")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.compare_prices(**arguments)
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
 
         response_text = format_price_compare_response(result)
         return [TextContent(type="text", text=response_text)]
 
     async def handle_region_recommend(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_region_recommend tool calls."""
+        output_format = arguments.pop("output_format", "verbose")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.recommend_regions(**arguments)
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
 
         response_text = format_region_recommend_response(result)
         return [TextContent(type="text", text=response_text)]
 
     async def handle_cost_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_cost_estimate tool calls."""
+        output_format = arguments.pop("output_format", "verbose")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.estimate_costs(**arguments)
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
 
         response_text = format_cost_estimate_response(result)
         return [TextContent(type="text", text=response_text)]
@@ -159,6 +178,22 @@ class ToolHandlers:
         """Handle azure_ri_pricing tool calls."""
         result = await self._pricing_service.get_ri_pricing(**arguments)
         response_text = format_ri_pricing_response(result)
+        return [TextContent(type="text", text=response_text)]
+
+    async def handle_bulk_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
+        """Handle azure_bulk_estimate tool calls."""
+        output_format = arguments.pop("output_format", "verbose")
+        discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
+
+        if self._bulk_service is None:
+            return [TextContent(type="text", text="Error: BulkEstimateService not initialized")]
+
+        result = await self._bulk_service.bulk_estimate(**arguments)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
+
+        response_text = format_bulk_estimate_response(result)
         return [TextContent(type="text", text=response_text)]
 
     def _get_spot_service(self) -> SpotService:
@@ -196,57 +231,3 @@ class ToolHandlers:
         )
         response_text = format_simulate_eviction_response(result)
         return [TextContent(type="text", text=response_text)]
-
-
-def register_tool_handlers(server: Any, tool_handlers: ToolHandlers) -> None:
-    """Register all tool call handlers with the server.
-
-    Args:
-        server: The MCP server instance
-        tool_handlers: The ToolHandlers instance
-    """
-
-    @server.call_tool()
-    async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
-        """Handle tool calls."""
-        try:
-            if name == "azure_price_search":
-                return await tool_handlers.handle_price_search(arguments)
-
-            elif name == "azure_price_compare":
-                return await tool_handlers.handle_price_compare(arguments)
-
-            elif name == "azure_cost_estimate":
-                return await tool_handlers.handle_cost_estimate(arguments)
-
-            elif name == "azure_discover_skus":
-                return await tool_handlers.handle_discover_skus(arguments)
-
-            elif name == "azure_sku_discovery":
-                return await tool_handlers.handle_sku_discovery(arguments)
-
-            elif name == "azure_region_recommend":
-                return await tool_handlers.handle_region_recommend(arguments)
-
-            elif name == "azure_ri_pricing":
-                return await tool_handlers.handle_ri_pricing(arguments)
-
-            elif name == "get_customer_discount":
-                return await tool_handlers.handle_customer_discount(arguments)
-
-            # Spot VM tools (require Azure authentication)
-            elif name == "spot_eviction_rates":
-                return await tool_handlers.handle_spot_eviction_rates(arguments)
-
-            elif name == "spot_price_history":
-                return await tool_handlers.handle_spot_price_history(arguments)
-
-            elif name == "simulate_eviction":
-                return await tool_handlers.handle_simulate_eviction(arguments)
-
-            else:
-                return [TextContent(type="text", text=f"Unknown tool: {name}")]
-
-        except Exception as e:
-            logger.error(f"Error handling tool call {name}: {e}")
-            return [TextContent(type="text", text=f"Error: {str(e)}")]

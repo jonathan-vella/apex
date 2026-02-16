@@ -72,6 +72,70 @@ SERVICE_NAME_MAPPINGS: dict[str, str] = {
     "lb": "Load Balancer",
     "application gateway": "Application Gateway",
     "app gateway": "Application Gateway",
+    # Networking — additional
+    "nat gateway": "NAT Gateway",
+    "nat": "NAT Gateway",
+    "waf": "Application Gateway",
+    "public ip": "Virtual Network",
+    "bastion": "Azure Bastion",
+    "firewall": "Azure Firewall",
+    "front door": "Azure Front Door Service",
+    "frontdoor": "Azure Front Door Service",
+    "cdn": "Content Delivery Network",
+    "traffic manager": "Traffic Manager",
+    "expressroute": "ExpressRoute",
+    "express route": "ExpressRoute",
+    "vpn": "VPN Gateway",
+    "vpn gateway": "VPN Gateway",
+    "private link": "Azure Private Link",
+    "private endpoint": "Azure Private Link",
+    "ddos": "Azure DDoS Protection",
+    "ddos protection": "Azure DDoS Protection",
+    # Containers
+    "acr": "Container Registry",
+    "container registry": "Container Registry",
+    "container apps": "Azure Container Apps",
+    "aci": "Container Instances",
+    "container instances": "Container Instances",
+    # Monitoring & Security
+    "log analytics": "Log Analytics",
+    "monitor": "Azure Monitor",
+    "application insights": "Application Insights",
+    "app insights": "Application Insights",
+    "sentinel": "Microsoft Sentinel",
+    "key vault": "Key Vault",
+    "keyvault": "Key Vault",
+    # Integration & API
+    "api management": "API Management",
+    "apim": "API Management",
+    "service bus": "Service Bus",
+    "servicebus": "Service Bus",
+    "event hubs": "Event Hubs",
+    "eventhubs": "Event Hubs",
+    "event grid": "Event Grid",
+    "eventgrid": "Event Grid",
+    "logic apps": "Logic Apps",
+    "logic app": "Logic Apps",
+    # Data & Analytics
+    "synapse": "Azure Synapse Analytics",
+    "data factory": "Azure Data Factory v2",
+    "adf": "Azure Data Factory v2",
+    "purview": "Microsoft Purview",
+    "databricks": "Azure Databricks",
+    # DevOps
+    "devops": "Azure DevOps",
+    # Databases — additional
+    "mysql": "Azure Database for MySQL",
+    "postgres": "Azure Database for PostgreSQL",
+    "postgresql": "Azure Database for PostgreSQL",
+    "mariadb": "Azure Database for MariaDB",
+    # Static Web Apps
+    "static web app": "Azure Static Web Apps",
+    "swa": "Azure Static Web Apps",
+    "static web apps": "Azure Static Web Apps",
+    # DNS
+    "dns": "Azure DNS",
+    "private dns": "Azure DNS",
 }
 
 # VM series replacement recommendations
@@ -121,6 +185,13 @@ AZURE_RESOURCE_GRAPH_API_VERSION = "2022-10-01"
 
 # Azure Compute API configuration
 AZURE_COMPUTE_API_VERSION = "2024-07-01"
+
+# Pricing API response cache configuration
+PRICING_CACHE_TTL_SECONDS = 300  # 5 minutes
+PRICING_CACHE_MAX_SIZE = 256
+
+# Pagination configuration
+MAX_PAGINATION_PAGES = 10
 
 # Spot data cache configuration
 SPOT_CACHE_TTL = timedelta(hours=1)

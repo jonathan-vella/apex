@@ -91,6 +91,7 @@ tools:
     azure-mcp/subscription_list,
     azure-mcp/virtualdesktop,
     azure-mcp/workbooks,
+    azure-pricing/azure_bulk_estimate,
     azure-pricing/azure_cost_estimate,
     azure-pricing/azure_discover_skus,
     azure-pricing/azure_price_compare,
@@ -220,13 +221,14 @@ Delegate pricing work to `cost-estimate-subagent` to keep your context focused o
 
 The subagent uses these Azure Pricing MCP tools on your behalf:
 
-| Tool                     | Purpose                                  |
-| ------------------------ | ---------------------------------------- |
-| `azure_price_search`     | Query current retail prices with filters |
-| `azure_price_compare`    | Compare across regions or SKUs           |
-| `azure_cost_estimate`    | Calculate monthly/yearly costs           |
-| `azure_region_recommend` | Find cheapest region for a SKU           |
-| `azure_discover_skus`    | List available SKUs for a service        |
+| Tool                     | Purpose                                              |
+| ------------------------ | ---------------------------------------------------- |
+| `azure_price_search`     | Query current retail prices with filters             |
+| `azure_price_compare`    | Compare across regions or SKUs                       |
+| `azure_cost_estimate`    | Calculate monthly/yearly costs for a single resource |
+| `azure_bulk_estimate`    | Estimate costs for multiple resources in one call    |
+| `azure_region_recommend` | Find cheapest region for a SKU                       |
+| `azure_discover_skus`    | List available SKUs for a service                    |
 
 Refer to azure-defaults skill for exact `service_name` values.
 Fallback: [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)

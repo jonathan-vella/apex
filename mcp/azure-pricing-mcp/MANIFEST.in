@@ -1,21 +1,14 @@
 include README.md
 include LICENSE
-include QUICK_START.md
-include USAGE_EXAMPLES.md
+include CHANGELOG.md
+include INSTALL.md
 include requirements.txt
 include pyproject.toml
-include config_examples.json
 
 recursive-include src *.py
-recursive-include docs *.md *.rst
-
-exclude setup.ps1
-exclude test_setup.ps1
-exclude project.json
 
 recursive-exclude tests *
 recursive-exclude scripts *
-recursive-exclude azure_pricing_server_simple *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude * .DS_Store

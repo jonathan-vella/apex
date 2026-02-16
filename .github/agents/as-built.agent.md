@@ -71,6 +71,7 @@ tools:
     azure-mcp/storage,
     azure-mcp/subscription_list,
     azure-mcp/workbooks,
+    azure-pricing/azure_bulk_estimate,
     azure-pricing/azure_cost_estimate,
     azure-pricing/azure_price_search,
     azure-pricing/azure_price_compare,
@@ -111,7 +112,7 @@ handoffs:
 **Before doing ANY work**, read these skills:
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-* artifacts
+2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
 3. **Read** `.github/skills/azure-diagrams/SKILL.md` — diagram generation contract
 4. **Read** the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
@@ -173,19 +174,20 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 
 Generate these files IN ORDER (each builds on the previous):
 
-| Order | File                         | Content                                       |
-| ----- | ---------------------------- | --------------------------------------------- |
-| 1     | `07-resource-inventory.md`   | All deployed resources with IDs and config     |
-| 2     | `07-design-document.md`      | Architecture decisions and rationale           |
-| 3     | `07-ab-cost-estimate.md`     | As-built costs using Pricing MCP               |
-| 4     | `07-compliance-matrix.md`    | Security and compliance controls mapping       |
-| 5     | `07-backup-dr-plan.md`       | Backup, DR, and business continuity            |
-| 6     | `07-operations-runbook.md`   | Day-2 operations, monitoring, troubleshooting  |
-| 7     | `07-documentation-index.md`  | Index of all project artifacts with links      |
+| Order | File                        | Content                                       |
+| ----- | --------------------------- | --------------------------------------------- |
+| 1     | `07-resource-inventory.md`  | All deployed resources with IDs and config    |
+| 2     | `07-design-document.md`     | Architecture decisions and rationale          |
+| 3     | `07-ab-cost-estimate.md`    | As-built costs using Pricing MCP              |
+| 4     | `07-compliance-matrix.md`   | Security and compliance controls mapping      |
+| 5     | `07-backup-dr-plan.md`      | Backup, DR, and business continuity           |
+| 6     | `07-operations-runbook.md`  | Day-2 operations, monitoring, troubleshooting |
+| 7     | `07-documentation-index.md` | Index of all project artifacts with links     |
 
 ### Phase 3: As-Built Diagram
 
 Use the azure-diagrams skill to generate:
+
 - `agent-output/{project}/07-ab-diagram.py` — Python diagram source
 - `agent-output/{project}/07-ab-diagram.png` — Rendered diagram
 
@@ -212,17 +214,17 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                        | Location                                                |
-| --------------------------- | ------------------------------------------------------- |
-| Resource Inventory          | `agent-output/{project}/07-resource-inventory.md`       |
-| Design Document             | `agent-output/{project}/07-design-document.md`          |
-| Cost Estimate (As-Built)    | `agent-output/{project}/07-ab-cost-estimate.md`         |
-| Compliance Matrix           | `agent-output/{project}/07-compliance-matrix.md`        |
-| Backup & DR Plan            | `agent-output/{project}/07-backup-dr-plan.md`           |
-| Operations Runbook          | `agent-output/{project}/07-operations-runbook.md`       |
-| Documentation Index         | `agent-output/{project}/07-documentation-index.md`      |
-| As-Built Diagram (Python)   | `agent-output/{project}/07-ab-diagram.py`               |
-| As-Built Diagram (Image)    | `agent-output/{project}/07-ab-diagram.png`              |
+| File                      | Location                                           |
+| ------------------------- | -------------------------------------------------- |
+| Resource Inventory        | `agent-output/{project}/07-resource-inventory.md`  |
+| Design Document           | `agent-output/{project}/07-design-document.md`     |
+| Cost Estimate (As-Built)  | `agent-output/{project}/07-ab-cost-estimate.md`    |
+| Compliance Matrix         | `agent-output/{project}/07-compliance-matrix.md`   |
+| Backup & DR Plan          | `agent-output/{project}/07-backup-dr-plan.md`      |
+| Operations Runbook        | `agent-output/{project}/07-operations-runbook.md`  |
+| Documentation Index       | `agent-output/{project}/07-documentation-index.md` |
+| As-Built Diagram (Python) | `agent-output/{project}/07-ab-diagram.py`          |
+| As-Built Diagram (Image)  | `agent-output/{project}/07-ab-diagram.png`         |
 
 ## Validation Checklist
 
@@ -234,4 +236,4 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 - [ ] Compliance matrix maps controls to actual resource configurations
 - [ ] Operations runbook includes real endpoints and resource names
 - [ ] README.md updated with Step 7 completion status
-- [ ] `npm run lint:artifact-templates` passes for all 07-* files
+- [ ] `npm run lint:artifact-templates` passes for all 07-\* files

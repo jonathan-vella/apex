@@ -4,17 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "azure-pricing-mcp"
-version = "3.1.0"
+version = "4.0.0"
 description = "A Model Context Protocol server for querying Azure retail pricing information"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
+    {name = "Jonathan Vella"},
     {name = "Nadav Ben Haim"},
     {name = "Michael Liav"}
 ]
 maintainers = [
-    {name = "Nadav Ben Haim"}
+    {name = "Jonathan Vella"}
 ]
 keywords = ["azure", "pricing", "mcp", "model-context-protocol", "cloud-costs", "cost-estimation"]
 classifiers = [
@@ -54,10 +55,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/msftnadavbh/AzurePricingMCP"
-Repository = "https://github.com/msftnadavbh/AzurePricingMCP"
-Issues = "https://github.com/msftnadavbh/AzurePricingMCP/issues"
-Documentation = "https://github.com/msftnadavbh/AzurePricingMCP#readme"
+Homepage = "https://github.com/jonathan-vella/azure-agentic-infraops"
+Repository = "https://github.com/jonathan-vella/azure-agentic-infraops"
+Issues = "https://github.com/jonathan-vella/azure-agentic-infraops/issues"
+Documentation = "https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp#readme"
 
 [project.scripts]
 azure-pricing-mcp = "azure_pricing_mcp.server:main"

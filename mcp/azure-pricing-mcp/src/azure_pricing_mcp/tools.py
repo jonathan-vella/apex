@@ -56,6 +56,12 @@ def get_tool_definitions() -> list[Tool]:
                         "description": "Whether to validate SKU names and provide suggestions (default: true)",
                         "default": True,
                     },
+                    "output_format": {
+                        "type": "string",
+                        "enum": ["verbose", "compact"],
+                        "description": "Response format: 'verbose' (human-friendly, default) or 'compact' (minimal JSON for agents)",
+                        "default": "verbose",
+                    },
                 },
             },
         ),
@@ -92,13 +98,19 @@ def get_tool_definitions() -> list[Tool]:
                         "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
                         "default": False,
                     },
+                    "output_format": {
+                        "type": "string",
+                        "enum": ["verbose", "compact"],
+                        "description": "Response format: 'verbose' (human-friendly, default) or 'compact' (minimal JSON for agents)",
+                        "default": "verbose",
+                    },
                 },
                 "required": ["service_name"],
             },
         ),
         Tool(
             name="azure_cost_estimate",
-            description="Estimate Azure costs based on usage patterns",
+            description="Estimate Azure costs based on usage patterns. Handles hourly, monthly, per-GB, and per-transaction pricing.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -132,6 +144,17 @@ def get_tool_definitions() -> list[Tool]:
                         "type": "boolean",
                         "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
                         "default": False,
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "description": "Number of resource instances (default: 1). Multiplied with the per-unit price.",
+                        "default": 1,
+                    },
+                    "output_format": {
+                        "type": "string",
+                        "enum": ["verbose", "compact"],
+                        "description": "Response format: 'verbose' (human-friendly, default) or 'compact' (minimal JSON for agents)",
+                        "default": "verbose",
                     },
                 },
                 "required": ["service_name", "sku_name", "region"],
@@ -226,6 +249,12 @@ def get_tool_definitions() -> list[Tool]:
                         "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
                         "default": False,
                     },
+                    "output_format": {
+                        "type": "string",
+                        "enum": ["verbose", "compact"],
+                        "description": "Response format: 'verbose' (human-friendly, default) or 'compact' (minimal JSON for agents)",
+                        "default": "verbose",
+                    },
                 },
                 "required": ["service_name", "sku_name"],
             },
@@ -270,6 +299,51 @@ def get_tool_definitions() -> list[Tool]:
                     },
                 },
                 "required": ["service_name"],
+            },
+        ),
+        Tool(
+            name="azure_bulk_estimate",
+            description="Estimate costs for multiple Azure resources in a single call. Returns per-resource and total monthly/yearly costs. Ideal for full-stack cost estimates.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "resources": {
+                        "type": "array",
+                        "description": "List of resources to estimate. Each must have service_name, sku_name, region. Optional: quantity (default 1), hours_per_month (default 730).",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "service_name": {"type": "string", "description": "Azure service name"},
+                                "sku_name": {"type": "string", "description": "SKU name"},
+                                "region": {"type": "string", "description": "Azure region"},
+                                "quantity": {"type": "number", "description": "Number of instances (default: 1)", "default": 1},
+                                "hours_per_month": {"type": "number", "description": "Usage hours per month (default: 730)", "default": 730},
+                            },
+                            "required": ["service_name", "sku_name", "region"],
+                        },
+                    },
+                    "currency_code": {
+                        "type": "string",
+                        "description": "Currency code (default: USD)",
+                        "default": "USD",
+                    },
+                    "discount_percentage": {
+                        "type": "number",
+                        "description": "Discount percentage to apply to all resources",
+                    },
+                    "show_with_discount": {
+                        "type": "boolean",
+                        "description": "Set to true to apply default 10% discount",
+                        "default": False,
+                    },
+                    "output_format": {
+                        "type": "string",
+                        "enum": ["verbose", "compact"],
+                        "description": "Response format: 'verbose' (default) or 'compact' (minimal JSON)",
+                        "default": "verbose",
+                    },
+                },
+                "required": ["resources"],
             },
         ),
         Tool(

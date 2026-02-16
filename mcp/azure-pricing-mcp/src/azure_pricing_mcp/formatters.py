@@ -15,6 +15,9 @@ DISCOUNT_TIP_NO_DISCOUNT = (
     "to apply your organization's negotiated discount rate."
 )
 
+# Keys excluded from compact JSON output
+_COMPACT_STRIP_KEYS = {"_discount_metadata", "sku_validation", "clarification", "retirement_warnings"}
+
 
 def _get_discount_tip(result: dict[str, Any]) -> str:
     """Get appropriate discount tip based on metadata.
@@ -278,11 +281,16 @@ def format_cost_estimate_response(result: dict[str, Any]) -> str:
     if "error" in result:
         return f"Error: {result['error']}"
 
+    pricing_model = result.get("pricing_model", "per-hour")
+    quantity = result.get("quantity", 1)
+
     estimate_text = f"""
 Cost Estimate for {result['service_name']} - {result['sku_name']}
 Region: {result['region']}
 Product: {result['product_name']}
 Unit: {result['unit_of_measure']}
+Pricing Model: {pricing_model}
+Quantity: {quantity}
 Currency: {result['currency']}
 """
 
@@ -295,16 +303,16 @@ Usage Assumptions:
 - Hours per day: {result['usage_assumptions']['hours_per_day']}
 
 On-Demand Pricing:
-- Hourly Rate: ${result['on_demand_pricing']['hourly_rate']}
+- Unit Rate: ${result['on_demand_pricing']['unit_rate']}
 - Daily Cost: ${result['on_demand_pricing']['daily_cost']}
 - Monthly Cost: ${result['on_demand_pricing']['monthly_cost']}
 - Yearly Cost: ${result['on_demand_pricing']['yearly_cost']}
 """
 
-    if "discount_applied" in result and "original_hourly_rate" in result["on_demand_pricing"]:
+    if "discount_applied" in result and "original_unit_rate" in result["on_demand_pricing"]:
         estimate_text += f"""
 Original Pricing (before discount):
-- Hourly Rate: ${result['on_demand_pricing']['original_hourly_rate']}
+- Unit Rate: ${result['on_demand_pricing']['original_unit_rate']}
 - Daily Cost: ${result['on_demand_pricing']['original_daily_cost']}
 - Monthly Cost: ${result['on_demand_pricing']['original_monthly_cost']}
 - Yearly Cost: ${result['on_demand_pricing']['original_yearly_cost']}
@@ -315,13 +323,13 @@ Original Pricing (before discount):
         for plan in result["savings_plans"]:
             estimate_text += f"""
 {plan['term']} Term:
-- Hourly Rate: ${plan['hourly_rate']}
+- Unit Rate: ${plan['unit_rate']}
 - Monthly Cost: ${plan['monthly_cost']}
 - Yearly Cost: ${plan['yearly_cost']}
 - Savings: {plan['savings_percent']}% (${plan['annual_savings']} annually)
 """
-            if "original_hourly_rate" in plan:
-                estimate_text += f"""- Original Hourly Rate: ${plan['original_hourly_rate']}
+            if "original_unit_rate" in plan:
+                estimate_text += f"""- Original Unit Rate: ${plan['original_unit_rate']}
 - Original Monthly Cost: ${plan['original_monthly_cost']}
 - Original Yearly Cost: ${plan['original_yearly_cost']}
 """
@@ -457,6 +465,49 @@ def format_ri_pricing_response(result: dict[str, Any]) -> str:
         response_lines.append("No Reserved Instance pricing found for the given criteria.")
 
     return "\n".join(response_lines)
+
+
+def format_compact(result: dict[str, Any]) -> str:
+    """Return a minimal JSON representation of any result dict.
+
+    Strips internal metadata, emoji decorations, and verbose narrative.
+    Suitable for machine consumption by agents that parse structured data.
+    """
+    cleaned = {k: v for k, v in result.items() if k not in _COMPACT_STRIP_KEYS}
+    return json.dumps(cleaned, indent=2, default=str)
+
+
+def format_bulk_estimate_response(result: dict[str, Any]) -> str:
+    """Format the bulk estimate response for display."""
+    lines: list[str] = [
+        f"### 📊 Bulk Cost Estimate ({result['currency']})\n",
+        f"Resources: {result['successful']}/{result['resource_count']} priced",
+    ]
+
+    if result["failed"] > 0:
+        lines.append(f"⚠️ {result['failed']} resource(s) could not be priced\n")
+
+    if result["line_items"]:
+        lines.append("")
+        lines.append("| # | Service | SKU | Region | Qty | Monthly | Yearly |")
+        lines.append("|---|---------|-----|--------|-----|---------|--------|")
+        for item in result["line_items"]:
+            lines.append(
+                f"| {item['index']+1} | {item['service_name']} | {item['sku_name']} "
+                f"| {item['region']} | {item['quantity']} "
+                f"| ${item['monthly_cost']:,.2f} | ${item['yearly_cost']:,.2f} |"
+            )
+
+        lines.append("")
+        lines.append(f"**Total Monthly: ${result['totals']['monthly']:,.2f}**")
+        lines.append(f"**Total Yearly: ${result['totals']['yearly']:,.2f}**")
+
+    if result["errors"]:
+        lines.append("\n#### Errors")
+        for err in result["errors"]:
+            lines.append(f"- Item {err['index']+1}: {err['error']}")
+
+    return "\n".join(lines)
 
 
 # =============================================================================
