@@ -20,25 +20,25 @@
 %%{init: {'theme':'neutral'}}%%
 flowchart TD
     START["Problem?"] --> TYPE{"What type?"}
-    
+
     TYPE -->|"Agent won't start"| AGENT
     TYPE -->|"Skill not activating"| SKILL
     TYPE -->|"Deployment fails"| DEPLOY
     TYPE -->|"Validation errors"| VALIDATE
     TYPE -->|"Azure auth"| AUTH
-    
+
     AGENT --> AGENT1["Check: Ctrl+Shift+A<br/>shows agent list?"]
     AGENT1 -->|No| AGENT2["Reload VS Code window"]
     AGENT1 -->|Yes| AGENT3["Agent missing from list?<br/>Check .agent.md exists"]
-    
+
     SKILL --> SKILL1["Using trigger keywords?"]
     SKILL1 -->|No| SKILL2["Add explicit keywords<br/>or reference skill by name"]
     SKILL1 -->|Yes| SKILL3["Check SKILL.md file<br/>for correct triggers"]
-    
+
     DEPLOY --> DEPLOY1["Run preflight first:<br/>deploy agent preflight check"]
-    
+
     VALIDATE --> VALIDATE1["Run: npm run validate"]
-    
+
     AUTH --> AUTH1["Run: az login"]
 
     style START fill:#e1f5fe
@@ -91,7 +91,7 @@ Responses are instant, no terminal commands execute, no files are created.
    - Press `Ctrl+,` → Search for `customAgentInSubagent`
    - Check the box to enable
    - OR add to User Settings JSON:
-   
+
    ```json
    {
      "chat.customAgentInSubagent.enabled": true
@@ -99,14 +99,14 @@ Responses are instant, no terminal commands execute, no files are created.
    ```
 
 2. **Verify agents have `agent` tool**:
-   
+
    ```bash
    grep -l '"agent"' .github/agents/*.agent.md
    # Should list all main agents
    ```
 
 3. **Verify agents have wildcard `agents` array**:
-   
+
    ```bash
    grep 'agents:.*\["\*"\]' .github/agents/*.agent.md
    # Should show agents: ["*"] in each file

@@ -28,7 +28,7 @@
 
 ## File Structure
 
-```
+```text
 infra/bicep/{project-name}/
 ├── main.bicep              # Main orchestration template
 ├── main.bicepparam         # Parameter file

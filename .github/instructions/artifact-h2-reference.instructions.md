@@ -449,7 +449,7 @@ npm run fix:artifact-h2 agent-output/{project}/{file}.md --apply
 
 If you see:
 
-```
+```text
 missing required H2 headings: ## Outputs (Expected)
 ```
 
@@ -457,7 +457,7 @@ missing required H2 headings: ## Outputs (Expected)
 
 If you see:
 
-```
+```text
 contains extra H2 headings: ## Cost Summary
 ```
 
@@ -469,7 +469,7 @@ contains extra H2 headings: ## Cost Summary
 
 ## Generation Workflow
 
-```
+```text
 1. Identify artifact type (e.g., 06-deployment-summary.md)
 2. Find matching section in THIS FILE (above)
 3. Use EXACT H2 headings in EXACT order

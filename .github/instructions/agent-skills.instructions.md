@@ -108,7 +108,7 @@ Skills can include additional files that Copilot accesses on-demand:
 
 ### Directory Structure Example
 
-```
+```text
 .github/skills/my-skill/
 ├── SKILL.md              # Required: Main instructions
 ├── LICENSE.txt           # Recommended: License terms (Apache 2.0 typical)

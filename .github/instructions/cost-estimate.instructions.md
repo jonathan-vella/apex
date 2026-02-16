@@ -222,7 +222,7 @@ Optional: include a generated chart image (PNG/SVG) when available.
 | -------- | -------------- | ------------------ | -------- |
 | ...      | +$.../month 📈 | ...                | Required |
 
-````
+````text
 
 ### 6. 🧾 What We Are Not Paying For (Yet)
 

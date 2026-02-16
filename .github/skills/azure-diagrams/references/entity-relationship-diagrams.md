@@ -159,7 +159,7 @@ relationships = """
 ## Relationship Notation
 
 ### Crow's Foot Notation
-```
+```text
 ||--||  One to One
 ||--o{  One to Many (optional)
 ||--|{  One to Many (required)
@@ -314,7 +314,7 @@ create_access_matrix()
 ## Converting ASCII ERDs
 
 When you see ASCII like:
-```
+```text
 ┌─────────────┐       ┌─────────────┐
 │  Documents  │       │  Accounts   │
 ├─────────────┤       ├─────────────┤

@@ -46,7 +46,7 @@ You are a **DEPLOYMENT PREVIEW SUBAGENT** called by a parent CONDUCTOR agent.
 
 Always return results in this exact format:
 
-```
+```text
 WHAT-IF ANALYSIS RESULT
 ───────────────────────
 Status: [PASS|FAIL|WARNING]

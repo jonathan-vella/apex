@@ -158,7 +158,7 @@ npx puppeteer browsers install chrome
 
 After running `npm run generate`:
 
-```
+```text
 output/
 ├── workflow.png           # 1200x600 PNG
 ├── workflow.svg           # Animated SVG

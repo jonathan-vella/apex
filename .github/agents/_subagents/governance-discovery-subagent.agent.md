@@ -99,7 +99,7 @@ If counts differ, note the discrepancy.
 
 Always return results in this exact format:
 
-```
+```text
 GOVERNANCE DISCOVERY RESULT
 ───────────────────────────
 Status: [COMPLETE|PARTIAL|FAILED]

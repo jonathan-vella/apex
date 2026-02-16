@@ -13,7 +13,7 @@ Analyze the actual diff to determine appropriate type, scope, and message.
 
 ## Conventional Commit Format
 
-```
+```text
 <type>[optional scope]: <description>
 
 [optional body]
@@ -39,7 +39,7 @@ Analyze the actual diff to determine appropriate type, scope, and message.
 
 ## Breaking Changes
 
-```
+```text
 # Exclamation mark after type/scope
 feat!: remove deprecated endpoint
 

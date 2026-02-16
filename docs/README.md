@@ -93,7 +93,7 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 
 ## 7-Step Workflow (with Conductor)
 
-```
+```text
 Requirements → Architecture → Design → Planning → Implementation → Deploy → Documentation
      ↓             ↓           ↓          ↓             ↓           ↓           ↓
    Agent        Agent       Skills     Agent         Agent       Agent       Skills
@@ -121,7 +121,7 @@ See [prompt-guide/](prompt-guide/) for the full guide.
 
 ## Project Structure
 
-```
+```text
 azure-agentic-infraops/
 ├── .github/
 │   ├── agents/           # 8 agent definitions + 3 subagents

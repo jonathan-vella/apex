@@ -42,7 +42,7 @@ apt-get install graphviz  # Ubuntu/Debian
 
 ## Contents
 
-```
+```text
 azure-diagrams/
 ├── SKILL.md                              # Main skill instructions
 ├── README.md                             # This file
@@ -69,7 +69,7 @@ azure-diagrams/
 
 **Architecture Diagram:**
 
-```
+```text
 Create an e-commerce platform architecture with:
 - Front Door for global load balancing
 - AKS for microservices
@@ -80,7 +80,7 @@ Create an e-commerce platform architecture with:
 
 **Business Process Flow:**
 
-```
+```text
 Create a swimlane diagram for employee onboarding with lanes for:
 - HR, IT, Manager, and New Employee
 Show the process from offer acceptance to first day completion
@@ -88,7 +88,7 @@ Show the process from offer acceptance to first day completion
 
 **ERD Diagram:**
 
-```
+```text
 Generate an entity relationship diagram for an order management system with:
 - Customers, Orders, OrderItems, Products, Categories
 - Show primary keys, foreign keys, and cardinality

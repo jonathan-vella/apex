@@ -246,7 +246,7 @@ After each round: run `bicep build` to catch errors early.
 
 Generate `infra/bicep/{project}/deploy.ps1` with:
 
-```
+```text
 ╔════════════════════════════════════════╗
 ║   {Project Name} - Azure Deployment    ║
 ╚════════════════════════════════════════╝
@@ -291,7 +291,7 @@ Run `npm run lint:artifact-templates` and fix any H2 structure errors for your a
 
 ## File Structure
 
-```
+```text
 infra/bicep/{project}/
 ├── main.bicep              # Entry point — uniqueSuffix, orchestrates modules
 ├── main.bicepparam         # Environment-specific parameters

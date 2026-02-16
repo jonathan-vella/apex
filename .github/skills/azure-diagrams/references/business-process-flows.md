@@ -315,7 +315,7 @@ DATA = "#F3E5F5"             # Light purple
 
 When converting ASCII diagrams like:
 
-```
+```text
 ┌─────────┐    ┌─────────┐    ┌─────────┐
 │  User   │───►│ Submit  │───►│ Validate│
 └─────────┘    └─────────┘    └────┬────┘

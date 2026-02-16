@@ -359,7 +359,7 @@ Press `Ctrl+Shift+I` → Select **InfraOps Conductor** from the agent dropdown
 
 ### 5️⃣ Try It
 
-```
+```text
 Create a web app with Azure App Service, Key Vault, and SQL Database
 ```
 
@@ -381,7 +381,7 @@ provide feedback to refine.
 
 ### Example: E-Commerce Platform
 
-```
+```text
 User: Create an e-commerce platform with AKS, Cosmos DB, and Redis caching
 
 Conductor:
@@ -524,7 +524,7 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 ## 📁 Project Structure
 
-```
+```text
 ├── 📁 .github/
 │   ├── 📁 agents/             # 8 main agents + 3 validation subagents
 │   │   ├── infraops-conductor.agent.md  # 🎼 Maestro - Master orchestrator

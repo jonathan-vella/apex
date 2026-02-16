@@ -84,12 +84,12 @@ async def search_prices(
     limit: int = 50
 ) -> Dict[str, Any]:
     """Search Azure retail prices with filters.
-    
+
     Args:
         service_name: The Azure service to search for
         region: Optional region filter
         limit: Maximum number of results
-        
+
     Returns:
         Dictionary containing search results and metadata
     """
@@ -114,7 +114,7 @@ async def search_prices(
    git add .
    git commit -m "feat: add new feature description"
    ```
-   
+
    We follow [Conventional Commits](https://www.conventionalcommits.org/):
    - `feat:` New features
    - `fix:` Bug fixes

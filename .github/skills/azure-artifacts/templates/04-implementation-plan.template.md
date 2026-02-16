@@ -46,7 +46,7 @@ Brief description of what will be implemented.
 
 ## Module Structure
 
-```
+```text
 infra/bicep/{project-name}/
 ├── main.bicep
 ├── main.bicepparam

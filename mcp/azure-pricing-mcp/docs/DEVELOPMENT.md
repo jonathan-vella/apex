@@ -26,7 +26,7 @@ pip install -e .[dev]
 
 ## Project Structure
 
-```
+```text
 AzurePricingMCP/
 ├── src/azure_pricing_mcp/   # Source code
 │   ├── server.py            # Main server implementation
@@ -130,77 +130,77 @@ Configure VS Code or Claude Desktop to use your development server:
 
 1. **Add the tool method to `server.py`**:
 
-```python
-class AzurePricingServer:
-    async def my_new_feature(self, param1: str, param2: Optional[int] = None) -> Dict[str, Any]:
-        """
-        Description of what this does.
-        
-        Args:
-            param1: Description
-            param2: Description
+    ```python
+    class AzurePricingServer:
+        async def my_new_feature(self, param1: str, param2: Optional[int] = None) -> Dict[str, Any]:
+            """
+            Description of what this does.
             
-        Returns:
-            Dictionary with results
-        """
-        # Implementation
-        return {"result": "data"}
-```
+            Args:
+                param1: Description
+                param2: Description
+                
+            Returns:
+                Dictionary with results
+            """
+            # Implementation
+            return {"result": "data"}
+    ```
 
 2. **Register the tool in `server.py` `create_server()`**:
 
-```python
-@server.list_tools()
-async def handle_list_tools() -> List[Tool]:
-    return [
-        # ... existing tools ...
-        Tool(
-            name="my_new_feature",
-            description="Description for AI assistant",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "param1": {
-                        "type": "string",
-                        "description": "Parameter description"
+    ```python
+    @server.list_tools()
+    async def handle_list_tools() -> List[Tool]:
+        return [
+            # ... existing tools ...
+            Tool(
+                name="my_new_feature",
+                description="Description for AI assistant",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "param1": {
+                            "type": "string",
+                            "description": "Parameter description"
+                        },
+                        "param2": {
+                            "type": "integer",
+                            "description": "Optional parameter"
+                        }
                     },
-                    "param2": {
-                        "type": "integer",
-                        "description": "Optional parameter"
-                    }
-                },
-                "required": ["param1"]
-            }
-        )
-    ]
-```
+                    "required": ["param1"]
+                }
+            )
+        ]
+    ```
 
 3. **Add handler in `handlers.py`**:
 
-```python
-async def _handle_my_new_feature(pricing_server, arguments: dict) -> List[TextContent]:
-    """Handle my_new_feature tool calls."""
-    result = await pricing_server.my_new_feature(**arguments)
-    return [TextContent(type="text", text=json.dumps(result, indent=2))]
+    ```python
+    async def _handle_my_new_feature(pricing_server, arguments: dict) -> List[TextContent]:
+        """Handle my_new_feature tool calls."""
+        result = await pricing_server.my_new_feature(**arguments)
+        return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
-# Register in handle_call_tool
-async def handle_call_tool(name: str, arguments: dict) -> list:
-    if name == "my_new_feature":
-        return await _handle_my_new_feature(pricing_server, arguments)
-```
+    # Register in handle_call_tool
+    async def handle_call_tool(name: str, arguments: dict) -> list:
+        if name == "my_new_feature":
+            return await _handle_my_new_feature(pricing_server, arguments)
+    ```
 
 4. **Write tests in `tests/`**:
 
-```python
-import pytest
-from azure_pricing_mcp import AzurePricingServer
+    ```python
+    import pytest
+    from azure_pricing_mcp import AzurePricingServer
 
-@pytest.mark.asyncio
-async def test_my_new_feature():
-    async with AzurePricingServer() as server:
-        result = await server.my_new_feature("test_value")
-        assert "result" in result
-```
+    @pytest.mark.asyncio
+    async def test_my_new_feature():
+        async with AzurePricingServer() as server:
+            result = await server.my_new_feature("test_value")
+            assert "result" in result
+    ```
 
 5. **Update documentation** in README.md
 

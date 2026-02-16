@@ -11,9 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Error Infrastructure** (`error_codes.py`, `validation.py`)
   - `ErrorCode` enum with 14 machine-readable error codes (e.g. `MISSING_REQUIRED_FIELD`, `INTERNAL_ERROR`, `BULK_ITEM_FAILED`)
-  - `error_response()` factory producing consistent `{"error": true, "code": "...", "message": "..."}` structures
-  - `validate_arguments()` function with per-tool required-field checks, non-empty string validation, and non-negative number validation
-  - All 13 handlers wrapped in `_safe_handle()` error boundary — unhandled exceptions now return structured JSON instead of crashing the MCP server
+  - `error_response()` factory producing consistent
+    `{"error": true, "code": "...", "message": "..."}` structures
+  - `validate_arguments()` function with per-tool required-field checks, non-empty string validation,
+    and non-negative number validation
+  - All 13 handlers wrapped in `_safe_handle()` error boundary — unhandled exceptions now return
+    structured JSON instead of crashing the MCP server
 
 - **Cache Stats Tool** (`azure_cache_stats`)
   - 13th tool: returns cache hit/miss counts, current size, and hit-rate percentage
@@ -21,9 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `format_cache_stats_response()` formatter with human-readable output
 
 - **Bulk Estimate Improvements**
-  - **Service-name alias resolution**: user-friendly names (e.g. `vm`, `aks`, `app service`) automatically mapped to official Azure service names via `SERVICE_NAME_MAPPINGS`
-  - **Request deduplication**: identical service/sku/region specs are merged with summed quantities, reducing redundant API calls
-  - **Concurrent dispatch**: items processed via `asyncio.gather()` with `Semaphore(5)` concurrency limit instead of serial loop
+  - **Service-name alias resolution**: user-friendly names (e.g. `vm`, `aks`, `app service`)
+    automatically mapped to official Azure service names via `SERVICE_NAME_MAPPINGS`
+  - **Request deduplication**: identical service/sku/region specs are merged with summed quantities,
+    reducing redundant API calls
+  - **Concurrent dispatch**: items processed via `asyncio.gather()` with `Semaphore(5)`
+    concurrency limit instead of serial loop
   - **Per-item retry**: transient failures retried up to 2 times with exponential backoff (0.5s base)
   - Response now includes `unique_specs` count and `indices` arrays linking deduped items back to original positions
 
@@ -95,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Dead code: `.archive/` directory, unused scripts (`setup.ps1`, `setup.py`, `install.py`, `run_server.py`), old docs (`PROJECT_STRUCTURE.md`, `config_examples.json`), stale `.github/` directory
+- Dead code: `.archive/` directory, unused scripts (`setup.ps1`, `setup.py`, `install.py`,
+  `run_server.py`), old docs (`PROJECT_STRUCTURE.md`, `config_examples.json`), stale `.github/` directory
 - 6 unused dataclass models from `models.py`
 - 4 broken test files replaced with comprehensive test suite
 

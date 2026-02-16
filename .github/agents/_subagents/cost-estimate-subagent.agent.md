@@ -42,7 +42,8 @@ You are a **COST ESTIMATION SUBAGENT** called by the Architect agent.
 | `azure_region_recommend` | Find cheapest region for a SKU                                |
 | `azure_discover_skus`    | List available SKUs for a service                             |
 
-Prefer `azure_bulk_estimate` for full-stack estimates — it accepts a `resources` array with per-resource `quantity` and returns aggregated totals. Use `output_format: "compact"` to reduce response size.
+Prefer `azure_bulk_estimate` for full-stack estimates — it accepts a `resources` array with per-resource
+`quantity` and returns aggregated totals. Use `output_format: "compact"` to reduce response size.
 
 Use EXACT `service_name` values from the azure-defaults skill.
 Common mistakes to avoid:
@@ -55,7 +56,7 @@ Common mistakes to avoid:
 
 Always return results in this exact format:
 
-```
+```text
 COST ESTIMATE RESULT
 ────────────────────
 Status: [COMPLETE|PARTIAL|FAILED]

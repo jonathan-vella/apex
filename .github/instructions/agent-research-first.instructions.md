@@ -30,7 +30,7 @@ Before creating ANY output files or making changes, agents MUST:
 
 Use read-only tools to gather context without making changes:
 
-```
+```text
 # Workspace context
 - semantic_search: Find related code, patterns, and documentation
 - grep_search: Search for specific terms, resource names, patterns

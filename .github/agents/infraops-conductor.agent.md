@@ -188,7 +188,7 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 
 ## The 7-Step Workflow
 
-```
+```text
 Step 1: Requirements    →  [APPROVAL GATE]  →  01-requirements.md
 Step 2: Architecture    →  [APPROVAL GATE]  →  02-architecture-assessment.md
 Step 3: Design (opt)    →                   →  03-des-*.md/py
@@ -202,7 +202,7 @@ Step 7: Documentation   →                   →  07-*.md
 
 ### Gate 1: After Requirements
 
-```
+```text
 📋 REQUIREMENTS COMPLETE
 Artifact: agent-output/{project}/01-requirements.md
 ✅ Next: Architecture Assessment (Step 2)
@@ -211,7 +211,7 @@ Artifact: agent-output/{project}/01-requirements.md
 
 ### Gate 2: After Architecture
 
-```
+```text
 🏗️ ARCHITECTURE ASSESSMENT COMPLETE
 Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
@@ -221,7 +221,7 @@ Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 
 ### Gate 3: After Planning
 
-```
+```text
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
 Governance: agent-output/{project}/04-governance-constraints.md
@@ -234,7 +234,7 @@ Deployment: {Phased (N phases) | Single}
 
 ### Gate 4: After Implementation
 
-```
+```text
 🔍 BICEP IMPLEMENTATION COMPLETE
 Templates: infra/bicep/{project}/
 Reference: agent-output/{project}/05-implementation-reference.md
@@ -244,7 +244,7 @@ Reference: agent-output/{project}/05-implementation-reference.md
 
 ### Gate 5: After Deployment
 
-```
+```text
 🚀 DEPLOYMENT COMPLETE
 Summary: agent-output/{project}/06-deployment-summary.md
 ✅ Next: Documentation Generation (Step 7)

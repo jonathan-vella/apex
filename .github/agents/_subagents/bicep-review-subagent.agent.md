@@ -40,7 +40,7 @@ You are a **CODE REVIEW SUBAGENT** called by a parent CONDUCTOR agent.
 
 Always return results in this exact format:
 
-```
+```text
 BICEP CODE REVIEW
 ─────────────────
 Status: [APPROVED|NEEDS_REVISION|FAILED]
@@ -153,7 +153,7 @@ tags: {
 
 ## Example Review
 
-```
+```text
 BICEP CODE REVIEW
 ─────────────────
 Status: NEEDS_REVISION

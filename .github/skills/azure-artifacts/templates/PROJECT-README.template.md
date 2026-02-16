@@ -69,7 +69,7 @@ When generating a project README, agents MUST:
 
 <!-- Visual progress bar -->
 
-```
+```text
 [{progress-bar}] {completion-percentage}% Complete
 ```
 

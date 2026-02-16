@@ -127,7 +127,7 @@ The agents work in sequence with handoffs:
 
 After completing the workflow:
 
-```
+```text
 agent-output/my-webapp/
 ├── 01-requirements.md          # Captured requirements
 ├── 02-architecture-assessment.md  # WAF analysis

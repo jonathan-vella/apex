@@ -303,7 +303,7 @@ Include:
 
 Present plan summary and wait for approval:
 
-```
+```text
 📝 Implementation Plan Complete
 
 Resources: {count} | AVM Modules: {count} | Custom: {count}

@@ -307,7 +307,7 @@ module "keyvault" {
   tags                = local.tags
 }
 ```
-```
+```text
 
 ---
 
@@ -394,7 +394,7 @@ jobs:
 
 ## 8. Directory Structure
 
-```
+```text
 infra/
 ├── bicep/                    # Existing Bicep templates
 │   └── {project}/

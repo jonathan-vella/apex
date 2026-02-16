@@ -37,7 +37,7 @@
 
 > **Monthly Total: ~$X,XXX** | Annual: ~$XX,XXX
 >
-> ```
+> ```text
 > Budget: {No fixed budget|$X/month (soft|hard)} | Utilization: {NN% ($X of $X)|N/A}
 > ```
 >

@@ -67,17 +67,17 @@ Press `Ctrl+C` to stop the server. If it starts without errors, the installation
 **Option A: With Docker (stdio)** 🐳
 
 1. Create `.vscode/mcp.json`:
-```json
-{
-  "servers": {
-    "azure-pricing": {
-      "type": "stdio",
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "azure-pricing-mcp:latest"]
+    ```json
+    {
+      "servers": {
+        "azure-pricing": {
+          "type": "stdio",
+          "command": "docker",
+          "args": ["run", "-i", "--rm", "azure-pricing-mcp:latest"]
+        }
+      }
     }
-  }
-}
-```
+    ```
 
 2. Make sure Docker is running
 3. Restart VS Code or reload the MCP server
@@ -85,29 +85,29 @@ Press `Ctrl+C` to stop the server. If it starts without errors, the installation
 **Option B: With Docker (SSE - Server-Sent Events)** 🐳
 
 1. Build and run the Docker container with port mapping:
-```powershell
-# Build the image
-docker build -t azure-pricing-mcp .
+    ```powershell
+    # Build the image
+    docker build -t azure-pricing-mcp .
 
-# Run with port mapping
-docker run -d -p 8080:8080 --name azure-pricing azure-pricing-mcp
+    # Run with port mapping
+    docker run -d -p 8080:8080 --name azure-pricing azure-pricing-mcp
 
-# Verify it's running with correct port mapping
-docker ps
-# Should show: 0.0.0.0:8080->8080/tcp
-```
+    # Verify it's running with correct port mapping
+    docker ps
+    # Should show: 0.0.0.0:8080->8080/tcp
+    ```
 
 2. Create `.vscode/mcp.json` or add to VS Code User settings:
-```json
-{
-  "servers": {
-    "azure-pricing": {
-      "type": "sse",
-      "url": "http://localhost:8080/sse"
+    ```json
+    {
+      "servers": {
+        "azure-pricing": {
+          "type": "sse",
+          "url": "http://localhost:8080/sse"
+        }
+      }
     }
-  }
-}
-```
+    ```
 
 3. Restart VS Code or reload the MCP server
 
@@ -140,30 +140,30 @@ readlink -f .venv/bin/python
 
 2. Add configuration:
 
-**Option A: With Docker** 🐳
-```json
-{
-  "mcpServers": {
-    "azure-pricing": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "azure-pricing-mcp:latest"]
+    **Option A: With Docker** 🐳
+    ```json
+    {
+      "mcpServers": {
+        "azure-pricing": {
+          "command": "docker",
+          "args": ["run", "-i", "--rm", "azure-pricing-mcp:latest"]
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-**Option B: With Python**
-```json
-{
-  "mcpServers": {
-    "azure-pricing": {
-      "command": "python",
-      "args": ["-m", "azure_pricing_mcp"],
-      "cwd": "/absolute/path/to/AzurePricingMCP"
+    **Option B: With Python**
+    ```json
+    {
+      "mcpServers": {
+        "azure-pricing": {
+          "command": "python",
+          "args": ["-m", "azure_pricing_mcp"],
+          "cwd": "/absolute/path/to/AzurePricingMCP"
+        }
+      }
     }
-  }
-}
-```
+    ```
 
 3. Replace `/absolute/path/to/AzurePricingMCP` with the actual path (Python option only)
 4. Restart Claude Desktop

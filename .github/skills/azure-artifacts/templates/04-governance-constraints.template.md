@@ -145,7 +145,7 @@ Verify actual blocking behavior before documenting constraints.
    - **Duration**: {temporary / permanent}
    - **Risk Level**: {low / medium / high}
    - **Approval Process**: {steps}
-   
+
 2. **Alternative Architecture**:
    - {Description of compliant alternative}
    - **Trade-offs**: {performance / cost / complexity impacts}

@@ -41,8 +41,8 @@
     // === FORMATTING RULES (disabled for flexibility) ===
 
     // MD009: No trailing spaces
-    // Disabled: Some Markdown editors add trailing spaces for line breaks
-    "MD009": false,
+    // Use <br> for intentional line breaks instead of trailing spaces
+    "MD009": true,
 
     // MD026: No trailing punctuation in headings
     // Disabled: Headings like "Requirements Validation ✅" use emoji
@@ -52,9 +52,8 @@
     // Disabled: Multi-paragraph blockquotes in documentation
     "MD028": false,
 
-    // MD029: Ordered list item prefix (1. 2. 3. vs 1. 1. 1.)
-    // Disabled: Both styles acceptable for maintainability
-    "MD029": false,
+    // MD029: Ordered list item prefix — sequential numbering (1. 2. 3.)
+    "MD029": { "style": "ordered" },
 
     // MD030: Spaces after list markers
     // Disabled: Flexible list formatting
@@ -98,10 +97,8 @@
     // Disabled: URLs in code comments and examples
     "MD034": false,
 
-    // MD040: Fenced code blocks should have a language
-    // Disabled: 127+ violations exist - enable after cleanup sprint
-    // TODO: Fix code blocks without language specifiers, then set to true
-    "MD040": false,
+    // MD040: Fenced code blocks should have a language specifier
+    "MD040": true,
 
     // MD051: Link fragments should be valid
     // Disabled: Dynamic links in templates

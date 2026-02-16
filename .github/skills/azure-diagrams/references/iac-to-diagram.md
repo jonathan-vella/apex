@@ -83,28 +83,28 @@ This creates diagrams that are the **source of truth** - directly derived from y
 
 **Basic diagram generation:**
 
-```
+```text
 Read the Bicep files in /infra and generate an architecture diagram showing all Azure resources
 and their relationships
 ```
 
 **With module resolution:**
 
-```
+```text
 Analyze main.bicep and its module references, then create a diagram of the complete
 infrastructure. Follow the module references in the modules/ folder.
 ```
 
 **Network-focused:**
 
-```
+```text
 Generate a network topology diagram from the Bicep files, focusing on VNets, subnets,
 and private endpoints. Show which resources are in which subnet.
 ```
 
 **With resource details:**
 
-```
+```text
 Read the Bicep in /infra and create a diagram that includes:
 - Resource names as defined in the Bicep
 - SKU/tier information where specified
@@ -114,32 +114,32 @@ Read the Bicep in /infra and create a diagram that includes:
 
 **Grouped by function:**
 
-```
+```text
 Parse the Bicep files and generate a diagram grouped by logical function
 (networking, compute, data, security) rather than by resource group
 ```
 
 ### From Terraform
 
-```
+```text
 Read the Terraform files in /terraform and generate an Azure architecture diagram
 ```
 
-```
+```text
 Parse main.tf and the module definitions, then create a visual representation of the infrastructure
 ```
 
-```
+```text
 Create a diagram showing the resources defined in our Terraform, grouped by resource group
 ```
 
 ### From ARM Templates
 
-```
+```text
 Analyze the ARM template in azuredeploy.json and generate an architecture diagram
 ```
 
-```
+```text
 Read all ARM templates in /arm-templates and create a consolidated infrastructure diagram
 ```
 
@@ -147,20 +147,20 @@ Read all ARM templates in /arm-templates and create a consolidated infrastructur
 
 **Basic pipeline diagram:**
 
-```
+```text
 Read our azure-pipelines.yml and create a CI/CD pipeline diagram showing the stages and deployments
 ```
 
 **With environments:**
 
-```
+```text
 Analyze the pipeline YAML files and generate a deployment flow diagram showing which
 resources are deployed to which environments (dev, test, prod)
 ```
 
 **Including artifacts:**
 
-```
+```text
 Create a pipeline diagram from azure-pipelines.yml that shows:
 - Build stage with artifact creation
 - Each deployment stage
@@ -171,7 +171,7 @@ Create a pipeline diagram from azure-pipelines.yml that shows:
 
 **Combined infrastructure + pipeline:**
 
-```
+```text
 Read our Bicep infrastructure code AND the azure-pipelines.yml to create:
 1. An architecture diagram of the deployed resources
 2. A deployment pipeline diagram showing how code flows to each environment
@@ -181,7 +181,7 @@ Read our Bicep infrastructure code AND the azure-pipelines.yml to create:
 
 **Full repo analysis:**
 
-```
+```text
 Read our Bicep infrastructure code AND the azure-pipelines.yml to create:
 1. An architecture diagram of the deployed resources
 2. A deployment pipeline diagram showing how code flows to each environment
@@ -189,7 +189,7 @@ Read our Bicep infrastructure code AND the azure-pipelines.yml to create:
 
 **Multi-environment comparison:**
 
-```
+```text
 We have Bicep parameter files for dev, test, and prod. Create three architecture diagrams
 showing the differences between environments (e.g., different SKUs, node counts,
 redundancy settings)
@@ -197,7 +197,7 @@ redundancy settings)
 
 **Security-focused from IaC:**
 
-```
+```text
 Analyze our Bicep/Terraform and create a security architecture diagram highlighting:
 - Identity and access (Entra ID, Managed Identities)
 - Network security (NSGs, Firewall, Private Endpoints)
@@ -207,7 +207,7 @@ Analyze our Bicep/Terraform and create a security architecture diagram highlight
 
 **Cost visualization:**
 
-```
+```text
 Read the Bicep files and create a diagram that visually indicates cost tiers:
 - Group expensive resources (Premium SKUs) with a highlighted border
 - Show which resources are consumption-based vs reserved
@@ -365,7 +365,7 @@ jobs:
 
 ### Step 1: User Prompt
 
-```
+```text
 I have a Bicep-based infrastructure in /infra. Please:
 1. Read all the Bicep files including modules
 2. Generate an architecture diagram showing all resources
@@ -407,7 +407,7 @@ A diagram that accurately reflects the actual infrastructure defined in code.
 
 ### Be Specific About Scope
 
-```
+```text
 # Good - specific scope
 "Read the Bicep files in /infra/prod and generate a diagram"
 
@@ -417,7 +417,7 @@ A diagram that accurately reflects the actual infrastructure defined in code.
 
 ### Request Grouping Strategy
 
-```
+```text
 "Group resources by:
 - Resource group
 - Subnet/network segment
@@ -427,7 +427,7 @@ A diagram that accurately reflects the actual infrastructure defined in code.
 
 ### Ask for Specific Details
 
-```
+```text
 "Include in the diagram:
 - Resource names from the Bicep
 - SKU/tier information
@@ -437,7 +437,7 @@ A diagram that accurately reflects the actual infrastructure defined in code.
 
 ### Handle Multiple Environments
 
-```
+```text
 "We have /infra/dev and /infra/prod Bicep folders. Create:
 1. A dev environment diagram
 2. A prod environment diagram
@@ -511,21 +511,21 @@ Consider splitting into multiple diagrams:
 
 ### Basic Infrastructure Diagram
 
-```
+```text
 Read the [Bicep/Terraform] files in [path] and generate an architecture diagram
 with official Azure icons. Group resources by [VNet/resource group/tier].
 ```
 
 ### Detailed Network Diagram
 
-```
+```text
 Analyze the networking resources in our IaC code and create a network topology diagram
 showing VNets, subnets, peerings, private endpoints, and NSG relationships.
 ```
 
 ### Security-Focused Diagram
 
-```
+```text
 Generate a diagram from our Bicep that highlights the security architecture: identity
 (Entra ID, managed identities), network security (NSGs, firewalls, private endpoints),
 and secrets management (Key Vault).
@@ -533,7 +533,7 @@ and secrets management (Key Vault).
 
 ### Pipeline + Infrastructure
 
-```
+```text
 Read both the azure-pipelines.yml and the Bicep infrastructure code. Create two diagrams:
 1. The deployed Azure architecture
 2. The CI/CD pipeline that deploys it

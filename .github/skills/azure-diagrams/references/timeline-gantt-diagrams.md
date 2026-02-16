@@ -376,7 +376,7 @@ create_parallel_tracks(tracks, "dev-migration-timeline")
 ## Converting ASCII Timelines
 
 When you see:
-```
+```text
 Q1 2025          Q2 2025          Q3 2025          Q4 2025
 |                |                |                |
 ├─ Discovery ────┤                |                |

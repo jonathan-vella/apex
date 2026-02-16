@@ -173,7 +173,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 01-requirements.md (Requirements Agent)
 
-```
+```text
 ## Project Overview
 ## Functional Requirements
 ## Non-Functional Requirements (NFRs)
@@ -187,7 +187,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 02-architecture-assessment.md (Architect Agent)
 
-```
+```text
 ## Requirements Validation ✅
 ## Executive Summary
 ## WAF Pillar Assessment
@@ -200,7 +200,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 03-des-cost-estimate.md (Architect Agent)
 
-```
+```text
 ## 💰 Cost At-a-Glance
 ## ✅ Decision Summary
 ## 🔁 Requirements → Cost Mapping
@@ -216,7 +216,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 04-governance-constraints.md (Bicep Plan Agent)
 
-```
+```text
 ## Discovery Source
 ## Azure Policy Compliance
 ## Plan Adaptations Based on Policies
@@ -230,7 +230,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 04-implementation-plan.md (Bicep Plan Agent)
 
-```
+```text
 ## Overview
 ## Resource Inventory
 ## Module Structure
@@ -247,7 +247,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 04-preflight-check.md (Bicep Code Agent)
 
-```
+```text
 ## Purpose
 ## AVM Schema Validation Results
 ## Parameter Type Analysis
@@ -258,7 +258,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 05-implementation-reference.md (Bicep Code Agent)
 
-```
+```text
 ## Bicep Templates Location
 ## File Structure
 ## Validation Status
@@ -269,7 +269,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 06-deployment-summary.md (Deploy Agent)
 
-```
+```text
 ## Preflight Validation
 ## Deployment Details
 ## Deployed Resources
@@ -281,7 +281,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-documentation-index.md
 
-```
+```text
 ## 1. Document Package Contents
 ## 2. Source Artifacts
 ## 3. Project Summary
@@ -291,7 +291,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-design-document.md
 
-```
+```text
 ## 1. Introduction
 ## 2. Azure Architecture Overview
 ## 3. Networking
@@ -307,7 +307,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-operations-runbook.md
 
-```
+```text
 ## Quick Reference
 ## 1. Daily Operations
 ## 2. Incident Response
@@ -320,7 +320,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-resource-inventory.md
 
-```
+```text
 ## Summary
 ## Resource Listing
 ## References
@@ -328,7 +328,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-ab-cost-estimate.md
 
-```
+```text
 ## 💰 Cost At-a-Glance
 ## ✅ Decision Summary
 ## 🔁 Requirements → Cost Mapping
@@ -344,7 +344,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-backup-dr-plan.md
 
-```
+```text
 ## Executive Summary
 ## 1. Recovery Objectives
 ## 2. Backup Strategy
@@ -360,7 +360,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### 07-compliance-matrix.md
 
-```
+```text
 ## Executive Summary
 ## 1. Control Mapping
 ## 2. Gap Analysis
@@ -373,7 +373,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 
 ### PROJECT-README.md
 
-```
+```text
 ## Template Instructions
 ## Required Structure
 ## 📋 Project Summary

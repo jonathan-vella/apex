@@ -154,7 +154,7 @@ var stName = 'st${take(replace(projectName, '-', ''), 8)}${take(environment, 3)}
 
 ### Finding Latest AVM Version
 
-```
+```text
 // Use Bicep MCP tool:
 mcp_bicep_list_avm_metadata → filter by resource type → use latest version
 
@@ -315,9 +315,11 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns 0 results.
 
 ### Bulk Estimates
 
-For multi-resource cost estimates, prefer `azure_bulk_estimate` over calling `azure_cost_estimate` per resource. It accepts a `resources` array and returns aggregated totals.
+For multi-resource cost estimates, prefer `azure_bulk_estimate` over calling `azure_cost_estimate`
+per resource. It accepts a `resources` array and returns aggregated totals.
 
-Each resource supports a `quantity` parameter (default: 1) for multi-instance scenarios. Use `output_format: "compact"` to reduce response size when detailed metadata is not needed.
+Each resource supports a `quantity` parameter (default: 1) for multi-instance scenarios.
+Use `output_format: "compact"` to reduce response size when detailed metadata is not needed.
 
 ---
 
@@ -444,7 +446,7 @@ PolicyResources
 
 Before creating implementation plans, discover active policies:
 
-```
+```text
 1. Verify Azure connectivity: az account show
 2. REST API: Get ALL effective policy assignments (subscription + MG inherited)
 3. Compare count with Azure Portal (Policy > Assignments) — must match

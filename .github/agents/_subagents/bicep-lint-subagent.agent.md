@@ -39,7 +39,7 @@ You are a **SYNTAX VALIDATION SUBAGENT** called by a parent CONDUCTOR agent.
 
 Always return results in this exact format:
 
-```
+```text
 BICEP LINT RESULT
 ─────────────────
 Status: [PASS|FAIL]

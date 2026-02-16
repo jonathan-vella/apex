@@ -30,7 +30,7 @@ reviews using Python's `diagrams` library.
 
 ### Output Naming Convention
 
-```
+```text
 agent-output/{project}/
 ├── 03-des-diagram.py          # Python source (version controlled)
 ├── 03-des-diagram.png         # PNG from Python diagrams
@@ -100,11 +100,11 @@ If score < 9/10, regenerate once with simplification.
 
 Create diagrams directly from Bicep, Terraform, or ARM templates:
 
-```
+```text
 Read the Bicep files in /infra and generate an architecture diagram
 ```
 
-```
+```text
 Analyze our Terraform modules and create a diagram grouped by subnet
 ```
 

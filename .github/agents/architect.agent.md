@@ -237,7 +237,7 @@ Fallback: [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calcula
 
 Before handoff, present:
 
-```
+```text
 🏗️ Architecture Assessment Complete
 
 | Pillar      | Score | Notes |

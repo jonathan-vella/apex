@@ -514,7 +514,7 @@ create_svg_wireframe("Dashboard", 800, 600, "dashboard-svg")
 ## Converting ASCII Wireframes
 
 When you see ASCII mockups like:
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │  Document Management System          [Home] [Docs] [⚙️]   │
 ├──────────┬─────────────────────────────────────────────────┤

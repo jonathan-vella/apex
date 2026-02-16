@@ -207,7 +207,7 @@ pip install -r requirements.txt
 
 ### Dependencies
 
-```
+```text
 mcp>=1.0.0
 aiohttp>=3.9.0
 pydantic>=2.0.0
@@ -285,7 +285,7 @@ Create `.vscode/mcp.json` in your workspace:
 
 Open Copilot Chat and ask:
 
-```
+```text
 What's the price of Standard_D32s_v6 in East US 2?
 ```
 
@@ -345,7 +345,7 @@ Once configured, ask your AI assistant:
 
 ### Sample Response
 
-```
+```text
 Standard_D32s_v6 in East US 2:
 - Linux On-Demand: $1.613/hour → $23,550/month for 20 nodes
 - 1-Year Savings:  $1.113/hour → $16,250/month (31% savings)
@@ -424,7 +424,7 @@ pytest tests/
 
 ## 📁 Project Structure
 
-```
+```text
 mcp/azure-pricing-mcp/           # Location within azure-agentic-infraops repo
 ├── .venv/                       # Virtual environment (auto-created)
 ├── src/
@@ -479,7 +479,7 @@ mcp/azure-pricing-mcp/           # Location within azure-agentic-infraops repo
 
 This server uses the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices):
 
-```
+```text
 https://prices.azure.com/api/retail/prices
 ```
 
