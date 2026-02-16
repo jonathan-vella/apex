@@ -160,7 +160,9 @@ handoffs:
 - ❌ Use planned values when actual deployed values are available
 - ❌ Generate documentation for resources that failed deployment
 - ❌ Use H2 headings that differ from the templates
-- ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in `07-ab-cost-estimate.md` MUST originate from `cost-estimate-subagent` responses
+- ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
+  `07-ab-cost-estimate.md` MUST originate from `cost-estimate-subagent`
+  responses
 - ❌ **Call Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
 
 ## Prerequisites Check

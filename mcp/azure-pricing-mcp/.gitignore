@@ -79,3 +79,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Linter cache
+.ruff_cache/

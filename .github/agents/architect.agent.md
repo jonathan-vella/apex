@@ -177,7 +177,9 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ❌ Provide generic recommendations — be specific to the workload
 - ❌ Assume requirements — ask when critical info is missing
 - ❌ Use wrong Pricing MCP service names (e.g., "Azure SQL" instead of "SQL Database")
-- ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in `02-architecture-assessment.md` and `03-des-cost-estimate.md` MUST originate from `cost-estimate-subagent` responses
+- ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
+  `02-architecture-assessment.md` and `03-des-cost-estimate.md` MUST originate
+  from `cost-estimate-subagent` responses
 - ❌ **Guess SKU hourly rates** — pricing tiers change frequently; only subagent-verified figures are trustworthy
 
 ## Prerequisites Check
@@ -204,7 +206,8 @@ Verify these are documented (ask user if missing):
 6. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
 7. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
 8. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
-9. **Pricing sanity check** — Verify no dollar figures in your artifacts were written from memory (grep for `$` and confirm each matches subagent output)
+9. **Pricing sanity check** — Verify no dollar figures in your artifacts were
+   written from memory (grep for `$` and confirm each matches subagent output)
 10. **Approval gate** — Present summary, wait for user approval before handoff
 
 ## Cost Estimation (MANDATORY)
@@ -221,8 +224,12 @@ Delegate ALL pricing work to `cost-estimate-subagent` to keep your context focus
 1. **Prepare resource list** — compile resource types, SKUs, region, and quantities from your assessment
 2. **Delegate to `cost-estimate-subagent`** — provide the resource list and region
 3. **Receive cost breakdown** — structured table with monthly/yearly totals and per-resource rates
-4. **Integrate verbatim** — copy the subagent's prices into both `02-architecture-assessment.md` (Cost Assessment table) and `03-des-cost-estimate.md` line items. Do NOT round, adjust, or "correct" subagent figures
-5. **Cross-check totals** — verify that the sum of line items equals the reported total. Flag any discrepancy to the user before proceeding
+4. **Integrate verbatim** — copy the subagent's prices into both
+   `02-architecture-assessment.md` (Cost Assessment table) and
+   `03-des-cost-estimate.md` line items. Do NOT round, adjust, or "correct"
+   subagent figures
+5. **Cross-check totals** — verify that the sum of line items equals the
+   reported total. Flag any discrepancy to the user before proceeding
 
 ### What Goes Where
 
