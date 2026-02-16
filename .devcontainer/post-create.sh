@@ -1,147 +1,185 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Running post-create setup for Agentic InfraOps..."
+# ─── Progress Tracking Helpers ───────────────────────────────────────────────
+
+TOTAL_STEPS=9
+CURRENT_STEP=0
+SETUP_START=$(date +%s)
+STEP_START=0
+PASS_COUNT=0
+WARN_COUNT=0
+FAIL_COUNT=0
+
+step_start() {
+    CURRENT_STEP=$((CURRENT_STEP + 1))
+    STEP_START=$(date +%s)
+    printf "\n [%d/%d] %s %s\n" "$CURRENT_STEP" "$TOTAL_STEPS" "$1" "$2"
+}
+
+step_done() {
+    local elapsed=$(( $(date +%s) - STEP_START ))
+    [[ $elapsed -lt 0 ]] && elapsed=0
+    PASS_COUNT=$((PASS_COUNT + 1))
+    printf "        ✅ %s (%ds)\n" "${1:-Done}" "$elapsed"
+}
+
+step_warn() {
+    local elapsed=$(( $(date +%s) - STEP_START ))
+    [[ $elapsed -lt 0 ]] && elapsed=0
+    WARN_COUNT=$((WARN_COUNT + 1))
+    printf "        ⚠️  %s (%ds)\n" "${1:-Completed with warnings}" "$elapsed"
+}
+
+step_fail() {
+    local elapsed=$(( $(date +%s) - STEP_START ))
+    [[ $elapsed -lt 0 ]] && elapsed=0
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    printf "        ❌ %s (%ds)\n" "${1:-Failed}" "$elapsed"
+}
+
+# ─── Banner ──────────────────────────────────────────────────────────────────
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " 🚀 Agentic InfraOps — Dev Container Setup"
+echo "    $TOTAL_STEPS steps · $(date '+%H:%M:%S')"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Log output to file for debugging
 exec 1> >(tee -a ~/.devcontainer-install.log)
 exec 2>&1
 
-# Create directories
-echo "📂 Creating cache directories..."
-mkdir -p "${HOME}/.cache"
-mkdir -p "${HOME}/.config/gh"
-# Fix ownership if needed (may be owned by root from Docker volumes)
+# ─── Step 1: npm install (local) ─────────────────────────────────────────────
+
+step_start "📦" "Installing npm dependencies..."
+if npm install --loglevel=warn 2>&1 | tail -3; then
+    step_done "npm packages installed"
+else
+    step_warn "npm install had issues, continuing"
+fi
+
+# ─── Step 2: npm global tools ────────────────────────────────────────────────
+
+step_start "📦" "Installing global tools (markdownlint-cli2)..."
+if npm install -g markdownlint-cli2 --loglevel=warn 2>&1 | tail -2; then
+    step_done "markdownlint-cli2 installed globally"
+else
+    step_warn "Global install had issues"
+fi
+
+# ─── Step 3: Directories & Git ───────────────────────────────────────────────
+
+step_start "🔐" "Configuring Git & directories..."
+mkdir -p "${HOME}/.cache" "${HOME}/.config/gh"
 sudo chown -R vscode:vscode "${HOME}/.cache" 2>/dev/null || true
 sudo chown -R vscode:vscode "${HOME}/.config/gh" 2>/dev/null || true
 chmod 755 "${HOME}/.cache" 2>/dev/null || true
 chmod 755 "${HOME}/.config/gh" 2>/dev/null || true
-
-# Configure Git safe directory (for mounted volumes)
-echo "🔐 Configuring Git..."
 git config --global --add safe.directory "${PWD}"
 git config --global core.autocrlf input
-# Note: lefthook setup moved to postStartCommand (runs every container start)
+step_done "Git configured, cache dirs created"
 
-# Ensure uv is on PATH (installed via onCreateCommand)
+# ─── Step 4: Python packages ─────────────────────────────────────────────────
+
+step_start "🐍" "Installing Python packages..."
 export PATH="${HOME}/.local/bin:${PATH}"
 
-# Install Python packages using uv (10-100x faster than pip)
-echo "🐍 Installing Python packages with uv..."
 if command -v uv &> /dev/null; then
-    # Create uv cache directory with proper permissions
     mkdir -p "${HOME}/.cache/uv" 2>/dev/null || true
     chmod -R 755 "${HOME}/.cache/uv" 2>/dev/null || true
-    uv pip install --system --quiet diagrams matplotlib pillow checkov 2>&1 || echo "  ⚠️  Installation had issues, continuing..."
-    echo "  ✅ Python packages installed (diagrams, matplotlib, pillow, checkov)"
+    if uv pip install --system --quiet diagrams matplotlib pillow checkov 2>&1; then
+        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov)"
+    else
+        step_warn "uv install had issues, continuing"
+    fi
 else
-    echo "  ⚠️  uv not found, falling back to pip..."
-    pip3 install --quiet --user diagrams matplotlib pillow checkov 2>&1 | tail -1 || true
+    if pip3 install --quiet --user diagrams matplotlib pillow checkov 2>&1 | tail -1; then
+        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov)"
+    else
+        step_warn "pip install had issues"
+    fi
 fi
 
-# Verify markdownlint-cli2 (installed globally via postCreateCommand)
-echo "📝 Verifying markdownlint-cli2..."
-if npm list -g markdownlint-cli2 --depth=0 2>/dev/null | grep -q markdownlint-cli2; then
-    MDLINT_VERSION=$(npm list -g markdownlint-cli2 --depth=0 2>/dev/null | grep markdownlint-cli2 | sed 's/.*@//')
-    echo "  ✅ markdownlint-cli2 v${MDLINT_VERSION} installed globally"
-elif [ -f "${PWD}/node_modules/.bin/markdownlint-cli2" ]; then
-    echo "  ✅ markdownlint-cli2 installed locally"
-else
-    echo "  ⚠️  markdownlint-cli2 not found (should have been installed via postCreateCommand)"
-fi
+# ─── Step 5: PowerShell modules ──────────────────────────────────────────────
 
-# Install Azure PowerShell modules (parallel install using Start-Job)
-echo "🔧 Installing Azure PowerShell modules..."
+step_start "🔧" "Installing Azure PowerShell modules..."
 pwsh -NoProfile -Command "
     \$ErrorActionPreference = 'SilentlyContinue'
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-    
-    # Define modules to install
+
     \$modules = @('Az.Accounts', 'Az.Resources', 'Az.Storage', 'Az.Network', 'Az.KeyVault', 'Az.Websites')
-    
-    # Filter to only modules not already installed
     \$toInstall = \$modules | Where-Object { -not (Get-Module -ListAvailable -Name \$_) }
-    
+
     if (\$toInstall.Count -eq 0) {
-        Write-Host '  ✅ All PowerShell modules already installed'
+        Write-Host '        All modules already installed'
         exit 0
     }
-    
-    Write-Host \"  Installing \$(\$toInstall.Count) modules: \$(\$toInstall -join ', ')...\"
-    
-    # Install modules in parallel using background jobs
+
+    Write-Host \"        Installing \$(\$toInstall.Count) modules: \$(\$toInstall -join ', ')\"
+
     \$jobs = \$toInstall | ForEach-Object {
         Start-Job -ScriptBlock {
             param(\$m)
             Install-Module -Name \$m -Scope CurrentUser -Force -AllowClobber -SkipPublisherCheck -ErrorAction SilentlyContinue
         } -ArgumentList \$_
     }
-    
-    # Wait for all jobs with timeout (90 seconds)
+
     \$completed = \$jobs | Wait-Job -Timeout 90
     \$jobs | Remove-Job -Force
-    
-    Write-Host '  ✅ PowerShell modules installed'
-" || echo "⚠️  Warning: PowerShell module installation incomplete"
+" && step_done "PowerShell modules installed" || step_warn "PowerShell module installation incomplete"
 
-# Verify utilities (installed via devcontainer features and onCreateCommand)
-echo "🛠️  Verifying utilities..."
-command -v gh &> /dev/null && echo "  ✅ GitHub CLI available" || echo "  ⚠️  GitHub CLI not found"
-command -v dot &> /dev/null && echo "  ✅ graphviz available" || echo "  ⚠️  graphviz not found (required for diagrams)"
-command -v dos2unix &> /dev/null && echo "  ✅ dos2unix available" || echo "  ⚠️  dos2unix not found"
+# ─── Step 6: Azure Pricing MCP Server ────────────────────────────────────────
 
-# Setup Azure Pricing MCP Server
-echo "💰 Setting up Azure Pricing MCP Server..."
+step_start "💰" "Setting up Azure Pricing MCP Server..."
 MCP_DIR="${PWD}/mcp/azure-pricing-mcp"
 if [ -d "$MCP_DIR" ]; then
     if [ ! -d "$MCP_DIR/.venv" ]; then
-        echo "  Creating virtual environment..."
         python3 -m venv "$MCP_DIR/.venv"
     fi
-    
-    # Always install/upgrade package in editable mode for proper entry points
-    echo "  Installing MCP server package..."
+
     cd "$MCP_DIR"
-    # Use pip for editable installs to avoid uv symlink issues
     "$MCP_DIR/.venv/bin/pip" install --quiet -e . 2>&1 | tail -1 || true
     cd - > /dev/null
-    echo "  ✅ Azure Pricing MCP installed"
-    
-    # Health check - verify module imports correctly
-    echo "  Running health check..."
+
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then
-        echo "  ✅ MCP server health check passed"
+        step_done "MCP server installed & health check passed"
     else
-        echo "  ⚠️  MCP server health check failed (may need manual setup)"
+        step_warn "MCP server installed but health check failed"
     fi
 else
-    echo "  ⚠️  MCP directory not found at $MCP_DIR"
+    step_fail "MCP directory not found at $MCP_DIR"
 fi
 
-# Install Python dependencies from requirements.txt (core packages)
-# Note: This is the authoritative install; line 34 uv install is a fast-path attempt
-echo "📦 Verifying Python dependencies..."
+# ─── Step 7: Python dependencies (authoritative) ─────────────────────────────
+
+step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
-    # Check if packages already installed (from uv fast-path)
     if python3 -c "import diagrams, matplotlib, PIL, checkov" 2>/dev/null; then
-        echo "  ✅ Python dependencies already installed"
+        step_done "All Python dependencies verified"
     else
         pip install --quiet -r "${PWD}/requirements.txt"
-        echo "  ✅ Python dependencies installed (diagrams, matplotlib, pillow, checkov)"
+        step_done "Python dependencies installed from requirements.txt"
     fi
 else
-    echo "  ⚠️  requirements.txt not found"
+    step_warn "requirements.txt not found"
 fi
 
-# Configure Azure CLI defaults (Azure CLI installed via devcontainer feature)
-echo "☁️  Configuring Azure CLI defaults..."
+# ─── Step 8: Azure CLI defaults ──────────────────────────────────────────────
+
+step_start "☁️ " "Configuring Azure CLI..."
 if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then
-    echo "  ✅ Default location set to swedencentral"
+    az config set auto-upgrade.enable=no --only-show-errors 2>/dev/null || true
+    step_done "Default location: swedencentral"
+else
+    step_warn "Azure CLI config skipped (not authenticated)"
 fi
-az config set auto-upgrade.enable=no --only-show-errors 2>/dev/null || true
 
-# Ensure workspace MCP config includes required servers
-echo "🔌 Ensuring MCP server configuration..."
+# ─── Step 9: MCP config & final verification ─────────────────────────────────
+
+step_start "🔍" "Verifying installations & MCP config..."
+
+# Ensure MCP config
 MCP_CONFIG_PATH="${PWD}/.vscode/mcp.json"
 mkdir -p "${PWD}/.vscode"
 python3 - "$MCP_CONFIG_PATH" <<'PY'
@@ -180,30 +218,44 @@ servers.setdefault("azure-pricing", default_azure_pricing)
 servers.setdefault("github", default_github)
 
 config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print("  ✅ MCP config ensured (.vscode/mcp.json)")
 PY
 
-# Verify installations
+# Verify key tools
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "✅ Verifying tool installations..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-printf "  %-15s %s\n" "Azure CLI:" "$(az version --query '\"azure-cli\"' -o tsv 2>/dev/null || az --version 2>/dev/null | head -n1 || echo '❌ not installed')"
-printf "  %-15s %s\n" "Bicep:" "$(az bicep version 2>/dev/null | head -n1 || echo '❌ not installed')"
-printf "  %-15s %s\n" "PowerShell:" "$(pwsh --version 2>/dev/null || echo '❌ not installed')"
-printf "  %-15s %s\n" "Python:" "$(python3 --version 2>/dev/null || echo '❌ not installed')"
-printf "  %-15s %s\n" "Node.js:" "$(node --version 2>/dev/null || echo '❌ not installed')"
-printf "  %-15s %s\n" "GitHub CLI:" "$(gh --version 2>/dev/null | head -n1 || echo '❌ not installed')"
-printf "  %-15s %s\n" "uv:" "$(uv --version 2>/dev/null || echo '❌ not installed')"
-printf "  %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo '❌ not installed')"
-# Run from /tmp to avoid .markdownlint-cli2.jsonc globs triggering a full lint
-printf "  %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "Azure CLI:" "$(az --version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "Bicep:" "$(az bicep version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "PowerShell:" "$(pwsh --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "Python:" "$(python3 --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "Node.js:" "$(node --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "GitHub CLI:" "$(gh --version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "uv:" "$(uv --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
+echo ""
+
+step_done "All verifications complete"
+
+# ─── Summary ─────────────────────────────────────────────────────────────────
+
+TOTAL_ELAPSED=$(( $(date +%s) - SETUP_START ))
+MINUTES=$((TOTAL_ELAPSED / 60))
+SECONDS_REMAINING=$((TOTAL_ELAPSED % 60))
 
 echo ""
-echo "🎉 Post-create setup completed!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ "$FAIL_COUNT" -eq 0 ] && [ "$WARN_COUNT" -eq 0 ]; then
+    printf " ✅ Setup complete! %d/%d steps passed (%dm %ds)\n" "$PASS_COUNT" "$TOTAL_STEPS" "$MINUTES" "$SECONDS_REMAINING"
+elif [ "$FAIL_COUNT" -eq 0 ]; then
+    printf " ⚠️  Setup complete with warnings: %d passed, %d warnings (%dm %ds)\n" "$PASS_COUNT" "$WARN_COUNT" "$MINUTES" "$SECONDS_REMAINING"
+else
+    printf " ❌ Setup complete with errors: %d passed, %d warnings, %d failed (%dm %ds)\n" "$PASS_COUNT" "$WARN_COUNT" "$FAIL_COUNT" "$MINUTES" "$SECONDS_REMAINING"
+fi
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "📝 Next steps:"
-echo "   1. Authenticate: az login"
-echo "   2. Set subscription: az account set --subscription <id>"
-echo "   3. Have fun exploring Agentic InfraOps! 🚀"
+echo " 📝 Next steps:"
+echo "    1. Authenticate: az login"
+echo "    2. Set subscription: az account set --subscription <id>"
+echo "    3. Open Chat (Ctrl+Shift+I) → Select InfraOps Conductor"
 echo ""
