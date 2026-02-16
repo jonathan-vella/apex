@@ -1,8 +1,7 @@
 """Unit tests for tier keyword search functionality."""
 
-import pytest
 
-from azure_pricing_mcp.services.pricing import is_tier_keyword, TIER_KEYWORDS
+from azure_pricing_mcp.services.pricing import TIER_KEYWORDS, is_tier_keyword
 
 
 class TestTierKeywordDetection:

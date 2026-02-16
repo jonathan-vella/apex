@@ -418,4 +418,12 @@ def get_tool_definitions() -> list[Tool]:
                 "required": ["vm_resource_id"],
             },
         ),
+        Tool(
+            name="azure_cache_stats",
+            description="Show Azure Pricing API cache statistics including hit/miss counts, hit rate, and current cache size. Useful for diagnosing performance and verifying cache effectiveness.",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
     ]

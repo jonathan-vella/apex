@@ -658,3 +658,25 @@ def _get_eviction_rate_emoji(rate: str) -> str:
     elif "20" in rate_lower:
         return "⛔"  # Very high risk
     return "❓"
+
+
+def format_cache_stats_response(stats: dict[str, int]) -> str:
+    """Format cache hit/miss statistics for display."""
+    hits = stats.get("hits", 0)
+    misses = stats.get("misses", 0)
+    size = stats.get("size", 0)
+    total = hits + misses
+    hit_rate = (hits / total * 100) if total > 0 else 0.0
+
+    lines = [
+        "## 📊 Azure Pricing Cache Statistics",
+        "",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Cache Hits | {hits} |",
+        f"| Cache Misses | {misses} |",
+        f"| Total Lookups | {total} |",
+        f"| Hit Rate | {hit_rate:.1f}% |",
+        f"| Current Size | {size} entries |",
+    ]
+    return "\n".join(lines)

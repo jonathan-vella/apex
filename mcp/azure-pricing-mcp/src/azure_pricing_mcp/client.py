@@ -49,6 +49,11 @@ class AzurePricingClient:
             await self.session.close()
             self.session = None
 
+    @property
+    def cache(self) -> PricingCache:
+        """Return the underlying cache instance."""
+        return self._cache
+
     async def make_request(
         self, url: str | None = None, params: dict[str, Any] | None = None, max_retries: int = MAX_RETRIES
     ) -> dict[str, Any]:

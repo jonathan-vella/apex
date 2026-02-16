@@ -6,7 +6,7 @@ from azure_pricing_mcp.tools import get_tool_definitions
 class TestToolDefinitions:
     def test_tool_count(self):
         tools = get_tool_definitions()
-        assert len(tools) == 12  # 11 original + azure_bulk_estimate
+        assert len(tools) == 13  # 12 original + azure_cache_stats
 
     def test_bulk_estimate_exists(self):
         tools = get_tool_definitions()

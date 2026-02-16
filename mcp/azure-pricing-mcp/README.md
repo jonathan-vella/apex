@@ -80,6 +80,7 @@ The following tools are available to agents:
 | `spot_eviction_rates`    | Spot VM eviction rate queries                            | `@architect`                |
 | `spot_price_history`     | Up to 90 days Spot pricing history                       | `@architect`                |
 | `simulate_eviction`      | Trigger eviction simulation on Spot VMs                  | `@diagnose`                 |
+| `azure_cache_stats`      | Cache hit/miss statistics (**NEW v4.1**)                 | All agents                  |
 
 ---
 
@@ -137,6 +138,7 @@ The following tools are available to agents:
 | `spot_eviction_rates`    | Query Spot VM eviction rates by region                           |
 | `spot_price_history`     | Up to 90 days of Spot VM pricing history                         |
 | `simulate_eviction`      | Trigger eviction simulation on Spot VMs                          |
+| `azure_cache_stats`      | Show cache hit/miss statistics (**NEW v4.1**)                    |
 
 ### ⚠️ Important: Service and SKU Names
 
@@ -367,7 +369,7 @@ pytest tests/
 ### Test MCP Connection in VS Code
 
 1. Open Command Palette → **MCP: List Servers**
-2. Verify `azure-pricing` shows 12 tools
+2. Verify `azure-pricing` shows 13 tools
 3. Open Copilot Chat and ask a pricing question
 
 ---
@@ -427,11 +429,13 @@ mcp/azure-pricing-mcp/           # Location within azure-agentic-infraops repo
 ├── .venv/                       # Virtual environment (auto-created)
 ├── src/
 │   └── azure_pricing_mcp/
-│       ├── __init__.py          # Package initialization (v4.0.0)
+│       ├── __init__.py          # Package initialization (v4.1.0)
 │       ├── __main__.py          # Module entry point
 │       ├── server.py            # Main MCP server implementation
-│       ├── handlers.py          # Tool call handlers
-│       ├── tools.py             # Tool definitions (12 tools)
+│       ├── handlers.py          # Tool call handlers with error boundaries
+│       ├── tools.py             # Tool definitions (13 tools)
+│       ├── error_codes.py       # Standardized error codes and response factory
+│       ├── validation.py        # Input validation for tool arguments
 │       ├── client.py            # Azure Pricing API client with caching
 │       ├── cache.py             # TTL-based response cache
 │       ├── config.py            # Configuration constants and service mappings
@@ -441,18 +445,22 @@ mcp/azure-pricing-mcp/           # Location within azure-agentic-infraops repo
 │       └── services/
 │           ├── __init__.py
 │           ├── pricing.py       # Core pricing operations
-│           ├── bulk.py          # Bulk estimate service
+│           ├── bulk.py          # Bulk estimate with concurrency and retry
 │           ├── retirement.py    # VM retirement tracking
 │           └── spot.py          # Spot VM pricing
-├── tests/                       # Test suite (47 tests)
+├── tests/                       # Test suite (94 tests)
 │   ├── conftest.py              # Shared fixtures
 │   ├── test_cache.py            # Cache layer tests
+│   ├── test_cache_stats.py      # Cache stats tool tests
 │   ├── test_pricing.py          # Multi-unit pricing tests
-│   ├── test_bulk.py             # Bulk estimate tests
+│   ├── test_bulk.py             # Bulk estimate tests (alias, dedup, retry)
+│   ├── test_error_codes.py      # Error code enum and factory tests
 │   ├── test_formatters.py       # Formatter tests
+│   ├── test_handlers.py         # Handler validation and dispatch tests
 │   ├── test_tools.py            # Tool definition tests
 │   ├── test_config.py           # Config validation tests
-│   └── test_tier_keywords.py    # SKU tier keyword tests
+│   ├── test_tier_keywords.py    # SKU tier keyword tests
+│   └── test_validation.py       # Input validation tests
 ├── scripts/
 │   └── healthcheck.py           # Server health check
 ├── docs/

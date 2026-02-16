@@ -5,7 +5,7 @@ A Model Context Protocol server for querying Azure retail pricing information.
 
 from .server import AzurePricingServer, create_server, main, run
 
-__version__ = "4.0.0"
+__version__ = "4.1.0"
 __all__ = [
     "main",
     "run",

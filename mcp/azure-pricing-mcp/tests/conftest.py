@@ -3,8 +3,6 @@
 import pytest
 
 from azure_pricing_mcp.cache import PricingCache
-from azure_pricing_mcp.services.pricing import PricingService
-
 
 # Sample API response used across tests
 SAMPLE_API_RESPONSE = {

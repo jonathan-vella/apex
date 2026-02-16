@@ -116,6 +116,22 @@ pre-commit:
         📚 Allowed fields: description, applyTo
         🔧 Remove any non-standard fields from YAML frontmatter
 
+    python-lint:
+      glob: "mcp/**/*.py"
+      run: |
+        STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^mcp/.*\.py$' || true)
+        if [ -n "$STAGED_PY" ]; then
+          COUNT=$(echo "$STAGED_PY" | wc -l | tr -d ' ')
+          echo "🐍 Linting $COUNT Python file(s) with ruff..."
+          cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/
+        else
+          echo "ℹ️  No Python files to lint"
+        fi
+      fail_text: |
+        ❌ Python lint failed!
+
+        🔧 Fix: cd mcp/azure-pricing-mcp && python -m ruff check --fix src/ tests/
+
 commit-msg:
   commands:
     commitlint:

@@ -18,6 +18,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from .client import AzurePricingClient
+from .error_codes import ErrorCode, error_response
 from .handlers import ToolHandlers
 from .services import BulkEstimateService, PricingService, RetirementService, SKUService
 from .tools import get_tool_definitions
@@ -93,6 +94,10 @@ class AzurePricingServer:
         """Get the tool handlers instance."""
         return self._tool_handlers
 
+    def get_cache_stats(self) -> dict[str, int]:
+        """Return cache hit/miss statistics from the HTTP client."""
+        return self._client.cache.stats
+
 
 def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) -> None:
     """Register all tool handlers on the MCP server.
@@ -105,7 +110,10 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
     async def handle_call_tool(name: str, arguments: dict[str, Any]) -> Any:
         """Handle tool calls - session must already be initialized."""
         if not pricing_server.is_active:
-            return [TextContent(type="text", text="Error: Server session not initialized")]
+            import json
+
+            err = error_response(ErrorCode.SESSION_NOT_ACTIVE, "Server session not initialized")
+            return [TextContent(type="text", text=json.dumps(err))]
 
         handlers = pricing_server.tool_handlers
 
@@ -133,8 +141,13 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
             return await handlers.handle_spot_price_history(arguments)
         elif name == "simulate_eviction":
             return await handlers.handle_simulate_eviction(arguments)
+        elif name == "azure_cache_stats":
+            return await handlers.handle_cache_stats(arguments, pricing_server.get_cache_stats())
         else:
-            return [TextContent(type="text", text=f"Unknown tool: {name}")]
+            import json
+
+            err = error_response(ErrorCode.UNKNOWN_TOOL, f"Unknown tool: {name}", details={"tool": name})
+            return [TextContent(type="text", text=json.dumps(err))]
 
 
 @overload

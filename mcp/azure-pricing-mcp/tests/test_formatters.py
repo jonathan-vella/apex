@@ -2,7 +2,7 @@
 
 import json
 
-from azure_pricing_mcp.formatters import format_compact, format_bulk_estimate_response, format_cost_estimate_response
+from azure_pricing_mcp.formatters import format_bulk_estimate_response, format_compact, format_cost_estimate_response
 
 
 class TestFormatCompact:

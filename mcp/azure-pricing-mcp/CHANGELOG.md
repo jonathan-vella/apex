@@ -5,6 +5,47 @@ All notable changes to the Azure Pricing MCP Server will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-02-16
+
+### Added
+
+- **Error Infrastructure** (`error_codes.py`, `validation.py`)
+  - `ErrorCode` enum with 14 machine-readable error codes (e.g. `MISSING_REQUIRED_FIELD`, `INTERNAL_ERROR`, `BULK_ITEM_FAILED`)
+  - `error_response()` factory producing consistent `{"error": true, "code": "...", "message": "..."}` structures
+  - `validate_arguments()` function with per-tool required-field checks, non-empty string validation, and non-negative number validation
+  - All 13 handlers wrapped in `_safe_handle()` error boundary — unhandled exceptions now return structured JSON instead of crashing the MCP server
+
+- **Cache Stats Tool** (`azure_cache_stats`)
+  - 13th tool: returns cache hit/miss counts, current size, and hit-rate percentage
+  - New `PricingCache.stats` property exposed through `AzurePricingServer.get_cache_stats()`
+  - `format_cache_stats_response()` formatter with human-readable output
+
+- **Bulk Estimate Improvements**
+  - **Service-name alias resolution**: user-friendly names (e.g. `vm`, `aks`, `app service`) automatically mapped to official Azure service names via `SERVICE_NAME_MAPPINGS`
+  - **Request deduplication**: identical service/sku/region specs are merged with summed quantities, reducing redundant API calls
+  - **Concurrent dispatch**: items processed via `asyncio.gather()` with `Semaphore(5)` concurrency limit instead of serial loop
+  - **Per-item retry**: transient failures retried up to 2 times with exponential backoff (0.5s base)
+  - Response now includes `unique_specs` count and `indices` arrays linking deduped items back to original positions
+
+- **Lint Integration**
+  - `python-lint` pre-commit hook in `lefthook.yml` running `ruff check` on Python files
+  - `python-typecheck` post-commit hook running `mypy` on the MCP source
+  - npm scripts: `lint:python` and `lint:python:fix`
+
+### Changed
+
+- All error responses across handlers, bulk service, and server routing now use standardized `ErrorCode` format
+- Bulk errors use `indices` (list) instead of `index` (int) to support deduplication tracking
+- Handler methods split into public entry point (validation + boundary) and private `_do_*` implementation
+
+### Test Suite (94 tests, was 47)
+
+- `test_error_codes.py` — 6 tests for ErrorCode enum and error_response factory
+- `test_validation.py` — 13 tests for input validation across all tools
+- `test_handlers.py` — 12 tests for validation integration, error boundaries, and handler dispatch
+- `test_cache_stats.py` — 6 tests for cache stats tool, handler, and formatter
+- `test_bulk.py` — expanded from 3 to 13 tests (alias resolution, dedup, concurrency, retry, error codes)
+
 ## [4.0.0] - 2025-07-22
 
 ### Added
