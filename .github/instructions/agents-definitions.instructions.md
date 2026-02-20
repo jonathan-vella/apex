@@ -104,17 +104,17 @@ Current model assignments:
 Top-level agents live in `.github/agents/` and are `user-invokable: true`. They correspond to
 the 7-step workflow:
 
-| Step | Agent              | File                          |
-| ---- | ------------------ | ----------------------------- |
-| 1    | Requirements       | `requirements.agent.md`       |
-| 2    | Architect          | `architect.agent.md`          |
-| 3    | Design (optional)  | `design.agent.md`             |
-| 4    | Bicep Plan         | `bicep-plan.agent.md`         |
-| 5    | Bicep Code         | `bicep-code.agent.md`         |
-| 6    | Deploy             | `deploy.agent.md`             |
-| 7    | As-Built           | `as-built.agent.md`           |
-| —    | InfraOps Conductor | `infraops-conductor.agent.md` |
-| —    | Diagnose           | `diagnose.agent.md`           |
+| Step | Agent              | File                               |
+| ---- | ------------------ | ---------------------------------- |
+| 1    | Requirements       | `02-requirements.agent.md`         |
+| 2    | Architect          | `03-architect.agent.md`            |
+| 3    | Design (optional)  | `04-design.agent.md`               |
+| 4    | Bicep Plan         | `05-bicep-planner.agent.md`        |
+| 5    | Bicep Code         | `06-bicep-code-generator.agent.md` |
+| 6    | Deploy             | `07-deploy.agent.md`               |
+| 7    | As-Built           | `08-as-built.agent.md`             |
+| —    | InfraOps Conductor | `01-conductor.agent.md`            |
+| —    | Diagnose           | `09-diagnose.agent.md`             |
 
 ### Subagents
 

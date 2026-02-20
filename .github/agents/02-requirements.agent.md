@@ -1,5 +1,5 @@
 ---
-name: Requirements
+name: 02-Requirements
 model: ["Claude Opus 4.6"]
 description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
@@ -31,6 +31,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -103,21 +104,21 @@ tools:
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
-  - label: ▶ Refine Requirements
-    agent: Requirements
-    prompt: Review the current requirements document and refine based on new information or clarifications. Update the 01-requirements.md file.
+  - label: "▶ Refine Requirements"
+    agent: 02-Requirements
+    prompt: "Review the current requirements document and refine based on new information or clarifications. Update `agent-output/{project}/01-requirements.md`."
     send: false
-  - label: ▶ Ask Clarifying Questions
-    agent: Requirements
-    prompt: Generate clarifying questions to fill gaps in the current requirements. Focus on NFRs, compliance, budget, and regional preferences.
+  - label: "▶ Ask Clarifying Questions"
+    agent: 02-Requirements
+    prompt: "Generate clarifying questions to fill gaps in the current requirements. Focus on NFRs, compliance, budget, and regional preferences."
     send: true
-  - label: ▶ Validate Completeness
-    agent: Requirements
-    prompt: Validate the requirements document for completeness against the template. Check all required sections are filled and flag any gaps.
+  - label: "▶ Validate Completeness"
+    agent: 02-Requirements
+    prompt: "Validate the requirements document for completeness against the template. Check all required sections are filled and flag any gaps."
     send: true
   - label: "Step 2: Architecture Assessment"
-    agent: Architect
-    prompt: Review the requirements and create a comprehensive WAF assessment with cost estimates.
+    agent: 03-Architect
+    prompt: "Review the requirements in `agent-output/{project}/01-requirements.md` and create a comprehensive WAF assessment with cost estimates. Save to `agent-output/{project}/02-architecture-assessment.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "Open in Editor"
@@ -125,6 +126,10 @@ handoffs:
     prompt: "#createFile the requirements plan as is into an untitled file (`untitled:plan-${camelCaseName}.prompt.md` without frontmatter) for further refinement."
     send: true
     showContinueOn: false
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 1 (Requirements). Artifacts at `agent-output/{project}/01-requirements.md`. Advise on next steps."
+    send: false
 ---
 
 You are a PLANNING AGENT for Azure infrastructure projects, NOT an implementation agent.

@@ -526,15 +526,16 @@ Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in t
 
 ```text
 ├── 📁 .github/
-│   ├── 📁 agents/             # 8 main agents + 3 validation subagents
-│   │   ├── infraops-conductor.agent.md  # 🎼 Maestro - Master orchestrator
-│   │   ├── requirements.agent.md        # 📜 Scribe - Requirements capture
-│   │   ├── architect.agent.md           # 🏛️ Oracle - WAF assessment
-│   │   ├── design.agent.md              # 🎨 Artisan - Diagrams/ADRs
-│   │   ├── bicep-plan.agent.md          # 📐 Strategist - Planning
-│   │   ├── bicep-code.agent.md          # ⚒️ Forge - Bicep generation
-│   │   ├── deploy.agent.md              # 🚀 Envoy - Deployment
-│   │   ├── diagnose.agent.md            # 🔍 Sentinel - Diagnostics
+│   ├── 📁 agents/             # 9 main agents + 5 validation subagents
+│   │   ├── 01-conductor.agent.md             # 🎼 Maestro - Master orchestrator
+│   │   ├── 02-requirements.agent.md          # 📜 Scribe - Requirements capture
+│   │   ├── 03-architect.agent.md             # 🏛️ Oracle - WAF assessment
+│   │   ├── 04-design.agent.md                # 🎨 Artisan - Diagrams/ADRs
+│   │   ├── 05-bicep-planner.agent.md         # 📐 Strategist - Planning
+│   │   ├── 06-bicep-code-generator.agent.md  # ⚒️ Forge - Bicep generation
+│   │   ├── 07-deploy.agent.md                # 🚀 Envoy - Deployment
+│   │   ├── 08-as-built.agent.md              # 📋 Archivist - As-built docs
+│   │   ├── 09-diagnose.agent.md              # 🔍 Sentinel - Diagnostics
 │   │   └── 📁 _subagents/               # Validation subagents
 │   ├── 📁 instructions/       # Guardrails and coding standards
     └── 📁 skills/             # 8 reusable skills

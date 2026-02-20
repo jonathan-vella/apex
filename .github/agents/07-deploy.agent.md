@@ -1,5 +1,5 @@
 ---
-name: Deploy
+name: 07-Deploy
 model: ["GPT-5.3-Codex"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
@@ -30,6 +30,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -112,46 +113,47 @@ tools:
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
-  - label: ▶ Run What-If Only
-    agent: Deploy
-    prompt: Execute az deployment what-if analysis without actually deploying. Show the expected changes to the target resource group.
+  - label: "▶ Run What-If Only"
+    agent: 07-Deploy
+    prompt: "Execute az deployment what-if analysis without actually deploying. Show the expected changes to the target resource group."
     send: true
-  - label: ▶ Deploy Next Phase
-    agent: Deploy
-    prompt: Deploy the next phase from the implementation plan. Read 04-implementation-plan.md for phase definitions and deploy the next uncompleted phase with approval.
+  - label: "▶ Deploy Next Phase"
+    agent: 07-Deploy
+    prompt: "Deploy the next phase from `agent-output/{project}/04-implementation-plan.md`. Deploy the next uncompleted phase with approval."
     send: true
-  - label: ▶ Deploy All Phases
-    agent: Deploy
-    prompt: Deploy all remaining phases sequentially from the implementation plan with approval gates between each.
+  - label: "▶ Deploy All Phases"
+    agent: 07-Deploy
+    prompt: "Deploy all remaining phases sequentially from `agent-output/{project}/04-implementation-plan.md` with approval gates between each."
     send: true
-  - label: ▶ Retry Deployment
-    agent: Deploy
-    prompt: Retry the last deployment operation. Re-run preflight validation and deployment with the same parameters.
+  - label: "▶ Retry Deployment"
+    agent: 07-Deploy
+    prompt: "Retry the last deployment operation. Re-run preflight validation and deployment with the same parameters."
     send: true
-  - label: ▶ Verify Resources
-    agent: Deploy
-    prompt: Query deployed resources using Azure Resource Graph to verify successful deployment. Check resource health status.
+  - label: "▶ Verify Resources"
+    agent: 07-Deploy
+    prompt: "Query deployed resources using Azure Resource Graph to verify successful deployment. Check resource health status."
     send: true
-  - label: ▶ Generate Workload Documentation
-    agent: As-Built
-    prompt: Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts (01-06) in agent-output/{project}/ and query deployed resources for actual state.
+  - label: "Step 7: As-Built Documentation"
+    agent: 08-As-Built
+    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
     send: true
-  - label: Return to Architect Review
-    agent: Architect
-    prompt: Review the deployment results and validate WAF compliance of the deployed infrastructure.
+  - label: "▶ Generate As-Built Diagram"
+    agent: 08-As-Built
+    prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
     send: true
-  - label: ▶ Generate As-Built Diagram
-    agent: As-Built
-    prompt: Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output 07-ab-diagram.py + 07-ab-diagram.png with deterministic layout and quality score >= 9/10.
+  - label: "↩ Fix Deployment Issues"
+    agent: 06-Bicep Code Generator
+    prompt: "The deployment encountered errors. Review the error messages and fix the Bicep templates in `infra/bicep/{project}/` to resolve the issues."
     send: true
-  - label: Fix Deployment Issues
-    agent: Bicep Code
-    prompt: The deployment encountered errors. Review the error messages and fix the Bicep templates to resolve the issues. Then retry deployment.
-    send: true
-  - label: Preflight Only (No Deploy)
-    agent: Architect
-    prompt: Preflight validation is complete. Review the what-if results and change summary before proceeding to actual deployment.
-    send: true
+  - label: "↩ Return to Step 2"
+    agent: 03-Architect
+    prompt: "Review the deployment results and validate WAF compliance of the deployed infrastructure. Assessment at `agent-output/{project}/02-architecture-assessment.md`."
+    send: false
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 6 (Deploy). Summary at `agent-output/{project}/06-deployment-summary.md`. Advise on next steps."
+    send: false
 ---
 
 # Deploy Agent

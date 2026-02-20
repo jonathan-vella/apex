@@ -1,5 +1,5 @@
 ---
-name: Architect
+name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.
 model: ["Claude Opus 4.6"]
 user-invokable: true
@@ -29,6 +29,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -100,40 +101,48 @@ tools:
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
-  - label: ▶ Refresh Cost Estimate
-    agent: Architect
-    prompt: Re-query Azure Pricing MCP to update the cost estimate section with current pricing. Recalculate monthly and yearly totals.
+  - label: "▶ Refresh Cost Estimate"
+    agent: 03-Architect
+    prompt: "Re-query Azure Pricing MCP to update the cost estimate section with current pricing. Recalculate monthly and yearly totals."
     send: true
-  - label: ▶ Deep Dive WAF Pillar
-    agent: Architect
-    prompt: Perform a deeper analysis on a specific WAF pillar. Which pillar should I analyze in more detail? (Security, Reliability, Performance, Cost, Operations)
+  - label: "▶ Deep Dive WAF Pillar"
+    agent: 03-Architect
+    prompt: "Perform a deeper analysis on a specific WAF pillar. Which pillar should I analyze in more detail? (Security, Reliability, Performance, Cost, Operations)"
     send: false
-  - label: ▶ Compare SKU Options
-    agent: Architect
-    prompt: Compare alternative SKU options for key resources. Analyze trade-offs between cost, performance, and features.
+  - label: "▶ Compare SKU Options"
+    agent: 03-Architect
+    prompt: "Compare alternative SKU options for key resources. Analyze trade-offs between cost, performance, and features."
     send: true
-  - label: ▶ Save Assessment
-    agent: Architect
-    prompt: Save the current architecture assessment to 02-architecture-assessment.md in the project's agent-output folder.
+  - label: "▶ Save Assessment"
+    agent: 03-Architect
+    prompt: "Save the current architecture assessment to `agent-output/{project}/02-architecture-assessment.md`."
+    send: true
+  - label: "▶ Generate Architecture Diagram"
+    agent: 03-Architect
+    prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid Python architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.py` + `03-des-diagram.png` with quality score >= 9/10."
+    send: true
+  - label: "▶ Create ADR from Assessment"
+    agent: 03-Architect
+    prompt: "Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale."
     send: true
   - label: "Step 3: Design Artifacts"
-    agent: Design
-    prompt: Generate non-Mermaid architecture diagrams and/or ADRs based on the architecture assessment above. For diagrams, use Python diagrams contract and save 03-des-diagram.py + 03-des-diagram.png; ADRs remain 03-des-*.md.
+    agent: 04-Design
+    prompt: "Generate non-Mermaid architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use Python diagrams contract and save `agent-output/{project}/03-des-diagram.py` + `.png`; ADRs remain `03-des-*.md`."
     send: false
     model: "GPT-5.3-Codex (copilot)"
   - label: "⏭️ Skip to Step 4: Implementation Plan"
-    agent: Bicep Plan
-    prompt: Create a detailed Bicep implementation plan based on the architecture assessment and recommendations above. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation.
+    agent: 05-Bicep Planner
+    prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation."
     send: true
     model: "Claude Opus 4.6 (copilot)"
-  - label: ▶ Generate Architecture Diagram
-    agent: Architect
-    prompt: Use the azure-diagrams skill contract to generate a non-Mermaid Python architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output 03-des-diagram.py + 03-des-diagram.png with quality score >= 9/10.
-    send: true
-  - label: ▶ Create ADR from Assessment
-    agent: Architect
-    prompt: Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale.
-    send: true
+  - label: "↩ Return to Step 1"
+    agent: 02-Requirements
+    prompt: "Returning to requirements for refinement. Review `agent-output/{project}/01-requirements.md` — architecture assessment identified gaps that need addressing."
+    send: false
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 2 (Architecture). Artifacts at `agent-output/{project}/02-architecture-assessment.md` and `agent-output/{project}/03-des-cost-estimate.md`. Advise on next steps."
+    send: false
 ---
 
 # Architect Agent

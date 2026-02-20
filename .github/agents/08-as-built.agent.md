@@ -1,5 +1,5 @@
 ---
-name: As-Built
+name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
 model: ["GPT-5.3-Codex (copilot)"]
 user-invokable: true
@@ -29,6 +29,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -101,22 +102,22 @@ tools:
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
-  - label: ▶ Generate All Documentation
-    agent: As-Built
-    prompt: Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts and query deployed resources.
+  - label: "▶ Generate All Documentation"
+    agent: 08-As-Built
+    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts in `agent-output/{project}/` and query deployed resources."
     send: true
-  - label: ▶ Generate As-Built Diagram
-    agent: As-Built
-    prompt: Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output 07-ab-diagram.py + 07-ab-diagram.png with deterministic layout and quality score >= 9/10.
+  - label: "▶ Generate As-Built Diagram"
+    agent: 08-As-Built
+    prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
     send: true
-  - label: ▶ Generate Cost Estimate Only
-    agent: As-Built
-    prompt: Generate only the as-built cost estimate (07-ab-cost-estimate.md). Query deployed resources for actual SKUs, then delegate pricing to cost-estimate-subagent. Use subagent-returned prices verbatim.
+  - label: "▶ Generate Cost Estimate Only"
+    agent: 08-As-Built
+    prompt: "Generate only the as-built cost estimate (`agent-output/{project}/07-ab-cost-estimate.md`). Query deployed resources for actual SKUs, then delegate pricing to cost-estimate-subagent. Use subagent-returned prices verbatim."
     send: true
-  - label: Return to Conductor
-    agent: InfraOps Conductor
-    prompt: Step 7 documentation is complete. Review the generated artifacts and present the final project summary.
-    send: true
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 7 (As-Built Documentation). Documentation suite at `agent-output/{project}/07-*.md`. Advise on next steps."
+    send: false
 ---
 
 # As-Built Agent

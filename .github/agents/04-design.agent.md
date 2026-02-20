@@ -1,5 +1,5 @@
 ---
-name: Design
+name: 04-Design
 model: ["GPT-5.3-Codex"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invokable: true
@@ -29,6 +29,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -117,33 +118,37 @@ tools:
     ms-python.python/configurePythonEnvironment,
   ]
 handoffs:
-  - label: ▶ Generate Diagram
-    agent: Design
-    prompt: Generate a non-Mermaid Azure architecture diagram using the azure-diagrams skill contract. Produce 03-des-diagram.py + 03-des-diagram.png with deterministic layout, enforced naming conventions, and quality score >= 9/10.
+  - label: "▶ Generate Diagram"
+    agent: 04-Design
+    prompt: "Generate a non-Mermaid Azure architecture diagram using the azure-diagrams skill contract. Produce `agent-output/{project}/03-des-diagram.py` + `03-des-diagram.png` with deterministic layout, enforced naming conventions, and quality score >= 9/10."
     send: true
-  - label: ▶ Generate ADR
-    agent: Design
-    prompt: Create an Architecture Decision Record using the azure-adr skill based on the architecture assessment.
+  - label: "▶ Generate ADR"
+    agent: 04-Design
+    prompt: "Create an Architecture Decision Record using the azure-adr skill based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`."
     send: true
-  - label: ▶ Generate Cost Estimate
-    agent: Architect
-    prompt: Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to 03-des-cost-estimate.md.
+  - label: "▶ Generate Cost Estimate"
+    agent: 03-Architect
+    prompt: "Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to `agent-output/{project}/03-des-cost-estimate.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 4: Implementation Plan"
-    agent: Bicep Plan
-    prompt: Create a detailed Bicep implementation plan based on the architecture assessment. Include all resources, dependencies, and tasks.
-    send: true
-    model: "Claude Opus 4.6 (copilot)"
-  - label: Return to Architect
-    agent: Architect
-    prompt: Return to the architecture assessment agent for further refinement or re-evaluation.
+    agent: 05-Bicep Planner
+    prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all resources, dependencies, and tasks. Save to `agent-output/{project}/04-implementation-plan.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "⏭️ Skip to Step 5: Bicep Code"
-    agent: Bicep Code
-    prompt: Skip planning and go directly to Bicep code generation based on the architecture assessment.
+    agent: 06-Bicep Code Generator
+    prompt: "Skip planning and go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
     send: true
+  - label: "↩ Return to Step 2"
+    agent: 03-Architect
+    prompt: "Returning to architecture assessment for further refinement. Review `agent-output/{project}/02-architecture-assessment.md` for re-evaluation."
+    send: false
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 3 (Design). Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.py`. Advise on next steps."
+    send: false
 ---
 
 # Design Agent

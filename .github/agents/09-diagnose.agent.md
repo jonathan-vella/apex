@@ -1,5 +1,5 @@
 ---
-name: Diagnose
+name: 09-Diagnose
 model: ["GPT-5.3-Codex"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
 user-invokable: true
@@ -29,6 +29,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -115,26 +116,31 @@ tools:
     ms-python.python/configurePythonEnvironment,
   ]
 handoffs:
-  - label: ▶ Expand Scope
-    agent: Diagnose
-    prompt: Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources.
+  - label: "▶ Expand Scope"
+    agent: 09-Diagnose
+    prompt: "Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources."
     send: true
-  - label: ▶ Deep Dive Logs
-    agent: Diagnose
-    prompt: Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information.
+  - label: "▶ Deep Dive Logs"
+    agent: 09-Diagnose
+    prompt: "Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information."
     send: true
-  - label: ▶ Re-run Health Check
-    agent: Diagnose
-    prompt: Re-run the resource health assessment to check for status changes after remediation actions.
+  - label: "▶ Re-run Health Check"
+    agent: 09-Diagnose
+    prompt: "Re-run the resource health assessment to check for status changes after remediation actions."
     send: true
-  - label: Escalate to Architect
-    agent: Architect
-    prompt: I've completed a resource health assessment that identified architectural issues requiring WAF evaluation. Please review the findings and provide architectural recommendations.
+  - label: "▶ Generate Workload Documentation"
+    agent: 09-Diagnose
+    prompt: "Use the azure-artifacts skill to generate comprehensive as-built documentation incorporating health assessment findings."
     send: true
-  - label: ▶ Generate Workload Documentation
-    agent: Diagnose
-    prompt: Use the azure-artifacts skill to generate comprehensive as-built documentation incorporating health assessment findings.
-    send: true
+  - label: "↩ Escalate to Architect"
+    agent: 03-Architect
+    prompt: "Completed a resource health assessment that identified architectural issues requiring WAF evaluation. Please review the findings in `agent-output/{project}/08-resource-health-report.md` and provide architectural recommendations."
+    send: false
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Diagnostics. Report at `agent-output/{project}/08-resource-health-report.md`. Advise on next steps."
+    send: false
 ---
 
 # Azure Resource Health Diagnostician Agent

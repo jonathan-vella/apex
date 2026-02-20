@@ -1,5 +1,5 @@
 ---
-name: Bicep Plan
+name: 05-Bicep Planner
 description: Expert Azure Bicep Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invokable: true
@@ -29,6 +29,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -111,27 +112,31 @@ tools:
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
-  - label: ▶ Refresh Governance
-    agent: Bicep Plan
-    prompt: Re-query Azure Resource Graph for updated policy assignments and governance constraints. Update 04-governance-constraints.md.
+  - label: "▶ Refresh Governance"
+    agent: 05-Bicep Planner
+    prompt: "Re-query Azure Resource Graph for updated policy assignments and governance constraints. Update `agent-output/{project}/04-governance-constraints.md`."
     send: true
-  - label: ▶ Revise Plan
-    agent: Bicep Plan
-    prompt: Revise the implementation plan based on new information or feedback. Update 04-implementation-plan.md.
+  - label: "▶ Revise Plan"
+    agent: 05-Bicep Planner
+    prompt: "Revise the implementation plan based on new information or feedback. Update `agent-output/{project}/04-implementation-plan.md`."
     send: true
-  - label: Return to Architect
-    agent: Architect
-    prompt: Return to architecture assessment for re-evaluation. Review WAF scores and adjust recommendations.
+  - label: "▶ Compare AVM Modules"
+    agent: 05-Bicep Planner
+    prompt: "Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Bicep"
-    agent: Bicep Code
-    prompt: Implement the Bicep templates according to the implementation plan. Use AVM modules, generate deploy.ps1, and save to infra/bicep/{project}/.
+    agent: 06-Bicep Code Generator
+    prompt: "Implement the Bicep templates according to the implementation plan in `agent-output/{project}/04-implementation-plan.md`. Use AVM modules, generate deploy.ps1, and save to `infra/bicep/{project}/`."
     send: true
-  - label: ▶ Compare AVM Modules
-    agent: Bicep Plan
-    prompt: Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps.
-    send: true
+  - label: "↩ Return to Step 2"
+    agent: 03-Architect
+    prompt: "Returning to architecture assessment for re-evaluation. Review `agent-output/{project}/02-architecture-assessment.md` — WAF scores and recommendations may need adjustment."
+    send: false
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 4 (Bicep Planning). Artifacts at `agent-output/{project}/04-implementation-plan.md` and `agent-output/{project}/04-governance-constraints.md`. Advise on next steps."
+    send: false
 ---
 
 # Bicep Plan Agent

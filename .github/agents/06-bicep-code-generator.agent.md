@@ -1,5 +1,5 @@
 ---
-name: Bicep Code
+name: 06-Bicep Code Generator
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
 model: ["Claude Opus 4.6", "GPT-5.3-Codex"]
 user-invokable: true
@@ -29,6 +29,7 @@ tools:
     read/readFile,
     read/readNotebookCellOutput,
     agent/runSubagent,
+    agent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
@@ -111,27 +112,31 @@ tools:
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
-  - label: ▶ Run Preflight Check
-    agent: Bicep Code
-    prompt: Run AVM schema validation and pitfall checking before generating Bicep code. Save results to 04-preflight-check.md.
+  - label: "▶ Run Preflight Check"
+    agent: 06-Bicep Code Generator
+    prompt: "Run AVM schema validation and pitfall checking before generating Bicep code. Save results to `agent-output/{project}/04-preflight-check.md`."
     send: true
-  - label: ▶ Fix Validation Errors
-    agent: Bicep Code
-    prompt: Review bicep build/lint errors and fix the templates. Re-run validation after fixes.
+  - label: "▶ Fix Validation Errors"
+    agent: 06-Bicep Code Generator
+    prompt: "Review bicep build/lint errors and fix the templates in `infra/bicep/{project}/`. Re-run validation after fixes."
     send: true
-  - label: Return to Plan
-    agent: Bicep Plan
-    prompt: Return to implementation planning for revision. The current plan needs adjustment.
+  - label: "▶ Generate Implementation Reference"
+    agent: 06-Bicep Code Generator
+    prompt: "Generate or update `agent-output/{project}/05-implementation-reference.md` with current template structure and validation status."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 6: Deploy"
-    agent: Deploy
-    prompt: Deploy the validated Bicep templates to Azure. Run what-if analysis first.
+    agent: 07-Deploy
+    prompt: "Deploy the validated Bicep templates in `infra/bicep/{project}/` to Azure. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run what-if analysis first."
     send: true
-  - label: ▶ Generate Implementation Reference
-    agent: Bicep Code
-    prompt: Generate or update the 05-implementation-reference.md with current template structure and validation status.
-    send: true
+  - label: "↩ Return to Step 4"
+    agent: 05-Bicep Planner
+    prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
+    send: false
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "↩ Return to Conductor"
+    agent: 01-Conductor
+    prompt: "Returning from Step 5 (Bicep Code). Templates at `infra/bicep/{project}/` and reference at `agent-output/{project}/05-implementation-reference.md`. Advise on next steps."
+    send: false
 ---
 
 # Bicep Code Agent
