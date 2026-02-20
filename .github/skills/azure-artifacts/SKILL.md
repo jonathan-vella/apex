@@ -77,28 +77,30 @@ verbatim, replacing only `{placeholder}` values.
 ### Badge Row
 
 Every artifact opens with a badge row immediately after the title.
-Use Shields.io static badges for visual scanning:
+Use Shields.io static badges with `?style=for-the-badge` for visual scanning:
 
 ```markdown
-![Step](https://img.shields.io/badge/Step-{n}-blue)
-![Status](https://img.shields.io/badge/Status-{Draft|Complete}-{orange|brightgreen})
-![Agent](https://img.shields.io/badge/Agent-{agent--name}-purple)
+![Step](https://img.shields.io/badge/Step-{n}-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-{Draft|Complete}-{orange|brightgreen}?style=for-the-badge)
+![Agent](https://img.shields.io/badge/Agent-{agent--name}-purple?style=for-the-badge)
 ```
 
 Badge values use `--` for hyphens (Shields.io escaping).
 The `Status` badge is `Draft|orange` on first generation and
 `Complete|brightgreen` after review.
 Agents may optionally add a fourth `Date` badge
-(`![Date](https://img.shields.io/badge/Generated-{YYYY--MM--DD}-grey)`)
+(`![Date](https://img.shields.io/badge/Generated-{YYYY--MM--DD}-grey?style=for-the-badge)`)
 when generating final artifacts.
 
 ### Collapsible Table of Contents
 
-Include in every artifact after the badge row:
+Include in every artifact after the badge row using `<details open>`
+so the TOC is expanded by default. Use a contextual label that matches
+the artifact type (not a generic "Table of Contents"):
 
 ```markdown
-<details>
-<summary><strong>📑 Table of Contents</strong></summary>
+<details open>
+<summary><strong>📑 {Contextual Label}</strong></summary>
 
 - Section Name (#section-name)
 - Section Name (#section-name)
@@ -106,6 +108,26 @@ Include in every artifact after the badge row:
 
 </details>
 ```
+
+**Contextual label examples:**
+
+| Artifact Type          | Label                       |
+| ---------------------- | --------------------------- |
+| 01-requirements        | 📑 Requirements Overview    |
+| 02-architecture        | 📑 Assessment Contents      |
+| 03-des-cost-estimate   | 📑 Cost Estimate Contents   |
+| 04-implementation-plan | 📑 Implementation Contents  |
+| 04-governance          | 📑 Governance Contents      |
+| 04-preflight-check     | 📑 Pre-Flight Contents      |
+| 05-implementation-ref  | 📑 Implementation Reference |
+| 06-deployment          | 📑 Deployment Contents      |
+| 07-documentation-index | 📑 Documentation Contents   |
+| 07-design-document     | 📑 Design Contents          |
+| 07-operations-runbook  | 📑 Runbook Contents         |
+| 07-resource-inventory  | 📑 Inventory Contents       |
+| 07-backup-dr-plan      | 📑 DR Plan Contents         |
+| 07-compliance-matrix   | 📑 Compliance Contents      |
+| 07-ab-cost-estimate    | 📑 As-Built Cost Contents   |
 
 ### Attribution Header
 
@@ -130,11 +152,17 @@ to adjacent workflow steps:
 
 **Footer** (before References or at document end):
 
+Wrap the footer navigation in a centered `<div>` for consistent alignment:
+
 ```markdown
 ---
 
+<div align="center">
+
 | ⬅️ {prev-step-name} ({prev-filename}) | 🏠 Project Index (README.md) | ➡️ {next-step-name} ({next-filename}) |
 | ------------------------------------- | ---------------------------- | ------------------------------------- |
+
+</div>
 ```
 
 For the first artifact (01), omit the Previous link.
@@ -174,200 +202,200 @@ Always include a blank line after `<summary>` and before `</details>`.
 ### 01-requirements.md (Requirements Agent)
 
 ```text
-## Project Overview
-## Functional Requirements
-## Non-Functional Requirements (NFRs)
-## Compliance & Security Requirements
-## Budget
-## Operational Requirements
-## Regional Preferences
-## Summary for Architecture Assessment
+## 🎯 Project Overview
+## 🚀 Functional Requirements
+## ⚡ Non-Functional Requirements (NFRs)
+## 🔒 Compliance & Security Requirements
+## 💰 Budget
+## 🔧 Operational Requirements
+## 🌍 Regional Preferences
+## 📋 Summary for Architecture Assessment
 ## References
 ```
 
 ### 02-architecture-assessment.md (Architect Agent)
 
 ```text
-## Requirements Validation ✅
-## Executive Summary
-## WAF Pillar Assessment
-## Resource SKU Recommendations
-## Architecture Decision Summary
-## Implementation Handoff
-## Approval Gate
+## ✅ Requirements Validation
+## 💎 Executive Summary
+## 🏛️ WAF Pillar Assessment
+## 📦 Resource SKU Recommendations
+## 🎯 Architecture Decision Summary
+## 🚀 Implementation Handoff
+## 🔒 Approval Gate
 ## References
 ```
 
 ### 03-des-cost-estimate.md (Architect Agent)
 
 ```text
-## 💰 Cost At-a-Glance
+## 💵 Cost At-a-Glance
 ## ✅ Decision Summary
 ## 🔁 Requirements → Cost Mapping
 ## 📊 Top 5 Cost Drivers
-## Architecture Overview
+## 🏛️ Architecture Overview
 ## 🧾 What We Are Not Paying For (Yet)
 ## ⚠️ Cost Risk Indicators
 ## 🎯 Quick Decision Matrix
 ## 💰 Savings Opportunities
-## Detailed Cost Breakdown
+## 🧾 Detailed Cost Breakdown
 ## References
 ```
 
 ### 04-governance-constraints.md (Bicep Plan Agent)
 
 ```text
-## Discovery Source
-## Azure Policy Compliance
-## Plan Adaptations Based on Policies
-## Deployment Blockers
-## Required Tags
-## Security Policies
-## Cost Policies
-## Network Policies
+## 🔍 Discovery Source
+## 📋 Azure Policy Compliance
+## 🔄 Plan Adaptations Based on Policies
+## 🚫 Deployment Blockers
+## 🏷️ Required Tags
+## 🔐 Security Policies
+## 💰 Cost Policies
+## 🌐 Network Policies
 ## References
 ```
 
 ### 04-implementation-plan.md (Bicep Plan Agent)
 
 ```text
-## Overview
-## Resource Inventory
-## Module Structure
-## Implementation Tasks
-## Deployment Phases
-## Dependency Graph
-## Runtime Flow Diagram
-## Naming Conventions
-## Security Configuration
-## Estimated Implementation Time
-## Approval Gate
+## 📋 Overview
+## 📦 Resource Inventory
+## 🗂️ Module Structure
+## 🔨 Implementation Tasks
+## 🚀 Deployment Phases
+## 🔗 Dependency Graph
+## 🔄 Runtime Flow Diagram
+## 🏷️ Naming Conventions
+## 🔐 Security Configuration
+## ⏱️ Estimated Implementation Time
+## 🔒 Approval Gate
 ## References
 ```
 
 ### 04-preflight-check.md (Bicep Code Agent)
 
 ```text
-## Purpose
-## AVM Schema Validation Results
-## Parameter Type Analysis
-## Region Limitations Identified
-## Pitfalls Checklist
-## Ready for Implementation
+## 🎯 Purpose
+## ✅ AVM Schema Validation Results
+## 🔎 Parameter Type Analysis
+## 🌍 Region Limitations Identified
+## ⚠️ Pitfalls Checklist
+## 🚀 Ready for Implementation
 ```
 
 ### 05-implementation-reference.md (Bicep Code Agent)
 
 ```text
-## Bicep Templates Location
-## File Structure
-## Validation Status
-## Resources Created
-## Deployment Instructions
-## Key Implementation Notes
+## 📁 Bicep Templates Location
+## 🗂️ File Structure
+## ✅ Validation Status
+## 🏗️ Resources Created
+## 🚀 Deployment Instructions
+## 📝 Key Implementation Notes
 ```
 
 ### 06-deployment-summary.md (Deploy Agent)
 
 ```text
-## Preflight Validation
-## Deployment Details
-## Deployed Resources
-## Outputs (Expected)
-## To Actually Deploy
-## Post-Deployment Tasks
+## ✅ Preflight Validation
+## 📋 Deployment Details
+## 🏗️ Deployed Resources
+## 📤 Outputs (Expected)
+## 🚀 To Actually Deploy
+## 📝 Post-Deployment Tasks
 ## References
 ```
 
 ### 07-documentation-index.md
 
 ```text
-## 1. Document Package Contents
-## 2. Source Artifacts
-## 3. Project Summary
-## 4. Related Resources
-## 5. Quick Links
+## 📦 1. Document Package Contents
+## 📚 2. Source Artifacts
+## 📋 3. Project Summary
+## 🔗 4. Related Resources
+## ⚡ 5. Quick Links
 ```
 
 ### 07-design-document.md
 
 ```text
-## 1. Introduction
-## 2. Azure Architecture Overview
-## 3. Networking
-## 4. Storage
-## 5. Compute
-## 6. Identity & Access
-## 7. Security & Compliance
-## 8. Backup & Disaster Recovery
-## 9. Management & Monitoring
-## 10. Appendix
+## 📝 1. Introduction
+## 🏛️ 2. Azure Architecture Overview
+## 🌐 3. Networking
+## 💾 4. Storage
+## 💻 5. Compute
+## 👤 6. Identity & Access
+## 🔐 7. Security & Compliance
+## 🔄 8. Backup & Disaster Recovery
+## 📊 9. Management & Monitoring
+## 📎 10. Appendix
 ## References
 ```
 
 ### 07-operations-runbook.md
 
 ```text
-## Quick Reference
-## 1. Daily Operations
-## 2. Incident Response
-## 3. Common Procedures
-## 4. Maintenance Windows
-## 5. Contacts & Escalation
-## 6. Change Log
+## ⚡ Quick Reference
+## 📋 1. Daily Operations
+## 🚨 2. Incident Response
+## 🔧 3. Common Procedures
+## 🕐 4. Maintenance Windows
+## 📞 5. Contacts & Escalation
+## 📝 6. Change Log
 ## References
 ```
 
 ### 07-resource-inventory.md
 
 ```text
-## Summary
-## Resource Listing
+## 📊 Summary
+## 📦 Resource Listing
 ## References
 ```
 
 ### 07-ab-cost-estimate.md
 
 ```text
-## 💰 Cost At-a-Glance
+## 💵 Cost At-a-Glance
 ## ✅ Decision Summary
 ## 🔁 Requirements → Cost Mapping
 ## 📊 Top 5 Cost Drivers
-## Architecture Overview
+## 🏛️ Architecture Overview
 ## 🧾 What We Are Not Paying For (Yet)
 ## ⚠️ Cost Risk Indicators
 ## 🎯 Quick Decision Matrix
 ## 💰 Savings Opportunities
-## Detailed Cost Breakdown
+## 🧾 Detailed Cost Breakdown
 ## References
 ```
 
 ### 07-backup-dr-plan.md
 
 ```text
-## Executive Summary
-## 1. Recovery Objectives
-## 2. Backup Strategy
-## 3. Disaster Recovery Procedures
-## 4. Testing Schedule
-## 5. Communication Plan
-## 6. Roles and Responsibilities
-## 7. Dependencies
-## 8. Recovery Runbooks
-## 9. Appendix
+## 📋 Executive Summary
+## 🎯 1. Recovery Objectives
+## 💾 2. Backup Strategy
+## 🌍 3. Disaster Recovery Procedures
+## 🧪 4. Testing Schedule
+## 📢 5. Communication Plan
+## 👥 6. Roles and Responsibilities
+## 🔗 7. Dependencies
+## 📖 8. Recovery Runbooks
+## 📎 9. Appendix
 ## References
 ```
 
 ### 07-compliance-matrix.md
 
 ```text
-## Executive Summary
-## 1. Control Mapping
-## 2. Gap Analysis
-## 3. Evidence Collection
-## 4. Audit Trail
-## 5. Remediation Tracker
-## 6. Appendix
+## 📋 Executive Summary
+## 🗺️ 1. Control Mapping
+## 🔍 2. Gap Analysis
+## 📁 3. Evidence Collection
+## 📝 4. Audit Trail
+## 🔧 5. Remediation Tracker
+## 📎 6. Appendix
 ## References
 ```
 

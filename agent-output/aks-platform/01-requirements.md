@@ -1,20 +1,20 @@
-# Step 1: Requirements - aks-platform
+# 📋 Step 1: Requirements - aks-platform
 
-![Step](https://img.shields.io/badge/Step-1-blue)
-![Status](https://img.shields.io/badge/Status-Draft-orange)
-![Agent](https://img.shields.io/badge/Agent-Requirements-purple)
+![Step](https://img.shields.io/badge/Step-1-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Complete-green?style=for-the-badge)
+![Agent](https://img.shields.io/badge/Agent-Requirements-purple?style=for-the-badge)
 
-<details>
-<summary><strong>📑 Table of Contents</strong></summary>
+<details open>
+<summary><strong>📑 Requirements Overview</strong></summary>
 
-- [Project Overview](#project-overview)
-- [Functional Requirements](#functional-requirements)
-- [Non-Functional Requirements (NFRs)](#non-functional-requirements-nfrs)
-- [Compliance & Security Requirements](#compliance--security-requirements)
-- [Budget](#budget)
-- [Operational Requirements](#operational-requirements)
-- [Regional Preferences](#regional-preferences)
-- [Summary for Architecture Assessment](#summary-for-architecture-assessment)
+- [🎯 Project Overview](#-project-overview)
+- [🚀 Functional Requirements](#-functional-requirements)
+- [⚡ Non-Functional Requirements (NFRs)](#-non-functional-requirements-nfrs)
+- [🔒 Compliance & Security Requirements](#-compliance--security-requirements)
+- [💰 Budget](#-budget)
+- [🔧 Operational Requirements](#-operational-requirements)
+- [🌍 Regional Preferences](#-regional-preferences)
+- [📋 Summary for Architecture Assessment](#-summary-for-architecture-assessment)
 - [References](#references)
 
 </details>
@@ -25,7 +25,7 @@
 | ----------- | ------------------- | -------------------------------------------------------------- |
 | —           | [README](README.md) | [02-architecture-assessment.md](02-architecture-assessment.md) |
 
-## Project Overview
+## 🎯 Project Overview
 
 | Field                   | Value                                                                                                                       |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -54,7 +54,7 @@ flowchart LR
     B --> C["✅ Success Criteria<br/>Production-ready with WAF compliance"]
 ```
 
-## Functional Requirements
+## 🚀 Functional Requirements
 
 ### Core Capabilities
 
@@ -112,7 +112,7 @@ flowchart LR
 | Tier               | Enterprise                                                                                                                                                                                                                                                          |
 | Justification      | Enterprise container platform requiring WAF-protected ingress, managed database backend, deterministic outbound IPs via NAT Gateway, and full compliance posture. Aligns with Container workload pattern at Enterprise tier from the Service Recommendation Matrix. |
 
-## Non-Functional Requirements (NFRs)
+## ⚡ Non-Functional Requirements (NFRs)
 
 | WAF Pillar     | Metric             | Target                                      | Current | Gap        |
 | -------------- | ------------------ | ------------------------------------------- | ------- | ---------- |
@@ -138,7 +138,7 @@ flowchart LR
 | Pods (total across namespaces) | 20-50   | 50-100             | 100-200             |
 | Node count (user pool)         | 3       | 5                  | 8                   |
 
-## Compliance & Security Requirements
+## 🔒 Compliance & Security Requirements
 
 ### Regulatory Frameworks
 
@@ -235,7 +235,7 @@ flowchart LR
 | Encryption at Rest    | Yes         | Yes            | Platform-managed keys (SSE) for SQL, ACR, storage       |
 | Network Isolation     | Yes         | Yes            | Azure CNI, NSGs on all subnets, Calico network policies |
 
-## Budget
+## 💰 Budget
 
 > [!NOTE]
 > The Azure Pricing MCP server generates detailed cost estimates during
@@ -272,7 +272,7 @@ flowchart LR
 | Public IPs (NAT GW + App GW)           | ~$10-20           | Standard SKU static IPs                                     |
 | **Total Estimated**                    | **~$1,870-3,050** | Before reserved instance discounts                          |
 
-## Operational Requirements
+## 🔧 Operational Requirements
 
 ### Monitoring & Alerting
 
@@ -369,7 +369,7 @@ flowchart LR
 | Auditing                   | Enabled                       | Logs to Log Analytics workspace |
 | Advanced Threat Protection | Enabled                       | SQL vulnerability assessment    |
 
-## Regional Preferences
+## 🌍 Regional Preferences
 
 | Preference         | Value              | Justification                                                       |
 | ------------------ | ------------------ | ------------------------------------------------------------------- |
@@ -379,7 +379,7 @@ flowchart LR
 
 ---
 
-## Summary for Architecture Assessment
+## 📋 Summary for Architecture Assessment
 
 ### Handoff Summary
 
@@ -424,9 +424,8 @@ flowchart LR
 
 ---
 
-_Requirements captured using [plan-requirements.prompt.md](../../.github/prompts/plan-requirements.prompt.md) template_
+<div align="center">
 
----
+_Generated by **Azure Agentic InfraOps** | [GitHub](https://github.com/jonathan-vella/azure-agentic-infraops)_
 
-| ⬅️ — | 🏠 [Project Index](README.md) | ➡️ [02-architecture-assessment.md](02-architecture-assessment.md) |
-| ---- | ----------------------------- | ----------------------------------------------------------------- |
+</div>

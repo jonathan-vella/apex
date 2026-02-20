@@ -131,7 +131,7 @@ const ARTIFACT_HEADINGS = {
     "## 6. Appendix",
   ],
   // Note: 07-ab-cost-estimate.md is excluded - it uses emoji headings
-  // and is validated by validate-cost-estimate-templates.mjs separately
+  // and is validated by validate-artifact-templates.mjs separately
 };
 
 // Common heading mappings for auto-fix

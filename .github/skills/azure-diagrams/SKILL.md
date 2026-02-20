@@ -1,10 +1,6 @@
 ---
 name: azure-diagrams
-description: >
-  Azure architecture diagram generation skill for high-quality, non-Mermaid outputs.
-  Produces deterministic Python `diagrams` + Graphviz artifacts (`.py` + `.png`/`.svg`) for
-  design and as-built documentation. Use for Step 3 and Step 7 architecture visuals,
-  dependency visuals, and topology diagrams with enforced layout and naming conventions.
+description: "Generates professional Azure architecture diagrams and data-visualization charts (WAF pillar scores, cost distribution, cost projection). Produces Python `diagrams` + matplotlib artifacts (`.py` + `.png`) for Step 2 WAF charts, Step 3 design visuals, and Step 7 as-built documentation."
 compatibility: Requires graphviz system package and Python diagrams library; works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
 metadata:
@@ -413,27 +409,35 @@ See `references/preventing-overlaps.md` for detailed guidance.
 
 ## Reference Files
 
-| File                                         | Content                                        |
-| -------------------------------------------- | ---------------------------------------------- |
-| `references/iac-to-diagram.md`               | **Generate diagrams from Bicep/Terraform/ARM** |
-| `references/azure-components.md`             | Complete list of 700+ Azure components         |
-| `references/common-patterns.md`              | Ready-to-use architecture patterns             |
-| `references/business-process-flows.md`       | Workflow and swimlane diagrams                 |
-| `references/entity-relationship-diagrams.md` | Database ERD patterns                          |
-| `references/timeline-gantt-diagrams.md`      | Project timeline diagrams                      |
-| `references/ui-wireframe-diagrams.md`        | UI mockup patterns                             |
-| `references/preventing-overlaps.md`          | Layout troubleshooting guide                   |
-| `references/sequence-auth-flows.md`          | Authentication flow patterns                   |
-| `references/quick-reference.md`              | Copy-paste code snippets                       |
+| File                                         | Content                                            |
+| -------------------------------------------- | -------------------------------------------------- |
+| `references/iac-to-diagram.md`               | **Generate diagrams from Bicep/Terraform/ARM**     |
+| `references/azure-components.md`             | Complete list of 700+ Azure components             |
+| `references/common-patterns.md`              | Ready-to-use architecture patterns                 |
+| `references/business-process-flows.md`       | Workflow and swimlane diagrams                     |
+| `references/entity-relationship-diagrams.md` | Database ERD patterns                              |
+| `references/timeline-gantt-diagrams.md`      | Project timeline diagrams                          |
+| `references/ui-wireframe-diagrams.md`        | UI mockup patterns                                 |
+| `references/preventing-overlaps.md`          | Layout troubleshooting guide                       |
+| `references/sequence-auth-flows.md`          | Authentication flow patterns                       |
+| `references/quick-reference.md`              | Copy-paste code snippets                           |
+| `references/waf-cost-charts.md`              | **WAF pillar bar, cost donut & projection charts** |
 
 ## Workflow Integration
 
 This skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).
 
-| Workflow Step     | File Pattern                              | Description                         |
-| ----------------- | ----------------------------------------- | ----------------------------------- |
-| Step 3 (Design)   | `03-des-diagram.py`, `03-des-diagram.png` | Proposed architecture visualization |
-| Step 7 (As-Built) | `07-ab-diagram.py`, `07-ab-diagram.png`   | Deployed architecture documentation |
+| Workflow Step     | File Pattern                                                  | Description                                |
+| ----------------- | ------------------------------------------------------------- | ------------------------------------------ |
+| Step 2            | `02-waf-scores.py`, `02-waf-scores.png`                       | WAF pillar score bar chart                 |
+| Step 3 (Design)   | `03-des-diagram.py`, `03-des-diagram.png`                     | Proposed architecture visualization        |
+| Step 3 (Design)   | `03-des-cost-distribution.py`, `03-des-cost-distribution.png` | Monthly cost distribution donut chart      |
+| Step 3 (Design)   | `03-des-cost-projection.py`, `03-des-cost-projection.png`     | 6-month cost projection bar + trend chart  |
+| Step 7 (As-Built) | `07-ab-diagram.py`, `07-ab-diagram.png`                       | Deployed architecture documentation        |
+| Step 7 (As-Built) | `07-ab-cost-distribution.py`, `07-ab-cost-distribution.png`   | As-built cost distribution donut chart     |
+| Step 7 (As-Built) | `07-ab-cost-projection.py`, `07-ab-cost-projection.png`       | As-built 6-month cost projection chart     |
+| Step 7 (As-Built) | `07-ab-cost-comparison.py`, `07-ab-cost-comparison.png`       | Design estimate vs as-built grouped bars   |
+| Step 7 (As-Built) | `07-ab-compliance-gaps.py`, `07-ab-compliance-gaps.png`       | Compliance gaps by severity horizontal bar |
 
 ### Artifact Suffix Convention
 
@@ -453,6 +457,48 @@ Apply the appropriate suffix based on when the diagram is generated:
 
 1. Design/proposal/planning language → use `-des`
 2. Deployed/implemented/current state language → use `-ab`
+
+## 📊 Data Visualization Charts
+
+Beyond architecture topology diagrams, this skill also generates **styled matplotlib
+charts** for WAF pillar scores and cost estimates. These supplement (not replace)
+the architecture diagrams.
+
+### When to generate
+
+| Trigger           | Chart(s) to generate                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| After WAF scoring | `02-waf-scores.png` — horizontal bar, one colour per pillar                               |
+| After cost design | `03-des-cost-distribution.png` + `03-des-cost-projection.png`                             |
+| After as-built    | `07-ab-cost-distribution.png` + `07-ab-cost-projection.png` + `07-ab-cost-comparison.png` |
+| After compliance  | `07-ab-compliance-gaps.png` — gap counts grouped by severity                              |
+
+### Design tokens (use consistently)
+
+| Token         | Value     | Usage                      |
+| ------------- | --------- | -------------------------- |
+| Background    | `#F8F9FA` | Figure + axes fill         |
+| Title colour  | `#1A1A2E` | Chart title                |
+| Azure blue    | `#0078D4` | Primary bars               |
+| Minimum line  | `#DC3545` | Red dashed WAF reference   |
+| Target line   | `#28A745` | Green dashed WAF reference |
+| Trend line    | `#FF8C00` | Orange dashed projection   |
+| Grid / border | `#E0E0E0` | Subtle grid                |
+| DPI           | 150       | Crisp PNG output           |
+
+### WAF pillar colours
+
+| Pillar                    | Hex colour |
+| ------------------------- | ---------- |
+| 🔒 Security               | `#C00000`  |
+| 🔄 Reliability            | `#107C10`  |
+| ⚡ Performance Efficiency | `#FF8C00`  |
+| 💰 Cost Optimization      | `#FFB900`  |
+| 🔧 Operational Excellence | `#8764B8`  |
+
+See **`references/waf-cost-charts.md`** for full copy-paste Python implementations.
+
+---
 
 ## Generation Workflow
 
@@ -478,6 +524,9 @@ Follow these steps when creating diagrams:
 - ✅ Include CIDR blocks in VNet/Subnet labels
 - ✅ **ALWAYS execute the Python script to generate the PNG file**
 - ✅ Verify PNG file exists after generation
+- ✅ Use `references/waf-cost-charts.md` patterns for WAF / cost charts
+- ✅ Apply the design tokens table (background, dpi, colours) to every chart
+- ✅ Generate `02-waf-scores.png` whenever WAF pillar scores are assigned
 
 ### DO NOT
 
@@ -488,6 +537,7 @@ Follow these steps when creating diagrams:
 - ❌ Output to legacy `docs/diagrams/` folder (use `agent-output/` instead)
 - ❌ Leave diagram in Python-only state without generating PNG
 - ❌ Use placeholder or generic names instead of actual resource names
+- ❌ Use Mermaid `xychart-beta` for WAF or cost charts (always use matplotlib PNGs)
 
 ## What This Skill Does NOT Do
 
@@ -496,3 +546,5 @@ Follow these steps when creating diagrams:
 - ❌ Deploy resources (use `deploy` agent)
 - ❌ Create ADRs (use `azure-adr` skill)
 - ❌ Perform WAF assessments (use `architect` agent)
+- ❌ Build interactive dashboards or Power BI reports
+- ❌ Render Mermaid diagrams (all chart outputs are Python-generated PNGs)

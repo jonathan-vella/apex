@@ -63,6 +63,9 @@ jobs:
       - name: Validate instruction file frontmatter
         run: npm run lint:instruction-frontmatter
 
+      - name: Validate H2 heading sync
+        run: npm run lint:h2-sync
+
       - name: Validate handoff references
         run: |
           echo "🔗 Validating agent handoff references..."

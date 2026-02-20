@@ -1,22 +1,22 @@
-# Azure Cost Estimate: {project-name}
+# 💰 Azure Cost Estimate: {project-name}
 
-![Step](https://img.shields.io/badge/Step-3-blue)
-![Status](https://img.shields.io/badge/Status-Draft-orange)
-![Agent](https://img.shields.io/badge/Agent-Architect-purple)
+![Step](https://img.shields.io/badge/Step-3-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Draft-orange?style=for-the-badge)
+![Agent](https://img.shields.io/badge/Agent-Architect-purple?style=for-the-badge)
 
-<details>
-<summary><strong>📑 Table of Contents</strong></summary>
+<details open>
+<summary><strong>📑 Cost Estimate Contents</strong></summary>
 
-- [💰 Cost At-a-Glance](#-cost-at-a-glance)
+- [💵 Cost At-a-Glance](#-cost-at-a-glance)
 - [✅ Decision Summary](#-decision-summary)
 - [🔁 Requirements → Cost Mapping](#-requirements--cost-mapping)
 - [📊 Top 5 Cost Drivers](#-top-5-cost-drivers)
-- [Architecture Overview](#architecture-overview)
+- [🏛️ Architecture Overview](#-architecture-overview)
 - [🧾 What We Are Not Paying For (Yet)](#-what-we-are-not-paying-for-yet)
 - [⚠️ Cost Risk Indicators](#-cost-risk-indicators)
 - [🎯 Quick Decision Matrix](#-quick-decision-matrix)
 - [💰 Savings Opportunities](#-savings-opportunities)
-- [Detailed Cost Breakdown](#detailed-cost-breakdown)
+- [🧾 Detailed Cost Breakdown](#-detailed-cost-breakdown)
 - [References](#references)
 
 </details>
@@ -33,7 +33,7 @@
 **MCP Tools Used**: {azure_price_search, azure_cost_estimate, azure_bulk_estimate, azure_region_recommend, azure_sku_discovery}
 **Architecture Reference**: {relative link to assessment doc, if available}
 
-## 💰 Cost At-a-Glance
+## 💵 Cost At-a-Glance
 
 > **Monthly Total: ~$X,XXX** | Annual: ~$XX,XXX
 >
@@ -99,7 +99,7 @@
 
 </details>
 
-## Architecture Overview
+## 🏛️ Architecture Overview
 
 ### Cost Distribution
 
@@ -113,16 +113,11 @@
 
 ### Month-over-Month Projection
 
-```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#0078D4"}}}%%
-xychart-beta
-    title "6-Month Cost Projection ($)"
-    x-axis ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6"]
-    y-axis "Monthly Cost ($)" 0 --> 5000
-    bar [0, 0, 0, 0, 0, 0]
-```
+![6-Month Cost Projection](./03-des-cost-projection.png)
 
-> Replace bar values with actual projected costs.
+> Generate `03-des-cost-projection.png` using the pattern in `azure-diagrams` skill →
+> `references/waf-cost-charts.md` → **Chart 3 – Monthly Cost Projection**.
+> Replace placeholder costs and months with actual projected values before running.
 
 ### Key Design Decisions Affecting Cost
 
@@ -173,7 +168,7 @@ _"If you need X, expect to pay Y more"_
 > | Right-sizing            | N/A        | ${...}          | ${...}         | {X%}        |
 > | Dev/Test Pricing        | N/A        | ${...}          | ${...}         | {X%}        |
 
-## Detailed Cost Breakdown
+## 🧾 Detailed Cost Breakdown
 
 ### Assumptions
 
@@ -206,5 +201,9 @@ _"If you need X, expect to pay Y more"_
 
 ---
 
+<div align="center">
+
 | ⬅️ [02-architecture-assessment.md](02-architecture-assessment.md) | 🏠 [Project Index](README.md) | ➡️ [04-governance-constraints.md](04-governance-constraints.md) |
 | ----------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
+
+</div>

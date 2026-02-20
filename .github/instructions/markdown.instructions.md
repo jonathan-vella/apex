@@ -81,7 +81,7 @@ Python diagrams (`.png`/`.svg`) and embed with Markdown images.
 ```markdown
 ![Design Architecture](./03-des-diagram.png)
 
-Source: [03-des-diagram.py](./03-des-diagram.py)
+Source: `03-des-diagram.py`
 ```
 
 ### Mermaid Usage
@@ -103,7 +103,7 @@ When generating workflow artifacts, agents **MUST** follow the canonical templat
 | `04-implementation-plan.md`     | `04-implementation-plan.template.md`     | bicep-plan      |
 | `06-deployment-summary.md`      | `06-deployment-summary.template.md`      | deploy          |
 
-All 15 artifact types have corresponding templates. See `artifact-h2-reference.instructions.md`
+All 15 artifact types have corresponding templates. See `azure-artifacts.instructions.md`
 for the complete heading reference.
 
 **Requirements:**

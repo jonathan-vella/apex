@@ -99,7 +99,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `agent-research-first.instructions.md`             | `**/*.agent.md`                                   |
 | `agent-skills.instructions.md`                     | `**/.github/skills/**/SKILL.md`                   |
 | `agents-definitions.instructions.md`               | `**/*.agent.md`                                   |
-| `artifact-h2-reference.instructions.md`            | `**/agent-output/**/*.md`                         |
+| `azure-artifacts.instructions.md`                  | `**/agent-output/**/*.md`                         |
 | `bicep-code-best-practices.instructions.md`        | `**/*.bicep`                                      |
 | `code-review.instructions.md`                      | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
 | `copilot-thought-logging.instructions.md`          | `**`                                              |

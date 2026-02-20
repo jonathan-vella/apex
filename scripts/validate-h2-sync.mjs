@@ -4,7 +4,7 @@
  *
  * Ensures the three sources of truth for artifact H2 headings stay in sync:
  *   1. SKILL.md fenced code blocks (what agents read)
- *   2. artifact-h2-reference.instructions.md fenced code blocks (auto-applied instructions)
+ *   2. azure-artifacts.instructions.md fenced code blocks (auto-applied instructions)
  *   3. ARTIFACT_HEADINGS in validate-artifact-templates.mjs (what the validator enforces)
  *
  * @example
@@ -14,8 +14,7 @@
 import fs from "node:fs";
 
 const SKILL_PATH = ".github/skills/azure-artifacts/SKILL.md";
-const H2_REF_PATH =
-  ".github/instructions/artifact-h2-reference.instructions.md";
+const H2_REF_PATH = ".github/instructions/azure-artifacts.instructions.md";
 const VALIDATOR_PATH = "scripts/validate-artifact-templates.mjs";
 
 // Artifact types that have H2 definitions in all three sources
@@ -55,9 +54,9 @@ function readText(filePath) {
 function parseMarkdownH2Blocks(text) {
   const result = new Map();
   // Match ### headings (with optional suffix like "(Agent Name)")
-  // followed by a fenced code block (``` or ```markdown)
+  // followed by a fenced code block (```, ```markdown, or ```text)
   const sectionRegex =
-    /###\s+([\w.-]+\.md)(?:\s+[^\n]*)?\n+```(?:markdown)?\n([\s\S]*?)```/g;
+    /###\s+([\w.-]+\.md)(?:\s+[^\n]*)?\n+```(?:markdown|text)?\n([\s\S]*?)```/g;
   let match;
 
   while ((match = sectionRegex.exec(text)) !== null) {
@@ -193,9 +192,7 @@ function main() {
       continue;
     }
     if (!h2Ref) {
-      console.log(
-        `::error::${artifactName}: missing from artifact-h2-reference`,
-      );
+      console.log(`::error::${artifactName}: missing from azure-artifacts`);
       errors++;
       continue;
     }

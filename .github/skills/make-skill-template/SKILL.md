@@ -63,21 +63,26 @@ description: "<What it does>. Use when <specific triggers, scenarios, keywords u
 2. **WHEN** to use it (triggers, scenarios, file types)
 3. **Keywords** users might mention in prompts
 
-**Good example:**
+**Good example** — single-line inline string (required):
 
 ```yaml
-description: >
-  Toolkit for testing local web applications using Playwright.
-  Use when asked to verify frontend functionality, debug UI behavior,
-  capture browser screenshots, or view browser console logs.
-  Supports Chrome, Firefox, and WebKit.
+description: "Toolkit for testing local web applications using Playwright. Use when asked to verify frontend functionality, debug UI behavior, capture browser screenshots, or view browser console logs. Supports Chrome, Firefox, and WebKit."
 ```
 
-**Poor example:**
+**Poor examples** — NEVER use these:
 
 ```yaml
+# ❌ YAML block scalar — breaks Copilot skill discovery
+description: >
+  Toolkit for testing local web applications...
+
+# ❌ Too short — not enough context for skill routing
 description: "Web testing helpers"
 ```
+
+> **Rule**: `description` MUST be a single-line inline string. YAML block scalars
+> (`>` or `|`) cause the runtime to receive a literal `">"` instead of your text,
+> silently disabling skill auto-discovery.
 
 ### Step 3: Write the Skill Body
 

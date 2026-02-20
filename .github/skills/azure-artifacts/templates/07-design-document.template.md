@@ -1,22 +1,22 @@
-# Azure Design Document: {project-name}
+# 📐 Azure Design Document: {project-name}
 
-![Step](https://img.shields.io/badge/Step-7b-blue)
-![Status](https://img.shields.io/badge/Status-Draft-orange)
-![Agent](https://img.shields.io/badge/Agent-Docs-purple)
+![Step](https://img.shields.io/badge/Step-7b-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Draft-orange?style=for-the-badge)
+![Agent](https://img.shields.io/badge/Agent-Docs-purple?style=for-the-badge)
 
-<details>
-<summary><strong>📑 Table of Contents</strong></summary>
+<details open>
+<summary><strong>📑 Design Contents</strong></summary>
 
-- [1. Introduction](#1-introduction)
-- [2. Azure Architecture Overview](#2-azure-architecture-overview)
-- [3. Networking](#3-networking)
-- [4. Storage](#4-storage)
-- [5. Compute](#5-compute)
-- [6. Identity & Access](#6-identity--access)
-- [7. Security & Compliance](#7-security--compliance)
-- [8. Backup & Disaster Recovery](#8-backup--disaster-recovery)
-- [9. Management & Monitoring](#9-management--monitoring)
-- [10. Appendix](#10-appendix)
+- [📝 1. Introduction](#-1-introduction)
+- [🏛️ 2. Azure Architecture Overview](#-2-azure-architecture-overview)
+- [🌐 3. Networking](#-3-networking)
+- [💾 4. Storage](#-4-storage)
+- [💻 5. Compute](#-5-compute)
+- [👤 6. Identity & Access](#-6-identity--access)
+- [🔐 7. Security & Compliance](#-7-security--compliance)
+- [🔄 8. Backup & Disaster Recovery](#-8-backup--disaster-recovery)
+- [📊 9. Management & Monitoring](#-9-management--monitoring)
+- [📎 10. Appendix](#-10-appendix)
 - [References](#references)
 
 </details>
@@ -34,7 +34,7 @@
 
 ---
 
-## 1. Introduction
+## 📝 1. Introduction
 
 ### 1.1 Document Purpose
 
@@ -88,7 +88,7 @@ development efforts.
 
 ---
 
-## 2. Azure Architecture Overview
+## 🏛️ 2. Azure Architecture Overview
 
 ### 2.1 Architecture Diagram
 
@@ -109,7 +109,7 @@ Source: [03-des-diagram.py](./03-des-diagram.py)
 
 ---
 
-## 3. Networking
+## 🌐 3. Networking
 
 ![Network Topology - {project-name}](./03-des-network-diagram.png)
 
@@ -121,25 +121,25 @@ Source: [03-des-network-diagram.py](./03-des-network-diagram.py)
 
 ---
 
-## 4. Storage
+## 💾 4. Storage
 
 {storage-details}
 
 ---
 
-## 5. Compute
+## 💻 5. Compute
 
 {compute-details}
 
 ---
 
-## 6. Identity & Access
+## 👤 6. Identity & Access
 
 {identity-details}
 
 ---
 
-## 7. Security & Compliance
+## 🔐 7. Security & Compliance
 
 <details>
 <summary><strong>🔒 Security Controls</strong></summary>
@@ -166,19 +166,19 @@ Source: [03-des-network-diagram.py](./03-des-network-diagram.py)
 
 ---
 
-## 8. Backup & Disaster Recovery
+## 🔄 8. Backup & Disaster Recovery
 
 {backup-dr-details}
 
 ---
 
-## 9. Management & Monitoring
+## 📊 9. Management & Monitoring
 
 {monitoring-details}
 
 ---
 
-## 10. Appendix
+## 📎 10. Appendix
 
 <details>
 <summary>📋 Detailed Resource Configuration</summary>
@@ -218,5 +218,9 @@ _Design document generated from infrastructure artifacts._
 
 ---
 
+<div align="center">
+
 | ⬅️ [07-documentation-index.md](07-documentation-index.md) | 🏠 [Project Index](README.md) | ➡️ [07-operations-runbook.md](07-operations-runbook.md) |
 | --------------------------------------------------------- | ----------------------------- | ------------------------------------------------------- |
+
+</div>

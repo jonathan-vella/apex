@@ -36,9 +36,9 @@ pre-commit:
         fi
 
     h2-sync:
-      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/artifact-h2-reference*,scripts/validate-artifact-templates*}"
+      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,scripts/validate-artifact-templates*}"
       run: |
-        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|artifact-h2-reference|validate-artifact-templates)' || true)
+        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifact-templates)' || true)
         if [ -n "$STAGED_SYNC" ]; then
           echo "🔄 Checking H2 heading sync across sources..."
           npm run lint:h2-sync
@@ -48,7 +48,7 @@ pre-commit:
       fail_text: |
         ❌ H2 heading sync failed!
 
-        Sources must match: SKILL.md ↔ artifact-h2-reference ↔ validator
+        Sources must match: SKILL.md ↔ azure-artifacts ↔ validator
         🔧 Run: npm run lint:h2-sync
 
     artifact-validation:
@@ -65,7 +65,7 @@ pre-commit:
             echo "❌ Artifact template validation failed!"
             echo ""
             echo "🔧 To fix:"
-            echo "   1. Check .github/instructions/artifact-h2-reference.instructions.md"
+            echo "   1. Check .github/instructions/azure-artifacts.instructions.md"
             echo "   2. Use EXACT H2 headings from that file"
             echo "   3. Run: npm run fix:artifact-h2 <file> --apply"
             echo "   4. Re-stage and commit"
@@ -78,7 +78,7 @@ pre-commit:
       fail_text: |
         ❌ Artifact H2 structure validation failed!
 
-        📚 Reference: .github/instructions/artifact-h2-reference.instructions.md
+        📚 Reference: .github/instructions/azure-artifacts.instructions.md
         🔧 Auto-fix: npm run fix:artifact-h2 <file> --apply
 
     agent-frontmatter:

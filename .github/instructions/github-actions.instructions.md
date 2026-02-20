@@ -36,13 +36,13 @@ For general GitHub Actions best practices, rely on
 - Pin to **major version tags** (e.g., `@v4`), not `@main` or `@latest`
 - Use current versions:
 
-| Action | Version |
-|--------|---------|
-| `actions/checkout` | `@v4` |
-| `actions/setup-node` | `@v4` |
-| `actions/upload-artifact` | `@v4` |
-| `actions/download-artifact` | `@v4` |
-| `actions/cache` | `@v4` |
+| Action                      | Version |
+| --------------------------- | ------- |
+| `actions/checkout`          | `@v4`   |
+| `actions/setup-node`        | `@v4`   |
+| `actions/upload-artifact`   | `@v4`   |
+| `actions/download-artifact` | `@v4`   |
+| `actions/cache`             | `@v4`   |
 
 ### Naming and Structure
 
@@ -64,29 +64,28 @@ concurrency:
 
 ## Existing Workflows
 
-| Workflow | Purpose | Trigger |
-|----------|---------|---------|
-| `lint.yml` | Markdown lint + code quality | PR + push to main |
-| `agent-validation.yml` | Agent/skill/VS Code config validation | Changes to agents/skills |
-| `docs-freshness.yml` | Doc count/reference drift detection | Push to main + weekly |
-| `link-check.yml` | Broken link detection | Changes to docs/agents |
-| `create-release.yml` | Automated release creation | Manual dispatch |
-| `avm-version-check.yml` | Azure Verified Module version checks | Scheduled |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring | Scheduled |
+| Workflow                        | Purpose                               | Trigger                  |
+| ------------------------------- | ------------------------------------- | ------------------------ |
+| `lint.yml`                      | Markdown lint + code quality          | PR + push to main        |
+| `agent-validation.yml`          | Agent/skill/VS Code config validation | Changes to agents/skills |
+| `docs-freshness.yml`            | Doc count/reference drift detection   | Push to main + weekly    |
+| `link-check.yml`                | Broken link detection                 | Changes to docs/agents   |
+| `create-release.yml`            | Automated release creation            | Manual dispatch          |
+| `avm-version-check.yml`         | Azure Verified Module version checks  | Scheduled                |
+| `azure-deprecation-tracker.yml` | Azure deprecation monitoring          | Scheduled                |
 
 ## Validation Scripts
 
 Workflows run these project validators:
 
-| Script | Purpose |
-|--------|---------|
-| `validate-artifact-templates.mjs` | Artifact H2 heading compliance |
-| `validate-cost-estimate-templates.mjs` | Cost estimate heading compliance |
-| `validate-agent-frontmatter.mjs` | Agent YAML frontmatter validation |
-| `validate-skills-format.mjs` | Skill format validation |
-| `validate-no-deprecated-refs.mjs` | Deprecated reference detection |
-| `validate-vscode-config.mjs` | VS Code configuration validation |
-| `check-docs-freshness.mjs` | Documentation freshness checks |
+| Script                            | Purpose                           |
+| --------------------------------- | --------------------------------- |
+| `validate-artifact-templates.mjs` | Artifact H2 heading compliance    |
+| `validate-agent-frontmatter.mjs`  | Agent YAML frontmatter validation |
+| `validate-skills-format.mjs`      | Skill format validation           |
+| `validate-no-deprecated-refs.mjs` | Deprecated reference detection    |
+| `validate-vscode-config.mjs`      | VS Code configuration validation  |
+| `check-docs-freshness.mjs`        | Documentation freshness checks    |
 
 ## Security
 
@@ -97,11 +96,11 @@ Workflows run these project validators:
 
 ## Patterns to Avoid
 
-| Anti-Pattern | Solution |
-|-------------|----------|
-| Pinning to `@main` or `@latest` | Use `@v4` major version tags |
-| `npm install` in CI | Use `npm ci` for deterministic installs |
-| Missing `permissions` block | Always declare least-privilege permissions |
-| Broad triggers (no path filter) | Scope with `paths:` to relevant files |
-| Duplicate validation logic | Reuse existing validator scripts |
-| `actions/upload-artifact@v3` | Use `@v4` (v3 is deprecated) |
+| Anti-Pattern                    | Solution                                   |
+| ------------------------------- | ------------------------------------------ |
+| Pinning to `@main` or `@latest` | Use `@v4` major version tags               |
+| `npm install` in CI             | Use `npm ci` for deterministic installs    |
+| Missing `permissions` block     | Always declare least-privilege permissions |
+| Broad triggers (no path filter) | Scope with `paths:` to relevant files      |
+| Duplicate validation logic      | Reuse existing validator scripts           |
+| `actions/upload-artifact@v3`    | Use `@v4` (v3 is deprecated)               |

@@ -20,6 +20,18 @@ const SKILLS_DIR = ".github/skills";
 // Required frontmatter fields for GA skills
 const REQUIRED_FIELDS = ["description"];
 
+// Patterns that are hard errors (break runtime behaviour if present)
+const FORBIDDEN_PATTERNS = [
+  {
+    pattern: /^description:\s*[>|]\s*$/m,
+    message:
+      "description uses a YAML block scalar (> or |). " +
+      "Use a single-line inline string instead — block scalars cause the " +
+      "Copilot runtime to receive a literal '>' as the description, which " +
+      "silently disables skill auto-discovery.",
+  },
+];
+
 // Deprecated patterns that should not appear
 const DEPRECATED_PATTERNS = [
   {
@@ -93,6 +105,11 @@ function validateSkill(skillDir) {
   const content = fs.readFileSync(skillFile, "utf8");
   const frontmatter = parseFrontmatter(content);
 
+  // Extract raw frontmatter block for pattern checks (avoids false positives
+  // from example code fences in the skill body)
+  const rawFrontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  const rawFrontmatter = rawFrontmatterMatch ? rawFrontmatterMatch[1] : "";
+
   // Check frontmatter exists
   if (!frontmatter) {
     console.error(`❌ ${skillName}: No frontmatter found in SKILL.md`);
@@ -106,6 +123,15 @@ function validateSkill(skillDir) {
       console.error(
         `❌ ${skillName}: Missing required frontmatter field '${field}'`,
       );
+      errors++;
+    }
+  }
+
+  // Check for forbidden patterns (hard errors) — checked against raw frontmatter
+  // only, so code-fence examples in the skill body don't trigger false positives
+  for (const { pattern, message } of FORBIDDEN_PATTERNS) {
+    if (pattern.test(rawFrontmatter)) {
+      console.error(`❌ ${skillName}: ${message}`);
       errors++;
     }
   }
@@ -134,14 +160,6 @@ function validateSkill(skillDir) {
     if (frontmatter.description.length < 10) {
       console.warn(
         `⚠️  ${skillName}: Description is too short (${frontmatter.description.length} chars)`,
-      );
-      warnings++;
-    } else if (
-      frontmatter.description === ">" ||
-      frontmatter.description === "|"
-    ) {
-      console.warn(
-        `⚠️  ${skillName}: Description appears to be empty multiline`,
       );
       warnings++;
     }

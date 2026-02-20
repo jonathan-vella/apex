@@ -220,7 +220,19 @@ Delegate pricing to `cost-estimate-subagent`:
 4. **Integrate verbatim** — copy subagent prices into `07-ab-cost-estimate.md`. Do NOT round, adjust, or "correct" figures
 5. **Cross-check with 03-des-cost-estimate.md** — note any delta between planned and as-built costs
 
-### Phase 3: As-Built Diagram
+### Phase 3: As-Built Charts
+
+Read `.github/skills/azure-diagrams/references/waf-cost-charts.md` and generate
+three cost charts using as-built figures:
+
+- `agent-output/{project}/07-ab-cost-distribution.py` + `07-ab-cost-distribution.png`
+- `agent-output/{project}/07-ab-cost-projection.py` + `07-ab-cost-projection.png`
+- `agent-output/{project}/07-ab-cost-comparison.py` + `07-ab-cost-comparison.png` (design vs as-built)
+- `agent-output/{project}/07-ab-compliance-gaps.py` + `07-ab-compliance-gaps.png` (gap counts by severity)
+
+Execute each `.py` file and verify the PNGs exist before continuing.
+
+### Phase 4: As-Built Diagram
 
 Use the azure-diagrams skill to generate:
 
@@ -250,17 +262,21 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                      | Location                                           |
-| ------------------------- | -------------------------------------------------- |
-| Resource Inventory        | `agent-output/{project}/07-resource-inventory.md`  |
-| Design Document           | `agent-output/{project}/07-design-document.md`     |
-| Cost Estimate (As-Built)  | `agent-output/{project}/07-ab-cost-estimate.md`    |
-| Compliance Matrix         | `agent-output/{project}/07-compliance-matrix.md`   |
-| Backup & DR Plan          | `agent-output/{project}/07-backup-dr-plan.md`      |
-| Operations Runbook        | `agent-output/{project}/07-operations-runbook.md`  |
-| Documentation Index       | `agent-output/{project}/07-documentation-index.md` |
-| As-Built Diagram (Python) | `agent-output/{project}/07-ab-diagram.py`          |
-| As-Built Diagram (Image)  | `agent-output/{project}/07-ab-diagram.png`         |
+| File                      | Location                                             |
+| ------------------------- | ---------------------------------------------------- |
+| Resource Inventory        | `agent-output/{project}/07-resource-inventory.md`    |
+| Design Document           | `agent-output/{project}/07-design-document.md`       |
+| Cost Estimate (As-Built)  | `agent-output/{project}/07-ab-cost-estimate.md`      |
+| Compliance Matrix         | `agent-output/{project}/07-compliance-matrix.md`     |
+| Backup & DR Plan          | `agent-output/{project}/07-backup-dr-plan.md`        |
+| Operations Runbook        | `agent-output/{project}/07-operations-runbook.md`    |
+| Documentation Index       | `agent-output/{project}/07-documentation-index.md`   |
+| As-Built Diagram (Python) | `agent-output/{project}/07-ab-diagram.py`            |
+| As-Built Diagram (Image)  | `agent-output/{project}/07-ab-diagram.png`           |
+| Cost Distribution Chart   | `agent-output/{project}/07-ab-cost-distribution.png` |
+| Cost Projection Chart     | `agent-output/{project}/07-ab-cost-projection.png`   |
+| Design vs As-Built Chart  | `agent-output/{project}/07-ab-cost-comparison.png`   |
+| Compliance Gaps Chart     | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
 ## Validation Checklist
 

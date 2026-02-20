@@ -170,6 +170,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Score ALL 5 WAF pillars (1-10) with confidence level (High/Medium/Low)
 - ✅ Use Azure Pricing MCP tools with EXACT service names from azure-defaults skill
 - ✅ Generate `03-des-cost-estimate.md` for EVERY assessment
+- ✅ **Generate WAF + cost charts** — run `.py` scripts per `azure-diagrams` skill → `references/waf-cost-charts.md`
 - ✅ Include Service Maturity Assessment table in every WAF assessment
 - ✅ Ask clarifying questions when critical requirements are missing
 - ✅ Wait for user approval before handoff to bicep-plan
@@ -214,10 +215,16 @@ Verify these are documented (ask user if missing):
 5. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
 6. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
 7. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
-8. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
-9. **Pricing sanity check** — Verify no dollar figures in your artifacts were
-   written from memory (grep for `$` and confirm each matches subagent output)
-10. **Approval gate** — Present summary, wait for user approval before handoff
+8. **Generate charts** — Read `.github/skills/azure-diagrams/references/waf-cost-charts.md`
+   and produce three matplotlib PNGs in `agent-output/{project}/`:
+   - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF pillar, WAF brand colours
+   - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut chart of cost categories
+   - `03-des-cost-projection.py` + `03-des-cost-projection.png` — 6-month bar + trend chart
+     Execute each `.py` file and verify the PNGs exist before continuing.
+9. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
+10. **Pricing sanity check** — Verify no dollar figures in your artifacts were
+    written from memory (grep for `$` and confirm each matches subagent output)
+11. **Approval gate** — Present summary, wait for user approval before handoff
 
 ## Cost Estimation (MANDATORY)
 
