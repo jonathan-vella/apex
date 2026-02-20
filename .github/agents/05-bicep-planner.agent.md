@@ -153,6 +153,8 @@ handoffs:
    - `.github/skills/azure-artifacts/templates/04-implementation-plan.template.md`
    - `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
+4. **Read** `.github/skills/azure-bicep-patterns/SKILL.md` — reusable patterns for hub-spoke,
+   private endpoints, diagnostic settings, module composition
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

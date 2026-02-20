@@ -14,6 +14,10 @@ the language-specific instructions already in place:
   parameter validation, `$ErrorActionPreference = 'Stop'`)
 - **Shell**: `shell.instructions.md` (`set -euo pipefail`, `trap`,
   `jq`/`yq` for structured data)
+- **JavaScript**: `javascript.instructions.md` (ES modules, `node:`
+  protocol imports, validation script patterns)
+- **Python**: `python.instructions.md` (Ruff linting, `uv` packages,
+  diagrams library, async MCP patterns)
 - **Markdown**: `markdown.instructions.md` (120-char lines, ATX headings)
 
 When reviewing code, apply these general guidelines **in addition to**

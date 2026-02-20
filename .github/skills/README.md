@@ -7,10 +7,12 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ### Category 1: Azure Conventions
 
-| Skill            | Description                                         | Triggers                                   |
-| ---------------- | --------------------------------------------------- | ------------------------------------------ |
-| `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing, tags  | "azure defaults", "naming", "AVM"          |
-| `azure-artifacts` | Template H2 structures, styling, generation rules  | "generate documentation", "create runbook" |
+| Skill                    | Description                                         | Triggers                                       |
+| ------------------------ | --------------------------------------------------- | ---------------------------------------------- |
+| `azure-defaults`         | Azure conventions, naming, AVM, WAF, pricing, tags  | "azure defaults", "naming", "AVM"              |
+| `azure-artifacts`        | Template H2 structures, styling, generation rules   | "generate documentation", "create runbook"     |
+| `azure-bicep-patterns`   | Reusable Bicep patterns (hub-spoke, PE, diagnostics) | "bicep pattern", "private endpoint", "hub-spoke" |
+| `azure-troubleshooting`  | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"      |
 
 ### Category 2: Document Creation
 
@@ -27,6 +29,17 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | `git-commit`          | Create conventional commit messages                 | "commit", "git commit"                          |
 | `docs-writer`         | Repo-aware documentation maintenance                | "update docs", "check staleness"                |
 | `make-skill-template` | Create new skills from template                     | "create skill", "new skill"                     |
+
+### Category 4: Microsoft Documentation
+
+> These skills require the Microsoft Learn MCP Server (`https://learn.microsoft.com/api/mcp`)
+> configured in `.vscode/mcp.json`.
+
+| Skill                        | Description                                                        | Triggers                                          |
+| ---------------------------- | ------------------------------------------------------------------ | ------------------------------------------------- |
+| `microsoft-docs`             | Query official Microsoft/Azure docs for concepts, tutorials, limits | "look up docs", "find documentation", "learn.microsoft.com" |
+| `microsoft-code-reference`   | Verify SDK methods, find working code samples, troubleshoot errors | "verify API", "find code sample", "SDK reference" |
+| `microsoft-skill-creator`    | Create new hybrid skills for any Microsoft technology              | "create microsoft skill", "new skill for Azure"  |
 
 ## Usage
 

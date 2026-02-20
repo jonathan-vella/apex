@@ -159,6 +159,8 @@ handoffs:
    - `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md`
    - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
+4. **Read** `.github/skills/microsoft-docs/SKILL.md` — query official Microsoft docs for service limits,
+   SLAs, SKU comparisons, and WAF best practices
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

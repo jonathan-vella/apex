@@ -153,6 +153,10 @@ for troubleshooting existing deployments.
 **Before doing ANY work**, read:
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
+2. **Read** `.github/skills/microsoft-docs/SKILL.md` — look up official troubleshooting guides,
+   metric thresholds, KQL syntax, and diagnostic setting schemas
+3. **Read** `.github/skills/azure-troubleshooting/SKILL.md` — KQL templates, per-resource health checks,
+   severity classification, remediation playbooks
 
 ## Core Principles
 

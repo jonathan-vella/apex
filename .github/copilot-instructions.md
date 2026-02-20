@@ -26,13 +26,19 @@ All outputs → `agent-output/{project}/`. Context flows via artifact files + ha
 
 | Skill               | Purpose                                                   |
 | ------------------- | --------------------------------------------------------- |
-| `azure-defaults`    | Regions, tags, naming, AVM, security, governance, pricing |
-| `azure-artifacts`   | Template H2 structures, styling, generation rules         |
-| `azure-diagrams`    | Python architecture diagram generation                    |
-| `azure-adr`         | Architecture Decision Records                             |
-| `github-operations` | GitHub issues, PRs, CLI, Actions, releases                |
-| `git-commit`        | Commit message conventions                                |
-| `docs-writer`       | Documentation generation                                  |
+| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing       |
+| `azure-artifacts`          | Template H2 structures, styling, generation rules               |
+| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)            |
+| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks             |
+| `azure-diagrams`           | Python architecture diagram generation                          |
+| `azure-adr`                | Architecture Decision Records                                   |
+| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                      |
+| `git-commit`               | Commit message conventions                                      |
+| `docs-writer`              | Documentation generation                                        |
+| `make-skill-template`      | Scaffold new Agent Skills from templates                        |
+| `microsoft-docs`           | Query official Microsoft/Azure docs (requires Learn MCP)        |
+| `microsoft-code-reference` | Verify SDK methods and find working code samples (requires Learn MCP) |
+| `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies (requires Learn MCP) |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
 

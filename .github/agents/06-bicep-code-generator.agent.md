@@ -153,6 +153,10 @@ handoffs:
    - `.github/skills/azure-artifacts/templates/04-preflight-check.template.md`
    - `.github/skills/azure-artifacts/templates/05-implementation-reference.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
+4. **Read** `.github/skills/microsoft-code-reference/SKILL.md` — verify AVM module parameters,
+   check API versions, find correct Bicep patterns via official docs
+5. **Read** `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, private endpoints,
+   diagnostic settings, managed identity, module composition patterns
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 
