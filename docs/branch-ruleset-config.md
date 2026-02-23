@@ -1,6 +1,6 @@
 # Branch Ruleset Configuration
 
-> Configuration guide for GitHub branch protection on `main`.
+> [Current Version](../VERSION.md) | Configuration guide for GitHub branch protection on `main`
 
 ## Overview
 
