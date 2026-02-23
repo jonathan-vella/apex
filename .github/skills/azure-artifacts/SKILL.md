@@ -18,6 +18,10 @@ Replaces individual template file lookups with embedded H2 definitions.
 
 ## Artifact Generation Rules
 
+> [!NOTE]
+> This skill is the SINGLE SOURCE OF TRUTH for artifact H2 headings and templates.
+> The similar section in `azure-defaults/SKILL.md` defers to this skill for template compliance.
+
 ### Mandatory Compliance
 
 | Rule                  | Requirement                                                    |

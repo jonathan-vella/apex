@@ -7,17 +7,9 @@ applyTo: "**/agent-output/**/07-*.md"
 
 ## Visual Styling
 
-**MANDATORY**: All documentation MUST follow the styling standards in:
-
-📚 **[Azure Artifacts Skill](../skills/azure-artifacts/SKILL.md)**
-
-Key requirements:
-
-- Use GitHub callouts (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, etc.)
-- Include status emoji for progress indicators (✅ ⚠️ ❌)
-- Use category icons for resource sections (💻 💾 🌐 🔐 📊)
-- Add collapsible `<details>` sections for lengthy content
-- Include `## References` section with Microsoft Learn links at document bottom
+All Step 7 documentation MUST follow the styling standards in
+📚 **[Azure Artifacts Skill](../skills/azure-artifacts/SKILL.md)** —
+callouts, status emoji, category icons, collapsible sections, and References.
 
 ---
 

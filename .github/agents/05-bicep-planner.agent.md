@@ -222,13 +222,13 @@ Delegate governance discovery to `governance-discovery-subagent`:
 
 **Policy Effect Decision Tree:**
 
-| Effect              | Action                                     |
-| ------------------- | ------------------------------------------ |
-| `Deny`              | Hard blocker — adapt plan to comply        |
-| `Audit`             | Warning — document, proceed                |
-| `DeployIfNotExists` | Azure auto-remediates — note in plan       |
-| `Modify`            | Azure auto-modifies — verify compatibility |
-| `Disabled`          | Ignore                                     |
+| Effect              | Action                                     | Code Generator Action                                   |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------- |
+| `Deny`              | Hard blocker — adapt plan to comply        | MUST set property to compliant value                    |
+| `Audit`             | Warning — document, proceed                | Set compliant value where feasible (best effort)        |
+| `DeployIfNotExists` | Azure auto-remediates — note in plan       | Document auto-deployed resource in implementation ref   |
+| `Modify`            | Azure auto-modifies — verify compatibility | Document expected modification — do NOT set conflicting |
+| `Disabled`          | Ignore                                     | No action required                                      |
 
 Save findings to `agent-output/{project}/04-governance-constraints.md` matching H2 template.
 After saving, run `npm run lint:artifact-templates` and fix any errors for your artifacts.
@@ -293,7 +293,7 @@ Generate structured plan with these elements per resource:
     enableRbacAuthorization: true
     enablePurgeProtection: true
     softDeleteRetentionInDays: 90
-  tags: [Environment, ManagedBy, Project, Owner]
+  tags: [Environment, ManagedBy, Project, Owner] # baseline — governance may add more
   naming: "kv-{short}-{env}-{suffix}"
 ```
 
@@ -312,6 +312,16 @@ Include:
 - Security configuration matrix
 - Estimated implementation time
 
+### Phase 4.5: Challenger Review (Advisory)
+
+After generating the implementation plan, invoke `10-Challenger` via `#runSubagent`:
+
+1. Provide: `artifact_path` = `agent-output/{project}/04-implementation-plan.md`,
+   `project_name` = `{project}`, `artifact_type` = `implementation-plan`
+2. Review the returned findings JSON
+3. Include a summary of `must_fix` and `should_fix` items in the approval gate below
+4. The user decides whether to revise or proceed — this is advisory, not blocking
+
 ### Phase 5: Approval Gate
 
 Present plan summary and wait for approval:
@@ -323,7 +333,18 @@ Resources: {count} | AVM Modules: {count} | Custom: {count}
 Governance: {blocker_count} blockers, {warning_count} warnings
 Deployment: {Phased (N phases) | Single}
 Est. Implementation: {time}
+```
 
+If Challenger found issues, append:
+
+```text
+⚠️ Challenger Review: {risk_level} risk
+  must_fix: {count} | should_fix: {count} | suggestions: {count}
+  Key concerns: {top 2-3 must_fix titles}
+  Full findings: agent-output/{project}/challenge-findings.json
+```
+
+```text
 Reply "approve" to proceed to bicep-code, or provide feedback.
 ```
 
@@ -334,10 +355,16 @@ Reply "approve" to proceed to bicep-code, or provide feedback.
 | Implementation Plan         | `agent-output/{project}/04-implementation-plan.md`      | From azure-artifacts skill   |
 | Governance Constraints      | `agent-output/{project}/04-governance-constraints.md`   | From azure-artifacts skill   |
 | Governance Constraints JSON | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data |
-| Dependency Diagram Source   | `agent-output/{project}/04-dependency-diagram.py`       | Python diagrams              |
-| Dependency Diagram Image    | `agent-output/{project}/04-dependency-diagram.png`      | Generated from source        |
-| Runtime Diagram Source      | `agent-output/{project}/04-runtime-diagram.py`          | Python diagrams              |
-| Runtime Diagram Image       | `agent-output/{project}/04-runtime-diagram.png`         | Generated from source        |
+
+> [!IMPORTANT]
+> `04-governance-constraints.json` is consumed downstream by the Code Generator (Phase 1.5)
+> and the `bicep-review-subagent` (Governance Compliance checklist). Its completeness directly
+> impacts downstream code quality. Each `Deny` policy MUST include `bicepPropertyPath` and
+> `requiredValue` fields (not just the policy display name) to make the JSON machine-actionable.
+> | Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py` | Python diagrams |
+> | Dependency Diagram Image | `agent-output/{project}/04-dependency-diagram.png` | Generated from source |
+> | Runtime Diagram Source | `agent-output/{project}/04-runtime-diagram.py` | Python diagrams |
+> | Runtime Diagram Image | `agent-output/{project}/04-runtime-diagram.png` | Generated from source |
 
 Include attribution header from the template file (do not hardcode).
 

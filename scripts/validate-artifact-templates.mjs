@@ -228,20 +228,21 @@ const GLOBAL_STRICTNESS = process.env.STRICTNESS;
 const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
 
 const AGENTS = {
-  "01-requirements.md": ".github/agents/requirements.agent.md",
-  "02-architecture-assessment.md": ".github/agents/architect.agent.md",
-  "04-implementation-plan.md": ".github/agents/bicep-plan.agent.md",
-  "04-governance-constraints.md": ".github/agents/bicep-plan.agent.md",
-  "04-preflight-check.md": ".github/agents/bicep-code.agent.md",
-  "06-deployment-summary.md": ".github/agents/deploy.agent.md",
-  "05-implementation-reference.md": ".github/agents/bicep-code.agent.md",
+  "01-requirements.md": ".github/agents/02-requirements.agent.md",
+  "02-architecture-assessment.md": ".github/agents/03-architect.agent.md",
+  "04-implementation-plan.md": ".github/agents/05-bicep-planner.agent.md",
+  "04-governance-constraints.md": ".github/agents/05-bicep-planner.agent.md",
+  "04-preflight-check.md": ".github/agents/06-bicep-code-generator.agent.md",
+  "06-deployment-summary.md": ".github/agents/07-deploy.agent.md",
+  "05-implementation-reference.md":
+    ".github/agents/06-bicep-code-generator.agent.md",
   "07-design-document.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-operations-runbook.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-resource-inventory.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-backup-dr-plan.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-compliance-matrix.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-documentation-index.md": ".github/skills/azure-artifacts/SKILL.md",
-  "03-des-cost-estimate.md": ".github/agents/architect.agent.md",
+  "03-des-cost-estimate.md": ".github/agents/03-architect.agent.md",
   "07-ab-cost-estimate.md": ".github/skills/azure-artifacts/SKILL.md",
   "README.md": null,
 };
@@ -860,7 +861,7 @@ function validateArtifactCompliance(relPath) {
 function validateGovernanceDiscovery(relPath, text, reportFn = error) {
   // Check for Discovery Source section content (not just heading)
   const discoverySourceMatch = text.match(
-    /## Discovery Source[\s\S]*?(?=##|$)/,
+    /## (?:🔍\s*)?Discovery Source[\s\S]*?(?=##|$)/,
   );
   if (!discoverySourceMatch) {
     reportFn(

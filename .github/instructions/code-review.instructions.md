@@ -1,6 +1,6 @@
 ---
-description: 'Code review guidelines with priority tiers, security checks, and structured comment formats'
-applyTo: '**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}'
+description: "Code review guidelines with priority tiers, security checks, and structured comment formats"
+applyTo: "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
 ---
 
 # Code Review Instructions
@@ -33,18 +33,21 @@ When performing a code review, respond in **English**.
 When performing a code review, prioritize issues in the following order:
 
 ### 🔴 CRITICAL (Block merge)
+
 - **Security**: Vulnerabilities, exposed secrets, authentication/authorization issues
 - **Correctness**: Logic errors, data corruption risks, race conditions
 - **Breaking Changes**: API contract changes without versioning
 - **Data Loss**: Risk of data loss or corruption
 
 ### 🟡 IMPORTANT (Requires discussion)
+
 - **Code Quality**: Severe violations of SOLID principles, excessive duplication
 - **Test Coverage**: Missing tests for critical paths or new functionality
 - **Performance**: Obvious performance bottlenecks (N+1 queries, memory leaks)
 - **Architecture**: Significant deviations from established patterns
 
 ### 🟢 SUGGESTION (Non-blocking improvements)
+
 - **Readability**: Poor naming, complex logic that could be simplified
 - **Optimization**: Performance improvements without functional impact
 - **Best Practices**: Minor deviations from conventions
@@ -67,6 +70,7 @@ When performing a code review, follow these principles:
 When performing a code review, check for:
 
 ### Clean Code
+
 - Descriptive and meaningful names for variables, functions, and classes
 - Single Responsibility Principle: each function/class does one thing well
 - DRY (Don't Repeat Yourself): no code duplication
@@ -76,26 +80,30 @@ When performing a code review, check for:
 - Code should be self-documenting; comments only when necessary
 
 ### Examples
+
 ```javascript
 // ❌ BAD: Poor naming and magic numbers
 function calc(x, y) {
-    if (x > 100) return y * 0.15;
-    return y * 0.10;
+  if (x > 100) return y * 0.15;
+  return y * 0.1;
 }
 
 // ✅ GOOD: Clear naming and constants
 const PREMIUM_THRESHOLD = 100;
 const PREMIUM_DISCOUNT_RATE = 0.15;
-const STANDARD_DISCOUNT_RATE = 0.10;
+const STANDARD_DISCOUNT_RATE = 0.1;
 
 function calculateDiscount(orderTotal, itemPrice) {
-    const isPremiumOrder = orderTotal > PREMIUM_THRESHOLD;
-    const discountRate = isPremiumOrder ? PREMIUM_DISCOUNT_RATE : STANDARD_DISCOUNT_RATE;
-    return itemPrice * discountRate;
+  const isPremiumOrder = orderTotal > PREMIUM_THRESHOLD;
+  const discountRate = isPremiumOrder
+    ? PREMIUM_DISCOUNT_RATE
+    : STANDARD_DISCOUNT_RATE;
+  return itemPrice * discountRate;
 }
 ```
 
 ### Error Handling
+
 - Proper error handling at appropriate levels
 - Meaningful error messages
 - No silent failures or ignored exceptions
@@ -103,6 +111,7 @@ function calculateDiscount(orderTotal, itemPrice) {
 - Use appropriate error types/exceptions
 
 ### Examples
+
 ```python
 # ❌ BAD: Silent failure and generic error
 def process_user(user_id):
@@ -140,22 +149,12 @@ When performing a code review, check for security issues:
 - **Dependency Security**: Check for known vulnerabilities in dependencies
 
 ### Examples
-```java
-// ❌ BAD: SQL injection vulnerability
-String query = "SELECT * FROM users WHERE email = '" + email + "'";
-
-// ✅ GOOD: Parameterized query
-PreparedStatement stmt = conn.prepareStatement(
-    "SELECT * FROM users WHERE email = ?"
-);
-stmt.setString(1, email);
-```
 
 ```javascript
-// ❌ BAD: Exposed secret in code
+// BAD: Exposed secret in code
 const API_KEY = "sk_live_abc123xyz789";
 
-// ✅ GOOD: Use environment variables
+// GOOD: Use environment variables
 const API_KEY = process.env.API_KEY;
 ```
 
@@ -172,21 +171,16 @@ When performing a code review, verify test quality:
 - **Mock Appropriately**: Mock external dependencies, not domain logic
 
 ### Examples
-```typescript
-// ❌ BAD: Vague name and assertion
-test('test1', () => {
-    const result = calc(5, 10);
-    expect(result).toBeTruthy();
-});
 
-// ✅ GOOD: Descriptive name and specific assertion
-test('should calculate 10% discount for orders under $100', () => {
-    const orderTotal = 50;
-    const itemPrice = 20;
+```javascript
+// GOOD: Descriptive name and specific assertion
+test("should calculate 10% discount for orders under $100", () => {
+  const orderTotal = 50;
+  const itemPrice = 20;
 
-    const discount = calculateDiscount(orderTotal, itemPrice);
+  const discount = calculateDiscount(orderTotal, itemPrice);
 
-    expect(discount).toBe(2.00);
+  expect(discount).toBe(2.0);
 });
 ```
 
@@ -202,6 +196,7 @@ When performing a code review, check for performance issues:
 - **Lazy Loading**: Load data only when needed
 
 ### Examples
+
 ```python
 # ❌ BAD: N+1 query problem
 users = User.query.all()
@@ -253,92 +248,12 @@ Explanation of the impact or reason for the suggestion.
 **Reference:** [link to relevant documentation or standard]
 ```
 
-### Example Comments
-
-#### Critical Issue
-````markdown
-**🔴 CRITICAL - Security: SQL Injection Vulnerability**
-
-The query on line 45 concatenates user input directly into the SQL string,
-creating a SQL injection vulnerability.
-
-**Why this matters:**
-An attacker could manipulate the email parameter to execute arbitrary SQL commands,
-potentially exposing or deleting all database data.
-
-**Suggested fix:**
-```sql
--- Instead of:
-query = "SELECT * FROM users WHERE email = '" + email + "'"
-
--- Use:
-PreparedStatement stmt = conn.prepareStatement(
-    "SELECT * FROM users WHERE email = ?"
-);
-stmt.setString(1, email);
-```
-
-**Reference:** OWASP SQL Injection Prevention Cheat Sheet
-````
-
-#### Important Issue
-````markdown
-**🟡 IMPORTANT - Testing: Missing test coverage for critical path**
-
-The `processPayment()` function handles financial transactions but has no tests
-for the refund scenario.
-
-**Why this matters:**
-Refunds involve money movement and should be thoroughly tested to prevent
-financial errors or data inconsistencies.
-
-**Suggested fix:**
-Add test case:
-```javascript
-test('should process full refund when order is cancelled', () => {
-    const order = createOrder({ total: 100, status: 'cancelled' });
-
-    const result = processPayment(order, { type: 'refund' });
-
-    expect(result.refundAmount).toBe(100);
-    expect(result.status).toBe('refunded');
-});
-```
-````
-
-#### Suggestion
-````markdown
-**🟢 SUGGESTION - Readability: Simplify nested conditionals**
-
-The nested if statements on lines 30-40 make the logic hard to follow.
-
-**Why this matters:**
-Simpler code is easier to maintain, debug, and test.
-
-**Suggested fix:**
-```javascript
-// Instead of nested ifs:
-if (user) {
-    if (user.isActive) {
-        if (user.hasPermission('write')) {
-            // do something
-        }
-    }
-}
-
-// Consider guard clauses:
-if (!user || !user.isActive || !user.hasPermission('write')) {
-    return;
-}
-// do something
-```
-````
-
 ## Review Checklist
 
 When performing a code review, systematically verify:
 
 ### Code Quality
+
 - [ ] Code follows consistent style and conventions
 - [ ] Names are descriptive and follow naming conventions
 - [ ] Functions/methods are small and focused
@@ -348,6 +263,7 @@ When performing a code review, systematically verify:
 - [ ] No commented-out code or TODO without tickets
 
 ### Security
+
 - [ ] No sensitive data in code or logs
 - [ ] Input validation on all user inputs
 - [ ] No SQL injection vulnerabilities
@@ -355,6 +271,7 @@ When performing a code review, systematically verify:
 - [ ] Dependencies are up-to-date and secure
 
 ### Testing
+
 - [ ] New code has appropriate test coverage
 - [ ] Tests are well-named and focused
 - [ ] Tests cover edge cases and error scenarios
@@ -362,44 +279,25 @@ When performing a code review, systematically verify:
 - [ ] No tests that always pass or are commented out
 
 ### Performance
+
 - [ ] No obvious performance issues (N+1, memory leaks)
 - [ ] Appropriate use of caching
 - [ ] Efficient algorithms and data structures
 - [ ] Proper resource cleanup
 
 ### Architecture
+
 - [ ] Follows established patterns and conventions
 - [ ] Proper separation of concerns
 - [ ] No architectural violations
 - [ ] Dependencies flow in correct direction
 
 ### Documentation
+
 - [ ] Public APIs are documented
 - [ ] Complex logic has explanatory comments
 - [ ] README is updated if needed
 - [ ] Breaking changes are documented
-
-## Additional Resources
-
-For more information on effective code reviews and GitHub Copilot customization:
-
-- [GitHub Copilot Prompt Engineering](https://docs.github.com/en/copilot/concepts/prompting/prompt-engineering)
-- [GitHub Copilot Custom Instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
-- [Awesome GitHub Copilot Repository](https://github.com/github/awesome-copilot)
-- [GitHub Code Review Guidelines](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests)
-- [Google Engineering Practices - Code Review](https://google.github.io/eng-practices/review/)
-- [OWASP Security Guidelines](https://owasp.org/)
-
-## Prompt Engineering Tips
-
-When performing a code review, apply these prompt engineering principles from the [GitHub Copilot documentation](https://docs.github.com/en/copilot/concepts/prompting/prompt-engineering):
-
-1. **Start General, Then Get Specific**: Begin with high-level architecture review, then drill into implementation details
-2. **Give Examples**: Reference similar patterns in the codebase when suggesting changes
-3. **Break Complex Tasks**: Review large PRs in logical chunks (security → tests → logic → style)
-4. **Avoid Ambiguity**: Be specific about which file, line, and issue you're addressing
-5. **Indicate Relevant Code**: Reference related code that might be affected by changes
-6. **Experiment and Iterate**: If initial review misses something, review again with focused questions
 
 ## Project Context
 

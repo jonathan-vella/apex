@@ -1,0 +1,65 @@
+# Policy Compliance Check Workflow
+# Validates governance guardrails are maintained across agents, instructions, and artifacts
+# Ensures Bicep Code Generator and review subagent reference governance constraints
+
+name: policy-compliance-check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/agents/**"
+      - ".github/skills/**"
+      - ".github/instructions/**"
+      - "scripts/validate-governance-refs.mjs"
+  push:
+    branches: [main, feature/*]
+    paths:
+      - ".github/agents/**"
+      - ".github/skills/**"
+      - ".github/instructions/**"
+      - "scripts/validate-governance-refs.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy-compliance:
+    name: policy-compliance-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python linting tools
+        run: pip install ruff
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run all existing validations
+        run: npm run validate:all
+
+      - name: Validate governance cross-references
+        run: npm run lint:governance-refs
+
+      - name: Validate governance H2 headings match canonical list
+        run: |
+          echo "🔍 Verifying 04-governance-constraints H2 headings match azure-artifacts skill..."
+          npm run lint:h2-sync

@@ -113,7 +113,7 @@ The master orchestrator agent that coordinates all 7 steps of the infrastructure
 mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
 orchestration features.
 
-📁 **See**: [.github/agents/infraops-conductor.agent.md](../.github/agents/infraops-conductor.agent.md)
+📁 **See**: [.github/agents/01-conductor.agent.md](../.github/agents/01-conductor.agent.md)
 
 ### IaC (Infrastructure as Code)
 
@@ -197,7 +197,7 @@ Skills are organized across document creation, workflow automation, and utility 
 A specialized validation agent invoked by other agents for specific tasks (lint, what-if, review).
 Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`.
 
-📁 **See**: [.github/agents/_subagents/](../.github/agents/_subagents/)
+📁 **See**: [.github/agents/\_subagents/](../.github/agents/_subagents/)
 
 ---
 
@@ -206,7 +206,9 @@ Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subag
 ### Tags (Azure Resource Tags)
 
 Key-value pairs applied to Azure resources for organization, cost tracking, and policy enforcement.
-Required tags in this project: Environment, ManagedBy, Project, Owner.
+Baseline tags: Environment, ManagedBy, Project, Owner.
+Governance constraints may require additional tags.
+See `bicep-code-best-practices.instructions.md` for the canonical tag rule.
 
 ---
 

@@ -37,7 +37,7 @@
 
 ---
 
-## 💮 Executive Summary container platform with WAF-protected ingress
+## 💎 Executive Summary
 
 (Application Gateway with AGIC), Azure SQL Database backend, and NAT Gateway for deterministic
 outbound traffic. The architecture follows the
@@ -93,7 +93,7 @@ flowchart TB
 
 ---
 
-## 🏗️ WAF Pillar Assessment
+## 🏛️ WAF Pillar Assessment
 
 ### Overall Scores
 

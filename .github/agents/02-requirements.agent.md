@@ -244,7 +244,13 @@ Security measures (multi-select with business descriptions), Authentication meth
    - Set status badge to `In Progress`, step badge to `Step 1 of 7`
    - This is **MANDATORY** for every new project — do NOT skip
 4. Run `npm run lint:artifact-templates` — if errors appear for your artifact, fix them before continuing
-5. Confirm save, present handoff options to Architect agent
+5. **Invoke Challenger** — delegate to `10-Challenger` via `#runSubagent`:
+   - Provide: `artifact_path` = `agent-output/{project}/01-requirements.md`,
+     `project_name` = `{project}`, `artifact_type` = `requirements`
+   - Review the returned findings JSON
+   - Present `must_fix` and `should_fix` items to the user prominently
+   - Let the user decide whether to revise requirements or proceed to Architecture
+6. Confirm save, present handoff options to Architect agent
 
 ## Must-Have Information
 
@@ -280,6 +286,6 @@ Before saving the requirements document:
 - [ ] Recommended Security Controls H3 populated
 - [ ] Budget section has approximate monthly amount
 - [ ] Region defaults correct (swedencentral unless exception)
-- [ ] All 4 required tags captured (Environment, ManagedBy, Project, Owner)
+- [ ] Baseline tags captured (Environment, ManagedBy, Project, Owner — governance may add more)
 - [ ] Attribution header matches template pattern exactly
 - [ ] No Bicep code blocks in the document

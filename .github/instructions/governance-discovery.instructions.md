@@ -1,5 +1,5 @@
 ---
-applyTo: "**/04-governance-constraints.md, **/04-governance-constraints.json"
+applyTo: "**/04-governance-constraints.md, **/04-governance-constraints.json, **/*.bicep"
 description: "MANDATORY Azure Policy discovery requirements for governance constraints"
 ---
 
@@ -182,3 +182,19 @@ Discovered from Azure Policy assignment "JV-Inherit Multiple Tags" (effect: modi
 - environment, owner, costcenter, application, workload, sla, backup-policy, maint-window,
   tech-contact
 ```
+
+## Downstream Enforcement
+
+Discovered policies do not stop at documentation — they MUST flow through
+to the Code Generator and review subagent:
+
+1. **Bicep Code Generator** (Phase 1.5) reads `04-governance-constraints.json`
+   and builds a compliance map before writing any Bicep code
+2. **`bicep-review-subagent`** (Governance Compliance checklist) reads
+   `04-governance-constraints.md` and verifies every Deny policy constraint
+   is satisfied in the generated templates
+3. Both downstream consumers require `bicepPropertyPath` and `requiredValue`
+   fields in the JSON — without these, programmatic verification is impossible
+
+See `.github/instructions/bicep-policy-compliance.instructions.md` for the
+full enforcement mandate.

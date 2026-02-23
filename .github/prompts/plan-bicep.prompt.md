@@ -105,4 +105,4 @@ and deployment phase assignment.
 - [ ] Deny-effect policies have explicit adaptations documented
 - [ ] Deployment strategy confirmed by user
 - [ ] All H2 headings match azure-artifacts template
-- [ ] Required tags documented (Environment, ManagedBy, Project, Owner)
+- [ ] Baseline tags documented (Environment, ManagedBy, Project, Owner — governance may add more)

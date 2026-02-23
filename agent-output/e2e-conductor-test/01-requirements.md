@@ -78,7 +78,7 @@
 | Static Assets | Public      | < 50 MB          |
 | Logs          | Internal    | < 1 GB/month     |
 
-## ⚡ Non-Functional Requirements (NFRs) & Reliability
+## ⚡ Non-Functional Requirements (NFRs)
 
 | Metric  | Target   | Justification                              |
 | ------- | -------- | ------------------------------------------ |
@@ -102,7 +102,7 @@
 | Monthly Page Views | 1,000   | 10,000    | Low volume test workload |
 | Storage Size       | 10 MB   | 50 MB     | Static assets only       |
 
-## 🔒 Compliance & Security Requirements Frameworks
+## 🔒 Compliance & Security Requirements
 
 - [ ] HIPAA
 - [ ] PCI-DSS
@@ -161,7 +161,7 @@
 | Azure CDN      | Standard  | ~$15-20/month  |
 | Log Analytics  | Free tier | $0/month       |
 
-## 🔧 Operational Requirements & Alerting
+## 🔧 Operational Requirements
 
 | Requirement          | Value                                    |
 | -------------------- | ---------------------------------------- |
@@ -186,7 +186,7 @@
 | Configuration | On change        | 30 days   | IaC in version control |
 | CDN Settings  | On change        | 30 days   | Managed via Bicep      |
 
-## 🌍 Regional Preferences | Value |
+## 🌍 Regional Preferences
 
 | ------------------ | ---------------------------------------------- |
 | Primary Region | `westeurope` (Static Web App supported region) |

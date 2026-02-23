@@ -29,6 +29,10 @@ Replaces individual `_shared/` file lookups with one consolidated reference.
 
 ### Required Tags (Azure Policy Enforced)
 
+> [!IMPORTANT]
+> These 4 tags are the MINIMUM baseline. Azure Policy in your subscription may enforce
+> additional tags. Always defer to `04-governance-constraints.md` for the actual required tag list.
+
 | Tag           | Required | Example Values           |
 | ------------- | -------- | ------------------------ |
 | `Environment` | Yes      | `dev`, `staging`, `prod` |
@@ -458,6 +462,11 @@ Before creating implementation plans, discover active policies:
 
 ### Common Policy Constraints
 
+> [!NOTE]
+> The governance constraints JSON output schema must include `bicepPropertyPath` and
+> `requiredValue` fields for each Deny policy to enable downstream programmatic consumption
+> by the Code Generator and review subagent.
+
 | Policy             | Impact                          | Solution                              |
 | ------------------ | ------------------------------- | ------------------------------------- |
 | Required tags      | Deployment fails without tags   | Include all 4 required tags           |
@@ -501,7 +510,7 @@ Before creating implementation plans, discover active policies:
 | Requirements | User needs, business context          | —                                |
 | Architect    | WAF gaps, SKU comparisons, pricing    | Service list (from 01)           |
 | Bicep Plan   | AVM availability, governance policies | Architecture decisions (from 02) |
-| Bicep Code   | AVM schemas, parameter types          | Resource list (from 04)          |
+| Bicep Code   | AVM schemas, parameter types          | Resource list (from 04). NOTE: Governance constraints from `04-governance-constraints.md` MUST still be read and enforced — "trust artifact chain" means accepting decisions, not skipping compliance checks.          |
 | Deploy       | Azure state (what-if), credentials    | Template structure (from 05)     |
 
 ---

@@ -43,7 +43,6 @@ const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
   "ms-azuretools.vscode-containers",
   "ms-kubernetes-tools.vscode-aks-tools",
   "ms-kubernetes-tools.vscode-kubernetes-tools",
-  "ms-vscode.vscode-websearchforcopilot",
   "mutantdino.resourcemonitor",
 ]);
 

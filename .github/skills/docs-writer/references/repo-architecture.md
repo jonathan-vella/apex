@@ -92,30 +92,29 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-resource-inventory.template.md`       | Resource Inventory   | Relaxed           |
 | `PROJECT-README.template.md`              | Project README       | —                 |
 
-## Instruction File Map (20 Files)
+## Instruction File Map (19 Files)
 
-| Instruction                                        | Applies To (glob)                                 |
-| -------------------------------------------------- | ------------------------------------------------- |
-| `agent-research-first.instructions.md`             | `**/*.agent.md`                                   |
-| `agent-skills.instructions.md`                     | `**/.github/skills/**/SKILL.md`                   |
-| `agents-definitions.instructions.md`               | `**/*.agent.md`                                   |
-| `azure-artifacts.instructions.md`                  | `**/agent-output/**/*.md`                         |
-| `bicep-code-best-practices.instructions.md`        | `**/*.bicep`                                      |
-| `code-review.instructions.md`                      | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `copilot-thought-logging.instructions.md`          | `**`                                              |
-| `cost-estimate.instructions.md`                    | `**/03-des-cost-estimate.md`, etc.                |
-| `docs.instructions.md`                             | `docs/**/*.md`                                    |
-| `github-actions.instructions.md`                   | `.github/workflows/*.yml`                         |
-| `governance-discovery.instructions.md`             | `**/04-governance-*.md`                           |
-| `instructions.instructions.md`                     | `**/*.instructions.md`                            |
-| `markdown.instructions.md`                         | `**/*.md`                                         |
-| `no-heredoc.instructions.md`                       | `**`                                              |
-| `powershell.instructions.md`                       | `**/*.ps1`, `**/*.psm1`                           |
-| `prompt.instructions.md`                           | `**/*.prompt.md`                                  |
-| `self-explanatory-code-commenting.instructions.md` | `**`                                              |
-| `shell.instructions.md`                            | `**/*.sh`                                         |
-| `update-docs-on-code-change.instructions.md`       | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `workload-documentation.instructions.md`           | `**/agent-output/**/07-*.md`                      |
+| Instruction                                 | Applies To (glob)                                 |
+| ------------------------------------------- | ------------------------------------------------- |
+| `agent-research-first.instructions.md`      | `**/*.agent.md`                                   |
+| `agent-skills.instructions.md`              | `**/.github/skills/**/SKILL.md`                   |
+| `agent-definitions.instructions.md`         | `**/*.agent.md`                                   |
+| `azure-artifacts.instructions.md`           | `**/agent-output/**/*.md`                         |
+| `bicep-code-best-practices.instructions.md` | `**/*.bicep`                                      |
+| `code-review.instructions.md`               | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
+| `cost-estimate.instructions.md`             | `**/03-des-cost-estimate.md`, etc.                |
+| `docs.instructions.md`                      | `docs/**/*.md`                                    |
+| `github-actions.instructions.md`            | `.github/workflows/*.yml`                         |
+| `governance-discovery.instructions.md`      | `**/04-governance-*.md`                           |
+| `instructions.instructions.md`              | `**/*.instructions.md`                            |
+| `markdown.instructions.md`                  | `**/*.md`                                         |
+| `no-heredoc.instructions.md`                | `**`                                              |
+| `powershell.instructions.md`                | `**/*.ps1`, `**/*.psm1`                           |
+| `prompt.instructions.md`                    | `**/*.prompt.md`                                  |
+| `code-commenting.instructions.md`           | `**`                                              |
+| `shell.instructions.md`                     | `**/*.sh`                                         |
+| `docs-trigger.instructions.md`              | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
+| `workload-documentation.instructions.md`    | `**/agent-output/**/07-*.md`                      |
 
 ## Artifact Flow (7-Step Workflow)
 

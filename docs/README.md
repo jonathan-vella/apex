@@ -15,7 +15,7 @@ This project now implements the **Conductor pattern** from VS Code 1.109:
 - **New Frontmatter**: `user-invokable`, `agents` list, model fallbacks
 - **Skills GA**: Skills are now generally available with enhanced discovery
 
-See the [conductor agent](../.github/agents/infraops-conductor.agent.md) for orchestration details.
+See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestration details.
 
 ## Quick Links
 
@@ -24,7 +24,7 @@ See the [conductor agent](../.github/agents/infraops-conductor.agent.md) for orc
 | [Quickstart](quickstart.md)           | Get running in 10 minutes     |
 | [Workflow](workflow.md)               | 7-step agent + skill workflow |
 | [Dev Containers](dev-containers.md)   | Docker setup and alternatives |
-| [Prompt Guide](prompt-guide/)        | Agent & skill prompt examples |
+| [Prompt Guide](prompt-guide/)         | Agent & skill prompt examples |
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions   |
 | [Glossary](GLOSSARY.md)               | Terms and definitions         |
 
@@ -36,29 +36,29 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 
 ### Conductor (Master Orchestrator)
 
-| Agent | Persona | Purpose |
-|-------|---------|---------|
+| Agent                | Persona    | Purpose                                                |
+| -------------------- | ---------- | ------------------------------------------------------ |
 | `InfraOps Conductor` | 🎼 Maestro | Orchestrates all 7 steps with mandatory approval gates |
 
 ### Primary Agents (User-Invokable)
 
-| Agent | Persona | Phase | Purpose |
-|-------|---------|-------|---------|
-| `requirements` | 📜 Scribe | 1 | Gather infrastructure requirements |
-| `architect` | 🏛️ Oracle | 2 | WAF assessment and design |
-| `design` | 🎨 Artisan | 3 | Diagrams and ADRs |
-| `bicep-plan` | 📐 Strategist | 4 | Implementation planning |
-| `bicep-code` | ⚒️ Forge | 5 | Bicep template generation |
-| `deploy` | 🚀 Envoy | 6 | Azure deployment |
-| `diagnose` | 🔍 Sentinel | — | Post-deployment diagnostics |
+| Agent          | Persona       | Phase | Purpose                            |
+| -------------- | ------------- | ----- | ---------------------------------- |
+| `requirements` | 📜 Scribe     | 1     | Gather infrastructure requirements |
+| `architect`    | 🏛️ Oracle     | 2     | WAF assessment and design          |
+| `design`       | 🎨 Artisan    | 3     | Diagrams and ADRs                  |
+| `bicep-plan`   | 📐 Strategist | 4     | Implementation planning            |
+| `bicep-code`   | ⚒️ Forge      | 5     | Bicep template generation          |
+| `deploy`       | 🚀 Envoy      | 6     | Azure deployment                   |
+| `diagnose`     | 🔍 Sentinel   | —     | Post-deployment diagnostics        |
 
 ### Validation Subagents (Conductor-Invoked)
 
-| Subagent               | Purpose                                | Returns                    |
-| ---------------------- | -------------------------------------- | -------------------------- |
-| `bicep-lint-subagent`   | Bicep syntax validation                | PASS/FAIL with diagnostics |
-| `bicep-whatif-subagent` | Deployment preview (what-if analysis)  | Change summary, violations |
-| `bicep-review-subagent` | Code review against AVM standards      | APPROVED/NEEDS_REVISION/FAILED |
+| Subagent                | Purpose                               | Returns                        |
+| ----------------------- | ------------------------------------- | ------------------------------ |
+| `bicep-lint-subagent`   | Bicep syntax validation               | PASS/FAIL with diagnostics     |
+| `bicep-whatif-subagent` | Deployment preview (what-if analysis) | Change summary, violations     |
+| `bicep-review-subagent` | Code review against AVM standards     | APPROVED/NEEDS_REVISION/FAILED |
 
 ---
 
@@ -68,10 +68,10 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 
 ### Azure Conventions (Category 1)
 
-| Skill            | Purpose                                      | Triggers                                      |
-| ---------------- | -------------------------------------------- | --------------------------------------------- |
-| `azure-defaults` | Azure conventions, naming, AVM, WAF, pricing | "azure defaults", "naming", "AVM"              |
-| `azure-artifacts` | Template H2 structures, styling, generation | "generate documentation", "create runbook"     |
+| Skill             | Purpose                                      | Triggers                                   |
+| ----------------- | -------------------------------------------- | ------------------------------------------ |
+| `azure-defaults`  | Azure conventions, naming, AVM, WAF, pricing | "azure defaults", "naming", "AVM"          |
+| `azure-artifacts` | Template H2 structures, styling, generation  | "generate documentation", "create runbook" |
 
 ### Document Creation (Category 2)
 
@@ -82,12 +82,12 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 
 ### Workflow & Tool Integration (Category 3)
 
-| Skill                 | Purpose                                       | Triggers                                      |
-| --------------------- | --------------------------------------------- | --------------------------------------------- |
-| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases    | "create issue", "create PR", "gh command"     |
-| `git-commit`          | Commit message conventions                    | "commit", "conventional commit"               |
-| `docs-writer`         | Repo-aware docs maintenance                   | "audit docs", "fix counts", "freshness check" |
-| `make-skill-template` | Create new skills                             | "create skill", "scaffold skill"              |
+| Skill                 | Purpose                                    | Triggers                                      |
+| --------------------- | ------------------------------------------ | --------------------------------------------- |
+| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases | "create issue", "create PR", "gh command"     |
+| `git-commit`          | Commit message conventions                 | "commit", "conventional commit"               |
+| `docs-writer`         | Repo-aware docs maintenance                | "audit docs", "fix counts", "freshness check" |
+| `make-skill-template` | Create new skills                          | "create skill", "scaffold skill"              |
 
 ---
 
@@ -108,12 +108,12 @@ See [workflow.md](workflow.md) for detailed step-by-step guide.
 Learn how to interact with every agent and skill through ready-to-use
 prompt examples in `docs/prompt-guide/`:
 
-| Section | Content |
-| --- | --- |
+| Section                 | Content                              |
+| ----------------------- | ------------------------------------ |
 | 7-Step Workflow Prompts | Step-by-step examples for each agent |
-| Standalone Agents | Conductor and Diagnose usage |
-| Skill Reference | Independent skill invocation |
-| Tips & Patterns | Advanced prompting techniques |
+| Standalone Agents       | Conductor and Diagnose usage         |
+| Skill Reference         | Independent skill invocation         |
+| Tips & Patterns         | Advanced prompting techniques        |
 
 See [prompt-guide/](prompt-guide/) for the full guide.
 

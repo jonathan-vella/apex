@@ -85,7 +85,7 @@ The e2e-conductor-test project is an end-to-end validation test of the 7-step ag
 
 ---
 
-## 🏗️ 2. Azure Architecture Overview
+## 🏛️ 2. Azure Architecture Overview
 
 ### 2.1 High-Level Architecture
 

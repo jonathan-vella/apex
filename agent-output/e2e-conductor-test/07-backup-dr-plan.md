@@ -37,7 +37,9 @@
 
 ---
 
-## 📋 Executive Summary with source code stored in GitHub. Traditional backup/restore procedures are replaced with redeployment from source control.
+## 📋 Executive Summary
+
+This is a serverless architecture with source code stored in GitHub. Traditional backup/restore procedures are replaced with redeployment from source control.
 
 | Metric           | Current  | Target   |
 | ---------------- | -------- | -------- |

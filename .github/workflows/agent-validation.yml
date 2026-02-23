@@ -66,6 +66,12 @@ jobs:
       - name: Validate H2 heading sync
         run: npm run lint:h2-sync
 
+      - name: Validate governance cross-references
+        run: npm run lint:governance-refs
+
+      - name: Validate instruction references
+        run: npm run validate:instruction-refs
+
       - name: Validate handoff references
         run: |
           echo "🔗 Validating agent handoff references..."

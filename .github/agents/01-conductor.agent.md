@@ -4,7 +4,18 @@ description: Master orchestrator for the 7-step Azure infrastructure workflow. C
 model: ["Claude Opus 4.6"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invokable: true
-agents: ["02-Requirements", "03-Architect", "04-Design", "05-Bicep Planner", "06-Bicep Code Generator", "07-Deploy", "08-As-Built", "09-Diagnose"]
+agents:
+  [
+    "02-Requirements",
+    "03-Architect",
+    "04-Design",
+    "05-Bicep Planner",
+    "06-Bicep Code Generator",
+    "07-Deploy",
+    "08-As-Built",
+    "09-Diagnose",
+    "10-Challenger",
+  ]
 tools:
   [
     vscode/extensions,
@@ -277,6 +288,9 @@ Subagents are wired into their parent agents automatically:
 
 | Subagent                        | Parent Agent | When Used                                        |
 | ------------------------------- | ------------ | ------------------------------------------------ |
+| `10-Challenger`                 | Requirements | Step 1 — adversarial review of requirements      |
+| `10-Challenger`                 | Architect    | Step 2 — adversarial review of WAF assessment    |
+| `10-Challenger`                 | Bicep Plan   | Step 4 — adversarial review of implementation    |
 | `cost-estimate-subagent`        | Architect    | Step 2 — pricing isolation + accuracy validation |
 | `cost-estimate-subagent`        | As-Built     | Step 7 — as-built pricing for deployed SKUs      |
 | `governance-discovery-subagent` | Bicep Plan   | Step 4 — policy discovery gate                   |

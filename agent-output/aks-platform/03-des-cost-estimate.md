@@ -113,7 +113,7 @@
 
 </details>
 
-## 🏗️ Architecture Overview
+## 🏛️ Architecture Overview
 
 | Category         | Monthly Cost (USD) | Share |
 | ---------------- | -----------------: | ----: |
@@ -211,7 +211,7 @@ _"If you need X, expect to pay Y more"_
 
 **Recommended**: 1-year RIs for baseline AKS nodes (2× D2s_v5 system + 3× D4s_v5 user) — total annual savings of ~$2,200 with a 7.1-month break-even.
 
-## 🧧 Detailed Cost Breakdown
+## 🧾 Detailed Cost Breakdown
 
 ### Assumptions
 

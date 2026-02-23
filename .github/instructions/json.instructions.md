@@ -41,4 +41,10 @@ by the governance-discovery-subagent:
 
 - Always use an array of policy objects at the root
 - Include `displayName`, `policyDefinitionId`, `effect`, and `scope` per policy
+- For `Deny` policies, include these additional machine-actionable fields:
+  - `bicepPropertyPath` (e.g., `"properties.publicNetworkAccess"`)
+  - `requiredValue` (e.g., `"Disabled"`)
+  - `affectedResourceTypes` (e.g., `["Microsoft.Storage/storageAccounts"]`)
+- These fields enable the Code Generator (Phase 1.5) to programmatically
+  verify compliance and the review subagent to check Bicep code
 - Do not manually edit — regenerate via the governance discovery workflow

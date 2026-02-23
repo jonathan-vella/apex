@@ -41,7 +41,7 @@
 
 ---
 
-## 💮 Executive Summary
+## 💎 Executive Summary
 
 This assessment evaluates a **simple static web application** with global content delivery for the e2e-conductor-test project. The architecture prioritizes **cost optimization** while meeting 99.9% availability requirements.
 
@@ -81,7 +81,7 @@ This assessment evaluates a **simple static web application** with global conten
 
 ---
 
-## 🏗️ WAF Pillar Assessment
+## 🏛️ WAF Pillar Assessment
 
 ### Overall Scores
 

@@ -97,7 +97,7 @@ pre-commit:
         ❌ Agent frontmatter validation failed!
 
         🔧 Check YAML syntax in agent definitions
-        📚 Reference: .github/instructions/agents-definitions.instructions.md
+        📚 Reference: .github/instructions/agent-definitions.instructions.md
 
     instruction-frontmatter:
       glob: "**/*.instructions.md"
@@ -115,6 +115,22 @@ pre-commit:
 
         📚 Allowed fields: description, applyTo
         🔧 Remove any non-standard fields from YAML frontmatter
+
+    instruction-refs:
+      glob: "{.github/agents/**,.github/skills/**,.github/instructions/**}"
+      run: |
+        STAGED_REFS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|instructions)\.md$|SKILL\.md$' || true)
+        if [ -n "$STAGED_REFS" ]; then
+          echo "🔗 Validating instruction cross-references..."
+          npm run validate:instruction-refs
+        else
+          echo "ℹ️  No agent/skill/instruction files to check references"
+        fi
+      fail_text: |
+        ❌ Instruction reference validation failed!
+
+        🔧 A referenced instruction or skill file does not exist.
+        📚 Run: npm run validate:instruction-refs
 
     python-lint:
       glob: "mcp/**/*.py"
