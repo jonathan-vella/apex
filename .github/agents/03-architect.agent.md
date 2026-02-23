@@ -275,6 +275,16 @@ The subagent uses these Azure Pricing MCP tools on your behalf:
 Refer to azure-defaults skill for exact `service_name` values.
 Fallback: [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)
 
+## Challenger Review (Advisory)
+
+After generating the assessment and cost estimate, invoke `10-Challenger` via `#runSubagent`:
+
+1. Provide: `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`,
+   `project_name` = `{project}`, `artifact_type` = `architecture`
+2. Review the returned findings JSON
+3. Include a summary of `must_fix` and `should_fix` items in the approval gate below
+4. The user decides whether to revise or proceed — this is advisory, not blocking
+
 ## Approval Gate (MANDATORY)
 
 Before handoff, present:
@@ -291,7 +301,18 @@ Before handoff, present:
 | Operations  | X/10  | ...   |
 
 Estimated Monthly Cost: $X (via Azure Pricing MCP)
+```
 
+If Challenger found issues, append:
+
+```text
+⚠️ Challenger Review: {risk_level} risk
+  must_fix: {count} | should_fix: {count} | suggestions: {count}
+  Key concerns: {top 2-3 must_fix titles}
+  Full findings: agent-output/{project}/challenge-findings.json
+```
+
+```text
 Reply "approve" to proceed to bicep-plan, or provide feedback.
 ```
 

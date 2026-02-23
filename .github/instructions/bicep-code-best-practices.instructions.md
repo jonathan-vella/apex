@@ -14,6 +14,11 @@ applyTo: "**/*.bicep"
 | AVM first     | **MANDATORY** - Use Azure Verified Modules where available          |
 | Tags          | Environment, ManagedBy, Project, Owner on ALL resources             |
 
+> [!IMPORTANT]
+> The 4 tags above are baseline defaults. Discovered Azure Policy constraints
+> (`04-governance-constraints.md`) ALWAYS take precedence. See
+> `bicep-policy-compliance.instructions.md`.
+
 ## Naming Conventions
 
 ### Resource Patterns
@@ -55,6 +60,11 @@ param uniqueSuffix string
 ```
 
 ## Security Defaults (MANDATORY)
+
+> [!IMPORTANT]
+> The security settings below are baseline defaults. Discovered Azure Policy
+> security constraints (`04-governance-constraints.md`) ALWAYS take precedence.
+> See `bicep-policy-compliance.instructions.md`.
 
 ```bicep
 // Storage

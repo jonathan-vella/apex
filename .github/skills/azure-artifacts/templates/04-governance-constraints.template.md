@@ -57,16 +57,16 @@ Verify actual blocking behavior before documenting constraints.
 
 **Required for each Deny/DeployIfNotExists policy**:
 
-| Policy Display Name | Assignment Scope  | Effect | Actually Blocks         | Evidence from policyRule.if                 |
-| ------------------- | ----------------- | ------ | ----------------------- | ------------------------------------------- |
-| {Policy Name}       | {Subscription/RG} | Deny   | {What it really blocks} | `field: "type", equals: "Microsoft.{Type}"` |
+| Policy Display Name | Assignment Scope  | Effect | Actually Blocks         | Evidence from policyRule.if                 | Bicep Property Path                      | Required Value     |
+| ------------------- | ----------------- | ------ | ----------------------- | ------------------------------------------- | ---------------------------------------- | ------------------ |
+| {Policy Name}       | {Subscription/RG} | Deny   | {What it really blocks} | `field: "type", equals: "Microsoft.{Type}"` | {e.g., `properties.publicNetworkAccess`} | {e.g., `Disabled`} |
 
 **Example**:
 
-| Policy Display Name              | Assignment Scope | Effect            | Actually Blocks                                                         | Evidence from policyRule.if                                                      |
-| -------------------------------- | ---------------- | ----------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Block Azure RM Resource Creation | Management Group | Deny              | Classic resources only (ClassicCompute, ClassicStorage, ClassicNetwork) | `anyOf` with 7 conditions checking `field: "type"` for Microsoft.Classic\* types |
-| Enforce storage encryption       | Subscription     | DeployIfNotExists | Nothing (auto-remediates)                                               | Adds encryption config automatically                                             |
+| Policy Display Name              | Assignment Scope | Effect            | Actually Blocks                                                         | Evidence from policyRule.if                                                      | Bicep Property Path   | Required Value |
+| -------------------------------- | ---------------- | ----------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------- | -------------- |
+| Block Azure RM Resource Creation | Management Group | Deny              | Classic resources only (ClassicCompute, ClassicStorage, ClassicNetwork) | `anyOf` with 7 conditions checking `field: "type"` for Microsoft.Classic\* types | N/A (Classic only)    | N/A            |
+| Enforce storage encryption       | Subscription     | DeployIfNotExists | Nothing (auto-remediates)                                               | Adds encryption config automatically                                             | N/A (auto-remediated) | N/A            |
 
 **Analysis Notes**:
 

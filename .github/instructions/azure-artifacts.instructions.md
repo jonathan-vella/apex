@@ -9,6 +9,11 @@ description: "MANDATORY template compliance rules for artifact generation"
 > All agents MUST use these EXACT headings when generating artifacts.
 > Violations block commits (pre-commit) and PRs (CI validation).
 
+> [!NOTE]
+> This instruction file and the `azure-artifacts` skill (`SKILL.md`) intentionally
+> contain the same H2 heading lists. The `SKILL.md` is the authoritative source;
+> this instruction file is the enforcement trigger via `applyTo` scope.
+
 ## Pre-Generation Workflow
 
 Before creating ANY artifact file, agents MUST:

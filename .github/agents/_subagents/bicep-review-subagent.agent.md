@@ -133,7 +133,24 @@ tags: {
 | Module organization | LOW      | Logical module structure               |
 | No hardcoded values | HIGH     | Use parameters for configurable values |
 | Output definitions  | MEDIUM   | Expose necessary outputs               |
+### 7. Governance Compliance
 
+> [!IMPORTANT]
+> This section requires the governance constraints file path from the parent Code Generator agent.
+> If the path is not provided, request it before proceeding. Read `04-governance-constraints.md`
+> from `agent-output/{project}/`.
+
+| Check                         | Severity | Details                                                              |
+| ----------------------------- | -------- | -------------------------------------------------------------------- |
+| Tag count matches governance  | HIGH     | Tags MUST match governance constraints, not just 4 defaults          |
+| Deny policies satisfied       | CRITICAL | Every Deny policy constraint is satisfied in the Bicep code          |
+| `publicNetworkAccess` checked | HIGH     | Verify value matches network policies from governance constraints    |
+| `networkAcls` configured      | HIGH     | Verify network ACLs match governance network policy requirements     |
+| SKU restrictions respected    | HIGH     | Verify SKU selections comply with SKU restriction policies           |
+| Security settings compliant   | CRITICAL | Verify TLS, HTTPS, auth settings match security policy requirements  |
+
+**Governance compliance failures produce `NEEDS_REVISION` (HIGH) or `FAILED` (CRITICAL) verdicts.**
+A template CANNOT pass review with unresolved policy violations.
 ## Severity Levels
 
 | Level    | Impact                     | Action                           |
