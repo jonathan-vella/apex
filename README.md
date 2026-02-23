@@ -2,8 +2,6 @@
 
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -17,7 +15,6 @@
     alt="Agentic InfraOps banner" />
 </div>
 
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/jonathan-vella/azure-agentic-infraops">
@@ -32,8 +29,7 @@
     <strong>A multi-agent orchestration system for Azure infrastructure development</strong>
     <br />
     <em>Requirements → Architecture → Plan → Code → Deploy → Documentation</em>
-    <br />
-    <br />
+    <br /><br />
     <a href="#-quick-start"><strong>Quick Start »</strong></a>
     ·
     <a href="agent-output/">Sample Outputs</a>
@@ -46,71 +42,10 @@
 
 ---
 
-<details>
-<summary>What is Agentic InfraOps?</summary>
-
-## What is Agentic InfraOps?
-
-Agentic InfraOps transforms how you build Azure infrastructure with AI agents.
-
-Instead of context-switching between requirements gathering, architecture decisions, Bicep
-authoring, and documentation, Agentic InfraOps provides a **structured 7-step workflow** that
-coordinates specialized AI agents through a complete infrastructure development cycle:
-**Requirements → Architecture → Design → Plan → Code → Deploy → Documentation**.
-
-The system solves a critical challenge in AI-assisted infrastructure development: **maintaining
-quality and compliance while moving quickly**. By enforcing Azure Well-Architected Framework (WAF)
-alignment and Azure Verified Modules (AVM) at every phase, you get the speed of AI coding combined
-with best practices in cloud engineering.
-
-> Built upon patterns from [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra)
-> and [Copilot-Atlas](https://github.com/bigguy345/Github-Copilot-Atlas), adapted for Azure
-> infrastructure workflows.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>Key Features</summary>
-
-## Key Features
-
-### 🎭 Multi-Agent Workflow
-
-The **InfraOps Conductor** orchestrates 7 specialized agents, each optimized for their specific
-role in the infrastructure development lifecycle.
-
-### 🏛️ WAF-Aligned Decisions
-
-Every architecture decision is evaluated against the 5 pillars of the Azure Well-Architected
-Framework: Security, Reliability, Performance, Cost Optimization, and Operational Excellence.
-
-### 🔍 Preflight Validation
-
-5 specialized subagents (cost estimation, governance discovery, lint, what-if, review) provide
-quality gates throughout the workflow—catching issues early when they're cheap to fix.
-
-### ⏸️ Mandatory Approval Gates
-
-Built-in pause points for plan approval, pre-deployment review, and post-deployment verification
-keep you in control of the infrastructure development process.
-
-### 📋 Documentation Trail
-
-Comprehensive artifacts at each phase (01-07) create an audit trail for reviewing all work
-completed and decisions made.
-
-### 💎 Context Conservation
-
-The majority of work is done in dedicated subagents, each with its own context window and
-dedicated prompt. This reduces hallucinations as the context fills up.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
+Agentic InfraOps coordinates specialized AI agents through a complete infrastructure development
+cycle. Instead of context-switching between requirements, architecture decisions, Bicep authoring,
+and documentation, you get a **structured 7-step workflow** with built-in WAF alignment, AVM-first
+code generation, and mandatory human approval gates.
 
 ---
 
@@ -122,6 +57,7 @@ sequenceDiagram
     participant U as 👤 User
     participant C as 🎼 Conductor
     participant R as 📋 Requirements
+    participant X as ⚔️ Challenger
     participant A as 🏛️ Architect
     participant P as 📐 Bicep Plan
     participant B as ⚒️ Bicep Code
@@ -134,7 +70,9 @@ sequenceDiagram
     U->>C: Describe infrastructure intent
     C->>R: Translate intent into structured requirements
     R-->>C: 01-requirements.md
-    C->>U: Present requirements
+    C->>X: Challenge requirements
+    X-->>C: challenge-findings.json
+    C->>U: Present requirements + challenge findings
 
     rect rgba(255, 200, 0, 0.15)
     Note over U,C: 🛑 HUMAN APPROVAL GATE
@@ -145,7 +83,9 @@ sequenceDiagram
     C->>A: Assess architecture (WAF + Cost)
     Note right of A: cost-estimate-subagent<br/>handles pricing queries
     A-->>C: 02-assessment.md + 03-cost-estimate.md
-    C->>U: Present architecture
+    C->>X: Challenge architecture
+    X-->>C: challenge-findings.json
+    C->>U: Present architecture + challenge findings
 
     rect rgba(255, 200, 0, 0.15)
     Note over U,C: 🛑 HUMAN APPROVAL GATE
@@ -156,7 +96,9 @@ sequenceDiagram
     C->>P: Create implementation plan + governance
     Note right of P: governance-discovery-subagent<br/>queries Azure Policy via REST API
     P-->>C: 04-plan.md + governance constraints
-    C->>U: Present plan
+    C->>X: Challenge implementation plan
+    X-->>C: challenge-findings.json
+    C->>U: Present plan + challenge findings
 
     rect rgba(255, 200, 0, 0.15)
     Note over U,C: 🛑 HUMAN APPROVAL GATE
@@ -205,131 +147,9 @@ sequenceDiagram
 
 ---
 
-<details>
-<summary>Architecture Overview</summary>
-
-## Architecture Overview
-
-The Agentic InfraOps system consists of specialized agents organized into three tiers:
-
-### Primary Agent: The Conductor
-
-| Agent                  | Persona    | Role                                                      | Model           |
-| ---------------------- | ---------- | --------------------------------------------------------- | --------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator managing the complete 7-step workflow | Claude Opus 4.6 |
-
-- Coordinates all specialized agents through handoffs
-- Manages 5 mandatory approval gates
-- Handles user interactions and pause points
-- Enforces the Requirements → Deploy → Docs cycle
-
-### Core Agents (7 Steps)
-
-| Step | Agent          | Persona       | Role                                       | Model                     |
-| ---- | -------------- | ------------- | ------------------------------------------ | ------------------------- |
-| 1    | `requirements` | 📜 Scribe     | Captures infrastructure requirements       | Claude Opus 4.6           |
-| 2    | `architect`    | 🏛️ Oracle     | WAF assessment and design decisions        | Claude Opus 4.6           |
-| 3    | `design`       | 🎨 Artisan    | Diagrams and Architecture Decision Records | GPT-5.3-Codex             |
-| 4    | `bicep-plan`   | 📐 Strategist | Implementation planning with governance    | Claude Opus 4.6           |
-| 5    | `bicep-code`   | ⚒️ Forge      | Generates AVM-first Bicep templates        | Claude Opus 4.6 / GPT-5.3 |
-| 6    | `deploy`       | 🚀 Envoy      | Azure resource provisioning                | GPT-5.3-Codex             |
-| 7    | `as-built`     | 📚 Chronicler | As-built documentation suite               | GPT-5.3-Codex             |
-
-### Subagents
-
-| Subagent                        | Parent Agent | Role                                          |
-| ------------------------------- | ------------ | --------------------------------------------- |
-| `cost-estimate-subagent`        | Architect    | Azure Pricing MCP queries                     |
-| `governance-discovery-subagent` | Bicep Plan   | Azure Policy REST API discovery               |
-| `bicep-lint-subagent`           | Bicep Code   | Syntax validation (bicep lint, bicep build)   |
-| `bicep-review-subagent`         | Bicep Code   | Code review (AVM standards, security, naming) |
-| `bicep-whatif-subagent`         | Deploy       | Deployment preview (az deployment what-if)    |
-
-### Diagnostic Agent
-
-| Agent      | Persona     | Role                                           |
-| ---------- | ----------- | ---------------------------------------------- |
-| `diagnose` | 🔍 Sentinel | Resource health assessment and troubleshooting |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>How It Works</summary>
-
-## How It Works
-
-The Conductor agent follows a strict 7-step cycle for every infrastructure project:
-
-### Step 1: Requirements (Scribe)
-
-- **User Request** — You describe the Azure infrastructure you want to build
-- **Captures Requirements** — `requirements` agent gathers functional, non-functional, and
-  compliance requirements
-- **Output** — `agent-output/{project}/01-requirements.md`
-
-### Step 2: Architecture (Oracle)
-
-- **WAF Assessment** — `architect` agent evaluates requirements against Well-Architected Framework
-- **Cost Estimation** — Delegated to `cost-estimate-subagent` for isolated pricing queries
-- **Output** — `agent-output/{project}/02-architecture-assessment.md` + `03-des-cost-estimate.md`
-
-### Step 3: Design Artifacts (Artisan | Optional)
-
-- **Architecture Diagrams** — `azure-diagrams` skill generates Python-based diagrams
-- **Decision Records** — `azure-adr` skill creates Architecture Decision Records
-- **Output** — `agent-output/{project}/03-des-*.md/.py/.png`
-
-### Step 4: Planning (Strategist)
-
-- **Governance Discovery** — Delegated to `governance-discovery-subagent` for Azure Policy REST API queries
-- **Implementation Plan** — `bicep-plan` agent creates detailed, phased implementation plan
-- **Auto-Generated Diagrams** — `bicep-plan` also generates Step 4 dependency and runtime diagrams
-- **GATE: Plan Approval** — User reviews and approves before implementation
-- **Output** — `agent-output/{project}/04-implementation-plan.md`, `04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png`
-
-### Step 5: Implementation (Forge)
-
-- **Bicep Generation** — `bicep-code` agent creates AVM-first Bicep templates
-- **Preflight Validation** — `bicep-lint-subagent` and `bicep-review-subagent` validate code
-- **GATE: Pre-Deploy** — User reviews validation results
-- **Output** — `infra/bicep/{project}/` with `05-implementation-reference.md`
-
-### Step 6: Deployment (Envoy)
-
-- **Azure Provisioning** — `deploy` agent executes deployment; `bicep-whatif-subagent` previews changes first
-- **GATE: Post-Deploy** — User verifies deployed resources
-- **Output** — `agent-output/{project}/06-deployment-summary.md`
-
-### Step 7: Documentation (Chronicler)
-
-- **As-Built Suite** — `as-built` agent reads all prior artifacts (01-06) and deployed resource state
-- **Output** — `agent-output/{project}/07-*.md` (design doc, runbook, cost estimate, compliance, DR plan, inventory)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>⚡ Quick Start</summary>
-
 ## ⚡ Quick Start
 
-### Prerequisites
-
-| Requirement           | Details                                                                                                                 |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 🐳 Docker Desktop     | Or Podman, Colima, Rancher Desktop                                                                                      |
-| 💻 VS Code            | With [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension |
-| 🤖 GitHub Copilot     | Active subscription with Chat extension                                                                                 |
-| ☁️ Azure subscription | Optional for learning, required for deployment                                                                          |
-
-### 1️⃣ Clone and Open
+**Prerequisites:** Docker Desktop (or Podman/Rancher), VS Code with Dev Containers, GitHub Copilot.
 
 ```bash
 git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
@@ -337,389 +157,112 @@ cd azure-agentic-infraops
 code .
 ```
 
-### 2️⃣ Start Dev Container
-
-Press `F1` → **Dev Containers: Reopen in Container**
-
-> ⏱️ First build takes 2-3 minutes. All tools are pre-installed.
-
-### 3️⃣ Enable Custom Agent Subagents
-
-> **⚠️ Required Setting**: In your VS Code **User Settings** (`Ctrl+,`), enable:
->
-> ```json
-> { "chat.customAgentInSubagent.enabled": true }
-> ```
->
-> Without this, the Conductor cannot delegate to specialized agents.
-
-### 4️⃣ Start the Conductor
-
-Press `Ctrl+Shift+I` → Select **InfraOps Conductor** from the agent dropdown
-
-### 5️⃣ Try It
+1. Press `F1` → **Dev Containers: Reopen in Container** _(first build: ~2-3 min, all tools pre-installed)_
+2. Enable the required VS Code setting:
+   ```json
+   { "chat.customAgentInSubagent.enabled": true }
+   ```
+3. Press `Ctrl+Shift+I` → select **InfraOps Conductor** → describe your infrastructure
 
 ```text
 Create a web app with Azure App Service, Key Vault, and SQL Database
 ```
 
-The Conductor will guide you through all 7 steps with approval gates. Say `yes` to continue, or
-provide feedback to refine.
+The Conductor guides you through all 7 steps with approval gates.
 
 📖 **[Full Quick Start Guide →](docs/quickstart.md)**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-</details>
-
 ---
 
+## Agents
+
 <details>
-<summary>Usage Examples</summary>
+<summary>View full agent roster</summary>
 
-## Usage Examples
+### Conductor
 
-### Example: E-Commerce Platform
+| Agent                  | Role                                      |
+| ---------------------- | ----------------------------------------- |
+| **InfraOps Conductor** | Master orchestrator — manages all 7 steps |
 
-```text
-User: Create an e-commerce platform with AKS, Cosmos DB, and Redis caching
+### Core Agents
 
-Conductor:
-  ├─ @requirements → 01-requirements.md (functional, NFRs, compliance)
-  ├─ @architect → 02-architecture-assessment.md (WAF analysis, cost estimate)
-  │   └─ Azure Pricing MCP (real-time SKU pricing)
-  ├─ azure-diagrams skill → 03-des-diagram.py/.png
-  ├─ @bicep-plan → 04-implementation-plan.md (governance constraints)
-  │
-  │   [GATE 1: User approves plan]
-  │
-  ├─ @bicep-code → infra/bicep/ecommerce/
-  │   ├─ @bicep-lint-subagent → Syntax validation ✓
-  │   ├─ @bicep-whatif-subagent → What-if preview ✓
-  │   └─ @bicep-review-subagent → AVM compliance ✓
-  │
-  │   [GATE 2: User approves pre-deployment]
-  │
-  ├─ @deploy → 06-deployment-summary.md
-  │
-  │   [GATE 3: User verifies deployment]
-  │
-  └─ azure-artifacts skill → 07-*.md (design doc, runbook, DR plan)
-```
+| Step | Agent          | Role                                            |
+| ---- | -------------- | ----------------------------------------------- |
+| 1    | `requirements` | Captures functional, NFR, and compliance needs  |
+| 2    | `architect`    | WAF assessment, design decisions, cost estimate |
+| 3    | `design`       | Architecture diagrams and ADRs (optional)       |
+| 4    | `bicep-plan`   | Implementation planning with governance         |
+| 5    | `bicep-code`   | AVM-first Bicep template generation             |
+| 6    | `deploy`       | Azure resource provisioning                     |
+| 7    | `as-built`     | As-built documentation suite                    |
 
-### Direct Agent Invocation
+### Subagents
 
-You can also invoke agents directly for specific tasks:
+| Subagent                        | Role                                          |
+| ------------------------------- | --------------------------------------------- |
+| `cost-estimate-subagent`        | Azure Pricing MCP queries                     |
+| `governance-discovery-subagent` | Azure Policy REST API discovery               |
+| `bicep-lint-subagent`           | Syntax validation (bicep lint, bicep build)   |
+| `bicep-review-subagent`         | Code review (AVM standards, security, naming) |
+| `bicep-whatif-subagent`         | Deployment preview (az deployment what-if)    |
 
-```bash
-# Gather requirements only
-Ctrl+Shift+A → requirements → "Capture requirements for a static web app"
+### Standalone Agents
 
-# WAF assessment only
-Ctrl+Shift+A → architect → "Assess the requirements in 01-requirements.md"
+| Agent        | Role                                                                                    |
+| ------------ | --------------------------------------------------------------------------------------- |
+| `challenger` | Adversarial reviewer — challenges requirements, architecture, and plans for blind spots |
+| `diagnose`   | Resource health assessment and troubleshooting                                          |
 
-# Diagnose existing resources
-Ctrl+Shift+A → diagnose → "Check health of my App Service apps"
-```
+</details>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-</details>
-
 ---
-
-<details>
-<summary>Skills (Reusable Capabilities)</summary>
-
-## Skills (Reusable Capabilities)
-
-8 skills provide reusable capabilities across agents:
-
-| Skill                 | Purpose                                            | Output            |
-| --------------------- | -------------------------------------------------- | ----------------- |
-| `azure-adr`           | Architecture Decision Records                      | `03-des-adr-*.md` |
-| `azure-artifacts`     | Template H2 structures, styling, generation rules  | `01-07` artifacts |
-| `azure-defaults`      | Azure conventions, naming, AVM, WAF, pricing, tags | —                 |
-| `azure-diagrams`      | Architecture diagrams (700+ Azure icons)           | `.py` + `.png`    |
-| `docs-writer`         | Repo-aware documentation maintenance               | —                 |
-| `git-commit`          | Conventional commit messages                       | —                 |
-| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases         | —                 |
-| `make-skill-template` | Create new skills from template                    | —                 |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>Generated Artifacts</summary>
-
-## Generated Artifacts
-
-### Workflow Artifacts
-
-| Phase | Artifact                         | Description                                         |
-| ----- | -------------------------------- | --------------------------------------------------- |
-| 1     | `01-requirements.md`             | Functional, non-functional, compliance requirements |
-| 2     | `02-architecture-assessment.md`  | WAF analysis, SKU recommendations, cost estimate    |
-| 3     | `03-des-*.md/.py/.png`           | Diagrams, ADRs, cost estimates                      |
-| 4     | `04-implementation-plan.md`      | Phased implementation plan with governance          |
-| 4     | `04-dependency-diagram.py/.png`  | Module dependency visualization                     |
-| 4     | `04-runtime-diagram.py/.png`     | Runtime flow visualization                          |
-| 4     | `04-governance-constraints.md`   | Azure Policy discovery results                      |
-| 5     | `05-implementation-reference.md` | Bicep module inventory and validation status        |
-| 6     | `06-deployment-summary.md`       | Deployed resources and verification                 |
-| 7     | `07-design-document.md`          | Technical design documentation                      |
-| 7     | `07-operations-runbook.md`       | Day-2 operations procedures                         |
-| 7     | `07-backup-dr-plan.md`           | Backup and disaster recovery plan                   |
-| 7     | `07-resource-inventory.md`       | Complete resource inventory                         |
-
-### Sample Outputs
-
-Explore complete workflow outputs in [`agent-output/`](agent-output/):
-
-| Project                                                | Description                     | Highlights               |
-| ------------------------------------------------------ | ------------------------------- | ------------------------ |
-| [e2e-conductor-test](agent-output/e2e-conductor-test/) | End-to-end Conductor validation | Full 7-step workflow     |
-| [static-webapp](agent-output/static-webapp/)           | Static Web App with Functions   | Production-ready pattern |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>🧩 MCP Integration</summary>
 
 ## 🧩 MCP Integration
 
-### Microsoft Azure MCP Server
-
-The core enabler behind "agents with real Azure context":
-
-| Feature            | Description                                               |
-| ------------------ | --------------------------------------------------------- |
-| **RBAC-Aware**     | Tools operate within your existing Azure permissions      |
-| **Broad Coverage** | 40+ Azure service areas: platform, monitoring, governance |
-| **Day-0 to Day-2** | Discovery, validation, and troubleshooting workflows      |
-
-📖 **[Azure MCP Server →](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md)**
-
-### 💰 Pricing MCP Add-on
-
-Real-time Azure retail pricing for cost-aware SKU decisions. Pre-configured in this repo.
-
-📖 **[Pricing MCP Documentation →](mcp/azure-pricing-mcp/)**
+| MCP Server                                                                                        | Purpose                                                 |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [Azure MCP Server](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md) | 40+ Azure service tools — governance, monitoring, RBAC  |
+| [Pricing MCP](mcp/azure-pricing-mcp/)                                                             | Real-time Azure retail pricing for cost-aware decisions |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
 
 ---
 
-<details>
-<summary>📁 Project Structure</summary>
+## Related Repositories
 
-## 📁 Project Structure
+### 🚀 [azure-agentic-infraops-accelerator](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 
-```text
-├── 📁 .github/
-│   ├── 📁 agents/             # 9 main agents + 5 validation subagents
-│   │   ├── 01-conductor.agent.md             # 🎼 Maestro - Master orchestrator
-│   │   ├── 02-requirements.agent.md          # 📜 Scribe - Requirements capture
-│   │   ├── 03-architect.agent.md             # 🏛️ Oracle - WAF assessment
-│   │   ├── 04-design.agent.md                # 🎨 Artisan - Diagrams/ADRs
-│   │   ├── 05-bicep-planner.agent.md         # 📐 Strategist - Planning
-│   │   ├── 06-bicep-code-generator.agent.md  # ⚒️ Forge - Bicep generation
-│   │   ├── 07-deploy.agent.md                # 🚀 Envoy - Deployment
-│   │   ├── 08-as-built.agent.md              # 📋 Archivist - As-built docs
-│   │   ├── 09-diagnose.agent.md              # 🔍 Sentinel - Diagnostics
-│   │   └── 📁 _subagents/               # Validation subagents
-│   ├── 📁 instructions/       # Guardrails and coding standards
-    └── 📁 skills/             # 8 reusable skills
-├── 📁 agent-output/           # Generated artifacts per project
-├── 📁 docs/                   # Documentation and guides
-│   └── 📁 prompt-guide/       # Prompt examples for all agents & skills
-├── 📁 infra/bicep/            # Generated Bicep templates
-└── 📁 mcp/azure-pricing-mcp/  # 💰 Pricing MCP add-on
-```
+A curated collection of pre-built, production-ready Azure infrastructure patterns generated and
+validated by the Agentic InfraOps workflow. Use it as a starting point for common workload
+archetypes—each pattern ships with Bicep templates, agent artifacts, and deployment scripts.
+
+### 🎓 [azure-agentic-infraops-workshops](https://github.com/jonathan-vella/azure-agentic-infraops-workshops)
+
+Hands-on workshop material for teams and individuals learning the Agentic InfraOps workflow.
+Structured labs walk you through each of the 7 steps with guided exercises, sample prompts, and
+reference solutions—from first Conductor run to full deployment.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
 
 ---
 
-<details>
-<summary>Configuration</summary>
+## 🤝 Contributing & License
 
-## Configuration
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+MIT License — see [LICENSE](LICENSE) for details.
 
-### VS Code Settings
-
-**Required** (in devcontainer.json or User Settings):
-
-```json
-{
-  "chat.customAgentInSubagent.enabled": true,
-  "chat.agentFilesLocations": {
-    ".github/agents": true,
-    ".github/agents/_subagents": true
-  },
-  "chat.agentSkillsLocations": {
-    ".github/skills": true
-  }
-}
-```
-
-**Recommended** (in .vscode/settings.json):
-
-```json
-{
-  "github.copilot.chat.responsesApiReasoningEffort": "high",
-  "chat.thinking.style": "detailed"
-}
-```
-
-### Customizing Agents
-
-Each agent is defined in a `.agent.md` file that you can modify:
-
-1. **Adjust AI Model** — Change the `model` field in frontmatter
-2. **Modify Instructions** — Edit the main section to change behavior
-3. **Add Tools** — Extend the `tools` array for additional capabilities
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>Best Practices</summary>
-
-## Best Practices
-
-1. **Use the Conductor for complete workflows** — Let it orchestrate the full 7-step cycle
-2. **Review artifacts at each gate** — The approval points are designed for human oversight
-3. **Leverage preflight validation** — Let the subagents catch issues before deployment
-4. **Trust the WAF process** — The architect agent enforces best practices
-5. **Commit frequently** — After each approved phase, commit the artifacts
-6. **Delegate appropriately** — Use direct agent invocation for focused tasks
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>🎯 Prompt Guide</summary>
-
-## 🎯 Prompt Guide
-
-Ready-to-use prompt examples for every agent and skill:
-
-| Section               | What You'll Find                              |
-| --------------------- | --------------------------------------------- |
-| **7-Step Workflow**   | Prompts for each step (Requirements → Deploy) |
-| **Standalone Agents** | Conductor and Diagnose agent examples         |
-| **Skills Reference**  | Independent skill usage with examples         |
-| **Tips & Patterns**   | Advanced prompting, chaining, context priming |
-
-📖 **[Full Prompt Guide →](docs/prompt-guide/)**
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>📋 Requirements</summary>
-
-## 📋 Requirements
-
-| Requirement            | Details                                                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------- |
-| **VS Code**            | With [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) |
-| **Dev Container**      | [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Codespaces           |
-| **Azure subscription** | For deployments (optional for learning)                                                   |
-
-**Included in Dev Container:**
-
-- ✅ Azure CLI with Bicep extension
-- ✅ PowerShell 7+ and Python 3.10+
-- ✅ All required VS Code extensions
-- ✅ Pricing MCP add-on (auto-configured)
-- ✅ Python diagrams library (auto-installed)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>🤝 Contributing</summary>
-
-## 🤝 Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>📄 License</summary>
-
-## 📄 License
-
-MIT License. See [LICENSE](LICENSE) for details.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
-
----
-
-<details>
-<summary>Acknowledgments</summary>
-
-## Acknowledgments
-
-This project builds upon the excellent work of:
-
-- [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra) by ShepAlderson —
-  Foundation for multi-agent orchestration patterns
-- [Github-Copilot-Atlas](https://github.com/bigguy345/Github-Copilot-Atlas) by bigguy345 —
-  Inspiration for context conservation and parallel execution
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-</details>
+Built upon [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra) and
+[Github-Copilot-Atlas](https://github.com/bigguy345/Github-Copilot-Atlas).
 
 ---
 
 <div align="center">
-  <p>
-    Made with ❤️ by <a href="https://github.com/jonathan-vella">Jonathan Vella</a>
-  </p>
-  <p>
-    <a href="https://github.com/jonathan-vella/azure-agentic-infraops">
-      <img
-        src="https://img.shields.io/badge/GitHub-azure--agentic--infraops-blue?style=for-the-badge&logo=github"
-        alt="GitHub Repo">
-    </a>
-  </p>
-  <p>
-    🎓 <strong>Hands-on Workshop</strong>: <a href="https://github.com/jonathan-vella/azure-agentic-infraops-workshop">azure-agentic-infraops-workshop</a>
-  </p>
+  <p>Made with ❤️ by <a href="https://github.com/jonathan-vella">Jonathan Vella</a></p>
 </div>
 
 <!-- MARKDOWN LINKS & IMAGES -->
