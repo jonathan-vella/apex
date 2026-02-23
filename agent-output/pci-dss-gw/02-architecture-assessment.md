@@ -48,7 +48,7 @@
 
 ---
 
-## 📎 Executive Summary
+## 💎 Executive Summary
 
 ### Architecture Overview
 
@@ -85,7 +85,7 @@ This is a **PCI-DSS Level 1 payment gateway** on Azure, designed for 10,000 TPS 
 
 ---
 
-## 🏗️ WAF Pillar Assessment
+## 🏛️ WAF Pillar Assessment
 
 ### 🔒 Security — 9/10 (Confidence: High)
 

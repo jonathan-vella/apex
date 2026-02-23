@@ -31,7 +31,9 @@
 > [!NOTE]
 > 📚 E2E validation test for the 7-step orchestration workflow. Azure Static Web App with CDN deployment.
 
-## 📋 Overview a globally distributed static web application using Azure Static Web Apps (Free tier) with Azure CDN for content delivery. The architecture prioritizes **cost optimization** while meeting 99.9% availability requirements.
+## 📋 Overview
+
+A globally distributed static web application using Azure Static Web Apps (Free tier) with Azure CDN for content delivery. The architecture prioritizes **cost optimization** while meeting 99.9% availability requirements.
 
 **Primary Region**: westeurope (required - Static Web Apps regional limitation)  
 **Environment**: dev  
@@ -52,8 +54,9 @@ This plan was generated AFTER discovering and analyzing Azure Policy constraints
 
 ---
 
-## 📦 Resource Inventory Type | SKU/Tier | AVM Module | Region | Dependencies |
+## 📦 Resource Inventory
 
+| Type | SKU/Tier | AVM Module | Region | Dependencies |
 | ----------------------- | ---------------------------------------- | ------------------ | ----------------------------------------------- | ---------- | ----------------- |
 | Resource Group | Microsoft.Resources/resourceGroups | N/A | `avm/res/resources/resource-group:0.4.3` | westeurope | (foundation) |
 | Static Web App | Microsoft.Web/staticSites | Free | `avm/res/web/static-site:0.9.3` | westeurope | Resource Group |
@@ -85,7 +88,9 @@ This plan was generated AFTER discovering and analyzing Azure Policy constraints
 
 ---
 
-## 🔨 Implementation Tasks: main.bicep (Orchestration)
+## 🔨 Implementation Tasks
+
+### main.bicep (Orchestration)
 
 **Purpose**: Main entry point at subscription scope, orchestrates all module deployments
 
@@ -377,8 +382,9 @@ if ($WhatIf) {
 
 ---
 
-## 🚀 Deployment Phases | Resources | Dependencies | Estimated Duration |
+## 🚀 Deployment Phases
 
+| Phase | Resources | Dependencies | Estimated Duration |
 | -------------------- | ------------------------------------------- | --------------------------------- | ------------------ |
 | 1 - Foundation | Resource Group, Log Analytics, Action Group | None | 5 minutes |
 | 2 - Application | Static Web App | Phase 1 | 5 minutes |
@@ -386,20 +392,25 @@ if ($WhatIf) {
 
 ---
 
-## 🔗 Dependency Graph(./04-dependency-diagram.png)
+## 🔗 Dependency Graph
+
+![Dependency Graph](./04-dependency-diagram.png)
 
 Source: [04-dependency-diagram.py](./04-dependency-diagram.py)
 
 ---
 
-## 🔄 Runtime Flow Diagram(./04-runtime-diagram.png)
+## 🔄 Runtime Flow Diagram
+
+![Runtime Flow Diagram](./04-runtime-diagram.png)
 
 Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
 
 ---
 
-## 🏷️ Naming Conventions Pattern | Example |
+## 🏷️ Naming Conventions
 
+| Pattern | Example |
 | -------------- | ----------------------------- | ------------------------------- |
 | Resource Group | `rg-{project}-{env}-{region}` | `rg-e2e-conductor-test-dev-weu` |
 | Static Web App | `stapp-{project}-{env}` | `stapp-e2e-conduc-dev` |
@@ -410,8 +421,9 @@ Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
 
 ---
 
-## 🔐 Security Configuration | Value |
+## 🔐 Security Configuration
 
+| Setting | Category | Value |
 | -------------- | ------------------- | --------------- |
 | Static Web App | Staging Environment | Enabled |
 | Static Web App | TLS Version | 1.2+ (enforced) |
@@ -434,8 +446,9 @@ Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
 
 ---
 
-## ⏱️ Estimated Implementation Time | Estimated Duration |
+## ⏱️ Estimated Implementation Time
 
+| Task | Estimated Duration |
 | ------------------------------ | ------------------ |
 | Bicep modules (6 resources) | 30 minutes |
 | Testing (lint, build, what-if) | 15 minutes |

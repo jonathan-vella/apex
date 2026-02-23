@@ -113,7 +113,7 @@ The master orchestrator agent that coordinates all 7 steps of the infrastructure
 mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
 orchestration features.
 
-📁 **See**: [.github/agents/infraops-conductor.agent.md](../.github/agents/infraops-conductor.agent.md)
+📁 **See**: [.github/agents/01-conductor.agent.md](../.github/agents/01-conductor.agent.md)
 
 ### IaC (Infrastructure as Code)
 

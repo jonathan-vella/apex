@@ -15,7 +15,7 @@ This project now implements the **Conductor pattern** from VS Code 1.109:
 - **New Frontmatter**: `user-invokable`, `agents` list, model fallbacks
 - **Skills GA**: Skills are now generally available with enhanced discovery
 
-See the [conductor agent](../.github/agents/infraops-conductor.agent.md) for orchestration details.
+See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestration details.
 
 ## Quick Links
 

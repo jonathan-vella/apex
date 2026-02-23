@@ -87,7 +87,7 @@
 | 5    | Resource Group        | $0.00        | $0.00       | 0%         | N/A                    |
 |      | **Total**             | **$0.10**    | **$1.20**   | **100%**   | **✅ Fully optimized** |
 
-## 🏗️ Architecture Overview
+## 🏛️ Architecture Overview
 
 %%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900'}}}%%
 pie showData
@@ -139,7 +139,9 @@ The deployed architecture consists of a Free-tier Azure Static Web App with moni
 
 Current configuration is fully optimized. No further savings available without removing functionality.
 
-## 🧧 Detailed Cost Breakdown | Resource | SKU | Monthly Cost | Annual Cost |
+## 🧾 Detailed Cost Breakdown
+
+| Category | Resource | SKU | Monthly Cost | Annual Cost |
 | -------- | -------- | --- | ------------ | ----------- |
 | Compute | Static Web App | Free | $0.00 | $0.00 |
 | Monitoring | Log Analytics Workspace | Free | $0.00 | $0.00 |

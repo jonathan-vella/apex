@@ -25,7 +25,7 @@
 > [!NOTE]
 > 📚 See [documentation-styling.md](../../.github/agents/_shared/documentation-styling.md) for visual standards.
 
-## Purpose
+## 🎯 Purpose
 
 > [!IMPORTANT]
 > This checkpoint validates AVM module schemas BEFORE Bicep code generation.
@@ -37,7 +37,7 @@ Prevents:
 - Region availability issues
 - Object structure errors
 
-## AVM Schema Validation Results
+## ✅ AVM Schema Validation Results
 
 | Resource       | AVM Module Path                                    | Version | Status                      |
 | -------------- | -------------------------------------------------- | ------- | --------------------------- |
@@ -46,7 +46,7 @@ Prevents:
 | Action Group   | `br/public:avm/res/insights/action-group`          | 0.3.1   | ✅                          |
 | CDN Profile    | `br/public:avm/res/cdn/profile`                    | 0.8.1   | ⏭️ Skipped (deprecated SKU) |
 
-## Parameter Type Analysis
+## 🔎 Parameter Type Analysis
 
 | Resource       | Parameter         | Expected Type | Notes                 |
 | -------------- | ----------------- | ------------- | --------------------- |
@@ -55,14 +55,14 @@ Prevents:
 | Action Group   | `groupShortName`  | `string`      | Max 12 characters     |
 | CDN Profile    | `sku`             | `object`      | Deprecated - not used |
 
-## Region Limitations Identified
+## 🌍 Region Limitations Identified
 
 | Resource         | Default Region | Limitation                     | Action              |
 | ---------------- | -------------- | ------------------------------ | ------------------- |
 | Static Web App   | swedencentral  | Not supported in swedencentral | Hardcode westeurope |
 | Deployment Scope | swedencentral  | No limitation                  | Use as-is           |
 
-## Pitfalls Checklist
+## ⚠️ Pitfalls Checklist
 
 Based on [avm-pitfalls.md](../../.github/agents/_shared/avm-pitfalls.md):
 
@@ -72,7 +72,7 @@ Based on [avm-pitfalls.md](../../.github/agents/_shared/avm-pitfalls.md):
 - [x] CDN disabled due to deprecated Standard_Microsoft SKU
 - [x] Conditional module syntax used for optional resources
 
-## Ready for Implementation
+## 🚀 Ready for Implementation
 
 | Check                      | Status | Notes                         |
 | -------------------------- | ------ | ----------------------------- |

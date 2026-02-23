@@ -88,14 +88,14 @@ export PATH="${HOME}/.local/bin:${PATH}"
 if command -v uv &> /dev/null; then
     mkdir -p "${HOME}/.cache/uv" 2>/dev/null || true
     chmod -R 755 "${HOME}/.cache/uv" 2>/dev/null || true
-    if uv pip install --system --quiet diagrams matplotlib pillow checkov 2>&1; then
-        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov)"
+    if uv pip install --system --quiet diagrams matplotlib pillow checkov ruff 2>&1; then
+        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, ruff)"
     else
         step_warn "uv install had issues, continuing"
     fi
 else
-    if pip3 install --quiet --user diagrams matplotlib pillow checkov 2>&1 | tail -1; then
-        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov)"
+    if pip3 install --quiet --user diagrams matplotlib pillow checkov ruff 2>&1 | tail -1; then
+        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, ruff)"
     else
         step_warn "pip install had issues"
     fi

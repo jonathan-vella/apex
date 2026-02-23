@@ -78,11 +78,15 @@
 | ----- | ------------ | ---------- | ------------- | ---------- |
 | {gap} | 🔴 / 🟡 / 🟢 | {risk}     | {remediation} | {timeline} |
 
-![Compliance Gaps by Severity](./07-ab-compliance-gaps.png)
+```mermaid
+pie title Compliance Gaps by Severity
+    "Critical" : 0
+    "High" : 0
+    "Medium" : 0
+    "Low" : 0
+```
 
-> Generate `07-ab-compliance-gaps.png` using the pattern in `azure-diagrams` skill →
-> `references/waf-cost-charts.md` → **Chart 5 – Compliance Gaps by Severity**.
-> Replace placeholder counts with actual gap counts before running.
+> Replace placeholder counts above with actual gap counts from the gap analysis.
 
 ---
 
