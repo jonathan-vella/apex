@@ -137,54 +137,8 @@ for the complete heading reference.
 
 ### Callout Types
 
-```markdown
-> [!NOTE]
-> Informational - background context
-
-> [!TIP]
-> Best practice recommendation
-
-> [!IMPORTANT]
-> Critical requirement
-
-> [!WARNING]
-> Security/reliability concern
-
-> [!CAUTION]
-> Data loss risk or irreversible action
-```
-
-### Collapsible Sections
-
-Use for lengthy content (tables >10 rows, code examples, appendix material):
-
-```markdown
-<details>
-<summary>📋 Detailed Configuration</summary>
-
-| Setting | Value |
-| ------- | ----- |
-| ...     | ...   |
-
-</details>
-```
-
-### References Section
-
-Every documentation artifact SHOULD include a `## References` section at the bottom:
-
-```markdown
----
-
-## References
-
-> [!NOTE]
-> 📚 The following Microsoft Learn resources provide additional guidance.
-
-| Topic      | Link                                            |
-| ---------- | ----------------------------------------------- |
-| Topic Name | [Display Text](https://learn.microsoft.com/...) |
-```
+Supported: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
+Full examples and emoji tables are in the SKILL.md linked above.
 
 ## Lists and Formatting
 
