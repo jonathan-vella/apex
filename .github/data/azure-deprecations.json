@@ -1,16 +1,26 @@
 {
-  "lastUpdated": "2026-02-05T14:00:00.000Z",
+  "lastUpdated": "2026-02-23T07:11:58.363Z",
   "totalCount": 6,
-  "sources": ["manual-known", "azure-updates-rss"],
+  "sources": [
+    "manual-known",
+    "azure-updates-rss"
+  ],
   "deprecations": [
+    {
+      "service": "Azure Container Registry",
+      "sku": "Classic",
+      "sunsetDate": "2024-03-31",
+      "replacement": "Basic/Standard/Premium",
+      "source": "manual",
+      "addedDate": "2023-01-01"
+    },
     {
       "service": "Azure CDN",
       "sku": "Standard_Microsoft",
       "sunsetDate": "2025-09-30",
       "replacement": "Standard_AzureFrontDoor",
       "source": "manual",
-      "addedDate": "2024-01-15",
-      "notes": "Microsoft Classic CDN no longer accepts new profile creation. Existing profiles continue to work until sunset date."
+      "addedDate": "2024-01-15"
     },
     {
       "service": "Azure CDN",
@@ -18,8 +28,7 @@
       "sunsetDate": "2025-09-30",
       "replacement": "Premium_AzureFrontDoor",
       "source": "manual",
-      "addedDate": "2024-01-15",
-      "notes": "Microsoft Classic CDN no longer accepts new profile creation. Existing profiles continue to work until sunset date."
+      "addedDate": "2024-01-15"
     },
     {
       "service": "Application Gateway",
@@ -27,8 +36,7 @@
       "sunsetDate": "2026-04-28",
       "replacement": "Standard_v2",
       "source": "manual",
-      "addedDate": "2024-06-01",
-      "notes": "v1 SKUs are being retired. Migrate to v2 for autoscaling and zone redundancy."
+      "addedDate": "2024-06-01"
     },
     {
       "service": "Application Gateway",
@@ -36,17 +44,7 @@
       "sunsetDate": "2026-04-28",
       "replacement": "WAF_v2",
       "source": "manual",
-      "addedDate": "2024-06-01",
-      "notes": "v1 SKUs are being retired. Migrate to v2 for autoscaling and zone redundancy."
-    },
-    {
-      "service": "Azure Container Registry",
-      "sku": "Classic",
-      "sunsetDate": "2024-03-31",
-      "replacement": "Basic/Standard/Premium",
-      "source": "manual",
-      "addedDate": "2023-01-01",
-      "notes": "Classic tier has been fully retired."
+      "addedDate": "2024-06-01"
     },
     {
       "service": "Azure Service Bus",
@@ -54,7 +52,7 @@
       "sunsetDate": null,
       "replacement": "Standard/Premium",
       "source": "manual",
-      "notes": "Basic tier has limited features, consider Premium for production workloads."
+      "notes": "Basic tier has limited features, consider Premium for production"
     }
   ]
 }
