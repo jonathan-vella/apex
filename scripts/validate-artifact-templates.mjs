@@ -234,7 +234,8 @@ const AGENTS = {
   "04-governance-constraints.md": ".github/agents/05-bicep-planner.agent.md",
   "04-preflight-check.md": ".github/agents/06-bicep-code-generator.agent.md",
   "06-deployment-summary.md": ".github/agents/07-deploy.agent.md",
-  "05-implementation-reference.md": ".github/agents/06-bicep-code-generator.agent.md",
+  "05-implementation-reference.md":
+    ".github/agents/06-bicep-code-generator.agent.md",
   "07-design-document.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-operations-runbook.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-resource-inventory.md": ".github/skills/azure-artifacts/SKILL.md",
