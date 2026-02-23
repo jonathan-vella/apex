@@ -140,22 +140,11 @@ When performing a code review, check for security issues:
 - **Dependency Security**: Check for known vulnerabilities in dependencies
 
 ### Examples
-```java
-// ❌ BAD: SQL injection vulnerability
-String query = "SELECT * FROM users WHERE email = '" + email + "'";
-
-// ✅ GOOD: Parameterized query
-PreparedStatement stmt = conn.prepareStatement(
-    "SELECT * FROM users WHERE email = ?"
-);
-stmt.setString(1, email);
-```
-
 ```javascript
-// ❌ BAD: Exposed secret in code
+// BAD: Exposed secret in code
 const API_KEY = "sk_live_abc123xyz789";
 
-// ✅ GOOD: Use environment variables
+// GOOD: Use environment variables
 const API_KEY = process.env.API_KEY;
 ```
 
@@ -172,14 +161,8 @@ When performing a code review, verify test quality:
 - **Mock Appropriately**: Mock external dependencies, not domain logic
 
 ### Examples
-```typescript
-// ❌ BAD: Vague name and assertion
-test('test1', () => {
-    const result = calc(5, 10);
-    expect(result).toBeTruthy();
-});
-
-// ✅ GOOD: Descriptive name and specific assertion
+```javascript
+// GOOD: Descriptive name and specific assertion
 test('should calculate 10% discount for orders under $100', () => {
     const orderTotal = 50;
     const itemPrice = 20;
@@ -253,87 +236,6 @@ Explanation of the impact or reason for the suggestion.
 **Reference:** [link to relevant documentation or standard]
 ```
 
-### Example Comments
-
-#### Critical Issue
-````markdown
-**🔴 CRITICAL - Security: SQL Injection Vulnerability**
-
-The query on line 45 concatenates user input directly into the SQL string,
-creating a SQL injection vulnerability.
-
-**Why this matters:**
-An attacker could manipulate the email parameter to execute arbitrary SQL commands,
-potentially exposing or deleting all database data.
-
-**Suggested fix:**
-```sql
--- Instead of:
-query = "SELECT * FROM users WHERE email = '" + email + "'"
-
--- Use:
-PreparedStatement stmt = conn.prepareStatement(
-    "SELECT * FROM users WHERE email = ?"
-);
-stmt.setString(1, email);
-```
-
-**Reference:** OWASP SQL Injection Prevention Cheat Sheet
-````
-
-#### Important Issue
-````markdown
-**🟡 IMPORTANT - Testing: Missing test coverage for critical path**
-
-The `processPayment()` function handles financial transactions but has no tests
-for the refund scenario.
-
-**Why this matters:**
-Refunds involve money movement and should be thoroughly tested to prevent
-financial errors or data inconsistencies.
-
-**Suggested fix:**
-Add test case:
-```javascript
-test('should process full refund when order is cancelled', () => {
-    const order = createOrder({ total: 100, status: 'cancelled' });
-
-    const result = processPayment(order, { type: 'refund' });
-
-    expect(result.refundAmount).toBe(100);
-    expect(result.status).toBe('refunded');
-});
-```
-````
-
-#### Suggestion
-````markdown
-**🟢 SUGGESTION - Readability: Simplify nested conditionals**
-
-The nested if statements on lines 30-40 make the logic hard to follow.
-
-**Why this matters:**
-Simpler code is easier to maintain, debug, and test.
-
-**Suggested fix:**
-```javascript
-// Instead of nested ifs:
-if (user) {
-    if (user.isActive) {
-        if (user.hasPermission('write')) {
-            // do something
-        }
-    }
-}
-
-// Consider guard clauses:
-if (!user || !user.isActive || !user.hasPermission('write')) {
-    return;
-}
-// do something
-```
-````
-
 ## Review Checklist
 
 When performing a code review, systematically verify:
@@ -378,28 +280,6 @@ When performing a code review, systematically verify:
 - [ ] Complex logic has explanatory comments
 - [ ] README is updated if needed
 - [ ] Breaking changes are documented
-
-## Additional Resources
-
-For more information on effective code reviews and GitHub Copilot customization:
-
-- [GitHub Copilot Prompt Engineering](https://docs.github.com/en/copilot/concepts/prompting/prompt-engineering)
-- [GitHub Copilot Custom Instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
-- [Awesome GitHub Copilot Repository](https://github.com/github/awesome-copilot)
-- [GitHub Code Review Guidelines](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests)
-- [Google Engineering Practices - Code Review](https://google.github.io/eng-practices/review/)
-- [OWASP Security Guidelines](https://owasp.org/)
-
-## Prompt Engineering Tips
-
-When performing a code review, apply these prompt engineering principles from the [GitHub Copilot documentation](https://docs.github.com/en/copilot/concepts/prompting/prompt-engineering):
-
-1. **Start General, Then Get Specific**: Begin with high-level architecture review, then drill into implementation details
-2. **Give Examples**: Reference similar patterns in the codebase when suggesting changes
-3. **Break Complex Tasks**: Review large PRs in logical chunks (security → tests → logic → style)
-4. **Avoid Ambiguity**: Be specific about which file, line, and issue you're addressing
-5. **Indicate Relevant Code**: Reference related code that might be affected by changes
-6. **Experiment and Iterate**: If initial review misses something, review again with focused questions
 
 ## Project Context
 
