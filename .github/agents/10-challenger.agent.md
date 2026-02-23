@@ -6,6 +6,7 @@ argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output
 user-invokable: true
 tools:
   [
+    agent,
     read/readFile,
     search/textSearch,
     search/fileSearch,
