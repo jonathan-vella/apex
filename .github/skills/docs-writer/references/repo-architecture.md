@@ -92,7 +92,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-resource-inventory.template.md`       | Resource Inventory   | Relaxed           |
 | `PROJECT-README.template.md`              | Project README       | —                 |
 
-## Instruction File Map (20 Files)
+## Instruction File Map (19 Files)
 
 | Instruction                                        | Applies To (glob)                                 |
 | -------------------------------------------------- | ------------------------------------------------- |
@@ -102,7 +102,6 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `azure-artifacts.instructions.md`                  | `**/agent-output/**/*.md`                         |
 | `bicep-code-best-practices.instructions.md`        | `**/*.bicep`                                      |
 | `code-review.instructions.md`                      | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `copilot-thought-logging.instructions.md`          | `**`                                              |
 | `cost-estimate.instructions.md`                    | `**/03-des-cost-estimate.md`, etc.                |
 | `docs.instructions.md`                             | `docs/**/*.md`                                    |
 | `github-actions.instructions.md`                   | `.github/workflows/*.yml`                         |
