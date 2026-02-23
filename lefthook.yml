@@ -97,7 +97,7 @@ pre-commit:
         ❌ Agent frontmatter validation failed!
 
         🔧 Check YAML syntax in agent definitions
-        📚 Reference: .github/instructions/agents-definitions.instructions.md
+        📚 Reference: .github/instructions/agent-definitions.instructions.md
 
     instruction-frontmatter:
       glob: "**/*.instructions.md"

@@ -98,7 +98,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | -------------------------------------------------- | ------------------------------------------------- |
 | `agent-research-first.instructions.md`             | `**/*.agent.md`                                   |
 | `agent-skills.instructions.md`                     | `**/.github/skills/**/SKILL.md`                   |
-| `agents-definitions.instructions.md`               | `**/*.agent.md`                                   |
+| `agent-definitions.instructions.md`                | `**/*.agent.md`                                   |
 | `azure-artifacts.instructions.md`                  | `**/agent-output/**/*.md`                         |
 | `bicep-code-best-practices.instructions.md`        | `**/*.bicep`                                      |
 | `code-review.instructions.md`                      | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
@@ -111,9 +111,9 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `no-heredoc.instructions.md`                       | `**`                                              |
 | `powershell.instructions.md`                       | `**/*.ps1`, `**/*.psm1`                           |
 | `prompt.instructions.md`                           | `**/*.prompt.md`                                  |
-| `self-explanatory-code-commenting.instructions.md` | `**`                                              |
+| `code-commenting.instructions.md`                  | `**`                                              |
 | `shell.instructions.md`                            | `**/*.sh`                                         |
-| `update-docs-on-code-change.instructions.md`       | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
+| `docs-trigger.instructions.md`                     | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
 | `workload-documentation.instructions.md`           | `**/agent-output/**/07-*.md`                      |
 
 ## Artifact Flow (7-Step Workflow)

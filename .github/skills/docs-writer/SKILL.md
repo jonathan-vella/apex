@@ -49,7 +49,7 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | Path                                        | Governed By                                    |
 | ------------------------------------------- | ---------------------------------------------- |
 | `agent-output/**/*.md`                      | `azure-artifacts.instructions.md` + validators |
-| `.github/agents/*.agent.md`                 | `agents-definitions.instructions.md`           |
+| `.github/agents/*.agent.md`                 | `agent-definitions.instructions.md`            |
 | `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify)            |
 | `**/*.bicep`                                | `bicep-code-best-practices.instructions.md`    |
 

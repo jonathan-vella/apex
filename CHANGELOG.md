@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- docs(agents): document model selection guidance in `agents-definitions.instructions.md`.
+- docs(agents): document model selection guidance in `agent-definitions.instructions.md`.
 
 ### Changed
 
