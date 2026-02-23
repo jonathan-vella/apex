@@ -206,7 +206,9 @@ Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subag
 ### Tags (Azure Resource Tags)
 
 Key-value pairs applied to Azure resources for organization, cost tracking, and policy enforcement.
-Required tags in this project: Environment, ManagedBy, Project, Owner.
+Baseline tags: Environment, ManagedBy, Project, Owner.
+Governance constraints may require additional tags.
+See `bicep-code-best-practices.instructions.md` for the canonical tag rule.
 
 ---
 

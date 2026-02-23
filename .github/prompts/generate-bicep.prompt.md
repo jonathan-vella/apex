@@ -62,7 +62,7 @@ Generate templates following dependency order from the plan:
 2. **main.bicepparam** — parameter file for default environment
 3. **modules/** — one module per resource, AVM-first approach
 4. Apply to ALL resources:
-   - Required tags: `Environment`, `ManagedBy`, `Project`, `Owner`
+   - Baseline tags: `Environment`, `ManagedBy`, `Project`, `Owner` (governance may add more)
    - Security baseline: TLS 1.2, HTTPS-only, managed identity
    - CAF naming conventions with `take()` for length constraints
 

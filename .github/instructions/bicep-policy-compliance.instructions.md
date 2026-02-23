@@ -19,10 +19,10 @@ Azure Policy constraints for the target subscription.
 ## Dynamic Tag List
 
 Tags MUST come from governance constraints, not hardcoded defaults.
-The 4 defaults in `azure-defaults` (`Environment`, `ManagedBy`,
-`Project`, `Owner`) are a **MINIMUM** — discovered policies always
-win. If governance constraints specify 9 tags, the Bicep code MUST
-include all 9.
+The 4 baseline defaults in `bicep-code-best-practices.instructions.md`
+(`Environment`, `ManagedBy`, `Project`, `Owner`) are a **MINIMUM** —
+discovered policies always win. If governance constraints specify
+9 tags, the Bicep code MUST include all 9.
 
 ### Example
 

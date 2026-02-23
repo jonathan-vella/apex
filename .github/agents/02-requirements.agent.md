@@ -286,6 +286,6 @@ Before saving the requirements document:
 - [ ] Recommended Security Controls H3 populated
 - [ ] Budget section has approximate monthly amount
 - [ ] Region defaults correct (swedencentral unless exception)
-- [ ] All 4 required tags captured (Environment, ManagedBy, Project, Owner)
+- [ ] Baseline tags captured (Environment, ManagedBy, Project, Owner — governance may add more)
 - [ ] Attribution header matches template pattern exactly
 - [ ] No Bicep code blocks in the document

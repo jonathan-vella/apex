@@ -169,7 +169,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Run preflight check BEFORE writing any Bicep (Phase 1 below)
 - ✅ Use AVM modules for EVERY resource that has one — never raw Bicep when AVM exists
 - ✅ Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules
-- ✅ Apply all 4 required tags (`Environment`, `ManagedBy`, `Project`, `Owner`) to every resource
+- ✅ Apply baseline tags (`Environment`, `ManagedBy`, `Project`, `Owner`) plus any extras from governance
 - ✅ Parse `04-governance-constraints.json` and map every Deny policy to specific Bicep parameters
 - ✅ Apply security baseline (TLS 1.2, HTTPS-only, no public blob access, managed identity)
 - ✅ Follow CAF naming conventions (from azure-defaults skill)
