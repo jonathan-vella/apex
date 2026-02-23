@@ -1,19 +1,19 @@
 ---
-applyTo: '**/*.ps1,**/*.psm1'
-description: 'PowerShell cmdlet and scripting best practices based on Microsoft guidelines'
+applyTo: "**/*.ps1,**/*.psm1"
+description: "PowerShell cmdlet and scripting best practices based on Microsoft guidelines"
 ---
 
 # PowerShell Cmdlet Development Guidelines
 
 ## Quick Reference
 
-| Rule | Standard |
-| --- | --- |
-| Naming | `Verb-Noun` with approved verbs (`Get-Verb`), PascalCase |
-| Parameters | PascalCase, singular, descriptive; use `ValidateSet`/`ValidateNotNullOrEmpty` |
-| Variables | PascalCase (public), camelCase (private); avoid abbreviations |
-| Aliases | **Never** in scripts — use full cmdlet and parameter names |
-| Indentation | 4 spaces, opening `{` on same line as statement |
+| Rule        | Standard                                                                      |
+| ----------- | ----------------------------------------------------------------------------- |
+| Naming      | `Verb-Noun` with approved verbs (`Get-Verb`), PascalCase                      |
+| Parameters  | PascalCase, singular, descriptive; use `ValidateSet`/`ValidateNotNullOrEmpty` |
+| Variables   | PascalCase (public), camelCase (private); avoid abbreviations                 |
+| Aliases     | **Never** in scripts — use full cmdlet and parameter names                    |
+| Indentation | 4 spaces, opening `{` on same line as statement                               |
 
 ## Mandatory Patterns
 

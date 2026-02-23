@@ -75,13 +75,13 @@ For every policy in `04-governance-constraints.json`:
 
 ## Anti-Patterns
 
-| Anti-Pattern | Why It Fails | Correct Approach |
-| --- | --- | --- |
-| Assume 4 tags are sufficient | Azure Policy may enforce 9+ tags | Read `04-governance-constraints.md` for actual tag list |
-| Ignore `publicNetworkAccess` constraints | Deny policy blocks deployment | Check network policies in governance constraints |
-| Skip governance constraints reading ("trust artifact chain") | Trusting the chain means accepting architecture decisions, NOT skipping compliance checks | Always read and enforce governance constraints |
-| Hardcode security settings without checking policy | Policy may require stricter values | Cross-reference `04-governance-constraints.json` |
-| Generate Bicep without checking `04-governance-constraints.json` | Governance-blind code fails deployment | Phase 1.5 is a HARD GATE |
+| Anti-Pattern                                                     | Why It Fails                                                                              | Correct Approach                                        |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Assume 4 tags are sufficient                                     | Azure Policy may enforce 9+ tags                                                          | Read `04-governance-constraints.md` for actual tag list |
+| Ignore `publicNetworkAccess` constraints                         | Deny policy blocks deployment                                                             | Check network policies in governance constraints        |
+| Skip governance constraints reading ("trust artifact chain")     | Trusting the chain means accepting architecture decisions, NOT skipping compliance checks | Always read and enforce governance constraints          |
+| Hardcode security settings without checking policy               | Policy may require stricter values                                                        | Cross-reference `04-governance-constraints.json`        |
+| Generate Bicep without checking `04-governance-constraints.json` | Governance-blind code fails deployment                                                    | Phase 1.5 is a HARD GATE                                |
 
 ## Cross-References
 

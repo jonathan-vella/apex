@@ -197,7 +197,7 @@ Skills are organized across document creation, workflow automation, and utility 
 A specialized validation agent invoked by other agents for specific tasks (lint, what-if, review).
 Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`.
 
-📁 **See**: [.github/agents/_subagents/](../.github/agents/_subagents/)
+📁 **See**: [.github/agents/\_subagents/](../.github/agents/_subagents/)
 
 ---
 

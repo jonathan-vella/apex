@@ -46,9 +46,15 @@ function collectFiles(dirs, extensions) {
   for (const dir of dirs) {
     const absDir = path.resolve(ROOT, dir);
     if (!fs.existsSync(absDir)) continue;
-    for (const entry of fs.readdirSync(absDir, { withFileTypes: true, recursive: true })) {
+    for (const entry of fs.readdirSync(absDir, {
+      withFileTypes: true,
+      recursive: true,
+    })) {
       const full = path.join(entry.parentPath || entry.path, entry.name);
-      if (entry.isFile() && extensions.some((ext) => entry.name.endsWith(ext))) {
+      if (
+        entry.isFile() &&
+        extensions.some((ext) => entry.name.endsWith(ext))
+      ) {
         files.push(full);
       }
     }
@@ -83,11 +89,17 @@ console.log("\n🔍 Instruction Reference Validator\n");
 console.log("─".repeat(60));
 console.log("📄 Rule 1: Instruction file references exist\n");
 
-const scanDirs = [".github/agents", ".github/skills", ".github/instructions", ".github/prompts"];
+const scanDirs = [
+  ".github/agents",
+  ".github/skills",
+  ".github/instructions",
+  ".github/prompts",
+];
 const scanExts = [".md"];
 const allMdFiles = collectFiles(scanDirs, scanExts);
 
-const instructionRefPattern = /[Rr]ead\s+[`"]?\.github\/instructions\/([^`"\s)]+)[`"]?/g;
+const instructionRefPattern =
+  /[Rr]ead\s+[`"]?\.github\/instructions\/([^`"\s)]+)[`"]?/g;
 
 const foundInstructionRefs = new Map();
 
@@ -122,7 +134,10 @@ if (foundInstructionRefs.size === 0) {
 console.log("\n" + "─".repeat(60));
 console.log("📄 Rule 2: applyTo glob patterns have matching files\n");
 
-const instructionFiles = collectFiles([".github/instructions"], [".instructions.md"]);
+const instructionFiles = collectFiles(
+  [".github/instructions"],
+  [".instructions.md"],
+);
 
 for (const filePath of instructionFiles) {
   const content = fs.readFileSync(filePath, "utf-8");
@@ -137,7 +152,9 @@ for (const filePath of instructionFiles) {
 
   // Skip wildcard patterns that match everything
   if (applyTo === "**" || applyTo === "*") {
-    console.log(`  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (universal — skipped)`);
+    console.log(
+      `  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (universal — skipped)`,
+    );
     continue;
   }
 
@@ -154,7 +171,8 @@ for (const filePath of instructionFiles) {
 console.log("\n" + "─".repeat(60));
 console.log("📄 Rule 3: Skill SKILL.md references exist\n");
 
-const skillRefPattern = /[Rr]ead\s+[`"]?\.github\/skills\/([^/`"\s]+)\/SKILL\.md[`"]?/g;
+const skillRefPattern =
+  /[Rr]ead\s+[`"]?\.github\/skills\/([^/`"\s]+)\/SKILL\.md[`"]?/g;
 
 const foundSkillRefs = new Map();
 
@@ -193,9 +211,7 @@ console.log("📄 Rule 4: Cross-references between instruction files\n");
 const crossRefPattern = /[`"]?([a-z][\w-]+\.instructions\.md)[`"]?/g;
 
 // Patterns commonly used as examples, not real references
-const EXAMPLE_PATTERNS = [
-  "react-best-practices.instructions.md",
-];
+const EXAMPLE_PATTERNS = ["react-best-practices.instructions.md"];
 
 function stripCodeBlocks(content) {
   return content.replace(/```[\s\S]*?```/g, "");

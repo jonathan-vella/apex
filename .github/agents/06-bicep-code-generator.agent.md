@@ -247,13 +247,13 @@ Before writing ANY Bicep code, validate AVM compatibility:
 
 **Policy Effect → Code Generator Action:**
 
-| Effect | Code Generator Action |
-| --- | --- |
-| `Deny` | MUST set property to compliant value |
-| `Modify` | Document expected modification — do NOT set conflicting values |
-| `DeployIfNotExists` | Document auto-deployed resource in implementation reference |
-| `Audit` | Set compliant value where feasible (best effort) |
-| `Disabled` | No action required |
+| Effect              | Code Generator Action                                          |
+| ------------------- | -------------------------------------------------------------- |
+| `Deny`              | MUST set property to compliant value                           |
+| `Modify`            | Document expected modification — do NOT set conflicting values |
+| `DeployIfNotExists` | Document auto-deployed resource in implementation reference    |
+| `Audit`             | Set compliant value where feasible (best effort)               |
+| `Disabled`          | No action required                                             |
 
 ### Phase 2: Progressive Implementation
 

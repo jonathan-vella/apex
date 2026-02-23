@@ -1,22 +1,22 @@
 ---
-description: 'Shell scripting best practices and conventions for bash, sh, zsh, and other shells'
-applyTo: '**/*.sh'
+description: "Shell scripting best practices and conventions for bash, sh, zsh, and other shells"
+applyTo: "**/*.sh"
 ---
 
 # Shell Scripting Guidelines
 
 ## Quick Reference
 
-| Rule | Standard |
-| --- | --- |
-| Shebang | `#!/usr/bin/env bash` (Bash) or `#!/bin/sh` (POSIX) |
-| Safety | `set -euo pipefail` (Bash) or `set -eu` (POSIX sh) |
-| Variables | Double-quote: `"$var"`; use `${var}` for clarity; avoid `eval` |
-| Cleanup | `trap cleanup EXIT` for temp files/resources |
-| Constants | `readonly SCRIPT_NAME="$(basename "$0")"` |
-| Temp files | `mktemp` — never hardcode temp paths |
-| JSON/YAML | Use `jq`/`yq`, not `grep`/`awk` — fail fast if missing |
-| Conditionals | `[[ ]]` in Bash; `[ ]` only for POSIX portability |
+| Rule         | Standard                                                       |
+| ------------ | -------------------------------------------------------------- |
+| Shebang      | `#!/usr/bin/env bash` (Bash) or `#!/bin/sh` (POSIX)            |
+| Safety       | `set -euo pipefail` (Bash) or `set -eu` (POSIX sh)             |
+| Variables    | Double-quote: `"$var"`; use `${var}` for clarity; avoid `eval` |
+| Cleanup      | `trap cleanup EXIT` for temp files/resources                   |
+| Constants    | `readonly SCRIPT_NAME="$(basename "$0")"`                      |
+| Temp files   | `mktemp` — never hardcode temp paths                           |
+| JSON/YAML    | Use `jq`/`yq`, not `grep`/`awk` — fail fast if missing         |
+| Conditionals | `[[ ]]` in Bash; `[ ]` only for POSIX portability              |
 
 ## Script Structure
 

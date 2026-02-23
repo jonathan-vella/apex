@@ -1,6 +1,6 @@
 ---
-description: 'Code review guidelines with priority tiers, security checks, and structured comment formats'
-applyTo: '**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}'
+description: "Code review guidelines with priority tiers, security checks, and structured comment formats"
+applyTo: "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
 ---
 
 # Code Review Instructions
@@ -33,18 +33,21 @@ When performing a code review, respond in **English**.
 When performing a code review, prioritize issues in the following order:
 
 ### 🔴 CRITICAL (Block merge)
+
 - **Security**: Vulnerabilities, exposed secrets, authentication/authorization issues
 - **Correctness**: Logic errors, data corruption risks, race conditions
 - **Breaking Changes**: API contract changes without versioning
 - **Data Loss**: Risk of data loss or corruption
 
 ### 🟡 IMPORTANT (Requires discussion)
+
 - **Code Quality**: Severe violations of SOLID principles, excessive duplication
 - **Test Coverage**: Missing tests for critical paths or new functionality
 - **Performance**: Obvious performance bottlenecks (N+1 queries, memory leaks)
 - **Architecture**: Significant deviations from established patterns
 
 ### 🟢 SUGGESTION (Non-blocking improvements)
+
 - **Readability**: Poor naming, complex logic that could be simplified
 - **Optimization**: Performance improvements without functional impact
 - **Best Practices**: Minor deviations from conventions
@@ -67,6 +70,7 @@ When performing a code review, follow these principles:
 When performing a code review, check for:
 
 ### Clean Code
+
 - Descriptive and meaningful names for variables, functions, and classes
 - Single Responsibility Principle: each function/class does one thing well
 - DRY (Don't Repeat Yourself): no code duplication
@@ -76,26 +80,30 @@ When performing a code review, check for:
 - Code should be self-documenting; comments only when necessary
 
 ### Examples
+
 ```javascript
 // ❌ BAD: Poor naming and magic numbers
 function calc(x, y) {
-    if (x > 100) return y * 0.15;
-    return y * 0.10;
+  if (x > 100) return y * 0.15;
+  return y * 0.1;
 }
 
 // ✅ GOOD: Clear naming and constants
 const PREMIUM_THRESHOLD = 100;
 const PREMIUM_DISCOUNT_RATE = 0.15;
-const STANDARD_DISCOUNT_RATE = 0.10;
+const STANDARD_DISCOUNT_RATE = 0.1;
 
 function calculateDiscount(orderTotal, itemPrice) {
-    const isPremiumOrder = orderTotal > PREMIUM_THRESHOLD;
-    const discountRate = isPremiumOrder ? PREMIUM_DISCOUNT_RATE : STANDARD_DISCOUNT_RATE;
-    return itemPrice * discountRate;
+  const isPremiumOrder = orderTotal > PREMIUM_THRESHOLD;
+  const discountRate = isPremiumOrder
+    ? PREMIUM_DISCOUNT_RATE
+    : STANDARD_DISCOUNT_RATE;
+  return itemPrice * discountRate;
 }
 ```
 
 ### Error Handling
+
 - Proper error handling at appropriate levels
 - Meaningful error messages
 - No silent failures or ignored exceptions
@@ -103,6 +111,7 @@ function calculateDiscount(orderTotal, itemPrice) {
 - Use appropriate error types/exceptions
 
 ### Examples
+
 ```python
 # ❌ BAD: Silent failure and generic error
 def process_user(user_id):
@@ -140,6 +149,7 @@ When performing a code review, check for security issues:
 - **Dependency Security**: Check for known vulnerabilities in dependencies
 
 ### Examples
+
 ```javascript
 // BAD: Exposed secret in code
 const API_KEY = "sk_live_abc123xyz789";
@@ -161,15 +171,16 @@ When performing a code review, verify test quality:
 - **Mock Appropriately**: Mock external dependencies, not domain logic
 
 ### Examples
+
 ```javascript
 // GOOD: Descriptive name and specific assertion
-test('should calculate 10% discount for orders under $100', () => {
-    const orderTotal = 50;
-    const itemPrice = 20;
+test("should calculate 10% discount for orders under $100", () => {
+  const orderTotal = 50;
+  const itemPrice = 20;
 
-    const discount = calculateDiscount(orderTotal, itemPrice);
+  const discount = calculateDiscount(orderTotal, itemPrice);
 
-    expect(discount).toBe(2.00);
+  expect(discount).toBe(2.0);
 });
 ```
 
@@ -185,6 +196,7 @@ When performing a code review, check for performance issues:
 - **Lazy Loading**: Load data only when needed
 
 ### Examples
+
 ```python
 # ❌ BAD: N+1 query problem
 users = User.query.all()
@@ -241,6 +253,7 @@ Explanation of the impact or reason for the suggestion.
 When performing a code review, systematically verify:
 
 ### Code Quality
+
 - [ ] Code follows consistent style and conventions
 - [ ] Names are descriptive and follow naming conventions
 - [ ] Functions/methods are small and focused
@@ -250,6 +263,7 @@ When performing a code review, systematically verify:
 - [ ] No commented-out code or TODO without tickets
 
 ### Security
+
 - [ ] No sensitive data in code or logs
 - [ ] Input validation on all user inputs
 - [ ] No SQL injection vulnerabilities
@@ -257,6 +271,7 @@ When performing a code review, systematically verify:
 - [ ] Dependencies are up-to-date and secure
 
 ### Testing
+
 - [ ] New code has appropriate test coverage
 - [ ] Tests are well-named and focused
 - [ ] Tests cover edge cases and error scenarios
@@ -264,18 +279,21 @@ When performing a code review, systematically verify:
 - [ ] No tests that always pass or are commented out
 
 ### Performance
+
 - [ ] No obvious performance issues (N+1, memory leaks)
 - [ ] Appropriate use of caching
 - [ ] Efficient algorithms and data structures
 - [ ] Proper resource cleanup
 
 ### Architecture
+
 - [ ] Follows established patterns and conventions
 - [ ] Proper separation of concerns
 - [ ] No architectural violations
 - [ ] Dependencies flow in correct direction
 
 ### Documentation
+
 - [ ] Public APIs are documented
 - [ ] Complex logic has explanatory comments
 - [ ] README is updated if needed

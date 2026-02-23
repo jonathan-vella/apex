@@ -14,9 +14,9 @@ applyTo: "glob pattern for target files (e.g., **/*.ts, **/*.py)"
 ---
 ```
 
-| Field         | Constraints                                                            |
-| ------------- | ---------------------------------------------------------------------- |
-| `description` | Single-quoted string, 1-500 chars, clearly state purpose               |
+| Field         | Constraints                                                             |
+| ------------- | ----------------------------------------------------------------------- |
+| `description` | Single-quoted string, 1-500 chars, clearly state purpose                |
 | `applyTo`     | Glob pattern(s): `**/*.ts` or `**/*.ts, **/*.tsx` or `**` for all files |
 
 ## File Structure
@@ -28,14 +28,14 @@ applyTo: "glob pattern for target files (e.g., **/*.ts, **/*.py)"
 
 ## Writing Rules
 
-| Rule                    | Details                                                   |
-| ----------------------- | --------------------------------------------------------- |
-| Imperative mood         | "Use", "Implement", "Avoid" — not "You should"            |
-| Specific and actionable | Concrete examples > abstract concepts                      |
-| Concise and scannable   | Bullet points, tables; avoid verbose paragraphs            |
-| No ambiguity            | Avoid "should", "might", "possibly"                        |
-| Show why                | Explain reasoning only when it adds value                  |
-| Stay current            | Reference current versions; remove deprecated patterns     |
+| Rule                    | Details                                                |
+| ----------------------- | ------------------------------------------------------ |
+| Imperative mood         | "Use", "Implement", "Avoid" — not "You should"         |
+| Specific and actionable | Concrete examples > abstract concepts                  |
+| Concise and scannable   | Bullet points, tables; avoid verbose paragraphs        |
+| No ambiguity            | Avoid "should", "might", "possibly"                    |
+| Show why                | Explain reasoning only when it adds value              |
+| Stay current            | Reference current versions; remove deprecated patterns |
 
 ## Patterns to Follow
 

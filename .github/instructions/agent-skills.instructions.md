@@ -32,11 +32,11 @@ license: Complete terms in LICENSE.txt
 | Section                     | Purpose                                             |
 | --------------------------- | --------------------------------------------------- |
 | `# Title`                   | Brief overview of what this skill enables           |
-| `## When to Use This Skill` | List of scenarios (reinforces description triggers)  |
-| `## Prerequisites`          | Required tools, dependencies, environment setup      |
-| `## Step-by-Step Workflows` | Numbered steps for common tasks                      |
-| `## Troubleshooting`        | Common issues and solutions table                    |
-| `## References`             | Links to bundled docs or external resources           |
+| `## When to Use This Skill` | List of scenarios (reinforces description triggers) |
+| `## Prerequisites`          | Required tools, dependencies, environment setup     |
+| `## Step-by-Step Workflows` | Numbered steps for common tasks                     |
+| `## Troubleshooting`        | Common issues and solutions table                   |
+| `## References`             | Links to bundled docs or external resources         |
 
 ## Directory Structure
 

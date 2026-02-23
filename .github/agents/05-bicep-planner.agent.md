@@ -293,7 +293,7 @@ Generate structured plan with these elements per resource:
     enableRbacAuthorization: true
     enablePurgeProtection: true
     softDeleteRetentionInDays: 90
-  tags: [Environment, ManagedBy, Project, Owner]  # baseline — governance may add more
+  tags: [Environment, ManagedBy, Project, Owner] # baseline — governance may add more
   naming: "kv-{short}-{env}-{suffix}"
 ```
 
