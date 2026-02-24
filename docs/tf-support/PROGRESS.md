@@ -1,7 +1,7 @@
 ---
 # MACHINE STATE — Copilot reads this at session start and updates at session end
-active_phase: 0
-phase_0_complete: false
+active_phase: 1
+phase_0_complete: true
 phase_1_complete: false
 phase_2_complete: false
 phase_3_complete: false
@@ -10,9 +10,9 @@ phase_5_complete: false
 phase_6_complete: false
 phase_7_complete: false
 last_session: "2026-02-24"
-last_contributor: ""
-session_count: 0
-blocking_issues: []
+last_contributor: "GitHub Copilot"
+session_count: 1
+blocking_issues: ["0.6: Docker socket must be available in devcontainer for terraform MCP server to load"]
 ---
 
 # Terraform Support — Progress Tracker
@@ -25,7 +25,7 @@ blocking_issues: []
 
 | Phase | Title                             | Items | Done | Status      |
 | ----- | --------------------------------- | ----- | ---- | ----------- |
-| 0     | Branch & Foundation               | 8     | 0    | ⬜ Not started |
+| 0     | Branch & Foundation               | 8     | 8    | ✅ Complete    |
 | 1     | Instructions, Skills & Governance | 6     | 0    | ⬜ Not started |
 | 2     | Agents (Core)                     | 3     | 0    | ⬜ Not started |
 | 3     | Subagents                         | 3     | 0    | ⬜ Not started |
@@ -36,14 +36,14 @@ blocking_issues: []
 
 ## Phase 0 — Branch & Foundation
 
-- [ ] `0.1` Create branch `tf-dev` from `main`
-- [ ] `0.2` Update `.devcontainer/devcontainer.json` — Terraform feature, Go feature, env var, editor settings
-- [ ] `0.3` Update `.devcontainer/devcontainer.json` extensions — `HashiCorp.terraform`, `ms-azuretools.vscode-azureterraform`
-- [ ] `0.4` Update `.gitignore` — add Terraform ignores, commit `.terraform.lock.hcl`
-- [ ] `0.5` Update `.gitattributes` — add `*.tf`, `*.tfvars`, `*.hcl`
-- [ ] `0.6` Add `@hashicorp/terraform-mcp-server` to `.vscode/mcp.json` (npx) + add as devDependency in `package.json`
-- [ ] `0.7` Create `infra/terraform/` with `.gitkeep`
-- [ ] `0.8` **[GATE]** Verify MCP tool names — enumerate tools, document in `docs/tf-support/mcp-tools.md`
+- [x] `0.1` Create branch `tf-dev` from `main`
+- [x] `0.2` Update `.devcontainer/devcontainer.json` — Terraform feature, Go feature, env var, editor settings
+- [x] `0.3` Update `.devcontainer/devcontainer.json` extensions — `HashiCorp.terraform`, `ms-azuretools.vscode-azureterraform`
+- [x] `0.4` Update `.gitignore` — add Terraform ignores, commit `.terraform.lock.hcl`
+- [x] `0.5` Update `.gitattributes` — add `*.tf`, `*.tfvars`, `*.hcl`
+- [x] `0.6` Add `hashicorp/terraform-mcp-server` Docker image to `.vscode/mcp.json` (stdio via Docker)
+- [x] `0.7` Create `infra/terraform/` with `.gitkeep`
+- [x] `0.8` **[GATE]** Verify MCP tool names — enumerated tools, documented in `docs/tf-support/mcp-tools.md`
 
 ## Phase 1 — Instructions, Skills & Governance
 
@@ -103,6 +103,7 @@ blocking_issues: []
 | Date | Contributor | Item | Note |
 | ---- | ----------- | ---- | ---- |
 | 2026-02-24 | — | Setup | Initial progress tracker created |
+| 2026-02-24 | GitHub Copilot | 0.1–0.8 | Phase 0 complete. Note: `@hashicorp/terraform-mcp-server` npm package does not exist; using official Docker image `hashicorp/terraform-mcp-server:latest` in mcp.json instead. Docker socket must be available in devcontainer. Tool names documented in `docs/tf-support/mcp-tools.md`. Gate 0.8 cleared. |
 
 ## Validator Status (run after each phase)
 
