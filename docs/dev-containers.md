@@ -144,10 +144,15 @@ The Dev Container includes:
 | Category | Tools |
 |----------|-------|
 | **Azure** | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP |
+| **Terraform** | Terraform (latest), tfsec, HashiCorp Terraform MCP Server |
 | **PowerShell** | PowerShell 7+, Az modules |
-| **Python** | Python 3.12+, diagrams library, graphviz |
-| **Node.js** | Node 22+, npm, markdownlint |
-| **VS Code Extensions** | 25+ extensions (Bicep, Copilot, Azure, etc.) |
+| **Python** | Python 3.13+, diagrams library, graphviz |
+| **Node.js** | Node LTS+, npm, markdownlint |
+| **VS Code Extensions** | 27+ extensions (Bicep, Terraform, Copilot, Azure, etc.) |
+
+> **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, and `markdownlint-cli2`
+> are refreshed automatically every time the container starts via `post-start.sh`.
+> Heavy tools (PowerShell modules, system packages) are installed once at build time.
 
 ---
 

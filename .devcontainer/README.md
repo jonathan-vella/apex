@@ -13,7 +13,9 @@ It includes all required tools, extensions, and configurations to build Azure in
 
 - **Azure CLI** (latest) with Bicep CLI
 - **Bicep** for Azure infrastructure
+- **Terraform** (latest) with **tfsec** security scanner
 - **Checkov** - Infrastructure security scanner
+- **Go** (latest) — used to install the Terraform MCP Server binary
 
 ### Scripting & Automation
 
@@ -33,6 +35,7 @@ It includes all required tools, extensions, and configurations to build Azure in
 - **Azure MCP Server** - RBAC-aware Azure context for agents
 - **Azure Pricing MCP** - Real-time SKU pricing for cost estimates
 - **Microsoft Learn MCP** - Official Microsoft documentation search, code samples, and page fetching
+- **Terraform MCP Server** - HashiCorp registry, module, and workspace tools (go binary, auto-updated on start)
 
 ### Python Libraries (Auto-installed)
 
@@ -122,22 +125,31 @@ pwsh -Command "Get-Module -ListAvailable Az.*"
 
 ## 🔄 Updating Tools
 
-### Update All Tools
+### Automatic Updates (on every container start)
+
+`post-start.sh` runs automatically via `postStartCommand` and updates:
+
+| Tool | Method |
+| ---- | ------ |
+| `terraform-mcp-server` | `go install ...@latest` |
+| Azure Pricing MCP | `pip install -e .` in its venv |
+| npm local deps | `npm install` |
+| `markdownlint-cli2` | `npm install -g` |
+
+### Manual Updates (require rebuild or manual run)
 
 ```bash
-bash .devcontainer/update-tools.sh
+az upgrade                                          # Azure CLI
+az bicep upgrade                                    # Bicep
+pip3 install --upgrade checkov diagrams             # Python packages
+pwsh -Command 'Update-Module Az.* -Force'           # PowerShell Az modules
+bash .devcontainer/post-start.sh                    # Re-run lightweight updates now
 ```
 
-This updates: Azure CLI, Bicep, PowerShell Az modules, Checkov, diagrams, markdownlint
+### Full Rebuild (for feature/OS-level updates)
 
-### Update Specific Tools
-
-```bash
-az upgrade                                    # Azure CLI
-az bicep upgrade                              # Bicep
-pip3 install --upgrade checkov diagrams       # Python packages
-sudo npm update -g markdownlint-cli           # markdownlint
-```
+`F1` → **Dev Containers: Rebuild Container** — re-runs `post-create.sh` which
+installs all tools from scratch including the Go and Terraform features.
 
 ## 🐛 Troubleshooting
 
