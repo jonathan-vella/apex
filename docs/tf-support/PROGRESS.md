@@ -104,7 +104,7 @@ blocking_issues: []
 | ---------- | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-02-24 | —              | Setup   | Initial progress tracker created                                                                                                                                                                                                                                                                           |
 | 2026-02-24 | GitHub Copilot | 0.1–0.8 | Phase 0 complete. Note: `@hashicorp/terraform-mcp-server` npm package does not exist; using official Docker image `hashicorp/terraform-mcp-server:latest` in mcp.json instead. Docker socket must be available in devcontainer. Tool names documented in `docs/tf-support/mcp-tools.md`. Gate 0.8 cleared. |
-| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn’t work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected. |
+| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn’t work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected.                      |
 
 ## Validator Status (run after each phase)
 

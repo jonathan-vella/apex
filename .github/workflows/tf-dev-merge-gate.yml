@@ -1,0 +1,46 @@
+name: tf-dev Merge Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tf-dev-complete:
+    name: Terraform Support Complete
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all phases complete before merging tf-dev
+        run: |
+          if [ "${{ github.head_ref }}" != "tf-dev" ]; then
+            echo "Not a tf-dev PR — merge gate not applicable."
+            exit 0
+          fi
+
+          node -e "
+            const fs = require('fs');
+            const content = fs.readFileSync('docs/tf-support/PROGRESS.md', 'utf8');
+            const fm = content.match(/^---\n([\s\S]*?)\n---/);
+            if (!fm) {
+              console.error('ERROR: Cannot parse PROGRESS.md frontmatter.');
+              process.exit(1);
+            }
+            const incomplete = [];
+            for (let i = 0; i <= 7; i++) {
+              if (!fm[1].includes('phase_' + i + '_complete: true')) {
+                incomplete.push('Phase ' + i);
+              }
+            }
+            if (incomplete.length) {
+              console.error('');
+              console.error('tf-dev is NOT ready to merge into main.');
+              console.error('Incomplete phases: ' + incomplete.join(', '));
+              console.error('');
+              console.error('All 8 phases (0-7) must be marked complete in');
+              console.error('docs/tf-support/PROGRESS.md before this PR can merge.');
+              process.exit(1);
+            }
+            console.log('All 8 phases complete — tf-dev is approved to merge into main.');
+          "

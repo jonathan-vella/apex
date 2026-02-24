@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Start of every Terraform support work session. Orients Copilot from PROGRESS.md, determines active phase, and sets task context without loading the full plan.
 ---
 
@@ -42,6 +42,19 @@ Based on the status, recommend one of:
 - Update `PROGRESS.md` at the end of this session (check off completed items, add session note)
 - Keep commits small — one item or one logical group per commit
 - Never break existing Bicep functionality — when in doubt, run the regression check
+
+## GitHub Issue Updates (Automatic — Every Session)
+
+Follow the full protocol in `docs/tf-support/README.md` → **Automated Issue Updates — Native MCP
+Protocol**. Summary of mandatory triggers:
+
+- **Item completed** → `mcp_github_add_issue_comment` on the phase's child issue (✅ note)
+- **Phase complete** → comment + close child issue + update #85 checklist via `mcp_github_issue_write`
+- **Regression detected** (`validate:all` fails) → `mcp_github_add_issue_comment` on child issue +
+  on #85 (⚠️ note)
+
+Always resolve issue numbers dynamically with `mcp_github_search_issues` — never hardcode them.
+Do not use `gh` CLI for issue updates; use MCP tools only.
 
 ## If You Are Mid-Session (continuing after a break)
 

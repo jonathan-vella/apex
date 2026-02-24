@@ -129,12 +129,12 @@ pwsh -Command "Get-Module -ListAvailable Az.*"
 
 `post-start.sh` runs automatically via `postStartCommand` and updates:
 
-| Tool                         | Method                         |
-| ---------------------------- | ------------------------------ |
-| `terraform-mcp-server`       | `go install ...@latest`        |
-| Azure Pricing MCP            | `pip install -e .` in its venv |
-| npm local deps               | `npm install`                  |
-| `markdownlint-cli2`          | `npm install -g`               |
+| Tool                          | Method                         |
+| ----------------------------- | ------------------------------ |
+| `terraform-mcp-server`        | `go install ...@latest`        |
+| Azure Pricing MCP             | `pip install -e .` in its venv |
+| npm local deps                | `npm install`                  |
+| `markdownlint-cli2`           | `npm install -g`               |
 | `checkov`, `ruff`, `diagrams` | `uv pip install --upgrade`     |
 
 ### Manual Updates (require rebuild or manual run)

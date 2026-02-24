@@ -12,80 +12,145 @@ enforce quality gates before merging to `main`.
 
 The following CI jobs must pass before a PR can merge:
 
-| Job Name                   | Workflow File                 | Purpose                        |
-| -------------------------- | ----------------------------- | ------------------------------ |
-| `lint`                     | `lint.yml`                    | Markdown, JSON, template lint  |
-| `Validate Agents & Skills` | `agent-validation.yml`        | Agent frontmatter, skills, MCP |
-| `policy-compliance-check`  | `policy-compliance-check.yml` | Governance guardrail integrity |
+| Job Name                     | Workflow File                 | Purpose                                         |
+| ---------------------------- | ----------------------------- | ----------------------------------------------- |
+| `lint`                       | `lint.yml`                    | Markdown, JSON, template lint                   |
+| `Validate Agents & Skills`   | `agent-validation.yml`        | Agent frontmatter, skills, MCP                  |
+| `policy-compliance-check`    | `policy-compliance-check.yml` | Governance guardrail integrity                  |
+| `Terraform Support Complete` | `tf-dev-merge-gate.yml`       | Blocks `tf-dev` until all 8 phases are complete |
 
 ## Configuration via `gh api`
 
-### Create Branch Ruleset
+> The live ruleset is **`Main Branch Protection`** (ID `12080985`).
+> Use `PUT` to update it in place — this preserves all existing rules.
 
-```bash
-gh api \
-  --method POST \
-  -H "Accept: application/vnd.github+json" \
-  /repos/jonathan-vella/azure-agentic-infraops/rulesets \
-  -f name="main-protection" \
-  -f target="branch" \
-  -f enforcement="active" \
-  -f 'conditions[ref_name][include][]=refs/heads/main' \
-  -f 'rules[][type]=pull_request' \
-  -f 'rules[0][parameters][required_approving_review_count]=1' \
-  -f 'rules[0][parameters][dismiss_stale_reviews_on_push]=true' \
-  -f 'rules[0][parameters][require_last_push_approval]=false' \
-  -f 'rules[0][parameters][required_review_thread_resolution]=true' \
-  -f 'rules[][type]=required_status_checks' \
-  -f 'rules[1][parameters][strict_required_status_checks_policy]=true' \
-  -f 'rules[1][parameters][required_status_checks][][context]=lint' \
-  -f 'rules[1][parameters][required_status_checks][][context]=Validate Agents & Skills' \
-  -f 'rules[1][parameters][required_status_checks][][context]=policy-compliance-check'
+### Update Existing Ruleset (PowerShell)
+
+```powershell
+@'
+{
+  "name": "Main Branch Protection",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "exclude": [], "include": ["refs/heads/main"] }
+  },
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": true,
+        "required_reviewers": [],
+        "require_code_owner_review": true,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "allowed_merge_methods": ["merge", "squash", "rebase"]
+      }
+    },
+    { "type": "required_linear_history" },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          { "context": "lint" },
+          { "context": "Validate Agents & Skills" },
+          { "context": "policy-compliance-check" },
+          { "context": "Terraform Support Complete" }
+        ]
+      }
+    }
+  ],
+  "bypass_actors": [
+    { "actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request" }
+  ]
+}
+'@ | gh api `
+  --method PUT `
+  -H "Accept: application/vnd.github+json" `
+  /repos/jonathan-vella/azure-agentic-infraops/rulesets/12080985 `
+  --input -
 ```
 
-### Block Force-Pushes (via non-fast-forward rule)
-
-Force-pushes are blocked by default when a ruleset with
-`pull_request` rules exists. To explicitly add:
+### Update Existing Ruleset (bash/Linux)
 
 ```bash
 gh api \
-  --method POST \
+  --method PUT \
   -H "Accept: application/vnd.github+json" \
-  /repos/jonathan-vella/azure-agentic-infraops/rulesets \
-  -f name="main-no-force-push" \
-  -f target="branch" \
-  -f enforcement="active" \
-  -f 'conditions[ref_name][include][]=refs/heads/main' \
-  -f 'rules[][type]=non_fast_forward'
+  /repos/jonathan-vella/azure-agentic-infraops/rulesets/12080985 \
+  --input - <<'EOF'
+{
+  "name": "Main Branch Protection",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "exclude": [], "include": ["refs/heads/main"] }
+  },
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": true,
+        "required_reviewers": [],
+        "require_code_owner_review": true,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "allowed_merge_methods": ["merge", "squash", "rebase"]
+      }
+    },
+    { "type": "required_linear_history" },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          { "context": "lint" },
+          { "context": "Validate Agents & Skills" },
+          { "context": "policy-compliance-check" },
+          { "context": "Terraform Support Complete" }
+        ]
+      }
+    }
+  ],
+  "bypass_actors": [
+    { "actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "pull_request" }
+  ]
+}
+EOF
 ```
 
 ## Configuration via GitHub UI
 
-1. Go to **Settings > Rules > Rulesets > New ruleset > New branch ruleset**
-2. Set **Name**: `main-protection`
-3. Set **Enforcement**: Active
-4. Under **Target branches**: Add `main`
-5. Enable rules:
-   - **Require a pull request before merging**
-     - Required approvals: 1
-     - Dismiss stale pull request approvals when new commits are pushed
-     - Require review from Code Owners (if CODEOWNERS exists)
-     - Require conversation resolution before merging
-   - **Require status checks to pass before merging**
-     - Require branches to be up to date before merging
-     - Add checks: `lint`, `Validate Agents & Skills`, `policy-compliance-check`
-   - **Block force pushes**
-6. Click **Create**
+1. Go to **Settings > Rules > Rulesets** → open **Main Branch Protection**
+2. Under **Require status checks to pass** → add the missing checks:
+   - `Validate Agents & Skills`
+   - `policy-compliance-check`
+   - `Terraform Support Complete`
+3. Click **Save changes**
 
 ## Verification
 
 After configuring, verify with:
 
-```bash
-gh api /repos/jonathan-vella/azure-agentic-infraops/rulesets \
-  --jq '.[] | {name, enforcement, rules: [.rules[].type]}'
+```powershell
+gh api /repos/jonathan-vella/azure-agentic-infraops/rulesets/12080985 `
+  -q '.rules[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context'
 ```
 
-Expected output should show `pull_request`, `required_status_checks`,
-and `non_fast_forward` rules active on `main`.
+Expected output:
+
+```
+lint
+Validate Agents & Skills
+policy-compliance-check
+Terraform Support Complete
+```
