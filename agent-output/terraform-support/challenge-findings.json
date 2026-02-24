@@ -1,0 +1,137 @@
+{
+  "challenged_artifact": "untitled:plan-terraformSupport.prompt.md",
+  "artifact_type": "implementation-plan",
+  "challenge_summary": "The plan is structurally sound and demonstrates strong understanding of the existing Bicep patterns that need Terraform equivalents. However, it has 3 must-fix issues around governance property mapping, AVM-TF module verification tooling, and the IaC selection gate timing; 6 should-fix gaps including state backend bootstrapping, the HashiCorp MCP Docker dependency, missing agent numbering collision, artifact template impact, deploy script cross-platform assumptions, and governance instruction sequencing; plus 5 suggestions for improvement. The highest risk is that the plan assumes terraform/* MCP tools will be available in agent tool lists without verifying those tools actually exist in the current MCP server configuration.",
+  "risk_level": "medium",
+  "must_fix_count": 3,
+  "should_fix_count": 6,
+  "suggestion_count": 5,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "untested_assumption",
+      "title": "terraform/* MCP tool namespace assumed without verification",
+      "description": "The plan states Terraform agents will use terraform/get_module_details, terraform/get_latest_module_version, and other terraform/* tools in their frontmatter. However, the current .vscode/mcp.json only has 3 servers (github, microsoft-learn, azure-pricing). The plan adds the HashiCorp MCP server but assumes it exposes tools under the terraform/ namespace in a format compatible with VS Code Copilot agent tool declarations. The Bicep tools use bicep/list_avm_metadata because the Bicep VS Code extension natively exposes these — they are NOT MCP tools. The HashiCorp Terraform MCP server may use a completely different tool naming convention. If the tool names are wrong, Phases 1 and 2 of both the Terraform Planner and Code Generator will be non-functional.",
+      "failure_scenario": "Terraform Planner Phase 2 tries to call terraform/get_module_details but VS Code Copilot cannot find a tool with that name because the HashiCorp MCP server registers tools under a different namespace. AVM module verification fails silently or errors out, producing a plan without validated module versions.",
+      "artifact_section": "Phase 2 — Agents (Core), item 12 Phase 2",
+      "suggested_mitigation": "Before writing the agent files, add a Phase 0 task: install the HashiCorp Terraform MCP server in .vscode/mcp.json, restart the MCP server, and enumerate the actual tool names it exposes using tool_search_tool_regex or the MCP server's tool listing. Use the discovered tool names in agent frontmatter. If the MCP server does not expose module lookup tools, fall back to web/fetch against the Terraform Registry API (registry.terraform.io/v1/modules/Azure/{module}/azurerm/versions) as the AVM verification mechanism."
+    },
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "terraformPropertyPath mapping is undefined — governance compliance will fail",
+      "description": "The plan references terraformPropertyPath as the Terraform equivalent of bicepPropertyPath in governance constraints JSON. However, the governance-discovery-subagent currently produces bicepPropertyPath and requiredValue fields because it was designed for Bicep. The plan does not specify: (a) who generates the terraformPropertyPath — the subagent, the planner, or the code generator? (b) what format it uses — azurerm_storage_account.min_tls_version? resource.azurerm_storage_account.this.min_tls_version? (c) how the same 04-governance-constraints.json file serves both Bicep and Terraform projects. The validate-governance-refs.mjs script currently checks for bicepPropertyPath — adding a Terraform check for terraformPropertyPath requires that field to actually exist in the JSON.",
+      "failure_scenario": "Terraform Code Generator Phase 1.5 reads 04-governance-constraints.json, finds bicepPropertyPath fields but no terraformPropertyPath, cannot build a compliance map, and either silently skips governance mapping or HARD GATE blocks forever. Either way, governance enforcement breaks for Terraform projects.",
+      "artifact_section": "Phase 2 — Agents (Core), item 13 Phase 1.5",
+      "suggested_mitigation": "Define the terraformPropertyPath format explicitly (e.g., azurerm_storage_account.min_tls_version). Decide whether: (Option A) the governance-discovery-subagent is extended to produce BOTH bicepPropertyPath and terraformPropertyPath in the same JSON — making it IaC-aware, or (Option B) the Terraform Planner adds a Phase 1.5 that translates bicepPropertyPath to terraformPropertyPath using a known mapping table, or (Option C) the JSON uses an IaC-agnostic azurePropertyPath that both Bicep and Terraform code generators translate. Document the chosen approach."
+    },
+    {
+      "severity": "must_fix",
+      "category": "hidden_dependency",
+      "title": "IaC selection gate timing creates a chicken-and-egg problem",
+      "description": "The plan puts IaC selection in two places: (1) Requirements agent Phase 5 adds iac_tool to requirements, and (2) Conductor asks 'Bicep or Terraform?' after Step 3. These conflict. If Requirements captures iac_tool: Terraform in Step 1, the Conductor should not ask again in Step 4. If the user skips Step 1 and goes directly to Step 4 via handoff, the Requirements artifact may not exist, so the Conductor would need to ask. The plan doesn't define which takes precedence, what happens when they disagree, or how the Conductor reads the requirements artifact to detect the prior choice. Additionally, the Architect (Step 2) and Design (Step 3) agents need to know the IaC tool for appropriate recommendations but the plan doesn't modify them.",
+      "failure_scenario": "User tells Requirements agent 'Terraform' in Step 1, but Conductor still asks 'Bicep or Terraform?' in Step 4, frustrating the user. Or user answers 'Bicep' in Step 1 but switches to 'Terraform' in Step 4 — the 01-requirements.md still says Bicep, causing downstream confusion.",
+      "artifact_section": "Phase 4 — Conductor & Requirements Modifications, items 18-19",
+      "suggested_mitigation": "Single source of truth: IaC preference is captured ONCE in Requirements (Phase 5) and persisted in 01-requirements.md as iac_tool: Bicep | Terraform. The Conductor reads this field and auto-routes to the correct planner — no re-asking. If the user wants to change IaC tool, they go back to Requirements. If no requirements exist (direct Step 4 entry), the Conductor asks. Also update the Architect agent to note the IaC tool."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Terraform state backend requires bootstrapping — not addressed",
+      "description": "The plan specifies Azure Storage Account as the state backend. But the storage account, resource group, and container for state must exist BEFORE terraform init can run. The plan doesn't define who creates these resources or how. The Bicep workflow doesn't have this problem because ARM deployments are stateless.",
+      "failure_scenario": "User reaches Terraform Deploy Step 2, agent runs terraform init with Azure Storage backend config, init fails with 'storage account does not exist'. Agent has no instructions to bootstrap the backend. Deploy halts.",
+      "artifact_section": "Phase 2 — Agents (Core), item 14 Step 2",
+      "suggested_mitigation": "Add a State Backend Bootstrapping section to the Terraform Deploy agent. Options: (1) Deploy agent creates the backend resources via az CLI before terraform init, (2) Code Generator generates a bootstrap.sh script that creates the storage account/container, (3) Use -backend=false for initial validation and prompt user to provide existing backend."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "HashiCorp MCP Server requires Docker — devcontainer may not have Docker-in-Docker",
+      "description": "The plan adds the HashiCorp Terraform MCP Server using docker run hashicorp/terraform-mcp-server:latest. The current .devcontainer/devcontainer.json does not include Docker-in-Docker or Docker-outside-of-Docker features. Without Docker access inside the devcontainer, the MCP server cannot start.",
+      "failure_scenario": "Developer opens the devcontainer, VS Code tries to start the HashiCorp MCP server via Docker, Docker is not available, MCP server fails to start, all Terraform registry tools are unavailable.",
+      "artifact_section": "Phase 0 — Branch & Foundation, item 6",
+      "suggested_mitigation": "Use the npm-based HashiCorp Terraform MCP server (npx @hashicorp/terraform-mcp-server) instead of Docker, or add docker-in-docker feature to the devcontainer. The npm approach is simplest and avoids the Docker dependency."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Agent numbering collision — 05, 06, 07 used by both Bicep and Terraform",
+      "description": "The plan uses 05-terraform-planner, 06-terraform-code-generator, 07-terraform-deploy — the same numeric prefixes as Bicep agents. While the VS Code Copilot agent system uses name field not filename, the alphabetical file order becomes confusing and validation scripts that sort by prefix may produce unexpected results.",
+      "failure_scenario": "Developer confusion when browsing .github/agents/ — two files starting with 05-, 06-, 07-. Not a functional failure but an organizational problem.",
+      "artifact_section": "Phase 2 — Agents (Core), items 12-14",
+      "suggested_mitigation": "Use distinct numbering: 11-terraform-planner.agent.md, 12-terraform-code-generator.agent.md, 13-terraform-deploy.agent.md (continuing from 10-challenger). Preserves clear ordering and avoids prefix collision."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Plan assumes identical 04-implementation-plan.md structure for Terraform",
+      "description": "The plan states Terraform Planner outputs the same 04-implementation-plan.md with same H2 structure. However, Terraform introduces new concerns (state backend, provider pinning, workspace strategy) absent from Bicep. The validate-artifact-templates.mjs checks H2 headings against canonical templates — new sections would fail validation.",
+      "failure_scenario": "Terraform Planner generates 04-implementation-plan.md with a '## State Management Strategy' section. CI artifact validation either rejects it or the section is silently ignored.",
+      "artifact_section": "Phase 2 — Agents (Core), item 12",
+      "suggested_mitigation": "Review 04-implementation-plan.template.md H2 structure. Add Terraform-specific sections as H3s under existing H2s (validator allows this), or create a Terraform-specific template variant and update the validator."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Deploy script platform assumptions — deploy.sh vs deploy.ps1",
+      "description": "The plan specifies deploy.sh (bash) as primary for Terraform with optional deploy.ps1. The Bicep workflow uses deploy.ps1 exclusively. Inconsistency means users must learn different patterns per IaC tool, and the deploy agent needs branching logic.",
+      "failure_scenario": "User on Windows runs deploy.sh which fails. User in devcontainer runs pwsh deploy.ps1 but the file wasn't generated. Or both exist but diverge after manual edits.",
+      "artifact_section": "Phase 2 — Agents (Core), item 13 Phase 3",
+      "suggested_mitigation": "Generate both deploy.sh and deploy.ps1 always for consistency. Or use only deploy.ps1 with PowerShell (available in devcontainer) matching the Bicep pattern."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "governance-discovery.instructions.md applyTo update sequenced too late",
+      "description": "The plan lists updating governance-discovery.instructions.md applyTo to include **/*.tf as item 28 in Phase 6 (Documentation). But this instruction is consumed by the governance-discovery-subagent which runs in Phase 1 of the Terraform Planner (created in plan Phase 2). The applyTo change is a prerequisite, not a doc task.",
+      "failure_scenario": "Terraform agents are created in Phase 2, governance discovery runs, but the instruction doesn't trigger for .tf files because the applyTo update is deferred to Phase 6.",
+      "artifact_section": "Phase 6 — Documentation & Housekeeping, item 28",
+      "suggested_mitigation": "Move item 28 to Phase 1 — it's a prerequisite for the Terraform agents, not a documentation task."
+    },
+    {
+      "severity": "suggestion",
+      "category": "scope_risk",
+      "title": "No AVM-TF module version table equivalent to Bicep's in azure-defaults",
+      "description": "azure-defaults/SKILL.md has a 16-row 'Common AVM Modules' table for Bicep. The plan says to add a Terraform Conventions section but doesn't mention an equivalent AVM-TF module table.",
+      "failure_scenario": "Terraform Planner has no reference table for correct module source strings, leading to inconsistencies across projects.",
+      "artifact_section": "Phase 1 — Instructions & Skills, item 11",
+      "suggested_mitigation": "Include a 'Common AVM-TF Modules' table mapping the same 16 resources to Terraform Registry equivalents (e.g., Key Vault → Azure/avm-res-keyvault-vault/azurerm)."
+    },
+    {
+      "severity": "suggestion",
+      "category": "waf_blind_spot",
+      "title": "No Terraform-specific AVM pitfalls documentation planned",
+      "description": "Bicep has a detailed 'AVM Known Pitfalls' section in azure-defaults. Terraform AVM modules have their own pitfalls (Set-type attribute diffs, provider version constraints). The tf-support SKILL.md documents one such pitfall (AzureRM Set Diff Analyzer) but the plan doesn't capture this knowledge.",
+      "failure_scenario": "Terraform Code Generator produces code that triggers false-positive plan diffs due to Set-type attributes, causing confusion and unnecessary redeploys.",
+      "artifact_section": "Phase 1 — Instructions & Skills, item 10",
+      "suggested_mitigation": "Include a 'Terraform AVM Known Pitfalls' section in terraform-patterns/SKILL.md, incorporating Set Diff Analyzer patterns from tf-support and common AzureRM provider gotchas."
+    },
+    {
+      "severity": "suggestion",
+      "category": "architectural_weakness",
+      "title": "Phased deployment via -target is an anti-pattern in Terraform",
+      "description": "The plan states phased deployment uses terraform apply -target=module.{phase}. Terraform documentation explicitly warns that -target is for exceptional situations. Repeated use causes state drift and missed dependency updates.",
+      "failure_scenario": "User executes Phase 1 with -target=module.foundation, Phase 2 with -target=module.shared. A dependency between modules is missed because -target skips dependency graph validation.",
+      "artifact_section": "Phase 2 — Agents (Core), item 14 Step 5",
+      "suggested_mitigation": "Use a deployment_phase variable with conditional resource creation (count = var.deployment_phase >= 2 ? 1 : 0) — the true HCL equivalent of Bicep's @allowed phase parameter. Or use separate root modules per phase with shared state data sources. -target should only be a last-resort option."
+    },
+    {
+      "severity": "suggestion",
+      "category": "scope_risk",
+      "title": "tf-support reference files contain HCP Terraform Cloud patterns conflicting with Azure Storage backend",
+      "description": "docs/tf-support/terraform.agent.md defaults to HCP Terraform Cloud backend with terraform { cloud { } } blocks and TFE_TOKEN. The plan decided on Azure Storage backend, but if the agent author draws heavily from this reference, HCP patterns may leak into the Azure-focused agents.",
+      "failure_scenario": "Terraform Code Generator generates backend.tf with HCP Terraform Cloud configuration. User without HCP account cannot run terraform init.",
+      "artifact_section": "Decisions — State backend",
+      "suggested_mitigation": "Add an explicit note in Phase 2 agent creation: the tf-support references use HCP patterns that MUST be replaced with Azure Storage Account backend patterns. Include the correct Azure Storage backend template in the plan."
+    },
+    {
+      "severity": "suggestion",
+      "category": "hidden_dependency",
+      "title": ".terraform.lock.hcl should be committed, not gitignored",
+      "description": "The plan adds .terraform.lock.hcl to .gitignore. However, HashiCorp best practice recommends COMMITTING .terraform.lock.hcl to version control for reproducible builds. If gitignored, different developers may get different provider versions.",
+      "failure_scenario": "Developer A runs terraform init, gets azurerm 4.1.0. Developer B runs terraform init a week later, gets azurerm 4.2.0 with breaking changes. Lock file is gitignored so versions diverge silently.",
+      "artifact_section": "Phase 0 — Branch & Foundation, item 4",
+      "suggested_mitigation": "Remove .terraform.lock.hcl from .gitignore. Commit the lock file per HashiCorp recommendation. Only .terraform/ (plugin cache) should be gitignored."
+    }
+  ]
+}

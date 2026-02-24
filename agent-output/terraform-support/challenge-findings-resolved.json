@@ -1,0 +1,125 @@
+{
+  "challenged_artifact": "untitled:plan-terraformSupport.prompt.md",
+  "artifact_type": "implementation-plan",
+  "challenge_summary": "All 14 findings have been resolved and incorporated into the plan revision. The 3 must-fix items (MCP tool namespace verification, IaC-agnostic azurePropertyPath, IaC selection single source of truth) are now core architectural decisions. The 6 should-fix items (state bootstrapping, npx over Docker, agent numbering, H3 subsections, dual deploy scripts, governance prereq sequencing) are integrated into their respective phases. All 5 suggestions (AVM-TF table, pitfalls section, deployment_phase variable, HCP guardrail, lock file commit) are applied.",
+  "risk_level": "low",
+  "must_fix_count": 0,
+  "should_fix_count": 0,
+  "suggestion_count": 0,
+  "resolution_date": "2026-02-24",
+  "supersedes": "agent-output/terraform-support/challenge-findings.json",
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "untested_assumption",
+      "title": "terraform/* MCP tool namespace assumed without verification",
+      "status": "resolved",
+      "resolution": "Added Phase 0 item 8: verify MCP tool names after server installation. Agent frontmatter uses verified names with Registry API fallback.",
+      "applied_in": "Phase 0 item 8, Phase 2 items 14-15"
+    },
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "terraformPropertyPath mapping is undefined — governance compliance will fail",
+      "status": "resolved",
+      "resolution": "Adopted IaC-agnostic azurePropertyPath in governance constraints JSON. Governance-discovery-subagent outputs neutral paths; each code generator translates to native format. New Phase 6 handles migration from bicepPropertyPath.",
+      "applied_in": "Phase 1 item 11, Phase 2 items 14-15, Phase 5 item 25, Phase 6 item 28"
+    },
+    {
+      "severity": "must_fix",
+      "category": "hidden_dependency",
+      "title": "IaC selection gate timing creates a chicken-and-egg problem",
+      "status": "resolved",
+      "resolution": "Single source of truth: IaC preference captured ONCE in Requirements (iac_tool field in 01-requirements.md). Conductor reads and auto-routes. Only asks if no requirements artifact exists. Architect also made IaC-aware.",
+      "applied_in": "Phase 4 items 20-22"
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Terraform state backend requires bootstrapping — not addressed",
+      "status": "resolved",
+      "resolution": "Added Phase 2.5 to Code Generator: generates bootstrap-backend.sh/.ps1 for idempotent backend resource creation. Deploy agent Step 2 checks for backend existence and prompts bootstrap if missing.",
+      "applied_in": "Phase 2 items 15 (Phase 2.5), 16 (Step 2)"
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "HashiCorp MCP Server requires Docker — devcontainer may not have Docker-in-Docker",
+      "status": "resolved",
+      "resolution": "Changed to npx-based @hashicorp/terraform-mcp-server instead of Docker. No Docker-in-Docker dependency needed.",
+      "applied_in": "Phase 0 item 6"
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Agent numbering collision — 05, 06, 07 used by both Bicep and Terraform",
+      "status": "resolved",
+      "resolution": "Renumbered to 11-terraform-planner, 12-terraform-code-generator, 13-terraform-deploy. Continues from 10-challenger.",
+      "applied_in": "Phase 2 items 14-16, all cross-references"
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Plan assumes identical 04-implementation-plan.md structure for Terraform",
+      "status": "resolved",
+      "resolution": "Terraform-specific sections documented as H3 subsections under existing H2 headings to pass artifact template validation.",
+      "applied_in": "Phase 2 item 14 (Phase 4)"
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Deploy script platform assumptions — deploy.sh vs deploy.ps1",
+      "status": "resolved",
+      "resolution": "Both deploy.sh and deploy.ps1 generated always for cross-platform consistency.",
+      "applied_in": "Phase 2 item 15 (Phase 3)"
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "governance-discovery.instructions.md applyTo update sequenced too late",
+      "status": "resolved",
+      "resolution": "Moved from Phase 6 to Phase 1 item 9 as a prerequisite for Terraform agents.",
+      "applied_in": "Phase 1 item 9"
+    },
+    {
+      "severity": "suggestion",
+      "category": "scope_risk",
+      "title": "No AVM-TF module version table equivalent to Bicep's in azure-defaults",
+      "status": "resolved",
+      "resolution": "Added Common AVM-TF Modules table mapping 16 resources to Terraform Registry equivalents in azure-defaults SKILL.md update.",
+      "applied_in": "Phase 1 item 13"
+    },
+    {
+      "severity": "suggestion",
+      "category": "waf_blind_spot",
+      "title": "No Terraform-specific AVM pitfalls documentation planned",
+      "status": "resolved",
+      "resolution": "Added Terraform AVM Known Pitfalls section with Set Diff Analyzer patterns, provider version gotchas, and ignore_changes lifecycle patterns.",
+      "applied_in": "Phase 1 item 12"
+    },
+    {
+      "severity": "suggestion",
+      "category": "architectural_weakness",
+      "title": "Phased deployment via -target is an anti-pattern in Terraform",
+      "status": "resolved",
+      "resolution": "Replaced with var.deployment_phase + count conditionals. -target reserved as last-resort only.",
+      "applied_in": "Phase 2 items 15 (Phase 2), 16 (Step 5)"
+    },
+    {
+      "severity": "suggestion",
+      "category": "scope_risk",
+      "title": "tf-support reference files contain HCP Terraform Cloud patterns conflicting with Azure Storage backend",
+      "status": "resolved",
+      "resolution": "Added explicit HCP guardrail callout box in Phase 2 with correct Azure Storage backend template.",
+      "applied_in": "Phase 2 callout box"
+    },
+    {
+      "severity": "suggestion",
+      "category": "hidden_dependency",
+      "title": ".terraform.lock.hcl should be committed, not gitignored",
+      "status": "resolved",
+      "resolution": "Removed from .gitignore list. Only .terraform/ is gitignored. Lock file committed per HashiCorp best practice.",
+      "applied_in": "Phase 0 item 4"
+    }
+  ]
+}

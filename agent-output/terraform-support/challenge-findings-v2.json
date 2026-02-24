@@ -1,0 +1,66 @@
+{
+  "challenged_artifact": "docs/tf-support/tf-support-plan.prompt.md",
+  "artifact_type": "implementation-plan",
+  "challenge_summary": "The revised plan is significantly stronger than v1 — all 14 prior findings are properly addressed with traceable mitigations. However, the revision introduces 2 new should-fix issues and surfaces 4 suggestions that the prior challenge could not have identified because they only emerge from the specific mitigation strategies chosen. The highest-impact new finding is that the azurePropertyPath migration (Phase 6) touches 7+ existing Bicep files but is sequenced AFTER Phase 2 creates Terraform agents that depend on it, creating a dependency inversion. The plan is otherwise deployment-ready with low structural risk.",
+  "risk_level": "low",
+  "must_fix_count": 0,
+  "should_fix_count": 2,
+  "suggestion_count": 4,
+  "prior_challenge": "agent-output/terraform-support/challenge-findings.json (14 issues, all resolved)",
+  "issues": [
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Phase 6 azurePropertyPath migration must precede Phase 2 agent creation",
+      "description": "Phase 6 (item 28) migrates governance-discovery-subagent from bicepPropertyPath to azurePropertyPath. But Phase 2 (items 14-15) creates Terraform Planner and Code Generator agents that reference azurePropertyPath in their governance compliance workflow. If Phases are executed in order (0→1→2→3→4→5→6→7), the Terraform agents in Phase 2 will reference azurePropertyPath, but the governance-discovery-subagent still produces bicepPropertyPath until Phase 6. This means: (a) the Terraform Code Generator Phase 1.5 HARD GATE will fail because the JSON has no azurePropertyPath field, and (b) existing Bicep agents (05-bicep-planner, 06-bicep-code-generator) will break when Phase 6 renames the field they currently consume. The migration is the foundation for IaC-agnostic governance but is sequenced as one of the last phases.",
+      "failure_scenario": "Developer completes Phases 0-5, creates all Terraform agents. Tests Terraform Planner → governance-discovery-subagent runs → produces JSON with bicepPropertyPath (Phase 6 not yet done). Terraform Code Generator Phase 1.5 reads JSON, looks for azurePropertyPath, finds nothing. HARD GATE blocks. Developer must then do Phase 6 to unblock, but Phase 6 also modifies existing Bicep agents which may introduce regressions in the established workflow.",
+      "artifact_section": "Phase 6 — Governance Property Migration, item 28",
+      "suggested_mitigation": "Split Phase 6 into two parts: (A) Move the subagent output migration and backward-compatible dual-field support to Phase 1, right after item 9 (governance-discovery applyTo update). The subagent should produce BOTH bicepPropertyPath AND azurePropertyPath during transition. (B) Keep the Bicep agent migration (updating 05-bicep-planner, 06-bicep-code-generator, bicep-review-subagent to read azurePropertyPath) as a follow-up task after all Terraform pieces are working. This avoids touching Bicep agents in the same branch and lets both IaC paths work in parallel."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "05-implementation-reference.md template is Bicep-hardcoded — Terraform needs an equivalent",
+      "description": "The validate-artifact-templates.mjs maps 05-implementation-reference.md to agent 06-bicep-code-generator.agent.md and its H2 structure includes '## 📁 Bicep Templates Location'. The Terraform Code Generator (12-) will produce a corresponding artifact, but: (a) the H2 heading 'Bicep Templates Location' is incorrect for Terraform projects, (b) the AGENTS map in validate-artifact-templates.mjs hardcodes 05-implementation-reference.md → 06-bicep-code-generator.agent.md, so a Terraform equivalent would either share the same artifact name (wrong agent mapping in validator) or need a new artifact name (not defined). The plan does not address the 05-implementation-reference.md artifact at all for Terraform projects.",
+      "failure_scenario": "Terraform Code Generator produces 05-implementation-reference.md. The artifact template validator checks it against the Bicep H2 structure (including '## 📁 Bicep Templates Location'). Either (a) validation fails because the heading says 'Terraform Templates' instead, or (b) the Terraform agent produces a heading that says 'Bicep' which is factually wrong.",
+      "artifact_section": "Phase 2 — Agents (Core), item 15 output structure",
+      "suggested_mitigation": "Define how Terraform projects produce the Step 5 implementation reference artifact. Options: (1) Make the H2 IaC-neutral (e.g., '## 📁 IaC Templates Location') and update the template + validator, (2) Create a Terraform-specific artifact variant (05-tf-implementation-reference.md) with its own template, or (3) Have the Terraform Code Generator use H3 subsections under the existing H2s as decided for the implementation plan (Finding #7 pattern). Option 1 is cleanest. Whichever approach, update validate-artifact-templates.mjs AGENTS map to include the Terraform agent mapping."
+    },
+    {
+      "severity": "suggestion",
+      "category": "scope_risk",
+      "title": "validate-artifact-templates.mjs AGENTS map needs Terraform agent mappings",
+      "description": "The AGENTS object in validate-artifact-templates.mjs explicitly maps each artifact filename to its owning agent file path. The plan creates 3 new Terraform agents but does not mention updating the AGENTS map for Terraform-generated artifacts. If Terraform agents produce artifacts like 04-implementation-plan.md, 04-governance-constraints.md, or 06-deployment-summary.md, the validator will check them against Bicep agent file paths. The validator's 'agent-link' check verifies the producing agent file contains the artifact's H2 headings — this check would incorrectly look in the Bicep agent instead of the Terraform agent.",
+      "failure_scenario": "Terraform Planner produces 04-implementation-plan.md. Validator checks it against 05-bicep-planner.agent.md (the hardcoded AGENTS mapping). Bicep Planner doesn't contain Terraform-specific H3 headings. Validator may report false warnings.",
+      "artifact_section": "Phase 5 — Quality Gates & Automation",
+      "suggested_mitigation": "Add a task to Phase 5 (Quality Gates): update the AGENTS map in validate-artifact-templates.mjs to handle Terraform agent file paths. This could be done by detecting IaC type from the artifact content or project directory, or by using a secondary mapping for Terraform agents. At minimum, document this as a known gap."
+    },
+    {
+      "severity": "suggestion",
+      "category": "untested_assumption",
+      "title": "npx @hashicorp/terraform-mcp-server requires Node.js 18+ and may have startup latency",
+      "description": "The plan switches from Docker to npx for the HashiCorp Terraform MCP server. npx downloads and runs the package on first use, which can take 10-30 seconds. Subsequent runs use the npx cache but may still re-download if the cache is cleared (common in devcontainers on rebuild). The current devcontainer has Node.js 22 so version compatibility is fine, but the startup latency could cause MCP server initialization timeouts in VS Code if the timeout is short.",
+      "failure_scenario": "Developer rebuilds devcontainer, opens VS Code, starts a Terraform planning session. VS Code attempts to start the MCP server via npx, npx downloads the package (first use, no cache), takes 25 seconds. VS Code MCP initialization timeout triggers at 15 seconds. MCP server marked as unavailable.",
+      "artifact_section": "Phase 0 — Branch & Foundation, item 6",
+      "suggested_mitigation": "Add @hashicorp/terraform-mcp-server as a devDependency in package.json (install via npm ci during devcontainer setup). Then use npx (which will find the local install) or reference the local binary directly in mcp.json. This ensures zero startup latency after devcontainer build."
+    },
+    {
+      "severity": "suggestion",
+      "category": "governance_gap",
+      "title": "Conductor handoff validation in CI will flag missing Terraform agents during development",
+      "description": "The agent-validation.yml workflow validates handoff references (extracts 'agent:' from handoff YAML, checks each against 'name:' in all agent files). The plan modifies the Conductor (Phase 4 item 21) to add Terraform agent handoffs, but the Terraform agents are created in Phase 2. If Phases are implemented as separate PRs/commits, the handoff validation will fail when the Conductor is modified in Phase 4 but the Terraform agent files from Phase 2 are in the same PR. However, if each Phase is a separate PR, modifying the Conductor in Phase 4 without merging Phase 2 first would cause CI failure.",
+      "failure_scenario": "Developer creates a PR for Phase 4 (Conductor modifications) that adds handoffs to '11-Terraform Planner'. Agent validation CI checks handoff targets. If 11-terraform-planner.agent.md doesn't exist yet (Phase 2 PR not merged), CI fails. This is actually correct behavior (catching a broken reference) but could block the PR if phases are submitted out of order.",
+      "artifact_section": "Phase 4 — Conductor & Requirements Modifications, item 21",
+      "suggested_mitigation": "This is informational — the CI correctly enforces referential integrity. Document in the plan that Phases MUST be merged in order (Phase 2 before Phase 4) to avoid CI handoff validation failures. Or batch Phase 2 + Phase 4 into a single PR."
+    },
+    {
+      "severity": "suggestion",
+      "category": "architectural_weakness",
+      "title": "bootstrap-backend.sh creates state resources in a hardcoded resource group name",
+      "description": "The Phase 2 callout box shows the Azure Storage backend template with hardcoded 'rg-tfstate' and 'sttfstate{unique}'. The bootstrap-backend.sh script will create these resources. But if the user already has an existing state backend, or if naming policies (Deny/Modify) enforce a different naming convention, the hardcoded names will either conflict or be blocked. The Bicep workflow does not have this problem because ARM deployments create resource groups dynamically.",
+      "failure_scenario": "Azure Policy enforces a naming convention policy that denies resource groups not matching 'rg-{team}-{env}-{region}-{purpose}'. bootstrap-backend.sh creates 'rg-tfstate'. Policy blocks it. User must manually figure out why and modify the script.",
+      "artifact_section": "Phase 2 — Agents (Core), item 15 Phase 2.5",
+      "suggested_mitigation": "Make the bootstrap script parameterized (accept resource group name, storage account name, container name, location as arguments with sensible defaults). Document that governance-discovered naming policies should influence the backend resource names. The Code Generator should check governance constraints before generating the bootstrap script."
+    }
+  ]
+}
