@@ -96,9 +96,9 @@ cd ../../infra/bicep/ && tree -L 2
 
 ### Pre-configured Environment Variables
 
-| Variable                  | Value                           | Purpose                                        |
-| ------------------------- | ------------------------------- | ---------------------------------------------- |
-| `AZURE_DEFAULTS_LOCATION` | `swedencentral`                 | Default Azure region (matches repo guidelines) |
+| Variable                  | Value           | Purpose                                        |
+| ------------------------- | --------------- | ---------------------------------------------- |
+| `AZURE_DEFAULTS_LOCATION` | `swedencentral` | Default Azure region (matches repo guidelines) |
 
 ### Azure Credentials Mount
 
@@ -129,21 +129,21 @@ pwsh -Command "Get-Module -ListAvailable Az.*"
 
 `post-start.sh` runs automatically via `postStartCommand` and updates:
 
-| Tool | Method |
-| ---- | ------ |
-| `terraform-mcp-server` | `go install ...@latest` |
-| Azure Pricing MCP | `pip install -e .` in its venv |
-| npm local deps | `npm install` |
-| `markdownlint-cli2` | `npm install -g` |
+| Tool                         | Method                         |
+| ---------------------------- | ------------------------------ |
+| `terraform-mcp-server`       | `go install ...@latest`        |
+| Azure Pricing MCP            | `pip install -e .` in its venv |
+| npm local deps               | `npm install`                  |
+| `markdownlint-cli2`          | `npm install -g`               |
+| `checkov`, `ruff`, `diagrams` | `uv pip install --upgrade`     |
 
 ### Manual Updates (require rebuild or manual run)
 
 ```bash
-az upgrade                                          # Azure CLI
-az bicep upgrade                                    # Bicep
-pip3 install --upgrade checkov diagrams             # Python packages
-pwsh -Command 'Update-Module Az.* -Force'           # PowerShell Az modules
-bash .devcontainer/post-start.sh                    # Re-run lightweight updates now
+az upgrade                                         # Azure CLI
+az bicep upgrade                                   # Bicep
+pwsh -Command 'Update-Module Az.* -Force'          # PowerShell Az modules
+bash .devcontainer/post-start.sh                   # Re-run all lightweight updates now
 ```
 
 ### Full Rebuild (for feature/OS-level updates)

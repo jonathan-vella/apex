@@ -39,5 +39,15 @@ npm install -g markdownlint-cli2 --loglevel=error 2>&1 | tail -1 \
     && printf "✅ updated\n" \
     || printf "⚠️  update failed (continuing)\n"
 
+# ─── Python tools via uv ─────────────────────────────────────────────────────
+if command -v uv &>/dev/null; then
+    printf "    checkov/ruff/diagrams  "
+    uv pip install --system --quiet --upgrade checkov ruff diagrams 2>&1 \
+        && printf "✅ updated\n" \
+        || printf "⚠️  update failed (continuing)\n"
+else
+    printf "    checkov/ruff/diagrams  ⚠️  uv not found — skipping\n"
+fi
+
 ELAPSED=$(( $(date +%s) - START ))
 printf " ✅ Tool refresh complete (%ds)\n\n" "$ELAPSED"

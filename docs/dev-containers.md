@@ -18,29 +18,29 @@ When you open this repository in a Dev Container:
 
 ### Docker Options
 
-| Platform | Recommended | Alternatives |
-|----------|-------------|--------------|
-| **Windows 10/11 Pro** | Docker Desktop with WSL 2 | Rancher Desktop, Podman |
-| **Windows 10/11 Home** | Docker Desktop with WSL 2 (2004+) | — |
-| **macOS** | Docker Desktop 2.0+ | Colima, Rancher Desktop |
-| **Linux** | Docker CE/EE 18.06+ | Podman |
+| Platform               | Recommended                       | Alternatives            |
+| ---------------------- | --------------------------------- | ----------------------- |
+| **Windows 10/11 Pro**  | Docker Desktop with WSL 2         | Rancher Desktop, Podman |
+| **Windows 10/11 Home** | Docker Desktop with WSL 2 (2004+) | —                       |
+| **macOS**              | Docker Desktop 2.0+               | Colima, Rancher Desktop |
+| **Linux**              | Docker CE/EE 18.06+               | Podman                  |
 
 ### Hardware
 
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| RAM | 8 GB | 16 GB |
-| CPU | 2 cores | 4+ cores |
-| Disk | 10 GB free | 20 GB free |
+| Resource | Minimum    | Recommended |
+| -------- | ---------- | ----------- |
+| RAM      | 8 GB       | 16 GB       |
+| CPU      | 2 cores    | 4+ cores    |
+| Disk     | 10 GB free | 20 GB free  |
 
 ### Software
 
-| Software | Version | Purpose |
-|----------|---------|---------|
-| VS Code | Latest | IDE |
-| Dev Containers Extension | Latest | Container integration |
-| Docker | See above | Container runtime |
-| Git | 2.30+ | Version control |
+| Software                 | Version   | Purpose               |
+| ------------------------ | --------- | --------------------- |
+| VS Code                  | Latest    | IDE                   |
+| Dev Containers Extension | Latest    | Container integration |
+| Docker                   | See above | Container runtime     |
+| Git                      | 2.30+     | Version control       |
 
 ---
 
@@ -141,17 +141,17 @@ Configure VS Code: `"dev.containers.dockerPath": "podman"`
 
 The Dev Container includes:
 
-| Category | Tools |
-|----------|-------|
-| **Azure** | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP |
-| **Terraform** | Terraform (latest), tfsec, HashiCorp Terraform MCP Server |
-| **PowerShell** | PowerShell 7+, Az modules |
-| **Python** | Python 3.13+, diagrams library, graphviz |
-| **Node.js** | Node LTS+, npm, markdownlint |
-| **VS Code Extensions** | 27+ extensions (Bicep, Terraform, Copilot, Azure, etc.) |
+| Category               | Tools                                                     |
+| ---------------------- | --------------------------------------------------------- |
+| **Azure**              | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP       |
+| **Terraform**          | Terraform (latest), tfsec, HashiCorp Terraform MCP Server |
+| **PowerShell**         | PowerShell 7+, Az modules                                 |
+| **Python**             | Python 3.13+, diagrams library, graphviz                  |
+| **Node.js**            | Node LTS+, npm, markdownlint                              |
+| **VS Code Extensions** | 27+ extensions (Bicep, Terraform, Copilot, Azure, etc.)   |
 
-> **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, and `markdownlint-cli2`
-> are refreshed automatically every time the container starts via `post-start.sh`.
+> **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, `markdownlint-cli2`,
+> `checkov`, `ruff`, and `diagrams` are refreshed automatically on every container start via `post-start.sh`.
 > Heavy tools (PowerShell modules, system packages) are installed once at build time.
 
 ---
