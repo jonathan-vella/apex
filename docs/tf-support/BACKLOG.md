@@ -84,7 +84,7 @@
 | ---- | -------------------------------------------------- | ------ | ---- | ------ | ----- | ----- |
 | 7.32 | Update `.github/copilot-instructions.md`           | `docs` | M    | `todo` | —     | Terraform agents 11-/12-/13- |
 | 7.33 | Update `docs/terraform-roadmap.md`                 | `docs` | S    | `todo` | —     | Mark completed, add links |
-| 7.34 | Update GitHub issue #85 + create 8 child issues    | `docs` | M    | `todo` | —     | See `github-issues/` directory |
+| 7.34 | Update GitHub issue #171 + create 8 child issues   | `docs` | M    | `todo` | —     | See `github-issues/` directory |
 
 ## Summary Stats
 

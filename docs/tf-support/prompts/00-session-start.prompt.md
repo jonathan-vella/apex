@@ -49,9 +49,9 @@ Follow the full protocol in `docs/tf-support/README.md` → **Automated Issue Up
 Protocol**. Summary of mandatory triggers:
 
 - **Item completed** → `mcp_github_add_issue_comment` on the phase's child issue (✅ note)
-- **Phase complete** → comment + close child issue + update #85 checklist via `mcp_github_issue_write`
+- **Phase complete** → comment + close child issue + update #171 checklist via `mcp_github_issue_write`
 - **Regression detected** (`validate:all` fails) → `mcp_github_add_issue_comment` on child issue +
-  on #85 (⚠️ note)
+  on #171 (⚠️ note)
 
 Always resolve issue numbers dynamically with `mcp_github_search_issues` — never hardcode them.
 Do not use `gh` CLI for issue updates; use MCP tools only.

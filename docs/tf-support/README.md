@@ -135,7 +135,7 @@ In addition to the automated gate, a manual pre-merge checklist must be satisfie
 - [ ] `npm run validate:all` passes with zero errors
 - [ ] `bicep build infra/bicep/**/*.bicep` passes (regression: existing Bicep unbroken)
 - [ ] `terraform validate` passes on all modules in `infra/terraform/`
-- [ ] GitHub issue #85 is fully closed with all child issues resolved
+- [ ] GitHub issue #171 is fully closed with all child issues resolved
 - [ ] `PROGRESS.md` Blockers & Notes table has no open blockers
 
 Only after all of the above should Phase 6 be deferred (if applicable) and
@@ -182,7 +182,7 @@ prompt again to re-anchor it.
 
 ## GitHub Issues
 
-The parent issue is **#85** (`Terraform Support for Azure Agentic InfraOps`) on
+The parent issue is **#171** (`Terraform Support for Azure Agentic InfraOps`) on
 `jonathan-vella/azure-agentic-infraops`. Each phase has a child issue (titles below).
 Issue templates are in `docs/tf-support/github-issues/`.
 
@@ -257,8 +257,8 @@ Never hardcode issue numbers. Always resolve dynamically:
    ```
 
 3. Call `mcp_github_issue_write` on the child issue to set `state: closed`
-4. Resolve issue #85 (parent) — call `mcp_github_issue_read` to get current body
-5. Call `mcp_github_issue_write` on #85 to update its body:
+4. Resolve issue #171 (parent) — call `mcp_github_issue_read` to get current body
+5. Call `mcp_github_issue_write` on #171 to update its body:
    change `- [ ] Phase N —` to `- [x] Phase N —`
 
 #### Trigger 3 — Regression Detected
@@ -281,7 +281,7 @@ prompt's regression check step reports a failure.
    Status: blocked — must fix before continuing.
    ```
 
-3. Call `mcp_github_add_issue_comment` on issue #85:
+3. Call `mcp_github_add_issue_comment` on issue #171:
    ```
    ⚠️ Regression in Phase N — see child issue for details.
    ```

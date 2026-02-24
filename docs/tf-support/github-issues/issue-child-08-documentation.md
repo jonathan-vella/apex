@@ -27,7 +27,7 @@ Phases 0-5 complete. Phase 6 optional but recommended.
 - [ ] `docs/tf-support/PROGRESS.md` has all 34 items checked off
 - [ ] `npm run validate:all` passes
 - [ ] `npm run lint:md` passes
-- [ ] PR opened: `tf-dev` → `main`, linked to issue #85
+- [ ] PR opened: `tf-dev` → `main`, linked to issue #171
 
 ## References
 

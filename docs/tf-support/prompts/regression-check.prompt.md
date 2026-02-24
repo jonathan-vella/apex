@@ -87,7 +87,7 @@ All 6 sections must be green with no errors or warnings before the phase is cons
 2. Apply **Trigger 3** from `docs/tf-support/README.md` → **Automated Issue Updates**:
    - `mcp_github_search_issues` → resolve the active phase's child issue number
    - `mcp_github_add_issue_comment` on the child issue (⚠️ regression note with failing checks)
-   - `mcp_github_add_issue_comment` on issue #85 (brief reference to child issue)
+   - `mcp_github_add_issue_comment` on issue #171 (brief reference to child issue)
 3. Fix the regression before committing the phase.
 4. Re-run this check to confirm it passes.
 5. Note the finding in `docs/tf-support/PROGRESS.md` Blockers & Notes.

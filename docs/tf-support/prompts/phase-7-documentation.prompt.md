@@ -73,7 +73,7 @@ bash docs/tf-support/github-issues/create-issues.sh
 
 To create them via the GitHub web UI, use the content in each `issue-child-*.md` file.
 
-For issue #85, use the content in `issue-85-parent.md` to update the existing issue.
+For issue #171, use the content in `issue-85-parent.md` to update the existing issue.
 
 ## Validation
 
@@ -121,4 +121,4 @@ git commit -m "chore(progress): Phase 7 complete — Terraform support implement
 - [ ] `npm run lint:h2-sync` — IaC Templates Location in sync
 - [ ] Regression check prompt passes
 - [ ] `docs/tf-support/PROGRESS.md` — all items checked off
-- [ ] PR description references issue #85
+- [ ] PR description references issue #171

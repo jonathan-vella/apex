@@ -92,7 +92,7 @@ blocking_issues: []
 
 - [ ] `7.32` Update `.github/copilot-instructions.md` — Terraform agents, skills, tools, conventions
 - [ ] `7.33` Update `docs/terraform-roadmap.md` — mark completed items, add links
-- [ ] `7.34` Update GitHub issue #85 — refined scope + 8 child issues
+- [ ] `7.34` Update GitHub issue #171 — refined scope + 8 child issues
 
 ---
 
