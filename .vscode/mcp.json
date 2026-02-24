@@ -13,6 +13,16 @@
       "command": "${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
       "args": ["-m", "azure_pricing_mcp"],
       "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src"
+    },
+    "terraform": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "TFE_TOKEN=${env:TFE_TOKEN}",
+        "hashicorp/terraform-mcp-server:latest"
+      ],
+      "env": {}
     }
   }
 }

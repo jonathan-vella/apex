@@ -28,6 +28,11 @@
 # PowerShell scripts with BOM (UTF-8 with BOM for compatibility)
 *.ps1 text working-tree-encoding=UTF-8 eol=lf
 *.psm1 text working-tree-encoding=UTF-8 eol=lf
+
+# Terraform / HCL
+*.tf      text eol=lf linguist-language=HCL
+*.tfvars  text eol=lf linguist-language=HCL
+*.hcl     text eol=lf linguist-language=HCL
 *.psd1 text working-tree-encoding=UTF-8 eol=lf
 
 # Binary files

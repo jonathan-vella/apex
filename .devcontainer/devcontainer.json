@@ -19,7 +19,11 @@
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "latest"
-    }
+    },
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "installTFsec": true
+    },
+    "ghcr.io/devcontainers/features/go:1": {}
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
@@ -33,7 +37,8 @@
   "containerEnv": {
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
-    "UV_CACHE_DIR": "/home/vscode/.cache/uv"
+    "UV_CACHE_DIR": "/home/vscode/.cache/uv",
+    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache"
   },
 
   "remoteEnv": {
@@ -64,7 +69,9 @@
         "esbenp.prettier-vscode",
         "mechatroner.rainbow-csv",
         "redhat.vscode-yaml",
-        "mutantdino.resourcemonitor"
+        "mutantdino.resourcemonitor",
+        "HashiCorp.terraform",
+        "ms-azuretools.vscode-azureterraform"
       ],
       "settings": {
         "chat.customAgentInSubagent.enabled": true,
@@ -92,6 +99,11 @@
         },
         "[bicep]": {
           "editor.tabSize": 2
+        },
+        "[terraform]": {
+          "editor.tabSize": 2,
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "hashicorp.terraform"
         },
         "[powershell]": {
           "editor.tabSize": 4
