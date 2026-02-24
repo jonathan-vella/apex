@@ -20,30 +20,34 @@ Phases 0-5 complete (Phase 6 optional). At minimum, the Terraform agents work en
 
 Find the **7-Step Workflow** table. Update rows 4-6:
 
-| Step | Before | After |
-| ---- | ------ | ----- |
-| 4 | Bicep Plan | IaC Plan (Bicep: `05-Bicep Planner` / Terraform: `11-Terraform Planner`) |
-| 5 | Bicep Code | IaC Code (Bicep: `06-Bicep Code Generator` / Terraform: `12-Terraform Code Generator`) |
-| 6 | Deploy | Deploy (Bicep: `07-Deploy` / Terraform: `13-Terraform Deploy`) |
+| Step | Before     | After                                                                                  |
+| ---- | ---------- | -------------------------------------------------------------------------------------- |
+| 4    | Bicep Plan | IaC Plan (Bicep: `05-Bicep Planner` / Terraform: `11-Terraform Planner`)               |
+| 5    | Bicep Code | IaC Code (Bicep: `06-Bicep Code Generator` / Terraform: `12-Terraform Code Generator`) |
+| 6    | Deploy     | Deploy (Bicep: `07-Deploy` / Terraform: `13-Terraform Deploy`)                         |
 
 Find the **Skills** table. Add a new row:
+
 ```
 | `terraform-patterns` | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
 ```
 
 Find the **Key files** table. Add:
+
 ```
 | `infra/terraform/{project}/` | Terraform templates by project |
 | `docs/tf-support/`           | Terraform support planning docs and prompts |
 ```
 
 Find the **Validation** section. Add:
+
 ```bash
 terraform fmt -check -recursive infra/terraform/
 terraform validate
 ```
 
 Find (or add) a **Key Conventions** section for Terraform:
+
 ```yaml
 # Terraform conventions
 default_backend: Azure Storage Account
@@ -56,6 +60,7 @@ provider_pin: "~> 4.0"
 ## Item 7.33 — Update `docs/terraform-roadmap.md`
 
 Read the current file. For each item that was completed in Phases 0-7:
+
 - Change `[ ]` to `[x]`
 - Add a link to the actual file created, e.g.: `[Created](../.github/agents/11-terraform-planner.agent.md)`
 
@@ -67,6 +72,7 @@ of key decisions made and any deviations from the original roadmap.
 The issue templates are pre-written in `docs/tf-support/github-issues/`.
 
 To create them using `gh` CLI (requires authentication):
+
 ```bash
 bash docs/tf-support/github-issues/create-issues.sh
 ```
@@ -100,6 +106,7 @@ Check off `7.32`, `7.33`, `7.34`. Phase 7 → `✅ Complete`.
 Update the overall status table to show all phases complete.
 
 Add a final Blockers & Notes entry:
+
 ```
 | [date] | [you] | All phases | Implementation complete. Open PR: tf-dev → main |
 ```
@@ -107,6 +114,7 @@ Add a final Blockers & Notes entry:
 Set `active_phase: 0` (or add a `status: complete` field) to signal done.
 
 Then commit:
+
 ```bash
 git add docs/tf-support/PROGRESS.md
 git commit -m "chore(progress): Phase 7 complete — Terraform support implementation done"
