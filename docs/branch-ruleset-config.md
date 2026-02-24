@@ -148,7 +148,7 @@ gh api /repos/jonathan-vella/azure-agentic-infraops/rulesets/12080985 `
 
 Expected output:
 
-```
+```text
 lint
 Validate Agents & Skills
 policy-compliance-check
