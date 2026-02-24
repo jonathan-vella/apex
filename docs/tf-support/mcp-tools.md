@@ -18,7 +18,7 @@ includes the Go feature (`ghcr.io/devcontainers/features/go:1`), the binary appr
 
 ```bash
 go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest
-# Binary lands at: /home/vscode/go/bin/terraform-mcp-server
+# Binary lands at: /go/bin/terraform-mcp-server (GOPATH=/go via devcontainer Go feature)
 ```
 
 ### `.vscode/mcp.json` entry
@@ -27,7 +27,7 @@ go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@la
 {
   "terraform": {
     "type": "stdio",
-    "command": "/home/vscode/go/bin/terraform-mcp-server",
+    "command": "/go/bin/terraform-mcp-server",
     "args": ["stdio"],
     "env": {
       "TFE_TOKEN": "${env:TFE_TOKEN}"

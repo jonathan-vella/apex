@@ -156,8 +156,8 @@ fi
 step_start "🏗️ " "Installing Terraform MCP Server binary (go install)..."
 if command -v go &> /dev/null; then
     if go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest 2>&1 | tail -2; then
-        if command -v /home/vscode/go/bin/terraform-mcp-server &> /dev/null; then
-            step_done "terraform-mcp-server installed at /home/vscode/go/bin/"
+        if command -v /go/bin/terraform-mcp-server &> /dev/null; then
+            step_done "terraform-mcp-server installed at /go/bin/"
         else
             step_warn "go install ran but binary not found at expected path"
         fi
@@ -256,7 +256,7 @@ printf "        %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo 
 printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
-printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /home/vscode/go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
 
 step_done "All verifications complete"
 
