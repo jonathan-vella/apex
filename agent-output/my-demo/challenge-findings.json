@@ -1,0 +1,98 @@
+{
+  "reviews": [
+    {
+      "step": 2,
+      "challenged_artifact": "agent-output/my-demo/02-architecture-assessment.md",
+      "artifact_type": "architecture",
+      "risk_level": "low",
+      "must_fix_count": 0,
+      "should_fix_count": 2,
+      "suggestion_count": 2,
+      "challenge_summary": "Low-risk architecture for a non-production demo. Two should_fix items: governance discovery and pricing validation. Both resolved in Step 4.",
+      "status": "all_resolved"
+    },
+    {
+      "step": 4,
+      "challenged_artifact": "agent-output/my-demo/04-implementation-plan.md",
+      "artifact_type": "implementation-plan",
+      "risk_level": "medium",
+      "must_fix_count": 1,
+      "should_fix_count": 5,
+      "suggestion_count": 4,
+      "challenge_summary": "1 must_fix (dailyQuotaGb type mismatch), 5 should_fix (SWA naming, RG creation, FTPS attribution, rollback, AVM versions), 4 suggestions (budget alert, LAW tier label, SP auth default, tag casing). All resolved except budget alert (deferred to Step 5).",
+      "issues": [
+        {
+          "id": "MF-001",
+          "severity": "must_fix",
+          "title": "dailyQuotaGb type mismatch — AVM expects int, plan specified decimal",
+          "resolution": "Changed to dailyQuotaGb: 1 (minimum int)",
+          "status": "resolved"
+        },
+        {
+          "id": "SF-001",
+          "severity": "should_fix",
+          "title": "FTPS and MI settings incorrectly attributed to managed Functions",
+          "resolution": "Corrected to list under Static Web App",
+          "status": "resolved"
+        },
+        {
+          "id": "SF-002",
+          "severity": "should_fix",
+          "title": "Resource group creation not in deployment workflow",
+          "resolution": "Added RG creation as pre-step in deploy.ps1",
+          "status": "resolved"
+        },
+        {
+          "id": "SF-003",
+          "severity": "should_fix",
+          "title": "AVM module versions not explicitly verified",
+          "resolution": "Verified via mcp_bicep_list_avm_metadata — no change needed",
+          "status": "resolved"
+        },
+        {
+          "id": "SF-004",
+          "severity": "should_fix",
+          "title": "No rollback strategy documented",
+          "resolution": "Added Rollback Strategy subsection",
+          "status": "resolved"
+        },
+        {
+          "id": "SF-005",
+          "severity": "should_fix",
+          "title": "SWA name collision risk — no unique suffix",
+          "resolution": "Added uniqueSuffix to SWA naming pattern",
+          "status": "resolved"
+        },
+        {
+          "id": "SG-001",
+          "severity": "suggestion",
+          "title": "Add budget alert post-deployment step",
+          "resolution": "Deferred to Step 5 (Bicep code)",
+          "status": "deferred"
+        },
+        {
+          "id": "SG-002",
+          "severity": "suggestion",
+          "title": "Correct 'free tier' label for LAW",
+          "resolution": "Changed to '5 GB/day free ingestion allowance'",
+          "status": "resolved"
+        },
+        {
+          "id": "SG-003",
+          "severity": "suggestion",
+          "title": "Default deploy.ps1 to service principal auth",
+          "resolution": "Updated deploy.ps1 features",
+          "status": "resolved"
+        },
+        {
+          "id": "SG-004",
+          "severity": "suggestion",
+          "title": "Explicitly state lowercase tag key convention",
+          "resolution": "Added tag casing note to Naming Conventions",
+          "status": "resolved"
+        }
+      ],
+      "status": "9_of_10_resolved"
+    }
+  ]
+}

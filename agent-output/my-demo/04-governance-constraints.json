@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "project": "my-demo",
+    "subscription": "noalz",
+    "subscriptionId": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+    "discoveryTimestamp": "2026-02-24T00:00:00Z",
+    "discoveryMethod": "REST API (management group + subscription scoped)",
+    "totalAssignments": 20,
+    "subscriptionScoped": 12,
+    "managementGroupInherited": 8
+  },
+  "blockers": [
+    {
+      "policyName": "Microsoft Azure Multi Factor Authentication Enforcement for Resource Write Actions",
+      "policyId": "sys.mfa-write",
+      "scope": "Management Group",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "actuallyBlocks": "ARM write operations from user identities without MFA",
+      "evidenceFromPolicyRule": "Denies write operations when caller identity lacks MFA claim",
+      "bicepPropertyPath": "N/A (identity-level, not resource property)",
+      "requiredValue": "Deploy via service principal or MFA-authenticated user",
+      "impactOnProject": "All resources (SWA, Functions, App Insights) when deployed interactively without MFA",
+      "resolution": "Use service principal for deployment or ensure deploying user has MFA enabled"
+    },
+    {
+      "policyName": "JV-Enforce Resource Group Tags v3",
+      "policyId": "jv-enforce-rg-tags-v3",
+      "scope": "Management Group",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "actuallyBlocks": "Resource Group create/update if required tags are missing",
+      "evidenceFromPolicyRule": "Checks for existence of required tag keys on resourceGroups",
+      "bicepPropertyPath": "tags",
+      "requiredValue": "Must include: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact",
+      "impactOnProject": "Resource group creation will fail without all required tags",
+      "resolution": "Include all 9 required tags on the resource group in main.bicep"
+    }
+  ],
+  "warnings": [
+    {
+      "policyName": "MCAPSGov Audit Policies (initiative)",
+      "scope": "Management Group",
+      "effect": "Audit",
+      "impact": "44 audit controls including Function diagnostics and App Service security posture checks"
+    },
+    {
+      "policyName": "Azure Security Baseline (initiative)",
+      "scope": "Management Group",
+      "effect": "Audit/AuditIfNotExists",
+      "impact": "App Service-related security controls for compliance reporting"
+    },
+    {
+      "policyName": "FunctionApps_DiagnosticSetting_Audit",
+      "scope": "Management Group",
+      "effect": "Audit",
+      "impact": "Function Apps without diagnostic settings flagged as non-compliant"
+    },
+    {
+      "policyName": "AppService_FTPSOnly_Audit + TLS/Auth audit controls",
+      "scope": "Management Group",
+      "effect": "Audit",
+      "impact": "App Services/Functions expected to use FTPS-only and stricter TLS/auth settings"
+    },
+    {
+      "policyName": "Multi Factor Authentication Enforcement for Resource Delete Actions",
+      "scope": "Management Group",
+      "effect": "Audit",
+      "impact": "Delete operations audited when MFA is missing"
+    }
+  ],
+  "autoRemediation": [
+    {
+      "policyName": "JV - Inherit Multiple Tags from Resource Group",
+      "scope": "Management Group",
+      "effect": "Modify",
+      "action": "Auto-propagates required governance tags from RG to child resources"
+    },
+    {
+      "policyName": "MCAPSGov Deploy and Modify Policies (initiative)",
+      "scope": "Management Group",
+      "effect": "DeployIfNotExists/Modify",
+      "action": "Security and config auto-remediation patterns"
+    }
+  ],
+  "requiredTags": {
+    "scope": "Resource Group (Deny policy) + Resources (Modify inheritance)",
+    "tags": [
+      "environment",
+      "owner",
+      "costcenter",
+      "application",
+      "workload",
+      "sla",
+      "backup-policy",
+      "maint-window",
+      "technical-contact"
+    ]
+  },
+  "securityConstraints": {
+    "mfa": "Required for interactive deployments (Deny policy)",
+    "tls": "TLS 1.2 minimum (Audit policy)",
+    "ftps": "FTPS-only for App Services/Functions (Audit policy)",
+    "diagnostics": "Diagnostic settings required for Functions (Audit policy)"
+  },
+  "regionConstraints": {
+    "westeurope": "No deny policies blocking this region for target resources"
+  }
+}
