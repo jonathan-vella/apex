@@ -11,19 +11,15 @@
     "azure-pricing": {
       "type": "stdio",
       "command": "${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
-      "args": [
-        "-m",
-        "azure_pricing_mcp"
-      ],
+      "args": ["-m", "azure_pricing_mcp"],
       "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src"
     },
     "terraform": {
       "type": "stdio",
       "command": "/go/bin/terraform-mcp-server",
-      "args": ["stdio"],
-      "env": {
-        "TFE_TOKEN": "${env:TFE_TOKEN}"
-      }
+      // Use "all" and set TFE_TOKEN env var to also enable HCP Terraform/Enterprise tools
+      "args": ["stdio", "--toolsets", "registry"],
+      "env": {}
     }
   }
 }

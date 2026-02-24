@@ -28,16 +28,15 @@ go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@la
   "terraform": {
     "type": "stdio",
     "command": "/go/bin/terraform-mcp-server",
-    "args": ["stdio"],
-    "env": {
-      "TFE_TOKEN": "${env:TFE_TOKEN}"
-    }
+    "args": ["stdio", "--toolsets", "registry"],
+    "env": {}
   }
 }
 ```
 
-`TFE_TOKEN` is optional — only needed for HCP Terraform / TFE workspace tools.
-Without it, all `registry` toolset tools work (provider docs, module lookup, policies).
+`--toolsets registry` enables only public registry tools and avoids TFE client init errors
+when `TFE_TOKEN` is not set. To also enable HCP Terraform / TFE workspace tools,
+change args to `["stdio", "--toolsets", "all"]` and set `TFE_TOKEN` in env.
 
 ## Toolsets
 
