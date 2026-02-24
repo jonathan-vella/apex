@@ -11,8 +11,8 @@ phase_6_complete: false
 phase_7_complete: false
 last_session: "2026-02-24"
 last_contributor: "GitHub Copilot"
-session_count: 1
-blocking_issues: ["0.6: Docker socket must be available in devcontainer for terraform MCP server to load"]
+session_count: 2
+blocking_issues: []
 ---
 
 # Terraform Support — Progress Tracker
@@ -23,8 +23,8 @@ blocking_issues: ["0.6: Docker socket must be available in devcontainer for terr
 
 ## Overall Status
 
-| Phase | Title                             | Items | Done | Status      |
-| ----- | --------------------------------- | ----- | ---- | ----------- |
+| Phase | Title                             | Items | Done | Status         |
+| ----- | --------------------------------- | ----- | ---- | -------------- |
 | 0     | Branch & Foundation               | 8     | 8    | ✅ Complete    |
 | 1     | Instructions, Skills & Governance | 6     | 0    | ⬜ Not started |
 | 2     | Agents (Core)                     | 3     | 0    | ⬜ Not started |
@@ -47,7 +47,7 @@ blocking_issues: ["0.6: Docker socket must be available in devcontainer for terr
 
 ## Phase 1 — Instructions, Skills & Governance
 
-- [ ] `1.9`  Update `governance-discovery.instructions.md` — add `**/*.tf` to `applyTo`
+- [ ] `1.9` Update `governance-discovery.instructions.md` — add `**/*.tf` to `applyTo`
 - [ ] `1.10` Update `governance-discovery-subagent` — dual-field output (`bicepPropertyPath` + `azurePropertyPath`)
 - [ ] `1.11` Create `terraform-code-best-practices.instructions.md`
 - [ ] `1.12` Create `terraform-policy-compliance.instructions.md`
@@ -100,10 +100,11 @@ blocking_issues: ["0.6: Docker socket must be available in devcontainer for terr
 
 <!-- Add session notes here — what was attempted, what broke, what needs follow-up -->
 
-| Date | Contributor | Item | Note |
-| ---- | ----------- | ---- | ---- |
-| 2026-02-24 | — | Setup | Initial progress tracker created |
+| Date       | Contributor    | Item    | Note                                                                                                                                                                                                                                                                                                       |
+| ---------- | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-02-24 | —              | Setup   | Initial progress tracker created                                                                                                                                                                                                                                                                           |
 | 2026-02-24 | GitHub Copilot | 0.1–0.8 | Phase 0 complete. Note: `@hashicorp/terraform-mcp-server` npm package does not exist; using official Docker image `hashicorp/terraform-mcp-server:latest` in mcp.json instead. Docker socket must be available in devcontainer. Tool names documented in `docs/tf-support/mcp-tools.md`. Gate 0.8 cleared. |
+| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn’t work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected. |
 
 ## Validator Status (run after each phase)
 

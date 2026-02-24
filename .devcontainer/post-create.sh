@@ -3,7 +3,7 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=9
+TOTAL_STEPS=10
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0
@@ -151,7 +151,24 @@ else
     step_fail "MCP directory not found at $MCP_DIR"
 fi
 
-# ─── Step 7: Python dependencies (authoritative) ─────────────────────────────
+# ─── Step 7: Terraform MCP Server binary ────────────────────────────────────
+
+step_start "🏗️ " "Installing Terraform MCP Server binary (go install)..."
+if command -v go &> /dev/null; then
+    if go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest 2>&1 | tail -2; then
+        if command -v /home/vscode/go/bin/terraform-mcp-server &> /dev/null; then
+            step_done "terraform-mcp-server installed at /home/vscode/go/bin/"
+        else
+            step_warn "go install ran but binary not found at expected path"
+        fi
+    else
+        step_warn "go install failed — MCP server unavailable until fixed"
+    fi
+else
+    step_warn "Go not found — Terraform MCP Server not installed"
+fi
+
+# ─── Step 8: Python dependencies (authoritative) ─────────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
@@ -165,7 +182,7 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 8: Azure CLI defaults ──────────────────────────────────────────────
+# ─── Step 9: Azure CLI defaults ────────────────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI..."
 if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then
@@ -175,7 +192,7 @@ else
     step_warn "Azure CLI config skipped (not authenticated)"
 fi
 
-# ─── Step 9: MCP config & final verification ─────────────────────────────────
+# ─── Step 10: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 
@@ -239,7 +256,7 @@ printf "        %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo 
 printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
-echo ""
+printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /home/vscode/go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
 
 step_done "All verifications complete"
 

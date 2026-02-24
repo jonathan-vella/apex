@@ -9,57 +9,70 @@
 
 ## MCP Server Configuration
 
-The official HashiCorp Terraform MCP server is a Docker image (not an npm package).
-The `.vscode/mcp.json` entry uses:
+The official HashiCorp Terraform MCP server is a Go binary installed via `go install`.
+**Docker is NOT used** — running `docker run` inside a devcontainer requires Docker-in-Docker
+or Docker-outside-of-Docker, adding unnecessary complexity. Since the devcontainer already
+includes the Go feature (`ghcr.io/devcontainers/features/go:1`), the binary approach is simpler.
+
+### Installation (handled by `post-create.sh` step 7)
+
+```bash
+go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest
+# Binary lands at: /home/vscode/go/bin/terraform-mcp-server
+```
+
+### `.vscode/mcp.json` entry
 
 ```json
 {
   "terraform": {
     "type": "stdio",
-    "command": "docker",
-    "args": ["run", "-i", "--rm", "-e", "TFE_TOKEN=${env:TFE_TOKEN}", "hashicorp/terraform-mcp-server:latest"]
+    "command": "/home/vscode/go/bin/terraform-mcp-server",
+    "args": ["stdio"],
+    "env": {
+      "TFE_TOKEN": "${env:TFE_TOKEN}"
+    }
   }
 }
 ```
 
-> **Prerequisite**: Docker must be available in the devcontainer (Docker socket forwarding
-> from the host, or Docker-in-Docker feature). Add the `docker-outside-of-docker` or
-> `docker-in-docker` devcontainer feature if Docker is not present.
+`TFE_TOKEN` is optional — only needed for HCP Terraform / TFE workspace tools.
+Without it, all `registry` toolset tools work (provider docs, module lookup, policies).
 
 ## Toolsets
 
-| Toolset | Description | Activation |
-| ------- | ----------- | ---------- |
-| `registry` | Public Terraform Registry (providers, modules, policies) | Default |
-| `registry-private` | Private registry in HCP Terraform / TFE | Requires `TFE_TOKEN` |
-| `terraform` | HCP Terraform / TFE workspace management | Requires `TFE_TOKEN` |
+| Toolset            | Description                                              | Activation           |
+| ------------------ | -------------------------------------------------------- | -------------------- |
+| `registry`         | Public Terraform Registry (providers, modules, policies) | Default              |
+| `registry-private` | Private registry in HCP Terraform / TFE                  | Requires `TFE_TOKEN` |
+| `terraform`        | HCP Terraform / TFE workspace management                 | Requires `TFE_TOKEN` |
 
-Start with a specific toolset: `docker run -i --rm hashicorp/terraform-mcp-server --toolsets=registry,terraform`
+Filter tools at startup: `terraform-mcp-server stdio --toolsets=registry,terraform`
 
 ## Registry Tools (toolset: `registry`)
 
 ### Provider Tools
 
-| Tool Name | Purpose | Equivalent (community pkg) |
-| --------- | ------- | -------------------------- |
-| `search_providers` | Find provider docs by service name | `providerDetails` |
-| `get_provider_details` | Full docs for a specific provider component | `resourceUsage` |
-| `get_latest_provider_version` | Latest version of a provider | — |
+| Tool Name                     | Purpose                                     | Equivalent (community pkg) |
+| ----------------------------- | ------------------------------------------- | -------------------------- |
+| `search_providers`            | Find provider docs by service name          | `providerDetails`          |
+| `get_provider_details`        | Full docs for a specific provider component | `resourceUsage`            |
+| `get_latest_provider_version` | Latest version of a provider                | —                          |
 
 ### Module Tools
 
-| Tool Name | Purpose | Equivalent (community pkg) |
-| --------- | ------- | -------------------------- |
-| `search_modules` | Find modules by name/functionality | `moduleSearch` |
-| `get_module_details` | Comprehensive module info (inputs, outputs, examples) | `moduleDetails` |
-| `get_latest_module_version` | Latest version of a module | — |
+| Tool Name                   | Purpose                                               | Equivalent (community pkg) |
+| --------------------------- | ----------------------------------------------------- | -------------------------- |
+| `search_modules`            | Find modules by name/functionality                    | `moduleSearch`             |
+| `get_module_details`        | Comprehensive module info (inputs, outputs, examples) | `moduleDetails`            |
+| `get_latest_module_version` | Latest version of a module                            | —                          |
 
 ### Policy Tools
 
-| Tool Name | Purpose | Equivalent (community pkg) |
-| --------- | ------- | -------------------------- |
-| `search_policies` | Find Sentinel policies | `policySearch` |
-| `get_policy_details` | Policy implementation details | `policyDetails` |
+| Tool Name            | Purpose                       | Equivalent (community pkg) |
+| -------------------- | ----------------------------- | -------------------------- |
+| `search_policies`    | Find Sentinel policies        | `policySearch`             |
+| `get_policy_details` | Policy implementation details | `policyDetails`            |
 
 ## HCP Terraform / TFE Tools (toolset: `terraform`)
 
@@ -68,71 +81,71 @@ Start with a specific toolset: `docker run -i --rm hashicorp/terraform-mcp-serve
 
 ### Workspace Management
 
-| Tool Name | Purpose | Destructive |
-| --------- | ------- | ----------- |
-| `list_terraform_orgs` | List all Terraform organizations | No |
-| `list_terraform_projects` | List all Terraform projects | No |
-| `list_workspaces` | Search and list workspaces | No |
-| `get_workspace_details` | Full workspace config, variables, state | No |
-| `create_workspace` | Create a new workspace | Yes |
-| `update_workspace` | Update workspace configuration | Yes |
+| Tool Name                 | Purpose                                     | Destructive                  |
+| ------------------------- | ------------------------------------------- | ---------------------------- |
+| `list_terraform_orgs`     | List all Terraform organizations            | No                           |
+| `list_terraform_projects` | List all Terraform projects                 | No                           |
+| `list_workspaces`         | Search and list workspaces                  | No                           |
+| `get_workspace_details`   | Full workspace config, variables, state     | No                           |
+| `create_workspace`        | Create a new workspace                      | Yes                          |
+| `update_workspace`        | Update workspace configuration              | Yes                          |
 | `delete_workspace_safely` | Delete workspace if it manages no resources | Yes (`ENABLE_TF_OPERATIONS`) |
 
 ### Run Management
 
-| Tool Name | Purpose | Destructive |
-| --------- | ------- | ----------- |
-| `list_runs` | List runs in a workspace | No |
-| `get_run_details` | Detailed run info including logs | No |
-| `create_run` | Create a new Terraform run | No |
-| `action_run` | Apply, discard, or cancel a run | Yes (`ENABLE_TF_OPERATIONS`) |
+| Tool Name         | Purpose                          | Destructive                  |
+| ----------------- | -------------------------------- | ---------------------------- |
+| `list_runs`       | List runs in a workspace         | No                           |
+| `get_run_details` | Detailed run info including logs | No                           |
+| `create_run`      | Create a new Terraform run       | No                           |
+| `action_run`      | Apply, discard, or cancel a run  | Yes (`ENABLE_TF_OPERATIONS`) |
 
 ### Variable Management
 
-| Tool Name | Purpose |
-| --------- | ------- |
-| `list_variable_sets` | List variable sets in an org |
-| `create_variable_set` | Create a variable set |
-| `create_variable_in_variable_set` | Add a variable to a set |
-| `delete_variable_in_variable_set` | Remove a variable from a set |
-| `attach_variable_set_to_workspaces` | Attach a variable set to workspaces |
+| Tool Name                             | Purpose                               |
+| ------------------------------------- | ------------------------------------- |
+| `list_variable_sets`                  | List variable sets in an org          |
+| `create_variable_set`                 | Create a variable set                 |
+| `create_variable_in_variable_set`     | Add a variable to a set               |
+| `delete_variable_in_variable_set`     | Remove a variable from a set          |
+| `attach_variable_set_to_workspaces`   | Attach a variable set to workspaces   |
 | `detach_variable_set_from_workspaces` | Detach a variable set from workspaces |
-| `list_workspace_variables` | List all variables in a workspace |
-| `create_workspace_variable` | Create a workspace variable |
-| `update_workspace_variable` | Update an existing workspace variable |
+| `list_workspace_variables`            | List all variables in a workspace     |
+| `create_workspace_variable`           | Create a workspace variable           |
+| `update_workspace_variable`           | Update an existing workspace variable |
 
 ### Private Registry
 
-| Tool Name | Purpose |
-| --------- | ------- |
-| `search_private_modules` | Find private modules in an org |
-| `get_private_module_details` | Full private module details |
-| `search_private_providers` | Find private providers |
+| Tool Name                      | Purpose                           |
+| ------------------------------ | --------------------------------- |
+| `search_private_modules`       | Find private modules in an org    |
+| `get_private_module_details`   | Full private module details       |
+| `search_private_providers`     | Find private providers            |
 | `get_private_provider_details` | Provider details and version info |
 
 ### Workspace Tags & Policy
 
-| Tool Name | Purpose |
-| --------- | ------- |
-| `create_workspace_tags` | Add tags to a workspace |
-| `read_workspace_tags` | List workspace tags |
-| `get_workspace_policy_sets` | Policy sets attached to a workspace |
-| `attach_policy_set_to_workspace` | Attach a policy set to a workspace |
-| `get_token_permissions` | Permissions for the `TFE_TOKEN` |
+| Tool Name                        | Purpose                             |
+| -------------------------------- | ----------------------------------- |
+| `create_workspace_tags`          | Add tags to a workspace             |
+| `read_workspace_tags`            | List workspace tags                 |
+| `get_workspace_policy_sets`      | Policy sets attached to a workspace |
+| `attach_policy_set_to_workspace` | Attach a policy set to a workspace  |
+| `get_token_permissions`          | Permissions for the `TFE_TOKEN`     |
 
 ### Stacks
 
-| Tool Name | Purpose |
-| --------- | ------- |
-| `list_stacks` | List stacks in an org |
+| Tool Name           | Purpose                          |
+| ------------------- | -------------------------------- |
+| `list_stacks`       | List stacks in an org            |
 | `get_stack_details` | Full stack configuration details |
 
 ## Available Resources (Static Guides)
 
-| URI | Type | Description |
-| --- | ---- | ----------- |
-| `/terraform/style-guide` | Resource | Official Terraform style guide |
-| `/terraform/module-development` | Resource | Module composition and structure guide |
+| URI                                                              | Type     | Description                             |
+| ---------------------------------------------------------------- | -------- | --------------------------------------- |
+| `/terraform/style-guide`                                         | Resource | Official Terraform style guide          |
+| `/terraform/module-development`                                  | Resource | Module composition and structure guide  |
 | `/terraform/providers/{namespace}/name/{name}/version/{version}` | Template | Provider docs by namespace/name/version |
 
 ## Tool Fallback (if MCP server unavailable)
