@@ -1,7 +1,7 @@
 ---
 name: governance-discovery-subagent
 description: Azure governance discovery subagent. Queries Azure Policy assignments via REST API (including management group-inherited policies), classifies policy effects, and returns structured governance constraints. Isolates heavy REST API work from the parent Bicep Plan agent's context.
-model: "GPT-5.3-Codex (copilot)"
+model: "Claude Sonnet 4.6 (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []

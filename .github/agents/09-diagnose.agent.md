@@ -1,6 +1,6 @@
 ---
 name: 09-Diagnose
-model: ["GPT-5.3-Codex"]
+model: ["Claude Sonnet 4.6"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
 user-invokable: true
 agents: []

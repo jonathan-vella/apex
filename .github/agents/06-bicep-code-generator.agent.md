@@ -1,7 +1,7 @@
 ---
 name: 06-Bicep Code Generator
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
-model: ["Claude Opus 4.6", "GPT-5.3-Codex"]
+model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]
 user-invokable: true
 agents: ["bicep-lint-subagent", "bicep-review-subagent"]
 tools:
