@@ -24,10 +24,16 @@ try {
   process.exit(1);
 }
 
-const githubServer = mcpConfig?.servers?.github;
-if (!githubServer) {
-  console.error("❌ Missing required MCP server: servers.github");
+const requiredServers = ["github", "microsoft-learn"];
+let missing = false;
+for (const name of requiredServers) {
+  if (!mcpConfig?.servers?.[name]) {
+    console.error(`❌ Missing required MCP server: servers.${name}`);
+    missing = true;
+  } else {
+    console.log(`✅ MCP config includes required server: ${name}`);
+  }
+}
+if (missing) {
   process.exit(1);
 }
-
-console.log("✅ MCP config includes required server: github");

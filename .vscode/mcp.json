@@ -11,10 +11,7 @@
     "azure-pricing": {
       "type": "stdio",
       "command": "${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
-      "args": [
-        "-m",
-        "azure_pricing_mcp"
-      ],
+      "args": ["-m", "azure_pricing_mcp"],
       "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src"
     }
   }
