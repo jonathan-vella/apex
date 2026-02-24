@@ -136,9 +136,10 @@
     // Archived content
     "mcp/azure-pricing-mcp/.archive/**",
 
-    // Presenter/demo content (intentionally less strict)
+    // Presenter/demo content and planning docs (intentionally less strict)
     "docs/audit-checklists/**",
     "docs/presenter/**",
+    "docs/tf-support/**",
 
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
