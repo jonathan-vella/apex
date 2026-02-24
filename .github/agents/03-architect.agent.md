@@ -3,7 +3,7 @@ name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.
 model: ["Claude Opus 4.6"]
 user-invokable: true
-agents: ["*"]
+agents: ["cost-estimate-subagent", "10-Challenger"]
 tools:
   [
     vscode/extensions,
@@ -170,7 +170,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 
 - ✅ Search Microsoft docs (`microsoft.docs.mcp`, `azure_query_learn`) for EACH Azure service
 - ✅ Score ALL 5 WAF pillars (1-10) with confidence level (High/Medium/Low)
-- ✅ Use Azure Pricing MCP tools with EXACT service names from azure-defaults skill
+- ✅ Delegate ALL pricing to `cost-estimate-subagent` — do NOT call pricing MCP tools directly
 - ✅ Generate `03-des-cost-estimate.md` for EVERY assessment
 - ✅ **Generate WAF + cost charts** — run `.py` scripts per `azure-diagrams` skill → `references/waf-cost-charts.md`
 - ✅ Include Service Maturity Assessment table in every WAF assessment
@@ -273,7 +273,11 @@ The subagent uses these Azure Pricing MCP tools on your behalf:
 > include service_name, SKU, region, and quantity so it can use `azure_bulk_estimate` in one call.
 
 Refer to azure-defaults skill for exact `service_name` values.
-Fallback: [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)
+
+> [!CAUTION]
+> **No fallback to parametric knowledge or Azure Pricing Calculator.**
+> If `cost-estimate-subagent` fails or is unavailable, STOP and notify the user.
+> Do NOT write dollar figures from memory. Do NOT proceed to artifact generation without subagent-verified prices.
 
 ## Challenger Review (Advisory)
 

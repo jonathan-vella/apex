@@ -13,9 +13,11 @@ Copilot-Processing.md
 # PowerShell
 *.ps1xml
 
-# VS Code - ignore settings but keep shared extensions
+# VS Code - ignore personal settings but keep shared config
 .vscode/*
 !.vscode/extensions.json
+!.vscode/mcp.json
+!.vscode/settings.json
 *.code-workspace
 
 # OS

@@ -3,7 +3,7 @@ name: 05-Bicep Planner
 description: Expert Azure Bicep Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invokable: true
-agents: ["*"]
+agents: ["governance-discovery-subagent", "10-Challenger"]
 tools:
   [
     vscode/extensions,

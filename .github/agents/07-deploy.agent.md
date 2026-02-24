@@ -4,7 +4,7 @@ model: ["GPT-5.3-Codex"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invokable: true
-agents: ["*"]
+agents: []
 tools:
   [
     vscode/extensions,

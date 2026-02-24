@@ -3,7 +3,7 @@ name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
 model: ["GPT-5.3-Codex (copilot)"]
 user-invokable: true
-agents: ["*"]
+agents: ["cost-estimate-subagent"]
 tools:
   [
     vscode/extensions,

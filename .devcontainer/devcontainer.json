@@ -99,6 +99,7 @@
         "[python]": {
           "editor.tabSize": 4
         },
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python3",
         "python.analysis.typeCheckingMode": "basic",
         "markdownlint.config": {
           "extends": "${workspaceFolder}/.markdownlint-cli2.jsonc"

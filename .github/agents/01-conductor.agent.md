@@ -222,9 +222,14 @@ Step 7: Documentation   →                   →  07-*.md
 ```text
 📋 REQUIREMENTS COMPLETE
 Artifact: agent-output/{project}/01-requirements.md
+🔍 Challenger Review: {PASS | ⚠️ {N} must-fix / {N} should-fix findings}
 ✅ Next: Architecture Assessment (Step 2)
-❓ Review requirements and confirm to proceed
+❓ Review requirements (and any Challenger findings) and confirm to proceed
 ```
+
+> [!IMPORTANT]
+> Gate 1 **must** include Challenger findings. If the Requirements subagent did not run
+> `10-Challenger`, invoke it now before presenting this gate.
 
 ### Gate 2: After Architecture
 

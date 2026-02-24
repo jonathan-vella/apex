@@ -18,7 +18,7 @@ tools:
     web/fetch,
     web/githubRepo,
   ]
-agents: ["*"]
+agents: []
 handoffs:
   - label: "↩ Return to 02-Requirements"
     agent: 02-Requirements

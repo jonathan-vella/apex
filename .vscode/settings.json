@@ -1,0 +1,24 @@
+{
+  "chat.customAgentInSubagent.enabled": true,
+  "chat.agentFilesLocations": {
+    ".github/agents": true,
+    ".github/agents/_subagents": true
+  },
+  "chat.agentSkillsLocations": {
+    ".github/skills": true
+  },
+  "chat.useAgentSkills": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.rulers": [120],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.rulers": [120],
+    "editor.wordWrap": "wordWrapColumn"
+  }
+}
