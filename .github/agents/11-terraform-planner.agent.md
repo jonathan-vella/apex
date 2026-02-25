@@ -235,13 +235,13 @@ Delegate governance discovery to `governance-discovery-subagent`:
 
 **Policy Effect Decision Tree:**
 
-| Effect              | Action                                     | Code Generator Action                                      |
-| ------------------- | ------------------------------------------ | ---------------------------------------------------------- |
-| `Deny`              | Hard blocker — adapt plan to comply        | MUST set `azurePropertyPath` property to compliant value   |
-| `Audit`             | Warning — document, proceed                | Set compliant value where feasible (best effort)           |
-| `DeployIfNotExists` | Azure auto-remediates — note in plan       | Document auto-deployed resource in implementation ref      |
-| `Modify`            | Azure auto-modifies — verify compatibility | Document expected modification — do NOT set conflicting    |
-| `Disabled`          | Ignore                                     | No action required                                         |
+| Effect              | Action                                     | Code Generator Action                                    |
+| ------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| `Deny`              | Hard blocker — adapt plan to comply        | MUST set `azurePropertyPath` property to compliant value |
+| `Audit`             | Warning — document, proceed                | Set compliant value where feasible (best effort)         |
+| `DeployIfNotExists` | Azure auto-remediates — note in plan       | Document auto-deployed resource in implementation ref    |
+| `Modify`            | Azure auto-modifies — verify compatibility | Document expected modification — do NOT set conflicting  |
+| `Disabled`          | Ignore                                     | No action required                                       |
 
 Save findings to `agent-output/{project}/04-governance-constraints.md` matching H2 template.
 After saving, run `npm run lint:artifact-templates` and fix any errors for your artifacts.
@@ -421,15 +421,15 @@ Reply "approve" to proceed to terraform-code, or provide feedback.
 
 ## Output Files
 
-| File                        | Location                                                | Template                      |
-| --------------------------- | ------------------------------------------------------- | ----------------------------- |
-| Implementation Plan         | `agent-output/{project}/04-implementation-plan.md`      | From azure-artifacts skill    |
-| Governance Constraints      | `agent-output/{project}/04-governance-constraints.md`   | From azure-artifacts skill    |
-| Governance Constraints JSON | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data  |
-| Dependency Diagram Source   | `agent-output/{project}/04-dependency-diagram.py`       | Python diagrams               |
-| Dependency Diagram Image    | `agent-output/{project}/04-dependency-diagram.png`      | Generated from source         |
-| Runtime Diagram Source      | `agent-output/{project}/04-runtime-diagram.py`          | Python diagrams               |
-| Runtime Diagram Image       | `agent-output/{project}/04-runtime-diagram.png`         | Generated from source         |
+| File                        | Location                                                | Template                     |
+| --------------------------- | ------------------------------------------------------- | ---------------------------- |
+| Implementation Plan         | `agent-output/{project}/04-implementation-plan.md`      | From azure-artifacts skill   |
+| Governance Constraints      | `agent-output/{project}/04-governance-constraints.md`   | From azure-artifacts skill   |
+| Governance Constraints JSON | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data |
+| Dependency Diagram Source   | `agent-output/{project}/04-dependency-diagram.py`       | Python diagrams              |
+| Dependency Diagram Image    | `agent-output/{project}/04-dependency-diagram.png`      | Generated from source        |
+| Runtime Diagram Source      | `agent-output/{project}/04-runtime-diagram.py`          | Python diagrams              |
+| Runtime Diagram Image       | `agent-output/{project}/04-runtime-diagram.png`         | Generated from source        |
 
 > [!IMPORTANT]
 > `04-governance-constraints.json` is consumed downstream by the Terraform Code Generator

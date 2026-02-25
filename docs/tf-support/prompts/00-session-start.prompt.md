@@ -31,7 +31,15 @@ Format as a brief status report — 1 paragraph, then a bullet for the next item
 
 Based on the status, recommend one of:
 
-- "Continue Phase N — next item is [description]. Load phase prompt: `/prompt docs/tf-support/prompts/phase-N-*.prompt.md`"
+- "Continue Phase N — next item is [description]. Load phase prompt:" and cite the exact file from this list:
+  - Phase 0 → `/prompt docs/tf-support/prompts/phase-0-foundation.prompt.md`
+  - Phase 1 → `/prompt docs/tf-support/prompts/phase-1-instructions-skills.prompt.md`
+  - Phase 2 → `/prompt docs/tf-support/prompts/phase-2-agents-core.prompt.md`
+  - Phase 3 → `/prompt docs/tf-support/prompts/phase-3-subagents.prompt.md`
+  - Phase 4 → `/prompt docs/tf-support/prompts/phase-4-conductor.prompt.md`
+  - Phase 5 → `/prompt docs/tf-support/prompts/phase-5-quality-gates.prompt.md`
+  - Phase 6 → `/prompt docs/tf-support/prompts/phase-6-governance-migration.prompt.md`
+  - Phase 7 → `/prompt docs/tf-support/prompts/phase-7-documentation.prompt.md`
 - "Phase N is complete. Run regression check first: `/prompt docs/tf-support/prompts/regression-check.prompt.md`"
 - "A blocker exists: [description]. Resolve it before continuing."
 

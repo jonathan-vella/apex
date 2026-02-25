@@ -7,14 +7,14 @@ applyTo: "**/*.tf"
 
 ## Quick Reference
 
-| Rule           | Standard                                                                  |
-| -------------- | ------------------------------------------------------------------------- |
-| Region         | `swedencentral` (alt: `germanywestcentral`)                               |
-| Unique suffix  | `resource "random_string" "suffix" { length = 4; lower = true }` in root |
-| AVM first      | **MANDATORY** - Use Azure Verified Modules where available                |
-| Tags           | Environment, ManagedBy, Project, Owner on ALL resources                   |
-| Provider       | Pin `azurerm` to `~> 4.0`                                                 |
-| State backend  | Azure Storage Account — **NEVER** HCP Terraform Cloud                    |
+| Rule          | Standard                                                                 |
+| ------------- | ------------------------------------------------------------------------ |
+| Region        | `swedencentral` (alt: `germanywestcentral`)                              |
+| Unique suffix | `resource "random_string" "suffix" { length = 4; lower = true }` in root |
+| AVM first     | **MANDATORY** - Use Azure Verified Modules where available               |
+| Tags          | Environment, ManagedBy, Project, Owner on ALL resources                  |
+| Provider      | Pin `azurerm` to `~> 4.0`                                                |
+| State backend | Azure Storage Account — **NEVER** HCP Terraform Cloud                    |
 
 > [!IMPORTANT]
 > The 4 tags above are baseline defaults. Discovered Azure Policy constraints
@@ -25,15 +25,15 @@ applyTo: "**/*.tf"
 
 Every root module MUST follow this file layout:
 
-| File           | Purpose                                       |
-| -------------- | --------------------------------------------- |
-| `main.tf`      | Root module resources and module calls        |
-| `variables.tf` | Input variable declarations                   |
-| `outputs.tf`   | Output value declarations                     |
-| `providers.tf` | Provider configuration blocks                 |
-| `versions.tf`  | `terraform {}` block with required_providers  |
-| `locals.tf`    | Local value computations                      |
-| `backend.tf`   | Remote state backend configuration            |
+| File           | Purpose                                      |
+| -------------- | -------------------------------------------- |
+| `main.tf`      | Root module resources and module calls       |
+| `variables.tf` | Input variable declarations                  |
+| `outputs.tf`   | Output value declarations                    |
+| `providers.tf` | Provider configuration blocks                |
+| `versions.tf`  | `terraform {}` block with required_providers |
+| `locals.tf`    | Local value computations                     |
+| `backend.tf`   | Remote state backend configuration           |
 
 ## Naming Conventions
 
@@ -55,14 +55,14 @@ resource "azurerm_resource_group" "this" {
 
 Use lowercase with hyphens for Azure resource names. Follow CAF abbreviations:
 
-| Resource        | Pattern                                     | Example                      |
-| --------------- | ------------------------------------------- | ---------------------------- |
-| Resource Group  | `rg-{project}-{env}`                        | `rg-contoso-dev`             |
-| Virtual Network | `vnet-{project}-{env}`                      | `vnet-contoso-dev`           |
-| Key Vault       | `kv-{short}-{env}-{suffix}`                 | `kv-contoso-dev-a1b2`        |
-| Storage Account | `st{short}{env}{suffix}`                    | `stcontosodevа1b2`           |
-| App Service     | `app-{project}-{env}-{suffix}`              | `app-contoso-dev-a1b2`       |
-| SQL Server      | `sql-{project}-{env}-{suffix}`              | `sql-contoso-dev-a1b2`       |
+| Resource        | Pattern                        | Example                |
+| --------------- | ------------------------------ | ---------------------- |
+| Resource Group  | `rg-{project}-{env}`           | `rg-contoso-dev`       |
+| Virtual Network | `vnet-{project}-{env}`         | `vnet-contoso-dev`     |
+| Key Vault       | `kv-{short}-{env}-{suffix}`    | `kv-contoso-dev-a1b2`  |
+| Storage Account | `st{short}{env}{suffix}`       | `stcontosodevа1b2`     |
+| App Service     | `app-{project}-{env}-{suffix}` | `app-contoso-dev-a1b2` |
+| SQL Server      | `sql-{project}-{env}-{suffix}` | `sql-contoso-dev-a1b2` |
 
 > [!CAUTION]
 > Storage Account names have a 24-char limit and no hyphens. Key Vault names have a
@@ -215,12 +215,12 @@ version = "~> {major}.{minor}"
 
 Examples:
 
-| Resource       | Source                                                  |
-| -------------- | ------------------------------------------------------- |
-| Key Vault      | `Azure/avm-res-keyvault-vault/azurerm`                  |
-| Storage        | `Azure/avm-res-storage-storageaccount/azurerm`          |
-| Virtual Network| `Azure/avm-res-network-virtualnetwork/azurerm`          |
-| App Service    | `Azure/avm-res-web-site/azurerm`                        |
+| Resource        | Source                                         |
+| --------------- | ---------------------------------------------- |
+| Key Vault       | `Azure/avm-res-keyvault-vault/azurerm`         |
+| Storage         | `Azure/avm-res-storage-storageaccount/azurerm` |
+| Virtual Network | `Azure/avm-res-network-virtualnetwork/azurerm` |
+| App Service     | `Azure/avm-res-web-site/azurerm`               |
 
 Use `mcp_terraform_get_latest_module_version` or `registry.terraform.io/modules/Azure`
 to find the latest version before generating code. Update pinned minor version
@@ -318,15 +318,15 @@ moved {
 
 ## Patterns to Avoid
 
-| Anti-Pattern                      | Problem                         | Solution                                   |
-| --------------------------------- | ------------------------------- | ------------------------------------------ |
-| Hardcoded resource names          | Naming collisions                | Use `random_string.suffix`                 |
-| `count` for named resources       | Index-based drift on deletion   | Use `for_each` with string keys            |
-| Missing `description` on vars     | Poor documentation              | Document all input variables               |
-| `>= 3.0` provider version range   | Unintended major upgrades       | Use `~> 4.0` for minor-version pinning     |
-| HCP Terraform Cloud as backend    | Vendor lock-in                  | Use Azure Storage Account backend          |
-| Raw `azurerm_*` when AVM exists   | Policy drift and maintenance    | Use AVM-TF modules or get approval         |
-| `connection_string` auth          | Credential exposure             | Use managed identity RBAC                  |
+| Anti-Pattern                    | Problem                       | Solution                               |
+| ------------------------------- | ----------------------------- | -------------------------------------- |
+| Hardcoded resource names        | Naming collisions             | Use `random_string.suffix`             |
+| `count` for named resources     | Index-based drift on deletion | Use `for_each` with string keys        |
+| Missing `description` on vars   | Poor documentation            | Document all input variables           |
+| `>= 3.0` provider version range | Unintended major upgrades     | Use `~> 4.0` for minor-version pinning |
+| HCP Terraform Cloud as backend  | Vendor lock-in                | Use Azure Storage Account backend      |
+| Raw `azurerm_*` when AVM exists | Policy drift and maintenance  | Use AVM-TF modules or get approval     |
+| `connection_string` auth        | Credential exposure           | Use managed identity RBAC              |
 
 ## Validation Commands
 

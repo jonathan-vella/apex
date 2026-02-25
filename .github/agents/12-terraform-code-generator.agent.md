@@ -260,13 +260,13 @@ Before writing ANY Terraform code, validate AVM-TF compatibility:
 
 **Policy Effect → Code Generator Action:**
 
-| Effect              | Code Generator Action                                             |
-| ------------------- | ----------------------------------------------------------------- |
-| `Deny`              | MUST set the translated Terraform argument to the required value  |
-| `Modify`            | Document expected Azure modification — do NOT set conflicting     |
-| `DeployIfNotExists` | Document auto-deployed resource in implementation reference       |
-| `Audit`             | Set compliant value where feasible (best effort)                  |
-| `Disabled`          | No action required                                                |
+| Effect              | Code Generator Action                                            |
+| ------------------- | ---------------------------------------------------------------- |
+| `Deny`              | MUST set the translated Terraform argument to the required value |
+| `Modify`            | Document expected Azure modification — do NOT set conflicting    |
+| `DeployIfNotExists` | Document auto-deployed resource in implementation reference      |
+| `Audit`             | Set compliant value where feasible (best effort)                 |
+| `Disabled`          | No action required                                               |
 
 ### Phase 2: Progressive Implementation
 
@@ -479,15 +479,15 @@ module "key_vault" {
 
 ## Output Files
 
-| File                    | Location                                                |
-| ----------------------- | ------------------------------------------------------- |
-| Preflight Check         | `agent-output/{project}/04-preflight-check.md`          |
-| Implementation Ref      | `agent-output/{project}/05-implementation-reference.md` |
-| Terraform Configurations| `infra/terraform/{project}/`                            |
-| Bootstrap Backend (Bash)| `infra/terraform/{project}/bootstrap-backend.sh`        |
-| Bootstrap Backend (PS)  | `infra/terraform/{project}/bootstrap-backend.ps1`       |
-| Deploy Script (Bash)    | `infra/terraform/{project}/deploy.sh`                   |
-| Deploy Script (PS)      | `infra/terraform/{project}/deploy.ps1`                  |
+| File                     | Location                                                |
+| ------------------------ | ------------------------------------------------------- |
+| Preflight Check          | `agent-output/{project}/04-preflight-check.md`          |
+| Implementation Ref       | `agent-output/{project}/05-implementation-reference.md` |
+| Terraform Configurations | `infra/terraform/{project}/`                            |
+| Bootstrap Backend (Bash) | `infra/terraform/{project}/bootstrap-backend.sh`        |
+| Bootstrap Backend (PS)   | `infra/terraform/{project}/bootstrap-backend.ps1`       |
+| Deploy Script (Bash)     | `infra/terraform/{project}/deploy.sh`                   |
+| Deploy Script (PS)       | `infra/terraform/{project}/deploy.ps1`                  |
 
 Include attribution header from the template file (do not hardcode).
 

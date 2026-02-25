@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 2 — Core Terraform Agents. Creates 11-terraform-planner, 12-terraform-code-generator, and 13-terraform-deploy agent definition files.
 ---
 
@@ -48,7 +48,7 @@ Full agent spec is in `tf-support-plan.prompt.md` item 15. Key points:
 - Phase 3: Deprecation checks
 - Phase 3.5: Deployment Strategy Gate
 - Phase 4: Plan Generation — use `azurePropertyPath` (not `bicepPropertyPath`)
-           Terraform-specific concerns as H3 subsections under existing H2s
+  Terraform-specific concerns as H3 subsections under existing H2s
 - Phase 4.5: Challenger Review
 - Phase 5: Approval Gate
 - Output artifacts: `04-implementation-plan.md`, `04-governance-constraints.md/.json`, diagrams
@@ -81,7 +81,7 @@ Full spec in `tf-support-plan.prompt.md` item 16. Key phases:
 - **Phase 4**: Validation — invokes `terraform-lint-subagent` + `terraform-review-subagent`
 - Output directory: `infra/terraform/{project}/`
 - Skills: reads `azure-defaults`, `azure-artifacts`, `terraform-patterns`,
-          `microsoft-code-reference`, references `terraform-policy-compliance.instructions.md`
+  `microsoft-code-reference`, references `terraform-policy-compliance.instructions.md`
 
 ## Item 2.17 — Create `13-terraform-deploy.agent.md`
 
@@ -98,6 +98,7 @@ Full spec in `tf-support-plan.prompt.md` item 17. Six steps:
 4. Plan Preview — `terraform plan -out=tfplan`, classify all changes
 5. Phase-aware Deployment — `var.deployment_phase` + `terraform apply` (NOT `-target`)
 6. Post-deployment Verification — ARG queries, output values, resource health
+
 - Handoffs: forward to `08-As-Built`, backward to `12-Terraform Code Generator`, `01-Conductor`
 
 ## Validation
@@ -111,6 +112,7 @@ Expected: all 3 new agent files pass frontmatter validation. No CI failures.
 
 Check: `agent-validation.yml` would pass — every `handoffs:` reference in the new agents
 points to agents that exist. Verify by checking:
+
 - `12-Terraform Code Generator` → `12-terraform-code-generator.agent.md` exists ✓
 - `13-Terraform Deploy` → `13-terraform-deploy.agent.md` exists ✓
 - `08-As-Built` → `08-as-built.agent.md` exists ✓

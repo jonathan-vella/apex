@@ -14,15 +14,15 @@ skill (naming, tags, regions) with composable architecture building blocks.
 
 ## Quick Reference
 
-| Pattern                  | When to Use                                       |
-| ------------------------ | ------------------------------------------------- |
-| Hub-Spoke Networking     | Multi-workload environments with shared services  |
-| Private Endpoint Wiring  | Any PaaS service requiring private connectivity   |
-| Diagnostic Settings      | Every deployed resource (mandatory)               |
-| Conditional Deployment   | Optional resources controlled by variables        |
-| Module Composition       | Calling multiple AVM modules in the root module   |
-| Managed Identity Binding | Any service-to-service authentication             |
-| Plan Interpretation      | Pre-deployment validation and change analysis     |
+| Pattern                  | When to Use                                      |
+| ------------------------ | ------------------------------------------------ |
+| Hub-Spoke Networking     | Multi-workload environments with shared services |
+| Private Endpoint Wiring  | Any PaaS service requiring private connectivity  |
+| Diagnostic Settings      | Every deployed resource (mandatory)              |
+| Conditional Deployment   | Optional resources controlled by variables       |
+| Module Composition       | Calling multiple AVM modules in the root module  |
+| Managed Identity Binding | Any service-to-service authentication            |
+| Plan Interpretation      | Pre-deployment validation and change analysis    |
 
 ---
 
@@ -126,16 +126,16 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob" {
 
 Common `subresource_names` per service:
 
-| Service          | Subresource   | Private DNS Zone                              |
-| ---------------- | ------------- | --------------------------------------------- |
-| Storage (Blob)   | `blob`        | `privatelink.blob.core.windows.net`           |
-| Storage (File)   | `file`        | `privatelink.file.core.windows.net`           |
-| Key Vault        | `vault`       | `privatelink.vaultcore.azure.net`             |
-| SQL Server       | `sqlServer`   | `privatelink.database.windows.net`            |
-| Container Reg.   | `registry`    | `privatelink.azurecr.io`                      |
-| App Service      | `sites`       | `privatelink.azurewebsites.net`               |
-| Service Bus      | `namespace`   | `privatelink.servicebus.windows.net`          |
-| Cosmos DB        | `Sql`         | `privatelink.documents.azure.com`             |
+| Service        | Subresource | Private DNS Zone                     |
+| -------------- | ----------- | ------------------------------------ |
+| Storage (Blob) | `blob`      | `privatelink.blob.core.windows.net`  |
+| Storage (File) | `file`      | `privatelink.file.core.windows.net`  |
+| Key Vault      | `vault`     | `privatelink.vaultcore.azure.net`    |
+| SQL Server     | `sqlServer` | `privatelink.database.windows.net`   |
+| Container Reg. | `registry`  | `privatelink.azurecr.io`             |
+| App Service    | `sites`     | `privatelink.azurewebsites.net`      |
+| Service Bus    | `namespace` | `privatelink.servicebus.windows.net` |
+| Cosmos DB      | `Sql`       | `privatelink.documents.azure.com`    |
 
 ---
 
@@ -320,13 +320,13 @@ resource "azurerm_role_assignment" "app_storage_blob" {
 
 Common role assignments:
 
-| Service        | Role                           |
-| -------------- | ------------------------------ |
-| Key Vault      | `Key Vault Secrets User`       |
-| Storage Blob   | `Storage Blob Data Contributor`|
-| Service Bus    | `Azure Service Bus Data Sender`|
-| Event Hub      | `Azure Event Hubs Data Sender` |
-| ACR            | `AcrPull`                      |
+| Service      | Role                            |
+| ------------ | ------------------------------- |
+| Key Vault    | `Key Vault Secrets User`        |
+| Storage Blob | `Storage Blob Data Contributor` |
+| Service Bus  | `Azure Service Bus Data Sender` |
+| Event Hub    | `Azure Event Hubs Data Sender`  |
+| ACR          | `AcrPull`                       |
 
 ---
 
@@ -347,13 +347,13 @@ terraform show -json plan.tfplan > plan.json
 
 ### Change Type Symbols
 
-| Symbol | Meaning       | Action                                    |
-| ------ | ------------- | ------------------------------------------|
-| `+`    | Create        | New resource — safe                        |
-| `-`    | Destroy       | Resource deleted — REVIEW before applying  |
-| `~`    | Update in-place | Attribute change — usually safe           |
-| `-/+`  | Destroy/Create | Replace — causes downtime for stateful resources |
-| `<=`   | Read          | Data source refresh — non-destructive      |
+| Symbol | Meaning         | Action                                           |
+| ------ | --------------- | ------------------------------------------------ |
+| `+`    | Create          | New resource — safe                              |
+| `-`    | Destroy         | Resource deleted — REVIEW before applying        |
+| `~`    | Update in-place | Attribute change — usually safe                  |
+| `-/+`  | Destroy/Create  | Replace — causes downtime for stateful resources |
+| `<=`   | Read            | Data source refresh — non-destructive            |
 
 ### Red Flags in Plan Output
 

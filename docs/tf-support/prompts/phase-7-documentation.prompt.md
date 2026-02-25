@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 7 — Documentation & Housekeeping. Updates copilot-instructions.md, terraform-roadmap.md, and creates GitHub issues.
 ---
 

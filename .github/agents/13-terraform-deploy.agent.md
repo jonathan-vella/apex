@@ -284,14 +284,14 @@ terraform plan \
 
 **Change Classification:**
 
-| Symbol     | Change Type | Action                                       |
-| ---------- | ----------- | -------------------------------------------- |
-| `+`        | Create      | Review new resources                         |
-| `-`        | Destroy     | **STOP — Requires explicit user approval**   |
-| `~`        | Update      | Review in-place property changes             |
-| `-/+`      | Replace     | **STOP — Resource recreation, data risk**    |
-| `<=>`      | Move        | Review — usually safe                        |
-| (no symbol)| Read        | Safe — data source refresh                   |
+| Symbol      | Change Type | Action                                     |
+| ----------- | ----------- | ------------------------------------------ |
+| `+`         | Create      | Review new resources                       |
+| `-`         | Destroy     | **STOP — Requires explicit user approval** |
+| `~`         | Update      | Review in-place property changes           |
+| `-/+`       | Replace     | **STOP — Resource recreation, data risk**  |
+| `<=>`       | Move        | Review — usually safe                      |
+| (no symbol) | Read        | Safe — data source refresh                 |
 
 **Deprecation scan**: Check plan output for:
 `deprecated|sunset|end.of.life|no.longer.supported|retiring`
@@ -379,14 +379,14 @@ and mark status as "Plan Only — Not Applied".
 
 ## Known Issues
 
-| Issue                                     | Workaround                                                      |
-| ----------------------------------------- | --------------------------------------------------------------- |
-| `terraform init` fails — backend missing  | Run `bootstrap-backend.sh` first                                |
-| Backend state lock held                   | `terraform force-unlock {lease-id}` (requires explicit approval)|
-| MSAL token stale (devcontainer/Codespaces)| `az login --use-device-code` in the same terminal               |
-| `azurerm` provider init slow              | Provider cache: `TF_PLUGIN_CACHE_DIR=/home/vscode/.terraform.d/plugin-cache` |
-| Azure extension auth ≠ CLI auth           | VS Code extension and `az` CLI use separate token stores        |
-| `terraform fmt -check` fails              | Run `terraform fmt -recursive` to auto-fix, then re-check       |
+| Issue                                      | Workaround                                                                   |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| `terraform init` fails — backend missing   | Run `bootstrap-backend.sh` first                                             |
+| Backend state lock held                    | `terraform force-unlock {lease-id}` (requires explicit approval)             |
+| MSAL token stale (devcontainer/Codespaces) | `az login --use-device-code` in the same terminal                            |
+| `azurerm` provider init slow               | Provider cache: `TF_PLUGIN_CACHE_DIR=/home/vscode/.terraform.d/plugin-cache` |
+| Azure extension auth ≠ CLI auth            | VS Code extension and `az` CLI use separate token stores                     |
+| `terraform fmt -check` fails               | Run `terraform fmt -recursive` to auto-fix, then re-check                    |
 
 ## Output Files
 

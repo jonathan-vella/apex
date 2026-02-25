@@ -65,34 +65,34 @@ corresponding `azurerm_*` resource argument:
 
 ### Resource Type Mapping
 
-| `azurePropertyPath` prefix  | Terraform resource                       |
-| --------------------------- | ---------------------------------------- |
-| `storageAccount`            | `azurerm_storage_account`                |
-| `keyVault`                  | `azurerm_key_vault`                      |
-| `sqlServer`                 | `azurerm_mssql_server`                   |
-| `sqlDatabase`               | `azurerm_mssql_database`                 |
-| `cosmosDbAccount`           | `azurerm_cosmosdb_account`               |
-| `webApp`                    | `azurerm_linux_web_app` / `azurerm_windows_web_app` |
-| `appServicePlan`            | `azurerm_service_plan`                   |
-| `containerRegistry`         | `azurerm_container_registry`             |
-| `aksCluster`                | `azurerm_kubernetes_cluster`             |
-| `serviceBusNamespace`       | `azurerm_servicebus_namespace`           |
-| `eventHubNamespace`         | `azurerm_eventhub_namespace`             |
-| `logAnalyticsWorkspace`     | `azurerm_log_analytics_workspace`        |
+| `azurePropertyPath` prefix | Terraform resource                                  |
+| -------------------------- | --------------------------------------------------- |
+| `storageAccount`           | `azurerm_storage_account`                           |
+| `keyVault`                 | `azurerm_key_vault`                                 |
+| `sqlServer`                | `azurerm_mssql_server`                              |
+| `sqlDatabase`              | `azurerm_mssql_database`                            |
+| `cosmosDbAccount`          | `azurerm_cosmosdb_account`                          |
+| `webApp`                   | `azurerm_linux_web_app` / `azurerm_windows_web_app` |
+| `appServicePlan`           | `azurerm_service_plan`                              |
+| `containerRegistry`        | `azurerm_container_registry`                        |
+| `aksCluster`               | `azurerm_kubernetes_cluster`                        |
+| `serviceBusNamespace`      | `azurerm_servicebus_namespace`                      |
+| `eventHubNamespace`        | `azurerm_eventhub_namespace`                        |
+| `logAnalyticsWorkspace`    | `azurerm_log_analytics_workspace`                   |
 
 ### Property Path Mapping Examples
 
-| `azurePropertyPath`                                    | Terraform Argument                          |
-| ------------------------------------------------------ | ------------------------------------------- |
-| `storageAccount.properties.minimumTlsVersion`          | `min_tls_version`                           |
-| `storageAccount.properties.allowBlobPublicAccess`      | `allow_nested_items_to_be_public`           |
-| `storageAccount.properties.supportsHttpsTrafficOnly`   | `https_traffic_only_enabled`                |
-| `sqlServer.properties.minimalTlsVersion`               | `minimum_tls_version`                       |
-| `sqlServer.properties.publicNetworkAccess`             | `public_network_access_enabled`             |
-| `keyVault.properties.enableSoftDelete`                 | `soft_delete_retention_days` (> 0 = true)   |
-| `keyVault.properties.enablePurgeProtection`            | `purge_protection_enabled`                  |
-| `containerRegistry.properties.publicNetworkAccess`     | `public_network_access_enabled`             |
-| `webApp.properties.httpsOnly`                          | `https_only`                                |
+| `azurePropertyPath`                                  | Terraform Argument                        |
+| ---------------------------------------------------- | ----------------------------------------- |
+| `storageAccount.properties.minimumTlsVersion`        | `min_tls_version`                         |
+| `storageAccount.properties.allowBlobPublicAccess`    | `allow_nested_items_to_be_public`         |
+| `storageAccount.properties.supportsHttpsTrafficOnly` | `https_traffic_only_enabled`              |
+| `sqlServer.properties.minimalTlsVersion`             | `minimum_tls_version`                     |
+| `sqlServer.properties.publicNetworkAccess`           | `public_network_access_enabled`           |
+| `keyVault.properties.enableSoftDelete`               | `soft_delete_retention_days` (> 0 = true) |
+| `keyVault.properties.enablePurgeProtection`          | `purge_protection_enabled`                |
+| `containerRegistry.properties.publicNetworkAccess`   | `public_network_access_enabled`           |
+| `webApp.properties.httpsOnly`                        | `https_only`                              |
 
 ## Policy Compliance Checklist
 
@@ -141,14 +141,14 @@ resource "azurerm_storage_account" "this" {
 
 ## Anti-Patterns
 
-| Anti-Pattern                                                       | Why It Fails                                             | Correct Approach                                        |
-| ------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------- |
-| Assume 4 tags are sufficient                                       | Azure Policy may enforce 9+ tags                         | Read `04-governance-constraints.md` for actual tag list |
-| Ignore `public_network_access_enabled` constraints                 | Deny policy blocks deployment                            | Check network policies in governance constraints        |
-| Skip constraints reading ("trust artifact chain")                  | Trusting the chain means accepting architecture decisions, NOT skipping compliance checks | Always read and enforce governance constraints |
-| Hardcode security settings without checking policy                 | Policy may require stricter values                       | Cross-reference `04-governance-constraints.json`        |
-| Use `bicepPropertyPath` for Terraform translation                  | Bicep path format is ARM-only                            | Use `azurePropertyPath` for Terraform argument mapping  |
-| Generate Terraform without reading `04-governance-constraints.json`| Governance-blind code fails deployment                   | Phase 1.5 is a HARD GATE                                |
+| Anti-Pattern                                                        | Why It Fails                                                                              | Correct Approach                                        |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Assume 4 tags are sufficient                                        | Azure Policy may enforce 9+ tags                                                          | Read `04-governance-constraints.md` for actual tag list |
+| Ignore `public_network_access_enabled` constraints                  | Deny policy blocks deployment                                                             | Check network policies in governance constraints        |
+| Skip constraints reading ("trust artifact chain")                   | Trusting the chain means accepting architecture decisions, NOT skipping compliance checks | Always read and enforce governance constraints          |
+| Hardcode security settings without checking policy                  | Policy may require stricter values                                                        | Cross-reference `04-governance-constraints.json`        |
+| Use `bicepPropertyPath` for Terraform translation                   | Bicep path format is ARM-only                                                             | Use `azurePropertyPath` for Terraform argument mapping  |
+| Generate Terraform without reading `04-governance-constraints.json` | Governance-blind code fails deployment                                                    | Phase 1.5 is a HARD GATE                                |
 
 ## Cross-References
 
