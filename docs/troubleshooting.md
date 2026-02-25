@@ -9,9 +9,13 @@
 | InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |
 | requirements       | 📜 Scribe     | Not appearing in list            |
 | architect          | 🏛️ Oracle     | MCP pricing not connecting       |
-| bicep-plan         | 📐 Strategist | Governance discovery failing     |
-| bicep-code         | ⚒️ Forge      | Validation subagents not running |
-| deploy             | 🚀 Envoy      | Azure auth issues                |
+| bicep-planner      | 📐 Strategist | Governance discovery failing     |
+| terraform-planner  | 📐 Strategist | Governance discovery failing     |
+| bicep-codegen      | ⚒️ Forge      | Validation subagents not running |
+| terraform-codegen  | ⚒️ Forge      | Provider version mismatches      |
+| bicep-deploy       | 🚀 Envoy      | Azure auth issues                |
+| terraform-deploy   | 🚀 Envoy      | State lock / init failures       |
+| challenger         | ⚔️ Challenger | —                                |
 | diagnose           | 🔍 Sentinel   | —                                |
 
 ## Quick Decision Tree
@@ -24,7 +28,8 @@ flowchart TD
     TYPE -->|"Agent won't start"| AGENT
     TYPE -->|"Skill not activating"| SKILL
     TYPE -->|"Deployment fails"| DEPLOY
-    TYPE -->|"Validation errors"| VALIDATE
+    TYPE -->|"Bicep errors"| VALIDATE_B
+    TYPE -->|"Terraform errors"| VALIDATE_T
     TYPE -->|"Azure auth"| AUTH
 
     AGENT --> AGENT1["Check: Ctrl+Shift+A<br/>shows agent list?"]
@@ -37,7 +42,8 @@ flowchart TD
 
     DEPLOY --> DEPLOY1["Run preflight first:<br/>deploy agent preflight check"]
 
-    VALIDATE --> VALIDATE1["Run: npm run validate"]
+    VALIDATE_B --> VALIDATE_B1["Run: bicep build main.bicep<br/>bicep lint main.bicep"]
+    VALIDATE_T --> VALIDATE_T1["Run: terraform validate<br/>terraform fmt -check"]
 
     AUTH --> AUTH1["Run: az login"]
 
@@ -45,7 +51,8 @@ flowchart TD
     style AGENT fill:#fff3e0
     style SKILL fill:#f3e5f5
     style DEPLOY fill:#c8e6c9
-    style VALIDATE fill:#fce4ec
+    style VALIDATE_B fill:#fce4ec
+    style VALIDATE_T fill:#e8d5f5
     style AUTH fill:#fff9c4
 ```
 
@@ -186,6 +193,63 @@ bicep lint infra/bicep/{project}/main.bicep
 ```bash
 # Restore modules from registry
 bicep restore infra/bicep/{project}/main.bicep
+```
+
+---
+
+### 4t. Terraform Validation Errors
+
+**Symptom**: `terraform validate` or `terraform plan` fails.
+
+**Common causes and solutions**:
+
+```bash
+# Check Terraform CLI version
+terraform --version  # Should be 1.5+
+
+# Initialize providers (run from project directory)
+cd infra/terraform/{project}
+terraform init -backend=false
+
+# Check formatting
+terraform fmt -check -recursive
+
+# Validate configuration
+terraform validate
+```
+
+**Provider version mismatch**:
+
+```bash
+# Lock providers to specific versions
+terraform providers lock -platform=linux_amd64
+```
+
+**State lock issues**:
+
+```bash
+# Force unlock (use with caution)
+terraform force-unlock <lock-id>
+```
+
+**AVM-TF module not found**:
+
+Verify the module source in `main.tf` matches the Terraform Registry path:
+
+```hcl
+# Correct AVM-TF module source pattern
+module "example" {
+  source  = "Azure/avm-res-<provider>-<resource>/azurerm"
+  version = "~> 0.x"
+}
+```
+
+**TFLint errors**:
+
+```bash
+# Run TFLint with Azure ruleset
+tflint --init
+tflint --recursive
 ```
 
 ---
@@ -372,6 +436,8 @@ ls .github/agents/architect.agent.md
 ```bash
 # All-in-one status
 echo "=== Bicep ===" && bicep --version
+echo "=== Terraform ===" && terraform --version
+echo "=== TFLint ===" && tflint --version
 echo "=== Azure CLI ===" && az version --output table
 echo "=== Node ===" && node --version
 echo "=== Python ===" && python3 --version
@@ -382,10 +448,15 @@ echo "=== Git ===" && git --version
 
 ```bash
 # Validate all artifacts
-npm run validate
+npm run validate:all
 
-# Check for broken links
-npm run check-links
+# Bicep validation
+bicep lint infra/bicep/{project}/main.bicep
+bicep build infra/bicep/{project}/main.bicep
+
+# Terraform validation
+cd infra/terraform/{project} && terraform init -backend=false && terraform validate
+npm run validate:terraform
 
 # Lint markdown
 npm run lint:md

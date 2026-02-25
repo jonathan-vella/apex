@@ -32,8 +32,10 @@ code azure-agentic-infraops
 The Dev Container installs all tools automatically:
 
 - Azure CLI + Bicep CLI
+- Terraform CLI + TFLint
 - PowerShell 7
 - Python 3 + diagrams library
+- Go (Terraform MCP server)
 - 25+ VS Code extensions
 
 ---
@@ -41,7 +43,7 @@ The Dev Container installs all tools automatically:
 ## Step 3: Verify Setup
 
 ```bash
-az --version && bicep --version && pwsh --version
+az --version && bicep --version && terraform --version && pwsh --version
 ```
 
 ---
@@ -103,23 +105,26 @@ Invoke agents directly for specific tasks:
 
 ## Step 6: Follow the Workflow
 
-The agents work in sequence with handoffs:
+The agents work in sequence with handoffs. Steps 1-3 and 7 are shared;
+steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection.
 
-| Step | Agent          | Persona       | What Happens             |
-| ---- | -------------- | ------------- | ------------------------ |
-| 1    | `requirements` | 📜 Scribe     | Captures requirements    |
-| 2    | `architect`    | 🏛️ Oracle     | WAF assessment           |
-| 3    | `design`       | 🎨 Artisan    | Diagrams/ADRs (optional) |
-| 4    | `bicep-plan`   | 📐 Strategist | Implementation plan      |
-| 5    | `bicep-code`   | ⚒️ Forge      | Bicep templates          |
-| 6    | `deploy`       | 🚀 Envoy      | Azure deployment         |
-| 7    | —              | 📚 —          | Documentation (skills)   |
+| Step | Agent                                 | Persona       | What Happens             |
+| ---- | ------------------------------------- | ------------- | ------------------------ |
+| 1    | `requirements`                        | 📜 Scribe     | Captures requirements    |
+| 2    | `architect`                           | 🏛️ Oracle     | WAF assessment           |
+| 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional) |
+| 4    | `bicep-planner` / `terraform-planner` | 📐 Strategist | Implementation plan      |
+| 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates            |
+| 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment         |
+| 7    | —                                     | 📚 —          | Documentation (skills)   |
 
 **Approval Gates**: The Conductor pauses at key points:
 
-- ⛔ **Gate 1**: After planning (Step 4) — approve implementation plan
-- ⛔ **Gate 2**: After validation (Step 5) — approve preflight results
-- ⛔ **Gate 3**: After deployment (Step 6) — verify resources
+- ⛔ **Gate 1**: After requirements (Step 1) — confirm requirements
+- ⛔ **Gate 2**: After architecture (Step 2) — approve WAF assessment
+- ⛔ **Gate 3**: After planning (Step 4) — approve implementation plan
+- ⛔ **Gate 4**: After validation (Step 5) — approve preflight results
+- ⛔ **Gate 5**: After deployment (Step 6) — verify resources
 
 ---
 
@@ -129,7 +134,7 @@ After completing the workflow:
 
 ```text
 agent-output/my-webapp/
-├── 01-requirements.md          # Captured requirements
+├── 01-requirements.md          # Captured requirements (includes iac_tool)
 ├── 02-architecture-assessment.md  # WAF analysis
 ├── 04-implementation-plan.md   # Phased plan
 ├── 04-dependency-diagram.py     # Step 4 dependency diagram source
@@ -141,13 +146,25 @@ agent-output/my-webapp/
 ├── 06-deployment-summary.md    # Deployed resources
 └── 07-*.md                     # Documentation suite
 
+# Bicep track output:
 infra/bicep/my-webapp/
 ├── main.bicep                  # Entry point
-├── main.parameters.json        # Parameters
+├── main.bicepparam             # Parameters
 └── modules/
     ├── app-service.bicep
     ├── sql-database.bicep
     └── key-vault.bicep
+
+# — OR — Terraform track output:
+infra/terraform/my-webapp/
+├── main.tf                     # Entry point
+├── variables.tf                # Input variables
+├── outputs.tf                  # Outputs
+├── terraform.tfvars            # Variable values
+└── modules/
+    ├── app-service/
+    ├── sql-database/
+    └── key-vault/
 ```
 
 ---
@@ -160,6 +177,7 @@ infra/bicep/my-webapp/
 | Try a complete workflow        | [Prompt Guide](prompt-guide/)            |
 | Generate architecture diagrams | Use `azure-diagrams` skill               |
 | Create documentation           | Use `azure-artifacts` skill              |
+| Explore Terraform patterns     | Use `terraform-patterns` skill           |
 | Troubleshoot issues            | [troubleshooting.md](troubleshooting.md) |
 
 ---
@@ -196,13 +214,15 @@ Use the azure-diagrams skill to create a diagram for my-webapp
 
 ## Agent Personas
 
-| Agent              | Persona       | Role                    |
-| ------------------ | ------------- | ----------------------- |
-| InfraOps Conductor | 🎼 Maestro    | Master orchestrator     |
-| requirements       | 📜 Scribe     | Requirements capture    |
-| architect          | 🏛️ Oracle     | WAF assessment          |
-| design             | 🎨 Artisan    | Diagrams and ADRs       |
-| bicep-plan         | 📐 Strategist | Implementation planning |
-| bicep-code         | ⚒️ Forge      | Bicep generation        |
-| deploy             | 🚀 Envoy      | Azure deployment        |
-| diagnose           | 🔍 Sentinel   | Troubleshooting         |
+| Agent                             | Persona       | Role                    |
+| --------------------------------- | ------------- | ----------------------- |
+| InfraOps Conductor                | 🎼 Maestro    | Master orchestrator     |
+| requirements                      | 📜 Scribe     | Requirements capture    |
+| architect                         | 🏛️ Oracle     | WAF assessment          |
+| design                            | 🎨 Artisan    | Diagrams and ADRs       |
+| bicep-planner / terraform-planner | 📐 Strategist | Implementation planning |
+| bicep-codegen / terraform-codegen | ⚒️ Forge      | IaC generation          |
+| bicep-deploy / terraform-deploy   | 🚀 Envoy      | Azure deployment        |
+| as-built                          | 📚 Archivist  | Documentation suite     |
+| challenger                        | ⚔️ Challenger | Adversarial review      |
+| diagnose                          | 🔍 Sentinel   | Troubleshooting         |

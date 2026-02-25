@@ -202,11 +202,26 @@ async function checkAgentTable() {
   );
 
   const agentDir = join(ROOT, ".github", "agents");
+  const subagentDir = join(agentDir, "_subagents");
+
+  // Build a set of canonical names from actual .agent.md files
+  // e.g. "02-requirements.agent.md" -> ["02-requirements", "requirements"]
+  const agentFiles = await readdir(agentDir).catch(() => []);
+  const subagentFiles = await readdir(subagentDir).catch(() => []);
+  const allFiles = [...agentFiles, ...subagentFiles];
+  const canonicalNames = new Set();
+  for (const f of allFiles) {
+    if (!f.endsWith(".agent.md")) continue;
+    const base = f.replace(".agent.md", "");
+    canonicalNames.add(base);
+    // Also add the name without the numeric prefix (e.g. "02-requirements" -> "requirements")
+    const stripped = base.replace(/^\d+[bt]?-/, "");
+    if (stripped !== base) canonicalNames.add(stripped);
+  }
+
   for (const name of agentNames) {
-    // Check both as direct .agent.md and in _subagents/
-    const directPath = join(agentDir, `${name}.agent.md`);
-    const subPath = join(agentDir, "_subagents", `${name}.agent.md`);
-    if (!(await exists(directPath)) && !(await exists(subPath))) {
+    const lower = name.toLowerCase();
+    if (!canonicalNames.has(lower) && !canonicalNames.has(name)) {
       addFinding(
         "docs/README.md",
         0,
@@ -296,6 +311,21 @@ async function main() {
 
   // Print findings
   console.log("");
+
+  // Write JSON report (always, even when clean)
+  const report = {
+    findings,
+    summary:
+      findings.length === 0
+        ? "No issues found"
+        : `${findings.length} issue(s) found`,
+  };
+  await writeFile(
+    join(ROOT, "freshness-report.json"),
+    JSON.stringify(report, null, 2) + "\n",
+  );
+  console.log("📄 Report written to freshness-report.json");
+
   if (findings.length === 0) {
     console.log("✅ No freshness issues found\n");
     process.exit(0);
@@ -310,17 +340,6 @@ async function main() {
     console.log(`${icon} [${f.severity}] ${loc}`);
     console.log(`   ${f.issue}\n`);
   }
-
-  // Write JSON report
-  const report = {
-    findings,
-    summary: `${findings.length} issue(s) found`,
-  };
-  await writeFile(
-    join(ROOT, "freshness-report.json"),
-    JSON.stringify(report, null, 2),
-  );
-  console.log("📄 Report written to freshness-report.json");
 
   process.exit(1);
 }

@@ -16,8 +16,9 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes agents: requirements, architect, design, bicep-plan,
-bicep-code, deploy, diagnose, InfraOps Conductor.
+Invoked via `Ctrl+Shift+A`. This project includes 13 agents: requirements, architect, design,
+bicep-planner, terraform-planner, bicep-codegen, terraform-codegen, bicep-deploy, terraform-deploy,
+as-built, challenger, diagnose, and InfraOps Conductor.
 
 📁 **See**: [.github/agents/](../.github/agents/)
 
@@ -28,10 +29,20 @@ Azure infrastructure. Combines GitHub Copilot with custom agents and reusable sk
 
 ### AVM (Azure Verified Modules)
 
-Microsoft's official library of pre-built, tested Bicep modules that follow Azure best
-practices. Using AVM modules ensures policy compliance and reduces custom code.
+Microsoft's official library of pre-built, tested IaC modules that follow Azure best
+practices. Available for both Bicep (`br/public:avm/res/`) and Terraform
+(`registry.terraform.io/Azure/avm-res-*/azurerm`). Using AVM modules ensures
+policy compliance and reduces custom code.
 
 🔗 **External**: [Azure Verified Modules Registry](https://aka.ms/avm)
+
+### AVM-TF (Azure Verified Modules for Terraform)
+
+The Terraform variant of Azure Verified Modules, published to the Terraform Registry
+under the `Azure` namespace. Module sources follow the pattern
+`Azure/avm-res-<provider>-<resource>/azurerm`.
+
+🔗 **External**: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
 
 ---
 
@@ -52,6 +63,15 @@ Run with `bicep lint main.bicep` or automatically via VS Code extension.
 ---
 
 ## C
+
+### Challenger
+
+Adversarial review agent that challenges requirements, architecture assessments, and
+implementation plans. Finds untested assumptions, governance gaps, WAF blind spots,
+and architectural weaknesses. Returns structured JSON findings with severity ratings.
+Auto-invoked by the Conductor after Steps 1, 2, and 4.
+
+📁 **See**: [.github/agents/10-challenger.agent.md](../.github/agents/10-challenger.agent.md)
 
 ### Copilot Chat
 
@@ -93,6 +113,13 @@ planning step and documented in `04-governance-constraints.md`.
 
 ## H
 
+### HCL (HashiCorp Configuration Language)
+
+The declarative language used by Terraform to define infrastructure resources.
+File extension: `.tf`. Supports variables, modules, data sources, and provider blocks.
+
+🔗 **External**: [HCL Documentation](https://developer.hashicorp.com/terraform/language)
+
 ### HIPAA (Health Insurance Portability and Accountability Act)
 
 US regulation governing protected health information (PHI). Azure provides HIPAA-compliant services
@@ -117,8 +144,9 @@ orchestration features.
 
 ### IaC (Infrastructure as Code)
 
-Practice of managing infrastructure through code files (Bicep, ARM) rather than manual
-portal clicks. Enables version control, automation, and repeatability.
+Practice of managing infrastructure through code files (Bicep, Terraform, ARM) rather than manual
+portal clicks. Enables version control, automation, and repeatability. This project supports two
+IaC tracks: **Bicep** (Azure-native DSL) and **Terraform** (multi-cloud HCL).
 
 ---
 
@@ -188,14 +216,17 @@ for Agentic InfraOps methodology.
 
 A reusable knowledge module stored in `.github/skills/` that agents can invoke. Unlike agents,
 skills don't have their own chat persona — they provide domain knowledge that agents use.
-Skills are organized across document creation, workflow automation, and utility categories.
+14 skills are organized across conventions, document creation, infrastructure patterns,
+workflow automation, troubleshooting, and Microsoft docs integration categories.
 
 📁 **See**: [.github/skills/](../.github/skills/)
 
 ### Subagent
 
-A specialized validation agent invoked by other agents for specific tasks (lint, what-if, review).
-Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`.
+A specialized validation agent invoked by other agents for specific tasks (lint, what-if/plan,
+review). Eight exist: `cost-estimate-subagent`, `governance-discovery-subagent`,
+`bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`,
+`terraform-lint-subagent`, `terraform-review-subagent`, `terraform-plan-subagent`.
 
 📁 **See**: [.github/agents/\_subagents/](../.github/agents/_subagents/)
 
@@ -208,7 +239,32 @@ Three exist: `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subag
 Key-value pairs applied to Azure resources for organization, cost tracking, and policy enforcement.
 Baseline tags: Environment, ManagedBy, Project, Owner.
 Governance constraints may require additional tags.
-See `bicep-code-best-practices.instructions.md` for the canonical tag rule.
+See `bicep-code-best-practices.instructions.md` or `terraform-code-best-practices.instructions.md`
+for the canonical tag rule.
+
+### Terraform
+
+HashiCorp's open-source Infrastructure as Code tool using HCL (HashiCorp Configuration Language).
+Supports multi-cloud deployments. In this project, Terraform is the alternative IaC track
+alongside Bicep, sharing requirements, architecture, and design steps (1-3) before diverging
+into Terraform-specific planning, code generation, and deployment (steps 4-6).
+
+Provider pin: `~> 4.0` (AzureRM). Backend: Azure Storage Account.
+
+🔗 **External**: [Terraform Documentation](https://developer.hashicorp.com/terraform)
+
+### TFLint
+
+A pluggable Terraform linter that enforces best practices, naming conventions, and
+resource-specific rules. Used by the `terraform-lint-subagent` during Step 5 validation.
+
+🔗 **External**: [TFLint](https://github.com/terraform-linters/tflint)
+
+### Terraform State
+
+The JSON file that tracks the mapping between Terraform configuration and real-world
+resources. Stored remotely in an Azure Storage Account for team collaboration.
+State locking prevents concurrent modifications.
 
 ---
 
@@ -241,8 +297,10 @@ making actual changes. Run with `az deployment group create --what-if`.
 ### 7-Step Agentic Workflow
 
 The core Agentic InfraOps workflow: `requirements` → `architect` → Design Artifacts →
-`bicep-plan` → `bicep-code` → `deploy` → Documentation. Each step produces artifacts in `agent-output/`.
-Steps 3 (Design Artifacts) and 7 (Documentation) use skills rather than agents.
+IaC Plan → IaC Code → Deploy → Documentation. Steps 1-3 and 7 are shared;
+steps 4-6 diverge into **Bicep track** (`bicep-planner` → `bicep-codegen` → `bicep-deploy`)
+or **Terraform track** (`terraform-planner` → `terraform-codegen` → `terraform-deploy`).
+Each step produces artifacts in `agent-output/`.
 
 📁 **See**: [Workflow Guide](workflow.md)
 
@@ -255,6 +313,8 @@ Steps 3 (Design Artifacts) and 7 (Documentation) use skills rather than agents.
 | ADR     | Architecture Decision Record                 | Documentation  |
 | Agent   | Copilot Custom Agent                         | AI             |
 | AVM     | Azure Verified Modules                       | IaC            |
+| AVM-TF  | Azure Verified Modules for Terraform         | IaC            |
+| HCL     | HashiCorp Configuration Language             | IaC            |
 | IaC     | Infrastructure as Code                       | Methodology    |
 | KQL     | Kusto Query Language                         | Monitoring     |
 | MCP     | Model Context Protocol                       | AI Integration |
@@ -263,6 +323,7 @@ Steps 3 (Design Artifacts) and 7 (Documentation) use skills rather than agents.
 | PCI-DSS | Payment Card Industry Data Security Standard | Compliance     |
 | SBOM    | Software Bill of Materials                   | Security       |
 | Skill   | Copilot Skill Module                         | AI             |
+| TFLint  | Terraform Linter                             | IaC            |
 | UAT     | User Acceptance Testing                      | QA             |
 | WAF     | Well-Architected Framework                   | Architecture   |
 

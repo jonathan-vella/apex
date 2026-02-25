@@ -8,6 +8,8 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![Azure][azure-shield]][azure-url]
+[![Bicep][bicep-shield]][bicep-url]
+[![Terraform][terraform-shield]][terraform-url]
 
 <div align="center">
   <img
@@ -43,9 +45,11 @@
 ---
 
 Agentic InfraOps coordinates specialized AI agents through a complete infrastructure development
-cycle. Instead of context-switching between requirements, architecture decisions, Bicep authoring,
-and documentation, you get a **structured 7-step workflow** with built-in WAF alignment, AVM-first
-code generation, and mandatory human approval gates.
+cycle. Instead of context-switching between requirements, architecture decisions, IaC authoring
+(Bicep **or** Terraform), and documentation, you get a **structured 7-step workflow** with built-in
+WAF alignment, AVM-first code generation, and mandatory human approval gates. Choose your IaC
+track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation
+pipelines automatically.
 
 ---
 
@@ -59,8 +63,8 @@ sequenceDiagram
     participant R as 📋 Requirements
     participant X as ⚔️ Challenger
     participant A as 🏛️ Architect
-    participant P as 📐 Bicep Plan
-    participant B as ⚒️ Bicep Code
+    participant IaC as 📐 IaC Plan
+    participant Gen as ⚒️ IaC Code
     participant D as 🚀 Deploy
     participant W as 📚 As-Built
 
@@ -69,7 +73,7 @@ sequenceDiagram
     %% --- Step 1: Requirements ---
     U->>C: Describe infrastructure intent
     C->>R: Translate intent into structured requirements
-    R-->>C: 01-requirements.md
+    R-->>C: 01-requirements.md (includes iac_tool selection)
     C->>X: Challenge requirements
     X-->>C: challenge-findings.json
     C->>U: Present requirements + challenge findings
@@ -93,9 +97,10 @@ sequenceDiagram
     end
 
     %% --- Step 4: Planning & Governance ---
-    C->>P: Create implementation plan + governance
-    Note right of P: governance-discovery-subagent<br/>queries Azure Policy via REST API
-    P-->>C: 04-plan.md + governance constraints
+    C->>IaC: Create implementation plan + governance
+    Note right of IaC: governance-discovery-subagent<br/>queries Azure Policy via REST API
+    Note right of IaC: Bicep → bicep-planner<br/>Terraform → terraform-planner
+    IaC-->>C: 04-plan.md + governance constraints
     C->>X: Challenge implementation plan
     X-->>C: challenge-findings.json
     C->>U: Present plan + challenge findings
@@ -106,12 +111,13 @@ sequenceDiagram
     end
 
     %% --- Step 5: IaC Generation & Validation ---
-    C->>B: Generate Bicep templates (AVM-first)
-    B-->>C: infra/bicep/{project}
+    C->>Gen: Generate IaC templates (AVM-first)
+    Note right of Gen: Bicep → bicep-codegen<br/>Terraform → terraform-codegen
+    Gen-->>C: infra/bicep/{project} or infra/terraform/{project}
 
     rect rgba(0, 150, 255, 0.08)
-    Note over C,B: 🔍 Subagent Validation Loop
-    Note right of B: bicep-lint-subagent → PASS/FAIL<br/>bicep-review-subagent → APPROVED/REVISION
+    Note over C,Gen: 🔍 Subagent Validation Loop
+    Note right of Gen: Bicep: lint → review subagents<br/>Terraform: lint → review subagents
     alt ✅ Validation passes
         C->>U: Present templates for deployment
         rect rgba(255, 200, 0, 0.15)
@@ -119,13 +125,13 @@ sequenceDiagram
         U-->>C: Approve for deployment
         end
     else ⚠️ Validation fails
-        C->>B: Revise with feedback
+        C->>Gen: Revise with feedback
     end
     end
 
     %% --- Step 6: Deployment ---
     C->>D: Execute deployment
-    Note right of D: bicep-whatif-subagent<br/>previews changes first
+    Note right of D: Bicep: whatif-subagent<br/>Terraform: plan-subagent
     D-->>C: 06-deployment-summary.md
     C->>U: Present deployment summary
 
@@ -189,25 +195,33 @@ The Conductor guides you through all 7 steps with approval gates.
 
 ### Core Agents
 
-| Step | Agent          | Role                                            |
-| ---- | -------------- | ----------------------------------------------- |
-| 1    | `requirements` | Captures functional, NFR, and compliance needs  |
-| 2    | `architect`    | WAF assessment, design decisions, cost estimate |
-| 3    | `design`       | Architecture diagrams and ADRs (optional)       |
-| 4    | `bicep-plan`   | Implementation planning with governance         |
-| 5    | `bicep-code`   | AVM-first Bicep template generation             |
-| 6    | `deploy`       | Azure resource provisioning                     |
-| 7    | `as-built`     | As-built documentation suite                    |
+Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
+
+| Step | Agent               | Role                                              |
+| ---- | ------------------- | ------------------------------------------------- |
+| 1    | `requirements`      | Captures functional, NFR, and compliance needs    |
+| 2    | `architect`         | WAF assessment, design decisions, cost estimate   |
+| 3    | `design`            | Architecture diagrams and ADRs (optional)         |
+| 4b   | `bicep-planner`     | Bicep implementation planning with governance     |
+| 4t   | `terraform-planner` | Terraform implementation planning with governance |
+| 5b   | `bicep-codegen`     | AVM-first Bicep template generation               |
+| 5t   | `terraform-codegen` | AVM-TF Terraform configuration generation         |
+| 6b   | `bicep-deploy`      | Bicep deployment via deploy.ps1                   |
+| 6t   | `terraform-deploy`  | Terraform deployment via bootstrap.sh / deploy.sh |
+| 7    | `as-built`          | As-built documentation suite                      |
 
 ### Subagents
 
-| Subagent                        | Role                                          |
-| ------------------------------- | --------------------------------------------- |
-| `cost-estimate-subagent`        | Azure Pricing MCP queries                     |
-| `governance-discovery-subagent` | Azure Policy REST API discovery               |
-| `bicep-lint-subagent`           | Syntax validation (bicep lint, bicep build)   |
-| `bicep-review-subagent`         | Code review (AVM standards, security, naming) |
-| `bicep-whatif-subagent`         | Deployment preview (az deployment what-if)    |
+| Subagent                        | Track     | Role                                          |
+| ------------------------------- | --------- | --------------------------------------------- |
+| `cost-estimate-subagent`        | Shared    | Azure Pricing MCP queries                     |
+| `governance-discovery-subagent` | Shared    | Azure Policy REST API discovery               |
+| `bicep-lint-subagent`           | Bicep     | Syntax validation (bicep lint, bicep build)   |
+| `bicep-review-subagent`         | Bicep     | Code review (AVM standards, security, naming) |
+| `bicep-whatif-subagent`         | Bicep     | Deployment preview (az deployment what-if)    |
+| `terraform-lint-subagent`       | Terraform | Syntax validation (terraform validate, fmt)   |
+| `terraform-review-subagent`     | Terraform | Code review (AVM-TF, security, naming)        |
+| `terraform-plan-subagent`       | Terraform | Deployment preview (terraform plan)           |
 
 ### Standalone Agents
 
@@ -228,6 +242,9 @@ The Conductor guides you through all 7 steps with approval gates.
 | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | [Azure MCP Server](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md) | 40+ Azure service tools — governance, monitoring, RBAC  |
 | [Pricing MCP](mcp/azure-pricing-mcp/)                                                             | Real-time Azure retail pricing for cost-aware decisions |
+| [Terraform MCP Server](https://github.com/hashicorp/terraform-mcp-server)                         | Terraform registry, plan/apply, workspace management    |
+| [GitHub MCP Server](https://github.com/github/github-mcp-server)                                  | Issues, PRs, repositories, Actions (MCP-first approach) |
+| [Microsoft Learn MCP Server](https://github.com/MicrosoftDocs/microsoft-learn-mcp)                | Official Microsoft documentation search and fetch       |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -279,3 +296,7 @@ Built upon [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra
 [license-url]: https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/LICENSE
 [azure-shield]: https://img.shields.io/badge/Azure-Ready-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white
 [azure-url]: https://azure.microsoft.com
+[bicep-shield]: https://img.shields.io/badge/Bicep-Native-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white
+[bicep-url]: https://learn.microsoft.com/azure/azure-resource-manager/bicep/
+[terraform-shield]: https://img.shields.io/badge/Terraform-Supported-844FBA?style=for-the-badge&logo=terraform&logoColor=white
+[terraform-url]: https://www.terraform.io/

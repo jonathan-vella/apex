@@ -8,16 +8,21 @@ Complete toolkit for demonstrating Agentic InfraOps to customers, partners, and 
 
 Use these personas when introducing agents to audiences:
 
-| Agent | Persona | Role |
-|-------|---------|------|
-| InfraOps Conductor | 🎼 Maestro | Master orchestrator |
-| requirements | 📜 Scribe | Requirements capture |
-| architect | 🏛️ Oracle | WAF assessment |
-| design | 🎨 Artisan | Diagrams and ADRs |
-| bicep-plan | 📐 Strategist | Implementation planning |
-| bicep-code | ⚒️ Forge | Bicep generation |
-| deploy | 🚀 Envoy | Azure deployment |
-| diagnose | 🔍 Sentinel | Troubleshooting |
+| Agent              | Persona       | Role                              |
+| ------------------ | ------------- | --------------------------------- |
+| InfraOps Conductor | 🎼 Maestro    | Master orchestrator               |
+| requirements       | 📜 Scribe     | Requirements capture              |
+| architect          | 🏛️ Oracle     | WAF assessment                    |
+| design             | 🎨 Artisan    | Diagrams and ADRs                 |
+| bicep-planner      | 📐 Strategist | Bicep implementation planning     |
+| terraform-planner  | 📐 Strategist | Terraform implementation planning |
+| bicep-codegen      | ⚒️ Forge      | Bicep generation                  |
+| terraform-codegen  | ⚒️ Forge      | Terraform generation              |
+| bicep-deploy       | 🚀 Envoy      | Bicep deployment                  |
+| terraform-deploy   | 🚀 Envoy      | Terraform deployment              |
+| as-built           | 📚 Archivist  | Documentation suite               |
+| challenger         | ⚔️ Challenger | Adversarial review                |
+| diagnose           | 🔍 Sentinel   | Troubleshooting                   |
 
 ---
 
@@ -43,10 +48,10 @@ Use these personas when introducing agents to audiences:
 
 Use prompts from the [Prompt Guide](../prompt-guide/README.md) to demonstrate agent capabilities:
 
-| Demo | Duration | Audience | Guide Section |
-| --- | --- | --- |
-| Requirements + Architecture | 15 min | Technical | [Prompt Guide - Steps 1-2](../prompt-guide/README.md) |
-| Full 7-Step Workflow | 30 min | Mixed | [Prompt Guide - End-to-End](../prompt-guide/README.md) |
+| Demo                        | Duration | Audience  | Guide Section                                          |
+| --------------------------- | -------- | --------- | ------------------------------------------------------ |
+| Requirements + Architecture | 15 min   | Technical | [Prompt Guide - Steps 1-2](../prompt-guide/README.md)  |
+| Full 7-Step Workflow        | 30 min   | Mixed     | [Prompt Guide - End-to-End](../prompt-guide/README.md) |
 
 ---
 
@@ -69,12 +74,13 @@ Use prompts from the [Prompt Guide](../prompt-guide/README.md) to demonstrate ag
 
 ### Common Concerns
 
-| Objection                         | Quick Response                                  | Details                                            |
-| --------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| "AI-generated code is unreliable" | Bicep validation + linting catches issues       | [Full response](objection-handling.md#reliability) |
-| "Our environment is too complex"  | Agent workflow handles multi-tier architectures | [Full response](objection-handling.md#complexity)  |
-| "Security concerns with AI"       | Code stays local, follows WAF principles        | [Full response](objection-handling.md#security)    |
-| "What about compliance?"          | Azure Policy integration + audit trails         | [Full response](objection-handling.md#compliance)  |
+| Objection                         | Quick Response                                          | Details                                            |
+| --------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
+| "AI-generated code is unreliable" | Bicep + Terraform validation + linting catches issues   | [Full response](objection-handling.md#reliability) |
+| "Our environment is too complex"  | Agent workflow handles multi-tier architectures         | [Full response](objection-handling.md#complexity)  |
+| "Security concerns with AI"       | Code stays local, follows WAF principles                | [Full response](objection-handling.md#security)    |
+| "What about compliance?"          | Azure Policy integration + audit trails                 | [Full response](objection-handling.md#compliance)  |
+| "We use Terraform, not Bicep"     | Full Terraform track with AVM-TF modules and validation | [Full response](objection-handling.md#terraform)   |
 
 See [Objection Handling Guide](objection-handling.md) for complete responses with supporting evidence.
 

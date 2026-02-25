@@ -16,37 +16,53 @@ infrastructure.
 
 ### Agents
 
-| Agent | Persona | Step | Purpose |
-| --- | --- | --- | --- |
-| **InfraOps Conductor** | 🎼 Maestro | All | Orchestrates the full 7-step workflow |
-| **Requirements** | 📜 Scribe | 1 | Captures business and technical requirements |
-| **Architect** | 🏛️ Oracle | 2 | WAF assessment, cost estimates, SKU comparison |
-| **Design** | 🎨 Artisan | 3 | Architecture diagrams and ADRs (optional step) |
-| **Bicep Plan** | 📐 Strategist | 4 | Implementation plan with governance discovery |
-| **Bicep Code** | ⚒️ Forge | 5 | Generates production-ready Bicep templates |
-| **Deploy** | 🚀 Envoy | 6 | What-if analysis and phased deployment |
-| **Diagnose** | 🔍 Sentinel | — | Resource health and troubleshooting |
+| Agent                  | Persona       | Step | Purpose                                        |
+| ---------------------- | ------------- | ---- | ---------------------------------------------- |
+| **InfraOps Conductor** | 🎼 Maestro    | All  | Orchestrates the full 7-step workflow          |
+| **Requirements**       | 📜 Scribe     | 1    | Captures business and technical requirements   |
+| **Architect**          | 🏛️ Oracle     | 2    | WAF assessment, cost estimates, SKU comparison |
+| **Design**             | 🎨 Artisan    | 3    | Architecture diagrams and ADRs (optional step) |
+| **Bicep Planner**      | 📐 Strategist | 4b   | Bicep implementation plan with governance      |
+| **Terraform Planner**  | 📐 Strategist | 4t   | Terraform implementation plan with governance  |
+| **Bicep CodeGen**      | ⚒️ Forge      | 5b   | Generates production-ready Bicep templates     |
+| **Terraform CodeGen**  | ⚒️ Forge      | 5t   | Generates production-ready Terraform configs   |
+| **Bicep Deploy**       | 🚀 Envoy      | 6b   | What-if analysis and Bicep deployment          |
+| **Terraform Deploy**   | 🚀 Envoy      | 6t   | Terraform plan preview and apply               |
+| **As-Built**           | 📚 Chronicler | 7    | Generates post-deployment documentation        |
+| **Diagnose**           | 🔍 Sentinel   | —    | Resource health and troubleshooting            |
+| **Challenger**         | ⚔️ Adversary  | —    | Reviews plans for gaps and weaknesses          |
 
 ### Skills
 
-| Skill | Purpose |
-| --- | --- |
-| `azure-defaults` | Regions, tags, naming, AVM, security, governance |
-| `azure-artifacts` | H2 template structures for agent output files |
-| `azure-diagrams` | Python architecture diagram generation |
-| `azure-adr` | Architecture Decision Records |
-| `git-commit` | Conventional commit message conventions |
-| `github-operations` | GitHub issues, PRs, CLI, Actions, releases |
-| `docs-writer` | Documentation generation and maintenance |
-| `make-skill-template` | Scaffold new skills from a template |
+| Skill                      | Purpose                                              |
+| -------------------------- | ---------------------------------------------------- |
+| `azure-defaults`           | Regions, tags, naming, AVM, security, governance     |
+| `azure-artifacts`          | H2 template structures for agent output files        |
+| `azure-diagrams`           | Python architecture diagram generation               |
+| `azure-adr`                | Architecture Decision Records                        |
+| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics) |
+| `terraform-patterns`       | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)  |
+| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks  |
+| `git-commit`               | Conventional commit message conventions              |
+| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases           |
+| `docs-writer`              | Documentation generation and maintenance             |
+| `make-skill-template`      | Scaffold new skills from a template                  |
+| `microsoft-docs`           | Query official Microsoft/Azure documentation         |
+| `microsoft-code-reference` | Verify SDK methods and find code samples             |
+| `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies      |
 
 ### Subagents
 
-| Subagent | Called By | Purpose |
-| --- | --- | --- |
-| `bicep-lint-subagent` | Bicep Code | Runs `bicep lint` and `bicep build` validation |
-| `bicep-review-subagent` | Bicep Code | Reviews templates against AVM standards |
-| `bicep-whatif-subagent` | Bicep Code | Runs `az deployment group what-if` preview |
+| Subagent                        | Called By         | Purpose                                         |
+| ------------------------------- | ----------------- | ----------------------------------------------- |
+| `bicep-lint-subagent`           | Bicep CodeGen     | Runs `bicep lint` and `bicep build` validation  |
+| `bicep-review-subagent`         | Bicep CodeGen     | Reviews templates against AVM standards         |
+| `bicep-whatif-subagent`         | Bicep Deploy      | Runs `az deployment group what-if` preview      |
+| `terraform-lint-subagent`       | Terraform CodeGen | Runs `terraform fmt`, `validate`, and TFLint    |
+| `terraform-review-subagent`     | Terraform CodeGen | Reviews configs against AVM-TF standards        |
+| `terraform-plan-subagent`       | Terraform Deploy  | Runs `terraform plan` change preview            |
+| `cost-estimate-subagent`        | Architect         | Queries Azure Pricing MCP for real-time pricing |
+| `governance-discovery-subagent` | IaC Planners      | Discovers Azure Policy constraints via REST API |
 
 ### Prompt Files
 
@@ -56,25 +72,28 @@ to see available prompts.
 
 #### Core Workflow Prompts
 
-| Prompt File | Agent | Step | Purpose |
-| --- | --- | --- | --- |
-| `run-conductor` | InfraOps Conductor | All | End-to-end 7-step orchestration |
-| `plan-requirements` | Requirements | 1 | Business-first requirements discovery |
-| `assess-architecture` | Architect | 2 | WAF assessment with cost estimates |
-| `design-diagram` | Design | 3 | Python architecture diagram generation |
-| `design-adr` | Design | 3 | Architecture Decision Record creation |
-| `plan-bicep` | Bicep Plan | 4 | Governance discovery and implementation planning |
-| `generate-bicep` | Bicep Code | 5 | AVM-first Bicep template generation |
-| `deploy` | Deploy | 6 | What-if analysis and deployment |
-| `generate-docs` | Deploy | 7 | As-built documentation suite |
-| `diagnose-resources` | Diagnose | — | Resource health diagnostics |
+| Prompt File           | Agent              | Step | Purpose                                     |
+| --------------------- | ------------------ | ---- | ------------------------------------------- |
+| `run-conductor`       | InfraOps Conductor | All  | End-to-end 7-step orchestration             |
+| `plan-requirements`   | Requirements       | 1    | Business-first requirements discovery       |
+| `assess-architecture` | Architect          | 2    | WAF assessment with cost estimates          |
+| `design-diagram`      | Design             | 3    | Python architecture diagram generation      |
+| `design-adr`          | Design             | 3    | Architecture Decision Record creation       |
+| `plan-bicep`          | Bicep Planner      | 4b   | Governance discovery and Bicep planning     |
+| `plan-terraform`      | Terraform Planner  | 4t   | Governance discovery and Terraform planning |
+| `generate-bicep`      | Bicep CodeGen      | 5b   | AVM-first Bicep template generation         |
+| `generate-terraform`  | Terraform CodeGen  | 5t   | AVM-TF Terraform config generation          |
+| `deploy`              | Bicep Deploy       | 6b   | What-if analysis and Bicep deployment       |
+| `deploy-terraform`    | Terraform Deploy   | 6t   | Terraform plan preview and apply            |
+| `generate-docs`       | As-Built           | 7    | As-built documentation suite                |
+| `diagnose-resources`  | Diagnose           | —    | Resource health diagnostics                 |
 
 #### Demo Prompts
 
-| Prompt File | Agent | Purpose |
-| --- | --- | --- |
-| `conductor-demo` | InfraOps Conductor | Full workflow demo (Static Web App scenario) |
-| `plan-req-demo-interactive` | Requirements | Interactive EU ecommerce migration demo |
+| Prompt File                 | Agent              | Purpose                                      |
+| --------------------------- | ------------------ | -------------------------------------------- |
+| `conductor-demo`            | InfraOps Conductor | Full workflow demo (Static Web App scenario) |
+| `plan-req-demo-interactive` | Requirements       | Interactive EU ecommerce migration demo      |
 
 ---
 
@@ -82,11 +101,11 @@ to see available prompts.
 
 ### Choose the Right Interface
 
-| Interface | Best For |
-| --- | --- |
+| Interface                    | Best For                                                    |
+| ---------------------------- | ----------------------------------------------------------- |
 | **Inline suggestions** (Tab) | Completing code snippets, variable names, repetitive blocks |
-| **Copilot Chat** | Questions, generating larger sections, debugging |
-| **Agentic InfraOps Agents** | Multi-step workflows, end-to-end projects |
+| **Copilot Chat**             | Questions, generating larger sections, debugging            |
+| **Agentic InfraOps Agents**  | Multi-step workflows, end-to-end projects                   |
 
 ### Break Down Complex Tasks
 
@@ -108,6 +127,12 @@ Do not ask for an entire landing zone in one prompt. Start small and iterate.
 ❌ Create a storage account
 
 ✅ Create a Bicep module for Azure Storage with:
+   - SKU: Standard_ZRS
+   - HTTPS only, TLS 1.2 minimum
+   - No public blob access
+   - Soft delete: 30 days
+
+✅ Create a Terraform module for Azure Storage with:
    - SKU: Standard_ZRS
    - HTTPS only, TLS 1.2 minimum
    - No public blob access
@@ -137,12 +162,12 @@ Requirements:
 
 ### Use Chat Variables
 
-| Variable | Purpose | Example |
-| --- | --- | --- |
-| `@workspace` | Search entire workspace | `@workspace Find all Key Vault references` |
-| `#file` | Reference specific file | `#file:main.bicep Explain this module` |
-| `#selection` | Current selection | Select code, then ask about it |
-| `#terminalLastCommand` | Last terminal output | `#terminalLastCommand Why did this fail?` |
+| Variable               | Purpose                 | Example                                    |
+| ---------------------- | ----------------------- | ------------------------------------------ |
+| `@workspace`           | Search entire workspace | `@workspace Find all Key Vault references` |
+| `#file`                | Reference specific file | `#file:main.bicep Explain this module`     |
+| `#selection`           | Current selection       | Select code, then ask about it             |
+| `#terminalLastCommand` | Last terminal output    | `#terminalLastCommand Why did this fail?`  |
 
 ### Prompt Patterns
 
@@ -185,23 +210,23 @@ Prompt 4: Make the address space configurable via parameters
 
 ### Anti-Patterns to Avoid
 
-| Anti-Pattern | Problem | Better Approach |
-| --- | --- | --- |
-| "Generate everything" | Output too broad | Break into small requests |
-| Accepting without review | Bugs, security issues | Always validate and test |
-| Ignoring context | Generic suggestions | Open relevant files, use `@workspace` |
-| One-shot complex prompts | Incomplete output | Iterate with follow-ups |
-| Not providing examples | Inconsistent formatting | Show the pattern you want |
+| Anti-Pattern             | Problem                 | Better Approach                       |
+| ------------------------ | ----------------------- | ------------------------------------- |
+| "Generate everything"    | Output too broad        | Break into small requests             |
+| Accepting without review | Bugs, security issues   | Always validate and test              |
+| Ignoring context         | Generic suggestions     | Open relevant files, use `@workspace` |
+| One-shot complex prompts | Incomplete output       | Iterate with follow-ups               |
+| Not providing examples   | Inconsistent formatting | Show the pattern you want             |
 
 ### Always Validate AI Output
 
-| Check | Why |
-| --- | --- |
-| API versions are recent (2023+) | Older versions lack features |
-| `supportsHttpsTrafficOnly: true` | Security baseline |
-| `minimumTlsVersion: 'TLS1_2'` | Compliance requirement |
-| Unique names use `uniqueString()` | Avoid naming collisions |
-| Outputs include both ID and name | Downstream modules need both |
+| Check                                               | Why                          |
+| --------------------------------------------------- | ---------------------------- |
+| API versions are recent (2023+)                     | Older versions lack features |
+| `supportsHttpsTrafficOnly: true`                    | Security baseline            |
+| `minimumTlsVersion: 'TLS1_2'`                       | Compliance requirement       |
+| Unique names use `uniqueString()` / `random_string` | Avoid naming collisions      |
+| Outputs include both ID and name                    | Downstream modules need both |
 
 ```bash
 # Validate Bicep syntax
@@ -210,10 +235,20 @@ bicep build main.bicep
 # Lint for best practices
 bicep lint main.bicep
 
-# Preview deployment
+# Preview Bicep deployment
 az deployment group what-if \
   --resource-group myRG \
   --template-file main.bicep
+
+# Validate Terraform syntax
+terraform fmt -check
+terraform validate
+
+# Lint Terraform with TFLint
+tflint --init && tflint
+
+# Preview Terraform deployment
+terraform plan -out=tfplan
 ```
 
 ---
@@ -317,12 +352,22 @@ Include monthly and yearly totals for each resource.
 
 ### Step 4: Planning — 📐 Strategist
 
-Select the **Bicep Plan** agent. It discovers governance constraints and
-creates a machine-readable implementation plan.
+Select the **Bicep Planner** or **Terraform Planner** agent depending on your
+IaC tool preference. Both discover governance constraints and create a
+machine-readable implementation plan.
+
+**Bicep track**:
 
 ```text
 Create an implementation plan for the payment gateway architecture.
 Check AVM module availability for every resource.
+```
+
+**Terraform track**:
+
+```text
+Create a Terraform implementation plan for the payment gateway.
+Use AVM-TF modules from the Terraform Registry where available.
 ```
 
 ```text
@@ -338,8 +383,10 @@ before generating `04-implementation-plan.md`.
 
 ### Step 5: Implementation — ⚒️ Forge
 
-Select the **Bicep Code** agent. It reads the plan and generates production-ready
-Bicep templates.
+Select the **Bicep CodeGen** or **Terraform CodeGen** agent. It reads the plan
+and generates production-ready templates.
+
+**Bicep track**:
 
 ```text
 Implement the Bicep templates according to the implementation plan
@@ -347,23 +394,40 @@ in agent-output/payment-gateway/04-implementation-plan.md.
 Use AVM modules, generate deploy.ps1, and save to infra/bicep/payment-gateway/.
 ```
 
+**Terraform track**:
+
+```text
+Implement the Terraform configuration according to the implementation plan
+in agent-output/payment-gateway/04-implementation-plan.md.
+Use AVM-TF modules, generate bootstrap.sh and deploy.sh,
+and save to infra/terraform/payment-gateway/.
+```
+
 ```text
 Fix the validation errors from bicep build. Re-run lint after fixes.
 ```
 
 The agent runs a preflight check, generates templates with AVM modules, applies
-security baseline and required tags, then validates with `bicep build` and
-`bicep lint`.
+security baseline and required tags, then validates with the appropriate tool
+(`bicep build` / `terraform validate`).
 
 ---
 
 ### Step 6: Deployment — 🚀 Envoy
 
-Select the **Deploy** agent. It runs preflight validation, what-if analysis,
-and deploys with approval gates.
+Select the **Bicep Deploy** or **Terraform Deploy** agent. Both run preflight
+validation, preview changes, and deploy with approval gates.
+
+**Bicep track**:
 
 ```text
 Deploy the payment gateway Bicep templates. Run what-if first.
+```
+
+**Terraform track**:
+
+```text
+Deploy the payment gateway Terraform configuration. Run terraform plan first.
 ```
 
 ```text
@@ -375,14 +439,16 @@ Verify the deployed resources using Azure Resource Graph.
 Check resource health status.
 ```
 
-The agent always presents the what-if change summary and waits for your explicit
-approval before deploying. For phased deployments, it pauses between each phase.
+The agent always presents a change summary (what-if or plan output) and waits for
+your explicit approval before deploying. For phased deployments, it pauses between
+each phase.
 
 ---
 
-### Step 7: Documentation
+### Step 7: Documentation — 📚 Chronicler
 
-After deployment, the Deploy agent can generate as-built documentation:
+After deployment, the **As-Built** agent generates comprehensive workload
+documentation:
 
 ```text
 Generate comprehensive workload documentation for the deployed
@@ -431,6 +497,22 @@ Expand the diagnostic scope to include resources connected to
 my App Service (Key Vault, SQL Database, Storage).
 ```
 
+### Challenger — ⚔️ Adversary
+
+Use Challenger to stress-test plans and architectures before implementation.
+It finds untested assumptions, governance gaps, and WAF blind spots.
+
+```text
+Challenge the implementation plan in
+agent-output/payment-gateway/04-implementation-plan.md.
+Look for governance gaps, security blind spots, and cost risks.
+```
+
+```text
+Review the architecture assessment for single points of failure
+and missing disaster recovery considerations.
+```
+
 ---
 
 ## Skill Reference
@@ -454,6 +536,33 @@ Generates Python architecture diagrams using the `diagrams` library.
 ```text
 Generate an architecture diagram for the infrastructure in
 infra/bicep/my-project/ using the azure-diagrams skill.
+```
+
+### azure-bicep-patterns
+
+Provides reusable Bicep patterns: hub-spoke networking, private endpoints,
+diagnostic settings, conditional deployments, and AVM module composition.
+
+```text
+@workspace Show me the private endpoint pattern from azure-bicep-patterns.
+```
+
+### terraform-patterns
+
+Provides reusable Terraform patterns: hub-spoke networking, private endpoints,
+diagnostic settings, AVM-TF module composition, and known AVM pitfalls.
+
+```text
+@workspace Show me the hub-spoke pattern from terraform-patterns.
+```
+
+### azure-troubleshooting
+
+KQL templates, metric thresholds, health checks, and remediation playbooks
+for diagnosing Azure resource issues.
+
+```text
+@workspace What KQL queries are available in azure-troubleshooting?
 ```
 
 ### azure-adr
@@ -500,11 +609,32 @@ Create a new skill called 'azure-monitoring' for Application Insights
 and Log Analytics best practices.
 ```
 
+### microsoft-docs
+
+Queries official Microsoft/Azure documentation to understand concepts,
+find tutorials, and get current best practices.
+
+```text
+@workspace Use the microsoft-docs skill to look up Azure Container Apps
+networking modes and limitations.
+```
+
+### microsoft-code-reference
+
+Verifies SDK methods, finds working code samples, and catches hallucinated
+API calls by querying official documentation.
+
+```text
+@workspace Use microsoft-code-reference to find the correct Azure SDK
+method for listing Key Vault secrets in Python.
+```
+
 ---
 
 ## Subagent Reference
 
-Subagents are called automatically by the **Bicep Code** agent during Step 5.
+Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
+**Bicep Deploy**, **Terraform Deploy**, **Architect**, and **IaC Planner** agents.
 You do not invoke them directly, but understanding their output helps you
 interpret validation results.
 
@@ -525,6 +655,34 @@ Runs `az deployment group what-if` to preview deployment changes. Analyzes
 policy violations, resource changes, and cost impact. Returns a structured
 change summary.
 
+### terraform-lint-subagent
+
+Runs `terraform fmt -check`, `terraform validate`, and TFLint to validate
+configuration syntax. Returns a structured PASS/FAIL result with diagnostics.
+
+### terraform-review-subagent
+
+Reviews Terraform configs against AVM-TF standards, CAF naming conventions,
+security baselines, and governance compliance. Returns APPROVED, NEEDS_REVISION,
+or FAILED verdict with actionable feedback.
+
+### terraform-plan-subagent
+
+Runs `terraform plan` to preview infrastructure changes. Classifies resources
+into create/update/destroy/replace, highlights destructive operations,
+and returns a structured change summary.
+
+### cost-estimate-subagent
+
+Queries Azure Pricing MCP tools for real-time SKU pricing. Compares regions
+and returns a structured cost breakdown.
+
+### governance-discovery-subagent
+
+Queries Azure Policy assignments via REST API (including management group-
+inherited policies). Classifies policy effects and returns structured governance
+constraints.
+
 ---
 
 ## Tips and Patterns
@@ -535,19 +693,31 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 
 1. Open the requirements document (`01-requirements.md`)
 2. Open the architecture assessment (`02-architecture-assessment.md`)
-3. Then ask the Bicep Plan agent to create the implementation plan
+3. Then ask the Bicep Planner agent to create the implementation plan
 
 ### Chaining Agents
 
 You can chain agents manually by using handoff buttons in the chat, or run
 the Conductor for automatic orchestration. Manual chaining gives you more
-control over each step:
+control over each step.
+
+**Bicep track**:
 
 1. Run **Requirements** → review and approve `01-requirements.md`
 2. Run **Architect** → review WAF scores and cost estimate
-3. Run **Bicep Plan** → review governance constraints and plan
-4. Run **Bicep Code** → review generated templates
-5. Run **Deploy** → review what-if before approving deployment
+3. Run **Bicep Planner** → review governance constraints and plan
+4. Run **Bicep CodeGen** → review generated templates
+5. Run **Bicep Deploy** → review what-if before approving deployment
+6. Run **As-Built** → generate post-deployment documentation
+
+**Terraform track**:
+
+1. Run **Requirements** → review and approve `01-requirements.md`
+2. Run **Architect** → review WAF scores and cost estimate
+3. Run **Terraform Planner** → review governance constraints and plan
+4. Run **Terraform CodeGen** → review generated configs
+5. Run **Terraform Deploy** → review plan output before applying
+6. Run **As-Built** → generate post-deployment documentation
 
 ### Recovering from Errors
 

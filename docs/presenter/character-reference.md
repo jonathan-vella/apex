@@ -9,16 +9,17 @@
 
 ## 📋 Character Matrix
 
-| Scenario | Character           | Role                           | Company                       | Key Challenge                         |
-| -------- | ------------------- | ------------------------------ | ----------------------------- | ------------------------------------- |
-| S01      | **Elena Rodriguez** | Cloud Infrastructure Engineer  | Meridian Financial            | First Azure project, 10 years VMware  |
-| S02      | **Jennifer Chen**   | Solutions Architect            | Meridian Systems (SI Partner) | HIPAA-compliant patient portal        |
-| S03      | **Priya Sharma**    | Senior Technical Writer        | Enterprise Solutions Corp     | 50-server migration docs in 1 week    |
-| S04      | **Marcus Chen**     | Senior QA Engineer             | ValidationFirst Consulting    | Automated UAT validation              |
-| S05      | **Maya Patel**      | On-Call SRE                    | RetailMax Online              | 2 AM production incident              |
-| S06      | **Sarah Chen**      | Security Engineer              | HealthTech Solutions          | 48-hour SBOM deadline                 |
-| S07      | **David Kim**       | Solutions Architect            | TechVentures Ltd              | Design review in 2 hours              |
-| S08      | **Alex Petrov**     | Cloud Operations Engineer      | InfraScale Solutions          | 24-hour monitoring deadline           |
+| Scenario | Character           | Role                          | Company                       | Key Challenge                         |
+| -------- | ------------------- | ----------------------------- | ----------------------------- | ------------------------------------- |
+| S01      | **Elena Rodriguez** | Cloud Infrastructure Engineer | Meridian Financial            | First Azure project, 10 years VMware  |
+| S02      | **Jennifer Chen**   | Solutions Architect           | Meridian Systems (SI Partner) | HIPAA-compliant patient portal        |
+| S03      | **Priya Sharma**    | Senior Technical Writer       | Enterprise Solutions Corp     | 50-server migration docs in 1 week    |
+| S04      | **Marcus Chen**     | Senior QA Engineer            | ValidationFirst Consulting    | Automated UAT validation              |
+| S05      | **Maya Patel**      | On-Call SRE                   | RetailMax Online              | 2 AM production incident              |
+| S06      | **Sarah Chen**      | Security Engineer             | HealthTech Solutions          | 48-hour SBOM deadline                 |
+| S07      | **David Kim**       | Solutions Architect           | TechVentures Ltd              | Design review in 2 hours              |
+| S08      | **Alex Petrov**     | Cloud Operations Engineer     | InfraScale Solutions          | 24-hour monitoring deadline           |
+| S09      | **Kai Nakamura**    | Platform Engineer             | CloudBridge Partners          | Terraform estate migration to agentic |
 
 ---
 
@@ -139,8 +140,25 @@ Watch how Python and Copilot save his design review."
 - **Pain Point**: More work than hours, need async help
 - **Success Metric**: Monitoring implemented while focusing on other priorities
 
-**Demo Hook**: "Alex has 24 hours and a list of 10 tasks. The coding agent
+**Demo Hook**: "Alex's presentation is in 24 hours and a list of 10 tasks. The coding agent
 can work on monitoring while Alex handles the deployment pipeline."
+
+---
+
+### Kai Nakamura (S09 - Terraform Dual-Track)
+
+> _"We have 200+ Terraform modules across 40 Azure subscriptions.
+> The team wants Copilot-assisted infrastructure, but they won't give up HCL.
+> Show me it works with Terraform — not just Bicep."_
+
+- **Background**: Platform Engineer, multi-cloud Terraform estate at an SI partner
+- **Motivation**: Adopt agentic workflows without rewriting existing HCL modules
+- **Pain Point**: Team resistance to Bicep, existing Terraform investment too large to abandon
+- **Success Metric**: End-to-end Terraform workflow from requirements to deployment in < 1 hour
+
+**Demo Hook**: "Kai's team writes Terraform. Period. They've heard about Agentic InfraOps
+but assumed it's Bicep-only. Today, Kai discovers the dual-track workflow — and the Terraform
+agents feel like they were built for teams exactly like theirs."
 
 ---
 
@@ -155,14 +173,15 @@ can work on monitoring while Alex handles the deployment pipeline."
 
 ### Character Selection by Audience
 
-| Audience             | Recommended Characters  | Why                          |
-| -------------------- | ----------------------- | ---------------------------- |
-| Infrastructure Teams | Elena, Maya, Alex       | Relatable daily challenges   |
-| Architects           | Jennifer, David         | Strategic design focus       |
-| Security/Compliance  | Sarah                   | Regulatory pressure          |
-| Technical Writers    | Priya                   | Documentation transformation |
-| QA/Testing           | Marcus                  | Validation mindset           |
-| Executives           | Any (use time savings)  | ROI focus                    |
+| Audience             | Recommended Characters | Why                          |
+| -------------------- | ---------------------- | ---------------------------- |
+| Infrastructure Teams | Elena, Maya, Alex      | Relatable daily challenges   |
+| Architects           | Jennifer, David        | Strategic design focus       |
+| Security/Compliance  | Sarah                  | Regulatory pressure          |
+| Technical Writers    | Priya                  | Documentation transformation |
+| QA/Testing           | Marcus                 | Validation mindset           |
+| Terraform Teams      | Kai                    | Proves dual-track value      |
+| Executives           | Any (use time savings) | ROI focus                    |
 
 ### Connecting Characters
 
@@ -186,6 +205,7 @@ Some characters can reference each other for continuity:
 | Sarah Chen      | 2-3 days    | 75 min       | 95%     |
 | David Kim       | 2-3 hours   | 20 min       | 85%     |
 | Alex Petrov     | 8 hours     | 30 min       | 94%     |
+| Kai Nakamura    | 12 hours    | 45 min       | 94%     |
 
 ---
 

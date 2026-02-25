@@ -23,8 +23,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Troubleshooting guides
 
 3. **Best Practices**
-   - Bicep patterns and templates
-   - Azure Verified Module usage examples
+   - Bicep and Terraform patterns and templates
+   - Azure Verified Module usage examples (Bicep and AVM-TF)
    - Security and compliance guidance
 
 ## 📋 Contribution Guidelines
@@ -51,6 +51,16 @@ Contributions land via pull requests with required checks and review.
 // Include parameter descriptions
 // Add output values
 // Follow Azure naming best practices
+```
+
+**Terraform:**
+
+```hcl
+# Use consistent naming conventions (CAF)
+# Variables in variables.tf with descriptions and validation
+# Outputs in outputs.tf
+# AVM-TF modules preferred over raw resources
+# Provider pinned to ~> 4.0 (AzureRM)
 ```
 
 ### Documentation Standards
@@ -99,6 +109,7 @@ git checkout -b fix/issue-description
 
 - Follow the guidelines above
 - Test any Bicep changes with `bicep build` and `bicep lint`
+- Test any Terraform changes with `terraform fmt -check`, `terraform validate`, and `npm run validate:terraform`
 - Validate markdown and links with `npm run lint:md` and `npm run lint:links`
 
 For the full local-to-PR flow, see:
@@ -199,6 +210,8 @@ Before submitting:
 - [ ] Documentation updated if needed
 - [ ] Markdown files pass linting (`npm run lint:md`)
 - [ ] Docs links pass checks (`npm run lint:links`)
+- [ ] Bicep templates validate (`bicep build` + `bicep lint`) if applicable
+- [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
 

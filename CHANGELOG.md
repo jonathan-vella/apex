@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(terraform): add full Terraform IaC track — Planner (`05t`), Code Generator (`06t`), and
+  Deploy (`07t`) agents.
+- feat(terraform): add Terraform lint, review, and plan subagents.
+- feat(terraform): add Terraform routing to Conductor and IaC-track selection to Requirements
+  agent.
+- feat(quality): add Terraform quality gates, CI workflow, and IaC-neutral artifact templates.
+- feat(instructions): add Terraform code best-practices and policy-compliance instruction files
+  plus dual-field governance support.
+- feat(skills): add `terraform-patterns` skill with AVM-TF module patterns and known pitfalls.
+- feat(agents): add `10-challenger.agent.md` — adversarial governance challenger that stress-tests
+  architecture decisions against WAF and Azure Policy.
+- feat(devcontainer): add Terraform toolchain, `terraform-mcp-server` (Go binary), and git config.
+- feat(devcontainer): add `post-start.sh` for automatic tool updates (`checkov`, `ruff`, `diagrams`)
+  via `uv` on container start.
+- feat(mcp): add GitHub and Microsoft Learn remote MCP servers (#170).
+- feat(scripts): add instruction cross-reference validation (`validate:instruction-refs`).
+- docs(agents): add root `AGENTS.md`, `infra/bicep/AGENTS.md`, and `infra/terraform/AGENTS.md`
+  as cross-agent convention sources.
 - feat(pricing-mcp): release Azure Pricing MCP v4.0 improvements.
 - feat(azure-pricing-mcp): release v4.1.0 with error boundaries, bulk concurrency, cache stats,
   and lint cleanup (#150).
@@ -17,6 +35,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- chore(agents): rename and renumber all agents with consistent numeric prefixes; remove
+  `workflow-generator` outputs.
+- refactor(tf-dev): refine Terraform subagents, Conductor routing, and phase prompts.
+- refactor(instructions): consolidate styling rules into `azure-artifacts` SKILL.md as single
+  source of truth.
+- refactor(instructions): consolidate tag rules into `bicep-code-best-practices` as single source.
+- refactor(instructions): delete `thought-logging`, slim meta instruction files, trim oversized
+  scripting and review files, and rename three files for consistency.
+- docs(prompts): update `git-commit-push` prompt — model target, frontmatter, and MCP tool name
+  format (`github/tool_name`).
+- docs(readme): simplify README, add Challenger to workflow diagram, add related repos section.
+- ci(tf-dev): add merge gate blocking `tf-dev → main` until all Terraform phases are complete.
+- ci: add Python setup and `ruff` to `policy-compliance-check` workflow.
+- chore(docs): remove entire `docs/tf-support/` planning folder and `docs/terraform-roadmap.md`
+  now that Terraform support is fully integrated.
+- style: apply formatter and linter fixes and table alignment across instructions, agents, docs,
+  and scripts.
 - refactor(azure-mcp): migrate from `vscode-azure-github-copilot` to
   `vscode-azure-mcp-server` (#143).
 - refactor(conductor): update InfraOps Conductor prompts and tool usage (#146, #147).
@@ -26,9 +61,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(governance): normalize instruction links and skill frontmatter.
 - chore(ci): tighten VS Code extension drift policy and MCP setup checks.
 - chore(sync): sync source-of-truth and pricing delegation updates.
+- chore(deps): bump `npm_and_yarn` dependency group.
 
 ### Fixed
 
+- fix(devcontainer): correct `terraform-mcp-server` binary path to `/go/bin`; switch from Docker
+  to Go binary.
+- fix(mcp): use `--toolsets registry` flag to suppress TFE token errors on startup.
+- fix(agents): expand tools list in Challenger agent frontmatter (#168).
+- fix(agents): enforce subagent delegation, tighten `agents` arrays, add workspace settings (#166).
+- fix(agents): add `agent` tool to `10-challenger.agent.md` tools list.
+- fix: resolve pre-existing validation failures for a clean `validate:all` run.
 - fix(azure-pricing-mcp): align bulk estimate formatter with indices response shape (#151).
 - fix(actions): switch deprecation tracker automation to PR flow (#155).
 - fix(mcp): correct healthcheck behavior and remove unused dependencies.
