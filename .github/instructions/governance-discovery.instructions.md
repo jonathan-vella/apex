@@ -1,5 +1,5 @@
 ---
-applyTo: "**/04-governance-constraints.md, **/04-governance-constraints.json, **/*.bicep"
+applyTo: "**/04-governance-constraints.md, **/04-governance-constraints.json, **/*.bicep, **/*.tf"
 description: "MANDATORY Azure Policy discovery requirements for governance constraints"
 ---
 
@@ -193,8 +193,10 @@ to the Code Generator and review subagent:
 2. **`bicep-review-subagent`** (Governance Compliance checklist) reads
    `04-governance-constraints.md` and verifies every Deny policy constraint
    is satisfied in the generated templates
-3. Both downstream consumers require `bicepPropertyPath` and `requiredValue`
-   fields in the JSON — without these, programmatic verification is impossible
+3. Both downstream consumers require `bicepPropertyPath`, `azurePropertyPath`, and
+   `requiredValue` fields in the JSON — without these, programmatic verification is
+   impossible. `azurePropertyPath` enables IaC-tool-agnostic consumption (Terraform,
+   Pulumi) while `bicepPropertyPath` preserves Bicep-specific compatibility.
 
 See `.github/instructions/bicep-policy-compliance.instructions.md` for the
 full enforcement mandate.

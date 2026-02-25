@@ -241,6 +241,100 @@ Known issues when using AVM modules — verify before coding:
 
 ---
 
+## Terraform Conventions
+
+### AVM-TF Registry Lookup
+
+Find the latest AVM-TF module version before generating code:
+
+```text
+// Use Terraform MCP tool:
+mcp_terraform_get_latest_module_version → registry.terraform.io/modules/Azure/{module}/azurerm
+
+// Or browse: https://registry.terraform.io/modules/Azure
+```
+
+### Tag Syntax (HCL)
+
+```hcl
+# locals.tf — merge baseline tags with caller-supplied extras
+locals {
+  tags = merge(var.tags, {
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    Project     = var.project
+    Owner       = var.owner
+  })
+}
+```
+
+### Required Commands
+
+```bash
+# Format all .tf files before committing
+terraform fmt -recursive
+
+# Validate syntax and provider schema
+terraform validate
+
+# Preview changes before applying
+terraform plan -out=plan.tfplan
+```
+
+### State Backend
+
+Use Azure Storage Account for all remote state. **Never** use HCP Terraform Cloud:
+
+```hcl
+# backend.tf
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg-tfstate-prod"
+    storage_account_name = "sttfstate{suffix}"
+    container_name       = "tfstate"
+    key                  = "{project}.terraform.tfstate"
+  }
+}
+```
+
+### Unique Suffix
+
+Generate once per root module, pass to all child modules:
+
+```hcl
+resource "random_string" "suffix" {
+  length  = 4
+  lower   = true
+  numeric = true
+  special = false
+}
+```
+
+---
+
+## Common AVM-TF Modules
+
+| Resource               | Bicep AVM                                                | Terraform AVM                                                          |
+| ---------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Key Vault              | `br/public:avm/res/key-vault/vault`                      | `Azure/avm-res-keyvault-vault/azurerm`                                 |
+| Storage Account        | `br/public:avm/res/storage/storage-account`              | `Azure/avm-res-storage-storageaccount/azurerm`                         |
+| Virtual Network        | `br/public:avm/res/network/virtual-network`              | `Azure/avm-res-network-virtualnetwork/azurerm`                         |
+| App Service Plan       | `br/public:avm/res/web/serverfarm`                       | `Azure/avm-res-web-serverfarm/azurerm`                                 |
+| Web App                | `br/public:avm/res/web/site`                             | `Azure/avm-res-web-site/azurerm`                                       |
+| Container Registry     | `br/public:avm/res/container-registry/registry`          | `Azure/avm-res-containerregistry-registry/azurerm`                     |
+| AKS                    | `br/public:avm/res/container-service/managed-cluster`    | `Azure/avm-res-containerservice-managedcluster/azurerm`                |
+| SQL Database           | `br/public:avm/res/sql/server`                           | `Azure/avm-res-sql-server/azurerm`                                     |
+| Cosmos DB              | `br/public:avm/res/document-db/database-account`         | `Azure/avm-res-documentdb-databaseaccount/azurerm`                     |
+| Service Bus            | `br/public:avm/res/service-bus/namespace`                | `Azure/avm-res-servicebus-namespace/azurerm`                           |
+| Event Hub              | `br/public:avm/res/event-hub/namespace`                  | `Azure/avm-res-eventhub-namespace/azurerm`                             |
+| Log Analytics          | `br/public:avm/res/operational-insights/workspace`       | `Azure/avm-res-operationalinsights-workspace/azurerm`                  |
+| App Insights           | `br/public:avm/res/insights/component`                   | `Azure/avm-res-insights-component/azurerm`                             |
+| Private DNS Zone       | `br/public:avm/res/network/private-dns-zone`             | `Azure/avm-res-network-privatednszones/azurerm`                        |
+| User-Assigned Identity | `br/public:avm/res/managed-identity/user-assigned-identity` | `Azure/avm-res-managedidentity-userassignedidentity/azurerm`        |
+| API Management         | `br/public:avm/res/api-management/service`               | `Azure/avm-res-apimanagement-service/azurerm`                          |
+
+---
+
 ## WAF Assessment Criteria
 
 ### Scoring Scale
@@ -463,9 +557,11 @@ Before creating implementation plans, discover active policies:
 ### Common Policy Constraints
 
 > [!NOTE]
-> The governance constraints JSON output schema must include `bicepPropertyPath` and
-> `requiredValue` fields for each Deny policy to enable downstream programmatic consumption
-> by the Code Generator and review subagent.
+> The governance constraints JSON output schema must include `bicepPropertyPath`,
+> `azurePropertyPath`, and `requiredValue` fields for each Deny policy to enable
+> downstream programmatic consumption by the Code Generator and review subagent.
+> `azurePropertyPath` follows the Azure REST API resource property path (dot-separated,
+> resource type camelCase first) and enables IaC-tool-agnostic enforcement.
 
 | Policy             | Impact                          | Solution                              |
 | ------------------ | ------------------------------- | ------------------------------------- |
