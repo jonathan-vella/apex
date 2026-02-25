@@ -1,7 +1,13 @@
 ---
-mode: agent
+agent: agent
+model: "Claude Haiku 4.5"
+description: "Stage changes, create a conventional commit, push to the current branch, and optionally open a pull request to main using the GitHub MCP server."
+argument-hint: "Provide a commit message or leave blank to auto-generate from the diff."
 tools:
-  - run_in_terminal
+  - execute/runInTerminal
+  - read
+  - search/codebase
+  - vscode/askQuestions
   - github/get_file_contents
   - github/search_pull_requests
   - github/create_pull_request
