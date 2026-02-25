@@ -1,6 +1,6 @@
 ---
 name: 01-Conductor
-description: Master orchestrator for the 7-step Azure infrastructure workflow. Coordinates specialized agents (Requirements, Architect, Design, Bicep Plan, Bicep Code, Deploy) through the complete development cycle with mandatory human approval gates. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
+description: Master orchestrator for the 7-step Azure infrastructure workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
 model: ["Claude Opus 4.6"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invokable: true
@@ -15,6 +15,9 @@ agents:
     "08-As-Built",
     "09-Diagnose",
     "10-Challenger",
+    "11-Terraform Planner",
+    "12-Terraform Code Generator",
+    "13-Terraform Deploy",
   ]
 tools:
   [
@@ -164,6 +167,20 @@ handoffs:
     agent: 09-Diagnose
     prompt: "Troubleshoot issues with the current workflow or Azure resources."
     send: false
+  - label: "Step 4: IaC Plan (Terraform)"
+    agent: 11-Terraform Planner
+    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Save `agent-output/{project}/04-implementation-plan.md` plus mandatory Step 4 diagrams: `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
+    send: true
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "Step 5: Generate Terraform"
+    agent: 12-Terraform Code Generator
+    prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Proceed directly to completion - Deploy agent will validate."
+    send: true
+  - label: "Step 6: Deploy (Terraform)"
+    agent: 13-Terraform Deploy
+    prompt: "Deploy the Terraform configuration in `infra/terraform/{project}/` to Azure after preflight validation. Check `agent-output/{project}/04-implementation-plan.md` for deployment strategy."
+    send: false
+    model: "GPT-5.3-Codex (copilot)"
 ---
 
 # InfraOps Conductor Agent
@@ -209,13 +226,25 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 Step 1: Requirements    →  [APPROVAL GATE]  →  01-requirements.md
 Step 2: Architecture    →  [APPROVAL GATE]  →  02-architecture-assessment.md
 Step 3: Design (opt)    →                   →  03-des-*.md/py
-Step 4: Planning        →  [APPROVAL GATE]  →  04-implementation-plan.md + 04-dependency-diagram.* + 04-runtime-diagram.*
-Step 5: Implementation  →  [VALIDATION]     →  infra/bicep/{project}/
+Step 4: IaC Plan        →  [APPROVAL GATE]  →  04-implementation-plan.md + 04-dependency-diagram.* + 04-runtime-diagram.*
+Step 5: IaC Code        →  [VALIDATION]     →  infra/bicep/{project}/ or infra/terraform/{project}/
 Step 6: Deploy          →  [APPROVAL GATE]  →  06-deployment-summary.md
 Step 7: Documentation   →                   →  07-*.md
 ```
 
 ## Mandatory Approval Gates
+
+### IaC Routing Logic
+
+Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing Steps 4-6:
+
+| `iac_tool` value | Step 4 Agent         | Step 5 Agent                 | Step 6 Agent      |
+| ---------------- | -------------------- | ---------------------------- | ----------------- |
+| `Bicep` (default)| `05-Bicep Planner`   | `06-Bicep Code Generator`    | `07-Deploy`       |
+| `Terraform`      | `11-Terraform Planner` | `12-Terraform Code Generator` | `13-Terraform Deploy` |
+
+> If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
+> "Should I use **Bicep** or **Terraform**?" (default: Bicep). Do NOT ask in any other scenario.
 
 ### Gate 1: After Requirements
 
@@ -250,15 +279,15 @@ Governance: agent-output/{project}/04-governance-constraints.md
 Dependency Diagram: agent-output/{project}/04-dependency-diagram.py/.png
 Runtime Diagram: agent-output/{project}/04-runtime-diagram.py/.png
 Deployment: {Phased (N phases) | Single}
-✅ Next: Bicep Implementation (Step 5)
+✅ Next: IaC Implementation (Step 5)
 ❓ Review plan and confirm to proceed
 ```
 
 ### Gate 4: After Implementation
 
 ```text
-🔍 BICEP IMPLEMENTATION COMPLETE
-Templates: infra/bicep/{project}/
+🔍 IMPLEMENTATION COMPLETE
+Templates: infra/bicep/{project}/ (Bicep) or infra/terraform/{project}/ (Terraform)
 Reference: agent-output/{project}/05-implementation-reference.md
 ✅ Next: Azure Deployment (Step 6)
 ❓ Confirm to deploy (Deploy agent runs preflight automatically)
@@ -277,15 +306,20 @@ Summary: agent-output/{project}/06-deployment-summary.md
 
 Use `#runSubagent` for each workflow step:
 
-| Step | Agent        | Key Prompt                                                                   |
-| ---- | ------------ | ---------------------------------------------------------------------------- |
-| 1    | Requirements | Start business-first requirements discovery for {project}                    |
-| 2    | Architect    | Create WAF assessment for requirements in 01-requirements.md                 |
-| 3    | Design       | Generate architecture diagrams and ADRs (optional)                           |
-| 4    | Bicep Plan   | Create implementation plan for architecture in 02-architecture-assessment.md |
-| 5    | Bicep Code   | Implement Bicep templates per 04-implementation-plan.md                      |
-| 6    | Deploy       | Deploy templates in infra/bicep/{project}/ to Azure                          |
-| 7    | As-Built     | Generate workload documentation for deployed infrastructure                  |
+| Step | Agent               | Key Prompt                                                                              |
+| ---- | ------------------- | --------------------------------------------------------------------------------------- |
+| 1    | Requirements        | Start business-first requirements discovery for {project}                               |
+| 2    | Architect           | Create WAF assessment for requirements in 01-requirements.md                            |
+| 3    | Design              | Generate architecture diagrams and ADRs (optional)                                      |
+| 4    | Bicep Plan          | Create implementation plan for architecture in 02-architecture-assessment.md            |
+| 5    | Bicep Code          | Implement Bicep templates per 04-implementation-plan.md                                 |
+| 6    | Deploy              | Deploy templates in infra/bicep/{project}/ to Azure                                    |
+| 7    | As-Built            | Generate workload documentation for deployed infrastructure                              |
+| 4†   | Terraform Planner   | Create Terraform implementation plan for architecture in 02-architecture-assessment.md  |
+| 5†   | Terraform Code Gen  | Implement Terraform configuration per 04-implementation-plan.md                         |
+| 6†   | Terraform Deploy    | Deploy Terraform config in infra/terraform/{project}/ to Azure                         |
+
+† Terraform path — used when `iac_tool: Terraform` in `01-requirements.md`.
 
 ### Subagent Integration
 
@@ -299,9 +333,15 @@ Subagents are wired into their parent agents automatically:
 | `cost-estimate-subagent`        | Architect    | Step 2 — pricing isolation + accuracy validation |
 | `cost-estimate-subagent`        | As-Built     | Step 7 — as-built pricing for deployed SKUs      |
 | `governance-discovery-subagent` | Bicep Plan   | Step 4 — policy discovery gate                   |
+| `governance-discovery-subagent` | Terraform Planner | Step 4† — policy discovery gate             |
 | `bicep-lint-subagent`           | Bicep Code   | Step 5 Phase 4 — syntax check                    |
 | `bicep-review-subagent`         | Bicep Code   | Step 5 Phase 4 — code review                     |
 | `bicep-whatif-subagent`         | Deploy       | Step 6 — deployment preview                      |
+| `terraform-lint-subagent`       | Terraform Code Gen | Step 5† — syntax + format check            |
+| `terraform-review-subagent`     | Terraform Code Gen | Step 5† — AVM-TF + security review          |
+| `terraform-plan-subagent`       | Terraform Deploy   | Step 6† — deployment preview                |
+
+† Terraform path only.
 
 > [!NOTE]
 > **Pricing Accuracy Gate (Steps 2 & 7)**: No agent writes dollar figures from
@@ -340,7 +380,8 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
 | 4    | `04-governance-constraints.md`      | Governance checked? |
 | 4    | `04-dependency-diagram.py` / `.png` | Generated?          |
 | 4    | `04-runtime-diagram.py` / `.png`    | Generated?          |
-| 5    | `infra/bicep/{project}/`            | Templates valid?    |
+| 5    | `infra/bicep/{project}/`            | Templates valid? (Bicep path)     |
+| 5    | `infra/terraform/{project}/`        | Configuration valid? (Terraform path) |
 | 6    | `06-deployment-summary.md`          | Deployed?           |
 | 7    | `07-*.md`                           | Docs generated?     |
 
@@ -352,6 +393,9 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
 | Architect    | Opus 4.6                 | WAF analysis + cost  |
 | Bicep Plan   | Opus 4.6                 | Efficient planning   |
 | Bicep Code   | Opus 4.6 / GPT-5.3-Codex | Code generation      |
+| Terraform Planner | Opus 4.6            | Efficient planning   |
+| Terraform Code Gen | Opus 4.6 / GPT-5.3-Codex | Code generation |
 | Deploy       | GPT-5.3-Codex            | Deployment execution |
+| Terraform Deploy | GPT-5.3-Codex        | Deployment execution |
 | As-Built     | GPT-5.3-Codex            | Documentation gen    |
 | Subagents    | GPT-5.3-Codex            | Fast validation      |

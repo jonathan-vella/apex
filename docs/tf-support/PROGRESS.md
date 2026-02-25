@@ -1,17 +1,17 @@
 ---
 # MACHINE STATE — Copilot reads this at session start and updates at session end
-active_phase: 4
+active_phase: 5
 phase_0_complete: true
 phase_1_complete: true
 phase_2_complete: true
 phase_3_complete: true
-phase_4_complete: false
+phase_4_complete: true
 phase_5_complete: false
 phase_6_complete: false
 phase_7_complete: false
 last_session: "2026-02-25"
 last_contributor: "GitHub Copilot"
-session_count: 5
+session_count: 6
 blocking_issues: []
 ---
 
@@ -29,7 +29,7 @@ blocking_issues: []
 | 1     | Instructions, Skills & Governance | 6     | 6    | ✅ Complete    |
 | 2     | Agents (Core)                     | 3     | 3    | ✅ Complete    |
 | 3     | Subagents                         | 3     | 3    | ✅ Complete    |
-| 4     | Conductor & Requirements          | 3     | 0    | ⬜ Not started |
+| 4     | Conductor & Requirements          | 3     | 3    | ✅ Complete    |
 | 5     | Quality Gates & Automation        | 7     | 0    | ⬜ Not started |
 | 6     | Governance Migration (deferrable) | 1     | 0    | ⬜ Deferred    |
 | 7     | Documentation & Housekeeping      | 3     | 0    | ⬜ Not started |
@@ -68,9 +68,9 @@ blocking_issues: []
 
 ## Phase 4 — Conductor & Requirements
 
-- [ ] `4.21` Modify `02-requirements.agent.md` — add `iac_tool` field
-- [ ] `4.22` Modify `01-conductor.agent.md` — add Terraform routing, 3 new agents/handoffs
-- [ ] `4.23` Modify `03-architect.agent.md` — add `iac_tool` awareness
+- [x] `4.21` Modify `02-requirements.agent.md` — add `iac_tool` field
+- [x] `4.22` Modify `01-conductor.agent.md` — add Terraform routing, 3 new agents/handoffs
+- [x] `4.23` Modify `03-architect.agent.md` — add `iac_tool` awareness
 
 ## Phase 5 — Quality Gates & Automation
 
