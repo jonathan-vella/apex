@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 3 — Subagents. Creates terraform-lint-subagent, terraform-review-subagent, and terraform-plan-subagent.
 ---
 

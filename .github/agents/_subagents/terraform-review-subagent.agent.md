@@ -5,13 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools:
-  [
-    read,
-    search,
-    web,
-    "azure-mcp/*",
-  ]
+tools: [read, search, web, "azure-mcp/*"]
 ---
 
 # Terraform Review Subagent
@@ -70,15 +64,16 @@ Recommendation: {specific next action}
 
 ### 1. Azure Verified Modules — AVM-TF
 
-| Check                      | Severity | Details                                                        |
-| -------------------------- | -------- | -------------------------------------------------------------- |
-| Uses AVM-TF modules        | HIGH     | All resources use `Azure/avm-res-*/azurerm` registry modules   |
-| AVM version pinned         | MEDIUM   | Version constraint present (e.g. `version = "~> 0.1"`)        |
-| Parameters match AVM spec  | HIGH     | Required inputs are provided, no unknown attributes            |
+| Check                     | Severity | Details                                                      |
+| ------------------------- | -------- | ------------------------------------------------------------ |
+| Uses AVM-TF modules       | HIGH     | All resources use `Azure/avm-res-*/azurerm` registry modules |
+| AVM version pinned        | MEDIUM   | Version constraint present (e.g. `version = "~> 0.1"`)       |
+| Parameters match AVM spec | HIGH     | Required inputs are provided, no unknown attributes          |
 
 **AVM-TF Registry Pattern**: `registry.terraform.io/Azure/avm-res-{rp}-{resource}/azurerm`
 
 Examples:
+
 - Key Vault: `Azure/avm-res-keyvault-vault/azurerm`
 - Virtual Network: `Azure/avm-res-network-virtualnetwork/azurerm`
 - Storage Account: `Azure/avm-res-storage-storageaccount/azurerm`
@@ -86,13 +81,13 @@ Examples:
 
 ### 2. CAF Naming Conventions
 
-| Check            | Pattern                                          | Example                   |
-| ---------------- | ------------------------------------------------ | ------------------------- |
-| Resource groups  | `rg-{workload}-{env}-{region}`                   | `rg-ecommerce-prod-swc`   |
-| Key Vault        | `kv-{short}-{env}-{suffix}` (≤24 chars)          | `kv-app-dev-a1b2c3`       |
-| Storage Account  | `st{short}{env}{suffix}` (≤24 chars, no hyphens) | `stappdevswca1b2c3`       |
-| Virtual Network  | `vnet-{workload}-{env}-{region}`                 | `vnet-hub-prod-swc`       |
-| `random_string`  | Used for unique suffix, keepers set              | `resource.suffix.result`  |
+| Check           | Pattern                                          | Example                  |
+| --------------- | ------------------------------------------------ | ------------------------ |
+| Resource groups | `rg-{workload}-{env}-{region}`                   | `rg-ecommerce-prod-swc`  |
+| Key Vault       | `kv-{short}-{env}-{suffix}` (≤24 chars)          | `kv-app-dev-a1b2c3`      |
+| Storage Account | `st{short}{env}{suffix}` (≤24 chars, no hyphens) | `stappdevswca1b2c3`      |
+| Virtual Network | `vnet-{workload}-{env}-{region}`                 | `vnet-hub-prod-swc`      |
+| `random_string` | Used for unique suffix, keepers set              | `resource.suffix.result` |
 
 ### 3. Required Tags
 
@@ -109,32 +104,32 @@ tags = {
 
 ### 4. Security Baseline
 
-| Check                       | Required Value                  | Severity |
-| --------------------------- | ------------------------------- | -------- |
-| Storage HTTPS-only          | `https_traffic_only_enabled = true` | CRITICAL |
-| Minimum TLS version         | `min_tls_version = "TLS1_2"`   | CRITICAL |
-| Storage no public blob      | `blob_properties { public_access_enabled = false }` | CRITICAL |
-| SQL Azure AD-only auth      | `azuread_authentication_only = true` | HIGH |
-| Managed identity preferred  | `identity { type = "SystemAssigned" }` | HIGH |
-| No inline secrets           | Use Key Vault references, not plaintext | CRITICAL |
+| Check                      | Required Value                                      | Severity |
+| -------------------------- | --------------------------------------------------- | -------- |
+| Storage HTTPS-only         | `https_traffic_only_enabled = true`                 | CRITICAL |
+| Minimum TLS version        | `min_tls_version = "TLS1_2"`                        | CRITICAL |
+| Storage no public blob     | `blob_properties { public_access_enabled = false }` | CRITICAL |
+| SQL Azure AD-only auth     | `azuread_authentication_only = true`                | HIGH     |
+| Managed identity preferred | `identity { type = "SystemAssigned" }`              | HIGH     |
+| No inline secrets          | Use Key Vault references, not plaintext             | CRITICAL |
 
 ### 5. Unique Resource Names
 
-| Check                   | Details                                                        |
-| ----------------------- | -------------------------------------------------------------- |
-| `random_string` usage   | Declared once, `keepers` map set to prevent unexpected changes |
-| Suffix integration      | `"${var.prefix}-${random_string.suffix.result}"`               |
-| Length constraints      | Key Vault ≤24, Storage ≤24 chars (no hyphens)                  |
+| Check                 | Details                                                        |
+| --------------------- | -------------------------------------------------------------- |
+| `random_string` usage | Declared once, `keepers` map set to prevent unexpected changes |
+| Suffix integration    | `"${var.prefix}-${random_string.suffix.result}"`               |
+| Length constraints    | Key Vault ≤24, Storage ≤24 chars (no hyphens)                  |
 
 ### 6. Code Quality
 
-| Check                       | Severity | Details                                          |
-| --------------------------- | -------- | ------------------------------------------------ |
-| `description` on variables  | MEDIUM   | All `variable` blocks have `description`         |
-| Module organization         | LOW      | Logical split across files (main, variables, outputs, providers) |
-| No hardcoded values         | HIGH     | Use variables for all configurable values        |
-| Outputs defined             | MEDIUM   | Expose resource IDs and endpoints as `output`    |
-| `terraform fmt` clean       | LOW      | No format drift (validated by lint subagent)     |
+| Check                      | Severity | Details                                                          |
+| -------------------------- | -------- | ---------------------------------------------------------------- |
+| `description` on variables | MEDIUM   | All `variable` blocks have `description`                         |
+| Module organization        | LOW      | Logical split across files (main, variables, outputs, providers) |
+| No hardcoded values        | HIGH     | Use variables for all configurable values                        |
+| Outputs defined            | MEDIUM   | Expose resource IDs and endpoints as `output`                    |
+| `terraform fmt` clean      | LOW      | No format drift (validated by lint subagent)                     |
 
 ### 7. Governance Compliance
 
@@ -143,16 +138,17 @@ tags = {
 > If the path is not provided, request it before proceeding. Read `04-governance-constraints.json`
 > from `agent-output/{project}/` and translate `azurePropertyPath` entries to Terraform attributes.
 
-| Check                            | Severity | Details                                                                      |
-| -------------------------------- | -------- | ---------------------------------------------------------------------------- |
-| Tag count matches governance     | HIGH     | Tags MUST include all governance-mandated tags, not just the 4 defaults      |
-| Deny policies satisfied          | CRITICAL | Every `Deny` effect policy is addressed via `azurePropertyPath` translation  |
-| `public_network_access_enabled`  | HIGH     | Verify value matches network policies from governance constraints            |
-| `network_rules` configured       | HIGH     | Verify network rules match governance network policy requirements            |
-| SKU restrictions respected       | HIGH     | Verify `sku_name` / `sku_tier` comply with SKU restriction policies          |
-| Security settings compliant      | CRITICAL | Verify TLS, HTTPS, auth settings match security policy requirements          |
+| Check                           | Severity | Details                                                                     |
+| ------------------------------- | -------- | --------------------------------------------------------------------------- |
+| Tag count matches governance    | HIGH     | Tags MUST include all governance-mandated tags, not just the 4 defaults     |
+| Deny policies satisfied         | CRITICAL | Every `Deny` effect policy is addressed via `azurePropertyPath` translation |
+| `public_network_access_enabled` | HIGH     | Verify value matches network policies from governance constraints           |
+| `network_rules` configured      | HIGH     | Verify network rules match governance network policy requirements           |
+| SKU restrictions respected      | HIGH     | Verify `sku_name` / `sku_tier` comply with SKU restriction policies         |
+| Security settings compliant     | CRITICAL | Verify TLS, HTTPS, auth settings match security policy requirements         |
 
 **`azurePropertyPath` → Terraform Attribute Translation Examples**:
+
 - `properties.minimumTlsVersion` → `min_tls_version`
 - `properties.supportsHttpsTrafficOnly` → `https_traffic_only_enabled`
 - `properties.publicNetworkAccess` → `public_network_access_enabled`
@@ -171,11 +167,11 @@ A configuration CANNOT pass review with unresolved policy violations.
 
 ## Verdict Interpretation
 
-| Issues Found             | Verdict        | Next Step                               |
-| ------------------------ | -------------- | --------------------------------------- |
-| No critical/high issues  | APPROVED       | Proceed to terraform plan               |
-| High issues only         | NEEDS_REVISION | Return to Terraform Code agent for fixes |
-| Any critical issues      | FAILED         | Stop — human intervention required      |
+| Issues Found            | Verdict        | Next Step                                |
+| ----------------------- | -------------- | ---------------------------------------- |
+| No critical/high issues | APPROVED       | Proceed to terraform plan                |
+| High issues only        | NEEDS_REVISION | Return to Terraform Code agent for fixes |
+| Any critical issues     | FAILED         | Stop — human intervention required       |
 
 ## Example Review
 

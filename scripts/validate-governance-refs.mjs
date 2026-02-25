@@ -174,10 +174,7 @@ check(
   "Has Phase 1.5: Governance Compliance Mapping",
   fileContains(tfCodeGenPath, "Phase 1.5"),
 );
-check(
-  "Phase 1.5 is a HARD GATE",
-  fileContains(tfCodeGenPath, "HARD GATE"),
-);
+check("Phase 1.5 is a HARD GATE", fileContains(tfCodeGenPath, "HARD GATE"));
 check(
   "References 04-governance-constraints.json",
   fileContains(tfCodeGenPath, "04-governance-constraints.json"),

@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 6 — Governance Property Migration (Bicep side, deferrable). Migrates existing Bicep agents from bicepPropertyPath to azurePropertyPath. Only start after Phases 0-5 are proven working.
 ---
 
@@ -29,6 +29,7 @@ description: Implements Phase 6 — Governance Property Migration (Bicep side, d
 ### 6.31a — `06-bicep-code-generator.agent.md`
 
 Find Phase 1.5 (Governance Compliance Mapping). Update it to:
+
 - READ `azurePropertyPath` as primary field
 - FALLBACK to `bicepPropertyPath` if `azurePropertyPath` not present (backward compat)
 - Translate `azurePropertyPath` to Bicep resource property path:
@@ -37,11 +38,13 @@ Find Phase 1.5 (Governance Compliance Mapping). Update it to:
 ### 6.31b — `bicep-review-subagent.agent.md`
 
 Find section 7 (Governance compliance). Update references from:
+
 - `bicepPropertyPath` → `azurePropertyPath` (with `bicepPropertyPath` as fallback)
 
 ### 6.31c — `validate-governance-refs.mjs`
 
 Update the existing Bicep check groups:
+
 - Change checks that strictly require `bicepPropertyPath` to accept `azurePropertyPath` as primary
 - Only warn (not fail) if only `bicepPropertyPath` is present (backward compat)
 - Add a check that `governance-discovery-subagent` produces `azurePropertyPath`
@@ -49,6 +52,7 @@ Update the existing Bicep check groups:
 ### 6.31d — Update existing governance constraint files
 
 For any `04-governance-constraints.json` in `agent-output/`:
+
 ```bash
 find agent-output/ -name "04-governance-constraints.json"
 ```
@@ -71,6 +75,7 @@ npm run validate:all
 ```
 
 Also test both flows end-to-end at least conceptually:
+
 - Bicep: governance-discovery → produces both fields → bicep-code-gen reads azurePropertyPath ✓
 - Terraform: governance-discovery → produces both fields → terraform-code-gen reads azurePropertyPath ✓
 

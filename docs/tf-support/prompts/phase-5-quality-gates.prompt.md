@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 5 — Quality Gates & Automation. Adds Terraform lefthook hooks, npm scripts, extended governance validator, CI workflows, and IaC-neutral artifact templates.
 ---
 
@@ -145,6 +145,7 @@ jobs:
 ## Item 5.28 — Extend `policy-compliance-check.yml`
 
 Find the `on: pull_request: paths:` trigger. Add paths:
+
 ```yaml
 - ".github/agents/11-terraform-planner.agent.md"
 - ".github/agents/12-terraform-code-generator.agent.md"
@@ -161,6 +162,7 @@ Find and replace `## 📁 Bicep Templates Location` → `## 📁 IaC Templates L
 3. `.github/agents/06-bicep-code-generator.agent.md` — in Phase 4 output instructions
 
 Run the h2-sync check to make sure all three are now in sync:
+
 ```bash
 npm run lint:h2-sync
 ```
@@ -215,6 +217,7 @@ Commit.
 ## Full Regression Check
 
 This phase touches the most validation infrastructure. Run the full regression check:
+
 ```
 /prompt docs/tf-support/prompts/regression-check.prompt.md
 ```

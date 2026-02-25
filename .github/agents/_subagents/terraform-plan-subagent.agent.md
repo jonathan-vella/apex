@@ -5,13 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools:
-  [
-    execute,
-    read,
-    search,
-    "azure-mcp/*",
-  ]
+tools: [execute, read, search, "azure-mcp/*"]
 ---
 
 # Terraform Plan Subagent
@@ -108,13 +102,13 @@ terraform show -json tfplan | jq '.resource_changes[] | {address, action: .chang
 
 ## Change Classification
 
-| Symbol  | Action           | Description                              | Risk         |
-| ------- | ---------------- | ---------------------------------------- | ------------ |
-| `+`     | Create           | New resource being provisioned           | Low          |
-| `~`     | Update (in-place)| Existing resource modified               | Low–Medium   |
-| `-`     | Destroy          | Resource being permanently deleted       | **HIGH**     |
-| `-/+`   | Replace          | Resource destroyed then re-created       | **HIGH**     |
-| `(known after apply)` | Pending | Value computed at apply time   | Note only    |
+| Symbol                | Action            | Description                        | Risk       |
+| --------------------- | ----------------- | ---------------------------------- | ---------- |
+| `+`                   | Create            | New resource being provisioned     | Low        |
+| `~`                   | Update (in-place) | Existing resource modified         | Low–Medium |
+| `-`                   | Destroy           | Resource being permanently deleted | **HIGH**   |
+| `-/+`                 | Replace           | Resource destroyed then re-created | **HIGH**   |
+| `(known after apply)` | Pending           | Value computed at apply time       | Note only  |
 
 ## Destructive Operations Policy
 
@@ -123,6 +117,7 @@ terraform show -json tfplan | jq '.resource_changes[] | {address, action: .chang
 > The parent agent MUST obtain explicit human approval before proceeding to `terraform apply`.
 
 When destroy or replace operations are found:
+
 - Set `Status: WARNING`
 - List every affected resource address under `⚠️ DESTRUCTIVE OPERATIONS`
 - Set `Recommendation: review-destroys`
@@ -130,13 +125,13 @@ When destroy or replace operations are found:
 
 ## Result Interpretation
 
-| Condition                                   | Status  | Recommendation                           |
-| ------------------------------------------- | ------- | ---------------------------------------- |
-| Creates and updates only                    | PASS    | Proceed to apply                         |
-| No changes at all                           | PASS    | Configuration matches deployed state     |
-| Any destroy or replace operations           | WARNING | Require explicit human approval          |
-| Plan error (auth, provider, config failure) | FAIL    | Fix errors before retrying               |
-| Policy violation detected in plan output    | FAIL    | Resolve policy before applying           |
+| Condition                                   | Status  | Recommendation                       |
+| ------------------------------------------- | ------- | ------------------------------------ |
+| Creates and updates only                    | PASS    | Proceed to apply                     |
+| No changes at all                           | PASS    | Configuration matches deployed state |
+| Any destroy or replace operations           | WARNING | Require explicit human approval      |
+| Plan error (auth, provider, config failure) | FAIL    | Fix errors before retrying           |
+| Policy violation detected in plan output    | FAIL    | Resolve policy before applying       |
 
 ## Error Patterns to Watch
 

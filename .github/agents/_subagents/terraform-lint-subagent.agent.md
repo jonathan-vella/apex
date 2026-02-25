@@ -5,13 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools:
-  [
-    execute,
-    read,
-    search,
-    "azure-mcp/*",
-  ]
+tools: [execute, read, search, "azure-mcp/*"]
 ---
 
 # Terraform Lint Subagent
@@ -89,26 +83,26 @@ cd infra/terraform/{project} && \
 
 ## Result Interpretation
 
-| Condition                         | Status | Recommendation              |
-| --------------------------------- | ------ | --------------------------- |
-| No errors, no warnings            | PASS   | Proceed to plan             |
-| Warnings only                     | PASS   | Proceed (note warnings)     |
-| Format issues only (`fmt -check`) | FAIL   | Run `terraform fmt` to fix  |
-| `terraform validate` errors       | FAIL   | Fix required                |
-| tfsec HIGH/CRITICAL findings      | FAIL   | Security fix required       |
-| tfsec MEDIUM/LOW findings         | PASS   | Proceed (note findings)     |
-| tfsec not installed               | PASS   | Format + validate passed    |
+| Condition                         | Status | Recommendation             |
+| --------------------------------- | ------ | -------------------------- |
+| No errors, no warnings            | PASS   | Proceed to plan            |
+| Warnings only                     | PASS   | Proceed (note warnings)    |
+| Format issues only (`fmt -check`) | FAIL   | Run `terraform fmt` to fix |
+| `terraform validate` errors       | FAIL   | Fix required               |
+| tfsec HIGH/CRITICAL findings      | FAIL   | Security fix required      |
+| tfsec MEDIUM/LOW findings         | PASS   | Proceed (note findings)    |
+| tfsec not installed               | PASS   | Format + validate passed   |
 
 ## Exit Code Reference
 
-| Command              | Exit Code | Meaning                              |
-| -------------------- | --------- | ------------------------------------ |
-| `terraform fmt`      | 0         | No changes needed                    |
-| `terraform fmt`      | 3         | Files would be reformatted           |
-| `terraform validate` | 0         | Configuration is valid               |
-| `terraform validate` | 1         | Errors detected                       |
-| `tfsec`              | 0         | No issues found                      |
-| `tfsec`              | 1         | Issues found (check severity)        |
+| Command              | Exit Code | Meaning                       |
+| -------------------- | --------- | ----------------------------- |
+| `terraform fmt`      | 0         | No changes needed             |
+| `terraform fmt`      | 3         | Files would be reformatted    |
+| `terraform validate` | 0         | Configuration is valid        |
+| `terraform validate` | 1         | Errors detected               |
+| `tfsec`              | 0         | No issues found               |
+| `tfsec`              | 1         | Issues found (check severity) |
 
 ## Constraints
 

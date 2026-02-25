@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 0 — Branch & Foundation. Sets up devcontainer, git config, MCP server for Terraform support.
 ---
 
@@ -36,11 +36,13 @@ Edit `.devcontainer/devcontainer.json` — add to the `features` block:
 ```
 
 Add to `containerEnv`:
+
 ```json
 "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache"
 ```
 
 Add to `customizations.vscode.settings`:
+
 ```json
 "[terraform]": {
   "editor.tabSize": 2,
@@ -52,6 +54,7 @@ Add to `customizations.vscode.settings`:
 ### Item 0.3 — devcontainer extensions
 
 Add to `customizations.vscode.extensions`:
+
 ```json
 "HashiCorp.terraform",
 "ms-azuretools.vscode-azureterraform"
@@ -98,6 +101,7 @@ Edit `.vscode/mcp.json` — add a new server entry:
 ```
 
 Edit `package.json` — add to `devDependencies`:
+
 ```json
 "@hashicorp/terraform-mcp-server": "latest"
 ```

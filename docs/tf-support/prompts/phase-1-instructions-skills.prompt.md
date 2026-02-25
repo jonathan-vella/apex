@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 1 — Instructions, Skills & Dual-Field Governance. Creates Terraform instructions, terraform-patterns skill, updates azure-defaults, and migrates governance-discovery to dual-field output.
 ---
 
@@ -61,6 +61,7 @@ Also update the subagent's `description` field in frontmatter — remove the phr
 Create `.github/instructions/terraform-code-best-practices.instructions.md`.
 
 Frontmatter:
+
 ```yaml
 ---
 description: "Infrastructure as Code best practices for Azure Terraform templates. AVM-first, CAF naming, security baseline."
@@ -87,6 +88,7 @@ Model it on `bicep-code-best-practices.instructions.md` but with HCL conventions
 Create `.github/instructions/terraform-policy-compliance.instructions.md`.
 
 Frontmatter:
+
 ```yaml
 ---
 description: "MANDATORY Azure Policy compliance rules for Terraform code generation. Azure Policy always wins."
@@ -145,24 +147,24 @@ Add a new `## Terraform Conventions` section after the existing Bicep section. I
 Add a **"Common AVM-TF Modules" table** — map these 16 resource types to their
 Terraform Registry AVM modules:
 
-| Resource | Bicep AVM | Terraform AVM |
-| -------- | --------- | ------------- |
-| Key Vault | `br/public:avm/res/key-vault/vault` | `Azure/avm-res-keyvault-vault/azurerm` |
-| Storage Account | `br/public:avm/res/storage/storage-account` | `Azure/avm-res-storage-storageaccount/azurerm` |
-| Virtual Network | `br/public:avm/res/network/virtual-network` | `Azure/avm-res-network-virtualnetwork/azurerm` |
-| App Service Plan | `br/public:avm/res/web/serverfarm` | `Azure/avm-res-web-serverfarm/azurerm` |
-| Web App | `br/public:avm/res/web/site` | `Azure/avm-res-web-site/azurerm` |
-| Container Registry | `br/public:avm/res/container-registry/registry` | `Azure/avm-res-containerregistry-registry/azurerm` |
-| AKS | `br/public:avm/res/container-service/managed-cluster` | `Azure/avm-res-containerservice-managedcluster/azurerm` |
-| SQL Database | `br/public:avm/res/sql/server` | `Azure/avm-res-sql-server/azurerm` |
-| Cosmos DB | `br/public:avm/res/document-db/database-account` | `Azure/avm-res-documentdb-databaseaccount/azurerm` |
-| Service Bus | `br/public:avm/res/service-bus/namespace` | `Azure/avm-res-servicebus-namespace/azurerm` |
-| Event Hub | `br/public:avm/res/event-hub/namespace` | `Azure/avm-res-eventhub-namespace/azurerm` |
-| Log Analytics | `br/public:avm/res/operational-insights/workspace` | `Azure/avm-res-operationalinsights-workspace/azurerm` |
-| App Insights | `br/public:avm/res/insights/component` | `Azure/avm-res-insights-component/azurerm` |
-| Private DNS Zone | `br/public:avm/res/network/private-dns-zone` | `Azure/avm-res-network-privatednszones/azurerm` |
+| Resource               | Bicep AVM                                                   | Terraform AVM                                                |
+| ---------------------- | ----------------------------------------------------------- | ------------------------------------------------------------ |
+| Key Vault              | `br/public:avm/res/key-vault/vault`                         | `Azure/avm-res-keyvault-vault/azurerm`                       |
+| Storage Account        | `br/public:avm/res/storage/storage-account`                 | `Azure/avm-res-storage-storageaccount/azurerm`               |
+| Virtual Network        | `br/public:avm/res/network/virtual-network`                 | `Azure/avm-res-network-virtualnetwork/azurerm`               |
+| App Service Plan       | `br/public:avm/res/web/serverfarm`                          | `Azure/avm-res-web-serverfarm/azurerm`                       |
+| Web App                | `br/public:avm/res/web/site`                                | `Azure/avm-res-web-site/azurerm`                             |
+| Container Registry     | `br/public:avm/res/container-registry/registry`             | `Azure/avm-res-containerregistry-registry/azurerm`           |
+| AKS                    | `br/public:avm/res/container-service/managed-cluster`       | `Azure/avm-res-containerservice-managedcluster/azurerm`      |
+| SQL Database           | `br/public:avm/res/sql/server`                              | `Azure/avm-res-sql-server/azurerm`                           |
+| Cosmos DB              | `br/public:avm/res/document-db/database-account`            | `Azure/avm-res-documentdb-databaseaccount/azurerm`           |
+| Service Bus            | `br/public:avm/res/service-bus/namespace`                   | `Azure/avm-res-servicebus-namespace/azurerm`                 |
+| Event Hub              | `br/public:avm/res/event-hub/namespace`                     | `Azure/avm-res-eventhub-namespace/azurerm`                   |
+| Log Analytics          | `br/public:avm/res/operational-insights/workspace`          | `Azure/avm-res-operationalinsights-workspace/azurerm`        |
+| App Insights           | `br/public:avm/res/insights/component`                      | `Azure/avm-res-insights-component/azurerm`                   |
+| Private DNS Zone       | `br/public:avm/res/network/private-dns-zone`                | `Azure/avm-res-network-privatednszones/azurerm`              |
 | User-Assigned Identity | `br/public:avm/res/managed-identity/user-assigned-identity` | `Azure/avm-res-managedidentity-userassignedidentity/azurerm` |
-| API Management | `br/public:avm/res/api-management/service` | `Azure/avm-res-apimanagement-service/azurerm` |
+| API Management         | `br/public:avm/res/api-management/service`                  | `Azure/avm-res-apimanagement-service/azurerm`                |
 
 ## Validation
 
@@ -173,6 +175,7 @@ npm run lint:skills-format              # if available
 ```
 
 Verify `governance-discovery-subagent` frontmatter still valid:
+
 ```bash
 npm run lint:agent-frontmatter
 ```

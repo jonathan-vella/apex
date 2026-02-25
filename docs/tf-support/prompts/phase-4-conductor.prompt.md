@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Implements Phase 4 — Conductor & Requirements modifications. Adds IaC selection to Requirements, Terraform routing to Conductor, iac_tool awareness to Architect.
 ---
 
@@ -13,6 +13,7 @@ real agent file. Modifying the Conductor to reference `11-Terraform Planner` wil
 CI if that file doesn't exist yet.
 
 Options:
+
 - Confirm Phase 2 is merged, then do Phase 4 as a separate PR
 - OR batch Phase 3 + Phase 4 together with Phase 2 in one large PR
 
@@ -34,6 +35,7 @@ Changes needed:
    | IaC tool | Bicep or Terraform — ask if not specified; default is Bicep |
 
 2. Find the `01-requirements.md` output template section. Add `iac_tool` field:
+
    ```
    iac_tool: Bicep    # or Terraform
    ```
@@ -50,6 +52,7 @@ This is the largest change in Phase 4. Make all changes in a single edit to mini
 the chance of partially-broken frontmatter.
 
 **Frontmatter `agents` array** — add three entries:
+
 ```yaml
 - "11-Terraform Planner"
 - "12-Terraform Code Generator"
@@ -57,6 +60,7 @@ the chance of partially-broken frontmatter.
 ```
 
 **Frontmatter `handoffs` array** — add three entries:
+
 ```yaml
 - step: "Step 4: Implementation Plan (Terraform)"
   agent: "11-Terraform Planner"
@@ -105,11 +109,13 @@ npm run validate:all
 ```
 
 After editing the Conductor, specifically verify:
+
 ```bash
 npm run lint:agent-frontmatter 2>&1 | grep -E "(conductor|FAIL|ERROR)"
 ```
 
 The agent-validation CI checks handoff targets — run a quick local check:
+
 ```bash
 for agent in $(grep -oP '(?<="agent": ")[^"]+' .github/agents/01-conductor.agent.md); do
   echo "Checking: $agent"
