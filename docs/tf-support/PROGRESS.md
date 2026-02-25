@@ -1,9 +1,9 @@
 ---
 # MACHINE STATE — Copilot reads this at session start and updates at session end
-active_phase: 2
+active_phase: 3
 phase_0_complete: true
 phase_1_complete: true
-phase_2_complete: false
+phase_2_complete: true
 phase_3_complete: false
 phase_4_complete: false
 phase_5_complete: false
@@ -11,7 +11,7 @@ phase_6_complete: false
 phase_7_complete: false
 last_session: "2026-02-25"
 last_contributor: "GitHub Copilot"
-session_count: 3
+session_count: 4
 blocking_issues: []
 ---
 
@@ -27,7 +27,7 @@ blocking_issues: []
 | ----- | --------------------------------- | ----- | ---- | -------------- |
 | 0     | Branch & Foundation               | 8     | 8    | ✅ Complete    |
 | 1     | Instructions, Skills & Governance | 6     | 6    | ✅ Complete    |
-| 2     | Agents (Core)                     | 3     | 0    | ⬜ Not started |
+| 2     | Agents (Core)                     | 3     | 3    | ✅ Complete    |
 | 3     | Subagents                         | 3     | 0    | ⬜ Not started |
 | 4     | Conductor & Requirements          | 3     | 0    | ⬜ Not started |
 | 5     | Quality Gates & Automation        | 7     | 0    | ⬜ Not started |
@@ -56,9 +56,9 @@ blocking_issues: []
 
 ## Phase 2 — Agents (Core)
 
-- [ ] `2.15` Create `11-terraform-planner.agent.md`
-- [ ] `2.16` Create `12-terraform-code-generator.agent.md`
-- [ ] `2.17` Create `13-terraform-deploy.agent.md`
+- [x] `2.15` Create `11-terraform-planner.agent.md`
+- [x] `2.16` Create `12-terraform-code-generator.agent.md`
+- [x] `2.17` Create `13-terraform-deploy.agent.md`
 
 ## Phase 3 — Subagents
 
@@ -101,10 +101,13 @@ blocking_issues: []
 <!-- Add session notes here — what was attempted, what broke, what needs follow-up -->
 
 | Date       | Contributor    | Item    | Note                                                                                                                                                                                                                                                                                                       |
-| ---------- | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---------- | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------- | -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-02-24 | —              | Setup   | Initial progress tracker created                                                                                                                                                                                                                                                                           |
 | 2026-02-24 | GitHub Copilot | 0.1–0.8 | Phase 0 complete. Note: `@hashicorp/terraform-mcp-server` npm package does not exist; using official Docker image `hashicorp/terraform-mcp-server:latest` in mcp.json instead. Docker socket must be available in devcontainer. Tool names documented in `docs/tf-support/mcp-tools.md`. Gate 0.8 cleared. |
-| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn’t work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected.                      || 2026-02-25 | GitHub Copilot | 1.9–1.14 | Phase 1 complete. governance-discovery files extended with `**/*.tf` applyTo and dual-field JSON schema (`bicepPropertyPath` + `azurePropertyPath`). Created `terraform-code-best-practices.instructions.md`, `terraform-policy-compliance.instructions.md` (with `azurePropertyPath` translation table), `terraform-patterns/SKILL.md` (7 patterns + AVM pitfalls). `azure-defaults/SKILL.md` updated with Terraform Conventions section and 16-entry AVM-TF module table. All new validators pass. Pre-existing mcp.json JSONC issue unaffected. |
+| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn't work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected. |
+| 2026-02-25 | GitHub Copilot | 1.9–1.14 | Phase 1 complete. governance-discovery files extended with `**/*.tf` applyTo and dual-field JSON schema (`bicepPropertyPath` + `azurePropertyPath`). Created `terraform-code-best-practices.instructions.md`, `terraform-policy-compliance.instructions.md` (with `azurePropertyPath` translation table), `terraform-patterns/SKILL.md` (7 patterns + AVM pitfalls). `azure-defaults/SKILL.md` updated with Terraform Conventions section and 16-entry AVM-TF module table. All new validators pass. Pre-existing mcp.json JSONC issue unaffected. |
+| 2026-02-25 | GitHub Copilot | 2.15–2.17 | Phase 2 complete. Created `11-terraform-planner.agent.md` (5-phase workflow, AVM-TF registry, `azurePropertyPath`), `12-terraform-code-generator.agent.md` (governance hard gate, `var.deployment_phase` + `count` conditionals, dual bootstrap/deploy scripts), `13-terraform-deploy.agent.md` (`Claude Sonnet 4.6`, Azure Storage backend, phase-aware deployment, ARG verification). All 3 agents pass frontmatter validation. |
+
 ## Validator Status (run after each phase)
 
 ```
