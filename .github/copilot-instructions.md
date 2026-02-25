@@ -15,9 +15,9 @@
 | 1    | Requirements | `01-requirements.md`                                                                                      | Approval   |
 | 2    | Architect    | `02-architecture-assessment.md` + cost estimate                                                           | Approval   |
 | 3    | Design (opt) | `03-des-*.{py,png,md}`                                                                                    | —          |
-| 4    | Bicep Plan   | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Approval   |
-| 5    | Bicep Code   | `infra/bicep/{project}/`                                                                                  | Validation |
-| 6    | Deploy       | `06-deployment-summary.md`                                                                                | Approval   |
+| 4    | IaC Plan (Bicep: `05-Bicep Planner` / Terraform: `11-Terraform Planner`)               | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Approval   |
+| 5    | IaC Code (Bicep: `06-Bicep Code Generator` / Terraform: `12-Terraform Code Generator`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                                  | Validation |
+| 6    | Deploy (Bicep: `07-Deploy` / Terraform: `13-Terraform Deploy`)                         | `06-deployment-summary.md`                                                                                | Approval   |
 | 7    | As-Built     | `07-*.md` documentation suite                                                                             | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
@@ -39,6 +39,7 @@ All outputs → `agent-output/{project}/`. Context flows via artifact files + ha
 | `microsoft-docs`           | Query official Microsoft/Azure docs (requires Learn MCP)        |
 | `microsoft-code-reference` | Verify SDK methods and find working code samples (requires Learn MCP) |
 | `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies (requires Learn MCP) |
+| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)    |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
 
@@ -64,6 +65,19 @@ Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their bod
 
 Full details in `.github/skills/azure-defaults/SKILL.md`.
 
+### Terraform Conventions
+
+```yaml
+# Terraform conventions
+default_backend: Azure Storage Account
+required_tags: [Environment, ManagedBy="Terraform", Project, Owner]
+unique_suffix: random_string (4 chars, lowercase)
+avm_registry: registry.terraform.io/Azure/avm-res-*/azurerm
+provider_pin: "~> 4.0"
+```
+
+Full details in `.github/skills/terraform-patterns/SKILL.md`.
+
 ## Key Files
 
 | Path                        | Purpose                                 |
@@ -75,6 +89,8 @@ Full details in `.github/skills/azure-defaults/SKILL.md`.
 | `infra/bicep/{project}/`    | Bicep templates                         |
 | `mcp/azure-pricing-mcp/`    | Azure Pricing MCP server                |
 | `.vscode/mcp.json`          | MCP server configuration                |
+| `infra/terraform/{project}/` | Terraform templates by project          |
+| `docs/tf-support/`           | Terraform support planning docs and prompts |
 
 ## Validation
 
@@ -83,4 +99,6 @@ bicep build infra/bicep/{project}/main.bicep
 bicep lint infra/bicep/{project}/main.bicep
 npm run validate
 npm run lint:md
+terraform fmt -check -recursive infra/terraform/
+terraform validate
 ```

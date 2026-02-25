@@ -17,7 +17,6 @@
     "terraform": {
       "type": "stdio",
       "command": "/go/bin/terraform-mcp-server",
-      // Use "all" and set TFE_TOKEN env var to also enable HCP Terraform/Enterprise tools
       "args": ["stdio", "--toolsets", "registry"],
       "env": {}
     }

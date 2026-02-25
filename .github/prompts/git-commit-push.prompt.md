@@ -92,7 +92,7 @@ git diff --cached -- . ':(exclude)*.lock' ':(exclude)package-lock.json' | head -
 
 Use the output to generate a conventional commit message following the format:
 
-```
+```text
 <type>(<scope>): <short description in sentence case>
 
 - <bullet summarising change 1>

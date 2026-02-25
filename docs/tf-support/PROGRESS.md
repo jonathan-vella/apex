@@ -8,7 +8,7 @@ phase_3_complete: true
 phase_4_complete: true
 phase_5_complete: true
 phase_6_complete: false
-phase_7_complete: false
+phase_7_complete: true
 last_session: "2026-02-25"
 last_contributor: "GitHub Copilot"
 session_count: 7
@@ -32,7 +32,7 @@ blocking_issues: []
 | 4     | Conductor & Requirements          | 3     | 3    | ✅ Complete    |
 | 5     | Quality Gates & Automation        | 7     | 7    | ✅ Complete    |
 | 6     | Governance Migration (deferrable) | 1     | 0    | ⬜ Deferred    |
-| 7     | Documentation & Housekeeping      | 3     | 0    | ⬜ Not started |
+| 7     | Documentation & Housekeeping      | 3     | 3    | ✅ Complete    |
 
 ## Phase 0 — Branch & Foundation
 
@@ -90,9 +90,9 @@ blocking_issues: []
 
 ## Phase 7 — Documentation & Housekeeping
 
-- [ ] `7.32` Update `.github/copilot-instructions.md` — Terraform agents, skills, tools, conventions
-- [ ] `7.33` Update `docs/terraform-roadmap.md` — mark completed items, add links
-- [ ] `7.34` Update GitHub issue #171 — refined scope + 8 child issues
+- [x] `7.32` Update `.github/copilot-instructions.md` — Terraform agents, skills, tools, conventions
+- [x] `7.33` Update `docs/terraform-roadmap.md` — mark completed items, add links
+- [x] `7.34` Update GitHub issue #171 — refined scope + 8 child issues
 
 ---
 
@@ -110,6 +110,7 @@ blocking_issues: []
 | 2026-02-25 | GitHub Copilot | 3.18–3.20 | Phase 3 complete. Created `terraform-lint-subagent.agent.md`, `terraform-review-subagent.agent.md` (with `### 7. Governance Compliance` + `azurePropertyPath` translation table), `terraform-plan-subagent.agent.md`. All pass frontmatter validation.                                                                                                                                                                                                                                                                                             |
 | 2026-02-25 | GitHub Copilot | 4.21–4.23 | Phase 4 complete. `02-requirements.agent.md` gains `iac_tool` field. `01-conductor.agent.md` routes Terraform projects to agents 11–13. `03-architect.agent.md` adds `iac_tool` awareness. All agents pass frontmatter validation.                                                                                                                                                                                                                                                                                                                 |
 | 2026-02-25 | GitHub Copilot | 5.24–5.30 | Phase 5 complete. lefthook.yml: added terraform-fmt and terraform-validate pre-commit hooks. package.json: added lint:terraform-fmt and validate:terraform, updated validate:all chain. validate-governance-refs.mjs: 5 new Terraform check groups (37 total, all pass). New `.github/workflows/terraform-validate.yml`. policy-compliance-check.yml: Terraform paths added to triggers. Renamed `## 📁 Bicep Templates Location` → `## 📁 IaC Templates Location` in 5 files (h2-sync ✅). AGENTS map updated with dual-agent documentation.      |
+| 2026-02-25 | GitHub Copilot | 7.32–7.34 | Phase 7 complete. `copilot-instructions.md`: added agents 11/12/13, `terraform-patterns` skill, Terraform Key Files, Terraform validation commands, Terraform conventions block. `terraform-roadmap.md`: status updated to Implemented, preflight checklist marked complete, Implementation Notes section added. GitHub issues #171 and #176 updated. Fixed pre-existing JSONC comment in `.vscode/mcp.json` and missing fenced code language in `git-commit-push.prompt.md`. All validators pass. Open next: PR `tf-dev → main`. |
 
 ## Validator Status (run after each phase)
 
