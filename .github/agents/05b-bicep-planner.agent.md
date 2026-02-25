@@ -359,8 +359,9 @@ Reply "approve" to proceed to bicep-code, or provide feedback.
 > [!IMPORTANT]
 > `04-governance-constraints.json` is consumed downstream by the Code Generator (Phase 1.5)
 > and the `bicep-review-subagent` (Governance Compliance checklist). Its completeness directly
-> impacts downstream code quality. Each `Deny` policy MUST include `bicepPropertyPath` and
-> `requiredValue` fields (not just the policy display name) to make the JSON machine-actionable.
+> impacts downstream code quality. Each `Deny` policy MUST include `azurePropertyPath` (preferred,
+> IaC-agnostic REST API path) AND `bicepPropertyPath` (Bicep-specific fallback) plus `requiredValue`
+> (not just the policy display name) to make the JSON machine-actionable by both Bicep and Terraform agents.
 > | Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py` | Python diagrams |
 > | Dependency Diagram Image | `agent-output/{project}/04-dependency-diagram.png` | Generated from source |
 > | Runtime Diagram Source | `agent-output/{project}/04-runtime-diagram.py` | Python diagrams |

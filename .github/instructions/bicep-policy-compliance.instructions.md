@@ -40,9 +40,11 @@ For every policy in `04-governance-constraints.json`:
 
 ### Deny Policies
 
-- [ ] Extract `bicepPropertyPath` and `requiredValue` from JSON
-- [ ] Verify the generated Bicep code sets the property to the
-      required value
+- [ ] Prefer `azurePropertyPath` from JSON; fall back to `bicepPropertyPath` if absent
+- [ ] Translate `azurePropertyPath` to Bicep ARM property: drop the leading resource-type
+      segment (e.g. `storageAccount.`) and use the remainder as the ARM property path
+- [ ] Extract `requiredValue` and verify the generated Bicep code sets the property
+      to that value
 - [ ] If the property is missing from Bicep code, add it
 - [ ] If the property value conflicts, change it to match policy
 

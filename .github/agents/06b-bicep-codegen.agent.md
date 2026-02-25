@@ -234,10 +234,13 @@ Before writing ANY Bicep code, validate AVM compatibility:
 > See `.github/instructions/bicep-policy-compliance.instructions.md` for the full mandate.
 
 1. **Read** `agent-output/{project}/04-governance-constraints.json`
-2. **Extract** all `Deny` policies and their `bicepPropertyPath` + `requiredValue` fields
+2. **Extract** all `Deny` policies and their property path + `requiredValue` fields:
+   - Prefer `azurePropertyPath` (IaC-agnostic REST API path, e.g. `storageAccount.properties.minimumTlsVersion`)
+   - Fall back to `bicepPropertyPath` if `azurePropertyPath` is absent
 3. **Build a compliance map** — for each Deny policy, identify:
    - Target resource type(s)
-   - Bicep property that must be set
+   - Bicep property to set — if using `azurePropertyPath`, drop the leading resource-type segment
+     and map the remainder to the Bicep ARM property path (e.g. `.properties.minimumTlsVersion`)
    - Required value to avoid policy denial
 4. **Extract tag requirements** — merge governance-discovered tags with the 4 baseline defaults.
    Governance constraints always win (the 4 defaults are a MINIMUM)

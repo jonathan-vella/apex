@@ -1,6 +1,7 @@
 # Agentic InfraOps - Copilot Instructions
 
-> Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
+> VS Code Copilot-specific orchestration instructions.
+> For general project conventions, build commands, and code style, see the root `AGENTS.md`.
 
 ## Quick Start
 
@@ -57,48 +58,37 @@ Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their bod
 
 ## Key Conventions
 
-- **Default region**: `swedencentral` (exception: Static Web Apps → `westeurope`)
-- **Required tags**: `Environment`, `ManagedBy`, `Project`, `Owner`
-- **Unique suffix**: `uniqueString(resourceGroup().id)` — generate once, pass everywhere
-- **AVM-first**: Always prefer Azure Verified Modules over raw Bicep
-- **Security baseline**: TLS 1.2, HTTPS-only, managed identity, Azure AD-only SQL auth
+See the root `AGENTS.md` for full conventions. Summary of VS Code-specific overrides:
+
+- **AVM-first**: Always prefer Azure Verified Modules over raw Bicep/Terraform
+- **Governance**: Always check `04-governance-constraints.md` for subscription-level Azure Policy
 
 Full details in `.github/skills/azure-defaults/SKILL.md`.
 
 ### Terraform Conventions
 
-```yaml
-# Terraform conventions
-default_backend: Azure Storage Account
-required_tags: [Environment, ManagedBy="Terraform", Project, Owner]
-unique_suffix: random_string (4 chars, lowercase)
-avm_registry: registry.terraform.io/Azure/avm-res-*/azurerm
-provider_pin: "~> 4.0"
-```
-
-Full details in `.github/skills/terraform-patterns/SKILL.md`.
+Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md`.
 
 ## Key Files
 
-| Path                         | Purpose                                     |
-| ---------------------------- | ------------------------------------------- |
-| `.github/agents/*.agent.md`  | Agent definitions                           |
-| `.github/skills/*/SKILL.md`  | Reusable skill knowledge                    |
-| `.github/instructions/`      | File-type rules (Bicep, Markdown, etc.)     |
-| `agent-output/{project}/`    | Agent-generated artifacts                   |
-| `infra/bicep/{project}/`     | Bicep templates                             |
-| `mcp/azure-pricing-mcp/`     | Azure Pricing MCP server                    |
-| `.vscode/mcp.json`           | MCP server configuration                    |
-| `infra/terraform/{project}/` | Terraform templates by project              |
-| `docs/tf-support/`           | Terraform support planning docs and prompts |
+| Path                         | Purpose                                      |
+| ---------------------------- | -------------------------------------------- |
+| `AGENTS.md`                  | Cross-agent project conventions and commands |
+| `.github/agents/*.agent.md`  | Agent definitions                            |
+| `.github/skills/*/SKILL.md`  | Reusable skill knowledge                     |
+| `.github/instructions/`      | File-type rules (Bicep, Markdown, etc.)      |
+| `agent-output/{project}/`    | Agent-generated artifacts                    |
+| `infra/bicep/{project}/`     | Bicep templates                              |
+| `mcp/azure-pricing-mcp/`     | Azure Pricing MCP server                     |
+| `.vscode/mcp.json`           | MCP server configuration                     |
+| `infra/terraform/{project}/` | Terraform templates by project               |
+| `docs/tf-support/`           | Terraform support planning docs and prompts  |
 
 ## Validation
 
+See `AGENTS.md` for full build and validation commands. Quick reference:
+
 ```bash
-bicep build infra/bicep/{project}/main.bicep
-bicep lint infra/bicep/{project}/main.bicep
-npm run validate
+npm run validate:all
 npm run lint:md
-terraform fmt -check -recursive infra/terraform/
-terraform validate
 ```

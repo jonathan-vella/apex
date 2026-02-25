@@ -1,4 +1,6 @@
 {
+  "chat.useAgentsMdFile": true,
+  "chat.useNestedAgentsMdFiles": true,
   "chat.customAgentInSubagent.enabled": true,
   "chat.agentFilesLocations": {
     ".github/agents": true,
