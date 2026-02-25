@@ -388,7 +388,7 @@ module networking 'modules/networking.bicep' = { ... }
 | ------------------ | ------------------------------------------------------- |
 | Preflight Check    | `agent-output/{project}/04-preflight-check.md`          |
 | Implementation Ref | `agent-output/{project}/05-implementation-reference.md` |
-| Bicep Templates    | `infra/bicep/{project}/`                                |
+| IaC Templates      | `infra/bicep/{project}/`                                |
 | Deploy Script      | `infra/bicep/{project}/deploy.ps1`                      |
 
 Include attribution header from the template file (do not hardcode).

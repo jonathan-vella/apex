@@ -7,7 +7,7 @@
 <details open>
 <summary><strong>📑 Implementation Reference</strong></summary>
 
-- [📁 Bicep Templates Location](#-bicep-templates-location)
+- [📁 IaC Templates Location](#-iac-templates-location)
 - [🗂️ File Structure](#-file-structure)
 - [✅ Validation Status](#-validation-status)
 - [🏗️ Resources Created](#-resources-created)
@@ -22,7 +22,7 @@
 | ---------------------------------------------- | ------------------- | ---------------------------------------------------- |
 | [04-preflight-check.md](04-preflight-check.md) | [README](README.md) | [06-deployment-summary.md](06-deployment-summary.md) |
 
-## 📁 Bicep Templates Location
+## 📁 IaC Templates Location
 
 📁 **Code Location**: [`infra/bicep/{project-name}/`](../../infra/bicep/{project-name}/)
 

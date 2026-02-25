@@ -291,7 +291,7 @@ Always include a blank line after `<summary>` and before `</details>`.
 ### 05-implementation-reference.md (Bicep Code Agent)
 
 ```text
-## 📁 Bicep Templates Location
+## 📁 IaC Templates Location
 ## 🗂️ File Structure
 ## ✅ Validation Status
 ## 🏗️ Resources Created

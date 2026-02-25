@@ -7,7 +7,7 @@
 <details open>
 <summary><strong>📑 Implementation Reference</strong></summary>
 
-- [📁 Bicep Templates Location](#-bicep-templates-location)
+- [📁 IaC Templates Location](#-iac-templates-location)
 - [🗂️ File Structure](#-file-structure)
 - [✅ Validation Status](#-validation-status)
 - [🏗️ Resources Created](#-resources-created)
@@ -26,7 +26,7 @@
 > [!NOTE]
 > 📚 See [documentation-styling.md](../agents/_shared/documentation-styling.md) for visual standards.
 
-## 📁 Bicep Templates Location
+## 📁 IaC Templates Location
 
 📁 **Code Location**: [`infra/bicep/e2e-conductor-test/`](../../infra/bicep/e2e-conductor-test/)
 

@@ -66,7 +66,7 @@ const ARTIFACT_HEADINGS = {
   ],
   // Wave 2 artifacts (relaxed strictness)
   "05-implementation-reference.md": [
-    "## 📁 Bicep Templates Location",
+    "## 📁 IaC Templates Location",
     "## 🗂️ File Structure",
     "## ✅ Validation Status",
     "## 🏗️ Resources Created",
@@ -227,13 +227,23 @@ const GLOBAL_STRICTNESS = process.env.STRICTNESS;
 // agent-link and embedded-skeleton checks.
 const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
 
+// Dual-agent situation for IaC artifacts:
+// Both Bicep (06-bicep-code-generator) and Terraform (12-terraform-code-generator)
+// produce 05-implementation-reference.md with identical H2 structure (IaC-neutral).
+// Both agents also produce 04-implementation-plan.md and 04-governance-constraints.md.
+// validateAgentLinks() passes for both because both reference the azure-artifacts skill.
+// The AGENTS map below uses the Bicep agent as the canonical reference; the Terraform
+// agent is checked separately via the governance validator (validate-governance-refs.mjs).
 const AGENTS = {
   "01-requirements.md": ".github/agents/02-requirements.agent.md",
   "02-architecture-assessment.md": ".github/agents/03-architect.agent.md",
+  // Both 05-bicep-planner (Bicep) and 11-terraform-planner (Terraform) produce these:
   "04-implementation-plan.md": ".github/agents/05-bicep-planner.agent.md",
   "04-governance-constraints.md": ".github/agents/05-bicep-planner.agent.md",
   "04-preflight-check.md": ".github/agents/06-bicep-code-generator.agent.md",
   "06-deployment-summary.md": ".github/agents/07-deploy.agent.md",
+  // Both 06-bicep-code-generator (Bicep) and 12-terraform-code-generator (Terraform)
+  // produce 05-implementation-reference.md. The H2 heading is IaC-neutral.
   "05-implementation-reference.md":
     ".github/agents/06-bicep-code-generator.agent.md",
   "07-design-document.md": ".github/skills/azure-artifacts/SKILL.md",

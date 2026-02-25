@@ -66,7 +66,7 @@ const ARTIFACT_HEADINGS = {
     "## Ready for Implementation",
   ],
   "05-implementation-reference.md": [
-    "## Bicep Templates Location",
+    "## IaC Templates Location",
     "## File Structure",
     "## Validation Status",
     "## Resources Created",
@@ -179,7 +179,7 @@ const HEADING_FIXES = {
   "## 9. Dependencies & External Services": "## 9. Appendix",
   "## 9. Improvement Roadmap": "## 9. Appendix",
   // 05-implementation-reference.md variants
-  "## Overview": "## Bicep Templates Location",
+  "## Overview": "## IaC Templates Location",
   "## Resource Mapping": "## Resources Created",
 };
 

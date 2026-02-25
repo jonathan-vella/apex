@@ -109,7 +109,7 @@ description: "MANDATORY template compliance rules for artifact generation"
 ### 05-implementation-reference.md
 
 ```text
-## 📁 Bicep Templates Location
+## 📁 IaC Templates Location
 ## 🗂️ File Structure
 ## ✅ Validation Status
 ## 🏗️ Resources Created
@@ -273,7 +273,7 @@ contains extra H2 headings: ## Cost Summary
 | 04-implementation-plan | `## 📋 Overview`                     | `## 🔒 Approval Gate`                       |
 | 04-governance          | `## 🔍 Discovery Source`             | `## 🌐 Network Policies`                    |
 | 04-preflight           | `## 🎯 Purpose`                      | `## 🚀 Ready for Implementation`            |
-| 05-implementation-ref  | `## 📁 Bicep Templates Location`     | `## 📝 Key Implementation Notes`            |
+| 05-implementation-ref  | `## 📁 IaC Templates Location`       | `## 📝 Key Implementation Notes`            |
 | 06-deployment          | `## ✅ Preflight Validation`         | `## 📝 Post-Deployment Tasks`               |
 | 07-doc-index           | `## 📦 1. Document Package Contents` | `## ⚡ 5. Quick Links`                      |
 | 07-design              | `## 📝 1. Introduction`              | `## 📎 10. Appendix`                        |

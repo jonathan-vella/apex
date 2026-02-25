@@ -148,6 +148,38 @@ pre-commit:
 
         🔧 Fix: cd mcp/azure-pricing-mcp && python -m ruff check --fix src/ tests/
 
+    terraform-fmt:
+      glob: "*.tf"
+      run: |
+        STAGED_TF=$(git diff --cached --name-only --diff-filter=ACM | grep '\.tf$' || true)
+        if [ -n "$STAGED_TF" ]; then
+          echo "🔧 Checking Terraform formatting..."
+          terraform fmt -check -recursive infra/terraform/ || {
+            echo "❌ terraform fmt failed. Run: terraform fmt -recursive infra/terraform/"
+            exit 1
+          }
+        else
+          echo "ℹ️  No Terraform files to format-check"
+        fi
+
+    terraform-validate:
+      glob: "*.tf"
+      run: |
+        STAGED_TF=$(git diff --cached --name-only --diff-filter=ACM | grep '\.tf$' || true)
+        if [ -n "$STAGED_TF" ]; then
+          echo "🔧 Validating Terraform..."
+          for dir in infra/terraform/*/; do
+            if [ -f "$dir/main.tf" ]; then
+              echo "  Validating $dir..."
+              cd "$dir" && terraform init -backend=false -input=false -no-color > /dev/null 2>&1 \
+                && terraform validate -no-color || { echo "❌ Validation failed in $dir"; exit 1; }
+              cd - > /dev/null
+            fi
+          done
+        else
+          echo "ℹ️  No Terraform project to validate"
+        fi
+
 commit-msg:
   commands:
     commitlint:

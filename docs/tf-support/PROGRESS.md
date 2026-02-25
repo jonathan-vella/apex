@@ -1,17 +1,17 @@
 ---
 # MACHINE STATE — Copilot reads this at session start and updates at session end
-active_phase: 5
+active_phase: 7
 phase_0_complete: true
 phase_1_complete: true
 phase_2_complete: true
 phase_3_complete: true
 phase_4_complete: true
-phase_5_complete: false
+phase_5_complete: true
 phase_6_complete: false
 phase_7_complete: false
 last_session: "2026-02-25"
 last_contributor: "GitHub Copilot"
-session_count: 6
+session_count: 7
 blocking_issues: []
 ---
 
@@ -30,7 +30,7 @@ blocking_issues: []
 | 2     | Agents (Core)                     | 3     | 3    | ✅ Complete    |
 | 3     | Subagents                         | 3     | 3    | ✅ Complete    |
 | 4     | Conductor & Requirements          | 3     | 3    | ✅ Complete    |
-| 5     | Quality Gates & Automation        | 7     | 0    | ⬜ Not started |
+| 5     | Quality Gates & Automation        | 7     | 7    | ✅ Complete    |
 | 6     | Governance Migration (deferrable) | 1     | 0    | ⬜ Deferred    |
 | 7     | Documentation & Housekeeping      | 3     | 0    | ⬜ Not started |
 
@@ -74,13 +74,13 @@ blocking_issues: []
 
 ## Phase 5 — Quality Gates & Automation
 
-- [ ] `5.24` Update `lefthook.yml` — add `terraform-fmt` and `terraform-validate` hooks
-- [ ] `5.25` Update `package.json` — add `lint:terraform-fmt` and `validate:terraform` scripts
-- [ ] `5.26` Extend `validate-governance-refs.mjs` — Terraform check groups + dual-field support
-- [ ] `5.27` Create `.github/workflows/terraform-validate.yml`
-- [ ] `5.28` Extend `.github/workflows/policy-compliance-check.yml`
-- [ ] `5.29` Rename `## 📁 Bicep Templates Location` → `## 📁 IaC Templates Location` (3 locations)
-- [ ] `5.30` Update `validate-artifact-templates.mjs` AGENTS map — add Terraform agent mappings
+- [x] `5.24` Update `lefthook.yml` — add `terraform-fmt` and `terraform-validate` hooks
+- [x] `5.25` Update `package.json` — add `lint:terraform-fmt` and `validate:terraform` scripts
+- [x] `5.26` Extend `validate-governance-refs.mjs` — Terraform check groups + dual-field support
+- [x] `5.27` Create `.github/workflows/terraform-validate.yml`
+- [x] `5.28` Extend `.github/workflows/policy-compliance-check.yml`
+- [x] `5.29` Rename `## 📁 Bicep Templates Location` → `## 📁 IaC Templates Location` (3 locations)
+- [x] `5.30` Update `validate-artifact-templates.mjs` AGENTS map — add Terraform agent mappings
 
 ## Phase 6 — Governance Migration (Deferrable)
 
@@ -107,6 +107,9 @@ blocking_issues: []
 | 2026-02-24 | GitHub Copilot | 0.6 fix   | Docker-in-devcontainer doesn't work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected.                                                                                                                                                                                                                                                              |
 | 2026-02-25 | GitHub Copilot | 1.9–1.14  | Phase 1 complete. governance-discovery files extended with `**/*.tf` applyTo and dual-field JSON schema (`bicepPropertyPath` + `azurePropertyPath`). Created `terraform-code-best-practices.instructions.md`, `terraform-policy-compliance.instructions.md` (with `azurePropertyPath` translation table), `terraform-patterns/SKILL.md` (7 patterns + AVM pitfalls). `azure-defaults/SKILL.md` updated with Terraform Conventions section and 16-entry AVM-TF module table. All new validators pass. Pre-existing mcp.json JSONC issue unaffected. |
 | 2026-02-25 | GitHub Copilot | 2.15–2.17 | Phase 2 complete. Created `11-terraform-planner.agent.md` (5-phase workflow, AVM-TF registry, `azurePropertyPath`), `12-terraform-code-generator.agent.md` (governance hard gate, `var.deployment_phase` + `count` conditionals, dual bootstrap/deploy scripts), `13-terraform-deploy.agent.md` (`Claude Sonnet 4.6`, Azure Storage backend, phase-aware deployment, ARG verification). All 3 agents pass frontmatter validation.                                                                                                                  |
+| 2026-02-25 | GitHub Copilot | 3.18–3.20 | Phase 3 complete. Created `terraform-lint-subagent.agent.md`, `terraform-review-subagent.agent.md` (with `### 7. Governance Compliance` + `azurePropertyPath` translation table), `terraform-plan-subagent.agent.md`. All pass frontmatter validation.                                                                                                                                                                                                                                                                                              |
+| 2026-02-25 | GitHub Copilot | 4.21–4.23 | Phase 4 complete. `02-requirements.agent.md` gains `iac_tool` field. `01-conductor.agent.md` routes Terraform projects to agents 11–13. `03-architect.agent.md` adds `iac_tool` awareness. All agents pass frontmatter validation.                                                                                                                                                                                                                                                                                                                   |
+| 2026-02-25 | GitHub Copilot | 5.24–5.30 | Phase 5 complete. lefthook.yml: added terraform-fmt and terraform-validate pre-commit hooks. package.json: added lint:terraform-fmt and validate:terraform, updated validate:all chain. validate-governance-refs.mjs: 5 new Terraform check groups (37 total, all pass). New `.github/workflows/terraform-validate.yml`. policy-compliance-check.yml: Terraform paths added to triggers. Renamed `## 📁 Bicep Templates Location` → `## 📁 IaC Templates Location` in 5 files (h2-sync ✅). AGENTS map updated with dual-agent documentation. |
 
 ## Validator Status (run after each phase)
 
@@ -122,8 +125,8 @@ bicep lint infra/bicep/   — regression check: existing Bicep must still work
 
 After Phases 1, 2, 4, 5 — verify existing Bicep flow is unbroken:
 
-- [ ] `npm run validate:all` passes
-- [ ] `05-bicep-planner` frontmatter still valid
-- [ ] `06-bicep-code-generator` governance compliance still passes
-- [ ] `governance-discovery-subagent` still produces `bicepPropertyPath` (dual-field)
-- [ ] `01-conductor` routes Bicep projects correctly
+- [x] `npm run validate:all` passes
+- [x] `05-bicep-planner` frontmatter still valid
+- [x] `06-bicep-code-generator` governance compliance still passes
+- [x] `governance-discovery-subagent` still produces `bicepPropertyPath` (dual-field)
+- [x] `01-conductor` routes Bicep projects correctly
