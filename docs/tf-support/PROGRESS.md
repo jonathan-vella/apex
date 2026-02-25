@@ -1,17 +1,17 @@
 ---
 # MACHINE STATE — Copilot reads this at session start and updates at session end
-active_phase: 3
+active_phase: 4
 phase_0_complete: true
 phase_1_complete: true
 phase_2_complete: true
-phase_3_complete: false
+phase_3_complete: true
 phase_4_complete: false
 phase_5_complete: false
 phase_6_complete: false
 phase_7_complete: false
 last_session: "2026-02-25"
 last_contributor: "GitHub Copilot"
-session_count: 4
+session_count: 5
 blocking_issues: []
 ---
 
@@ -28,7 +28,7 @@ blocking_issues: []
 | 0     | Branch & Foundation               | 8     | 8    | ✅ Complete    |
 | 1     | Instructions, Skills & Governance | 6     | 6    | ✅ Complete    |
 | 2     | Agents (Core)                     | 3     | 3    | ✅ Complete    |
-| 3     | Subagents                         | 3     | 0    | ⬜ Not started |
+| 3     | Subagents                         | 3     | 3    | ✅ Complete    |
 | 4     | Conductor & Requirements          | 3     | 0    | ⬜ Not started |
 | 5     | Quality Gates & Automation        | 7     | 0    | ⬜ Not started |
 | 6     | Governance Migration (deferrable) | 1     | 0    | ⬜ Deferred    |
@@ -62,9 +62,9 @@ blocking_issues: []
 
 ## Phase 3 — Subagents
 
-- [ ] `3.18` Create `_subagents/terraform-lint-subagent.agent.md`
-- [ ] `3.19` Create `_subagents/terraform-review-subagent.agent.md`
-- [ ] `3.20` Create `_subagents/terraform-plan-subagent.agent.md`
+- [x] `3.18` Create `_subagents/terraform-lint-subagent.agent.md`
+- [x] `3.19` Create `_subagents/terraform-review-subagent.agent.md`
+- [x] `3.20` Create `_subagents/terraform-plan-subagent.agent.md`
 
 ## Phase 4 — Conductor & Requirements
 
