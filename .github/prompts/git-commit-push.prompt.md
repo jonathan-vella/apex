@@ -1,6 +1,6 @@
 ---
 agent: agent
-model: "Claude Haiku 4.5"
+model: "GPT-5 mini"
 description: "Stage changes, create a conventional commit, push to the current branch, and optionally open a pull request to main using the GitHub MCP server."
 argument-hint: "Provide a commit message or leave blank to auto-generate from the diff."
 tools:
@@ -24,7 +24,7 @@ and optionally open a pull request to `main` using the GitHub MCP server.
 - GitHub MCP tools must be available in the current session (no `gh auth` needed).
 - The `git-commit` skill at `.github/skills/git-commit/SKILL.md` defines the
   conventional commit format used in this repo.
-- This prompt targets `gpt-4.1`. Keep each step explicit and self-contained.
+- This prompt targets `GPT-5 mini`. Keep each step explicit and self-contained.
 
 ## Inputs
 
