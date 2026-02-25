@@ -1,17 +1,17 @@
 ---
 # MACHINE STATE — Copilot reads this at session start and updates at session end
-active_phase: 1
+active_phase: 2
 phase_0_complete: true
-phase_1_complete: false
+phase_1_complete: true
 phase_2_complete: false
 phase_3_complete: false
 phase_4_complete: false
 phase_5_complete: false
 phase_6_complete: false
 phase_7_complete: false
-last_session: "2026-02-24"
+last_session: "2026-02-25"
 last_contributor: "GitHub Copilot"
-session_count: 2
+session_count: 3
 blocking_issues: []
 ---
 
@@ -26,7 +26,7 @@ blocking_issues: []
 | Phase | Title                             | Items | Done | Status         |
 | ----- | --------------------------------- | ----- | ---- | -------------- |
 | 0     | Branch & Foundation               | 8     | 8    | ✅ Complete    |
-| 1     | Instructions, Skills & Governance | 6     | 0    | ⬜ Not started |
+| 1     | Instructions, Skills & Governance | 6     | 6    | ✅ Complete    |
 | 2     | Agents (Core)                     | 3     | 0    | ⬜ Not started |
 | 3     | Subagents                         | 3     | 0    | ⬜ Not started |
 | 4     | Conductor & Requirements          | 3     | 0    | ⬜ Not started |
@@ -47,12 +47,12 @@ blocking_issues: []
 
 ## Phase 1 — Instructions, Skills & Governance
 
-- [ ] `1.9` Update `governance-discovery.instructions.md` — add `**/*.tf` to `applyTo`
-- [ ] `1.10` Update `governance-discovery-subagent` — dual-field output (`bicepPropertyPath` + `azurePropertyPath`)
-- [ ] `1.11` Create `terraform-code-best-practices.instructions.md`
-- [ ] `1.12` Create `terraform-policy-compliance.instructions.md`
-- [ ] `1.13` Create `terraform-patterns/SKILL.md`
-- [ ] `1.14` Update `azure-defaults/SKILL.md` — add `## Terraform Conventions` section + AVM-TF table
+- [x] `1.9` Update `governance-discovery.instructions.md` — add `**/*.tf` to `applyTo`
+- [x] `1.10` Update `governance-discovery-subagent` — dual-field output (`bicepPropertyPath` + `azurePropertyPath`)
+- [x] `1.11` Create `terraform-code-best-practices.instructions.md`
+- [x] `1.12` Create `terraform-policy-compliance.instructions.md`
+- [x] `1.13` Create `terraform-patterns/SKILL.md`
+- [x] `1.14` Update `azure-defaults/SKILL.md` — add `## Terraform Conventions` section + AVM-TF table
 
 ## Phase 2 — Agents (Core)
 
@@ -104,8 +104,7 @@ blocking_issues: []
 | ---------- | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-02-24 | —              | Setup   | Initial progress tracker created                                                                                                                                                                                                                                                                           |
 | 2026-02-24 | GitHub Copilot | 0.1–0.8 | Phase 0 complete. Note: `@hashicorp/terraform-mcp-server` npm package does not exist; using official Docker image `hashicorp/terraform-mcp-server:latest` in mcp.json instead. Docker socket must be available in devcontainer. Tool names documented in `docs/tf-support/mcp-tools.md`. Gate 0.8 cleared. |
-| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn’t work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected.                      |
-
+| 2026-02-24 | GitHub Copilot | 0.6 fix | Docker-in-devcontainer doesn’t work without extra features. Switched to `go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest`. Binary at `/home/vscode/go/bin/`. `post-create.sh` updated (step 7). `mcp-tools.md` and `.vscode/mcp.json` corrected.                      || 2026-02-25 | GitHub Copilot | 1.9–1.14 | Phase 1 complete. governance-discovery files extended with `**/*.tf` applyTo and dual-field JSON schema (`bicepPropertyPath` + `azurePropertyPath`). Created `terraform-code-best-practices.instructions.md`, `terraform-policy-compliance.instructions.md` (with `azurePropertyPath` translation table), `terraform-patterns/SKILL.md` (7 patterns + AVM pitfalls). `azure-defaults/SKILL.md` updated with Terraform Conventions section and 16-entry AVM-TF module table. All new validators pass. Pre-existing mcp.json JSONC issue unaffected. |
 ## Validator Status (run after each phase)
 
 ```
