@@ -2,9 +2,9 @@
 mode: agent
 tools:
   - run_in_terminal
-  - github_get_file_contents
-  - github_search_pull_requests
-  - github_create_pull_request
+  - github/get_file_contents
+  - github/search_pull_requests
+  - github/create_pull_request
 ---
 
 # Git Commit, Push & PR
@@ -166,10 +166,10 @@ If **A** or **B**:
    > **Draft PR?** Y / N (default: N)
 
 4. Check for an existing open PR from the current branch to the target
-   using `github_search_pull_requests` with query:
+   using `github/search_pull_requests` with query:
    `is:open head:<branch> base:<base>`.
    - If one exists, tell the user and skip creation.
-   - If none exists, call `github_create_pull_request` with:
+   - If none exists, call `github/create_pull_request` with:
      - `owner`: repository owner
      - `repo`: repository name
      - `head`: current branch
