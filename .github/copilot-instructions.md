@@ -10,36 +10,36 @@
 
 ## 7-Step Workflow
 
-| Step | Agent        | Output                                                                                                    | Gate       |
-| ---- | ------------ | --------------------------------------------------------------------------------------------------------- | ---------- |
-| 1    | Requirements | `01-requirements.md`                                                                                      | Approval   |
-| 2    | Architect    | `02-architecture-assessment.md` + cost estimate                                                           | Approval   |
-| 3    | Design (opt) | `03-des-*.{py,png,md}`                                                                                    | —          |
-| 4    | IaC Plan (Bicep: `05-Bicep Planner` / Terraform: `11-Terraform Planner`)               | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Approval   |
-| 5    | IaC Code (Bicep: `06-Bicep Code Generator` / Terraform: `12-Terraform Code Generator`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                                  | Validation |
-| 6    | Deploy (Bicep: `07-Deploy` / Terraform: `13-Terraform Deploy`)                         | `06-deployment-summary.md`                                                                                | Approval   |
-| 7    | As-Built     | `07-*.md` documentation suite                                                                             | —          |
+| Step | Agent                                                                      | Output                                                                                                    | Gate       |
+| ---- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------- |
+| 1    | Requirements                                                               | `01-requirements.md`                                                                                      | Approval   |
+| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                           | Approval   |
+| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}`                                                                                    | —          |
+| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Approval   |
+| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                                  | Validation |
+| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                                | Approval   |
+| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                             | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
 
 ## Skills (Auto-Invoked by Agents)
 
-| Skill               | Purpose                                                   |
-| ------------------- | --------------------------------------------------------- |
-| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing       |
-| `azure-artifacts`          | Template H2 structures, styling, generation rules               |
-| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)            |
-| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks             |
-| `azure-diagrams`           | Python architecture diagram generation                          |
-| `azure-adr`                | Architecture Decision Records                                   |
-| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                      |
-| `git-commit`               | Commit message conventions                                      |
-| `docs-writer`              | Documentation generation                                        |
-| `make-skill-template`      | Scaffold new Agent Skills from templates                        |
-| `microsoft-docs`           | Query official Microsoft/Azure docs (requires Learn MCP)        |
+| Skill                      | Purpose                                                               |
+| -------------------------- | --------------------------------------------------------------------- |
+| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing             |
+| `azure-artifacts`          | Template H2 structures, styling, generation rules                     |
+| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                  |
+| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks                   |
+| `azure-diagrams`           | Python architecture diagram generation                                |
+| `azure-adr`                | Architecture Decision Records                                         |
+| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                            |
+| `git-commit`               | Commit message conventions                                            |
+| `docs-writer`              | Documentation generation                                              |
+| `make-skill-template`      | Scaffold new Agent Skills from templates                              |
+| `microsoft-docs`           | Query official Microsoft/Azure docs (requires Learn MCP)              |
 | `microsoft-code-reference` | Verify SDK methods and find working code samples (requires Learn MCP) |
-| `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies (requires Learn MCP) |
-| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)    |
+| `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies (requires Learn MCP)  |
+| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)     |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
 
@@ -80,16 +80,16 @@ Full details in `.github/skills/terraform-patterns/SKILL.md`.
 
 ## Key Files
 
-| Path                        | Purpose                                 |
-| --------------------------- | --------------------------------------- |
-| `.github/agents/*.agent.md` | Agent definitions                       |
-| `.github/skills/*/SKILL.md` | Reusable skill knowledge                |
-| `.github/instructions/`     | File-type rules (Bicep, Markdown, etc.) |
-| `agent-output/{project}/`   | Agent-generated artifacts               |
-| `infra/bicep/{project}/`    | Bicep templates                         |
-| `mcp/azure-pricing-mcp/`    | Azure Pricing MCP server                |
-| `.vscode/mcp.json`          | MCP server configuration                |
-| `infra/terraform/{project}/` | Terraform templates by project          |
+| Path                         | Purpose                                     |
+| ---------------------------- | ------------------------------------------- |
+| `.github/agents/*.agent.md`  | Agent definitions                           |
+| `.github/skills/*/SKILL.md`  | Reusable skill knowledge                    |
+| `.github/instructions/`      | File-type rules (Bicep, Markdown, etc.)     |
+| `agent-output/{project}/`    | Agent-generated artifacts                   |
+| `infra/bicep/{project}/`     | Bicep templates                             |
+| `mcp/azure-pricing-mcp/`     | Azure Pricing MCP server                    |
+| `.vscode/mcp.json`           | MCP server configuration                    |
+| `infra/terraform/{project}/` | Terraform templates by project              |
 | `docs/tf-support/`           | Terraform support planning docs and prompts |
 
 ## Validation

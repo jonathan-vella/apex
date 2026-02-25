@@ -18,15 +18,15 @@ multi-cloud scenarios and support organizations with existing Terraform investme
 
 Adding Terraform support requires changes across several areas:
 
-| Area | Components |
-|------|------------|
-| **Dev Environment** | Dev container features, VS Code extensions |
-| **Git Configuration** | `.gitignore`, `.gitattributes` |
-| **Copilot Agents** | `terraform-plan`, `terraform-code`, `terraform-deploy` |
-| **Copilot Skills** | ADR, diagrams, workload docs, preflight, cost estimate |
-| **Instructions** | Best practices for `*.tf` files |
-| **CI/CD** | Validation workflows, security scanning |
-| **Documentation** | Guides, glossary, workflow docs |
+| Area                  | Components                                             |
+| --------------------- | ------------------------------------------------------ |
+| **Dev Environment**   | Dev container features, VS Code extensions             |
+| **Git Configuration** | `.gitignore`, `.gitattributes`                         |
+| **Copilot Agents**    | `terraform-plan`, `terraform-code`, `terraform-deploy` |
+| **Copilot Skills**    | ADR, diagrams, workload docs, preflight, cost estimate |
+| **Instructions**      | Best practices for `*.tf` files                        |
+| **CI/CD**             | Validation workflows, security scanning                |
+| **Documentation**     | Guides, glossary, workflow docs                        |
 
 ---
 
@@ -77,12 +77,12 @@ curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/
 
 Add to the extensions array:
 
-| Extension | Purpose |
-|-----------|---------|
-| `HashiCorp.terraform` | Terraform language support, IntelliSense |
-| `ms-azuretools.vscode-azureterraform` | Azure Terraform integration |
-| `golang.go` | Go support for Terratest |
-| `infracost.infracost-vscode` | Cost estimation in editor |
+| Extension                             | Purpose                                  |
+| ------------------------------------- | ---------------------------------------- |
+| `HashiCorp.terraform`                 | Terraform language support, IntelliSense |
+| `ms-azuretools.vscode-azureterraform` | Azure Terraform integration              |
+| `golang.go`                           | Go support for Terratest                 |
+| `infracost.infracost-vscode`          | Cost estimation in editor                |
 
 ### Editor Settings
 
@@ -212,13 +212,13 @@ tools:
 
 ### Skill Parity Matrix
 
-| Bicep Skill | Terraform Equivalent | Purpose |
-|-------------|---------------------|---------|
-| `azure-adr` | `terraform-adr` | Architecture Decision Records |
-| `azure-diagrams` | `terraform-diagrams` | Generate diagrams from `.tf` files |
-| `azure-artifacts` | `terraform-workload-docs` | Resource inventory, runbooks |
-| deploy agent | `terraform-deployment-preflight` | Pre-deployment validation |
-| N/A | `terraform-cost-estimate` | Infracost integration |
+| Bicep Skill       | Terraform Equivalent             | Purpose                            |
+| ----------------- | -------------------------------- | ---------------------------------- |
+| `azure-adr`       | `terraform-adr`                  | Architecture Decision Records      |
+| `azure-diagrams`  | `terraform-diagrams`             | Generate diagrams from `.tf` files |
+| `azure-artifacts` | `terraform-workload-docs`        | Resource inventory, runbooks       |
+| deploy agent      | `terraform-deployment-preflight` | Pre-deployment validation          |
+| N/A               | `terraform-cost-estimate`        | Infracost integration              |
 
 ### terraform-deployment-preflight Skill
 
@@ -249,7 +249,7 @@ infracost diff --path . --compare-to baseline.json
 
 ### terraform-code-best-practices.instructions.md
 
-```markdown
+````markdown
 ---
 applyTo: "**/*.tf"
 description: "Infrastructure as Code best practices for Terraform configurations"
@@ -267,19 +267,19 @@ description: "Infrastructure as Code best practices for Terraform configurations
 ## Module Structure
 
 infra/terraform/{project}/
-├── main.tf           # Root module, module calls
-├── variables.tf      # Input variables with validation
-├── outputs.tf        # Output values
-├── providers.tf      # Provider configuration
-├── versions.tf       # Terraform and provider versions
-├── locals.tf         # Local values
-├── data.tf           # Data sources
-└── modules/          # Child modules
-    └── {module}/
-        ├── main.tf
-        ├── variables.tf
-        ├── outputs.tf
-        └── README.md
+├── main.tf # Root module, module calls
+├── variables.tf # Input variables with validation
+├── outputs.tf # Output values
+├── providers.tf # Provider configuration
+├── versions.tf # Terraform and provider versions
+├── locals.tf # Local values
+├── data.tf # Data sources
+└── modules/ # Child modules
+└── {module}/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+└── README.md
 
 ## Security Requirements
 
@@ -297,6 +297,7 @@ Follow CAF: `{type}-{workload}-{env}-{region}-{instance}`
 PREFER AVM modules from: `Azure/terraform-azurerm-avm-*`
 
 Example:
+
 ```hcl
 module "keyvault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
@@ -308,7 +309,9 @@ module "keyvault" {
   tags                = local.tags
 }
 ```
-```text
+````
+
+````text
 
 ---
 
@@ -389,7 +392,7 @@ jobs:
         with:
           path: /tmp/infracost.json
           behavior: update
-```
+````
 
 ---
 
@@ -432,13 +435,13 @@ docs/prompt-guide/
 
 ### Common AVM-TF Modules
 
-| Resource | Module | Registry |
-|----------|--------|----------|
-| Resource Group | `Azure/avm-res-resources-resourcegroup/azurerm` | [View module][avm-rg] |
-| Virtual Network | `Azure/avm-res-network-virtualnetwork/azurerm` | [View module][avm-vnet] |
-| Key Vault | `Azure/avm-res-keyvault-vault/azurerm` | [View module][avm-kv] |
-| Storage Account | `Azure/avm-res-storage-storageaccount/azurerm` | [View module][avm-st] |
-| App Service | `Azure/avm-res-web-site/azurerm` | [View module][avm-web] |
+| Resource        | Module                                          | Registry                |
+| --------------- | ----------------------------------------------- | ----------------------- |
+| Resource Group  | `Azure/avm-res-resources-resourcegroup/azurerm` | [View module][avm-rg]   |
+| Virtual Network | `Azure/avm-res-network-virtualnetwork/azurerm`  | [View module][avm-vnet] |
+| Key Vault       | `Azure/avm-res-keyvault-vault/azurerm`          | [View module][avm-kv]   |
+| Storage Account | `Azure/avm-res-storage-storageaccount/azurerm`  | [View module][avm-st]   |
+| App Service     | `Azure/avm-res-web-site/azurerm`                | [View module][avm-web]  |
 
 [avm-rg]: https://registry.terraform.io/modules/Azure/avm-res-resources-resourcegroup/azurerm
 [avm-vnet]: https://registry.terraform.io/modules/Azure/avm-res-network-virtualnetwork/azurerm
@@ -481,17 +484,17 @@ Azure Storage backend provides automatic state locking via blob leases.
 
 ## Summary
 
-| Component | Files/Locations |
-|-----------|-----------------|
-| **Dev Container** | `.devcontainer/devcontainer.json`, `post-create.sh` |
-| **VS Code** | Extensions and settings in `devcontainer.json` |
-| **Git Config** | `.gitignore`, `.gitattributes` |
-| **Agents** | `.github/agents/terraform-*.agent.md` |
-| **Skills** | `.github/skills/terraform-*/` |
-| **Instructions** | `.github/instructions/terraform-*.instructions.md` |
-| **Infrastructure** | `infra/terraform/{project}/` |
-| **Prompt Guide** | `docs/prompt-guide/` (future Terraform section) |
-| **CI/CD** | `.github/workflows/terraform-*.yml` |
+| Component          | Files/Locations                                     |
+| ------------------ | --------------------------------------------------- |
+| **Dev Container**  | `.devcontainer/devcontainer.json`, `post-create.sh` |
+| **VS Code**        | Extensions and settings in `devcontainer.json`      |
+| **Git Config**     | `.gitignore`, `.gitattributes`                      |
+| **Agents**         | `.github/agents/terraform-*.agent.md`               |
+| **Skills**         | `.github/skills/terraform-*/`                       |
+| **Instructions**   | `.github/instructions/terraform-*.instructions.md`  |
+| **Infrastructure** | `infra/terraform/{project}/`                        |
+| **Prompt Guide**   | `docs/prompt-guide/` (future Terraform section)     |
+| **CI/CD**          | `.github/workflows/terraform-*.yml`                 |
 
 > [!IMPORTANT]
 > This roadmap enables Terraform to coexist with Bicep while maintaining the structured
@@ -516,46 +519,46 @@ Implemented on branch `tf-dev` between 2026-02-24 and 2026-02-25 (Phases 0–5 c
 
 ### Key Decisions
 
-| Decision | Rationale |
-| -------- | --------- |
-| MCP server via `go install` instead of Docker | Docker-in-devcontainer requires extra features; Go binary is simpler and works natively in the dev container |
-| AVM-TF module table in `azure-defaults/SKILL.md` | Centralises module discovery so all agents share the same module registry |
+| Decision                                                                 | Rationale                                                                                                           |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| MCP server via `go install` instead of Docker                            | Docker-in-devcontainer requires extra features; Go binary is simpler and works natively in the dev container        |
+| AVM-TF module table in `azure-defaults/SKILL.md`                         | Centralises module discovery so all agents share the same module registry                                           |
 | Dual-field governance output (`bicepPropertyPath` + `azurePropertyPath`) | Enables governance-discovery-subagent to serve both Bicep and Terraform agents without breaking existing Bicep flow |
-| `var.deployment_phase` + `count` conditionals | Phase-aware deployments allow incremental provisioning without separate state files |
-| Provider pin `~> 4.0` | Locks to major version for stability while allowing minor/patch updates |
-| Azure Storage backend (not Terraform Cloud) | Consistent with existing Azure-native approach; no additional SaaS dependency |
+| `var.deployment_phase` + `count` conditionals                            | Phase-aware deployments allow incremental provisioning without separate state files                                 |
+| Provider pin `~> 4.0`                                                    | Locks to major version for stability while allowing minor/patch updates                                             |
+| Azure Storage backend (not Terraform Cloud)                              | Consistent with existing Azure-native approach; no additional SaaS dependency                                       |
 
 ### Deviations from Original Roadmap
 
-| Section | Original Plan | Actual Implementation |
-| ------- | ------------- | --------------------- |
-| Section 4 — Agent names | `terraform-plan`, `terraform-code`, `terraform-deploy` | `11-terraform-planner`, `12-terraform-code-generator`, `13-terraform-deploy` (numbered to fit conductor routing) |
-| Section 5 — Separate preflight/cost skills | Planned as standalone skills | Preflight covered by `terraform-lint-subagent` + `terraform-plan-subagent`; cost estimation via Azure Pricing MCP (shared with Bicep flow) |
-| Section 7 — Infracost CI job | Planned as separate workflow job | Not implemented (requires paid API key); tfsec scan retained |
-| Phase 6 — Governance migration | Bicep agents migrate to `azurePropertyPath` | Deferred; both fields emitted simultaneously, Bicep agents still use `bicepPropertyPath` |
+| Section                                    | Original Plan                                          | Actual Implementation                                                                                                                      |
+| ------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Section 4 — Agent names                    | `terraform-plan`, `terraform-code`, `terraform-deploy` | `05t-terraform-planner`, `06t-terraform-codegen`, `07t-terraform-deploy` (b/t suffix convention)                                           |
+| Section 5 — Separate preflight/cost skills | Planned as standalone skills                           | Preflight covered by `terraform-lint-subagent` + `terraform-plan-subagent`; cost estimation via Azure Pricing MCP (shared with Bicep flow) |
+| Section 7 — Infracost CI job               | Planned as separate workflow job                       | Not implemented (requires paid API key); tfsec scan retained                                                                               |
+| Phase 6 — Governance migration             | Bicep agents migrate to `azurePropertyPath`            | Deferred; both fields emitted simultaneously, Bicep agents still use `bicepPropertyPath`                                                   |
 
 ### Files Created / Modified
 
-| File | Phase | Type |
-| ---- | ----- | ---- |
-| `.github/instructions/terraform-code-best-practices.instructions.md` | 1 | New |
-| `.github/instructions/terraform-policy-compliance.instructions.md` | 1 | New |
-| `.github/skills/terraform-patterns/SKILL.md` | 1 | New |
-| `.github/agents/11-terraform-planner.agent.md` | 2 | New |
-| `.github/agents/12-terraform-code-generator.agent.md` | 2 | New |
-| `.github/agents/13-terraform-deploy.agent.md` | 2 | New |
-| `.github/agents/_subagents/terraform-lint-subagent.agent.md` | 3 | New |
-| `.github/agents/_subagents/terraform-review-subagent.agent.md` | 3 | New |
-| `.github/agents/_subagents/terraform-plan-subagent.agent.md` | 3 | New |
-| `.github/workflows/terraform-validate.yml` | 5 | New |
-| `.github/instructions/governance-discovery.instructions.md` | 1 | Modified |
-| `.github/skills/azure-defaults/SKILL.md` | 1 | Modified |
-| `.github/agents/01-conductor.agent.md` | 4 | Modified |
-| `.github/agents/02-requirements.agent.md` | 4 | Modified |
-| `.github/agents/03-architect.agent.md` | 4 | Modified |
-| `.github/agents/_subagents/governance-discovery-subagent.agent.md` | 1 | Modified |
-| `lefthook.yml` | 5 | Modified |
-| `package.json` | 5 | Modified |
-| `scripts/validate-governance-refs.mjs` | 5 | Modified |
-| `.github/workflows/policy-compliance-check.yml` | 5 | Modified |
-| `.github/copilot-instructions.md` | 7 | Modified |
+| File                                                                 | Phase | Type     |
+| -------------------------------------------------------------------- | ----- | -------- |
+| `.github/instructions/terraform-code-best-practices.instructions.md` | 1     | New      |
+| `.github/instructions/terraform-policy-compliance.instructions.md`   | 1     | New      |
+| `.github/skills/terraform-patterns/SKILL.md`                         | 1     | New      |
+| `.github/agents/05t-terraform-planner.agent.md`                      | 2     | New      |
+| `.github/agents/06t-terraform-codegen.agent.md`                      | 2     | New      |
+| `.github/agents/07t-terraform-deploy.agent.md`                       | 2     | New      |
+| `.github/agents/_subagents/terraform-lint-subagent.agent.md`         | 3     | New      |
+| `.github/agents/_subagents/terraform-review-subagent.agent.md`       | 3     | New      |
+| `.github/agents/_subagents/terraform-plan-subagent.agent.md`         | 3     | New      |
+| `.github/workflows/terraform-validate.yml`                           | 5     | New      |
+| `.github/instructions/governance-discovery.instructions.md`          | 1     | Modified |
+| `.github/skills/azure-defaults/SKILL.md`                             | 1     | Modified |
+| `.github/agents/01-conductor.agent.md`                               | 4     | Modified |
+| `.github/agents/02-requirements.agent.md`                            | 4     | Modified |
+| `.github/agents/03-architect.agent.md`                               | 4     | Modified |
+| `.github/agents/_subagents/governance-discovery-subagent.agent.md`   | 1     | Modified |
+| `lefthook.yml`                                                       | 5     | Modified |
+| `package.json`                                                       | 5     | Modified |
+| `scripts/validate-governance-refs.mjs`                               | 5     | Modified |
+| `.github/workflows/policy-compliance-check.yml`                      | 5     | Modified |
+| `.github/copilot-instructions.md`                                    | 7     | Modified |

@@ -20,11 +20,11 @@ Phases 0-5 complete (Phase 6 optional). At minimum, the Terraform agents work en
 
 Find the **7-Step Workflow** table. Update rows 4-6:
 
-| Step | Before     | After                                                                                  |
-| ---- | ---------- | -------------------------------------------------------------------------------------- |
-| 4    | Bicep Plan | IaC Plan (Bicep: `05-Bicep Planner` / Terraform: `11-Terraform Planner`)               |
-| 5    | Bicep Code | IaC Code (Bicep: `06-Bicep Code Generator` / Terraform: `12-Terraform Code Generator`) |
-| 6    | Deploy     | Deploy (Bicep: `07-Deploy` / Terraform: `13-Terraform Deploy`)                         |
+| Step | Before     | After                                                                      |
+| ---- | ---------- | -------------------------------------------------------------------------- |
+| 4    | Bicep Plan | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) |
+| 5    | Bicep Code | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) |
+| 6    | Deploy     | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     |
 
 Find the **Skills** table. Add a new row:
 
@@ -62,7 +62,7 @@ provider_pin: "~> 4.0"
 Read the current file. For each item that was completed in Phases 0-7:
 
 - Change `[ ]` to `[x]`
-- Add a link to the actual file created, e.g.: `[Created](../.github/agents/11-terraform-planner.agent.md)`
+- Add a link to the actual file created, e.g.: `[Created](../.github/agents/05t-terraform-planner.agent.md)`
 
 Add a new section at the bottom: `## Implementation Notes` with a brief summary
 of key decisions made and any deviations from the original roadmap.

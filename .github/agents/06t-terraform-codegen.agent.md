@@ -1,5 +1,5 @@
 ---
-name: 12-Terraform Code Generator
+name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
 model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]
 user-invokable: true
@@ -109,23 +109,23 @@ tools:
   ]
 handoffs:
   - label: "▶ Run Preflight Check"
-    agent: 12-Terraform Code Generator
+    agent: 06t-Terraform CodeGen
     prompt: "Run AVM-TF version resolution and module variable schema validation before generating Terraform code. Save results to `agent-output/{project}/04-preflight-check.md`."
     send: true
   - label: "▶ Fix Validation Errors"
-    agent: 12-Terraform Code Generator
+    agent: 06t-Terraform CodeGen
     prompt: "Review terraform validate/fmt errors and fix the configurations in `infra/terraform/{project}/`. Re-run validation after fixes."
     send: true
   - label: "▶ Generate Implementation Reference"
-    agent: 12-Terraform Code Generator
+    agent: 06t-Terraform CodeGen
     prompt: "Generate or update `agent-output/{project}/05-implementation-reference.md` with current template structure and validation status."
     send: true
   - label: "Step 6: Deploy"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Deploy the validated Terraform configuration in `infra/terraform/{project}/` to Azure. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run terraform plan first."
     send: true
   - label: "↩ Return to Step 4"
-    agent: 11-Terraform Planner
+    agent: 05t-Terraform Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
     model: "Claude Opus 4.6 (copilot)"

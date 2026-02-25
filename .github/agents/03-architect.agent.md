@@ -3,7 +3,7 @@ name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.
 model: ["Claude Opus 4.6"]
 user-invokable: true
-agents: ["cost-estimate-subagent", "10-Challenger", "11-Terraform Planner"]
+agents: ["cost-estimate-subagent", "10-Challenger", "05t-Terraform Planner"]
 tools:
   [
     vscode/extensions,
@@ -131,12 +131,12 @@ handoffs:
     send: false
     model: "GPT-5.3-Codex (copilot)"
   - label: "⏭️ Skip to Step 4: IaC Plan (Bicep)"
-    agent: 05-Bicep Planner
+    agent: 05b-Bicep Planner
     prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "⏭️ Skip to Step 4: IaC Plan (Terraform)"
-    agent: 11-Terraform Planner
+    agent: 05t-Terraform Planner
     prompt: "Create a detailed Terraform implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation."
     send: true
     model: "Claude Opus 4.6 (copilot)"

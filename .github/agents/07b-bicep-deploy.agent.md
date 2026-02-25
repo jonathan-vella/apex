@@ -1,5 +1,5 @@
 ---
-name: 07-Deploy
+name: 07b-Bicep Deploy
 model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
@@ -114,23 +114,23 @@ tools:
   ]
 handoffs:
   - label: "▶ Run What-If Only"
-    agent: 07-Deploy
+    agent: 07b-Bicep Deploy
     prompt: "Execute az deployment what-if analysis without actually deploying. Show the expected changes to the target resource group."
     send: true
   - label: "▶ Deploy Next Phase"
-    agent: 07-Deploy
+    agent: 07b-Bicep Deploy
     prompt: "Deploy the next phase from `agent-output/{project}/04-implementation-plan.md`. Deploy the next uncompleted phase with approval."
     send: true
   - label: "▶ Deploy All Phases"
-    agent: 07-Deploy
+    agent: 07b-Bicep Deploy
     prompt: "Deploy all remaining phases sequentially from `agent-output/{project}/04-implementation-plan.md` with approval gates between each."
     send: true
   - label: "▶ Retry Deployment"
-    agent: 07-Deploy
+    agent: 07b-Bicep Deploy
     prompt: "Retry the last deployment operation. Re-run preflight validation and deployment with the same parameters."
     send: true
   - label: "▶ Verify Resources"
-    agent: 07-Deploy
+    agent: 07b-Bicep Deploy
     prompt: "Query deployed resources using Azure Resource Graph to verify successful deployment. Check resource health status."
     send: true
   - label: "Step 7: As-Built Documentation"
@@ -142,7 +142,7 @@ handoffs:
     prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
     send: true
   - label: "↩ Fix Deployment Issues"
-    agent: 06-Bicep Code Generator
+    agent: 06b-Bicep CodeGen
     prompt: "The deployment encountered errors. Review the error messages and fix the Bicep templates in `infra/bicep/{project}/` to resolve the issues."
     send: true
   - label: "↩ Return to Step 2"

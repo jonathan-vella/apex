@@ -14,9 +14,8 @@
  * node scripts/validate-instruction-references.mjs
  */
 
-import fs from "node:fs";
+import fs, { globSync } from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
 
 const ROOT = process.cwd();
 
@@ -62,25 +61,53 @@ function collectFiles(dirs, extensions) {
   return files;
 }
 
-function globHasMatch(pattern) {
-  // Convert simple glob to a find-compatible check
-  // Handle comma-separated patterns: "**/*.bicep, **/*.agent.md"
-  const patterns = pattern.split(",").map((p) => p.trim());
-  for (const pat of patterns) {
-    if (!pat) continue;
-    try {
-      // Use git ls-files for glob matching (respects .gitignore)
-      const result = execSync(
-        `git ls-files --cached --others --exclude-standard "${pat}" 2>/dev/null | head -1`,
-        { cwd: ROOT, encoding: "utf-8", timeout: 5000 },
-      ).trim();
-      if (result) return true;
-    } catch {
-      // If git ls-files fails, try a simpler check
-      return true;
+function splitApplyTo(pattern) {
+  // Split on commas that are NOT inside brace expressions {a,b,c}
+  const parts = [];
+  let depth = 0;
+  let current = "";
+  for (const ch of pattern) {
+    if (ch === "{") {
+      depth++;
+      current += ch;
+    } else if (ch === "}") {
+      depth--;
+      current += ch;
+    } else if (ch === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+    } else {
+      current += ch;
     }
   }
-  return false;
+  if (current.trim()) parts.push(current.trim());
+  return parts.filter(Boolean);
+}
+
+function globHasMatch(pattern) {
+  const patterns = splitApplyTo(pattern);
+  // Also derive hidden-dir variants: "**/*.foo" → ".github/**/*.foo" etc.
+  const hiddenPrefixes = [".github", ".vscode"];
+  const expanded = [];
+  for (const pat of patterns) {
+    expanded.push(pat);
+    if (pat.startsWith("**/")) {
+      for (const prefix of hiddenPrefixes) {
+        expanded.push(`${prefix}/**/${pat.slice(3)}`);
+      }
+    }
+  }
+  try {
+    // Exclude generated/dependency directories for speed and accuracy
+    const matches = globSync(expanded, {
+      cwd: ROOT,
+      exclude: (p) =>
+        p === ".venv" || p === "node_modules" || p === "dist" || p === "build",
+    });
+    return matches.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 // --- Rule 1: Instruction file references ---

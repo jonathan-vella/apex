@@ -18,7 +18,7 @@ Phases 0-4 complete and merged.
 5. `scripts/validate-artifact-templates.mjs` — AGENTS map and ARTIFACT_HEADINGS
 6. `.github/workflows/policy-compliance-check.yml` — current triggers
 7. `.github/skills/azure-artifacts/SKILL.md` — find `Bicep Templates Location` heading
-8. `.github/agents/06-bicep-code-generator.agent.md` — find `Bicep Templates Location` reference
+8. `.github/agents/06b-bicep-codegen.agent.md` — find `Bicep Templates Location` reference
 9. `docs/tf-support/tf-support-plan.prompt.md` — items 24-30
 
 ## Item 5.24 — Update `lefthook.yml`
@@ -78,9 +78,9 @@ This is the most complex change in Phase 5. Read the entire file before editing.
 Add check groups for all Terraform agents. The pattern mirrors existing Bicep check groups.
 Add these new groups to the `checks` array:
 
-1. **terraform-planner-azurePropertyPath**: Checks `11-terraform-planner.agent.md` references
+1. **terraform-planner-azurePropertyPath**: Checks `05t-terraform-planner.agent.md` references
    `azurePropertyPath` (not `bicepPropertyPath` or `terraformPropertyPath`)
-2. **terraform-code-generator-governance**: Checks `12-terraform-code-generator.agent.md`
+2. **terraform-code-generator-governance**: Checks `06t-terraform-codegen.agent.md`
    has Phase 1.5, HARD GATE, references `04-governance-constraints.json` and `azurePropertyPath`
 3. **terraform-review-subagent-governance**: Checks `terraform-review-subagent.agent.md`
    has Governance Compliance section mentioning `azurePropertyPath`
@@ -147,8 +147,8 @@ jobs:
 Find the `on: pull_request: paths:` trigger. Add paths:
 
 ```yaml
-- ".github/agents/11-terraform-planner.agent.md"
-- ".github/agents/12-terraform-code-generator.agent.md"
+- ".github/agents/05t-terraform-planner.agent.md"
+- ".github/agents/06t-terraform-codegen.agent.md"
 - ".github/agents/_subagents/terraform-review-subagent.agent.md"
 - ".github/instructions/terraform-policy-compliance.instructions.md"
 ```
@@ -159,7 +159,7 @@ Find and replace `## 📁 Bicep Templates Location` → `## 📁 IaC Templates L
 
 1. `scripts/validate-artifact-templates.mjs` — in the `ARTIFACT_HEADINGS` object
 2. `.github/skills/azure-artifacts/SKILL.md` — in the template definition for `05-implementation-reference.md`
-3. `.github/agents/06-bicep-code-generator.agent.md` — in Phase 4 output instructions
+3. `.github/agents/06b-bicep-codegen.agent.md` — in Phase 4 output instructions
 
 Run the h2-sync check to make sure all three are now in sync:
 
@@ -177,7 +177,7 @@ The cleanest approach: detect IaC type from the `infra/terraform/` or `infra/bic
 directory path in the artifact content, then select the correct agent.
 
 At minimum, add a comment documenting the dual-agent situation and ensure the validator
-does not emit false errors when `12-terraform-code-generator.agent.md` produces
+does not emit false errors when `06t-terraform-codegen.agent.md` produces
 `05-implementation-reference.md` with an `## 📁 IaC Templates Location` heading.
 
 ## Validation
@@ -197,7 +197,7 @@ git add lefthook.yml package.json scripts/validate-governance-refs.mjs \
         scripts/validate-artifact-templates.mjs .github/workflows/terraform-validate.yml \
         .github/workflows/policy-compliance-check.yml \
         .github/skills/azure-artifacts/SKILL.md \
-        .github/agents/06-bicep-code-generator.agent.md
+        .github/agents/06b-bicep-codegen.agent.md
 git commit -m "feat(quality): add Terraform quality gates, CI workflow, and IaC-neutral templates
 
 - lefthook.yml: add terraform-fmt and terraform-validate pre-commit hooks

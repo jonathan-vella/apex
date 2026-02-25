@@ -14,6 +14,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 
 const SKILLS_DIR = ".github/skills";
 
@@ -47,46 +48,6 @@ const DEPRECATED_PATTERNS = [
 let errors = 0;
 let warnings = 0;
 let skillCount = 0;
-
-/**
- * Parse frontmatter from skill markdown file
- */
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return null;
-
-  const frontmatter = {};
-  const lines = match[1].split("\n");
-
-  for (const line of lines) {
-    const keyMatch = line.match(/^([a-z-]+):\s*(.*)/i);
-    if (keyMatch) {
-      const key = keyMatch[1].toLowerCase();
-      let value = keyMatch[2].trim();
-
-      // Handle quoted strings
-      value = value.replace(/^["']|["']$/g, "");
-
-      // Handle multiline description with >
-      if (value === ">" || value === "|") {
-        const nextLines = [];
-        const lineIndex = lines.indexOf(line);
-        for (let i = lineIndex + 1; i < lines.length; i++) {
-          if (lines[i].startsWith("  ")) {
-            nextLines.push(lines[i].trim());
-          } else {
-            break;
-          }
-        }
-        value = nextLines.join(" ");
-      }
-
-      frontmatter[key] = value;
-    }
-  }
-
-  return frontmatter;
-}
 
 /**
  * Validate a single skill

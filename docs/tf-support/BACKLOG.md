@@ -38,11 +38,11 @@
 
 ## Phase 2 — Agents (Core)
 
-| ID   | Item                                          | Type    | Size | Status | Owner | Notes                                    |
-| ---- | --------------------------------------------- | ------- | ---- | ------ | ----- | ---------------------------------------- |
-| 2.15 | Create `11-terraform-planner.agent.md`        | `agent` | XL   | `todo` | —     | Requires Phase 0 item 0.8 for tool names |
-| 2.16 | Create `12-terraform-code-generator.agent.md` | `agent` | XL   | `todo` | —     | Includes bootstrap scripts phase         |
-| 2.17 | Create `13-terraform-deploy.agent.md`         | `agent` | L    | `todo` | —     | Azure Storage backend only               |
+| ID   | Item                                    | Type    | Size | Status | Owner | Notes                                    |
+| ---- | --------------------------------------- | ------- | ---- | ------ | ----- | ---------------------------------------- |
+| 2.15 | Create `05t-terraform-planner.agent.md` | `agent` | XL   | `todo` | —     | Requires Phase 0 item 0.8 for tool names |
+| 2.16 | Create `06t-terraform-codegen.agent.md` | `agent` | XL   | `todo` | —     | Includes bootstrap scripts phase         |
+| 2.17 | Create `07t-terraform-deploy.agent.md`  | `agent` | L    | `todo` | —     | Azure Storage backend only               |
 
 ## Phase 3 — Subagents
 

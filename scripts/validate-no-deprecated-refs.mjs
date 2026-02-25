@@ -62,8 +62,39 @@ const DEPRECATED_PATTERNS = [
   },
   {
     pattern: /\.github\/agents\/docs\.agent\.md/gi,
-    message:
-      "Reference to removed docs.agent.md (use azure-artifacts skill)",
+    message: "Reference to removed docs.agent.md (use azure-artifacts skill)",
+    severity: "error",
+  },
+
+  // Renamed agent files (b/t suffix convention)
+  {
+    pattern: /05-bicep-planner\.agent\.md/gi,
+    message: "Renamed to 05b-bicep-planner.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /06-bicep-code-generator\.agent\.md/gi,
+    message: "Renamed to 06b-bicep-codegen.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /07-deploy\.agent\.md/gi,
+    message: "Renamed to 07b-bicep-deploy.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /11-terraform-planner\.agent\.md/gi,
+    message: "Renamed to 05t-terraform-planner.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /12-terraform-code-generator\.agent\.md/gi,
+    message: "Renamed to 06t-terraform-codegen.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /13-terraform-deploy\.agent\.md/gi,
+    message: "Renamed to 07t-terraform-deploy.agent.md",
     severity: "error",
   },
 
@@ -95,8 +126,7 @@ const DEPRECATED_PATTERNS = [
   },
   {
     pattern: /@docs\s+agent/gi,
-    message:
-      "Reference to @docs agent (removed - use azure-artifacts skill)",
+    message: "Reference to @docs agent (removed - use azure-artifacts skill)",
     severity: "warn",
   },
 
@@ -144,9 +174,11 @@ function shouldExclude(filePath) {
   return EXCLUDE_PATTERNS.some((pattern) => pattern.test(filePath));
 }
 
+const SCAN_EXTENSIONS = new Set([".md", ".mjs", ".yml", ".yaml", ".json"]);
+
 function scanFile(filePath) {
   if (shouldExclude(filePath)) return;
-  if (!filePath.endsWith(".md")) return;
+  if (!SCAN_EXTENSIONS.has(path.extname(filePath))) return;
 
   const content = fs.readFileSync(filePath, "utf8");
   const relativePath = path.relative(ROOT, filePath);

@@ -1,5 +1,5 @@
 ---
-name: 11-Terraform Planner
+name: 05t-Terraform Planner
 description: Expert Azure Terraform Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates AVM-TF modules via the Terraform Registry, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invokable: true
@@ -109,19 +109,19 @@ tools:
   ]
 handoffs:
   - label: "▶ Refresh Governance"
-    agent: 11-Terraform Planner
+    agent: 05t-Terraform Planner
     prompt: "Re-query Azure Resource Graph for updated policy assignments and governance constraints. Update `agent-output/{project}/04-governance-constraints.md`."
     send: true
   - label: "▶ Revise Plan"
-    agent: 11-Terraform Planner
+    agent: 05t-Terraform Planner
     prompt: "Revise the implementation plan based on new information or feedback. Update `agent-output/{project}/04-implementation-plan.md`."
     send: true
   - label: "▶ Compare AVM-TF Modules"
-    agent: 11-Terraform Planner
+    agent: 05t-Terraform Planner
     prompt: "Query the Terraform Registry for all planned resources via `search_modules` and `get_module_details`. Compare available vs required variable inputs and flag any gaps."
     send: true
   - label: "Step 5: Generate Terraform"
-    agent: 12-Terraform Code Generator
+    agent: 06t-Terraform CodeGen
     prompt: "Implement the Terraform templates according to the implementation plan in `agent-output/{project}/04-implementation-plan.md`. Use AVM-TF modules, generate bootstrap scripts and deploy scripts, and save to `infra/terraform/{project}/`."
     send: true
   - label: "↩ Return to Step 2"

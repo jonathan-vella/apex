@@ -48,8 +48,8 @@ function fileExists(filePath) {
 console.log("\n🔍 Governance Reference Validation\n");
 
 // 1. Bicep Code Generator references governance constraints
-console.log("📄 06-bicep-code-generator.agent.md");
-const codeGenPath = ".github/agents/06-bicep-code-generator.agent.md";
+console.log("📄 06b-bicep-codegen.agent.md");
+const codeGenPath = ".github/agents/06b-bicep-codegen.agent.md";
 check(
   "References 04-governance-constraints",
   fileContains(codeGenPath, "04-governance-constraints"),
@@ -99,8 +99,8 @@ check(
 check("Checks SKU restrictions", fileContains(reviewPath, "SKU restriction"));
 
 // 3. Bicep Planner references JSON schema completeness
-console.log("\n📄 05-bicep-planner.agent.md");
-const plannerPath = ".github/agents/05-bicep-planner.agent.md";
+console.log("\n📄 05b-bicep-planner.agent.md");
+const plannerPath = ".github/agents/05b-bicep-planner.agent.md";
 check(
   "Notes JSON consumption by Code Generator",
   fileContains(plannerPath, "consumed downstream"),
@@ -151,8 +151,8 @@ check(
 );
 
 // 6. Terraform Planner uses azurePropertyPath (not bicepPropertyPath)
-console.log("\n📄 11-terraform-planner.agent.md");
-const tfPlannerPath = ".github/agents/11-terraform-planner.agent.md";
+console.log("\n📄 05t-terraform-planner.agent.md");
+const tfPlannerPath = ".github/agents/05t-terraform-planner.agent.md";
 check(
   "Uses azurePropertyPath (not bicepPropertyPath) for property mapping",
   fileContains(tfPlannerPath, "azurePropertyPath") &&
@@ -168,8 +168,8 @@ check(
 );
 
 // 7. Terraform Code Generator governance compliance
-console.log("\n📄 12-terraform-code-generator.agent.md");
-const tfCodeGenPath = ".github/agents/12-terraform-code-generator.agent.md";
+console.log("\n📄 06t-terraform-codegen.agent.md");
+const tfCodeGenPath = ".github/agents/06t-terraform-codegen.agent.md";
 check(
   "Has Phase 1.5: Governance Compliance Mapping",
   fileContains(tfCodeGenPath, "Phase 1.5"),

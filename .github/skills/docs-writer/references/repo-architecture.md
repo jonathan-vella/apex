@@ -27,25 +27,31 @@ azure-agentic-infraops/
 
 ### Primary Agents
 
-| Agent              | File                               | Model      | Step | Artifacts                       |
-| ------------------ | ---------------------------------- | ---------- | ---- | ------------------------------- |
-| InfraOps Conductor | `01-conductor.agent.md`            | Opus 4.6   | All  | Orchestration                   |
-| Requirements       | `02-requirements.agent.md`         | Opus 4.6   | 1    | `01-requirements.md`            |
-| Architect          | `03-architect.agent.md`            | Opus 4.6   | 2    | `02-architecture-assessment.md` |
-| Design             | `04-design.agent.md`               | Sonnet 4.5 | 3    | `03-des-*.{py,png,md}`          |
-| Bicep Plan         | `05-bicep-planner.agent.md`        | Opus 4.6   | 4    | `04-implementation-plan.md`     |
-| Bicep Code         | `06-bicep-code-generator.agent.md` | Sonnet 4.5 | 5    | Bicep in `infra/bicep/`         |
-| Deploy             | `07-deploy.agent.md`               | Sonnet 4.5 | 6    | `06-deployment-summary.md`      |
-| As-Built           | `08-as-built.agent.md`             | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
-| Diagnose           | `09-diagnose.agent.md`             | Sonnet 4.5 | —    | Diagnostic reports              |
+| Agent              | File                             | Model      | Step | Artifacts                       |
+| ------------------ | -------------------------------- | ---------- | ---- | ------------------------------- |
+| InfraOps Conductor | `01-conductor.agent.md`          | Opus 4.6   | All  | Orchestration                   |
+| Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`            |
+| Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md` |
+| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{py,png,md}`          |
+| Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`     |
+| Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
+| Terraform Plan     | `05t-terraform-planner.agent.md` | Opus 4.6   | 4t   | `04-implementation-plan.md`     |
+| Terraform Code     | `06t-terraform-codegen.agent.md` | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
+| As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
+| Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports              |
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent              | File                             | Purpose            |
-| --------------------- | -------------------------------- | ------------------ |
-| bicep-lint-subagent   | `bicep-lint-subagent.agent.md`   | Syntax validation  |
-| bicep-whatif-subagent | `bicep-whatif-subagent.agent.md` | Deployment preview |
-| bicep-review-subagent | `bicep-review-subagent.agent.md` | AVM code review    |
+| Subagent                  | File                                 | Purpose            |
+| ------------------------- | ------------------------------------ | ------------------ |
+| bicep-lint-subagent       | `bicep-lint-subagent.agent.md`       | Syntax validation  |
+| bicep-whatif-subagent     | `bicep-whatif-subagent.agent.md`     | Deployment preview |
+| bicep-review-subagent     | `bicep-review-subagent.agent.md`     | AVM code review    |
+| terraform-lint-subagent   | `terraform-lint-subagent.agent.md`   | Syntax validation  |
+| terraform-review-subagent | `terraform-review-subagent.agent.md` | AVM-TF code review |
+| terraform-plan-subagent   | `terraform-plan-subagent.agent.md`   | Deployment preview |
 
 ### Shared Knowledge (via Skills)
 

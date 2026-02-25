@@ -171,5 +171,5 @@ AVM Terraform modules use the `Azure` namespace, e.g., `Azure/avm-res-compute-vi
 - Use `search_modules` + `get_module_details` for AVM module lookups (replaces manual registry browsing)
 - Use `search_providers` + `get_provider_details` to look up `azurerm` resource arguments
 - The `terraform` toolset workspace tools are NOT needed for the Planner/Code Generator agents;
-  they are needed only for the Deploy agent (`13-terraform-deploy.agent.md`)
+  they are needed only for the Deploy agent (`07t-terraform-deploy.agent.md`)
 - Do NOT use community package tool names (`providerDetails`, `moduleSearch`, etc.) — that package is archived

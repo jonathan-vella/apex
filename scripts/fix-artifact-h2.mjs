@@ -15,127 +15,33 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { ARTIFACT_HEADINGS } from "./validate-artifact-templates.mjs";
 
-// H2 definitions (synced with validate-artifact-templates.mjs)
-const ARTIFACT_HEADINGS = {
-  "01-requirements.md": [
-    "## Project Overview",
-    "## Functional Requirements",
-    "## Non-Functional Requirements (NFRs)",
-    "## Compliance & Security Requirements",
-    "## Budget",
-    "## Operational Requirements",
-    "## Regional Preferences",
-  ],
-  "02-architecture-assessment.md": [
-    "## Requirements Validation ✅",
-    "## Executive Summary",
-    "## WAF Pillar Assessment",
-    "## Resource SKU Recommendations",
-    "## Architecture Decision Summary",
-    "## Implementation Handoff",
-    "## Approval Gate",
-  ],
-  "04-implementation-plan.md": [
-    "## Overview",
-    "## Resource Inventory",
-    "## Module Structure",
-    "## Implementation Tasks",
-    "## Deployment Phases",
-    "## Dependency Graph",
-    "## Runtime Flow Diagram",
-    "## Naming Conventions",
-    "## Security Configuration",
-    "## Estimated Implementation Time",
-    "## Approval Gate",
-  ],
-  "04-governance-constraints.md": [
-    "## Discovery Source",
-    "## Azure Policy Compliance",
-    "## Required Tags",
-    "## Security Policies",
-    "## Cost Policies",
-    "## Network Policies",
-  ],
-  "04-preflight-check.md": [
-    "## Purpose",
-    "## AVM Schema Validation Results",
-    "## Parameter Type Analysis",
-    "## Region Limitations Identified",
-    "## Pitfalls Checklist",
-    "## Ready for Implementation",
-  ],
-  "05-implementation-reference.md": [
-    "## IaC Templates Location",
-    "## File Structure",
-    "## Validation Status",
-    "## Resources Created",
-    "## Deployment Instructions",
-  ],
-  "06-deployment-summary.md": [
-    "## Preflight Validation",
-    "## Deployment Details",
-    "## Deployed Resources",
-    "## Outputs (Expected)",
-    "## To Actually Deploy",
-    "## Post-Deployment Tasks",
-  ],
-  "07-documentation-index.md": [
-    "## 1. Document Package Contents",
-    "## 2. Source Artifacts",
-    "## 3. Project Summary",
-    "## 4. Related Resources",
-    "## 5. Quick Links",
-  ],
-  "07-design-document.md": [
-    "## 1. Introduction",
-    "## 2. Azure Architecture Overview",
-    "## 3. Networking",
-    "## 4. Storage",
-    "## 5. Compute",
-    "## 6. Identity & Access",
-    "## 7. Security & Compliance",
-    "## 8. Backup & Disaster Recovery",
-    "## 9. Management & Monitoring",
-    "## 10. Appendix",
-  ],
-  "07-operations-runbook.md": [
-    "## Quick Reference",
-    "## 1. Daily Operations",
-    "## 2. Incident Response",
-    "## 3. Common Procedures",
-    "## 4. Maintenance Windows",
-    "## 5. Contacts & Escalation",
-    "## 6. Change Log",
-  ],
-  "07-resource-inventory.md": ["## Summary", "## Resource Listing"],
-  "07-backup-dr-plan.md": [
-    "## Executive Summary",
-    "## 1. Recovery Objectives",
-    "## 2. Backup Strategy",
-    "## 3. Disaster Recovery Procedures",
-    "## 4. Testing Schedule",
-    "## 5. Communication Plan",
-    "## 6. Roles and Responsibilities",
-    "## 7. Dependencies",
-    "## 8. Recovery Runbooks",
-    "## 9. Appendix",
-  ],
-  "07-compliance-matrix.md": [
-    "## Executive Summary",
-    "## 1. Control Mapping",
-    "## 2. Gap Analysis",
-    "## 3. Evidence Collection",
-    "## 4. Audit Trail",
-    "## 5. Remediation Tracker",
-    "## 6. Appendix",
-  ],
-  // Note: 07-ab-cost-estimate.md is excluded - it uses emoji headings
-  // and is validated by validate-artifact-templates.mjs separately
-};
+// Strip emoji prefixes for comparison (handles variation selectors)
+const EMOJI_RE = /[\p{Extended_Pictographic}\u{FE0E}\u{FE0F}]+\s*/gu;
+function normalizeH2(heading) {
+  return heading
+    .replace(EMOJI_RE, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
 
-// Common heading mappings for auto-fix
-// Synced with observed agent drift patterns
+// Reverse lookup: normalized text → canonical emoji heading, per artifact type
+const CANONICAL_MAP = Object.fromEntries(
+  Object.entries(ARTIFACT_HEADINGS).map(([artifact, headings]) => [
+    artifact,
+    new Map(headings.map((h) => [normalizeH2(h), h])),
+  ]),
+);
+
+function resolveCanonical(artifactType, plainHeading) {
+  const map = CANONICAL_MAP[artifactType];
+  if (!map) return plainHeading;
+  return map.get(normalizeH2(plainHeading)) || plainHeading;
+}
+
+// Agent drift patterns: wrong text → correct plain text
+// Resolved to canonical emoji headings at match time via CANONICAL_MAP
 const HEADING_FIXES = {
   // 06-deployment-summary.md variants
   "## Outputs": "## Outputs (Expected)",
@@ -166,8 +72,8 @@ const HEADING_FIXES = {
   "## 10. Deployment & CI/CD": "## 10. Appendix",
   // 07-operations-runbook.md variants
   "## 3. Common Operational Procedures": "## 3. Common Procedures",
-  // NOTE: "## 5. Monitoring & Alerting" is NOT mapped here — monitoring content
-  // belongs under "## 4. Maintenance Windows" as a subsection (e.g. ### 4.3 KPIs),
+  // NOTE: "## 5. Monitoring & Alerting" is NOT mapped — monitoring content
+  // belongs under "## 4. Maintenance Windows" as a subsection (### 4.3 KPIs),
   // not as a rename to "## 5. Contacts & Escalation". Manual restructuring required.
   "## 6. Contact Information": "## 6. Change Log",
   // 07-backup-dr-plan.md variants
@@ -183,33 +89,25 @@ const HEADING_FIXES = {
   "## Resource Mapping": "## Resources Created",
 };
 
+function headingMatch(actual, required) {
+  return actual === required || normalizeH2(actual) === normalizeH2(required);
+}
+
 function getArtifactType(filePath) {
   const basename = path.basename(filePath);
-
-  // Check for exact match
-  if (ARTIFACT_HEADINGS[basename]) {
-    return basename;
-  }
-
-  // Check for pattern match (e.g., 07-ab-cost-estimate.md matches 07-ab-cost-estimate.md)
+  if (ARTIFACT_HEADINGS[basename]) return basename;
   for (const key of Object.keys(ARTIFACT_HEADINGS)) {
-    if (basename === key || basename.endsWith(key)) {
-      return key;
-    }
+    if (basename.endsWith(key)) return key;
   }
-
   return null;
 }
 
 function extractH2Headings(content) {
-  const h2Regex = /^## .+$/gm;
-  const matches = content.match(h2Regex) || [];
-  return matches;
+  return content.match(/^## .+$/gm) || [];
 }
 
 function analyzeArtifact(filePath) {
   const artifactType = getArtifactType(filePath);
-
   if (!artifactType) {
     return { error: `Unknown artifact type: ${path.basename(filePath)}` };
   }
@@ -218,18 +116,24 @@ function analyzeArtifact(filePath) {
   const actualH2s = extractH2Headings(content);
   const requiredH2s = ARTIFACT_HEADINGS[artifactType];
 
-  const missing = requiredH2s.filter((h) => !actualH2s.includes(h));
+  const missing = requiredH2s.filter(
+    (h) => !actualH2s.some((a) => headingMatch(a, h)),
+  );
   const extra = actualH2s.filter(
-    (h) => !requiredH2s.includes(h) && h !== "## References",
+    (h) =>
+      !requiredH2s.some((r) => headingMatch(h, r)) &&
+      normalizeH2(h) !== "## References",
   );
 
-  // Check for fixable headings
+  // Resolve fixable headings through HEADING_FIXES → canonical lookup
   const fixable = [];
   for (const actual of extra) {
-    if (HEADING_FIXES[actual]) {
+    const normalized = normalizeH2(actual);
+    const fixTarget = HEADING_FIXES[actual] || HEADING_FIXES[normalized];
+    if (fixTarget) {
       fixable.push({
         from: actual,
-        to: HEADING_FIXES[actual],
+        to: resolveCanonical(artifactType, fixTarget),
       });
     }
   }
@@ -343,8 +247,9 @@ Examples:
     if (analysis.extra.length > 0) {
       console.log(`  ⚠ Extra H2 headings (not in template):`);
       for (const h of analysis.extra) {
-        const fixable = HEADING_FIXES[h] ? ` → "${HEADING_FIXES[h]}"` : "";
-        console.log(`     - ${h}${fixable}`);
+        const fix = analysis.fixable.find((f) => f.from === h);
+        const fixHint = fix ? ` → "${fix.to}"` : "";
+        console.log(`     - ${h}${fixHint}`);
       }
       totalIssues += analysis.extra.length;
     }

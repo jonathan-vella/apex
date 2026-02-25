@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: Implements Phase 2 — Core Terraform Agents. Creates 11-terraform-planner, 12-terraform-code-generator, and 13-terraform-deploy agent definition files.
+description: Implements Phase 2 — Core Terraform Agents. Creates 05t-terraform-planner, 06t-terraform-codegen, and 07t-terraform-deploy agent definition files.
 ---
 
 # Phase 2 — Agents (Core)
@@ -19,9 +19,9 @@ Read these files before starting:
 
 1. `docs/tf-support/PROGRESS.md` — confirm Phase 2 is active
 2. `docs/tf-support/mcp-tools.md` — **REQUIRED** — verified HashiCorp MCP tool names
-3. `.github/agents/05-bicep-planner.agent.md` — template for item 2.15
-4. `.github/agents/06-bicep-code-generator.agent.md` — template for item 2.16
-5. `.github/agents/07-deploy.agent.md` — template for item 2.17
+3. `.github/agents/05b-bicep-planner.agent.md` — template for item 2.15
+4. `.github/agents/06b-bicep-codegen.agent.md` — template for item 2.16
+5. `.github/agents/07b-bicep-deploy.agent.md` — template for item 2.17
 6. `.github/instructions/terraform-code-best-practices.instructions.md`
 7. `.github/instructions/terraform-policy-compliance.instructions.md`
 8. `.github/skills/azure-defaults/SKILL.md` — for tool references
@@ -29,11 +29,11 @@ Read these files before starting:
 
 Work through unchecked items only.
 
-## Item 2.15 — Create `11-terraform-planner.agent.md`
+## Item 2.15 — Create `05t-terraform-planner.agent.md`
 
-**File**: `.github/agents/11-terraform-planner.agent.md`
+**File**: `.github/agents/05t-terraform-planner.agent.md`
 
-Model on `05-bicep-planner.agent.md`. The agent name MUST be `11-Terraform Planner`.
+Model on `05b-bicep-planner.agent.md`. The agent name MUST be `05t-Terraform Planner`.
 
 Frontmatter `tools:` list: use the **verified tool names from `docs/tf-support/mcp-tools.md`**
 for HashiCorp tools. Do NOT assume `terraform/*` namespace — use what was verified.
@@ -52,17 +52,17 @@ Full agent spec is in `tf-support-plan.prompt.md` item 15. Key points:
 - Phase 4.5: Challenger Review
 - Phase 5: Approval Gate
 - Output artifacts: `04-implementation-plan.md`, `04-governance-constraints.md/.json`, diagrams
-- Handoffs: forward to `12-Terraform Code Generator`, backward to `03-Architect`, `01-Conductor`
+- Handoffs: forward to `06t-Terraform CodeGen`, backward to `03-Architect`, `01-Conductor`
 - Skills: reads `azure-defaults`, `azure-artifacts`, `terraform-patterns`
 
 > **HCP GUARDRAIL**: Never use `terraform { cloud { } }` or `TFE_TOKEN`. Azure Storage
 > backend ONLY. If you see HCP patterns in any reference file, replace them.
 
-## Item 2.16 — Create `12-terraform-code-generator.agent.md`
+## Item 2.16 — Create `06t-terraform-codegen.agent.md`
 
-**File**: `.github/agents/12-terraform-code-generator.agent.md`
+**File**: `.github/agents/06t-terraform-codegen.agent.md`
 
-Model on `06-bicep-code-generator.agent.md`. Agent name: `12-Terraform Code Generator`.
+Model on `06b-bicep-codegen.agent.md`. Agent name: `06t-Terraform CodeGen`.
 
 Full spec in `tf-support-plan.prompt.md` item 16. Key phases:
 
@@ -83,11 +83,11 @@ Full spec in `tf-support-plan.prompt.md` item 16. Key phases:
 - Skills: reads `azure-defaults`, `azure-artifacts`, `terraform-patterns`,
   `microsoft-code-reference`, references `terraform-policy-compliance.instructions.md`
 
-## Item 2.17 — Create `13-terraform-deploy.agent.md`
+## Item 2.17 — Create `07t-terraform-deploy.agent.md`
 
-**File**: `.github/agents/13-terraform-deploy.agent.md`
+**File**: `.github/agents/07t-terraform-deploy.agent.md`
 
-Model on `07-deploy.agent.md`. Agent name: `13-Terraform Deploy`.
+Model on `07b-bicep-deploy.agent.md`. Agent name: `07t-Terraform Deploy`.
 Model: `Claude Sonnet 4.6`.
 
 Full spec in `tf-support-plan.prompt.md` item 17. Six steps:
@@ -99,7 +99,7 @@ Full spec in `tf-support-plan.prompt.md` item 17. Six steps:
 5. Phase-aware Deployment — `var.deployment_phase` + `terraform apply` (NOT `-target`)
 6. Post-deployment Verification — ARG queries, output values, resource health
 
-- Handoffs: forward to `08-As-Built`, backward to `12-Terraform Code Generator`, `01-Conductor`
+- Handoffs: forward to `08-As-Built`, backward to `06t-Terraform CodeGen`, `01-Conductor`
 
 ## Validation
 
@@ -113,8 +113,8 @@ Expected: all 3 new agent files pass frontmatter validation. No CI failures.
 Check: `agent-validation.yml` would pass — every `handoffs:` reference in the new agents
 points to agents that exist. Verify by checking:
 
-- `12-Terraform Code Generator` → `12-terraform-code-generator.agent.md` exists ✓
-- `13-Terraform Deploy` → `13-terraform-deploy.agent.md` exists ✓
+- `06t-Terraform CodeGen` → `06t-terraform-codegen.agent.md` exists ✓
+- `07t-Terraform Deploy` → `07t-terraform-deploy.agent.md` exists ✓
 - `08-As-Built` → `08-as-built.agent.md` exists ✓
 - `01-Conductor` → `01-conductor.agent.md` exists ✓
 - `03-Architect` → `03-architect.agent.md` exists ✓
@@ -122,14 +122,14 @@ points to agents that exist. Verify by checking:
 ## Commit
 
 ```bash
-git add .github/agents/11-terraform-planner.agent.md \
-        .github/agents/12-terraform-code-generator.agent.md \
-        .github/agents/13-terraform-deploy.agent.md
-git commit -m "feat(agents): add Terraform Planner (11-), Code Generator (12-), Deploy (13-)
+git add .github/agents/05t-terraform-planner.agent.md \
+        .github/agents/06t-terraform-codegen.agent.md \
+        .github/agents/07t-terraform-deploy.agent.md
+git commit -m "feat(agents): add Terraform Planner (05t-), CodeGen (06t-), Deploy (07t-)
 
-- 11-Terraform Planner: 5-phase workflow, AVM-TF registry, azurePropertyPath
-- 12-Terraform Code Generator: governance hard gate, bootstrap scripts, dual deploy scripts
-- 13-Terraform Deploy: Azure Storage backend, deployment_phase support, ARG verification"
+- 05t-Terraform Planner: 5-phase workflow, AVM-TF registry, azurePropertyPath
+- 06t-Terraform CodeGen: governance hard gate, bootstrap scripts, dual deploy scripts
+- 07t-Terraform Deploy: Azure Storage backend, deployment_phase support, ARG verification"
 ```
 
 ## Update PROGRESS.md
@@ -139,7 +139,7 @@ Add session note. Commit.
 
 ## Important Note on Phase 4
 
-Phase 4 (Conductor modification) adds handoffs to `11-Terraform Planner`,
-`12-Terraform Code Generator`, `13-Terraform Deploy`. The CI `agent-validation.yml`
+Phase 4 (Conductor modification) adds handoffs to `05t-Terraform Planner`,
+`06t-Terraform CodeGen`, `07t-Terraform Deploy`. The CI `agent-validation.yml`
 validates those references. Phase 4 can only be merged AFTER this Phase 2 is merged.
 Consider batching Phase 3 + Phase 4 into the same PR if they are small.

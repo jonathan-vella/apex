@@ -132,12 +132,12 @@ handoffs:
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 4: Implementation Plan"
-    agent: 05-Bicep Planner
+    agent: 05b-Bicep Planner
     prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all resources, dependencies, and tasks. Save to `agent-output/{project}/04-implementation-plan.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "⏭️ Skip to Step 5: Bicep Code"
-    agent: 06-Bicep Code Generator
+    agent: 06b-Bicep CodeGen
     prompt: "Skip planning and go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
     send: true
   - label: "↩ Return to Step 2"

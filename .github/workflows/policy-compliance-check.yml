@@ -12,8 +12,8 @@ on:
       - ".github/skills/**"
       - ".github/instructions/**"
       - "scripts/validate-governance-refs.mjs"
-      - ".github/agents/11-terraform-planner.agent.md"
-      - ".github/agents/12-terraform-code-generator.agent.md"
+      - ".github/agents/05t-terraform-planner.agent.md"
+      - ".github/agents/06t-terraform-codegen.agent.md"
       - ".github/agents/_subagents/terraform-review-subagent.agent.md"
       - ".github/instructions/terraform-policy-compliance.instructions.md"
   push:
@@ -23,8 +23,8 @@ on:
       - ".github/skills/**"
       - ".github/instructions/**"
       - "scripts/validate-governance-refs.mjs"
-      - ".github/agents/11-terraform-planner.agent.md"
-      - ".github/agents/12-terraform-code-generator.agent.md"
+      - ".github/agents/05t-terraform-planner.agent.md"
+      - ".github/agents/06t-terraform-codegen.agent.md"
       - ".github/agents/_subagents/terraform-review-subagent.agent.md"
       - ".github/instructions/terraform-policy-compliance.instructions.md"
   workflow_dispatch:

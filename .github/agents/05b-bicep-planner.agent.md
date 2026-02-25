@@ -1,5 +1,5 @@
 ---
-name: 05-Bicep Planner
+name: 05b-Bicep Planner
 description: Expert Azure Bicep Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invokable: true
@@ -113,19 +113,19 @@ tools:
   ]
 handoffs:
   - label: "▶ Refresh Governance"
-    agent: 05-Bicep Planner
+    agent: 05b-Bicep Planner
     prompt: "Re-query Azure Resource Graph for updated policy assignments and governance constraints. Update `agent-output/{project}/04-governance-constraints.md`."
     send: true
   - label: "▶ Revise Plan"
-    agent: 05-Bicep Planner
+    agent: 05b-Bicep Planner
     prompt: "Revise the implementation plan based on new information or feedback. Update `agent-output/{project}/04-implementation-plan.md`."
     send: true
   - label: "▶ Compare AVM Modules"
-    agent: 05-Bicep Planner
+    agent: 05b-Bicep Planner
     prompt: "Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps."
     send: true
   - label: "Step 5: Generate Bicep"
-    agent: 06-Bicep Code Generator
+    agent: 06b-Bicep CodeGen
     prompt: "Implement the Bicep templates according to the implementation plan in `agent-output/{project}/04-implementation-plan.md`. Use AVM modules, generate deploy.ps1, and save to `infra/bicep/{project}/`."
     send: true
   - label: "↩ Return to Step 2"

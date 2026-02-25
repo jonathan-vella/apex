@@ -19,14 +19,14 @@ description: Implements Phase 6 — Governance Property Migration (Bicep side, d
 ## Context Load
 
 1. `docs/tf-support/PROGRESS.md` — confirm Phase 6 is active (not deferred)
-2. `.github/agents/06-bicep-code-generator.agent.md` — Phase 1.5 governance section
+2. `.github/agents/06b-bicep-codegen.agent.md` — Phase 1.5 governance section
 3. `.github/agents/_subagents/bicep-review-subagent.agent.md` — Governance Compliance section
 4. `scripts/validate-governance-refs.mjs` — existing Bicep check groups
 5. `agent-output/` — any `04-governance-constraints.json` files to update
 
 ## Item 6.31 — Migrate Bicep agents to `azurePropertyPath`
 
-### 6.31a — `06-bicep-code-generator.agent.md`
+### 6.31a — `06b-bicep-codegen.agent.md`
 
 Find Phase 1.5 (Governance Compliance Mapping). Update it to:
 
@@ -82,13 +82,13 @@ Also test both flows end-to-end at least conceptually:
 ## Commit
 
 ```bash
-git add .github/agents/06-bicep-code-generator.agent.md \
+git add .github/agents/06b-bicep-codegen.agent.md \
         .github/agents/_subagents/bicep-review-subagent.agent.md \
         scripts/validate-governance-refs.mjs \
         agent-output/
 git commit -m "refactor(agents): migrate Bicep agents to azurePropertyPath (backward-compat)
 
-- 06-bicep-code-generator: read azurePropertyPath, fallback to bicepPropertyPath
+- 06b-bicep-codegen: read azurePropertyPath, fallback to bicepPropertyPath
 - bicep-review-subagent: update § 7 to use azurePropertyPath
 - validate-governance-refs: azurePropertyPath as primary, bicepPropertyPath as fallback
 - agent-output: add azurePropertyPath to existing governance constraint files"

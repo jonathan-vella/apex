@@ -196,8 +196,8 @@ async function checkAgentTable() {
   );
   if (!agentSection) return;
   const section = agentSection[1];
-  // Match agent names from table rows like: | `requirements` |
-  const agentNames = [...section.matchAll(/^\|\s*`([a-z][\w-]*)`\s*\|/gm)].map(
+  // Match agent names from table rows like: | `05b-bicep-planner` |
+  const agentNames = [...section.matchAll(/^\|\s*`([\w][\w-]*)`\s*\|/gm)].map(
     (m) => m[1],
   );
 

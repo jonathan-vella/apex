@@ -15,6 +15,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 
 const AGENTS_DIR = ".github/agents";
 const SUBAGENTS_DIR = ".github/agents/_subagents";
@@ -30,106 +31,6 @@ const RECOMMENDED_FIELDS = ["agents", "model"];
 
 let errors = 0;
 let warnings = 0;
-
-/**
- * Parse YAML-like frontmatter from markdown file
- * Note: This is a simple parser, not full YAML
- */
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return null;
-
-  const frontmatter = {};
-  const lines = match[1].split("\n");
-  let currentKey = null;
-  let currentValue = [];
-  let inArray = false;
-  let inMultilineString = false;
-
-  for (const line of lines) {
-    // Handle array continuation
-    if (inArray) {
-      if (line.trim().startsWith("-") || line.trim().startsWith('"')) {
-        const value = line
-          .trim()
-          .replace(/^-\s*/, "")
-          .replace(/["\[\],]/g, "")
-          .trim();
-        if (value) currentValue.push(value);
-        continue;
-      } else if (line.trim() === "]" || line.trim().endsWith("]")) {
-        frontmatter[currentKey] = currentValue;
-        inArray = false;
-        currentKey = null;
-        currentValue = [];
-        continue;
-      } else if (line.trim() && !line.startsWith(" ") && line.includes(":")) {
-        // New key, save current array
-        frontmatter[currentKey] = currentValue;
-        inArray = false;
-        currentValue = [];
-      }
-    }
-
-    // Handle multiline string (>)
-    if (inMultilineString) {
-      if (line.startsWith("  ")) {
-        currentValue.push(line.trim());
-        continue;
-      } else {
-        frontmatter[currentKey] = currentValue.join(" ");
-        inMultilineString = false;
-        currentKey = null;
-        currentValue = [];
-      }
-    }
-
-    // Parse key: value
-    const keyMatch = line.match(/^([a-z-]+):\s*(.*)/i);
-    if (keyMatch) {
-      currentKey = keyMatch[1].toLowerCase();
-      const rawValue = keyMatch[2].trim();
-
-      // Check for array start
-      if (rawValue === "[" || rawValue.startsWith("[")) {
-        inArray = true;
-        currentValue = [];
-        // Handle inline array like [value1, value2]
-        if (rawValue.includes("]")) {
-          const values = rawValue
-            .replace(/[\[\]]/g, "")
-            .split(",")
-            .map((v) => v.trim().replace(/"/g, ""))
-            .filter(Boolean);
-          frontmatter[currentKey] = values;
-          inArray = false;
-          currentKey = null;
-        }
-        continue;
-      }
-
-      // Check for multiline string
-      if (rawValue === ">" || rawValue === "|") {
-        inMultilineString = true;
-        currentValue = [];
-        continue;
-      }
-
-      // Simple value
-      frontmatter[currentKey] = rawValue.replace(/^["']|["']$/g, "");
-    }
-  }
-
-  // Handle any remaining array
-  if (inArray && currentKey) {
-    frontmatter[currentKey] = currentValue;
-  }
-  if (inMultilineString && currentKey) {
-    frontmatter[currentKey] = currentValue.join(" ");
-  }
-
-  return frontmatter;
-}
 
 /**
  * Validate a single agent file

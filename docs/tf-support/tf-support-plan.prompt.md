@@ -51,8 +51,8 @@
 >
 > These are **default values** — the bootstrap scripts accept custom names as parameters to comply with governance naming policies. _(V2 Finding #6)_
 
-15. Create `.github/agents/11-terraform-planner.agent.md` — modeled on `05-bicep-planner.agent.md` with identical phased workflow. **Numbered `11-`** to avoid prefix collision with Bicep agents (`05-`, `06-`, `07-`). _(Finding #6)_
-    - **Frontmatter**: `name: 11-Terraform Planner`, `model: Claude Opus 4.6`, `agents: ["governance-discovery-subagent", "10-Challenger"]`, tools include `azure-mcp/*` + **verified MCP tool names from Phase 0 step 8** (NOT assumed `terraform/*` namespace). If MCP tools are unavailable, use `#fetch` against Terraform Registry API as fallback. _(Finding #1)_
+15. Create `.github/agents/05t-terraform-planner.agent.md` — modeled on `05b-bicep-planner.agent.md` with identical phased workflow. **Uses `05t-` prefix** (b/t suffix convention). _(Finding #6)_
+    - **Frontmatter**: `name: 05t-Terraform Planner`, `model: Claude Opus 4.6`, `agents: ["governance-discovery-subagent", "10-Challenger"]`, tools include `azure-mcp/*` + **verified MCP tool names from Phase 0 step 8** (NOT assumed `terraform/*` namespace). If MCP tools are unavailable, use `#fetch` against Terraform Registry API as fallback. _(Finding #1)_
     - **Phase 1**: Governance Discovery — reuses `governance-discovery-subagent` unchanged (IaC-agnostic)
     - **Phase 2**: AVM-TF Module Verification — queries Terraform Registry via **verified MCP tools** or via fetch to `registry.terraform.io/v1/modules/Azure/{module}/azurerm/versions` as fallback _(Finding #1)_
     - **Phase 3**: Deprecation checks for non-AVM resources
@@ -62,10 +62,10 @@
     - **Phase 5**: Approval Gate — identical
     - **Skills**: reads `azure-defaults`, `azure-artifacts`, `terraform-patterns` (new)
     - **Output**: same artifacts (`04-implementation-plan.md`, `04-governance-constraints.md/.json`, diagrams)
-    - **Handoffs**: forward to `12-Terraform Code Generator`, backward to `03-Architect` and `01-Conductor`
+    - **Handoffs**: forward to `06t-Terraform CodeGen`, backward to `03-Architect` and `01-Conductor`
 
-16. Create `.github/agents/12-terraform-code-generator.agent.md` — modeled on `06-bicep-code-generator.agent.md`. **Numbered `12-`**. _(Finding #6)_
-    - **Frontmatter**: `name: 12-Terraform Code Generator`, `model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]`, `agents: ["terraform-lint-subagent", "terraform-review-subagent"]`
+16. Create `.github/agents/06t-terraform-codegen.agent.md` — modeled on `06b-bicep-codegen.agent.md`. **Uses `06t-` prefix**. _(Finding #6)_
+    - **Frontmatter**: `name: 06t-Terraform CodeGen`, `model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]`, `agents: ["terraform-lint-subagent", "terraform-review-subagent"]`
     - **Phase 1**: Preflight Check — **verified MCP tools** or Registry API fetch per resource, version resolution _(Finding #1)_
     - **Phase 1.5**: Governance Compliance Mapping — reads `04-governance-constraints.json`, reads **`azurePropertyPath`** field and translates each to the Terraform `azurerm` resource property equivalent (e.g., `storageAccount.properties.minimumTlsVersion` → `azurerm_storage_account.min_tls_version`). Translation mapping is documented in `terraform-policy-compliance.instructions.md`. **Same HARD GATE**. _(Finding #2)_
     - **Phase 2**: Progressive Implementation — Foundation (`providers.tf`, `versions.tf`, `backend.tf`, `main.tf`, `variables.tf`, `outputs.tf`, `locals.tf`) → Shared → App → Integration. **Phase-aware deployment uses `var.deployment_phase` with conditional resource creation** (`count = var.deployment_phase >= 2 ? 1 : 0`) — NOT `terraform apply -target` which is a Terraform anti-pattern. Separate root modules per phase with shared state data sources are an alternative for complex projects. _(Finding #12)_
@@ -75,8 +75,8 @@
     - **Output structure**: `infra/terraform/{project}/` with `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf`, `backend.tf`, `locals.tf`, `terraform.tfvars.example`, `deploy.sh`, `deploy.ps1`, `bootstrap-backend.sh`, `bootstrap-backend.ps1`, `modules/`
     - **Skills**: reads `azure-defaults`, `azure-artifacts`, `terraform-patterns`, `microsoft-code-reference`, `terraform-policy-compliance.instructions.md`
 
-17. Create `.github/agents/13-terraform-deploy.agent.md` — modeled on `07-deploy.agent.md`. **Numbered `13-`**. _(Finding #6)_
-    - **Frontmatter**: `name: 13-Terraform Deploy`, `model: Claude Sonnet 4.6`, `agents: []`
+17. Create `.github/agents/07t-terraform-deploy.agent.md` — modeled on `07b-bicep-deploy.agent.md`. **Uses `07t-` prefix**. _(Finding #6)_
+    - **Frontmatter**: `name: 07t-Terraform Deploy`, `model: Claude Sonnet 4.6`, `agents: []`
     - **Step 1**: Auth validation — `az account get-access-token` (same)
     - **Step 2**: State Backend — check if backend resources exist; if not, prompt user to run `bootstrap-backend.sh` first (or offer to run it). Then `terraform init` with Azure Storage backend, verify state lock. _(Finding #4)_
     - **Step 3**: Validate — `terraform validate` + `terraform fmt -check`
@@ -84,7 +84,7 @@
     - **Step 5**: Phase-aware Deployment — reads `04-implementation-plan.md`. If phased: set `var.deployment_phase` to appropriate value and run `terraform apply` (full graph, NOT `-target`). The deployment*phase variable controls which resources are created via `count` conditionals. `-target` is reserved as a **last-resort emergency option only**. If single: `terraform apply tfplan`. *(Finding #12)\_
     - **Step 6**: Post-deployment Verification — same ARG queries as Bicep Deploy
     - **New concerns**: state locking, state backup, import for existing resources
-    - **Handoffs**: forward to `08-As-Built`, backward to `12-Terraform Code Generator` and `01-Conductor`
+    - **Handoffs**: forward to `08-As-Built`, backward to `06t-Terraform CodeGen` and `01-Conductor`
 
 ## Phase 3 — Subagents
 
@@ -104,8 +104,8 @@
     - This is the **only place** the IaC preference is captured — downstream agents read it from `01-requirements.md`
 
 22. Modify `.github/agents/01-conductor.agent.md` — **reads IaC preference, does NOT re-ask** _(Finding #3)_:
-    - **`agents` list**: add `"11-Terraform Planner"`, `"12-Terraform Code Generator"`, `"13-Terraform Deploy"`
-    - **Handoffs**: add `Step 4: Implementation Plan (Terraform)` → `11-Terraform Planner`, `Step 5: Generate Terraform` → `12-Terraform Code Generator`, `Step 6: Deploy (Terraform)` → `13-Terraform Deploy`
+    - **`agents` list**: add `"05t-Terraform Planner"`, `"06t-Terraform CodeGen"`, `"07t-Terraform Deploy"`
+    - **Handoffs**: add `Step 4: Implementation Plan (Terraform)` → `05t-Terraform Planner`, `Step 5: Generate Terraform` → `06t-Terraform CodeGen`, `Step 6: Deploy (Terraform)` → `07t-Terraform Deploy`
     - **7-step workflow table**: Step 4 becomes `IaC Plan (Bicep or Terraform)`, Step 5 becomes `IaC Code`, Step 6 becomes `Deploy`
     - **IaC Routing Logic**: Conductor reads `iac_tool` from `01-requirements.md` and auto-routes to the correct planner agent. **No re-asking**. If no requirements artifact exists (direct Step 4 entry without going through Requirements), THEN the Conductor asks "Bicep or Terraform?" as a fallback.
     - **Subagent delegation table**: add Terraform planner/code/deploy rows
@@ -125,9 +125,9 @@
     - Update `validate:all` to include new Terraform scripts
 
 26. Extend `scripts/validate-governance-refs.mjs` — add parallel check groups for Terraform agents:
-    - Group for `12-terraform-code-generator.agent.md` (Phase 1.5, governance references, policy compliance instruction ref)
+    - Group for `06t-terraform-codegen.agent.md` (Phase 1.5, governance references, policy compliance instruction ref)
     - Group for `terraform-review-subagent.agent.md` (Governance Compliance section)
-    - Group for `11-terraform-planner.agent.md` (JSON downstream, `azurePropertyPath`) _(Finding #2 — uses `azurePropertyPath` not `terraformPropertyPath`)_
+    - Group for `05t-terraform-planner.agent.md` (JSON downstream, `azurePropertyPath`) _(Finding #2 — uses `azurePropertyPath` not `terraformPropertyPath`)_
     - Group for `terraform-policy-compliance.instructions.md` (exists, applyTo `**/*.tf`, "Azure Policy always wins", references `04-governance-constraints.json`)
     - Update `governance-discovery.instructions.md` check: `applyTo` should also include `**/*.tf`
     - **Update all existing Bicep checks**: where they look for `bicepPropertyPath`, add an alternative check for `azurePropertyPath` to support the dual-field transition _(Finding #2)_
@@ -136,16 +136,16 @@
 
 28. Extend `.github/workflows/policy-compliance-check.yml` — trigger also on changes to Terraform agent/instruction files, run extended `validate-governance-refs.mjs`
 
-29. **[NEW] Update artifact template H2 for IaC-neutral naming** — Rename `## 📁 Bicep Templates Location` to `## 📁 IaC Templates Location` in: (a) `validate-artifact-templates.mjs` ARTIFACT*HEADINGS for `05-implementation-reference.md`, (b) `azure-artifacts/SKILL.md` template definition, (c) `06-bicep-code-generator.agent.md` Phase 4 output instructions. This enables Terraform projects to use the same artifact template without a Bicep-specific heading. *(V2 Finding #2)\_
+29. **[NEW] Update artifact template H2 for IaC-neutral naming** — Rename `## 📁 Bicep Templates Location` to `## 📁 IaC Templates Location` in: (a) `validate-artifact-templates.mjs` ARTIFACT*HEADINGS for `05-implementation-reference.md`, (b) `azure-artifacts/SKILL.md` template definition, (c) `06b-bicep-codegen.agent.md` Phase 4 output instructions. This enables Terraform projects to use the same artifact template without a Bicep-specific heading. *(V2 Finding #2)\_
 
-30. **[NEW] Update `validate-artifact-templates.mjs` AGENTS map for Terraform** — Add Terraform agent mappings to the AGENTS object so the validator correctly checks Terraform-generated artifacts against the Terraform agents (not the Bicep agents). Detect IaC type from project directory (`infra/bicep/` vs `infra/terraform/`) or artifact content to select the correct agent for validation. At minimum, suppress false failures when the producing agent is `12-terraform-code-generator.agent.md`. _(V2 Finding #3)_
+30. **[NEW] Update `validate-artifact-templates.mjs` AGENTS map for Terraform** — Add Terraform agent mappings to the AGENTS object so the validator correctly checks Terraform-generated artifacts against the Terraform agents (not the Bicep agents). Detect IaC type from project directory (`infra/bicep/` vs `infra/terraform/`) or artifact content to select the correct agent for validation. At minimum, suppress false failures when the producing agent is `06t-terraform-codegen.agent.md`. _(V2 Finding #3)_
 
 ## Phase 6 — Governance Property Migration (Bicep Side — Deferrable)
 
 > **Note**: The foundational dual-field governance change (subagent producing both `bicepPropertyPath` + `azurePropertyPath`) is completed in Phase 1 item 10. Phase 6 covers the **optional Bicep-side cleanup** — migrating existing Bicep agents to read `azurePropertyPath` instead of `bicepPropertyPath`. This can be **deferred** until after all Terraform agents are working, since Bicep agents continue to function with `bicepPropertyPath` during the transition. _(V2 Finding #1)_
 
 31. **[DEFERRABLE] Migrate Bicep agents to `azurePropertyPath`** _(Finding #2, V2 Finding #1)_:
-    - Update `06-bicep-code-generator.agent.md` Phase 1.5 to read `azurePropertyPath` (with fallback to `bicepPropertyPath`)
+    - Update `06b-bicep-codegen.agent.md` Phase 1.5 to read `azurePropertyPath` (with fallback to `bicepPropertyPath`)
     - Update `bicep-review-subagent.agent.md` § 7 to use `azurePropertyPath`
     - Update `validate-governance-refs.mjs` existing Bicep check groups to accept `azurePropertyPath` as primary (with `bicepPropertyPath` backward compatibility)
     - Update any existing `04-governance-constraints.json` files in `agent-output/` to include both fields
@@ -154,7 +154,7 @@
 ## Phase 7 — Documentation & Housekeeping
 
 32. Update `.github/copilot-instructions.md`:
-    - Workflow table: Steps 4-6 show both Bicep and Terraform agent names (using `11-`/`12-`/`13-` numbering)
+    - Workflow table: Steps 4-6 show both Bicep and Terraform agent names (using `05b/t-`/`06b/t-`/`07b/t-` numbering)
     - Skills table: add `terraform-patterns`
     - Key files: add `infra/terraform/{project}/`
     - Validation: add `terraform fmt`, `terraform validate`
@@ -165,7 +165,7 @@
 34. Update issue #85 — revise body to match refined scope (remove Scenarios/Terratest/terraform-docs workflow), add child issues:
     - **Child 1**: Dev Container + Git Config + VS Code Extensions + MCP Tool Verification (Phase 0)
     - **Child 2**: Instructions + Skills + Dual-Field Governance Migration (Phase 1)
-    - **Child 3**: Terraform Planner (`11-`) + Code Gen (`12-`) + Deploy (`13-`) agents (Phase 2)
+    - **Child 3**: Terraform Planner (`05t-`) + CodeGen (`06t-`) + Deploy (`07t-`) agents (Phase 2)
     - **Child 4**: Subagents (Phase 3)
     - **Child 5**: Conductor + Requirements + Architect modifications (Phase 4)
     - **Child 6**: Quality gates + CI/CD + IaC-neutral templates (Phase 5)
@@ -202,11 +202,11 @@ That article is about using Terraform to deploy MCP infrastructure — it is **N
 - `tfsec infra/terraform/` — security scanning
 - `npm run validate:all` — all validation scripts pass (including extended governance refs)
 - `npm run lint:governance-refs` — Terraform governance guardrails validated (checking `azurePropertyPath`)
-- Agent frontmatter validation passes for all new `.agent.md` files (`11-`, `12-`, `13-`)
+- Agent frontmatter validation passes for all new `.agent.md` files (`05t-`, `06t-`, `07t-`)
 - Instruction frontmatter validation passes for all new `.instructions.md` files
 - Skill format validation passes for `terraform-patterns/SKILL.md`
 - `validate-artifact-templates.mjs` passes with IaC-neutral H2 headings and Terraform AGENTS map _(V2 Finding #2, #3)_
-- End-to-end: Requirements captures `iac_tool: Terraform`, Conductor reads it and auto-routes to `11-Terraform Planner` → `12-Terraform Code Generator` → `13-Terraform Deploy` correctly _(Finding #3)_
+- End-to-end: Requirements captures `iac_tool: Terraform`, Conductor reads it and auto-routes to `05t-Terraform Planner` → `06t-Terraform CodeGen` → `07t-Terraform Deploy` correctly _(Finding #3)_
 
 ## Decisions
 

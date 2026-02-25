@@ -9,7 +9,7 @@ description: Implements Phase 4 — Conductor & Requirements modifications. Adds
 
 **CRITICAL**: Phase 2 agents must be merged BEFORE this phase.
 The CI `agent-validation.yml` validates that every `handoffs:` reference points to a
-real agent file. Modifying the Conductor to reference `11-Terraform Planner` will fail
+real agent file. Modifying the Conductor to reference `05t-Terraform Planner` will fail
 CI if that file doesn't exist yet.
 
 Options:
@@ -54,22 +54,22 @@ the chance of partially-broken frontmatter.
 **Frontmatter `agents` array** — add three entries:
 
 ```yaml
-- "11-Terraform Planner"
-- "12-Terraform Code Generator"
-- "13-Terraform Deploy"
+- "05t-Terraform Planner"
+- "06t-Terraform CodeGen"
+- "07t-Terraform Deploy"
 ```
 
 **Frontmatter `handoffs` array** — add three entries:
 
 ```yaml
 - step: "Step 4: Implementation Plan (Terraform)"
-  agent: "11-Terraform Planner"
+  agent: "05t-Terraform Planner"
   description: "When iac_tool=Terraform: create Terraform implementation plan"
 - step: "Step 5: Generate Terraform"
-  agent: "12-Terraform Code Generator"
+  agent: "06t-Terraform CodeGen"
   description: "When iac_tool=Terraform: generate Terraform code"
 - step: "Step 6: Deploy (Terraform)"
-  agent: "13-Terraform Deploy"
+  agent: "07t-Terraform Deploy"
   description: "When iac_tool=Terraform: deploy Terraform infrastructure"
 ```
 
@@ -80,8 +80,8 @@ the chance of partially-broken frontmatter.
 
 2. IaC Routing Logic: add a section that says:
    - Read `iac_tool` from `01-requirements.md` (if it exists)
-   - `iac_tool: Bicep` → route to `05-Bicep Planner` → `06-Bicep Code Generator` → `07-Deploy`
-   - `iac_tool: Terraform` → route to `11-Terraform Planner` → `12-Terraform Code Generator` → `13-Terraform Deploy`
+   - `iac_tool: Bicep` → route to `05b-Bicep Planner` → `06b-Bicep CodeGen` → `07b-Bicep Deploy`
+   - `iac_tool: Terraform` → route to `05t-Terraform Planner` → `06t-Terraform CodeGen` → `07t-Terraform Deploy`
    - If no requirements artifact exists at direct Step 4 entry, ask: "Bicep or Terraform?" (one-time fallback only)
 
 3. Subagent delegation table: add rows for Terraform planner, code gen, deploy

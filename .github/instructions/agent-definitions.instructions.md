@@ -104,30 +104,36 @@ Current model assignments:
 Top-level agents live in `.github/agents/` and are `user-invokable: true`. They correspond to
 the 7-step workflow:
 
-| Step | Agent              | File                               |
-| ---- | ------------------ | ---------------------------------- |
-| 1    | Requirements       | `02-requirements.agent.md`         |
-| 2    | Architect          | `03-architect.agent.md`            |
-| 3    | Design (optional)  | `04-design.agent.md`               |
-| 4    | Bicep Plan         | `05-bicep-planner.agent.md`        |
-| 5    | Bicep Code         | `06-bicep-code-generator.agent.md` |
-| 6    | Deploy             | `07-deploy.agent.md`               |
-| 7    | As-Built           | `08-as-built.agent.md`             |
-| —    | InfraOps Conductor | `01-conductor.agent.md`            |
-| —    | Diagnose           | `09-diagnose.agent.md`             |
+| Step | Agent              | File                             |
+| ---- | ------------------ | -------------------------------- |
+| 1    | Requirements       | `02-requirements.agent.md`       |
+| 2    | Architect          | `03-architect.agent.md`          |
+| 3    | Design (optional)  | `04-design.agent.md`             |
+| 4b   | Bicep Plan         | `05b-bicep-planner.agent.md`     |
+| 5b   | Bicep Code         | `06b-bicep-codegen.agent.md`     |
+| 6b   | Bicep Deploy       | `07b-bicep-deploy.agent.md`      |
+| 4t   | Terraform Plan     | `05t-terraform-planner.agent.md` |
+| 5t   | Terraform Code     | `06t-terraform-codegen.agent.md` |
+| 6t   | Terraform Deploy   | `07t-terraform-deploy.agent.md`  |
+| 7    | As-Built           | `08-as-built.agent.md`           |
+| —    | InfraOps Conductor | `01-conductor.agent.md`          |
+| —    | Diagnose           | `09-diagnose.agent.md`           |
 
 ### Subagents
 
 Subagents live in `.github/agents/_subagents/` and are `user-invokable: false`. They isolate
 expensive or specialized work from their parent agent's context window.
 
-| Subagent                        | Parent Agent | Purpose                         |
-| ------------------------------- | ------------ | ------------------------------- |
-| `cost-estimate-subagent`        | Architect    | Pricing MCP queries             |
-| `governance-discovery-subagent` | Bicep Plan   | Azure Policy REST API discovery |
-| `bicep-lint-subagent`           | Bicep Code   | `bicep build` + `bicep lint`    |
-| `bicep-review-subagent`         | Bicep Code   | AVM/security/naming code review |
-| `bicep-whatif-subagent`         | Deploy       | `az deployment group what-if`   |
+| Subagent                        | Parent Agent                | Purpose                                |
+| ------------------------------- | --------------------------- | -------------------------------------- |
+| `cost-estimate-subagent`        | Architect                   | Pricing MCP queries                    |
+| `governance-discovery-subagent` | Bicep Plan / Terraform Plan | Azure Policy REST API discovery        |
+| `bicep-lint-subagent`           | Bicep Code                  | `bicep build` + `bicep lint`           |
+| `bicep-review-subagent`         | Bicep Code                  | AVM/security/naming code review        |
+| `bicep-whatif-subagent`         | Bicep Deploy                | `az deployment group what-if`          |
+| `terraform-lint-subagent`       | Terraform Code              | `terraform fmt` + `terraform validate` |
+| `terraform-review-subagent`     | Terraform Code              | AVM-TF/security/naming code review     |
+| `terraform-plan-subagent`       | Terraform Deploy            | `terraform plan` change preview        |
 
 Subagent definition rules:
 

@@ -16,17 +16,17 @@ Phase 3 complete. All subagents validated.
 ## Items
 
 - [ ] **4.26** Update `.github/agents/01-Conductor.agent.md`: add IaC selector logic
-- [ ] **4.27** Conductor detects "Terraform" / "HCL" keywords in Step 1 → routes to 11-Terraform Planner
+- [ ] **4.27** Conductor detects "Terraform" / "HCL" keywords in Step 1 → routes to 05t-Terraform Planner
 - [ ] **4.28** Conductor routes Bicep default unchanged (backward compatible)
 - [ ] **4.29** Update conductor routing table in `copilot-instructions.md`
-- [ ] **4.30** Add `11-Terraform Planner` and `12-Terraform Code Generator` to agents list in instructions
+- [ ] **4.30** Add `05t-Terraform Planner` and `06t-Terraform CodeGen` to agents list in instructions
 - [ ] **4.31** Smoke test: run conductor with Terraform workload → confirm routing to agent 11
 
 ## Acceptance Criteria
 
 - [ ] Conductor agent passes `validate-agent-frontmatter` after changes
 - [ ] Existing Bicep routing is unchanged (regression check passes)
-- [ ] Terraform routing produces correct agent chain: 11 → 12 → 13
+- [ ] Terraform routing produces correct agent chain: 05t → 06t → 07t
 - [ ] Step references in conductor (Step 4 "IaC Plan", Step 5 "IaC Code") are language-agnostic
 
 ## References

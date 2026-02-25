@@ -23,7 +23,7 @@
     .\cleanup-test-resources.ps1 -TtlHours 2 -DryRun $true
 
 .NOTES
-    Author: Agentic InfraOps - bicep-code agent
+    Author: Agentic InfraOps - 06b-Bicep CodeGen agent
     Version: 1.0.0
     Requires: Az.Resources module
 #>
@@ -99,7 +99,7 @@ $currentTime = Get-Date
 
 foreach ($rg in $resourceGroups) {
     $ttlValue = $rg.Tags[$TagName]
-    
+
     # Parse TTL tag value (expected format: ISO 8601 datetime or hours)
     try {
         if ($ttlValue -match '^\d+$') {
@@ -160,7 +160,7 @@ $failedCount = 0
 
 foreach ($expired in $expiredGroups) {
     $rgName = $expired.Name
-    
+
     if ($DryRun) {
         Write-Information "[DRY RUN] Would delete: $rgName"
         $deletedCount++

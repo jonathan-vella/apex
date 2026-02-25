@@ -1,5 +1,5 @@
 ---
-name: 13-Terraform Deploy
+name: 07t-Terraform Deploy
 model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
@@ -109,23 +109,23 @@ tools:
   ]
 handoffs:
   - label: "▶ Run Plan Only"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Execute terraform plan preview without applying. Show all planned changes, classify them, and present summary. Do NOT run terraform apply."
     send: true
   - label: "▶ Deploy Next Phase"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Deploy the next uncompleted phase from `agent-output/{project}/04-implementation-plan.md` using `var.deployment_phase`. Run plan, get approval, then apply."
     send: true
   - label: "▶ Deploy All Phases"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Deploy all remaining phases sequentially from `agent-output/{project}/04-implementation-plan.md` with plan preview and approval gates between each."
     send: true
   - label: "▶ Retry Deployment"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Retry the last failed deployment. Re-validate auth, re-run terraform validate, plan, and apply with the same phase parameters."
     send: true
   - label: "▶ Verify Resources"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Query deployed resources using Azure Resource Graph and `terraform output` to verify successful deployment. Check resource health status."
     send: true
   - label: "Step 7: As-Built Documentation"
@@ -137,7 +137,7 @@ handoffs:
     prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
     send: true
   - label: "↩ Fix Deployment Issues"
-    agent: 12-Terraform Code Generator
+    agent: 06t-Terraform CodeGen
     prompt: "The deployment encountered errors. Review the error messages and fix the Terraform configurations in `infra/terraform/{project}/` to resolve the issues."
     send: true
   - label: "↩ Return to Conductor"

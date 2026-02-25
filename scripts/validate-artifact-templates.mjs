@@ -158,6 +158,8 @@ const ARTIFACT_HEADINGS = {
   ],
 };
 
+export { ARTIFACT_HEADINGS };
+
 // Per-artifact strictness configuration
 // "standard" = fail on issues, "relaxed" = warn on issues
 const ARTIFACT_STRICTNESS = {
@@ -228,7 +230,7 @@ const GLOBAL_STRICTNESS = process.env.STRICTNESS;
 const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
 
 // Dual-agent situation for IaC artifacts:
-// Both Bicep (06-bicep-code-generator) and Terraform (12-terraform-code-generator)
+// Both Bicep (06b-bicep-codegen) and Terraform (06t-terraform-codegen)
 // produce 05-implementation-reference.md with identical H2 structure (IaC-neutral).
 // Both agents also produce 04-implementation-plan.md and 04-governance-constraints.md.
 // validateAgentLinks() passes for both because both reference the azure-artifacts skill.
@@ -237,15 +239,14 @@ const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
 const AGENTS = {
   "01-requirements.md": ".github/agents/02-requirements.agent.md",
   "02-architecture-assessment.md": ".github/agents/03-architect.agent.md",
-  // Both 05-bicep-planner (Bicep) and 11-terraform-planner (Terraform) produce these:
-  "04-implementation-plan.md": ".github/agents/05-bicep-planner.agent.md",
-  "04-governance-constraints.md": ".github/agents/05-bicep-planner.agent.md",
-  "04-preflight-check.md": ".github/agents/06-bicep-code-generator.agent.md",
-  "06-deployment-summary.md": ".github/agents/07-deploy.agent.md",
-  // Both 06-bicep-code-generator (Bicep) and 12-terraform-code-generator (Terraform)
+  // Both 05b-bicep-planner (Bicep) and 05t-terraform-planner (Terraform) produce these:
+  "04-implementation-plan.md": ".github/agents/05b-bicep-planner.agent.md",
+  "04-governance-constraints.md": ".github/agents/05b-bicep-planner.agent.md",
+  "04-preflight-check.md": ".github/agents/06b-bicep-codegen.agent.md",
+  "06-deployment-summary.md": ".github/agents/07b-bicep-deploy.agent.md",
+  // Both 06b-bicep-codegen (Bicep) and 06t-terraform-codegen (Terraform)
   // produce 05-implementation-reference.md. The H2 heading is IaC-neutral.
-  "05-implementation-reference.md":
-    ".github/agents/06-bicep-code-generator.agent.md",
+  "05-implementation-reference.md": ".github/agents/06b-bicep-codegen.agent.md",
   "07-design-document.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-operations-runbook.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-resource-inventory.md": ".github/skills/azure-artifacts/SKILL.md",
@@ -916,32 +917,25 @@ function findArtifacts() {
   const baseDir = path.resolve(process.cwd(), "agent-output");
   if (!fs.existsSync(baseDir)) return [];
 
-  const matches = [];
   const artifactPatterns = Object.keys(ARTIFACT_HEADINGS);
-  const stack = [baseDir];
+  const entries = fs.readdirSync(baseDir, {
+    withFileTypes: true,
+    recursive: true,
+  });
 
-  while (stack.length > 0) {
-    const dir = stack.pop();
-    if (!dir) break;
-
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        stack.push(full);
-      } else if (
-        entry.isFile() &&
-        artifactPatterns.some((pattern) => entry.name.endsWith(pattern))
-      ) {
-        // README.md: only match project-level READMEs (agent-output/{project}/README.md)
-        // not the top-level agent-output/README.md
-        if (entry.name === "README.md" && dir === baseDir) continue;
-        matches.push(path.relative(process.cwd(), full));
-      }
-    }
-  }
-
-  return matches;
+  return entries
+    .filter((entry) => {
+      if (!entry.isFile()) return false;
+      if (!artifactPatterns.some((p) => entry.name.endsWith(p))) return false;
+      // Skip the top-level agent-output/README.md
+      const dir = entry.parentPath ?? entry.path;
+      if (entry.name === "README.md" && dir === baseDir) return false;
+      return true;
+    })
+    .map((entry) => {
+      const dir = entry.parentPath ?? entry.path;
+      return path.relative(process.cwd(), path.join(dir, entry.name));
+    });
 }
 
 function main() {
@@ -993,4 +987,8 @@ function main() {
   }
 }
 
-main();
+import { fileURLToPath } from "node:url";
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

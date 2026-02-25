@@ -1,6 +1,6 @@
 ---
 name: "10-Challenger"
-description: "Adversarial reviewer that challenges Azure infrastructure plans, requirements, and architecture assessments. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings with severity ratings. Auto-invoked by 02-Requirements, 03-Architect, and 05-Bicep Planner. Also usable standalone."
+description: "Adversarial reviewer that challenges Azure infrastructure plans, requirements, and architecture assessments. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings with severity ratings. Auto-invoked by 02-Requirements, 03-Architect, and 05b-Bicep Planner. Also usable standalone."
 model: ["Claude Opus 4.6"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invokable: true
@@ -29,8 +29,8 @@ handoffs:
     prompt: "Challenge findings saved to `agent-output/{project}/challenge-findings.json`. Review must_fix and should_fix items and revise `agent-output/{project}/02-architecture-assessment.md` accordingly."
     send: false
     model: "Claude Opus 4.6 (copilot)"
-  - label: "↩ Return to 05-Bicep Planner"
-    agent: 05-Bicep Planner
+  - label: "↩ Return to 05b-Bicep Planner"
+    agent: 05b-Bicep Planner
     prompt: "Challenge findings saved to `agent-output/{project}/challenge-findings.json`. Review must_fix and should_fix items and revise `agent-output/{project}/04-implementation-plan.md` accordingly."
     send: false
   - label: "↩ Return to Conductor"
@@ -57,12 +57,12 @@ skepticism.
 
 ## How You Are Invoked
 
-| Invoker          | When                      | Artifact Challenged                                    | Mode     |
-| ---------------- | ------------------------- | ------------------------------------------------------ | -------- |
-| 02-Requirements  | After generating 01-\*.md | `agent-output/{project}/01-requirements.md`            | Advisory |
-| 03-Architect     | After generating 02-\*.md | `agent-output/{project}/02-architecture-assessment.md` | Advisory |
-| 05-Bicep Planner | After generating 04-\*.md | `agent-output/{project}/04-implementation-plan.md`     | Advisory |
-| User (manual)    | Any time                  | Any artifact path provided as argument                 | Advisory |
+| Invoker           | When                      | Artifact Challenged                                    | Mode     |
+| ----------------- | ------------------------- | ------------------------------------------------------ | -------- |
+| 02-Requirements   | After generating 01-\*.md | `agent-output/{project}/01-requirements.md`            | Advisory |
+| 03-Architect      | After generating 02-\*.md | `agent-output/{project}/02-architecture-assessment.md` | Advisory |
+| 05b-Bicep Planner | After generating 04-\*.md | `agent-output/{project}/04-implementation-plan.md`     | Advisory |
+| User (manual)     | Any time                  | Any artifact path provided as argument                 | Advisory |
 
 **Advisory mode**: Findings are returned to the calling agent. The calling agent presents
 them to the user. The user decides whether to revise or proceed. `must_fix` items are

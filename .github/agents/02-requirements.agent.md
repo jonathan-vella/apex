@@ -187,8 +187,14 @@ MANDATORY FIRST STEP — understand the business before suggesting technology.
 
 #### Round 1: Core Business Context (always)
 
-Use `askQuestions` — 4 questions: Industry (6 options + freeform), Company Size (3 options),
-System type (6 options + freeform), Scenario (greenfield/migration/modernize/extend).
+Use `askQuestions` — 4 questions: Project name (freeform), Industry (6 options + freeform),
+Company Size (3 options), System type / project description (6 options + freeform).
+
+#### Round 1b: Project Identity (always, immediately after Round 1)
+
+Use `askQuestions` — 3 questions: Scenario (greenfield/migration/modernize/extend),
+Target environments (Dev/Test/Staging/Production — multi-select, default Dev+Production),
+Brief description of the workload in 1-2 sentences (freeform).
 
 #### Round 2: Migration Follow-Up (if migration/modernization selected)
 
@@ -204,8 +210,20 @@ tables from the azure-defaults skill to INFER the workload pattern.
 - Medium confidence → present with brief explanation
 - Low confidence → use business-friendly picker as fallback
 
-Use `askQuestions` — 4 questions: Pattern confirmation, Daily users (4 options),
+Use `askQuestions` — up to 4 questions: Pattern confirmation, Daily users (4 options),
 Monthly budget (4 options + freeform), Data sensitivity (multi-select, 6 options).
+
+**Conditional capacity questions** (add when detected workload warrants it):
+
+- **Web/API workloads** (N-Tier, Microservices, SPA+API): add Concurrent Users question
+  (options: <100, 100-1K, 1K-10K, 10K-100K, 100K+)
+- **Database-heavy workloads** (Data Analytics, Event-Driven, IoT): add Transactions Per Second question
+  (options: <100 TPS, 100-1K TPS, 1K-10K TPS, 10K+ TPS)
+
+**IaC Tool Preference** — ask in Phase 2 (after workload pattern is known):
+
+Use `askQuestions` — 1 question: IaC tool (Bicep recommended, Terraform).
+Include `iac_tool` in the output document as: `iac_tool: Bicep    # or Terraform`
 
 Use Company Size Heuristics from azure-defaults skill to set `recommended: true`
 on budget/scale options matching the company size from Phase 1.
@@ -216,24 +234,40 @@ Present options from the Service Recommendation Matrix in azure-defaults skill.
 Use business-friendly descriptions with Azure names in parentheses.
 
 Use `askQuestions` — 3 questions: Service tier (cost-optimized/balanced/enterprise),
-Availability (4 SLA tiers with downtime descriptions), Recovery (4 RTO/RPO options).
+Availability (4 SLA tiers with downtime descriptions), Recovery objectives.
+
+**RTO/RPO/SLA: 3 predefined + 1 custom format:**
+
+Recovery options (pick one or specify custom):
+
+1. **Relaxed** — RTO: 24h, RPO: 12h, SLA: 99.5% (dev/test, internal tools)
+2. **Standard** — RTO: 4h, RPO: 1h, SLA: 99.9% (business apps, recommended default)
+3. **Mission-Critical** — RTO: 15min, RPO: 5min, SLA: 99.99% (revenue-critical, regulated)
+4. **Custom** — freeform text for specific RTO/RPO/SLA targets
 
 For N-Tier pattern, add question about application layers (multi-select, 6 options).
+
+**Azure Services in Scope** — present as multi-select based on detected workload pattern.
+Pre-select recommended services from the Service Recommendation Matrix. Allow user to
+add/remove services. Use business-friendly labels with Azure names in parentheses.
 
 ### Phase 4: Security & Compliance (Business Language)
 
 Pre-select compliance frameworks using Industry Compliance Pre-Selection from azure-defaults.
+Present pre-selected frameworks explicitly so user can confirm or deselect.
 
-Use `askQuestions` — 4 questions: Compliance frameworks (multi-select, pre-checked by industry),
-Security measures (multi-select with business descriptions), Authentication method, Region.
+Use `askQuestions` — 4 questions: Compliance frameworks (multi-select, pre-checked by industry,
+show which are pre-selected and why), Security measures (multi-select with business descriptions),
+Authentication method, Region.
 
 ### Phase 5: Draft & Confirm
 
-1. Ask for project name, environments, timeline, and IaC tool preference (Bicep or Terraform; default Bicep) via `askQuestions`
-   - Include `iac_tool` in the output document as: `iac_tool: Bicep    # or Terraform`
-2. Run research via subagent for any Azure documentation gaps
-3. Generate full requirements document matching H2 structure from azure-artifacts skill
-4. Present draft, iterate on feedback, save on approval
+1. Run research via subagent for any Azure documentation gaps
+2. Generate full requirements document matching H2 structure from azure-artifacts skill
+3. Present draft, iterate on feedback, save on approval
+
+> Project name, environments, and IaC tool are already captured in Phases 1-2.
+> Phase 5 focuses on final document generation and review.
 
 ### Auto-Save (Before Handoff)
 
@@ -262,29 +296,33 @@ Security measures (multi-select with business descriptions), Authentication meth
 
 ## Must-Have Information
 
-| Requirement        | Gathered In | Default                     |
-| ------------------ | ----------- | --------------------------- |
-| Industry/vertical  | Phase 1     | Technology / SaaS           |
-| Company size       | Phase 1     | Mid-Market                  |
-| System description | Phase 1     | (required)                  |
-| Scenario           | Phase 1     | Greenfield                  |
-| Workload pattern   | Phase 2     | (agent-inferred)            |
-| Budget             | Phase 2     | (required)                  |
-| Scale (users)      | Phase 2     | 100-1,000                   |
-| Data sensitivity   | Phase 2     | Internal business data      |
-| Service tier       | Phase 3     | Balanced                    |
-| SLA target         | Phase 3     | 99.9%                       |
-| RTO / RPO          | Phase 3     | 4 hours / 1 hour            |
-| Compliance         | Phase 4     | Based on industry           |
-| Security controls  | Phase 4     | Managed Identity + KV + TLS |
-| Region             | Phase 4     | `swedencentral`             |
-| Project name       | Phase 5     | (required)                  |
-| Environments       | Phase 5     | Dev + Production            |
-| Timeline           | Phase 5     | 1-3 months                  |
-| IaC tool           | Phase 5     | Bicep                       |
+| Requirement         | Gathered In | Default                      |
+| ------------------- | ----------- | ---------------------------- |
+| Project name        | Phase 1     | (required)                   |
+| Project description | Phase 1     | (required, 1-2 sentences)    |
+| Industry/vertical   | Phase 1     | Technology / SaaS            |
+| Company size        | Phase 1     | Mid-Market                   |
+| System description  | Phase 1     | (required)                   |
+| Scenario            | Phase 1     | Greenfield                   |
+| Environments        | Phase 1     | Dev + Production             |
+| Workload pattern    | Phase 2     | (agent-inferred)             |
+| Budget              | Phase 2     | (required)                   |
+| Scale (users)       | Phase 2     | 100-1,000                    |
+| Concurrent users    | Phase 2     | (conditional: web/API only)  |
+| TPS                 | Phase 2     | (conditional: DB-heavy only) |
+| Data sensitivity    | Phase 2     | Internal business data       |
+| IaC tool            | Phase 2     | Bicep                        |
+| Service tier        | Phase 3     | Balanced                     |
+| SLA target          | Phase 3     | 99.9%                        |
+| RTO / RPO           | Phase 3     | 4 hours / 1 hour (Standard)  |
+| Azure services      | Phase 3     | (based on workload pattern)  |
+| Compliance          | Phase 4     | Based on industry            |
+| Security controls   | Phase 4     | Managed Identity + KV + TLS  |
+| Region              | Phase 4     | `swedencentral`              |
+| Timeline            | Phase 5     | 1-3 months                   |
 
 > [!IMPORTANT]
-> `iac_tool` is captured **once** here. Downstream agents read it from `01-requirements.md`.
+> `iac_tool` is captured **once** in Phase 2. Downstream agents read it from `01-requirements.md`.
 > Do NOT add IaC selection prompts to any other agent.
 
 If `askQuestions` is unavailable, gather via chat questions instead.

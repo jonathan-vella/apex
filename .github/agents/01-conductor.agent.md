@@ -9,15 +9,15 @@ agents:
     "02-Requirements",
     "03-Architect",
     "04-Design",
-    "05-Bicep Planner",
-    "06-Bicep Code Generator",
-    "07-Deploy",
+    "05b-Bicep Planner",
+    "06b-Bicep CodeGen",
+    "07b-Bicep Deploy",
     "08-As-Built",
     "09-Diagnose",
     "10-Challenger",
-    "11-Terraform Planner",
-    "12-Terraform Code Generator",
-    "13-Terraform Deploy",
+    "05t-Terraform Planner",
+    "06t-Terraform CodeGen",
+    "07t-Terraform Deploy",
   ]
 tools:
   [
@@ -145,16 +145,16 @@ handoffs:
     send: false
     model: "GPT-5.3-Codex (copilot)"
   - label: "Step 4: Implementation Plan"
-    agent: 05-Bicep Planner
+    agent: 05b-Bicep Planner
     prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Save `agent-output/{project}/04-implementation-plan.md` plus mandatory Step 4 diagrams: `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Bicep"
-    agent: 06-Bicep Code Generator
+    agent: 06b-Bicep CodeGen
     prompt: "Implement the Bicep templates according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/bicep/{project}/`. Proceed directly to completion - Deploy agent will validate."
     send: true
   - label: "Step 6: Deploy"
-    agent: 07-Deploy
+    agent: 07b-Bicep Deploy
     prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure after preflight validation. Check `agent-output/{project}/04-implementation-plan.md` for deployment strategy (phased or single) and follow accordingly."
     send: false
     model: "GPT-5.3-Codex (copilot)"
@@ -168,16 +168,16 @@ handoffs:
     prompt: "Troubleshoot issues with the current workflow or Azure resources."
     send: false
   - label: "Step 4: IaC Plan (Terraform)"
-    agent: 11-Terraform Planner
+    agent: 05t-Terraform Planner
     prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Save `agent-output/{project}/04-implementation-plan.md` plus mandatory Step 4 diagrams: `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Terraform"
-    agent: 12-Terraform Code Generator
+    agent: 06t-Terraform CodeGen
     prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Proceed directly to completion - Deploy agent will validate."
     send: true
   - label: "Step 6: Deploy (Terraform)"
-    agent: 13-Terraform Deploy
+    agent: 07t-Terraform Deploy
     prompt: "Deploy the Terraform configuration in `infra/terraform/{project}/` to Azure after preflight validation. Check `agent-output/{project}/04-implementation-plan.md` for deployment strategy."
     send: false
     model: "GPT-5.3-Codex (copilot)"
@@ -238,10 +238,10 @@ Step 7: Documentation   →                   →  07-*.md
 
 Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing Steps 4-6:
 
-| `iac_tool` value  | Step 4 Agent           | Step 5 Agent                  | Step 6 Agent          |
-| ----------------- | ---------------------- | ----------------------------- | --------------------- |
-| `Bicep` (default) | `05-Bicep Planner`     | `06-Bicep Code Generator`     | `07-Deploy`           |
-| `Terraform`       | `11-Terraform Planner` | `12-Terraform Code Generator` | `13-Terraform Deploy` |
+| `iac_tool` value  | Step 4 Agent            | Step 5 Agent            | Step 6 Agent           |
+| ----------------- | ----------------------- | ----------------------- | ---------------------- |
+| `Bicep` (default) | `05b-Bicep Planner`     | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
+| `Terraform`       | `05t-Terraform Planner` | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). Do NOT ask in any other scenario.

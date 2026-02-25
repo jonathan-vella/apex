@@ -23,7 +23,7 @@
     "lint:governance-refs": "node scripts/validate-governance-refs.mjs",
     "validate:instruction-refs": "node scripts/validate-instruction-references.mjs",
     "lint:prose": "vale --config .vale.ini docs/ .github/ README.md || echo 'Vale not installed - run: brew install vale'",
-    "lint:json": "find . -name '*.json' ! -path './node_modules/*' ! -path './infra/*' ! -path './.devcontainer/*' ! -path './.vscode/*' ! -path './scripts/workflow-generator/node_modules/*' -exec sh -c 'node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"{}\\\")); console.log(\\\"✓ {}\\\")\" 2>&1 || echo \"✗ {} - Invalid JSON\"' \\;",
+    "lint:json": "node scripts/lint-json.mjs",
     "lint:yaml": "find . \\( -name '*.yml' -o -name '*.yaml' \\) ! -path './node_modules/*' ! -path './infra/*' -exec yamllint -c .yamllint.yml {} \\; 2>/dev/null || echo 'yamllint not installed - run: pip install yamllint'",
     "lint:python": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
     "lint:python:fix": "cd mcp/azure-pricing-mcp && python -m ruff check --fix src/ tests/",
