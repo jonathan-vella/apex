@@ -216,7 +216,7 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 
 > [!IMPORTANT]
 > **Write `00-handoff.md` at every gate before presenting it to the user.**
-> See [Phase Handoff Document](#phase-handoff-document) for the format.
+> See [Phase Handoff Document](01-conductor.agent.md#phase-handoff-document) for the format.
 > This enables the user to start a fresh chat thread at any gate without losing context.
 
 ### Gate 1: After Requirements

@@ -61,6 +61,17 @@ function collectFiles(dirs, extensions) {
   return files;
 }
 
+/**
+ * Splits a comma-separated `applyTo` glob string into individual patterns,
+ * respecting brace expressions such as `path/{bicep,tf}` where the comma is
+ * part of the glob syntax and must NOT be treated as a delimiter.
+ *
+ * Brace depth is tracked so that commas inside `{...}` are preserved as-is,
+ * while top-level commas (depth === 0) are used as split points.
+ *
+ * @param {string} pattern - Raw `applyTo` value from instruction frontmatter.
+ * @returns {string[]} Array of trimmed, non-empty glob patterns.
+ */
 function splitApplyTo(pattern) {
   // Split on commas that are NOT inside brace expressions {a,b,c}
   const parts = [];
@@ -84,6 +95,19 @@ function splitApplyTo(pattern) {
   return parts.filter(Boolean);
 }
 
+/**
+ * Returns true if at least one file in the workspace matches the given glob
+ * pattern (or any of the comma-separated patterns it contains).
+ *
+ * In addition to the patterns as written, hidden-directory variants are
+ * automatically derived for `**`-prefixed patterns — e.g. `**\/*.bicep` maps
+ * to `.github/**\/*.bicep` and `.vscode/**\/*.bicep` — because
+ * `globSync` skips dot-prefixed directories by default and would otherwise
+ * miss files that live exclusively inside `.github` or `.vscode`.
+ *
+ * @param {string} pattern - Raw `applyTo` value, may be comma-separated.
+ * @returns {boolean} True if any matching file exists; false otherwise.
+ */
 function globHasMatch(pattern) {
   const patterns = splitApplyTo(pattern);
   // Also derive hidden-dir variants: "**/*.foo" → ".github/**/*.foo" etc.

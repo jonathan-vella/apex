@@ -28,6 +28,7 @@ tools:
     read/problems,
     read/readFile,
     read/readNotebookCellOutput,
+    agent,
     agent/runSubagent,
     edit/createDirectory,
     edit/createFile,
