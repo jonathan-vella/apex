@@ -4,7 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invokable: true
-agents: []
+agents: ["challenger-review-subagent"]
 tools:
   [
     vscode/extensions,
@@ -298,6 +298,22 @@ terraform plan \
 If detected, STOP and report.
 
 Present the plan summary table. **Do NOT apply without explicit user approval.**
+
+### Step 4.5: Pre-Deploy Adversarial Review (1 pass)
+
+After terraform plan completes and before apply, invoke `challenger-review-subagent` via `#runSubagent`:
+
+- `artifact_path` = `agent-output/{project}/06-deployment-summary.md` (or the terraform plan output captured above)
+- `project_name` = `{project}`
+- `artifact_type` = `deployment-preview`
+- `review_focus` = `comprehensive`
+- `pass_number` = `1`
+- `prior_findings` = `null`
+
+Write result to `agent-output/{project}/challenge-findings-deployment.json`.
+
+Include findings in the deployment approval gate.
+If `must_fix` count > 0, flag prominently and require explicit user acknowledgement before proceeding.
 
 ### Step 5: Phase-Aware Deployment
 

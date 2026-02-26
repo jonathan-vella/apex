@@ -104,20 +104,21 @@ Current model assignments:
 Top-level agents live in `.github/agents/` and are `user-invokable: true`. They correspond to
 the 7-step workflow:
 
-| Step | Agent              | File                             |
-| ---- | ------------------ | -------------------------------- |
-| 1    | Requirements       | `02-requirements.agent.md`       |
-| 2    | Architect          | `03-architect.agent.md`          |
-| 3    | Design (optional)  | `04-design.agent.md`             |
-| 4b   | Bicep Plan         | `05b-bicep-planner.agent.md`     |
-| 5b   | Bicep Code         | `06b-bicep-codegen.agent.md`     |
-| 6b   | Bicep Deploy       | `07b-bicep-deploy.agent.md`      |
-| 4t   | Terraform Plan     | `05t-terraform-planner.agent.md` |
-| 5t   | Terraform Code     | `06t-terraform-codegen.agent.md` |
-| 6t   | Terraform Deploy   | `07t-terraform-deploy.agent.md`  |
-| 7    | As-Built           | `08-as-built.agent.md`           |
-| —    | InfraOps Conductor | `01-conductor.agent.md`          |
-| —    | Diagnose           | `09-diagnose.agent.md`           |
+| Step | Agent                | File                             |
+| ---- | -------------------- | -------------------------------- |
+| 1    | Requirements         | `02-requirements.agent.md`       |
+| 2    | Architect            | `03-architect.agent.md`          |
+| 3    | Design (optional)    | `04-design.agent.md`             |
+| 4b   | Bicep Plan           | `05b-bicep-planner.agent.md`     |
+| 5b   | Bicep Code           | `06b-bicep-codegen.agent.md`     |
+| 6b   | Bicep Deploy         | `07b-bicep-deploy.agent.md`      |
+| 4t   | Terraform Plan       | `05t-terraform-planner.agent.md` |
+| 5t   | Terraform Code       | `06t-terraform-codegen.agent.md` |
+| 6t   | Terraform Deploy     | `07t-terraform-deploy.agent.md`  |
+| 7    | As-Built             | `08-as-built.agent.md`           |
+| —    | InfraOps Conductor   | `01-conductor.agent.md`          |
+| —    | Diagnose             | `09-diagnose.agent.md`           |
+| —    | Challenger (wrapper) | `10-challenger.agent.md`         |
 
 ### Subagents
 
@@ -126,6 +127,7 @@ expensive or specialized work from their parent agent's context window.
 
 | Subagent                        | Parent Agent                | Purpose                                |
 | ------------------------------- | --------------------------- | -------------------------------------- |
+| `challenger-review-subagent`    | All workflow agents         | Adversarial review (1x or 3x passes)   |
 | `cost-estimate-subagent`        | Architect                   | Pricing MCP queries                    |
 | `governance-discovery-subagent` | Bicep Plan / Terraform Plan | Azure Policy REST API discovery        |
 | `bicep-lint-subagent`           | Bicep Code                  | `bicep build` + `bicep lint`           |

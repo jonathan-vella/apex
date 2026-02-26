@@ -11,17 +11,18 @@
 
 ## 7-Step Workflow
 
-| Step | Agent                                                                      | Output                                                                                                    | Gate       |
-| ---- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------- |
-| 1    | Requirements                                                               | `01-requirements.md`                                                                                      | Approval   |
-| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                           | Approval   |
-| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}`                                                                                    | —          |
-| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Approval   |
-| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                                  | Validation |
-| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                                | Approval   |
-| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                             | —          |
+| Step | Agent                                                                      | Output                                                                                                    | Review | Gate       |
+| ---- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------ | ---------- |
+| 1    | Requirements                                                               | `01-requirements.md`                                                                                      | 1x     | Approval   |
+| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                           | 3x+1x  | Approval   |
+| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}`                                                                                    | —      | —          |
+| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + governance + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | 1x+3x  | Approval   |
+| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                                  | 3x     | Validation |
+| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                                | 1x     | Approval   |
+| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                             | —      | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
+Review column = adversarial passes by `challenger-review-subagent` (3x = rotating lenses; 1x = comprehensive).
 
 ## Skills (Auto-Invoked by Agents)
 

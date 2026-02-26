@@ -4,7 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invokable: true
-agents: []
+agents: ["challenger-review-subagent"]
 tools:
   [
     vscode/extensions,
@@ -315,6 +315,22 @@ az deployment group what-if \
 If detected, STOP and report.
 
 Present summary table and wait for user approval.
+
+### Step 5.5: Pre-Deploy Adversarial Review (1 pass)
+
+After what-if analysis completes and before deployment execution, invoke `challenger-review-subagent` via `#runSubagent`:
+
+- `artifact_path` = `agent-output/{project}/06-deployment-summary.md` (or the what-if output captured above)
+- `project_name` = `{project}`
+- `artifact_type` = `deployment-preview`
+- `review_focus` = `comprehensive`
+- `pass_number` = `1`
+- `prior_findings` = `null`
+
+Write result to `agent-output/{project}/challenge-findings-deployment.json`.
+
+Include findings in the deployment approval gate.
+If `must_fix` count > 0, flag prominently and require explicit user acknowledgement before proceeding.
 
 ## Deployment Execution
 

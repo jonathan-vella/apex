@@ -14,7 +14,6 @@ agents:
     "07b-Bicep Deploy",
     "08-As-Built",
     "09-Diagnose",
-    "10-Challenger",
     "05t-Terraform Planner",
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
@@ -252,13 +251,14 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 📋 REQUIREMENTS COMPLETE
 Artifact: agent-output/{project}/01-requirements.md
 🔍 Challenger Review: {PASS | ⚠️ {N} must-fix / {N} should-fix findings}
+   Findings: agent-output/{project}/challenge-findings-requirements.json
 ✅ Next: Architecture Assessment (Step 2)
 ❓ Review requirements (and any Challenger findings) and confirm to proceed
 ```
 
 > [!IMPORTANT]
-> Gate 1 **must** include Challenger findings. If the Requirements subagent did not run
-> `10-Challenger`, invoke it now before presenting this gate.
+> Gate 1 **must** include Challenger findings. If the Requirements agent did not run
+> `challenger-review-subagent`, invoke it now before presenting this gate.
 
 ### Gate 2: After Architecture
 
@@ -325,21 +325,29 @@ Use `#runSubagent` for each workflow step:
 
 Subagents are wired into their parent agents automatically:
 
-| Subagent                        | Parent Agent       | When Used                                        |
-| ------------------------------- | ------------------ | ------------------------------------------------ |
-| `10-Challenger`                 | Requirements       | Step 1 — adversarial review of requirements      |
-| `10-Challenger`                 | Architect          | Step 2 — adversarial review of WAF assessment    |
-| `10-Challenger`                 | Bicep Plan         | Step 4 — adversarial review of implementation    |
-| `cost-estimate-subagent`        | Architect          | Step 2 — pricing isolation + accuracy validation |
-| `cost-estimate-subagent`        | As-Built           | Step 7 — as-built pricing for deployed SKUs      |
-| `governance-discovery-subagent` | Bicep Plan         | Step 4 — policy discovery gate                   |
-| `governance-discovery-subagent` | Terraform Planner  | Step 4† — policy discovery gate                  |
-| `bicep-lint-subagent`           | Bicep Code         | Step 5 Phase 4 — syntax check                    |
-| `bicep-review-subagent`         | Bicep Code         | Step 5 Phase 4 — code review                     |
-| `bicep-whatif-subagent`         | Deploy             | Step 6 — deployment preview                      |
-| `terraform-lint-subagent`       | Terraform Code Gen | Step 5† — syntax + format check                  |
-| `terraform-review-subagent`     | Terraform Code Gen | Step 5† — AVM-TF + security review               |
-| `terraform-plan-subagent`       | Terraform Deploy   | Step 6† — deployment preview                     |
+| Subagent                        | Parent Agent       | When Used                                              | Passes |
+| ------------------------------- | ------------------ | ------------------------------------------------------ | ------ |
+| `challenger-review-subagent`    | Requirements       | Step 1 — adversarial review of requirements            | 1x     |
+| `challenger-review-subagent`    | Architect          | Step 2 — adversarial review of architecture (3 lenses) | 3x     |
+| `challenger-review-subagent`    | Architect          | Step 2 — adversarial review of cost estimate           | 1x     |
+| `challenger-review-subagent`    | Bicep Plan         | Step 4 — adversarial review of governance constraints  | 1x     |
+| `challenger-review-subagent`    | Bicep Plan         | Step 4 — adversarial review of implementation plan     | 3x     |
+| `challenger-review-subagent`    | Terraform Planner  | Step 4† — adversarial review of governance constraints | 1x     |
+| `challenger-review-subagent`    | Terraform Planner  | Step 4† — adversarial review of implementation plan    | 3x     |
+| `challenger-review-subagent`    | Bicep Code         | Step 5 — adversarial review of IaC code                | 3x     |
+| `challenger-review-subagent`    | Terraform Code Gen | Step 5† — adversarial review of IaC code               | 3x     |
+| `challenger-review-subagent`    | Deploy             | Step 6 — pre-deploy adversarial review                 | 1x     |
+| `challenger-review-subagent`    | Terraform Deploy   | Step 6† — pre-deploy adversarial review                | 1x     |
+| `cost-estimate-subagent`        | Architect          | Step 2 — pricing isolation + accuracy validation       | —      |
+| `cost-estimate-subagent`        | As-Built           | Step 7 — as-built pricing for deployed SKUs            | —      |
+| `governance-discovery-subagent` | Bicep Plan         | Step 4 — policy discovery gate                         | —      |
+| `governance-discovery-subagent` | Terraform Planner  | Step 4† — policy discovery gate                        | —      |
+| `bicep-lint-subagent`           | Bicep Code         | Step 5 Phase 4 — syntax check                          | —      |
+| `bicep-review-subagent`         | Bicep Code         | Step 5 Phase 4 — code review                           | —      |
+| `bicep-whatif-subagent`         | Deploy             | Step 6 — deployment preview                            | —      |
+| `terraform-lint-subagent`       | Terraform Code Gen | Step 5† — syntax + format check                        | —      |
+| `terraform-review-subagent`     | Terraform Code Gen | Step 5† — AVM-TF + security review                     | —      |
+| `terraform-plan-subagent`       | Terraform Deploy   | Step 6† — deployment preview                           | —      |
 
 † Terraform path only.
 

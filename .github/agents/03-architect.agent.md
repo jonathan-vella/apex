@@ -3,7 +3,12 @@ name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.
 model: ["Claude Opus 4.6"]
 user-invokable: true
-agents: ["cost-estimate-subagent", "10-Challenger", "05t-Terraform Planner"]
+agents:
+  [
+    "cost-estimate-subagent",
+    "challenger-review-subagent",
+    "05t-Terraform Planner",
+  ]
 tools:
   [
     vscode/extensions,
@@ -303,15 +308,41 @@ Refer to azure-defaults skill for exact `service_name` values.
 > If `cost-estimate-subagent` fails or is unavailable, STOP and notify the user.
 > Do NOT write dollar figures from memory. Do NOT proceed to artifact generation without subagent-verified prices.
 
-## Challenger Review (Advisory)
+## Adversarial Review — 3-Pass Architecture + 1-Pass Cost Estimate
 
-After generating the assessment and cost estimate, invoke `10-Challenger` via `#runSubagent`:
+After generating the assessment and cost estimate, run adversarial reviews.
 
-1. Provide: `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`,
-   `project_name` = `{project}`, `artifact_type` = `architecture`
-2. Review the returned findings JSON
-3. Include a summary of `must_fix` and `should_fix` items in the approval gate below
-4. The user decides whether to revise or proceed — this is advisory, not blocking
+### Architecture Review (3 passes — rotating lenses)
+
+| Pass | `review_focus`             | Lens Description                                            |
+| ---- | -------------------------- | ----------------------------------------------------------- |
+| 1    | `security-governance`      | Policy compliance, identity, network isolation, encryption  |
+| 2    | `architecture-reliability` | WAF balance, SLA feasibility, failure modes, dependencies   |
+| 3    | `cost-feasibility`         | SKU sizing, pricing realism, budget alignment, reservations |
+
+For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
+
+- `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
+- `project_name` = `{project}`
+- `artifact_type` = `architecture`
+- `review_focus` = per-pass value from table above
+- `pass_number` = `1` / `2` / `3`
+- `prior_findings` = `null` for pass 1; previous pass JSON for passes 2-3
+
+Write each result to `agent-output/{project}/challenge-findings-architecture-pass{N}.json`.
+
+### Cost Estimate Review (1 pass)
+
+After architecture passes, invoke `challenger-review-subagent` once more:
+
+- `artifact_path` = `agent-output/{project}/03-des-cost-estimate.md`
+- `project_name` = `{project}`
+- `artifact_type` = `cost-estimate`
+- `review_focus` = `comprehensive`
+- `pass_number` = `1`
+- `prior_findings` = `null`
+
+Write result to `agent-output/{project}/challenge-findings-cost-estimate.json`.
 
 ## Approval Gate (MANDATORY)
 
@@ -331,13 +362,17 @@ Before handoff, present:
 Estimated Monthly Cost: $X (via Azure Pricing MCP)
 ```
 
-If Challenger found issues, append:
+Append challenger summary merging ALL passes:
 
 ```text
-⚠️ Challenger Review: {risk_level} risk
-  must_fix: {count} | should_fix: {count} | suggestions: {count}
-  Key concerns: {top 2-3 must_fix titles}
-  Full findings: agent-output/{project}/challenge-findings.json
+⚠️ Adversarial Review Summary (3 architecture passes + 1 cost pass)
+  must_fix: {total} | should_fix: {total} | suggestions: {total}
+  Key concerns: {top 2-3 must_fix titles across all passes}
+  Findings:
+    - agent-output/{project}/challenge-findings-architecture-pass1.json
+    - agent-output/{project}/challenge-findings-architecture-pass2.json
+    - agent-output/{project}/challenge-findings-architecture-pass3.json
+    - agent-output/{project}/challenge-findings-cost-estimate.json
 ```
 
 ```text

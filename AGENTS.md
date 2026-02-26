@@ -157,7 +157,7 @@ Always run `npm run lint:md` and relevant validations before committing.
 
 ```text
 .github/
-  agents/              # Agent definitions (*.agent.md) — 13 top-level + 8 subagents
+  agents/              # Agent definitions (*.agent.md) — 13 top-level + 9 subagents
     _subagents/        # Subagent definitions (non-user-invokable)
   skills/              # Reusable domain knowledge (SKILL.md per skill)
   instructions/        # File-type rules with glob-based auto-application
@@ -175,19 +175,20 @@ docs/                  # User-facing documentation
 
 ### Agent Workflow (7 Steps)
 
-| Step | Phase        | Output                                                   |
-| ---- | ------------ | -------------------------------------------------------- |
-| 1    | Requirements | `01-requirements.md`                                     |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          |
-| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 |
-| 4    | IaC Plan     | `04-implementation-plan.md` + governance + diagrams      |
-| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` |
-| 6    | Deploy       | `06-deployment-summary.md`                               |
-| 7    | As-Built     | `07-*.md` documentation suite                            |
+| Step | Phase        | Output                                                   | Review |
+| ---- | ------------ | -------------------------------------------------------- | ------ |
+| 1    | Requirements | `01-requirements.md`                                     | 1x     |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 3x+1x  |
+| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —      |
+| 4    | IaC Plan     | `04-implementation-plan.md` + governance + diagrams      | 1x+3x  |
+| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 3x     |
+| 6    | Deploy       | `06-deployment-summary.md`                               | 1x     |
+| 7    | As-Built     | `07-*.md` documentation suite                            | —      |
 
 All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
 The Conductor agent orchestrates the full workflow with human approval gates.
+Review column = adversarial passes by `challenger-review-subagent` (3x = rotating lenses; 1x = comprehensive).
 
 ## Terraform Conventions
 

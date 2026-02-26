@@ -3,7 +3,7 @@ name: 05t-Terraform Planner
 description: Expert Azure Terraform Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates AVM-TF modules via the Terraform Registry, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invokable: true
-agents: ["governance-discovery-subagent", "10-Challenger"]
+agents: ["governance-discovery-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode/extensions,
@@ -382,15 +382,39 @@ terraform {
 
 Use `terraform/get_latest_provider_version` to confirm current stable version.
 
-### Phase 4.5: Challenger Review (Advisory)
+### Phase 4.3: Governance Constraints Review (1 pass)
 
-After generating the implementation plan, invoke `10-Challenger` via `#runSubagent`:
+After governance discovery completes, invoke `challenger-review-subagent` via `#runSubagent`:
 
-1. Provide: `artifact_path` = `agent-output/{project}/04-implementation-plan.md`,
-   `project_name` = `{project}`, `artifact_type` = `implementation-plan`
-2. Review the returned findings JSON
-3. Include a summary of `must_fix` and `should_fix` items in the approval gate below
-4. The user decides whether to revise or proceed — this is advisory, not blocking
+- `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
+- `project_name` = `{project}`
+- `artifact_type` = `governance-constraints`
+- `review_focus` = `comprehensive`
+- `pass_number` = `1`
+- `prior_findings` = `null`
+
+Write result to `agent-output/{project}/challenge-findings-governance-constraints.json`.
+
+### Phase 4.5: Adversarial Plan Review (3 passes — rotating lenses)
+
+After generating the implementation plan, run 3 adversarial passes:
+
+| Pass | `review_focus`             | Lens Description                                            |
+| ---- | -------------------------- | ----------------------------------------------------------- |
+| 1    | `security-governance`      | Policy compliance, identity, network isolation, encryption  |
+| 2    | `architecture-reliability` | WAF balance, SLA feasibility, failure modes, dependencies   |
+| 3    | `cost-feasibility`         | SKU sizing, pricing realism, budget alignment, reservations |
+
+For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
+
+- `artifact_path` = `agent-output/{project}/04-implementation-plan.md`
+- `project_name` = `{project}`
+- `artifact_type` = `implementation-plan`
+- `review_focus` = per-pass value from table above
+- `pass_number` = `1` / `2` / `3`
+- `prior_findings` = `null` for pass 1; previous pass JSON for passes 2-3
+
+Write each result to `agent-output/{project}/challenge-findings-implementation-plan-pass{N}.json`.
 
 ### Phase 5: Approval Gate
 
@@ -406,13 +430,17 @@ Backend: Azure Storage Account (Azure Blob State Locking)
 Est. Implementation: {time}
 ```
 
-If Challenger found issues, append:
+Append challenger summary merging ALL passes:
 
 ```text
-⚠️ Challenger Review: {risk_level} risk
-  must_fix: {count} | should_fix: {count} | suggestions: {count}
-  Key concerns: {top 2-3 must_fix titles}
-  Full findings: agent-output/{project}/challenge-findings.json
+⚠️ Adversarial Review Summary (1 governance pass + 3 plan passes)
+  must_fix: {total} | should_fix: {total} | suggestions: {total}
+  Key concerns: {top 2-3 must_fix titles across all passes}
+  Findings:
+    - agent-output/{project}/challenge-findings-governance-constraints.json
+    - agent-output/{project}/challenge-findings-implementation-plan-pass1.json
+    - agent-output/{project}/challenge-findings-implementation-plan-pass2.json
+    - agent-output/{project}/challenge-findings-implementation-plan-pass3.json
 ```
 
 ```text

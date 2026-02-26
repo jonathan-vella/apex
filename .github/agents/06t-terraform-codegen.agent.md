@@ -3,7 +3,12 @@ name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
 model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]
 user-invokable: true
-agents: ["terraform-lint-subagent", "terraform-review-subagent"]
+agents:
+  [
+    "terraform-lint-subagent",
+    "terraform-review-subagent",
+    "challenger-review-subagent",
+  ]
 tools:
   [
     vscode/extensions,
@@ -411,8 +416,36 @@ Delegate to `terraform-review-subagent`:
 
 **Step 3 — Finalize**:
 
-Both subagents must return passing results before proceeding.
-Save validation status (including subagent verdicts) in `05-implementation-reference.md`.
+Both subagents must return passing results before proceeding to adversarial review.
+
+### Phase 4.5: Adversarial Code Review (3 passes — rotating lenses)
+
+After lint and review subagents pass, run 3 adversarial passes on the generated code:
+
+| Pass | `review_focus`             | Lens Description                                            |
+| ---- | -------------------------- | ----------------------------------------------------------- |
+| 1    | `security-governance`      | Policy compliance, identity, network isolation, encryption  |
+| 2    | `architecture-reliability` | WAF balance, SLA feasibility, failure modes, dependencies   |
+| 3    | `cost-feasibility`         | SKU sizing, pricing realism, budget alignment, reservations |
+
+For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
+
+- `artifact_path` = `infra/terraform/{project}/`
+- `project_name` = `{project}`
+- `artifact_type` = `iac-code`
+- `review_focus` = per-pass value from table above
+- `pass_number` = `1` / `2` / `3`
+- `prior_findings` = `null` for pass 1; previous pass JSON for passes 2-3
+
+Write each result to `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`.
+
+If any pass returns `must_fix` items:
+
+1. Fix the code
+2. Re-run `terraform-lint-subagent` and `terraform-review-subagent`
+3. Re-run only the failing adversarial pass
+
+Save validation status (including all subagent verdicts) in `05-implementation-reference.md`.
 Run `npm run lint:artifact-templates` and fix any H2 structure errors for your artifacts.
 
 ## File Structure
@@ -508,4 +541,5 @@ Include attribution header from the template file (do not hardcode).
 - [ ] `deploy.sh` and `deploy.ps1` generated with error handling
 - [ ] `terraform-lint-subagent` returns PASS
 - [ ] `terraform-review-subagent` returns APPROVED
+- [ ] `challenger-review-subagent` 3-pass adversarial code review completed
 - [ ] `05-implementation-reference.md` saved with validation status

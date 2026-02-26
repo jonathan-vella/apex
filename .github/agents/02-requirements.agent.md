@@ -5,7 +5,7 @@ description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
 user-invokable: true
-agents: ["10-Challenger"]
+agents: ["challenger-review-subagent"]
 tools:
   [
     vscode/extensions,
@@ -286,10 +286,14 @@ Authentication method, Region.
 > [!IMPORTANT]
 > This phase is **required** before presenting Gate 1. Do NOT skip it, even for simple projects.
 
-1. Delegate to `10-Challenger` via `#runSubagent`:
-   - Provide: `artifact_path` = `agent-output/{project}/01-requirements.md`,
-     `project_name` = `{project}`, `artifact_type` = `requirements`
-2. Review the returned findings JSON
+1. Delegate to `challenger-review-subagent` via `#runSubagent`:
+   - `artifact_path` = `agent-output/{project}/01-requirements.md`
+   - `project_name` = `{project}`
+   - `artifact_type` = `requirements`
+   - `review_focus` = `comprehensive`
+   - `pass_number` = `1`
+   - `prior_findings` = `null`
+2. Write returned JSON to `agent-output/{project}/challenge-findings-requirements.json`
 3. Present `must_fix` and `should_fix` items to the user prominently before the gate summary
 4. Let the user decide whether to revise requirements or proceed to Architecture
 5. Present final handoff options to Architect agent
