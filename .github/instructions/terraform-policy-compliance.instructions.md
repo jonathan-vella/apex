@@ -139,10 +139,19 @@ resource "azurerm_storage_account" "this" {
 > Generator MUST NOT proceed past Phase 1.5 with unresolved
 > policy violations.
 
+## HCP Terraform Cloud Guardrail
+
+> [!CAUTION]
+> **NEVER** use HCP Terraform Cloud (`terraform { cloud {} }`) or
+> reference `TFE_TOKEN` in generated code. State backend MUST be
+> Azure Storage Account. See
+> `terraform-code-best-practices.instructions.md` § State Backend.
+
 ## Anti-Patterns
 
 | Anti-Pattern                                                        | Why It Fails                                                                              | Correct Approach                                        |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Use `terraform { cloud {} }` or `TFE_TOKEN`                         | Vendor lock-in; violates Azure-only backend policy                                        | Use `backend "azurerm"` with Azure Storage Account      |
 | Assume 4 tags are sufficient                                        | Azure Policy may enforce 9+ tags                                                          | Read `04-governance-constraints.md` for actual tag list |
 | Ignore `public_network_access_enabled` constraints                  | Deny policy blocks deployment                                                             | Check network policies in governance constraints        |
 | Skip constraints reading ("trust artifact chain")                   | Trusting the chain means accepting architecture decisions, NOT skipping compliance checks | Always read and enforce governance constraints          |

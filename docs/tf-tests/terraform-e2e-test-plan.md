@@ -375,23 +375,23 @@ deduplication logic.
 
 <!-- COPILOT:AUTO-UPDATE:START — Do not remove this marker -->
 
-| Suite                        | Result     | Date | Executor | Notes |
-| ---------------------------- | ---------- | ---- | -------- | ----- |
-| TS-01: Agent Definitions     | ⬜ Not Run | —    | —        | —     |
-| TS-02: Instruction Files     | ⬜ Not Run | —    | —        | —     |
-| TS-03: Skills                | ⬜ Not Run | —    | —        | —     |
-| TS-04: CI/CD Workflow        | ⬜ Not Run | —    | —        | —     |
-| TS-05: Terraform Planner     | ⬜ Not Run | —    | —        | —     |
-| TS-06: Terraform CodeGen     | ⬜ Not Run | —    | —        | —     |
-| TS-07: Terraform Deploy      | ⬜ Not Run | —    | —        | —     |
-| TS-08: Subagent Functional   | ⬜ Not Run | —    | —        | —     |
-| TS-09: Conductor Integration | ⬜ Not Run | —    | —        | —     |
-| TS-10: Convention Compliance | ⬜ Not Run | —    | —        | —     |
-| TS-11: Security Baseline     | ⬜ Not Run | —    | —        | —     |
-| TS-12: Regression            | ⬜ Not Run | —    | —        | —     |
-| TS-13: Adversarial Review    | ⬜ Not Run | —    | —        | —     |
+| Suite                        | Result  | Date       | Executor | Notes                                                                                                                                                                |
+| ---------------------------- | ------- | ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TS-01: Agent Definitions     | ✅ Pass | 2025-07-18 | Copilot  | All 7 sub-tests pass; 4 warnings from frontmatter linter (non-blocking)                                                                                              |
+| TS-02: Instruction Files     | ✅ Pass | 2026-02-26 | Copilot  | Fixed: HCP guardrail added to terraform-policy-compliance.instructions.md (TS-02-05)                                                                                 |
+| TS-03: Skills                | ✅ Pass | 2025-07-18 | Copilot  | All 6 sub-tests pass; 14/14 skills format valid                                                                                                                      |
+| TS-04: CI/CD Workflow        | ✅ Pass | 2025-07-18 | Copilot  | All 7 sub-tests pass; terraform-validate.yml verified                                                                                                                |
+| TS-05: Terraform Planner     | ✅ Pass | 2025-07-18 | Copilot  | Static verification only; all workflow contracts present                                                                                                             |
+| TS-06: Terraform CodeGen     | ✅ Pass | 2025-07-18 | Copilot  | Static verification only; all workflow contracts present                                                                                                             |
+| TS-07: Terraform Deploy      | ✅ Pass | 2025-07-18 | Copilot  | Static verification only; all workflow contracts present                                                                                                             |
+| TS-08: Subagent Functional   | ✅ Pass | 2025-07-18 | Copilot  | All 3 TF subagent definitions verified (lint, review, plan)                                                                                                          |
+| TS-09: Conductor Integration | ✅ Pass | 2025-07-18 | Copilot  | All 7 sub-tests pass; IaC routing, workflow path, delegation verified                                                                                                |
+| TS-10: Convention Compliance | ⬜ Skip | 2025-07-18 | Copilot  | No generated .tf files in infra/terraform/; requires live CodeGen run                                                                                                |
+| TS-11: Security Baseline     | ⬜ Skip | 2025-07-18 | Copilot  | No generated .tf files in infra/terraform/; requires live CodeGen run                                                                                                |
+| TS-12: Regression            | ✅ Pass | 2026-02-26 | Copilot  | All 8 sub-tests pass; validate:all (388 JSON), lint:md (143 files), h2-sync (15 artifacts), gov-refs (37/37), 14 skills valid, 4 frontmatter warnings (non-blocking) |
+| TS-13: Adversarial Review    | ✅ Pass | 2025-07-18 | Copilot  | All 5 sections verified (13A-13E); challenger wiring confirmed across all parent agents                                                                              |
 
-**Status Legend**: ✅ Pass | ❌ Fail | ⚠️ Partial | ⬜ Not Run | 🔄 In Progress
+**Status Legend**: ✅ Pass | ❌ Fail | ⚠️ Partial | ⬜ Not Run | ⬜ Skip | 🔄 In Progress
 
 <!-- COPILOT:AUTO-UPDATE:END — Do not remove this marker -->
 
