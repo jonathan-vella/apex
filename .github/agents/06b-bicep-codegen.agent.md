@@ -36,6 +36,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -43,65 +44,11 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/azureterraformbestpractices,
-    azure-mcp/bicepschema,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
-    bicep/decompile_arm_parameters_file,
-    bicep/decompile_arm_template_file,
-    bicep/format_bicep_file,
-    bicep/get_az_resource_type_schema,
-    bicep/get_bicep_best_practices,
-    bicep/get_bicep_file_diagnostics,
-    bicep/get_deployment_snapshot,
-    bicep/get_file_references,
-    bicep/list_avm_metadata,
-    bicep/list_az_resource_types_for_provider,
+    "azure-mcp/*",
+    "bicep/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -362,9 +309,22 @@ For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
 - `artifact_type` = `iac-code`
 - `review_focus` = per-pass value from table above
 - `pass_number` = `1` / `2` / `3`
-- `prior_findings` = `null` for pass 1; previous pass JSON for passes 2-3
+- `prior_findings` = `null` for pass 1; **compact prior findings string for passes 2-3** (see below)
 
 Write each result to `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`.
+
+> [!IMPORTANT]
+> **Context efficiency — compact prior_findings**
+>
+> After writing each pass result to disk, **do NOT keep the full JSON in working context**.
+> Extract only the `compact_for_parent` string from the subagent response and discard the rest.
+>
+> For passes 2 and 3, set `prior_findings` to a compact string built from previous
+> `compact_for_parent` values — **not the full JSON objects**:
+>
+> ```text
+> prior_findings: "Pass 1: <compact_for_parent>\nPass 2: <compact_for_parent>"
+> ```
 
 If any pass returns `must_fix` items:
 

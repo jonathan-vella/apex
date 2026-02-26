@@ -1,0 +1,51 @@
+{
+  "artifact": "02-architecture-assessment.md",
+  "project": "terraform-e2e",
+  "review_focus": "cost-feasibility",
+  "pass_number": 3,
+  "risk_level": "medium",
+  "issues": [
+    {
+      "id": "COST-001",
+      "severity": "should_fix",
+      "title": "Monthly estimate omits mandatory state-backend and backend telemetry cost drivers",
+      "description": "The architecture's ~$25-$60/month total excludes explicit line items for the required Terraform remote state backend (storage account capacity, transactions, and possible LRS/GRS premium) and treats Log Analytics as effectively included. Diagnostic logs from App Service, SQL, and Key Vault routed to Log Analytics can materially increase ingestion beyond app-only telemetry.",
+      "location": "## Cost Assessment; ## Implementation Handoff (state backend prerequisite); ## Resource SKU Recommendations",
+      "recommendation": "Add explicit cost line items for Terraform backend storage and platform diagnostic ingestion/retention, then recompute the total range with low/expected/high scenarios."
+    },
+    {
+      "id": "COST-002",
+      "severity": "should_fix",
+      "title": "Budget narrative is internally inconsistent across sections",
+      "description": "Requirements validation reports estimated actual spend as ~$75-$150, while the same artifact later claims ~$25-$60 and uses that lower number for approval. This creates decision ambiguity and weakens confidence in feasibility claims.",
+      "location": "## Requirements Validation; ## Cost Assessment; ## Approval Gate",
+      "recommendation": "Normalize to a single reconciled estimate with assumptions table and confidence bounds, then update all sections to the same number set before approval."
+    },
+    {
+      "id": "COST-003",
+      "severity": "should_fix",
+      "title": "Unresolved pricing inputs are used to assert high confidence cost optimization",
+      "description": "SQL, Application Insights, and Log Analytics pricing are marked unresolved, yet the artifact still assigns a 9/10 cost score and 'well within budget' conclusion. This overstates certainty when key recurring charges are estimated from guardrails rather than validated prices.",
+      "location": "## WAF Pillar Assessment (Cost Optimization 9/10); ## Cost Assessment warning; ## Approval Gate",
+      "recommendation": "Lower cost confidence and score until unresolved SKUs are validated, or provide a conservative worst-case bound that still fits the budget target."
+    },
+    {
+      "id": "COST-004",
+      "severity": "should_fix",
+      "title": "Production upgrade path has an unquantified cost cliff",
+      "description": "The architecture defers private endpoints, WAF, higher compute/database tiers, and geo-replication to 'before production' but does not provide a consolidated delta from dev baseline to production minimum.",
+      "location": "## Executive Summary; ## Security Assessment recommendations; ## Reliability Assessment recommendations",
+      "recommendation": "Add a 'Dev-to-Prod Cost Delta' table with cumulative monthly uplift for each required production control and a minimum viable production total."
+    },
+    {
+      "id": "COST-005",
+      "severity": "suggestion",
+      "title": "RI/Savings Plan decision lacks explicit break-even analysis",
+      "description": "The architecture states reservations are unnecessary at current scale but does not show a simple break-even threshold tied to projected growth. If usage stabilizes or expands, commitment discounts may become rational earlier than assumed.",
+      "location": "## Cost Assessment (No reserved instances needed)",
+      "recommendation": "Include a brief break-even rule (e.g., sustained monthly compute/database spend threshold and commitment duration) to trigger RI/Savings Plan reevaluation."
+    }
+  ],
+  "summary": "Cost posture is directionally reasonable for dev, but feasibility confidence is weakened by omitted mandatory cost components, unresolved price inputs, and inconsistent totals inside the same artifact. The largest gap is the missing quantified dev-to-prod cost transition, which could create budget shock during promotion.",
+  "reviewed_at": "2025-07-14"
+}

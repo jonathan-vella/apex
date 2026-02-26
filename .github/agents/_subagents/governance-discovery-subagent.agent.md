@@ -10,6 +10,8 @@ tools:
     execute,
     read,
     search,
+    web,
+    vscode/askQuestions,
     "azure-mcp/*",
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]

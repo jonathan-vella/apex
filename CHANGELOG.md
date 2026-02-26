@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(agents): add `compact_for_parent` field to `challenger-review-subagent` output JSON — a
+  ≤200-char single-line summary (`Pass N (lens) | RISK | N must_fix | Key: title1; title2`) that
+  parent agents retain in context after writing the full findings JSON to disk.
+- feat(conductor): add `## Phase Handoff Document` section and `00-handoff.md` pattern — a
+  compact ≤50-line project state snapshot written at every approval gate, enabling users to
+  resume in a fresh chat thread without triggering `summarizeConversationHistory`.
+- feat(conductor): add `00-handoff.md` to Artifact Tracking table and DO/DON'T rules.
+- feat(conductor): update `## Resuming a Project` to read `00-handoff.md` first and include
+  the exact prompt snippet for thread resumption.
 - feat(terraform): add full Terraform IaC track — Planner (`05t`), Code Generator (`06t`), and
   Deploy (`07t`) agents.
 - feat(terraform): add Terraform lint, review, and plan subagents.
@@ -35,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- refactor(agents): replace full JSON `prior_findings` with compact `compact_for_parent` string
+  in `03-architect`, `05b-bicep-planner`, `05t-terraform-planner`, `06b-bicep-codegen`, and
+  `06t-terraform-codegen` — reduces parent context re-injection from ~10K tokens per review pass
+  to a single line while full detail remains on disk.
 - chore(agents): rename and renumber all agents with consistent numeric prefixes; remove
   `workflow-generator` outputs.
 - refactor(tf-dev): refine Terraform subagents, Conductor routing, and phase prompts.

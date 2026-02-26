@@ -8,9 +8,12 @@ tools:
   [
     agent,
     read/readFile,
+    search,
     search/fileSearch,
     search/listDirectory,
     edit/createFile,
+    web,
+    vscode/askQuestions,
   ]
 agents: ["challenger-review-subagent"]
 handoffs:

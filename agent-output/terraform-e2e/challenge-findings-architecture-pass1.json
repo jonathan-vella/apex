@@ -1,0 +1,75 @@
+{
+  "artifact": "02-architecture-assessment.md",
+  "project": "terraform-e2e",
+  "review_focus": "security-governance",
+  "pass_number": 1,
+  "risk_level": "high",
+  "issues": [
+    {
+      "id": "SEC-001",
+      "severity": "must_fix",
+      "title": "Architecture is marked ready before governance policy discovery is completed",
+      "description": "The document explicitly says network/security must be validated against governance constraints in Step 4, but still marks the architecture as ready to proceed. In this project, no 04-governance-constraints.json exists yet, so policy blockers (including inherited management-group Deny policies) are unverified.",
+      "location": "## Requirements Validation, ## Architecture Decision Summary, ## Implementation Handoff",
+      "recommendation": "Add a hard gate in Step 2 output: do not mark 'ready for terraform-plan' until governance discovery is complete and policy effects are mapped (Deny/Modify/DeployIfNotExists/Audit)."
+    },
+    {
+      "id": "SEC-002",
+      "severity": "must_fix",
+      "title": "Tagging strategy is hardcoded to baseline 4 and not policy-driven",
+      "description": "The architecture fixes tags to Environment, ManagedBy, Project, Owner only. Repo governance rules require discovered tags from policy constraints, which may exceed baseline. This creates high risk of Terraform deployment denial under tag-enforcement policies.",
+      "location": "## Implementation Handoff / Security Requirements for Implementation",
+      "recommendation": "Replace hardcoded tag set with 'dynamic tags sourced from governance discovery artifact'; include explicit handling for additional required tags and case sensitivity."
+    },
+    {
+      "id": "SEC-003",
+      "severity": "must_fix",
+      "title": "GDPR control claims are not mapped to implementable technical controls",
+      "description": "The architecture states GDPR controls are defined, but does not map required controls (erasure, portability, 72-hour breach workflow, retention/purge) to concrete platform and app mechanisms. Requirements explicitly require this mapping.",
+      "location": "## Security Assessment, ## Requirements Validation",
+      "recommendation": "Add a GDPR control matrix in Step 2 mapping each control to implementation artifacts (API workflows, SQL retention jobs/purge logic, audit trail retention, breach alert/runbook ownership)."
+    },
+    {
+      "id": "SEC-004",
+      "severity": "should_fix",
+      "title": "Public endpoint posture lacks compensating controls for SQL and Key Vault",
+      "description": "Public endpoints are accepted for dev, while network isolation, private endpoints, and WAF are deferred. No compensating controls are specified (IP restrictions, service firewall allowlists, private DNS plan, or strict ingress controls), increasing data exposure risk even in dev with personal data.",
+      "location": "## Security Assessment / Gaps, ## Architecture Decision Summary",
+      "recommendation": "Define minimum dev compensating controls now: SQL firewall allowlist, Key Vault network ACL strategy, App Service access restrictions, and explicit policy-based fallback if public access is denied."
+    },
+    {
+      "id": "SEC-005",
+      "severity": "should_fix",
+      "title": "Terraform state backend security is underspecified",
+      "description": "Remote state is mentioned, but no security controls are defined for the state storage account/container (public network access mode, blob versioning, soft delete, immutability, private endpoint requirement, access model). Terraform state can contain sensitive metadata and secret references.",
+      "location": "## Executive Summary / Terraform-Specific Notes, ## Architecture Decision Summary",
+      "recommendation": "Add explicit state-backend security baseline: private or restricted network access, TLS/HTTPS-only, blob versioning + soft delete, RBAC-only access via managed identity, and no key-based auth in pipeline."
+    },
+    {
+      "id": "SEC-006",
+      "severity": "should_fix",
+      "title": "Managed Identity flow to Azure SQL has hidden bootstrap dependencies",
+      "description": "The document states MI-based SQL access, but does not define required Entra admin setup on SQL Server, principal provisioning sequence, or failure handling. Without that, initial deployment/app startup often fails despite 'passwordless' intent.",
+      "location": "## Security Assessment / Strengths, ## Implementation Handoff / Security Requirements",
+      "recommendation": "Document MI bootstrap sequence: set SQL Entra admin, create DB contained user from external provider, assign least-privilege DB roles, and include Terraform dependency ordering."
+    },
+    {
+      "id": "SEC-007",
+      "severity": "should_fix",
+      "title": "Key Vault RBAC role definition is ambiguous and may be incorrect for data-plane secret reads",
+      "description": "The architecture assigns 'Secrets Reader' without clarifying exact built-in role name/scope and whether data-plane get is granted under RBAC mode. Mis-scoped role assignment can break runtime secret retrieval or over-privilege access.",
+      "location": "## Implementation Handoff / Security Requirements",
+      "recommendation": "Specify exact least-privilege built-in role (Key Vault Secrets User), scope, and required operations for runtime access; validate role assignment against Key Vault RBAC data-plane behavior during plan review."
+    },
+    {
+      "id": "SEC-008",
+      "severity": "suggestion",
+      "title": "Security monitoring controls are advisory instead of mandatory for compliance posture",
+      "description": "Defender for Cloud, SQL auditing, and threat detection are listed as recommendations rather than required controls. Given GDPR breach notification obligations, this weakens detection and evidence posture.",
+      "location": "## Security Assessment / Recommendations, ## Monitoring Requirements",
+      "recommendation": "Promote baseline detection controls to mandatory for this architecture: SQL auditing/threat detection enabled, security alerts routed to action group, and documented breach triage workflow ownership."
+    }
+  ],
+  "summary": "Security-governance posture is not deployment-ready. The highest risks are governance-blind readiness (no discovered policy constraints), hardcoded tag assumptions, and unimplemented GDPR control mappings despite compliance claims. Public-endpoint design and identity/secret flows are plausible for dev, but currently lack mandatory compensating controls and enforcement detail required to avoid policy-denied deployments and compliance drift.",
+  "reviewed_at": "2025-07-14"
+}

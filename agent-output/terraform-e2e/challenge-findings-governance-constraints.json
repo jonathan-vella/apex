@@ -1,0 +1,29 @@
+{
+  "artifact": "04-governance-constraints.md",
+  "project": "terraform-e2e",
+  "artifact_type": "governance-constraints",
+  "review_focus": "comprehensive",
+  "pass_number": 1,
+  "timestamp": "2026-02-26T13:52:00Z",
+  "findings": [
+    {
+      "severity": "should_fix",
+      "title": "Verify SWA region availability in swedencentral",
+      "description": "Governance constraints note SWA deployment to swedencentral per allowed-locations policy. Static Web App region support should be verified during terraform plan to confirm swedencentral is accepted.",
+      "recommendation": "Add a pre-deployment validation step that runs `az staticwebapp list-skus --location swedencentral` or attempts a terraform plan before full apply."
+    },
+    {
+      "severity": "suggestion",
+      "title": "Document policy exemption request process",
+      "description": "If SWA swedencentral deployment fails due to region limitations, a policy exemption for westeurope may be needed. The governance constraints document should include a section on how to request exemptions.",
+      "recommendation": "Add a 'Policy Exemption Procedure' subsection under Plan Adaptations with contact/process details."
+    }
+  ],
+  "summary": {
+    "must_fix": 0,
+    "should_fix": 1,
+    "suggestions": 1,
+    "verdict": "PASS_WITH_RECOMMENDATIONS"
+  },
+  "compact_for_parent": "Gov P1: 0 must-fix, 1 should-fix (verify SWA swedencentral region), 1 suggestion (doc exemption process). PASS."
+}

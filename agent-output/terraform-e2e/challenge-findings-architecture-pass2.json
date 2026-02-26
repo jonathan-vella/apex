@@ -1,0 +1,59 @@
+{
+  "artifact": "02-architecture-assessment.md",
+  "project": "terraform-e2e",
+  "review_focus": "architecture-reliability",
+  "pass_number": 2,
+  "risk_level": "medium",
+  "issues": [
+    {
+      "id": "REL-001",
+      "severity": "must_fix",
+      "title": "SLA target is asserted without a defensible composite availability model",
+      "description": "The artifact marks 99.5% SLA as achievable, but the selected stack includes SWA Free and a single-instance App Service B1 path. Reliability validation does not show a composite SLA calculation or per-component SLA assumptions, so the stated SLA objective is not evidence-backed.",
+      "location": "## Requirements Validation; ## Reliability Assessment; ## Architecture Decision Summary",
+      "recommendation": "Add an explicit composite availability calculation using documented SLA terms for each selected SKU/tier and deployment topology. If 99.5% cannot be supported with current tiers/topology, either adjust the NFR for dev or change the architecture/SKUs accordingly."
+    },
+    {
+      "id": "REL-002",
+      "severity": "must_fix",
+      "title": "Availability Zone upgrade path is internally inconsistent",
+      "description": "Reliability recommendations state 'upgrade to S1+ App Service Plan to enable Availability Zones', while the SKU comparison table indicates S1 has no AZ support. This creates a faulty reliability evolution path.",
+      "location": "## Reliability Assessment; ## Resource SKU Recommendations (App Service tier comparison)",
+      "recommendation": "Correct the resilience roadmap to a topology/SKU that actually supports zonal resilience (P1v3+), or remove AZ claims for this phase. Document the exact tier and deployment pattern required to meet each future reliability target."
+    },
+    {
+      "id": "REL-003",
+      "severity": "should_fix",
+      "title": "RTO 24h is not backed by a dependency-ordered recovery procedure",
+      "description": "The artifact relies on manual Terraform re-apply as interim DR, but does not define ordered restoration across state backend, SQL restore point selection, app config/secret dependencies, and app validation checkpoints.",
+      "location": "## Reliability Assessment; ## Implementation Handoff",
+      "recommendation": "Add a stepwise recovery runbook with dependency order, decision points, expected durations, and validation gates."
+    },
+    {
+      "id": "REL-004",
+      "severity": "should_fix",
+      "title": "RPO claim depends on SQL backup behavior that is not explicitly specified",
+      "description": "The architecture cites SQL PITR as the RPO mechanism, but does not specify backup storage redundancy or restore-region assumptions. In a regional failure scenario, RPO/RTO outcomes vary materially based on backup redundancy choices.",
+      "location": "## Reliability Assessment; ## Architecture Decision Summary",
+      "recommendation": "Explicitly declare SQL backup redundancy settings and the restore-region procedure used for DR assumptions."
+    },
+    {
+      "id": "REL-005",
+      "severity": "should_fix",
+      "title": "Cross-region frontend/backend split failure modes are not analyzed",
+      "description": "SWA is placed in westeurope while API/SQL are in swedencentral. The architecture does not model partial-outage behavior (frontend up, backend down), cross-region latency impacts, or degradation mode.",
+      "location": "## Executive Summary; ## Architecture Decision Summary",
+      "recommendation": "Add explicit failure-mode analysis for regional partition and backend outage scenarios, including graceful degradation behavior and incident routing triggers."
+    },
+    {
+      "id": "REL-006",
+      "severity": "suggestion",
+      "title": "Scale-out path lacks validated trigger-to-action playbooks",
+      "description": "Scale triggers are listed (e.g., >80 users, DTU >80%), but no validated capacity test data or pre-approved migration playbooks are included.",
+      "location": "## Performance Assessment; ## Resource SKU Recommendations",
+      "recommendation": "Define trigger-to-action runbooks with pre-tested SKU transitions, expected lead times, and rollback criteria."
+    }
+  ],
+  "summary": "The architecture is cost-efficient for dev, but reliability assertions are currently stronger than the evidence provided. The largest risks are unproven SLA feasibility and an inconsistent AZ upgrade path; secondary risks are untested DR execution details, unspecified backup resilience assumptions, and unmodeled cross-region partial-failure behavior.",
+  "reviewed_at": "2025-07-14"
+}

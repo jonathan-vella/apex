@@ -1,0 +1,35 @@
+{
+  "artifact": "04-implementation-plan.md",
+  "project": "terraform-e2e",
+  "artifact_type": "implementation-plan",
+  "review_focus": "security-governance",
+  "pass_number": 1,
+  "timestamp": "2026-02-26T13:52:00Z",
+  "findings": [
+    {
+      "severity": "should_fix",
+      "title": "Add lifecycle prevent_destroy on Key Vault and SQL Database",
+      "description": "Key Vault with purge protection and SQL Database with production data should have lifecycle { prevent_destroy = true } to guard against accidental terraform destroy.",
+      "recommendation": "Add lifecycle meta-argument to Key Vault and SQL Server module calls in the implementation plan."
+    },
+    {
+      "severity": "should_fix",
+      "title": "Configure diagnostic settings for all resources",
+      "description": "The plan creates Log Analytics and App Insights but does not explicitly plan diagnostic settings for Key Vault, SQL, App Service, and SWA to ship logs to Log Analytics.",
+      "recommendation": "Add a task for diagnostic settings on each resource, or note that AVM modules include diagnostic_settings parameters."
+    },
+    {
+      "severity": "suggestion",
+      "title": "Consider network restriction for Key Vault",
+      "description": "Even in dev, Key Vault network ACLs can restrict access to specific VNets or IPs. Currently the plan has no network restrictions.",
+      "recommendation": "For dev environment this is acceptable, but flag for production upgrade path."
+    }
+  ],
+  "summary": {
+    "must_fix": 0,
+    "should_fix": 2,
+    "suggestions": 1,
+    "verdict": "PASS_WITH_RECOMMENDATIONS"
+  },
+  "compact_for_parent": "Plan P1 (sec-gov): 0 must-fix, 2 should-fix (lifecycle prevent_destroy, diagnostic settings), 1 suggestion (KV network ACLs). PASS."
+}

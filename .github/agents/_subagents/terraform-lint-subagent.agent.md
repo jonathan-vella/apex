@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools: [execute, read, search, "azure-mcp/*"]
+tools: [execute, read, search, web, vscode/askQuestions, "azure-mcp/*"]
 ---
 
 # Terraform Lint Subagent

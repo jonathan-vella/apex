@@ -1,0 +1,75 @@
+{
+  "artifact": "03-des-cost-estimate.md",
+  "project": "terraform-e2e",
+  "review_focus": "comprehensive",
+  "pass_number": 1,
+  "risk_level": "medium",
+  "issues": [
+    {
+      "id": "CE-001",
+      "severity": "should_fix",
+      "title": "Mandatory Terraform state backend costs are missing from line items",
+      "description": "The architecture explicitly requires remote Terraform state in Azure Blob Storage, but the cost estimate does not include a state storage account/container, transactions, or retention/versioning overhead.",
+      "location": "Detailed Cost Breakdown; Architecture Overview",
+      "recommendation": "Add an explicit line item for Terraform state backend (storage + transactions + optional versioning/soft-delete) with low/expected/high monthly ranges."
+    },
+    {
+      "id": "CE-002",
+      "severity": "should_fix",
+      "title": "Unresolved MCP pricing is used to support a narrow total range",
+      "description": "Only App Service B1 is MCP-confirmed, while SQL, Application Insights, and Log Analytics are unresolved. Despite this, the artifact presents a tight total (~$25-$60) and a stable trend narrative, which overstates certainty.",
+      "location": "Cost At-a-Glance; Decision Summary; Detailed Cost Breakdown",
+      "recommendation": "Reframe totals into scenario bands (best/expected/worst) and widen uncertainty until unresolved SKUs are validated."
+    },
+    {
+      "id": "CE-003",
+      "severity": "should_fix",
+      "title": "Log Analytics treatment as 'bundled' can understate monitoring costs",
+      "description": "The table labels Log Analytics as '$0 bundled with AI', but workspace-based Application Insights and platform diagnostic logs are still meter-driven ingestion/retention costs.",
+      "location": "Detailed Cost Breakdown (Log Analytics row); Top 5 Cost Drivers",
+      "recommendation": "Clarify unified billing model: App Insights and workspace logs share ingestion meters; add separate assumptions for application telemetry vs platform diagnostic logs."
+    },
+    {
+      "id": "CE-004",
+      "severity": "should_fix",
+      "title": "Governance-driven cost uplift is not modeled",
+      "description": "The estimate assumes permissive dev networking/security. If subscription policies enforce private networking, diagnostics, or security controls, the estimate can jump materially.",
+      "location": "What We Are Not Paying For; Cost Risk Indicators; Decision Summary",
+      "recommendation": "Add a 'policy-constrained scenario' with incremental monthly uplift for likely enforced controls, pending Step 4 governance discovery."
+    },
+    {
+      "id": "CE-005",
+      "severity": "suggestion",
+      "title": "Savings recommendation includes weak-fit SQL Serverless option",
+      "description": "The artifact suggests SQL Serverless savings for this small always-on API profile, but serverless is not typically cost-optimal for continuously active workloads.",
+      "location": "Savings Opportunities",
+      "recommendation": "Replace with a conditional recommendation: evaluate only if usage is highly intermittent with measurable auto-pause windows."
+    },
+    {
+      "id": "CE-006",
+      "severity": "suggestion",
+      "title": "Decision matrix lacks cumulative dev-to-prod transition total",
+      "description": "The quick matrix lists individual add-ons but does not provide a consolidated minimum production monthly total.",
+      "location": "Quick Decision Matrix; What We Are Not Paying For",
+      "recommendation": "Add one row with cumulative 'minimum production-ready uplift' and resulting total monthly range."
+    },
+    {
+      "id": "CE-007",
+      "severity": "should_fix",
+      "title": "Cross-artifact cost narrative is inconsistent and unreconciled",
+      "description": "Requirements/architecture artifacts use higher working estimates (~$75-$150), while this document anchors on ~$25-$60 without reconciling the delta.",
+      "location": "Cost At-a-Glance; references to prior artifacts",
+      "recommendation": "Add a reconciliation subsection showing why earlier ranges changed and which estimate should be treated as authoritative."
+    },
+    {
+      "id": "CE-008",
+      "severity": "suggestion",
+      "title": "Risk indicators identify threats but not trigger thresholds",
+      "description": "Cost risks are listed, but there are no explicit cost or usage thresholds tied to specific actions.",
+      "location": "Cost Risk Indicators",
+      "recommendation": "Define quantitative triggers (e.g., daily ingestion >X GB for Y days) and corresponding mitigation actions with expected cost impact."
+    }
+  ],
+  "summary": "The estimate is directionally plausible for a dev-only storefront and clearly under the stated budget envelope, but confidence is reduced by unresolved pricing inputs, missing mandatory state-backend costs, and ambiguous monitoring billing assumptions. The largest practical risk is underestimating total recurring spend once governance constraints and full telemetry ingestion are accounted for.",
+  "reviewed_at": "2025-07-14"
+}

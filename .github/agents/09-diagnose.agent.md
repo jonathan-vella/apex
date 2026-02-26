@@ -35,6 +35,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -42,65 +43,11 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/azureterraformbestpractices,
-    azure-mcp/bicepschema,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
-    bicep/decompile_arm_parameters_file,
-    bicep/decompile_arm_template_file,
-    bicep/format_bicep_file,
-    bicep/get_az_resource_type_schema,
-    bicep/get_bicep_best_practices,
-    bicep/get_bicep_file_diagnostics,
-    bicep/get_deployment_snapshot,
-    bicep/get_file_references,
-    bicep/list_avm_metadata,
-    bicep/list_az_resource_types_for_provider,
+    "azure-mcp/*",
+    "bicep/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -148,15 +95,13 @@ handoffs:
 This agent is **supplementary** to the 7-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
 
-## MANDATORY: Read Skills First
-
-**Before doing ANY work**, read:
-
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
-2. **Read** `.github/skills/microsoft-docs/SKILL.md` — look up official troubleshooting guides,
-   metric thresholds, KQL syntax, and diagnostic setting schemas
-3. **Read** `.github/skills/azure-troubleshooting/SKILL.md` — KQL templates, per-resource health checks,
-   severity classification, remediation playbooks
+> [!CAUTION]
+> **HARD RULE — ASK BEFORE YOU READ**
+>
+> Your **first action** MUST be asking the user to identify the target resource.
+> Do NOT call `read_file` on skills or templates before Phase 1 resource confirmation.
+> Skill files contain diagnostic templates that prime you to run diagnostics immediately.
+> Confirm the target FIRST so you know what to diagnose.
 
 ## Core Principles
 
@@ -171,6 +116,7 @@ for troubleshooting existing deployments.
 
 ### DO
 
+- ✅ Ask user to identify the target resource FIRST — before reading skills
 - ✅ Always ask for user approval before running ANY Azure CLI command
 - ✅ Explain what each command does and its potential impact
 - ✅ Use Azure Resource Graph as primary discovery tool
@@ -180,10 +126,21 @@ for troubleshooting existing deployments.
 
 ### DON'T
 
+- ❌ Read skills or templates before confirming the target resource with the user
 - ❌ Execute commands without explicit user confirmation
 - ❌ Modify infrastructure code (Bicep files) — hand back to Bicep Code agent
 - ❌ Make changes to Azure resources without showing the command first
 - ❌ Skip the discovery phase — always confirm the target resource
+
+## MANDATORY: Read Skills (After Resource Confirmation, Before Diagnostics)
+
+**After Phase 1 resource confirmation**, read:
+
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
+2. **Read** `.github/skills/microsoft-docs/SKILL.md` — look up official troubleshooting guides,
+   metric thresholds, KQL syntax, and diagnostic setting schemas
+3. **Read** `.github/skills/azure-troubleshooting/SKILL.md` — KQL templates, per-resource health checks,
+   severity classification, remediation playbooks
 
 ## 6-Phase Diagnostic Workflow
 

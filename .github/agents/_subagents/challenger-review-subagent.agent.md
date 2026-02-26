@@ -4,7 +4,7 @@ description: "Adversarial review subagent that challenges Azure infrastructure a
 model: "GPT-5.3-Codex (copilot)"
 user-invokable: false
 agents: []
-tools: [read, search, web, "azure-mcp/*"]
+tools: [read, search, web, vscode/askQuestions, "azure-mcp/*"]
 ---
 
 # Challenger Review Subagent
@@ -254,6 +254,7 @@ Return ONLY valid JSON (no markdown wrapper, no explanation outside JSON):
   "review_focus": "security-governance | architecture-reliability | cost-feasibility | comprehensive",
   "pass_number": 1,
   "challenge_summary": "Brief summary of key risks and concerns found",
+  "compact_for_parent": "Pass 1 (security-governance) | HIGH | 3 must_fix, 2 should_fix | Key: [title1]; [title2]; [title3]",
   "risk_level": "high | medium | low",
   "must_fix_count": 0,
   "should_fix_count": 0,
@@ -271,6 +272,17 @@ Return ONLY valid JSON (no markdown wrapper, no explanation outside JSON):
   ]
 }
 ```
+
+### `compact_for_parent` Format
+
+This single-line field is what **parent agents keep in context** after writing the full JSON to disk.
+
+```text
+Format:  Pass {N} ({review_focus}) | {RISK_LEVEL} | {N} must_fix, {N} should_fix | Key: title1; title2; title3
+Example: Pass 2 (architecture-reliability) | HIGH | 2 must_fix, 3 should_fix | Key: Single-region SLA gap; Missing RTO; No health probe
+```
+
+Keep it under 200 characters. Include only the top 3 `must_fix` titles (or fewer if less than 3 exist).
 
 If no significant risks are found, return an empty `issues` array with a `challenge_summary`
 explaining why the artifact is robust, and `risk_level: "low"`.

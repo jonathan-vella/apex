@@ -5,7 +5,7 @@ model: "GPT-5.3-Codex (copilot)"
 user-invokable: false
 disable-model-invocation: false
 agents: []
-tools: [read, search, web, "azure-pricing/*", "azure-mcp/*"]
+tools: [read, search, web, vscode/askQuestions, "azure-pricing/*", "azure-mcp/*"]
 ---
 
 # Cost Estimate Subagent

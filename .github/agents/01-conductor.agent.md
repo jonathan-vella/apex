@@ -49,6 +49,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -56,55 +57,10 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/azureterraformbestpractices,
-    azure-mcp/bicepschema,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
+    "azure-mcp/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -130,7 +86,7 @@ handoffs:
     send: true
   - label: "Step 1: Gather Requirements"
     agent: 02-Requirements
-    prompt: "Start business-first requirements discovery. Begin by understanding the user's industry, company size, and business objectives — do NOT ask for technical architecture details upfront. Infer the workload pattern from business context, present recommendations for confirmation, and use business-friendly language throughout. Guide through all 5 phases using askQuestions UI before generating 01-requirements.md."
+    prompt: "Your FIRST action must be calling askQuestions to ask the user about their project. Do NOT read files, search, or generate content before asking. Start with Phase 1 Round 1 questions (project name, industry, company size, system type). You must complete all 4 questioning phases via askQuestions before generating any document."
     send: false
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 2: Architecture Assessment"
@@ -186,9 +142,19 @@ handoffs:
 
 Master orchestrator for the 7-step Azure infrastructure development workflow.
 
-## MANDATORY: Read Skills First
+> [!CAUTION]
+> **HARD RULE — ASK BEFORE YOU READ**
+>
+> Your **very first action** MUST be `askQuestions` to get the project folder name.
+> Do NOT call `read_file`, `list_dir`, or any other tool before asking the user.
+>
+> 1. `askQuestions` → project folder name
+> 2. Create `agent-output/{project}/`
+> 3. THEN read skills and delegate
 
-**Before doing ANY work**, read:
+## MANDATORY: Read Skills (After Project Name, Before Delegating)
+
+**After confirming the project name**, read:
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
@@ -210,14 +176,17 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 - ✅ Summarize subagent results concisely (don't dump raw output)
 - ✅ Create `agent-output/{project}/` directory at project start
 - ✅ Ensure `agent-output/{project}/README.md` exists — Requirements agent creates it, all agents update it
+- ✅ Write `agent-output/{project}/00-handoff.md` at EVERY gate before presenting it to the user
 
 ### DON'T
 
+- ❌ Read skills or templates before asking the project folder name via `askQuestions`
 - ❌ Skip approval gates — EVER
 - ❌ Deploy without validation (Deploy agent handles preflight)
 - ❌ Modify files directly — delegate to the appropriate agent
 - ❌ Include raw subagent dumps — summarize and present key findings
 - ❌ Combine multiple steps without approval between them
+- ❌ Skip writing `00-handoff.md` — it is the context seed for thread resumption
 
 ## The 7-Step Workflow
 
@@ -244,6 +213,11 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). Do NOT ask in any other scenario.
+
+> [!IMPORTANT]
+> **Write `00-handoff.md` at every gate before presenting it to the user.**
+> See [Phase Handoff Document](#phase-handoff-document) for the format.
+> This enables the user to start a fresh chat thread at any gate without losing context.
 
 ### Gate 1: After Requirements
 
@@ -302,22 +276,73 @@ Summary: agent-output/{project}/06-deployment-summary.md
 ❓ Verify deployment and confirm to generate docs
 ```
 
+## Phase Handoff Document
+
+At every approval gate, write `agent-output/{project}/00-handoff.md` **before presenting the gate**.
+This file is a compact project state snapshot that lets the user resume in a fresh chat thread
+without re-summarizing a large conversation history.
+
+### Format
+
+```markdown
+# {Project} — Handoff (Step {N} complete)
+
+Updated: {ISO timestamp} | IaC: {Bicep | Terraform} | Branch: {git branch}
+
+## Completed Steps
+
+- [x] Step 1: Requirements → `agent-output/{project}/01-requirements.md`
+- [x] Step 2: Architecture → `agent-output/{project}/02-architecture-assessment.md`
+- [ ] Step 3: Design (optional — skipped | complete)
+- [ ] Step 4: IaC Plan
+- [ ] Step 5: IaC Code
+- [ ] Step 6: Deploy
+- [ ] Step 7: As-Built
+
+## Key Decisions
+
+- Region: {region}
+- Compliance: {frameworks or "None"}
+- Budget: {monthly estimate}
+- IaC tool: {Bicep | Terraform}
+- Architecture pattern: {brief description}
+
+## Open Challenger Findings (must_fix only)
+
+{List of unresolved must_fix titles from all challenge-findings-\*.json files, or "None"}
+
+## Context for Next Step
+
+{1-3 sentences describing exactly what the next agent needs to know to continue}
+
+## Artifacts
+
+{Bulleted list of all files that exist in agent-output/{project}/ and infra/}
+```
+
+### Rules
+
+- **Overwrite** on each gate — always reflects the latest state
+- **Never embed file contents** — paths only
+- **Keep under 50 lines** — this is a reference, not a doc
+- **List only unresolved must_fix items** — closed items are noise
+
 ## Subagent Delegation
 
 Use `#runSubagent` for each workflow step:
 
-| Step | Agent              | Key Prompt                                                                             |
-| ---- | ------------------ | -------------------------------------------------------------------------------------- |
-| 1    | Requirements       | Start business-first requirements discovery for {project}                              |
-| 2    | Architect          | Create WAF assessment for requirements in 01-requirements.md                           |
-| 3    | Design             | Generate architecture diagrams and ADRs (optional)                                     |
-| 4    | Bicep Plan         | Create implementation plan for architecture in 02-architecture-assessment.md           |
-| 5    | Bicep Code         | Implement Bicep templates per 04-implementation-plan.md                                |
-| 6    | Deploy             | Deploy templates in infra/bicep/{project}/ to Azure                                    |
-| 7    | As-Built           | Generate workload documentation for deployed infrastructure                            |
-| 4†   | Terraform Planner  | Create Terraform implementation plan for architecture in 02-architecture-assessment.md |
-| 5†   | Terraform Code Gen | Implement Terraform configuration per 04-implementation-plan.md                        |
-| 6†   | Terraform Deploy   | Deploy Terraform config in infra/terraform/{project}/ to Azure                         |
+| Step | Agent              | Key Prompt                                                                                                      |
+| ---- | ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 1    | Requirements       | FIRST call askQuestions (Phase 1 Round 1), then guide through all 4 phases before generating 01-requirements.md |
+| 2    | Architect          | Create WAF assessment for requirements in 01-requirements.md                                                    |
+| 3    | Design             | Generate architecture diagrams and ADRs (optional)                                                              |
+| 4    | Bicep Plan         | Create implementation plan for architecture in 02-architecture-assessment.md                                    |
+| 5    | Bicep Code         | Implement Bicep templates per 04-implementation-plan.md                                                         |
+| 6    | Deploy             | Deploy templates in infra/bicep/{project}/ to Azure                                                             |
+| 7    | As-Built           | Generate workload documentation for deployed infrastructure                                                     |
+| 4†   | Terraform Planner  | Create Terraform implementation plan for architecture in 02-architecture-assessment.md                          |
+| 5†   | Terraform Code Gen | Implement Terraform configuration per 04-implementation-plan.md                                                 |
+| 6†   | Terraform Deploy   | Deploy Terraform config in infra/terraform/{project}/ to Azure                                                  |
 
 † Terraform path — used when `iac_tool: Terraform` in `01-requirements.md`.
 
@@ -364,23 +389,37 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
 
 ## Starting a New Project
 
-1. Determine project name from user request (or ask)
+1. **Ask for the project folder name** — ALWAYS use `askQuestions` to prompt:
+   - Derive a suggested folder name from the user's project description (lowercase, kebab-case, max 30 chars, e.g. `payment-gateway-poc`)
+   - Present the suggestion as the recommended option
+   - Enable free-form input so the user can type their own preferred name
+   - Example question: _"What should I name the project folder? This will be used for `agent-output/{name}/` and `infra/{iac_tool}/{name}/`."_
+   - NEVER silently pick a name — the user must always confirm or override
 2. Create `agent-output/{project-name}/`
 3. Delegate to Requirements agent for Step 1 (creates initial `README.md` from PROJECT-README template)
 4. Wait for Gate 1 approval
 
 ## Resuming a Project
 
-1. Check existing artifacts in `agent-output/{project-name}/`
-2. Identify last completed step from artifact numbering
-3. Present status summary
-4. Offer to continue from next step or repeat previous
+1. **Check for `00-handoff.md`** — if it exists in `agent-output/{project}/`, read it first.
+   It gives you the current step, key decisions, and open findings in one compact read.
+   Skip re-reading completed artifact files that are already summarised there.
+2. If `00-handoff.md` is absent, check existing artifacts in `agent-output/{project-name}/`
+   and identify the last completed step from artifact numbering.
+3. Present a brief status summary and offer to continue from the next step.
+
+> [!TIP]
+> **Starting a new chat thread mid-workflow?**
+> Ask the user to open a fresh chat and begin with:
+> _"Resume project `{project}` from Step {N}. Read `agent-output/{project}/00-handoff.md` for current state."_
+> This sidesteps the `summarizeConversationHistory` trigger caused by large accumulated history.
 
 ## Artifact Tracking
 
 | Step | Artifact                            | Check                                 |
 | ---- | ----------------------------------- | ------------------------------------- |
 | —    | `README.md`                         | Exists? (mandatory)                   |
+| —    | `00-handoff.md`                     | Updated at every gate? (context seed) |
 | 1    | `01-requirements.md`                | Exists?                               |
 | 2    | `02-architecture-assessment.md`     | Exists?                               |
 | 3    | `03-des-*.md`, `03-des-*.py`        | Optional                              |

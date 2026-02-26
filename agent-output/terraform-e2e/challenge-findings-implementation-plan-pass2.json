@@ -1,0 +1,36 @@
+{
+  "artifact": "04-implementation-plan.md",
+  "project": "terraform-e2e",
+  "artifact_type": "implementation-plan",
+  "review_focus": "architecture-reliability",
+  "pass_number": 2,
+  "timestamp": "2026-02-26T13:52:00Z",
+  "prior_findings": "Plan P1 (sec-gov): 0 must-fix, 2 should-fix (lifecycle prevent_destroy, diagnostic settings), 1 suggestion (KV network ACLs). PASS.",
+  "findings": [
+    {
+      "severity": "should_fix",
+      "title": "Add App Service health check endpoint",
+      "description": "App Service should configure a health check path (e.g., /health) to enable platform-level restart on unhealthy instances. The implementation plan does not specify this.",
+      "recommendation": "Add health_check_path = '/health' to the App Service site_config in Task 10."
+    },
+    {
+      "severity": "suggestion",
+      "title": "Document single-region failure mode for dev",
+      "description": "The plan correctly targets single-region dev deployment. Document that swedencentral outage means full downtime, acceptable for dev but needs multi-region for prod.",
+      "recommendation": "Add a brief note in the Overview acknowledging this as accepted risk for dev tier."
+    },
+    {
+      "severity": "suggestion",
+      "title": "Consider SQL Database auto-pause for cost savings",
+      "description": "Basic tier does not support auto-pause, but if the project upgrades to Serverless tier in future, auto-pause can reduce costs for intermittent dev workloads.",
+      "recommendation": "Document as a future optimization opportunity."
+    }
+  ],
+  "summary": {
+    "must_fix": 0,
+    "should_fix": 1,
+    "suggestions": 2,
+    "verdict": "PASS_WITH_RECOMMENDATIONS"
+  },
+  "compact_for_parent": "Plan P2 (arch-rel): 0 must-fix, 1 should-fix (health check endpoint), 2 suggestions (single-region doc, SQL auto-pause). PASS."
+}

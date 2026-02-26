@@ -35,6 +35,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -42,67 +43,11 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/azureterraformbestpractices,
-    azure-mcp/bicepschema,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
-    pylance-mcp-server/pylanceDocuments,
-    pylance-mcp-server/pylanceFileSyntaxErrors,
-    pylance-mcp-server/pylanceImports,
-    pylance-mcp-server/pylanceInstalledTopLevelModules,
-    pylance-mcp-server/pylanceInvokeRefactoring,
-    pylance-mcp-server/pylancePythonEnvironments,
-    pylance-mcp-server/pylanceRunCodeSnippet,
-    pylance-mcp-server/pylanceSettings,
-    pylance-mcp-server/pylanceSyntaxErrors,
-    pylance-mcp-server/pylanceUpdatePythonEnvironment,
-    pylance-mcp-server/pylanceWorkspaceRoots,
-    pylance-mcp-server/pylanceWorkspaceUserFiles,
+    "azure-mcp/*",
+    "pylance-mcp-server/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -131,14 +76,23 @@ handoffs:
     prompt: "Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to `agent-output/{project}/03-des-cost-estimate.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
-  - label: "Step 4: Implementation Plan"
+  - label: "Step 4: Bicep Plan"
     agent: 05b-Bicep Planner
     prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all resources, dependencies, and tasks. Save to `agent-output/{project}/04-implementation-plan.md`."
+    send: true
+    model: "Claude Opus 4.6 (copilot)"
+  - label: "Step 4: Terraform Plan"
+    agent: 05t-Terraform Planner
+    prompt: "Create a detailed Terraform implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all resources, dependencies, and tasks. Save to `agent-output/{project}/04-implementation-plan.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
   - label: "⏭️ Skip to Step 5: Bicep Code"
     agent: 06b-Bicep CodeGen
     prompt: "Skip planning and go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
+    send: true
+  - label: "⏭️ Skip to Step 5: Terraform Code"
+    agent: 06t-Terraform CodeGen
+    prompt: "Skip planning and go directly to Terraform code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save configurations to `infra/terraform/{project}/`."
     send: true
   - label: "↩ Return to Step 2"
     agent: 03-Architect

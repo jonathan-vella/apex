@@ -1,0 +1,240 @@
+{
+  "metadata": {
+    "project": "terraform-e2e",
+    "subscription": "noalz",
+    "subscriptionId": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+    "tenantId": "2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+    "discoveryMethod": "Azure REST API (policyAssignments?api-version=2022-06-01)",
+    "discoveryTimestamp": "2026-02-26T00:00:00Z",
+    "totalPolicies": 28,
+    "denyPolicies": 10,
+    "auditPolicies": 4,
+    "modifyPolicies": 2,
+    "deployIfNotExistsPolicies": 3
+  },
+  "denyPolicies": [
+    {
+      "displayName": "Microhack: Allowed locations",
+      "assignmentName": "microhack-allowed-locations",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "location",
+      "requiredValue": ["swedencentral", "germanywestcentral", "global"],
+      "description": "Restricts resource deployment to swedencentral, germanywestcentral, and global locations only.",
+      "impactedResources": ["All Azure resources"],
+      "isBlocker": true,
+      "blockerDetail": "Static Web App originally planned for westeurope — not in allowed list. Deploy to swedencentral instead."
+    },
+    {
+      "displayName": "Microhack: Storage no public blob access",
+      "assignmentName": "microhack-storage-no-public-blob",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/4fa4b6c0-31ca-4c0d-b10d-24b96f62a751",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "storageAccounts.properties.allowBlobPublicAccess",
+      "requiredValue": false,
+      "terraformProperty": "allow_nested_items_to_be_public",
+      "terraformValue": false,
+      "description": "Storage accounts must have public blob access disabled.",
+      "impactedResources": ["azurerm_storage_account"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Microhack: App Service HTTPS only",
+      "assignmentName": "microhack-appservice-https",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/a4af4a39-4135-47fb-b175-47fbdf85311d",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "sites.properties.httpsOnly",
+      "requiredValue": true,
+      "terraformProperty": "https_only",
+      "terraformValue": true,
+      "description": "App Service apps must be accessible over HTTPS only. Applies to Microsoft.Web/sites (not function apps).",
+      "impactedResources": ["azurerm_linux_web_app"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Microhack: Storage minimum TLS 1.2",
+      "assignmentName": "microhack-storage-min-tls",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/fe83a0eb-a853-422d-aac2-1bffd182c5d0",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "storageAccounts.properties.minimumTlsVersion",
+      "requiredValue": "TLS1_2",
+      "terraformProperty": "min_tls_version",
+      "terraformValue": "TLS1_2",
+      "description": "Storage accounts must have minimum TLS version set to 1.2.",
+      "impactedResources": ["azurerm_storage_account"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Microhack: Storage HTTPS only",
+      "assignmentName": "microhack-storage-https-only",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/404c3081-a854-4457-ae30-26a93ef643f9",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "storageAccounts.properties.supportsHttpsTrafficOnly",
+      "requiredValue": true,
+      "terraformProperty": "https_traffic_only_enabled",
+      "terraformValue": true,
+      "description": "Storage accounts must have secure transfer (HTTPS) enabled.",
+      "impactedResources": ["azurerm_storage_account"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Microhack: Require Environment tag",
+      "assignmentName": "microhack-require-environment-tag",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/871b6d14-10aa-478d-b590-94f262ecfa99",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "tags.Environment",
+      "requiredValue": "must-exist",
+      "terraformProperty": "tags.Environment",
+      "terraformValue": "dev",
+      "description": "All resources must have an 'Environment' tag.",
+      "impactedResources": ["All Azure resources"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Microhack: Require Project tag",
+      "assignmentName": "microhack-require-project-tag",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/871b6d14-10aa-478d-b590-94f262ecfa99",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "tags.Project",
+      "requiredValue": "must-exist",
+      "terraformProperty": "tags.Project",
+      "terraformValue": "terraform-e2e",
+      "description": "All resources must have a 'Project' tag.",
+      "impactedResources": ["All Azure resources"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Microhack: SQL Azure AD-only authentication",
+      "assignmentName": "microhack-sql-aad-only-auth",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/abda6d70-9778-44e7-84a8-06713e6db027",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "sqlServers.properties.administrators.azureADOnlyAuthentication",
+      "requiredValue": true,
+      "terraformProperty": "azuread_authentication_only",
+      "terraformValue": true,
+      "description": "Azure SQL Server must have Microsoft Entra-only authentication enabled during creation.",
+      "impactedResources": ["azurerm_mssql_server"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "JV-Enforce Resource Group Tags v3",
+      "assignmentName": "b1ad1a690a5148ec8707ff17",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "resourceGroups.tags",
+      "requiredValue": {
+        "environment": "must-exist",
+        "owner": "must-exist",
+        "costcenter": "must-exist",
+        "application": "must-exist",
+        "workload": "must-exist",
+        "sla": "must-exist",
+        "backup-policy": "must-exist",
+        "maint-window": "must-exist",
+        "technical-contact": "must-exist"
+      },
+      "description": "Resource groups must have 9 required tags (lowercase keys). Excludes AzureBackupRG*, ResourceMover*, databricks-rg*, NetworkWatcherRG, and similar system RGs.",
+      "impactedResources": ["azurerm_resource_group"],
+      "isBlocker": false
+    },
+    {
+      "displayName": "Block Azure RM Resource Creation",
+      "assignmentName": "918465337cff47588b23a6e9",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/f0b6d104-1292-4b81-a05d-c2d8db5a651d",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "effect": "Deny",
+      "enforcementMode": "Default",
+      "azurePropertyPath": "N/A",
+      "requiredValue": "N/A",
+      "description": "Blocks Microsoft.Classic* resources only (ClassicCompute, ClassicStorage, ClassicNetwork). Does NOT affect ARM/modern resources. Non-blocker for this project.",
+      "impactedResources": ["Microsoft.Classic* resources only"],
+      "isBlocker": false
+    }
+  ],
+  "auditPolicies": [
+    {
+      "displayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "assignmentName": "60a5fd56-f433-4006-9a32",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Audit",
+      "description": "GDPR compliance audit initiative — audit-only, does not block deployment."
+    },
+    {
+      "displayName": "PCI DSS v4",
+      "assignmentName": "0c8e19ce-ea7d-40ec-a305",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "effect": "Audit",
+      "description": "PCI DSS v4 compliance audit initiative — audit-only."
+    },
+    {
+      "displayName": "MCAPSGov Audit Policies",
+      "assignmentName": "MCAPSGovAuditPolicies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "effect": "Audit",
+      "description": "Management group-level audit policies — audit-only."
+    },
+    {
+      "displayName": "Azure Security Baseline",
+      "assignmentName": "Azure_Security_Baseline",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "effect": "Audit",
+      "description": "Azure Security Baseline initiative — audit-only."
+    }
+  ],
+  "modifyPolicies": [
+    {
+      "displayName": "JV - Inherit Multiple Tags from Resource Group",
+      "assignmentName": "558bced8a4e7433e8662e202",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "effect": "Modify",
+      "description": "Auto-inherits up to 9 tags from resource group to child resources."
+    },
+    {
+      "displayName": "MCAPSGov Deploy and Modify Policies",
+      "assignmentName": "MCAPSGovDeployPolicies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "effect": "DeployIfNotExists/Modify",
+      "description": "Management group-level deploy/modify policies — may auto-deploy security configurations."
+    }
+  ],
+  "tagRequirements": {
+    "resourceLevel": {
+      "enforce": "Deny",
+      "tags": ["Environment", "Project"],
+      "note": "PascalCase keys enforced via subscription-level Deny policies."
+    },
+    "resourceGroupLevel": {
+      "enforce": "Deny",
+      "tags": [
+        "environment",
+        "owner",
+        "costcenter",
+        "application",
+        "workload",
+        "sla",
+        "backup-policy",
+        "maint-window",
+        "technical-contact"
+      ],
+      "note": "Lowercase keys enforced via management group-level Deny policy."
+    }
+  }
+}

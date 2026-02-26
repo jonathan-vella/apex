@@ -35,6 +35,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -42,55 +43,10 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/azureterraformbestpractices,
-    azure-mcp/bicepschema,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
+    "azure-mcp/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -155,7 +111,7 @@ handoffs:
 
 ### DON'T
 
-- ❌ Modify any Bicep templates or deployment scripts
+- ❌ Modify any Bicep templates, Terraform configurations, or deployment scripts
 - ❌ Deploy or modify Azure resources
 - ❌ Skip reading prior artifacts — they are your primary input
 - ❌ Use planned values when actual deployed values are available
@@ -187,7 +143,9 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 ### Phase 1: Context Gathering
 
 1. **Read all prior artifacts** (01-06) from `agent-output/{project}/`
-2. **Read Bicep templates** from `infra/bicep/{project}/` for resource details
+2. **Read IaC source** — determine IaC tool from `01-requirements.md` (`iac_tool` field):
+   - **Bicep path**: Read templates from `infra/bicep/{project}/` for resource details
+   - **Terraform path**: Read configurations from `infra/terraform/{project}/` and run `terraform output -json` for deployed resource attributes
 3. **Query deployed resources** via Azure CLI / Resource Graph for actual state
 4. **Read deployment summary** for resource IDs, names, and endpoints
 

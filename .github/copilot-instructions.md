@@ -72,18 +72,19 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 
 ## Key Files
 
-| Path                         | Purpose                                      |
-| ---------------------------- | -------------------------------------------- |
-| `AGENTS.md`                  | Cross-agent project conventions and commands |
-| `.github/agents/*.agent.md`  | Agent definitions                            |
-| `.github/skills/*/SKILL.md`  | Reusable skill knowledge                     |
-| `.github/instructions/`      | File-type rules (Bicep, Markdown, etc.)      |
-| `agent-output/{project}/`    | Agent-generated artifacts                    |
-| `infra/bicep/{project}/`     | Bicep templates                              |
-| `mcp/azure-pricing-mcp/`     | Azure Pricing MCP server                     |
-| `.vscode/mcp.json`           | MCP server configuration                     |
-| `infra/terraform/{project}/` | Terraform templates by project               |
-| `docs/tf-support/`           | Terraform support planning docs and prompts  |
+| Path                              | Purpose                                                 |
+| --------------------------------- | ------------------------------------------------------- |
+| `AGENTS.md`                       | Cross-agent project conventions and commands            |
+| `.github/agents/*.agent.md`       | Agent definitions                                       |
+| `.github/skills/*/SKILL.md`       | Reusable skill knowledge                                |
+| `.github/instructions/`           | File-type rules (Bicep, Markdown, etc.)                 |
+| `agent-output/{project}/`         | Agent-generated artifacts                               |
+| `infra/bicep/{project}/`          | Bicep templates                                         |
+| `mcp/azure-pricing-mcp/`          | Azure Pricing MCP server                                |
+| `.vscode/mcp.json`                | MCP server configuration                                |
+| `.vscode/infraops.toolsets.jsonc` | Workspace tool groups for interactive chat (8 toolsets) |
+| `infra/terraform/{project}/`      | Terraform templates by project                          |
+| `docs/tf-support/`                | Terraform support planning docs and prompts             |
 
 ## Validation
 

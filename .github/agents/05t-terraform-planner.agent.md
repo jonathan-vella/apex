@@ -35,6 +35,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -42,61 +43,11 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
-    terraform/search_providers,
-    terraform/get_provider_details,
-    terraform/get_latest_provider_version,
-    terraform/search_modules,
-    terraform/get_module_details,
-    terraform/get_latest_module_version,
-    terraform/search_policies,
-    terraform/get_policy_details,
+    "azure-mcp/*",
+    "terraform/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -193,6 +144,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 
 - ❌ Write ANY Terraform code — this agent plans, terraform-code implements
 - ❌ Skip governance discovery — this is a HARD GATE, not optional
+- ❌ Generate the implementation plan before asking the user about deployment strategy (Phase 3.5 `askQuestions` is mandatory)
 - ❌ Use `az policy assignment list` alone — it misses management group-inherited policies
 - ❌ Proceed with incomplete policy data (if REST API fails, STOP)
 - ❌ Assume module inputs are valid without checking AVM-TF variable schema
@@ -412,9 +364,22 @@ For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
 - `artifact_type` = `implementation-plan`
 - `review_focus` = per-pass value from table above
 - `pass_number` = `1` / `2` / `3`
-- `prior_findings` = `null` for pass 1; previous pass JSON for passes 2-3
+- `prior_findings` = `null` for pass 1; **compact prior findings string for passes 2-3** (see below)
 
 Write each result to `agent-output/{project}/challenge-findings-implementation-plan-pass{N}.json`.
+
+> [!IMPORTANT]
+> **Context efficiency — compact prior_findings**
+>
+> After writing each pass result to disk, **do NOT keep the full JSON in working context**.
+> Extract only the `compact_for_parent` string from the subagent response and discard the rest.
+>
+> For passes 2 and 3, set `prior_findings` to a compact string built from previous
+> `compact_for_parent` values — **not the full JSON objects**:
+>
+> ```text
+> prior_findings: "Pass 1: <compact_for_parent>\nPass 2: <compact_for_parent>"
+> ```
 
 ### Phase 5: Approval Gate
 

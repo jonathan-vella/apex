@@ -385,11 +385,11 @@ deduplication logic.
 | TS-06: Terraform CodeGen     | ✅ Pass | 2025-07-18 | Copilot  | Static verification only; all workflow contracts present                                                                                                             |
 | TS-07: Terraform Deploy      | ✅ Pass | 2025-07-18 | Copilot  | Static verification only; all workflow contracts present                                                                                                             |
 | TS-08: Subagent Functional   | ✅ Pass | 2025-07-18 | Copilot  | All 3 TF subagent definitions verified (lint, review, plan)                                                                                                          |
-| TS-09: Conductor Integration | ✅ Pass | 2025-07-18 | Copilot  | All 7 sub-tests pass; IaC routing, workflow path, delegation verified                                                                                                |
+| TS-09: Conductor Integration | ✅ Pass | 2026-02-26 | Copilot  | All 7 sub-tests pass; fixed 08-as-built.agent.md Phase 1 to reference Terraform path (infra/terraform/ + terraform output) for TS-09-07 parity                       |
 | TS-10: Convention Compliance | ⬜ Skip | 2025-07-18 | Copilot  | No generated .tf files in infra/terraform/; requires live CodeGen run                                                                                                |
 | TS-11: Security Baseline     | ⬜ Skip | 2025-07-18 | Copilot  | No generated .tf files in infra/terraform/; requires live CodeGen run                                                                                                |
 | TS-12: Regression            | ✅ Pass | 2026-02-26 | Copilot  | All 8 sub-tests pass; validate:all (388 JSON), lint:md (143 files), h2-sync (15 artifacts), gov-refs (37/37), 14 skills valid, 4 frontmatter warnings (non-blocking) |
-| TS-13: Adversarial Review    | ✅ Pass | 2025-07-18 | Copilot  | All 5 sections verified (13A-13E); challenger wiring confirmed across all parent agents                                                                              |
+| TS-13: Adversarial Review    | ✅ Pass | 2026-02-26 | Copilot  | 40/41 pass (TS-13B-05 SKIP: live invocation); 13A 10/10, 13B 4/5, 13C 13/13, 13D 7/7, 13E 6/6; all wiring + rotation + docs verified                                 |
 
 **Status Legend**: ✅ Pass | ❌ Fail | ⚠️ Partial | ⬜ Not Run | ⬜ Skip | 🔄 In Progress
 

@@ -1,0 +1,30 @@
+{
+  "artifact": "04-implementation-plan.md",
+  "project": "terraform-e2e",
+  "artifact_type": "implementation-plan",
+  "review_focus": "cost-feasibility",
+  "pass_number": 3,
+  "timestamp": "2026-02-26T13:52:00Z",
+  "prior_findings": "Plan P1 (sec-gov): 0 must-fix, 2 should-fix (lifecycle prevent_destroy, diagnostic settings), 1 suggestion (KV network ACLs). PASS.\nPlan P2 (arch-rel): 0 must-fix, 1 should-fix (health check endpoint), 2 suggestions (single-region doc, SQL auto-pause). PASS.",
+  "findings": [
+    {
+      "severity": "suggestion",
+      "title": "Log Analytics 30-day retention is sufficient for dev",
+      "description": "30-day retention aligns with dev cost optimization. For production, 90+ days would be needed for compliance (PCI DSS audit policy).",
+      "recommendation": "Parameterize retention_in_days via variable with dev=30, prod=90 defaults."
+    },
+    {
+      "severity": "suggestion",
+      "title": "Consider App Insights daily cap alert",
+      "description": "0.5 GB daily cap is set but no alert is configured when the cap is reached. Telemetry silently stops when cap hits.",
+      "recommendation": "Add an alert rule for daily cap reached, or document the behavior for the operations team."
+    }
+  ],
+  "summary": {
+    "must_fix": 0,
+    "should_fix": 0,
+    "suggestions": 2,
+    "verdict": "PASS"
+  },
+  "compact_for_parent": "Plan P3 (cost): 0 must-fix, 0 should-fix, 2 suggestions (parameterize retention, daily cap alert). PASS."
+}

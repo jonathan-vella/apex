@@ -40,6 +40,7 @@ tools:
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
+    search,
     search/changes,
     search/codebase,
     search/fileSearch,
@@ -47,55 +48,10 @@ tools:
     search/searchResults,
     search/textSearch,
     search/usages,
+    web,
     web/fetch,
     web/githubRepo,
-    azure-mcp/acr,
-    azure-mcp/aks,
-    azure-mcp/appconfig,
-    azure-mcp/applens,
-    azure-mcp/applicationinsights,
-    azure-mcp/appservice,
-    azure-mcp/azd,
-    azure-mcp/azureterraformbestpractices,
-    azure-mcp/bicepschema,
-    azure-mcp/cloudarchitect,
-    azure-mcp/communication,
-    azure-mcp/confidentialledger,
-    azure-mcp/cosmos,
-    azure-mcp/datadog,
-    azure-mcp/deploy,
-    azure-mcp/documentation,
-    azure-mcp/eventgrid,
-    azure-mcp/eventhubs,
-    azure-mcp/extension_azqr,
-    azure-mcp/extension_cli_generate,
-    azure-mcp/extension_cli_install,
-    azure-mcp/foundry,
-    azure-mcp/functionapp,
-    azure-mcp/get_bestpractices,
-    azure-mcp/grafana,
-    azure-mcp/group_list,
-    azure-mcp/keyvault,
-    azure-mcp/kusto,
-    azure-mcp/loadtesting,
-    azure-mcp/managedlustre,
-    azure-mcp/marketplace,
-    azure-mcp/monitor,
-    azure-mcp/mysql,
-    azure-mcp/postgres,
-    azure-mcp/quota,
-    azure-mcp/redis,
-    azure-mcp/resourcehealth,
-    azure-mcp/role,
-    azure-mcp/search,
-    azure-mcp/servicebus,
-    azure-mcp/signalr,
-    azure-mcp/speech,
-    azure-mcp/sql,
-    azure-mcp/storage,
-    azure-mcp/subscription_list,
-    azure-mcp/virtualdesktop,
-    azure-mcp/workbooks,
+    "azure-mcp/*",
     todo,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
@@ -159,9 +115,31 @@ handoffs:
 
 **Step 2** of the 7-step workflow: `requirements → [architect] → design → {iac}-plan → {iac}-code → deploy → as-built`
 
-## MANDATORY: Read Skills First
+## Prerequisites Check (BEFORE Reading Skills)
 
-**Before doing ANY work**, read these skills for configuration and template structure:
+> [!CAUTION]
+> **HARD RULE — CHECK PREREQUISITES FIRST**
+>
+> Your **first action** MUST be to verify `01-requirements.md` exists and contains
+> the information below. Do NOT read skills or templates before this step.
+> Skill files contain template skeletons that prime you to fill them in immediately.
+> Check prerequisites FIRST so you know what context you have.
+
+Validate `01-requirements.md` exists in `agent-output/{project}/`.
+If missing, STOP and request handoff to Requirements agent.
+
+Verify these are documented — **ask user via `askQuestions` if missing**:
+
+| Category   | Required                           | If Missing                 |
+| ---------- | ---------------------------------- | -------------------------- |
+| NFRs       | SLA, RTO, RPO, performance targets | Ask user                   |
+| Compliance | Regulatory frameworks              | Ask if any apply           |
+| Budget     | Approximate monthly budget         | Ask for range              |
+| Scale      | Users, transactions, data volume   | Ask for growth projections |
+
+## MANDATORY: Read Skills (After Prerequisites, Before Assessment)
+
+**After prerequisites are confirmed**, read these skills for configuration and template structure:
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
@@ -191,6 +169,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 
 ### DON'T
 
+- ❌ Read skills or templates before verifying prerequisites and asking user for missing NFRs/budget/scale
 - ❌ Create Bicep, ARM, or infrastructure code files
 - ❌ Proceed to bicep-plan without explicit user approval
 - ❌ Use H2 headings that differ from the template
@@ -203,20 +182,6 @@ These skills are your single source of truth. Do NOT use hardcoded values.
   `02-architecture-assessment.md` and `03-des-cost-estimate.md` MUST originate
   from `cost-estimate-subagent` responses
 - ❌ **Guess SKU hourly rates** — pricing tiers change frequently; only subagent-verified figures are trustworthy
-
-## Prerequisites Check
-
-Before starting, validate `01-requirements.md` exists in `agent-output/{project}/`.
-If missing, STOP and request handoff to Requirements agent.
-
-Verify these are documented (ask user if missing):
-
-| Category   | Required                           | If Missing                 |
-| ---------- | ---------------------------------- | -------------------------- |
-| NFRs       | SLA, RTO, RPO, performance targets | Ask user                   |
-| Compliance | Regulatory frameworks              | Ask if any apply           |
-| Budget     | Approximate monthly budget         | Ask for range              |
-| Scale      | Users, transactions, data volume   | Ask for growth projections |
 
 ## Core Workflow
 
@@ -327,9 +292,25 @@ For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
 - `artifact_type` = `architecture`
 - `review_focus` = per-pass value from table above
 - `pass_number` = `1` / `2` / `3`
-- `prior_findings` = `null` for pass 1; previous pass JSON for passes 2-3
+- `prior_findings` = `null` for pass 1; **compact prior findings string for passes 2-3** (see below)
 
 Write each result to `agent-output/{project}/challenge-findings-architecture-pass{N}.json`.
+
+> [!IMPORTANT]
+> **Context efficiency — compact prior_findings**
+>
+> After writing each pass result to disk, **do NOT keep the full JSON in working context**.
+> Extract only the `compact_for_parent` string from the subagent response and discard the rest.
+>
+> For passes 2 and 3, set `prior_findings` to a compact multi-line string built from
+> previous `compact_for_parent` values — **not the full JSON objects**:
+>
+> ```text
+> prior_findings: "Pass 1: <compact_for_parent>\nPass 2: <compact_for_parent>"
+> ```
+>
+> This prevents each subagent call from re-injecting thousands of tokens of prior findings
+> into the parent context. The full detail is already saved to disk.
 
 ### Cost Estimate Review (1 pass)
 

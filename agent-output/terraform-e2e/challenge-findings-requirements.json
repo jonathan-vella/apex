@@ -1,0 +1,76 @@
+{
+  "challenged_artifact": "agent-output/terraform-e2e/01-requirements.md",
+  "artifact_type": "requirements",
+  "review_focus": "comprehensive",
+  "pass_number": 1,
+  "challenge_summary": "The requirements are structured and mostly complete, but two critical assumptions make the current baseline high risk: GDPR is marked not applicable despite explicit EU personal-data processing, and Azure AD B2C is specified for a greenfield build even though Microsoft documents end-of-sale for new customers after May 1, 2025. Additional reliability, governance, and cost realism gaps could cause architecture drift and failed non-functional targets in later steps.",
+  "risk_level": "high",
+  "must_fix_count": 2,
+  "should_fix_count": 4,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "GDPR marked not applicable despite processing EU personal data",
+      "description": "The artifact classifies GDPR as 'Not Applicable' while simultaneously defining customer data, order data, and auth-token handling for EU users in swedencentral with multi-year retention. Microsoft compliance guidance states GDPR applies to organizations processing EU residents' personal data (controllers and processors), regardless of company size.",
+      "failure_scenario": "Architecture and implementation omit required GDPR controls (data subject rights handling, lawful basis, retention governance), leading to compliance exposure when the storefront goes live with EU customers.",
+      "artifact_section": "## 🔒 Compliance & Security Requirements → Regulatory Frameworks; ## 🚀 Functional Requirements → Data Types",
+      "suggested_mitigation": "Reclassify GDPR as applicable, add minimum required privacy controls to requirements (DSR workflow, lawful-basis documentation, deletion/rectification process, breach notification expectation), and make architecture explicitly map controls to services."
+    },
+    {
+      "severity": "must_fix",
+      "category": "hidden_dependency",
+      "title": "Identity requirement depends on Azure AD B2C availability for new tenant",
+      "description": "The requirements hard-code Azure AD B2C for customer authentication in a 2026 greenfield project. Microsoft documentation indicates Azure AD B2C is no longer available for new customer purchase after May 1, 2025, creating a procurement/onboarding dependency that may block implementation.",
+      "failure_scenario": "Step 2/4 designs around B2C, but subscription/tenant onboarding cannot provision required B2C capability, forcing late architecture rework and schedule slip.",
+      "artifact_section": "## 🚀 Functional Requirements → Core Capabilities; ## 🔒 Compliance & Security Requirements → Authentication & Authorization",
+      "suggested_mitigation": "Add an explicit identity decision gate: verify existing B2C entitlement, otherwise pivot requirement to Microsoft Entra External ID and capture migration/implementation constraints now."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "RTO/RPO targets are not backed by region-level DR strategy",
+      "description": "NFRs target RTO 4h and RPO 1h, but regional preferences specify single region and 'cross-region replication not required'. Backup table only lists daily SQL backup retention and no tested failover path.",
+      "failure_scenario": "A swedencentral regional outage occurs; with no failover region and no cross-region replication strategy, recovery exceeds RTO and loses more data than RPO.",
+      "artifact_section": "## ⚡ Non-Functional Requirements (NFRs); ## 🌍 Regional Preferences; ## 🔧 Operational Requirements → Backup & Disaster Recovery",
+      "suggested_mitigation": "Either relax RTO/RPO to match single-region risk tolerance or add explicit DR requirements (paired-region failover, backup cadence aligned to RPO, recovery runbook/testing cadence)."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Network/security posture assumes permissive policy without validation",
+      "description": "Requirements allow public endpoints, no private endpoints, no VNet integration, and no WAF because it is 'dev-only'. This may conflict with subscription-level Deny policies typically enforced via governance constraints.",
+      "failure_scenario": "Implementation later fails at deployment when Azure Policy denies public network access or enforces private endpoint/diagnostic settings/tagging that were not captured as requirements.",
+      "artifact_section": "## 🔒 Compliance & Security Requirements → Network Security; ## 📋 Summary for Architecture Assessment",
+      "suggested_mitigation": "Add explicit dependency that architecture and plan must validate 04-governance-constraints.json before finalizing network/security choices, and record fallback requirements if policies are restrictive."
+    },
+    {
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "Operations and security NFRs are not sufficiently measurable",
+      "description": "Several NFRs are binary/vague ('Uptime Monitoring: Yes', 'Encryption: At-rest + In-transit', 'MFA: Not required') without thresholds, scope, or enforcement targets. This weakens acceptance testing and WAF traceability.",
+      "failure_scenario": "Architecture is marked compliant without objective checks (e.g., no alert latency/SLO/error-budget targets), and production readiness cannot be validated consistently.",
+      "artifact_section": "## ⚡ Non-Functional Requirements (NFRs); ## 🔒 Compliance & Security Requirements → Authentication & Authorization",
+      "suggested_mitigation": "Convert binary statements to measurable criteria (alerting coverage %, MTTA/MTTR targets, encryption scope by data class, admin MFA requirement or documented exception with expiry)."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Budget envelope is broad and not tied to required controls",
+      "description": "Budget is set to $500-$2,000 with consumption preference, but requirements already mandate App Insights, Log Analytics, Azure SQL, App Service, authentication, and retention obligations. No explicit allowance is made for hidden drivers such as log ingestion, data egress, backup growth, and identity pricing model.",
+      "failure_scenario": "Step 2 cost estimate lands outside target once required observability/security components are included, forcing scope cuts or SKU compromises that conflict with NFRs.",
+      "artifact_section": "## 💰 Budget; ## 🔧 Operational Requirements → Monitoring & Alerting",
+      "suggested_mitigation": "Add budget guardrails by component and include explicit cost assumptions (log GB/day, retention days, egress profile, expected MAU) so architecture can optimize without violating requirements."
+    },
+    {
+      "severity": "suggestion",
+      "category": "scope_risk",
+      "title": "Traffic assumptions conflict with growth projection",
+      "description": "NFRs cap concurrent users at <100 while scalability projects 500-1,000 users within 12 months. This creates ambiguity on whether the target architecture is intentionally short-lived or expected to scale without redesign.",
+      "failure_scenario": "Architecture is optimized for today's load only, then requires urgent redesign under growth pressure before 12-month projection is reached.",
+      "artifact_section": "## ⚡ Non-Functional Requirements (NFRs) → Scalability",
+      "suggested_mitigation": "Clarify phase boundaries: define explicit scale trigger points and whether Step 2 should design for current state only or include a predefined scale-out path."
+    }
+  ]
+}
