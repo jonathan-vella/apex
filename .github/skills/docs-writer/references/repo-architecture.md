@@ -1,19 +1,20 @@
 # Repo Architecture Reference
 
-> For use by the `docs-writer` skill. Last verified: 2026-02-12.
+> For use by the `docs-writer` skill. Last verified: 2026-02-26.
 
 ## Workspace Root Structure
 
 ```text
 azure-agentic-infraops/
 ├── .github/
-│   ├── agents/              # 8 agent definitions + 3 subagents
-│   │   └── _subagents/      # Validation subagents (lint, what-if, review)
-│   ├── skills/              # 8 skill definitions (incl. docs-writer)
-│   │   └── azure-artifacts/templates/ # 16 artifact templates
-│   ├── instructions/        # 20 file-type instruction files
+││   ├── agents/              # 13 agent definitions + 9 subagents
+││   │   └── _subagents/      # Validation subagents (lint, what-if, review)
+││   ├── skills/              # 14 skill definitions (incl. docs-writer)
+││   │   └── azure-artifacts/templates/ # 16 artifact templates
+││   ├── instructions/        # 25 file-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
+│   ├── exec-plans/          # Execution plans and tech debt tracker
 │   ├── prompt-guide/        # Agent & skill prompt examples
 │   ├── presenter/           # Presentation materials
 │   └── testing/             # Test checklists
@@ -23,7 +24,7 @@ azure-agentic-infraops/
 └── temp/                    # Scratch space (gitignored for outputs)
 ```
 
-## Agent Inventory (8 Primary + 3 Subagents)
+## Agent Inventory (13 Primary + 9 Subagents)
 
 ### Primary Agents
 
@@ -41,17 +42,21 @@ azure-agentic-infraops/
 | Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
 | As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
 | Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports              |
+| Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings              |
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent                  | File                                 | Purpose            |
-| ------------------------- | ------------------------------------ | ------------------ |
-| bicep-lint-subagent       | `bicep-lint-subagent.agent.md`       | Syntax validation  |
-| bicep-whatif-subagent     | `bicep-whatif-subagent.agent.md`     | Deployment preview |
-| bicep-review-subagent     | `bicep-review-subagent.agent.md`     | AVM code review    |
-| terraform-lint-subagent   | `terraform-lint-subagent.agent.md`   | Syntax validation  |
-| terraform-review-subagent | `terraform-review-subagent.agent.md` | AVM-TF code review |
-| terraform-plan-subagent   | `terraform-plan-subagent.agent.md`   | Deployment preview |
+| Subagent                      | File                                     | Purpose                     |
+| ----------------------------- | ---------------------------------------- | --------------------------- |
+| cost-estimate-subagent        | `cost-estimate-subagent.agent.md`        | Azure Pricing MCP queries   |
+| governance-discovery-subagent | `governance-discovery-subagent.agent.md` | Azure Policy discovery      |
+| challenger-review-subagent    | `challenger-review-subagent.agent.md`    | Adversarial artifact review |
+| bicep-lint-subagent           | `bicep-lint-subagent.agent.md`           | Syntax validation           |
+| bicep-whatif-subagent         | `bicep-whatif-subagent.agent.md`         | Deployment preview          |
+| bicep-review-subagent         | `bicep-review-subagent.agent.md`         | AVM code review             |
+| terraform-lint-subagent       | `terraform-lint-subagent.agent.md`       | Syntax validation           |
+| terraform-review-subagent     | `terraform-review-subagent.agent.md`     | AVM-TF code review          |
+| terraform-plan-subagent       | `terraform-plan-subagent.agent.md`       | Deployment preview          |
 
 ### Shared Knowledge (via Skills)
 
@@ -62,18 +67,24 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `azure-defaults`  | `defaults.md`, `avm-pitfalls.md`, `research-patterns.md`, `service-lifecycle-validation.md` |
 | `azure-artifacts` | `documentation-styling.md`, all template H2 structures                                      |
 
-## Skill Catalog (8 Skills)
+## Skill Catalog (14 Skills)
 
-| Skill                 | Folder                 | Category            | Triggers                                  |
-| --------------------- | ---------------------- | ------------------- | ----------------------------------------- |
-| `azure-adr`           | `azure-adr/`           | Document Creation   | "create ADR", "document decision"         |
-| `azure-artifacts`     | `azure-artifacts/`     | Artifact Generation | "generate documentation"                  |
-| `azure-defaults`      | `azure-defaults/`      | Azure Conventions   | "azure defaults", "naming"                |
-| `azure-diagrams`      | `azure-diagrams/`      | Document Creation   | "create diagram"                          |
-| `docs-writer`         | `docs-writer/`         | Documentation       | "update the docs"                         |
-| `git-commit`          | `git-commit/`          | Tool Integration    | "commit"                                  |
-| `github-operations`   | `github-operations/`   | Workflow            | "create issue", "create PR", "gh command" |
-| `make-skill-template` | `make-skill-template/` | Meta                | "create skill"                            |
+| Skill                      | Folder                      | Category            | Triggers                                  |
+| -------------------------- | --------------------------- | ------------------- | ----------------------------------------- |
+| `azure-adr`                | `azure-adr/`                | Document Creation   | "create ADR", "document decision"         |
+| `azure-artifacts`          | `azure-artifacts/`          | Artifact Generation | "generate documentation"                  |
+| `azure-bicep-patterns`     | `azure-bicep-patterns/`     | IaC Patterns        | "bicep pattern", "hub-spoke"              |
+| `azure-defaults`           | `azure-defaults/`           | Azure Conventions   | "azure defaults", "naming"                |
+| `azure-diagrams`           | `azure-diagrams/`           | Document Creation   | "create diagram"                          |
+| `azure-troubleshooting`    | `azure-troubleshooting/`    | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
+| `docs-writer`              | `docs-writer/`              | Documentation       | "update the docs"                         |
+| `git-commit`               | `git-commit/`               | Tool Integration    | "commit"                                  |
+| `github-operations`        | `github-operations/`        | Workflow            | "create issue", "create PR", "gh command" |
+| `make-skill-template`      | `make-skill-template/`      | Meta                | "create skill"                            |
+| `microsoft-code-reference` | `microsoft-code-reference/` | Docs Integration    | "SDK", "API reference", "code sample"     |
+| `microsoft-docs`           | `microsoft-docs/`           | Docs Integration    | "microsoft docs", "azure docs", "learn"   |
+| `microsoft-skill-creator`  | `microsoft-skill-creator/`  | Meta                | "create microsoft skill"                  |
+| `terraform-patterns`       | `terraform-patterns/`       | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 
 ## Template Inventory (16 Templates)
 
@@ -98,29 +109,35 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-resource-inventory.template.md`       | Resource Inventory   | Relaxed           |
 | `PROJECT-README.template.md`              | Project README       | —                 |
 
-## Instruction File Map (19 Files)
+## Instruction File Map (25 Files)
 
-| Instruction                                 | Applies To (glob)                                 |
-| ------------------------------------------- | ------------------------------------------------- |
-| `agent-research-first.instructions.md`      | `**/*.agent.md`                                   |
-| `agent-skills.instructions.md`              | `**/.github/skills/**/SKILL.md`                   |
-| `agent-definitions.instructions.md`         | `**/*.agent.md`                                   |
-| `azure-artifacts.instructions.md`           | `**/agent-output/**/*.md`                         |
-| `bicep-code-best-practices.instructions.md` | `**/*.bicep`                                      |
-| `code-review.instructions.md`               | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `cost-estimate.instructions.md`             | `**/03-des-cost-estimate.md`, etc.                |
-| `docs.instructions.md`                      | `docs/**/*.md`                                    |
-| `github-actions.instructions.md`            | `.github/workflows/*.yml`                         |
-| `governance-discovery.instructions.md`      | `**/04-governance-*.md`                           |
-| `instructions.instructions.md`              | `**/*.instructions.md`                            |
-| `markdown.instructions.md`                  | `**/*.md`                                         |
-| `no-heredoc.instructions.md`                | `**`                                              |
-| `powershell.instructions.md`                | `**/*.ps1`, `**/*.psm1`                           |
-| `prompt.instructions.md`                    | `**/*.prompt.md`                                  |
-| `code-commenting.instructions.md`           | `**`                                              |
-| `shell.instructions.md`                     | `**/*.sh`                                         |
-| `docs-trigger.instructions.md`              | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `workload-documentation.instructions.md`    | `**/agent-output/**/07-*.md`                      |
+| Instruction                                     | Applies To (glob)                                 |
+| ----------------------------------------------- | ------------------------------------------------- |
+| `agent-research-first.instructions.md`          | `**/*.agent.md`                                   |
+| `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                   |
+| `agent-definitions.instructions.md`             | `**/*.agent.md`                                   |
+| `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                         |
+| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                      |
+| `bicep-policy-compliance.instructions.md`       | `**/*.bicep, **/*.agent.md`                       |
+| `code-commenting.instructions.md`               | `**`                                              |
+| `code-review.instructions.md`                   | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
+| `cost-estimate.instructions.md`                 | `**/03-des-cost-estimate.md`, etc.                |
+| `docs.instructions.md`                          | `docs/**/*.md`                                    |
+| `docs-trigger.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
+| `github-actions.instructions.md`                | `.github/workflows/*.yml`                         |
+| `governance-discovery.instructions.md`          | `**/04-governance-*.md`                           |
+| `instructions.instructions.md`                  | `**/*.instructions.md`                            |
+| `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                               |
+| `json.instructions.md`                          | `**/*.{json,jsonc}`                               |
+| `markdown.instructions.md`                      | `**/*.md`                                         |
+| `no-heredoc.instructions.md`                    | `**`                                              |
+| `powershell.instructions.md`                    | `**/*.ps1`, `**/*.psm1`                           |
+| `prompt.instructions.md`                        | `**/*.prompt.md`                                  |
+| `python.instructions.md`                        | `**/*.py`                                         |
+| `shell.instructions.md`                         | `**/*.sh`                                         |
+| `terraform-code-best-practices.instructions.md` | `**/*.tf`                                         |
+| `terraform-policy-compliance.instructions.md`   | `**/*.tf, **/*.agent.md`                          |
+| `workload-documentation.instructions.md`        | `**/agent-output/**/07-*.md`                      |
 
 ## Artifact Flow (7-Step Workflow)
 
@@ -144,29 +161,33 @@ Implementation → Deploy       → Documentation
 These files contain counts, tables, or version references that need
 updating when agents or skills change:
 
-| File                          | Contains                                   |
-| ----------------------------- | ------------------------------------------ |
-| `docs/README.md`              | Agent tables, skill tables, structure tree |
-| `docs.instructions.md`        | Agent count/table, skill count/table       |
-| `docs/prompt-guide/README.md` | Agent & skill prompt examples              |
-| `VERSION.md`                  | Canonical version number                   |
-| `CHANGELOG.md`                | Release history                            |
-| `README.md` (root)            | Overview, project structure, tech stack    |
+| File                                   | Contains                                   |
+| -------------------------------------- | ------------------------------------------ |
+| `docs/README.md`                       | Agent tables, skill tables, structure tree |
+| `docs.instructions.md`                 | Agent count/table, skill count/table       |
+| `docs/prompt-guide/README.md`          | Agent & skill prompt examples              |
+| `QUALITY_SCORE.md`                     | Project health grades (doc-gardening)      |
+| `docs/exec-plans/tech-debt-tracker.md` | Tech debt inventory                        |
+| `VERSION.md`                           | Canonical version number                   |
+| `CHANGELOG.md`                         | Release history                            |
+| `README.md` (root)                     | Overview, project structure, tech stack    |
 
 ## docs/ Folder Contents
 
-| File                   | Purpose                                          |
-| ---------------------- | ------------------------------------------------ |
-| `README.md`            | Documentation hub with quick links               |
-| `quickstart.md`        | 10-minute getting started guide                  |
-| `workflow.md`          | Detailed 7-step workflow reference               |
-| `troubleshooting.md`   | Common issues and fixes                          |
-| `dev-containers.md`    | Dev container setup                              |
-| `terraform-roadmap.md` | Future Terraform support plans                   |
-| `GLOSSARY.md`          | Terms and definitions                            |
-| `prompt-guide/`        | Agent & skill prompt examples and best practices |
-| `presenter/`           | Presentation materials (pptx, ROI, infographics) |
-| `testing/`             | Test checklists                                  |
+| File                       | Purpose                                          |
+| -------------------------- | ------------------------------------------------ |
+| `README.md`                | Documentation hub with quick links               |
+| `quickstart.md`            | 10-minute getting started guide                  |
+| `workflow.md`              | Detailed 7-step workflow reference               |
+| `troubleshooting.md`       | Common issues and fixes                          |
+| `dev-containers.md`        | Dev container setup                              |
+| `terraform-roadmap.md`     | Future Terraform support plans                   |
+| `GLOSSARY.md`              | Terms and definitions                            |
+| `branch-ruleset-config.md` | Branch protection ruleset configuration          |
+| `exec-plans/`              | Execution plans and tech-debt-tracker            |
+| `prompt-guide/`            | Agent & skill prompt examples and best practices |
+| `presenter/`               | Presentation materials (pptx, ROI, infographics) |
+| `tf-tests/`                | Terraform test checklists and prompt fixtures    |
 
 ## Skill Discovery & Auto-Invocation
 
@@ -180,7 +201,7 @@ These skills are explicitly referenced in agent body text via mandatory
 
 | Skill               | Referenced By                                          |
 | ------------------- | ------------------------------------------------------ |
-| `azure-defaults`    | all 8 primary agents                                   |
+| `azure-defaults`    | all 13 primary agents                                  |
 | `azure-artifacts`   | requirements, architect, bicep-plan, deploy, conductor |
 | `azure-diagrams`    | design, architect agents                               |
 | `azure-adr`         | design agent                                           |

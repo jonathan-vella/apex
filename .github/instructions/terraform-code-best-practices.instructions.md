@@ -182,6 +182,52 @@ resource "azurerm_mssql_server" "this" {
 }
 ```
 
+## RBAC Least Privilege (MANDATORY)
+
+Do not grant broad built-in control-plane roles to runtime app identities.
+
+### Forbidden by Default
+
+The following roles are **not allowed** for application runtime identities unless
+explicitly approved in a tracked exception:
+
+- `Owner`
+- `Contributor`
+- `User Access Administrator`
+
+### Approved Role Mappings
+
+Use the smallest role and narrowest scope that satisfies the workload.
+
+| Resource Type | Approved Role(s)                                                    | Required Scope Pattern             |
+| ------------- | ------------------------------------------------------------------- | ---------------------------------- |
+| Key Vault     | `Key Vault Secrets User`                                            | Specific Key Vault resource ID     |
+| Storage Blob  | `Storage Blob Data Reader` / `Storage Blob Data Contributor`        | Storage account or container scope |
+| SQL Database  | `SQL DB Contributor` (or DB-level Entra roles)                      | Database scope, not server scope   |
+| Service Bus   | `Azure Service Bus Data Sender` / `Azure Service Bus Data Receiver` | Namespace or queue/topic scope     |
+| Event Hubs    | `Azure Event Hubs Data Sender` / `Azure Event Hubs Data Receiver`   | Namespace or hub scope             |
+| ACR Pull      | `AcrPull`                                                           | Specific registry scope            |
+
+### SQL-Specific Rule
+
+For app-to-SQL access, prefer:
+
+1. Entra-based DB user and DB roles (`db_datareader`, `db_datawriter`) where possible
+2. Otherwise `SQL DB Contributor` at database scope
+
+Never assign `Contributor` at SQL server scope for app runtime identities.
+
+### Exception Process
+
+If a broad role is unavoidable, all of the following are required:
+
+1. Inline comment marker on the role assignment:
+   `RBAC_EXCEPTION_APPROVED: <ticket-or-ADR>`
+2. Matching justification in implementation docs (ADR or implementation reference)
+3. Time-bound review date and owner in the justification
+
+Without all three, the configuration is non-compliant.
+
 ## Azure Verified Modules (AVM-TF)
 
 **MANDATORY: Use AVM-TF modules for ALL resources where an AVM module exists.**

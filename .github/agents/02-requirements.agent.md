@@ -73,7 +73,7 @@ handoffs:
     prompt: "Validate the requirements document for completeness against the template. Check all required sections are filled and flag any gaps."
     send: true
   - label: "🔍 Run Challenger Review"
-    agent: challenger-review-subagent
+    agent: 10-Challenger
     prompt: "Review the requirements artifact at `agent-output/{project}/01-requirements.md`. Use artifact_type=requirements, review_focus=comprehensive, pass_number=1. Return structured findings with must_fix and should_fix items."
     send: true
   - label: "Step 2: Architecture Assessment"
@@ -206,14 +206,16 @@ its questions now.
 
 ### Read Skills (ONLY NOW — not before)
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security, service matrix
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags,
+   naming, AVM, security, service matrix
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `01-requirements.md`
 3. **Read** `.github/skills/azure-artifacts/templates/01-requirements.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`
    — project README template (mandatory first artifact for every new project)
 
-These skills are your single source of truth. Do NOT use hardcoded values. 2. Run research via subagent for any Azure documentation gaps 3. Generate full requirements document matching H2 structure from azure-artifacts skill 4. Present draft, iterate on feedback, save on approval
+These skills are your single source of truth. Do NOT use hardcoded values. 2. Run research via subagent for any Azure documentation gaps 3. Generate full requirements document matching H2 structure from
+azure-artifacts skill 4. Present draft, iterate on feedback, save on approval
 
 > Project name, environments, and IaC tool are already captured in Phases 1-2.
 > Phase 5 focuses on final document generation and review.

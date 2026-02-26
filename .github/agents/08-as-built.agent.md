@@ -145,7 +145,9 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 1. **Read all prior artifacts** (01-06) from `agent-output/{project}/`
 2. **Read IaC source** — determine IaC tool from `01-requirements.md` (`iac_tool` field):
    - **Bicep path**: Read templates from `infra/bicep/{project}/` for resource details
-   - **Terraform path**: Read configurations from `infra/terraform/{project}/` and run `terraform output -json` for deployed resource attributes
+   - **Terraform path**: Read configurations from
+     `infra/terraform/{project}/` and run `terraform output -json`
+     for deployed resource attributes
 3. **Query deployed resources** via Azure CLI / Resource Graph for actual state
 4. **Read deployment summary** for resource IDs, names, and endpoints
 

@@ -9,100 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- feat(agents): add `compact_for_parent` field to `challenger-review-subagent` output JSON — a
-  ≤200-char single-line summary (`Pass N (lens) | RISK | N must_fix | Key: title1; title2`) that
-  parent agents retain in context after writing the full findings JSON to disk.
-- feat(conductor): add `## Phase Handoff Document` section and `00-handoff.md` pattern — a
-  compact ≤50-line project state snapshot written at every approval gate, enabling users to
-  resume in a fresh chat thread without triggering `summarizeConversationHistory`.
-- feat(conductor): add `00-handoff.md` to Artifact Tracking table and DO/DON'T rules.
-- feat(conductor): update `## Resuming a Project` to read `00-handoff.md` first and include
-  the exact prompt snippet for thread resumption.
-- feat(terraform): add full Terraform IaC track — Planner (`05t`), Code Generator (`06t`), and
-  Deploy (`07t`) agents.
-- feat(terraform): add Terraform lint, review, and plan subagents.
-- feat(terraform): add Terraform routing to Conductor and IaC-track selection to Requirements
-  agent.
-- feat(quality): add Terraform quality gates, CI workflow, and IaC-neutral artifact templates.
-- feat(instructions): add Terraform code best-practices and policy-compliance instruction files
-  plus dual-field governance support.
-- feat(skills): add `terraform-patterns` skill with AVM-TF module patterns and known pitfalls.
-- feat(agents): add `10-challenger.agent.md` — adversarial governance challenger that stress-tests
-  architecture decisions against WAF and Azure Policy.
-- feat(devcontainer): add Terraform toolchain, `terraform-mcp-server` (Go binary), and git config.
-- feat(devcontainer): add `post-start.sh` for automatic tool updates (`checkov`, `ruff`, `diagrams`)
-  via `uv` on container start.
-- feat(mcp): add GitHub and Microsoft Learn remote MCP servers (#170).
-- feat(scripts): add instruction cross-reference validation (`validate:instruction-refs`).
-- docs(agents): add root `AGENTS.md`, `infra/bicep/AGENTS.md`, and `infra/terraform/AGENTS.md`
-  as cross-agent convention sources.
-- feat(pricing-mcp): release Azure Pricing MCP v4.0 improvements.
-- feat(azure-pricing-mcp): release v4.1.0 with error boundaries, bulk concurrency, cache stats,
-  and lint cleanup (#150).
-- feat(step-4): enforce dependency and runtime diagram outputs.
-- feat(devcontainer): add visible post-create progress steps.
+- feat(terraform): add end-to-end Terraform IaC workflow with Planner (`05t`), Code Generator
+  (`06t`), Deploy (`07t`), and supporting lint/review/plan subagents.
+- feat(agents): add IaC-track selection in Requirements and Terraform routing in Conductor.
+- feat(quality): add Terraform quality gates, CI checks, and IaC-neutral artifact template support.
+- feat(instructions): add Terraform best-practices and policy-compliance instruction coverage.
+- feat(skills): add `terraform-patterns` skill for AVM-TF composition and common pitfalls.
+- feat(conductor): add `00-handoff.md` phase handoff/resume flow and related guidance.
+- feat(agents): add `compact_for_parent` summary output for challenger review passes.
+- feat(devcontainer): add Terraform toolchain and post-start updates for `checkov`, `ruff`, and
+  `diagrams`.
+- feat(mcp): add GitHub and Microsoft Learn remote MCP servers.
+- feat(pricing-mcp): deliver Azure Pricing MCP v4.0/v4.1.0 improvements.
 
 ### Changed
 
-- refactor(agents): replace full JSON `prior_findings` with compact `compact_for_parent` string
-  in `03-architect`, `05b-bicep-planner`, `05t-terraform-planner`, `06b-bicep-codegen`, and
-  `06t-terraform-codegen` — reduces parent context re-injection from ~10K tokens per review pass
-  to a single line while full detail remains on disk.
-- chore(agents): rename and renumber all agents with consistent numeric prefixes; remove
-  `workflow-generator` outputs.
-- refactor(tf-dev): refine Terraform subagents, Conductor routing, and phase prompts.
-- refactor(instructions): consolidate styling rules into `azure-artifacts` SKILL.md as single
-  source of truth.
-- refactor(instructions): consolidate tag rules into `bicep-code-best-practices` as single source.
-- refactor(instructions): delete `thought-logging`, slim meta instruction files, trim oversized
-  scripting and review files, and rename three files for consistency.
-- docs(prompts): update `git-commit-push` prompt — model target, frontmatter, and MCP tool name
-  format (`github/tool_name`).
-- docs(readme): simplify README, add Challenger to workflow diagram, add related repos section.
-- ci(tf-dev): add merge gate blocking `tf-dev → main` until all Terraform phases are complete.
-- ci: add Python setup and `ruff` to `policy-compliance-check` workflow.
-- chore(docs): remove entire `docs/tf-support/` planning folder and `docs/terraform-roadmap.md`
-  now that Terraform support is fully integrated.
-- style: apply formatter and linter fixes and table alignment across instructions, agents, docs,
-  and scripts.
-- refactor(azure-mcp): migrate from `vscode-azure-github-copilot` to
-  `vscode-azure-mcp-server` (#143).
-- refactor(conductor): update InfraOps Conductor prompts and tool usage (#146, #147).
-- chore(agents): enforce subagent-only pricing for Steps 2 and 7.
-- chore(agents): update deploy and Bicep subagent definitions.
-- docs(readme): add top banner and remove workflow SVG embed.
-- chore(governance): normalize instruction links and skill frontmatter.
-- chore(ci): tighten VS Code extension drift policy and MCP setup checks.
-- chore(sync): sync source-of-truth and pricing delegation updates.
-- chore(deps): bump `npm_and_yarn` dependency group.
+- refactor(agents): simplify challenger review context handoff by switching parent retention to
+  compact findings summaries.
+- chore(agents): rename/renumber agent files and align subagent orchestration patterns.
+- refactor(tf-dev): iterate Terraform phase prompts, routing, and subagent guidance.
+- docs: refresh README, prompt docs, and agent metadata for Terraform-first multi-track workflow.
+- chore(docs): remove legacy Terraform planning docs (`docs/tf-support/`, roadmap) after
+  integration.
+- refactor(azure-mcp): migrate extension references to `vscode-azure-mcp-server`.
+- ci: tighten policy/compliance validation and branch merge-gate enforcement for Terraform rollout.
+- style: apply broad formatting and consistency cleanup across docs/instructions/scripts.
 
 ### Fixed
 
-- fix(devcontainer): correct `terraform-mcp-server` binary path to `/go/bin`; switch from Docker
-  to Go binary.
-- fix(mcp): use `--toolsets registry` flag to suppress TFE token errors on startup.
-- fix(agents): expand tools list in Challenger agent frontmatter (#168).
-- fix(agents): enforce subagent delegation, tighten `agents` arrays, add workspace settings (#166).
-- fix(agents): add `agent` tool to `10-challenger.agent.md` tools list.
-- fix: resolve pre-existing validation failures for a clean `validate:all` run.
-- fix(azure-pricing-mcp): align bulk estimate formatter with indices response shape (#151).
-- fix(actions): switch deprecation tracker automation to PR flow (#155).
-- fix(mcp): correct healthcheck behavior and remove unused dependencies.
+- fix(devcontainer): correct Terraform MCP server runtime path and move from Docker-based startup
+  to Go binary execution.
+- fix(mcp): suppress Terraform Enterprise token noise on startup and correct MCP healthcheck
+  behavior.
+- fix(agents): repair challenger/agent tool declarations and enforce subagent delegation rules.
+- fix(actions): move deprecation tracker automation to PR flow.
+- fix(validation): resolve validation drift for stable `npm run validate:all` execution.
+- fix(azure-pricing-mcp): align bulk estimate formatter with the indices response shape.
 
 ## [0.9.0] - 2026-02-12
 
 ### Changed
 
-- chore(version): reset project version from `8.2.0` to `0.9.0` for pre-production semantics.
+- chore(version): reset project version from `0.0.45` to `0.9.0` for pre-production semantics.
 - chore(version): align `VERSION.md`, `package.json`, and `pyproject.toml`.
 - docs(version): make `VERSION.md` the documentation source of truth for version display.
 - build(version): simplify `validate-version-sync.mjs` checks to version-bearing files.
 
 ---
 
-> **Note:** Versions below (`8.2.0` and earlier) are pre-release development milestones.
+> **Note:** Versions below (`0.0.45` and earlier) are pre-release development milestones.
 
-## [8.2.0] - 2026-02-05
+## [0.0.45] - 2026-02-05
 
 ### Added
 
@@ -119,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(skills): correct template paths in deployment preflight skill docs.
 - fix(templates): restore missing header text in governance constraints template.
 
-## [8.1.0] - 2026-02-04
+## [0.0.44] - 2026-02-04
 
 ### Added
 
@@ -137,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - docs(links): repair broad internal-link drift across docs and artifacts.
 - ci(workflows): fix `workflow_dispatch` input typing and increase link-check timeout.
 
-## [8.0.0] - 2026-02-03
+## [0.0.43] - 2026-02-03
 
 ### Added
 
@@ -154,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - chore(agents): remove `@diagram`, `@adr`, and `@docs`; replace with skill-based workflows.
 
-## [7.6.0] - 2026-02-03
+## [0.0.42] - 2026-02-03
 
 ### Changed
 
@@ -165,7 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - chore(drawio): remove Draw.io MCP server, templates, scripts, and extension integration.
 
-## [7.5.0] - 2026-02-02
+## [0.0.41] - 2026-02-02
 
 ### Added
 
@@ -179,62 +136,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - fix(skills): resolve markdown lint issues in deployment preflight and skill template files.
 
-## [7.4.0] - 2026-01-23
+## [0.0.40] - 2026-01-23
 
 ### Changed
 
 - feat(workflow): implement automated versioning and branch protection (#40).
 
-## [7.3.0] - 2026-01-22
+## [0.0.39] - 2026-01-22
 
 ### Added
 
 - feat(agent-testing): introduce complete agent validation framework.
 
-## [7.2.0] - 2026-01-22
+## [0.0.38] - 2026-01-22
 
 ### Changed
 
 - feat(agents): rename `@plan` to `@requirements` to avoid collision with VS Code built-in Plan.
 - refactor(agents): rename `plan.agent.md` to `requirements.agent.md` and update references.
 
-## [7.1.0] - 2026-01-21
+## [0.0.37] - 2026-01-21
 
 ### Added
 
 - feat(testing): add comprehensive agent testing plan prompt.
 
-## [7.0.3] - 2026-01-21
+## [0.0.36] - 2026-01-21
 
 ### Fixed
 
 - fix(devcontainer): resolve post-create permission issues.
 
-## [7.0.2] - 2026-01-21
+## [0.0.35] - 2026-01-21
 
 ### Fixed
 
 - fix(devcontainer): remove invalid `PATH` override that blocked container startup.
 
-## [7.0.1] - 2026-01-21
+## [0.0.34] - 2026-01-21
 
 ### Fixed
 
 - fix(docs): update remaining legacy agent references in embedded docs.
 
-## [7.0.0] - 2026-01-21
+## [0.0.33] - 2026-01-21
 
 ### Breaking Changes
 
 - feat(agents)!: rename agents to shorter verb-based names.
 
-## [6.1.0] - 2026-01-21
+## [0.0.32] - 2026-01-21
 
 ### Added
 
 - feat(agents): integrate deploy agent into the workflow.
 
-## [6.0.0] - 2026-01-21
+## [0.0.31] - 2026-01-21
 
 ### Breaking Changes
 
@@ -258,19 +215,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(husky): remove Husky directory and dependency.
 - chore(terraform): remove Terraform tooling, references, and related config entries.
 
-## [5.3.0] - 2026-01-20
+## [0.0.30] - 2026-01-20
 
 ### Added
 
 - feat(diagnose): add Azure Resource Health Diagnostician agent.
 
-## [5.2.1] - 2026-01-19
+## [0.0.29] - 2026-01-19
 
 ### Fixed
 
 - fix(ci): correct version auto-update extraction logic.
 
-## [5.2.0] - 2026-01-19
+## [0.0.28] - 2026-01-19
 
 ### Added
 
@@ -281,19 +238,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - docs(workflow): update diagrams and references to use Deploy Agent terminology.
 
-## [5.1.0] - 2026-01-19
+## [0.0.27] - 2026-01-19
 
 ### Added
 
 - feat(presenter): add dark-themed workflow diagram for presentations.
 
-## [5.0.0] - 2026-01-19
+## [0.0.26] - 2026-01-19
 
 ### Changed
 
-- chore(release): prepare release transition to `4.0.0` baseline.
+- chore(release): prepare release transition to `0.0.25` baseline.
 
-## [4.0.0] - 2026-01-19
+## [0.0.25] - 2026-01-19
 
 ### Breaking Changes
 
@@ -310,25 +267,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(legacy): remove `scenarios/scenario-output/` and legacy docs folders.
 - chore(example): remove `infra/bicep/contoso-patient-portal/`.
 
-## [3.11.0] - 2026-01-14
+## [0.0.24] - 2026-01-14
 
 ### Added
 
 - feat(demo): add prompt for 30-minute live workflow demo.
 
-## [3.10.1] - 2026-01-14
+## [0.0.23] - 2026-01-14
 
 ### Fixed
 
 - fix(prompts): convert plan-requirements to proper prompt-file format.
 
-## [3.10.0] - 2026-01-14
+## [0.0.22] - 2026-01-14
 
 ### Added
 
 - feat(artifacts): complete artifact template compliance rollout.
 
-## [3.9.0] - 2026-01-14
+## [0.0.21] - 2026-01-14
 
 ### Added
 
@@ -346,7 +303,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(package): remove duplicate version line.
 - fix(docs): remove outdated design document TOC sections.
 
-## [3.8.1] - 2026-01-14
+## [0.0.20] - 2026-01-14
 
 ### Added
 
@@ -364,7 +321,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - fix(docs): correct renamed artifact references in ecommerce documentation index.
 
-## [3.8.0] - 2026-01-14
+## [0.0.19] - 2026-01-14
 
 ### Added
 
@@ -389,68 +346,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(terraform-doc): remove obsolete `terraform-azure.instructions.md`.
 - chore(docs): merge and remove `docs/presenter-toolkit/` and `docs/value-proposition/`.
 
-## [3.7.9] - 2026-01-13
+## [0.0.18] - 2026-01-13
 
 ### Changed
 
 - refactor(agents): rename `@plan` display references to Project Planner across docs.
 - docs(usage): correct invocation guidance and regenerate workflow diagrams.
 
-## [3.7.8] - 2025-12-18
+## [0.0.17] - 2025-12-18
 
 ### Fixed
 
 - fix(pricing): update Azure Pricing Calculator URLs with locale-aware links.
 
-## [3.7.7] - 2025-12-18
+## [0.0.16] - 2025-12-18
 
 ### Fixed
 
 - fix(paths): correct relative paths in `azure-principal-architect.agent.md`.
 
-## [3.7.6] - 2025-12-18
+## [0.0.15] - 2025-12-18
 
 ### Fixed
 
 - fix(paths): correct shared foundation link path in all agents.
 
-## [3.7.5] - 2025-12-18
+## [0.0.14] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): correct table link paths.
 
-## [3.7.4] - 2025-12-18
+## [0.0.13] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): remove non-functional Mermaid click links and add link table.
 
-## [3.7.3] - 2025-12-18
+## [0.0.12] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): switch Mermaid click links to absolute GitHub URLs.
 
-## [3.7.2] - 2025-12-18
+## [0.0.11] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): correct Mermaid click links.
 
-## [3.7.1] - 2025-12-18
+## [0.0.10] - 2025-12-18
 
 ### Fixed
 
 - fix(docs): clean up docs rebuild path/link breakage.
 
-## [3.7.0] - 2025-12-17
+## [0.0.9] - 2025-12-17
 
 ### Added
 
 - feat(validation): add `static-webapp-test` workflow validation example.
 
-## [3.6.0] - 2025-12-17
+## [0.0.8] - 2025-12-17
 
 ### Changed
 
@@ -460,25 +417,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor(costing): move cost estimates to Step 3 design artifacts.
 - docs(pricing): add Azure Pricing MCP fallback chain guidance.
 
-## [3.5.0] - 2025-12-17
+## [0.0.7] - 2025-12-17
 
 ### Added
 
 - feat(diagrams): add workflow diagram generator setup.
 
-## [3.4.0] - 2025-12-17
+## [0.0.6] - 2025-12-17
 
 ### Added
 
 - feat(docs-agent): add workload documentation generator agent for optional Step 7.
 
-## [3.3.0] - 2025-12-17
+## [0.0.5] - 2025-12-17
 
 ### Added
 
 - feat(outputs): centralize agent outputs and automate versioning.
 
-## [3.2.0] - 2025-12-07
+## [0.0.4] - 2025-12-07
 
 ### Added
 
@@ -501,7 +458,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(personas): fix character-name collisions across scenarios.
 - fix(mcp): resolve "Connector is closed" server errors.
 
-## [3.1.0] - 2025-12-03
+## [0.0.3] - 2025-12-03
 
 ### Changed
 
@@ -515,7 +472,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(paths): move `docs/QUICKSTART.md` to `docs/getting-started/QUICKSTART.md`.
 - chore(paths): move `docs/troubleshooting.md` to `docs/guides/troubleshooting.md`.
 
-## [2.0.0] - 2025-12-01
+## [0.0.2] - 2025-12-01
 
 ### Changed
 
@@ -534,7 +491,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - chore(legacy): remove legacy scenarios/resources folders.
 
-## [1.0.0] - 2024-06-01
+## [0.0.1] - 2024-06-01
 
 ### Added
 

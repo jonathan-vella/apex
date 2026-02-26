@@ -34,7 +34,7 @@ See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestra
 
 ---
 
-## Agents (13 + 8 Subagents)
+## Agents (13 + 9 Subagents)
 
 Agents are interactive AI assistants for specific workflow phases. Invoke via `Ctrl+Shift+A`.
 
@@ -76,6 +76,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | ------------------------------- | ------------------------------- | --------------------------- |
 | `cost-estimate-subagent`        | Azure Pricing MCP queries       | Cost breakdown              |
 | `governance-discovery-subagent` | Azure Policy REST API discovery | Governance constraints JSON |
+| `challenger-review-subagent`    | Adversarial artifact review     | Challenge findings JSON     |
 
 **Bicep track:**
 
@@ -178,7 +179,7 @@ See [prompt-guide/](prompt-guide/) for the full guide.
 ```text
 azure-agentic-infraops/
 ├── .github/
-│   ├── agents/           # 13 agent definitions + 8 subagents
+│   ├── agents/           # 13 agent definitions + 9 subagents
 │   │   └── _subagents/   # Validation subagents (Bicep + Terraform)
 │   ├── skills/           # 14 skill definitions
 │   └── instructions/     # File-type rules (25 instruction files)
@@ -190,6 +191,18 @@ azure-agentic-infraops/
 ├── docs/prompt-guide/    # Prompt examples for agents & skills
 └── docs/                 # This documentation
 ```
+
+---
+
+## Project Health
+
+| Resource                                                           | Purpose                                         |
+| ------------------------------------------------------------------ | ----------------------------------------------- |
+| [QUALITY_SCORE.md](../QUALITY_SCORE.md)                            | Per-domain grades updated by doc-gardening      |
+| [exec-plans/tech-debt-tracker.md](exec-plans/tech-debt-tracker.md) | Running inventory of known gaps and debt        |
+| [exec-plans/](exec-plans/)                                         | Multi-step execution plans and decision history |
+
+Run the doc-gardening prompt (`.github/prompts/doc-gardening.prompt.md`) to refresh grades.
 
 ---
 

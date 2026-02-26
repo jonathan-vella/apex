@@ -156,6 +156,30 @@ tags = {
 **Governance compliance failures produce `NEEDS_REVISION` (HIGH) or `FAILED` (CRITICAL) verdicts.**
 A configuration CANNOT pass review with unresolved policy violations.
 
+### 8. RBAC Least Privilege (MANDATORY)
+
+Review all `azurerm_role_assignment` resources and classify role/scope risk.
+
+| Check                                         | Severity | Details                                                        |
+| --------------------------------------------- | -------- | -------------------------------------------------------------- |
+| App identity gets `Owner`                     | CRITICAL | FAIL unless explicit approval marker exists                    |
+| App identity gets `Contributor`               | CRITICAL | FAIL unless explicit approval marker exists                    |
+| App identity gets `User Access Administrator` | CRITICAL | FAIL unless explicit approval marker exists                    |
+| Scope is broader than required                | HIGH     | Server/subscription scope when resource/db scope is sufficient |
+
+**App identity** means managed identities and service principals used by apps:
+
+- App Service / Function / Container App system-assigned identity
+- User-assigned managed identity attached to application workloads
+- Service principal used by runtime application code
+
+**Explicit approval marker (required for exception):**
+
+- A nearby comment on the role assignment: `RBAC_EXCEPTION_APPROVED: <ticket-or-ADR>`
+- And a matching record in implementation docs (ADR or implementation reference)
+
+If the marker is missing, classify as CRITICAL and return `FAILED`.
+
 ## Severity Levels
 
 | Level    | Impact                     | Action                           |

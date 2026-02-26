@@ -34,44 +34,58 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 - Use reference-style links for external URLs
 - No broken links (validated in CI)
 
-## Current Architecture (as of 2026-02-15)
+## Current Architecture (as of 2026-02-26)
 
-### Agents (9 top-level + 5 subagents)
+### Agents (13 top-level + 9 subagents)
 
-| Agent                | Purpose                                 |
-| -------------------- | --------------------------------------- |
-| `infraops-conductor` | Master orchestrator with approval gates |
-| `requirements`       | Gather infrastructure requirements      |
-| `architect`          | WAF assessment and architecture design  |
-| `design`             | Architecture diagrams and ADRs          |
-| `bicep-plan`         | Implementation planning and governance  |
-| `bicep-code`         | Bicep template generation               |
-| `deploy`             | Azure deployment execution              |
-| `as-built`           | Step 7 workload documentation suite     |
-| `diagnose`           | Post-deployment health diagnostics      |
+| Agent                | Purpose                                      |
+| -------------------- | -------------------------------------------- |
+| `infraops-conductor` | Master orchestrator with approval gates      |
+| `requirements`       | Gather infrastructure requirements           |
+| `architect`          | WAF assessment and architecture design       |
+| `design`             | Architecture diagrams and ADRs               |
+| `bicep-planner`      | Bicep implementation planning and governance |
+| `bicep-codegen`      | Bicep template generation                    |
+| `bicep-deploy`       | Bicep Azure deployment execution             |
+| `terraform-planner`  | Terraform implementation planning            |
+| `terraform-codegen`  | Terraform config generation                  |
+| `terraform-deploy`   | Terraform Azure deployment execution         |
+| `as-built`           | Step 7 workload documentation suite          |
+| `diagnose`           | Post-deployment health diagnostics           |
+| `challenger`         | Adversarial review of requirements and plans |
 
 ### Subagents (in `_subagents/`)
 
-| Subagent                        | Parent     | Purpose                         |
-| ------------------------------- | ---------- | ------------------------------- |
-| `cost-estimate-subagent`        | Architect  | Azure Pricing MCP queries       |
-| `governance-discovery-subagent` | Bicep Plan | Azure Policy REST API discovery |
-| `bicep-lint-subagent`           | Bicep Code | Syntax validation               |
-| `bicep-review-subagent`         | Bicep Code | AVM/security code review        |
-| `bicep-whatif-subagent`         | Deploy     | Deployment preview              |
+| Subagent                        | Parent           | Purpose                             |
+| ------------------------------- | ---------------- | ----------------------------------- |
+| `cost-estimate-subagent`        | Architect        | Azure Pricing MCP queries           |
+| `governance-discovery-subagent` | IaC Planners     | Azure Policy REST API discovery     |
+| `challenger-review-subagent`    | Conductor/Plans  | Adversarial artifact review         |
+| `bicep-lint-subagent`           | Bicep Code       | Syntax validation                   |
+| `bicep-review-subagent`         | Bicep Code       | AVM/security code review            |
+| `bicep-whatif-subagent`         | Bicep Deploy     | Deployment preview                  |
+| `terraform-lint-subagent`       | Terraform Code   | Syntax validation (validate/fmt)    |
+| `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
+| `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
-### Skills (8 total)
+### Skills (14 total)
 
-| Skill                 | Category            | Purpose                                    |
-| --------------------- | ------------------- | ------------------------------------------ |
-| `azure-adr`           | Document Creation   | Architecture Decision Records              |
-| `azure-artifacts`     | Artifact Generation | Template H2s, styling, generation rules    |
-| `azure-defaults`      | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags   |
-| `azure-diagrams`      | Document Creation   | Python architecture diagrams               |
-| `github-operations`   | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
-| `git-commit`          | Tool Integration    | Commit conventions                         |
-| `docs-writer`         | Documentation       | Repo-aware docs maintenance                |
-| `make-skill-template` | Meta                | Skill creation helper                      |
+| Skill                      | Category            | Purpose                                    |
+| -------------------------- | ------------------- | ------------------------------------------ |
+| `azure-adr`                | Document Creation   | Architecture Decision Records              |
+| `azure-artifacts`          | Artifact Generation | Template H2s, styling, generation rules    |
+| `azure-bicep-patterns`     | IaC Patterns        | Reusable Bicep infrastructure patterns     |
+| `azure-defaults`           | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags   |
+| `azure-diagrams`           | Document Creation   | Python architecture diagrams               |
+| `azure-troubleshooting`    | Troubleshooting     | KQL templates, health checks, remediation  |
+| `docs-writer`              | Documentation       | Repo-aware docs maintenance                |
+| `git-commit`               | Tool Integration    | Commit conventions                         |
+| `github-operations`        | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
+| `make-skill-template`      | Meta                | Skill creation helper                      |
+| `microsoft-code-reference` | Docs Integration    | SDK method verification, code samples      |
+| `microsoft-docs`           | Docs Integration    | Official Microsoft documentation queries   |
+| `microsoft-skill-creator`  | Docs Integration    | Create skills for Microsoft technologies   |
+| `terraform-patterns`       | IaC Patterns        | Reusable Terraform infrastructure patterns |
 
 ## Prohibited References
 
