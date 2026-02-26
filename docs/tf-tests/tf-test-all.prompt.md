@@ -1,7 +1,7 @@
 ---
-description: 'Run ALL Terraform test suites end-to-end (TS-01 through TS-12)'
-agent: '01-Conductor'
-model: 'Claude Opus 4.6'
+description: "Run ALL Terraform test suites end-to-end (TS-01 through TS-13)"
+agent: "01-Conductor"
+model: "Claude Opus 4.6"
 tools:
   - agent
   - read/readFile
@@ -18,12 +18,12 @@ tools:
   - terraform/search_providers
   - terraform/get_provider_details
   - terraform/get_latest_provider_version
-argument-hint: 'Describe a test Azure project for full Terraform E2E testing'
+argument-hint: "Describe a test Azure project for full Terraform E2E testing"
 ---
 
 # Test: Full Terraform E2E (All Suites)
 
-Run ALL test suites (TS-01 through TS-12) from the Terraform E2E test plan.
+Run ALL test suites (TS-01 through TS-13) from the Terraform E2E test plan.
 This is the comprehensive test that validates every aspect of the Terraform
 capability.
 
@@ -44,10 +44,10 @@ convention/security compliance, and regression checks.
 
 ## Inputs
 
-| Variable                      | Description                                 | Default        |
-| ----------------------------- | ------------------------------------------- | -------------- |
-| `${input:projectName}`        | Test project name (kebab-case)              | `tf-e2e-test`  |
-| `${input:projectDescription}` | Brief workload description for requirements | Required       |
+| Variable                      | Description                                 | Default       |
+| ----------------------------- | ------------------------------------------- | ------------- |
+| `${input:projectName}`        | Test project name (kebab-case)              | `tf-e2e-test` |
+| `${input:projectDescription}` | Brief workload description for requirements | Required      |
 
 ## Workflow
 
@@ -75,6 +75,10 @@ This implicitly exercises:
 ### Phase 3: Subagent Functional Tests
 
 1. **TS-08**: Subagent tests (via `/tf-test-subagents`)
+
+### Phase 3.5: Adversarial Review Validation
+
+1. **TS-13**: Adversarial review tests (via `/tf-test-adversarial`)
 
 ### Phase 4: Post-Generation Compliance
 
@@ -112,19 +116,21 @@ TS-09: Conductor Integration  — [PASS/FAIL]
 TS-10: Convention Compliance  — [PASS/FAIL]
 TS-11: Security Baseline      — [PASS/FAIL]
 TS-12: Regression             — [PASS/FAIL]
+TS-13: Adversarial Review      — [PASS/FAIL]
 
-Overall: [X/12 suites passed]
+Overall: [X/13 suites passed]
 ```
 
 ## Related Prompts
 
-| Prompt | Suites |
-| --- | --- |
+| Prompt                       | Suites        |
+| ---------------------------- | ------------- |
 | `/tf-test-static-validation` | TS-01 — TS-04 |
-| `/tf-test-planner` | TS-05 |
-| `/tf-test-codegen` | TS-06 |
-| `/tf-test-deploy` | TS-07 |
-| `/tf-test-subagents` | TS-08 |
-| `/tf-test-conductor` | TS-09 |
-| `/tf-test-compliance` | TS-10, TS-11 |
-| `/tf-test-regression` | TS-12 |
+| `/tf-test-planner`           | TS-05         |
+| `/tf-test-codegen`           | TS-06         |
+| `/tf-test-deploy`            | TS-07         |
+| `/tf-test-subagents`         | TS-08         |
+| `/tf-test-conductor`         | TS-09         |
+| `/tf-test-compliance`        | TS-10, TS-11  |
+| `/tf-test-regression`        | TS-12         |
+| `/tf-test-adversarial`       | TS-13         |

@@ -18,13 +18,14 @@ the IaC tool.
 | Area                   | Components Under Test                                                                                                               |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | **Agents**             | `05t-Terraform Planner`, `06t-Terraform CodeGen`, `07t-Terraform Deploy`                                                            |
-| **Subagents**          | `terraform-lint-subagent`, `terraform-review-subagent`, `terraform-plan-subagent`                                                   |
+| **Subagents**          | `terraform-lint-subagent`, `terraform-review-subagent`, `terraform-plan-subagent`, `challenger-review-subagent`                     |
 | **Conductor routing**  | `01-Conductor` routes to `05t`/`06t`/`07t` when `iac_tool: terraform`                                                               |
 | **Skills**             | `terraform-patterns`, `azure-defaults` (Terraform Conventions section)                                                              |
 | **Instructions**       | `terraform-code-best-practices.instructions.md`, `terraform-policy-compliance.instructions.md`                                      |
 | **CI/CD**              | `.github/workflows/terraform-validate.yml`, `npm run validate:terraform`                                                            |
 | **Infrastructure**     | `infra/terraform/{project}/` file structure and conventions                                                                         |
 | **Artifact templates** | `04-implementation-plan`, `04-governance-constraints`, `04-preflight-check`, `05-implementation-reference`, `06-deployment-summary` |
+| **Adversarial review** | `challenger-review-subagent` 3-pass rotation (security, architecture, cost) + 1-pass comprehensive across all workflow agents       |
 
 ## Pre-Requisites
 
@@ -79,6 +80,7 @@ done
 | `tf-test-conductor.prompt.md`         | TS-09         | `01-Conductor`          | Yes           |
 | `tf-test-compliance.prompt.md`        | TS-10, TS-11  | `agent`                 | No            |
 | `tf-test-regression.prompt.md`        | TS-12         | `agent`                 | No            |
+| `tf-test-adversarial.prompt.md`       | TS-13         | `agent`                 | Partial       |
 
 **Quick start** — run the static validation suite (no Azure auth needed):
 
@@ -147,18 +149,19 @@ Verify the GitHub Actions workflow and npm scripts for Terraform.
 
 End-to-end functional test of the planning phase.
 
-| ID       | Test Case                       | Steps                                                                                             | Expected Result                                                                                                                                             |
-| -------- | ------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TS-05-01 | Skill loading                   | Invoke `05t` and verify it reads `azure-defaults`, `azure-artifacts`, `terraform-patterns` skills | Agent reads all 3 skills before planning                                                                                                                    |
-| TS-05-02 | Prerequisites gate              | Invoke `05t` without `02-architecture-assessment.md`                                              | Agent STOPs and requests handoff to Architect                                                                                                               |
-| TS-05-03 | Governance discovery delegation | Invoke `05t` with valid prerequisites                                                             | Delegates to `governance-discovery-subagent`                                                                                                                |
-| TS-05-04 | AVM-TF module verification      | Observe `05t` querying Terraform Registry MCP                                                     | Uses `terraform/search_modules` and `terraform/get_module_details` for each resource                                                                        |
-| TS-05-05 | Deployment strategy gate        | Observe `05t` interaction                                                                         | Agent asks user for phased vs single deployment (mandatory gate)                                                                                            |
-| TS-05-06 | Challenger invocation           | Observe `05t` after plan generation                                                               | Invokes `10-Challenger` on `04-implementation-plan.md`                                                                                                      |
-| TS-05-07 | Approval gate                   | Observe `05t` final output                                                                        | Presents plan summary and waits for "approve"                                                                                                               |
-| TS-05-08 | Output artifacts                | Check `agent-output/{project}/`                                                                   | Contains `04-implementation-plan.md`, `04-governance-constraints.md`, `04-governance-constraints.json`, `04-dependency-diagram.py`, `04-runtime-diagram.py` |
-| TS-05-09 | HCP guardrail                   | Read generated `04-implementation-plan.md`                                                        | No `terraform { cloud {} }` patterns; backend is Azure Storage Account                                                                                      |
-| TS-05-10 | H2 template compliance          | Run `npm run lint:artifact-templates`                                                             | PASS for generated artifacts                                                                                                                                |
+| ID        | Test Case                       | Steps                                                                                             | Expected Result                                                                                                                                              |
+| --------- | ------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| TS-05-01  | Skill loading                   | Invoke `05t` and verify it reads `azure-defaults`, `azure-artifacts`, `terraform-patterns` skills | Agent reads all 3 skills before planning                                                                                                                     |
+| TS-05-02  | Prerequisites gate              | Invoke `05t` without `02-architecture-assessment.md`                                              | Agent STOPs and requests handoff to Architect                                                                                                                |
+| TS-05-03  | Governance discovery delegation | Invoke `05t` with valid prerequisites                                                             | Delegates to `governance-discovery-subagent`                                                                                                                 |
+| TS-05-04  | AVM-TF module verification      | Observe `05t` querying Terraform Registry MCP                                                     | Uses `terraform/search_modules` and `terraform/get_module_details` for each resource                                                                         |
+| TS-05-05  | Deployment strategy gate        | Observe `05t` interaction                                                                         | Agent asks user for phased vs single deployment (mandatory gate)                                                                                             |
+| TS-05-06  | Governance review (1x)          | Observe `05t` after governance discovery                                                          | Invokes `challenger-review-subagent` (1x comprehensive) on `04-governance-constraints.md`; writes `challenge-findings-governance-constraints.json`           |
+| TS-05-06a | Adversarial review (3-pass)     | Observe `05t` after plan generation                                                               | Invokes `challenger-review-subagent` 3 times with rotating lenses; writes `challenge-findings-implementation-plan-pass{1,2,3}.json`                          |
+| TS-05-07  | Approval gate                   | Observe `05t` final output                                                                        | Presents plan summary and waits for "approve"                                                                                                                |
+| TS-05-08  | Output artifacts                | Check `agent-output/{project}/`                                                                   | Contains `04-implementation-plan.md`, `04-governance-constraints.md/.json`, `04-dependency-diagram.py`, `04-runtime-diagram.py`, `challenge-findings-*.json` |
+| TS-05-09  | HCP guardrail                   | Read generated `04-implementation-plan.md`                                                        | No `terraform { cloud {} }` patterns; backend is Azure Storage Account                                                                                       |
+| TS-05-10  | H2 template compliance          | Run `npm run lint:artifact-templates`                                                             | PASS for generated artifacts                                                                                                                                 |
 
 ### TS-06: Terraform CodeGen Agent (06t) — Workflow Test
 
@@ -186,6 +189,9 @@ End-to-end functional test of the code generation phase.
 | TS-06-18 | Implementation reference      | Check `agent-output/{project}/`                                                           | Contains `05-implementation-reference.md` with validation status                                           |
 | TS-06-19 | H2 template compliance        | Run `npm run lint:artifact-templates`                                                     | PASS for `04-preflight-check.md` and `05-implementation-reference.md`                                      |
 | TS-06-20 | No hardcoded secrets          | Grep `.tf` files for password, secret, key patterns                                       | No plaintext secrets; uses Key Vault references or `sensitive = true`                                      |
+| TS-06-21 | Adversarial code review       | Observe `06t` Phase 4.5 after lint+review                                                 | Invokes `challenger-review-subagent` 3x with rotating lenses on `infra/terraform/{project}/`               |
+| TS-06-22 | Code review output files      | Check `agent-output/{project}/`                                                           | Contains `challenge-findings-iac-code-pass{1,2,3}.json`                                                    |
+| TS-06-23 | Must-fix re-lint loop         | If `must_fix` items found in adversarial review                                           | Agent re-lints and re-reviews after applying fixes                                                         |
 
 ### TS-07: Terraform Deploy Agent (07t) — Workflow Test
 
@@ -204,25 +210,30 @@ End-to-end functional test of the deployment phase.
 | TS-07-09 | Deployment summary       | Check `agent-output/{project}/`       | Contains `06-deployment-summary.md`                                 |
 | TS-07-10 | Plan-only mode           | Select "Run Plan Only" handoff        | Plan generated but `terraform apply` is NOT executed                |
 | TS-07-11 | H2 template compliance   | Run `npm run lint:artifact-templates` | PASS for `06-deployment-summary.md`                                 |
+| TS-07-12 | Pre-deploy review        | Observe `07t` Step 4.5                | Invokes `challenger-review-subagent` (1x comprehensive) on plan     |
+| TS-07-13 | Deploy review output     | Check `agent-output/{project}/`       | Contains `challenge-findings-deployment.json`                       |
+| TS-07-14 | Must-fix deployment gate | If `must_fix` in deployment review    | Agent STOPs and requires user acknowledgement before proceeding     |
 
 ### TS-08: Subagent Functional Tests
 
 Verify each Terraform subagent produces correct structured output.
 
-| ID       | Test Case               | Steps                                                | Expected Result                                                     |
-| -------- | ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
-| TS-08-01 | Lint — format check     | Run `terraform-lint-subagent` on valid project       | `Status: PASS`, 0 errors, 0 format issues                           |
-| TS-08-02 | Lint — format failure   | Run on intentionally mis-formatted `.tf`             | `Status: FAIL`, format issues reported                              |
-| TS-08-03 | Lint — validate error   | Run on `.tf` with syntax error                       | `Status: FAIL`, error details with file/line                        |
-| TS-08-04 | Lint — tfsec skip       | Run where `tfsec` is not installed                   | Reports `TFSEC_SKIP`, overall status based on fmt+validate          |
-| TS-08-05 | Review — APPROVED       | Run `terraform-review-subagent` on compliant project | `Status: APPROVED`, all checks passed                               |
-| TS-08-06 | Review — NEEDS_REVISION | Run on project missing required tags                 | `Status: NEEDS_REVISION`, lists missing tags                        |
-| TS-08-07 | Review — FAILED         | Run on project with CRITICAL security issue          | `Status: FAILED`, critical findings listed                          |
-| TS-08-08 | Review — governance     | Run on project with governance constraints           | Validates `azurePropertyPath` translation and policy compliance     |
-| TS-08-09 | Plan — create only      | Run `terraform-plan-subagent` on new project         | `Status: PASS`, all changes are `+` create                          |
-| TS-08-10 | Plan — destructive      | Run on project with resource removal                 | `Status: WARNING`, destructive ops flagged                          |
-| TS-08-11 | Plan — auth failure     | Run without valid Azure token                        | `Status: FAIL`, auth error reported                                 |
-| TS-08-12 | Subagent isolation      | Verify subagents do NOT modify files                 | Read-only: no `.tf` files edited by lint, review, or plan subagents |
+| ID       | Test Case                | Steps                                                | Expected Result                                                     |
+| -------- | ------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------- |
+| TS-08-01 | Lint — format check      | Run `terraform-lint-subagent` on valid project       | `Status: PASS`, 0 errors, 0 format issues                           |
+| TS-08-02 | Lint — format failure    | Run on intentionally mis-formatted `.tf`             | `Status: FAIL`, format issues reported                              |
+| TS-08-03 | Lint — validate error    | Run on `.tf` with syntax error                       | `Status: FAIL`, error details with file/line                        |
+| TS-08-04 | Lint — tfsec skip        | Run where `tfsec` is not installed                   | Reports `TFSEC_SKIP`, overall status based on fmt+validate          |
+| TS-08-05 | Review — APPROVED        | Run `terraform-review-subagent` on compliant project | `Status: APPROVED`, all checks passed                               |
+| TS-08-06 | Review — NEEDS_REVISION  | Run on project missing required tags                 | `Status: NEEDS_REVISION`, lists missing tags                        |
+| TS-08-07 | Review — FAILED          | Run on project with CRITICAL security issue          | `Status: FAILED`, critical findings listed                          |
+| TS-08-08 | Review — governance      | Run on project with governance constraints           | Validates `azurePropertyPath` translation and policy compliance     |
+| TS-08-09 | Plan — create only       | Run `terraform-plan-subagent` on new project         | `Status: PASS`, all changes are `+` create                          |
+| TS-08-10 | Plan — destructive       | Run on project with resource removal                 | `Status: WARNING`, destructive ops flagged                          |
+| TS-08-11 | Plan — auth failure      | Run without valid Azure token                        | `Status: FAIL`, auth error reported                                 |
+| TS-08-12 | Subagent isolation       | Verify subagents do NOT modify files                 | Read-only: no `.tf` files edited by lint, review, or plan subagents |
+| TS-08-13 | Challenger — definition  | Run `npm run lint:agent-frontmatter` on challenger   | Frontmatter valid, `user-invokable: false`, no agents listed        |
+| TS-08-14 | Challenger — JSON output | Invoke `challenger-review-subagent` on test artifact | Returns valid JSON with required fields (see TS-13 for full suite)  |
 
 ### TS-09: Conductor Integration (Terraform Path)
 
@@ -282,6 +293,78 @@ Run after any change to Terraform agents, instructions, or skills.
 | TS-12-07 | Skill format                  | Run `npm run lint:skills-format`        | `terraform-patterns` skill passes           |
 | TS-12-08 | Instruction refs              | Run `npm run validate:instruction-refs` | All Terraform instruction references valid  |
 
+### TS-13: Adversarial Review (Challenger Subagent)
+
+Validate the `challenger-review-subagent` definition, integration with
+all parent agents, multi-pass rotation, JSON output schema, and
+deduplication logic.
+
+#### TS-13A: Subagent Definition
+
+| ID        | Test Case             | Steps                                                  | Expected Result                                                                                                                                    |
+| --------- | --------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TS-13A-01 | Frontmatter schema    | Run `npm run lint:agent-frontmatter`                   | PASS for `challenger-review-subagent`                                                                                                              |
+| TS-13A-02 | Non-user-invokable    | Read `challenger-review-subagent.agent.md` frontmatter | `user-invokable: false`                                                                                                                            |
+| TS-13A-03 | No child agents       | Read frontmatter `agents` field                        | `agents: []`                                                                                                                                       |
+| TS-13A-04 | Tool declarations     | Read frontmatter `tools` field                         | Contains `read`, `search`, `web`, `azure-mcp/*`                                                                                                    |
+| TS-13A-05 | Input parameters      | Read subagent body "Inputs" section                    | Documents all 6 params: `artifact_path`, `project_name`, `artifact_type`, `review_focus`, `pass_number`, `prior_findings`                          |
+| TS-13A-06 | Artifact types        | Read `artifact_type` enum                              | Includes all 7: `requirements`, `architecture`, `implementation-plan`, `governance-constraints`, `iac-code`, `cost-estimate`, `deployment-preview` |
+| TS-13A-07 | Review focus lenses   | Read "Review Focus Lenses" section                     | Documents 4 lenses: `security-governance`, `architecture-reliability`, `cost-feasibility`, `comprehensive`                                         |
+| TS-13A-08 | Severity levels       | Read "Severity Levels" section                         | Defines `must_fix`, `should_fix`, `suggestion` with clear criteria                                                                                 |
+| TS-13A-09 | JSON output schema    | Read "Output Format" section                           | Valid JSON schema with required fields: `challenged_artifact`, `artifact_type`, `review_focus`, `pass_number`, `issues[]`                          |
+| TS-13A-10 | Skill loading mandate | Read "MANDATORY: Read Skills First" section            | Requires `azure-defaults`, `azure-artifacts`, `bicep-policy-compliance`                                                                            |
+
+#### TS-13B: 10-Challenger Wrapper
+
+| ID        | Test Case          | Steps                                     | Expected Result                                                     |
+| --------- | ------------------ | ----------------------------------------- | ------------------------------------------------------------------- |
+| TS-13B-01 | Wrapper delegates  | Read `10-challenger.agent.md` body        | Delegates to `challenger-review-subagent` with 1 comprehensive pass |
+| TS-13B-02 | Agents array       | Read `10-challenger.agent.md` frontmatter | `agents: ["challenger-review-subagent"]`                            |
+| TS-13B-03 | Artifact detection | Read wrapper workflow                     | Filename-to-`artifact_type` mapping table with 7 entries            |
+| TS-13B-04 | Output file write  | Read wrapper step 5                       | Writes JSON to `agent-output/{project}/challenge-findings-*.json`   |
+| TS-13B-05 | Standalone invoke  | Invoke `10-Challenger` on a test artifact | Returns JSON findings and writes output file                        |
+
+#### TS-13C: Parent Agent Wiring
+
+| ID        | Test Case                  | Steps                                             | Expected Result                                                      |
+| --------- | -------------------------- | ------------------------------------------------- | -------------------------------------------------------------------- |
+| TS-13C-01 | Requirements (02) wiring   | Read `02-requirements.agent.md` frontmatter       | `agents` includes `challenger-review-subagent`                       |
+| TS-13C-02 | Requirements review mode   | Read `02-requirements.agent.md` Phase 6           | 1x comprehensive pass; writes `challenge-findings-requirements.json` |
+| TS-13C-03 | Architect (03) wiring      | Read `03-architect.agent.md` frontmatter          | `agents` includes `challenger-review-subagent`                       |
+| TS-13C-04 | Architect review mode      | Read `03-architect.agent.md` adversarial section  | 3x architecture (rotating lenses) + 1x cost-estimate review          |
+| TS-13C-05 | Planner (05t) wiring       | Read `05t-terraform-planner.agent.md` frontmatter | `agents` includes `challenger-review-subagent`                       |
+| TS-13C-06 | Planner review mode        | Read `05t` adversarial section                    | 1x governance + 3x implementation-plan (rotating lenses)             |
+| TS-13C-07 | CodeGen (06t) wiring       | Read `06t-terraform-codegen.agent.md` frontmatter | `agents` includes `challenger-review-subagent`                       |
+| TS-13C-08 | CodeGen review mode        | Read `06t` adversarial section                    | 3x iac-code (rotating lenses); must_fix triggers re-lint             |
+| TS-13C-09 | Deploy (07t) wiring        | Read `07t-terraform-deploy.agent.md` frontmatter  | `agents` includes `challenger-review-subagent`                       |
+| TS-13C-10 | Deploy review mode         | Read `07t` adversarial section                    | 1x comprehensive deployment-preview; must_fix requires ack           |
+| TS-13C-11 | Bicep Planner (05b) wiring | Read `05b-bicep-planner.agent.md` frontmatter     | `agents` includes `challenger-review-subagent` (parity with 05t)     |
+| TS-13C-12 | Bicep CodeGen (06b) wiring | Read `06b-bicep-codegen.agent.md` frontmatter     | `agents` includes `challenger-review-subagent` (parity with 06t)     |
+| TS-13C-13 | Bicep Deploy (07b) wiring  | Read `07b-bicep-deploy.agent.md` frontmatter      | `agents` includes `challenger-review-subagent` (parity with 07t)     |
+
+#### TS-13D: Multi-Pass Rotation Logic
+
+| ID        | Test Case                 | Steps                                                     | Expected Result                                                                                  |
+| --------- | ------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| TS-13D-01 | Lens rotation order       | Read `03-architect.agent.md` or `05t` adversarial section | Pass 1 = `security-governance`, Pass 2 = `architecture-reliability`, Pass 3 = `cost-feasibility` |
+| TS-13D-02 | Pass number increments    | Read agent adversarial section                            | Each pass specifies `pass_number` = 1, 2, 3 respectively                                         |
+| TS-13D-03 | Prior findings chain      | Read agent adversarial section                            | Pass 1: `prior_findings=null`; Pass 2: gets Pass 1 JSON; Pass 3: gets Pass 1+2 JSON              |
+| TS-13D-04 | Output file naming        | Read agent adversarial section                            | Files named `challenge-findings-{type}-pass1.json`, `-pass2.json`, `-pass3.json`                 |
+| TS-13D-05 | Single-pass naming        | Read `02-requirements` or `07t` adversarial section       | No `-pass{N}` suffix for 1-pass reviews (e.g. `challenge-findings-requirements.json`)            |
+| TS-13D-06 | Deduplication instruction | Read `challenger-review-subagent.agent.md` output rules   | Contains instruction to not repeat issues from `prior_findings`                                  |
+| TS-13D-07 | Gate merges all passes    | Read approval gate in `05t` or `03-architect`             | Gate presents merged findings from all passes before approval                                    |
+
+#### TS-13E: Conductor & Documentation Integration
+
+| ID        | Test Case                  | Steps                                                     | Expected Result                                                        |
+| --------- | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------- |
+| TS-13E-01 | Conductor subagent table   | Read `01-conductor.agent.md` Subagent Integration section | Contains `challenger-review-subagent` rows with Pass column (1x or 3x) |
+| TS-13E-02 | Conductor Gate 1 ref       | Read `01-conductor.agent.md` Gate 1                       | References `challenge-findings-requirements.json`                      |
+| TS-13E-03 | Agent-definitions table    | Read `agent-definitions.instructions.md`                  | `challenger-review-subagent` in subagents table                        |
+| TS-13E-04 | Copilot-instructions table | Read `.github/copilot-instructions.md` 7-Step table       | Review column exists: `1x`, `3x+1x`, `—`, `1x+3x`, `3x`, `1x`, `—`     |
+| TS-13E-05 | AGENTS.md table            | Read `AGENTS.md` workflow table                           | Review column exists with matching values                              |
+| TS-13E-06 | Subagent count             | Read `AGENTS.md` project structure section                | States 9 subagents (was 8 before challenger-review-subagent)           |
+
 ---
 
 ## Test Execution Tracker
@@ -306,6 +389,7 @@ Run after any change to Terraform agents, instructions, or skills.
 | TS-10: Convention Compliance | ⬜ Not Run | —    | —        | —     |
 | TS-11: Security Baseline     | ⬜ Not Run | —    | —        | —     |
 | TS-12: Regression            | ⬜ Not Run | —    | —        | —     |
+| TS-13: Adversarial Review    | ⬜ Not Run | —    | —        | —     |
 
 **Status Legend**: ✅ Pass | ❌ Fail | ⚠️ Partial | ⬜ Not Run | 🔄 In Progress
 
@@ -341,6 +425,9 @@ Copilot should re-run relevant suites when:
 | Any `.tf` file in `infra/terraform/` changes            | TS-04, TS-06, TS-10, TS-11, TS-12 |
 | Any artifact template for Steps 4-6 changes             | TS-05, TS-06, TS-07, TS-12        |
 | Subagent definitions change                             | TS-08                             |
+| `challenger-review-subagent.agent.md` changes           | TS-08, TS-13                      |
+| `10-challenger.agent.md` changes                        | TS-13                             |
+| Any parent agent adversarial review section changes     | TS-13                             |
 | Full release or `tf-dev` merge to `main`                | TS-12 (full regression)           |
 
 ### Quick-Run Commands
