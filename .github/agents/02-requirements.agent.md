@@ -214,8 +214,11 @@ its questions now.
 4. **Read** `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`
    — project README template (mandatory first artifact for every new project)
 
-These skills are your single source of truth. Do NOT use hardcoded values. 2. Run research via subagent for any Azure documentation gaps 3. Generate full requirements document matching H2 structure from
-azure-artifacts skill 4. Present draft, iterate on feedback, save on approval
+These skills are your single source of truth. Do NOT use hardcoded values.
+
+1. Run research via subagent for any Azure documentation gaps
+2. Generate full requirements document matching H2 structure from the azure-artifacts skill
+3. Present draft, iterate on feedback, save on approval
 
 > Project name, environments, and IaC tool are already captured in Phases 1-2.
 > Phase 5 focuses on final document generation and review.
