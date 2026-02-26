@@ -243,7 +243,7 @@
 
 ### Copilot Not Responding
 
-1. Check Copilot status: <https://githubstatus.com>
+1. Check Copilot status: <https://www.githubstatus.com>
 2. Try: Sign out and back in to Copilot
 3. Fallback: Use pre-recorded demo clips
 4. Continue with explanation of what WOULD happen
