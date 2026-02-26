@@ -3,14 +3,7 @@ agent: agent
 model: "GPT-5 mini"
 description: "Stage changes, create a conventional commit, push to the current branch, and optionally open a pull request to main using the GitHub MCP server."
 argument-hint: "Provide a commit message or leave blank to auto-generate from the diff."
-tools:
-  - execute/runInTerminal
-  - read
-  - search/codebase
-  - vscode/askQuestions
-  - github/get_file_contents
-  - github/search_pull_requests
-  - github/create_pull_request
+[vscode/askQuestions, execute/runInTerminal, read, search/codebase, github/add_reply_to_pull_request_comment, github/create_branch, github/create_pull_request, github/create_pull_request_with_copilot, github/get_commit, github/get_copilot_job_status, github/get_file_contents, github/get_label, github/get_latest_release, github/get_me, github/issue_read, github/issue_write, github/list_branches, github/list_commits, github/list_issue_types, github/list_issues, github/list_pull_requests, github/pull_request_read, github/pull_request_review_write, github/push_files, github/request_copilot_review, github/search_code, github/search_pull_requests, github/sub_issue_write, github/update_pull_request, github/update_pull_request_branch]
 ---
 
 # Git Commit, Push & PR
