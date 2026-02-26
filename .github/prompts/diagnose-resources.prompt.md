@@ -1,7 +1,7 @@
 ---
-description: 'Diagnose Azure resource health issues and generate a remediation report'
-agent: 'Diagnose'
-model: 'GPT-5.3-Codex'
+description: "Diagnose Azure resource health issues and generate a remediation report"
+agent: "09-Diagnose"
+model: "GPT-5.3-Codex"
 tools:
   - read/readFile
   - edit/createFile
@@ -33,10 +33,10 @@ with remediation steps.
 
 ## Inputs
 
-| Variable | Description | Default |
-| --- | --- | --- |
-| `${input:resourceGroup}` | Target resource group name | Required |
-| `${input:projectName}` | Project name for report output folder | Same as resource group |
+| Variable                 | Description                           | Default                |
+| ------------------------ | ------------------------------------- | ---------------------- |
+| `${input:resourceGroup}` | Target resource group name            | Required               |
+| `${input:projectName}`   | Project name for report output folder | Same as resource group |
 
 ## Workflow
 
@@ -54,13 +54,13 @@ Present the resource inventory and confirm scope with user.
 
 Run resource-type-specific health checks:
 
-| Resource Type | Key Metrics |
-| --- | --- |
-| Web App / Function | Http5xx, ResponseTime, availability |
-| VM | CPU%, Memory%, disk IO, boot diagnostics |
-| Storage | Availability, Latency, transaction errors |
-| SQL Database | DTU%, CPU%, Storage%, deadlocks |
-| Key Vault | ServiceApiHit, ServiceApiLatency |
+| Resource Type      | Key Metrics                               |
+| ------------------ | ----------------------------------------- |
+| Web App / Function | Http5xx, ResponseTime, availability       |
+| VM                 | CPU%, Memory%, disk IO, boot diagnostics  |
+| Storage            | Availability, Latency, transaction errors |
+| SQL Database       | DTU%, CPU%, Storage%, deadlocks           |
+| Key Vault          | ServiceApiHit, ServiceApiLatency          |
 
 Present health summary with severity ratings (Critical/Warning/Healthy).
 

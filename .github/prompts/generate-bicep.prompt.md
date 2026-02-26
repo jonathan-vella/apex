@@ -1,6 +1,6 @@
 ---
 description: "Generate production-ready Bicep templates from the implementation plan"
-agent: "Bicep Code"
+agent: "06b-Bicep CodeGen"
 model: "GPT-5.3-Codex"
 tools:
   - read/readFile
@@ -9,10 +9,7 @@ tools:
   - execute/runInTerminal
   - search/codebase
   - agent
-  - bicep/list_avm_metadata
-  - bicep/get_az_resource_type_schema
-  - bicep/get_bicep_file_diagnostics
-  - bicep/format_bicep_file
+  - "bicep/*"
 argument-hint: Provide the project name to generate Bicep templates for
 ---
 

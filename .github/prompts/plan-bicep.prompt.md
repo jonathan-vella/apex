@@ -1,6 +1,6 @@
 ---
 description: "Create a Bicep implementation plan with governance discovery"
-agent: "Bicep Plan"
+agent: "05b-Bicep Planner"
 model: "Claude Opus 4.6"
 tools:
   - read/readFile
@@ -8,8 +8,7 @@ tools:
   - edit/editFiles
   - execute/runInTerminal
   - search/codebase
-  - bicep/list_avm_metadata
-  - bicep/get_az_resource_type_schema
+  - "bicep/*"
 argument-hint: Provide the project name to plan implementation for
 ---
 
