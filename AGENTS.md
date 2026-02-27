@@ -157,7 +157,7 @@ Always run `npm run lint:md` and relevant validations before committing.
 
 ```text
 .github/
-  agents/              # Agent definitions (*.agent.md) — 13 top-level + 9 subagents
+  agents/              # Agent definitions (*.agent.md) — 14 top-level + 9 subagents
     _subagents/        # Subagent definitions (non-user-invokable)
   skills/              # Reusable domain knowledge (SKILL.md per skill)
   instructions/        # File-type rules with glob-based auto-application

@@ -36,7 +36,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 ## Current Architecture (as of 2026-02-26)
 
-### Agents (13 top-level + 9 subagents)
+### Agents (14 top-level + 9 subagents)
 
 | Agent                | Purpose                                      |
 | -------------------- | -------------------------------------------- |
@@ -53,6 +53,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `as-built`           | Step 7 workload documentation suite          |
 | `diagnose`           | Post-deployment health diagnostics           |
 | `challenger`         | Adversarial review of requirements and plans |
+| `context-optimizer`  | Context window audit and token waste report  |
 
 ### Subagents (in `_subagents/`)
 
@@ -68,7 +69,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
 | `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
-### Skills (14 total)
+### Skills (15 total)
 
 | Skill                      | Category            | Purpose                                    |
 | -------------------------- | ------------------- | ------------------------------------------ |
@@ -78,6 +79,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `azure-defaults`           | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags   |
 | `azure-diagrams`           | Document Creation   | Python architecture diagrams               |
 | `azure-troubleshooting`    | Troubleshooting     | KQL templates, health checks, remediation  |
+| `context-optimizer`        | Agent Optimization  | Context window audit, token waste reduction |
 | `docs-writer`              | Documentation       | Repo-aware docs maintenance                |
 | `git-commit`               | Tool Integration    | Commit conventions                         |
 | `github-operations`        | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
