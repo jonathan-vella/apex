@@ -69,7 +69,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
 | `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
-### Skills (15 total)
+### Skills (16 total)
 
 | Skill                      | Category            | Purpose                                    |
 | -------------------------- | ------------------- | ------------------------------------------ |
@@ -83,6 +83,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `docs-writer`              | Documentation       | Repo-aware docs maintenance                |
 | `git-commit`               | Tool Integration    | Commit conventions                         |
 | `github-operations`        | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
+| `golden-principles`        | Agent Conventions   | 10 operating invariants for all agents     |
 | `make-skill-template`      | Meta                | Skill creation helper                      |
 | `microsoft-code-reference` | Docs Integration    | SDK method verification, code samples      |
 | `microsoft-docs`           | Docs Integration    | Official Microsoft documentation queries   |

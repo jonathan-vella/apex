@@ -40,8 +40,9 @@ and prompt trimming — without losing any context that matters.
 
 Read these before doing ANY work:
 
-1. **Read** `AGENTS.md` — project map and agent roster
-2. **Read** `.github/skills/context-optimizer/SKILL.md` — analysis methodology,
+1. **Read** `.github/skills/golden-principles/SKILL.md` — the 10 operating invariants
+2. **Read** `AGENTS.md` — project map and agent roster
+3. **Read** `.github/skills/context-optimizer/SKILL.md` — analysis methodology,
    log parsing patterns, and report template
 
 ## What This Agent Does
