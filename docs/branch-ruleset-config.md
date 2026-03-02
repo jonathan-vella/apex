@@ -17,7 +17,7 @@ The following CI jobs must pass before a PR can merge:
 | `lint`                       | `lint.yml`                    | Markdown, JSON, template lint                   |
 | `Validate Agents & Skills`   | `agent-validation.yml`        | Agent frontmatter, skills, MCP                  |
 | `policy-compliance-check`    | `policy-compliance-check.yml` | Governance guardrail integrity                  |
-| `Terraform Support Complete` | `tf-dev-merge-gate.yml`       | Blocks `tf-dev` until all 8 phases are complete |
+| `Terraform Support Complete` | `terraform-support-gate.yml`  | Always-passing gate; original tf-dev gate is retired |
 
 ## Configuration via `gh api`
 
