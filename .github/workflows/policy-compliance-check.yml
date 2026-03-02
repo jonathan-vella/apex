@@ -56,6 +56,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "latest"
+
       - name: Install Python linting tools
         run: pip install ruff
 
