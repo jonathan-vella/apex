@@ -16,6 +16,7 @@ on:
       - ".github/agents/06t-terraform-codegen.agent.md"
       - ".github/agents/_subagents/terraform-review-subagent.agent.md"
       - ".github/instructions/terraform-policy-compliance.instructions.md"
+      - ".github/data/**"
   push:
     branches: [main, feature/*]
     paths:
@@ -54,6 +55,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "latest"
 
       - name: Install Python linting tools
         run: pip install ruff

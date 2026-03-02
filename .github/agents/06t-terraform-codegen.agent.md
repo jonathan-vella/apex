@@ -176,6 +176,21 @@ Read these for context:
 - `04-governance-constraints.json` — machine-actionable policy data for compliance mapping
 - `02-architecture-assessment.md` — tier/SKU recommendations and WAF considerations
 
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 3 files at startup (`00-session-state.json` + `04-implementation-plan.md` + `04-governance-constraints.json`)
+- **My step**: 5
+- **Sub-step checkpoints**: `phase_1_preflight` → `phase_1.5_governance` →
+  `phase_2_scaffold` → `phase_3_modules` → `phase_4_lint` →
+  `phase_5_challenger` → `phase_6_artifact`
+- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.5.status`
+  is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_modules`,
+  preflight and governance are done — read `04-preflight-check.md` on-demand and continue module coding).
+- **State writes**: Update `00-session-state.json` after each phase. On completion, set
+  `steps.5.status = "complete"` and list all generated Terraform files in `steps.5.artifacts`.
+
 ## Workflow
 
 ### Phase 1: Preflight Check (MANDATORY)

@@ -22,6 +22,7 @@
     "lint:instruction-frontmatter": "node scripts/validate-instruction-frontmatter.mjs",
     "lint:governance-refs": "node scripts/validate-governance-refs.mjs",
     "validate:instruction-refs": "node scripts/validate-instruction-references.mjs",
+    "validate:session-state": "node scripts/validate-session-state.mjs",
     "lint:prose": "vale --config .vale.ini docs/ .github/ README.md || echo 'Vale not installed - run: brew install vale'",
     "lint:json": "node scripts/lint-json.mjs",
     "lint:yaml": "find . \\( -name '*.yml' -o -name '*.yaml' \\) ! -path './node_modules/*' ! -path './infra/*' -exec yamllint -c .yamllint.yml {} \\; 2>/dev/null || echo 'yamllint not installed - run: pip install yamllint'",
@@ -33,7 +34,7 @@
     "validate:agents": "npm run lint:agent-frontmatter && npm run lint:skills-format",
     "test:1109": "npm run validate:vscode && npm run validate:agents && echo '✅ VS Code 1.109 validation passed'",
     "fetch:deprecations": "node scripts/fetch-azure-deprecations.mjs",
-    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:mcp-config && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:governance-refs && npm run validate:instruction-refs && npm run lint:json && npm run lint:python && npm run lint:terraform-fmt && npm run validate:terraform && echo '✅ All validations passed'"
+    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:mcp-config && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:governance-refs && npm run validate:instruction-refs && npm run validate:session-state && npm run lint:json && npm run lint:python && npm run lint:terraform-fmt && npm run validate:terraform && echo '✅ All validations passed'"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

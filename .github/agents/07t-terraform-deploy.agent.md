@@ -148,6 +148,19 @@ Before starting, validate:
 2. `05-implementation-reference.md` exists in `agent-output/{project}/`
 3. If either missing, STOP and request handoff to Terraform Code agent
 
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 2 files at startup (`00-session-state.json` + `05-implementation-reference.md`)
+- **My step**: 6
+- **Sub-step checkpoints**: `phase_1_auth` → `phase_2_preview` → `phase_3_deploy` → `phase_4_verify` → `phase_5_artifact`
+- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.6.status`
+  is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_deploy`,
+  auth and plan preview are already done — proceed to terraform apply).
+- **State writes**: Update `00-session-state.json` after each phase. On completion, set
+  `steps.6.status = "complete"` and list deployment outputs in `steps.6.artifacts`.
+
 ## Deployment Workflow
 
 ### Step 1: Azure CLI Authentication Validation

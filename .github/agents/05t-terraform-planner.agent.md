@@ -166,6 +166,21 @@ If missing, STOP and request handoff to Architect agent.
 Read `02-architecture-assessment.md` for: resource list, SKU/tier recommendations, WAF
 scores, architecture decisions, and compliance requirements.
 
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
+- **My step**: 4
+- **Sub-step checkpoints**: `phase_1_governance` → `phase_2_avm` →
+  `phase_3_plan` → `phase_3.5_strategy` → `phase_4_diagrams` →
+  `phase_5_challenger` → `phase_6_artifact`
+- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.4.status`
+  is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_plan`,
+  governance is already done — read `04-governance-constraints.json` on-demand and proceed to planning).
+- **State writes**: Update `00-session-state.json` after each phase. On completion, set
+  `steps.4.status = "complete"` and populate `decisions.deployment_strategy`.
+
 ## Core Workflow
 
 ### Phase 1: Governance Discovery (MANDATORY GATE)

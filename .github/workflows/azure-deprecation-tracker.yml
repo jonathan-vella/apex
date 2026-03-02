@@ -75,6 +75,13 @@ jobs:
           labels: |
             automation
             dependencies
+        id: cpr
+
+      - name: Enable auto-merge on deprecation PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
 
       - name: Log deprecation summary
         if: steps.changes.outputs.changed == 'true'

@@ -302,3 +302,4 @@ gh search issues "label:bug is:open" --repo owner/repo
 - GitHub CLI Manual: https://cli.github.com/manual/
 - REST API: https://docs.github.com/en/rest
 - GraphQL API: https://docs.github.com/en/graphql
+- Commit conventions: `.github/skills/git-commit/SKILL.md`

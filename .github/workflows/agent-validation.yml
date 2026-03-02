@@ -28,6 +28,7 @@ on:
       - ".devcontainer/devcontainer.json"
       - ".vscode/mcp.json"
       - ".vscode/extensions.json"
+      - ".github/data/**"
   workflow_dispatch:
 
 permissions:

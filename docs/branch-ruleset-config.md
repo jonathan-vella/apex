@@ -12,12 +12,11 @@ enforce quality gates before merging to `main`.
 
 The following CI jobs must pass before a PR can merge:
 
-| Job Name                     | Workflow File                 | Purpose                                         |
-| ---------------------------- | ----------------------------- | ----------------------------------------------- |
-| `lint`                       | `lint.yml`                    | Markdown, JSON, template lint                   |
-| `Validate Agents & Skills`   | `agent-validation.yml`        | Agent frontmatter, skills, MCP                  |
-| `policy-compliance-check`    | `policy-compliance-check.yml` | Governance guardrail integrity                  |
-| `Terraform Support Complete` | `tf-dev-merge-gate.yml`       | Blocks `tf-dev` until all 8 phases are complete |
+| Job Name                     | Workflow File                 | Purpose                                              |
+| ---------------------------- | ----------------------------- | ---------------------------------------------------- |
+| `lint`                     | `lint.yml`                    | Markdown, JSON, template lint  |
+| `Validate Agents & Skills` | `agent-validation.yml`        | Agent frontmatter, skills, MCP |
+| `policy-compliance-check`  | `policy-compliance-check.yml` | Governance guardrail integrity |
 
 ## Configuration via `gh api`
 
@@ -59,8 +58,7 @@ The following CI jobs must pass before a PR can merge:
         "required_status_checks": [
           { "context": "lint" },
           { "context": "Validate Agents & Skills" },
-          { "context": "policy-compliance-check" },
-          { "context": "Terraform Support Complete" }
+          { "context": "policy-compliance-check" }
         ]
       }
     }
@@ -115,8 +113,7 @@ gh api \
         "required_status_checks": [
           { "context": "lint" },
           { "context": "Validate Agents & Skills" },
-          { "context": "policy-compliance-check" },
-          { "context": "Terraform Support Complete" }
+          { "context": "policy-compliance-check" }
         ]
       }
     }
@@ -134,7 +131,6 @@ EOF
 2. Under **Require status checks to pass** → add the missing checks:
    - `Validate Agents & Skills`
    - `policy-compliance-check`
-   - `Terraform Support Complete`
 3. Click **Save changes**
 
 ## Verification
@@ -152,5 +148,4 @@ Expected output:
 lint
 Validate Agents & Skills
 policy-compliance-check
-Terraform Support Complete
 ```
