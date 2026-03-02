@@ -16,6 +16,7 @@ on:
       - ".github/agents/06t-terraform-codegen.agent.md"
       - ".github/agents/_subagents/terraform-review-subagent.agent.md"
       - ".github/instructions/terraform-policy-compliance.instructions.md"
+      - ".github/data/**"
   push:
     branches: [main, feature/*]
     paths:
