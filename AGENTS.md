@@ -47,6 +47,7 @@ npm run lint:artifact-templates          # Artifact template compliance
 npm run lint:h2-sync                     # H2 heading sync between templates and artifacts
 npm run lint:governance-refs             # Governance reference validation
 npm run validate:instruction-refs        # Instruction reference validation
+npm run validate:session-state           # Session state JSON schema validation
 
 # Bicep validation (replace {project} with actual project name)
 bicep build infra/bicep/{project}/main.bicep
@@ -163,7 +164,7 @@ Always run `npm run lint:md` and relevant validations before committing.
   instructions/        # File-type rules with glob-based auto-application
   copilot-instructions.md  # VS Code Copilot-specific orchestration instructions
 agent-output/          # All agent-generated artifacts organized by project
-  {project}/           # Per-project: 01-requirements.md through 07-*.md
+  {project}/           # Per-project: 00-session-state.json + 01-requirements.md through 07-*.md
 infra/
   bicep/{project}/     # Bicep templates (main.bicep + modules/)
   terraform/{project}/ # Terraform configurations (main.tf + modules/)

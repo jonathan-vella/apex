@@ -156,8 +156,9 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 
 **After confirming the project name**, read:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
+1. **Read** `.github/skills/session-resume/SKILL.md` — JSON state schema, context budgets, resume protocol
+2. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
+3. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
 
 ## Core Principles
 
@@ -175,8 +176,10 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 - ✅ Track progress by checking artifact files in `agent-output/{project}/`
 - ✅ Summarize subagent results concisely (don't dump raw output)
 - ✅ Create `agent-output/{project}/` directory at project start
+- ✅ Create `agent-output/{project}/00-session-state.json` from template at project start
 - ✅ Ensure `agent-output/{project}/README.md` exists — Requirements agent creates it, all agents update it
 - ✅ Write `agent-output/{project}/00-handoff.md` at EVERY gate before presenting it to the user
+- ✅ Update `agent-output/{project}/00-session-state.json` at EVERY gate (machine source of truth)
 
 ### DON'T
 
@@ -187,6 +190,7 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 - ❌ Include raw subagent dumps — summarize and present key findings
 - ❌ Combine multiple steps without approval between them
 - ❌ Skip writing `00-handoff.md` — it is the context seed for thread resumption
+- ❌ Skip updating `00-session-state.json` — it is the machine-readable state for resume
 
 ## The 7-Step Workflow
 
@@ -216,7 +220,7 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 
 > [!IMPORTANT]
 > **Write `00-handoff.md` at every gate before presenting it to the user.**
-> See [Phase Handoff Document](01-conductor.agent.md#phase-handoff-document) for the format.
+> See [Phase Handoff Document](#phase-handoff-document) for the format.
 > This enables the user to start a fresh chat thread at any gate without losing context.
 
 ### Gate 1: After Requirements
@@ -396,41 +400,49 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
    - Example question: _"What should I name the project folder? This will be used for `agent-output/{name}/` and `infra/{iac_tool}/{name}/`."_
    - NEVER silently pick a name — the user must always confirm or override
 2. Create `agent-output/{project-name}/`
-3. Delegate to Requirements agent for Step 1 (creates initial `README.md` from PROJECT-README template)
-4. Wait for Gate 1 approval
+3. Create `agent-output/{project-name}/00-session-state.json` from
+   `.github/skills/azure-artifacts/templates/00-session-state.template.json`
+   — set `project`, `branch`, `updated`, and `current_step: 1`
+4. Delegate to Requirements agent for Step 1 (creates initial `README.md` from PROJECT-README template)
+5. Wait for Gate 1 approval
 
 ## Resuming a Project
 
-1. **Check for `00-handoff.md`** — if it exists in `agent-output/{project}/`, read it first.
-   It gives you the current step, key decisions, and open findings in one compact read.
-   Skip re-reading completed artifact files that are already summarised there.
-2. If `00-handoff.md` is absent, check existing artifacts in `agent-output/{project-name}/`
+1. **Check for `00-session-state.json`** — if it exists in `agent-output/{project}/`, read it first.
+   It is the machine-readable source of truth: current step, sub-step checkpoint,
+   key decisions, IaC tool, and artifact inventory. Use it to determine exactly where
+   to resume without re-reading completed artifacts.
+2. **Check for `00-handoff.md`** — if `00-session-state.json` is missing but `00-handoff.md`
+   exists, parse it for the completed-steps checklist and key decisions.
+3. If both are absent, scan existing artifacts in `agent-output/{project-name}/`
    and identify the last completed step from artifact numbering.
-3. Present a brief status summary and offer to continue from the next step.
+4. Present a brief status summary and offer to continue from the next step.
+5. If resuming mid-step (JSON state shows `in_progress` with a `sub_step` value),
+   delegate to the appropriate agent with context: _"Resume Step {N} from checkpoint {sub_step}."_
 
 > [!TIP]
 > **Starting a new chat thread mid-workflow?**
-> Ask the user to open a fresh chat and begin with:
-> _"Resume project `{project}` from Step {N}. Read `agent-output/{project}/00-handoff.md` for current state."_
-> This sidesteps the `summarizeConversationHistory` trigger caused by large accumulated history.
+> The agent auto-detects progress from `00-session-state.json`. Just invoke the
+> Conductor with the project name — no special resume prompt needed.
 
 ## Artifact Tracking
 
-| Step | Artifact                            | Check                                 |
-| ---- | ----------------------------------- | ------------------------------------- |
-| —    | `README.md`                         | Exists? (mandatory)                   |
-| —    | `00-handoff.md`                     | Updated at every gate? (context seed) |
-| 1    | `01-requirements.md`                | Exists?                               |
-| 2    | `02-architecture-assessment.md`     | Exists?                               |
-| 3    | `03-des-*.md`, `03-des-*.py`        | Optional                              |
-| 4    | `04-implementation-plan.md`         | Exists?                               |
-| 4    | `04-governance-constraints.md`      | Governance checked?                   |
-| 4    | `04-dependency-diagram.py` / `.png` | Generated?                            |
-| 4    | `04-runtime-diagram.py` / `.png`    | Generated?                            |
-| 5    | `infra/bicep/{project}/`            | Templates valid? (Bicep path)         |
-| 5    | `infra/terraform/{project}/`        | Configuration valid? (Terraform path) |
-| 6    | `06-deployment-summary.md`          | Deployed?                             |
-| 7    | `07-*.md`                           | Docs generated?                       |
+| Step | Artifact                            | Check                                    |
+| ---- | ----------------------------------- | ---------------------------------------- |
+| —    | `README.md`                         | Exists? (mandatory)                      |
+| —    | `00-handoff.md`                     | Updated at every gate? (human companion) |
+| —    | `00-session-state.json`             | Updated at every gate? (machine state)   |
+| 1    | `01-requirements.md`                | Exists?                                  |
+| 2    | `02-architecture-assessment.md`     | Exists?                                  |
+| 3    | `03-des-*.md`, `03-des-*.py`        | Optional                                 |
+| 4    | `04-implementation-plan.md`         | Exists?                                  |
+| 4    | `04-governance-constraints.md`      | Governance checked?                      |
+| 4    | `04-dependency-diagram.py` / `.png` | Generated?                               |
+| 4    | `04-runtime-diagram.py` / `.png`    | Generated?                               |
+| 5    | `infra/bicep/{project}/`            | Templates valid? (Bicep path)            |
+| 5    | `infra/terraform/{project}/`        | Configuration valid? (Terraform path)    |
+| 6    | `06-deployment-summary.md`          | Deployed?                                |
+| 7    | `07-*.md`                           | Docs generated?                          |
 
 ## Model Selection
 

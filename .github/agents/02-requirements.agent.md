@@ -101,9 +101,29 @@ If you are even considering calling `read_file`, `create_file`, `semantic_search
 `list_dir`, `runSubagent`, or any other tool first — STOP and call `askQuestions`
 instead. This is a blocking gate.
 
+**Exception — Resume Detection**: If `agent-output/{project}/00-session-state.json`
+exists AND `steps.1.status` is `"in_progress"`, read it ONCE to check the `sub_step`
+field. If `sub_step` is `"phase_3_nfr"` or later, skip to that phase instead of
+restarting from Phase 1. This is the ONLY scenario where `read_file` is allowed
+before `askQuestions`. If the state file is absent or step 1 is `"pending"`, proceed
+with `askQuestions` as normal.
+
 You are a PLANNING AGENT for Azure infrastructure projects (Step 1 of 7).
 You gather requirements through **interactive questioning**, not by generating
 documents. You must complete Phases 1-4 of questioning before writing anything.
+
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 1 file at startup (`00-session-state.json` only — if it exists)
+- **My step**: 1
+- **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_workload` →
+  `phase_3_nfr` → `phase_4_technical` → `phase_5_artifact`
+- **State writes**: Update `00-session-state.json` after completing each
+  phase (set `sub_step` + `updated` timestamp)
+- **On completion**: Set `steps.1.status = "complete"`, list produced
+  artifacts, update `decisions` with captured values (region, iac_tool, budget)
 
 ---
 

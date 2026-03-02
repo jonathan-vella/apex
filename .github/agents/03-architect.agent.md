@@ -137,6 +137,19 @@ Verify these are documented — **ask user via `askQuestions` if missing**:
 | Budget     | Approximate monthly budget         | Ask for range              |
 | Scale      | Users, transactions, data volume   | Ask for growth projections |
 
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 2 files at startup (`00-session-state.json` + `01-requirements.md`)
+- **My step**: 2
+- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_waf` → `phase_3_cost` → `phase_4_challenger` → `phase_5_artifact`
+- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.2.status`
+  is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_cost`,
+  skip WAF assessment re-generation and proceed to cost estimation).
+- **State writes**: Update `00-session-state.json` after each phase. On completion, set
+  `steps.2.status = "complete"` and populate `decisions` with architecture pattern and budget.
+
 ## MANDATORY: Read Skills (After Prerequisites, Before Assessment)
 
 **After prerequisites are confirmed**, read these skills for configuration and template structure:

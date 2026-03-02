@@ -147,6 +147,18 @@ This step is **optional**. Users can skip directly to Step 4 (Implementation Pla
 Before starting, validate `02-architecture-assessment.md` exists in `agent-output/{project}/`.
 If missing, STOP and request handoff to Architect agent.
 
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
+- **My step**: 3
+- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_diagram` → `phase_3_adr` → `phase_4_artifact`
+- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.3.status`
+  is `"in_progress"` with a `sub_step`, skip to that checkpoint.
+- **State writes**: Update `00-session-state.json` after each phase. On completion, set
+  `steps.3.status = "complete"` and list all `03-des-*` artifacts.
+
 ## Workflow
 
 ### Diagram Generation

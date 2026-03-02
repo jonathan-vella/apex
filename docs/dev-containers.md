@@ -98,7 +98,57 @@ Press `F1` → **Dev Containers: Reopen in Container**
 
 First build takes 2-5 minutes. Subsequent opens are instant.
 
-### Step 4: Verify Setup
+### Step 4: GitHub CLI Authentication (PAT)
+
+HTTPS-based `gh auth login` can fail inside devcontainers on some platforms (Windows, ARM, WSL 2).
+The recommended approach is a **Personal Access Token (PAT)** set as a host environment variable.
+The container reads it automatically — no `gh auth login` required inside the container.
+
+#### Create a Fine-Grained PAT
+
+1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**
+2. Click **Generate new token**
+3. Set expiry (90 days recommended; rotate via calendar reminder)
+4. **Repository access**: All repositories, or select specific ones
+5. **Permissions** — minimum required:
+
+   | Permission    | Level      |
+   | ------------- | ---------- |
+   | Contents      | Read/Write |
+   | Metadata      | Read       |
+   | Pull requests | Read/Write |
+   | Issues        | Read/Write |
+   | Workflows     | Read/Write |
+
+6. Copy the token (`ghp_...` or `github_pat_...`)
+
+#### Set it on your host machine (once per machine)
+
+```bash
+# Linux / macOS — add to ~/.bashrc, ~/.zshrc, or ~/.profile, then reload
+export GH_TOKEN=ghp_your_token_here
+```
+
+```powershell
+# Windows PowerShell — user-scoped, survives reboots
+[System.Environment]::SetEnvironmentVariable('GH_TOKEN', 'ghp_your_token_here', 'User')
+```
+
+The devcontainer is already configured to forward `GH_TOKEN` from your host into the container
+(`"GH_TOKEN": "${localEnv:GH_TOKEN}"` in `devcontainer.json`). If the variable is not set,
+`gh` falls back to its normal interactive auth flow.
+
+#### Verify inside the container
+
+```bash
+gh auth status
+# Expected: ✓ Logged in to github.com as <your-username> (token)
+```
+
+> **Token rotation**: When your PAT expires, update the env var on each host machine and
+> rebuild the container (`F1 → Dev Containers: Rebuild Container`).
+
+### Step 5: Verify Setup
 
 ```bash
 az --version && bicep --version && pwsh --version

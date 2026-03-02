@@ -138,6 +138,20 @@ Before starting, validate these artifacts exist in `agent-output/{project}/`:
 
 If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 
+## Session State Protocol
+
+**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+
+- **Context budget**: 3 files at startup (`00-session-state.json` + `06-deployment-summary.md` + `01-requirements.md`)
+- **My step**: 7
+- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_inventory` →
+  `phase_3_docs` → `phase_4_cost` → `phase_5_diagram` → `phase_6_index`
+- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.7.status`
+  is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_docs`,
+  inventory is done — read `07-resource-inventory.md` on-demand and continue doc generation).
+- **State writes**: Update `00-session-state.json` after each phase. On completion, set
+  `steps.7.status = "complete"` and list all generated `07-*.md` files in `steps.7.artifacts`.
+
 ## Core Workflow
 
 ### Phase 1: Context Gathering
