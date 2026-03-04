@@ -111,3 +111,14 @@ When translating Azure Policy `Deny` constraints to IaC:
 | Terraform policy compliance   | `instructions/terraform-policy-compliance.instructions.md`    |
 | Bootstrap backend templates   | `terraform-patterns/references/bootstrap-backend-template.md` |
 | Deploy script templates       | `terraform-patterns/references/deploy-script-template.md`     |
+| Circuit breaker               | `references/circuit-breaker.md`                               |
+
+## Circuit Breaker
+
+Deploy agents MUST read `references/circuit-breaker.md` before starting
+any deployment. It defines:
+
+- **Failure taxonomy**: 6 categories (build, validation, deployment, empty, timeout, auth)
+- **Anomaly patterns**: detection thresholds for repetitive failures
+- **Stopping rule**: 3 consecutive same-type failures → halt + escalate
+- **Escalation protocol**: write to session state, notify user, wait for guidance

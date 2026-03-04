@@ -1,6 +1,6 @@
 {
   "name": "azure-agentic-infraops",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Agentic InfraOps - Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.",
   "private": true,
   "scripts": {
@@ -41,7 +41,12 @@
     "lint:glob-audit": "node scripts/validate-glob-audit.mjs",
     "lint:skill-references": "node scripts/validate-skill-references.mjs",
     "lint:orphaned-content": "node scripts/validate-orphaned-content.mjs",
-    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:mcp-config && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:governance-refs && npm run validate:instruction-refs && npm run validate:session-state && npm run lint:json && npm run lint:python && npm run lint:terraform-fmt && npm run validate:terraform && npm run lint:skill-size && npm run lint:agent-body-size && npm run lint:glob-audit && npm run lint:skill-references && npm run lint:orphaned-content && npm run lint:docs-freshness && echo '✅ All validations passed'"
+    "validate:session-lock": "node scripts/validate-session-lock.mjs",
+    "validate:workflow-graph": "node scripts/validate-workflow-graph.mjs",
+    "validate:agent-registry": "node scripts/validate-agent-registry.mjs",
+    "validate:mcp-scoping": "node scripts/validate-mcp-scoping.mjs",
+    "validate:skill-affinity": "node scripts/validate-skill-affinity.mjs",
+    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:mcp-config && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:governance-refs && npm run validate:instruction-refs && npm run validate:session-state && npm run validate:session-lock && npm run validate:workflow-graph && npm run validate:agent-registry && npm run validate:mcp-scoping && npm run validate:skill-affinity && npm run lint:json && npm run lint:python && npm run lint:terraform-fmt && npm run validate:terraform && npm run lint:skill-size && npm run lint:agent-body-size && npm run lint:glob-audit && npm run lint:skill-references && npm run lint:orphaned-content && npm run lint:docs-freshness && echo '✅ All validations passed'"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

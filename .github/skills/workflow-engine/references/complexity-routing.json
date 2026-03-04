@@ -1,0 +1,118 @@
+{
+  "$schema": "complexity-routing-v1",
+  "description": "Maps each workflow step and subagent to a complexity tier and recommended model",
+  "tiers": {
+    "low": {
+      "model": "Claude Haiku 4.5",
+      "description": "Fast, cost-efficient — for validation, linting, simple lookups"
+    },
+    "medium": {
+      "model": "Claude Sonnet 4.6",
+      "description": "Balanced — for reviews, governance discovery, structured analysis"
+    },
+    "high": {
+      "model": "Claude Opus 4.6",
+      "description": "Maximum capability — for complex reasoning, architecture, planning"
+    }
+  },
+  "steps": {
+    "step-1": {
+      "name": "Requirements",
+      "agent": "02-Requirements",
+      "tier": "high",
+      "rationale": "Deep discovery, multi-phase questioning, NFR extraction"
+    },
+    "step-2": {
+      "name": "Architecture",
+      "agent": "03-Architect",
+      "tier": "high",
+      "rationale": "WAF analysis, trade-off reasoning, cost estimation orchestration"
+    },
+    "step-3": {
+      "name": "Design",
+      "agent": "04-Design",
+      "tier": "medium",
+      "rationale": "Diagram generation and ADR writing — structured output"
+    },
+    "step-4b": {
+      "name": "Bicep Plan",
+      "agent": "05b-Bicep Planner",
+      "tier": "high",
+      "rationale": "AVM module selection, dependency analysis, governance mapping"
+    },
+    "step-4t": {
+      "name": "Terraform Plan",
+      "agent": "05t-Terraform Planner",
+      "tier": "high",
+      "rationale": "AVM-TF module selection, dependency analysis, governance mapping"
+    },
+    "step-5b": {
+      "name": "Bicep Code",
+      "agent": "06b-Bicep CodeGen",
+      "tier": "high",
+      "rationale": "Complex code generation with AVM, policy compliance, multi-module"
+    },
+    "step-5t": {
+      "name": "Terraform Code",
+      "agent": "06t-Terraform CodeGen",
+      "tier": "high",
+      "rationale": "Complex code generation with AVM-TF, policy compliance, multi-module"
+    },
+    "step-6b": {
+      "name": "Bicep Deploy",
+      "agent": "07b-Bicep Deploy",
+      "tier": "medium",
+      "rationale": "Deployment execution — structured CLI commands with error handling"
+    },
+    "step-6t": {
+      "name": "Terraform Deploy",
+      "agent": "07t-Terraform Deploy",
+      "tier": "medium",
+      "rationale": "Deployment execution — structured CLI commands with error handling"
+    },
+    "step-7": {
+      "name": "As-Built",
+      "agent": "08-As-Built",
+      "tier": "medium",
+      "rationale": "Documentation generation from deployed state — structured output"
+    }
+  },
+  "subagents": {
+    "challenger-review-subagent": {
+      "tier": "medium",
+      "rationale": "Adversarial review requires analytical reasoning"
+    },
+    "governance-discovery-subagent": {
+      "tier": "medium",
+      "rationale": "REST API calls and policy classification"
+    },
+    "cost-estimate-subagent": {
+      "tier": "low",
+      "rationale": "Pricing API lookups and structured calculation"
+    },
+    "bicep-lint-subagent": {
+      "tier": "low",
+      "rationale": "CLI command execution and output parsing"
+    },
+    "bicep-review-subagent": {
+      "tier": "medium",
+      "rationale": "Code review against standards"
+    },
+    "bicep-whatif-subagent": {
+      "tier": "low",
+      "rationale": "CLI command execution and output summarization"
+    },
+    "terraform-lint-subagent": {
+      "tier": "low",
+      "rationale": "CLI command execution and output parsing"
+    },
+    "terraform-review-subagent": {
+      "tier": "medium",
+      "rationale": "Code review against AVM-TF standards"
+    },
+    "terraform-plan-subagent": {
+      "tier": "low",
+      "rationale": "CLI command execution and change summarization"
+    }
+  }
+}

@@ -86,7 +86,8 @@ handoffs:
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
 3. **Read** `.github/skills/azure-diagrams/SKILL.md` — diagram generation contract
-4. **Read** the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
+4. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression for predecessor artifacts
+5. **Read** the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
    - `07-ab-cost-estimate.template.md`

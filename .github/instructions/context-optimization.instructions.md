@@ -87,3 +87,24 @@ Adjust per model. GPT-5.3-Codex has 128K, so budget is tighter.
 | Repeating instructions across agents | Single instruction file + `applyTo` glob   |
 | Reading entire files when grep works | Use `grep_search` for targeted extraction  |
 | No hand-offs in 30+ turn sessions    | Split at logical boundaries with subagents |
+
+## Runtime Compression
+
+When loading an artifact file, check conversation length. If estimated context
+usage exceeds 60% of the model limit, use the compression tier system from the
+`context-shredding` skill:
+
+1. **Read** `.github/skills/context-shredding/SKILL.md` for tier definitions
+2. Select tier: `full` (<60%), `summarized` (60-80%), `minimal` (>80%)
+3. Apply compression template for the specific artifact being loaded
+4. Compress older/less-critical artifacts first when loading multiple files
+
+## Skill Affinity
+
+Before reading a skill, check `.github/skill-affinity.json`:
+
+- **Primary** skills: load at startup (always needed for this agent)
+- **Secondary** skills: load on demand when the task context requires it
+- **Never** skills: do not load (wrong domain for this agent)
+
+This prevents agents from wasting context on irrelevant skills.

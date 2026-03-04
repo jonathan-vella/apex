@@ -305,3 +305,26 @@ gh search issues "label:bug is:open" --repo owner/repo
 - REST API: https://docs.github.com/en/rest
 - GraphQL API: https://docs.github.com/en/graphql
 - Commit conventions: `.github/skills/git-commit/SKILL.md`
+
+## Reference Index
+
+| Reference       | File                              | Content                                       |
+| --------------- | --------------------------------- | --------------------------------------------- |
+| Smart PR Flow   | `references/smart-pr-flow.md`     | PR lifecycle states, auto-labels, auto-merge  |
+
+## Smart PR Flow
+
+Automated PR lifecycle for infrastructure deployments. Defines label-based
+state tracking, auto-label rules on CI pass/fail, and a watchdog pattern
+for the deploy agent.
+
+For full details: **Read** `references/smart-pr-flow.md`
+
+### Quick Reference
+
+| Condition                       | Label Applied          |
+| ------------------------------- | ---------------------- |
+| CI passes                       | `infraops-ci-pass`     |
+| CI fails                        | `infraops-needs-fix`   |
+| Review approved                 | `infraops-reviewed`    |
+| Auto-merge (all gates pass)     | PR merged via MCP      |

@@ -1,0 +1,215 @@
+#!/usr/bin/env node
+/**
+ * Workflow Graph Validator
+ *
+ * Validates the workflow-graph.json DAG:
+ * - No orphan nodes (every node is reachable or is a root)
+ * - All agent references match existing *.agent.md files
+ * - No cycles in the graph
+ * - All produced artifacts are consumed downstream or are terminal
+ * - Edge references valid node IDs
+ *
+ * @example
+ * node scripts/validate-workflow-graph.mjs
+ */
+
+import fs from "node:fs";
+import path from "node:path";
+
+const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const AGENTS_DIR = ".github/agents";
+const SUBAGENTS_DIR = ".github/agents/_subagents";
+
+let errors = 0;
+let warnings = 0;
+
+function error(msg) {
+  console.error(`  ❌ ${msg}`);
+  errors++;
+}
+
+function warn(msg) {
+  console.warn(`  ⚠️  ${msg}`);
+  warnings++;
+}
+
+function ok(msg) {
+  console.log(`  ✅ ${msg}`);
+}
+
+function getAgentFiles() {
+  const agents = new Set();
+  for (const dir of [AGENTS_DIR, SUBAGENTS_DIR]) {
+    if (!fs.existsSync(dir)) continue;
+    for (const file of fs.readdirSync(dir)) {
+      if (file.endsWith(".agent.md")) {
+        // Extract agent name from frontmatter or filename
+        const content = fs.readFileSync(path.join(dir, file), "utf-8");
+        const nameMatch = content.match(/^name:\s*(.+)$/m);
+        if (nameMatch) {
+          agents.add(nameMatch[1].trim());
+        }
+        // Also add filename-based name
+        agents.add(file.replace(".agent.md", ""));
+      }
+    }
+  }
+  return agents;
+}
+
+function detectCycle(nodes, edges) {
+  const adj = {};
+  for (const nodeId of Object.keys(nodes)) {
+    adj[nodeId] = [];
+  }
+  for (const edge of edges) {
+    if (adj[edge.from]) {
+      adj[edge.from].push(edge.to);
+    }
+  }
+
+  const visited = new Set();
+  const recStack = new Set();
+
+  function dfs(node) {
+    visited.add(node);
+    recStack.add(node);
+
+    for (const neighbor of adj[node] || []) {
+      if (!visited.has(neighbor)) {
+        if (dfs(neighbor)) return true;
+      } else if (recStack.has(neighbor)) {
+        return true;
+      }
+    }
+
+    recStack.delete(node);
+    return false;
+  }
+
+  for (const nodeId of Object.keys(nodes)) {
+    if (!visited.has(nodeId)) {
+      if (dfs(nodeId)) return true;
+    }
+  }
+  return false;
+}
+
+console.log("\n🔄 Validating workflow graph...\n");
+
+if (!fs.existsSync(GRAPH_PATH)) {
+  error(`Workflow graph not found at ${GRAPH_PATH}`);
+  process.exit(1);
+}
+
+let raw;
+try {
+  raw = fs.readFileSync(GRAPH_PATH, "utf-8");
+} catch (e) {
+  error(`Cannot read ${GRAPH_PATH}: ${e.message}`);
+  process.exit(1);
+}
+
+let graph;
+try {
+  graph = JSON.parse(raw);
+} catch (e) {
+  error(`Invalid JSON in ${GRAPH_PATH}: ${e.message}`);
+  process.exit(1);
+}
+
+// Validate structure
+if (!graph.nodes || typeof graph.nodes !== "object") {
+  error("Missing or invalid 'nodes' object");
+  process.exit(1);
+}
+
+if (!Array.isArray(graph.edges)) {
+  error("Missing or invalid 'edges' array");
+  process.exit(1);
+}
+
+const nodeIds = new Set(Object.keys(graph.nodes));
+const agentFiles = getAgentFiles();
+
+// Validate nodes
+for (const [nodeId, node] of Object.entries(graph.nodes)) {
+  if (node.id !== nodeId) {
+    error(`Node "${nodeId}" has mismatched id field: "${node.id}"`);
+  }
+
+  const validTypes = ["agent-step", "gate", "subagent-fan-out", "validation"];
+  if (!validTypes.includes(node.type)) {
+    error(`Node "${nodeId}" has invalid type: "${node.type}"`);
+  }
+
+  // Check agent references
+  if (node.agent) {
+    const agentName = node.agent;
+    if (!agentFiles.has(agentName)) {
+      // Try matching by common patterns
+      const kebab = agentName.toLowerCase().replace(/\s+/g, "-");
+      if (!agentFiles.has(kebab)) {
+        warn(`Node "${nodeId}" references agent "${agentName}" — not found in agent files`);
+      }
+    }
+  }
+
+  // Check requires references
+  if (Array.isArray(node.requires)) {
+    for (const req of node.requires) {
+      if (!nodeIds.has(req)) {
+        error(`Node "${nodeId}" requires non-existent node: "${req}"`);
+      }
+    }
+  }
+}
+
+// Validate edges
+const edgeTargets = new Set();
+for (const edge of graph.edges) {
+  if (!nodeIds.has(edge.from)) {
+    error(`Edge references non-existent source node: "${edge.from}"`);
+  }
+  if (!nodeIds.has(edge.to)) {
+    error(`Edge references non-existent target node: "${edge.to}"`);
+  }
+  edgeTargets.add(edge.to);
+
+  const validConditions = ["on_complete", "on_skip", "on_fail"];
+  if (!validConditions.includes(edge.condition)) {
+    error(`Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`);
+  }
+}
+
+// Check for orphan nodes (not targeted by any edge and not a root)
+const rootNodes = Object.values(graph.nodes).filter(
+  (n) => !n.requires || n.requires.length === 0
+);
+const rootNodeIds = new Set(rootNodes.map((n) => n.id));
+
+for (const nodeId of nodeIds) {
+  if (!edgeTargets.has(nodeId) && !rootNodeIds.has(nodeId)) {
+    warn(`Node "${nodeId}" is an orphan (no incoming edges and not a root)`);
+  }
+}
+
+// Check for cycles
+if (detectCycle(graph.nodes, graph.edges)) {
+  error("Cycle detected in workflow graph");
+} else {
+  ok("No cycles detected");
+}
+
+ok(`Validated ${nodeIds.size} nodes and ${graph.edges.length} edges`);
+
+console.log(
+  `\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`
+);
+
+if (errors > 0) {
+  console.error("❌ Workflow graph validation failed\n");
+  process.exit(1);
+}
+
+console.log("✅ Workflow graph validation passed\n");

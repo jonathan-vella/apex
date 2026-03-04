@@ -197,6 +197,18 @@ commit-msg:
              fix(bicep): correct storage account naming
              docs: update README with deployment steps
 
+# Diff-based pre-push validation — runs only matching domain validators in parallel
+pre-push:
+  parallel: true
+  commands:
+    diff-based-check:
+      run: bash scripts/diff-based-push-check.sh
+      fail_text: |
+        ❌ Pre-push validation failed!
+
+        🔧 Run the failing validator manually to see details.
+        Only validators for changed file types were executed.
+
 # Post-commit validation checks (enforced)
 post-commit:
   commands:

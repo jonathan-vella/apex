@@ -1,0 +1,208 @@
+{
+  "$schema": "workflow-graph-v1",
+  "description": "7-step Azure infrastructure workflow DAG with Bicep and Terraform tracks",
+  "nodes": {
+    "step-1": {
+      "id": "step-1",
+      "type": "agent-step",
+      "name": "Requirements",
+      "agent": "02-Requirements",
+      "requires": [],
+      "produces": ["01-requirements.md"],
+      "gate": "approval",
+      "challenger": { "passes": 1, "lenses": ["comprehensive"] }
+    },
+    "gate-1": {
+      "id": "gate-1",
+      "type": "gate",
+      "name": "Requirements Approval",
+      "requires": ["step-1"],
+      "gate": "approval"
+    },
+    "step-2": {
+      "id": "step-2",
+      "type": "agent-step",
+      "name": "Architecture",
+      "agent": "03-Architect",
+      "requires": ["gate-1"],
+      "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md"],
+      "gate": "approval",
+      "challenger": { "passes": 3, "lenses": ["security", "reliability", "cost"] }
+    },
+    "gate-2": {
+      "id": "gate-2",
+      "type": "gate",
+      "name": "Architecture Approval",
+      "requires": ["step-2"],
+      "gate": "approval"
+    },
+    "step-3": {
+      "id": "step-3",
+      "type": "agent-step",
+      "name": "Design (optional)",
+      "agent": "04-Design",
+      "requires": ["gate-2"],
+      "produces": ["03-des-diagram.py", "03-des-adr-*.md"],
+      "gate": null,
+      "optional": true,
+      "challenger": null
+    },
+    "step-4b": {
+      "id": "step-4b",
+      "type": "agent-step",
+      "name": "Bicep Plan",
+      "agent": "05b-Bicep Planner",
+      "requires": ["gate-2"],
+      "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
+      "produces": [
+        "04-implementation-plan.md",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json",
+        "04-dependency-diagram.py",
+        "04-runtime-diagram.py"
+      ],
+      "gate": "approval",
+      "challenger": { "passes": 3, "lenses": ["security", "reliability", "cost"] }
+    },
+    "step-4t": {
+      "id": "step-4t",
+      "type": "agent-step",
+      "name": "Terraform Plan",
+      "agent": "05t-Terraform Planner",
+      "requires": ["gate-2"],
+      "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
+      "produces": [
+        "04-implementation-plan.md",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json",
+        "04-dependency-diagram.py",
+        "04-runtime-diagram.py"
+      ],
+      "gate": "approval",
+      "challenger": { "passes": 3, "lenses": ["security", "reliability", "cost"] }
+    },
+    "gate-3": {
+      "id": "gate-3",
+      "type": "gate",
+      "name": "Plan Approval",
+      "requires": ["step-4b", "step-4t"],
+      "requires_mode": "any",
+      "gate": "approval"
+    },
+    "step-5b": {
+      "id": "step-5b",
+      "type": "agent-step",
+      "name": "Bicep Code",
+      "agent": "06b-Bicep CodeGen",
+      "requires": ["gate-3"],
+      "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
+      "produces": ["infra/bicep/{project}/"],
+      "gate": "validation",
+      "challenger": { "passes": 3, "lenses": ["security", "naming", "avm-compliance"] }
+    },
+    "step-5t": {
+      "id": "step-5t",
+      "type": "agent-step",
+      "name": "Terraform Code",
+      "agent": "06t-Terraform CodeGen",
+      "requires": ["gate-3"],
+      "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
+      "produces": ["infra/terraform/{project}/"],
+      "gate": "validation",
+      "challenger": { "passes": 3, "lenses": ["security", "naming", "avm-compliance"] }
+    },
+    "gate-4": {
+      "id": "gate-4",
+      "type": "gate",
+      "name": "Code Validation",
+      "requires": ["step-5b", "step-5t"],
+      "requires_mode": "any",
+      "gate": "validation"
+    },
+    "step-6b": {
+      "id": "step-6b",
+      "type": "agent-step",
+      "name": "Bicep Deploy",
+      "agent": "07b-Bicep Deploy",
+      "requires": ["gate-4"],
+      "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
+      "produces": ["06-deployment-summary.md"],
+      "gate": "approval",
+      "challenger": { "passes": 1, "lenses": ["comprehensive"] }
+    },
+    "step-6t": {
+      "id": "step-6t",
+      "type": "agent-step",
+      "name": "Terraform Deploy",
+      "agent": "07t-Terraform Deploy",
+      "requires": ["gate-4"],
+      "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
+      "produces": ["06-deployment-summary.md"],
+      "gate": "approval",
+      "challenger": { "passes": 1, "lenses": ["comprehensive"] }
+    },
+    "gate-5": {
+      "id": "gate-5",
+      "type": "gate",
+      "name": "Deploy Approval",
+      "requires": ["step-6b", "step-6t"],
+      "requires_mode": "any",
+      "gate": "approval"
+    },
+    "step-7": {
+      "id": "step-7",
+      "type": "subagent-fan-out",
+      "name": "As-Built Documentation",
+      "agent": "08-As-Built",
+      "requires": ["gate-5"],
+      "produces": [
+        "07-design-document.md",
+        "07-operations-runbook.md",
+        "07-ab-cost-estimate.md",
+        "07-compliance-matrix.md",
+        "07-backup-dr-plan.md",
+        "07-resource-inventory.md",
+        "07-documentation-index.md"
+      ],
+      "gate": null,
+      "parallel_substeps": [
+        "design-document",
+        "operations-runbook",
+        "cost-estimate",
+        "compliance-matrix",
+        "backup-dr-plan",
+        "resource-inventory",
+        "documentation-index"
+      ]
+    }
+  },
+  "edges": [
+    { "from": "step-1", "to": "gate-1", "condition": "on_complete" },
+    { "from": "gate-1", "to": "step-2", "condition": "on_complete" },
+    { "from": "step-2", "to": "gate-2", "condition": "on_complete" },
+    { "from": "gate-2", "to": "step-3", "condition": "on_complete" },
+    { "from": "gate-2", "to": "step-4b", "condition": "on_complete" },
+    { "from": "gate-2", "to": "step-4t", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-4b", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-4b", "condition": "on_skip" },
+    { "from": "step-3", "to": "step-4t", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-4t", "condition": "on_skip" },
+    { "from": "step-4b", "to": "gate-3", "condition": "on_complete" },
+    { "from": "step-4t", "to": "gate-3", "condition": "on_complete" },
+    { "from": "gate-3", "to": "step-5b", "condition": "on_complete" },
+    { "from": "gate-3", "to": "step-5t", "condition": "on_complete" },
+    { "from": "step-5b", "to": "gate-4", "condition": "on_complete" },
+    { "from": "step-5t", "to": "gate-4", "condition": "on_complete" },
+    { "from": "gate-4", "to": "step-6b", "condition": "on_complete" },
+    { "from": "gate-4", "to": "step-6t", "condition": "on_complete" },
+    { "from": "step-6b", "to": "gate-5", "condition": "on_complete" },
+    { "from": "step-6t", "to": "gate-5", "condition": "on_complete" },
+    { "from": "gate-5", "to": "step-7", "condition": "on_complete" }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "iac_tracks": ["Bicep", "Terraform"],
+    "total_gates": 5,
+    "total_steps": 7
+  }
+}

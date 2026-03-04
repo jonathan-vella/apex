@@ -156,9 +156,21 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 **After confirming the project name**, read:
 
 1. **Read** `.github/skills/golden-principles/SKILL.md` — foundational quality principles for all agents
-2. **Read** `.github/skills/session-resume/SKILL.md` — JSON state schema, context budgets, resume protocol
+2. **Read** `.github/skills/session-resume/SKILL.md` — JSON state schema (v2.0), context budgets, resume, claims
 3. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
 4. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
+5. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
+
+### Graph-Based Step Routing
+
+Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-engine skill:
+
+1. Load `.github/skills/workflow-engine/templates/workflow-graph.json`
+2. Read `.github/agent-registry.json` to resolve agent paths and models for each step
+3. Determine current node from `00-session-state.json` `current_step`
+4. Execute the current node's agent (using model from registry/complexity-routing)
+5. Evaluate outgoing edges (conditions: `on_complete`, `on_skip`, `on_fail`)
+6. Advance to the next node — if it's a gate, present to user for approval
 
 ## Core Principles
 
@@ -166,6 +178,7 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 2. **Context Efficiency**: Delegate heavy lifting to subagents to preserve context window
 3. **Structured Workflow**: Follow the 7-step process strictly, tracking progress in artifacts
 4. **Quality Gates**: Enforce validation at each phase before proceeding
+5. **Circuit Breaker**: If any step status is `blocked`, halt workflow and present findings to user before continuing
 
 ## DO / DON'T
 
@@ -386,18 +399,17 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
 
 ## Model Selection
 
-| Agent              | Model                    | Rationale            |
-| ------------------ | ------------------------ | -------------------- |
-| Requirements       | Opus 4.6                 | Deep understanding   |
-| Architect          | Opus 4.6                 | WAF analysis + cost  |
-| Bicep Plan         | Opus 4.6                 | Efficient planning   |
-| Bicep Code         | Opus 4.6 / GPT-5.3-Codex | Code generation      |
-| Terraform Planner  | Opus 4.6                 | Efficient planning   |
-| Terraform Code Gen | Opus 4.6 / GPT-5.3-Codex | Code generation      |
-| Deploy             | GPT-5.3-Codex            | Deployment execution |
-| Terraform Deploy   | GPT-5.3-Codex            | Deployment execution |
-| As-Built           | GPT-5.3-Codex            | Documentation gen    |
-| Subagents          | GPT-5.3-Codex            | Fast validation      |
+Read `.github/skills/workflow-engine/references/complexity-routing.json` to
+determine the recommended model tier for each step handoff.
+
+| Tier     | Model               | Used For                                       |
+| -------- | ------------------- | ---------------------------------------------- |
+| `high`   | Claude Opus 4.6     | Requirements, Architecture, Planning, Code Gen |
+| `medium` | Claude Sonnet 4.6   | Deploy, As-Built, Reviews, Governance          |
+| `low`    | Claude Haiku 4.5    | Lint, Cost Estimate, What-If, Plan Preview     |
+
+When handing off to a step agent, use the `model:` override in the handoff
+based on the tier declared in `complexity-routing.json` (where VS Code supports it).
 
 ## Boundaries
 

@@ -161,6 +161,7 @@ Verify these are documented — **ask user via `askQuestions` if missing**:
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
 4. **Read** `.github/skills/microsoft-docs/SKILL.md` — query official Microsoft docs for service limits,
    SLAs, SKU comparisons, and WAF best practices
+5. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression tiers for loading large artifacts
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

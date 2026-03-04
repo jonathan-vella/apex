@@ -14,6 +14,20 @@ The **InfraOps Conductor** (🎼 Maestro) orchestrates the complete workflow, ro
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
 while enforcing mandatory approval gates.
 
+### Formalized Workflow Engine
+
+The workflow is defined as a machine-readable DAG (Directed Acyclic Graph) in
+`.github/skills/workflow-engine/templates/workflow-graph.json`. The Conductor reads this
+graph instead of relying on hardcoded step logic:
+
+- **Nodes**: agent-step, gate, subagent-fan-out, validation
+- **Edges**: dependency links with conditions (`on_complete`, `on_skip`, `on_fail`)
+- **IaC routing**: conditional edges route to Bicep or Terraform agents based on `decisions.iac_tool`
+- **Fan-out**: Step 7 substeps (cost estimate, runbook, etc.) can execute in parallel
+
+The Conductor resolves agent paths and models via `.github/agent-registry.json` and
+selects model tiers using `.github/skills/workflow-engine/references/complexity-routing.json`.
+
 ## Agent Architecture
 
 ### The Conductor Pattern

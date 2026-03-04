@@ -111,6 +111,16 @@ handoffs:
    `06-deployment-summary.md`
 3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
+4. **Read** `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
+
+### Post-Deploy: Smart PR Flow
+
+If running in a PR context (branch ≠ `main`), after deployment completes:
+
+1. Check CI status via `gh pr checks` or MCP tools
+2. Apply label `infraops-ci-pass` or `infraops-needs-fix`
+3. If all gates pass and review approved, execute auto-merge
+4. See `.github/skills/github-operations/references/smart-pr-flow.md` for full protocol
 
 ## DO / DON'T
 

@@ -1,10 +1,10 @@
 # Version Information
 
-**Current Version:** 0.9.0
+**Current Version:** 0.10.0
 
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-03-04
 
-**Build:** pre-production-reversion
+**Build:** bosun-inspired-enhancements
 
 ## Version History
 

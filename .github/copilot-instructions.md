@@ -43,6 +43,8 @@ Review column = adversarial passes by `challenger-review-subagent` (3x = rotatin
 | `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies (requires Learn MCP)  |
 | `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)     |
 | `session-resume`           | Session state tracking, resume protocol, context budgets              |
+| `workflow-engine`          | DAG workflow graph, complexity routing, step definitions              |
+| `context-shredding`        | Runtime context compression tiers for large artifacts                 |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
 
@@ -80,6 +82,9 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `.github/agents/*.agent.md`                    | Agent definitions                                         |
 | `.github/skills/*/SKILL.md`                    | Reusable skill knowledge                                  |
 | `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                   |
+| `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                    |
+| `.github/mcp-scoping.json`                     | Per-agent MCP server scoping                              |
+| `.github/skill-affinity.json`                  | Skill/agent affinity weights                              |
 | `agent-output/{project}/`                      | Agent-generated artifacts                                 |
 | `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (session-resume skill) |
 | `infra/bicep/{project}/`                       | Bicep templates                                           |

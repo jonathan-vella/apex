@@ -5,7 +5,57 @@ All notable changes to **Agentic InfraOps** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.10.0] — Unreleased
+
+### Added
+
+- feat(skills): add `workflow-engine` skill with machine-readable DAG (`workflow-graph.json`)
+  for graph-based step routing in the Conductor, replacing hardcoded step logic.
+- feat(skills): add `context-shredding` skill with 3-tier runtime compression
+  (`full`/`summarized`/`minimal`) and per-artifact compression templates.
+- feat(session-resume): upgrade session state schema from v1.0 → v2.0 with atomic claim-based
+  lock model (`lock.owner_id`, `lock.heartbeat`, `lock.attempt_token`), per-step `claim` objects,
+  `stale_threshold_ms`, and `event_log` audit trail. Backwards-compatible with v1.0 files.
+- feat(skills): add circuit breaker pattern to `iac-common` skill with failure taxonomy
+  (6 categories), anomaly detection thresholds, and mandatory stopping rules for deploy agents.
+- feat(skills): add Smart PR Flow to `github-operations` skill with label-based lifecycle
+  tracking, auto-label rules, and deploy agent watchdog integration.
+- feat(config): add `.github/agent-registry.json` — machine-readable registry mapping agent
+  roles to definition files, default models, and required skills.
+- feat(config): add `.github/mcp-scoping.json` — per-agent MCP server scoping configuration
+  (documentation-only until VS Code supports native per-agent filtering).
+- feat(config): add `.github/skill-affinity.json` — skill/agent affinity catalog with
+  `primary`/`secondary`/`never` weights for context budget optimization.
+- feat(config): add `complexity-routing.json` to workflow-engine skill — maps step complexity
+  tiers (`low`/`medium`/`high`) to recommended models for cost-optimized handoffs.
+- feat(scripts): add 5 new validators: `validate-session-lock`, `validate-workflow-graph`,
+  `validate-agent-registry`, `validate-mcp-scoping`, `validate-skill-affinity`;
+  validator count 22 → 27.
+- feat(hooks): add `pre-push` hook to `lefthook.yml` with diff-based domain routing;
+  only runs validators for changed file types, in parallel.
+- feat(scripts): add `diff-based-push-check.sh` helper for pre-push hook domain detection.
+
+### Changed
+
+- refactor(conductor): replace hardcoded step table with graph-based routing via
+  `workflow-graph.json` and agent registry lookups.
+- refactor(conductor): replace static model selection table with `complexity-routing.json`
+  tier-based model selection.
+- refactor(conductor): add circuit breaker principle — halt on `blocked` step status.
+- refactor(agents): add `context-shredding` skill reference to Architect, Bicep CodeGen,
+  Terraform CodeGen, and As-Built agents for runtime context compression.
+- refactor(agents): add `iac-common/references/circuit-breaker.md` and Smart PR Flow
+  references to Bicep Deploy and Terraform Deploy agents.
+- refactor(instructions): add runtime compression and skill affinity sections to
+  `context-optimization.instructions.md`.
+- chore(mcp): add per-agent scoping comment to `.vscode/mcp.json`.
+
+### Fixed
+
+- fix(session-state): accept both schema_version `"1.0"` and `"2.0"` in validator
+  for backwards compatibility.
+
+## [0.9.0] — Pre-Bosun Baseline
 
 ### Added
 

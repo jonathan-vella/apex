@@ -71,5 +71,40 @@ checkpoint after any interruption — mid-step, cross-step, or direct invocation
 | Reference         | File                              | Content                                                                                       |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
 | Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Conductor integration, portability |
-| State File Schema | `references/state-file-schema.md` | Full JSON template, all 7 step definitions, field definitions table                           |
+| State File Schema | `references/state-file-schema.md` | Full JSON template (v2.0), lock/claim field definitions, all 7 step definitions               |
 | Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
+
+## Claim Protocol (v2.0)
+
+The v2.0 schema adds an atomic claim-based model to prevent concurrent
+sessions from double-writing the same step.
+
+### Lock Flow
+
+```text
+1. Read 00-session-state.json
+2. Check lock.heartbeat — stale (> stale_threshold_ms)?
+   YES → Clear lock, log recovery event, proceed
+   NO  → Lock held by another session — STOP, inform user
+3. Acquire lock: set lock.owner_id, lock.heartbeat, lock.attempt_token (UUID)
+4. Claim target step: set steps.{N}.claim.owner_id, attempt_token
+5. Proceed with step work
+6. On each sub-step: renew heartbeat (update lock.heartbeat + claim.heartbeat)
+7. On completion: release claim, clear lock
+```
+
+### Optimistic Concurrency
+
+All state writes MUST include the `attempt_token` from the active claim.
+If the token in the file does not match, the write is rejected — another
+session has taken over. The agent should halt and inform the user.
+
+## Multi-Session Safety
+
+When two Copilot chat sessions target the same project:
+
+1. **First session** writes its `owner_id` + `attempt_token` to the lock
+2. **Second session** reads the lock, sees a non-stale heartbeat → halts
+3. If the first session crashes (heartbeat goes stale), the second session
+   can recover via `sweepStale()` → clear the stale lock → re-claim
+4. All recovery events are logged to `claim.event_log` for audit

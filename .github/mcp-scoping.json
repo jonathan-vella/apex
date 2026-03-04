@@ -1,0 +1,29 @@
+{
+  "$schema": "mcp-scoping-v1",
+  "description": "Maps each agent role to its required MCP servers. Documentation-only until VS Code supports per-agent MCP filtering.",
+  "default_scope": ["github", "microsoft-learn"],
+  "scoping": {
+    "conductor": ["github", "microsoft-learn"],
+    "requirements": ["github", "microsoft-learn"],
+    "architect": ["github", "microsoft-learn", "azure-pricing"],
+    "design": ["github", "microsoft-learn"],
+    "bicep-planner": ["github", "microsoft-learn"],
+    "terraform-planner": ["github", "microsoft-learn", "terraform"],
+    "bicep-codegen": ["github", "microsoft-learn"],
+    "terraform-codegen": ["github", "microsoft-learn", "terraform"],
+    "bicep-deploy": ["github"],
+    "terraform-deploy": ["github"],
+    "as-built": ["github", "microsoft-learn", "azure-pricing"],
+    "diagnose": ["github", "microsoft-learn"],
+    "challenger": ["github", "microsoft-learn"],
+    "context-optimizer": [],
+    "cost-estimate-subagent": ["azure-pricing", "microsoft-learn"],
+    "governance-discovery-subagent": ["github"],
+    "bicep-lint-subagent": [],
+    "bicep-review-subagent": ["microsoft-learn"],
+    "bicep-whatif-subagent": [],
+    "terraform-lint-subagent": ["terraform"],
+    "terraform-review-subagent": ["microsoft-learn", "terraform"],
+    "terraform-plan-subagent": []
+  }
+}
