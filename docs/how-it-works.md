@@ -1,8 +1,14 @@
-# How Agentic InfraOps Works
+<div align="center">
+  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" width="100%" height="300" style="object-fit: cover; border-radius: 10px;" alt="Agentic InfraOps Banner"/>
+</div>
+
+<a id="how-agentic-infraops-works"></a>
+# 🚀 How Agentic InfraOps Works
 
 > A comprehensive guide to the multi-agent orchestration system for Azure infrastructure development.
 
-## Table of Contents
+<a id="table-of-contents"></a>
+## 📑 Table of Contents
 
 - [Executive Summary](#executive-summary)
 - [Intellectual Foundations](#intellectual-foundations)
@@ -48,9 +54,10 @@
 - [File Map](#file-map)
 - [References](#references)
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Executive Summary
+<a id="executive-summary"></a>
+## 📋 Executive Summary
 
 Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
 through a structured 7-step workflow to transform Azure infrastructure requirements into deployed,
@@ -65,14 +72,20 @@ a layered knowledge architecture (agents, skills, instructions, registries), mec
 of invariants via 27 validation scripts, and a human-in-the-loop design that preserves
 operator control at every critical decision point.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Intellectual Foundations
+<a id="intellectual-foundations"></a>
+## 🧠 Intellectual Foundations
 
 This project draws directly from two bodies of work that define how autonomous AI agents
 can operate reliably in professional software engineering contexts.
 
-### Harness Engineering (OpenAI)
+<a id="harness-engineering-openai"></a>
+### 🛠️ Harness Engineering (OpenAI)
+
+<div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
+
+<div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
 In February 2026, OpenAI published
 "[Harness Engineering: Leveraging Codex in an Agent-First World](https://openai.com/index/harness-engineering/),"
@@ -109,7 +122,8 @@ Engineering approach runs recurring agents that scan for deviations and open tar
 refactoring pull requests. This project implements a quarterly context audit checklist
 and weekly documentation freshness checks.
 
-### Bosun (VirtEngine)
+<a id="bosun-virtengine"></a>
+### ⚓ Bosun (VirtEngine)
 
 [Bosun](https://github.com/virtengine/bosun) is an open-source, production-grade control
 plane for autonomous software engineering. Originally named OpenFleet, Bosun routes work
@@ -166,7 +180,8 @@ role to its definition file, default model, and required skills.
 MCP server selection. This project's `mcp-scoping.json` maps each agent to its required
 MCP servers.
 
-### How This Project Synthesises Both
+<a id="how-this-project-synthesises-both"></a>
+### ⚖️ How This Project Synthesises Both
 
 Harness Engineering provides the **philosophy**: treat the repository as the single source
 of truth, encode human taste into mechanical rules, enforce invariants rather than
@@ -189,11 +204,15 @@ This project weaves both into a system purpose-built for Azure infrastructure:
 | Failure resilience         | —                                       | Circuit breaker + anomaly detection | Failure taxonomy + stopping rules                |
 | Human control              | Human taste gets encoded                | Mandatory review gates              | 5 approval gates + challenger reviews            |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## System Architecture Overview
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### The 7-Step Workflow
+<a id="system-architecture-overview"></a>
+## 📐 System Architecture Overview
+
+<a id="the-7-step-workflow"></a>
+### 🔄 The 7-Step Workflow
 
 The system follows a strict sequential workflow with mandatory human approval gates
 between critical phases:
@@ -226,7 +245,12 @@ flowchart LR
 | 6    | Deploy        | 07b-Bicep Deploy / 07t-TF Deploy   | `06-deployment-summary.md`                | 1 pass           |
 | 7    | As-Built      | 08-As-Built                        | `07-*.md` documentation suite             | —                |
 
-### The Conductor Pattern
+<a id="the-conductor-pattern"></a>
+### 🎼 The Conductor Pattern
+
+<div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
+
+<div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
 The InfraOps Conductor (agent `01-Conductor`) is the master orchestrator. It does not
 generate infrastructure code or documentation itself. Instead, it:
@@ -241,7 +265,12 @@ generate infrastructure code or documentation itself. Instead, it:
 The Conductor never touches infrastructure templates. It is a pure orchestrator and
 state machine.
 
-### Dual IaC Tracks
+<a id="dual-iac-tracks"></a>
+### 🛤️ Dual IaC Tracks
+
+<div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
+
+<div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
 Steps 1–3 (Requirements, Architecture, Design) are shared across both infrastructure
 tracks. At Step 4, the workflow diverges based on the `iac_tool` field in the requirements
@@ -262,14 +291,18 @@ flowchart TD
     Terraform --> AsBuilt
 ```
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## The Four Pillars
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
+
+<a id="the-four-pillars"></a>
+## 🏛️ The Four Pillars
 
 The system's knowledge architecture is built on four distinct layers, each serving
 a specific purpose in the agent's context window.
 
-### 1. Agents
+<a id="1-agents"></a>
+### 🤖 1. Agents
 
 **What they are**: Agent definitions (`.agent.md` files) define a specialised AI persona
 with a specific role, allowed tools, handoff targets, and a body of instructions.
@@ -283,7 +316,8 @@ invokes an agent in VS Code Copilot Chat, the entire body becomes part of the sy
 **Key constraint**: Agent bodies are limited to 350 lines to preserve context window space.
 Heavy knowledge is externalised into skills and loaded on demand.
 
-### 2. Skills
+<a id="2-skills"></a>
+### 🥋 2. Skills
 
 **What they are**: Reusable domain knowledge packages that agents load when they need
 specialised context.
@@ -298,7 +332,8 @@ reference material is stored in subdirectories, loaded only when the agent's tas
 **Key constraint**: Skills implement progressive disclosure — agents start with the overview
 and drill into `references/` only when needed.
 
-### 3. Instructions
+<a id="3-instructions"></a>
+### 📜 3. Instructions
 
 **What they are**: Enforcement rules that apply automatically based on file type. Unlike
 skills (which must be explicitly read), instructions are injected into context whenever
@@ -315,7 +350,8 @@ suffix conventions.
 **Key constraint**: Instruction files are limited to 150 lines and use narrow glob patterns.
 `applyTo: "**"` is reserved for truly universal rules only.
 
-### 4. Configuration Registries
+<a id="4-configuration-registries"></a>
+### ⚙️ 4. Configuration Registries
 
 **What they are**: Machine-readable JSON files that provide runtime configuration for
 the agent system.
@@ -330,11 +366,15 @@ the agent system.
 | Workflow Graph          | `.github/skills/workflow-engine/templates/workflow-graph.json`    | 7-step DAG with nodes, edges, conditions     |
 | Complexity Routing      | `.github/skills/workflow-engine/references/complexity-routing.json` | Step → model tier (low/medium/high)        |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## AGENTS.md and Copilot Instructions
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### AGENTS.md — The Table of Contents
+<a id="agentsmd-and-copilot-instructions"></a>
+## 🗂️ AGENTS.md and Copilot Instructions
+
+<a id="agentsmd-the-table-of-contents"></a>
+### 📖 AGENTS.md — The Table of Contents
 
 Following the Harness Engineering principle of "map, not manual," the root `AGENTS.md`
 serves as the entry point for all agents. At approximately 250 lines, it provides:
@@ -351,7 +391,8 @@ serves as the entry point for all agents. At approximately 250 lines, it provide
 `AGENTS.md` does not contain deep architectural guidance, Azure service details, or
 template structures. Those are delegated to skills.
 
-### copilot-instructions.md — The VS Code Bridge
+<a id="copilot-instructionsmd-the-vs-code-bridge"></a>
+### 🌉 copilot-instructions.md — The VS Code Bridge
 
 The `.github/copilot-instructions.md` file is VS Code Copilot's orchestration layer.
 It provides:
@@ -366,11 +407,15 @@ It provides:
 This file is shorter than `AGENTS.md` and focused on VS Code-specific orchestration
 concerns rather than repository-wide conventions.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Deep Dive: Agent Architecture
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### Agent Anatomy
+<a id="deep-dive-agent-architecture"></a>
+## 🕵️‍♂️ Deep Dive: Agent Architecture
+
+<a id="agent-anatomy"></a>
+### 🧬 Agent Anatomy
 
 Every agent definition follows a standard structure:
 
@@ -409,7 +454,8 @@ Phase 3: Validation
 The frontmatter is machine-readable metadata. The body is the agent's operating manual,
 loaded into the system prompt when the agent is invoked.
 
-### Top-Level Agents (14)
+<a id="top-level-agents-14"></a>
+### 👑 Top-Level Agents (14)
 
 | Agent                    | Role                                      | Primary Skills                         |
 | ------------------------ | ----------------------------------------- | -------------------------------------- |
@@ -429,7 +475,8 @@ loaded into the system prompt when the agent is invoked.
 | 10-Challenger             | Standalone adversarial review             | —                                      |
 | 11-Context Optimizer     | Context window audit and optimisation     | context-optimizer                      |
 
-### Subagents (9)
+<a id="subagents-9"></a>
+### 🕵️‍♀️ Subagents (9)
 
 Subagents are not user-invokable. They are delegated to by parent agents for isolated,
 specific tasks:
@@ -446,7 +493,8 @@ specific tasks:
 | terraform-review-subagent       | Code review against AVM-TF standards  | Step 5 (Terraform)     |
 | terraform-plan-subagent         | `terraform plan` preview              | Step 6 (Terraform)     |
 
-### The Challenger Pattern
+<a id="the-challenger-pattern"></a>
+### 🤺 The Challenger Pattern
 
 The `challenger-review-subagent` implements adversarial review at critical workflow steps.
 It operates with rotating lenses:
@@ -460,7 +508,8 @@ It operates with rotating lenses:
 Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Only
 `must_fix` findings block workflow progression.
 
-### Handoffs and Delegation
+<a id="handoffs-and-delegation"></a>
+### 🤝 Handoffs and Delegation
 
 Agents communicate through artefact files, not direct message passing. The Conductor
 delegates to a step agent, which produces output files in `agent-output/{project}/`.
@@ -471,11 +520,15 @@ The next agent reads those files as input. This design:
 - Allows human review at every gate (artefacts are human-readable markdown)
 - Supports parallel development of different steps
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Deep Dive: Skills System
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### Skill Structure
+<a id="deep-dive-skills-system"></a>
+## 🤿 Deep Dive: Skills System
+
+<a id="skill-structure"></a>
+### 🏗️ Skill Structure
 
 Each skill follows a standard layout:
 
@@ -489,7 +542,8 @@ Each skill follows a standard layout:
     └── artifact.template.md
 ```
 
-### Progressive Loading
+<a id="progressive-loading"></a>
+### ⏳ Progressive Loading
 
 Skills implement three levels of disclosure:
 
@@ -502,7 +556,8 @@ Skills implement three levels of disclosure:
 3. **Level 3 — templates/**: Exact structural skeletons for artefact generation.
    Loaded only during the output generation phase.
 
-### Skill Catalog
+<a id="skill-catalog"></a>
+### 🗃️ Skill Catalog
 
 The system contains 20 skills across several domains:
 
@@ -517,11 +572,15 @@ The system contains 20 skills across several domains:
 | GitHub Operations       | `github-operations`, `git-commit`                                                     |
 | Meta / Tooling          | `make-skill-template`, `context-optimizer`                                            |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Deep Dive: Instruction System
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### Glob-Based Auto-Application
+<a id="deep-dive-instruction-system"></a>
+## 🧪 Deep Dive: Instruction System
+
+<a id="glob-based-auto-application"></a>
+### 🌐 Glob-Based Auto-Application
 
 Instructions are not read explicitly by agents. They are injected automatically by
 VS Code Copilot when a matching file is in context. The `applyTo` glob pattern controls
@@ -539,17 +598,26 @@ when each instruction activates:
 | `context-optimization`                   | Agents, skills, instructions | Context window management rules       |
 | `no-heredoc`                             | `**`                        | Prevents terminal heredoc corruption   |
 
-### Enforcement Over Documentation
+<a id="enforcement-over-documentation"></a>
+### 👮 Enforcement Over Documentation
 
 Following the Golden Principle "Mechanical Enforcement Over Documentation," every
 instruction has a corresponding validation script. The rule is: if it can be a linter
 check, it should be one. Documentation is for humans; machines enforce rules.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Deep Dive: Workflow Engine
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### The DAG Model
+<a id="deep-dive-workflow-engine"></a>
+## ⚙️ Deep Dive: Workflow Engine
+
+<div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop" height="250" style="object-fit: cover; border-radius: 8px;"></div><br/>
+
+<div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop" height="250" style="object-fit: cover; border-radius: 8px;"></div><br/>
+
+<a id="the-dag-model"></a>
+### 🕸️ The DAG Model
 
 The workflow is encoded as a machine-readable directed acyclic graph in
 `workflow-graph.json`:
@@ -588,7 +656,8 @@ Each node has a type (`agent-step`, `gate`, `subagent-fan-out`, `validation`), a
 edge has a condition (`on_complete`, `on_skip`, `on_fail`). Conditional routing at IaC
 nodes is governed by the `decisions.iac_tool` field.
 
-### Gates and Approval Points
+<a id="gates-and-approval-points"></a>
+### 🚧 Gates and Approval Points
 
 Five mandatory gates require explicit human confirmation before the workflow advances:
 
@@ -600,13 +669,15 @@ Five mandatory gates require explicit human confirmation before the workflow adv
 | 4    | Step 5   | Automated validation passes (lint, build, review) |
 | 5    | Step 6   | User approves deployment and verifies resources |
 
-### IaC Routing
+<a id="iac-routing"></a>
+### 🔀 IaC Routing
 
 The `iac_tool` field in `01-requirements.md` determines which track is activated.
 Steps 4b, 5b, 6b form the Bicep track; steps 4t, 5t, 6t form the Terraform track.
 Only one track is active for a given project.
 
-### Session State and Resume
+<a id="session-state-and-resume"></a>
+### 💾 Session State and Resume
 
 The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 
@@ -639,11 +710,15 @@ The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 The claim model prevents concurrent sessions from corrupting state. Stale heartbeats
 (older than `stale_threshold_ms`, default 5 minutes) are automatically recovered.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## Deep Dive: Quality and Safety Systems
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
-### 27 Validation Scripts
+<a id="deep-dive-quality-and-safety-systems"></a>
+## 🛡️ Deep Dive: Quality and Safety Systems
+
+<a id="27-validation-scripts"></a>
+### ✅ 27 Validation Scripts
 
 Every convention is backed by a machine-enforceable check:
 
@@ -663,7 +738,8 @@ Every convention is backed by a machine-enforceable check:
 
 All validators run via `npm run validate:all`.
 
-### Git Hooks (Pre-Commit and Pre-Push)
+<a id="git-hooks-pre-commit-and-pre-push"></a>
+### 🪝 Git Hooks (Pre-Commit and Pre-Push)
 
 **Pre-commit** (sequential, via lefthook): Validates staged files only — markdown lint,
 link checks, H2 sync, artefact templates, agent frontmatter, instruction frontmatter,
@@ -680,7 +756,8 @@ script categorises changed files and runs only matching validators:
 - `*.json` → JSON syntax
 - `*.py` → Ruff lint
 
-### Circuit Breaker
+<a id="circuit-breaker"></a>
+### 🔌 Circuit Breaker
 
 The circuit breaker pattern protects against runaway agent loops during deployment:
 
@@ -692,7 +769,8 @@ The circuit breaker pattern protects against runaway agent loops during deployme
 | What-if oscillation  | 2 cycles            | Halt, flag resource conflict    |
 | Auth failure loop    | 2 consecutive       | Halt, prompt re-authentication  |
 
-### Context Compression
+<a id="context-compression"></a>
+### 🗜️ Context Compression
 
 When agents approach model context limits, the context-shredding system activates:
 
@@ -702,9 +780,12 @@ When agents approach model context limits, the context-shredding system activate
 | `summarized` | 60–80%     | Key H2 sections only (tables preserved)       |
 | `minimal`    | > 80%      | Decision summaries only (< 500 characters)    |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## The Golden Principles
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
+
+<a id="the-golden-principles"></a>
+## 🏆 The Golden Principles
 
 The system operates under 10 principles adapted from the Harness Engineering philosophy:
 
@@ -719,9 +800,12 @@ The system operates under 10 principles adapted from the Harness Engineering phi
 9. **Progressive Disclosure** — Start small, drill deeper when needed
 10. **Mechanical Enforcement Over Documentation** — Linters and validators over prose
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## File Map
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
+
+<a id="file-map"></a>
+## 🗺️ File Map
 
 ```text
 AGENTS.md                                    # Table of contents for all agents
@@ -756,9 +840,12 @@ scripts/                                     # 27 validation scripts
 mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 ```
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
-## References
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
+
+<a id="references"></a>
+## 📚 References
 
 - **Harness Engineering**: [openai.com/index/harness-engineering](https://openai.com/index/harness-engineering/)
   — OpenAI's account of building a product with zero manually-written code
@@ -767,3 +854,5 @@ mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 - **Azure Well-Architected Framework**: [learn.microsoft.com/azure/well-architected](https://learn.microsoft.com/azure/well-architected/)
 - **Azure Verified Modules**: [aka.ms/AVM](https://aka.ms/AVM)
 - **Azure Cloud Adoption Framework**: [learn.microsoft.com/azure/cloud-adoption-framework](https://learn.microsoft.com/azure/cloud-adoption-framework/)
+
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
