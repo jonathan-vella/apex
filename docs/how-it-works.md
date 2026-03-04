@@ -14,7 +14,8 @@
 - [Intellectual Foundations](#intellectual-foundations)
   - [Harness Engineering (OpenAI)](#harness-engineering-openai)
   - [Bosun (VirtEngine)](#bosun-virtengine)
-  - [How This Project Synthesises Both](#how-this-project-synthesises-both)
+  - [Ralph (Snarktank)](#ralph-snarktank)
+  - [How This Project Synthesises All Three](#how-this-project-synthesises-all-three)
 - [System Architecture Overview](#system-architecture-overview)
   - [The 7-Step Workflow](#the-7-step-workflow)
   - [The Conductor Pattern](#the-conductor-pattern)
@@ -50,6 +51,13 @@
   - [Git Hooks (Pre-Commit and Pre-Push)](#git-hooks-pre-commit-and-pre-push)
   - [Circuit Breaker](#circuit-breaker)
   - [Context Compression](#context-compression)
+- [Deep Dive: MCP Server Integration](#deep-dive-mcp-server-integration)
+  - [MCP Architecture](#mcp-architecture)
+  - [GitHub MCP Server](#github-mcp-server)
+  - [Microsoft Learn MCP Server](#microsoft-learn-mcp-server)
+  - [Azure Pricing MCP Server](#azure-pricing-mcp-server)
+  - [Terraform Registry MCP Server](#terraform-registry-mcp-server)
+  - [Per-Agent MCP Scoping](#per-agent-mcp-scoping)
 - [The Golden Principles](#the-golden-principles)
 - [File Map](#file-map)
 - [References](#references)
@@ -178,8 +186,56 @@ role to its definition file, default model, and required skills.
 MCP server selection. This project's `mcp-scoping.json` maps each agent to its required
 MCP servers.
 
-<a id="how-this-project-synthesises-both"></a>
-### ⚖️ How This Project Synthesises Both
+<a id="ralph-snarktank"></a>
+### 🔁 Ralph (Snarktank)
+
+[Ralph](https://github.com/snarktank/ralph) is an autonomous AI agent loop
+(12k+ GitHub stars) based on
+[Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/). It spawns
+fresh AI coding tool instances (Amp or Claude Code) in a bash loop, picking
+off PRD user stories one at a time until all items pass. Key concepts adopted
+from Ralph:
+
+**Fresh-context iteration model.** Each Ralph iteration spawns a brand-new
+AI instance with zero carry-over context. The only memory between iterations
+is git history, a `progress.txt` append-only learning log, and a `prd.json`
+task list. This project adopts the same philosophy through its session-resume
+skill: each agent step is stateless, and all memory persists through versioned
+artefact files in `agent-output/{project}/` and the machine-readable
+`00-session-state.json`.
+
+**Right-sized task decomposition.** Ralph insists that each PRD item must be
+small enough to complete within a single context window — "Add a database
+column" not "Build the entire dashboard." This project enforces the same
+principle at a different scale: each of the 7 workflow steps is scoped to a
+single well-defined output (one requirements doc, one architecture assessment,
+one implementation plan), and subagents are further decomposed to atomic
+validation or review tasks.
+
+**AGENTS.md as compounding knowledge.** Ralph treats `AGENTS.md` updates as
+critical: after each iteration the AI appends discovered patterns, gotchas,
+and conventions so that future iterations (and human developers) benefit.
+This project elevates the same pattern to a first-class system: `AGENTS.md`
+is the table of contents, skills contain deep domain knowledge, and
+instructions encode discovered conventions as enforceable rules. Golden
+Principle 7 — "Human Taste Gets Encoded" — directly mirrors Ralph's
+append-only learning loop.
+
+**Feedback loops as mandatory infrastructure.** Ralph only works when
+typecheck catches errors, tests verify behaviour, and CI stays green —
+otherwise broken code compounds across iterations. This project's 27
+validation scripts, pre-commit/pre-push hooks, and circuit breaker pattern
+serve the identical function: mechanical feedback loops that prevent error
+propagation across agent steps.
+
+**Deterministic stop conditions.** Ralph exits when all user stories have
+`passes: true`. This project's workflow engine defines explicit gate
+conditions: each step transition requires either human approval or automated
+validation pass, and the Conductor agent tracks completion state in the
+session state file.
+
+<a id="how-this-project-synthesises-all-three"></a>
+### ⚖️ How This Project Synthesises All Three
 
 Harness Engineering provides the **philosophy**: treat the repository as the single source
 of truth, encode human taste into mechanical rules, enforce invariants rather than
@@ -189,18 +245,24 @@ Bosun provides the **engineering patterns**: distributed state with claims, DAG-
 workflow execution, complexity routing, context compression, circuit breakers, and PR
 automation.
 
-This project weaves both into a system purpose-built for Azure infrastructure:
+Ralph provides the **execution model**: stateless iteration loops, right-sized task
+decomposition, append-only learning, mandatory feedback loops, and deterministic
+stop conditions.
 
-| Concern                    | Harness Engineering Principle           | Bosun Pattern                       | This Project                                     |
-| -------------------------- | --------------------------------------- | ----------------------------------- | ------------------------------------------------ |
-| Knowledge management       | Repo is system of record                | Shared knowledge base               | Skills + instructions + `agent-output/`          |
-| Context management         | Map, not manual                         | Context shredding                   | Progressive skill loading + 3-tier compression   |
-| Quality enforcement        | Mechanical enforcement of invariants    | Pre-push hooks + anomaly detection  | 27 validators + pre-commit/push hooks            |
-| Workflow orchestration     | Structured step progression             | Workflow engine DAG                 | `workflow-graph.json` + Conductor agent          |
-| Concurrency safety         | —                                       | Claim-based locking                 | Session state v2.0 with lock/claim model         |
-| Cost optimisation          | —                                       | Task complexity routing             | `complexity-routing.json` model tier selection   |
-| Failure resilience         | —                                       | Circuit breaker + anomaly detection | Failure taxonomy + stopping rules                |
-| Human control              | Human taste gets encoded                | Mandatory review gates              | 5 approval gates + challenger reviews            |
+This project weaves all three into a system purpose-built for Azure infrastructure:
+
+| Concern                    | Harness Engineering Principle           | Bosun Pattern                       | Ralph Pattern                        | This Project                                     |
+| -------------------------- | --------------------------------------- | ----------------------------------- | ------------------------------------ | ------------------------------------------------ |
+| Knowledge management       | Repo is system of record                | Shared knowledge base               | `AGENTS.md` + `progress.txt`        | Skills + instructions + `agent-output/`          |
+| Context management         | Map, not manual                         | Context shredding                   | Fresh context per iteration          | Progressive skill loading + 3-tier compression   |
+| Quality enforcement        | Mechanical enforcement of invariants    | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops          | 27 validators + pre-commit/push hooks            |
+| Workflow orchestration     | Structured step progression             | Workflow engine DAG                 | Bash loop + `prd.json` task list     | `workflow-graph.json` + Conductor agent          |
+| Concurrency safety         | —                                       | Claim-based locking                 | Single-instance sequential loop      | Session state v2.0 with lock/claim model         |
+| Task decomposition         | —                                       | —                                   | One context window per story         | One artefact per workflow step                   |
+| Cost optimisation          | —                                       | Task complexity routing             | —                                    | `complexity-routing.json` model tier selection   |
+| Failure resilience         | —                                       | Circuit breaker + anomaly detection | CI-gated iteration                   | Failure taxonomy + stopping rules                |
+| Learning persistence       | Human taste gets encoded                | —                                   | Append-only `progress.txt`           | Skills + instructions evolve over time           |
+| Human control              | Human taste gets encoded                | Mandatory review gates              | Max iterations cap                   | 5 approval gates + challenger reviews            |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
@@ -839,6 +901,173 @@ When agents approach model context limits, the context-shredding system activate
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
+<a id="deep-dive-mcp-server-integration"></a>
+## 🔌 Deep Dive: MCP Server Integration
+
+The Model Context Protocol (MCP) is an open standard that allows AI agents to
+discover and invoke external tools through a uniform JSON-RPC interface.
+This project integrates four MCP servers, each providing specialised
+capabilities that agents invoke at runtime.
+
+<a id="mcp-architecture"></a>
+### 🏗️ MCP Architecture
+
+All MCP servers are declared in `.vscode/mcp.json` and start automatically
+when VS Code invokes them. Agents never call cloud APIs directly — they
+call MCP tools, which handle authentication, caching, pagination, retries,
+and response formatting.
+
+```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#ffffff',
+      'primaryTextColor': '#333333',
+      'primaryBorderColor': '#14b8a6',
+      'lineColor': '#475569',
+      'fontFamily': 'ui-sans-serif, system-ui, -apple-system, sans-serif'
+    },
+    'flowchart': {
+      'curve': 'basis',
+      'nodeSpacing': 50,
+      'rankSpacing': 50
+    }
+  }
+}%%
+flowchart LR
+    classDef default fill:#ffffff,stroke:#14b8a6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+    classDef agent fill:#ffffff,stroke:#8b5cf6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+    classDef mcp fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+
+    A["Agent"]:::agent --> M1["GitHub MCP"]:::mcp
+    A --> M2["Learn MCP"]:::mcp
+    A --> M3["Pricing MCP"]:::mcp
+    A --> M4["Terraform MCP"]:::mcp
+    M1 --> G["GitHub API"]
+    M2 --> L["learn.microsoft.com"]
+    M3 --> P["Azure Retail Prices API"]
+    M4 --> T["Terraform Registry"]
+```
+
+<a id="github-mcp-server"></a>
+### 🐙 GitHub MCP Server
+
+| Property  | Value                                           |
+| --------- | ----------------------------------------------- |
+| Transport | HTTP                                            |
+| Endpoint  | `https://api.githubcopilot.com/mcp/`            |
+| Auth      | Automatic via GitHub Copilot token              |
+| Purpose   | Issues, PRs, repos, code search, file content   |
+
+The GitHub MCP server is the primary interface for repository operations.
+Agents use it to create issues, open pull requests, search code, read file
+contents, manage branches, and automate the Smart PR Flow lifecycle. It is
+scoped as a default server — every agent has access.
+
+<a id="microsoft-learn-mcp-server"></a>
+### 📚 Microsoft Learn MCP Server
+
+| Property  | Value                                           |
+| --------- | ----------------------------------------------- |
+| Transport | HTTP                                            |
+| Endpoint  | `https://learn.microsoft.com/api/mcp`           |
+| Auth      | None (public API)                               |
+| Purpose   | Azure docs, SDK references, code samples        |
+
+The Microsoft Learn MCP server provides access to official Microsoft
+documentation. Agents query it to look up Azure service limits, find
+quickstart guides, verify SDK method signatures, and discover best
+practices. The `microsoft-docs` and `microsoft-code-reference` skills
+are built on top of this server. It is scoped as a default server alongside
+GitHub.
+
+<a id="azure-pricing-mcp-server"></a>
+### 💰 Azure Pricing MCP Server
+
+| Property   | Value                                                    |
+| ---------- | -------------------------------------------------------- |
+| Transport  | stdio                                                    |
+| Command    | Python (`azure_pricing_mcp` module)                      |
+| Auth       | None for pricing; Azure credentials for Spot VM tools    |
+| Tools      | 13 tools                                                 |
+| Source     | `mcp/azure-pricing-mcp/` (custom, built in-repo)         |
+
+This is a **custom MCP server built specifically for this project**. It
+queries the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
+and provides 13 tools for cost estimation:
+
+| Tool                   | Purpose                                      |
+| ---------------------- | -------------------------------------------- |
+| `azure_price_search`   | Search retail prices with filters            |
+| `azure_price_compare`  | Compare prices across regions/SKUs           |
+| `azure_cost_estimate`  | Estimate costs based on usage                |
+| `azure_discover_skus`  | List available SKUs for a service            |
+| `azure_sku_discovery`  | Intelligent SKU name matching                |
+| `azure_region_recommend` | Find cheapest regions                      |
+| `azure_ri_pricing`     | Reserved Instance pricing and savings        |
+| `azure_bulk_estimate`  | Multi-resource estimate in one call          |
+| `azure_cache_stats`    | API cache hit/miss statistics                |
+| `get_customer_discount` | Customer discount percentage                |
+| `spot_eviction_rates`  | Spot VM eviction rates (requires Azure auth) |
+| `spot_price_history`   | Spot VM price history (90 days)              |
+| `simulate_eviction`    | Simulate Spot VM eviction                    |
+
+The server includes a 256-entry TTL cache (5-minute pricing, 24-hour
+retirement data, 1-hour spot data), ~95 user-friendly service name
+mappings (e.g. `"vm"` → `"Virtual Machines"`), and structured error
+codes for consistent agent error handling.
+
+Primarily scoped to the **Architect** agent (Step 2), the
+**cost-estimate-subagent**, and the **As-Built** agent (Step 7).
+
+<a id="terraform-registry-mcp-server"></a>
+### 🏗️ Terraform Registry MCP Server
+
+| Property  | Value                                           |
+| --------- | ----------------------------------------------- |
+| Transport | stdio                                           |
+| Command   | Go binary (`terraform-mcp-server`)              |
+| Toolsets  | `registry`                                      |
+| Purpose   | Provider/module lookup, version discovery       |
+
+The Terraform MCP server provides registry integration for the Terraform
+IaC track. Agents use it to discover the latest provider and module
+versions, look up provider capabilities (resources, data sources, functions),
+and retrieve module details before generating Terraform configurations.
+
+Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
+CodeGen** (Step 5t), **terraform-lint-subagent**, and
+**terraform-review-subagent**.
+
+<a id="per-agent-mcp-scoping"></a>
+### 🎯 Per-Agent MCP Scoping
+
+Not every agent needs every MCP server. The `mcp-scoping.json` registry
+defines which servers each agent is allowed to use, minimising context
+pollution and preventing agents from invoking tools outside their domain:
+
+| Agent Role                    | MCP Servers                                   |
+| ----------------------------- | --------------------------------------------- |
+| Conductor, Requirements       | GitHub, Learn                                 |
+| Architect                     | GitHub, Learn, **Azure Pricing**              |
+| Design                        | GitHub, Learn                                 |
+| Bicep Planner/CodeGen         | GitHub, Learn                                 |
+| Terraform Planner/CodeGen     | GitHub, Learn, **Terraform**                  |
+| Deploy agents                 | GitHub                                        |
+| As-Built                      | GitHub, Learn, **Azure Pricing**              |
+| Cost Estimate Subagent        | **Azure Pricing**, Learn                      |
+| Terraform Lint/Review         | Learn, **Terraform**                          |
+| Context Optimizer             | _(none)_                                      |
+
+This scoping is currently documentation-only (pending VS Code support
+for per-agent MCP filtering), but agents are instructed to respect it
+through their skill and instruction definitions.
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+
+<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
+
 <a id="the-golden-principles"></a>
 ## 🏆 The Golden Principles
 
@@ -906,6 +1135,8 @@ mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
   — OpenAI's account of building a product with zero manually-written code
 - **Bosun**: [github.com/virtengine/bosun](https://github.com/virtengine/bosun)
   — Open-source control plane for autonomous software engineering
+- **Ralph**: [github.com/snarktank/ralph](https://github.com/snarktank/ralph)
+  — Autonomous AI agent loop based on Geoffrey Huntley's Ralph pattern
 - **Azure Well-Architected Framework**: [learn.microsoft.com/azure/well-architected](https://learn.microsoft.com/azure/well-architected/)
 - **Azure Verified Modules**: [aka.ms/AVM](https://aka.ms/AVM)
 - **Azure Cloud Adoption Framework**: [learn.microsoft.com/azure/cloud-adoption-framework](https://learn.microsoft.com/azure/cloud-adoption-framework/)
