@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `diagrams`.
 - feat(mcp): add GitHub and Microsoft Learn remote MCP servers.
 - feat(pricing-mcp): deliver Azure Pricing MCP v4.0/v4.1.0 improvements.
+- feat(scripts): add 5 CI enforcement validators for context-optimization guardrails
+  (`lint:agent-body-size`, `lint:glob-audit`, `lint:skill-size`, `lint:skill-references`,
+  `lint:orphaned-content`); validator count 15 → 22.
+- feat(agents): add fast-path `01-Conductor (Fast Path)` agent for simple 1–3 resource projects
+  with combined Plan+Code step and single challenger pass.
+- feat(ci): add weekly doc-freshness cron workflow and quarterly context audit checklist in
+  `AGENTS.md`.
 
 ### Changed
 
@@ -34,6 +41,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor(azure-mcp): migrate extension references to `vscode-azure-mcp-server`.
 - ci: tighten policy/compliance validation and branch merge-gate enforcement for Terraform rollout.
 - style: apply broad formatting and consistency cleanup across docs/instructions/scripts.
+- refactor(skills): split 10 large skills into core `SKILL.md` + on-demand `references/` files;
+  60 reference files total; skill context load reduced by 46% vs M1 baseline.
+- refactor(agents): trim all agent bodies to ≤350 lines with explicit tool-boundary declarations;
+  deduplicate cross-agent content via shared instruction globs; agent context reduced by 18%.
+- refactor(instructions): split 5 large instruction files into `references/` sub-documents and
+  enforce narrow glob patterns; instruction context reduced by 32%.
+- refactor(agents): overhaul subagent delegation patterns and introduce `iac-common` skill to
+  consolidate shared Bicep/Terraform deploy logic across agents 07b and 07t.
+- feat(agents): upgrade `challenger-review-subagent` from GPT-4o to Claude Sonnet 4.6.
+- fix(frontmatter): convert YAML block scalar descriptions to single-line inline strings across
+  all agent and skill frontmatter.
 
 ### Fixed
 
@@ -45,6 +63,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(actions): move deprecation tracker automation to PR flow.
 - fix(validation): resolve validation drift for stable `npm run validate:all` execution.
 - fix(azure-pricing-mcp): align bulk estimate formatter with the indices response shape.
+- fix(scripts): add remediation messages to all context-optimization validator failure outputs.
+- fix(scripts): prevent YAML block scalar descriptions from recurring after frontmatter cleanup.
+- fix(agents): remove deprecated `agent`/`runSubagent` tool declarations from all 13 agents.
+- build(devcontainer): replace `tfsec` with `checkov`; pin `tflint` to v0.61.0.
 
 ## [0.9.0] - 2026-02-12
 
