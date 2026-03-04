@@ -46,8 +46,9 @@
   "remoteEnv": {
     "AZURE_DEFAULTS_LOCATION": "swedencentral",
     // Pass GH_TOKEN from host → container. gh CLI uses it automatically, no `gh auth login` needed.
-    // Each user sets this once on their host: export GH_TOKEN=<pat> (Linux/macOS) or
-    // [System.Environment]::SetEnvironmentVariable('GH_TOKEN','<pat>','User') (Windows PowerShell).
+    // Each user sets this once in VS Code User Settings (Ctrl+,):
+    //   "terminal.integrated.env.linux": { "GH_TOKEN": "ghp_yourTokenHere" }
+    // This is the ONLY supported method — shell exports (.bashrc/.profile) do NOT propagate reliably.
     // Value is empty string if not set — gh CLI falls back to its normal auth flow.
     "GH_TOKEN": "${localEnv:GH_TOKEN}"
   },

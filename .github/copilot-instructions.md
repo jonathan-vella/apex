@@ -57,6 +57,7 @@ Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their bod
 - For issues and pull requests, always prefer GitHub MCP tools over `gh` CLI.
 - Only use `gh` for operations that have no equivalent MCP write tool in the current environment.
 - In devcontainers, do not run `gh auth` commands unless the user explicitly asks for CLI authentication troubleshooting.
+- `GH_TOKEN` is set via VS Code User Settings (`terminal.integrated.env.linux`) — shell exports do not propagate reliably.
 
 ## Key Conventions
 

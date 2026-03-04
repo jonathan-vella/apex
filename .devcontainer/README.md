@@ -78,10 +78,16 @@ It includes all required tools, extensions, and configurations to build Azure in
 ### GitHub CLI Authentication (GH_TOKEN)
 
 HTTPS-based `gh auth login` can fail inside devcontainers on some platforms (Windows, ARM, WSL 2).
-The recommended approach is a **Personal Access Token (PAT)** set as a host environment variable.
+The **only supported** approach is a **Personal Access Token (PAT)** set in **VS Code User Settings**.
 The container reads it automatically — no `gh auth login` required inside the container.
 
-#### Create a Fine-Grained PAT
+> **Why not shell exports?** Setting `GH_TOKEN` in `~/.bashrc`, `~/.profile`, or PowerShell
+> environment variables does **not** propagate reliably into devcontainers. VS Code reads
+> `${localEnv:GH_TOKEN}` from its own process environment, which only inherits from the
+> specific shell session that launched it. The VS Code settings method is deterministic and
+> survives rebuilds, reboots, and IDE restarts.
+
+#### Step 1: Create a Fine-Grained PAT
 
 > **Yes, fine-grained PATs work here.** The `gh` CLI fully supports fine-grained tokens
 > (`github_pat_...`) via the `GH_TOKEN` environment variable for all repository-scoped operations.
@@ -102,30 +108,33 @@ The container reads it automatically — no `gh auth login` required inside the 
 
 6. Copy the token (`github_pat_...`)
 
-#### Set it on your host machine (once per machine)
+#### Step 2: Add to VS Code User Settings (once per machine)
 
-```bash
-# Linux / macOS / WSL 2 — add to ~/.bashrc, ~/.zshrc, or ~/.profile, then reload
-export GH_TOKEN=github_pat_your_token_here
+1. Open VS Code Settings: **Ctrl+,** (or **Cmd+,** on macOS)
+2. Click the **Open Settings (JSON)** icon (top-right)
+3. Add this entry (replace the placeholder with your actual token):
+
+```jsonc
+"terminal.integrated.env.linux": { "GH_TOKEN": "github_pat_your_token_here" }
 ```
 
-```powershell
-# Windows PowerShell — user-scoped, survives reboots
-[System.Environment]::SetEnvironmentVariable('GH_TOKEN', 'github_pat_your_token_here', 'User')
-```
+<!-- markdownlint-disable MD029 -->
 
-The devcontainer forwards `GH_TOKEN` from your host automatically
-(`"GH_TOKEN": "${localEnv:GH_TOKEN}"` in `devcontainer.json`). If the variable is not set,
-`gh` falls back to its normal interactive auth flow.
+4. Save the file
+5. Rebuild the devcontainer: **F1 → Dev Containers: Rebuild Container**
+<!-- markdownlint-enable MD029 -->
 
-#### Verify inside the container
+The devcontainer forwards `GH_TOKEN` from VS Code's environment automatically
+(`"GH_TOKEN": "${localEnv:GH_TOKEN}"` in `devcontainer.json`).
+
+#### Step 3: Verify inside the container
 
 ```bash
 gh auth status
 # Expected: ✓ Logged in to github.com as <your-username> (token)
 ```
 
-> **Token rotation**: When your PAT expires, update the env var on your host machine and
+> **Token rotation**: When your PAT expires, update the value in VS Code User Settings and
 > rebuild the container (`F1 → Dev Containers: Rebuild Container`).
 
 ### First-Time Setup (Inside Container)
@@ -149,10 +158,10 @@ cd ../../infra/bicep/ && tree -L 2
 
 ### Pre-configured Environment Variables
 
-| Variable                  | Value                  | Purpose                                        |
-| ------------------------- | ---------------------- | ---------------------------------------------- |
-| `AZURE_DEFAULTS_LOCATION` | `swedencentral`        | Default Azure region (matches repo guidelines) |
-| `GH_TOKEN`                | `${localEnv:GH_TOKEN}` | GitHub PAT forwarded from host; enables `gh` CLI without interactive login |
+| Variable                  | Value                  | Purpose                                                                             |
+| ------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| `AZURE_DEFAULTS_LOCATION` | `swedencentral`        | Default Azure region (matches repo guidelines)                                      |
+| `GH_TOKEN`                | `${localEnv:GH_TOKEN}` | GitHub PAT set in VS Code User Settings; enables `gh` CLI without interactive login |
 
 ### Azure Credentials Mount
 

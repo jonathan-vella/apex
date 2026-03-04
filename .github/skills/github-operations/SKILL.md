@@ -28,6 +28,8 @@ Follow this protocol for every GitHub task:
 
 - Do not run `gh auth login` or `gh auth status` in devcontainer workflows
   unless the user explicitly asks for CLI auth troubleshooting.
+- `GH_TOKEN` must be set via VS Code User Settings (`terminal.integrated.env.linux`)
+  — shell exports (`.bashrc`, `.profile`) do NOT propagate reliably into devcontainers.
 - For PR/issue creation, rely on MCP tool authentication by default.
 - If MCP write tools are missing in the current environment,
   report the limitation explicitly and provide a no-auth fallback path
