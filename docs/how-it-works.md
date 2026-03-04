@@ -3,11 +3,13 @@
 </div>
 
 <a id="how-agentic-infraops-works"></a>
+
 # 🚀 How Agentic InfraOps Works
 
 > A comprehensive guide to the multi-agent orchestration system for Azure infrastructure development.
 
 <a id="table-of-contents"></a>
+
 ## 📑 Table of Contents
 
 - [Executive Summary](#executive-summary)
@@ -65,6 +67,7 @@
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 <a id="executive-summary"></a>
+
 ## 📋 Executive Summary
 
 Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
@@ -83,12 +86,14 @@ operator control at every critical decision point.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 <a id="intellectual-foundations"></a>
+
 ## 🧠 Intellectual Foundations
 
 This project draws directly from two bodies of work that define how autonomous AI agents
 can operate reliably in professional software engineering contexts.
 
 <a id="harness-engineering-openai"></a>
+
 ### 🛠️ Harness Engineering (OpenAI)
 
 <div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
@@ -129,6 +134,7 @@ refactoring pull requests. This project implements a quarterly context audit che
 and weekly documentation freshness checks.
 
 <a id="bosun-virtengine"></a>
+
 ### ⚓ Bosun (VirtEngine)
 
 [Bosun](https://github.com/virtengine/bosun) is an open-source, production-grade control
@@ -187,6 +193,7 @@ MCP server selection. This project's `mcp-scoping.json` maps each agent to its r
 MCP servers.
 
 <a id="ralph-snarktank"></a>
+
 ### 🔁 Ralph (Snarktank)
 
 [Ralph](https://github.com/snarktank/ralph) is an autonomous AI agent loop
@@ -235,6 +242,7 @@ validation pass, and the Conductor agent tracks completion state in the
 session state file.
 
 <a id="how-this-project-synthesises-all-three"></a>
+
 ### ⚖️ How This Project Synthesises All Three
 
 Harness Engineering provides the **philosophy**: treat the repository as the single source
@@ -251,27 +259,29 @@ stop conditions.
 
 This project weaves all three into a system purpose-built for Azure infrastructure:
 
-| Concern                    | Harness Engineering Principle           | Bosun Pattern                       | Ralph Pattern                        | This Project                                     |
-| -------------------------- | --------------------------------------- | ----------------------------------- | ------------------------------------ | ------------------------------------------------ |
-| Knowledge management       | Repo is system of record                | Shared knowledge base               | `AGENTS.md` + `progress.txt`        | Skills + instructions + `agent-output/`          |
-| Context management         | Map, not manual                         | Context shredding                   | Fresh context per iteration          | Progressive skill loading + 3-tier compression   |
-| Quality enforcement        | Mechanical enforcement of invariants    | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops          | 27 validators + pre-commit/push hooks            |
-| Workflow orchestration     | Structured step progression             | Workflow engine DAG                 | Bash loop + `prd.json` task list     | `workflow-graph.json` + Conductor agent          |
-| Concurrency safety         | —                                       | Claim-based locking                 | Single-instance sequential loop      | Session state v2.0 with lock/claim model         |
-| Task decomposition         | —                                       | —                                   | One context window per story         | One artefact per workflow step                   |
-| Cost optimisation          | —                                       | Task complexity routing             | —                                    | `complexity-routing.json` model tier selection   |
-| Failure resilience         | —                                       | Circuit breaker + anomaly detection | CI-gated iteration                   | Failure taxonomy + stopping rules                |
-| Learning persistence       | Human taste gets encoded                | —                                   | Append-only `progress.txt`           | Skills + instructions evolve over time           |
-| Human control              | Human taste gets encoded                | Mandatory review gates              | Max iterations cap                   | 5 approval gates + challenger reviews            |
+| Concern                | Harness Engineering Principle        | Bosun Pattern                       | Ralph Pattern                    | This Project                                   |
+| ---------------------- | ------------------------------------ | ----------------------------------- | -------------------------------- | ---------------------------------------------- |
+| Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`        |
+| Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression |
+| Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | 27 validators + pre-commit/push hooks          |
+| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent        |
+| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model       |
+| Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                 |
+| Cost optimisation      | —                                    | Task complexity routing             | —                                | `complexity-routing.json` model tier selection |
+| Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules              |
+| Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time         |
+| Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews          |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="system-architecture-overview"></a>
+
 ## 📐 System Architecture Overview
 
 <a id="the-7-step-workflow"></a>
+
 ### 🔄 The 7-Step Workflow
 
 The system follows a strict sequential workflow with mandatory human approval gates
@@ -316,17 +326,18 @@ flowchart LR
     S1 --> G1 --> S2 --> G2 --> S3 --> S4 --> G3 --> S5 --> G4 --> S6 --> G5 --> S7
 ```
 
-| Step | Phase         | Agent                              | Output                                    | Review           |
-| ---- | ------------- | ---------------------------------- | ----------------------------------------- | ---------------- |
-| 1    | Requirements  | 02-Requirements                    | `01-requirements.md`                      | 1 challenger pass |
-| 2    | Architecture  | 03-Architect                       | `02-architecture-assessment.md` + cost    | 3+1 passes       |
-| 3    | Design (opt)  | 04-Design                          | `03-des-*.{py,png,md}`                    | —                |
-| 4    | IaC Plan      | 05b-Bicep Planner / 05t-TF Planner | `04-implementation-plan.md` + governance  | 1+3 passes       |
-| 5    | IaC Code      | 06b-Bicep CodeGen / 06t-TF CodeGen | `infra/bicep/` or `infra/terraform/`      | 3 passes         |
-| 6    | Deploy        | 07b-Bicep Deploy / 07t-TF Deploy   | `06-deployment-summary.md`                | 1 pass           |
-| 7    | As-Built      | 08-As-Built                        | `07-*.md` documentation suite             | —                |
+| Step | Phase        | Agent                              | Output                                   | Review            |
+| ---- | ------------ | ---------------------------------- | ---------------------------------------- | ----------------- |
+| 1    | Requirements | 02-Requirements                    | `01-requirements.md`                     | 1 challenger pass |
+| 2    | Architecture | 03-Architect                       | `02-architecture-assessment.md` + cost   | 3+1 passes        |
+| 3    | Design (opt) | 04-Design                          | `03-des-*.{py,png,md}`                   | —                 |
+| 4    | IaC Plan     | 05b-Bicep Planner / 05t-TF Planner | `04-implementation-plan.md` + governance | 1+3 passes        |
+| 5    | IaC Code     | 06b-Bicep CodeGen / 06t-TF CodeGen | `infra/bicep/` or `infra/terraform/`     | 3 passes          |
+| 6    | Deploy       | 07b-Bicep Deploy / 07t-TF Deploy   | `06-deployment-summary.md`               | 1 pass            |
+| 7    | As-Built     | 08-As-Built                        | `07-*.md` documentation suite            | —                 |
 
 <a id="the-conductor-pattern"></a>
+
 ### 🎼 The Conductor Pattern
 
 <div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
@@ -345,6 +356,7 @@ The Conductor never touches infrastructure templates. It is a pure orchestrator 
 state machine.
 
 <a id="dual-iac-tracks"></a>
+
 ### 🛤️ Dual IaC Tracks
 
 <div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
@@ -394,12 +406,14 @@ flowchart TD
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="the-four-pillars"></a>
+
 ## 🏛️ The Four Pillars
 
 The system's knowledge architecture is built on four distinct layers, each serving
 a specific purpose in the agent's context window.
 
 <a id="1-agents"></a>
+
 ### 🤖 1. Agents
 
 **What they are**: Agent definitions (`.agent.md` files) define a specialised AI persona
@@ -415,6 +429,7 @@ invokes an agent in VS Code Copilot Chat, the entire body becomes part of the sy
 Heavy knowledge is externalised into skills and loaded on demand.
 
 <a id="2-skills"></a>
+
 ### 🥋 2. Skills
 
 **What they are**: Reusable domain knowledge packages that agents load when they need
@@ -431,6 +446,7 @@ reference material is stored in subdirectories, loaded only when the agent's tas
 and drill into `references/` only when needed.
 
 <a id="3-instructions"></a>
+
 ### 📜 3. Instructions
 
 **What they are**: Enforcement rules that apply automatically based on file type. Unlike
@@ -449,6 +465,7 @@ suffix conventions.
 `applyTo: "**"` is reserved for truly universal rules only.
 
 <a id="4-configuration-registries"></a>
+
 ### ⚙️ 4. Configuration Registries
 
 **What they are**: Machine-readable JSON files that provide runtime configuration for
@@ -456,22 +473,24 @@ the agent system.
 
 **Where they live**: `.github/` root and within skills.
 
-| Registry                | Path                                                              | Purpose                                      |
-| ----------------------- | ----------------------------------------------------------------- | -------------------------------------------- |
-| Agent Registry          | `.github/agent-registry.json`                                     | Agent role → file, model, required skills    |
-| MCP Scoping             | `.github/mcp-scoping.json`                                       | Agent → required MCP servers                 |
-| Skill Affinity          | `.github/skill-affinity.json`                                    | Agent → skill weights (primary/secondary)    |
-| Workflow Graph          | `.github/skills/workflow-engine/templates/workflow-graph.json`    | 7-step DAG with nodes, edges, conditions     |
-| Complexity Routing      | `.github/skills/workflow-engine/references/complexity-routing.json` | Step → model tier (low/medium/high)        |
+| Registry           | Path                                                                | Purpose                                   |
+| ------------------ | ------------------------------------------------------------------- | ----------------------------------------- |
+| Agent Registry     | `.github/agent-registry.json`                                       | Agent role → file, model, required skills |
+| MCP Scoping        | `.github/mcp-scoping.json`                                          | Agent → required MCP servers              |
+| Skill Affinity     | `.github/skill-affinity.json`                                       | Agent → skill weights (primary/secondary) |
+| Workflow Graph     | `.github/skills/workflow-engine/templates/workflow-graph.json`      | 7-step DAG with nodes, edges, conditions  |
+| Complexity Routing | `.github/skills/workflow-engine/references/complexity-routing.json` | Step → model tier (low/medium/high)       |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="agentsmd-and-copilot-instructions"></a>
+
 ## 🗂️ AGENTS.md and Copilot Instructions
 
 <a id="agentsmd-the-table-of-contents"></a>
+
 ### 📖 AGENTS.md — The Table of Contents
 
 Following the Harness Engineering principle of "map, not manual," the root `AGENTS.md`
@@ -490,6 +509,7 @@ serves as the entry point for all agents. At approximately 250 lines, it provide
 template structures. Those are delegated to skills.
 
 <a id="copilot-instructionsmd-the-vs-code-bridge"></a>
+
 ### 🌉 copilot-instructions.md — The VS Code Bridge
 
 The `.github/copilot-instructions.md` file is VS Code Copilot's orchestration layer.
@@ -510,9 +530,11 @@ concerns rather than repository-wide conventions.
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="deep-dive-agent-architecture"></a>
+
 ## 🕵️‍♂️ Deep Dive: Agent Architecture
 
 <a id="agent-anatomy"></a>
+
 ### 🧬 Agent Anatomy
 
 Every agent definition follows a standard structure:
@@ -529,19 +551,15 @@ handoffs:
     agent: 07b-Bicep Deploy
     prompt: "Deploy the Bicep templates..."
 ---
-
 # Body (≤ 350 lines)
 ## MANDATORY: Read Skills First
 1. **Read** `.github/skills/azure-defaults/SKILL.md`
 2. **Read** `.github/skills/azure-artifacts/SKILL.md`
 ...
-
 ## Session Resume Protocol
 ...
-
 ## DO / DON'T
 ...
-
 ## Phased Workflow
 Phase 1: Prerequisites check
 Phase 2: Code generation
@@ -553,45 +571,48 @@ The frontmatter is machine-readable metadata. The body is the agent's operating 
 loaded into the system prompt when the agent is invoked.
 
 <a id="top-level-agents-14"></a>
+
 ### 👑 Top-Level Agents (14)
 
-| Agent                    | Role                                      | Primary Skills                         |
-| ------------------------ | ----------------------------------------- | -------------------------------------- |
-| 01-Conductor             | Master orchestrator                       | workflow-engine, session-resume         |
-| 01-Conductor (Fast Path) | Simplified path for ≤3 resources          | session-resume, azure-defaults         |
-| 02-Requirements          | Captures project requirements             | azure-defaults, azure-artifacts        |
-| 03-Architect             | WAF assessment and cost estimation        | azure-defaults, microsoft-docs         |
-| 04-Design                | Diagrams and ADRs                         | azure-diagrams, azure-adr             |
-| 05b-Bicep Planner        | Bicep implementation planning             | azure-bicep-patterns                   |
-| 05t-Terraform Planner    | Terraform implementation planning         | terraform-patterns                     |
-| 06b-Bicep CodeGen        | Bicep template generation                 | azure-bicep-patterns                   |
-| 06t-Terraform CodeGen    | Terraform configuration generation        | terraform-patterns                     |
-| 07b-Bicep Deploy         | Bicep deployment execution                | iac-common                             |
-| 07t-Terraform Deploy     | Terraform deployment execution            | iac-common, terraform-patterns         |
-| 08-As-Built              | Post-deployment documentation             | azure-artifacts, azure-diagrams        |
-| 09-Diagnose              | Azure resource troubleshooting            | azure-troubleshooting                  |
-| 10-Challenger             | Standalone adversarial review             | —                                      |
-| 11-Context Optimizer     | Context window audit and optimisation     | context-optimizer                      |
+| Agent                    | Role                                  | Primary Skills                  |
+| ------------------------ | ------------------------------------- | ------------------------------- |
+| 01-Conductor             | Master orchestrator                   | workflow-engine, session-resume |
+| 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults  |
+| 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts |
+| 03-Architect             | WAF assessment and cost estimation    | azure-defaults, microsoft-docs  |
+| 04-Design                | Diagrams and ADRs                     | azure-diagrams, azure-adr       |
+| 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns            |
+| 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns              |
+| 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns            |
+| 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns              |
+| 07b-Bicep Deploy         | Bicep deployment execution            | iac-common                      |
+| 07t-Terraform Deploy     | Terraform deployment execution        | iac-common, terraform-patterns  |
+| 08-As-Built              | Post-deployment documentation         | azure-artifacts, azure-diagrams |
+| 09-Diagnose              | Azure resource troubleshooting        | azure-troubleshooting           |
+| 10-Challenger            | Standalone adversarial review         | —                               |
+| 11-Context Optimizer     | Context window audit and optimisation | context-optimizer               |
 
 <a id="subagents-9"></a>
+
 ### 🕵️‍♀️ Subagents (9)
 
 Subagents are not user-invokable. They are delegated to by parent agents for isolated,
 specific tasks:
 
-| Subagent                        | Purpose                               | Invoked By              |
-| ------------------------------- | ------------------------------------- | ----------------------- |
-| challenger-review-subagent      | Adversarial review of artifacts       | Steps 1, 2, 4, 5, 6    |
-| cost-estimate-subagent          | Azure Pricing MCP queries             | Steps 2, 7             |
-| governance-discovery-subagent   | Azure Policy discovery via REST API   | Step 4                 |
-| bicep-lint-subagent             | `bicep build` + `bicep lint`          | Step 5 (Bicep)         |
-| bicep-review-subagent           | Code review against AVM standards     | Step 5 (Bicep)         |
-| bicep-whatif-subagent           | `az deployment what-if` preview       | Step 6 (Bicep)         |
-| terraform-lint-subagent         | `terraform fmt` + `terraform validate` | Step 5 (Terraform)     |
-| terraform-review-subagent       | Code review against AVM-TF standards  | Step 5 (Terraform)     |
-| terraform-plan-subagent         | `terraform plan` preview              | Step 6 (Terraform)     |
+| Subagent                      | Purpose                                | Invoked By          |
+| ----------------------------- | -------------------------------------- | ------------------- |
+| challenger-review-subagent    | Adversarial review of artifacts        | Steps 1, 2, 4, 5, 6 |
+| cost-estimate-subagent        | Azure Pricing MCP queries              | Steps 2, 7          |
+| governance-discovery-subagent | Azure Policy discovery via REST API    | Step 4              |
+| bicep-lint-subagent           | `bicep build` + `bicep lint`           | Step 5 (Bicep)      |
+| bicep-review-subagent         | Code review against AVM standards      | Step 5 (Bicep)      |
+| bicep-whatif-subagent         | `az deployment what-if` preview        | Step 6 (Bicep)      |
+| terraform-lint-subagent       | `terraform fmt` + `terraform validate` | Step 5 (Terraform)  |
+| terraform-review-subagent     | Code review against AVM-TF standards   | Step 5 (Terraform)  |
+| terraform-plan-subagent       | `terraform plan` preview               | Step 6 (Terraform)  |
 
 <a id="the-challenger-pattern"></a>
+
 ### 🤺 The Challenger Pattern
 
 The `challenger-review-subagent` implements adversarial review at critical workflow steps.
@@ -607,6 +628,7 @@ Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Onl
 `must_fix` findings block workflow progression.
 
 <a id="handoffs-and-delegation"></a>
+
 ### 🤝 Handoffs and Delegation
 
 Agents communicate through artefact files, not direct message passing. The Conductor
@@ -623,9 +645,11 @@ The next agent reads those files as input. This design:
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="deep-dive-skills-system"></a>
+
 ## 🤿 Deep Dive: Skills System
 
 <a id="skill-structure"></a>
+
 ### 🏗️ Skill Structure
 
 Each skill follows a standard layout:
@@ -641,6 +665,7 @@ Each skill follows a standard layout:
 ```
 
 <a id="progressive-loading"></a>
+
 ### ⏳ Progressive Loading
 
 Skills implement three levels of disclosure:
@@ -655,48 +680,52 @@ Skills implement three levels of disclosure:
    Loaded only during the output generation phase.
 
 <a id="skill-catalog"></a>
+
 ### 🗃️ Skill Catalog
 
 The system contains 20 skills across several domains:
 
-| Domain                  | Skills                                                                                |
-| ----------------------- | ------------------------------------------------------------------------------------- |
-| Azure Infrastructure    | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`                        |
-| Azure Operations        | `azure-troubleshooting`, `azure-diagrams`, `azure-adr`                                |
-| Artefact Generation     | `azure-artifacts`, `context-shredding`                                                |
-| Documentation           | `docs-writer`, `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator` |
-| Workflow and State      | `session-resume`, `workflow-engine`, `golden-principles`                               |
-| Deployment              | `iac-common`                                                                          |
-| GitHub Operations       | `github-operations`, `git-commit`                                                     |
-| Meta / Tooling          | `make-skill-template`, `context-optimizer`                                            |
+| Domain               | Skills                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`                         |
+| Azure Operations     | `azure-troubleshooting`, `azure-diagrams`, `azure-adr`                                 |
+| Artefact Generation  | `azure-artifacts`, `context-shredding`                                                 |
+| Documentation        | `docs-writer`, `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator` |
+| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`                               |
+| Deployment           | `iac-common`                                                                           |
+| GitHub Operations    | `github-operations`, `git-commit`                                                      |
+| Meta / Tooling       | `make-skill-template`, `context-optimizer`                                             |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="deep-dive-instruction-system"></a>
+
 ## 🧪 Deep Dive: Instruction System
 
 <a id="glob-based-auto-application"></a>
+
 ### 🌐 Glob-Based Auto-Application
 
 Instructions are not read explicitly by agents. They are injected automatically by
 VS Code Copilot when a matching file is in context. The `applyTo` glob pattern controls
 when each instruction activates:
 
-| Instruction                              | `applyTo`                   | Enforces                               |
-| ---------------------------------------- | --------------------------- | -------------------------------------- |
-| `bicep-code-best-practices`              | `**/*.bicep`                | AVM-first, security baseline, naming   |
-| `terraform-code-best-practices`          | `**/*.tf`                   | AVM-TF, provider pinning, naming       |
-| `bicep-policy-compliance`                | `**/*.bicep`                | Azure Policy compliance in Bicep       |
-| `terraform-policy-compliance`            | `**/*.tf`                   | Azure Policy compliance in Terraform   |
-| `azure-artifacts`                        | `**/agent-output/**/*.md`   | H2 template compliance for artefacts   |
-| `agent-definitions`                      | `**/*.agent.md`             | Frontmatter standards for agents       |
-| `markdown`                               | `**/*.md`                   | Documentation standards                |
-| `context-optimization`                   | Agents, skills, instructions | Context window management rules       |
-| `no-heredoc`                             | `**`                        | Prevents terminal heredoc corruption   |
+| Instruction                     | `applyTo`                    | Enforces                             |
+| ------------------------------- | ---------------------------- | ------------------------------------ |
+| `bicep-code-best-practices`     | `**/*.bicep`                 | AVM-first, security baseline, naming |
+| `terraform-code-best-practices` | `**/*.tf`                    | AVM-TF, provider pinning, naming     |
+| `bicep-policy-compliance`       | `**/*.bicep`                 | Azure Policy compliance in Bicep     |
+| `terraform-policy-compliance`   | `**/*.tf`                    | Azure Policy compliance in Terraform |
+| `azure-artifacts`               | `**/agent-output/**/*.md`    | H2 template compliance for artefacts |
+| `agent-definitions`             | `**/*.agent.md`              | Frontmatter standards for agents     |
+| `markdown`                      | `**/*.md`                    | Documentation standards              |
+| `context-optimization`          | Agents, skills, instructions | Context window management rules      |
+| `no-heredoc`                    | `**`                         | Prevents terminal heredoc corruption |
 
 <a id="enforcement-over-documentation"></a>
+
 ### 👮 Enforcement Over Documentation
 
 Following the Golden Principle "Mechanical Enforcement Over Documentation," every
@@ -708,11 +737,13 @@ check, it should be one. Documentation is for humans; machines enforce rules.
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="deep-dive-workflow-engine"></a>
+
 ## ⚙️ Deep Dive: Workflow Engine
 
 <div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop" height="250" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
 <a id="the-dag-model"></a>
+
 ### 🕸️ The DAG Model
 
 The workflow is encoded as a machine-readable directed acyclic graph in
@@ -774,19 +805,21 @@ edge has a condition (`on_complete`, `on_skip`, `on_fail`). Conditional routing 
 nodes is governed by the `decisions.iac_tool` field.
 
 <a id="gates-and-approval-points"></a>
+
 ### 🚧 Gates and Approval Points
 
 Five mandatory gates require explicit human confirmation before the workflow advances:
 
-| Gate | After    | Blocks Until                                    |
-| ---- | -------- | ----------------------------------------------- |
-| 1    | Step 1   | User approves requirements                      |
-| 2    | Step 2   | User approves architecture and cost estimate    |
-| 3    | Step 4   | User approves implementation plan               |
-| 4    | Step 5   | Automated validation passes (lint, build, review) |
-| 5    | Step 6   | User approves deployment and verifies resources |
+| Gate | After  | Blocks Until                                      |
+| ---- | ------ | ------------------------------------------------- |
+| 1    | Step 1 | User approves requirements                        |
+| 2    | Step 2 | User approves architecture and cost estimate      |
+| 3    | Step 4 | User approves implementation plan                 |
+| 4    | Step 5 | Automated validation passes (lint, build, review) |
+| 5    | Step 6 | User approves deployment and verifies resources   |
 
 <a id="iac-routing"></a>
+
 ### 🔀 IaC Routing
 
 The `iac_tool` field in `01-requirements.md` determines which track is activated.
@@ -794,6 +827,7 @@ Steps 4b, 5b, 6b form the Bicep track; steps 4t, 5t, 6t form the Terraform track
 Only one track is active for a given project.
 
 <a id="session-state-and-resume"></a>
+
 ### 💾 Session State and Resume
 
 The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
@@ -832,30 +866,33 @@ The claim model prevents concurrent sessions from corrupting state. Stale heartb
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="deep-dive-quality-and-safety-systems"></a>
+
 ## 🛡️ Deep Dive: Quality and Safety Systems
 
 <a id="27-validation-scripts"></a>
+
 ### ✅ 27 Validation Scripts
 
 Every convention is backed by a machine-enforceable check:
 
-| Category          | Validators                                                                         |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| Markdown          | `lint:md`, `lint:links:docs`                                                       |
-| Artefact format   | `lint:artifact-templates`, `lint:h2-sync`, `fix:artifact-h2`                       |
-| Agent quality     | `lint:agent-frontmatter`, `lint:agent-body-size`                                   |
-| Skill quality     | `lint:skills-format`, `lint:skill-size`, `lint:skill-references`, `lint:orphaned-content` |
-| Instruction quality | `lint:instruction-frontmatter`, `validate:instruction-refs`                      |
-| Governance        | `lint:governance-refs`, `lint:mcp-config`                                          |
-| Infrastructure    | `lint:terraform-fmt`, `validate:terraform`                                         |
-| Session state     | `validate:session-state`, `validate:session-lock`                                  |
-| Registry/config   | `validate:workflow-graph`, `validate:agent-registry`, `validate:mcp-scoping`, `validate:skill-affinity` |
-| Code quality      | `lint:json`, `lint:python`                                                         |
-| Meta              | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit` |
+| Category            | Validators                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| Markdown            | `lint:md`, `lint:links:docs`                                                                            |
+| Artefact format     | `lint:artifact-templates`, `lint:h2-sync`, `fix:artifact-h2`                                            |
+| Agent quality       | `lint:agent-frontmatter`, `lint:agent-body-size`                                                        |
+| Skill quality       | `lint:skills-format`, `lint:skill-size`, `lint:skill-references`, `lint:orphaned-content`               |
+| Instruction quality | `lint:instruction-frontmatter`, `validate:instruction-refs`                                             |
+| Governance          | `lint:governance-refs`, `lint:mcp-config`                                                               |
+| Infrastructure      | `lint:terraform-fmt`, `validate:terraform`                                                              |
+| Session state       | `validate:session-state`, `validate:session-lock`                                                       |
+| Registry/config     | `validate:workflow-graph`, `validate:agent-registry`, `validate:mcp-scoping`, `validate:skill-affinity` |
+| Code quality        | `lint:json`, `lint:python`                                                                              |
+| Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`                   |
 
 All validators run via `npm run validate:all`.
 
 <a id="git-hooks-pre-commit-and-pre-push"></a>
+
 ### 🪝 Git Hooks (Pre-Commit and Pre-Push)
 
 **Pre-commit** (sequential, via lefthook): Validates staged files only — markdown lint,
@@ -874,34 +911,37 @@ script categorises changed files and runs only matching validators:
 - `*.py` → Ruff lint
 
 <a id="circuit-breaker"></a>
+
 ### 🔌 Circuit Breaker
 
 The circuit breaker pattern protects against runaway agent loops during deployment:
 
-| Anomaly Pattern      | Detection Threshold | Action                          |
-| -------------------- | ------------------- | ------------------------------- |
-| Error repetition     | 3 consecutive       | Halt, write `blocked` finding   |
-| Empty response loop  | 3 consecutive       | Halt, escalate to human         |
-| Timeout cascade      | 3 consecutive       | Halt, check auth                |
-| What-if oscillation  | 2 cycles            | Halt, flag resource conflict    |
-| Auth failure loop    | 2 consecutive       | Halt, prompt re-authentication  |
+| Anomaly Pattern     | Detection Threshold | Action                         |
+| ------------------- | ------------------- | ------------------------------ |
+| Error repetition    | 3 consecutive       | Halt, write `blocked` finding  |
+| Empty response loop | 3 consecutive       | Halt, escalate to human        |
+| Timeout cascade     | 3 consecutive       | Halt, check auth               |
+| What-if oscillation | 2 cycles            | Halt, flag resource conflict   |
+| Auth failure loop   | 2 consecutive       | Halt, prompt re-authentication |
 
 <a id="context-compression"></a>
+
 ### 🗜️ Context Compression
 
 When agents approach model context limits, the context-shredding system activates:
 
-| Tier         | Trigger    | Strategy                                      |
-| ------------ | ---------- | --------------------------------------------- |
-| `full`       | < 60% used | Load entire artefact                          |
-| `summarized` | 60–80%     | Key H2 sections only (tables preserved)       |
-| `minimal`    | > 80%      | Decision summaries only (< 500 characters)    |
+| Tier         | Trigger    | Strategy                                   |
+| ------------ | ---------- | ------------------------------------------ |
+| `full`       | < 60% used | Load entire artefact                       |
+| `summarized` | 60–80%     | Key H2 sections only (tables preserved)    |
+| `minimal`    | > 80%      | Decision summaries only (< 500 characters) |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="deep-dive-mcp-server-integration"></a>
+
 ## 🔌 Deep Dive: MCP Server Integration
 
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
@@ -910,6 +950,7 @@ This project integrates four MCP servers, each providing specialised
 capabilities that agents invoke at runtime.
 
 <a id="mcp-architecture"></a>
+
 ### 🏗️ MCP Architecture
 
 All MCP servers are declared in `.vscode/mcp.json` and start automatically
@@ -951,14 +992,15 @@ flowchart LR
 ```
 
 <a id="github-mcp-server"></a>
+
 ### 🐙 GitHub MCP Server
 
-| Property  | Value                                           |
-| --------- | ----------------------------------------------- |
-| Transport | HTTP                                            |
-| Endpoint  | `https://api.githubcopilot.com/mcp/`            |
-| Auth      | Automatic via GitHub Copilot token              |
-| Purpose   | Issues, PRs, repos, code search, file content   |
+| Property  | Value                                         |
+| --------- | --------------------------------------------- |
+| Transport | HTTP                                          |
+| Endpoint  | `https://api.githubcopilot.com/mcp/`          |
+| Auth      | Automatic via GitHub Copilot token            |
+| Purpose   | Issues, PRs, repos, code search, file content |
 
 The GitHub MCP server is the primary interface for repository operations.
 Agents use it to create issues, open pull requests, search code, read file
@@ -966,14 +1008,15 @@ contents, manage branches, and automate the Smart PR Flow lifecycle. It is
 scoped as a default server — every agent has access.
 
 <a id="microsoft-learn-mcp-server"></a>
+
 ### 📚 Microsoft Learn MCP Server
 
-| Property  | Value                                           |
-| --------- | ----------------------------------------------- |
-| Transport | HTTP                                            |
-| Endpoint  | `https://learn.microsoft.com/api/mcp`           |
-| Auth      | None (public API)                               |
-| Purpose   | Azure docs, SDK references, code samples        |
+| Property  | Value                                    |
+| --------- | ---------------------------------------- |
+| Transport | HTTP                                     |
+| Endpoint  | `https://learn.microsoft.com/api/mcp`    |
+| Auth      | None (public API)                        |
+| Purpose   | Azure docs, SDK references, code samples |
 
 The Microsoft Learn MCP server provides access to official Microsoft
 documentation. Agents query it to look up Azure service limits, find
@@ -983,35 +1026,36 @@ are built on top of this server. It is scoped as a default server alongside
 GitHub.
 
 <a id="azure-pricing-mcp-server"></a>
+
 ### 💰 Azure Pricing MCP Server
 
-| Property   | Value                                                    |
-| ---------- | -------------------------------------------------------- |
-| Transport  | stdio                                                    |
-| Command    | Python (`azure_pricing_mcp` module)                      |
-| Auth       | None for pricing; Azure credentials for Spot VM tools    |
-| Tools      | 13 tools                                                 |
-| Source     | `mcp/azure-pricing-mcp/` (custom, built in-repo)         |
+| Property  | Value                                                 |
+| --------- | ----------------------------------------------------- |
+| Transport | stdio                                                 |
+| Command   | Python (`azure_pricing_mcp` module)                   |
+| Auth      | None for pricing; Azure credentials for Spot VM tools |
+| Tools     | 13 tools                                              |
+| Source    | `mcp/azure-pricing-mcp/` (custom, built in-repo)      |
 
 This is a **custom MCP server built specifically for this project**. It
 queries the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
 and provides 13 tools for cost estimation:
 
-| Tool                   | Purpose                                      |
-| ---------------------- | -------------------------------------------- |
-| `azure_price_search`   | Search retail prices with filters            |
-| `azure_price_compare`  | Compare prices across regions/SKUs           |
-| `azure_cost_estimate`  | Estimate costs based on usage                |
-| `azure_discover_skus`  | List available SKUs for a service            |
-| `azure_sku_discovery`  | Intelligent SKU name matching                |
-| `azure_region_recommend` | Find cheapest regions                      |
-| `azure_ri_pricing`     | Reserved Instance pricing and savings        |
-| `azure_bulk_estimate`  | Multi-resource estimate in one call          |
-| `azure_cache_stats`    | API cache hit/miss statistics                |
-| `get_customer_discount` | Customer discount percentage                |
-| `spot_eviction_rates`  | Spot VM eviction rates (requires Azure auth) |
-| `spot_price_history`   | Spot VM price history (90 days)              |
-| `simulate_eviction`    | Simulate Spot VM eviction                    |
+| Tool                     | Purpose                                      |
+| ------------------------ | -------------------------------------------- |
+| `azure_price_search`     | Search retail prices with filters            |
+| `azure_price_compare`    | Compare prices across regions/SKUs           |
+| `azure_cost_estimate`    | Estimate costs based on usage                |
+| `azure_discover_skus`    | List available SKUs for a service            |
+| `azure_sku_discovery`    | Intelligent SKU name matching                |
+| `azure_region_recommend` | Find cheapest regions                        |
+| `azure_ri_pricing`       | Reserved Instance pricing and savings        |
+| `azure_bulk_estimate`    | Multi-resource estimate in one call          |
+| `azure_cache_stats`      | API cache hit/miss statistics                |
+| `get_customer_discount`  | Customer discount percentage                 |
+| `spot_eviction_rates`    | Spot VM eviction rates (requires Azure auth) |
+| `spot_price_history`     | Spot VM price history (90 days)              |
+| `simulate_eviction`      | Simulate Spot VM eviction                    |
 
 The server includes a 256-entry TTL cache (5-minute pricing, 24-hour
 retirement data, 1-hour spot data), ~95 user-friendly service name
@@ -1022,14 +1066,15 @@ Primarily scoped to the **Architect** agent (Step 2), the
 **cost-estimate-subagent**, and the **As-Built** agent (Step 7).
 
 <a id="terraform-registry-mcp-server"></a>
+
 ### 🏗️ Terraform Registry MCP Server
 
-| Property  | Value                                           |
-| --------- | ----------------------------------------------- |
-| Transport | stdio                                           |
-| Command   | Go binary (`terraform-mcp-server`)              |
-| Toolsets  | `registry`                                      |
-| Purpose   | Provider/module lookup, version discovery       |
+| Property  | Value                                     |
+| --------- | ----------------------------------------- |
+| Transport | stdio                                     |
+| Command   | Go binary (`terraform-mcp-server`)        |
+| Toolsets  | `registry`                                |
+| Purpose   | Provider/module lookup, version discovery |
 
 The Terraform MCP server provides registry integration for the Terraform
 IaC track. Agents use it to discover the latest provider and module
@@ -1041,24 +1086,25 @@ CodeGen** (Step 5t), **terraform-lint-subagent**, and
 **terraform-review-subagent**.
 
 <a id="per-agent-mcp-scoping"></a>
+
 ### 🎯 Per-Agent MCP Scoping
 
 Not every agent needs every MCP server. The `mcp-scoping.json` registry
 defines which servers each agent is allowed to use, minimising context
 pollution and preventing agents from invoking tools outside their domain:
 
-| Agent Role                    | MCP Servers                                   |
-| ----------------------------- | --------------------------------------------- |
-| Conductor, Requirements       | GitHub, Learn                                 |
-| Architect                     | GitHub, Learn, **Azure Pricing**              |
-| Design                        | GitHub, Learn                                 |
-| Bicep Planner/CodeGen         | GitHub, Learn                                 |
-| Terraform Planner/CodeGen     | GitHub, Learn, **Terraform**                  |
-| Deploy agents                 | GitHub                                        |
-| As-Built                      | GitHub, Learn, **Azure Pricing**              |
-| Cost Estimate Subagent        | **Azure Pricing**, Learn                      |
-| Terraform Lint/Review         | Learn, **Terraform**                          |
-| Context Optimizer             | _(none)_                                      |
+| Agent Role                | MCP Servers                      |
+| ------------------------- | -------------------------------- |
+| Conductor, Requirements   | GitHub, Learn                    |
+| Architect                 | GitHub, Learn, **Azure Pricing** |
+| Design                    | GitHub, Learn                    |
+| Bicep Planner/CodeGen     | GitHub, Learn                    |
+| Terraform Planner/CodeGen | GitHub, Learn, **Terraform**     |
+| Deploy agents             | GitHub                           |
+| As-Built                  | GitHub, Learn, **Azure Pricing** |
+| Cost Estimate Subagent    | **Azure Pricing**, Learn         |
+| Terraform Lint/Review     | Learn, **Terraform**             |
+| Context Optimizer         | _(none)_                         |
 
 This scoping is currently documentation-only (pending VS Code support
 for per-agent MCP filtering), but agents are instructed to respect it
@@ -1069,6 +1115,7 @@ through their skill and instruction definitions.
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="the-golden-principles"></a>
+
 ## 🏆 The Golden Principles
 
 The system operates under 10 principles adapted from the Harness Engineering philosophy:
@@ -1089,6 +1136,7 @@ The system operates under 10 principles adapted from the Harness Engineering phi
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="file-map"></a>
+
 ## 🗺️ File Map
 
 ```text
@@ -1129,6 +1177,7 @@ mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
 <a id="references"></a>
+
 ## 📚 References
 
 - **Harness Engineering**: [openai.com/index/harness-engineering](https://openai.com/index/harness-engineering/)
