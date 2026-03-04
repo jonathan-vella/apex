@@ -308,9 +308,9 @@ gh search issues "label:bug is:open" --repo owner/repo
 
 ## Reference Index
 
-| Reference       | File                              | Content                                       |
-| --------------- | --------------------------------- | --------------------------------------------- |
-| Smart PR Flow   | `references/smart-pr-flow.md`     | PR lifecycle states, auto-labels, auto-merge  |
+| Reference     | File                          | Content                                      |
+| ------------- | ----------------------------- | -------------------------------------------- |
+| Smart PR Flow | `references/smart-pr-flow.md` | PR lifecycle states, auto-labels, auto-merge |
 
 ## Smart PR Flow
 
@@ -322,9 +322,9 @@ For full details: **Read** `references/smart-pr-flow.md`
 
 ### Quick Reference
 
-| Condition                       | Label Applied          |
-| ------------------------------- | ---------------------- |
-| CI passes                       | `infraops-ci-pass`     |
-| CI fails                        | `infraops-needs-fix`   |
-| Review approved                 | `infraops-reviewed`    |
-| Auto-merge (all gates pass)     | PR merged via MCP      |
+| Condition                   | Label Applied        |
+| --------------------------- | -------------------- |
+| CI passes                   | `infraops-ci-pass`   |
+| CI fails                    | `infraops-needs-fix` |
+| Review approved             | `infraops-reviewed`  |
+| Auto-merge (all gates pass) | PR merged via MCP    |

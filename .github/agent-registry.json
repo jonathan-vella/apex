@@ -5,14 +5,25 @@
     "conductor": {
       "agent": ".github/agents/01-conductor.agent.md",
       "model": "Claude Opus 4.6",
-      "skills": ["golden-principles", "session-resume", "azure-defaults", "azure-artifacts", "workflow-engine"],
+      "skills": [
+        "golden-principles",
+        "session-resume",
+        "azure-defaults",
+        "azure-artifacts",
+        "workflow-engine"
+      ],
       "invokable": true,
       "step": null
     },
     "conductor-fast-path": {
       "agent": ".github/agents/01-conductor-fastpath.agent.md",
       "model": "Claude Opus 4.6",
-      "skills": ["golden-principles", "session-resume", "azure-defaults", "azure-artifacts"],
+      "skills": [
+        "golden-principles",
+        "session-resume",
+        "azure-defaults",
+        "azure-artifacts"
+      ],
       "invokable": true,
       "step": null
     },
@@ -26,7 +37,13 @@
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
       "model": "Claude Opus 4.6",
-      "skills": ["azure-defaults", "azure-artifacts", "microsoft-docs", "context-shredding", "session-resume"],
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts",
+        "microsoft-docs",
+        "context-shredding",
+        "session-resume"
+      ],
       "invokable": true,
       "step": 2
     },
@@ -41,12 +58,24 @@
       "bicep": {
         "agent": ".github/agents/05b-bicep-planner.agent.md",
         "model": "Claude Opus 4.6",
-        "skills": ["azure-defaults", "azure-artifacts", "azure-bicep-patterns", "microsoft-docs", "session-resume"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "azure-bicep-patterns",
+          "microsoft-docs",
+          "session-resume"
+        ]
       },
       "terraform": {
         "agent": ".github/agents/05t-terraform-planner.agent.md",
         "model": "Claude Opus 4.6",
-        "skills": ["azure-defaults", "azure-artifacts", "terraform-patterns", "microsoft-docs", "session-resume"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "terraform-patterns",
+          "microsoft-docs",
+          "session-resume"
+        ]
       },
       "invokable": true,
       "step": 4
@@ -55,12 +84,24 @@
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
         "model": "Claude Opus 4.6",
-        "skills": ["azure-defaults", "azure-artifacts", "azure-bicep-patterns", "context-shredding", "session-resume"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "azure-bicep-patterns",
+          "context-shredding",
+          "session-resume"
+        ]
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
         "model": "Claude Opus 4.6",
-        "skills": ["azure-defaults", "azure-artifacts", "terraform-patterns", "context-shredding", "session-resume"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "terraform-patterns",
+          "context-shredding",
+          "session-resume"
+        ]
       },
       "invokable": true,
       "step": 5
@@ -69,12 +110,23 @@
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
         "model": "Claude Sonnet 4.6",
-        "skills": ["azure-defaults", "azure-artifacts", "iac-common", "github-operations"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "iac-common",
+          "github-operations"
+        ]
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
         "model": "Claude Sonnet 4.6",
-        "skills": ["azure-defaults", "azure-artifacts", "iac-common", "terraform-patterns", "github-operations"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "iac-common",
+          "terraform-patterns",
+          "github-operations"
+        ]
       },
       "invokable": true,
       "step": 6
@@ -82,7 +134,13 @@
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
       "model": "Claude Sonnet 4.6",
-      "skills": ["azure-defaults", "azure-artifacts", "azure-diagrams", "context-shredding", "session-resume"],
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts",
+        "azure-diagrams",
+        "context-shredding",
+        "session-resume"
+      ],
       "invokable": true,
       "step": 7
     },

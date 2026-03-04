@@ -10,24 +10,24 @@ Automated PR lifecycle pattern for infrastructure deployments.
 draft → ready → ci-pending → ci-pass / ci-fail → reviewed → merged
 ```
 
-| State        | Trigger                                    | Action                          |
-| ------------ | ------------------------------------------ | ------------------------------- |
-| `draft`      | Agent creates PR                           | Label: `infraops-draft`         |
-| `ready`      | Agent marks ready for review               | Remove `infraops-draft`         |
-| `ci-pending` | CI workflow starts                         | Label: `infraops-ci-pending`    |
-| `ci-pass`    | All CI checks pass                         | Label: `infraops-ci-pass`       |
-| `ci-fail`    | Any CI check fails                         | Label: `infraops-needs-fix`     |
-| `reviewed`   | Approved review received                   | Label: `infraops-reviewed`      |
-| `merged`     | Auto-merge conditions met                  | Merge PR                        |
+| State        | Trigger                      | Action                       |
+| ------------ | ---------------------------- | ---------------------------- |
+| `draft`      | Agent creates PR             | Label: `infraops-draft`      |
+| `ready`      | Agent marks ready for review | Remove `infraops-draft`      |
+| `ci-pending` | CI workflow starts           | Label: `infraops-ci-pending` |
+| `ci-pass`    | All CI checks pass           | Label: `infraops-ci-pass`    |
+| `ci-fail`    | Any CI check fails           | Label: `infraops-needs-fix`  |
+| `reviewed`   | Approved review received     | Label: `infraops-reviewed`   |
+| `merged`     | Auto-merge conditions met    | Merge PR                     |
 
 ## Auto-Label Rules
 
-| Event                    | Add Label              | Remove Label            |
-| ------------------------ | ---------------------- | ----------------------- |
-| CI failure               | `infraops-needs-fix`   | `infraops-ci-pass`      |
-| CI pass                  | `infraops-ci-pass`     | `infraops-needs-fix`    |
-| Review approved          | `infraops-reviewed`    | —                       |
-| Changes requested        | `infraops-needs-fix`   | `infraops-reviewed`     |
+| Event             | Add Label            | Remove Label         |
+| ----------------- | -------------------- | -------------------- |
+| CI failure        | `infraops-needs-fix` | `infraops-ci-pass`   |
+| CI pass           | `infraops-ci-pass`   | `infraops-needs-fix` |
+| Review approved   | `infraops-reviewed`  | —                    |
+| Changes requested | `infraops-needs-fix` | `infraops-reviewed`  |
 
 ## Auto-Merge Conditions
 

@@ -402,11 +402,11 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
 Read `.github/skills/workflow-engine/references/complexity-routing.json` to
 determine the recommended model tier for each step handoff.
 
-| Tier     | Model               | Used For                                       |
-| -------- | ------------------- | ---------------------------------------------- |
-| `high`   | Claude Opus 4.6     | Requirements, Architecture, Planning, Code Gen |
-| `medium` | Claude Sonnet 4.6   | Deploy, As-Built, Reviews, Governance          |
-| `low`    | Claude Haiku 4.5    | Lint, Cost Estimate, What-If, Plan Preview     |
+| Tier     | Model             | Used For                                       |
+| -------- | ----------------- | ---------------------------------------------- |
+| `high`   | Claude Opus 4.6   | Requirements, Architecture, Planning, Code Gen |
+| `medium` | Claude Sonnet 4.6 | Deploy, As-Built, Reviews, Governance          |
+| `low`    | Claude Haiku 4.5  | Lint, Cost Estimate, What-If, Plan Preview     |
 
 When handing off to a step agent, use the `model:` override in the handoff
 based on the tier declared in `complexity-routing.json` (where VS Code supports it).

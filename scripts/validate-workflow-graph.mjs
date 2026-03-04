@@ -16,7 +16,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH =
+  ".github/skills/workflow-engine/templates/workflow-graph.json";
 const AGENTS_DIR = ".github/agents";
 const SUBAGENTS_DIR = ".github/agents/_subagents";
 
@@ -150,7 +151,9 @@ for (const [nodeId, node] of Object.entries(graph.nodes)) {
       // Try matching by common patterns
       const kebab = agentName.toLowerCase().replace(/\s+/g, "-");
       if (!agentFiles.has(kebab)) {
-        warn(`Node "${nodeId}" references agent "${agentName}" — not found in agent files`);
+        warn(
+          `Node "${nodeId}" references agent "${agentName}" — not found in agent files`,
+        );
       }
     }
   }
@@ -178,13 +181,15 @@ for (const edge of graph.edges) {
 
   const validConditions = ["on_complete", "on_skip", "on_fail"];
   if (!validConditions.includes(edge.condition)) {
-    error(`Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`);
+    error(
+      `Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`,
+    );
   }
 }
 
 // Check for orphan nodes (not targeted by any edge and not a root)
 const rootNodes = Object.values(graph.nodes).filter(
-  (n) => !n.requires || n.requires.length === 0
+  (n) => !n.requires || n.requires.length === 0,
 );
 const rootNodeIds = new Set(rootNodes.map((n) => n.id));
 
@@ -203,9 +208,7 @@ if (detectCycle(graph.nodes, graph.edges)) {
 
 ok(`Validated ${nodeIds.size} nodes and ${graph.edges.length} edges`);
 
-console.log(
-  `\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`
-);
+console.log(`\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`);
 
 if (errors > 0) {
   console.error("❌ Workflow graph validation failed\n");

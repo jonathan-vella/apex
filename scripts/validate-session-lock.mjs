@@ -79,14 +79,17 @@ function validateLock(filePath, state) {
 
   if (lock.heartbeat !== undefined) {
     if (!isValidISO(lock.heartbeat)) {
-      error(label, `lock.heartbeat is not a valid ISO date: "${lock.heartbeat}"`);
+      error(
+        label,
+        `lock.heartbeat is not a valid ISO date: "${lock.heartbeat}"`,
+      );
     } else {
       const heartbeatAge = Date.now() - new Date(lock.heartbeat).getTime();
       const threshold = state.stale_threshold_ms || DEFAULT_STALE_THRESHOLD_MS;
       if (heartbeatAge > threshold) {
         warn(
           label,
-          `lock.heartbeat is stale (${Math.round(heartbeatAge / 1000)}s old, threshold: ${threshold / 1000}s)`
+          `lock.heartbeat is stale (${Math.round(heartbeatAge / 1000)}s old, threshold: ${threshold / 1000}s)`,
         );
       }
     }
@@ -96,7 +99,7 @@ function validateLock(filePath, state) {
     if (!isValidUUID(lock.attempt_token)) {
       error(
         label,
-        `lock.attempt_token is not a valid UUID: "${lock.attempt_token}"`
+        `lock.attempt_token is not a valid UUID: "${lock.attempt_token}"`,
       );
     }
   }
@@ -128,7 +131,10 @@ function validateStepClaims(filePath, state) {
       error(label, `${prefix}.heartbeat is not a valid ISO date`);
     }
 
-    if (claim.attempt_token !== undefined && !isValidUUID(claim.attempt_token)) {
+    if (
+      claim.attempt_token !== undefined &&
+      !isValidUUID(claim.attempt_token)
+    ) {
       error(label, `${prefix}.attempt_token is not a valid UUID`);
     }
 
@@ -206,7 +212,7 @@ export function claimStep(state, stepN, ownerId) {
 
     if (heartbeatAge < threshold) {
       throw new Error(
-        `Step ${stepN} is claimed by ${step.claim.owner_id} (heartbeat ${Math.round(heartbeatAge / 1000)}s ago)`
+        `Step ${stepN} is claimed by ${step.claim.owner_id} (heartbeat ${Math.round(heartbeatAge / 1000)}s ago)`,
       );
     }
     // Stale claim — recover
@@ -247,7 +253,9 @@ export function renewHeartbeat(state, ownerId, token) {
       return state;
     }
   }
-  throw new Error(`No active claim found for owner ${ownerId} with token ${token}`);
+  throw new Error(
+    `No active claim found for owner ${ownerId} with token ${token}`,
+  );
 }
 
 /**
@@ -259,7 +267,7 @@ export function releaseStep(state, stepN, token, outcome) {
 
   if (step.claim.attempt_token !== token) {
     throw new Error(
-      `Token mismatch for step ${stepN}: expected ${step.claim.attempt_token}, got ${token}`
+      `Token mismatch for step ${stepN}: expected ${step.claim.attempt_token}, got ${token}`,
     );
   }
 
@@ -281,7 +289,8 @@ export function releaseStep(state, stepN, token, outcome) {
  * Sweep stale locks across all steps.
  */
 export function sweepStale(state, thresholdMs) {
-  const threshold = thresholdMs || state.stale_threshold_ms || DEFAULT_STALE_THRESHOLD_MS;
+  const threshold =
+    thresholdMs || state.stale_threshold_ms || DEFAULT_STALE_THRESHOLD_MS;
   const swept = [];
 
   for (const [stepNum, step] of Object.entries(state.steps || {})) {
@@ -334,7 +343,7 @@ if (fileCount === 0) {
 }
 
 console.log(
-  `\n📊 Checked ${fileCount} file(s): ${errors} error(s), ${warnings} warning(s)\n`
+  `\n📊 Checked ${fileCount} file(s): ${errors} error(s), ${warnings} warning(s)\n`,
 );
 
 if (errors > 0) {

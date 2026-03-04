@@ -27,7 +27,10 @@
       "requires": ["gate-1"],
       "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md"],
       "gate": "approval",
-      "challenger": { "passes": 3, "lenses": ["security", "reliability", "cost"] }
+      "challenger": {
+        "passes": 3,
+        "lenses": ["security", "reliability", "cost"]
+      }
     },
     "gate-2": {
       "id": "gate-2",
@@ -62,7 +65,10 @@
         "04-runtime-diagram.py"
       ],
       "gate": "approval",
-      "challenger": { "passes": 3, "lenses": ["security", "reliability", "cost"] }
+      "challenger": {
+        "passes": 3,
+        "lenses": ["security", "reliability", "cost"]
+      }
     },
     "step-4t": {
       "id": "step-4t",
@@ -79,7 +85,10 @@
         "04-runtime-diagram.py"
       ],
       "gate": "approval",
-      "challenger": { "passes": 3, "lenses": ["security", "reliability", "cost"] }
+      "challenger": {
+        "passes": 3,
+        "lenses": ["security", "reliability", "cost"]
+      }
     },
     "gate-3": {
       "id": "gate-3",
@@ -98,7 +107,10 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": ["infra/bicep/{project}/"],
       "gate": "validation",
-      "challenger": { "passes": 3, "lenses": ["security", "naming", "avm-compliance"] }
+      "challenger": {
+        "passes": 3,
+        "lenses": ["security", "naming", "avm-compliance"]
+      }
     },
     "step-5t": {
       "id": "step-5t",
@@ -109,7 +121,10 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": ["infra/terraform/{project}/"],
       "gate": "validation",
-      "challenger": { "passes": 3, "lenses": ["security", "naming", "avm-compliance"] }
+      "challenger": {
+        "passes": 3,
+        "lenses": ["security", "naming", "avm-compliance"]
+      }
     },
     "gate-4": {
       "id": "gate-4",

@@ -7,24 +7,24 @@ and the Conductor.
 
 ## Failure Taxonomy
 
-| Category          | Description                                         | Example                                          |
-| ----------------- | --------------------------------------------------- | ------------------------------------------------ |
-| `build_error`     | IaC compilation fails (bicep build / terraform validate) | Syntax error in module                      |
-| `validation_error` | Pre-deploy validation fails                         | What-if shows policy violation                   |
-| `deployment_error` | Azure deployment fails                             | Resource creation fails due to quota              |
-| `empty_response`  | Agent returns no changes or no output               | Codegen produces empty file                      |
-| `timeout`         | Operation exceeds expected duration                 | Deployment hangs for >10 minutes                 |
-| `auth_expired`    | Azure CLI token expires mid-operation               | `az deployment` returns 401                      |
+| Category           | Description                                              | Example                              |
+| ------------------ | -------------------------------------------------------- | ------------------------------------ |
+| `build_error`      | IaC compilation fails (bicep build / terraform validate) | Syntax error in module               |
+| `validation_error` | Pre-deploy validation fails                              | What-if shows policy violation       |
+| `deployment_error` | Azure deployment fails                                   | Resource creation fails due to quota |
+| `empty_response`   | Agent returns no changes or no output                    | Codegen produces empty file          |
+| `timeout`          | Operation exceeds expected duration                      | Deployment hangs for >10 minutes     |
+| `auth_expired`     | Azure CLI token expires mid-operation                    | `az deployment` returns 401          |
 
 ## Anomaly Patterns
 
-| Pattern             | Detection                                            | Threshold |
-| ------------------- | ---------------------------------------------------- | --------- |
-| Empty response loop | Agent returns no changes 3+ consecutive times        | 3         |
-| What-if oscillation | Alternating add/delete of the same resource          | 2 cycles  |
-| Timeout cascade     | 3+ consecutive timeouts                              | 3         |
-| Error repetition    | Same error message 3+ consecutive times              | 3         |
-| Auth failure loop   | Token refresh fails 2+ times                         | 2         |
+| Pattern             | Detection                                     | Threshold |
+| ------------------- | --------------------------------------------- | --------- |
+| Empty response loop | Agent returns no changes 3+ consecutive times | 3         |
+| What-if oscillation | Alternating add/delete of the same resource   | 2 cycles  |
+| Timeout cascade     | 3+ consecutive timeouts                       | 3         |
+| Error repetition    | Same error message 3+ consecutive times       | 3         |
+| Auth failure loop   | Token refresh fails 2+ times                  | 2         |
 
 ## Circuit Breaker Rules
 

@@ -134,20 +134,33 @@ function validateStateFile(filePath, isTemplate) {
       if (state.lock.heartbeat !== undefined && state.lock.heartbeat !== null) {
         const d = new Date(state.lock.heartbeat);
         if (isNaN(d.getTime())) {
-          error(label, `lock.heartbeat is not a valid ISO date: "${state.lock.heartbeat}"`);
+          error(
+            label,
+            `lock.heartbeat is not a valid ISO date: "${state.lock.heartbeat}"`,
+          );
         }
       }
-      if (state.lock.attempt_token !== undefined && state.lock.attempt_token !== null) {
-        const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (
+        state.lock.attempt_token !== undefined &&
+        state.lock.attempt_token !== null
+      ) {
+        const uuidRe =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRe.test(state.lock.attempt_token)) {
-          error(label, `lock.attempt_token is not a valid UUID: "${state.lock.attempt_token}"`);
+          error(
+            label,
+            `lock.attempt_token is not a valid UUID: "${state.lock.attempt_token}"`,
+          );
         }
       }
     }
   }
 
   if (state.stale_threshold_ms !== undefined) {
-    if (typeof state.stale_threshold_ms !== "number" || state.stale_threshold_ms <= 0) {
+    if (
+      typeof state.stale_threshold_ms !== "number" ||
+      state.stale_threshold_ms <= 0
+    ) {
       error(label, "stale_threshold_ms must be a positive number");
     }
   }

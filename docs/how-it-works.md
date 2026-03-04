@@ -85,8 +85,6 @@ can operate reliably in professional software engineering contexts.
 
 <div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
-<div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
-
 In February 2026, OpenAI published
 "[Harness Engineering: Leveraging Codex in an Agent-First World](https://openai.com/index/harness-engineering/),"
 describing how a small team built and shipped an internal product with zero lines of
@@ -250,8 +248,6 @@ flowchart LR
 
 <div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
-<div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
-
 The InfraOps Conductor (agent `01-Conductor`) is the master orchestrator. It does not
 generate infrastructure code or documentation itself. Instead, it:
 
@@ -267,8 +263,6 @@ state machine.
 
 <a id="dual-iac-tracks"></a>
 ### 🛤️ Dual IaC Tracks
-
-<div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
 <div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
@@ -611,8 +605,6 @@ check, it should be one. Documentation is for humans; machines enforce rules.
 
 <a id="deep-dive-workflow-engine"></a>
 ## ⚙️ Deep Dive: Workflow Engine
-
-<div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop" height="250" style="object-fit: cover; border-radius: 8px;"></div><br/>
 
 <div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop" height="250" style="object-fit: cover; border-radius: 8px;"></div><br/>
 

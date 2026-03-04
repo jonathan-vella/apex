@@ -43,7 +43,7 @@ function getSkillNames() {
     fs
       .readdirSync(SKILLS_DIR, { withFileTypes: true })
       .filter((d) => d.isDirectory())
-      .map((d) => d.name)
+      .map((d) => d.name),
   );
 }
 
@@ -75,7 +75,7 @@ function getAgentSkillReads(agentName) {
       const nameMatch = content.match(/^name:\s*(.+)$/m);
       if (nameMatch && nameMatch[1].trim() === agentName) {
         const skillRefs = content.matchAll(
-          /\.github\/skills\/([a-z0-9-]+)\/SKILL\.md/g
+          /\.github\/skills\/([a-z0-9-]+)\/SKILL\.md/g,
         );
         for (const match of skillRefs) {
           reads.add(match[1]);
@@ -123,9 +123,7 @@ function validateEntry(key, entry, isSubagent) {
   if (Array.isArray(entry.primary) && Array.isArray(entry.never)) {
     for (const skill of entry.primary) {
       if (entry.never.includes(skill)) {
-        error(
-          `${key}: skill "${skill}" appears in both "primary" and "never"`
-        );
+        error(`${key}: skill "${skill}" appears in both "primary" and "never"`);
       }
     }
   }
@@ -137,7 +135,7 @@ function validateEntry(key, entry, isSubagent) {
       for (const skill of entry.primary) {
         if (!bodyReads.has(skill)) {
           warn(
-            `${key}: primary skill "${skill}" is not referenced in agent body "Read" lines`
+            `${key}: primary skill "${skill}" is not referenced in agent body "Read" lines`,
           );
         }
       }
@@ -169,9 +167,7 @@ if (affinity.subagents) {
 
 ok(`Validated ${entryCount} affinity entries`);
 
-console.log(
-  `\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`
-);
+console.log(`\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`);
 
 if (errors > 0) {
   console.error("❌ Skill affinity validation failed\n");

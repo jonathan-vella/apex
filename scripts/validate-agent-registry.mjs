@@ -48,7 +48,7 @@ function getSkillNames() {
     fs
       .readdirSync(SKILLS_DIR, { withFileTypes: true })
       .filter((d) => d.isDirectory())
-      .map((d) => d.name)
+      .map((d) => d.name),
   );
 }
 
@@ -92,7 +92,9 @@ function validateSkills(key, skills, skillNames) {
 function validateModel(key, model) {
   if (!model) return;
   if (!KNOWN_MODELS.includes(model)) {
-    warn(`Agent "${key}": unknown model "${model}" (known: ${KNOWN_MODELS.join(", ")})`);
+    warn(
+      `Agent "${key}": unknown model "${model}" (known: ${KNOWN_MODELS.join(", ")})`,
+    );
   }
 }
 
@@ -141,9 +143,7 @@ if (registry.subagents) {
 
 ok(`Validated ${agentCount} agents and ${subagentCount} subagents`);
 
-console.log(
-  `\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`
-);
+console.log(`\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`);
 
 if (errors > 0) {
   console.error("❌ Agent registry validation failed\n");

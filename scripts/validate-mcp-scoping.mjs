@@ -43,7 +43,7 @@ function stripJsonComments(content) {
       result += '"';
       i++;
       while (i < content.length && content[i] !== '"') {
-        if (content[i] === '\\') {
+        if (content[i] === "\\") {
           result += content[i] + (content[i + 1] || "");
           i += 2;
         } else {
@@ -55,13 +55,17 @@ function stripJsonComments(content) {
         result += '"';
         i++;
       }
-    } else if (content[i] === '/' && content[i + 1] === '/') {
+    } else if (content[i] === "/" && content[i + 1] === "/") {
       // Single-line comment — skip to end of line
-      while (i < content.length && content[i] !== '\n') i++;
-    } else if (content[i] === '/' && content[i + 1] === '*') {
+      while (i < content.length && content[i] !== "\n") i++;
+    } else if (content[i] === "/" && content[i + 1] === "*") {
       // Block comment — skip to */
       i += 2;
-      while (i < content.length - 1 && !(content[i] === '*' && content[i + 1] === '/')) i++;
+      while (
+        i < content.length - 1 &&
+        !(content[i] === "*" && content[i + 1] === "/")
+      )
+        i++;
       i += 2;
     } else {
       result += content[i];
@@ -115,7 +119,7 @@ if (scoping.scoping) {
     for (const server of servers) {
       if (mcpServers.size > 0 && !mcpServers.has(server)) {
         error(
-          `Agent "${agent}": references MCP server "${server}" not found in ${MCP_CONFIG_PATH} (available: ${[...mcpServers].join(", ")})`
+          `Agent "${agent}": references MCP server "${server}" not found in ${MCP_CONFIG_PATH} (available: ${[...mcpServers].join(", ")})`,
         );
       }
     }
@@ -127,7 +131,7 @@ if (scoping.default_scope) {
   for (const server of scoping.default_scope) {
     if (mcpServers.size > 0 && !mcpServers.has(server)) {
       error(
-        `default_scope references MCP server "${server}" not found in ${MCP_CONFIG_PATH}`
+        `default_scope references MCP server "${server}" not found in ${MCP_CONFIG_PATH}`,
       );
     }
   }
@@ -135,9 +139,7 @@ if (scoping.default_scope) {
 
 ok(`Validated ${entryCount} agent MCP scoping entries`);
 
-console.log(
-  `\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`
-);
+console.log(`\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`);
 
 if (errors > 0) {
   console.error("❌ MCP scoping validation failed\n");

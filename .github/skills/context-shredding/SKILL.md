@@ -17,11 +17,11 @@ files and select the appropriate compression tier.
 
 ## Compression Tiers
 
-| Tier          | Context Usage | Strategy                                   |
-| ------------- | ------------- | ------------------------------------------ |
-| `full`        | < 60%         | Load entire artifact — no compression      |
-| `summarized`  | 60-80%        | Load key H2 sections only                  |
-| `minimal`     | > 80%         | Load decision summaries only (< 500 chars) |
+| Tier         | Context Usage | Strategy                                   |
+| ------------ | ------------- | ------------------------------------------ |
+| `full`       | < 60%         | Load entire artifact — no compression      |
+| `summarized` | 60-80%        | Load key H2 sections only                  |
+| `minimal`    | > 80%         | Load decision summaries only (< 500 chars) |
 
 ## Action Rules
 
@@ -47,6 +47,6 @@ Before loading any artifact file:
 
 ## Reference Index
 
-| Reference              | File                                     | Content                            |
-| ---------------------- | ---------------------------------------- | ---------------------------------- |
-| Compression Templates  | `references/compression-templates.md`    | Per-artifact H2 sections per tier  |
+| Reference             | File                                  | Content                           |
+| --------------------- | ------------------------------------- | --------------------------------- |
+| Compression Templates | `references/compression-templates.md` | Per-artifact H2 sections per tier |
