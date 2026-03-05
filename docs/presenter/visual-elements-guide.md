@@ -1,10 +1,12 @@
+<a id="top"></a>
+
 # Visual Elements Guide
 
 > Version: see [VERSION.md](../../VERSION.md) | [Back to Presenter Hub](README.md)
 
 Use this guide to keep diagrams and visuals consistent across slides, demos, and customer artifacts.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 ## What You Get
 
@@ -12,14 +14,18 @@ Use this guide to keep diagrams and visuals consistent across slides, demos, and
 - Guidance on when to regenerate diagrams vs reusing existing evidence.
 - Practical defaults that work for IT Pro audiences.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Canonical Sources
 
 - Diagram generation: [Prompt Guide — azure-diagrams](../prompt-guide/#azure-diagrams)
 - Workload evidence (time-stamped): `agent-output/{project}/` artifacts
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Diagram Usage Standards
 
@@ -32,7 +38,9 @@ Use this guide to keep diagrams and visuals consistent across slides, demos, and
 - Use outcome-first captions:
   - "What this diagram proves" (e.g., private endpoints, RBAC boundaries, monitoring coverage).
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Presentation Hygiene
 
@@ -42,7 +50,9 @@ Use this guide to keep diagrams and visuals consistent across slides, demos, and
 - Call out safety controls explicitly:
   - Approval gates, least privilege, auditability (logs/diagnostics).
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## When to Regenerate
 
@@ -53,3 +63,5 @@ Regenerate diagrams when any of these change:
 - Security model (managed identities, Key Vault/RBAC)
 
 Start with: [Prompt Guide — azure-diagrams skill](../prompt-guide/#azure-diagrams)
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

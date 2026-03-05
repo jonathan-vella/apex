@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Contributing to Agentic InfraOps
 
 Thank you for your interest in contributing! Agentic InfraOps revolutionizes how IT Pros build
@@ -26,6 +28,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Bicep and Terraform patterns and templates
    - Azure Verified Module usage examples (Bicep and AVM-TF)
    - Security and compliance guidance
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📋 Contribution Guidelines
 
@@ -86,6 +90,8 @@ npm run lint:links
 # Auto-fix issues
 npm run lint:md:fix
 ```
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🚀 Contribution Process
 
@@ -125,6 +131,8 @@ git push origin feature/your-feature-name
 ```
 
 Note: commit message format is enforced by hooks and CI.
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📝 Commit Message Format (Required)
 
@@ -201,6 +209,8 @@ doesn't follow the format, you'll see a helpful error with examples.
 2. Click "New Pull Request"
 3. Fill out the PR template
 4. Link related issues
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📝 Pull Request Checklist
 
@@ -214,6 +224,8 @@ Before submitting:
 - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🤝 Community Standards
 
@@ -228,11 +240,15 @@ Before submitting:
 
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📄 License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 **Thank you for helping improve the Azure infrastructure workflow!** 🚀
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Evidence-Based Time Savings Methodology
 
 > **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
@@ -7,7 +9,7 @@
 
 <!-- Infographic was in docs/_superseded/ (removed) — regenerate if needed -->
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 ## Quick Reference
 
@@ -19,7 +21,9 @@
 | **Documentation**                  | 78-85%       | Harvard/BCG (70-85%), MIT Sloan (80%)             |
 | **Large-Scale Ops (500+ servers)** | 90-95%       | McKinsey (85-95%), Red Hat (90%)                  |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Methodology
 
@@ -43,7 +47,9 @@
 
 **Result**: 78% time savings (aligns with Forrester 88%, adjusted conservatively)
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Primary Research Sources
 
@@ -66,7 +72,9 @@
 | [McKinsey (2024)](https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai)                                                       | 85-95% scaled deployment automation | 1,684 orgs    |
 | [Stack Overflow (2024)](https://survey.stackoverflow.co/2024/)                                                                                           | 75% report faster completion        | 65,000+ devs  |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Assumptions & Limitations
 
@@ -84,7 +92,9 @@
 - Meeting/approval coordination time
 - Azure API wait times
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Using These Estimates
 
@@ -106,7 +116,9 @@
 2. Track same tasks with AI assistance
 3. Calculate and refine estimates
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Document Info
 
@@ -117,3 +129,5 @@
 | **Owner**        | Repository maintainers |
 
 For questions, open an issue in the repository.
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

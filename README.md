@@ -42,18 +42,32 @@
   </p>
 </div>
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
-Agentic InfraOps coordinates specialized AI agents through a complete infrastructure development
-cycle. Instead of context-switching between requirements, architecture decisions, IaC authoring
-(Bicep **or** Terraform), and documentation, you get a **structured 7-step workflow** with built-in
-WAF alignment, AVM-first code generation, and mandatory human approval gates. Choose your IaC
-track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation
-pipelines automatically.
+<br />
+<p align="left">
+  💡 <b>Agentic InfraOps</b> coordinates specialized AI agents through a complete infrastructure development cycle. Instead of context-switching between requirements, architecture decisions, IaC authoring (Bicep <b>or</b> Terraform), and documentation, you get a <b>structured 7-step workflow</b> with built-in <b>WAF alignment, AVM-first code generation, and mandatory human approval gates</b>. Choose your IaC track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation pipelines automatically.
+</p>
+<br />
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
-## Agentic Workflow
+<details>
+<summary><b>📖 Table of Contents</b></summary>
+<br>
+
+- [🤖 Agentic Workflow](#-agentic-workflow)
+- [⚡ Quick Start](#-quick-start)
+- [🤖 Agents Roster](#-agents-roster)
+- [🧩 MCP Integration](#-mcp-integration)
+- [🌐 Related Repositories](#-related-repositories)
+- [🤝 Contributing & License](#-contributing--license)
+
+</details>
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
+
+## 🤖 Agentic Workflow
 
 ```mermaid
 sequenceDiagram
@@ -149,13 +163,13 @@ sequenceDiagram
     Note over U,W: ✅ AI Orchestrated. Human Governed. Azure Ready.
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
+<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
 
 ## ⚡ Quick Start
 
-**Prerequisites:** Docker Desktop (or Podman/Rancher), VS Code with Dev Containers, GitHub Copilot.
+> [!IMPORTANT]
+> **Prerequisites:** Docker Desktop (or Podman/Rancher), VS Code with Dev Containers, GitHub Copilot.
 
 ```bash
 git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
@@ -178,22 +192,21 @@ The Conductor guides you through all 7 steps with approval gates.
 
 📖 **[Full Quick Start Guide →](docs/quickstart.md)**
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
+<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
 
----
-
-## Agents
+## 🤖 Agents Roster
 
 <details>
 <summary>View full agent roster</summary>
 
-### Conductor
+### 🎼 Conductor
 
 | Agent                  | Role                                      |
 | ---------------------- | ----------------------------------------- |
 | **InfraOps Conductor** | Master orchestrator — manages all 7 steps |
 
-### Core Agents
+### 🧠 Core Agents
 
 Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
 
@@ -210,7 +223,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
 | 6t   | `terraform-deploy`  | Terraform deployment via bootstrap.sh / deploy.sh |
 | 7    | `as-built`          | As-built documentation suite                      |
 
-### Subagents
+### 🕵️ Subagents
 
 | Subagent                        | Track     | Role                                          |
 | ------------------------------- | --------- | --------------------------------------------- |
@@ -223,7 +236,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
 | `terraform-review-subagent`     | Terraform | Code review (AVM-TF, security, naming)        |
 | `terraform-plan-subagent`       | Terraform | Deployment preview (terraform plan)           |
 
-### Standalone Agents
+### 🐺 Standalone Agents
 
 | Agent        | Role                                                                                    |
 | ------------ | --------------------------------------------------------------------------------------- |
@@ -232,9 +245,8 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
 
 </details>
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
+<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
 
 ## 🧩 MCP Integration
 
@@ -246,27 +258,25 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
 | [GitHub MCP Server](https://github.com/github/github-mcp-server)                                  | Issues, PRs, repositories, Actions (MCP-first approach) |
 | [Microsoft Learn MCP Server](https://github.com/MicrosoftDocs/microsoft-learn-mcp)                | Official Microsoft documentation search and fetch       |
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
+<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
 
----
+## 🌐 Related Repositories
 
-## Related Repositories
-
-### 🚀 [azure-agentic-infraops-accelerator](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+### 🚀 [Accelerator Patterns](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 
 A curated collection of pre-built, production-ready Azure infrastructure patterns generated and
 validated by the Agentic InfraOps workflow. Use it as a starting point for common workload
 archetypes—each pattern ships with Bicep templates, agent artifacts, and deployment scripts.
 
-### 🎓 [azure-agentic-infraops-workshops](https://github.com/jonathan-vella/azure-agentic-infraops-workshops)
+### 🎓 [Training Workshops](https://github.com/jonathan-vella/azure-agentic-infraops-workshops)
 
 Hands-on workshop material for teams and individuals learning the Agentic InfraOps workflow.
 Structured labs walk you through each of the 7 steps with guided exercises, sample prompts, and
 reference solutions—from first Conductor run to full deployment.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
+<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
 
 ## 🤝 Contributing & License
 
@@ -276,7 +286,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 Built upon [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra) and
 [Github-Copilot-Atlas](https://github.com/bigguy345/Github-Copilot-Atlas).
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="center">
   <p>Made with ❤️ by <a href="https://github.com/jonathan-vella">Jonathan Vella</a></p>
@@ -300,3 +310,5 @@ Built upon [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra
 [bicep-url]: https://learn.microsoft.com/azure/azure-resource-manager/bicep/
 [terraform-shield]: https://img.shields.io/badge/Terraform-Supported-844FBA?style=for-the-badge&logo=terraform&logoColor=white
 [terraform-url]: https://www.terraform.io/
+
+<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>

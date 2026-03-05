@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Presenter Resources
 
 > Version: see [VERSION.md](../../VERSION.md) | [Back to Documentation Hub](../README.md)
@@ -24,7 +26,9 @@ Use these personas when introducing agents to audiences:
 | challenger         | ⚔️ Challenger | Adversarial review                |
 | diagnose           | 🔍 Sentinel   | Troubleshooting                   |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Quick Navigation
 
@@ -35,7 +39,9 @@ Use these personas when introducing agents to audiences:
 | [ROI Calculator](roi-calculator.md)               | Quantify time/cost savings    | 10 min    |
 | [Visual Elements Guide](visual-elements-guide.md) | Use diagrams and visuals well | 5 min     |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🎯 Demo Materials
 
@@ -53,7 +59,9 @@ Use prompts from the [Prompt Guide](../prompt-guide/README.md) to demonstrate ag
 | Requirements + Architecture | 15 min   | Technical | [Prompt Guide - Steps 1-2](../prompt-guide/README.md)  |
 | Full 7-Step Workflow        | 30 min   | Mixed     | [Prompt Guide - End-to-End](../prompt-guide/README.md) |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 💼 Business Value
 
@@ -68,7 +76,9 @@ Use prompts from the [Prompt Guide](../prompt-guide/README.md) to demonstrate ag
 - [Executive Pitch](executive-pitch.md) - 5-slide C-level presentation with key messages
 - [Pilot Success Checklist](pilot-success-checklist.md) - Prerequisites for successful customer pilots
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🛡️ Objection Handling
 
@@ -84,7 +94,9 @@ Use prompts from the [Prompt Guide](../prompt-guide/README.md) to demonstrate ag
 
 See [Objection Handling Guide](objection-handling.md) for complete responses with supporting evidence.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📋 Workshop Delivery
 
@@ -97,7 +109,9 @@ See [Objection Handling Guide](objection-handling.md) for complete responses wit
 
 - [Character Reference](character-reference.md) - Persona profiles for role-playing exercises
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## File Index
 
@@ -112,10 +126,14 @@ See [Objection Handling Guide](objection-handling.md) for complete responses wit
 | `time-savings-evidence.md`   | Time savings methodology      |
 | `workshop-checklist.md`      | Workshop preparation          |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Related Resources
 
 - [Glossary](../GLOSSARY.md) - Technical terms and patterns
 - [Quick Start](../quickstart.md) - Setup and first demo
 - [Prompt Guide](../prompt-guide/) - Agent & skill prompt examples
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

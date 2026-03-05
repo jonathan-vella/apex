@@ -1,10 +1,12 @@
+<a id="top"></a>
+
 # GitHub Copilot Pilot Success Checklist
 
 > **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
 > A structured guide for planning, executing, and evaluating a GitHub Copilot pilot for IT Professionals.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 ## Pre-Pilot Phase (Week -1)
 
@@ -37,7 +39,9 @@
 - [ ] **Success criteria agreed** - What defines "success"? (See metrics below)
 - [ ] **Stakeholder alignment** - Leadership aware and supportive
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Pilot Week 1: Onboarding & First Tasks
 
@@ -71,7 +75,9 @@
 | Average time savings observed        | 40%+          | \_\_\_% |
 | Major blockers                       | 0             | \_\_\_  |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Pilot Week 2: Expanded Use Cases
 
@@ -98,7 +104,9 @@
 | Team confidence (1-5 scale) | 4+     | \_\_\_  |
 | Would recommend to others   | Yes    | \_\_\_  |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Pilot Week 3-4: Real-World Validation
 
@@ -115,7 +123,9 @@
 - [ ] **Quality review conducted** - Code review of Copilot-assisted output
 - [ ] **Final survey distributed** - Comprehensive feedback questionnaire
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Success Criteria Evaluation
 
@@ -140,7 +150,9 @@
 | **Learning acceleration**  | ☐ Visible ☐ Minimal ☐ None                  |
 | **Ready for team rollout** | ☐ Yes ☐ With modifications ☐ No             |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Go/No-Go Decision Framework
 
@@ -165,7 +177,9 @@
 - [ ] < 50% recommendation rate (team resistance)
 - [ ] Major unresolved technical blockers
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Post-Pilot Actions
 
@@ -184,7 +198,9 @@
 - [ ] **Re-pilot timeline set** - When to try again with improvements
 - [ ] **Alternative solutions evaluated** - Other tools to consider
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Pilot Report Template
 
@@ -213,7 +229,9 @@ _Attach completed task log and survey results_
 
 _Document what worked, what didn't, and recommendations for rollout_
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Resources
 
@@ -224,7 +242,9 @@ _Document what worked, what didn't, and recommendations for rollout_
 | **Time Savings Evidence** | [time-savings-evidence.md](time-savings-evidence.md) |
 | **Prompt Guide**          | [docs/prompt-guide/](../prompt-guide/)               |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Document Info
 
@@ -234,3 +254,5 @@ _Document what worked, what didn't, and recommendations for rollout_
 | **Purpose**    | Pilot planning and evaluation |
 | **Audience**   | IT managers, pilot leads      |
 | **Maintainer** | Repository maintainers        |
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

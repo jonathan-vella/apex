@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Branch Ruleset Configuration
 
 > [Current Version](../VERSION.md) | Configuration guide for GitHub branch protection on `main`
@@ -7,6 +9,8 @@
 This document provides the exact `gh api` commands to configure branch
 rulesets for the `azure-agentic-infraops` repository. These rules
 enforce quality gates before merging to `main`.
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Required Status Checks
 
@@ -17,6 +21,8 @@ The following CI jobs must pass before a PR can merge:
 | `lint`                     | `lint.yml`                    | Markdown, JSON, template lint  |
 | `Validate Agents & Skills` | `agent-validation.yml`        | Agent frontmatter, skills, MCP |
 | `policy-compliance-check`  | `policy-compliance-check.yml` | Governance guardrail integrity |
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Configuration via `gh api`
 
@@ -124,6 +130,8 @@ gh api \
 }
 EOF
 ```
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Configuration via GitHub UI
 
@@ -132,6 +140,8 @@ EOF
    - `Validate Agents & Skills`
    - `policy-compliance-check`
 3. Click **Save changes**
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Verification
 
@@ -149,3 +159,5 @@ lint
 Validate Agents & Skills
 policy-compliance-check
 ```
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

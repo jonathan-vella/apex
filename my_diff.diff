@@ -1,0 +1,834 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index cf5c76f..640a82b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ # Agentic InfraOps
+ 
+ > Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
+@@ -30,6 +32,8 @@ pip install -r requirements.txt
+ - **Node.js** + npm (validation scripts)
+ - **Python 3** + pip (MCP server, diagram generation)
+ - **Go** (Terraform MCP server)
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Build & Validation
+ 
+@@ -63,6 +67,8 @@ terraform fmt -check -recursive infra/terraform/
+ # Per-project: cd infra/terraform/{project} && terraform init -backend=false && terraform validate
+ npm run validate:terraform
+ ```
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Code Style
+ 
+@@ -108,6 +114,8 @@ Generate once, pass everywhere:
+ 
+ - **Bicep**: `uniqueString(resourceGroup().id)`
+ - **Terraform**: `random_string` (4 chars, lowercase)
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Security Baseline
+ 
+@@ -119,6 +127,8 @@ These are non-negotiable for all generated infrastructure code:
+ - Managed Identity preferred over keys/connection strings
+ - Azure AD-only authentication for SQL
+ - Public network access disabled for production data services
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Testing
+ 
+@@ -142,6 +152,8 @@ bicep build infra/bicep/{project}/main.bicep
+ terraform fmt -recursive infra/terraform/
+ cd infra/terraform/{project} && terraform init -backend=false && terraform validate
+ ```
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Commit & PR Guidelines
+ 
+@@ -163,6 +175,8 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
+ Scopes: `agents`, `skills`, `instructions`, `bicep`, `terraform`, `mcp`, `docs`, `scripts`.
+ 
+ Always run `npm run lint:md` and relevant validations before committing.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Project Structure
+ 
+@@ -217,6 +231,8 @@ Review column = adversarial passes by `challenger-review-subagent` (3x = rotatin
+ | Shared domain knowledge | Skill `references/`                      | Deep content loaded on-demand by agents        |
+ | Executable scripts      | Skill `scripts/` (NOT `references/`)     | Deterministic operations, build/deploy scripts |
+ | Cross-agent boilerplate | Subagent or instruction with narrow glob | Repeated patterns across multiple agent bodies |
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Terraform Conventions
+ 
+@@ -225,6 +241,8 @@ Review column = adversarial passes by `challenger-review-subagent` (3x = rotatin
+ - **Required tags**: Same as above, with `ManagedBy = "Terraform"`
+ - **Unique suffix**: `random_string` resource (4 chars, lowercase)
+ - **AVM registry**: `registry.terraform.io/Azure/avm-res-*/azurerm`
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Bicep Conventions
+ 
+@@ -233,6 +251,8 @@ Review column = adversarial passes by `challenger-review-subagent` (3x = rotatin
+ - **AVM registry**: `br/public:avm/res/{provider}/{resource}:{version}`
+ - **Parameter files**: Use `.bicepparam` format
+ - **Deployment scripts**: PowerShell (`deploy.ps1`) in each project folder
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Security Considerations
+ 
+@@ -243,6 +263,8 @@ Review column = adversarial passes by `challenger-review-subagent` (3x = rotatin
+ - SQL databases: Azure AD-only authentication
+ - Production environments: disable public network access on data services
+ - Always check `04-governance-constraints.md` for subscription-level Azure Policy requirements
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Quarterly Context Audit
+ 
+@@ -256,3 +278,5 @@ Run every 3 months to prevent context bloat regression:
+ 6. `npm run lint:docs-freshness` — check docs counts and links
+ 7. Review `QUALITY_SCORE.md` and update if metrics changed
+ 8. Run `npm run snapshot:baseline` to capture current state for future diffs
++
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index bc5a7ac..8c70436 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ # Changelog
+ 
+ All notable changes to **Agentic InfraOps** are documented in this file.
+@@ -54,6 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - fix(session-state): accept both schema_version `"1.0"` and `"2.0"` in validator
+   for backwards compatibility.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.9.0] — Pre-Bosun Baseline
+ 
+@@ -117,6 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - fix(scripts): prevent YAML block scalar descriptions from recurring after frontmatter cleanup.
+ - fix(agents): remove deprecated `agent`/`runSubagent` tool declarations from all 13 agents.
+ - build(devcontainer): replace `tfsec` with `checkov`; pin `tflint` to v0.61.0.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.9.0] - 2026-02-12
+ 
+@@ -127,9 +133,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - docs(version): make `VERSION.md` the documentation source of truth for version display.
+ - build(version): simplify `validate-version-sync.mjs` checks to version-bearing files.
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+ 
+ > **Note:** Versions below (`0.0.45` and earlier) are pre-release development milestones.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.45] - 2026-02-05
+ 
+@@ -147,6 +155,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - fix(lint-yml): simplify markdown-lint trigger paths.
+ - fix(skills): correct template paths in deployment preflight skill docs.
+ - fix(templates): restore missing header text in governance constraints template.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.44] - 2026-02-04
+ 
+@@ -165,6 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - docs(links): repair broad internal-link drift across docs and artifacts.
+ - ci(workflows): fix `workflow_dispatch` input typing and increase link-check timeout.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.43] - 2026-02-03
+ 
+@@ -182,6 +194,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ ### Breaking Changes
+ 
+ - chore(agents): remove `@diagram`, `@adr`, and `@docs`; replace with skill-based workflows.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.42] - 2026-02-03
+ 
+@@ -193,6 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ ### Removed
+ 
+ - chore(drawio): remove Draw.io MCP server, templates, scripts, and extension integration.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.41] - 2026-02-02
+ 
+@@ -207,18 +223,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ ### Fixed
+ 
+ - fix(skills): resolve markdown lint issues in deployment preflight and skill template files.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.40] - 2026-01-23
+ 
+ ### Changed
+ 
+ - feat(workflow): implement automated versioning and branch protection (#40).
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.39] - 2026-01-22
+ 
+ ### Added
+ 
+ - feat(agent-testing): introduce complete agent validation framework.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.38] - 2026-01-22
+ 
+@@ -226,42 +248,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - feat(agents): rename `@plan` to `@requirements` to avoid collision with VS Code built-in Plan.
+ - refactor(agents): rename `plan.agent.md` to `requirements.agent.md` and update references.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.37] - 2026-01-21
+ 
+ ### Added
+ 
+ - feat(testing): add comprehensive agent testing plan prompt.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.36] - 2026-01-21
+ 
+ ### Fixed
+ 
+ - fix(devcontainer): resolve post-create permission issues.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.35] - 2026-01-21
+ 
+ ### Fixed
+ 
+ - fix(devcontainer): remove invalid `PATH` override that blocked container startup.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.34] - 2026-01-21
+ 
+ ### Fixed
+ 
+ - fix(docs): update remaining legacy agent references in embedded docs.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.33] - 2026-01-21
+ 
+ ### Breaking Changes
+ 
+ - feat(agents)!: rename agents to shorter verb-based names.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.32] - 2026-01-21
+ 
+ ### Added
+ 
+ - feat(agents): integrate deploy agent into the workflow.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.31] - 2026-01-21
+ 
+@@ -286,18 +322,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - chore(husky): remove Husky directory and dependency.
+ - chore(terraform): remove Terraform tooling, references, and related config entries.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.30] - 2026-01-20
+ 
+ ### Added
+ 
+ - feat(diagnose): add Azure Resource Health Diagnostician agent.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.29] - 2026-01-19
+ 
+ ### Fixed
+ 
+ - fix(ci): correct version auto-update extraction logic.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.28] - 2026-01-19
+ 
+@@ -309,18 +351,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ ### Changed
+ 
+ - docs(workflow): update diagrams and references to use Deploy Agent terminology.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.27] - 2026-01-19
+ 
+ ### Added
+ 
+ - feat(presenter): add dark-themed workflow diagram for presentations.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.26] - 2026-01-19
+ 
+ ### Changed
+ 
+ - chore(release): prepare release transition to `0.0.25` baseline.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.25] - 2026-01-19
+ 
+@@ -338,24 +386,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - chore(legacy): remove `scenarios/scenario-output/` and legacy docs folders.
+ - chore(example): remove `infra/bicep/contoso-patient-portal/`.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.24] - 2026-01-14
+ 
+ ### Added
+ 
+ - feat(demo): add prompt for 30-minute live workflow demo.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.23] - 2026-01-14
+ 
+ ### Fixed
+ 
+ - fix(prompts): convert plan-requirements to proper prompt-file format.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.22] - 2026-01-14
+ 
+ ### Added
+ 
+ - feat(artifacts): complete artifact template compliance rollout.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.21] - 2026-01-14
+ 
+@@ -374,6 +430,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - fix(package): remove duplicate version line.
+ - fix(docs): remove outdated design document TOC sections.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.20] - 2026-01-14
+ 
+@@ -392,6 +450,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ ### Fixed
+ 
+ - fix(docs): correct renamed artifact references in ecommerce documentation index.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.19] - 2026-01-14
+ 
+@@ -417,6 +477,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - chore(terraform-doc): remove obsolete `terraform-azure.instructions.md`.
+ - chore(docs): merge and remove `docs/presenter-toolkit/` and `docs/value-proposition/`.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.18] - 2026-01-13
+ 
+@@ -424,60 +486,80 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - refactor(agents): rename `@plan` display references to Project Planner across docs.
+ - docs(usage): correct invocation guidance and regenerate workflow diagrams.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.17] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(pricing): update Azure Pricing Calculator URLs with locale-aware links.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.16] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(paths): correct relative paths in `azure-principal-architect.agent.md`.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.15] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(paths): correct shared foundation link path in all agents.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.14] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(readme): correct table link paths.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.13] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(readme): remove non-functional Mermaid click links and add link table.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.12] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(readme): switch Mermaid click links to absolute GitHub URLs.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.11] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(readme): correct Mermaid click links.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.10] - 2025-12-18
+ 
+ ### Fixed
+ 
+ - fix(docs): clean up docs rebuild path/link breakage.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.9] - 2025-12-17
+ 
+ ### Added
+ 
+ - feat(validation): add `static-webapp-test` workflow validation example.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.8] - 2025-12-17
+ 
+@@ -488,24 +570,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - chore(artifacts): standardize `-des` and `-ab` artifact suffixes.
+ - refactor(costing): move cost estimates to Step 3 design artifacts.
+ - docs(pricing): add Azure Pricing MCP fallback chain guidance.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.7] - 2025-12-17
+ 
+ ### Added
+ 
+ - feat(diagrams): add workflow diagram generator setup.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.6] - 2025-12-17
+ 
+ ### Added
+ 
+ - feat(docs-agent): add workload documentation generator agent for optional Step 7.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.5] - 2025-12-17
+ 
+ ### Added
+ 
+ - feat(outputs): centralize agent outputs and automate versioning.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.4] - 2025-12-07
+ 
+@@ -529,6 +619,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - fix(scenarios): remove duplicate S04 folders.
+ - fix(personas): fix character-name collisions across scenarios.
+ - fix(mcp): resolve "Connector is closed" server errors.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.3] - 2025-12-03
+ 
+@@ -543,6 +635,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - chore(paths): move `docs/WORKFLOW.md` to `docs/workflow/WORKFLOW.md`.
+ - chore(paths): move `docs/QUICKSTART.md` to `docs/getting-started/QUICKSTART.md`.
+ - chore(paths): move `docs/troubleshooting.md` to `docs/guides/troubleshooting.md`.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.2] - 2025-12-01
+ 
+@@ -562,6 +656,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ ### Removed
+ 
+ - chore(legacy): remove legacy scenarios/resources folders.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## [0.0.1] - 2024-06-01
+ 
+@@ -572,7 +668,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - feat(deploy): add PowerShell deployment scripts.
+ - docs(copilot): add initial Copilot instructions.
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Version Numbering
+ 
+@@ -583,8 +681,12 @@ This project uses [Semantic Versioning](https://semver.org/):
+ - **MAJOR**: breaking changes to workflow or agent interfaces.
+ - **MINOR**: new agents, demos, or significant feature additions.
+ - **PATCH**: bug fixes, documentation improvements, and minor enhancements.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Links
+ 
+ - [VERSION.md](VERSION.md) - Detailed version history
+ - [GitHub Releases](https://github.com/jonathan-vella/azure-agentic-infraops/releases)
++
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 3eebe93..7d10485 100755
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ # Contributing to Agentic InfraOps
+ 
+ Thank you for your interest in contributing! Agentic InfraOps revolutionizes how IT Pros build
+@@ -26,6 +28,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
+    - Bicep and Terraform patterns and templates
+    - Azure Verified Module usage examples (Bicep and AVM-TF)
+    - Security and compliance guidance
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 📋 Contribution Guidelines
+ 
+@@ -86,6 +90,8 @@ npm run lint:links
+ # Auto-fix issues
+ npm run lint:md:fix
+ ```
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 🚀 Contribution Process
+ 
+@@ -125,6 +131,8 @@ git push origin feature/your-feature-name
+ ```
+ 
+ Note: commit message format is enforced by hooks and CI.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 📝 Commit Message Format (Required)
+ 
+@@ -201,6 +209,8 @@ doesn't follow the format, you'll see a helpful error with examples.
+ 2. Click "New Pull Request"
+ 3. Fill out the PR template
+ 4. Link related issues
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 📝 Pull Request Checklist
+ 
+@@ -214,6 +224,8 @@ Before submitting:
+ - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
+ - [ ] No hardcoded secrets or subscription IDs
+ - [ ] Links work correctly
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 🤝 Community Standards
+ 
+@@ -228,11 +240,15 @@ Before submitting:
+ 
+ - **Questions**: GitHub Discussions
+ - **Issues**: GitHub Issues
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 📄 License
+ 
+ By contributing, you agree that your contributions will be licensed under the MIT License.
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+ 
+ **Thank you for helping improve the Azure infrastructure workflow!** 🚀
++
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/CONTRIBUTORS.md b/CONTRIBUTORS.md
+index 6b283a9..48a9b39 100755
+--- a/CONTRIBUTORS.md
++++ b/CONTRIBUTORS.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ # Contributors
+ 
+ Thank you to everyone who has contributed to making this project better!
+@@ -9,6 +11,8 @@ Thank you to everyone who has contributed to making this project better!
+ - **Jonathan Vella** ([@jonathan-vella](https://github.com/jonathan-vella)) - Project Lead
+ - **Storm Gibson** ([@StormyDevil](https://github.com/StormyDevil)) - Contributor
+ - **Fares Zekri** ([@farez_microsoft](https://github.com/farez_microsoft)) - Contributor
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Azure Pricing MCP Server Contributors
+ 
+@@ -33,6 +37,8 @@ real-time Azure pricing information to AI assistants.
+ - [Azure Retail Prices API][azure-pricing] - Pricing data source
+ 
+ [azure-pricing]: https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Azure Diagrams Skill Contributors
+ 
+@@ -46,16 +52,22 @@ diagramming capabilities for architecture documentation.
+ ### Source Repository
+ 
+ - [azure-diagrams-skill](https://github.com/cmb211087/azure-diagrams-skill) - Original skill implementation
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## How to Contribute
+ 
+ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get involved.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Recognition
+ 
+ All contributors are recognized for their valuable contributions to the project, whether through
+ code, documentation, feedback, or community support.
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+ 
+ _Want to see your name here? Check out our [contribution guidelines](CONTRIBUTING.md) and submit a pull request!_
++
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/QUALITY_SCORE.md b/QUALITY_SCORE.md
+index 7c2fa7e..8cbd78e 100644
+--- a/QUALITY_SCORE.md
++++ b/QUALITY_SCORE.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ # Quality Score
+ 
+ > Project health at a glance. Updated by the doc-gardening workflow and manual review.
+@@ -22,6 +24,8 @@
+ | C     | Fair — known gaps, improvement plan exists             |
+ | D     | Poor — significant gaps, no active remediation         |
+ | F     | Critical — domain is broken or unmaintained            |
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Change Log
+ 
+@@ -49,6 +53,8 @@
+ | 2026-03-04 | CI / Validation | Doc-gardening: validator count corrected 22 → 33                                        |
+ | 2026-03-04 | Backlog         | Doc-gardening: debt #10 updated (5 agents); debt #11 updated (4 warnings, new set)      |
+ | 2026-03-04 | Infrastructure  | tf-dev merged; IaC archived as .tar.gz (by design); grade B+ → A-; debt #6 resolved     |
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## How to Update
+ 
+@@ -56,3 +62,5 @@
+ 2. Review findings and update grades above
+ 3. Log changes in the Change Log table
+ 4. Update `docs/exec-plans/tech-debt-tracker.md` for tracked debt items
++
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/README.md b/README.md
+index 0073fe3..83ccce1 100644
+--- a/README.md
++++ b/README.md
+@@ -42,7 +42,7 @@
+   </p>
+ </div>
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+ 
+ Agentic InfraOps coordinates specialized AI agents through a complete infrastructure development
+ cycle. Instead of context-switching between requirements, architecture decisions, IaC authoring
+@@ -51,7 +51,7 @@ WAF alignment, AVM-first code generation, and mandatory human approval gates. Ch
+ track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation
+ pipelines automatically.
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+ 
+ ## Agentic Workflow
+ 
+@@ -151,7 +151,9 @@ sequenceDiagram
+ 
+ <p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
++<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## ⚡ Quick Start
+ 
+@@ -180,7 +182,9 @@ The Conductor guides you through all 7 steps with approval gates.
+ 
+ <p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
++<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Agents
+ 
+@@ -234,7 +238,9 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
+ 
+ <p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
++<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 🧩 MCP Integration
+ 
+@@ -248,7 +254,9 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
+ 
+ <p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
++<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Related Repositories
+ 
+@@ -266,7 +274,9 @@ reference solutions—from first Conductor run to full deployment.
+ 
+ <p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
++<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## 🤝 Contributing & License
+ 
+@@ -276,7 +286,7 @@ MIT License — see [LICENSE](LICENSE) for details.
+ Built upon [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra) and
+ [Github-Copilot-Atlas](https://github.com/bigguy345/Github-Copilot-Atlas).
+ 
+----
++<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+ 
+ <div align="center">
+   <p>Made with ❤️ by <a href="https://github.com/jonathan-vella">Jonathan Vella</a></p>
+@@ -300,3 +310,5 @@ Built upon [copilot-orchestra](https://github.com/ShepAlderson/copilot-orchestra
+ [bicep-url]: https://learn.microsoft.com/azure/azure-resource-manager/bicep/
+ [terraform-shield]: https://img.shields.io/badge/Terraform-Supported-844FBA?style=for-the-badge&logo=terraform&logoColor=white
+ [terraform-url]: https://www.terraform.io/
++
++<div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/VERSION.md b/VERSION.md
+index 786fe3d..fbe10a0 100755
+--- a/VERSION.md
++++ b/VERSION.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ # Version Information
+ 
+ **Current Version:** 0.10.0
+@@ -9,6 +11,8 @@
+ ## Version History
+ 
+ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Semantic Versioning
+ 
+@@ -17,6 +21,8 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/):
+ - **MAJOR** version for incompatible API changes (breaking changes)
+ - **MINOR** version for new functionality (feat:)
+ - **PATCH** version for bug fixes (fix:)
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
++
+ 
+ ## Automated Versioning
+ 
+@@ -28,3 +34,5 @@ Version bumps are automated via GitHub Actions based on [Conventional Commits](h
+ | `fix:`                         | Patch        | `fix: correct typo`        |
+ | `feat!:` or `BREAKING CHANGE:` | Major        | `feat!: redesign workflow` |
+ | `docs:`, `chore:`, etc.        | None         | `docs: update README`      |
++
++<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+diff --git a/test-mermaid.md b/test-mermaid.md
+index 7a76c6a..932d452 100644
+--- a/test-mermaid.md
++++ b/test-mermaid.md
+@@ -1,3 +1,5 @@
++<a id="top"></a>
++
+ ```mermaid
+ %%{
+   init: {

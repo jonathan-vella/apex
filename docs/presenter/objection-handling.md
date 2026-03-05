@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Objection Handling Guide
 
 > **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
@@ -14,7 +16,9 @@ When handling objections, follow this structure:
 3. **Evidence** - Provide concrete data or examples
 4. **Invite** - Offer to demonstrate or discuss further
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 💰 Cost & ROI Objections
 
@@ -53,7 +57,9 @@ When handling objections, follow this structure:
 - Reduced security misconfigurations through built-in best practices
 - Faster onboarding for junior team members learning IaC
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🔒 Security Objections
 
@@ -108,7 +114,9 @@ When handling objections, follow this structure:
 - Private endpoints suggested for sensitive services
 - Validation workflow catches issues before deployment
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🧠 "Will It Replace Us?" Objections
 
@@ -146,7 +154,9 @@ When handling objections, follow this structure:
 - Repository includes 'Learning Moments' in demo scripts
 - Faster path to productivity doesn't skip understanding
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🔧 Technical Objections
 
@@ -201,7 +211,9 @@ When handling objections, follow this structure:
 - Helps document undocumented infrastructure
 - Accelerates template customization for new projects
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📊 Adoption Objections
 
@@ -239,7 +251,9 @@ When handling objections, follow this structure:
 - Repository-level instructions improve context
 - Structured prompts yield better results than ad-hoc usage
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🎯 Quick Response Table
 
@@ -253,10 +267,14 @@ When handling objections, follow this structure:
 | Team resistant    | "Start with curious volunteers, let success spread organically"                  |
 | Tried before      | "Current version with agents is dramatically better—let me show you"             |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 📚 Supporting Resources
 
 - [ROI Calculator](roi-calculator.md) - Build a custom business case
 - [Time Savings Evidence](time-savings-evidence.md) - Methodology and data
 - [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/) - Security documentation
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

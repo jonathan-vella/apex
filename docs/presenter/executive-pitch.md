@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # GitHub Copilot for IT Pros: Executive Pitch
 
 > **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
@@ -6,7 +8,7 @@
 
 <!-- Banner image was in docs/_superseded/ (removed) — regenerate if needed -->
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 
 ## The Hook (30 seconds)
 
@@ -18,7 +20,9 @@ debugging syntax errors. Only 10% goes to actual architecture decisions.
 
 **GitHub Copilot flips that ratio.**
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## The Problem (1 minute)
 
@@ -41,7 +45,9 @@ misunderstandings that cost more time than the original task.
 | Manual compliance checks          | Audit failures   |
 | Reactive troubleshooting          | Extended outages |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## The Solution (1 minute)
 
@@ -59,7 +65,9 @@ GitHub Copilot isn't about replacing your IT Pros. It's about **amplifying their
 **The architect who designs systems can now implement them.** No handoffs. No waiting.
 No lost-in-translation errors.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## The Proof (1.5 minutes)
 
@@ -78,7 +86,9 @@ These projects were built by a Cloud Architect with **no development background*
 These aren't prototypes. They're in production. They're used in Microsoft Learn documentation.
 They're training enterprise teams.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## The Evidence (30 seconds)
 
@@ -93,7 +103,9 @@ They're training enterprise teams.
 
 This isn't vendor marketing. This is independent research from leading institutions.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## The Ask (30 seconds)
 
@@ -111,7 +123,9 @@ This isn't vendor marketing. This is independent research from leading instituti
 
 **Break-even:** First week of use
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Meet Your IT Pro Personas
 
@@ -141,13 +155,17 @@ _The challenges below are drawn from hundreds of conversations with IT professio
 
 **With Copilot:** AI-assisted diagnosis in minutes. Root cause identified. Fix deployed.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## The One-Slide Summary
 
 <!-- One-slide summary image was in docs/_superseded/ (removed) — regenerate if needed -->
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Appendix: Talking Points for Q&A
 
@@ -184,7 +202,9 @@ The time invested pays back within the first week.
 No. Copilot fits into existing workflows. Same tools, same review processes, same deployment pipelines.
 Just faster execution.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## 🎯 Next Steps
 
@@ -197,7 +217,9 @@ Just faster execution.
 
 [issues]: https://github.com/jonathan-vella/azure-agentic-infraops/issues
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Document Info
 
@@ -207,3 +229,5 @@ Just faster execution.
 | **Duration**   | 5 minutes                      |
 | **Audience**   | Executive / Partner Leadership |
 | **Maintainer** | Repository maintainers         |
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" width="100%" height="300" style="object-fit: cover; border-radius: 10px;" alt="Agentic InfraOps Banner"/>
+  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop"
+    width="100%" height="300" style="object-fit: cover; border-radius: 10px;"
+    alt="Agentic InfraOps Banner"/>
 </div>
 
 <a id="how-agentic-infraops-works"></a>
@@ -64,7 +66,7 @@
 - [File Map](#file-map)
 - [References](#references)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <a id="executive-summary"></a>
 
@@ -83,7 +85,7 @@ a layered knowledge architecture (agents, skills, instructions, registries), mec
 of invariants via 27 validation scripts, and a human-in-the-loop design that preserves
 operator control at every critical decision point.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <a id="intellectual-foundations"></a>
 
@@ -96,7 +98,9 @@ can operate reliably in professional software engineering contexts.
 
 ### 🛠️ Harness Engineering (OpenAI)
 
-<div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
+<div align="center"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
+  height="200" style="object-fit: cover; border-radius: 8px;"
+  alt="Technology circuit board abstract background"></div><br/>
 
 In February 2026, OpenAI published
 "[Harness Engineering: Leveraging Codex in an Agent-First World](https://openai.com/index/harness-engineering/),"
@@ -272,7 +276,7 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time         |
 | Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews          |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -340,7 +344,9 @@ flowchart LR
 
 ### 🎼 The Conductor Pattern
 
-<div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
+<div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop"
+  height="200" style="object-fit: cover; border-radius: 8px;"
+  alt="Orchestra performance representing the Conductor pattern"></div><br/>
 
 The InfraOps Conductor (agent `01-Conductor`) is the master orchestrator. It does not
 generate infrastructure code or documentation itself. Instead, it:
@@ -359,7 +365,9 @@ state machine.
 
 ### 🛤️ Dual IaC Tracks
 
-<div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop" height="200" style="object-fit: cover; border-radius: 8px;"></div><br/>
+<div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop"
+  height="200" style="object-fit: cover; border-radius: 8px;"
+  alt="Railway tracks diverging representing dual IaC tracks"></div><br/>
 
 Steps 1–3 (Requirements, Architecture, Design) are shared across both infrastructure
 tracks. At Step 4, the workflow diverges based on the `iac_tool` field in the requirements
@@ -401,7 +409,7 @@ flowchart TD
     Terraform --> AsBuilt
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -481,7 +489,7 @@ the agent system.
 | Workflow Graph     | `.github/skills/workflow-engine/templates/workflow-graph.json`      | 7-step DAG with nodes, edges, conditions  |
 | Complexity Routing | `.github/skills/workflow-engine/references/complexity-routing.json` | Step → model tier (low/medium/high)       |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -525,7 +533,7 @@ It provides:
 This file is shorter than `AGENTS.md` and focused on VS Code-specific orchestration
 concerns rather than repository-wide conventions.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -640,7 +648,7 @@ The next agent reads those files as input. This design:
 - Allows human review at every gate (artefacts are human-readable markdown)
 - Supports parallel development of different steps
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -696,7 +704,7 @@ The system contains 20 skills across several domains:
 | GitHub Operations    | `github-operations`, `git-commit`                                                      |
 | Meta / Tooling       | `make-skill-template`, `context-optimizer`                                             |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -732,7 +740,7 @@ Following the Golden Principle "Mechanical Enforcement Over Documentation," ever
 instruction has a corresponding validation script. The rule is: if it can be a linter
 check, it should be one. Documentation is for humans; machines enforce rules.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -740,7 +748,9 @@ check, it should be one. Documentation is for humans; machines enforce rules.
 
 ## ⚙️ Deep Dive: Workflow Engine
 
-<div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop" height="250" style="object-fit: cover; border-radius: 8px;"></div><br/>
+<div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop"
+  height="250" style="object-fit: cover; border-radius: 8px;"
+  alt="Technology workflow visualization representing the workflow engine"></div><br/>
 
 <a id="the-dag-model"></a>
 
@@ -861,7 +871,7 @@ The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 The claim model prevents concurrent sessions from corrupting state. Stale heartbeats
 (older than `stale_threshold_ms`, default 5 minutes) are automatically recovered.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -936,7 +946,7 @@ When agents approach model context limits, the context-shredding system activate
 | `summarized` | 60–80%     | Key H2 sections only (tables preserved)    |
 | `minimal`    | > 80%      | Decision summaries only (< 500 characters) |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -1110,7 +1120,7 @@ This scoping is currently documentation-only (pending VS Code support
 for per-agent MCP filtering), but agents are instructed to respect it
 through their skill and instruction definitions.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -1131,7 +1141,7 @@ The system operates under 10 principles adapted from the Harness Engineering phi
 9. **Progressive Disclosure** — Start small, drill deeper when needed
 10. **Mechanical Enforcement Over Documentation** — Linters and validators over prose
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 
@@ -1172,7 +1182,7 @@ scripts/                                     # 27 validation scripts
 mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
 <div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
 

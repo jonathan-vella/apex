@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Tech Debt Tracker
 
 > [Current Version](../../VERSION.md) | Running inventory of known debt and quality gaps
@@ -11,6 +13,8 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 5   | CI/CD        | `validate:terraform` script runs silently — confirm it validates all projects under `infra/terraform/`                                                                   | Medium   | —     | tf-dev     |
 | 10  | Agents       | `agents` frontmatter field is a string (not array) in 5 agents: conductor, conductor-fastpath, architect, bicep-codegen, terraform-codegen                               | Low      | —     | Phase-next |
 | 11  | Instructions | 4 `applyTo` warnings in validate-instruction-references (bicep-code-best-practices, bicep-policy-compliance, terraform-code-best-practices, terraform-policy-compliance) | Low      | —     | Phase-next |
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Resolved Items
 
@@ -26,6 +30,8 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 12  | Documentation  | `docs/README.md` skill count said 16, filesystem had 17 after `session-resume` added | 2026-03-02 | Updated to 17 in 3 locations; skill added to table         |
 | 6   | Infrastructure | Terraform tf-dev branch not merged to main; dual-IaC only on tf-dev                  | 2026-03-04 | tf-dev merged; IaC content archived as .tar.gz (by design) |
 | —   | All            | Tracker created — no resolved items at inception                                     | 2026-02-26 | Initial seeding from audit                                 |
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
 
 ## Categories
 
@@ -35,3 +41,5 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 - **Validation**: Missing CI checks, untested rules
 - **Infrastructure**: Bicep patterns, module gaps, Terraform parity
 - **CI/CD**: Missing or unverified pipeline scripts
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
