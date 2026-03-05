@@ -7,7 +7,7 @@
 > Quick reference for all personas used across the Agentic InfraOps scenarios.
 > Use these characters to add storytelling depth to your demos and presentations.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## 📋 Character Matrix
 
@@ -23,7 +23,7 @@
 | S08      | **Alex Petrov**     | Cloud Operations Engineer     | InfraScale Solutions          | 24-hour monitoring deadline           |
 | S09      | **Kai Nakamura**    | Platform Engineer             | CloudBridge Partners          | Terraform estate migration to agentic |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -42,7 +42,7 @@
 **Demo Hook**: "Meet Elena. She's the expert everyone relies on for infrastructure decisions.
 But today, she's the student—learning Azure IaC for the first time."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Jennifer Chen (S02 - Agentic Workflow)
 
@@ -57,7 +57,7 @@ But today, she's the student—learning Azure IaC for the first time."
 **Demo Hook**: "Jennifer has a new client engagement. HIPAA compliance, tight budget,
 ambitious timeline. Watch how the 7-step workflow becomes her secret weapon."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Priya Sharma (S03 - Documentation Generation)
 
@@ -72,7 +72,7 @@ ambitious timeline. Watch how the 7-step workflow becomes her secret weapon."
 **Demo Hook**: "Priya's deadline is impossible. Or is it? Watch how Copilot turns
 infrastructure code into comprehensive documentation in hours, not weeks."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Marcus Chen (S04 - Service Validation)
 
@@ -87,7 +87,7 @@ infrastructure code into comprehensive documentation in hours, not weeks."
 **Demo Hook**: "Marcus has seen too many 'successful' deployments fail in production.
 His mission: prove the system actually delivers what stakeholders need."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Maya Patel (S05 - Troubleshooting)
 
@@ -102,7 +102,7 @@ His mission: prove the system actually delivers what stakeholders need."
 **Demo Hook**: "Maya's phone just buzzed. PagerDuty. Production incident.
 Watch how Copilot becomes her diagnostic partner at 2 AM."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Sarah Chen (S06 - SBOM Generator)
 
@@ -117,7 +117,7 @@ Watch how Copilot becomes her diagnostic partner at 2 AM."
 **Demo Hook**: "Sarah just got the email that every security engineer dreads.
 An enterprise customer needs a Software Bill of Materials—yesterday."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### David Kim (S07 - Diagrams as Code)
 
@@ -132,7 +132,7 @@ An enterprise customer needs a Software Bill of Materials—yesterday."
 **Demo Hook**: "David's presentation is in 2 hours. His diagrams are on another computer.
 Watch how Python and Copilot save his design review."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Alex Petrov (S08 - Coding Agent)
 
@@ -147,7 +147,7 @@ Watch how Python and Copilot save his design review."
 **Demo Hook**: "Alex's presentation is in 24 hours and a list of 10 tasks. The coding agent
 can work on monitoring while Alex handles the deployment pipeline."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Kai Nakamura (S09 - Terraform Dual-Track)
 
@@ -164,7 +164,7 @@ can work on monitoring while Alex handles the deployment pipeline."
 but assumed it's Bicep-only. Today, Kai discovers the dual-track workflow — and the Terraform
 agents feel like they were built for teams exactly like theirs."
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -197,7 +197,7 @@ Some characters can reference each other for continuity:
 - **Sarah** (S06) works at HealthTech, whose patient portal might be built by **Jennifer's** team
 - **Maya** (S05) and **Alex** (S08) both deal with production operations
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -215,7 +215,7 @@ Some characters can reference each other for continuity:
 | Alex Petrov     | 8 hours     | 30 min       | 94%     |
 | Kai Nakamura    | 12 hours    | 45 min       | 94%     |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 _Use these characters to transform technical demos into memorable stories.
 The technology is impressive—but the human impact is what resonates._

@@ -4,7 +4,7 @@ description: "Adversarial review subagent that challenges Azure infrastructure a
 model: "Claude Sonnet 4.6 (copilot)"
 # Model rationale: Sonnet 4.6 for all review passes. Provides strong adversarial
 # analysis with lower latency than Opus. Validated via A/B comparison in Phase 10.
-user-invokable: false
+user-invocable: false
 agents: []
 tools: [read, search, web, vscode/askQuestions, "azure-mcp/*"]
 ---

@@ -12,7 +12,7 @@ infrastructure.
 **Prerequisites**: Complete the [Quickstart](../quickstart.md) first
 (Dev Container running, subagent invocation enabled).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## Quick Reference
 
@@ -97,7 +97,7 @@ to see available prompts.
 | `conductor-demo`            | InfraOps Conductor | Full workflow demo (Static Web App scenario) |
 | `plan-req-demo-interactive` | Requirements       | Interactive EU ecommerce migration demo      |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## General Prompting Best Practices
@@ -254,7 +254,7 @@ tflint --init && tflint
 terraform plan -out=tfplan
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 7-Step Workflow Prompts
@@ -279,7 +279,7 @@ Resume the workflow from where we left off. Check agent-output/patient-portal/
 for existing artifacts.
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 1: Requirements — 📜 Scribe
 
@@ -301,7 +301,7 @@ The agent guides you through 5 discovery phases (business, technical, compliance
 operational, budget) using interactive questions, then generates
 `agent-output/{project}/01-requirements.md`.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 2: Architecture — 🏛️ Oracle
 
@@ -323,7 +323,7 @@ Deep dive into the Security pillar. Our CISO wants to know
 specifically how we handle data encryption at rest and in transit.
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 3: Design — 🎨 Artisan (Optional)
 
@@ -352,7 +352,7 @@ Generate a detailed cost estimate using Azure Pricing MCP tools.
 Include monthly and yearly totals for each resource.
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 4: Planning — 📐 Strategist
 
@@ -383,7 +383,7 @@ The agent runs governance discovery (Azure Policy via REST API), checks AVM modu
 availability, then asks you to choose a deployment strategy (phased vs. single)
 before generating `04-implementation-plan.md`.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 5: Implementation — ⚒️ Forge
 
@@ -415,7 +415,7 @@ The agent runs a preflight check, generates templates with AVM modules, applies
 security baseline and required tags, then validates with the appropriate tool
 (`bicep build` / `terraform validate`).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 6: Deployment — 🚀 Envoy
 
@@ -447,7 +447,7 @@ The agent always presents a change summary (what-if or plan output) and waits fo
 your explicit approval before deploying. For phased deployments, it pauses between
 each phase.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 7: Documentation — 📚 Chronicler
 
@@ -463,7 +463,7 @@ This produces documentation files in `agent-output/{project}/07-*.md`:
 design document, operations runbook, cost estimate, compliance matrix,
 backup/DR plan, and resource inventory.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Standalone Agent Reference
@@ -518,7 +518,7 @@ Review the architecture assessment for single points of failure
 and missing disaster recovery considerations.
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Skill Reference
@@ -635,7 +635,7 @@ API calls by querying official documentation.
 method for listing Key Vault secrets in Python.
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Subagent Reference
@@ -690,7 +690,7 @@ Queries Azure Policy assignments via REST API (including management group-
 inherited policies). Classifies policy effects and returns structured governance
 constraints.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Tips and Patterns
@@ -750,7 +750,7 @@ Review the existing Bicep templates in infra/bicep/legacy-app/
 and suggest improvements for WAF alignment.
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## References

@@ -241,7 +241,7 @@ Before submitting:
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 **Thank you for helping improve the Azure infrastructure workflow!** 🚀
 

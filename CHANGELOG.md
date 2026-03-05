@@ -131,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - docs(version): make `VERSION.md` the documentation source of truth for version display.
 - build(version): simplify `validate-version-sync.mjs` checks to version-bearing files.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 > **Note:** Versions below (`0.0.45` and earlier) are pre-release development milestones.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
@@ -621,7 +621,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat(deploy): add PowerShell deployment scripts.
 - docs(copilot): add initial Copilot instructions.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Version Numbering

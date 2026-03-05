@@ -7,7 +7,7 @@
 > A comprehensive checklist for trainers delivering Agentic InfraOps workshops.
 > Use this before, during, and after your sessions to ensure smooth delivery.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## 📋 Table of Contents
 
@@ -17,7 +17,7 @@
 - [Post-Workshop](#-post-workshop)
 - [Emergency Procedures](#-emergency-procedures)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -79,7 +79,7 @@
   - [ ] Screenshots of expected outputs
   - [ ] Alternative scenarios if primary fails
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -135,7 +135,7 @@
 - [ ] **Have water/coffee ready**
 - [ ] **Quick stretch/breathing exercise**
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -195,7 +195,7 @@
 | 90%        | Start wrap-up               |
 | 100%       | Q&A and next steps          |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -247,7 +247,7 @@
   - [ ] Common questions
   - [ ] Improvement suggestions
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -290,7 +290,7 @@
 3. Provide completed code samples
 4. Offer 1:1 help after session
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -321,7 +321,7 @@
 - **Content Questions**: Repository maintainers
 - **Azure Issues**: <https://azure.microsoft.com/support>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 **📖 See Also:**
 

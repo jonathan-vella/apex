@@ -10,7 +10,7 @@
 This calculator combines scenario-based data with a customizable worksheet to help you calculate expected ROI for your
 team.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## 🎯 Quick ROI Summary
 
@@ -21,7 +21,7 @@ team.
 **Why so fast?** At $19/month per user (~$0.12/hour for a full-time employee), even saving 10 minutes per day covers the
 cost. Most IT Pros report saving 1-2 hours on their first day.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -43,7 +43,7 @@ These measurements come from the repository's documented scenarios (S01-S11):
 
 📖 **Methodology**: See [Time Savings Evidence](time-savings-evidence.md) for measurement details.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -57,7 +57,7 @@ These measurements come from the repository's documented scenarios (S01-S11):
 | **Average hourly rate** | $**\_** /hr | $100    | Fully loaded cost (salary + benefits + overhead) |
 | **Working hours/month** | **\_**      | 160     | Standard assumption                              |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 2: Estimate Current Time Allocation
 
@@ -73,7 +73,7 @@ _Based on research, IT Pros typically spend their time as follows. Adjust percen
 | Strategic Architecture                    | 10%          | **\_**%     | **\_** hrs               |
 | **TOTAL**                                 | 100%         | 100%        | 160 hrs                  |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 3: Apply Time Savings Multipliers
 
@@ -94,7 +94,7 @@ _Research-backed savings percentages. Use conservative (low) estimates for pilot
 - MIT Sloan (2024): 80% documentation time saved
 - Stanford HAI (2023): 60-70% problem-solving acceleration
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 4: Calculate Monthly Savings
 
@@ -114,7 +114,7 @@ Monthly Value = Total Hours Saved × Hourly Rate
 | Research & Learning    | **\_**      | **\_**%   | **\_**             | $**\_**         |
 | **TOTAL per IT Pro**   |             |           | \***\*\_** hrs\*\* | **$**\_\*\*\*\* |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 5: Calculate Team ROI
 
@@ -127,7 +127,7 @@ Monthly Value = Total Hours Saved × Hourly Rate
 | **Net monthly benefit**        | Savings - Cost             | $**\_**       |
 | **Monthly ROI**                | (Net benefit ÷ Cost) × 100 | **\_**%       |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -177,7 +177,7 @@ Monthly Value = Total Hours Saved × Hourly Rate
 | **Annual Net Savings** | **$2.7M**                 |
 | ROI                    | 23,584%                   |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -191,7 +191,7 @@ Monthly Value = Total Hours Saved × Hourly Rate
 | **Moderate (70% savings)**     | < 4 hours        |
 | **Aggressive (85% savings)**   | < 2 hours        |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -226,7 +226,7 @@ Beyond direct time savings, consider these benefits:
 | Reduced technical debt | Cleaner codebase over time     |
 | Audit trail            | Copilot history for compliance |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -263,7 +263,7 @@ Beyond direct time savings, consider these benefits:
 
 4. **"Risk is minimal"** — At $19/user/month with month-to-month billing, you can pilot with zero commitment.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -277,7 +277,7 @@ Beyond direct time savings, consider these benefits:
 | **Better Templates** | $0 (internal time) | 20-30% improvement | Maintenance overhead       |
 | **GitHub Copilot**   | $228/year          | 85-95% improvement | Continuous improvement     |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -300,7 +300,7 @@ Break-Even Hours = $19 / Hourly_Rate
   (Example: $19 / $100 = 0.19 hours = 11 minutes saved per month to break even)
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -312,7 +312,7 @@ Break-Even Hours = $19 / Hourly_Rate
 | Expansion    | 4 weeks  | 10-15 IT Pros | Consistent results, team adoption |
 | Full Rollout | Ongoing  | All IT Pros   | Standard tooling                  |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -322,7 +322,7 @@ Break-Even Hours = $19 / Hourly_Rate
 - [GitHub Copilot Pricing](https://github.com/features/copilot) — Official pricing page
 - [Objection Handling](objection-handling.md) — Address budget concerns
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -335,7 +335,7 @@ Break-Even Hours = $19 / Hourly_Rate
 | **Data Sources** | time-savings-evidence.md         |
 | **Maintainer**   | Repository maintainers           |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 _Download this worksheet, fill in your numbers, and use it to build the business case for your team._
 

@@ -2,7 +2,7 @@
 name: 09-Diagnose
 model: ["Claude Sonnet 4.6"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
-user-invokable: true
+user-invocable: true
 agents: []
 tools:
   [
@@ -10,7 +10,7 @@ tools:
     vscode/getProjectSetupInfo,
     vscode/installExtension,
     vscode/newWorkspace,
-    vscode/openSimpleBrowser,
+    browser,
     vscode/runCommand,
     vscode/askQuestions,
     vscode/vscodeAPI,

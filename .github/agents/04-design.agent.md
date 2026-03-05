@@ -2,7 +2,7 @@
 name: 04-Design
 model: ["GPT-5.3-Codex"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
-user-invokable: true
+user-invocable: true
 agents: []
 tools:
   [
@@ -10,7 +10,7 @@ tools:
     vscode/getProjectSetupInfo,
     vscode/installExtension,
     vscode/newWorkspace,
-    vscode/openSimpleBrowser,
+    browser,
     vscode/runCommand,
     vscode/askQuestions,
     vscode/vscodeAPI,

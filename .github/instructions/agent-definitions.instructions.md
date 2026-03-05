@@ -103,7 +103,7 @@ Current model assignments:
 
 ### Top-Level Agents
 
-Top-level agents live in `.github/agents/` and are `user-invokable: true`. They correspond to
+Top-level agents live in `.github/agents/` and are `user-invocable: true`. They correspond to
 the 7-step workflow:
 
 | Step | Agent                | File                             |
@@ -124,7 +124,7 @@ the 7-step workflow:
 
 ### Subagents
 
-Subagents live in `.github/agents/_subagents/` and are `user-invokable: false`. They isolate
+Subagents live in `.github/agents/_subagents/` and are `user-invocable: false`. They isolate
 expensive or specialized work from their parent agent's context window.
 
 | Subagent                        | Parent Agent                | Purpose                                |
@@ -141,7 +141,7 @@ expensive or specialized work from their parent agent's context window.
 
 Subagent definition rules:
 
-- Set `user-invokable: false` — subagents are never called directly by users.
+- Set `user-invocable: false` — subagents are never called directly by users.
 - Set `agents: []` — subagents do not chain to other agents.
 - Keep tool lists minimal — only the tools needed for their specific task.
 - Use `GPT-5.3-Codex` as the default model for fast, isolated execution.
@@ -207,6 +207,6 @@ If an agent contains an embedded template in its body, it MUST match the relevan
 - `handoffs:` only references real agents (including As-Built for Step 7)
 - Handoff entries do not redundantly set `model` when the target agent already defines it
 - The `azure-defaults` skill reference is correct
-- Subagent files set `user-invokable: false` and `agents: []`
+- Subagent files set `user-invocable: false` and `agents: []`
 - Embedded templates match `.github/instructions/*` standards
 - `npm run lint:md` passes

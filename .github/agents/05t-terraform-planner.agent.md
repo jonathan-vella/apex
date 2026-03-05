@@ -2,7 +2,7 @@
 name: 05t-Terraform Planner
 description: Expert Azure Terraform Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates AVM-TF modules via the Terraform Registry, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
-user-invokable: true
+user-invocable: true
 agents: ["governance-discovery-subagent", "challenger-review-subagent"]
 tools:
   [
@@ -10,7 +10,7 @@ tools:
     vscode/getProjectSetupInfo,
     vscode/installExtension,
     vscode/newWorkspace,
-    vscode/openSimpleBrowser,
+    browser,
     vscode/runCommand,
     vscode/askQuestions,
     vscode/vscodeAPI,

@@ -3,7 +3,7 @@ name: 01-Conductor (Fast Path)
 description: "Experimental fast-path conductor for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Conductor agent."
 model: ["Claude Opus 4.6"]
 argument-hint: Describe a simple Azure infrastructure project (≤3 resources)
-user-invokable: true
+user-invocable: true
 agents:
   [
     "02-Requirements",

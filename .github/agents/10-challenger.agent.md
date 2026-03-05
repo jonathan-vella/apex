@@ -3,14 +3,14 @@ name: "10-Challenger"
 description: "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents."
 model: ["GPT-5.3-Codex (copilot)"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
-user-invokable: true
+user-invocable: true
 tools:
   [
     vscode/extensions,
     vscode/getProjectSetupInfo,
     vscode/installExtension,
     vscode/newWorkspace,
-    vscode/openSimpleBrowser,
+    browser,
     vscode/runCommand,
     vscode/askQuestions,
     vscode/vscodeAPI,

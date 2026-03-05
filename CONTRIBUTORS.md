@@ -62,7 +62,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 All contributors are recognized for their valuable contributions to the project, whether through
 code, documentation, feedback, or community support.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 _Want to see your name here? Check out our [contribution guidelines](CONTRIBUTING.md) and submit a pull request!_
 

@@ -14,7 +14,7 @@
 | Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
 | Azure subscription     | Optional for learning                                       |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Step 1: Clone and Open
@@ -24,7 +24,7 @@ git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
 code azure-agentic-infraops
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Step 2: Open in Dev Container
@@ -42,7 +42,7 @@ The Dev Container installs all tools automatically:
 - Go (Terraform MCP server)
 - 25+ VS Code extensions
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Step 3: Verify Setup
@@ -51,7 +51,7 @@ The Dev Container installs all tools automatically:
 az --version && bicep --version && terraform --version && pwsh --version
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Step 4: Enable Subagent Orchestration
@@ -75,7 +75,7 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Step 5: Start the Conductor
@@ -108,7 +108,7 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Step 6: Follow the Workflow
@@ -134,7 +134,7 @@ steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` se
 - ⛔ **Gate 4**: After validation (Step 5) — approve preflight results
 - ⛔ **Gate 5**: After deployment (Step 6) — verify resources
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## What You've Created
@@ -176,7 +176,7 @@ infra/terraform/my-webapp/
     └── key-vault/
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Next Steps
@@ -190,7 +190,7 @@ infra/terraform/my-webapp/
 | Explore Terraform patterns     | Use `terraform-patterns` skill           |
 | Troubleshoot issues            | [troubleshooting.md](troubleshooting.md) |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Quick Reference
@@ -221,7 +221,7 @@ Or invoke explicitly:
 Use the azure-diagrams skill to create a diagram for my-webapp
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Agent Personas

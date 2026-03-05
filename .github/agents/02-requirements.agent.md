@@ -4,7 +4,7 @@ model: ["Claude Opus 4.6"]
 description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
-user-invokable: true
+user-invocable: true
 agents: ["challenger-review-subagent"]
 tools:
   [
@@ -12,7 +12,7 @@ tools:
     vscode/getProjectSetupInfo,
     vscode/installExtension,
     vscode/newWorkspace,
-    vscode/openSimpleBrowser,
+    browser,
     vscode/runCommand,
     vscode/askQuestions,
     vscode/vscodeAPI,

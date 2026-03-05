@@ -59,6 +59,7 @@
   - [MCP Architecture](#mcp-architecture)
   - [GitHub MCP Server](#github-mcp-server)
   - [Microsoft Learn MCP Server](#microsoft-learn-mcp-server)
+  - [Azure MCP Server](#azure-mcp-server)
   - [Azure Pricing MCP Server](#azure-pricing-mcp-server)
   - [Terraform Registry MCP Server](#terraform-registry-mcp-server)
   - [Per-Agent MCP Scoping](#per-agent-mcp-scoping)
@@ -604,7 +605,7 @@ loaded into the system prompt when the agent is invoked.
 
 ### 🕵️‍♀️ Subagents (9)
 
-Subagents are not user-invokable. They are delegated to by parent agents for isolated,
+Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
 
 | Subagent                      | Purpose                                | Invoked By          |
@@ -956,7 +957,7 @@ When agents approach model context limits, the context-shredding system activate
 
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
-This project integrates four MCP servers, each providing specialised
+This project integrates five MCP servers, each providing specialised
 capabilities that agents invoke at runtime.
 
 <a id="mcp-architecture"></a>
@@ -993,12 +994,14 @@ flowchart LR
 
     A["Agent"]:::agent --> M1["GitHub MCP"]:::mcp
     A --> M2["Learn MCP"]:::mcp
-    A --> M3["Pricing MCP"]:::mcp
-    A --> M4["Terraform MCP"]:::mcp
+    A --> M3["Azure MCP"]:::mcp
+    A --> M4["Pricing MCP"]:::mcp
+    A --> M5["Terraform MCP"]:::mcp
     M1 --> G["GitHub API"]
     M2 --> L["learn.microsoft.com"]
-    M3 --> P["Azure Retail Prices API"]
-    M4 --> T["Terraform Registry"]
+    M3 --> AZ["Azure Resource Manager"]
+    M4 --> P["Azure Retail Prices API"]
+    M5 --> T["Terraform Registry"]
 ```
 
 <a id="github-mcp-server"></a>
@@ -1034,6 +1037,34 @@ quickstart guides, verify SDK method signatures, and discover best
 practices. The `microsoft-docs` and `microsoft-code-reference` skills
 are built on top of this server. It is scoped as a default server alongside
 GitHub.
+
+<a id="azure-mcp-server"></a>
+
+### ☁️ Azure MCP Server
+
+| Property  | Value                                        |
+| --------- | -------------------------------------------- |
+| Transport | VS Code Copilot Extension                    |
+| Extension | `ms-azuretools.vscode-azure-mcp-server`      |
+| Auth      | Azure CLI (`az login`) or managed identity   |
+| Purpose   | RBAC-aware Azure resource context for agents |
+
+The Azure MCP Server is a **critical component** installed as a VS Code
+extension. It provides agents with direct, RBAC-aware access to
+Azure Resource Manager for querying subscriptions, resource groups,
+resources, deployments, and policy assignments. Unlike the Azure Pricing
+MCP server (which queries public pricing APIs), this server operates
+against live Azure environments using the authenticated user's credentials.
+
+Agents use it across the entire workflow — from governance discovery
+(querying Azure Policy assignments) through deployment (validating
+resource state) to as-built documentation (inventorying deployed resources).
+It is scoped as a **default server** alongside GitHub and Microsoft Learn,
+meaning virtually every agent has access.
+
+Installation follows the [Azure MCP Server README](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md#installation)
+and is pre-configured in the dev container via the
+`ms-azuretools.vscode-azure-mcp-server` extension.
 
 <a id="azure-pricing-mcp-server"></a>
 
@@ -1103,18 +1134,20 @@ Not every agent needs every MCP server. The `mcp-scoping.json` registry
 defines which servers each agent is allowed to use, minimising context
 pollution and preventing agents from invoking tools outside their domain:
 
-| Agent Role                | MCP Servers                      |
-| ------------------------- | -------------------------------- |
-| Conductor, Requirements   | GitHub, Learn                    |
-| Architect                 | GitHub, Learn, **Azure Pricing** |
-| Design                    | GitHub, Learn                    |
-| Bicep Planner/CodeGen     | GitHub, Learn                    |
-| Terraform Planner/CodeGen | GitHub, Learn, **Terraform**     |
-| Deploy agents             | GitHub                           |
-| As-Built                  | GitHub, Learn, **Azure Pricing** |
-| Cost Estimate Subagent    | **Azure Pricing**, Learn         |
-| Terraform Lint/Review     | Learn, **Terraform**             |
-| Context Optimizer         | _(none)_                         |
+| Agent Role                | MCP Servers                                 |
+| ------------------------- | ------------------------------------------- |
+| Conductor, Requirements   | GitHub, Learn, **Azure MCP**                |
+| Architect                 | GitHub, Learn, **Azure MCP**, Azure Pricing |
+| Design                    | GitHub, Learn, **Azure MCP**                |
+| Bicep Planner/CodeGen     | GitHub, Learn, **Azure MCP**                |
+| Terraform Planner/CodeGen | GitHub, Learn, **Azure MCP**, Terraform     |
+| Deploy agents             | GitHub, **Azure MCP**                       |
+| As-Built                  | GitHub, Learn, **Azure MCP**, Azure Pricing |
+| Diagnose                  | GitHub, Learn, **Azure MCP**                |
+| Cost Estimate Subagent    | Azure Pricing, Learn, **Azure MCP**         |
+| Governance Discovery      | GitHub, **Azure MCP**                       |
+| Terraform Lint/Review     | Learn, Terraform, **Azure MCP**             |
+| Context Optimizer         | _(none)_                                    |
 
 This scoping is currently documentation-only (pending VS Code support
 for per-agent MCP filtering), but agents are instructed to respect it

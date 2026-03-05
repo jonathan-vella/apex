@@ -4,7 +4,7 @@
 
 > [Current Version](../VERSION.md) | Quick reference for terms used throughout Agentic InfraOps documentation.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## A
 
@@ -46,7 +46,7 @@ under the `Azure` namespace. Module sources follow the pattern
 
 🔗 **External**: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## B
@@ -63,7 +63,7 @@ templates but with cleaner syntax and better tooling support.
 Static analysis tool that checks Bicep files for best practices, security issues, and common mistakes.
 Run with `bicep lint main.bicep` or automatically via VS Code extension.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## C
@@ -86,7 +86,7 @@ custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
 See [InfraOps Conductor](#infraops-conductor).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## D
@@ -105,7 +105,7 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 
 🔗 **External**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## G
@@ -115,7 +115,7 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 Azure Policies and organizational rules that affect resource deployment. Discovered during the
 planning step and documented in `04-governance-constraints.md`.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## H
@@ -137,7 +137,7 @@ when properly configured. S04 Service Validation scenario demonstrates HIPAA-com
 Azure networking pattern where a central "hub" VNet contains shared services (firewall, VPN gateway)
 and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## I
@@ -156,7 +156,7 @@ Practice of managing infrastructure through code files (Bicep, Terraform, ARM) r
 portal clicks. Enables version control, automation, and repeatability. This project supports two
 IaC tracks: **Bicep** (Azure-native DSL) and **Terraform** (multi-cloud HCL).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## K
@@ -168,7 +168,7 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 
 🔗 **External**: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## M
@@ -185,7 +185,7 @@ server provides real-time Azure pricing to Copilot.
 Average time to restore service after an incident. Key SRE metric. Copilot-assisted troubleshooting
 reduces MTTR by 73-85% (see Time Savings Evidence).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## N
@@ -195,7 +195,7 @@ reduces MTTR by 73-85% (see Time Savings Evidence).
 Azure resource that filters network traffic with allow/deny rules. Applied to subnets or NICs.
 Essential for microsegmentation and defense-in-depth.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## P
@@ -210,7 +210,7 @@ demonstrates PCI-DSS compliant architecture patterns.
 Azure feature that assigns a private IP address to a PaaS service (Storage, SQL, Key Vault),
 removing public internet exposure. Essential for zero-trust architectures.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## S
@@ -243,7 +243,7 @@ review). Eight exist: `cost-estimate-subagent`, `governance-discovery-subagent`,
 
 📁 **See**: [.github/agents/\_subagents/](../.github/agents/_subagents/)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## T
@@ -280,7 +280,7 @@ The JSON file that tracks the mapping between Terraform configuration and real-w
 resources. Stored remotely in an Azure Storage Account for team collaboration.
 State locking prevents concurrent modifications.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## U
@@ -289,7 +289,7 @@ State locking prevents concurrent modifications.
 
 Final testing phase where end users verify the system meets business requirements.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## W
@@ -306,7 +306,7 @@ Reliability, Security, Cost Optimization, Operational Excellence, Performance Ef
 Azure deployment preview that shows what resources will be created, modified, or deleted without
 making actual changes. Run with `az deployment group create --what-if`.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Numbers & Symbols
@@ -321,7 +321,7 @@ Each step produces artifacts in `agent-output/`.
 
 📁 **See**: [Workflow Guide](workflow.md)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Quick Reference Table
@@ -345,7 +345,7 @@ Each step produces artifacts in `agent-output/`.
 | UAT     | User Acceptance Testing                      | QA             |
 | WAF     | Well-Architected Framework                   | Architecture   |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 _Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._
 

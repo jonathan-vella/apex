@@ -2,7 +2,7 @@
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview infrastructure changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive operations requiring explicit approval, and returns a structured change summary.
 model: "Claude Sonnet 4.6 (copilot)"
-user-invokable: false
+user-invocable: false
 disable-model-invocation: false
 agents: []
 tools: [execute, read, search, web, vscode/askQuestions, "azure-mcp/*"]

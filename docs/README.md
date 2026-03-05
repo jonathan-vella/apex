@@ -23,6 +23,7 @@ track-specific planning, code generation, and deployment (steps 4-6).
   `context-optimizer`, `golden-principles`, `session-resume`)
 
 See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestration details.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Quick Links
@@ -36,7 +37,7 @@ See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestra
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions   |
 | [Glossary](GLOSSARY.md)               | Terms and definitions         |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Agents (15 + 9 Subagents)
@@ -50,7 +51,7 @@ Agents are interactive AI assistants for specific workflow phases. Invoke via `C
 | `InfraOps Conductor`    | 🎼 Maestro | Orchestrates all 7 steps with mandatory approval gates     |
 | `Conductor (Fast Path)` | 🎼 Express | Streamlined 5-step path for simple projects (≤3 resources) |
 
-### Primary Agents (User-Invokable)
+### Primary Agents (user-invocable)
 
 Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
@@ -101,7 +102,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | `terraform-plan-subagent`   | Deployment preview (terraform plan)        | Change summary, destroy flags  |
 | `terraform-review-subagent` | Code review against AVM-TF standards       | APPROVED/NEEDS_REVISION/FAILED |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Skills (18)
@@ -161,7 +162,7 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 | `microsoft-code-reference` | SDK method verification, code samples | "SDK", "API reference", "code sample"        |
 | `microsoft-skill-creator`  | Create skills for Microsoft tech      | "create microsoft skill", "technology skill" |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 7-Step Workflow (with Conductor)
@@ -174,7 +175,7 @@ Requirements → Architecture → Design → Planning → Implementation → Dep
 
 See [workflow.md](workflow.md) for detailed step-by-step guide.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Prompt Guide
@@ -191,7 +192,7 @@ prompt examples in `docs/prompt-guide/`:
 
 See [prompt-guide/](prompt-guide/) for the full guide.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Project Structure
@@ -212,7 +213,7 @@ azure-agentic-infraops/
 └── docs/                 # This documentation
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Project Health
@@ -225,7 +226,7 @@ azure-agentic-infraops/
 
 Run the doc-gardening prompt (`.github/prompts/doc-gardening.prompt.md`) to refresh grades.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Getting Help

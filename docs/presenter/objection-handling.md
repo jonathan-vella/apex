@@ -16,7 +16,7 @@ When handling objections, follow this structure:
 3. **Evidence** - Provide concrete data or examples
 4. **Invite** - Offer to demonstrate or discuss further
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -57,7 +57,7 @@ When handling objections, follow this structure:
 - Reduced security misconfigurations through built-in best practices
 - Faster onboarding for junior team members learning IaC
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -114,7 +114,7 @@ When handling objections, follow this structure:
 - Private endpoints suggested for sensitive services
 - Validation workflow catches issues before deployment
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -154,7 +154,7 @@ When handling objections, follow this structure:
 - Repository includes 'Learning Moments' in demo scripts
 - Faster path to productivity doesn't skip understanding
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -211,7 +211,7 @@ When handling objections, follow this structure:
 - Helps document undocumented infrastructure
 - Accelerates template customization for new projects
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -251,7 +251,7 @@ When handling objections, follow this structure:
 - Repository-level instructions improve context
 - Structured prompts yield better results than ad-hoc usage
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -267,7 +267,7 @@ When handling objections, follow this structure:
 | Team resistant    | "Start with curious volunteers, let success spread organically"                  |
 | Tried before      | "Current version with agents is dramatically better—let me show you"             |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 

@@ -4,7 +4,7 @@
  *
  * Validates that all agent files conform to VS Code 1.109 agent definition spec:
  * - Required frontmatter fields present
- * - user-invokable correctly set (false/never for subagents)
+ * - user-invocable correctly set (false/never for subagents)
  * - agents list syntax valid
  * - handoffs have send property
  * - model fallback configuration present
@@ -20,11 +20,11 @@ import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 const AGENTS_DIR = ".github/agents";
 const SUBAGENTS_DIR = ".github/agents/_subagents";
 
-// Required fields for main agents (user-invokable: true)
-const MAIN_AGENT_REQUIRED = ["name", "description", "user-invokable", "tools"];
+// Required fields for main agents (user-invocable: true)
+const MAIN_AGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 
-// Required fields for subagents (user-invokable: false/never)
-const SUBAGENT_REQUIRED = ["name", "description", "user-invokable", "tools"];
+// Required fields for subagents (user-invocable: false/never)
+const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 
 // Recommended fields for 1.109 orchestration
 const RECOMMENDED_FIELDS = ["agents", "model"];
@@ -60,7 +60,7 @@ function validateAgent(filePath, isSubagent) {
   if (!frontmatter) {
     console.error(`❌ ${relativePath}: No frontmatter found`);
     console.error(
-      `  Fix: Add YAML frontmatter at the top: ---\nname: ...\ndescription: ...\nuser-invokable: true\ntools: []\n---`,
+      `  Fix: Add YAML frontmatter at the top: ---\nname: ...\ndescription: ...\nuser-invocable: true\ntools: []\n---`,
     );
     errors++;
     return;
@@ -79,29 +79,29 @@ function validateAgent(filePath, isSubagent) {
     }
   }
 
-  // Validate user-invokable for subagents
+  // Validate user-invocable for subagents
   if (isSubagent) {
-    const userInvokable = frontmatter["user-invokable"];
+    const userInvokable = frontmatter["user-invocable"];
     if (
       userInvokable !== "false" &&
       userInvokable !== "never" &&
       userInvokable !== false
     ) {
       console.error(
-        `❌ ${relativePath}: Subagent must have user-invokable: false or never (got: ${userInvokable})`,
+        `❌ ${relativePath}: Subagent must have user-invocable: false or never (got: ${userInvokable})`,
       );
       errors++;
     }
   } else {
-    // Main agents should be user-invokable
-    const userInvokable = frontmatter["user-invokable"];
+    // Main agents should be user-invocable
+    const userInvokable = frontmatter["user-invocable"];
     if (
       userInvokable !== "true" &&
       userInvokable !== "always" &&
       userInvokable !== true
     ) {
       console.warn(
-        `⚠️  ${relativePath}: Main agent should have user-invokable: true (got: ${userInvokable})`,
+        `⚠️  ${relativePath}: Main agent should have user-invocable: true (got: ${userInvokable})`,
       );
       warnings++;
     }

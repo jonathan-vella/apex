@@ -8,7 +8,7 @@
 
 <!-- Banner image was in docs/_superseded/ (removed) — regenerate if needed -->
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## The Hook (30 seconds)
 
@@ -20,7 +20,7 @@ debugging syntax errors. Only 10% goes to actual architecture decisions.
 
 **GitHub Copilot flips that ratio.**
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -45,7 +45,7 @@ misunderstandings that cost more time than the original task.
 | Manual compliance checks          | Audit failures   |
 | Reactive troubleshooting          | Extended outages |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -65,7 +65,7 @@ GitHub Copilot isn't about replacing your IT Pros. It's about **amplifying their
 **The architect who designs systems can now implement them.** No handoffs. No waiting.
 No lost-in-translation errors.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -86,7 +86,7 @@ These projects were built by a Cloud Architect with **no development background*
 These aren't prototypes. They're in production. They're used in Microsoft Learn documentation.
 They're training enterprise teams.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -103,7 +103,7 @@ They're training enterprise teams.
 
 This isn't vendor marketing. This is independent research from leading institutions.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -123,7 +123,7 @@ This isn't vendor marketing. This is independent research from leading instituti
 
 **Break-even:** First week of use
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -155,7 +155,7 @@ _The challenges below are drawn from hundreds of conversations with IT professio
 
 **With Copilot:** AI-assisted diagnosis in minutes. Root cause identified. Fix deployed.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -163,7 +163,7 @@ _The challenges below are drawn from hundreds of conversations with IT professio
 
 <!-- One-slide summary image was in docs/_superseded/ (removed) — regenerate if needed -->
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -202,7 +202,7 @@ The time invested pays back within the first week.
 No. Copilot fits into existing workflows. Same tools, same review processes, same deployment pipelines.
 Just faster execution.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
@@ -217,7 +217,7 @@ Just faster execution.
 
 [issues]: https://github.com/jonathan-vella/azure-agentic-infraops/issues
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 

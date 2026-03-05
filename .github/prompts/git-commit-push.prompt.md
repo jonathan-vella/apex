@@ -1,45 +1,48 @@
 ---
 agent: agent
-model: "GPT-5 mini"
+model: "Claude Haiku 4.5"
 description: "Stage changes, create a conventional commit, push to the current branch, and optionally open a pull request to main using the GitHub MCP server."
 argument-hint: "Provide a commit message or leave blank to auto-generate from the diff."
 tools:
-  - vscode/askQuestions
-  - execute/runInTerminal
-  - read
-  - search/codebase
-  - github/add_reply_to_pull_request_comment
-  - github/create_branch
-  - github/create_pull_request
-  - github/create_pull_request_with_copilot
-  - github/get_commit
-  - github/get_copilot_job_status
-  - github/get_file_contents
-  - github/get_label
-  - github/get_latest_release
-  - github/get_me
-  - github/issue_read
-  - github/issue_write
-  - github/list_branches
-  - github/list_commits
-  - github/list_issue_types
-  - github/list_issues
-  - github/list_pull_requests
-  - github/pull_request_read
-  - github/pull_request_review_write
-  - github/push_files
-  - github/request_copilot_review
-  - github/search_code
-  - github/search_pull_requests
-  - github/sub_issue_write
-  - github/update_pull_request
-  - github/update_pull_request_branch
+  [
+    vscode/askQuestions,
+    execute/runInTerminal,
+    read,
+    search/codebase,
+    github/add_reply_to_pull_request_comment,
+    github/create_branch,
+    github/create_pull_request,
+    github/create_pull_request_with_copilot,
+    github/get_commit,
+    github/get_copilot_job_status,
+    github/get_file_contents,
+    github/get_label,
+    github/get_latest_release,
+    github/get_me,
+    github/issue_read,
+    github/issue_write,
+    github/list_branches,
+    github/list_commits,
+    github/list_issue_types,
+    github/list_issues,
+    github/list_pull_requests,
+    github/pull_request_read,
+    github/pull_request_review_write,
+    github/push_files,
+    github/request_copilot_review,
+    github/search_code,
+    github/search_pull_requests,
+    github/sub_issue_write,
+    github/update_pull_request,
+    github/update_pull_request_branch,
+    todo,
+  ]
 ---
 
 # Git Commit, Push & PR
 
-Stage changes, create a conventional commit, push to the current branch,
-and optionally open a pull request to `main` using the GitHub MCP server.
+Stage all changes, create a conventional commit, and push to the current branch.
+Optionally open a pull request to `main` only if the user explicitly requests one.
 
 ## Scope & Preconditions
 
@@ -47,7 +50,15 @@ and optionally open a pull request to `main` using the GitHub MCP server.
 - GitHub MCP tools must be available in the current session (no `gh auth` needed).
 - The `git-commit` skill at `.github/skills/git-commit/SKILL.md` defines the
   conventional commit format used in this repo.
-- This prompt targets `GPT-5 mini`. Keep each step explicit and self-contained.
+- Minimise round-trips: the only user confirmation is the commit message review.
+
+## Defaults (applied automatically — no questions asked)
+
+| Behaviour    | Default                   | Override                                      |
+| ------------ | ------------------------- | --------------------------------------------- |
+| Staging      | All changed files (`-A`)  | User can specify files in the argument-hint   |
+| Push         | Yes, to `origin/<branch>` | User can say "no push" in the argument-hint   |
+| Pull request | No                        | Only created if user explicitly asks for a PR |
 
 ## Inputs
 
@@ -55,8 +66,7 @@ and optionally open a pull request to `main` using the GitHub MCP server.
 | ----------- | ----------------------------------------- | -------------------------------- |
 | `message`   | argument-hint or user reply               | Auto-generated from diff         |
 | `branch`    | detected from `git branch --show-current` | Current branch                   |
-| `staging`   | user choice                               | All changed files                |
-| `create_pr` | user choice                               | No                               |
+| `create_pr` | user explicitly requests a PR             | No                               |
 | `pr_base`   | user choice                               | `main`                           |
 | `pr_title`  | user choice or auto-generated             | Derived from commit message      |
 | `pr_body`   | user choice or auto-generated             | Summary of commits ahead of base |
@@ -66,45 +76,26 @@ and optionally open a pull request to `main` using the GitHub MCP server.
 
 ### Step 1 — Inspect the working tree
 
-Run the following commands and show the output to the user:
+Run the following commands simultaneously and show the output:
 
 ```bash
 git status --short
 git branch --show-current
+git diff --stat HEAD
 git log --oneline origin/$(git branch --show-current)..HEAD 2>/dev/null || git log --oneline -5
 ```
 
-If `git status --short` returns nothing, stop and tell the user there is nothing
-to commit.
+If `git status --short` returns nothing, stop and tell the user: "Working tree is clean."
 
-### Step 2 — Show a change summary
+If the current branch is `main`, warn and stop.
 
-Run:
+### Step 2 — Stage all changes and generate commit message
+
+Stage everything:
 
 ```bash
-git diff --stat HEAD
+git add -A
 ```
-
-Display the file count, insertions, and deletions as a brief summary.
-
-### Step 3 — Ask about staging
-
-Present the list of unstaged/untracked files from Step 1 and ask:
-
-> **Which files should be staged?**
->
-> A) All changed files (recommended)
-> B) Only already-staged files (skip `git add`)
-> C) Specific files — I will list them
-
-Wait for the user's answer before continuing.
-
-- **A**: Run `git add -A`
-- **B**: Do not run `git add`. Continue with whatever is already staged.
-  If nothing is staged, stop and tell the user.
-- **C**: Ask the user for the file paths, then run `git add <paths>`.
-
-### Step 4 — Generate or confirm the commit message
 
 Read `.github/skills/git-commit/SKILL.md` to load the conventional commit
 format rules for this repository.
@@ -128,86 +119,54 @@ Use the output to generate a conventional commit message following the format:
 - <bullet summarising change 2>
 ```
 
-Present the proposed message to the user and ask:
+Present the proposed message and ask:
 
 > **Commit message — does this look right?**
 >
 > A) Yes, use it as-is
-> B) Let me edit it — I'll paste the revised message
+> B) Paste revised message below
 
-Wait for confirmation before continuing.
+Wait for confirmation before continuing. This is the **only** user confirmation gate.
 
-### Step 5 — Commit
+### Step 3 — Execute pipeline
 
-Run:
+Run the following in sequence:
+
+**Commit:**
 
 ```bash
 git commit -m "<confirmed message>"
 ```
 
-If the pre-commit hook fails, show the full error output and stop.
-Ask the user to fix the issue and re-run the prompt.
+If the pre-commit hook fails, show the full error output and stop. Do not retry.
 
 Show the resulting commit hash and subject line.
 
-### Step 6 — Push
-
-Ask:
-
-> **Push to `origin/<branch>`?**
->
-> A) Yes, push now
-> B) No, skip push
-
-If **A**, run:
+**Push:**
 
 ```bash
 git push origin $(git branch --show-current)
 ```
 
-Show the push result. If the push fails, display the error and stop.
+If the push fails, display the error and stop. Suggest `git pull --rebase` if
+the branch is behind.
 
-### Step 7 — Pull request (optional)
+**Pull request** (only if the user explicitly requested one):
 
-Ask:
+Check for an existing open PR using `github/search_pull_requests` with query:
+`is:open head:<branch> base:<base>`.
 
-> **Open a pull request?**
->
-> A) Yes — merge `<current branch>` → `main`
-> B) Yes — different target branch (I'll specify)
-> C) No, skip
+- If one exists, tell the user and skip creation.
+- If none exists, call `github/create_pull_request` with:
+  - `owner`: repository owner
+  - `repo`: repository name
+  - `head`: current branch
+  - `base`: target branch (default `main`)
+  - `title`: confirmed PR title (or commit subject if blank)
+  - `body`: confirmed PR body (or auto-generated from commit list if blank)
+  - `draft`: user's choice (default: No)
 
-If **C**, stop here and confirm the commit and push were successful.
-
-If **A** or **B**:
-
-1. Ask:
-
-   > **PR title** (leave blank to use the commit subject):
-
-2. Ask:
-
-   > **PR description** (leave blank to auto-generate from commit list):
-   > Add any context, linked issues (`Closes #N`), or test notes here.
-
-3. Ask:
-
-   > **Draft PR?** Y / N (default: N)
-
-4. Check for an existing open PR from the current branch to the target
-   using `github/search_pull_requests` with query:
-   `is:open head:<branch> base:<base>`.
-   - If one exists, tell the user and skip creation.
-   - If none exists, call `github/create_pull_request` with:
-     - `owner`: repository owner
-     - `repo`: repository name
-     - `head`: current branch
-     - `base`: target branch
-     - `title`: confirmed PR title
-     - `body`: confirmed PR body
-     - `draft`: user's choice
-
-5. Show the PR URL returned by the MCP tool.
+Show the PR URL returned by the MCP tool.
 
 ## Output Expectations
 
@@ -234,4 +193,5 @@ At the end of the workflow, print a summary table:
 - Never commit directly to `main` — warn and stop if the current branch is `main`.
 - Always show the commit hash after a successful commit.
 - Always show the PR URL after a successful PR creation.
-- Do not skip user confirmation at Steps 3, 4, 6, or 7.
+- The only confirmation gate is the commit message review (Step 2).
+- Do not add extra round-trips beyond this one gate.

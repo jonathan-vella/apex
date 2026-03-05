@@ -169,7 +169,7 @@ Always run `npm run lint:md` and relevant validations before committing.
 ```text
 .github/
   agents/              # Agent definitions (*.agent.md) — 14 top-level + 9 subagents
-    _subagents/        # Subagent definitions (non-user-invokable)
+    _subagents/        # Subagent definitions (non-user-invocable)
   skills/              # Reusable domain knowledge (SKILL.md per skill)
     workflow-engine/   # DAG model, workflow-graph.json, complexity-routing.json
     context-shredding/ # Runtime context compression tiers and templates
