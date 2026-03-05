@@ -17,7 +17,6 @@ initiative. Not every task needs one — use them for work that:
 - Needs progress tracking across interruptions
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Format
 
 ```markdown
@@ -31,7 +30,6 @@ initiative. Not every task needs one — use them for work that:
 ```
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Lifecycle
 
 1. Create in `active/` when starting multi-step work
@@ -39,7 +37,6 @@ initiative. Not every task needs one — use them for work that:
 3. Move to `completed/` when all items are done
 4. Completed plans serve as decision history for future agent context
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Directory Structure
 
@@ -53,7 +50,6 @@ docs/exec-plans/
     └── .gitkeep
 ```
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Tech Debt Tracker
 

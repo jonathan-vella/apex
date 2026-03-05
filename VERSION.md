@@ -13,7 +13,6 @@
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Semantic Versioning
 
 This project follows [Semantic Versioning 2.0.0](https://semver.org/):
@@ -22,7 +21,6 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/):
 - **MINOR** version for new functionality (feat:)
 - **PATCH** version for bug fixes (fix:)
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Automated Versioning
 

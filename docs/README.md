@@ -25,7 +25,6 @@ track-specific planning, code generation, and deployment (steps 4-6).
 See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestration details.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Quick Links
 
 | Resource                              | Description                   |
@@ -39,7 +38,6 @@ See the [conductor agent](../.github/agents/01-conductor.agent.md) for orchestra
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Agents (15 + 9 Subagents)
 
@@ -106,7 +104,6 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Skills (18)
 
 Skills are reusable capabilities that agents invoke or that activate automatically based on prompts.
@@ -167,7 +164,6 @@ Skills are reusable capabilities that agents invoke or that activate automatical
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## 7-Step Workflow (with Conductor)
 
 ```text
@@ -180,7 +176,6 @@ See [workflow.md](workflow.md) for detailed step-by-step guide.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Prompt Guide
 
@@ -198,7 +193,6 @@ See [prompt-guide/](prompt-guide/) for the full guide.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Project Structure
 
@@ -221,7 +215,6 @@ azure-agentic-infraops/
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Project Health
 
 | Resource                                                           | Purpose                                         |
@@ -234,7 +227,6 @@ Run the doc-gardening prompt (`.github/prompts/doc-gardening.prompt.md`) to refr
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Getting Help
 

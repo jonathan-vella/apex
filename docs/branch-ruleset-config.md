@@ -11,7 +11,6 @@ rulesets for the `azure-agentic-infraops` repository. These rules
 enforce quality gates before merging to `main`.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Required Status Checks
 
 The following CI jobs must pass before a PR can merge:
@@ -22,7 +21,6 @@ The following CI jobs must pass before a PR can merge:
 | `Validate Agents & Skills` | `agent-validation.yml`        | Agent frontmatter, skills, MCP |
 | `policy-compliance-check`  | `policy-compliance-check.yml` | Governance guardrail integrity |
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Configuration via `gh api`
 
@@ -132,7 +130,6 @@ EOF
 ```
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Configuration via GitHub UI
 
 1. Go to **Settings > Rules > Rulesets** → open **Main Branch Protection**
@@ -141,7 +138,6 @@ EOF
    - `policy-compliance-check`
 3. Click **Save changes**
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Verification
 

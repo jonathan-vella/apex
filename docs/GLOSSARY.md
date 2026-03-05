@@ -49,7 +49,6 @@ under the `Azure` namespace. Module sources follow the pattern
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## B
 
 ### Bicep
@@ -66,7 +65,6 @@ Run with `bicep lint main.bicep` or automatically via VS Code extension.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## C
 
@@ -91,7 +89,6 @@ See [InfraOps Conductor](#infraops-conductor).
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## D
 
 ### Design Agent
@@ -111,7 +108,6 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## G
 
 ### Governance Constraints
@@ -121,7 +117,6 @@ planning step and documented in `04-governance-constraints.md`.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## H
 
@@ -145,7 +140,6 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## I
 
 ### InfraOps Conductor
@@ -165,7 +159,6 @@ IaC tracks: **Bicep** (Azure-native DSL) and **Terraform** (multi-cloud HCL).
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## K
 
 ### KQL (Kusto Query Language)
@@ -177,7 +170,6 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## M
 
@@ -196,7 +188,6 @@ reduces MTTR by 73-85% (see Time Savings Evidence).
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## N
 
 ### NSG (Network Security Group)
@@ -206,7 +197,6 @@ Essential for microsegmentation and defense-in-depth.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## P
 
@@ -222,7 +212,6 @@ removing public internet exposure. Essential for zero-trust architectures.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## S
 
@@ -256,7 +245,6 @@ review). Eight exist: `cost-estimate-subagent`, `governance-discovery-subagent`,
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## T
 
@@ -295,7 +283,6 @@ State locking prevents concurrent modifications.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## U
 
 ### UAT (User Acceptance Testing)
@@ -304,7 +291,6 @@ Final testing phase where end users verify the system meets business requirement
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## W
 
@@ -323,7 +309,6 @@ making actual changes. Run with `az deployment group create --what-if`.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Numbers & Symbols
 
 ### 7-Step Agentic Workflow
@@ -338,7 +323,6 @@ Each step produces artifacts in `agent-output/`.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Quick Reference Table
 

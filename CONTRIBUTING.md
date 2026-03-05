@@ -30,7 +30,6 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Security and compliance guidance
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## 📋 Contribution Guidelines
 
 ### Before You Start
@@ -92,7 +91,6 @@ npm run lint:md:fix
 ```
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## 🚀 Contribution Process
 
 ### 1. Fork & Clone
@@ -132,7 +130,6 @@ git push origin feature/your-feature-name
 
 Note: commit message format is enforced by hooks and CI.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## 📝 Commit Message Format (Required)
 
@@ -211,7 +208,6 @@ doesn't follow the format, you'll see a helpful error with examples.
 4. Link related issues
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## 📝 Pull Request Checklist
 
 Before submitting:
@@ -225,7 +221,6 @@ Before submitting:
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## 🤝 Community Standards
 
@@ -241,7 +236,6 @@ Before submitting:
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## 📄 License
 

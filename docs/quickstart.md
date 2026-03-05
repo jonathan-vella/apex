@@ -17,7 +17,6 @@
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Step 1: Clone and Open
 
 ```bash
@@ -27,7 +26,6 @@ code azure-agentic-infraops
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Step 2: Open in Dev Container
 
@@ -47,7 +45,6 @@ The Dev Container installs all tools automatically:
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Step 3: Verify Setup
 
 ```bash
@@ -56,7 +53,6 @@ az --version && bicep --version && terraform --version && pwsh --version
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Step 4: Enable Subagent Orchestration
 
@@ -81,7 +77,6 @@ take precedence for experimental features like subagent invocation.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Step 5: Start the Conductor
 
@@ -116,7 +111,6 @@ Invoke agents directly for specific tasks:
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Step 6: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3 and 7 are shared;
@@ -142,7 +136,6 @@ steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` se
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## What You've Created
 
@@ -186,7 +179,6 @@ infra/terraform/my-webapp/
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Next Steps
 
 | Goal                           | Resource                                 |
@@ -200,7 +192,6 @@ infra/terraform/my-webapp/
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Quick Reference
 
@@ -232,7 +223,6 @@ Use the azure-diagrams skill to create a diagram for my-webapp
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Agent Personas
 

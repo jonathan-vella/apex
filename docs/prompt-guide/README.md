@@ -100,7 +100,6 @@ to see available prompts.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## General Prompting Best Practices
 
 ### Choose the Right Interface
@@ -257,7 +256,6 @@ terraform plan -out=tfplan
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## 7-Step Workflow Prompts
 
@@ -468,7 +466,6 @@ backup/DR plan, and resource inventory.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Standalone Agent Reference
 
 ### InfraOps Conductor — 🎼 Maestro
@@ -523,7 +520,6 @@ and missing disaster recovery considerations.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Skill Reference
 
@@ -642,7 +638,6 @@ method for listing Key Vault secrets in Python.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Subagent Reference
 
 Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
@@ -697,7 +692,6 @@ constraints.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Tips and Patterns
 
@@ -758,7 +752,6 @@ and suggest improvements for WAF alignment.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## References
 

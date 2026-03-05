@@ -13,7 +13,6 @@ Thank you to everyone who has contributed to making this project better!
 - **Fares Zekri** ([@farez_microsoft](https://github.com/farez_microsoft)) - Contributor
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Azure Pricing MCP Server Contributors
 
 The [Azure Pricing MCP Server](mcp/azure-pricing-mcp/) is a key component that provides
@@ -39,7 +38,6 @@ real-time Azure pricing information to AI assistants.
 [azure-pricing]: https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Azure Diagrams Skill Contributors
 
 The [Azure Diagrams Skill](.github/skills/azure-diagrams/) provides comprehensive technical
@@ -54,12 +52,10 @@ diagramming capabilities for architecture documentation.
 - [azure-diagrams-skill](https://github.com/cmb211087/azure-diagrams-skill) - Original skill implementation
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## How to Contribute
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get involved.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Recognition
 

@@ -15,7 +15,6 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 11  | Instructions | 4 `applyTo` warnings in validate-instruction-references (bicep-code-best-practices, bicep-policy-compliance, terraform-code-best-practices, terraform-policy-compliance) | Low      | —     | Phase-next |
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Resolved Items
 
 | ID  | Domain         | Description                                                                          | Resolved   | Notes                                                      |
@@ -31,7 +30,6 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 6   | Infrastructure | Terraform tf-dev branch not merged to main; dual-IaC only on tf-dev                  | 2026-03-04 | tf-dev merged; IaC content archived as .tar.gz (by design) |
 | —   | All            | Tracker created — no resolved items at inception                                     | 2026-02-26 | Initial seeding from audit                                 |
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Categories
 

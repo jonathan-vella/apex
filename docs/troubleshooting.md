@@ -21,7 +21,6 @@
 | diagnose           | 🔍 Sentinel   | —                                |
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Quick Decision Tree
 
 ```mermaid
@@ -62,7 +61,6 @@ flowchart TD
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Common Issues
 
@@ -436,7 +434,6 @@ ls .github/agents/architect.agent.md
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Diagnostic Commands
 
 ### Environment Check
@@ -485,7 +482,6 @@ az deployment group list -g {resource-group} --output table
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Getting Help
 

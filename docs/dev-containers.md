@@ -17,7 +17,6 @@ When you open this repository in a Dev Container:
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## System Requirements
 
 ### Docker Options
@@ -48,7 +47,6 @@ When you open this repository in a Dev Container:
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Installation Steps
 
@@ -172,7 +170,6 @@ az --version && bicep --version && pwsh --version
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Alternative Docker Options
 
 ### Rancher Desktop (Free Docker Desktop Alternative)
@@ -205,7 +202,6 @@ Configure VS Code: `"dev.containers.dockerPath": "podman"`
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## What's Included
 
 The Dev Container includes:
@@ -225,7 +221,6 @@ The Dev Container includes:
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Troubleshooting
 
@@ -263,7 +258,6 @@ docker stop <container-id>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## References
 

@@ -31,7 +31,6 @@ The Conductor resolves agent paths and models via `.github/agent-registry.json` 
 selects model tiers using `.github/skills/workflow-engine/references/complexity-routing.json`.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Agent Architecture
 
 ### The Conductor Pattern
@@ -120,7 +119,6 @@ graph TB
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Agent Roster
 
 ### Primary Orchestrator
@@ -174,7 +172,6 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Approval Gates
 
 The Conductor enforces mandatory pause points for human oversight:
@@ -189,7 +186,6 @@ The Conductor enforces mandatory pause points for human oversight:
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Workflow Steps
 
@@ -372,7 +368,6 @@ Output: agent-output/{project}/07-*.md
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Agents vs Skills
 
 | Aspect          | Agents                                   | Skills                   |
@@ -385,7 +380,6 @@ Output: agent-output/{project}/07-*.md
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Quick Reference
 
@@ -423,7 +417,6 @@ Output: agent-output/{project}/07-*.md
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-
 ## Artifact Naming Convention
 
 | Step           | Prefix    | Example                                                     |
@@ -439,7 +432,6 @@ Output: agent-output/{project}/07-*.md
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 
 ## Next Steps
 
