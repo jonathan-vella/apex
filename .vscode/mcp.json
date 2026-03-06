@@ -14,15 +14,16 @@
       "args": ["-m", "azure_pricing_mcp"],
       "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src"
     },
+    "azure-mcp": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "msmcp-azure", "azmcp", "server", "start"]
+    },
     "terraform": {
       "type": "stdio",
       "command": "/go/bin/terraform-mcp-server",
       "args": ["stdio", "--toolsets", "registry"],
       "env": {}
-    },
-    "azure-mcp": {
-      "type": "copilotExtension",
-      "extensionId": "ms-azuretools.vscode-azure-mcp-server"
     }
   }
 }

@@ -77,7 +77,6 @@ The full machine-readable DAG is in:
 
 ## Reference Index
 
-| Reference          | File                                 | Content                      |
-| ------------------ | ------------------------------------ | ---------------------------- |
-| Workflow Graph     | `templates/workflow-graph.json`      | Full DAG for 7-step workflow |
-| Complexity Routing | `references/complexity-routing.json` | Step-to-model-tier mapping   |
+| Reference      | File                            | Content                      |
+| -------------- | ------------------------------- | ---------------------------- |
+| Workflow Graph | `templates/workflow-graph.json` | Full DAG for 7-step workflow |

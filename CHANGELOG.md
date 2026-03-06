@@ -24,15 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tracking, auto-label rules, and deploy agent watchdog integration.
 - feat(config): add `.github/agent-registry.json` — machine-readable registry mapping agent
   roles to definition files, default models, and required skills.
-- feat(config): add `.github/mcp-scoping.json` — per-agent MCP server scoping configuration
-  (documentation-only until VS Code supports native per-agent filtering).
 - feat(config): add `.github/skill-affinity.json` — skill/agent affinity catalog with
   `primary`/`secondary`/`never` weights for context budget optimization.
-- feat(config): add `complexity-routing.json` to workflow-engine skill — maps step complexity
-  tiers (`low`/`medium`/`high`) to recommended models for cost-optimized handoffs.
 - feat(scripts): add 5 new validators: `validate-session-lock`, `validate-workflow-graph`,
-  `validate-agent-registry`, `validate-mcp-scoping`, `validate-skill-affinity`;
-  validator count 22 → 27.
+  `validate-agent-registry`, `validate-skill-affinity`;
+  validator count 22 → 25.
 - feat(hooks): add `pre-push` hook to `lefthook.yml` with diff-based domain routing;
   only runs validators for changed file types, in parallel.
 - feat(scripts): add `diff-based-push-check.sh` helper for pre-push hook domain detection.
@@ -41,8 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - refactor(conductor): replace hardcoded step table with graph-based routing via
   `workflow-graph.json` and agent registry lookups.
-- refactor(conductor): replace static model selection table with `complexity-routing.json`
-  tier-based model selection.
 - refactor(conductor): add circuit breaker principle — halt on `blocked` step status.
 - refactor(agents): add `context-shredding` skill reference to Architect, Bicep CodeGen,
   Terraform CodeGen, and As-Built agents for runtime context compression.
@@ -50,12 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   references to Bicep Deploy and Terraform Deploy agents.
 - refactor(instructions): add runtime compression and skill affinity sections to
   `context-optimization.instructions.md`.
-- chore(mcp): add per-agent scoping comment to `.vscode/mcp.json`.
 
 ### Fixed
 
 - fix(session-state): accept both schema_version `"1.0"` and `"2.0"` in validator
-  for backwards compatibility.
+for backwards compatibility.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## [0.9.0] — Pre-Bosun Baseline
@@ -134,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 > **Note:** Versions below (`0.0.45` and earlier) are pre-release development milestones.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## [0.0.45] - 2026-02-05

@@ -83,7 +83,6 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `.github/skills/*/SKILL.md`                    | Reusable skill knowledge                                  |
 | `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                   |
 | `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                    |
-| `.github/mcp-scoping.json`                     | Per-agent MCP server scoping                              |
 | `.github/skill-affinity.json`                  | Skill/agent affinity weights                              |
 | `agent-output/{project}/`                      | Agent-generated artifacts                                 |
 | `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (session-resume skill) |

@@ -1,0 +1,90 @@
+{
+  "$schema": "session-state-v1",
+  "project": "iis-hello-world",
+  "created": "2026-03-06T00:00:00Z",
+  "updated": "2026-03-06T12:00:00Z",
+  "current_step": 2,
+  "iac_tool": "Bicep",
+  "complexity": "simple",
+  "steps": {
+    "1": {
+      "name": "Requirements",
+      "status": "complete",
+      "sub_step": "phase_5_artifact",
+      "artifacts": [
+        "agent-output/iis-hello-world/01-requirements.md",
+        "agent-output/iis-hello-world/README.md"
+      ],
+      "started": "2026-03-06T00:00:00Z",
+      "completed": "2026-03-06T00:00:00Z"
+    },
+    "2": {
+      "name": "Architecture",
+      "status": "complete",
+      "sub_step": "phase_5_artifact",
+      "artifacts": [
+        "agent-output/iis-hello-world/02-architecture-assessment.md",
+        "agent-output/iis-hello-world/03-des-cost-estimate.md"
+      ],
+      "started": "2026-03-06T12:00:00Z",
+      "completed": "2026-03-06T12:00:00Z"
+    },
+    "3": {
+      "name": "Design",
+      "status": "pending",
+      "sub_step": null,
+      "artifacts": [],
+      "started": null,
+      "completed": null
+    },
+    "4": {
+      "name": "Planning",
+      "status": "pending",
+      "sub_step": null,
+      "artifacts": [],
+      "started": null,
+      "completed": null
+    },
+    "5": {
+      "name": "Implementation",
+      "status": "pending",
+      "sub_step": null,
+      "artifacts": [],
+      "started": null,
+      "completed": null
+    },
+    "6": {
+      "name": "Deployment",
+      "status": "pending",
+      "sub_step": null,
+      "artifacts": [],
+      "started": null,
+      "completed": null
+    },
+    "7": {
+      "name": "Documentation",
+      "status": "pending",
+      "sub_step": null,
+      "artifacts": [],
+      "started": null,
+      "completed": null
+    }
+  },
+  "decisions": {
+    "region": "swedencentral",
+    "iac_tool": "Bicep",
+    "budget": "~$50/month",
+    "estimated_cost": "~$69/month",
+    "environment": "dev",
+    "complexity": "simple",
+    "architecture_pattern": "single-tier IaaS (Windows VM + IIS behind Standard LB)",
+    "primary_pillar": "Cost Optimization",
+    "waf_scores": {
+      "security": 5,
+      "reliability": 3,
+      "performance": 7,
+      "cost": 7,
+      "operations": 4
+    }
+  }
+}

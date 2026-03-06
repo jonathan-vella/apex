@@ -27,8 +27,8 @@ graph instead of relying on hardcoded step logic:
 - **IaC routing**: conditional edges route to Bicep or Terraform agents based on `decisions.iac_tool`
 - **Fan-out**: Step 7 substeps (cost estimate, runbook, etc.) can execute in parallel
 
-The Conductor resolves agent paths and models via `.github/agent-registry.json` and
-selects model tiers using `.github/skills/workflow-engine/references/complexity-routing.json`.
+The Conductor resolves agent paths and models via `.github/agent-registry.json`.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Agent Architecture

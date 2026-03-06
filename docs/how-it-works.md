@@ -62,7 +62,6 @@
   - [Azure MCP Server](#azure-mcp-server)
   - [Azure Pricing MCP Server](#azure-pricing-mcp-server)
   - [Terraform Registry MCP Server](#terraform-registry-mcp-server)
-  - [Per-Agent MCP Scoping](#per-agent-mcp-scoping)
 - [The Golden Principles](#the-golden-principles)
 - [File Map](#file-map)
 - [References](#references)
@@ -160,11 +159,6 @@ and fan-out patterns. This project's `workflow-graph.json` encodes the 7-step pi
 as a machine-readable DAG with `agent-step`, `gate`, `subagent-fan-out`, and `validation`
 node types.
 
-**Task complexity routing.** Bosun's `task-complexity.mjs` classifies task complexity
-to route work to the appropriate executor tier. This project's `complexity-routing.json`
-maps each workflow step to a complexity tier (`low`, `medium`, `high`) and a recommended
-model (Haiku, Sonnet, Opus).
-
 **Context shredding.** Bosun's `context-shredding-config.mjs` implements tiered context
 compression to manage token budgets across long-running sessions. This project's
 `context-shredding` skill defines three compression tiers (`full`, `summarized`, `minimal`)
@@ -192,10 +186,6 @@ This project's `skill-affinity.json` maps each agent to skills with affinity wei
 **Agent prompts registry.** Bosun's `agent-prompts.mjs` provides a machine-readable
 registry of agent configurations. This project's `agent-registry.json` maps each agent
 role to its definition file, default model, and required skills.
-
-**MCP registry with per-agent scoping.** Bosun's `mcp-registry.mjs` supports per-agent
-MCP server selection. This project's `mcp-scoping.json` maps each agent to its required
-MCP servers.
 
 <a id="ralph-snarktank"></a>
 
@@ -272,7 +262,7 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent        |
 | Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model       |
 | Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                 |
-| Cost optimisation      | —                                    | Task complexity routing             | —                                | `complexity-routing.json` model tier selection |
+| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Conductor             |
 | Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules              |
 | Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time         |
 | Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews          |
@@ -482,13 +472,11 @@ the agent system.
 
 **Where they live**: `.github/` root and within skills.
 
-| Registry           | Path                                                                | Purpose                                   |
-| ------------------ | ------------------------------------------------------------------- | ----------------------------------------- |
-| Agent Registry     | `.github/agent-registry.json`                                       | Agent role → file, model, required skills |
-| MCP Scoping        | `.github/mcp-scoping.json`                                          | Agent → required MCP servers              |
-| Skill Affinity     | `.github/skill-affinity.json`                                       | Agent → skill weights (primary/secondary) |
-| Workflow Graph     | `.github/skills/workflow-engine/templates/workflow-graph.json`      | 7-step DAG with nodes, edges, conditions  |
-| Complexity Routing | `.github/skills/workflow-engine/references/complexity-routing.json` | Step → model tier (low/medium/high)       |
+| Registry       | Path                                                           | Purpose                                   |
+| -------------- | -------------------------------------------------------------- | ----------------------------------------- |
+| Agent Registry | `.github/agent-registry.json`                                  | Agent role → file, model, required skills |
+| Skill Affinity | `.github/skill-affinity.json`                                  | Agent → skill weights (primary/secondary) |
+| Workflow Graph | `.github/skills/workflow-engine/templates/workflow-graph.json` | 7-step DAG with nodes, edges, conditions  |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 
@@ -886,19 +874,19 @@ The claim model prevents concurrent sessions from corrupting state. Stale heartb
 
 Every convention is backed by a machine-enforceable check:
 
-| Category            | Validators                                                                                              |
-| ------------------- | ------------------------------------------------------------------------------------------------------- |
-| Markdown            | `lint:md`, `lint:links:docs`                                                                            |
-| Artefact format     | `lint:artifact-templates`, `lint:h2-sync`, `fix:artifact-h2`                                            |
-| Agent quality       | `lint:agent-frontmatter`, `lint:agent-body-size`                                                        |
-| Skill quality       | `lint:skills-format`, `lint:skill-size`, `lint:skill-references`, `lint:orphaned-content`               |
-| Instruction quality | `lint:instruction-frontmatter`, `validate:instruction-refs`                                             |
-| Governance          | `lint:governance-refs`, `lint:mcp-config`                                                               |
-| Infrastructure      | `lint:terraform-fmt`, `validate:terraform`                                                              |
-| Session state       | `validate:session-state`, `validate:session-lock`                                                       |
-| Registry/config     | `validate:workflow-graph`, `validate:agent-registry`, `validate:mcp-scoping`, `validate:skill-affinity` |
-| Code quality        | `lint:json`, `lint:python`                                                                              |
-| Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`                   |
+| Category            | Validators                                                                                |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| Markdown            | `lint:md`, `lint:links:docs`                                                              |
+| Artefact format     | `lint:artifact-templates`, `lint:h2-sync`, `fix:artifact-h2`                              |
+| Agent quality       | `lint:agent-frontmatter`, `lint:agent-body-size`                                          |
+| Skill quality       | `lint:skills-format`, `lint:skill-size`, `lint:skill-references`, `lint:orphaned-content` |
+| Instruction quality | `lint:instruction-frontmatter`, `validate:instruction-refs`                               |
+| Governance          | `lint:governance-refs`, `lint:mcp-config`                                                 |
+| Infrastructure      | `lint:terraform-fmt`, `validate:terraform`                                                |
+| Session state       | `validate:session-state`, `validate:session-lock`                                         |
+| Registry/config     | `validate:workflow-graph`, `validate:agent-registry`, `validate:skill-affinity`           |
+| Code quality        | `lint:json`, `lint:python`                                                                |
+| Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`     |
 
 All validators run via `npm run validate:all`.
 
@@ -1126,37 +1114,6 @@ Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
 CodeGen** (Step 5t), **terraform-lint-subagent**, and
 **terraform-review-subagent**.
 
-<a id="per-agent-mcp-scoping"></a>
-
-### 🎯 Per-Agent MCP Scoping
-
-Not every agent needs every MCP server. The `mcp-scoping.json` registry
-defines which servers each agent is allowed to use, minimising context
-pollution and preventing agents from invoking tools outside their domain:
-
-| Agent Role                | MCP Servers                                 |
-| ------------------------- | ------------------------------------------- |
-| Conductor, Requirements   | GitHub, Learn, **Azure MCP**                |
-| Architect                 | GitHub, Learn, **Azure MCP**, Azure Pricing |
-| Design                    | GitHub, Learn, **Azure MCP**                |
-| Bicep Planner/CodeGen     | GitHub, Learn, **Azure MCP**                |
-| Terraform Planner/CodeGen | GitHub, Learn, **Azure MCP**, Terraform     |
-| Deploy agents             | GitHub, **Azure MCP**                       |
-| As-Built                  | GitHub, Learn, **Azure MCP**, Azure Pricing |
-| Diagnose                  | GitHub, Learn, **Azure MCP**                |
-| Cost Estimate Subagent    | Azure Pricing, Learn, **Azure MCP**         |
-| Governance Discovery      | GitHub, **Azure MCP**                       |
-| Terraform Lint/Review     | Learn, Terraform, **Azure MCP**             |
-| Context Optimizer         | _(none)_                                    |
-
-This scoping is currently documentation-only (pending VS Code support
-for per-agent MCP filtering), but agents are instructed to respect it
-through their skill and instruction definitions.
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
-
-<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>
-
 <a id="the-golden-principles"></a>
 
 ## 🏆 The Golden Principles
@@ -1187,12 +1144,11 @@ AGENTS.md                                    # Table of contents for all agents
 .github/
   copilot-instructions.md                    # VS Code Copilot orchestration
   agent-registry.json                        # Agent role → file/model/skills
-  mcp-scoping.json                           # Per-agent MCP server scoping
   skill-affinity.json                        # Skill/agent affinity weights
   agents/                                    # 14 top-level agent definitions
     _subagents/                              # 9 subagent definitions
   skills/                                    # 20 skill packages
-    workflow-engine/                          # DAG, complexity routing
+    workflow-engine/                          # DAG, workflow graph
     context-shredding/                       # Runtime compression
     session-resume/                          # State tracking + resume protocol
     golden-principles/                       # 10 operating principles

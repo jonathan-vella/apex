@@ -51,7 +51,6 @@ npm run validate:session-state           # Session state JSON schema validation
 npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
-npm run validate:mcp-scoping             # MCP per-agent scoping validation
 npm run validate:skill-affinity          # Skill/agent affinity catalog validation
 
 # Bicep validation (replace {project} with actual project name)
@@ -171,12 +170,11 @@ Always run `npm run lint:md` and relevant validations before committing.
   agents/              # Agent definitions (*.agent.md) — 14 top-level + 9 subagents
     _subagents/        # Subagent definitions (non-user-invocable)
   skills/              # Reusable domain knowledge (SKILL.md per skill)
-    workflow-engine/   # DAG model, workflow-graph.json, complexity-routing.json
+    workflow-engine/   # DAG model, workflow-graph.json
     context-shredding/ # Runtime context compression tiers and templates
     iac-common/        # Shared deploy patterns + circuit-breaker.md
   instructions/        # File-type rules with glob-based auto-application
   agent-registry.json  # Machine-readable agent role → file/model/skills mapping
-  mcp-scoping.json     # Per-agent MCP server scoping configuration
   skill-affinity.json  # Skill/agent affinity weights (primary/secondary/never)
   copilot-instructions.md  # VS Code Copilot-specific orchestration instructions
 agent-output/          # All agent-generated artifacts organized by project
