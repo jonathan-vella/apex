@@ -15,8 +15,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
-
-const SKILLS_DIR = ".github/skills";
+import { getSkills } from "./_lib/workspace-index.mjs";
 
 // Required frontmatter fields for GA skills
 const REQUIRED_FIELDS = ["description"];
@@ -137,53 +136,36 @@ function validateSkill(skillDir) {
 /**
  * Main validation function
  */
-function main() {
-  console.log("🔍 VS Code 1.109 Skills GA Format Validator\n");
+console.log("🔍 VS Code 1.109 Skills GA Format Validator\n");
 
-  // Check skills directory exists
-  if (!fs.existsSync(SKILLS_DIR)) {
-    console.log(
-      "No .github/skills directory found - skipping skill validation",
-    );
-    process.exit(0);
-  }
+const skills = getSkills();
 
-  // Find all skill directories
-  const skillDirs = fs
-    .readdirSync(SKILLS_DIR)
-    .filter((name) => {
-      const fullPath = path.join(SKILLS_DIR, name);
-      return fs.statSync(fullPath).isDirectory();
-    })
-    .map((name) => path.join(SKILLS_DIR, name));
-
-  console.log(`Found ${skillDirs.length} skill directories\n`);
-
-  console.log("=== Skills ===");
-  for (const skillDir of skillDirs) {
-    validateSkill(skillDir);
-  }
-
-  console.log("\n" + "=".repeat(60));
-  console.log(`Validated ${skillCount} skills`);
-
-  if (errors > 0) {
-    console.error(
-      `❌ Validation FAILED: ${errors} error(s), ${warnings} warning(s)`,
-    );
-    process.exit(1);
-  } else if (warnings > 0) {
-    console.log(`⚠️  Validation passed with ${warnings} warning(s)`);
-    process.exit(0);
-  } else {
-    console.log("✅ All skills passed GA format validation");
-    process.exit(0);
-  }
+if (skills.size === 0) {
+  console.log(
+    "No .github/skills directory found - skipping skill validation",
+  );
+  process.exit(0);
 }
 
-try {
-  main();
-} catch (err) {
-  console.error("Fatal error:", err);
+console.log(`Found ${skills.size} skill directories\n`);
+
+console.log("=== Skills ===");
+for (const [skillName, skill] of skills) {
+  validateSkill(skill.dir);
+}
+
+console.log("\n" + "=".repeat(60));
+console.log(`Validated ${skillCount} skills`);
+
+if (errors > 0) {
+  console.error(
+    `❌ Validation FAILED: ${errors} error(s), ${warnings} warning(s)`,
+  );
   process.exit(1);
+} else if (warnings > 0) {
+  console.log(`⚠️  Validation passed with ${warnings} warning(s)`);
+  process.exit(0);
+} else {
+  console.log("✅ All skills passed GA format validation");
+  process.exit(0);
 }

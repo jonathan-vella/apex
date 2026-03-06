@@ -14,11 +14,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getAgents, getSkillNames as getSkillNamesFromIndex } from "./_lib/workspace-index.mjs";
 
 const AFFINITY_PATH = ".github/skill-affinity.json";
-const SKILLS_DIR = ".github/skills";
-const AGENTS_DIR = ".github/agents";
-const SUBAGENTS_DIR = ".github/agents/_subagents";
 
 let errors = 0;
 let warnings = 0;
@@ -37,54 +35,30 @@ function ok(msg) {
   console.log(`  ✅ ${msg}`);
 }
 
-function getSkillNames() {
-  if (!fs.existsSync(SKILLS_DIR)) return new Set();
-  return new Set(
-    fs
-      .readdirSync(SKILLS_DIR, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name),
-  );
-}
-
 function getAgentNames() {
   const names = new Set();
-  for (const dir of [AGENTS_DIR, SUBAGENTS_DIR]) {
-    if (!fs.existsSync(dir)) continue;
-    for (const file of fs.readdirSync(dir)) {
-      if (file.endsWith(".agent.md")) {
-        const content = fs.readFileSync(path.join(dir, file), "utf-8");
-        const nameMatch = content.match(/^name:\s*(.+)$/m);
-        if (nameMatch) {
-          names.add(nameMatch[1].trim());
-        }
-      }
-    }
+  for (const [, agent] of getAgents()) {
+    const name = agent.frontmatter?.name?.trim();
+    if (name) names.add(name);
   }
   return names;
 }
 
-function getAgentSkillReads(agentName) {
-  // Find the agent file and extract "Read .github/skills/..." references
-  const reads = new Set();
-  for (const dir of [AGENTS_DIR, SUBAGENTS_DIR]) {
-    if (!fs.existsSync(dir)) continue;
-    for (const file of fs.readdirSync(dir)) {
-      if (!file.endsWith(".agent.md")) continue;
-      const content = fs.readFileSync(path.join(dir, file), "utf-8");
-      const nameMatch = content.match(/^name:\s*(.+)$/m);
-      if (nameMatch && nameMatch[1].trim() === agentName) {
-        const skillRefs = content.matchAll(
-          /\.github\/skills\/([a-z0-9-]+)\/SKILL\.md/g,
-        );
-        for (const match of skillRefs) {
-          reads.add(match[1]);
-        }
-        return reads;
-      }
+function buildAgentSkillReadsMap() {
+  const map = new Map();
+  for (const [, agent] of getAgents()) {
+    const name = agent.frontmatter?.name?.trim();
+    if (!name) continue;
+    const reads = new Set();
+    const skillRefs = agent.content.matchAll(
+      /\.github\/skills\/([a-z0-9-]+)\/SKILL\.md/g,
+    );
+    for (const match of skillRefs) {
+      reads.add(match[1]);
     }
+    map.set(name, reads);
   }
-  return reads;
+  return map;
 }
 
 console.log("\n🎯 Validating skill affinity configuration...\n");
@@ -102,8 +76,9 @@ try {
   process.exit(1);
 }
 
-const skillNames = getSkillNames();
+const skillNames = getSkillNamesFromIndex();
 const agentNames = getAgentNames();
+const agentSkillReadsMap = buildAgentSkillReadsMap();
 
 function validateEntry(key, entry, isSubagent) {
   // Validate skill names
@@ -130,7 +105,7 @@ function validateEntry(key, entry, isSubagent) {
 
   // Cross-reference against agent body (agents only, not subagents easily)
   if (!isSubagent) {
-    const bodyReads = getAgentSkillReads(key);
+    const bodyReads = agentSkillReadsMap.get(key) || new Set();
     if (bodyReads.size > 0 && Array.isArray(entry.primary)) {
       for (const skill of entry.primary) {
         if (!bodyReads.has(skill)) {

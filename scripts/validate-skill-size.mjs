@@ -12,8 +12,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getSkills } from "./_lib/workspace-index.mjs";
 
-const SKILLS_DIR = ".github/skills";
 const MAX_LINES_WITHOUT_REFS = 200;
 
 // Pre-existing oversized skills (tracked for future remediation).
@@ -31,21 +31,16 @@ let checked = 0;
 
 console.log("\n🔍 Skill Size Validator\n");
 
-const skillDirs = fs
-  .readdirSync(SKILLS_DIR, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .map((d) => d.name);
+const skills = getSkills();
 
-for (const skill of skillDirs) {
-  const skillPath = path.join(SKILLS_DIR, skill, "SKILL.md");
-  const refsDir = path.join(SKILLS_DIR, skill, "references");
-
-  if (!fs.existsSync(skillPath)) continue;
+for (const [skill, info] of skills) {
+  if (!info.content) continue;
   checked++;
 
-  const content = fs.readFileSync(skillPath, "utf-8");
-  const lineCount = content.split("\n").length;
-  const hasRefs = fs.existsSync(refsDir);
+  const lineCount = info.content.split("\n").length;
+  const hasRefs = info.hasRefs;
+  const skillPath = path.join(info.dir, "SKILL.md");
+  const refsDir = path.join(info.dir, "references");
 
   if (lineCount > MAX_LINES_WITHOUT_REFS && !hasRefs) {
     if (KNOWN_OVERSIZED.has(skill)) {
@@ -66,15 +61,11 @@ for (const skill of skillDirs) {
       errors++;
     }
   } else if (lineCount > MAX_LINES_WITHOUT_REFS && hasRefs) {
-    const refCount = fs
-      .readdirSync(refsDir)
-      .filter((f) => f.endsWith(".md")).length;
+    const refCount = info.refFiles.length;
     console.log(
       `  ⚠️  ${skill}/SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) but has ${refCount} reference files — consider trimming further`,
     );
     warnings++;
-  } else {
-    // Passes — no output needed
   }
 }
 

@@ -83,11 +83,15 @@ async function fetchAzureUpdates() {
   console.log("Fetching Azure Updates RSS feed...");
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
     const response = await fetch(AZURE_UPDATES_RSS, {
       headers: {
         "User-Agent": "Azure-Deprecation-Tracker/1.0",
       },
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       console.warn(`Failed to fetch RSS: ${response.status}`);

@@ -15,11 +15,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getAgents } from "./_lib/workspace-index.mjs";
 
 const GRAPH_PATH =
   ".github/skills/workflow-engine/templates/workflow-graph.json";
-const AGENTS_DIR = ".github/agents";
-const SUBAGENTS_DIR = ".github/agents/_subagents";
 
 let errors = 0;
 let warnings = 0;
@@ -40,20 +39,10 @@ function ok(msg) {
 
 function getAgentFiles() {
   const agents = new Set();
-  for (const dir of [AGENTS_DIR, SUBAGENTS_DIR]) {
-    if (!fs.existsSync(dir)) continue;
-    for (const file of fs.readdirSync(dir)) {
-      if (file.endsWith(".agent.md")) {
-        // Extract agent name from frontmatter or filename
-        const content = fs.readFileSync(path.join(dir, file), "utf-8");
-        const nameMatch = content.match(/^name:\s*(.+)$/m);
-        if (nameMatch) {
-          agents.add(nameMatch[1].trim());
-        }
-        // Also add filename-based name
-        agents.add(file.replace(".agent.md", ""));
-      }
-    }
+  for (const [file, agent] of getAgents()) {
+    const name = agent.frontmatter?.name?.trim();
+    if (name) agents.add(name);
+    agents.add(file.replace(".agent.md", ""));
   }
   return agents;
 }

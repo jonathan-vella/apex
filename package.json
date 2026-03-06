@@ -45,7 +45,9 @@
     "validate:workflow-graph": "node scripts/validate-workflow-graph.mjs",
     "validate:agent-registry": "node scripts/validate-agent-registry.mjs",
     "validate:skill-affinity": "node scripts/validate-skill-affinity.mjs",
-    "validate:all": "npm run lint:md && npm run lint:links:docs && npm run lint:artifact-templates && npm run lint:h2-sync && npm run lint:version-sync && npm run lint:deprecated-refs && npm run lint:mcp-config && npm run lint:agent-frontmatter && npm run lint:skills-format && npm run lint:instruction-frontmatter && npm run lint:governance-refs && npm run validate:instruction-refs && npm run validate:session-state && npm run validate:session-lock && npm run validate:workflow-graph && npm run validate:agent-registry && npm run validate:skill-affinity && npm run lint:json && npm run lint:python && npm run lint:terraform-fmt && npm run validate:terraform && npm run lint:skill-size && npm run lint:agent-body-size && npm run lint:glob-audit && npm run lint:skill-references && npm run lint:orphaned-content && npm run lint:docs-freshness && echo '✅ All validations passed'"
+    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format lint:instruction-frontmatter lint:governance-refs validate:instruction-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity lint:json lint:skill-size lint:agent-body-size lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness",
+    "validate:_external": "run-p lint:md lint:links:docs lint:python lint:terraform-fmt validate:terraform",
+    "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",
@@ -53,7 +55,8 @@
     "fast-xml-parser": "^5.3.8",
     "lefthook": "^2.1.0",
     "markdown-link-check": "^3.12.0",
-    "markdownlint-cli2": "^0.20.0"
+    "markdownlint-cli2": "^0.20.0",
+    "npm-run-all2": "^8.0.4"
   },
   "repository": {
     "type": "git",

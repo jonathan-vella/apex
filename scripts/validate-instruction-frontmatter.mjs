@@ -12,44 +12,17 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getInstructions } from "./_lib/workspace-index.mjs";
 
-const INSTRUCTIONS_DIRS = [".github/instructions"];
-const ALLOWED_FIELDS = ["description", "applyTo"];
+// Shared parser lowercases keys; match against lowercase allowed fields
+const ALLOWED_FIELDS = ["description", "applyto"];
+const ALLOWED_FIELDS_DISPLAY = ["description", "applyTo"];
 
 let errors = 0;
 
-function collectInstructionFiles(dirs) {
-  const files = [];
-  for (const dir of dirs) {
-    if (!fs.existsSync(dir)) continue;
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true, recursive: true })) {
-      const full = path.join(entry.parentPath || entry.path, entry.name);
-      if (entry.isFile() && entry.name.endsWith(".instructions.md")) {
-        files.push(full);
-      }
-    }
-  }
-  return files;
-}
-
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return null;
-
-  const fields = {};
-  for (const line of match[1].split("\n")) {
-    const kvMatch = line.match(/^(\w[\w-]*):\s*(.*)/);
-    if (kvMatch) {
-      fields[kvMatch[1]] = kvMatch[2].trim().replace(/^['"]|['"]$/g, "");
-    }
-  }
-  return fields;
-}
-
-function validateFile(filePath) {
-  const content = fs.readFileSync(filePath, "utf8");
+function validateFile(fileName, instr) {
+  const { path: filePath, content, frontmatter: fm } = instr;
   const relPath = path.relative(process.cwd(), filePath);
-  const fm = parseFrontmatter(content);
 
   if (!fm) {
     console.log(
@@ -61,8 +34,9 @@ function validateFile(filePath) {
 
   for (const field of ALLOWED_FIELDS) {
     if (!fm[field]) {
+      const display = ALLOWED_FIELDS_DISPLAY[ALLOWED_FIELDS.indexOf(field)];
       console.log(
-        `::error file=${relPath},line=1::Missing required frontmatter field: ${field}`,
+        `::error file=${relPath},line=1::Missing required frontmatter field: ${display}`,
       );
       errors++;
     }
@@ -73,7 +47,7 @@ function validateFile(filePath) {
   );
   if (unknownFields.length > 0) {
     console.log(
-      `::error file=${relPath},line=1::Unknown frontmatter fields: ${unknownFields.join(", ")} (allowed: ${ALLOWED_FIELDS.join(", ")})`,
+      `::error file=${relPath},line=1::Unknown frontmatter fields: ${unknownFields.join(", ")} (allowed: ${ALLOWED_FIELDS_DISPLAY.join(", ")})`,
     );
     errors++;
   }
@@ -81,12 +55,12 @@ function validateFile(filePath) {
 
 console.log("🔍 Instruction File Frontmatter Validator\n");
 
-const files = collectInstructionFiles(INSTRUCTIONS_DIRS);
+const instructions = getInstructions();
 
-console.log(`Found ${files.length} instruction file(s)\n`);
+console.log(`Found ${instructions.size} instruction file(s)\n`);
 
-for (const file of files) {
-  validateFile(file);
+for (const [fileName, instr] of instructions) {
+  validateFile(fileName, instr);
 }
 
 console.log(`\n${"=".repeat(50)}`);

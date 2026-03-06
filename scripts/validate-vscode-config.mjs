@@ -81,49 +81,7 @@ function checkRequiredExtensionsInList(sourceName, extensions) {
 /**
  * Parse JSON with comments (JSONC) - handles devcontainer.json format
  */
-function parseJsonc(content) {
-  // Step 1: Remove block comments /* ... */
-  let result = content.replace(/\/\*[\s\S]*?\*\//g, "");
-
-  // Step 2: Remove single-line comments // ... but not in strings
-  // We do this line by line to be safe
-  const lines = result.split("\n");
-  const processedLines = lines.map((line) => {
-    // Find the first // that's not inside a string
-    let inString = false;
-    let escapeNext = false;
-    for (let i = 0; i < line.length - 1; i++) {
-      const char = line[i];
-
-      if (escapeNext) {
-        escapeNext = false;
-        continue;
-      }
-
-      if (char === "\\") {
-        escapeNext = true;
-        continue;
-      }
-
-      if (char === '"') {
-        inString = !inString;
-        continue;
-      }
-
-      if (!inString && char === "/" && line[i + 1] === "/") {
-        return line.substring(0, i);
-      }
-    }
-    return line;
-  });
-
-  result = processedLines.join("\n");
-
-  // Step 3: Remove trailing commas before } or ]
-  result = result.replace(/,(\s*[\]}])/g, "$1");
-
-  return JSON.parse(result);
-}
+import { parseJsonc } from "./_lib/parse-jsonc.mjs";
 
 /**
  * Check devcontainer.json for required settings

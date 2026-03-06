@@ -1,6 +1,7 @@
 ---
 description: "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md."
 agent: agent
+model: "Claude Sonnet 4.6"
 tools:
   - read/readFile
   - edit/editFiles

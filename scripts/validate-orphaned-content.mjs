@@ -12,9 +12,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 
 const SKILLS_DIR = ".github/skills";
-const AGENTS_DIR = ".github/agents";
 const INSTRUCTIONS_DIR = ".github/instructions";
 
 let errors = 0;
@@ -23,35 +23,16 @@ let checked = 0;
 
 console.log("\n🔍 Orphaned Content Validator\n");
 
-// Gather reference corpus from agents, instructions, and top-level config.
-// Skill SKILL.md files are loaded separately (keyed by skill name) so we
-// can exclude a skill's own content when checking whether it is referenced.
+// Gather reference corpus from cached index + top-level config.
 function gatherReferenceContent() {
   const corpus = [];
   const perSkill = {};
 
-  for (const dir of [AGENTS_DIR, path.join(AGENTS_DIR, "_subagents")]) {
-    if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".md"))) {
-      corpus.push(fs.readFileSync(path.join(dir, f), "utf-8"));
-    }
-  }
+  for (const [, agent] of getAgents()) corpus.push(agent.content);
+  for (const [, instr] of getInstructions()) corpus.push(instr.content);
 
-  if (fs.existsSync(INSTRUCTIONS_DIR)) {
-    for (const f of fs
-      .readdirSync(INSTRUCTIONS_DIR)
-      .filter((f) => f.endsWith(".md"))) {
-      corpus.push(fs.readFileSync(path.join(INSTRUCTIONS_DIR, f), "utf-8"));
-    }
-  }
-
-  // Load each skill's SKILL.md keyed by name (for cross-skill minus self)
-  for (const skill of fs.readdirSync(SKILLS_DIR, { withFileTypes: true })) {
-    if (!skill.isDirectory()) continue;
-    const skillPath = path.join(SKILLS_DIR, skill.name, "SKILL.md");
-    if (fs.existsSync(skillPath)) {
-      perSkill[skill.name] = fs.readFileSync(skillPath, "utf-8");
-    }
+  for (const [name, skill] of getSkills()) {
+    if (skill.content) perSkill[name] = skill.content;
   }
 
   // Top-level config files
@@ -70,12 +51,9 @@ const { corpus, perSkill } = gatherReferenceContent();
 
 // Check skills — exclude the skill's own SKILL.md to prevent self-referencing
 console.log("📁 Skills:");
-const skillDirs = fs
-  .readdirSync(SKILLS_DIR, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .map((d) => d.name);
+const skills = getSkills();
 
-for (const skill of skillDirs) {
+for (const [skill] of skills) {
   checked++;
   // Build search content: agents + instructions + config + OTHER skills (not self)
   const otherSkills = Object.entries(perSkill)
@@ -101,25 +79,19 @@ for (const skill of skillDirs) {
 // Instructions auto-load by glob pattern — missing applyTo means the
 // instruction will never be applied automatically.
 console.log("\n📁 Instructions (applyTo completeness):");
-if (fs.existsSync(INSTRUCTIONS_DIR)) {
-  const instrFiles = fs
-    .readdirSync(INSTRUCTIONS_DIR)
-    .filter((f) => f.endsWith(".instructions.md"));
+const instructions = getInstructions();
 
-  for (const file of instrFiles) {
-    checked++;
+for (const [file, instr] of instructions) {
+  checked++;
 
-    const filePath = path.join(INSTRUCTIONS_DIR, file);
-    const content = fs.readFileSync(filePath, "utf-8");
-    const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    const hasApplyTo = fmMatch && fmMatch[1].includes("applyTo");
+  const fmMatch = instr.content.match(/^---\n([\s\S]*?)\n---/);
+  const hasApplyTo = fmMatch && fmMatch[1].includes("applyTo");
 
-    if (!hasApplyTo) {
-      console.log(
-        `  ⚠️  ${file} — no applyTo frontmatter (instruction never auto-loads)`,
-      );
-      warnings++;
-    }
+  if (!hasApplyTo) {
+    console.log(
+      `  ⚠️  ${file} — no applyTo frontmatter (instruction never auto-loads)`,
+    );
+    warnings++;
   }
 }
 

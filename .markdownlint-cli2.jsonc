@@ -141,6 +141,12 @@
     "docs/presenter/**",
     "docs/tf-support/**",
 
+    // Planning prompts (long inline examples, not production code)
+    ".github/prompts/**",
+
+    // Utility scripts with embedded examples
+    "scripts/markdown-prettifiers/**",
+
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
   ],

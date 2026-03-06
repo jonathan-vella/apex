@@ -16,9 +16,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
-
-const AGENTS_DIR = ".github/agents";
-const SUBAGENTS_DIR = ".github/agents/_subagents";
+import { getAgents } from "./_lib/workspace-index.mjs";
 
 // Required fields for main agents (user-invocable: true)
 const MAIN_AGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
@@ -173,48 +171,30 @@ function findAgentFiles(dir) {
     .map((f) => path.join(dir, f));
 }
 
-/**
- * Main validation function
- */
-function main() {
-  console.log("🔍 VS Code 1.109 Agent Frontmatter Validator\n");
+console.log("\n🔍 Agent Frontmatter Validator\n");
 
-  // Find all agent files using fs
-  const mainAgents = findAgentFiles(AGENTS_DIR);
-  const subAgents = findAgentFiles(SUBAGENTS_DIR);
+const agents = getAgents();
+let mainCount = 0;
+let subCount = 0;
 
-  console.log(
-    `Found ${mainAgents.length} main agents and ${subAgents.length} subagents\n`,
-  );
-
-  console.log("=== Main Agents ===");
-  for (const agentFile of mainAgents) {
-    validateAgent(agentFile, false);
-  }
-
-  console.log("\n=== Subagents ===");
-  for (const agentFile of subAgents) {
-    validateAgent(agentFile, true);
-  }
-
-  console.log("\n" + "=".repeat(60));
-  if (errors > 0) {
-    console.error(
-      `❌ Validation FAILED: ${errors} error(s), ${warnings} warning(s)`,
-    );
-    process.exit(1);
-  } else if (warnings > 0) {
-    console.log(`⚠️  Validation passed with ${warnings} warning(s)`);
-    process.exit(0);
-  } else {
-    console.log("✅ All agents passed validation");
-    process.exit(0);
-  }
+for (const [file, agent] of agents) {
+  validateAgent(agent.path, agent.isSubagent);
+  if (agent.isSubagent) subCount++;
+  else mainCount++;
 }
 
-try {
-  main();
-} catch (err) {
-  console.error("Fatal error:", err);
+console.log(`\nFound ${mainCount} main agents and ${subCount} subagents`);
+
+console.log("\n" + "=".repeat(60));
+if (errors > 0) {
+  console.error(
+    `❌ Validation FAILED: ${errors} error(s), ${warnings} warning(s)`,
+  );
   process.exit(1);
+} else if (warnings > 0) {
+  console.log(`⚠️  Validation passed with ${warnings} warning(s)`);
+  process.exit(0);
+} else {
+  console.log("✅ All agents passed validation");
+  process.exit(0);
 }

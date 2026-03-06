@@ -12,9 +12,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 
 const SKILLS_DIR = ".github/skills";
-const AGENTS_DIR = ".github/agents";
 const INSTRUCTIONS_DIR = ".github/instructions";
 
 let errors = 0;
@@ -23,54 +23,27 @@ let checked = 0;
 
 console.log("\n🔍 Skill References Validator\n");
 
-// Gather all searchable content (agents, instructions, skills)
+// Gather all searchable content from cached index
 function gatherSearchableContent() {
   const content = [];
-
-  // Agent files
-  for (const dir of [AGENTS_DIR, path.join(AGENTS_DIR, "_subagents")]) {
-    if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".md"))) {
-      content.push(fs.readFileSync(path.join(dir, f), "utf-8"));
-    }
+  for (const [, agent] of getAgents()) content.push(agent.content);
+  for (const [, instr] of getInstructions()) content.push(instr.content);
+  for (const [, skill] of getSkills()) {
+    if (skill.content) content.push(skill.content);
   }
-
-  // Instruction files
-  if (fs.existsSync(INSTRUCTIONS_DIR)) {
-    for (const f of fs
-      .readdirSync(INSTRUCTIONS_DIR)
-      .filter((f) => f.endsWith(".md"))) {
-      content.push(fs.readFileSync(path.join(INSTRUCTIONS_DIR, f), "utf-8"));
-    }
-  }
-
-  // Skill SKILL.md files
-  for (const skill of fs.readdirSync(SKILLS_DIR, { withFileTypes: true })) {
-    if (!skill.isDirectory()) continue;
-    const skillPath = path.join(SKILLS_DIR, skill.name, "SKILL.md");
-    if (fs.existsSync(skillPath)) {
-      content.push(fs.readFileSync(skillPath, "utf-8"));
-    }
-  }
-
   return content.join("\n");
 }
 
 const allContent = gatherSearchableContent();
 
 // Check each skill's references/ directory
-const skillDirs = fs
-  .readdirSync(SKILLS_DIR, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .map((d) => d.name);
+const skills = getSkills();
 
-for (const skill of skillDirs) {
+for (const [skill, info] of skills) {
+  if (!info.hasRefs) continue;
   const refsDir = path.join(SKILLS_DIR, skill, "references");
-  if (!fs.existsSync(refsDir)) continue;
 
-  const refFiles = fs.readdirSync(refsDir).filter((f) => f.endsWith(".md"));
-
-  for (const refFile of refFiles) {
+  for (const refFile of info.refFiles) {
     checked++;
     const refRelPath = `${skill}/references/${refFile}`;
     const refName = refFile.replace(/\.md$/, "");

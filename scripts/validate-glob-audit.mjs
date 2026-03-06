@@ -12,9 +12,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
+import { getInstructions } from "./_lib/workspace-index.mjs";
 
-const INSTRUCTIONS_DIR = ".github/instructions";
 const MAX_LINES_WITH_WILDCARD = 50;
 
 let errors = 0;
@@ -23,16 +22,12 @@ let checked = 0;
 
 console.log("\n🔍 Glob Audit Validator\n");
 
-const files = fs
-  .readdirSync(INSTRUCTIONS_DIR)
-  .filter((f) => f.endsWith(".instructions.md"));
+const instructions = getInstructions();
 
-for (const file of files) {
-  const filePath = path.join(INSTRUCTIONS_DIR, file);
-  const content = fs.readFileSync(filePath, "utf-8");
+for (const [file, instr] of instructions) {
   checked++;
+  const { content, frontmatter: fm } = instr;
 
-  const fm = parseFrontmatter(content);
   if (!fm || !fm.applyTo) continue;
 
   const applyTo = Array.isArray(fm.applyTo)
@@ -49,7 +44,7 @@ for (const file of files) {
 
   if (lineCount > MAX_LINES_WITH_WILDCARD) {
     console.log(
-      `::warning file=${filePath}::${file} has applyTo: "**" and is ${lineCount} lines (>${MAX_LINES_WITH_WILDCARD})`,
+      `::warning file=${instr.path}::${file} has applyTo: "**" and is ${lineCount} lines (>${MAX_LINES_WITH_WILDCARD})`,
     );
     console.log(
       `  Fix: Narrow the glob to specific extensions (e.g., "**/*.{js,ts,py,bicep,tf}")`,

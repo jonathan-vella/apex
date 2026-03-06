@@ -13,9 +13,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getSkillNames } from "./_lib/workspace-index.mjs";
 
 const REGISTRY_PATH = ".github/agent-registry.json";
-const SKILLS_DIR = ".github/skills";
 
 const KNOWN_MODELS = [
   "Claude Opus 4.6",
@@ -40,16 +40,6 @@ function warn(msg) {
 
 function ok(msg) {
   console.log(`  ✅ ${msg}`);
-}
-
-function getSkillNames() {
-  if (!fs.existsSync(SKILLS_DIR)) return new Set();
-  return new Set(
-    fs
-      .readdirSync(SKILLS_DIR, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name),
-  );
 }
 
 function validateAgentEntry(key, entry, skillNames) {
