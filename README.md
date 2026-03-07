@@ -258,7 +258,7 @@ A curated collection of pre-built, production-ready Azure infrastructure pattern
 validated by the Agentic InfraOps workflow. Use it as a starting point for common workload
 archetypes—each pattern ships with Bicep templates, agent artifacts, and deployment scripts.
 
-### 🎓 [azure-agentic-infraops-workshops](https://github.com/jonathan-vella/azure-agentic-infraops-workshops)
+### 🎓 [azure-agentic-infraops-workshops](https://jonathan-vella.github.io/microhack-agentic-infraops/)
 
 Hands-on workshop material for teams and individuals learning the Agentic InfraOps workflow.
 Structured labs walk you through each of the 7 steps with guided exercises, sample prompts, and
