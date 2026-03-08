@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "project": "github-pages-docs",
+  "branch": "feat/github-pages-docs",
+  "updated": "2026-03-08T00:00:00Z",
+  "current_step": 0,
+  "plan_file": "docs/exec-plans/active/github-pages-plan.md",
+  "decisions": {
+    "tool": "MkDocs Material",
+    "target_url": "https://jonathan-vella.github.io/azure-agentic-infraops/",
+    "deploy_method": "GitHub Actions → gh-pages branch",
+    "docs_dir": "docs/"
+  },
+  "open_findings": [],
+  "steps": {
+    "1": {
+      "name": "Scaffold MkDocs",
+      "description": "Create mkdocs.yml, requirements-docs.txt, docs/index.md, symlinks for CONTRIBUTING.md and CHANGELOG.md",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step1-scaffold.prompt.md"
+    },
+    "2": {
+      "name": "Local Build Verification",
+      "description": "Install MkDocs Material, run mkdocs build --strict, fix any build errors",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step2-build.prompt.md"
+    },
+    "3": {
+      "name": "File Review — Mermaid & HTML",
+      "description": "Review all in-scope files for Mermaid fence and HTML block compatibility with MkDocs Material",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step3-review-html.prompt.md"
+    },
+    "4": {
+      "name": "Link Remediation",
+      "description": "Convert parent-relative links (../) that escape docs/ to GitHub source URLs",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step4-fix-links.prompt.md"
+    },
+    "5": {
+      "name": "GitHub Actions Workflow",
+      "description": "Create .github/workflows/docs.yml for automated deployment to gh-pages",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step5-workflow.prompt.md"
+    },
+    "6": {
+      "name": "Final Build & Commit",
+      "description": "Run mkdocs build --strict, verify zero warnings, commit all changes, push",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step6-final.prompt.md"
+    },
+    "7": {
+      "name": "Enable GitHub Pages",
+      "description": "Configure repo settings: Pages source = gh-pages branch, verify site loads",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "prompt": ".github/prompts/ghpages-step7-enable.prompt.md"
+    }
+  }
+}
