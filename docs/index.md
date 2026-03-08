@@ -35,7 +35,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 
   Understand the multi-agent architecture, skills system, and 7-step workflow.
 
-  [:octicons-arrow-right-24: How It Works](how-it-works.md)
+  [:octicons-arrow-right-24: How It Works](how-it-works/index.md)
 
 - :material-chart-timeline-variant:{ .lg .middle } **Workflow**
 

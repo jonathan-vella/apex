@@ -1,3 +1,7 @@
+---
+toc_depth: 2
+---
+
 # Troubleshooting Guide
 
 > Common issues and solutions for Agentic InfraOps

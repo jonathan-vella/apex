@@ -98,10 +98,21 @@ nav:
       - Quickstart: quickstart.md
       - Dev Container Setup: dev-containers.md
   - Concepts:
-      - How It Works: how-it-works.md
+      - How It Works:
+          - Overview: how-it-works/index.md
+          - System Architecture: how-it-works/architecture.md
+          - The Four Pillars: how-it-works/four-pillars.md
+          - Agent Architecture: how-it-works/agents.md
+          - Skills & Instructions: how-it-works/skills-and-instructions.md
+          - Workflow Engine & Quality: how-it-works/workflow-engine.md
+          - MCP Integration: how-it-works/mcp-integration.md
       - 7-Step Workflow: workflow.md
   - Guides:
-      - Prompt Guide: prompt-guide/index.md
+      - Prompt Guide:
+          - Overview: prompt-guide/index.md
+          - Best Practices: prompt-guide/best-practices.md
+          - Workflow Prompts: prompt-guide/workflow-prompts.md
+          - Skill & Subagent Reference: prompt-guide/reference.md
       - Troubleshooting: troubleshooting.md
   - Reference:
       - Glossary: GLOSSARY.md

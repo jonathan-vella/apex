@@ -53,7 +53,7 @@ Frequently asked questions about Agentic InfraOps.
     The Requirements agent (Step 1) captures your `iac_tool` preference, and the
     Conductor routes all subsequent steps to the correct track automatically.
 
-    See [How It Works](how-it-works.md) for a deeper comparison.
+    See [How It Works](how-it-works/index.md) for a deeper comparison.
 
 ??? question "Can I switch IaC tracks mid-workflow?"
 

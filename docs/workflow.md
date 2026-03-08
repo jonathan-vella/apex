@@ -1,3 +1,7 @@
+---
+toc_depth: 2
+---
+
 # Agent and Skill Workflow
 
 The 7-step infrastructure development workflow.

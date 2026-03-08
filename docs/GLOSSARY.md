@@ -1,3 +1,7 @@
+---
+toc_depth: 2
+---
+
 # Glossary
 
 Quick reference for terms used throughout Agentic InfraOps documentation.

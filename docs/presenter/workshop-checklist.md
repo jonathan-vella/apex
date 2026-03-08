@@ -7,20 +7,6 @@
 > A comprehensive checklist for trainers delivering Agentic InfraOps workshops.
 > Use this before, during, and after your sessions to ensure smooth delivery.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
-## 📋 Table of Contents
-
-- [Pre-Workshop (1-2 Days Before)](#-pre-workshop-1-2-days-before)
-- [Day-Of Setup (2 Hours Before)](#-day-of-setup-2-hours-before)
-- [During Workshop](#-during-workshop)
-- [Post-Workshop](#-post-workshop)
-- [Emergency Procedures](#-emergency-procedures)
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
-
 ## 🗓️ Pre-Workshop (1-2 Days Before)
 
 ### Environment Preparation
