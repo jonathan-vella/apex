@@ -141,9 +141,7 @@ console.log("🔍 VS Code 1.109 Skills GA Format Validator\n");
 const skills = getSkills();
 
 if (skills.size === 0) {
-  console.log(
-    "No .github/skills directory found - skipping skill validation",
-  );
+  console.log("No .github/skills directory found - skipping skill validation");
   process.exit(0);
 }
 

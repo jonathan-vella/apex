@@ -12,7 +12,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
+import {
+  getAgents,
+  getSkills,
+  getInstructions,
+} from "./_lib/workspace-index.mjs";
 
 const SKILLS_DIR = ".github/skills";
 const INSTRUCTIONS_DIR = ".github/instructions";
