@@ -2,11 +2,17 @@
 toc_depth: 2
 ---
 
-# Troubleshooting Guide
+<div align="center">
+  <img src="assets/images/hero-troubleshooting.jpg"
+    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
+    alt="Diagnostic tools and troubleshooting"/>
+</div>
+
+# :material-wrench-outline: Troubleshooting Guide
 
 > Common issues and solutions for Agentic InfraOps
 
-## Agent Personas Quick Reference
+## :material-account-card-outline: Agent Personas Quick Reference
 
 | Agent              | Persona       | Common Issues                    |
 | ------------------ | ------------- | -------------------------------- |
@@ -22,7 +28,7 @@ toc_depth: 2
 | challenger         | ⚔️ Challenger | —                                |
 | diagnose           | 🔍 Sentinel   | —                                |
 
-## Quick Decision Tree
+## :material-sitemap-outline: Quick Decision Tree
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
@@ -60,7 +66,7 @@ flowchart TD
     style AUTH fill:#fff9c4
 ```
 
-## Common Issues
+## :material-alert-circle-outline: Common Issues
 
 ### 1. Agent Not Appearing in List
 

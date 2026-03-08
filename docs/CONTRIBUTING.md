@@ -1,4 +1,4 @@
-# Contributing to Agentic InfraOps
+# :material-heart-outline: Contributing to Agentic InfraOps
 
 Thank you for your interest in contributing! Agentic InfraOps revolutionizes how IT Pros build
 Azure environments through coordinated AI agents.

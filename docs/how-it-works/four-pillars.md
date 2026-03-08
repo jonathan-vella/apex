@@ -2,12 +2,12 @@
 toc_depth: 3
 ---
 
-# The Four Pillars
+# :material-pillar: The Four Pillars
 
 The system's knowledge architecture is built on four distinct layers, each serving
 a specific purpose in the agent's context window.
 
-## 1. Agents
+## :material-robot-outline: 1. Agents
 
 **What they are**: Agent definitions (`.agent.md` files) define a specialised AI persona
 with a specific role, allowed tools, handoff targets, and a body of instructions.
@@ -21,7 +21,12 @@ invokes an agent in VS Code Copilot Chat, the entire body becomes part of the sy
 **Key constraint**: Agent bodies are limited to 350 lines to preserve context window space.
 Heavy knowledge is externalised into skills and loaded on demand.
 
-## 2. Skills
+!!! info "Context Budget"
+
+    Every token counts. Agent bodies stay under 350 lines; deep knowledge lives in
+    skills and is loaded progressively only when needed.
+
+## :material-book-open-variant: 2. Skills
 
 **What they are**: Reusable domain knowledge packages that agents load when they need
 specialised context.
@@ -36,7 +41,7 @@ reference material is stored in subdirectories, loaded only when the agent's tas
 **Key constraint**: Skills implement progressive disclosure — agents start with the overview
 and drill into `references/` only when needed.
 
-## 3. Instructions
+## :material-file-document-outline: 3. Instructions
 
 **What they are**: Enforcement rules that apply automatically based on file type. Unlike
 skills (which must be explicitly read), instructions are injected into context whenever
@@ -53,7 +58,7 @@ suffix conventions.
 **Key constraint**: Instruction files are limited to 150 lines and use narrow glob patterns.
 `applyTo: "**"` is reserved for truly universal rules only.
 
-## 4. Configuration Registries
+## :material-database-cog-outline: 4. Configuration Registries
 
 **What they are**: Machine-readable JSON files that provide runtime configuration for
 the agent system.

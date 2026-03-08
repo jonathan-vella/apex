@@ -1,5 +1,11 @@
 <!-- MkDocs landing page — source of truth is this file -->
 
+<div align="center">
+  <img src="assets/images/hero-home.jpg"
+    width="100%" height="300" style="object-fit: cover; border-radius: 10px;"
+    alt="Azure cloud infrastructure visualization"/>
+</div>
+
 # Agentic InfraOps
 
 ![Version](https://img.shields.io/badge/version-0.10.0-blue)
@@ -17,7 +23,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 
 ---
 
-## Explore the Documentation
+## :material-compass-outline: Explore the Documentation
 
 <div class="grid cards" markdown>
 
@@ -89,7 +95,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 
 ---
 
-## Key Facts
+## :material-chart-box-outline: Key Facts
 
 |                 |                                                    |
 | --------------- | -------------------------------------------------- |
@@ -99,7 +105,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 | **MCP Servers** | Azure, Pricing, Terraform, GitHub, Microsoft Learn |
 | **Workflow**    | 7 steps with mandatory approval gates              |
 
-## Highlights
+## :material-star-outline: Highlights
 
 See the [Changelog](CHANGELOG.md) for the full release history.
 
@@ -108,7 +114,7 @@ See the [Changelog](CHANGELOG.md) for the full release history.
 
 ---
 
-## Getting Help
+## :material-lifebuoy: Getting Help
 
 - **Issues**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)

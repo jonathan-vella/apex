@@ -2,14 +2,19 @@
 toc_depth: 2
 ---
 
-# Workflow Prompts
+# :material-format-list-numbered: Workflow Prompts
 
 The Agentic InfraOps workflow follows seven steps. Use the **InfraOps Conductor** to
 run all steps end-to-end, or invoke individual agents directly.
 
-## End-to-End (Conductor)
+## :material-play-circle: End-to-End (Conductor)
 
 Select the **InfraOps Conductor** agent in Copilot Chat, then describe your project:
+
+!!! tip "Best Results"
+
+    Include business context, team size, compliance needs, and expected scale
+    in your initial prompt. The more context you provide, the better the output.
 
 ```text
 I need Azure infrastructure for a patient portal web application.
@@ -24,7 +29,7 @@ Resume the workflow from where we left off. Check agent-output/patient-portal/
 for existing artifacts.
 ```
 
-## Step 1: Requirements — 📜 Scribe
+## :material-clipboard-text-outline: Step 1: Requirements — 📜 Scribe
 
 Select the **Requirements** agent. Start with business context, not technical specs.
 
@@ -44,7 +49,7 @@ The agent guides you through 5 discovery phases (business, technical, compliance
 operational, budget) using interactive questions, then generates
 `agent-output/{project}/01-requirements.md`.
 
-## Step 2: Architecture — 🏛️ Oracle
+## :material-pillar: Step 2: Architecture — 🏛️ Oracle
 
 Select the **Architect** agent. It reads the requirements and produces a WAF
 assessment with cost estimates.
@@ -64,7 +69,7 @@ Deep dive into the Security pillar. Our CISO wants to know
 specifically how we handle data encryption at rest and in transit.
 ```
 
-## Step 3: Design — 🎨 Artisan (Optional)
+## :material-palette-outline: Step 3: Design — 🎨 Artisan (Optional)
 
 Select the **Design** agent. This step is optional — skip to Step 4 if you
 do not need diagrams or ADRs.
@@ -91,7 +96,7 @@ Generate a detailed cost estimate using Azure Pricing MCP tools.
 Include monthly and yearly totals for each resource.
 ```
 
-## Step 4: Planning — 📐 Strategist
+## :material-map-outline: Step 4: Planning — 📐 Strategist
 
 Select the **Bicep Planner** or **Terraform Planner** agent depending on your
 IaC tool preference. Both discover governance constraints and create a
@@ -120,7 +125,7 @@ The agent runs governance discovery (Azure Policy via REST API), checks AVM modu
 availability, then asks you to choose a deployment strategy (phased vs. single)
 before generating `04-implementation-plan.md`.
 
-## Step 5: Implementation — ⚒️ Forge
+## :material-hammer-wrench: Step 5: Implementation — ⚒️ Forge
 
 Select the **Bicep CodeGen** or **Terraform CodeGen** agent. It reads the plan
 and generates production-ready templates.
@@ -150,7 +155,7 @@ The agent runs a preflight check, generates templates with AVM modules, applies
 security baseline and required tags, then validates with the appropriate tool
 (`bicep build` / `terraform validate`).
 
-## Step 6: Deployment — 🚀 Envoy
+## :material-rocket-launch-outline: Step 6: Deployment — 🚀 Envoy
 
 Select the **Bicep Deploy** or **Terraform Deploy** agent. Both run preflight
 validation, preview changes, and deploy with approval gates.
@@ -180,7 +185,7 @@ The agent always presents a change summary (what-if or plan output) and waits fo
 your explicit approval before deploying. For phased deployments, it pauses between
 each phase.
 
-## Step 7: Documentation — 📚 Chronicler
+## :material-book-open-page-variant-outline: Step 7: Documentation — 📚 Chronicler
 
 After deployment, the **As-Built** agent generates comprehensive workload
 documentation:
@@ -194,7 +199,7 @@ This produces documentation files in `agent-output/{project}/07-*.md`:
 design document, operations runbook, cost estimate, compliance matrix,
 backup/DR plan, and resource inventory.
 
-## Standalone Agents
+## :material-account-star-outline: Standalone Agents
 
 ### InfraOps Conductor — 🎼 Maestro
 

@@ -2,11 +2,17 @@
 toc_depth: 2
 ---
 
-# Agent and Skill Workflow
+<div align="center">
+  <img src="assets/images/hero-workflow.jpg"
+    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
+    alt="Collaborative technology workspace"/>
+</div>
+
+# :material-chart-timeline-variant: Agent and Skill Workflow
 
 The 7-step infrastructure development workflow.
 
-## Overview
+## :material-eye-outline: Overview
 
 Agentic InfraOps uses a multi-agent orchestration system where specialized AI agents coordinate
 through artifact handoffs to transform Azure infrastructure requirements into deployed infrastructure
@@ -17,6 +23,11 @@ and deployment (steps 4-6) before converging again for documentation (step 7).
 The **InfraOps Conductor** (🎼 Maestro) orchestrates the complete workflow, routing to
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
 while enforcing mandatory approval gates.
+
+!!! tip "Quick Start"
+
+    Press ++ctrl+shift+i++ to open Copilot Chat, select **InfraOps Conductor**, and
+    describe your project. The Conductor handles all 7 steps with approval gates.
 
 ### Formalized Workflow Engine
 
@@ -31,7 +42,7 @@ graph instead of relying on hardcoded step logic:
 
 The Conductor resolves agent paths and models via `.github/agent-registry.json`.
 
-## Agent Architecture
+## :material-robot-outline: Agent Architecture
 
 ### The Conductor Pattern
 
@@ -116,7 +127,7 @@ graph TB
     style DOCS fill:#e3f2fd
 ```
 
-## Agent Roster
+## :material-account-group-outline: Agent Roster
 
 ### Primary Orchestrator
 
@@ -166,9 +177,14 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges requirements, architecture, and plans |
 | `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                          |
 
-## Approval Gates
+## :material-shield-lock-outline: Approval Gates
 
 The Conductor enforces mandatory pause points for human oversight:
+
+!!! warning "Never Skip Gates"
+
+    Gates are non-negotiable. Skipping approval gates can lead to deploying
+    infrastructure that violates governance policies or security baselines.
 
 | Gate       | After Step            | User Action                         |
 | ---------- | --------------------- | ----------------------------------- |
@@ -178,7 +194,7 @@ The Conductor enforces mandatory pause points for human oversight:
 | **Gate 4** | Pre-Deploy (Step 5)   | Approve lint/what-if/review results |
 | **Gate 5** | Post-Deploy (Step 6)  | Verify deployment                   |
 
-## Workflow Steps
+## :material-list-status: Workflow Steps
 
 ### Step 1: Requirements (📜 Scribe)
 

@@ -2,9 +2,9 @@
 toc_depth: 3
 ---
 
-# Workflow Engine and Quality Systems
+# :material-cog: Workflow Engine and Quality Systems
 
-## Workflow Engine
+## :material-engine-outline: Workflow Engine
 
 <div align="center"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop"
   height="250" style="object-fit: cover; border-radius: 8px;"
@@ -96,11 +96,11 @@ The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 {
   "schema_version": "2.0",
   "project": "my-project",
-  "current_step": 2,
+  "current_step": 2, // (1)!
   "lock": {
-    "owner_id": "copilot-session-abc123",
+    "owner_id": "copilot-session-abc123", // (2)!
     "heartbeat": "2026-03-04T10:15:00Z",
-    "attempt_token": "550e8400-e29b-41d4-a716-446655440000"
+    "attempt_token": "550e8400-e29b-41d4-a716-446655440000" // (3)!
   },
   "steps": {
     "2": {
@@ -118,10 +118,14 @@ The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 }
 ```
 
+1. :material-counter: Tracks which step is active — the Conductor uses this for resume
+2. :material-lock: Claim-based locking prevents concurrent sessions from corrupting state
+3. :material-fingerprint: Unique token per attempt — stale heartbeats are auto-recovered
+
 The claim model prevents concurrent sessions from corrupting state. Stale heartbeats
 (older than `stale_threshold_ms`, default 5 minutes) are automatically recovered.
 
-## Quality and Safety Systems
+## :material-shield-check-outline: Quality and Safety Systems
 
 ### 27 Validation Scripts
 
@@ -161,6 +165,11 @@ script categorises changed files and runs only matching validators:
 - `*.py` → Ruff lint
 
 ### Circuit Breaker
+
+!!! danger "Automatic Safety Net"
+
+    The circuit breaker halts runaway agent loops before they cause damage.
+    If you see a `blocked` finding, investigate before retrying.
 
 The circuit breaker pattern protects against runaway agent loops during deployment:
 

@@ -2,7 +2,13 @@
 toc_depth: 2
 ---
 
-# Prompt Guide
+<div align="center">
+  <img src="../assets/images/hero-prompt-guide.jpg"
+    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
+    alt="Digital code matrix visualization"/>
+</div>
+
+# :material-console: Prompt Guide
 
 Best-practices prompt examples for all Agentic InfraOps agents and skills.
 

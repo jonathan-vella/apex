@@ -1,8 +1,14 @@
-# Quickstart
+<div align="center">
+  <img src="assets/images/hero-quickstart.jpg"
+    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
+    alt="Getting started with development tools"/>
+</div>
+
+# :material-rocket-launch-outline: Quickstart
 
 Get running in 10 minutes.
 
-## Prerequisites
+## :material-clipboard-check-outline: Prerequisites
 
 !!! info "What you need before starting"
 
@@ -17,14 +23,14 @@ Get running in 10 minutes.
 | Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
 | Azure subscription     | Optional for learning                                       |
 
-## Step 1: Clone and Open
+## :material-content-copy: Step 1: Clone and Open
 
 ```bash
 git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
 code azure-agentic-infraops
 ```
 
-## Step 2: Open in Dev Container
+## :material-docker: Step 2: Open in Dev Container
 
 1. Press `F1` (or `Ctrl+Shift+P`)
 2. Type: `Dev Containers: Reopen in Container`
@@ -39,17 +45,19 @@ The Dev Container installs all tools automatically:
 - Go (Terraform MCP server)
 - 25+ VS Code extensions
 
-## Step 3: Verify Setup
+## :material-check-circle-outline: Step 3: Verify Setup
 
 !!! tip "Verify all tools installed correctly"
 
     Run this command to confirm the dev container has all required CLIs:
 
 ```bash
-az --version && bicep --version && terraform --version && pwsh --version
+az --version && bicep --version && terraform --version && pwsh --version # (1)!
 ```
 
-## Step 4: Enable Subagent Orchestration
+1. :material-check-all: All four CLIs should print version numbers. If any fail, reopen the dev container.
+
+## :material-toggle-switch-outline: Step 4: Enable Subagent Orchestration
 
 !!! warning "Required"
 
@@ -59,9 +67,12 @@ Add this to your **VS Code User Settings** (`Ctrl+,` → Settings JSON):
 
 ```json
 {
-  "chat.customAgentInSubagent.enabled": true
+  "chat.customAgentInSubagent.enabled": true // (1)!
 }
 ```
+
+1. :material-information-outline: This must be in **User Settings**, not Workspace Settings.
+   Experimental features require user-level configuration.
 
 **Why User Settings?** Workspace settings exist in `.vscode/settings.json`, but user settings
 take precedence for experimental features like subagent invocation.
@@ -72,7 +83,7 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-## Step 5: Start the Conductor
+## :material-play-circle-outline: Step 5: Start the Conductor
 
 ### Option A: InfraOps Conductor (Recommended)
 
@@ -102,7 +113,7 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-## Step 6: Follow the Workflow
+## :material-chart-timeline-variant: Step 6: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection.
@@ -125,7 +136,7 @@ steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` se
 - ⛔ **Gate 4**: After validation (Step 5) — approve preflight results
 - ⛔ **Gate 5**: After deployment (Step 6) — verify resources
 
-## What You've Created
+## :material-folder-check-outline: What You've Created
 
 After completing the workflow:
 
@@ -164,7 +175,7 @@ infra/terraform/my-webapp/
     └── key-vault/
 ```
 
-## Next Steps
+## :material-arrow-right-circle-outline: Next Steps
 
 | Goal                           | Resource                                 |
 | ------------------------------ | ---------------------------------------- |
@@ -175,7 +186,7 @@ infra/terraform/my-webapp/
 | Explore Terraform patterns     | Use `terraform-patterns` skill           |
 | Troubleshoot issues            | [troubleshooting.md](troubleshooting.md) |
 
-## Quick Reference
+## :material-lightning-bolt: Quick Reference
 
 ### Conductor (Orchestrated Workflow)
 

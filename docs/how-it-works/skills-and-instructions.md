@@ -2,9 +2,9 @@
 toc_depth: 3
 ---
 
-# Skills and Instructions
+# :material-book-cog-outline: Skills and Instructions
 
-## Skills System
+## :material-bookshelf: Skills System
 
 ### Skill Structure
 
@@ -48,7 +48,7 @@ The system contains 20 skills across several domains:
 | GitHub Operations    | `github-operations`, `git-commit`                                                      |
 | Meta / Tooling       | `make-skill-template`, `context-optimizer`                                             |
 
-## Instruction System
+## :material-file-cog-outline: Instruction System
 
 ### Glob-Based Auto-Application
 
@@ -69,6 +69,11 @@ when each instruction activates:
 | `no-heredoc`                    | `**`                         | Prevents terminal heredoc corruption |
 
 ### Enforcement Over Documentation
+
+!!! quote "Golden Principle"
+
+    Mechanical enforcement over documentation — if it can be a linter check, it
+    should be one. Documentation is for humans; machines enforce rules.
 
 Following the Golden Principle "Mechanical Enforcement Over Documentation," every
 instruction has a corresponding validation script. The rule is: if it can be a linter

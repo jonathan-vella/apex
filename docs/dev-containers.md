@@ -1,4 +1,4 @@
-# Dev Containers Setup Guide
+# :material-docker: Dev Containers Setup Guide
 
 > Complete guide for the VS Code Dev Container environment
 

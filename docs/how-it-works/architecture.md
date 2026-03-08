@@ -2,9 +2,9 @@
 toc_depth: 3
 ---
 
-# System Architecture Overview
+# :material-transit-connection-variant: System Architecture Overview
 
-## The 7-Step Workflow
+## :material-format-list-numbered: The 7-Step Workflow
 
 The system follows a strict sequential workflow with mandatory human approval gates
 between critical phases:
@@ -58,7 +58,7 @@ flowchart LR
 | 6    | Deploy       | 07b-Bicep Deploy / 07t-TF Deploy   | `06-deployment-summary.md`               | 1 pass            |
 | 7    | As-Built     | 08-As-Built                        | `07-*.md` documentation suite            | —                 |
 
-## The Conductor Pattern
+## :material-music: The Conductor Pattern
 
 <div align="center"><img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop"
   height="200" style="object-fit: cover; border-radius: 8px;"
@@ -77,7 +77,7 @@ generate infrastructure code or documentation itself. Instead, it:
 The Conductor never touches infrastructure templates. It is a pure orchestrator and
 state machine.
 
-## Dual IaC Tracks
+## :material-source-fork: Dual IaC Tracks
 
 <div align="center"><img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop"
   height="200" style="object-fit: cover; border-radius: 8px;"

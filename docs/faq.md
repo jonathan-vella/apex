@@ -1,4 +1,4 @@
-# FAQ
+# :material-frequently-asked-questions: FAQ
 
 Frequently asked questions about Agentic InfraOps.
 

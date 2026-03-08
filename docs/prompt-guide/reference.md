@@ -2,9 +2,9 @@
 toc_depth: 2
 ---
 
-# Skill and Subagent Reference
+# :material-bookshelf: Skill and Subagent Reference
 
-## Skills
+## :material-book-open-variant: Skills
 
 Skills are invoked automatically by agents, but you can also reference them
 directly in prompts.
@@ -118,7 +118,7 @@ API calls by querying official documentation.
 method for listing Key Vault secrets in Python.
 ```
 
-## Subagents
+## :material-robot-outline: Subagents
 
 Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
 **Bicep Deploy**, **Terraform Deploy**, **Architect**, and **IaC Planner** agents.
@@ -170,9 +170,15 @@ Queries Azure Policy assignments via REST API (including management group-
 inherited policies). Classifies policy effects and returns structured governance
 constraints.
 
-## Tips and Patterns
+## :material-lightbulb-group-outline: Tips and Patterns
 
 ### Context Priming
+
+!!! tip "Open Files Before Prompting"
+
+    Open relevant artifact files before starting a complex workflow step.
+    Copilot uses open files as context, giving agents better awareness of
+    your project state.
 
 Before starting a complex workflow, open relevant files so Copilot has context:
 
@@ -227,7 +233,7 @@ Review the existing Bicep templates in infra/bicep/legacy-app/
 and suggest improvements for WAF alignment.
 ```
 
-## References
+## :material-link-variant: References
 
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
 - [Prompt Engineering for Copilot Chat](https://docs.github.com/en/copilot/using-github-copilot/copilot-chat/prompt-engineering-for-copilot-chat)

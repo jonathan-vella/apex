@@ -2,9 +2,9 @@
 toc_depth: 2
 ---
 
-# Prompting Best Practices
+# :material-lightbulb-on-outline: Prompting Best Practices
 
-## Choose the Right Interface
+## :material-cursor-default-click-outline: Choose the Right Interface
 
 | Interface                    | Best For                                                    |
 | ---------------------------- | ----------------------------------------------------------- |
@@ -12,7 +12,7 @@ toc_depth: 2
 | **Copilot Chat**             | Questions, generating larger sections, debugging            |
 | **Agentic InfraOps Agents**  | Multi-step workflows, end-to-end projects                   |
 
-## Break Down Complex Tasks
+## :material-puzzle-outline: Break Down Complex Tasks
 
 Do not ask for an entire landing zone in one prompt. Start small and iterate.
 
@@ -26,7 +26,7 @@ Do not ask for an entire landing zone in one prompt. Start small and iterate.
    - NSG on SharedServicesSubnet with deny-all default
 ```
 
-## Be Specific About Requirements
+## :material-target: Be Specific About Requirements
 
 ```text
 ❌ Create a storage account
@@ -44,7 +44,7 @@ Do not ask for an entire landing zone in one prompt. Start small and iterate.
    - Soft delete: 30 days
 ```
 
-## Provide Context in Your Prompts
+## :material-text-box-search-outline: Provide Context in Your Prompts
 
 Include target environment, compliance requirements, naming conventions,
 and region in every prompt:
@@ -65,7 +65,7 @@ Requirements:
 - 35-day backup retention
 ```
 
-## Use Chat Variables
+## :material-variable: Use Chat Variables
 
 | Variable               | Purpose                 | Example                                    |
 | ---------------------- | ----------------------- | ------------------------------------------ |
@@ -74,7 +74,7 @@ Requirements:
 | `#selection`           | Current selection       | Select code, then ask about it             |
 | `#terminalLastCommand` | Last terminal output    | `#terminalLastCommand Why did this fail?`  |
 
-## Prompt Patterns
+## :material-shape-outline: Prompt Patterns
 
 !!! example "Effective prompt structures"
 
@@ -117,7 +117,7 @@ Prompt 3: Add diagnostic settings for all NSG flow logs
 Prompt 4: Make the address space configurable via parameters
 ```
 
-## Anti-Patterns to Avoid
+## :material-close-octagon-outline: Anti-Patterns to Avoid
 
 !!! warning "Common mistakes that reduce output quality"
 
@@ -131,7 +131,7 @@ Prompt 4: Make the address space configurable via parameters
 | One-shot complex prompts | Incomplete output       | Iterate with follow-ups               |
 | Not providing examples   | Inconsistent formatting | Show the pattern you want             |
 
-## Always Validate AI Output
+## :material-check-decagram-outline: Always Validate AI Output
 
 | Check                                               | Why                          |
 | --------------------------------------------------- | ---------------------------- |

@@ -8,11 +8,11 @@ toc_depth: 2
     alt="Agentic InfraOps Banner"/>
 </div>
 
-# How Agentic InfraOps Works
+# :material-cog-outline: How Agentic InfraOps Works
 
 > A comprehensive guide to the multi-agent orchestration system for Azure infrastructure development.
 
-## Executive Summary
+## :material-text-box-outline: Executive Summary
 
 Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
 through a structured 7-step workflow to transform Azure infrastructure requirements into deployed,
@@ -79,7 +79,7 @@ operator control at every critical decision point.
 
 </div>
 
-## Intellectual Foundations
+## :material-lightbulb-outline: Intellectual Foundations
 
 This project draws directly from two bodies of work that define how autonomous AI agents
 can operate reliably in professional software engineering contexts.
@@ -249,7 +249,7 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time         |
 | Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews          |
 
-## Golden Principles
+## :material-medal-outline: Golden Principles
 
 The system operates under 10 principles adapted from the Harness Engineering philosophy:
 
@@ -264,7 +264,7 @@ The system operates under 10 principles adapted from the Harness Engineering phi
 9. **Progressive Disclosure** — Start small, drill deeper when needed
 10. **Mechanical Enforcement Over Documentation** — Linters and validators over prose
 
-## References
+## :material-link-variant: References
 
 - **Harness Engineering**: [openai.com/index/harness-engineering](https://openai.com/index/harness-engineering/)
   — OpenAI's account of building a product with zero manually-written code

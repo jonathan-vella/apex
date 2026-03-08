@@ -2,9 +2,9 @@
 toc_depth: 3
 ---
 
-# Agent Architecture
+# :material-robot: Agent Architecture
 
-## Agent Anatomy
+## :material-card-account-details-outline: Agent Anatomy
 
 Every agent definition follows a standard structure:
 
@@ -13,33 +13,28 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["Claude Opus 4.6"]
-tools: [list of allowed tools]
+model: ["Claude Opus 4.6"] # (1)!
+tools: [list of allowed tools] # (2)!
 handoffs:
   - label: "Step 6: Deploy"
-    agent: 07b-Bicep Deploy
+    agent: 07b-Bicep Deploy # (3)!
     prompt: "Deploy the Bicep templates..."
 ---
 # Body (≤ 350 lines)
 ## MANDATORY: Read Skills First
-1. **Read** `.github/skills/azure-defaults/SKILL.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.md` # (4)!
 2. **Read** `.github/skills/azure-artifacts/SKILL.md`
-...
-## Session Resume Protocol
-...
-## DO / DON'T
-...
-## Phased Workflow
-Phase 1: Prerequisites check
-Phase 2: Code generation
-Phase 3: Validation
-...
 ```
+
+1. :material-brain: Model selection — the Conductor can override this based on task complexity
+2. :material-tools: Tool allowlist — agents only access tools they need
+3. :material-swap-horizontal: Handoff target — the next agent in the workflow
+4. :material-book-open-variant: Skills are loaded on demand to preserve context budget
 
 The frontmatter is machine-readable metadata. The body is the agent's operating manual,
 loaded into the system prompt when the agent is invoked.
 
-## Top-Level Agents (14)
+## :material-account-supervisor-outline: Top-Level Agents (14)
 
 | Agent                    | Role                                  | Primary Skills                  |
 | ------------------------ | ------------------------------------- | ------------------------------- |
@@ -59,7 +54,7 @@ loaded into the system prompt when the agent is invoked.
 | 10-Challenger            | Standalone adversarial review         | —                               |
 | 11-Context Optimizer     | Context window audit and optimisation | context-optimizer               |
 
-## Subagents (9)
+## :material-account-cog-outline: Subagents (9)
 
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
@@ -76,7 +71,12 @@ specific tasks:
 | terraform-review-subagent     | Code review against AVM-TF standards   | Step 5 (Terraform)  |
 | terraform-plan-subagent       | `terraform plan` preview               | Step 6 (Terraform)  |
 
-## The Challenger Pattern
+## :material-sword-cross: The Challenger Pattern
+
+!!! abstract "Adversarial Review"
+
+    The Challenger finds what everyone else missed — untested assumptions,
+    governance gaps, WAF blind spots, and architectural weaknesses.
 
 The `challenger-review-subagent` implements adversarial review at critical workflow steps.
 It operates with rotating lenses:
@@ -90,7 +90,7 @@ It operates with rotating lenses:
 Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Only
 `must_fix` findings block workflow progression.
 
-## Handoffs and Delegation
+## :material-swap-horizontal: Handoffs and Delegation
 
 Agents communicate through artefact files, not direct message passing. The Conductor
 delegates to a step agent, which produces output files in `agent-output/{project}/`.

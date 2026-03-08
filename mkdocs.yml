@@ -8,8 +8,9 @@ copyright: "&copy; 2025 Jonathan Vella. Distributed under the MIT License."
 
 theme:
   name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
   icon:
-    logo: material/robot-outline
     repo: fontawesome/brands/github
   palette:
     - scheme: default

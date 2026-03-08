@@ -1,4 +1,4 @@
-# Changelog
+# :material-history: Changelog
 
 All notable changes to **Agentic InfraOps** are documented in this file.
 

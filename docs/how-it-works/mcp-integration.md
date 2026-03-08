@@ -2,14 +2,14 @@
 toc_depth: 3
 ---
 
-# MCP Server Integration
+# :material-connection: MCP Server Integration
 
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
 This project integrates five MCP servers, each providing specialised
 capabilities that agents invoke at runtime.
 
-## MCP Architecture
+## :material-lan: MCP Architecture
 
 All MCP servers are declared in `.vscode/mcp.json` and start automatically
 when VS Code invokes them. Agents never call cloud APIs directly — they
@@ -51,7 +51,7 @@ flowchart LR
     M5 --> T["Terraform Registry"]
 ```
 
-## GitHub MCP Server
+## :octicons-mark-github-16: GitHub MCP Server
 
 | Property  | Value                                         |
 | --------- | --------------------------------------------- |
@@ -65,7 +65,7 @@ Agents use it to create issues, open pull requests, search code, read file
 contents, manage branches, and automate the Smart PR Flow lifecycle. It is
 scoped as a default server — every agent has access.
 
-## Microsoft Learn MCP Server
+## :material-school-outline: Microsoft Learn MCP Server
 
 | Property  | Value                                    |
 | --------- | ---------------------------------------- |
@@ -81,7 +81,7 @@ practices. The `microsoft-docs` and `microsoft-code-reference` skills
 are built on top of this server. It is scoped as a default server alongside
 GitHub.
 
-## Azure MCP Server
+## :material-microsoft-azure: Azure MCP Server
 
 | Property  | Value                                        |
 | --------- | -------------------------------------------- |
@@ -107,7 +107,7 @@ Installation follows the [Azure MCP Server README](https://github.com/microsoft/
 and is pre-configured in the dev container via the
 `ms-azuretools.vscode-azure-mcp-server` extension.
 
-## Azure Pricing MCP Server
+## :material-currency-usd: Azure Pricing MCP Server
 
 | Property  | Value                                                 |
 | --------- | ----------------------------------------------------- |
@@ -145,7 +145,7 @@ codes for consistent agent error handling.
 Primarily scoped to the **Architect** agent (Step 2), the
 **cost-estimate-subagent**, and the **As-Built** agent (Step 7).
 
-## Terraform Registry MCP Server
+## :material-terraform: Terraform Registry MCP Server
 
 | Property  | Value                                     |
 | --------- | ----------------------------------------- |
@@ -163,7 +163,7 @@ Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
 CodeGen** (Step 5t), **terraform-lint-subagent**, and
 **terraform-review-subagent**.
 
-## File Map
+## :material-file-tree-outline: File Map
 
 ```text
 AGENTS.md                                    # Table of contents for all agents
