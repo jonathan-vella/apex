@@ -111,11 +111,11 @@
     "7": {
       "name": "Enable GitHub Pages",
       "description": "Configure repo settings: Pages source = gh-pages branch, verify site loads",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
+      "status": "in_progress",
+      "sub_step": "PR #208 created — awaiting merge, then manual Pages enablement",
+      "started": "2026-03-08T14:30:00Z",
       "completed": null,
-      "artifacts": [],
+      "artifacts": ["https://github.com/jonathan-vella/azure-agentic-infraops/pull/208"],
       "prompt": ".github/prompts/ghpages-step7-enable.prompt.md"
     }
   }
