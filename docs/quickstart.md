@@ -1,4 +1,3 @@
-
 # Quickstart
 
 > [Current Version](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) | Get running in 10 minutes
@@ -13,14 +12,12 @@
 | Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
 | Azure subscription     | Optional for learning                                       |
 
-
 ## Step 1: Clone and Open
 
 ```bash
 git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
 code azure-agentic-infraops
 ```
-
 
 ## Step 2: Open in Dev Container
 
@@ -37,13 +34,11 @@ The Dev Container installs all tools automatically:
 - Go (Terraform MCP server)
 - 25+ VS Code extensions
 
-
 ## Step 3: Verify Setup
 
 ```bash
 az --version && bicep --version && terraform --version && pwsh --version
 ```
-
 
 ## Step 4: Enable Subagent Orchestration
 
@@ -67,7 +62,6 @@ take precedence for experimental features like subagent invocation.
 1. Open Command Palette (`Ctrl+Shift+P`)
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
-
 
 ## Step 5: Start the Conductor
 
@@ -99,7 +93,6 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-
 ## Step 6: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3 and 7 are shared;
@@ -122,7 +115,6 @@ steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` se
 - ⛔ **Gate 3**: After planning (Step 4) — approve implementation plan
 - ⛔ **Gate 4**: After validation (Step 5) — approve preflight results
 - ⛔ **Gate 5**: After deployment (Step 6) — verify resources
-
 
 ## What You've Created
 
@@ -163,18 +155,16 @@ infra/terraform/my-webapp/
     └── key-vault/
 ```
 
-
 ## Next Steps
 
 | Goal                           | Resource                                 |
 | ------------------------------ | ---------------------------------------- |
 | Understand the full workflow   | [workflow.md](workflow.md)               |
-| Try a complete workflow        | [Prompt Guide](prompt-guide/index.md)            |
+| Try a complete workflow        | [Prompt Guide](prompt-guide/index.md)    |
 | Generate architecture diagrams | Use `azure-diagrams` skill               |
 | Create documentation           | Use `azure-artifacts` skill              |
 | Explore Terraform patterns     | Use `terraform-patterns` skill           |
 | Troubleshoot issues            | [troubleshooting.md](troubleshooting.md) |
-
 
 ## Quick Reference
 
@@ -204,7 +194,6 @@ Or invoke explicitly:
 Use the azure-diagrams skill to create a diagram for my-webapp
 ```
 
-
 ## Agent Personas
 
 | Agent                             | Persona       | Role                    |
@@ -219,4 +208,3 @@ Use the azure-diagrams skill to create a diagram for my-webapp
 | as-built                          | 📚 Archivist  | Documentation suite     |
 | challenger                        | ⚔️ Challenger | Adversarial review      |
 | diagnose                          | 🔍 Sentinel   | Troubleshooting         |
-

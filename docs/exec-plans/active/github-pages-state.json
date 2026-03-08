@@ -95,10 +95,7 @@
       "sub_step": null,
       "started": "2026-03-08T13:45:00Z",
       "completed": "2026-03-08T13:50:00Z",
-      "artifacts": [
-        ".github/workflows/docs.yml",
-        ".gitignore"
-      ],
+      "artifacts": [".github/workflows/docs.yml", ".gitignore"],
       "prompt": ".github/prompts/ghpages-step5-workflow.prompt.md"
     },
     "6": {
