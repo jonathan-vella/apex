@@ -78,6 +78,9 @@ freshness-report.json
 # Baseline snapshots (local working data for context optimizer)
 agent-output/_baselines/
 
+# MkDocs build output (deployed via gh-pages branch, not committed to main)
+site/
+
 # Terraform
 *.tfstate
 *.tfstate.backup
