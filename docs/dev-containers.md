@@ -91,10 +91,16 @@ Or install from Extensions (`Ctrl+Shift+X`) → search "Dev Containers".
 ### Step 3: Open in Dev Container
 
 ```bash
-git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
-cd azure-agentic-infraops
+git clone https://github.com/YOUR-USERNAME/my-infraops-project.git
+cd my-infraops-project
 code .
 ```
+
+!!! info "Use the template repository"
+
+    Do not clone this upstream project directly. Create your own repo from the
+    [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+    first. See the [Quickstart](quickstart.md) for the full setup flow.
 
 Press `F1` → **Dev Containers: Reopen in Container**
 

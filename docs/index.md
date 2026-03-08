@@ -19,7 +19,7 @@ Framework and Azure Verified Modules.
 accelerate Azure infrastructure delivery with AI-assisted workflows.
 
 [Get Started](quickstart.md){ .md-button .md-button--primary }
-[View on GitHub](https://github.com/jonathan-vella/azure-agentic-infraops){ .md-button }
+[Use the Template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator){ .md-button }
 
 ---
 
@@ -31,7 +31,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 
   ***
 
-  Set up your dev container and run your first agent workflow in 10 minutes.
+  Set up from the Accelerator template and run your first agent workflow in 10 minutes.
 
   [:octicons-arrow-right-24: Quickstart](quickstart.md)
 
@@ -119,3 +119,5 @@ See the [Changelog](CHANGELOG.md) for the full release history.
 - **Issues**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
 - **Troubleshooting**: [Troubleshooting Guide](troubleshooting.md)
+- **MicroHack**: [Hands-on guided challenge](https://jonathan-vella.github.io/microhack-agentic-infraops/)
+  — build Azure infrastructure end-to-end using AI agents

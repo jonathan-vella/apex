@@ -98,12 +98,16 @@ See [Objection Handling Guide](objection-handling.md) for complete responses wit
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
-## 📋 Workshop Delivery
+## 📋 MicroHack Delivery
 
 ### Preparation Checklists
 
-- [Workshop Checklist](workshop-checklist.md) - Complete preparation guide for hands-on workshops
+- [MicroHack Checklist](workshop-checklist.md) - Complete preparation guide for hands-on sessions
 - [Pilot Success Checklist](pilot-success-checklist.md) - Customer pilot prerequisites
+
+🎯 **MicroHack site**: <https://jonathan-vella.github.io/microhack-agentic-infraops/> —
+a hands-on, guided challenge where participants build Azure infrastructure end-to-end
+using AI agents, from requirements to deployment.
 
 ### Interactive Materials
 
@@ -124,7 +128,7 @@ See [Objection Handling Guide](objection-handling.md) for complete responses wit
 | `pilot-success-checklist.md` | Customer pilot checklist      |
 | `roi-calculator.md`          | ROI calculation guide         |
 | `time-savings-evidence.md`   | Time savings methodology      |
-| `workshop-checklist.md`      | Workshop preparation          |
+| `workshop-checklist.md`      | MicroHack delivery preparation  |
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

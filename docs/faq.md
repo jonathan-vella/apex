@@ -6,6 +6,16 @@ Frequently asked questions about Agentic InfraOps.
 
 ## General
 
+??? question "How do I get started?"
+
+    Create your own repository from the
+    [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+    — click **"Use this template"** on GitHub, clone your new repo, and open it in the dev
+    container. See the [Quickstart](quickstart.md) for the step-by-step guide.
+
+    This upstream repository (`azure-agentic-infraops`) is the source project. The Accelerator
+    template is the recommended starting point for new users.
+
 ??? question "Is this project production-ready?"
 
     Agentic InfraOps is currently at **v0.10.0** (pre-1.0). It is suitable for
@@ -112,6 +122,13 @@ Frequently asked questions about Agentic InfraOps.
        which steps are complete, then continues from the next pending step.
 
     See the [Quickstart](quickstart.md) for the full getting-started flow.
+
+??? question "Is there a guided hands-on exercise?"
+
+    Yes — the [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/) is a
+    hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents,
+    from requirements to deployment. It includes structured exercises, guided prompts, and
+    reference solutions for each of the 7 workflow steps.
 
 ---
 
