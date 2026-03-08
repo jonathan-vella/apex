@@ -1,4 +1,3 @@
-
 # Dev Containers Setup Guide
 
 > Complete guide for the VS Code Dev Container environment
@@ -13,8 +12,13 @@ When you open this repository in a Dev Container:
 - Git credentials are shared from your host machine
 - The environment matches what other team members use
 
-
 ## System Requirements
+
+!!! warning "Docker Required"
+
+    A container runtime (Docker Desktop, Rancher Desktop, Colima, or Podman) must be running
+    before you open the dev container. See [Alternative Docker Options](#alternative-docker-options)
+    if Docker Desktop licensing does not suit your organization.
 
 ### Docker Options
 
@@ -42,40 +46,39 @@ When you open this repository in a Dev Container:
 | Docker                   | See above | Container runtime     |
 | Git                      | 2.30+     | Version control       |
 
-
 ## Installation Steps
 
 ### Step 1: Install Docker
 
-#### Windows (with WSL 2)
+=== "Windows (WSL 2)"
 
-```powershell
-# Install WSL 2 (if not already installed)
-wsl --install
+    ```powershell
+    # Install WSL 2 (if not already installed)
+    wsl --install
 
-# Then download and install Docker Desktop
-# https://www.docker.com/products/docker-desktop
+    # Then download and install Docker Desktop
+    # https://www.docker.com/products/docker-desktop
 
-# Enable WSL 2 backend in Docker Desktop settings
-```
+    # Enable WSL 2 backend in Docker Desktop settings
+    ```
 
-#### macOS
+=== "macOS"
 
-1. Download [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
-2. Start Docker Desktop from Applications
-3. Wait for "Docker Desktop is running"
+    1. Download [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
+    2. Start Docker Desktop from Applications
+    3. Wait for "Docker Desktop is running"
 
-#### Linux
+=== "Linux"
 
-```bash
-# Ubuntu/Debian
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-# Log out and back in for group changes
+    ```bash
+    # Ubuntu/Debian
+    curl -fsSL https://get.docker.com | sh
+    sudo usermod -aG docker $USER
+    # Log out and back in for group changes
 
-# Verify
-docker --version
-```
+    # Verify
+    docker --version
+    ```
 
 ### Step 2: Install VS Code Extension
 
@@ -99,15 +102,17 @@ First build takes 2-5 minutes. Subsequent opens are instant.
 
 ### Step 4: GitHub CLI Authentication (PAT)
 
-HTTPS-based `gh auth login` can fail inside devcontainers on some platforms (Windows, ARM, WSL 2).
+HTTPS-based `gh auth login` can fail inside dev containers on some platforms (Windows, ARM, WSL 2).
 The **only supported** approach is a **Personal Access Token (PAT)** set in **VS Code User Settings**.
 The container reads it automatically — no `gh auth login` required inside the container.
 
-> **Why not shell exports?** Setting `GH_TOKEN` in `~/.bashrc`, `~/.profile`, or PowerShell
-> environment variables does **not** propagate reliably into devcontainers. VS Code reads
-> `${localEnv:GH_TOKEN}` from its own process environment, which only inherits from the
-> specific shell session that launched it. The VS Code settings method is deterministic and
-> survives rebuilds, reboots, and IDE restarts.
+!!! info "Why not shell exports?"
+
+    Setting `GH_TOKEN` in `~/.bashrc`, `~/.profile`, or PowerShell environment variables
+    does **not** propagate reliably into dev containers. VS Code reads `${localEnv:GH_TOKEN}`
+    from its own process environment, which only inherits from the specific shell session
+    that launched it. The VS Code settings method is deterministic and survives rebuilds,
+    reboots, and IDE restarts.
 
 #### Create a Fine-Grained PAT
 
@@ -162,8 +167,13 @@ gh auth status
 az --version && bicep --version && pwsh --version
 ```
 
-
 ## Alternative Docker Options
+
+!!! tip "Alternative: Rancher Desktop"
+
+    If Docker Desktop licensing is a concern, [Rancher Desktop](https://rancherdesktop.io/)
+    is a free alternative that works with the VS Code Dev Containers extension.
+    Choose "dockerd (moby)" as the runtime.
 
 ### Rancher Desktop (Free Docker Desktop Alternative)
 
@@ -192,7 +202,6 @@ sudo apt install podman
 
 Configure VS Code: `"dev.containers.dockerPath": "podman"`
 
-
 ## What's Included
 
 The Dev Container includes:
@@ -209,7 +218,6 @@ The Dev Container includes:
 > **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, `markdownlint-cli2`,
 > `checkov`, `ruff`, and `diagrams` are refreshed automatically on every container start via `post-start.sh`.
 > Heavy tools (PowerShell modules, system packages) are installed once at build time.
-
 
 ## Troubleshooting
 
@@ -245,10 +253,8 @@ docker stop <container-id>
 # F1 → Developer: Reload Window
 ```
 
-
 ## References
 
 - [VS Code Dev Containers Documentation](https://code.visualstudio.com/docs/devcontainers/containers)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Rancher Desktop](https://rancherdesktop.io/)
-

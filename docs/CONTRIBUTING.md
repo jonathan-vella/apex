@@ -1,6 +1,3 @@
-<!-- Copied from repo root for MkDocs — keep in sync -->
-
-
 # Contributing to Agentic InfraOps
 
 Thank you for your interest in contributing! Agentic InfraOps revolutionizes how IT Pros build
@@ -9,9 +6,9 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](workflow.md)
+- [Agent and Skill Workflow](workflow.md)
 
-## 🎯 What We're Looking For
+## What We're Looking For
 
 ### High-Priority Contributions
 
@@ -30,7 +27,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Azure Verified Module usage examples (Bicep and AVM-TF)
    - Security and compliance guidance
 
-## 📋 Contribution Guidelines
+## Contribution Guidelines
 
 ### Before You Start
 
@@ -39,11 +36,15 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 
 ### Branching and PRs (Canonical)
 
+!!! warning "Protected main branch"
+
+    Direct pushes to `main` are blocked. All changes must go through a pull request
+    with passing status checks and at least one approval.
+
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](workflow.md)
-- Agent workflow details: [Agent Workflow Reference](workflow.md)
+- Workflow details: [Agent and Skill Workflow](workflow.md)
 
 ### Code Standards
 
@@ -90,8 +91,7 @@ npm run lint:links
 npm run lint:md:fix
 ```
 
-
-## 🚀 Contribution Process
+## Contribution Process
 
 ### 1. Fork & Clone
 
@@ -118,7 +118,7 @@ git checkout -b fix/issue-description
 
 For the full local-to-PR flow, see:
 
-- [Development Workflow Guide](workflow.md)
+- [Agent and Skill Workflow](workflow.md)
 
 ### 4. Commit & Push
 
@@ -130,11 +130,14 @@ git push origin feature/your-feature-name
 
 Note: commit message format is enforced by hooks and CI.
 
+## Commit Message Format (Required)
 
-## 📝 Commit Message Format (Required)
+!!! info "Enforced by commitlint"
+
+    Commit messages are validated automatically before each commit.
+    Non-conforming messages will be rejected with a helpful error.
 
 This repository uses [Conventional Commits](https://www.conventionalcommits.org/) with automated enforcement.
-Commit messages are validated by commitlint before each commit.
 
 ### Format
 
@@ -207,7 +210,7 @@ doesn't follow the format, you'll see a helpful error with examples.
 3. Fill out the PR template
 4. Link related issues
 
-## 📝 Pull Request Checklist
+## Pull Request Checklist
 
 Before submitting:
 
@@ -220,7 +223,7 @@ Before submitting:
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
 
-## 🤝 Community Standards
+## Community Standards
 
 ### Code of Conduct
 
@@ -234,10 +237,8 @@ Before submitting:
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
 
-## 📄 License
+## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
-
-**Thank you for helping improve the Azure infrastructure workflow!** 🚀
-
+**Thank you for helping improve the Azure infrastructure workflow!**

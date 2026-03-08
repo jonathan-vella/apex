@@ -1,8 +1,6 @@
-
 # Glossary
 
-> [Current Version](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) | Quick reference for terms used throughout Agentic InfraOps documentation.
-
+Quick reference for terms used throughout Agentic InfraOps documentation.
 
 ## A
 
@@ -16,9 +14,8 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes 13 agents: requirements, architect, design,
-bicep-planner, terraform-planner, bicep-codegen, terraform-codegen, bicep-deploy, terraform-deploy,
-as-built, challenger, diagnose, and InfraOps Conductor.
+Invoked via `Ctrl+Shift+A`. This project includes 15 top-level agents (including two Conductor
+variants and a Context Optimizer) plus 9 validation subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
@@ -44,7 +41,6 @@ under the `Azure` namespace. Module sources follow the pattern
 
 🔗 **External**: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
 
-
 ## B
 
 ### Bicep
@@ -58,7 +54,6 @@ templates but with cleaner syntax and better tooling support.
 
 Static analysis tool that checks Bicep files for best practices, security issues, and common mistakes.
 Run with `bicep lint main.bicep` or automatically via VS Code extension.
-
 
 ## C
 
@@ -80,6 +75,29 @@ custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
 See [InfraOps Conductor](#infraops-conductor).
 
+### Content Tabs
+
+A MkDocs Material feature that renders tabbed content blocks using `=== "Tab Name"` syntax.
+Used in this documentation to show Bicep and Terraform examples side-by-side without
+duplicating page structure.
+
+🔗 **External**: [MkDocs Material Content Tabs](https://squidfunk.github.io/mkdocs-material/reference/content-tabs/)
+
+### Context Shredding
+
+Runtime context compression technique for agents approaching model context limits.
+Defines three tiers — `full`, `summarized`, and `minimal` — with per-artifact
+compression templates. Managed by the `context-shredding` skill.
+
+📁 **See**: `.github/skills/context-shredding/SKILL.md`
+
+### Circuit Breaker
+
+A failure-handling pattern in the `iac-common` skill that defines mandatory stopping
+rules for deploy agents. Classifies failures into 6 categories with anomaly detection
+thresholds to prevent cascading deployment failures.
+
+📁 **See**: [.github/skills/iac-common/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills/iac-common)
 
 ## D
 
@@ -97,6 +115,15 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 
 🔗 **External**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
 
+## F
+
+### Fast Path
+
+An experimental conductor variant (`01-Conductor (Fast Path)`) optimized for simple Azure
+projects with 3 or fewer resources, single environment, and no custom policies. Combines
+the Plan and Code steps with a single-pass review for faster delivery.
+
+📁 **See**: [.github/agents/01-conductor-fastpath.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-conductor-fastpath.agent.md)
 
 ## G
 
@@ -104,7 +131,6 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 
 Azure Policies and organizational rules that affect resource deployment. Discovered during the
 planning step and documented in `04-governance-constraints.md`.
-
 
 ## H
 
@@ -125,7 +151,6 @@ when properly configured. S04 Service Validation scenario demonstrates HIPAA-com
 Azure networking pattern where a central "hub" VNet contains shared services (firewall, VPN gateway)
 and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
-
 ## I
 
 ### InfraOps Conductor
@@ -142,7 +167,6 @@ Practice of managing infrastructure through code files (Bicep, Terraform, ARM) r
 portal clicks. Enables version control, automation, and repeatability. This project supports two
 IaC tracks: **Bicep** (Azure-native DSL) and **Terraform** (multi-cloud HCL).
 
-
 ## K
 
 ### KQL (Kusto Query Language)
@@ -151,7 +175,6 @@ Query language used in Azure Monitor, Log Analytics, and Application Insights. U
 troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 
 🔗 **External**: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
-
 
 ## M
 
@@ -167,14 +190,12 @@ server provides real-time Azure pricing to Copilot.
 Average time to restore service after an incident. Key SRE metric. Copilot-assisted troubleshooting
 reduces MTTR by 73-85% (see Time Savings Evidence).
 
-
 ## N
 
 ### NSG (Network Security Group)
 
 Azure resource that filters network traffic with allow/deny rules. Applied to subnets or NICs.
 Essential for microsegmentation and defense-in-depth.
-
 
 ## P
 
@@ -187,7 +208,6 @@ demonstrates PCI-DSS compliant architecture patterns.
 
 Azure feature that assigns a private IP address to a PaaS service (Storage, SQL, Key Vault),
 removing public internet exposure. Essential for zero-trust architectures.
-
 
 ## S
 
@@ -217,8 +237,7 @@ review). Eight exist: `cost-estimate-subagent`, `governance-discovery-subagent`,
 `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`,
 `terraform-lint-subagent`, `terraform-review-subagent`, `terraform-plan-subagent`.
 
-📁 **See**: [.github/agents/_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
-
+📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
 
 ## T
 
@@ -254,13 +273,11 @@ The JSON file that tracks the mapping between Terraform configuration and real-w
 resources. Stored remotely in an Azure Storage Account for team collaboration.
 State locking prevents concurrent modifications.
 
-
 ## U
 
 ### UAT (User Acceptance Testing)
 
 Final testing phase where end users verify the system meets business requirements.
-
 
 ## W
 
@@ -276,7 +293,6 @@ Reliability, Security, Cost Optimization, Operational Excellence, Performance Ef
 Azure deployment preview that shows what resources will be created, modified, or deleted without
 making actual changes. Run with `az deployment group create --what-if`.
 
-
 ## Numbers & Symbols
 
 ### 7-Step Agentic Workflow
@@ -288,7 +304,6 @@ or **Terraform track** (`terraform-planner` → `terraform-codegen` → `terrafo
 Each step produces artifacts in `agent-output/`.
 
 📁 **See**: [Workflow Guide](workflow.md)
-
 
 ## Quick Reference Table
 
@@ -311,6 +326,4 @@ Each step produces artifacts in `agent-output/`.
 | UAT     | User Acceptance Testing                      | QA             |
 | WAF     | Well-Architected Framework                   | Architecture   |
 
-
 _Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._
-

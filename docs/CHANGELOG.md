@@ -1,6 +1,3 @@
-<!-- Copied from repo root for MkDocs — keep in sync -->
-
-
 # Changelog
 
 All notable changes to **Agentic InfraOps** are documented in this file.
@@ -49,9 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fix(session-state): accept both schema_version `"1.0"` and `"2.0"` in validator
-for backwards compatibility.
+  for backwards compatibility.
 
-## [0.9.0] — Pre-Bosun Baseline
+## [0.9.0] — 2026-02-12 — Pre-Bosun Baseline
 
 ### Added
 
@@ -113,19 +110,12 @@ for backwards compatibility.
 - fix(scripts): prevent YAML block scalar descriptions from recurring after frontmatter cleanup.
 - fix(agents): remove deprecated `agent`/`runSubagent` tool declarations from all 13 agents.
 - build(devcontainer): replace `tfsec` with `checkov`; pin `tflint` to v0.61.0.
-
-## [0.9.0] - 2026-02-12
-
-### Changed
-
 - chore(version): reset project version from `0.0.45` to `0.9.0` for pre-production semantics.
 - chore(version): align `VERSION.md`, `package.json`, and `pyproject.toml`.
 - docs(version): make `VERSION.md` the documentation source of truth for version display.
 - build(version): simplify `validate-version-sync.mjs` checks to version-bearing files.
 
-
 > **Note:** Versions below (`0.0.45` and earlier) are pre-release development milestones.
-
 
 ## [0.0.45] - 2026-02-05
 
@@ -568,7 +558,6 @@ for backwards compatibility.
 - feat(deploy): add PowerShell deployment scripts.
 - docs(copilot): add initial Copilot instructions.
 
-
 ## Version Numbering
 
 This project uses [Semantic Versioning](https://semver.org/):
@@ -583,4 +572,3 @@ This project uses [Semantic Versioning](https://semver.org/):
 
 - [VERSION.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) - Detailed version history
 - [GitHub Releases](https://github.com/jonathan-vella/azure-agentic-infraops/releases)
-

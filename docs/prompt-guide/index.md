@@ -1,7 +1,6 @@
-
 # Prompt Guide
 
-> [Version](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) | Best-practices prompt examples for all Agentic InfraOps agents and skills
+Best-practices prompt examples for all Agentic InfraOps agents and skills.
 
 This guide provides ready-to-use prompt examples for every agent and skill in the
 Agentic InfraOps project. It is written for **end users** — those who interact with
@@ -10,7 +9,6 @@ infrastructure.
 
 **Prerequisites**: Complete the [Quickstart](../quickstart.md) first
 (Dev Container running, subagent invocation enabled).
-
 
 ## Quick Reference
 
@@ -95,7 +93,6 @@ to see available prompts.
 | `conductor-demo`            | InfraOps Conductor | Full workflow demo (Static Web App scenario) |
 | `plan-req-demo-interactive` | Requirements       | Interactive EU ecommerce migration demo      |
 
-
 ## General Prompting Best Practices
 
 ### Choose the Right Interface
@@ -170,6 +167,10 @@ Requirements:
 
 ### Prompt Patterns
 
+!!! example "Effective prompt structures"
+
+    These patterns work well across all agents. Combine them for best results.
+
 **Explain Then Generate**:
 
 ```text
@@ -208,6 +209,10 @@ Prompt 4: Make the address space configurable via parameters
 ```
 
 ### Anti-Patterns to Avoid
+
+!!! warning "Common mistakes that reduce output quality"
+
+    Avoid these patterns — they lead to incomplete, generic, or incorrect AI output.
 
 | Anti-Pattern             | Problem                 | Better Approach                       |
 | ------------------------ | ----------------------- | ------------------------------------- |
@@ -250,7 +255,6 @@ tflint --init && tflint
 terraform plan -out=tfplan
 ```
 
-
 ## 7-Step Workflow Prompts
 
 The Agentic InfraOps workflow follows seven steps. Use the **InfraOps Conductor** to
@@ -273,7 +277,6 @@ Resume the workflow from where we left off. Check agent-output/patient-portal/
 for existing artifacts.
 ```
 
-
 ### Step 1: Requirements — 📜 Scribe
 
 Select the **Requirements** agent. Start with business context, not technical specs.
@@ -294,7 +297,6 @@ The agent guides you through 5 discovery phases (business, technical, compliance
 operational, budget) using interactive questions, then generates
 `agent-output/{project}/01-requirements.md`.
 
-
 ### Step 2: Architecture — 🏛️ Oracle
 
 Select the **Architect** agent. It reads the requirements and produces a WAF
@@ -314,7 +316,6 @@ the cost difference between P1v3 and P2v3 for our expected load.
 Deep dive into the Security pillar. Our CISO wants to know
 specifically how we handle data encryption at rest and in transit.
 ```
-
 
 ### Step 3: Design — 🎨 Artisan (Optional)
 
@@ -343,26 +344,25 @@ Generate a detailed cost estimate using Azure Pricing MCP tools.
 Include monthly and yearly totals for each resource.
 ```
 
-
 ### Step 4: Planning — 📐 Strategist
 
 Select the **Bicep Planner** or **Terraform Planner** agent depending on your
 IaC tool preference. Both discover governance constraints and create a
 machine-readable implementation plan.
 
-**Bicep track**:
+=== "Bicep"
 
-```text
-Create an implementation plan for the payment gateway architecture.
-Check AVM module availability for every resource.
-```
+    ```text
+    Create an implementation plan for the payment gateway architecture.
+    Check AVM module availability for every resource.
+    ```
 
-**Terraform track**:
+=== "Terraform"
 
-```text
-Create a Terraform implementation plan for the payment gateway.
-Use AVM-TF modules from the Terraform Registry where available.
-```
+    ```text
+    Create a Terraform implementation plan for the payment gateway.
+    Use AVM-TF modules from the Terraform Registry where available.
+    ```
 
 ```text
 Re-query Azure Resource Graph for updated policy assignments.
@@ -373,28 +373,27 @@ The agent runs governance discovery (Azure Policy via REST API), checks AVM modu
 availability, then asks you to choose a deployment strategy (phased vs. single)
 before generating `04-implementation-plan.md`.
 
-
 ### Step 5: Implementation — ⚒️ Forge
 
 Select the **Bicep CodeGen** or **Terraform CodeGen** agent. It reads the plan
 and generates production-ready templates.
 
-**Bicep track**:
+=== "Bicep"
 
-```text
-Implement the Bicep templates according to the implementation plan
-in agent-output/payment-gateway/04-implementation-plan.md.
-Use AVM modules, generate deploy.ps1, and save to infra/bicep/payment-gateway/.
-```
+    ```text
+    Implement the Bicep templates according to the implementation plan
+    in agent-output/payment-gateway/04-implementation-plan.md.
+    Use AVM modules, generate deploy.ps1, and save to infra/bicep/payment-gateway/.
+    ```
 
-**Terraform track**:
+=== "Terraform"
 
-```text
-Implement the Terraform configuration according to the implementation plan
-in agent-output/payment-gateway/04-implementation-plan.md.
-Use AVM-TF modules, generate bootstrap.sh and deploy.sh,
-and save to infra/terraform/payment-gateway/.
-```
+    ```text
+    Implement the Terraform configuration according to the implementation plan
+    in agent-output/payment-gateway/04-implementation-plan.md.
+    Use AVM-TF modules, generate bootstrap.sh and deploy.sh,
+    and save to infra/terraform/payment-gateway/.
+    ```
 
 ```text
 Fix the validation errors from bicep build. Re-run lint after fixes.
@@ -404,23 +403,22 @@ The agent runs a preflight check, generates templates with AVM modules, applies
 security baseline and required tags, then validates with the appropriate tool
 (`bicep build` / `terraform validate`).
 
-
 ### Step 6: Deployment — 🚀 Envoy
 
 Select the **Bicep Deploy** or **Terraform Deploy** agent. Both run preflight
 validation, preview changes, and deploy with approval gates.
 
-**Bicep track**:
+=== "Bicep"
 
-```text
-Deploy the payment gateway Bicep templates. Run what-if first.
-```
+    ```text
+    Deploy the payment gateway Bicep templates. Run what-if first.
+    ```
 
-**Terraform track**:
+=== "Terraform"
 
-```text
-Deploy the payment gateway Terraform configuration. Run terraform plan first.
-```
+    ```text
+    Deploy the payment gateway Terraform configuration. Run terraform plan first.
+    ```
 
 ```text
 Deploy the next phase from the implementation plan.
@@ -435,7 +433,6 @@ The agent always presents a change summary (what-if or plan output) and waits fo
 your explicit approval before deploying. For phased deployments, it pauses between
 each phase.
 
-
 ### Step 7: Documentation — 📚 Chronicler
 
 After deployment, the **As-Built** agent generates comprehensive workload
@@ -449,7 +446,6 @@ payment gateway infrastructure.
 This produces documentation files in `agent-output/{project}/07-*.md`:
 design document, operations runbook, cost estimate, compliance matrix,
 backup/DR plan, and resource inventory.
-
 
 ## Standalone Agent Reference
 
@@ -502,7 +498,6 @@ Look for governance gaps, security blind spots, and cost risks.
 Review the architecture assessment for single points of failure
 and missing disaster recovery considerations.
 ```
-
 
 ## Skill Reference
 
@@ -618,7 +613,6 @@ API calls by querying official documentation.
 method for listing Key Vault secrets in Python.
 ```
 
-
 ## Subagent Reference
 
 Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
@@ -670,7 +664,6 @@ and returns a structured cost breakdown.
 Queries Azure Policy assignments via REST API (including management group-
 inherited policies). Classifies policy effects and returns structured governance
 constraints.
-
 
 ## Tips and Patterns
 
@@ -729,7 +722,6 @@ Review the existing Bicep templates in infra/bicep/legacy-app/
 and suggest improvements for WAF alignment.
 ```
 
-
 ## References
 
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
@@ -737,4 +729,3 @@ and suggest improvements for WAF alignment.
 - [VS Code Copilot Prompt Crafting](https://code.visualstudio.com/docs/copilot/prompt-crafting)
 - [Agentic InfraOps Quickstart](../quickstart.md)
 - [Agent Workflow Reference](../workflow.md)
-

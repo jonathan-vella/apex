@@ -1,8 +1,13 @@
 # Quickstart
 
-> [Current Version](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) | Get running in 10 minutes
+Get running in 10 minutes.
 
 ## Prerequisites
+
+!!! info "What you need before starting"
+
+    An Azure subscription is optional for learning the workflow — you only need it
+    when deploying to Azure in Step 6.
 
 | Requirement            | How to Get                                                  |
 | ---------------------- | ----------------------------------------------------------- |
@@ -35,6 +40,10 @@ The Dev Container installs all tools automatically:
 - 25+ VS Code extensions
 
 ## Step 3: Verify Setup
+
+!!! tip "Verify all tools installed correctly"
+
+    Run this command to confirm the dev container has all required CLIs:
 
 ```bash
 az --version && bicep --version && terraform --version && pwsh --version
@@ -106,7 +115,7 @@ steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` se
 | 4    | `bicep-planner` / `terraform-planner` | 📐 Strategist | Implementation plan      |
 | 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates            |
 | 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment         |
-| 7    | —                                     | 📚 —          | Documentation (skills)   |
+| 7    | `as-built`                            | 📚 Chronicler | Documentation suite      |
 
 **Approval Gates**: The Conductor pauses at key points:
 
@@ -193,18 +202,3 @@ Or invoke explicitly:
 ```text
 Use the azure-diagrams skill to create a diagram for my-webapp
 ```
-
-## Agent Personas
-
-| Agent                             | Persona       | Role                    |
-| --------------------------------- | ------------- | ----------------------- |
-| InfraOps Conductor                | 🎼 Maestro    | Master orchestrator     |
-| requirements                      | 📜 Scribe     | Requirements capture    |
-| architect                         | 🏛️ Oracle     | WAF assessment          |
-| design                            | 🎨 Artisan    | Diagrams and ADRs       |
-| bicep-planner / terraform-planner | 📐 Strategist | Implementation planning |
-| bicep-codegen / terraform-codegen | ⚒️ Forge      | IaC generation          |
-| bicep-deploy / terraform-deploy   | 🚀 Envoy      | Azure deployment        |
-| as-built                          | 📚 Archivist  | Documentation suite     |
-| challenger                        | ⚔️ Challenger | Adversarial review      |
-| diagnose                          | 🔍 Sentinel   | Troubleshooting         |

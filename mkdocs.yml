@@ -96,14 +96,16 @@ nav:
   - Home: index.md
   - Getting Started:
       - Quickstart: quickstart.md
-      - Dev Containers: dev-containers.md
+      - Dev Container Setup: dev-containers.md
   - Concepts:
       - How It Works: how-it-works.md
-      - Workflow: workflow.md
-      - Glossary: GLOSSARY.md
+      - 7-Step Workflow: workflow.md
   - Guides:
       - Prompt Guide: prompt-guide/index.md
       - Troubleshooting: troubleshooting.md
+  - Reference:
+      - Glossary: GLOSSARY.md
+      - FAQ: faq.md
   - Project:
       - Contributing: CONTRIBUTING.md
       - Changelog: CHANGELOG.md
