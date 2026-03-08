@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "github-pages-docs",
   "branch": "feat/github-pages-docs",
-  "updated": "2026-03-08T14:00:00Z",
+  "updated": "2026-03-08T18:00:00Z",
   "current_step": 7,
   "plan_file": "docs/exec-plans/active/github-pages-plan.md",
   "decisions": {
@@ -28,7 +28,7 @@
         "docs/CHANGELOG.md",
         "docs/prompt-guide/index.md"
       ],
-      "prompt": ".github/prompts/ghpages-step1-scaffold.prompt.md"
+      "prompt": null
     },
     "2": {
       "name": "Local Build Verification",
@@ -38,7 +38,7 @@
       "started": "2026-03-08T12:30:00Z",
       "completed": "2026-03-08T12:30:00Z",
       "artifacts": [],
-      "prompt": ".github/prompts/ghpages-step2-build.prompt.md"
+      "prompt": null
     },
     "3": {
       "name": "File Review — Mermaid & HTML",
@@ -48,7 +48,7 @@
       "started": "2026-03-08T12:30:00Z",
       "completed": "2026-03-08T13:00:00Z",
       "artifacts": [],
-      "prompt": ".github/prompts/ghpages-step3-review-html.prompt.md"
+      "prompt": null
     },
     "3a": {
       "name": "Polish — MkDocs Material Best Practices",
@@ -68,7 +68,7 @@
         "docs/CONTRIBUTING.md",
         "docs/CHANGELOG.md"
       ],
-      "prompt": ".github/prompts/ghpages-step3a-polish.prompt.md"
+      "prompt": null
     },
     "4": {
       "name": "Link Remediation",
@@ -86,7 +86,7 @@
         "docs/CONTRIBUTING.md",
         "docs/CHANGELOG.md"
       ],
-      "prompt": ".github/prompts/ghpages-step4-fix-links.prompt.md"
+      "prompt": null
     },
     "5": {
       "name": "GitHub Actions Workflow",
@@ -96,7 +96,7 @@
       "started": "2026-03-08T13:45:00Z",
       "completed": "2026-03-08T13:50:00Z",
       "artifacts": [".github/workflows/docs.yml", ".gitignore"],
-      "prompt": ".github/prompts/ghpages-step5-workflow.prompt.md"
+      "prompt": null
     },
     "6": {
       "name": "Final Build & Commit",
@@ -106,17 +106,20 @@
       "started": "2026-03-08T13:50:00Z",
       "completed": "2026-03-08T14:00:00Z",
       "artifacts": [],
-      "prompt": ".github/prompts/ghpages-step6-final.prompt.md"
+      "prompt": null
     },
     "7": {
       "name": "Enable GitHub Pages",
       "description": "Configure repo settings: Pages source = gh-pages branch, verify site loads",
-      "status": "in_progress",
-      "sub_step": "PR #208 created — awaiting merge, then manual Pages enablement",
+      "status": "complete",
+      "sub_step": "GitHub Pages configured to gh-pages /(root) and site verified live",
       "started": "2026-03-08T14:30:00Z",
-      "completed": null,
-      "artifacts": ["https://github.com/jonathan-vella/azure-agentic-infraops/pull/208"],
-      "prompt": ".github/prompts/ghpages-step7-enable.prompt.md"
+      "completed": "2026-03-08T18:00:00Z",
+      "artifacts": [
+        "https://github.com/jonathan-vella/azure-agentic-infraops/pull/208",
+        "https://jonathan-vella.github.io/azure-agentic-infraops/"
+      ],
+      "prompt": null
     }
   }
 }
