@@ -1,0 +1,98 @@
+site_name: Agentic InfraOps
+site_url: https://jonathan-vella.github.io/azure-agentic-infraops/
+repo_url: https://github.com/jonathan-vella/azure-agentic-infraops
+repo_name: jonathan-vella/azure-agentic-infraops
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - scheme: slate
+      primary: blue
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+  features:
+    # Navigation — SPA-like experience
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.path
+    # Table of contents
+    - toc.follow
+    # Search
+    - search.suggest
+    - search.highlight
+    # Content
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+markdown_extensions:
+  # Python Markdown core
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+  # PyMdown Extensions
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+
+exclude_docs: |
+  presenter/
+  exec-plans/
+  branch-ruleset-config.md
+  README.md
+  prompt-guide/README.md
+
+not_in_nav: ~
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quickstart: quickstart.md
+      - Dev Containers: dev-containers.md
+  - Concepts:
+      - How It Works: how-it-works.md
+      - Workflow: workflow.md
+      - Glossary: GLOSSARY.md
+  - Guides:
+      - Prompt Guide: prompt-guide/index.md
+      - Troubleshooting: troubleshooting.md
+  - Project:
+      - Contributing: CONTRIBUTING.md
+      - Changelog: CHANGELOG.md

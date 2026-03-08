@@ -1,12 +1,9 @@
 ---
 description: "GitHub Pages Step 5/7: Create GitHub Actions deployment workflow"
 agent: agent
-model: "Claude Sonnet 4.6"
-tools:
-  - read/readFile
-  - edit/editFiles
-  - execute/runInTerminal
-  - search/codebase
+model: "Claude Opus 4.6 (1M context)(Internal only)"
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
+[execute/runInTerminal, read/readFile, edit/editFiles, search/codebase, todo]
 ---
 
 # GitHub Pages — Step 5: GitHub Actions Workflow

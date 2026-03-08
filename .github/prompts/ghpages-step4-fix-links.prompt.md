@@ -1,12 +1,9 @@
 ---
 description: "GitHub Pages Step 4/7: Fix parent-relative links that escape docs/"
 agent: agent
-model: "Claude Sonnet 4.6"
-tools:
-  - read/readFile
-  - edit/editFiles
-  - execute/runInTerminal
-  - search/codebase
+model: "Claude Opus 4.6 (1M context)(Internal only)"
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
+[execute/runInTerminal, read/readFile, edit/editFiles, search/codebase, todo]
 ---
 
 # GitHub Pages — Step 4: Link Remediation
@@ -33,17 +30,17 @@ Only fix links in **published** files (files in the nav). Skip excluded files
 
 ### 4.2 Remediation Rules
 
-| Link Pattern | Replacement |
-|---|---|
-| `../VERSION.md` | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md` |
-| `../QUALITY_SCORE.md` | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/QUALITY_SCORE.md` |
-| `../.github/agents/{file}` | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/{file}` |
-| `../.github/skills/{path}` | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/{path}` |
-| `../.github/agents/` (directory) | `https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents` |
-| `../.github/skills/` (directory) | `https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills` |
-| `../mcp/{path}` | `https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/{path}` |
-| `../CONTRIBUTING.md` | `CONTRIBUTING.md` (now in docs/) |
-| `../../VERSION.md` (from prompt-guide/) | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md` |
+| Link Pattern                            | Replacement                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `../VERSION.md`                         | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md`            |
+| `../QUALITY_SCORE.md`                   | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/QUALITY_SCORE.md`      |
+| `../.github/agents/{file}`              | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/{file}` |
+| `../.github/skills/{path}`              | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/{path}` |
+| `../.github/agents/` (directory)        | `https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents`        |
+| `../.github/skills/` (directory)        | `https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills`        |
+| `../mcp/{path}`                         | `https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/{path}`            |
+| `../CONTRIBUTING.md`                    | `CONTRIBUTING.md` (now in docs/)                                                           |
+| `../../VERSION.md` (from prompt-guide/) | `https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md`            |
 
 ### 4.3 Apply to `docs/index.md` too
 

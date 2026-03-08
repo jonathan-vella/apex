@@ -51,6 +51,7 @@ bin/
 obj/
 dist/
 build/
+site/
 
 # Node (if any demos use it)
 node_modules/

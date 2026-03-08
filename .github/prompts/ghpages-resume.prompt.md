@@ -1,12 +1,9 @@
 ---
 description: "Orchestrate the full GitHub Pages setup — reads state, resumes from last checkpoint, executes each step in order with approval gates."
 agent: agent
-model: "Claude Sonnet 4.6"
-tools:
-  - read/readFile
-  - edit/editFiles
-  - execute/runInTerminal
-  - search/codebase
+model: "Claude Opus 4.6 (1M context)(Internal only)"
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
+[execute/runInTerminal, read/readFile, edit/editFiles, search/codebase, todo]
 ---
 
 # GitHub Pages — Session Resume
@@ -26,15 +23,16 @@ Resume or start the GitHub Pages documentation site setup.
 
 ## Step Overview
 
-| Step | Name | Prompt | Gate |
-|---|---|---|---|
-| 1 | Scaffold MkDocs | `ghpages-step1-scaffold.prompt.md` | Auto |
-| 2 | Local Build Verification | `ghpages-step2-build.prompt.md` | Auto |
-| 3 | File Review — Mermaid & HTML | `ghpages-step3-review-html.prompt.md` | Approval |
-| 4 | Link Remediation | `ghpages-step4-fix-links.prompt.md` | Approval |
-| 5 | GitHub Actions Workflow | `ghpages-step5-workflow.prompt.md` | Auto |
-| 6 | Final Build & Commit | `ghpages-step6-final.prompt.md` | Approval |
-| 7 | Enable GitHub Pages | `ghpages-step7-enable.prompt.md` | Manual |
+| Step | Name                               | Prompt                                | Gate     |
+| ---- | ---------------------------------- | ------------------------------------- | -------- |
+| 1    | Scaffold MkDocs                    | `ghpages-step1-scaffold.prompt.md`    | Auto     |
+| 2    | Local Build Verification           | `ghpages-step2-build.prompt.md`       | Auto     |
+| 3    | File Review — Mermaid & HTML       | `ghpages-step3-review-html.prompt.md` | Approval |
+| 3a   | Polish — MkDocs Material practices | `ghpages-step3a-polish.prompt.md`     | Approval |
+| 4    | Link Remediation                   | `ghpages-step4-fix-links.prompt.md`   | Approval |
+| 5    | GitHub Actions Workflow            | `ghpages-step5-workflow.prompt.md`    | Auto     |
+| 6    | Final Build & Commit               | `ghpages-step6-final.prompt.md`       | Approval |
+| 7    | Enable GitHub Pages                | `ghpages-step7-enable.prompt.md`      | Manual   |
 
 ## Rules
 

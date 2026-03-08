@@ -1,12 +1,9 @@
 ---
 description: "GitHub Pages Step 3/7: Review Mermaid diagrams and HTML blocks for MkDocs compatibility"
 agent: agent
-model: "Claude Sonnet 4.6"
-tools:
-  - read/readFile
-  - edit/editFiles
-  - execute/runInTerminal
-  - search/codebase
+model: "Claude Opus 4.6 (1M context)(Internal only)"
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
+[execute/runInTerminal, read/readFile, edit/editFiles, search/codebase, todo]
 ---
 
 # GitHub Pages — Step 3: File Review — Mermaid & HTML
@@ -68,6 +65,6 @@ mkdocs build --strict 2>&1 | grep -i "warning\|error"
 
 1. Update `docs/exec-plans/active/github-pages-state.json`:
    - Set `steps.3.status` to `"complete"`
-   - Set timestamps, update `current_step` to `4`
+   - Set timestamps, update `current_step` to `3a`
    - List modified files in `artifacts`
-2. Do NOT commit yet — Step 4 completes link fixes
+2. Do NOT commit yet — Step 3a applies MkDocs Material polish improvements

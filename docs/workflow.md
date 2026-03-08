@@ -1,8 +1,7 @@
-<a id="top"></a>
 
 # Agent and Skill Workflow
 
-> [Current Version](../VERSION.md) | The 7-step infrastructure development workflow
+> [Current Version](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) | The 7-step infrastructure development workflow
 
 ## Overview
 
@@ -29,7 +28,6 @@ graph instead of relying on hardcoded step logic:
 
 The Conductor resolves agent paths and models via `.github/agent-registry.json`.
 
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Agent Architecture
 
@@ -116,8 +114,6 @@ graph TB
     style DOCS fill:#e3f2fd
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Agent Roster
 
@@ -169,8 +165,6 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges requirements, architecture, and plans |
 | `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                          |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Approval Gates
 
@@ -184,8 +178,6 @@ The Conductor enforces mandatory pause points for human oversight:
 | **Gate 4** | Pre-Deploy (Step 5)   | Approve lint/what-if/review results |
 | **Gate 5** | Post-Deploy (Step 6)  | Verify deployment                   |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Workflow Steps
 
@@ -209,7 +201,6 @@ Output: agent-output/{project}/01-requirements.md
 
 **Handoff**: Passes context to `architect` agent.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 2: Architecture (🏛️ Oracle)
 
@@ -231,7 +222,6 @@ Output: agent-output/{project}/02-architecture-assessment.md
 
 **Handoff**: Suggests `azure-diagrams` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
@@ -248,7 +238,6 @@ Output: agent-output/{project}/03-des-diagram.py, 03-des-adr-*.md
 
 **ADR content**: Decision, context, alternatives, consequences
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 4: Planning (📐 Strategist)
 
@@ -274,7 +263,6 @@ Output:    agent-output/{project}/04-implementation-plan.md, 04-governance-const
 
 **Gate**: User approves the implementation plan before proceeding.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 5: Implementation (⚒️ Forge)
 
@@ -310,7 +298,6 @@ Both:      agent-output/{project}/05-implementation-reference.md
 
 **Gate**: User approves preflight validation results.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 6: Deployment (🚀 Envoy)
 
@@ -340,7 +327,6 @@ Output:    agent-output/{project}/06-deployment-summary.md
 
 **Gate**: User verifies deployed resources.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### Step 7: Documentation (📚 Skills)
 
@@ -365,8 +351,6 @@ Output: agent-output/{project}/07-*.md
 | `07-compliance-matrix.md`   | Security control mapping       |
 | `07-backup-dr-plan.md`      | Disaster recovery procedures   |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Agents vs Skills
 
@@ -378,8 +362,6 @@ Output: agent-output/{project}/07-*.md
 | **Output**      | Multiple artifacts                       | Specific outputs         |
 | **When to use** | Core workflow steps                      | Specialized capabilities |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Quick Reference
 
@@ -414,8 +396,6 @@ Output: agent-output/{project}/07-*.md
 "Use the azure-artifacts skill to generate documentation"
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Artifact Naming Convention
 
@@ -430,12 +410,9 @@ Output: agent-output/{project}/07-*.md
 | As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.py`                 |
 | Diagnostics    | `08-`     | `08-resource-health-report.md`                              |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Next Steps
 
-- [Prompt Guide](prompt-guide/) — ready-to-use prompts for every agent and skill
+- [Prompt Guide](prompt-guide/index.md) — ready-to-use prompts for every agent and skill
 - [Quickstart](quickstart.md) — 10-minute getting started walkthrough
 
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

@@ -1,11 +1,9 @@
 ---
 description: "GitHub Pages Step 7/7: Enable GitHub Pages in repo settings and verify the live site"
 agent: agent
-model: "Claude Haiku 4.5"
-tools:
-  - read/readFile
-  - execute/runInTerminal
-  - search/codebase
+model: "Claude Opus 4.6 (1M context)(Internal only)"
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
+[execute/runInTerminal, read/readFile, edit/editFiles, search/codebase, todo]
 ---
 
 # GitHub Pages — Step 7: Enable GitHub Pages

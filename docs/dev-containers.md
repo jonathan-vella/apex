@@ -1,4 +1,3 @@
-<a id="top"></a>
 
 # Dev Containers Setup Guide
 
@@ -14,8 +13,6 @@ When you open this repository in a Dev Container:
 - Git credentials are shared from your host machine
 - The environment matches what other team members use
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## System Requirements
 
@@ -45,8 +42,6 @@ When you open this repository in a Dev Container:
 | Docker                   | See above | Container runtime     |
 | Git                      | 2.30+     | Version control       |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Installation Steps
 
@@ -167,8 +162,6 @@ gh auth status
 az --version && bicep --version && pwsh --version
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Alternative Docker Options
 
@@ -199,8 +192,6 @@ sudo apt install podman
 
 Configure VS Code: `"dev.containers.dockerPath": "podman"`
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## What's Included
 
@@ -219,8 +210,6 @@ The Dev Container includes:
 > `checkov`, `ruff`, and `diagrams` are refreshed automatically on every container start via `post-start.sh`.
 > Heavy tools (PowerShell modules, system packages) are installed once at build time.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Troubleshooting
 
@@ -256,8 +245,6 @@ docker stop <container-id>
 # F1 → Developer: Reload Window
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## References
 
@@ -265,4 +252,3 @@ docker stop <container-id>
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Rancher Desktop](https://rancherdesktop.io/)
 
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

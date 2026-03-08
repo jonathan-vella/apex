@@ -1,4 +1,3 @@
-<a id="top"></a>
 
 # Troubleshooting Guide
 
@@ -19,7 +18,6 @@
 | terraform-deploy   | 🚀 Envoy      | State lock / init failures       |
 | challenger         | ⚔️ Challenger | —                                |
 | diagnose           | 🔍 Sentinel   | —                                |
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Quick Decision Tree
 
@@ -59,8 +57,6 @@ flowchart TD
     style AUTH fill:#fff9c4
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Common Issues
 
@@ -86,7 +82,6 @@ head -20 .github/agents/requirements.agent.md
 
 Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 1.5. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
 
@@ -130,7 +125,6 @@ Responses are instant, no terminal commands execute, no files are created.
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
 for experimental features. User settings take precedence.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 2. Skill Not Activating Automatically
 
@@ -156,7 +150,6 @@ Check skill triggers in `SKILL.md`:
 cat .github/skills/azure-diagrams/SKILL.md | head -30
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 3. Deployment Fails with Azure Policy Error
 
@@ -176,7 +169,6 @@ cat .github/skills/azure-diagrams/SKILL.md | head -30
 "Run deployment preflight for {project}"
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 4. Bicep Build Errors
 
@@ -199,7 +191,6 @@ bicep lint infra/bicep/{project}/main.bicep
 bicep restore infra/bicep/{project}/main.bicep
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 4t. Terraform Validation Errors
 
@@ -256,7 +247,6 @@ tflint --init
 tflint --recursive
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 5. Azure Authentication Issues
 
@@ -281,7 +271,6 @@ For Service Principal:
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 6. Artifact Validation Failures
 
@@ -306,7 +295,6 @@ cat scripts/validate-artifact-templates.mjs | grep -A20 "ARTIFACT_HEADINGS"
 diff -u .github/skills/azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 7. MCP Server Not Responding
 
@@ -325,7 +313,6 @@ python3 --version  # Should be 3.10+
 cd mcp/azure-pricing-mcp && pip install -r requirements.txt
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 8. Devcontainer Build Fails
 
@@ -350,7 +337,6 @@ Check Docker is running:
 docker ps
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 9. Orphaned VS Code Extensions Injecting Unwanted Instructions
 
@@ -384,7 +370,6 @@ extension on disk, regardless of whether it is actively managed.
 > If this happens, rebuild without cache:
 > `Ctrl+Shift+P` → "Dev Containers: Rebuild Container Without Cache".
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 10. Git Push Fails with Lefthook Errors
 
@@ -404,7 +389,6 @@ extension on disk, regardless of whether it is actively managed.
 git commit --no-verify -m "fix: temporary"
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 11. Handoff Prompt Not Working
 
@@ -431,8 +415,6 @@ Ensure target agent exists:
 ls .github/agents/architect.agent.md
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Diagnostic Commands
 
@@ -480,12 +462,10 @@ az group list --output table
 az deployment group list -g {resource-group} --output table
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Getting Help
 
-1. **Check prompt guide**: [Prompt Guide](prompt-guide/) has usage examples
+1. **Check prompt guide**: [Prompt Guide](prompt-guide/index.md) has usage examples
 2. **Read agent definitions**: `.github/agents/*.agent.md`
 3. **Check skill files**: `.github/skills/*/SKILL.md`
 4. **Review templates**: `.github/skills/azure-artifacts/templates/`
@@ -506,4 +486,3 @@ Ctrl+Shift+I → InfraOps Conductor
 "Help me troubleshoot my Azure deployment"
 ```
 
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

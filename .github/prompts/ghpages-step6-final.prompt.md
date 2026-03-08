@@ -1,12 +1,9 @@
 ---
 description: "GitHub Pages Step 6/7: Final build verification, commit all changes, push"
 agent: agent
-model: "Claude Sonnet 4.6"
-tools:
-  - read/readFile
-  - edit/editFiles
-  - execute/runInTerminal
-  - search/codebase
+model: "Claude Opus 4.6 (1M context)(Internal only)"
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
+[execute/runInTerminal, read/readFile, edit/editFiles, search/codebase, todo]
 ---
 
 # GitHub Pages — Step 6: Final Build & Commit
@@ -71,6 +68,7 @@ Review the staged files. Expected new files:
 - `docs/prompt-guide/index.md`
 - `.github/workflows/docs.yml`
 - `.github/prompts/ghpages-step*.prompt.md`
+- `.github/prompts/ghpages-step3a-polish.prompt.md`
 - `docs/exec-plans/active/github-pages-*`
 
 Expected modified files (link remediation):

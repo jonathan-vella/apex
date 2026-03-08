@@ -1,10 +1,8 @@
-<a id="top"></a>
 
 # Glossary
 
-> [Current Version](../VERSION.md) | Quick reference for terms used throughout Agentic InfraOps documentation.
+> [Current Version](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) | Quick reference for terms used throughout Agentic InfraOps documentation.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ## A
 
@@ -22,7 +20,7 @@ Invoked via `Ctrl+Shift+A`. This project includes 13 agents: requirements, archi
 bicep-planner, terraform-planner, bicep-codegen, terraform-codegen, bicep-deploy, terraform-deploy,
 as-built, challenger, diagnose, and InfraOps Conductor.
 
-📁 **See**: [.github/agents/](../.github/agents/)
+📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
 ### Agentic InfraOps
 
@@ -46,8 +44,6 @@ under the `Azure` namespace. Module sources follow the pattern
 
 🔗 **External**: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## B
 
@@ -63,8 +59,6 @@ templates but with cleaner syntax and better tooling support.
 Static analysis tool that checks Bicep files for best practices, security issues, and common mistakes.
 Run with `bicep lint main.bicep` or automatically via VS Code extension.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## C
 
@@ -75,7 +69,7 @@ implementation plans. Finds untested assumptions, governance gaps, WAF blind spo
 and architectural weaknesses. Returns structured JSON findings with severity ratings.
 Auto-invoked by the Conductor after Steps 1, 2, and 4.
 
-📁 **See**: [.github/agents/10-challenger.agent.md](../.github/agents/10-challenger.agent.md)
+📁 **See**: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md)
 
 ### Copilot Chat
 
@@ -86,8 +80,6 @@ custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
 See [InfraOps Conductor](#infraops-conductor).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## D
 
@@ -105,8 +97,6 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 
 🔗 **External**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## G
 
@@ -115,8 +105,6 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 Azure Policies and organizational rules that affect resource deployment. Discovered during the
 planning step and documented in `04-governance-constraints.md`.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## H
 
@@ -137,8 +125,6 @@ when properly configured. S04 Service Validation scenario demonstrates HIPAA-com
 Azure networking pattern where a central "hub" VNet contains shared services (firewall, VPN gateway)
 and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## I
 
@@ -148,7 +134,7 @@ The master orchestrator agent that coordinates all 7 steps of the infrastructure
 mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
 orchestration features.
 
-📁 **See**: [.github/agents/01-conductor.agent.md](../.github/agents/01-conductor.agent.md)
+📁 **See**: [.github/agents/01-conductor.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-conductor.agent.md)
 
 ### IaC (Infrastructure as Code)
 
@@ -156,8 +142,6 @@ Practice of managing infrastructure through code files (Bicep, Terraform, ARM) r
 portal clicks. Enables version control, automation, and repeatability. This project supports two
 IaC tracks: **Bicep** (Azure-native DSL) and **Terraform** (multi-cloud HCL).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## K
 
@@ -168,8 +152,6 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 
 🔗 **External**: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## M
 
@@ -178,15 +160,13 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 Protocol for extending AI assistants with external tools and data sources. The Azure Pricing MCP
 server provides real-time Azure pricing to Copilot.
 
-📁 **See**: [mcp/azure-pricing-mcp/](../mcp/azure-pricing-mcp/)
+📁 **See**: [mcp/azure-pricing-mcp/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp)
 
 ### MTTR (Mean Time To Recovery)
 
 Average time to restore service after an incident. Key SRE metric. Copilot-assisted troubleshooting
 reduces MTTR by 73-85% (see Time Savings Evidence).
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## N
 
@@ -195,8 +175,6 @@ reduces MTTR by 73-85% (see Time Savings Evidence).
 Azure resource that filters network traffic with allow/deny rules. Applied to subnets or NICs.
 Essential for microsegmentation and defense-in-depth.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## P
 
@@ -210,8 +188,6 @@ demonstrates PCI-DSS compliant architecture patterns.
 Azure feature that assigns a private IP address to a PaaS service (Storage, SQL, Key Vault),
 removing public internet exposure. Essential for zero-trust architectures.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## S
 
@@ -232,7 +208,7 @@ skills don't have their own chat persona — they provide domain knowledge that 
 14 skills are organized across conventions, document creation, infrastructure patterns,
 workflow automation, troubleshooting, and Microsoft docs integration categories.
 
-📁 **See**: [.github/skills/](../.github/skills/)
+📁 **See**: [.github/skills/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills)
 
 ### Subagent
 
@@ -241,10 +217,8 @@ review). Eight exist: `cost-estimate-subagent`, `governance-discovery-subagent`,
 `bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`,
 `terraform-lint-subagent`, `terraform-review-subagent`, `terraform-plan-subagent`.
 
-📁 **See**: [.github/agents/\_subagents/](../.github/agents/_subagents/)
+📁 **See**: [.github/agents/_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## T
 
@@ -280,8 +254,6 @@ The JSON file that tracks the mapping between Terraform configuration and real-w
 resources. Stored remotely in an Azure Storage Account for team collaboration.
 State locking prevents concurrent modifications.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## U
 
@@ -289,8 +261,6 @@ State locking prevents concurrent modifications.
 
 Final testing phase where end users verify the system meets business requirements.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## W
 
@@ -306,8 +276,6 @@ Reliability, Security, Cost Optimization, Operational Excellence, Performance Ef
 Azure deployment preview that shows what resources will be created, modified, or deleted without
 making actual changes. Run with `az deployment group create --what-if`.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Numbers & Symbols
 
@@ -321,8 +289,6 @@ Each step produces artifacts in `agent-output/`.
 
 📁 **See**: [Workflow Guide](workflow.md)
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Quick Reference Table
 
@@ -345,8 +311,6 @@ Each step produces artifacts in `agent-output/`.
 | UAT     | User Acceptance Testing                      | QA             |
 | WAF     | Well-Architected Framework                   | Architecture   |
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 _Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._
 
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
