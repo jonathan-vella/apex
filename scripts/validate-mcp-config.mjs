@@ -3,6 +3,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseJsonc } from "./_lib/parse-jsonc.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,7 +19,7 @@ if (!existsSync(mcpConfigPath)) {
 
 let mcpConfig;
 try {
-  mcpConfig = JSON.parse(readFileSync(mcpConfigPath, "utf-8"));
+  mcpConfig = parseJsonc(readFileSync(mcpConfigPath, "utf-8"));
 } catch (error) {
   console.error(`❌ Invalid JSON in .vscode/mcp.json: ${error.message}`);
   process.exit(1);

@@ -36,9 +36,9 @@ const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 /**
  * Validate a single agent file
  */
-function validateAgent(filePath, isSubagent) {
-  const content = fs.readFileSync(filePath, "utf8");
-  const frontmatter = parseFrontmatter(content);
+function validateAgent(filePath, isSubagent, cachedContent, cachedFrontmatter) {
+  const content = cachedContent ?? fs.readFileSync(filePath, "utf8");
+  const frontmatter = cachedFrontmatter ?? parseFrontmatter(content);
   const relativePath = path.relative(process.cwd(), filePath);
 
   // Check for block scalar description BEFORE parsing (parser swallows it)
@@ -178,7 +178,7 @@ let mainCount = 0;
 let subCount = 0;
 
 for (const [file, agent] of agents) {
-  validateAgent(agent.path, agent.isSubagent);
+  validateAgent(agent.path, agent.isSubagent, agent.content, agent.frontmatter);
   if (agent.isSubagent) subCount++;
   else mainCount++;
 }

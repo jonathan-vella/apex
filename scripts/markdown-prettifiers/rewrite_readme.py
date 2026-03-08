@@ -1,6 +1,5 @@
-import re
 
-with open("README.md", "r", encoding="utf-8") as f:
+with open("README.md", encoding="utf-8") as f:
     content = f.read()
 
 # Make headings cooler
@@ -25,7 +24,7 @@ toc = """
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 """
 
-content = content.replace("track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation\npipelines automatically.\n\n<img src=\"https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png\" width=\"100%\">", 
+content = content.replace("track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation\npipelines automatically.\n\n<img src=\"https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png\" width=\"100%\">",
 "track — Bicep or Terraform — and the system routes to the right agents, subagents, and validation\npipelines automatically.\n\n<img src=\"https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png\" width=\"100%\">\n\n" + toc)
 
 content = content.replace("Agentic InfraOps coordinates specialized AI agents through a complete infrastructure development\ncycle. Instead of context-switching between requirements, architecture decisions, IaC authoring\n(Bicep **or** Terraform), and documentation, you get a **structured 7-step workflow** with built-in\nWAF alignment, AVM-first code generation, and mandatory human approval gates. Choose your IaC\ntrack — Bicep or Terraform — and the system routes to the right agents, subagents, and validation\npipelines automatically.",

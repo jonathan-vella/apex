@@ -33,10 +33,15 @@ function check(description, condition) {
   }
 }
 
+const _fileCache = new Map();
+
 function fileContains(filePath, pattern) {
   const absPath = path.resolve(ROOT, filePath);
   if (!fs.existsSync(absPath)) return false;
-  const content = fs.readFileSync(absPath, "utf-8");
+  if (!_fileCache.has(absPath)) {
+    _fileCache.set(absPath, fs.readFileSync(absPath, "utf-8"));
+  }
+  const content = _fileCache.get(absPath);
   if (pattern instanceof RegExp) return pattern.test(content);
   return content.includes(pattern);
 }

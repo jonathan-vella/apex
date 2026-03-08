@@ -51,12 +51,12 @@ let skillCount = 0;
 /**
  * Validate a single skill
  */
-function validateSkill(skillDir) {
+function validateSkill(skillDir, cachedContent, cachedFrontmatter) {
   const skillName = path.basename(skillDir);
   const skillFile = path.join(skillDir, "SKILL.md");
 
   // Check SKILL.md exists
-  if (!fs.existsSync(skillFile)) {
+  if (!cachedContent && !fs.existsSync(skillFile)) {
     console.error(
       `❌ ${skillName}: Missing SKILL.md file. Fix: Create .github/skills/${skillName}/SKILL.md with at least a 'description' in frontmatter.`,
     );
@@ -64,8 +64,8 @@ function validateSkill(skillDir) {
     return;
   }
 
-  const content = fs.readFileSync(skillFile, "utf8");
-  const frontmatter = parseFrontmatter(content);
+  const content = cachedContent ?? fs.readFileSync(skillFile, "utf8");
+  const frontmatter = cachedFrontmatter ?? parseFrontmatter(content);
 
   // Extract raw frontmatter block for pattern checks (avoids false positives
   // from example code fences in the skill body)
@@ -149,7 +149,7 @@ console.log(`Found ${skills.size} skill directories\n`);
 
 console.log("=== Skills ===");
 for (const [skillName, skill] of skills) {
-  validateSkill(skill.dir);
+  validateSkill(skill.dir, skill.content, skill.frontmatter);
 }
 
 console.log("\n" + "=".repeat(60));
