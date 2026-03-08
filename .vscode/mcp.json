@@ -14,11 +14,6 @@
       "args": ["-m", "azure_pricing_mcp"],
       "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src"
     },
-    "azure-mcp": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": ["--from", "msmcp-azure", "azmcp", "server", "start"]
-    },
     "terraform": {
       "type": "stdio",
       "command": "/go/bin/terraform-mcp-server",

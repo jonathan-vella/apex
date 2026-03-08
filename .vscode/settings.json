@@ -9,6 +9,11 @@
   "chat.agentSkillsLocations": {
     ".github/skills": true
   },
+  "chat.hookFilesLocations": {
+    ".github/hooks/block-dangerous-commands": true,
+    ".github/hooks/post-edit-format": true,
+    ".github/hooks/session-start-audit": true
+  },
   "chat.useAgentSkills": true,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

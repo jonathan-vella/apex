@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": ".github/hooks/session-start-audit/session-start-audit.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}
