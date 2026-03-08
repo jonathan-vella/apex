@@ -171,18 +171,18 @@ sequenceDiagram
 > [!IMPORTANT]
 > **Prerequisites:** Docker Desktop (or Podman/Rancher), VS Code with Dev Containers, GitHub Copilot.
 
-```bash
-git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
-cd azure-agentic-infraops
-code .
-```
-
-1. Press `F1` → **Dev Containers: Reopen in Container** _(first build: ~2-3 min, all tools pre-installed)_
-2. Enable the required VS Code setting:
+1. Go to the [**Accelerator template**](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator) → click **"Use this template"** → **"Create a new repository"**
+2. Clone **your new repo** and open in VS Code:
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/my-infraops-project.git
+   code my-infraops-project
+   ```
+3. Press `F1` → **Dev Containers: Reopen in Container** _(first build: ~2-3 min, all tools pre-installed)_
+4. Enable the required VS Code setting:
    ```json
    { "chat.customAgentInSubagent.enabled": true }
    ```
-3. Press `Ctrl+Shift+I` → select **InfraOps Conductor** → describe your infrastructure
+5. Press `Ctrl+Shift+I` → select **InfraOps Conductor** → describe your infrastructure
 
 ```text
 Create a web app with Azure App Service, Key Vault, and SQL Database
@@ -263,17 +263,17 @@ Steps 1-3 and 7 are shared. Steps 4-6 have **Bicep** and **Terraform** variants.
 
 ## 🌐 Related Repositories
 
-### 🚀 [Accelerator Patterns](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+### 🚀 [Accelerator Template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 
-A curated collection of pre-built, production-ready Azure infrastructure patterns generated and
-validated by the Agentic InfraOps workflow. Use it as a starting point for common workload
-archetypes—each pattern ships with Bicep templates, agent artifacts, and deployment scripts.
+The **recommended starting point** for new users. This is a GitHub template repository —
+click "Use this template" to create your own repo with all agents, skills, dev container
+configuration, and deployment scripts ready to go. Clean commit history, no fork relationship.
 
-### 🎓 [Training Workshops](https://jonathan-vella.github.io/microhack-agentic-infraops/)
+### 🎯 [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)
 
-Hands-on workshop material for teams and individuals learning the Agentic InfraOps workflow.
-Structured labs walk you through each of the 7 steps with guided exercises, sample prompts, and
-reference solutions—from first Conductor run to full deployment.
+A hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents
+— from requirements to deployment. Structured exercises walk you through each of the 7 steps
+with guided prompts and reference solutions.
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="divider">
 <div align="right"><a href="#readme-top"><b>⬆️ Back to Top</b></a></div>

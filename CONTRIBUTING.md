@@ -95,6 +95,10 @@ npm run lint:md:fix
 
 ### 1. Fork & Clone
 
+> **Note:** For **using** Agentic InfraOps, create your own repo from the
+> [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+> instead. The instructions below are for contributing back to this upstream project.
+
 ```bash
 git clone https://github.com/YOUR-USERNAME/azure-agentic-infraops.git
 cd azure-agentic-infraops

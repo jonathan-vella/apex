@@ -1,13 +1,17 @@
 <a id="top"></a>
 
-# Workshop Delivery Checklist
+# MicroHack Delivery Checklist
 
 > **[Version](../../VERSION.md)** | [Back to Presenter Resources](README.md)
 >
-> A comprehensive checklist for trainers delivering Agentic InfraOps workshops.
+> A comprehensive checklist for trainers delivering Agentic InfraOps MicroHack sessions.
 > Use this before, during, and after your sessions to ensure smooth delivery.
+>
+> 🎯 **MicroHack site**: <https://jonathan-vella.github.io/microhack-agentic-infraops/>
+> — A hands-on, guided challenge where participants build Azure infrastructure
+> end-to-end using AI agents, from requirements to deployment.
 
-## 🗓️ Pre-Workshop (1-2 Days Before)
+## 📅️ Pre-Session (1-2 Days Before)
 
 ### Environment Preparation
 
@@ -125,7 +129,7 @@
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
-## 🎯 During Workshop
+## 🎯 During Session
 
 ### Opening (First 10 Minutes)
 
@@ -185,7 +189,7 @@
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 
-## 📊 Post-Workshop
+## 📊 Post-Session
 
 ### Immediate (Within 30 Minutes)
 

@@ -8,6 +8,14 @@
 
 Get running in 10 minutes.
 
+!!! info "Template repository"
+
+    You do **not** clone this repository directly. Instead, you create your own
+    repository from the
+    [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator),
+    which gives you a clean starting point with all agents, skills, and dev container
+    configuration ready to go.
+
 ## :material-clipboard-check-outline: Prerequisites
 
 !!! info "What you need before starting"
@@ -23,14 +31,34 @@ Get running in 10 minutes.
 | Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
 | Azure subscription     | Optional for learning                                       |
 
-## :material-content-copy: Step 1: Clone and Open
+## :material-source-repository: Step 1: Create Your Repository from the Template
+
+1. Go to the
+   [Accelerator template repository](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+2. Click the green **"Use this template"** button → **"Create a new repository"**
+3. Choose an owner and repository name (e.g. `my-infraops-project`)
+4. Select **Public** or **Private** visibility
+5. Click **Create repository**
+
+!!! tip "What is a template repository?"
+
+    A [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
+    creates a brand-new repository with the same directory structure and files — but
+    with a clean commit history and no fork relationship. Your repo is entirely yours.
+
+## :material-content-copy: Step 2: Clone and Open
+
+Clone **your new repository** (not this upstream project):
 
 ```bash
-git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
-code azure-agentic-infraops
+git clone https://github.com/YOUR-USERNAME/my-infraops-project.git # (1)!
+code my-infraops-project
 ```
 
-## :material-docker: Step 2: Open in Dev Container
+1. :material-swap-horizontal: Replace `YOUR-USERNAME/my-infraops-project` with your actual
+   GitHub username and the repository name you chose in Step 1.
+
+## :material-docker: Step 3: Open in Dev Container
 
 1. Press `F1` (or `Ctrl+Shift+P`)
 2. Type: `Dev Containers: Reopen in Container`
@@ -45,7 +73,7 @@ The Dev Container installs all tools automatically:
 - Go (Terraform MCP server)
 - 25+ VS Code extensions
 
-## :material-check-circle-outline: Step 3: Verify Setup
+## :material-check-circle-outline: Step 4: Verify Setup
 
 !!! tip "Verify all tools installed correctly"
 
@@ -55,9 +83,10 @@ The Dev Container installs all tools automatically:
 az --version && bicep --version && terraform --version && pwsh --version # (1)!
 ```
 
-1. :material-check-all: All four CLIs should print version numbers. If any fail, reopen the dev container.
+1. :material-check-all: All four CLIs should print version numbers. If any fail, reopen
+   the dev container.
 
-## :material-toggle-switch-outline: Step 4: Enable Subagent Orchestration
+## :material-toggle-switch-outline: Step 5: Enable Subagent Orchestration
 
 !!! warning "Required"
 
@@ -83,7 +112,7 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-## :material-play-circle-outline: Step 5: Start the Conductor
+## :material-play-circle-outline: Step 6: Start the Conductor
 
 ### Option A: InfraOps Conductor (Recommended)
 
@@ -113,7 +142,7 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-## :material-chart-timeline-variant: Step 6: Follow the Workflow
+## :material-chart-timeline-variant: Step 7: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection.
@@ -177,14 +206,16 @@ infra/terraform/my-webapp/
 
 ## :material-arrow-right-circle-outline: Next Steps
 
-| Goal                           | Resource                                 |
-| ------------------------------ | ---------------------------------------- |
-| Understand the full workflow   | [workflow.md](workflow.md)               |
-| Try a complete workflow        | [Prompt Guide](prompt-guide/index.md)    |
-| Generate architecture diagrams | Use `azure-diagrams` skill               |
-| Create documentation           | Use `azure-artifacts` skill              |
-| Explore Terraform patterns     | Use `terraform-patterns` skill           |
-| Troubleshoot issues            | [troubleshooting.md](troubleshooting.md) |
+| Goal                            | Resource                                                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Understand the full workflow    | [workflow.md](workflow.md)                                                                                                   |
+| Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)                                                   |
+| Try a complete workflow         | [Prompt Guide](prompt-guide/index.md)                                                                                       |
+| Generate architecture diagrams  | Use `azure-diagrams` skill                                                                                                   |
+| Create documentation            | Use `azure-artifacts` skill                                                                                                  |
+| Explore Terraform patterns      | Use `terraform-patterns` skill                                                                                               |
+| Troubleshoot issues             | [troubleshooting.md](troubleshooting.md)                                                                                     |
+| Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops)                                           |
 
 ## :material-lightning-bolt: Quick Reference
 
