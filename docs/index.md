@@ -1,11 +1,5 @@
 <!-- MkDocs landing page — source of truth is this file -->
 
-<div align="center">
-  <img src="assets/images/hero-home.jpg"
-    width="100%" height="300" style="object-fit: cover; border-radius: 10px;"
-    alt="Azure cloud infrastructure visualization"/>
-</div>
-
 # Agentic InfraOps
 
 ![Version](https://img.shields.io/badge/version-0.10.0-blue)
@@ -20,6 +14,74 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 
 [Get Started](quickstart.md){ .md-button .md-button--primary }
 [Use the Template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator){ .md-button }
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 👤 User
+    participant C as 🎼 Conductor
+    participant Agents as 🤖 Agents
+    participant X as ⚔️ Challenger
+
+    Note over C: AI prepares · Humans decide
+
+    U->>C: Describe infrastructure intent
+    C->>Agents: 📋 Gather requirements
+    Agents-->>C: 01-requirements.md
+    C->>X: Challenge requirements
+    X-->>C: Findings
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: 🏛️ Architecture + 💰 Cost
+    Agents-->>C: 02-assessment.md
+    C->>X: Challenge architecture
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: 📐 IaC Plan + Governance
+    Note right of Agents: Bicep or Terraform track
+    Agents-->>C: 04-plan.md + constraints
+    C->>X: Challenge plan
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: ⚒️ Generate IaC (AVM-first)
+    Note right of Agents: lint → review → validate
+    Agents-->>C: infra/{bicep,terraform}/{project}
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve for deploy
+    end
+
+    C->>Agents: 🚀 Deploy to Azure
+    Note right of Agents: what-if / plan preview first
+    Agents-->>C: 06-deployment-summary.md
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 VERIFICATION
+    U-->>C: ✅ Verify resources
+    end
+
+    C->>Agents: 📚 Generate as-built docs
+    Agents-->>C: 07-*.md documentation suite
+    C->>U: Present complete documentation
+
+    Note over U,Agents: ✅ AI Orchestrated · Human Governed · Azure Ready
+```
 
 ---
 
