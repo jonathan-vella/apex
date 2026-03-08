@@ -1,30 +1,41 @@
 site_name: Agentic InfraOps
 site_url: https://jonathan-vella.github.io/azure-agentic-infraops/
+site_description: Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC
 repo_url: https://github.com/jonathan-vella/azure-agentic-infraops
 repo_name: jonathan-vella/azure-agentic-infraops
 edit_uri: edit/main/docs/
+copyright: "&copy; 2025 Jonathan Vella. Distributed under the MIT License."
 
 theme:
   name: material
+  icon:
+    logo: material/robot-outline
+    repo: fontawesome/brands/github
   palette:
     - scheme: default
-      primary: blue
+      primary: indigo
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Dark mode
     - scheme: slate
-      primary: blue
+      primary: indigo
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
-    # Navigation — SPA-like experience
+    # Navigation — tabs at top + SPA-like experience
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
     - navigation.instant.prefetch
     - navigation.instant.progress
     - navigation.tracking
     - navigation.sections
-    - navigation.expand
     - navigation.top
     - navigation.indexes
     - navigation.path
