@@ -133,6 +133,13 @@ across multiple AI executors (Codex, Copilot, Claude, OpenCode), automates retri
 failover, manages PR lifecycles, and provides operator control through a Telegram Mini App
 dashboard. Key concepts adopted from Bosun:
 
+!!! info "What are `.mjs` files?"
+
+    Files ending in `.mjs` are **ECMAScript Modules** — JavaScript files that use the
+    modern `import`/`export` syntax (as opposed to `.cjs` which uses `require()`).
+    Bosun's codebase is written as Node.js ESM modules. References like
+    `shared-state-manager.mjs` point to specific source files in the Bosun repository.
+
 **Distributed shared state with claim-based locking.** Bosun's `shared-state-manager.mjs`
 implements heartbeat-based liveness detection and claim tokens to prevent concurrent agents
 from double-writing the same task. This project's session state schema v2.0 directly
@@ -144,6 +151,13 @@ define workflow execution as a directed acyclic graph with typed nodes, conditio
 and fan-out patterns. This project's `workflow-graph.json` encodes the 7-step pipeline
 as a machine-readable DAG with `agent-step`, `gate`, `subagent-fan-out`, and `validation`
 node types.
+
+!!! tip "What is a DAG?"
+
+    A **DAG (Directed Acyclic Graph)** is a graph where edges have a direction and there
+    are no cycles — meaning you can never follow the arrows back to where you started.
+    In workflow engines, a DAG models task dependencies: each step points to the steps
+    that must come after it, guaranteeing a clear execution order with no infinite loops.
 
 **Context shredding.** Bosun's `context-shredding-config.mjs` implements tiered context
 compression to manage token budgets across long-running sessions. This project's

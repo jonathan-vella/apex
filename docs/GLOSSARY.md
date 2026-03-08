@@ -8,6 +8,14 @@ Quick reference for terms used throughout Agentic InfraOps documentation.
 
 ## A
 
+### AAD (Azure Active Directory)
+
+Microsoft's cloud-based identity and access management service, now branded as
+**Microsoft Entra ID**. Used for authentication and RBAC across Azure resources.
+SQL databases in this project require AAD-only authentication (no SQL auth).
+
+🔗 **External**: [Microsoft Entra ID](https://learn.microsoft.com/entra/fundamentals/whatis)
+
 ### ADR (Architecture Decision Record)
 
 A document that captures an important architectural decision along with its context and consequences.
@@ -45,6 +53,25 @@ under the `Azure` namespace. Module sources follow the pattern
 
 🔗 **External**: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
 
+### AKS (Azure Kubernetes Service)
+
+Managed Kubernetes container orchestration service on Azure. Simplifies deploying,
+managing, and scaling containerised applications.
+
+🔗 **External**: [AKS Documentation](https://learn.microsoft.com/azure/aks/)
+
+### API (Application Programming Interface)
+
+A set of defined rules and protocols that allows software components to communicate.
+In this project, agents interact with Azure and GitHub APIs via MCP servers.
+
+### ARM (Azure Resource Manager)
+
+Azure's deployment and management layer. All Azure resource operations go through ARM.
+Bicep compiles to ARM templates (JSON). The Azure MCP server queries ARM directly.
+
+🔗 **External**: [ARM Overview](https://learn.microsoft.com/azure/azure-resource-manager/management/overview)
+
 ## B
 
 ### Bicep
@@ -60,6 +87,19 @@ Static analysis tool that checks Bicep files for best practices, security issues
 Run with `bicep lint main.bicep` or automatically via VS Code extension.
 
 ## C
+
+### CAF (Cloud Adoption Framework)
+
+Microsoft's methodology for cloud adoption, including naming conventions, governance,
+and landing zone architecture. This project follows CAF naming prefixes (e.g. `rg-` for
+resource groups, `vnet-` for virtual networks).
+
+🔗 **External**: [Azure CAF](https://learn.microsoft.com/azure/cloud-adoption-framework/)
+
+### CDN (Content Delivery Network)
+
+A distributed network of servers that caches and delivers content from edge locations
+closest to users. Azure CDN / Azure Front Door accelerate static asset delivery.
 
 ### Challenger
 
@@ -78,6 +118,12 @@ custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 ### Conductor
 
 See [InfraOps Conductor](#infraops-conductor).
+
+### CLI (Command-Line Interface)
+
+A text-based interface for interacting with software. This project uses several CLIs:
+Azure CLI (`az`), Bicep CLI (`bicep`), Terraform CLI (`terraform`), GitHub CLI (`gh`),
+and PowerShell (`pwsh`).
 
 ### Content Tabs
 
@@ -105,6 +151,14 @@ thresholds to prevent cascading deployment failures.
 
 ## D
 
+### DAG (Directed Acyclic Graph)
+
+A graph where edges have a direction and there are no cycles — you can never follow
+the arrows back to where you started. In workflow engines, a DAG models task
+dependencies: each step points to the steps that must come after it, guaranteeing a
+clear execution order with no infinite loops. This project's workflow is encoded as a
+DAG in `workflow-graph.json`.
+
 ### Design Agent
 
 Step 3 agent that generates architecture diagrams and Architecture Decision Records (ADRs).
@@ -118,6 +172,17 @@ A Docker-based development environment defined in `.devcontainer/`. Provides con
 (Azure CLI, Bicep, PowerShell) across all machines.
 
 🔗 **External**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+
+### DSL (Domain-Specific Language)
+
+A programming language designed for a specific problem domain rather than general-purpose
+use. Bicep is a DSL for Azure resource deployment; HCL is a DSL for infrastructure
+configuration.
+
+### ERD (Entity-Relationship Diagram)
+
+A visual diagram showing how data entities relate to each other. Used in the Design step
+(Step 3) to model data architectures.
 
 ## F
 
@@ -171,6 +236,16 @@ Practice of managing infrastructure through code files (Bicep, Terraform, ARM) r
 portal clicks. Enables version control, automation, and repeatability. This project supports two
 IaC tracks: **Bicep** (Azure-native DSL) and **Terraform** (multi-cloud HCL).
 
+## J
+
+### JSON (JavaScript Object Notation)
+
+A lightweight data interchange format. Used throughout this project for configuration
+files (`agent-registry.json`, `workflow-graph.json`, `session-state.json`),
+MCP communication (JSON-RPC), and Azure ARM templates.
+
+🔗 **External**: [JSON Specification](https://www.json.org/)
+
 ## K
 
 ### KQL (Kusto Query Language)
@@ -188,6 +263,12 @@ Protocol for extending AI assistants with external tools and data sources. The A
 server provides real-time Azure pricing to Copilot.
 
 📁 **See**: [mcp/azure-pricing-mcp/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp)
+
+### MJS (ECMAScript Module)
+
+A JavaScript file using modern `import`/`export` syntax (as opposed to `.cjs` which
+uses `require()`). Bosun's codebase uses `.mjs` files. This project's validation
+scripts in `scripts/` also use the `.mjs` extension.
 
 ### MTTR (Mean Time To Recovery)
 
@@ -213,7 +294,67 @@ demonstrates PCI-DSS compliant architecture patterns.
 Azure feature that assigns a private IP address to a PaaS service (Storage, SQL, Key Vault),
 removing public internet exposure. Essential for zero-trust architectures.
 
+### PRD (Product Requirements Document)
+
+A document defining the features, functionality, and constraints for a product or project.
+Ralph uses a `prd.json` task list to track user stories. In this project, the equivalent
+is `01-requirements.md`.
+
+### RBAC (Role-Based Access Control)
+
+Azure's authorization system that assigns permissions based on roles (Owner, Contributor,
+Reader). Managed through Azure AD / Entra ID. The Azure MCP server is RBAC-aware.
+
+🔗 **External**: [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/)
+
+### REST (Representational State Transfer)
+
+An architectural style for web APIs using standard HTTP methods (GET, POST, PUT, DELETE).
+The governance-discovery-subagent queries Azure Policy assignments via REST API.
+
+### ROI (Return on Investment)
+
+A financial metric measuring the gain or loss from an investment relative to its cost.
+Used in presenter materials to quantify the value of Agentic InfraOps.
+
+### RPC (Remote Procedure Call)
+
+A protocol for executing functions on a remote server. MCP servers communicate using
+JSON-RPC, a lightweight RPC protocol encoded in JSON.
+
 ## S
+
+### SDK (Software Development Kit)
+
+A collection of libraries and tools for building applications that interact with a
+service. Azure SDKs exist for Python, .NET, JavaScript, Go, and Java.
+
+### SKU (Stock Keeping Unit)
+
+In Azure, a SKU defines the pricing tier and capabilities of a resource (e.g.
+`Standard_LRS` for storage, `P1v3` for App Service). The Architect agent recommends
+SKUs based on requirements and pricing data.
+
+### SLA (Service Level Agreement)
+
+A formal commitment from a cloud provider guaranteeing a minimum level of availability
+(e.g. 99.95% uptime). SLA requirements drive SKU and architecture decisions.
+
+### SOC 2 (System and Organization Controls 2)
+
+An auditing framework for service organisations covering security, availability,
+processing integrity, confidentiality, and privacy. Azure services hold SOC 2
+certifications.
+
+### SQL (Structured Query Language)
+
+A language for managing relational databases. Azure SQL Database is a managed
+relational database service used in several example architectures in this project.
+
+### SRE (Site Reliability Engineering)
+
+An engineering discipline that applies software practices to infrastructure and
+operations. MTTR is a key SRE metric tracked in this project's time-savings evidence.
 
 ### SBOM (Software Bill of Materials)
 
@@ -277,6 +418,17 @@ The JSON file that tracks the mapping between Terraform configuration and real-w
 resources. Stored remotely in an Azure Storage Account for team collaboration.
 State locking prevents concurrent modifications.
 
+### TLS (Transport Layer Security)
+
+Cryptographic protocol that provides secure communication over networks. This project's
+security baseline mandates TLS 1.2 minimum on all Azure services.
+
+### TTL (Time To Live)
+
+The duration a cached value remains valid before being refreshed. The Azure Pricing
+MCP server uses a 256-entry cache with 5-minute TTL for pricing data and 24-hour TTL
+for retirement data.
+
 ## U
 
 ### UAT (User Acceptance Testing)
@@ -297,6 +449,29 @@ Reliability, Security, Cost Optimization, Operational Excellence, Performance Ef
 Azure deployment preview that shows what resources will be created, modified, or deleted without
 making actual changes. Run with `az deployment group create --what-if`.
 
+### VPN (Virtual Private Network)
+
+An encrypted network tunnel connecting on-premises networks to Azure virtual networks.
+Azure VPN Gateway sits in the hub VNet in a hub-spoke topology.
+
+### WSL (Windows Subsystem for Linux)
+
+A Windows feature that runs a Linux environment directly on Windows without a virtual
+machine. Required for Docker Desktop on Windows. The dev container setup guide covers
+WSL 2 installation.
+
+🔗 **External**: [WSL Documentation](https://learn.microsoft.com/windows/wsl/)
+
+## Y
+
+### YAML (YAML Ain't Markup Language)
+
+A human-readable data serialisation format used for configuration files. In this project,
+YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
+(`.instructions.md`), MkDocs configuration (`mkdocs.yml`), and GitHub Actions workflows.
+
+🔗 **External**: [YAML Specification](https://yaml.org/)
+
 ## Numbers & Symbols
 
 ### 7-Step Agentic Workflow
@@ -313,21 +488,49 @@ Each step produces artifacts in `agent-output/`.
 
 | Term    | Full Name                                    | Category       |
 | ------- | -------------------------------------------- | -------------- |
+| AAD     | Azure Active Directory (Entra ID)            | Identity       |
 | ADR     | Architecture Decision Record                 | Documentation  |
 | Agent   | Copilot Custom Agent                         | AI             |
+| AKS     | Azure Kubernetes Service                     | Compute        |
+| API     | Application Programming Interface            | General        |
+| ARM     | Azure Resource Manager                       | Azure          |
 | AVM     | Azure Verified Modules                       | IaC            |
 | AVM-TF  | Azure Verified Modules for Terraform         | IaC            |
+| CAF     | Cloud Adoption Framework                     | Methodology    |
+| CDN     | Content Delivery Network                     | Networking     |
+| CLI     | Command-Line Interface                       | Tooling        |
+| DAG     | Directed Acyclic Graph                       | Architecture   |
+| DSL     | Domain-Specific Language                     | General        |
+| ERD     | Entity-Relationship Diagram                  | Documentation  |
 | HCL     | HashiCorp Configuration Language             | IaC            |
 | IaC     | Infrastructure as Code                       | Methodology    |
+| JSON    | JavaScript Object Notation                   | Data Format    |
 | KQL     | Kusto Query Language                         | Monitoring     |
 | MCP     | Model Context Protocol                       | AI Integration |
+| MJS     | ECMAScript Module                            | JavaScript     |
 | MTTR    | Mean Time To Recovery                        | Operations     |
 | NSG     | Network Security Group                       | Networking     |
 | PCI-DSS | Payment Card Industry Data Security Standard | Compliance     |
+| PRD     | Product Requirements Document                | Documentation  |
+| RBAC    | Role-Based Access Control                    | Security       |
+| REST    | Representational State Transfer              | Architecture   |
+| ROI     | Return on Investment                         | Business       |
+| RPC     | Remote Procedure Call                        | Architecture   |
 | SBOM    | Software Bill of Materials                   | Security       |
+| SDK     | Software Development Kit                     | Tooling        |
 | Skill   | Copilot Skill Module                         | AI             |
+| SKU     | Stock Keeping Unit                           | Azure          |
+| SLA     | Service Level Agreement                      | Operations     |
+| SOC 2   | System and Organization Controls 2           | Compliance     |
+| SQL     | Structured Query Language                    | Data           |
+| SRE     | Site Reliability Engineering                 | Operations     |
 | TFLint  | Terraform Linter                             | IaC            |
+| TLS     | Transport Layer Security                     | Security       |
+| TTL     | Time To Live                                 | Caching        |
 | UAT     | User Acceptance Testing                      | QA             |
+| VPN     | Virtual Private Network                      | Networking     |
 | WAF     | Well-Architected Framework                   | Architecture   |
+| WSL     | Windows Subsystem for Linux                  | Tooling        |
+| YAML    | YAML Ain't Markup Language                   | Data Format    |
 
 _Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._
