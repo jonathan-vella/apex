@@ -134,6 +134,8 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.11.0' = {
 | Anti-Pattern           | Problem          | Solution                            |
 | ---------------------- | ---------------- | ----------------------------------- |
 | Hardcoded names        | Collisions       | Use `uniqueString()` suffix         |
+| Hardcoded project name | Not repeatable   | Parameter with no default           |
+| Hardcoded tag values   | Not repeatable   | Reference parameters                |
 | Missing `@description` | Poor docs        | Document all parameters             |
 | Explicit `dependsOn`   | Unnecessary      | Use symbolic references             |
 | Resource ID for scope  | BCP036 error     | Use `existing` + names              |
@@ -141,6 +143,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.11.0' = {
 | `RequestHeaders`       | ARM error        | Use `RequestHeader` (singular)      |
 | WAF policy hyphens     | Validation fails | `wafpolicy{name}` alphanumeric only |
 | Raw Bicep (no AVM)     | Policy drift     | Use AVM modules or get approval     |
+| No budget module       | No cost guard    | Include `modules/budget.bicep`      |
 
 ## Zone Redundancy SKUs
 

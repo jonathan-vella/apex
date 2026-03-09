@@ -59,6 +59,22 @@ For **every** artifact, ask:
 - [ ] Are diagnostic settings included for every resource?
 - [ ] What networking assumptions remain unvalidated (VNet sizing, NSG rules, DNS)?
 
+### Cost Monitoring (MANDATORY)
+
+- [ ] Does the plan/code include an Azure Budget resource?
+- [ ] Is the budget amount aligned to the Step 2 cost estimate?
+- [ ] Are forecast alerts configured at 80%, 100%, and 120% thresholds?
+- [ ] Is anomaly detection enabled?
+- [ ] Are notification recipients parameterized (not hardcoded emails)?
+
+### Repeatability (MANDATORY)
+
+- [ ] Are ALL project-specific values parameterized (no hardcoded project/app names)?
+- [ ] Can templates deploy to any tenant, region, subscription without source modification?
+- [ ] Is `projectName` a required parameter with no default value?
+- [ ] Are tag values derived from parameters (not inline strings)?
+- [ ] Are short names derived from parameters or `take()` (not hardcoded)?
+
 ---
 
 ## Per-Artifact-Type Checklists

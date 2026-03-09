@@ -174,12 +174,12 @@ Build templates in dependency order from `04-implementation-plan.md`.
 If **phased**: add `@allowed` `phase` parameter, wrap modules in `if phase == 'all' || phase == '{name}'`.
 If **single**: no phase parameter needed.
 
-| Round | Content                                                        |
-| ----- | -------------------------------------------------------------- |
-| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam` |
-| 2     | Networking, Key Vault, Log Analytics + App Insights            |
-| 3     | Compute, Data, Messaging                                       |
-| 4     | Diagnostic settings, role assignments, `deploy.ps1`            |
+| Round | Content                                                              |
+| ----- | -------------------------------------------------------------------- |
+| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`       |
+| 2     | Networking, Key Vault, Log Analytics + App Insights                  |
+| 3     | Compute, Data, Messaging                                             |
+| 4     | Budget + alerts, Diagnostic settings, role assignments, `deploy.ps1` |
 
 After each round: `bicep build` to catch errors early.
 
@@ -215,6 +215,7 @@ infra/bicep/{project}/
 ├── main.bicepparam         # Environment-specific parameters
 ├── deploy.ps1              # PowerShell deployment script
 └── modules/
+    ├── budget.bicep        # Azure Budget + forecast alerts + anomaly detection
     ├── key-vault.bicep     # Per-resource modules
     ├── networking.bicep
     └── ...
@@ -235,5 +236,8 @@ infra/bicep/{project}/
 - [ ] Security baseline applied (TLS 1.2, HTTPS, managed identity)
 - [ ] Length constraints respected (KV≤24, Storage≤24)
 - [ ] `bicep-lint-subagent` PASS + `bicep-review-subagent` APPROVED
-- [ ] 3-pass adversarial review completed
+- [ ] 3-pass adversarial review completed (pass 3 conditional on pass 2 must_fix)
 - [ ] `deploy.ps1` generated; `05-implementation-reference.md` saved
+- [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
+- [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
+- [ ] `projectName` is a required parameter with no default value

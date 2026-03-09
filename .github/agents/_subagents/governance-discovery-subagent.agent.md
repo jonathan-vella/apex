@@ -52,7 +52,39 @@ If this fails, instruct user to run `az login --use-device-code`.
 
 ## Policy Discovery Commands
 
-### Step 1: Discover ALL Effective Policy Assignments
+### Preferred: Batch Script Approach
+
+For efficiency, run a single batch query to fetch all assignments and expand
+policy definitions in one pass. Use this Python one-liner pattern:
+
+```bash
+python3 -c "
+import json, subprocess
+def az(url):
+    return json.loads(subprocess.check_output(
+        ['az','rest','--method','GET','--url',url,'-o','json'],
+        text=True, timeout=60))
+sub = subprocess.check_output(
+    ['az','account','show','--query','id','-o','tsv'], text=True).strip()
+assignments = az(f'https://management.azure.com/subscriptions/{sub}/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01')['value']
+cache = {}
+results = []
+for a in assignments:
+    did = a['properties']['policyDefinitionId']
+    if did not in cache:
+        cache[did] = az(f'https://management.azure.com{did}?api-version=2021-06-01')
+    # ... classify and output
+print(json.dumps(results, indent=2))
+"
+```
+
+This collapses 20+ sequential REST calls into a single script execution,
+caching shared policy definitions. The subagent then classifies the output
+rather than making individual API calls per policy.
+
+### Fallback: Step-by-Step (if script fails)
+
+#### Step 1: Discover ALL Effective Policy Assignments
 
 ```bash
 SUB_ID=$(az account show --query id -o tsv)

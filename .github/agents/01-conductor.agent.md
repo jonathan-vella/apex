@@ -142,14 +142,20 @@ handoffs:
 Master orchestrator for the 7-step Azure infrastructure development workflow.
 
 > [!CAUTION]
-> **HARD RULE — ASK BEFORE YOU READ**
+> **HARD RULE — CONFIRM PROJECT NAME FIRST**
 >
-> Your **very first action** MUST be `askQuestions` to get the project folder name.
-> Do NOT call `read_file`, `list_dir`, or any other tool before asking the user.
+> Your **very first action** MUST be to extract the project name from the user's
+> message. If the user provided a name (e.g., "nordic foods" → `nordic-fresh-foods`),
+> confirm it inline: _"I'll use `{kebab-case-name}` as the project folder. OK?"_
+> Only use `askQuestions` if the user's message gives NO clue about the project name.
 >
-> 1. `askQuestions` → project folder name
+> 1. Parse project name from user message → confirm inline
 > 2. Create `agent-output/{project}/`
 > 3. THEN read skills and delegate
+>
+> **NEVER ask about IaC tool (Bicep/Terraform).** That is captured exclusively
+> by the Requirements agent in Phase 2. Read `iac_tool` from `01-requirements.md`
+> after Step 1 completes.
 
 ## MANDATORY: Read Skills (After Project Name, Before Delegating)
 
@@ -179,19 +185,22 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 3. **Structured Workflow**: Follow the 7-step process strictly, tracking progress in artifacts
 4. **Quality Gates**: Enforce validation at each phase before proceeding
 5. **Circuit Breaker**: If any step status is `blocked`, halt workflow and present findings to user before continuing
+6. **Session Breaks**: Recommend a fresh chat session at Gates 2 and 3 to prevent context
+   exhaustion (see [Session Break Protocol](#session-break-protocol))
 
 ## DO / DON'T
 
-| ✅ DO                                                               | ❌ DON'T                                                            |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Pause at EVERY approval gate; wait for confirmation                 | Read skills/templates before asking project name via `askQuestions` |
-| Delegate to subagents via `#runSubagent`                            | Skip approval gates — EVER                                          |
-| Track progress via artifact files in `agent-output/{project}/`      | Deploy without validation (Deploy agent handles preflight)          |
-| Summarize subagent results concisely                                | Modify files directly — delegate to appropriate agent               |
-| Create `agent-output/{project}/` + `00-session-state.json` at start | Include raw subagent dumps                                          |
-| Ensure `README.md` exists (Requirements agent creates it)           | Combine multiple steps without approval between them                |
-| Write `00-handoff.md` at EVERY gate before presenting               | Skip `00-handoff.md` or `00-session-state.json` updates             |
-| Update `00-session-state.json` at EVERY gate                        |                                                                     |
+| ✅ DO                                                               | ❌ DON'T                                                          |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Pause at EVERY approval gate; wait for confirmation                 | Use `askQuestions` to ask project name if parseable from user msg |
+| Delegate to subagents via `#runSubagent`                            | Skip approval gates — EVER                                        |
+| Recommend session break at Gates 2 and 3                            | Ask about IaC tool (Bicep/Terraform) — Requirements handles this  |
+| Track progress via artifact files in `agent-output/{project}/`      | Deploy without validation (Deploy agent handles preflight)        |
+| Summarize subagent results concisely                                | Modify files directly — delegate to appropriate agent             |
+| Create `agent-output/{project}/` + `00-session-state.json` at start | Include raw subagent dumps                                        |
+| Ensure `README.md` exists (Requirements agent creates it)           | Combine multiple steps without approval between them              |
+| Write `00-handoff.md` at EVERY gate before presenting               | Skip `00-handoff.md` or `00-session-state.json` updates           |
+| Update `00-session-state.json` at EVERY gate                        |                                                                   |
 
 ## The 7-Step Workflow
 
@@ -217,7 +226,8 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 | `Terraform`       | `05t-Terraform Planner` | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
-> "Should I use **Bicep** or **Terraform**?" (default: Bicep). Do NOT ask in any other scenario.
+> "Should I use **Bicep** or **Terraform**?" (default: Bicep). This is the ONLY scenario
+> where the Conductor asks about IaC tool. In normal flow, Requirements Phase 2 captures it.
 
 > [!IMPORTANT]
 > **Write `00-handoff.md` at every gate before presenting it to the user.**
@@ -246,7 +256,9 @@ Artifact: agent-output/{project}/01-requirements.md
 Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ✅ Next: Implementation Planning (Step 4) or Design Artifacts (Step 3, optional)
-❓ Review WAF assessment and confirm to proceed
+💡 SESSION BREAK RECOMMENDED: Context is growing. Consider opening a fresh chat
+   and running @01-Conductor with the project name to resume from Step 4.
+❓ Review WAF assessment and confirm to proceed (same session or fresh chat)
 ```
 
 ### Gate 3: After Planning
@@ -259,7 +271,9 @@ Dependency Diagram: agent-output/{project}/04-dependency-diagram.py/.png
 Runtime Diagram: agent-output/{project}/04-runtime-diagram.py/.png
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
-❓ Review plan and confirm to proceed
+💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
+   Run @01-Conductor with the project name — context restores from 00-session-state.json.
+❓ Review plan and confirm to proceed (same session or fresh chat)
 ```
 
 ### Gate 4: After Implementation
@@ -308,50 +322,20 @@ the handoff labels above; Terraform path (Steps 4†/5†/6†) used when
 
 ### Subagent Integration
 
-Subagents are wired into their parent agents automatically:
-
-| Subagent                        | Parent Agent       | When Used                                              | Passes |
-| ------------------------------- | ------------------ | ------------------------------------------------------ | ------ |
-| `challenger-review-subagent`    | Requirements       | Step 1 — adversarial review of requirements            | 1x     |
-| `challenger-review-subagent`    | Architect          | Step 2 — adversarial review of architecture (3 lenses) | 3x     |
-| `challenger-review-subagent`    | Architect          | Step 2 — adversarial review of cost estimate           | 1x     |
-| `challenger-review-subagent`    | Bicep Plan         | Step 4 — adversarial review of governance constraints  | 1x     |
-| `challenger-review-subagent`    | Bicep Plan         | Step 4 — adversarial review of implementation plan     | 3x     |
-| `challenger-review-subagent`    | Terraform Planner  | Step 4† — adversarial review of governance constraints | 1x     |
-| `challenger-review-subagent`    | Terraform Planner  | Step 4† — adversarial review of implementation plan    | 3x     |
-| `challenger-review-subagent`    | Bicep Code         | Step 5 — adversarial review of IaC code                | 3x     |
-| `challenger-review-subagent`    | Terraform Code Gen | Step 5† — adversarial review of IaC code               | 3x     |
-| `challenger-review-subagent`    | Deploy             | Step 6 — pre-deploy adversarial review                 | 1x     |
-| `challenger-review-subagent`    | Terraform Deploy   | Step 6† — pre-deploy adversarial review                | 1x     |
-| `cost-estimate-subagent`        | Architect          | Step 2 — pricing isolation + accuracy validation       | —      |
-| `cost-estimate-subagent`        | As-Built           | Step 7 — as-built pricing for deployed SKUs            | —      |
-| `governance-discovery-subagent` | Bicep Plan         | Step 4 — policy discovery gate                         | —      |
-| `governance-discovery-subagent` | Terraform Planner  | Step 4† — policy discovery gate                        | —      |
-| `bicep-lint-subagent`           | Bicep Code         | Step 5 Phase 4 — syntax check                          | —      |
-| `bicep-review-subagent`         | Bicep Code         | Step 5 Phase 4 — code review                           | —      |
-| `bicep-whatif-subagent`         | Deploy             | Step 6 — deployment preview                            | —      |
-| `terraform-lint-subagent`       | Terraform Code Gen | Step 5† — syntax + format check                        | —      |
-| `terraform-review-subagent`     | Terraform Code Gen | Step 5† — AVM-TF + security review                     | —      |
-| `terraform-plan-subagent`       | Terraform Deploy   | Step 6† — deployment preview                           | —      |
-
-† Terraform path only.
+For the full subagent matrix, read `.github/skills/workflow-engine/references/subagent-integration.md`.
+Key points: Challenger runs 3-pass reviews at Steps 2, 4, 5; cost-estimate-subagent handles pricing
+at Steps 2 and 7; governance-discovery-subagent gates Step 4.
 
 > [!NOTE]
-> **Pricing Accuracy Gate (Steps 2 & 7)**: No agent writes dollar figures from
-> parametric knowledge. All prices must originate from `cost-estimate-subagent`
-> (Codex + Azure Pricing MCP). This policy applies to both the Architect
-> (Step 2, `03-des-cost-estimate.md`) and As-Built (Step 7, `07-ab-cost-estimate.md`)
-> agents. Established after model evaluation found pricing hallucinations
-> (see `agent-output/model-eval-scoring.md`).
-
-Optional manual validation (power users only):
-If user explicitly requests extra validation at Step 5, delegate to lint/review/whatif subagents directly.
+> **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
+> `cost-estimate-subagent` (Codex + Azure Pricing MCP). Never write dollar
+> figures from parametric knowledge.
 
 ## Starting a New Project
 
-1. **Ask for the project folder name** via `askQuestions` — suggest a kebab-case name
-   (max 30 chars, e.g. `payment-gateway-poc`) derived from description;
-   user must confirm or override (NEVER silently pick a name)
+1. **Parse the project folder name** from the user's message — derive a kebab-case name
+   (max 30 chars, e.g. `payment-gateway-poc`). Confirm inline: _"I'll use `{name}` — OK?"_
+   Only use `askQuestions` if the user's message gives no clue. NEVER silently pick a name.
 2. Create `agent-output/{project-name}/`
 3. Create `00-session-state.json` from
    `.github/skills/azure-artifacts/templates/00-session-state.template.json`
@@ -410,3 +394,15 @@ If user explicitly requests extra validation at Step 5, delegate to lint/review/
 - **Always**: Follow 7-step workflow order, require approval at gates, delegate to specialized agents
 - **Ask first**: Skipping optional steps, changing IaC tool choice, deviating from workflow
 - **Never**: Generate IaC code directly, skip approval gates, bypass governance discovery
+
+## Session Break Protocol
+
+At Gates 2 and 3, recommend starting a fresh chat session to prevent context exhaustion:
+
+1. Write `00-handoff.md` and update `00-session-state.json` (as always)
+2. Present the gate with a session break recommendation (see gate templates above)
+3. If the user agrees: tell them to open a new chat and invoke `@01-Conductor` with the project name
+4. If the user prefers to continue: proceed in same session (warn context may degrade)
+
+At resumption, the Conductor reads `00-session-state.json` and restores full context
+from artifact paths — no information is lost. See [Resuming a Project](#resuming-a-project).

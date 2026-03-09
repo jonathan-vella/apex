@@ -238,5 +238,8 @@ file structure, `locals.tf` pattern, and phased deployment pattern.
 - [ ] Security baseline applied (TLS 1.2, HTTPS, managed identity)
 - [ ] Bootstrap + deploy scripts generated (bash + PS)
 - [ ] `terraform-lint-subagent` PASS + `terraform-review-subagent` APPROVED
-- [ ] 3-pass adversarial review completed
+- [ ] 3-pass adversarial review completed (pass 3 conditional on pass 2 must_fix)
 - [ ] `05-implementation-reference.md` saved
+- [ ] Budget resource with forecast alerts (80/100/120%) and anomaly detection
+- [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
+- [ ] `project_name` is a required variable with no default value

@@ -198,6 +198,10 @@ Include: resource inventory, module structure (`main.bicep` + `modules/`), tasks
 deployment phases (from Phase 3.5 choice), diagram artifacts (`04-dependency-diagram.py/.png`,
 `04-runtime-diagram.py/.png`), naming conventions table, security config matrix, estimated time.
 
+> **MANDATORY**: The plan MUST include an Azure Budget resource (`Microsoft.Consumption/budgets`)
+> with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
+> thresholds and Anomaly Detection. See `iac-cost-repeatability.instructions.md`.
+
 ### Phase 4.3–4.5: Adversarial Review (1 governance + 3 plan passes)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table, prior_findings format, and invocation template.

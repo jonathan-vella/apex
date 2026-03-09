@@ -144,6 +144,13 @@ some answers, still ask the remaining questions. Pre-fill known answers as
 If the user already provided some of these in their initial prompt, mark those
 as `recommended` options but still present the full question set for confirmation.
 
+**If the parent (Conductor) already confirmed a project name** in the handoff
+prompt, pre-fill it as `recommended` and let the user confirm. Do NOT re-ask
+from scratch.
+
+> **`askQuestions` API rule**: When `allowFreeformInput: true`, provide either
+> **0 options** (pure freeform) or **≥2 options**. One option + freeform is invalid.
+
 ### Round 1b: Project Identity (MANDATORY — always ask)
 
 Use `askQuestions` — 3 questions: Scenario (greenfield/migration/modernize/extend),
@@ -179,6 +186,9 @@ Monthly budget (4 options + freeform), Data sensitivity (multi-select, 6 options
 
 Use `askQuestions` — 1 question: IaC tool (Bicep recommended, Terraform).
 Include `iac_tool` in the output document as: `iac_tool: Bicep    # or Terraform`
+
+**If the parent (Conductor) already passed an IaC tool preference** in the handoff
+prompt, skip this question and use the provided value. Only ask if no preference was given.
 
 Use Company Size Heuristics from azure-defaults skill to set `recommended: true`
 on budget/scale options matching the company size from Phase 1.

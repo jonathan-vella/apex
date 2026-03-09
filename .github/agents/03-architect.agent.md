@@ -221,19 +221,22 @@ in your WAF assessment recommendations (still produce the identical artifact str
 2. **Search docs** — Query Microsoft docs for each Azure service and architecture pattern
 3. **Assess trade-offs** — Evaluate all 5 WAF pillars, identify primary optimization
 4. **Select SKUs** — Choose resource SKUs and tiers (NO prices yet — leave cost columns blank)
-5. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
-6. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
-7. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
-8. **Generate charts** — Read `.github/skills/azure-diagrams/references/waf-cost-charts.md`
+5. **Checkpoint to disk** — Save research notes to `agent-output/{project}/02-waf-research.tmp.md`
+   (scratch file, deleted after final artifact is generated). This prevents holding both
+   research context AND final output in memory simultaneously.
+6. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
+7. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
+8. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
+9. **Generate charts** — Read `.github/skills/azure-diagrams/references/waf-cost-charts.md`
    and produce three matplotlib PNGs in `agent-output/{project}/`:
    - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF pillar, WAF brand colours
    - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut chart of cost categories
    - `03-des-cost-projection.py` + `03-des-cost-projection.png` — 6-month bar + trend chart
      Execute each `.py` file and verify the PNGs exist before continuing.
-9. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
-10. **Pricing sanity check** — Verify no dollar figures in your artifacts were
+10. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
+11. **Pricing sanity check** — Verify no dollar figures in your artifacts were
     written from memory (grep for `$` and confirm each matches subagent output)
-11. **Approval gate** — Present summary, wait for user approval before handoff
+12. **Approval gate** — Present summary, wait for user approval before handoff
 
 ## Cost Estimation (MANDATORY)
 

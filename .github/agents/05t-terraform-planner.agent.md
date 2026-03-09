@@ -186,6 +186,10 @@ resource inventory, module structure, dependencies, deployment phases,
 diagrams (`04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png`),
 naming table, security matrix, backend config template, estimated time.
 
+> **MANDATORY**: The plan MUST include an Azure Budget resource (`azurerm_consumption_budget_resource_group`)
+> with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
+> thresholds and Anomaly Detection. See `iac-cost-repeatability.instructions.md`.
+
 For Terraform-specific patterns (backend, state locking, provider pin, naming),
 read `terraform-patterns/references/tf-best-practices-examples.md`.
 

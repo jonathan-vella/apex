@@ -25,8 +25,13 @@ The parent agent writes the output file — you do NOT write files.
 
 1. **Read** `.github/skills/golden-principles/SKILL.md` — agent operating principles and invariants
 2. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security baselines, governance
-3. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact H2 templates (to validate structural completeness)
+3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category and per-artifact-type checklists
 4. **Read** `.github/instructions/bicep-policy-compliance.instructions.md` — governance enforcement rules
+
+> **Context optimization**: Do NOT read the full `azure-artifacts/SKILL.md`.
+> Only read `adversarial-checklists.md` for H2 structural validation.
+> Apply context shredding (from `adversarial-review-protocol.md`) when loading
+> predecessor artifacts — use summarized tier if context is heavy.
 
 ## Inputs
 
