@@ -1,3 +1,4 @@
+<!-- ref:custom-agents-v1 -->
 # Custom Agents Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/custom-agents

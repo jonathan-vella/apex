@@ -97,7 +97,7 @@ These instruction files auto-load for matching files. This skill references but 
 | `agent-research-first.instructions.md` | Agents, output, skills          | Research-before-implementation mandate   |
 | `context-optimization.instructions.md` | Agents, skills, instructions    | Context budget, hand-off rules           |
 
-## References
+## Reference Index
 
 Load only the reference file relevant to your current task:
 

@@ -1,3 +1,4 @@
+<!-- ref:hooks-v1 -->
 # Hooks Reference (Preview)
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/hooks

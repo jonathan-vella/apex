@@ -1,3 +1,4 @@
+<!-- ref:custom-instructions-v1 -->
 # Custom Instructions Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/custom-instructions

@@ -1,3 +1,4 @@
+<!-- ref:mcp-servers-v1 -->
 # MCP Servers Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/mcp-servers

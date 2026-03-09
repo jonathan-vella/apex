@@ -126,7 +126,11 @@ async function checkProhibitedRefs(cachedDocsMdFiles) {
   const singleFiles = [join(ROOT, ".github", "copilot-instructions.md")];
 
   // Reuse cached docs MD files, only scan instructions dir fresh
-  const mdFiles = [...cachedDocsMdFiles];
+  // Exclude CHANGELOG files — they are historical records that may legitimately
+  // reference paths that have since been removed or restructured.
+  const mdFiles = [...cachedDocsMdFiles].filter(
+    (f) => !relative(ROOT, f).toLowerCase().includes("changelog"),
+  );
   for (const dir of scanPaths) {
     mdFiles.push(...(await collectMdFiles(dir, [])));
   }

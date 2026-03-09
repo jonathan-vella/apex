@@ -66,13 +66,14 @@ concurrency:
 
 | Workflow                        | Purpose                               | Trigger                  |
 | ------------------------------- | ------------------------------------- | ------------------------ |
-| `lint.yml`                      | Markdown lint + code quality          | PR + push to main        |
-| `agent-validation.yml`          | Agent/skill/VS Code config validation | Changes to agents/skills |
-| `policy-compliance-check.yml`   | Governance guardrail validation       | PR + push to main        |
-| `docs.yml`                      | MkDocs site deployment to Pages       | Push to main (docs/)     |
-| `docs-freshness.yml`            | Doc count/reference drift detection   | Weekly + manual dispatch |
-| `avm-version-check.yml`         | Azure Verified Module version checks  | Weekly + manual dispatch |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring          | Weekly + manual dispatch |
+| `lint.yml`                      | Markdown lint + code quality          | PR + push to main                 |
+| `agent-validation.yml`          | Agent/skill/VS Code config validation | Changes to agents/skills          |
+| `policy-compliance-check.yml`   | Governance guardrail validation       | Changes to agents/skills          |
+| `link-check.yml`                | Broken link detection in docs/        | Changes to docs/ + weekly         |
+| `docs.yml`                      | MkDocs site deployment to Pages       | Push to main (docs/)              |
+| `docs-freshness.yml`            | Doc count/reference drift detection   | Weekly + manual dispatch          |
+| `avm-version-check.yml`         | Azure Verified Module version checks  | Weekly + manual dispatch          |
+| `azure-deprecation-tracker.yml` | Azure deprecation monitoring          | Weekly + manual dispatch          |
 
 ## Validation Scripts
 

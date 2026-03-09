@@ -44,21 +44,8 @@ jobs:
           node-version: "22"
           cache: "npm"
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "latest"
-
-      - name: Install Python linting tools
-        run: pip install ruff
-
       - name: Install dependencies
         run: npm ci
 
-      - name: Run all existing validations
-        run: npm run validate:all
+      - name: Run node validations
+        run: npm run validate:_node

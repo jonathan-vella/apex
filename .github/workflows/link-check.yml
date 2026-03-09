@@ -1,0 +1,48 @@
+# Link Check Workflow
+# Validates all hyperlinks in docs/ are reachable
+# Separated from validate:all to isolate network-dependent checks from code quality gates
+
+name: link-check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".markdown-link-check.json"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".markdown-link-check.json"
+  schedule:
+    # Run weekly on Monday at 07:00 UTC (staggered from other weekly workflows)
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  link-check:
+    name: Check docs links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check links in docs/
+        run: npm run lint:links:docs

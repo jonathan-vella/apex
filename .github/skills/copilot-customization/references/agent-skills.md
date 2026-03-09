@@ -1,3 +1,4 @@
+<!-- ref:agent-skills-v1 -->
 # Agent Skills Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/agent-skills
