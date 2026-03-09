@@ -165,6 +165,8 @@ if [ -d "$MCP_DIR" ]; then
         python3 -m venv "$MCP_DIR/.venv"
     fi
 
+    "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>&1 | tail -1 || true
+
     cd "$MCP_DIR"
     "$MCP_DIR/.venv/bin/pip" install --quiet -e . 2>&1 | tail -1 || true
     cd - > /dev/null
