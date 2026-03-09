@@ -3,7 +3,7 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=10
+TOTAL_STEPS=11
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0
@@ -47,13 +47,13 @@ echo "    $TOTAL_STEPS steps · $(date '+%H:%M:%S')"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Log output to file for debugging
-exec 1> >(tee -a ~/.devcontainer-install.log)
+exec 1> >(tee ~/.devcontainer-install.log)
 exec 2>&1
 
 # ─── Step 1: npm install (local) ─────────────────────────────────────────────
 
 step_start "📦" "Installing npm dependencies..."
-if npm install --loglevel=warn 2>&1 | tail -3; then
+if npm install --loglevel=error 2>&1; then
     step_done "npm packages installed"
 else
     step_warn "npm install had issues, continuing"
@@ -68,7 +68,33 @@ else
     step_warn "Global install had issues"
 fi
 
-# ─── Step 3: Directories & Git ───────────────────────────────────────────────
+# ─── Step 3: k6 load testing tool ────────────────────────────────────────────
+
+step_start "📦" "Installing k6 load testing tool..."
+ARCH=$(dpkg --print-architecture)
+if [ "$ARCH" = "amd64" ]; then
+    curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --yes --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg 2>/dev/null
+    echo 'deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main' | sudo tee /etc/apt/sources.list.d/k6.list > /dev/null
+    if sudo apt-get update > /dev/null 2>&1 && sudo apt-get install -y k6 > /dev/null 2>&1; then
+        step_done "k6 installed from deb repo (amd64)"
+    else
+        step_warn "k6 deb install failed"
+    fi
+elif [ "$ARCH" = "arm64" ]; then
+    K6_VER=$(curl -fsSL https://api.github.com/repos/grafana/k6/releases/latest | grep tag_name | head -1 | tr -dc 'v0-9.')
+    if [ -n "$K6_VER" ]; then
+        curl -fsSL "https://github.com/grafana/k6/releases/download/${K6_VER}/k6-${K6_VER}-linux-arm64.tar.gz" \
+            | sudo tar -xz --strip-components=1 -C /usr/local/bin/ 2>/dev/null \
+            && step_done "k6 ${K6_VER} installed from GitHub release (arm64)" \
+            || step_warn "k6 arm64 install failed"
+    else
+        step_warn "k6 version lookup failed (check GitHub API access)"
+    fi
+else
+    step_warn "k6 skipped: unsupported architecture $ARCH (supported: amd64, arm64)"
+fi
+
+# ─── Step 4: Directories & Git ───────────────────────────────────────────────
 
 step_start "🔐" "Configuring Git & directories..."
 mkdir -p "${HOME}/.cache" "${HOME}/.config/gh"
@@ -80,7 +106,7 @@ git config --global --add safe.directory "${PWD}"
 git config --global core.autocrlf input
 step_done "Git configured, cache dirs created"
 
-# ─── Step 4: Python packages ─────────────────────────────────────────────────
+# ─── Step 5: Python packages ─────────────────────────────────────────────────
 
 step_start "🐍" "Installing Python packages..."
 export PATH="${HOME}/.local/bin:${PATH}"
@@ -94,14 +120,14 @@ if command -v uv &> /dev/null; then
         step_warn "uv install had issues, continuing"
     fi
 else
-    if pip3 install --quiet --user diagrams matplotlib pillow checkov ruff 2>&1 | tail -1; then
+    if pip3 install --quiet diagrams matplotlib pillow checkov ruff 2>&1 | tail -1; then
         step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, ruff)"
     else
         step_warn "pip install had issues"
     fi
 fi
 
-# ─── Step 5: PowerShell modules ──────────────────────────────────────────────
+# ─── Step 6: PowerShell modules ──────────────────────────────────────────────
 
 step_start "🔧" "Installing Azure PowerShell modules..."
 pwsh -NoProfile -Command "
@@ -129,12 +155,13 @@ pwsh -NoProfile -Command "
     \$jobs | Remove-Job -Force
 " && step_done "PowerShell modules installed" || step_warn "PowerShell module installation incomplete"
 
-# ─── Step 6: Azure Pricing MCP Server ────────────────────────────────────────
+# ─── Step 7: Azure Pricing MCP Server ────────────────────────────────────────
 
 step_start "💰" "Setting up Azure Pricing MCP Server..."
 MCP_DIR="${PWD}/mcp/azure-pricing-mcp"
 if [ -d "$MCP_DIR" ]; then
-    if [ ! -d "$MCP_DIR/.venv" ]; then
+    if [ ! -f "$MCP_DIR/.venv/bin/pip" ]; then
+        rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
         python3 -m venv "$MCP_DIR/.venv"
     fi
 
@@ -151,7 +178,7 @@ else
     step_fail "MCP directory not found at $MCP_DIR"
 fi
 
-# ─── Step 7: Terraform MCP Server binary ────────────────────────────────────
+# ─── Step 8: Terraform MCP Server binary ────────────────────────────────────
 
 step_start "🏗️ " "Installing Terraform MCP Server binary (go install)..."
 if command -v go &> /dev/null; then
@@ -168,7 +195,7 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
-# ─── Step 8: Python dependencies (authoritative) ─────────────────────────────
+# ─── Step 9: Python dependencies (authoritative) ─────────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
@@ -182,7 +209,7 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 9: Azure CLI defaults ────────────────────────────────────
+# ─── Step 10: Azure CLI defaults ────────────────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI..."
 if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then
@@ -192,7 +219,7 @@ else
     step_warn "Azure CLI config skipped (not authenticated)"
 fi
 
-# ─── Step 10: MCP config & final verification ─────────────────────────────
+# ─── Step 11: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 
@@ -256,6 +283,7 @@ printf "        %-15s %s\n" "Checkov:" "$(checkov --version 2>/dev/null || echo 
 printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
 
 step_done "All verifications complete"

@@ -1,6 +1,8 @@
 {
   "recommendations": [
     "GitHub.copilot-chat",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
     "ms-azuretools.vscode-azure-mcp-server",
     "ms-azuretools.vscode-bicep",
     "DavidAnson.vscode-markdownlint",

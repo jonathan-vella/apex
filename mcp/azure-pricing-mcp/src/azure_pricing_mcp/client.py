@@ -15,6 +15,7 @@ from .config import (
     MAX_RESULTS_PER_REQUEST,
     MAX_RETRIES,
     RATE_LIMIT_RETRY_BASE_WAIT,
+    REQUEST_TIMEOUT_SECONDS,
     SSL_VERIFY,
 )
 
@@ -32,14 +33,18 @@ class AzurePricingClient:
 
     async def __aenter__(self) -> "AzurePricingClient":
         """Async context manager entry."""
-        connector = None
+        connector_kwargs: dict[str, Any] = {
+            "limit": 10,
+            "limit_per_host": 5,
+            "ttl_dns_cache": 300,
+        }
         if not SSL_VERIFY:
-            # Create SSL context that doesn't verify certificates
             ssl_context = ssl.create_default_context()
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
-            connector = aiohttp.TCPConnector(ssl=ssl_context)
+            connector_kwargs["ssl"] = ssl_context
             logger.warning("SSL verification is disabled. This is insecure and should only be used for debugging.")
+        connector = aiohttp.TCPConnector(**connector_kwargs)
         self.session = aiohttp.ClientSession(connector=connector)
         return self
 
@@ -76,13 +81,22 @@ class AzurePricingClient:
 
         request_url = url or self._base_url
         last_exception = None
+        request_timeout = aiohttp.ClientTimeout(total=REQUEST_TIMEOUT_SECONDS)
 
         for attempt in range(max_retries + 1):
             try:
-                async with self.session.get(request_url, params=params) as response:
+                async with self.session.get(request_url, params=params, timeout=request_timeout) as response:
                     if response.status == 429:  # Too Many Requests
                         if attempt < max_retries:
-                            wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (attempt + 1)
+                            # Respect Retry-After header if present, fall back to exponential backoff
+                            retry_after = response.headers.get("Retry-After")
+                            if retry_after:
+                                try:
+                                    wait_time = min(int(retry_after), 60)
+                                except (ValueError, TypeError):
+                                    wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (attempt + 1)
+                            else:
+                                wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (attempt + 1)
                             logger.warning(
                                 f"Rate limited (429). Retrying in {wait_time} seconds... "
                                 f"(attempt {attempt + 1}/{max_retries + 1})"

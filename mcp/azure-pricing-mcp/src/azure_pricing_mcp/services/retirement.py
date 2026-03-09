@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from ..client import AzurePricingClient
@@ -151,10 +151,18 @@ FALLBACK_RETIREMENT_DATA: dict[str, VMSeriesRetirementInfo] = {
 class RetirementService:
     """Service for managing VM retirement status information."""
 
+    # Circuit breaker: after this many consecutive GitHub fetch failures,
+    # skip fetching and use fallback data for _CIRCUIT_COOLDOWN.
+    _CIRCUIT_FAILURE_THRESHOLD = 2
+    _CIRCUIT_COOLDOWN = timedelta(minutes=10)
+
     def __init__(self, client: AzurePricingClient) -> None:
         self._client = client
         self._cache: dict[str, VMSeriesRetirementInfo] | None = None
         self._cache_time: datetime | None = None
+        self._fetch_lock = asyncio.Lock()
+        self._consecutive_failures = 0
+        self._circuit_open_until: datetime | None = None
 
     async def get_retirement_data(self) -> dict[str, VMSeriesRetirementInfo]:
         """Get retirement data, using cache if valid or fetching fresh data."""
@@ -164,15 +172,26 @@ class RetirementService:
         if self._cache is not None and self._cache_time is not None and (now - self._cache_time) < RETIREMENT_CACHE_TTL:
             return self._cache
 
-        # Fetch fresh data
-        self._cache = await self._fetch_retirement_data()
-        self._cache_time = now
-        return self._cache
+        # Circuit breaker: if open, return fallback without fetching
+        if self._circuit_open_until is not None and now < self._circuit_open_until:
+            logger.info("Circuit breaker open — using fallback retirement data")
+            return FALLBACK_RETIREMENT_DATA.copy()
+
+        # Serialize fetch attempts to prevent race conditions on failure counting
+        async with self._fetch_lock:
+            # Re-check cache after acquiring lock (another coroutine may have refreshed it)
+            if self._cache is not None and self._cache_time is not None and (now - self._cache_time) < RETIREMENT_CACHE_TTL:
+                return self._cache
+
+            self._cache = await self._fetch_retirement_data()
+            self._cache_time = datetime.now()
+            return self._cache
 
     async def _fetch_retirement_data(self) -> dict[str, VMSeriesRetirementInfo]:
         """Fetch VM retirement status data from Microsoft docs on GitHub."""
         if not self._client.session:
             logger.warning("HTTP session not initialized, using fallback retirement data")
+            self._record_failure()
             return FALLBACK_RETIREMENT_DATA.copy()
 
         retirement_data: dict[str, VMSeriesRetirementInfo] = {}
@@ -189,14 +208,17 @@ class RetirementService:
             # Handle exceptions from gather
             retired_md: str = ""
             previous_gen_md: str = ""
+            fetch_failed = False
 
             if isinstance(retired_result, Exception):
                 logger.warning(f"Failed to fetch retired sizes: {retired_result}")
+                fetch_failed = True
             elif isinstance(retired_result, str):
                 retired_md = retired_result
 
             if isinstance(previous_gen_result, Exception):
                 logger.warning(f"Failed to fetch previous-gen sizes: {previous_gen_result}")
+                fetch_failed = True
             elif isinstance(previous_gen_result, str):
                 previous_gen_md = previous_gen_result
 
@@ -213,14 +235,29 @@ class RetirementService:
 
             if retirement_data:
                 logger.info(f"Fetched retirement data for {len(retirement_data)} VM series")
+                self._consecutive_failures = 0
                 return retirement_data
+
+            if fetch_failed:
+                self._record_failure()
             else:
                 logger.warning("No retirement data parsed, using fallback")
-                return FALLBACK_RETIREMENT_DATA.copy()
+            return FALLBACK_RETIREMENT_DATA.copy()
 
         except Exception as e:
             logger.warning(f"Failed to fetch retirement data: {e}, using fallback")
+            self._record_failure()
             return FALLBACK_RETIREMENT_DATA.copy()
+
+    def _record_failure(self) -> None:
+        """Track consecutive failures and open circuit breaker if threshold reached."""
+        self._consecutive_failures += 1
+        if self._consecutive_failures >= self._CIRCUIT_FAILURE_THRESHOLD:
+            self._circuit_open_until = datetime.now() + self._CIRCUIT_COOLDOWN
+            logger.warning(
+                f"Circuit breaker opened after {self._consecutive_failures} failures — "
+                f"using fallback data for {self._CIRCUIT_COOLDOWN}"
+            )
 
     def _parse_retired_sizes_md(self, md_content: str) -> dict[str, VMSeriesRetirementInfo]:
         """Parse the retired-sizes-list.md markdown content."""

@@ -13,6 +13,10 @@ MAX_RETRIES = 3
 RATE_LIMIT_RETRY_BASE_WAIT = 5  # seconds
 DEFAULT_CUSTOMER_DISCOUNT = 10.0  # percent
 
+# Per-request timeout (seconds). Applied to each individual HTTP request,
+# NOT to the session — this way multi-page pagination can exceed the timeout.
+REQUEST_TIMEOUT_SECONDS = 30
+
 # SSL verification configuration
 # Set to False if behind a corporate proxy with self-signed certificates
 # Can also be set via environment variable AZURE_PRICING_SSL_VERIFY=false

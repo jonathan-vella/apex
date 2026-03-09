@@ -28,12 +28,10 @@
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
-  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; ARCH=$(dpkg --print-architecture); if [ \"$ARCH\" = \"amd64\" ]; then curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg; echo 'deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main' | sudo tee /etc/apt/sources.list.d/k6.list; sudo apt-get update; sudo apt-get install -y k6; else echo \"Skipping k6 install on unsupported architecture: $ARCH\"; fi; curl -LsSf https://astral.sh/uv/install.sh | sh",
+  // Lifecycle: onCreateCommand runs first (system packages + uv), then postCreateCommand (tools), then postStartCommand (updates)
+  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "postStartCommand": {
-    "lefthook": "npx lefthook install 2>/dev/null || true",
-    "update-tools": "bash .devcontainer/post-start.sh"
-  },
+  "postStartCommand": "bash .devcontainer/post-start.sh && (npx lefthook install 2>/dev/null || true)",
 
   // Environment variables for Python optimization
   "containerEnv": {
@@ -57,6 +55,8 @@
     "vscode": {
       "extensions": [
         "GitHub.copilot-chat",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
         "ms-azuretools.vscode-azureresourcegroups",
         "ms-azuretools.vscode-bicep",
         "ms-vscode.powershell",

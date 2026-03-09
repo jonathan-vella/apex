@@ -9,11 +9,13 @@ START=$(date +%s)
 printf "\n ♻️  Updating lightweight tools...\n"
 
 # ─── Terraform MCP Server ────────────────────────────────────────────────────
-if command -v go &>/dev/null; then
+if command -v terraform-mcp-server &>/dev/null || [ -x /go/bin/terraform-mcp-server ]; then
+    printf "    terraform-mcp-server  ✅ already installed — skipping\n"
+elif command -v go &>/dev/null; then
     printf "    terraform-mcp-server  "
     go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest 2>&1 \
-        && printf "✅ updated\n" \
-        || printf "⚠️  update failed (continuing)\n"
+        && printf "✅ installed\n" \
+        || printf "⚠️  install failed (continuing)\n"
 else
     printf "    terraform-mcp-server  ⚠️  Go not found — skipping\n"
 fi
@@ -33,20 +35,14 @@ npm install --loglevel=error 2>&1 | tail -1 \
     && printf "✅ ok\n" \
     || printf "⚠️  npm install failed (continuing)\n"
 
-# ─── markdownlint-cli2 ───────────────────────────────────────────────────────
-printf "    markdownlint-cli2     "
-npm install -g markdownlint-cli2 --loglevel=error 2>&1 | tail -1 \
-    && printf "✅ updated\n" \
-    || printf "⚠️  update failed (continuing)\n"
-
 # ─── Python tools via uv ─────────────────────────────────────────────────────
 if command -v uv &>/dev/null; then
-    printf "    checkov/ruff/diagrams  "
-    uv pip install --system --quiet --upgrade checkov ruff diagrams 2>&1 \
+    printf "    python packages      "
+    uv pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>&1 \
         && printf "✅ updated\n" \
         || printf "⚠️  update failed (continuing)\n"
 else
-    printf "    checkov/ruff/diagrams  ⚠️  uv not found — skipping\n"
+    printf "    python packages      ⚠️  uv not found — skipping\n"
 fi
 
 ELAPSED=$(( $(date +%s) - START ))

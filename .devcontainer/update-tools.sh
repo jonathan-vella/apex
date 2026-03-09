@@ -23,11 +23,20 @@ fi
 
 # Update Python packages
 echo "📦 Updating Python packages..."
-if pip3 install --upgrade --quiet --break-system-packages checkov diagrams 2>/dev/null; then
-    echo "   ✅ Python packages updated (checkov, diagrams)"
+if command -v uv &>/dev/null; then
+    if uv pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>/dev/null; then
+        echo "   ✅ Python packages updated (checkov, ruff, diagrams, matplotlib, pillow)"
+    else
+        echo "   ⚠️  Python package updates had issues"
+        FAILURES+=("Python packages")
+    fi
 else
-    echo "   ⚠️  Python package updates had issues"
-    FAILURES+=("Python packages")
+    if pip3 install --upgrade --quiet checkov ruff diagrams matplotlib pillow 2>/dev/null; then
+        echo "   ✅ Python packages updated (checkov, ruff, diagrams, matplotlib, pillow)"
+    else
+        echo "   ⚠️  Python package updates had issues"
+        FAILURES+=("Python packages")
+    fi
 fi
 
 # Update markdownlint-cli2

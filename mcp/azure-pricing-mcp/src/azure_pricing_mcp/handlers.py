@@ -132,7 +132,7 @@ class ToolHandlers:
         return await self._safe_handle("azure_price_search", arguments, self._do_price_search)
 
     async def _do_price_search(self, arguments: dict[str, Any]) -> list[TextContent]:
-        output_format = arguments.pop("output_format", "verbose")
+        output_format = arguments.pop("output_format", "compact")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.search_prices(**arguments)
@@ -154,7 +154,7 @@ class ToolHandlers:
         return await self._safe_handle("azure_price_compare", arguments, self._do_price_compare)
 
     async def _do_price_compare(self, arguments: dict[str, Any]) -> list[TextContent]:
-        output_format = arguments.pop("output_format", "verbose")
+        output_format = arguments.pop("output_format", "compact")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.compare_prices(**arguments)
@@ -171,7 +171,7 @@ class ToolHandlers:
         return await self._safe_handle("azure_region_recommend", arguments, self._do_region_recommend)
 
     async def _do_region_recommend(self, arguments: dict[str, Any]) -> list[TextContent]:
-        output_format = arguments.pop("output_format", "verbose")
+        output_format = arguments.pop("output_format", "compact")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.recommend_regions(**arguments)
@@ -188,7 +188,7 @@ class ToolHandlers:
         return await self._safe_handle("azure_cost_estimate", arguments, self._do_cost_estimate)
 
     async def _do_cost_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
-        output_format = arguments.pop("output_format", "verbose")
+        output_format = arguments.pop("output_format", "compact")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         result = await self._pricing_service.estimate_costs(**arguments)
@@ -205,7 +205,12 @@ class ToolHandlers:
         return await self._safe_handle("azure_discover_skus", arguments, self._do_discover_skus)
 
     async def _do_discover_skus(self, arguments: dict[str, Any]) -> list[TextContent]:
+        output_format = arguments.pop("output_format", "compact")
         result = await self._sku_service.discover_skus(**arguments)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
+
         response_text = format_discover_skus_response(result)
         return [TextContent(type="text", text=response_text)]
 
@@ -214,7 +219,12 @@ class ToolHandlers:
         return await self._safe_handle("azure_sku_discovery", arguments, self._do_sku_discovery)
 
     async def _do_sku_discovery(self, arguments: dict[str, Any]) -> list[TextContent]:
+        output_format = arguments.pop("output_format", "compact")
         result = await self._sku_service.discover_service_skus(**arguments)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
+
         response_text = format_sku_discovery_response(result)
         return [TextContent(type="text", text=response_text)]
 
@@ -232,7 +242,12 @@ class ToolHandlers:
         return await self._safe_handle("azure_ri_pricing", arguments, self._do_ri_pricing)
 
     async def _do_ri_pricing(self, arguments: dict[str, Any]) -> list[TextContent]:
+        output_format = arguments.pop("output_format", "compact")
         result = await self._pricing_service.get_ri_pricing(**arguments)
+
+        if output_format == "compact":
+            return [TextContent(type="text", text=format_compact(result))]
+
         response_text = format_ri_pricing_response(result)
         return [TextContent(type="text", text=response_text)]
 
@@ -241,7 +256,7 @@ class ToolHandlers:
         return await self._safe_handle("azure_bulk_estimate", arguments, self._do_bulk_estimate)
 
     async def _do_bulk_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
-        output_format = arguments.pop("output_format", "verbose")
+        output_format = arguments.pop("output_format", "compact")
         discount_pct, discount_specified, used_default = self._resolve_discount(arguments)
 
         if self._bulk_service is None:
@@ -249,6 +264,7 @@ class ToolHandlers:
             return [TextContent(type="text", text=json.dumps(err))]
 
         result = await self._bulk_service.bulk_estimate(**arguments)
+        self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
 
         if output_format == "compact":
             return [TextContent(type="text", text=format_compact(result))]
