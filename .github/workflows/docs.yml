@@ -1,3 +1,7 @@
+# Docs Deployment Workflow
+# Builds and deploys MkDocs site to GitHub Pages
+# Triggered on changes to docs/ or mkdocs config
+
 name: docs
 
 on:

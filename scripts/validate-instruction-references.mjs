@@ -234,6 +234,8 @@ for (const filePath of allMdFiles) {
 
   skillRefPattern.lastIndex = 0;
   while ((match = skillRefPattern.exec(content)) !== null) {
+    // Skip template placeholders like {name} used in documentation examples
+    if (match[1].includes("{") || match[1].includes("}")) continue;
     const skillDir = `.github/skills/${match[1]}`;
     const skillFile = `${skillDir}/SKILL.md`;
     if (!foundSkillRefs.has(skillFile)) {

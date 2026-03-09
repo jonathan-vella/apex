@@ -68,11 +68,11 @@ concurrency:
 | ------------------------------- | ------------------------------------- | ------------------------ |
 | `lint.yml`                      | Markdown lint + code quality          | PR + push to main        |
 | `agent-validation.yml`          | Agent/skill/VS Code config validation | Changes to agents/skills |
-| `docs-freshness.yml`            | Doc count/reference drift detection   | Push to main + weekly    |
-| `link-check.yml`                | Broken link detection                 | Changes to docs/agents   |
-| `create-release.yml`            | Automated release creation            | Manual dispatch          |
-| `avm-version-check.yml`         | Azure Verified Module version checks  | Scheduled                |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring          | Scheduled                |
+| `policy-compliance-check.yml`   | Governance guardrail validation       | PR + push to main        |
+| `docs.yml`                      | MkDocs site deployment to Pages       | Push to main (docs/)     |
+| `docs-freshness.yml`            | Doc count/reference drift detection   | Weekly + manual dispatch |
+| `avm-version-check.yml`         | Azure Verified Module version checks  | Weekly + manual dispatch |
+| `azure-deprecation-tracker.yml` | Azure deprecation monitoring          | Weekly + manual dispatch |
 
 ## Validation Scripts
 

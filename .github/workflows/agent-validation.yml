@@ -11,6 +11,7 @@ on:
       - ".github/agents/**"
       - ".github/skills/**"
       - ".github/instructions/**"
+      - ".github/data/**"
       - ".devcontainer/devcontainer.json"
       - ".vscode/mcp.json"
       - ".vscode/extensions.json"
@@ -25,10 +26,15 @@ on:
       - ".github/agents/**"
       - ".github/skills/**"
       - ".github/instructions/**"
+      - ".github/data/**"
       - ".devcontainer/devcontainer.json"
       - ".vscode/mcp.json"
       - ".vscode/extensions.json"
-      - ".github/data/**"
+      - "scripts/validate-agent-frontmatter.mjs"
+      - "scripts/validate-skills-format.mjs"
+      - "scripts/validate-mcp-config.mjs"
+      - "scripts/validate-vscode-config.mjs"
+      - "scripts/validate-instruction-frontmatter.mjs"
   workflow_dispatch:
 
 permissions:
@@ -78,14 +84,14 @@ jobs:
           echo "🔗 Validating agent handoff references..."
 
           # Extract all handoff agent references (one per line, preserving multi-word names)
-          grep -rh "agent:" .github/agents/*.agent.md 2>/dev/null | \
+          grep -rh "agent:" .github/agents/ --include="*.agent.md" 2>/dev/null | \
             grep -v "^---" | \
             sed 's/.*agent: *//' | \
             tr -d '"' | \
             sort -u > /tmp/handoffs.txt
 
-          # Extract all agent names (one per line)
-          grep -rh "^name:" .github/agents/*.agent.md 2>/dev/null | \
+          # Extract all agent names (one per line, including subagents)
+          grep -rh "^name:" .github/agents/ --include="*.agent.md" 2>/dev/null | \
             sed 's/name: *//' | \
             tr -d '"' | \
             sort -u > /tmp/agents.txt
@@ -118,12 +124,12 @@ jobs:
         run: |
           echo "🔄 Checking self-handoffs (intentional loop-back actions)..."
           SELF_LOOPS=0
-          for file in .github/agents/*.agent.md; do
+          while IFS= read -r file; do
             AGENT_NAME=$(grep -m1 "^name:" "$file" | sed 's/name: *//' | tr -d '"')
             COUNT=$(grep -c "agent: $AGENT_NAME" "$file" 2>/dev/null || echo "0")
             if [ "$COUNT" -gt 0 ]; then
               echo "ℹ️  $AGENT_NAME: $COUNT self-handoff(s)"
               SELF_LOOPS=$((SELF_LOOPS + COUNT))
             fi
-          done
+          done < <(find .github/agents -name "*.agent.md" -type f)
           echo "✅ Total: $SELF_LOOPS intentional self-handoffs"

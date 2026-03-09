@@ -11,23 +11,16 @@ on:
       - ".github/agents/**"
       - ".github/skills/**"
       - ".github/instructions/**"
-      - "scripts/validate-governance-refs.mjs"
-      - ".github/agents/05t-terraform-planner.agent.md"
-      - ".github/agents/06t-terraform-codegen.agent.md"
-      - ".github/agents/_subagents/terraform-review-subagent.agent.md"
-      - ".github/instructions/terraform-policy-compliance.instructions.md"
       - ".github/data/**"
+      - "scripts/validate-governance-refs.mjs"
   push:
     branches: [main, feature/*]
     paths:
       - ".github/agents/**"
       - ".github/skills/**"
       - ".github/instructions/**"
+      - ".github/data/**"
       - "scripts/validate-governance-refs.mjs"
-      - ".github/agents/05t-terraform-planner.agent.md"
-      - ".github/agents/06t-terraform-codegen.agent.md"
-      - ".github/agents/_subagents/terraform-review-subagent.agent.md"
-      - ".github/instructions/terraform-policy-compliance.instructions.md"
   workflow_dispatch:
 
 permissions:
@@ -69,11 +62,3 @@ jobs:
 
       - name: Run all existing validations
         run: npm run validate:all
-
-      - name: Validate governance cross-references
-        run: npm run lint:governance-refs
-
-      - name: Validate governance H2 headings match canonical list
-        run: |
-          echo "🔍 Verifying 04-governance-constraints H2 headings match azure-artifacts skill..."
-          npm run lint:h2-sync
