@@ -34,7 +34,7 @@ handoffs:
 The frontmatter is machine-readable metadata. The body is the agent's operating manual,
 loaded into the system prompt when the agent is invoked.
 
-## :material-account-supervisor-outline: Top-Level Agents (14)
+## :material-account-supervisor-outline: Top-Level Agents (15)
 
 | Agent                    | Role                                  | Primary Skills                  |
 | ------------------------ | ------------------------------------- | ------------------------------- |
@@ -90,6 +90,28 @@ It operates with rotating lenses:
 Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Only
 `must_fix` findings block workflow progression.
 
+**Conditional Pass 3**: Pass 3 of the 3-pass rotating lens review is now conditional —
+it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero `must_fix`
+items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
+
+**Context Shredding for Challenger Inputs**: The challenger applies context compression
+tiers when loading predecessor artefacts for review:
+
+| Context Usage | Loading Strategy                                               |
+| ------------- | -------------------------------------------------------------- |
+| < 60%         | Full artefact                                                  |
+| 60–80%        | Key H2 sections only (resource list, SKUs, WAF scores, budget) |
+| > 80%         | Decision summary from `00-session-state.json` + resource list  |
+
+This achieves 40–70% input reduction for heavy artefacts. After each review pass,
+only the `compact_for_parent` string is carried forward (not the full JSON findings),
+preventing context bloat across multi-pass reviews.
+
+**New Challenger Checklists**: Two mandatory checklist categories were added:
+
+- **Cost Monitoring**: Budget resource, forecast alerts at 80/100/120%, anomaly detection.
+- **Repeatability**: Parameterised values, multi-tenant deploy, `projectName` required.
+
 ## :material-swap-horizontal: Handoffs and Delegation
 
 Agents communicate through artefact files, not direct message passing. The Conductor
@@ -100,3 +122,8 @@ The next agent reads those files as input. This design:
 - Enables resume from any point (artefacts are persistent)
 - Allows human review at every gate (artefacts are human-readable markdown)
 - Supports parallel development of different steps
+
+**Phase Handoff Document**: At each approval gate, the Conductor writes a
+`00-handoff.md` file containing a summary of what was completed, key decisions
+made, what comes next, and (at Gates 2 and 3) a session break recommendation.
+This enables resume from any gate without needing to re-read all prior artefacts.

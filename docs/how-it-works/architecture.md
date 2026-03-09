@@ -72,10 +72,35 @@ generate infrastructure code or documentation itself. Instead, it:
 3. Delegates each step to the appropriate specialised agent via `#runSubagent`
 4. Enforces approval gates between steps
 5. Maintains session state in `00-session-state.json`
-6. Writes human-readable handoff documents at every gate
+6. Writes human-readable handoff documents (`00-handoff.md`) at every gate
+7. Recommends session breaks at Gates 2 and 3 to prevent context exhaustion
 
 The Conductor never touches infrastructure templates. It is a pure orchestrator and
 state machine.
+
+**Parse-and-confirm pattern**: The Conductor parses the project name from the user's
+message and confirms inline, rather than using the `askQuestions` tool. It only falls
+back to `askQuestions` if the message gives no clue.
+
+**Session Break Protocol**: At Gates 2 and 3, the Conductor writes `00-handoff.md` +
+updates `00-session-state.json`, then recommends the user start a fresh chat session.
+This prevents context exhaustion in long-running sessions — real-world testing showed
+that a 3h39m session experienced 5 forced context summarisations, losing critical
+decision context. The new session resumes from the checkpoint by reading the state file.
+
+**Model Selection**: The Conductor routes to different model tiers based on task complexity:
+
+| Tier           | Model             | Used By                                          |
+| -------------- | ----------------- | ------------------------------------------------ |
+| Primary        | Claude Opus 4.6   | Conductor, Steps 1–7 agents                      |
+| Review         | Claude Sonnet 4.6 | Challenger reviews, code reviews (A/B validated) |
+| Heavy API Work | GPT-5.3-Codex     | Governance discovery (batch REST API calls)      |
+| Utility        | GPT-4o-mini       | Session state updates, lightweight tasks         |
+
+**Subagent Integration Matrix**: The full mapping of which subagents are invoked by
+which parent agents is externalised to
+`.github/skills/workflow-engine/references/subagent-integration.md` to keep the
+Conductor body under the 350-line limit.
 
 ## :material-source-fork: Dual IaC Tracks
 

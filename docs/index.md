@@ -162,7 +162,7 @@ sequenceDiagram
 |                 |                                                    |
 | --------------- | -------------------------------------------------- |
 | **Agents**      | 15 primary + 9 validation subagents                |
-| **Skills**      | 20 reusable domain knowledge modules               |
+| **Skills**      | 21 reusable domain knowledge modules               |
 | **IaC Tracks**  | Bicep and Terraform (dual-track)                   |
 | **MCP Servers** | Azure, Pricing, Terraform, GitHub, Microsoft Learn |
 | **Workflow**    | 7 steps with mandatory approval gates              |

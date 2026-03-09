@@ -118,6 +118,91 @@ API calls by querying official documentation.
 method for listing Key Vault secrets in Python.
 ```
 
+### microsoft-skill-creator
+
+Creates agent skills for Microsoft technologies using Learn MCP tools.
+Investigates topics deeply, then generates a hybrid skill with essential
+knowledge stored locally and dynamic investigation capability.
+
+```text
+Create a new skill that teaches agents about Azure Container Apps
+networking, scaling, and Dapr integration.
+```
+
+### azure-artifacts
+
+Artifact template structures, H2 compliance rules, and documentation
+styling for all agent outputs (Steps 1-7).
+
+```text
+@workspace What H2 headings are required in the implementation plan template?
+```
+
+### context-optimizer
+
+Audits agent context window usage via debug logs, token profiling,
+and redundancy detection. Produces optimisation recommendations.
+
+```text
+Analyse the last Copilot Chat debug log and identify context waste.
+```
+
+### context-shredding
+
+Runtime context compression with 3 tiers (full/summarised/minimal)
+and per-artifact templates to keep agents within context limits.
+
+```text
+@workspace What compression tiers does context-shredding define
+for the architecture assessment artifact?
+```
+
+### copilot-customization
+
+Authoritative reference for VS Code Copilot customisation mechanisms:
+instructions, prompt files, custom agents, skills, MCP servers, and hooks.
+
+```text
+I want to create a new custom agent for database migration tasks.
+Walk me through the steps using copilot-customization.
+```
+
+### golden-principles
+
+The 10 agent-first operating principles governing how agents work in
+this repository. Defines governance invariants and philosophy.
+
+```text
+@workspace What are the golden principles for agent behaviour?
+```
+
+### iac-common
+
+Shared IaC patterns for deploy agents: CLI auth validation, deployment
+strategies, known issues, and governance-to-code property mapping.
+
+```text
+@workspace What are the known deployment issues in iac-common?
+```
+
+### session-resume
+
+Session state tracking and resume protocol for the 7-step workflow.
+Manages checkpoint recovery and session-state.json schema.
+
+```text
+Resume the workflow from step 4 using the existing session state.
+```
+
+### workflow-engine
+
+Machine-readable workflow DAG for the 7-step pipeline. Defines node
+types, edge conditions, gates, and fan-out patterns.
+
+```text
+@workspace Show the workflow graph edges and gate conditions.
+```
+
 ## :material-robot-outline: Subagents
 
 Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,

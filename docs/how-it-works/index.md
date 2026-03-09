@@ -16,66 +16,69 @@ toc_depth: 2
 
 Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
 through a structured 7-step workflow to transform Azure infrastructure requirements into deployed,
-production-grade Infrastructure as Code. The system coordinates 14 top-level agents and
+production-grade Infrastructure as Code. The system coordinates 15 top-level agents and
 9 subagents through mandatory human approval gates, producing Bicep or Terraform templates
 that conform to Azure Well-Architected Framework principles, Azure Verified Modules standards,
-and organisational governance policies.
+and organisational governance policies. The agents are supported by 21 skills, 27 instruction
+files, 3 Copilot hooks, and 5 MCP server integrations.
 
 The core thesis is that **AI agents can reliably produce production-grade Azure infrastructure
 when properly orchestrated with guardrails**. The system achieves this through
 a layered knowledge architecture (agents, skills, instructions, registries), mechanical enforcement
-of invariants via 27 validation scripts, and a human-in-the-loop design that preserves
-operator control at every critical decision point.
+of invariants via 28 validation scripts driving 41 npm commands, and a human-in-the-loop design
+that preserves operator control at every critical decision point. Cost governance (budget alerts,
+forecast notifications, anomaly detection) and template repeatability (zero hardcoded values)
+are enforced as first-class concerns across all generated infrastructure.
 
 <div class="grid cards" markdown>
 
--   :material-transit-connection-variant:{ .lg .middle } **System Architecture**
+- :material-transit-connection-variant:{ .lg .middle } **System Architecture**
 
-    ---
+  ***
 
-    The 7-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform).
+  The 7-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform).
 
-    [:octicons-arrow-right-24: Architecture overview](architecture.md)
+  [:octicons-arrow-right-24: Architecture overview](architecture.md)
 
--   :material-pillar:{ .lg .middle } **The Four Pillars**
+- :material-pillar:{ .lg .middle } **The Four Pillars**
 
-    ---
+  ***
 
-    Agents, Skills, Instructions, and Configuration Registries — the knowledge layers.
+  Agents, Skills, Instructions, and Configuration Registries — the knowledge layers.
 
-    [:octicons-arrow-right-24: Four pillars](four-pillars.md)
+  [:octicons-arrow-right-24: Four pillars](four-pillars.md)
 
--   :material-robot:{ .lg .middle } **Agent Architecture**
+- :material-robot:{ .lg .middle } **Agent Architecture**
 
-    ---
+  ***
 
-    14 top-level agents, 9 subagents, the Challenger pattern, and handoff design.
+  14 top-level agents, 9 subagents, the Challenger pattern, and handoff design.
 
-    [:octicons-arrow-right-24: Agent deep dive](agents.md)
+  [:octicons-arrow-right-24: Agent deep dive](agents.md)
 
--   :material-book-open-variant:{ .lg .middle } **Skills & Instructions**
+- :material-book-open-variant:{ .lg .middle } **Skills & Instructions**
 
-    ---
+  ***
 
-    Progressive skill loading, glob-based instruction enforcement, and the skill catalog.
+  Progressive skill loading, glob-based instruction enforcement, and the skill catalog.
 
-    [:octicons-arrow-right-24: Skills & instructions](skills-and-instructions.md)
+  [:octicons-arrow-right-24: Skills & instructions](skills-and-instructions.md)
 
--   :material-cog:{ .lg .middle } **Workflow Engine & Quality**
+- :material-cog:{ .lg .middle } **Workflow Engine & Quality**
 
-    ---
+  ***
 
-    DAG model, approval gates, session state, 27 validators, and circuit breakers.
+  DAG model, approval gates, session state, 28 validators, Copilot hooks, and circuit breakers.
 
-    [:octicons-arrow-right-24: Workflow & quality](workflow-engine.md)
+  [:octicons-arrow-right-24: Workflow & quality](workflow-engine.md)
 
--   :material-connection:{ .lg .middle } **MCP Integration**
+- :material-connection:{ .lg .middle } **MCP Integration**
 
-    ---
+  ***
 
-    Five MCP servers: GitHub, Microsoft Learn, Azure, Pricing, and Terraform Registry.
+  Five MCP servers: GitHub, Microsoft Learn, Azure, Pricing, and Terraform Registry.
 
-    [:octicons-arrow-right-24: MCP servers](mcp-integration.md)
+  [:octicons-arrow-right-24: MCP servers](mcp-integration.md)
 
 </div>
 
@@ -106,12 +109,12 @@ and instructions, and all decisions in Architecture Decision Records.
 failed: context is a scarce resource, and a giant instruction file crowds out the task.
 Instead, they treat `AGENTS.md` as a table of contents that points to deeper sources.
 This project adopts the same pattern: `AGENTS.md` is approximately 250 lines and points to
-20 skills, 27 instruction files, and multiple configuration registries.
+21 skills, 27 instruction files, and multiple configuration registries.
 
 **Enforce invariants, not implementations.** Rather than prescribing step-by-step procedures,
 the Harness Engineering approach encodes strict boundaries (architectural layering rules,
 naming conventions, security requirements) and lets agents choose their own path within those
-constraints. This project enforces invariants mechanically: 27 validation scripts check
+constraints. This project enforces invariants mechanically: 28 validation scripts check
 naming conventions, template compliance, governance references, and architectural rules.
 
 **Human taste gets encoded.** When a human reviewer catches a pattern issue, the fix is
@@ -223,7 +226,7 @@ append-only learning loop.
 
 **Feedback loops as mandatory infrastructure.** Ralph only works when
 typecheck catches errors, tests verify behaviour, and CI stays green —
-otherwise broken code compounds across iterations. This project's 27
+otherwise broken code compounds across iterations. This project's 28
 validation scripts, pre-commit/pre-push hooks, and circuit breaker pattern
 serve the identical function: mechanical feedback loops that prevent error
 propagation across agent steps.
@@ -250,18 +253,20 @@ stop conditions.
 
 This project weaves all three into a system purpose-built for Azure infrastructure:
 
-| Concern                | Harness Engineering Principle        | Bosun Pattern                       | Ralph Pattern                    | This Project                                   |
-| ---------------------- | ------------------------------------ | ----------------------------------- | -------------------------------- | ---------------------------------------------- |
-| Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`        |
-| Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression |
-| Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | 27 validators + pre-commit/push hooks          |
-| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent        |
-| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model       |
-| Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                 |
-| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Conductor             |
-| Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules              |
-| Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time         |
-| Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews          |
+| Concern                | Harness Engineering Principle        | Bosun Pattern                       | Ralph Pattern                    | This Project                                                  |
+| ---------------------- | ------------------------------------ | ----------------------------------- | -------------------------------- | ------------------------------------------------------------- |
+| Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
+| Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
+| Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | 28 validators + pre-commit/push hooks + 3 Copilot hooks       |
+| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent                       |
+| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model                      |
+| Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |
+| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Conductor                            |
+| Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules                             |
+| Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time                        |
+| Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews                         |
+| Cost governance        | Enforce invariants, not impls        | —                                   | —                                | `iac-cost-repeatability` instruction + adversarial checklists |
+| Context efficiency     | Context is scarce                    | Context shredding                   | Fresh context per iteration      | Session Break Protocol at Gates 2 & 3 + conditional pass 3    |
 
 ## :material-medal-outline: Golden Principles
 

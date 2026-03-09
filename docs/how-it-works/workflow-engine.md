@@ -125,11 +125,28 @@ The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 The claim model prevents concurrent sessions from corrupting state. Stale heartbeats
 (older than `stale_threshold_ms`, default 5 minutes) are automatically recovered.
 
+### Session Break Protocol
+
+At Gates 2 and 3, the Conductor recommends starting a fresh VS Code Copilot Chat
+session. Long-running sessions (3+ hours) experience forced context summarisations
+that lose critical decision context. The Session Break Protocol:
+
+1. Conductor writes current state to `00-session-state.json`
+2. Conductor writes `00-handoff.md` with human-readable summary
+3. Conductor prints a "SESSION BREAK RECOMMENDED" message
+4. User starts a new chat, invokes Conductor again
+5. Conductor reads `00-session-state.json`, finds the next pending step, and resumes
+
+This was driven by real-world observation: the nordic-fresh-foods end-to-end test
+experienced 5 forced context summarisations in a single 3h39m session.
+
 ## :material-shield-check-outline: Quality and Safety Systems
 
-### 27 Validation Scripts
+### 28 Validation Scripts
 
-Every convention is backed by a machine-enforceable check:
+Every convention is backed by a machine-enforceable check. The 28 script files drive
+41 npm commands, organised into two parallel groups: `validate:_node` (21 Node.js
+validators) and `validate:_external` (5 external tool validators):
 
 | Category            | Validators                                                                                |
 | ------------------- | ----------------------------------------------------------------------------------------- |
@@ -142,7 +159,8 @@ Every convention is backed by a machine-enforceable check:
 | Infrastructure      | `lint:terraform-fmt`, `validate:terraform`                                                |
 | Session state       | `validate:session-state`, `validate:session-lock`                                         |
 | Registry/config     | `validate:workflow-graph`, `validate:agent-registry`, `validate:skill-affinity`           |
-| Code quality        | `lint:json`, `lint:python`                                                                |
+| Code quality        | `lint:json`, `lint:python`, `lint:yaml`                                                   |
+| VS Code config      | `validate:vscode`                                                                         |
 | Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`     |
 
 All validators run via `npm run validate:all`.
@@ -190,3 +208,24 @@ When agents approach model context limits, the context-shredding system activate
 | `full`       | < 60% used | Load entire artefact                       |
 | `summarized` | 60–80%     | Key H2 sections only (tables preserved)    |
 | `minimal`    | > 80%      | Decision summaries only (< 500 characters) |
+
+When the `challenger-review-subagent` loads predecessor artefacts for review, it applies
+the same 3-tier compression with additional intelligence: at the `summarized` tier, it
+preserves only resource list, SKUs, WAF scores, compliance matrix, and budget sections;
+at `minimal`, it uses only the `decisions` field from `00-session-state.json` plus the
+resource list. After each review pass, only the `compact_for_parent` string is carried
+forward (not the full JSON findings), preventing context bloat across multi-pass reviews.
+
+### Copilot Hooks
+
+The project uses 3 Copilot hooks (`.github/hooks/`) that intercept agent actions
+at runtime:
+
+| Hook                       | Trigger        | Purpose                                                              |
+| -------------------------- | -------------- | -------------------------------------------------------------------- |
+| `block-dangerous-commands` | `PreToolUse`   | Blocks destructive terminal commands (`rm -rf`, `git push --force`)  |
+| `post-edit-format`         | `PostToolUse`  | Auto-formats files after agent edits (whitespace, trailing newlines) |
+| `session-start-audit`      | `SessionStart` | Audits session context at startup (environment, auth status)         |
+
+Hooks are defined in `hooks.json` files with type (`command`), path to shell script,
+and timeout. They run automatically — agents do not invoke them explicitly.

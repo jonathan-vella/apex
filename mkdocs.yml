@@ -87,9 +87,6 @@ plugins:
 exclude_docs: |
   presenter/
   exec-plans/
-  branch-ruleset-config.md
-  README.md
-  prompt-guide/README.md
 
 not_in_nav: ~
 
