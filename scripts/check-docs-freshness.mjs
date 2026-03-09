@@ -68,7 +68,7 @@ function extractNumber(text, pattern) {
 
 // ── Check 1: Agent count ────────────────────────────────────────────
 
-async function checkAgentCount() {
+async function checkAgentCount(docsReadme) {
   const agentDir = join(ROOT, ".github", "agents");
   const entries = await readdir(agentDir, { withFileTypes: true });
   const agentFiles = entries
@@ -81,9 +81,8 @@ async function checkAgentCount() {
     .map((e) => e.name);
   const actual = agentFiles.length;
 
-  const readme = await readText(join(ROOT, "docs", "README.md"));
-  if (!readme) return;
-  const documented = extractNumber(readme, /## Agents \((\d+)/);
+  if (!docsReadme) return;
+  const documented = extractNumber(docsReadme, /## Agents \((\d+)/);
   if (documented !== null && documented !== actual) {
     addFinding(
       "docs/README.md",
@@ -96,14 +95,13 @@ async function checkAgentCount() {
 
 // ── Check 2: Skill count ────────────────────────────────────────────
 
-async function checkSkillCount() {
+async function checkSkillCount(docsReadme) {
   const skillDir = join(ROOT, ".github", "skills");
   const dirs = await listDirs(skillDir);
   const actual = dirs.length;
 
-  const readme = await readText(join(ROOT, "docs", "README.md"));
-  if (!readme) return;
-  const documented = extractNumber(readme, /## Skills \((\d+)/);
+  if (!docsReadme) return;
+  const documented = extractNumber(docsReadme, /## Skills \((\d+)/);
   if (documented !== null && documented !== actual) {
     addFinding(
       "docs/README.md",
@@ -116,7 +114,7 @@ async function checkSkillCount() {
 
 // ── Check 3: Prohibited references ──────────────────────────────────
 
-async function checkProhibitedRefs() {
+async function checkProhibitedRefs(cachedDocsMdFiles) {
   const prohibited = [
     { pattern: /diagram\.agent\.md/g, label: "diagram.agent.md (removed)" },
     { pattern: /adr\.agent\.md/g, label: "adr.agent.md (removed)" },
@@ -124,10 +122,11 @@ async function checkProhibitedRefs() {
     { pattern: /docs\/guides\//g, label: "docs/guides/ (non-existent path)" },
   ];
 
-  const scanPaths = [join(ROOT, "docs"), join(ROOT, ".github", "instructions")];
+  const scanPaths = [join(ROOT, ".github", "instructions")];
   const singleFiles = [join(ROOT, ".github", "copilot-instructions.md")];
 
-  const mdFiles = [];
+  // Reuse cached docs MD files, only scan instructions dir fresh
+  const mdFiles = [...cachedDocsMdFiles];
   for (const dir of scanPaths) {
     mdFiles.push(...(await collectMdFiles(dir, [])));
   }
@@ -159,9 +158,10 @@ async function checkProhibitedRefs() {
 
 // ── Check 4: Deprecated path links ──────────────────────────────────
 
-async function checkSupersededLinks() {
-  const docsDir = join(ROOT, "docs");
-  const mdFiles = await collectMdFiles(docsDir, ["presenter"]);
+async function checkSupersededLinks(cachedDocsMdFiles) {
+  const mdFiles = cachedDocsMdFiles.filter(
+    (f) => !relative(ROOT, f).includes("presenter"),
+  );
 
   const deprecatedPaths = [/_superseded\//, /\.github\/templates\//];
 
@@ -187,11 +187,10 @@ async function checkSupersededLinks() {
 
 // ── Check 5: Agent table verification ───────────────────────────────
 
-async function checkAgentTable() {
-  const readme = await readText(join(ROOT, "docs", "README.md"));
-  if (!readme) return;
+async function checkAgentTable(docsReadme) {
+  if (!docsReadme) return;
   // Extract only the Agents section (between ## Agents and next ## heading)
-  const agentSection = readme.match(
+  const agentSection = docsReadme.match(
     /^## Agents[^\n]*\n([\s\S]*?)(?=\n## [^#])/m,
   );
   if (!agentSection) return;
@@ -234,10 +233,9 @@ async function checkAgentTable() {
 
 // ── Check 6: Skill table verification ───────────────────────────────
 
-async function checkSkillTable() {
-  const readme = await readText(join(ROOT, "docs", "README.md"));
-  if (!readme) return;
-  const skillSection = readme.split(/^## Skills/m)[1];
+async function checkSkillTable(docsReadme) {
+  if (!docsReadme) return;
+  const skillSection = docsReadme.split(/^## Skills/m)[1];
   if (!skillSection) return;
   // Match skill names from table rows like: | `azure-diagrams` |
   const skillNames = [
@@ -334,21 +332,26 @@ async function checkSkillReferences() {
 async function main() {
   console.log("📋 Docs Freshness Checker\n");
 
+  // Pre-fetch shared data once (avoids 4+ redundant reads of docs/README.md
+  // and 3+ directory traversals of docs/)
+  const docsReadme = await readText(join(ROOT, "docs", "README.md"));
+  const docsMdFiles = await collectMdFiles(join(ROOT, "docs"), []);
+
   console.log("─── Agent & Skill Counts ───");
-  await checkAgentCount();
-  await checkSkillCount();
+  await checkAgentCount(docsReadme);
+  await checkSkillCount(docsReadme);
 
   console.log("─── Prohibited References ───");
-  await checkProhibitedRefs();
+  await checkProhibitedRefs(docsMdFiles);
 
   console.log("─── Superseded Links ───");
-  await checkSupersededLinks();
+  await checkSupersededLinks(docsMdFiles);
 
   console.log("─── Agent Table Verification ───");
-  await checkAgentTable();
+  await checkAgentTable(docsReadme);
 
   console.log("─── Skill Table Verification ───");
-  await checkSkillTable();
+  await checkSkillTable(docsReadme);
 
   console.log("─── Skill References Freshness ───");
   await checkSkillReferences();

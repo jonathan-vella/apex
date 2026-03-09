@@ -171,9 +171,8 @@ pre-commit:
           for dir in infra/terraform/*/; do
             if [ -f "$dir/main.tf" ]; then
               echo "  Validating $dir..."
-              cd "$dir" && terraform init -backend=false -input=false -no-color > /dev/null 2>&1 \
-                && terraform validate -no-color || { echo "❌ Validation failed in $dir"; exit 1; }
-              cd - > /dev/null
+              (cd "$dir" && terraform init -backend=false -input=false -no-color > /dev/null 2>&1 \
+                && terraform validate -no-color) || { echo "❌ Validation failed in $dir"; exit 1; }
             fi
           done
         else
@@ -229,10 +228,11 @@ post-commit:
       glob: "*.json"
       run: |
         echo "🔍 Validating JSON syntax..."
-        STAGED_JSON=$(git diff --cached --name-only --diff-filter=ACM | grep '\.json$' | grep -v node_modules | grep -v infra || true)
-        if [ -n "$STAGED_JSON" ]; then
-          for f in $STAGED_JSON; do
-            node -e "JSON.parse(require('fs').readFileSync('$f'))" 2>/dev/null && echo "  ✓ $f" || { echo "  ✗ $f - Invalid JSON"; exit 1; }
+        # Use last commit's changed files (post-commit has no staged files)
+        CHANGED_JSON=$(git diff --name-only HEAD~1..HEAD 2>/dev/null | grep '\.json$' | grep -v node_modules | grep -v infra || true)
+        if [ -n "$CHANGED_JSON" ]; then
+          for f in $CHANGED_JSON; do
+            [ -f "$f" ] && node -e "JSON.parse(require('fs').readFileSync('$f'))" 2>/dev/null && echo "  ✓ $f" || { echo "  ✗ $f - Invalid JSON"; exit 1; }
           done
         fi
       fail_text: "❌ JSON syntax validation failed"

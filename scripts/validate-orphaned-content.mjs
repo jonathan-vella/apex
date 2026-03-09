@@ -11,21 +11,16 @@
  */
 
 import fs from "node:fs";
-import path from "node:path";
 import {
   getAgents,
   getSkills,
   getInstructions,
 } from "./_lib/workspace-index.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
+import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
 
-const SKILLS_DIR = ".github/skills";
-const INSTRUCTIONS_DIR = ".github/instructions";
-
-let errors = 0;
-let warnings = 0;
-let checked = 0;
-
-console.log("\n🔍 Orphaned Content Validator\n");
+const r = new Reporter("Orphaned Content Validator");
+r.header();
 
 // Gather reference corpus from cached index + top-level config.
 function gatherReferenceContent() {
@@ -41,7 +36,7 @@ function gatherReferenceContent() {
 
   // Top-level config files
   for (const f of [
-    ".github/copilot-instructions.md",
+    COPILOT_INSTRUCTIONS,
     "AGENTS.md",
     ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md",
   ]) {
@@ -58,7 +53,7 @@ console.log("📁 Skills:");
 const skills = getSkills();
 
 for (const [skill] of skills) {
-  checked++;
+  r.tick();
   // Build search content: agents + instructions + config + OTHER skills (not self)
   const otherSkills = Object.entries(perSkill)
     .filter(([name]) => name !== skill)
@@ -74,8 +69,7 @@ for (const [skill] of skills) {
     searchContent.includes(`\`${skill}\``);
 
   if (!isReferenced) {
-    console.log(`  ⚠️  ${skill}/ — not referenced by any agent or instruction`);
-    warnings++;
+    r.warn(`${skill}/`, "not referenced by any agent or instruction");
   }
 }
 
@@ -86,24 +80,15 @@ console.log("\n📁 Instructions (applyTo completeness):");
 const instructions = getInstructions();
 
 for (const [file, instr] of instructions) {
-  checked++;
+  r.tick();
 
   const fmMatch = instr.content.match(/^---\n([\s\S]*?)\n---/);
   const hasApplyTo = fmMatch && fmMatch[1].includes("applyTo");
 
   if (!hasApplyTo) {
-    console.log(
-      `  ⚠️  ${file} — no applyTo frontmatter (instruction never auto-loads)`,
-    );
-    warnings++;
+    r.warn(file, "no applyTo frontmatter (instruction never auto-loads)");
   }
 }
 
-console.log(`\n${"─".repeat(50)}`);
-console.log(`Checked: ${checked} | Warnings: ${warnings} | Errors: ${errors}`);
-
-if (errors > 0) {
-  console.log(`\n❌ ${errors} orphaned content error(s)`);
-  process.exit(1);
-}
-console.log(`\n✅ Orphaned content check passed`);
+r.summary();
+r.exitOnError("Orphaned content check passed");

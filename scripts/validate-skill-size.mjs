@@ -10,11 +10,12 @@
  * node scripts/validate-skill-size.mjs
  */
 
-import fs from "node:fs";
 import path from "node:path";
 import { getSkills } from "./_lib/workspace-index.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
+import { MAX_SKILL_LINES_WITHOUT_REFS } from "./_lib/paths.mjs";
 
-const MAX_LINES_WITHOUT_REFS = 200;
+const MAX_LINES_WITHOUT_REFS = MAX_SKILL_LINES_WITHOUT_REFS;
 
 // Pre-existing oversized skills (tracked for future remediation).
 // New skills MUST comply — only add entries here with a linked issue.
@@ -25,17 +26,14 @@ const KNOWN_OVERSIZED = new Set([
   "microsoft-skill-creator",
 ]);
 
-let errors = 0;
-let warnings = 0;
-let checked = 0;
-
-console.log("\n🔍 Skill Size Validator\n");
+const r = new Reporter("Skill Size Validator");
+r.header();
 
 const skills = getSkills();
 
 for (const [skill, info] of skills) {
   if (!info.content) continue;
-  checked++;
+  r.tick();
 
   const lineCount = info.content.split("\n").length;
   const hasRefs = info.hasRefs;
@@ -44,36 +42,15 @@ for (const [skill, info] of skills) {
 
   if (lineCount > MAX_LINES_WITHOUT_REFS && !hasRefs) {
     if (KNOWN_OVERSIZED.has(skill)) {
-      console.log(
-        `  ⚠️  ${skill}/SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) without references/ (known — tracked for remediation)`,
-      );
-      warnings++;
+      r.warn(skill, `SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) without references/ (known — tracked for remediation)`);
     } else {
-      console.log(
-        `::error file=${skillPath}::${skill}/SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) without references/`,
-      );
-      console.log(
-        `  Fix: Create ${refsDir}/ and move detailed content to reference files.`,
-      );
-      console.log(
-        `  Keep SKILL.md as a ≤${MAX_LINES_WITHOUT_REFS}-line quick-reference with a Reference Index section.`,
-      );
-      errors++;
+      r.errorAnnotation(skillPath, `${skill}/SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) without references/`);
+      console.log(`  Fix: Create ${refsDir}/ and move detailed content to reference files.`);
     }
   } else if (lineCount > MAX_LINES_WITHOUT_REFS && hasRefs) {
-    const refCount = info.refFiles.length;
-    console.log(
-      `  ⚠️  ${skill}/SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) but has ${refCount} reference files — consider trimming further`,
-    );
-    warnings++;
+    r.warn(skill, `SKILL.md is ${lineCount} lines (>${MAX_LINES_WITHOUT_REFS}) but has ${info.refFiles.length} reference files — consider trimming further`);
   }
 }
 
-console.log(`\n${"─".repeat(50)}`);
-console.log(`Checked: ${checked} | Warnings: ${warnings} | Errors: ${errors}`);
-
-if (errors > 0) {
-  console.log(`\n❌ ${errors} skill size violation(s)`);
-  process.exit(1);
-}
-console.log(`\n✅ Skill size check passed`);
+r.summary();
+r.exitOnError("Skill size check passed");

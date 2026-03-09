@@ -17,15 +17,11 @@ import {
   getSkills,
   getInstructions,
 } from "./_lib/workspace-index.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
+import { SKILLS_DIR, INSTRUCTIONS_DIR } from "./_lib/paths.mjs";
 
-const SKILLS_DIR = ".github/skills";
-const INSTRUCTIONS_DIR = ".github/instructions";
-
-let errors = 0;
-let warnings = 0;
-let checked = 0;
-
-console.log("\n🔍 Skill References Validator\n");
+const r = new Reporter("Skill References Validator");
+r.header();
 
 // Gather all searchable content from cached index
 function gatherSearchableContent() {
@@ -48,25 +44,18 @@ for (const [skill, info] of skills) {
   const refsDir = path.join(SKILLS_DIR, skill, "references");
 
   for (const refFile of info.refFiles) {
-    checked++;
+    r.tick();
     const refRelPath = `${skill}/references/${refFile}`;
     const refName = refFile.replace(/\.md$/, "");
 
-    // Check if referenced anywhere using explicit reference paths
-    // to avoid false positives from short filenames matching unrelated text
     const isReferenced =
       allContent.includes(refRelPath) ||
       allContent.includes(`references/${refFile}`) ||
       allContent.includes(`${skill}/references/${refName}`);
 
     if (!isReferenced) {
-      console.log(
-        `::warning file=${path.join(refsDir, refFile)}::${refRelPath} is not referenced by any agent, skill, or instruction`,
-      );
-      console.log(
-        `  Fix: Add a loading directive in ${skill}/SKILL.md or remove the orphaned file.`,
-      );
-      warnings++;
+      r.warnAnnotation(path.join(refsDir, refFile), `${refRelPath} is not referenced by any agent, skill, or instruction`);
+      console.log(`  Fix: Add a loading directive in ${skill}/SKILL.md or remove the orphaned file.`);
     }
   }
 }
@@ -79,28 +68,17 @@ if (fs.existsSync(instrRefsDir)) {
     .filter((f) => f.endsWith(".md"));
 
   for (const refFile of instrRefFiles) {
-    checked++;
+    r.tick();
     const refName = refFile.replace(/\.md$/, "");
     const isReferenced =
       allContent.includes(refFile) || allContent.includes(refName);
 
     if (!isReferenced) {
-      console.log(
-        `::warning file=${path.join(instrRefsDir, refFile)}::instructions/references/${refFile} is not referenced anywhere`,
-      );
-      console.log(
-        `  Fix: Add a reference in the parent instruction file or remove the orphaned file.`,
-      );
-      warnings++;
+      r.warnAnnotation(path.join(instrRefsDir, refFile), `instructions/references/${refFile} is not referenced anywhere`);
+      console.log(`  Fix: Add a reference in the parent instruction file or remove the orphaned file.`);
     }
   }
 }
 
-console.log(`\n${"─".repeat(50)}`);
-console.log(`Checked: ${checked} | Warnings: ${warnings} | Errors: ${errors}`);
-
-if (errors > 0) {
-  console.log(`\n❌ ${errors} reference resolution error(s)`);
-  process.exit(1);
-}
-console.log(`\n✅ Skill references check passed`);
+r.summary();
+r.exitOnError("Skill references check passed");

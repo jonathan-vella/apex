@@ -12,10 +12,9 @@
  */
 
 import fs from "node:fs";
-import path from "node:path";
 import { getSkillNames } from "./_lib/workspace-index.mjs";
-
-const REGISTRY_PATH = ".github/agent-registry.json";
+import { Reporter } from "./_lib/reporter.mjs";
+import { REGISTRY_PATH } from "./_lib/paths.mjs";
 
 const KNOWN_MODELS = [
   "Claude Opus 4.6",
@@ -26,22 +25,7 @@ const KNOWN_MODELS = [
   "GPT-4o",
 ];
 
-let errors = 0;
-let warnings = 0;
-
-function error(msg) {
-  console.error(`  ❌ ${msg}`);
-  errors++;
-}
-
-function warn(msg) {
-  console.warn(`  ⚠️  ${msg}`);
-  warnings++;
-}
-
-function ok(msg) {
-  console.log(`  ✅ ${msg}`);
-}
+const r = new Reporter("Agent Registry Validator");
 
 function validateAgentEntry(key, entry, skillNames) {
   // Handle IaC-conditional entries (bicep/terraform variants)
@@ -63,11 +47,11 @@ function validateAgentEntry(key, entry, skillNames) {
 
 function validateAgentFile(key, agentPath) {
   if (!agentPath) {
-    error(`Agent "${key}": missing agent file path`);
+    r.error(`Agent "${key}"`, "missing agent file path");
     return;
   }
   if (!fs.existsSync(agentPath)) {
-    error(`Agent "${key}": file not found: ${agentPath}`);
+    r.error(`Agent "${key}"`, `file not found: ${agentPath}`);
   }
 }
 
@@ -75,7 +59,7 @@ function validateSkills(key, skills, skillNames) {
   if (!Array.isArray(skills)) return;
   for (const skill of skills) {
     if (!skillNames.has(skill)) {
-      error(`Agent "${key}": references non-existent skill: "${skill}"`);
+      r.error(`Agent "${key}"`, `references non-existent skill: "${skill}"`);
     }
   }
 }
@@ -83,16 +67,14 @@ function validateSkills(key, skills, skillNames) {
 function validateModel(key, model) {
   if (!model) return;
   if (!KNOWN_MODELS.includes(model)) {
-    warn(
-      `Agent "${key}": unknown model "${model}" (known: ${KNOWN_MODELS.join(", ")})`,
-    );
+    r.warn(`Agent "${key}"`, `unknown model "${model}"`);
   }
 }
 
 console.log("\n📋 Validating agent registry...\n");
 
 if (!fs.existsSync(REGISTRY_PATH)) {
-  error(`Agent registry not found at ${REGISTRY_PATH}`);
+  r.error(`Agent registry not found at ${REGISTRY_PATH}`);
   process.exit(1);
 }
 
@@ -100,7 +82,7 @@ let raw;
 try {
   raw = fs.readFileSync(REGISTRY_PATH, "utf-8");
 } catch (e) {
-  error(`Cannot read ${REGISTRY_PATH}: ${e.message}`);
+  r.error(`Cannot read ${REGISTRY_PATH}: ${e.message}`);
   process.exit(1);
 }
 
@@ -108,7 +90,7 @@ let registry;
 try {
   registry = JSON.parse(raw);
 } catch (e) {
-  error(`Invalid JSON in ${REGISTRY_PATH}: ${e.message}`);
+  r.error(`Invalid JSON in ${REGISTRY_PATH}: ${e.message}`);
   process.exit(1);
 }
 
@@ -132,11 +114,11 @@ if (registry.subagents) {
   }
 }
 
-ok(`Validated ${agentCount} agents and ${subagentCount} subagents`);
+r.ok(`Validated ${agentCount} agents and ${subagentCount} subagents`);
 
-console.log(`\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`);
+console.log(`\n📊 Results: ${r.errors} error(s), ${r.warnings} warning(s)\n`);
 
-if (errors > 0) {
+if (r.errors > 0) {
   console.error("❌ Agent registry validation failed\n");
   process.exit(1);
 }

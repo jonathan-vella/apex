@@ -7,8 +7,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = process.cwd();
+const r = new Reporter("Deprecated References Validator");
 
 // Patterns to detect (case-insensitive where noted)
 const DEPRECATED_PATTERNS = [
@@ -170,18 +173,9 @@ const EXCLUDE_PATTERNS = [
 let errorCount = 0;
 let warnCount = 0;
 
-function shouldExclude(filePath) {
-  return EXCLUDE_PATTERNS.some((pattern) => pattern.test(filePath));
-}
-
-const SCAN_EXTENSIONS = new Set([".md", ".mjs", ".yml", ".yaml", ".json"]);
-
-function scanFile(filePath) {
-  if (shouldExclude(filePath)) return;
-  if (!SCAN_EXTENSIONS.has(path.extname(filePath))) return;
-
-  const content = fs.readFileSync(filePath, "utf8");
+function scanFile(filePath, content) {
   const relativePath = path.relative(ROOT, filePath);
+  if (EXCLUDE_PATTERNS.some((p) => p.test(relativePath))) return;
 
   for (const { pattern, message, severity } of DEPRECATED_PATTERNS) {
     // Reset regex lastIndex for global patterns
@@ -202,33 +196,47 @@ function scanFile(filePath) {
 
 function scanDirectory(dirPath) {
   if (!fs.existsSync(dirPath)) return;
-  if (shouldExclude(dirPath)) return;
+  const dirRel = path.relative(ROOT, dirPath);
+  if (EXCLUDE_PATTERNS.some((p) => p.test(dirRel))) return;
 
+  const SCAN_EXTENSIONS = new Set([".md", ".mjs", ".yml", ".yaml", ".json"]);
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
       scanDirectory(fullPath);
-    } else if (entry.isFile()) {
-      scanFile(fullPath);
+    } else if (entry.isFile() && SCAN_EXTENSIONS.has(path.extname(entry.name))) {
+      const content = fs.readFileSync(fullPath, "utf8");
+      scanFile(fullPath, content);
     }
   }
 }
 
 function main() {
-  console.log("🔍 Deprecated References Validator\n");
+  r.header();
 
-  // Scan folders
-  for (const folder of SCAN_FOLDERS) {
-    const folderPath = path.join(ROOT, folder);
-    scanDirectory(folderPath);
+  // Leverage workspace-index for agents, skills, instructions (already cached)
+  for (const [, agent] of getAgents()) {
+    scanFile(agent.path, agent.content);
+  }
+  for (const [, skill] of getSkills()) {
+    if (skill.content) scanFile(path.join(skill.dir, "SKILL.md"), skill.content);
+  }
+  for (const [, instr] of getInstructions()) {
+    scanFile(instr.path, instr.content);
+  }
+
+  // Scan additional directories not covered by workspace-index
+  for (const folder of ["docs", ".github/skills/azure-artifacts/templates"]) {
+    scanDirectory(path.join(ROOT, folder));
   }
 
   // Scan root files
   for (const file of SCAN_ROOT_FILES) {
     const filePath = path.join(ROOT, file);
     if (fs.existsSync(filePath)) {
-      scanFile(filePath);
+      const content = fs.readFileSync(filePath, "utf8");
+      scanFile(filePath, content);
     }
   }
 

@@ -13,27 +13,11 @@
  */
 
 import fs from "node:fs";
-import path from "node:path";
 import { getAgents, getSkillNames as getSkillNamesFromIndex } from "./_lib/workspace-index.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
+import { AFFINITY_PATH } from "./_lib/paths.mjs";
 
-const AFFINITY_PATH = ".github/skill-affinity.json";
-
-let errors = 0;
-let warnings = 0;
-
-function error(msg) {
-  console.error(`  ❌ ${msg}`);
-  errors++;
-}
-
-function warn(msg) {
-  console.warn(`  ⚠️  ${msg}`);
-  warnings++;
-}
-
-function ok(msg) {
-  console.log(`  ✅ ${msg}`);
-}
+const r = new Reporter("Skill Affinity Validator");
 
 function getAgentNames() {
   const names = new Set();
@@ -64,7 +48,7 @@ function buildAgentSkillReadsMap() {
 console.log("\n🎯 Validating skill affinity configuration...\n");
 
 if (!fs.existsSync(AFFINITY_PATH)) {
-  error(`Skill affinity config not found at ${AFFINITY_PATH}`);
+  r.error(`Skill affinity config not found at ${AFFINITY_PATH}`);
   process.exit(1);
 }
 
@@ -72,7 +56,7 @@ let affinity;
 try {
   affinity = JSON.parse(fs.readFileSync(AFFINITY_PATH, "utf-8"));
 } catch (e) {
-  error(`Invalid JSON in ${AFFINITY_PATH}: ${e.message}`);
+  r.error(`Invalid JSON in ${AFFINITY_PATH}: ${e.message}`);
   process.exit(1);
 }
 
@@ -84,34 +68,30 @@ function validateEntry(key, entry, isSubagent) {
   // Validate skill names
   for (const tier of ["primary", "secondary", "never"]) {
     if (!Array.isArray(entry[tier])) {
-      error(`${key}: "${tier}" must be an array`);
+      r.error(`${key}: "${tier}" must be an array`);
       continue;
     }
     for (const skill of entry[tier]) {
       if (!skillNames.has(skill)) {
-        error(`${key}: references non-existent skill "${skill}" in ${tier}`);
+        r.error(`${key}: references non-existent skill "${skill}" in ${tier}`);
       }
     }
   }
 
-  // Check for conflicts (same skill in primary and never)
   if (Array.isArray(entry.primary) && Array.isArray(entry.never)) {
     for (const skill of entry.primary) {
       if (entry.never.includes(skill)) {
-        error(`${key}: skill "${skill}" appears in both "primary" and "never"`);
+        r.error(`${key}: skill "${skill}" appears in both "primary" and "never"`);
       }
     }
   }
 
-  // Cross-reference against agent body (agents only, not subagents easily)
   if (!isSubagent) {
     const bodyReads = agentSkillReadsMap.get(key) || new Set();
     if (bodyReads.size > 0 && Array.isArray(entry.primary)) {
       for (const skill of entry.primary) {
         if (!bodyReads.has(skill)) {
-          warn(
-            `${key}: primary skill "${skill}" is not referenced in agent body "Read" lines`,
-          );
+          r.warn(`${key}: primary skill "${skill}" is not referenced in agent body "Read" lines`);
         }
       }
     }
@@ -123,7 +103,7 @@ let entryCount = 0;
 if (affinity.agents) {
   for (const [key, entry] of Object.entries(affinity.agents)) {
     if (!agentNames.has(key)) {
-      warn(`Agent "${key}" in affinity config not found in agent files`);
+      r.warn(`Agent "${key}" in affinity config not found in agent files`);
     }
     validateEntry(key, entry, false);
     entryCount++;
@@ -133,18 +113,18 @@ if (affinity.agents) {
 if (affinity.subagents) {
   for (const [key, entry] of Object.entries(affinity.subagents)) {
     if (!agentNames.has(key)) {
-      warn(`Subagent "${key}" in affinity config not found in agent files`);
+      r.warn(`Subagent "${key}" in affinity config not found in agent files`);
     }
     validateEntry(key, entry, true);
     entryCount++;
   }
 }
 
-ok(`Validated ${entryCount} affinity entries`);
+r.ok(`Validated ${entryCount} affinity entries`);
 
-console.log(`\n📊 Results: ${errors} error(s), ${warnings} warning(s)\n`);
+console.log(`\n📊 Results: ${r.errors} error(s), ${r.warnings} warning(s)\n`);
 
-if (errors > 0) {
+if (r.errors > 0) {
   console.error("❌ Skill affinity validation failed\n");
   process.exit(1);
 }

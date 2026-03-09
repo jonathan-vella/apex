@@ -18,30 +18,20 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { Reporter } from "./_lib/reporter.mjs";
+import { AGENT_OUTPUT_DIR } from "./_lib/paths.mjs";
 
-const AGENT_OUTPUT_DIR = "agent-output";
 const STATE_FILENAME = "00-session-state.json";
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_STALE_THRESHOLD_MS = 300000;
 
-let errors = 0;
-let warnings = 0;
 let fileCount = 0;
+const r = new Reporter("Session Lock Validator");
 
-function error(file, msg) {
-  console.error(`  ❌ ${file}: ${msg}`);
-  errors++;
-}
-
-function warn(file, msg) {
-  console.warn(`  ⚠️  ${file}: ${msg}`);
-  warnings++;
-}
-
-function ok(file, msg) {
-  console.log(`  ✅ ${file}: ${msg}`);
-}
+function error(file, msg) { r.error(file, msg); }
+function warn(file, msg) { r.warn(file, msg); }
+function ok(file, msg) { r.ok(file, msg); }
 
 function isValidISO(str) {
   if (typeof str !== "string") return false;
@@ -343,10 +333,10 @@ if (fileCount === 0) {
 }
 
 console.log(
-  `\n📊 Checked ${fileCount} file(s): ${errors} error(s), ${warnings} warning(s)\n`,
+  `\n📊 Checked ${fileCount} file(s): ${r.errors} error(s), ${r.warnings} warning(s)\n`,
 );
 
-if (errors > 0) {
+if (r.errors > 0) {
   console.error("❌ Session lock validation failed\n");
   process.exit(1);
 }
