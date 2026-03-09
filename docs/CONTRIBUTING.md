@@ -4,9 +4,7 @@ Thank you for your interest in contributing! Agentic InfraOps revolutionizes how
 Azure environments through coordinated AI agents.
 
 This file is the quick contributor entrypoint.
-The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
-
-- [Agent and Skill Workflow](workflow.md)
+For the agent orchestration workflow, see [Agent and Skill Workflow](workflow.md).
 
 ## What We're Looking For
 
@@ -44,7 +42,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Agent and Skill Workflow](workflow.md)
+- Agent orchestration reference: [Agent and Skill Workflow](workflow.md)
 
 ### Code Standards
 

@@ -25,8 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat(config): add `.github/skill-affinity.json` — skill/agent affinity catalog with
   `primary`/`secondary`/`never` weights for context budget optimization.
 - feat(scripts): add 5 new validators: `validate-session-lock`, `validate-workflow-graph`,
-  `validate-agent-registry`, `validate-skill-affinity`;
-  validator count 22 → 25.
+  `validate-agent-registry`, `validate-skill-affinity`, `validate-docs-sync`;
+  validator count 22 → 27.
 - feat(hooks): add `pre-push` hook to `lefthook.yml` with diff-based domain routing;
   only runs validators for changed file types, in parallel.
 - feat(scripts): add `diff-based-push-check.sh` helper for pre-push hook domain detection.

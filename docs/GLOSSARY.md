@@ -370,7 +370,7 @@ for Agentic InfraOps methodology.
 
 A reusable knowledge module stored in `.github/skills/` that agents can invoke. Unlike agents,
 skills don't have their own chat persona — they provide domain knowledge that agents use.
-14 skills are organized across conventions, document creation, infrastructure patterns,
+21 skills are organized across conventions, document creation, infrastructure patterns,
 workflow automation, troubleshooting, and Microsoft docs integration categories.
 
 📁 **See**: [.github/skills/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills)
@@ -378,9 +378,10 @@ workflow automation, troubleshooting, and Microsoft docs integration categories.
 ### Subagent
 
 A specialized validation agent invoked by other agents for specific tasks (lint, what-if/plan,
-review). Eight exist: `cost-estimate-subagent`, `governance-discovery-subagent`,
-`bicep-lint-subagent`, `bicep-review-subagent`, `bicep-whatif-subagent`,
-`terraform-lint-subagent`, `terraform-review-subagent`, `terraform-plan-subagent`.
+review). Nine exist: `challenger-review-subagent`, `cost-estimate-subagent`,
+`governance-discovery-subagent`, `bicep-lint-subagent`, `bicep-review-subagent`,
+`bicep-whatif-subagent`, `terraform-lint-subagent`, `terraform-review-subagent`,
+`terraform-plan-subagent`.
 
 📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
 
@@ -532,5 +533,9 @@ Each step produces artifacts in `agent-output/`.
 | WAF     | Well-Architected Framework                   | Architecture   |
 | WSL     | Windows Subsystem for Linux                  | Tooling        |
 | YAML    | YAML Ain't Markup Language                   | Data Format    |
+
+---
+
+**See also:** [FAQ](faq.md) · [How It Works](how-it-works/index.md) · [Troubleshooting](troubleshooting.md)
 
 _Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/images/hero-quickstart.jpg"
+  <img src="../assets/images/hero-quickstart.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Getting started with development tools"/>
 </div>
@@ -71,7 +71,7 @@ The Dev Container installs all tools automatically:
 - PowerShell 7
 - Python 3 + diagrams library
 - Go (Terraform MCP server)
-- 25+ VS Code extensions
+- 27+ VS Code extensions
 
 ## :material-check-circle-outline: Step 4: Verify Setup
 
@@ -206,16 +206,16 @@ infra/terraform/my-webapp/
 
 ## :material-arrow-right-circle-outline: Next Steps
 
-| Goal                            | Resource                                                                                                                     |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Understand the full workflow    | [workflow.md](workflow.md)                                                                                                   |
-| Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)                                                   |
-| Try a complete workflow         | [Prompt Guide](prompt-guide/index.md)                                                                                       |
-| Generate architecture diagrams  | Use `azure-diagrams` skill                                                                                                   |
-| Create documentation            | Use `azure-artifacts` skill                                                                                                  |
-| Explore Terraform patterns      | Use `terraform-patterns` skill                                                                                               |
-| Troubleshoot issues             | [troubleshooting.md](troubleshooting.md)                                                                                     |
-| Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops)                                           |
+| Goal                            | Resource                                                                           |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| Understand the full workflow    | [workflow.md](workflow.md)                                                         |
+| Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
+| Try a complete workflow         | [Prompt Guide](prompt-guide/index.md)                                              |
+| Generate architecture diagrams  | Use `azure-diagrams` skill                                                         |
+| Create documentation            | Use `azure-artifacts` skill                                                        |
+| Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
+| Troubleshoot issues             | [troubleshooting.md](troubleshooting.md)                                           |
+| Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops) |
 
 ## :material-lightning-bolt: Quick Reference
 

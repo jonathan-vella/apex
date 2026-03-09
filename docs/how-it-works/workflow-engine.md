@@ -144,8 +144,8 @@ experienced 5 forced context summarisations in a single 3h39m session.
 
 ### 28 Validation Scripts
 
-Every convention is backed by a machine-enforceable check. The 28 script files drive
-41 npm commands, organised into two parallel groups: `validate:_node` (21 Node.js
+Every convention is backed by a machine-enforceable check. The 26 script files drive
+the validation suite, organised into two parallel groups: `validate:_node` (22 Node.js
 validators) and `validate:_external` (5 external tool validators):
 
 | Category            | Validators                                                                                |

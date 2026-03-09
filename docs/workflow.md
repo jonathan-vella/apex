@@ -3,7 +3,7 @@ toc_depth: 2
 ---
 
 <div align="center">
-  <img src="assets/images/hero-workflow.jpg"
+  <img src="../assets/images/hero-workflow.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Collaborative technology workspace"/>
 </div>
@@ -150,7 +150,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation   | `infra/terraform/{project}/`                         |
 | 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                     | `06-deployment-summary.md`                           |
 | 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                 | `06-deployment-summary.md`                           |
-| 7    | —                  | —             | Documentation (via skills)           | `07-*.md`                                            |
+| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite  | `07-*.md`                                            |
 
 ### Validation Subagents
 
@@ -172,10 +172,10 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 ### Standalone Agents
 
-| Agent        | Persona       | Role                                                                    |
-| ------------ | ------------- | ----------------------------------------------------------------------- |
-| `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges requirements, architecture, and plans |
-| `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                          |
+| Agent        | Persona       | Role                                                                                       |
+| ------------ | ------------- | ------------------------------------------------------------------------------------------ |
+| `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges requirements, architecture, plans, code, and deployments |
+| `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                                             |
 
 ## :material-shield-lock-outline: Approval Gates
 

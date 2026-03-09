@@ -3,7 +3,7 @@ toc_depth: 2
 ---
 
 <div align="center">
-  <img src="assets/images/hero-troubleshooting.jpg"
+  <img src="../assets/images/hero-troubleshooting.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Diagnostic tools and troubleshooting"/>
 </div>
@@ -90,7 +90,7 @@ head -20 .github/agents/requirements.agent.md
 
 Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 
-### 1.5. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
+### 2. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
 
 **Symptom**: The InfraOps Conductor (🎼 Maestro) doesn't delegate to specialized agents.
 Responses are instant, no terminal commands execute, no files are created.
@@ -132,7 +132,7 @@ Responses are instant, no terminal commands execute, no files are created.
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
 for experimental features. User settings take precedence.
 
-### 2. Skill Not Activating Automatically
+### 3. Skill Not Activating Automatically
 
 **Symptom**: Prompt doesn't trigger expected skill.
 
@@ -156,7 +156,7 @@ Check skill triggers in `SKILL.md`:
 cat .github/skills/azure-diagrams/SKILL.md | head -30
 ```
 
-### 3. Deployment Fails with Azure Policy Error
+### 4. Deployment Fails with Azure Policy Error
 
 **Symptom**: `az deployment group create` fails with policy violation.
 
@@ -174,7 +174,7 @@ cat .github/skills/azure-diagrams/SKILL.md | head -30
 "Run deployment preflight for {project}"
 ```
 
-### 4. Bicep Build Errors
+### 5. Bicep Build Errors
 
 **Symptom**: `bicep build` fails.
 
@@ -197,7 +197,7 @@ cat .github/skills/azure-diagrams/SKILL.md | head -30
     bicep restore infra/bicep/{project}/main.bicep
     ```
 
-### 4t. Terraform Validation Errors
+### 5t. Terraform Validation Errors
 
 **Symptom**: `terraform validate` or `terraform plan` fails.
 
@@ -258,7 +258,7 @@ cat .github/skills/azure-diagrams/SKILL.md | head -30
 terraform force-unlock <lock-id>
 ```
 
-### 5. Azure Authentication Issues
+### 6. Azure Authentication Issues
 
 **Symptom**: "Not logged in" or subscription errors.
 
@@ -281,7 +281,7 @@ For Service Principal:
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 ```
 
-### 6. Artifact Validation Failures
+### 7. Artifact Validation Failures
 
 **Symptom**: `npm run validate` fails.
 
@@ -304,7 +304,7 @@ cat scripts/validate-artifact-templates.mjs | grep -A20 "ARTIFACT_HEADINGS"
 diff -u .github/skills/azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
 ```
 
-### 7. MCP Server Not Responding
+### 8. MCP Server Not Responding
 
 **Symptom**: Azure Pricing MCP calls fail.
 
@@ -321,7 +321,15 @@ python3 --version  # Should be 3.10+
 cd mcp/azure-pricing-mcp && pip install -r requirements.txt
 ```
 
-### 8. Dev Container Build Fails
+!!! tip "Graceful degradation"
+
+    If MCP servers are temporarily unreachable, the workflow degrades gracefully.
+    Steps 1-5 can proceed without MCP — agents skip real-time pricing lookups
+    and use documented defaults. Governance discovery in Step 4 uses Azure CLI
+    auth, not MCP. Only Step 2 cost estimation and Step 7 as-built cost updates
+    depend directly on the Pricing MCP server.
+
+### 9. Dev Container Build Fails
 
 **Symptom**: Dev container won't start.
 
@@ -344,7 +352,7 @@ Check Docker is running:
 docker ps
 ```
 
-### 9. Orphaned VS Code Extensions Injecting Unwanted Instructions
+### 10. Orphaned VS Code Extensions Injecting Unwanted Instructions
 
 **Symptom**: Copilot loads instruction files from extensions that are not listed in `devcontainer.json`
 (e.g., `ms-azuretools.vscode-azure-github-copilot`). You may see unexpected rules or context being
@@ -376,7 +384,7 @@ extension on disk, regardless of whether it is actively managed.
 > If this happens, rebuild without cache:
 > `Ctrl+Shift+P` → "Dev Containers: Rebuild Container Without Cache".
 
-### 10. Git Push Fails with Lefthook Errors
+### 11. Git Push Fails with Lefthook Errors
 
 **Symptom**: Pre-commit hooks fail.
 
@@ -399,7 +407,7 @@ extension on disk, regardless of whether it is actively managed.
 git commit --no-verify -m "fix: temporary"
 ```
 
-### 11. Handoff Prompt Not Working
+### 12. Handoff Prompt Not Working
 
 **Symptom**: Agent handoff button does nothing.
 

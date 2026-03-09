@@ -127,3 +127,7 @@ The next agent reads those files as input. This design:
 `00-handoff.md` file containing a summary of what was completed, key decisions
 made, what comes next, and (at Gates 2 and 3) a session break recommendation.
 This enables resume from any gate without needing to re-read all prior artefacts.
+
+---
+
+**Next:** [Skills & Instructions](skills-and-instructions.md) · [Workflow Engine & Quality](workflow-engine.md)

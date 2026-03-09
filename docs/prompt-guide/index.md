@@ -22,29 +22,29 @@ infrastructure.
 
 <div class="grid cards" markdown>
 
--   :material-lightbulb:{ .lg .middle } **Best Practices**
+- :material-lightbulb:{ .lg .middle } **Best Practices**
 
-    ---
+  ***
 
-    How to write effective prompts — patterns, anti-patterns, and validation tips.
+  How to write effective prompts — patterns, anti-patterns, and validation tips.
 
-    [:octicons-arrow-right-24: Best practices](best-practices.md)
+  [:octicons-arrow-right-24: Best practices](best-practices.md)
 
--   :material-format-list-numbered:{ .lg .middle } **Workflow Prompts**
+- :material-format-list-numbered:{ .lg .middle } **Workflow Prompts**
 
-    ---
+  ***
 
-    Ready-to-use prompts for all 7 workflow steps plus standalone agents.
+  Ready-to-use prompts for all 7 workflow steps plus standalone agents.
 
-    [:octicons-arrow-right-24: Workflow prompts](workflow-prompts.md)
+  [:octicons-arrow-right-24: Workflow prompts](workflow-prompts.md)
 
--   :material-bookshelf:{ .lg .middle } **Skill & Subagent Reference**
+- :material-bookshelf:{ .lg .middle } **Skill & Subagent Reference**
 
-    ---
+  ***
 
-    Reference prompts for each skill and subagent, plus advanced patterns.
+  Reference prompts for each skill and subagent, plus advanced patterns.
 
-    [:octicons-arrow-right-24: Reference](reference.md)
+  [:octicons-arrow-right-24: Reference](reference.md)
 
 </div>
 
@@ -66,7 +66,7 @@ infrastructure.
 | **Terraform Deploy**   | 🚀 Envoy      | 6t   | Terraform plan preview and apply               |
 | **As-Built**           | 📚 Chronicler | 7    | Generates post-deployment documentation        |
 | **Diagnose**           | 🔍 Sentinel   | —    | Resource health and troubleshooting            |
-| **Challenger**         | ⚔️ Adversary  | —    | Reviews plans for gaps and weaknesses          |
+| **Challenger**         | ⚔️ Challenger | —    | Reviews plans for gaps and weaknesses          |
 
 ### Skills
 
@@ -105,6 +105,12 @@ infrastructure.
 Reusable `.prompt.md` files in `.github/prompts/` provide one-click access
 to pre-configured agent workflows. In VS Code, type `/` in Copilot Chat
 to see available prompts.
+
+!!! warning "Planned prompt files"
+
+    The prompt files listed below are planned additions. Currently, only
+    `doc-gardening`, `git-commit-push`, and `plan-docsPeerReview` exist
+    in `.github/prompts/`. The remaining prompts will be added in a future release.
 
 #### Core Workflow Prompts
 

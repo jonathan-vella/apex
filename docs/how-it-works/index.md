@@ -25,7 +25,7 @@ files, 3 Copilot hooks, and 5 MCP server integrations.
 The core thesis is that **AI agents can reliably produce production-grade Azure infrastructure
 when properly orchestrated with guardrails**. The system achieves this through
 a layered knowledge architecture (agents, skills, instructions, registries), mechanical enforcement
-of invariants via 28 validation scripts driving 41 npm commands, and a human-in-the-loop design
+of invariants via 26 validation scripts, and a human-in-the-loop design
 that preserves operator control at every critical decision point. Cost governance (budget alerts,
 forecast notifications, anomaly detection) and template repeatability (zero hardcoded values)
 are enforced as first-class concerns across all generated infrastructure.
@@ -52,7 +52,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  14 top-level agents, 9 subagents, the Challenger pattern, and handoff design.
+  15 top-level agents, 9 subagents, the Challenger pattern, and handoff design.
 
   [:octicons-arrow-right-24: Agent deep dive](agents.md)
 

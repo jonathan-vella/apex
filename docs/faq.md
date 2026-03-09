@@ -145,7 +145,7 @@ Frequently asked questions about Agentic InfraOps.
     }
     ```
 
-    See [Troubleshooting](troubleshooting.md#15-conductorsubagent-invocation-not-working-vs-code-1109)
+    See [Troubleshooting](troubleshooting.md#2-conductorsubagent-invocation-not-working-vs-code-1109)
     for detailed steps.
 
 ??? question "Where do I report bugs or request features?"
@@ -153,3 +153,22 @@ Frequently asked questions about Agentic InfraOps.
     - **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
     - **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
     - **Feature requests**: Open a GitHub issue with the `enhancement` label
+
+??? question "What happens if an agent produces bad output?"
+
+    Use specific follow-up prompts to correct the issue. For example:
+    *"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."*
+    If the error persists, start a fresh chat session — context accumulation can degrade
+    output quality. The [Troubleshooting](troubleshooting.md) guide covers common failure
+    modes and recovery steps.
+
+??? question "What if MCP servers are unreachable?"
+
+    The workflow degrades gracefully. Steps 1-5 can proceed without MCP — agents skip
+    real-time pricing lookups and use documented defaults. Only Step 2 cost estimation
+    and Step 7 as-built cost updates depend directly on the Pricing MCP server.
+    Governance discovery (Step 4) uses Azure CLI, not MCP.
+
+---
+
+**See also:** [Troubleshooting](troubleshooting.md) · [Prompt Guide](prompt-guide/index.md) · [Glossary](GLOSSARY.md)

@@ -173,7 +173,7 @@ AGENTS.md                                    # Table of contents for all agents
   skill-affinity.json                        # Skill/agent affinity weights
   agents/                                    # 14 top-level agent definitions
     _subagents/                              # 9 subagent definitions
-  skills/                                    # 20 skill packages
+  skills/                                    # 21 skill packages
     workflow-engine/                          # DAG, workflow graph
     context-shredding/                       # Runtime compression
     session-resume/                          # State tracking + resume protocol
