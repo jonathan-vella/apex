@@ -1,5 +1,6 @@
+import re
 
-with open("docs/how-it-works.md", encoding="utf-8") as f:
+with open("docs/how-it-works.md", "r", encoding="utf-8") as f:
     lines = f.readlines()
 
 image_map = {

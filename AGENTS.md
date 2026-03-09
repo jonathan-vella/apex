@@ -9,9 +9,11 @@ Specialized AI agents collaborate through a structured 7-step workflow:
 ## Setup Commands
 
 ```bash
-# Clone and open in dev container (all tools pre-installed)
-git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
-cd azure-agentic-infraops
+# Create your own repo from the Accelerator template:
+#   https://github.com/jonathan-vella/azure-agentic-infraops-accelerator
+# Then clone YOUR repo and open in dev container
+git clone https://github.com/YOUR-USERNAME/my-infraops-project.git
+cd my-infraops-project
 code .
 # F1 → Dev Containers: Reopen in Container
 

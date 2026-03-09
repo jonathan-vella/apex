@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0",
+  "project": "github-pages-docs",
+  "branch": "feat/github-pages-docs",
+  "updated": "2026-03-08T18:00:00Z",
+  "current_step": 7,
+  "plan_file": "docs/exec-plans/active/github-pages-plan.md",
+  "decisions": {
+    "tool": "MkDocs Material",
+    "target_url": "https://jonathan-vella.github.io/azure-agentic-infraops/",
+    "deploy_method": "GitHub Actions → gh-pages branch",
+    "docs_dir": "docs/"
+  },
+  "open_findings": [],
+  "steps": {
+    "1": {
+      "name": "Scaffold MkDocs",
+      "description": "Create mkdocs.yml, requirements-docs.txt, docs/index.md, symlinks for CONTRIBUTING.md and CHANGELOG.md",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T12:00:00Z",
+      "completed": "2026-03-08T12:00:00Z",
+      "artifacts": [
+        "requirements-docs.txt",
+        "mkdocs.yml",
+        "docs/index.md",
+        "docs/CONTRIBUTING.md",
+        "docs/CHANGELOG.md",
+        "docs/prompt-guide/index.md"
+      ],
+      "prompt": null
+    },
+    "2": {
+      "name": "Local Build Verification",
+      "description": "Install MkDocs Material, run mkdocs build --strict, fix any build errors",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T12:30:00Z",
+      "completed": "2026-03-08T12:30:00Z",
+      "artifacts": [],
+      "prompt": null
+    },
+    "3": {
+      "name": "File Review — Mermaid & HTML",
+      "description": "Review all in-scope files for Mermaid fence and HTML block compatibility with MkDocs Material",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T12:30:00Z",
+      "completed": "2026-03-08T13:00:00Z",
+      "artifacts": [],
+      "prompt": null
+    },
+    "3a": {
+      "name": "Polish — MkDocs Material Best Practices",
+      "description": "Apply doc improvements: remove dividers/back-to-top, convert details to admonitions, add content tabs, use pymdownx.keys",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T13:00:00Z",
+      "completed": "2026-03-08T13:30:00Z",
+      "artifacts": [
+        "docs/index.md",
+        "docs/quickstart.md",
+        "docs/workflow.md",
+        "docs/troubleshooting.md",
+        "docs/dev-containers.md",
+        "docs/GLOSSARY.md",
+        "docs/prompt-guide/index.md",
+        "docs/CONTRIBUTING.md",
+        "docs/CHANGELOG.md"
+      ],
+      "prompt": null
+    },
+    "4": {
+      "name": "Link Remediation",
+      "description": "Convert parent-relative links (../) that escape docs/ to GitHub source URLs",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T13:30:00Z",
+      "completed": "2026-03-08T13:45:00Z",
+      "artifacts": [
+        "docs/index.md",
+        "docs/quickstart.md",
+        "docs/workflow.md",
+        "docs/GLOSSARY.md",
+        "docs/prompt-guide/index.md",
+        "docs/CONTRIBUTING.md",
+        "docs/CHANGELOG.md"
+      ],
+      "prompt": null
+    },
+    "5": {
+      "name": "GitHub Actions Workflow",
+      "description": "Create .github/workflows/docs.yml for automated deployment to gh-pages",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T13:45:00Z",
+      "completed": "2026-03-08T13:50:00Z",
+      "artifacts": [".github/workflows/docs.yml", ".gitignore"],
+      "prompt": null
+    },
+    "6": {
+      "name": "Final Build & Commit",
+      "description": "Run mkdocs build --strict, verify zero warnings, commit all changes, push",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-08T13:50:00Z",
+      "completed": "2026-03-08T14:00:00Z",
+      "artifacts": [],
+      "prompt": null
+    },
+    "7": {
+      "name": "Enable GitHub Pages",
+      "description": "Configure repo settings: Pages source = gh-pages branch, verify site loads",
+      "status": "complete",
+      "sub_step": "GitHub Pages configured to gh-pages /(root) and site verified live",
+      "started": "2026-03-08T14:30:00Z",
+      "completed": "2026-03-08T18:00:00Z",
+      "artifacts": [
+        "https://github.com/jonathan-vella/azure-agentic-infraops/pull/208",
+        "https://jonathan-vella.github.io/azure-agentic-infraops/"
+      ],
+      "prompt": null
+    }
+  }
+}

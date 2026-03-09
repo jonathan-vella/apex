@@ -1,0 +1,123 @@
+site_name: Agentic InfraOps
+site_url: https://jonathan-vella.github.io/azure-agentic-infraops/
+site_description: Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC
+repo_url: https://github.com/jonathan-vella/azure-agentic-infraops
+repo_name: jonathan-vella/azure-agentic-infraops
+edit_uri: edit/main/docs/
+copyright: "&copy; 2025 Jonathan Vella. Distributed under the MIT License."
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    # Navigation — tabs at top + SPA-like experience
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.path
+    # Table of contents
+    - toc.follow
+    # Search
+    - search.suggest
+    - search.highlight
+    # Content
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+markdown_extensions:
+  # Python Markdown core
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+  # PyMdown Extensions
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+
+exclude_docs: |
+  presenter/
+  exec-plans/
+  branch-ruleset-config.md
+  README.md
+  prompt-guide/README.md
+
+not_in_nav: ~
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quickstart: quickstart.md
+      - Dev Container Setup: dev-containers.md
+  - Concepts:
+      - How It Works:
+          - Overview: how-it-works/index.md
+          - System Architecture: how-it-works/architecture.md
+          - The Four Pillars: how-it-works/four-pillars.md
+          - Agent Architecture: how-it-works/agents.md
+          - Skills & Instructions: how-it-works/skills-and-instructions.md
+          - Workflow Engine & Quality: how-it-works/workflow-engine.md
+          - MCP Integration: how-it-works/mcp-integration.md
+      - 7-Step Workflow: workflow.md
+  - Guides:
+      - Prompt Guide:
+          - Overview: prompt-guide/index.md
+          - Best Practices: prompt-guide/best-practices.md
+          - Workflow Prompts: prompt-guide/workflow-prompts.md
+          - Skill & Subagent Reference: prompt-guide/reference.md
+      - Troubleshooting: troubleshooting.md
+  - Reference:
+      - Glossary: GLOSSARY.md
+      - FAQ: faq.md
+  - Project:
+      - Contributing: CONTRIBUTING.md
+      - Changelog: CHANGELOG.md

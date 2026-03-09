@@ -22,6 +22,7 @@ const KNOWN_MODELS = [
   "Claude Sonnet 4.6",
   "Claude Haiku 4.5",
   "GPT-5.3-Codex",
+  "GPT-5.4",
   "GPT-4o",
 ];
 

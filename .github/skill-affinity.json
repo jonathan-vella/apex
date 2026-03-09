@@ -15,8 +15,7 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-troubleshooting",
-        "azure-diagrams",
-        "copilot-customization"
+        "azure-diagrams"
       ]
     },
     "02-Requirements": {
@@ -27,8 +26,7 @@
         "terraform-patterns",
         "azure-troubleshooting",
         "azure-diagrams",
-        "iac-common",
-        "copilot-customization"
+        "iac-common"
       ]
     },
     "03-Architect": {
@@ -39,12 +37,7 @@
         "microsoft-docs"
       ],
       "secondary": ["context-shredding", "azure-diagrams"],
-      "never": [
-        "azure-bicep-patterns",
-        "terraform-patterns",
-        "iac-common",
-        "copilot-customization"
-      ]
+      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
     },
     "04-Design": {
       "primary": ["azure-diagrams", "azure-adr"],
@@ -53,8 +46,7 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-troubleshooting",
-        "copilot-customization"
+        "azure-troubleshooting"
       ]
     },
     "05b-Bicep Planner": {
@@ -65,12 +57,7 @@
         "session-resume"
       ],
       "secondary": ["microsoft-docs", "context-shredding"],
-      "never": [
-        "terraform-patterns",
-        "azure-troubleshooting",
-        "iac-common",
-        "copilot-customization"
-      ]
+      "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
     },
     "05t-Terraform Planner": {
       "primary": [
@@ -80,12 +67,7 @@
         "session-resume"
       ],
       "secondary": ["microsoft-docs", "context-shredding"],
-      "never": [
-        "azure-bicep-patterns",
-        "azure-troubleshooting",
-        "iac-common",
-        "copilot-customization"
-      ]
+      "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
     },
     "06b-Bicep CodeGen": {
       "primary": [
@@ -95,12 +77,7 @@
         "session-resume"
       ],
       "secondary": ["context-shredding", "microsoft-code-reference"],
-      "never": [
-        "terraform-patterns",
-        "azure-troubleshooting",
-        "iac-common",
-        "copilot-customization"
-      ]
+      "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
     },
     "06t-Terraform CodeGen": {
       "primary": [
@@ -110,22 +87,12 @@
         "session-resume"
       ],
       "secondary": ["context-shredding", "microsoft-code-reference"],
-      "never": [
-        "azure-bicep-patterns",
-        "azure-troubleshooting",
-        "iac-common",
-        "copilot-customization"
-      ]
+      "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
     },
     "07b-Bicep Deploy": {
       "primary": ["azure-defaults", "azure-artifacts", "iac-common"],
       "secondary": ["session-resume", "github-operations"],
-      "never": [
-        "terraform-patterns",
-        "azure-bicep-patterns",
-        "azure-diagrams",
-        "copilot-customization"
-      ]
+      "never": ["terraform-patterns", "azure-bicep-patterns", "azure-diagrams"]
     },
     "07t-Terraform Deploy": {
       "primary": [
@@ -135,11 +102,7 @@
         "terraform-patterns"
       ],
       "secondary": ["session-resume", "github-operations"],
-      "never": [
-        "azure-bicep-patterns",
-        "azure-diagrams",
-        "copilot-customization"
-      ]
+      "never": ["azure-bicep-patterns", "azure-diagrams"]
     },
     "08-As-Built": {
       "primary": [
@@ -153,8 +116,7 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-troubleshooting",
-        "copilot-customization"
+        "azure-troubleshooting"
       ]
     },
     "09-Diagnose": {
@@ -164,19 +126,13 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-artifacts",
-        "azure-diagrams",
-        "copilot-customization"
+        "azure-diagrams"
       ]
     },
     "10-Challenger": {
       "primary": [],
       "secondary": ["golden-principles"],
-      "never": [
-        "azure-bicep-patterns",
-        "terraform-patterns",
-        "iac-common",
-        "copilot-customization"
-      ]
+      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
     },
     "11-Context Optimizer": {
       "primary": ["context-optimizer"],
@@ -185,8 +141,7 @@
         "azure-defaults",
         "azure-bicep-patterns",
         "terraform-patterns",
-        "iac-common",
-        "copilot-customization"
+        "iac-common"
       ]
     }
   },

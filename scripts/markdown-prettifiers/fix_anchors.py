@@ -3,7 +3,7 @@ import subprocess
 
 subprocess.run(["git", "checkout", "docs/how-it-works.md"])
 
-with open("docs/how-it-works.md", encoding="utf-8") as f:
+with open("docs/how-it-works.md", "r", encoding="utf-8") as f:
     lines = f.readlines()
 
 emoji_map = {
@@ -65,24 +65,24 @@ new_lines = []
 
 # Using name instead of id as it's an older but safer anchor pattern in simple markdown renderers sometimes, but ID is actually the standard now in HTML5. We will use id.
 
-for _idx, line in enumerate(lines):
+for idx, line in enumerate(lines):
     if line.startswith("```"):
         in_code_block = not in_code_block
-
+    
     if not in_code_block:
         stripped = line.strip()
         if stripped in emoji_map:
             clean_text = stripped.replace('#', '').strip()
             slug = create_slug(clean_text)
-
+            
             if stripped.startswith("## ") and stripped not in ["## Table of Contents", "## Executive Summary", "## Intellectual Foundations"]:
                 new_lines.append('<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>\n\n')
-
+            
             new_lines.append(f'<a id="{slug}"></a>\n')
             line = line.replace(stripped, emoji_map[stripped])
         elif stripped == "---":
             line = '<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">\n'
-
+    
     new_lines.append(line)
 
 new_lines.append('\n<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>\n')

@@ -1,13 +1,12 @@
-import glob
 import os
-
+import glob
 
 def process_files():
     files = glob.glob("*.md")
     files = [f for f in files if os.path.isfile(f)]
 
     for file_path in files:
-        with open(file_path, encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
         new_lines = []
@@ -47,12 +46,16 @@ def process_files():
             if not in_code_block and not in_frontmatter:
                 stripped = line.strip()
 
-                if stripped.startswith("## ") and h2_count > 0 and "Table of Contents" not in stripped and "Back to Top" not in stripped and not (len(new_lines) > 0 and "Back to Top" in new_lines[-1]) and not (len(new_lines) > 1 and "Back to Top" in new_lines[-2]):
-                    back_to_top = f'<div align="right"><a href="#{top_anchor}"><b>⬆️ Back to Top</b></a></div>\n\n'
-                    if len(new_lines) > 0 and new_lines[-1].startswith('<img src="https://raw.githubusercontent.com') or len(new_lines) > 0 and new_lines[-1].strip() == "":
-                        new_lines.insert(-1, back_to_top)
-                    else:
-                        new_lines.append(back_to_top)
+                if stripped.startswith("## ") and h2_count > 0 and "Table of Contents" not in stripped and "Back to Top" not in stripped:
+                    # check if we already have a back-to-top link right before
+                    if not (len(new_lines) > 0 and "Back to Top" in new_lines[-1]) and not (len(new_lines) > 1 and "Back to Top" in new_lines[-2]):
+                        back_to_top = f'<div align="right"><a href="#{top_anchor}"><b>⬆️ Back to Top</b></a></div>\n\n'
+                        if len(new_lines) > 0 and new_lines[-1].startswith('<img src="https://raw.githubusercontent.com'):
+                            new_lines.insert(-1, back_to_top)
+                        elif len(new_lines) > 0 and new_lines[-1].strip() == "":
+                            new_lines.insert(-1, back_to_top)
+                        else:
+                            new_lines.append(back_to_top)
 
                 if stripped.startswith("## "):
                     h2_count += 1

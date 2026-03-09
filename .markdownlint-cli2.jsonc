@@ -97,6 +97,10 @@
     // Disabled: URLs in code comments and examples
     "MD034": false,
 
+    // MD035: Horizontal rule style
+    // Disabled: MkDocs Material grid cards use *** as card separators
+    "MD035": false,
+
     // MD040: Fenced code blocks should have a language specifier
     "MD040": true,
 

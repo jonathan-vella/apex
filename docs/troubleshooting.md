@@ -1,10 +1,18 @@
-<a id="top"></a>
+---
+toc_depth: 2
+---
 
-# Troubleshooting Guide
+<div align="center">
+  <img src="assets/images/hero-troubleshooting.jpg"
+    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
+    alt="Diagnostic tools and troubleshooting"/>
+</div>
+
+# :material-wrench-outline: Troubleshooting Guide
 
 > Common issues and solutions for Agentic InfraOps
 
-## Agent Personas Quick Reference
+## :material-account-card-outline: Agent Personas Quick Reference
 
 | Agent              | Persona       | Common Issues                    |
 | ------------------ | ------------- | -------------------------------- |
@@ -19,9 +27,8 @@
 | terraform-deploy   | 🚀 Envoy      | State lock / init failures       |
 | challenger         | ⚔️ Challenger | —                                |
 | diagnose           | 🔍 Sentinel   | —                                |
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Quick Decision Tree
+## :material-sitemap-outline: Quick Decision Tree
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
@@ -59,10 +66,7 @@ flowchart TD
     style AUTH fill:#fff9c4
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
-## Common Issues
+## :material-alert-circle-outline: Common Issues
 
 ### 1. Agent Not Appearing in List
 
@@ -85,8 +89,6 @@ head -20 .github/agents/requirements.agent.md
 ```
 
 Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 1.5. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
 
@@ -130,8 +132,6 @@ Responses are instant, no terminal commands execute, no files are created.
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
 for experimental features. User settings take precedence.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
 ### 2. Skill Not Activating Automatically
 
 **Symptom**: Prompt doesn't trigger expected skill.
@@ -156,8 +156,6 @@ Check skill triggers in `SKILL.md`:
 cat .github/skills/azure-diagrams/SKILL.md | head -30
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
 ### 3. Deployment Fails with Azure Policy Error
 
 **Symptom**: `az deployment group create` fails with policy violation.
@@ -176,87 +174,89 @@ cat .github/skills/azure-diagrams/SKILL.md | head -30
 "Run deployment preflight for {project}"
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
 ### 4. Bicep Build Errors
 
 **Symptom**: `bicep build` fails.
 
-**Common causes**:
+=== "Bicep"
 
-```bash
-# Check Bicep CLI version
-bicep --version  # Should be 0.30+
+    **Common causes**:
 
-# Validate syntax
-bicep lint infra/bicep/{project}/main.bicep
-```
+    ```bash
+    # Check Bicep CLI version
+    bicep --version  # Should be 0.30+
 
-**AVM module not found**:
+    # Validate syntax
+    bicep lint infra/bicep/{project}/main.bicep
+    ```
 
-```bash
-# Restore modules from registry
-bicep restore infra/bicep/{project}/main.bicep
-```
+    **AVM module not found**:
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
+    ```bash
+    # Restore modules from registry
+    bicep restore infra/bicep/{project}/main.bicep
+    ```
 
 ### 4t. Terraform Validation Errors
 
 **Symptom**: `terraform validate` or `terraform plan` fails.
 
-**Common causes and solutions**:
+=== "Terraform"
 
-```bash
-# Check Terraform CLI version
-terraform --version  # Should be 1.5+
+    **Common causes and solutions**:
 
-# Initialize providers (run from project directory)
-cd infra/terraform/{project}
-terraform init -backend=false
+    ```bash
+    # Check Terraform CLI version
+    terraform --version  # Should be 1.5+
 
-# Check formatting
-terraform fmt -check -recursive
+    # Initialize providers (run from project directory)
+    cd infra/terraform/{project}
+    terraform init -backend=false
 
-# Validate configuration
-terraform validate
-```
+    # Check formatting
+    terraform fmt -check -recursive
 
-**Provider version mismatch**:
+    # Validate configuration
+    terraform validate
+    ```
 
-```bash
-# Lock providers to specific versions
-terraform providers lock -platform=linux_amd64
-```
+    **Provider version mismatch**:
+
+    ```bash
+    # Lock providers to specific versions
+    terraform providers lock -platform=linux_amd64
+    ```
+
+    **AVM-TF module not found**:
+
+    Verify the module source in `main.tf` matches the Terraform Registry path:
+
+    ```hcl
+    # Correct AVM-TF module source pattern
+    module "example" {
+      source  = "Azure/avm-res-<provider>-<resource>/azurerm"
+      version = "~> 0.x"
+    }
+    ```
+
+    **TFLint errors**:
+
+    ```bash
+    # Run TFLint with Azure ruleset
+    tflint --init
+    tflint --recursive
+    ```
 
 **State lock issues**:
 
+!!! danger "Destructive Operation"
+
+    `terraform force-unlock` can corrupt state if used while another operation is
+    genuinely in progress. Only use when you are certain the lock is stale.
+
 ```bash
-# Force unlock (use with caution)
 terraform force-unlock <lock-id>
 ```
-
-**AVM-TF module not found**:
-
-Verify the module source in `main.tf` matches the Terraform Registry path:
-
-```hcl
-# Correct AVM-TF module source pattern
-module "example" {
-  source  = "Azure/avm-res-<provider>-<resource>/azurerm"
-  version = "~> 0.x"
-}
-```
-
-**TFLint errors**:
-
-```bash
-# Run TFLint with Azure ruleset
-tflint --init
-tflint --recursive
-```
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 5. Azure Authentication Issues
 
@@ -281,8 +281,6 @@ For Service Principal:
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
 ### 6. Artifact Validation Failures
 
 **Symptom**: `npm run validate` fails.
@@ -306,8 +304,6 @@ cat scripts/validate-artifact-templates.mjs | grep -A20 "ARTIFACT_HEADINGS"
 diff -u .github/skills/azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
 ### 7. MCP Server Not Responding
 
 **Symptom**: Azure Pricing MCP calls fail.
@@ -325,9 +321,7 @@ python3 --version  # Should be 3.10+
 cd mcp/azure-pricing-mcp && pip install -r requirements.txt
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
-### 8. Devcontainer Build Fails
+### 8. Dev Container Build Fails
 
 **Symptom**: Dev container won't start.
 
@@ -349,8 +343,6 @@ Check Docker is running:
 ```bash
 docker ps
 ```
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 9. Orphaned VS Code Extensions Injecting Unwanted Instructions
 
@@ -384,8 +376,6 @@ extension on disk, regardless of whether it is actively managed.
 > If this happens, rebuild without cache:
 > `Ctrl+Shift+P` → "Dev Containers: Rebuild Container Without Cache".
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
 ### 10. Git Push Fails with Lefthook Errors
 
 **Symptom**: Pre-commit hooks fail.
@@ -400,11 +390,14 @@ extension on disk, regardless of whether it is actively managed.
 
 **Skip hooks temporarily** (not recommended):
 
+!!! danger "Use with caution"
+
+    Skipping hooks bypasses all validation. Only use for emergency fixes that you will
+    immediately follow up with a proper commit.
+
 ```bash
 git commit --no-verify -m "fix: temporary"
 ```
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
 ### 11. Handoff Prompt Not Working
 
@@ -430,9 +423,6 @@ Ensure target agent exists:
 ```bash
 ls .github/agents/architect.agent.md
 ```
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Diagnostic Commands
 
@@ -480,12 +470,9 @@ az group list --output table
 az deployment group list -g {resource-group} --output table
 ```
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
-
 ## Getting Help
 
-1. **Check prompt guide**: [Prompt Guide](prompt-guide/) has usage examples
+1. **Check prompt guide**: [Prompt Guide](prompt-guide/index.md) has usage examples
 2. **Read agent definitions**: `.github/agents/*.agent.md`
 3. **Check skill files**: `.github/skills/*/SKILL.md`
 4. **Review templates**: `.github/skills/azure-artifacts/templates/`
@@ -505,5 +492,3 @@ Or start the InfraOps Conductor (🎼 Maestro) for a guided workflow:
 Ctrl+Shift+I → InfraOps Conductor
 "Help me troubleshoot my Azure deployment"
 ```
-
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

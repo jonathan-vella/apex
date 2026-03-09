@@ -1,5 +1,6 @@
+import re
 
-with open("docs/how-it-works.md", encoding="utf-8") as f:
+with open("docs/how-it-works.md", "r", encoding="utf-8") as f:
     content = f.read()
 
 # Replace double occurrences with single occurrences
@@ -18,7 +19,7 @@ single_images = [
 ]
 
 
-for double, single in zip(images, single_images, strict=False):
+for double, single in zip(images, single_images):
     content = content.replace(double, single)
 
 with open("docs/how-it-works.md", "w", encoding="utf-8") as f:
