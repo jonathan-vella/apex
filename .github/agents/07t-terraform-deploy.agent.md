@@ -230,7 +230,7 @@ terraform plan \
 `deprecated|sunset|end.of.life|no.longer.supported|retiring`
 If detected, STOP and report.
 
-Present the plan summary table. **Do NOT apply without explicit user approval.**
+Present the plan summary table.
 
 ### Step 4.5: Pre-Deploy Adversarial Review (conditional)
 
@@ -244,8 +244,23 @@ with `artifact_type=deployment-preview`, `review_focus=comprehensive`,
 `pass_number=1`. Write result to
 `agent-output/{project}/challenge-findings-deployment.json`.
 
-Include findings in the deployment approval gate. If `must_fix` count > 0,
-flag prominently and require explicit user acknowledgement before proceeding.
+### Step 4.6: Deployment Approval Gate
+
+Use `askQuestions` to present the plan summary and challenger findings,
+then gather the user's deploy/abort decision:
+
+- In the question description, include:
+  - Plan change summary (creates, updates, destroys, replaces)
+  - Challenger findings: `must_fix` (blocking) and `should_fix`
+    (recommended) — flag must-fix items prominently
+- Ask a single-select question: _"How would you like to proceed?"_
+  with options:
+  1. **Deploy** — apply the changes
+  2. **Abort** — stop deployment and review findings
+     (recommended if any must-fix or Destroy/Replace operations
+     exist, mark as `recommended`)
+- If the user chooses to abort: stop and present findings for review
+- If the user chooses to deploy: proceed with deployment execution
 
 ### Step 5: Phase-Aware Deployment
 
@@ -319,6 +334,7 @@ After saving, run `npm run lint:artifact-templates` and fix any errors for your 
 ## Boundaries
 
 - **Always**: Run terraform plan before apply, require user approval, validate prerequisites
+- **Always**: Use `askQuestions` in the deployment approval gate to present findings and gather deploy/abort decision
 - **Ask first**: Non-standard deployment parameters, skipping plan, deploying to production
 - **Never**: Deploy without user approval, modify IaC configurations, skip plan for production
 

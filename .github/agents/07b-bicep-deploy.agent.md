@@ -228,7 +228,7 @@ az deployment group what-if \
 `deprecated|sunset|end.of.life|no.longer.supported|classic.*not.*supported|retiring`
 If detected, STOP and report.
 
-Present summary table and wait for user approval.
+Present summary table.
 
 ### Step 5.5: Pre-Deploy Adversarial Review (conditional)
 
@@ -241,8 +241,23 @@ After what-if, invoke `challenger-review-subagent` via `#runSubagent` with
 `artifact_type=deployment-preview`, `review_focus=comprehensive`, `pass_number=1`.
 Write result to `agent-output/{project}/challenge-findings-deployment.json`.
 
-Include findings in the deployment approval gate. If `must_fix` count > 0,
-flag prominently and require explicit user acknowledgement before proceeding.
+### Step 5.6: Deployment Approval Gate
+
+Use `askQuestions` to present the what-if summary and challenger
+findings, then gather the user's deploy/abort decision:
+
+- In the question description, include:
+  - What-if change summary (creates, modifies, deletes)
+  - Challenger findings: `must_fix` (blocking) and `should_fix`
+    (recommended) — flag must-fix items prominently
+- Ask a single-select question: _"How would you like to proceed?"_
+  with options:
+  1. **Deploy** — apply the changes
+  2. **Abort** — stop deployment and review findings
+     (recommended if any must-fix or Delete operations exist,
+     mark as `recommended`)
+- If the user chooses to abort: stop and present findings for review
+- If the user chooses to deploy: proceed with deployment execution
 
 ## Deployment Execution
 
@@ -312,6 +327,7 @@ After saving, run `npm run lint:artifact-templates` and fix any errors for your 
 ## Boundaries
 
 - **Always**: Run what-if analysis before deployment, require user approval, validate prerequisites
+- **Always**: Use `askQuestions` in the deployment approval gate to present findings and gather deploy/abort decision
 - **Ask first**: Non-standard deployment parameters, skipping what-if, deploying to production
 - **Never**: Deploy without user approval, modify IaC templates, skip what-if for production
 

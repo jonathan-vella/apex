@@ -177,6 +177,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Include Service Maturity Assessment table in every WAF assessment
 - ✅ Ask clarifying questions when critical requirements are missing
 - ✅ Wait for user approval before handoff to bicep-plan
+- ✅ Use `askQuestions` in approval gate to present findings and gather proceed/revise decision
 - ✅ Match H2 headings from azure-artifacts skill exactly
 - ✅ Update `agent-output/{project}/README.md` — mark Step 2 complete, add your artifacts (see azure-artifacts skill)
 
@@ -331,38 +332,27 @@ Write result to `agent-output/{project}/challenge-findings-cost-estimate.json`.
 
 ## Approval Gate (MANDATORY)
 
-Before handoff, present:
+Use `askQuestions` to present the assessment summary and challenger
+findings, then gather the user's proceed/revise decision:
 
-```text
-🏗️ Architecture Assessment Complete
-
-| Pillar      | Score | Notes |
-| ----------- | ----- | ----- |
-| Security    | X/10  | ...   |
-| Reliability | X/10  | ...   |
-| Performance | X/10  | ...   |
-| Cost        | X/10  | ...   |
-| Operations  | X/10  | ...   |
-
-Estimated Monthly Cost: $X (via Azure Pricing MCP)
-```
-
-Append challenger summary merging ALL passes:
-
-```text
-⚠️ Adversarial Review Summary (3 architecture passes + 1 cost pass)
-  must_fix: {total} | should_fix: {total} | suggestions: {total}
-  Key concerns: {top 2-3 must_fix titles across all passes}
-  Findings:
-    - agent-output/{project}/challenge-findings-architecture-pass1.json
-    - agent-output/{project}/challenge-findings-architecture-pass2.json
-    - agent-output/{project}/challenge-findings-architecture-pass3.json
-    - agent-output/{project}/challenge-findings-cost-estimate.json
-```
-
-```text
-Reply "approve" to proceed to {iac}-plan, or provide feedback.
-```
+- In the question description, include:
+  - WAF pillar scores (Security, Reliability, Performance, Cost,
+    Operations) with estimated monthly cost
+  - Challenger findings summary across ALL passes: `must_fix`
+    (blocking), `should_fix` (recommended), key concerns
+  - Findings file paths for reference
+- Ask a single-select question: _"How would you like to proceed?"_
+  with options:
+  1. **Revise architecture** — address must-fix findings before
+     proceeding (recommended if any must-fix findings exist, mark
+     as `recommended`)
+  2. **Proceed to IaC Planning** — accept findings as-is and move
+     to Step 4
+- If the user chooses to revise: apply fixes to
+  `02-architecture-assessment.md`, re-run the challenger review,
+  then repeat this gate
+- If the user chooses to proceed: present final handoff to IaC
+  Planner agent
 
 ## Output Files
 

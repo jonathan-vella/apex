@@ -122,7 +122,8 @@ handoffs:
 | Generate `04-implementation-plan.md` + `04-governance-constraints.md` | Proceed to terraform-code without explicit user approval              |
 | Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram`  | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only     |
 | Ask user for deployment strategy (phased vs single) — MANDATORY GATE  | Use archived tool names (`moduleSearch` etc.) — use `terraform/*` MCP |
-| Match H2 headings from azure-artifacts templates exactly              | Generate governance from best-practice assumptions                    |
+| Use `askQuestions` in Phase 5 to present findings and gather approval | Generate governance from best-practice assumptions                    |
+| Match H2 headings from azure-artifacts templates exactly              |                                                                       |
 
 ## Prerequisites Check
 
@@ -220,8 +221,25 @@ Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
 
 ### Phase 5: Approval Gate
 
-Present summary: resource count, AVM-TF vs raw, governance blockers/warnings,
-deployment strategy, backend, challenger findings. Wait for "approve" before handoff.
+Use `askQuestions` to present the plan summary and challenger findings,
+then gather the user's proceed/revise decision:
+
+- In the question description, include:
+  - Resource count (AVM-TF vs raw), governance blockers/warnings,
+    deployment strategy, backend configuration
+  - Challenger findings: `must_fix` (blocking) and `should_fix`
+    (recommended) summaries with key concerns
+- Ask a single-select question: _"How would you like to proceed?"_
+  with options:
+  1. **Revise plan** — address must-fix findings before proceeding
+     (recommended if any must-fix findings exist, mark as `recommended`)
+  2. **Proceed to Terraform Code** — accept findings as-is and move
+     to Step 5
+- If the user chooses to revise: apply fixes to
+  `04-implementation-plan.md`, re-run the challenger review, then
+  repeat this gate
+- If the user chooses to proceed: present final handoff to Terraform
+  CodeGen agent
 
 ## Boundaries
 

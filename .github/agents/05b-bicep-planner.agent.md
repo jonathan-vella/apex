@@ -128,6 +128,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 | Match H2 headings from azure-artifacts skill exactly                           |                                                              |
 | Update `agent-output/{project}/README.md` — mark Step 4 complete               |                                                              |
 | Ask user for deployment strategy — **MANDATORY GATE**                          |                                                              |
+| Use `askQuestions` in Phase 5 to present findings and gather proceed/revise    |                                                              |
 | Default: phased deployment (>5 resources). Wait for approval before handoff    |                                                              |
 
 ## Prerequisites Check
@@ -229,20 +230,25 @@ Write results to `agent-output/{project}/challenge-findings-{artifact}-pass{N}.j
 
 ### Phase 5: Approval Gate
 
-Present summary and wait for approval:
+Use `askQuestions` to present the plan summary and challenger findings,
+then gather the user's proceed/revise decision:
 
-```text
-📝 Implementation Plan Complete
-Resources: {count} | AVM: {count} | Custom: {count}
-Governance: {blockers} blockers, {warnings} warnings
-Deployment: {Phased (N phases) | Single} | Est: {time}
-
-⚠️ Adversarial Review (1 governance + 3 plan passes)
-  must_fix: {n} | should_fix: {n} | suggestions: {n}
-  Key concerns: {top 2-3 must_fix titles}
-
-Reply "approve" to proceed to bicep-code, or provide feedback.
-```
+- In the question description, include:
+  - Resource count (AVM vs custom), governance blockers/warnings,
+    deployment strategy, estimated time
+  - Challenger findings: `must_fix` (blocking) and `should_fix`
+    (recommended) summaries with key concerns
+- Ask a single-select question: _"How would you like to proceed?"_
+  with options:
+  1. **Revise plan** — address must-fix findings before proceeding
+     (recommended if any must-fix findings exist, mark as `recommended`)
+  2. **Proceed to Bicep Code** — accept findings as-is and move to
+     Step 5
+- If the user chooses to revise: apply fixes to
+  `04-implementation-plan.md`, re-run the challenger review, then
+  repeat this gate
+- If the user chooses to proceed: present final handoff to Bicep
+  CodeGen agent
 
 ## Output Files
 

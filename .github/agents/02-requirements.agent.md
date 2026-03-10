@@ -91,14 +91,18 @@ handoffs:
     send: false
 ---
 
-<!-- FIRST-ACTION GATE — the model must call askQuestions before doing anything else -->
+<!-- ONE-SHOT GATE — the model must complete ALL phases in a single turn -->
 
-**STOP. Call `askQuestions` right now.** Do NOT read files, create files, search,
-or generate content. Your very first tool call MUST be `askQuestions` with the
-Phase 1 Round 1 questions shown below. No exceptions. No preamble. No research.
-If you are even considering calling `read_file`, `create_file`, `semantic_search`,
+**This agent completes ALL work in ONE turn.** Call `askQuestions` for each phase
+sequentially (Phases 1→2→3→4), then generate the document, save it, and run the
+Challenger review — all within the same response. Never end your turn between phases.
+
+**Your very first tool call MUST be `askQuestions`** with the Phase 1 Round 1
+questions shown below. Do NOT read files, create files, search, or generate content
+before completing Phases 1-4 questioning. No exceptions. No preamble. No research.
+If you are considering calling `read_file`, `create_file`, `semantic_search`,
 `list_dir`, `runSubagent`, or any other tool first — STOP and call `askQuestions`
-instead. This is a blocking gate.
+instead.
 
 **Exception — Session State Only**: Before `askQuestions`, you MAY read, create,
 or update `agent-output/{project}/00-session-state.json` — and ONLY that file:
@@ -149,19 +153,25 @@ as `recommended` options but still present the full question set for confirmatio
 prompt, pre-fill it as `recommended` and let the user confirm. Do NOT re-ask
 from scratch.
 
-> **`askQuestions` API rule**: When `allowFreeformInput: true`, provide either
-> **0 options** (pure freeform) or **≥2 options**. One option + freeform is invalid.
+> **`askQuestions` API rules**:
+>
+> - When `allowFreeformInput: true`, provide either **0 options**
+>   (pure freeform) or **≥2 options**. One option + freeform is invalid.
+> - For any question allowing **more than one answer**, you MUST set
+>   `multiSelect: true` in the question object. Without this flag,
+>   the UI renders single-select radio buttons.
+> - Questions marked `(multiSelect: true)` below require this flag.
 
 ### Round 1b: Project Identity (MANDATORY — always ask)
 
 Use `askQuestions` — 3 questions: Scenario (greenfield/migration/modernize/extend),
-Target environments (Dev/Test/Staging/Production — multi-select, default Dev+Production),
+Target environments (Dev/Test/Staging/Production — `multiSelect: true`, default Dev+Production),
 Brief description of the workload in 1-2 sentences (freeform).
 
 ### Round 2: Migration Follow-Up (CONDITIONAL — required if migration/modernization)
 
-Use `askQuestions` — 3 questions: Current platform, Pain points (multi-select),
-Parts to preserve (multi-select). Skip ONLY if greenfield was selected in Round 1b.
+Use `askQuestions` — 3 questions: Current platform, Pain points (`multiSelect: true`),
+Parts to preserve (`multiSelect: true`). Skip ONLY if greenfield was selected in Round 1b.
 
 ## Phase 2: Workload Pattern Detection — CALL `askQuestions`
 
@@ -174,7 +184,7 @@ scale, and data sensitivity even if you think you can infer them.
 
 Use `askQuestions` — up to 4 questions: Pattern confirmation (present inferred pattern
 as recommended, include 4-5 alternatives), Daily users (4 options),
-Monthly budget (4 options + freeform), Data sensitivity (multi-select, 6 options).
+Monthly budget (4 options + freeform), Data sensitivity (`multiSelect: true`, 6 options).
 
 **Conditional capacity questions** (add when detected workload warrants it):
 
@@ -214,11 +224,11 @@ Recovery options (pick one or specify custom):
 3. **Mission-Critical** — RTO: 15min, RPO: 5min, SLA: 99.99% (revenue-critical, regulated)
 4. **Custom** — freeform text for specific RTO/RPO/SLA targets
 
-For N-Tier pattern, add question about application layers (multi-select, 6 options).
+For N-Tier pattern, add question about application layers (`multiSelect: true`, 6 options).
 
-**Azure Services in Scope** — present as multi-select based on detected workload pattern.
-Pre-select recommended services from the Service Recommendation Matrix. Allow user to
-add/remove services. Use business-friendly labels with Azure names in parentheses.
+**Azure Services in Scope** — present as `multiSelect: true` based on detected workload pattern.
+Pre-select recommended services (set `recommended: true`) from the Service Recommendation Matrix.
+Allow user to add/remove services. Use business-friendly labels with Azure names in parentheses.
 
 ## Phase 4: Security & Compliance — CALL `askQuestions`
 
@@ -228,8 +238,9 @@ authentication, and region. Never assume based on earlier answers.
 Pre-select compliance frameworks using Industry Compliance Pre-Selection from azure-defaults.
 Present pre-selected frameworks explicitly so user can confirm or deselect.
 
-Use `askQuestions` — 4 questions: Compliance frameworks (multi-select, pre-checked by industry,
-show which are pre-selected and why), Security measures (multi-select with business descriptions),
+Use `askQuestions` — 4 questions: Compliance frameworks (`multiSelect: true`, pre-checked via
+`recommended: true` by industry, show which are pre-selected and why),
+Security measures (`multiSelect: true` with business descriptions),
 Authentication method, Region.
 
 ## Phase 5: Draft & Confirm — ONLY AFTER Phases 1-4 Are Complete
@@ -281,9 +292,16 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
    - `pass_number` = `1`
    - `prior_findings` = `null`
 2. Write returned JSON to `agent-output/{project}/challenge-findings-requirements.json`
-3. Present `must_fix` and `should_fix` items to the user prominently before the gate summary
-4. Let the user decide whether to revise requirements or proceed to Architecture
-5. Present final handoff options to Architect agent
+3. **Use `askQuestions`** to present findings and gather the user's decision:
+   - Summarize `must_fix` items (blocking) and `should_fix` items (recommended)
+     in the question description so the user sees them before choosing
+   - Ask a single-select question: _"How would you like to proceed?"_ with options:
+     1. **Revise requirements** — fix must-fix items and optionally address should-fix
+        (recommended if any must-fix findings exist, mark as `recommended`)
+     2. **Proceed to Architecture** — accept findings as-is and move to Step 2
+   - If the user chooses to revise: apply fixes to `01-requirements.md`, then
+     re-run the challenger review (repeat from step 1 above)
+   - If the user chooses to proceed: present final handoff to Architect agent
 
 ---
 
@@ -293,6 +311,7 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
 
 - ✅ **Call `askQuestions` as your FIRST action** — before reading skills, before ANY file I/O
 - ✅ Use `askQuestions` tool for structured discovery (Phases 1-4)
+- ✅ Use `askQuestions` in Phase 6 to present challenger findings and gather proceed/revise decision
 - ✅ **Ask questions in EVERY phase (1-4)** — no phase may be skipped or collapsed
 - ✅ Adapt follow-up depth within each phase based on user's technical fluency
 - ✅ Infer workload pattern from business signals, then **confirm with user**
