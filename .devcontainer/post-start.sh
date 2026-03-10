@@ -8,6 +8,12 @@ START=$(date +%s)
 
 printf "\n ♻️  Updating lightweight tools...\n"
 
+# ─── Fix hook script permissions (core.fileMode=false loses execute bits) ────
+if [ -d .github/hooks ]; then
+    find .github/hooks -name '*.sh' -exec chmod +x {} +
+    printf "    hook script perms     ✅ fixed\n"
+fi
+
 # ─── Terraform MCP Server ────────────────────────────────────────────────────
 if command -v terraform-mcp-server &>/dev/null || [ -x /go/bin/terraform-mcp-server ]; then
     printf "    terraform-mcp-server  ✅ already installed — skipping\n"
