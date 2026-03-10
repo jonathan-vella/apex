@@ -3,7 +3,13 @@ name: 05t-Terraform Planner
 description: Expert Azure Terraform Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates AVM-TF modules via the Terraform Registry, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invocable: true
-agents: ["governance-discovery-subagent", "challenger-review-subagent"]
+agents:
+  [
+    "governance-discovery-subagent",
+    "challenger-review-subagent",
+    "challenger-review-codex-subagent",
+    "challenger-review-batch-subagent",
+  ]
 tools:
   [
     vscode/extensions,
@@ -97,8 +103,8 @@ handoffs:
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, AVM-TF, governance, naming, Terraform Conventions
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, AVM-TF, governance, naming, Terraform Conventions
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
 3. **Read** artifact template files: `azure-artifacts/templates/04-implementation-plan.template.md` + `04-governance-constraints.template.md`
 
 > Read `.github/skills/terraform-patterns/SKILL.md` on-demand during Phase 2 for hub-spoke, PE, diagnostics patterns.
@@ -125,7 +131,7 @@ If missing, STOP → handoff to Architect agent. Read for: resource list, SKUs, 
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
 - **My step**: 4
@@ -193,16 +199,24 @@ naming table, security matrix, backend config template, estimated time.
 For Terraform-specific patterns (backend, state locking, provider pin, naming),
 read `terraform-patterns/references/tf-best-practices-examples.md`.
 
-### Phase 4.3: Governance Review (1 pass)
+### Phase 4.3: Governance Review (conditional)
 
-Invoke `challenger-review-subagent`: `artifact_type = "governance-constraints"`,
+Skip governance review if `decisions.complexity == 'simple'` in `00-session-state.json`.
+For `standard`/`complex` projects: invoke `challenger-review-subagent` with `artifact_type = "governance-constraints"`,
 `review_focus = "comprehensive"`, pass 1. Save to `challenge-findings-governance-constraints.json`.
 
 ### Phase 4.5: Adversarial Plan Review (3 passes)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table.
-Invoke `challenger-review-subagent` 3× with `artifact_type = "implementation-plan"`,
+Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+Invoke challenger subagents 3× with `artifact_type = "implementation-plan"`,
 rotating `review_focus`. Save to `challenge-findings-implementation-plan-pass{N}.json`.
+**Model routing**: Pass 1 (security-governance) →
+`challenger-review-subagent` (GPT-5.4).
+Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+
+> **Conditional passes**: Follow the conditional pass rules from `adversarial-review-protocol.md` —
+> skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`.
 
 ### Phase 5: Approval Gate
 

@@ -7,6 +7,8 @@ agents:
   [
     "cost-estimate-subagent",
     "challenger-review-subagent",
+    "challenger-review-codex-subagent",
+    "challenger-review-batch-subagent",
     "05t-Terraform Planner",
   ]
 tools:
@@ -138,7 +140,7 @@ Verify these are documented — **ask user via `askQuestions` if missing**:
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `01-requirements.md`)
 - **My step**: 2
@@ -153,13 +155,13 @@ Verify these are documented — **ask user via `askQuestions` if missing**:
 
 **After prerequisites are confirmed**, read these skills for configuration and template structure:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
 3. **Read** the template files for your artifacts:
    - `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md`
    - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
-4. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression tiers for loading large artifacts
+4. **Read** `.github/skills/context-shredding/SKILL.digest.md` — runtime compression tiers for loading large artifacts
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 
@@ -293,9 +295,17 @@ After generating the assessment and cost estimate, run adversarial reviews.
 Read `azure-defaults/references/adversarial-review-protocol.md` for the
 lens table, compact prior_findings guidance, and invocation template.
 
+Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+
 ### Architecture Review (3 passes — rotating lenses)
 
-For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
+> **Conditional passes**: Follow the conditional pass rules from `adversarial-review-protocol.md` —
+> skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`.
+
+> **Model routing**: For pass 1 (security-governance) or comprehensive reviews: invoke `challenger-review-subagent` (GPT-5.4).
+> For pass 2 (architecture-reliability) and pass 3 (cost-feasibility): invoke `challenger-review-codex-subagent` (GPT-5.3-Codex).
+
+For each pass, invoke the appropriate challenger subagent via `#runSubagent`:
 
 - `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
 - `project_name` = `{project}`
@@ -308,7 +318,7 @@ Write each result to `agent-output/{project}/challenge-findings-architecture-pas
 
 ### Cost Estimate Review (1 pass)
 
-After architecture passes, invoke `challenger-review-subagent` once more:
+After architecture passes, invoke `challenger-review-subagent` (GPT-5.4) once more:
 
 - `artifact_path` = `agent-output/{project}/03-des-cost-estimate.md`
 - `project_name` = `{project}`

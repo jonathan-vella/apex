@@ -8,6 +8,8 @@ agents:
     "terraform-lint-subagent",
     "terraform-review-subagent",
     "challenger-review-subagent",
+    "challenger-review-codex-subagent",
+    "challenger-review-batch-subagent",
   ]
 tools:
   [
@@ -103,12 +105,12 @@ handoffs:
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM-TF, unique suffix, Terraform Conventions
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM-TF, unique suffix, Terraform Conventions
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. **Read** artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. **Read** `.github/skills/terraform-patterns/SKILL.md` — patterns, AVM Known Pitfalls, module composition
 5. **Read** `.github/instructions/terraform-policy-compliance.instructions.md` — governance mandate, translation table
-6. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression for large plan/governance artifacts
+6. **Read** `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
 
 ## DO / DON'T
 
@@ -137,7 +139,7 @@ Also read `02-architecture-assessment.md` for tier/SKU context.
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 3 files at startup (`00-session-state.json` + `04-implementation-plan.md` + `04-governance-constraints.json`)
 - **My step**: 5
@@ -210,8 +212,16 @@ Generate `deploy.sh` + `deploy.ps1`. Read
 ### Phase 4.5: Adversarial Code Review (3 passes)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
+Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
 
-Invoke `challenger-review-subagent` 3× with `artifact_type = "iac-code"`, rotating `review_focus` per protocol.
+Invoke challenger subagents with `artifact_type = "iac-code"`,
+rotating `review_focus` per protocol.
+**Model routing**: Pass 1 (security-governance) →
+`challenger-review-subagent` (GPT-5.4).
+Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+Follow the conditional pass rules from `adversarial-review-protocol.md` —
+skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`;
+skip pass 3 if pass 2 has 0 `must_fix`.
 Write results to `challenge-findings-iac-code-pass{N}.json`. Fix any `must_fix` items, re-validate, re-run failing pass.
 
 Save validation status in `05-implementation-reference.md`. Run `npm run lint:artifact-templates`.
@@ -235,7 +245,7 @@ file structure, `locals.tf` pattern, and phased deployment pattern.
 - [ ] Security baseline applied (TLS 1.2, HTTPS, managed identity)
 - [ ] Bootstrap + deploy scripts generated (bash + PS)
 - [ ] `terraform-lint-subagent` PASS + `terraform-review-subagent` APPROVED
-- [ ] 3-pass adversarial review completed (pass 3 conditional on pass 2 must_fix)
+- [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)
 - [ ] `05-implementation-reference.md` saved
 - [ ] Budget resource with forecast alerts (80/100/120%) and anomaly detection
 - [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)

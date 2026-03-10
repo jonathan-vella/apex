@@ -12,7 +12,7 @@
  */
 
 import fs from "node:fs";
-import { getSkillNames } from "./_lib/workspace-index.mjs";
+import { getSkillNames, getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
 
@@ -111,6 +111,55 @@ if (registry.subagents) {
   for (const [key, entry] of Object.entries(registry.subagents)) {
     validateAgentEntry(key, entry, skillNames);
     subagentCount++;
+  }
+}
+
+// Cross-check registry models against YAML frontmatter
+const agentMap = new Map();
+for (const [file, agent] of getAgents()) {
+  const name = agent.frontmatter?.name?.trim();
+  if (name) agentMap.set(file, agent.frontmatter);
+}
+
+function crossCheckModel(registryKey, registryModel, agentFilePath) {
+  if (!registryModel || !agentFilePath) return;
+  for (const [file, fm] of agentMap) {
+    if (
+      agentFilePath.endsWith(file) ||
+      file.endsWith(agentFilePath.replace(/^\.github\/agents\//, ""))
+    ) {
+      const yamlModel = Array.isArray(fm.model) ? fm.model[0] : fm.model;
+      if (yamlModel) {
+        const cleanYaml = yamlModel.replace(/ \(copilot\)$/, "");
+        const cleanRegistry = registryModel.replace(/ \(copilot\)$/, "");
+        if (cleanYaml !== cleanRegistry) {
+          r.warn(
+            `Agent "${registryKey}"`,
+            `registry model "${registryModel}" differs from YAML frontmatter "${yamlModel}"`,
+          );
+        }
+      }
+      break;
+    }
+  }
+}
+
+const allEntries = [
+  ...Object.entries(registry.agents || {}),
+  ...Object.entries(registry.subagents || {}),
+];
+for (const [key, entry] of allEntries) {
+  if (entry.bicep || entry.terraform) {
+    if (entry.bicep)
+      crossCheckModel(key + " (bicep)", entry.bicep.model, entry.bicep.agent);
+    if (entry.terraform)
+      crossCheckModel(
+        key + " (terraform)",
+        entry.terraform.model,
+        entry.terraform.agent,
+      );
+  } else {
+    crossCheckModel(key, entry.model, entry.agent);
   }
 }
 

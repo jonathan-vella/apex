@@ -135,7 +135,7 @@ for troubleshooting existing deployments.
 
 **After Phase 1 resource confirmation**, read:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline
 2. **Read** `.github/skills/azure-troubleshooting/SKILL.md` — KQL templates, per-resource health checks,
    severity classification, remediation playbooks
 

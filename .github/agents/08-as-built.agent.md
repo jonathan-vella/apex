@@ -83,10 +83,10 @@ handoffs:
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
 3. **Read** `.github/skills/azure-diagrams/SKILL.md` — diagram generation contract
-4. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression for predecessor artifacts
+4. **Read** `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
 5. **Read** the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
@@ -140,7 +140,7 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 3 files at startup (`00-session-state.json` + `06-deployment-summary.md` + `01-requirements.md`)
 - **My step**: 7

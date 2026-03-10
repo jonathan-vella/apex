@@ -114,8 +114,8 @@ This step is **optional**. Users can skip directly to Step 4 (Implementation Pla
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `03-des-cost-estimate.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
 3. **Read** `.github/skills/azure-diagrams/SKILL.md` — diagram generation instructions
 4. **Read** `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
 
@@ -148,7 +148,7 @@ If missing, STOP and request handoff to Architect agent.
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
 - **My step**: 3

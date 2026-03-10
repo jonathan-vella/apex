@@ -23,7 +23,7 @@ You are a **COST ESTIMATION SUBAGENT** called by parent agents (Architect or As-
 
 **Before doing ANY work**, read:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — exact `service_name` values for Pricing MCP
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — exact `service_name` values for Pricing MCP
 2. **Read** `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md` — output structure
 
 ## Core Workflow

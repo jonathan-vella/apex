@@ -5,7 +5,7 @@ description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
 user-invocable: true
-agents: ["challenger-review-subagent"]
+agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
 tools:
   [
     vscode/extensions,
@@ -117,7 +117,7 @@ documents. You must complete Phases 1-4 of questioning before writing anything.
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 1 file at startup (`00-session-state.json` only — if it exists)
 - **My step**: 1
@@ -126,7 +126,8 @@ documents. You must complete Phases 1-4 of questioning before writing anything.
 - **State writes**: Update `00-session-state.json` after completing each
   phase (set `sub_step` + `updated` timestamp)
 - **On completion**: Set `steps.1.status = "complete"`, list produced
-  artifacts, update `decisions` with captured values (region, iac_tool, budget)
+  artifacts, update `decisions` with captured values (region, iac_tool, budget,
+  complexity)
 
 ---
 
@@ -239,9 +240,9 @@ its questions now.
 
 ### Read Skills (ONLY NOW — not before)
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags,
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags,
    naming, AVM, security, service matrix
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `01-requirements.md`
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `01-requirements.md`
 3. **Read** `.github/skills/azure-artifacts/templates/01-requirements.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`

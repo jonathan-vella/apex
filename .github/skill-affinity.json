@@ -146,6 +146,16 @@
       "secondary": [],
       "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
     },
+    "challenger-review-codex-subagent": {
+      "primary": [],
+      "secondary": [],
+      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+    },
+    "challenger-review-batch-subagent": {
+      "primary": [],
+      "secondary": [],
+      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+    },
     "cost-estimate-subagent": {
       "primary": ["azure-defaults"],
       "secondary": [],

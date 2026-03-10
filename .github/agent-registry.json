@@ -17,7 +17,7 @@
     },
     "conductor-fast-path": {
       "agent": ".github/agents/01-conductor-fastpath.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Sonnet 4.6",
       "skills": [
         "golden-principles",
         "session-resume",
@@ -48,7 +48,7 @@
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.3-Codex",
       "skills": ["azure-diagrams", "azure-adr"],
       "invokable": true,
       "step": 3
@@ -130,7 +130,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.3-Codex",
       "skills": [
         "azure-defaults",
         "azure-artifacts",
@@ -143,21 +143,21 @@
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Sonnet 4.6",
       "skills": ["azure-troubleshooting", "azure-defaults"],
       "invokable": true,
       "step": null
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": true,
       "step": null
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Opus 4.6",
       "skills": ["context-optimizer"],
       "invokable": true,
       "step": null
@@ -166,25 +166,37 @@
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
+      "skills": [],
+      "invokable": false
+    },
+    "challenger-review-codex-subagent": {
+      "agent": ".github/agents/_subagents/challenger-review-codex-subagent.agent.md",
+      "model": "GPT-5.3-Codex",
+      "skills": [],
+      "invokable": false
+    },
+    "challenger-review-batch-subagent": {
+      "agent": ".github/agents/_subagents/challenger-review-batch-subagent.agent.md",
+      "model": "GPT-5.3-Codex",
       "skills": [],
       "invokable": false
     },
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
-      "model": "Claude Haiku 4.5",
+      "model": "GPT-5.3-Codex",
       "skills": ["azure-defaults"],
       "invokable": false
     },
     "governance-discovery-subagent": {
       "agent": ".github/agents/_subagents/governance-discovery-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.3-Codex",
       "skills": ["azure-defaults"],
       "invokable": false
     },
     "bicep-lint-subagent": {
       "agent": ".github/agents/_subagents/bicep-lint-subagent.agent.md",
-      "model": "Claude Haiku 4.5",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     },
@@ -196,13 +208,13 @@
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "Claude Haiku 4.5",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     },
     "terraform-lint-subagent": {
       "agent": ".github/agents/_subagents/terraform-lint-subagent.agent.md",
-      "model": "Claude Haiku 4.5",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     },
@@ -214,7 +226,7 @@
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "Claude Haiku 4.5",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     }

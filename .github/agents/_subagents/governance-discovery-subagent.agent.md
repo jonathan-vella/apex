@@ -31,7 +31,7 @@ and return structured findings
 
 **Before doing ANY work**, read:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — Governance Discovery section for query patterns
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery section for query patterns
 
 ## Core Workflow
 

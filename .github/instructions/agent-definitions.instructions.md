@@ -82,15 +82,17 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
 Current model assignments:
 
-| Agent        | Model                    | Rationale            |
-| ------------ | ------------------------ | -------------------- |
-| Requirements | Opus 4.6                 | Deep understanding   |
-| Architect    | Opus 4.6                 | WAF analysis + cost  |
-| Bicep Plan   | Opus 4.6                 | Efficient planning   |
-| Bicep Code   | Opus 4.6 / GPT-5.3-Codex | Code generation      |
-| Deploy       | GPT-5.3-Codex            | Deployment execution |
-| As-Built     | GPT-5.3-Codex            | Documentation gen    |
-| Subagents    | GPT-5.3-Codex            | Fast validation      |
+| Agent        | Model                      | Rationale            |
+| ------------ | -------------------------- | -------------------- |
+| Requirements | Opus 4.6                   | Deep understanding   |
+| Architect    | Opus 4.6                   | WAF analysis + cost  |
+| Design       | GPT-5.3-Codex              | Diagram generation   |
+| Bicep Plan   | Opus 4.6                   | Efficient planning   |
+| Bicep Code   | Opus 4.6 / Sonnet 4.6      | Code generation      |
+| Deploy       | Sonnet 4.6                 | Deployment execution |
+| As-Built     | GPT-5.3-Codex              | Documentation gen    |
+| Challenger   | GPT-5.4                    | Deep adversarial     |
+| Subagents    | GPT-5.3-Codex / Sonnet 4.6 | Fast validation      |
 
 **Rules:**
 
@@ -127,17 +129,19 @@ the 7-step workflow:
 Subagents live in `.github/agents/_subagents/` and are `user-invocable: false`. They isolate
 expensive or specialized work from their parent agent's context window.
 
-| Subagent                        | Parent Agent                | Purpose                                |
-| ------------------------------- | --------------------------- | -------------------------------------- |
-| `challenger-review-subagent`    | All workflow agents         | Adversarial review (1x or 3x passes)   |
-| `cost-estimate-subagent`        | Architect                   | Pricing MCP queries                    |
-| `governance-discovery-subagent` | Bicep Plan / Terraform Plan | Azure Policy REST API discovery        |
-| `bicep-lint-subagent`           | Bicep Code                  | `bicep build` + `bicep lint`           |
-| `bicep-review-subagent`         | Bicep Code                  | AVM/security/naming code review        |
-| `bicep-whatif-subagent`         | Bicep Deploy                | `az deployment group what-if`          |
-| `terraform-lint-subagent`       | Terraform Code              | `terraform fmt` + `terraform validate` |
-| `terraform-review-subagent`     | Terraform Code              | AVM-TF/security/naming code review     |
-| `terraform-plan-subagent`       | Terraform Deploy            | `terraform plan` change preview        |
+| Subagent                           | Parent Agent                | Purpose                                                 |
+| ---------------------------------- | --------------------------- | ------------------------------------------------------- |
+| `challenger-review-subagent`       | All workflow agents         | Adversarial review pass 1 / comprehensive (GPT-5.4)     |
+| `challenger-review-codex-subagent` | All workflow agents         | Adversarial review passes 2-3 (GPT-5.3-Codex)           |
+| `challenger-review-batch-subagent` | All workflow agents         | Batched passes 2+3 for complex projects (GPT-5.3-Codex) |
+| `cost-estimate-subagent`           | Architect                   | Pricing MCP queries                                     |
+| `governance-discovery-subagent`    | Bicep Plan / Terraform Plan | Azure Policy REST API discovery                         |
+| `bicep-lint-subagent`              | Bicep Code                  | `bicep build` + `bicep lint`                            |
+| `bicep-review-subagent`            | Bicep Code                  | AVM/security/naming code review                         |
+| `bicep-whatif-subagent`            | Bicep Deploy                | `az deployment group what-if`                           |
+| `terraform-lint-subagent`          | Terraform Code              | `terraform fmt` + `terraform validate`                  |
+| `terraform-review-subagent`        | Terraform Code              | AVM-TF/security/naming code review                      |
+| `terraform-plan-subagent`          | Terraform Deploy            | `terraform plan` change preview                         |
 
 Subagent definition rules:
 

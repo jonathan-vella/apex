@@ -45,8 +45,9 @@
     "validate:workflow-graph": "node scripts/validate-workflow-graph.mjs",
     "validate:agent-registry": "node scripts/validate-agent-registry.mjs",
     "validate:skill-affinity": "node scripts/validate-skill-affinity.mjs",
+    "validate:skill-digests": "node scripts/validate-skill-digests.mjs",
     "validate:docs-sync": "node scripts/validate-docs-sync.mjs",
-    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format lint:instruction-frontmatter lint:governance-refs validate:instruction-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity lint:json lint:skill-size lint:agent-body-size lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness",
+    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format lint:instruction-frontmatter lint:governance-refs validate:instruction-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-digests lint:json lint:skill-size lint:agent-body-size lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness",
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform",
     "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'"
   },

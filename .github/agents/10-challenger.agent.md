@@ -45,7 +45,7 @@ tools:
     web/githubRepo,
     todo,
   ]
-agents: ["challenger-review-subagent"]
+agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
 handoffs:
   - label: "↩ Return to Conductor"
     agent: 01-Conductor

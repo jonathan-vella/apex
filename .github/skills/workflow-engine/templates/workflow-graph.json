@@ -28,8 +28,21 @@
       "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md"],
       "gate": "approval",
       "challenger": {
-        "passes": 3,
-        "lenses": ["security", "reliability", "cost"]
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": {
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
+          },
+          "complex": {
+            "passes": 3,
+            "lenses": [
+              "security-governance",
+              "architecture-reliability",
+              "cost-feasibility"
+            ]
+          }
+        }
       }
     },
     "gate-2": {
@@ -66,8 +79,21 @@
       ],
       "gate": "approval",
       "challenger": {
-        "passes": 3,
-        "lenses": ["security", "reliability", "cost"]
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": {
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
+          },
+          "complex": {
+            "passes": 3,
+            "lenses": [
+              "security-governance",
+              "architecture-reliability",
+              "cost-feasibility"
+            ]
+          }
+        }
       }
     },
     "step-4t": {
@@ -86,8 +112,21 @@
       ],
       "gate": "approval",
       "challenger": {
-        "passes": 3,
-        "lenses": ["security", "reliability", "cost"]
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": {
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
+          },
+          "complex": {
+            "passes": 3,
+            "lenses": [
+              "security-governance",
+              "architecture-reliability",
+              "cost-feasibility"
+            ]
+          }
+        }
       }
     },
     "gate-3": {
@@ -108,8 +147,21 @@
       "produces": ["infra/bicep/{project}/"],
       "gate": "validation",
       "challenger": {
-        "passes": 3,
-        "lenses": ["security", "naming", "avm-compliance"]
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": {
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
+          },
+          "complex": {
+            "passes": 3,
+            "lenses": [
+              "security-governance",
+              "architecture-reliability",
+              "cost-feasibility"
+            ]
+          }
+        }
       }
     },
     "step-5t": {
@@ -122,8 +174,21 @@
       "produces": ["infra/terraform/{project}/"],
       "gate": "validation",
       "challenger": {
-        "passes": 3,
-        "lenses": ["security", "naming", "avm-compliance"]
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": {
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
+          },
+          "complex": {
+            "passes": 3,
+            "lenses": [
+              "security-governance",
+              "architecture-reliability",
+              "cost-feasibility"
+            ]
+          }
+        }
       }
     },
     "gate-4": {
@@ -143,7 +208,14 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": ["06-deployment-summary.md"],
       "gate": "approval",
-      "challenger": { "passes": 1, "lenses": ["comprehensive"] }
+      "challenger": {
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": { "passes": 1, "lenses": ["comprehensive"] },
+          "complex": { "passes": 1, "lenses": ["comprehensive"] }
+        },
+        "skip_condition": "complexity == 'simple' && open_findings.length == 0"
+      }
     },
     "step-6t": {
       "id": "step-6t",
@@ -154,7 +226,14 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": ["06-deployment-summary.md"],
       "gate": "approval",
-      "challenger": { "passes": 1, "lenses": ["comprehensive"] }
+      "challenger": {
+        "complexity_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "standard": { "passes": 1, "lenses": ["comprehensive"] },
+          "complex": { "passes": 1, "lenses": ["comprehensive"] }
+        },
+        "skip_condition": "complexity == 'simple' && open_findings.length == 0"
+      }
     },
     "gate-5": {
       "id": "gate-5",

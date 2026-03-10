@@ -63,9 +63,15 @@ const REQUIRED_DECISION_FIELDS = [
 let fileCount = 0;
 const r = new Reporter("Session State Validator");
 
-function error(file, msg) { r.error(file, msg); }
-function warn(file, msg) { r.warn(file, msg); }
-function ok(file, msg) { r.ok(file, msg); }
+function error(file, msg) {
+  r.error(file, msg);
+}
+function warn(file, msg) {
+  r.warn(file, msg);
+}
+function ok(file, msg) {
+  r.ok(file, msg);
+}
 
 function validateStateFile(filePath, isTemplate) {
   const label = isTemplate ? "template" : path.relative(".", filePath);
@@ -159,6 +165,68 @@ function validateStateFile(filePath, isTemplate) {
     for (const field of REQUIRED_DECISION_FIELDS) {
       if (!(field in state.decisions)) {
         error(label, `Missing decisions field: ${field}`);
+      }
+    }
+
+    // Validate optional complexity field
+    if ("complexity" in state.decisions) {
+      const validComplexity = ["simple", "standard", "complex", ""];
+      if (!validComplexity.includes(state.decisions.complexity)) {
+        error(
+          label,
+          `Invalid decisions.complexity: "${state.decisions.complexity}" (expected ${validComplexity.join(", ")})`,
+        );
+      }
+    }
+  }
+
+  // Validate optional review_audit (don't break old sessions)
+  if (state.review_audit !== undefined) {
+    if (typeof state.review_audit !== "object" || state.review_audit === null) {
+      error(label, "review_audit must be an object");
+    } else {
+      const validStepKeys = ["step_1", "step_2", "step_4", "step_5", "step_6"];
+      for (const [key, audit] of Object.entries(state.review_audit)) {
+        if (!validStepKeys.includes(key)) {
+          warn(label, `review_audit has unexpected key: "${key}"`);
+        }
+        if (typeof audit === "object" && audit !== null) {
+          if (
+            audit.passes_planned !== undefined &&
+            (typeof audit.passes_planned !== "number" ||
+              audit.passes_planned < 0)
+          ) {
+            error(
+              label,
+              `review_audit.${key}.passes_planned must be a non-negative integer`,
+            );
+          }
+          if (
+            audit.passes_executed !== undefined &&
+            (typeof audit.passes_executed !== "number" ||
+              audit.passes_executed < 0)
+          ) {
+            error(
+              label,
+              `review_audit.${key}.passes_executed must be a non-negative integer`,
+            );
+          }
+          if (audit.skipped !== undefined && !Array.isArray(audit.skipped)) {
+            error(label, `review_audit.${key}.skipped must be an array`);
+          }
+          if (
+            audit.skip_reasons !== undefined &&
+            !Array.isArray(audit.skip_reasons)
+          ) {
+            error(label, `review_audit.${key}.skip_reasons must be an array`);
+          }
+          if (
+            audit.models_used !== undefined &&
+            !Array.isArray(audit.models_used)
+          ) {
+            error(label, `review_audit.${key}.models_used must be an array`);
+          }
+        }
       }
     }
   }

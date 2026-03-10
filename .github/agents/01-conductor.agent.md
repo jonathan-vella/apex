@@ -151,7 +151,10 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 >
 > 1. Parse project name from user message → confirm inline
 > 2. Create `agent-output/{project}/`
-> 3. THEN read skills and delegate
+> 3. Create `00-session-state.json` from
+>    `azure-artifacts/templates/00-session-state.template.json`
+>    (includes `decisions.complexity` and `review_audit` fields)
+> 4. THEN read skills and delegate
 >
 > **NEVER ask about IaC tool (Bicep/Terraform).** That is captured exclusively
 > by the Requirements agent in Phase 2. Read `iac_tool` from `01-requirements.md`
@@ -161,11 +164,15 @@ Master orchestrator for the 7-step Azure infrastructure development workflow.
 
 **After confirming the project name**, read:
 
-1. **Read** `.github/skills/golden-principles/SKILL.md` — foundational quality principles for all agents
-2. **Read** `.github/skills/session-resume/SKILL.md` — JSON state schema (v2.0), context budgets, resume, claims
-3. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
-4. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
+1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — foundational quality principles for all agents
+2. **Read** `.github/skills/session-resume/SKILL.digest.md` — JSON state schema (v2.0), context budgets, resume, claims
+3. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags
+4. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — artifact file naming and structure overview
 5. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
+
+After reading skills, extract key facts (region, tags, naming, security baseline,
+complexity, AVM-first) into the `## Skill Context` section of `00-handoff.md`.
+Step agents can use this pre-extracted context instead of re-reading skill files.
 
 ### Graph-Based Step Routing
 
@@ -228,6 +235,17 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). This is the ONLY scenario
 > where the Conductor asks about IaC tool. In normal flow, Requirements Phase 2 captures it.
+
+### Complexity Routing
+
+After Step 1 (Requirements), read `decisions.complexity` from `00-session-state.json`.
+If missing (old sessions), default to `"standard"`.
+
+When dispatching Steps 2, 4, 5, and 6, the step agents use `decisions.complexity` to determine
+adversarial review pass count per the review matrix in `adversarial-review-protocol.md`.
+
+**Runtime validation**: If `complexity_matrix` key in `workflow-graph.json` does not contain an
+entry for the current complexity value, STOP with error and ask user to classify the project.
 
 > [!IMPORTANT]
 > **Write `00-handoff.md` at every gate before presenting it to the user.**
@@ -310,9 +328,12 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 - `## Key Decisions` — region, compliance, budget, IaC tool, architecture pattern
 - `## Open Challenger Findings (must_fix only)` — unresolved must_fix titles or "None"
 - `## Context for Next Step` — 1-3 sentences for next agent
+- `## Skill Context` — pre-extracted facts from skills so step agents
+  can skip re-reading skill files (region, tags, naming_prefix, security
+  baseline, AVM-first, complexity, review matrix row)
 - `## Artifacts` — bulleted list of files in `agent-output/{project}/` and `infra/`
 
-**Rules**: Overwrite on each gate · paths only (never embed content) · under 50 lines · only unresolved must_fix items.
+**Rules**: Overwrite on each gate · paths only (never embed content) · under 60 lines · only unresolved must_fix items.
 
 ## Subagent Delegation
 

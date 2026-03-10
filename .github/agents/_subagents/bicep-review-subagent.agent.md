@@ -29,7 +29,8 @@ You are a **CODE REVIEW SUBAGENT** called by a parent CONDUCTOR agent.
 
 Before starting any review, read these skills for domain knowledge:
 
-1. Read `.github/skills/azure-defaults/SKILL.md` — AVM versions, CAF naming, required tags, security baseline, region defaults
+1. Read `.github/skills/azure-defaults/SKILL.digest.md` — AVM versions,
+   CAF naming, required tags, security baseline, region defaults
 2. Read `.github/skills/iac-common/SKILL.md` — governance compliance checks, unique suffix patterns, shared IaC review procedures
 
 ## Core Workflow

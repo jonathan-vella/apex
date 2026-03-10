@@ -4,7 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: ["challenger-review-subagent"]
+agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
 tools:
   [
     vscode/extensions,
@@ -105,9 +105,9 @@ handoffs:
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline,
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline,
    and the **Terraform Conventions** section
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for
    `06-deployment-summary.md`
 3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
@@ -148,7 +148,7 @@ Before starting, validate:
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `05-implementation-reference.md`)
 - **My step**: 6
@@ -232,7 +232,12 @@ If detected, STOP and report.
 
 Present the plan summary table. **Do NOT apply without explicit user approval.**
 
-### Step 4.5: Pre-Deploy Adversarial Review (1 pass)
+### Step 4.5: Pre-Deploy Adversarial Review (conditional)
+
+Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+
+> **Skip condition**: Skip pre-deploy adversarial review ONLY if `decisions.complexity == 'simple'`
+> AND `open_findings` array is empty in session state. Standard and complex projects ALWAYS get 1× deploy review.
 
 After terraform plan, invoke `challenger-review-subagent` via `#runSubagent`
 with `artifact_type=deployment-preview`, `review_focus=comprehensive`,

@@ -275,13 +275,13 @@ Table of recommended controls based on workload pattern and compliance requireme
 
 ## 📊 Complexity Classification
 
-| Field      | Value                                                |
-| ---------- | ---------------------------------------------------- |
-| Complexity | `simple` / `standard` / `complex`                    |
-| Criteria   | simple: ≤3 resources, no custom policies, single env |
-|            | standard: 4-20 resources                             |
-|            | complex: 20+ resources or PCI-DSS/SOC2 compliance    |
-| Rationale  | {explain why this classification was chosen}         |
+| Field      | Value                                                                       |
+| ---------- | --------------------------------------------------------------------------- |
+| Complexity | `simple` / `standard` / `complex`                                           |
+| Criteria   | simple: ≤3 resource types, single region, no custom policies, single env    |
+|            | standard: 4–8 resource types, multi-region OR multi-env, ≤3 custom policies |
+|            | complex: >8 resource types, multi-region + multi-env, >3 custom policies    |
+| Rationale  | {explain why this classification was chosen}                                |
 
 ---
 

@@ -194,20 +194,23 @@ docs/                  # User-facing documentation
 
 ### Agent Workflow (7 Steps)
 
-| Step | Phase        | Output                                                   | Review |
-| ---- | ------------ | -------------------------------------------------------- | ------ |
-| 1    | Requirements | `01-requirements.md`                                     | 1x     |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 3x+1x  |
-| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —      |
-| 4    | IaC Plan     | `04-implementation-plan.md` + governance + diagrams      | 1x+3x  |
-| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 3x     |
-| 6    | Deploy       | `06-deployment-summary.md`                               | 1x     |
-| 7    | As-Built     | `07-*.md` documentation suite                            | —      |
+| Step | Phase        | Output                                                   | Review      |
+| ---- | ------------ | -------------------------------------------------------- | ----------- |
+| 1    | Requirements | `01-requirements.md`                                     | 1×          |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×+1×    |
+| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —           |
+| 4    | IaC Plan     | `04-implementation-plan.md` + governance + diagrams      | 0×–1×+1×–3× |
+| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×       |
+| 6    | Deploy       | `06-deployment-summary.md`                               | 0×–1×       |
+| 7    | As-Built     | `07-*.md` documentation suite                            | —           |
 
 All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
 The Conductor agent orchestrates the full workflow with human approval gates.
-Review column = adversarial passes by `challenger-review-subagent` (3x = rotating lenses; 1x = comprehensive).
+Review column = adversarial passes by challenger subagents, complexity-dependent
+(simple: 3–4 total, standard: 6–8 total, complex: 10–12 total).
+Model diversity: pass 1 uses GPT-5.4 (`challenger-review-subagent`),
+passes 2-3 use GPT-5.3-Codex (`challenger-review-codex-subagent`).
 
 ### Content Sharing Decision Framework
 

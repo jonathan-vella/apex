@@ -35,9 +35,52 @@
     "compliance": "None",
     "budget": "~$50/mo",
     "architecture_pattern": "",
-    "deployment_strategy": ""
+    "deployment_strategy": "",
+    "complexity": ""
   },
   "open_findings": [],
+  "review_audit": {
+    "step_1": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_2": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_4": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_5": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_6": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    }
+  },
   "steps": {
     "1": {
       "name": "Requirements",
@@ -164,29 +207,37 @@
 
 ## Field Definitions
 
-| Field                         | Type           | Description                                                     |
-| ----------------------------- | -------------- | --------------------------------------------------------------- |
-| `schema_version`              | string         | `"1.0"` or `"2.0"` — increment on breaking changes              |
-| `project`                     | string         | Project folder name (kebab-case)                                |
-| `iac_tool`                    | string         | `"Bicep"` or `"Terraform"` — set after Step 1                   |
-| `region`                      | string         | Primary Azure region                                            |
-| `branch`                      | string         | Active Git branch                                               |
-| `updated`                     | ISO string     | Last modification timestamp                                     |
-| `current_step`                | integer        | Step number currently in progress (1-7)                         |
-| `stale_threshold_ms`          | integer        | Milliseconds before a lock heartbeat is considered stale (v2.0) |
-| `lock`                        | object         | Top-level workflow lock (v2.0)                                  |
-| `lock.owner_id`               | string or null | Session ID holding the global lock                              |
-| `lock.heartbeat`              | ISO or null    | Last heartbeat from the lock owner                              |
-| `lock.attempt_token`          | UUID or null   | Optimistic concurrency token for the lock                       |
-| `lock.acquired`               | ISO or null    | When the lock was first acquired                                |
-| `decisions`                   | object         | Key project decisions (accumulated across steps)                |
-| `open_findings`               | array          | Unresolved `must_fix` challenger findings (titles only)         |
-| `steps.N.status`              | string         | `pending` / `in_progress` / `complete` / `skipped`              |
-| `steps.N.sub_step`            | string or null | Current sub-step checkpoint identifier (e.g. `"phase_2_waf"`)   |
-| `steps.N.artifacts`           | array          | File paths produced by this step                                |
-| `steps.N.claim`               | object         | Per-step claim lock (v2.0)                                      |
-| `steps.N.claim.owner_id`      | string or null | Session ID that claimed this step                               |
-| `steps.N.claim.heartbeat`     | ISO or null    | Last heartbeat from the step claimant                           |
-| `steps.N.claim.attempt_token` | UUID or null   | Optimistic concurrency token for the step claim                 |
-| `steps.N.claim.retry_count`   | integer        | Number of retries attempted for this step                       |
-| `steps.N.claim.event_log`     | array          | Audit trail of claim/release/recovery events                    |
+| Field                                 | Type           | Description                                                                                                                       |
+| ------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `schema_version`                      | string         | `"1.0"` or `"2.0"` — increment on breaking changes                                                                                |
+| `project`                             | string         | Project folder name (kebab-case)                                                                                                  |
+| `iac_tool`                            | string         | `"Bicep"` or `"Terraform"` — set after Step 1                                                                                     |
+| `region`                              | string         | Primary Azure region                                                                                                              |
+| `branch`                              | string         | Active Git branch                                                                                                                 |
+| `updated`                             | ISO string     | Last modification timestamp                                                                                                       |
+| `current_step`                        | integer        | Step number currently in progress (1-7)                                                                                           |
+| `stale_threshold_ms`                  | integer        | Milliseconds before a lock heartbeat is considered stale (v2.0)                                                                   |
+| `lock`                                | object         | Top-level workflow lock (v2.0)                                                                                                    |
+| `lock.owner_id`                       | string or null | Session ID holding the global lock                                                                                                |
+| `lock.heartbeat`                      | ISO or null    | Last heartbeat from the lock owner                                                                                                |
+| `lock.attempt_token`                  | UUID or null   | Optimistic concurrency token for the lock                                                                                         |
+| `lock.acquired`                       | ISO or null    | When the lock was first acquired                                                                                                  |
+| `decisions`                           | object         | Key project decisions (accumulated across steps)                                                                                  |
+| `decisions.complexity`                | string         | `"simple"`, `"standard"`, `"complex"`, or `""` — set by Requirements agent, defaults to `"standard"` if missing (backward compat) |
+| `open_findings`                       | array          | Unresolved `must_fix` challenger findings (titles only)                                                                           |
+| `steps.N.status`                      | string         | `pending` / `in_progress` / `complete` / `skipped`                                                                                |
+| `steps.N.sub_step`                    | string or null | Current sub-step checkpoint identifier (e.g. `"phase_2_waf"`)                                                                     |
+| `steps.N.artifacts`                   | array          | File paths produced by this step                                                                                                  |
+| `steps.N.claim`                       | object         | Per-step claim lock (v2.0)                                                                                                        |
+| `steps.N.claim.owner_id`              | string or null | Session ID that claimed this step                                                                                                 |
+| `steps.N.claim.heartbeat`             | ISO or null    | Last heartbeat from the step claimant                                                                                             |
+| `steps.N.claim.attempt_token`         | UUID or null   | Optimistic concurrency token for the step claim                                                                                   |
+| `steps.N.claim.retry_count`           | integer        | Number of retries attempted for this step                                                                                         |
+| `steps.N.claim.event_log`             | array          | Audit trail of claim/release/recovery events                                                                                      |
+| `review_audit`                        | object         | Optional — adversarial review audit trail per step                                                                                |
+| `review_audit.step_N.complexity`      | string         | Complexity tier used for this step's review                                                                                       |
+| `review_audit.step_N.passes_planned`  | integer        | Number of passes planned based on complexity matrix                                                                               |
+| `review_audit.step_N.passes_executed` | integer        | Number of passes actually executed                                                                                                |
+| `review_audit.step_N.skipped`         | array          | Pass numbers that were skipped (e.g. `[2, 3]`)                                                                                    |
+| `review_audit.step_N.skip_reasons`    | array          | Reasons for each skip (e.g. `["pass 1: 0 must_fix, 1 should_fix"]`)                                                               |
+| `review_audit.step_N.models_used`     | array          | Models used per pass (e.g. `["GPT-5.4", "GPT-5.3-Codex"]`)                                                                        |

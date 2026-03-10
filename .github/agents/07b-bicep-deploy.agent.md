@@ -4,7 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-agents: ["challenger-review-subagent"]
+agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
 tools:
   [
     vscode/extensions,
@@ -110,8 +110,8 @@ handoffs:
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `06-deployment-summary.md`
 3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
@@ -151,7 +151,7 @@ Before starting, validate:
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `05-implementation-reference.md`)
 - **My step**: 6
@@ -230,7 +230,12 @@ If detected, STOP and report.
 
 Present summary table and wait for user approval.
 
-### Step 5.5: Pre-Deploy Adversarial Review (1 pass)
+### Step 5.5: Pre-Deploy Adversarial Review (conditional)
+
+Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+
+> **Skip condition**: Skip pre-deploy adversarial review ONLY if `decisions.complexity == 'simple'`
+> AND `open_findings` array is empty in session state. Standard and complex projects ALWAYS get 1× deploy review.
 
 After what-if, invoke `challenger-review-subagent` via `#runSubagent` with
 `artifact_type=deployment-preview`, `review_focus=comprehensive`, `pass_number=1`.

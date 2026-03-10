@@ -3,7 +3,13 @@ name: 05b-Bicep Planner
 description: Expert Azure Bicep Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules, and designs complete infrastructure solutions with architecture diagrams.
 model: ["Claude Opus 4.6"]
 user-invocable: true
-agents: ["governance-discovery-subagent", "challenger-review-subagent"]
+agents:
+  [
+    "governance-discovery-subagent",
+    "challenger-review-subagent",
+    "challenger-review-codex-subagent",
+    "challenger-review-batch-subagent",
+  ]
 tools:
   [
     vscode/extensions,
@@ -93,8 +99,8 @@ handoffs:
 
 **Before doing ANY work**, read these skills for configuration and template structure:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, AVM modules, governance discovery, naming
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, AVM modules, governance discovery, naming
+2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
 3. **Read** the template files for your artifacts:
    - `.github/skills/azure-artifacts/templates/04-implementation-plan.template.md`
    - `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
@@ -132,7 +138,7 @@ Read it for: resource list, SKU recommendations, WAF scores, architecture decisi
 
 ## Session State Protocol
 
-**Read** `.github/skills/session-resume/SKILL.md` for the full protocol.
+**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
 - **My step**: 4
@@ -202,13 +208,22 @@ deployment phases (from Phase 3.5 choice), diagram artifacts (`04-dependency-dia
 > with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
 > thresholds and Anomaly Detection. See `iac-cost-repeatability.instructions.md`.
 
-### Phase 4.3–4.5: Adversarial Review (1 governance + 3 plan passes)
+### Phase 4.3–4.5: Adversarial Review (conditional governance + plan passes)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table, prior_findings format, and invocation template.
+Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
 
-- **Phase 4.3**: Invoke `challenger-review-subagent` on
+- **Phase 4.3** (conditional): Skip governance review if `decisions.complexity == 'simple'` in `00-session-state.json`.
+  For `standard`/`complex` projects: invoke `challenger-review-subagent` on
   `04-governance-constraints.md` (`review_focus=comprehensive`, 1 pass)
-- **Phase 4.5**: Invoke `challenger-review-subagent` on `04-implementation-plan.md` (3 passes, rotating lenses per protocol)
+- **Phase 4.5**: Invoke challenger subagents on `04-implementation-plan.md`
+  (up to 3 passes, rotating lenses per protocol).
+  Follow the conditional pass rules from `adversarial-review-protocol.md` —
+  skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`;
+  skip pass 3 if pass 2 has 0 `must_fix`.
+  **Model routing**: Pass 1 (security-governance) →
+  `challenger-review-subagent` (GPT-5.4).
+  Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
 
 Write results to `agent-output/{project}/challenge-findings-{artifact}-pass{N}.json`.
 

@@ -42,8 +42,21 @@ Before loading any artifact file:
    < 60%  → full (no compression needed)
    60-80% → summarized (key sections only)
    > 80%  → minimal (decision summaries only)
-5. Load artifact using the compression template
+5. Load artifact/skill using the appropriate variant
 ```
+
+## Skill Loading Tiers
+
+Skills also have compression tiers (digest and minimal variants):
+
+| Context Usage | Skill Variant | Path Pattern       | Approx Tokens |
+| ------------- | ------------- | ------------------ | ------------- |
+| < 60%         | Full          | `SKILL.md`         | 400-800       |
+| 60-80%        | Digest        | `SKILL.digest.md`  | 150-320       |
+| > 80%         | Minimal       | `SKILL.minimal.md` | 40-100        |
+
+Available for: `azure-defaults`, `azure-artifacts`, `session-resume`,
+`golden-principles`, `context-shredding`.
 
 ## Reference Index
 

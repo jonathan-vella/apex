@@ -106,6 +106,88 @@ if (!Array.isArray(graph.edges)) {
 const nodeIds = new Set(Object.keys(graph.nodes));
 const agentFiles = getAgentFiles();
 
+const VALID_LENSES = [
+  "security-governance",
+  "architecture-reliability",
+  "cost-feasibility",
+  "comprehensive",
+  // Legacy lens names (backward compat)
+  "security",
+  "reliability",
+  "cost",
+  "naming",
+  "avm-compliance",
+];
+
+const COMPLEXITY_TIERS = ["simple", "standard", "complex"];
+
+// Validate challenger field (supports old passes:N or new complexity_matrix)
+function validateChallenger(nodeId, challenger) {
+  if (!challenger) return;
+
+  // Old format: { passes: N, lenses: [...] }
+  if (typeof challenger.passes === "number") {
+    if (challenger.passes < 1) {
+      r.error(`Node "${nodeId}" challenger.passes must be a positive integer`);
+    }
+    if (Array.isArray(challenger.lenses)) {
+      for (const lens of challenger.lenses) {
+        if (!VALID_LENSES.includes(lens)) {
+          r.error(`Node "${nodeId}" challenger has invalid lens: "${lens}"`);
+        }
+      }
+    }
+    return;
+  }
+
+  // New format: { complexity_matrix: { simple: {...}, standard: {...}, complex: {...} } }
+  if (challenger.complexity_matrix) {
+    for (const tier of COMPLEXITY_TIERS) {
+      if (!challenger.complexity_matrix[tier]) {
+        r.error(
+          `Node "${nodeId}" challenger.complexity_matrix missing required tier: "${tier}"`,
+        );
+        continue;
+      }
+      const entry = challenger.complexity_matrix[tier];
+      if (typeof entry.passes !== "number" || entry.passes < 1) {
+        r.error(
+          `Node "${nodeId}" challenger.complexity_matrix.${tier}.passes must be a positive integer`,
+        );
+      }
+      if (!Array.isArray(entry.lenses) || entry.lenses.length === 0) {
+        r.error(
+          `Node "${nodeId}" challenger.complexity_matrix.${tier}.lenses must be a non-empty array`,
+        );
+      } else {
+        for (const lens of entry.lenses) {
+          if (!VALID_LENSES.includes(lens)) {
+            r.error(
+              `Node "${nodeId}" challenger.complexity_matrix.${tier} has invalid lens: "${lens}"`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  // Validate skip_condition references valid fields
+  if (
+    challenger.skip_condition &&
+    typeof challenger.skip_condition === "string"
+  ) {
+    const allowedFields = ["complexity", "open_findings"];
+    const hasValidRef = allowedFields.some((f) =>
+      challenger.skip_condition.includes(f),
+    );
+    if (!hasValidRef) {
+      r.warn(
+        `Node "${nodeId}" challenger.skip_condition does not reference known fields (complexity, open_findings)`,
+      );
+    }
+  }
+}
+
 // Validate nodes
 for (const [nodeId, node] of Object.entries(graph.nodes)) {
   if (node.id !== nodeId) {
@@ -124,7 +206,9 @@ for (const [nodeId, node] of Object.entries(graph.nodes)) {
       // Try matching by common patterns
       const kebab = agentName.toLowerCase().replace(/\s+/g, "-");
       if (!agentFiles.has(kebab)) {
-        r.warn(`Node "${nodeId}" references agent "${agentName}" — not found in agent files`);
+        r.warn(
+          `Node "${nodeId}" references agent "${agentName}" — not found in agent files`,
+        );
       }
     }
   }
@@ -137,6 +221,9 @@ for (const [nodeId, node] of Object.entries(graph.nodes)) {
       }
     }
   }
+
+  // Validate challenger configuration
+  validateChallenger(nodeId, node.challenger);
 }
 
 // Validate edges
@@ -152,7 +239,9 @@ for (const edge of graph.edges) {
 
   const validConditions = ["on_complete", "on_skip", "on_fail"];
   if (!validConditions.includes(edge.condition)) {
-    r.error(`Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`);
+    r.error(
+      `Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`,
+    );
   }
 }
 
