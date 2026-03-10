@@ -6,7 +6,7 @@ model: "GPT-5.3-Codex (copilot)"
 # Internal sequential execution preserves inter-pass context.
 user-invocable: false
 agents: []
-tools: [read, search, web, vscode/askQuestions, "azure-mcp/*"]
+tools: [read, search, web, "azure-mcp/*"]
 ---
 
 # Challenger Review Batch Subagent

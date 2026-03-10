@@ -10,7 +10,6 @@ tools:
     read,
     search,
     web,
-    vscode/askQuestions,
     "azure-mcp/*",
     "bicep/*",
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,

@@ -200,7 +200,8 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 | ✅ DO                                                               | ❌ DON'T                                                          |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | Pause at EVERY approval gate; wait for confirmation                 | Use `askQuestions` to ask project name if parseable from user msg |
-| Delegate to subagents via `#runSubagent`                            | Skip approval gates — EVER                                        |
+| Delegate autonomous steps via `#runSubagent`                        | Skip approval gates — EVER                                        |
+| Use handoffs (not subagents) for interactive steps (1, 4)           | Use `#runSubagent` for steps that need `askQuestions`             |
 | Recommend session break at Gates 2 and 3                            | Ask about IaC tool (Bicep/Terraform) — Requirements handles this  |
 | Track progress via artifact files in `agent-output/{project}/`      | Deploy without validation (Deploy agent handles preflight)        |
 | Summarize subagent results concisely                                | Modify files directly — delegate to appropriate agent             |
@@ -335,11 +336,43 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 
 **Rules**: Overwrite on each gate · paths only (never embed content) · under 60 lines · only unresolved must_fix items.
 
-## Subagent Delegation
+## Step Delegation
 
-Use `#runSubagent` to delegate each step. Step→Agent mapping follows
-the handoff labels above; Terraform path (Steps 4†/5†/6†) used when
+### Interactive Steps (use handoffs, NOT `#runSubagent`)
+
+Steps that call `askQuestions` to interact with the user **cannot run as
+subagents** — subagents are autonomous and have no access to the
+`askQuestions` UI. These steps MUST be delegated via **handoff buttons**
+so the user interacts directly with the step agent:
+
+- **Step 1 (Requirements)** — uses `askQuestions` in Phases 1-4
+- **Step 4 (IaC Plan)** — uses `askQuestions` for Deployment Strategy Gate
+
+For these steps, present the handoff button and let the user click it.
+Do NOT call `#runSubagent` with the step agent name. Do NOT pre-fill
+answers or add "do not ask questions" to the prompt.
+
+### Autonomous Steps (use `#runSubagent`)
+
+Steps that work from existing artifacts without user interaction can be
+delegated via `#runSubagent`:
+
+- **Step 2 (Architecture)** — reads `01-requirements.md`, produces assessment
+- **Step 3 (Design)** — optional, reads architecture, produces diagrams
+- **Step 5 (IaC Code)** — reads plan, generates templates
+- **Step 6 (Deploy)** — runs deployment scripts
+- **Step 7 (As-Built)** — reads all prior artifacts, generates docs
+
+Step→Agent mapping follows the handoff labels above;
+Terraform path (Steps 4†/5†/6†) used when
 `iac_tool: Terraform` in `01-requirements.md`.
+
+> [!CAUTION]
+> **NEVER call `#runSubagent` for an agent that needs `askQuestions`.**
+> The `askQuestions` tool presents interactive UI panels that require
+> direct user participation. Subagents run autonomously and cannot
+> present these panels — the questions will be silently skipped,
+> producing low-quality artifacts with fabricated defaults.
 
 ### Subagent Integration
 
@@ -361,7 +394,10 @@ at Steps 2 and 7; governance-discovery-subagent gates Step 4.
 3. Create `00-session-state.json` from
    `.github/skills/azure-artifacts/templates/00-session-state.template.json`
    — set `project`, `branch`, `updated`, `current_step: 1`
-4. Delegate to Requirements agent for Step 1 (creates initial `README.md`)
+4. **Present the Step 1 handoff** to the Requirements agent — do NOT use
+   `#runSubagent` for Step 1. The Requirements agent needs `askQuestions`
+   to interview the user interactively (Phases 1-4). Present the
+   "Step 1: Gather Requirements" handoff button and let the user click it.
 5. Wait for Gate 1 approval
 
 ## Resuming a Project

@@ -6,7 +6,7 @@ model: "GPT-5.4"
 # Strong logical reasoning for deep policy cross-reference analysis.
 user-invocable: false
 agents: []
-tools: [read, search, web, vscode/askQuestions, "azure-mcp/*"]
+tools: [read, search, web, "azure-mcp/*"]
 ---
 
 # Challenger Review Subagent
@@ -95,7 +95,7 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 | Adversarial checklists & skepticism surfaces | `.github/skills/azure-defaults/references/adversarial-checklists.md`      |
 | Artifact-type-specific categories            | `.github/skills/azure-defaults/references/artifact-type-categories.md`    |
 | Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
-| Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                               |
+| Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                        |
 
 ## Output Format
 

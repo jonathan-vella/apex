@@ -72,7 +72,12 @@ The fast path combines and streamlines the standard 7-step workflow:
 
 ### Step 1: Requirements (same as standard)
 
-Delegate to `02-Requirements` agent. The output MUST include
+**Present the Step 1 handoff** to the `02-Requirements` agent — do NOT
+use `#runSubagent`. The Requirements agent needs `askQuestions` to
+interview the user interactively (Phases 1-4). Subagents cannot present
+interactive question panels.
+
+The output MUST include
 `## 📊 Complexity Classification` with `complexity: simple`.
 The Requirements agent writes `decisions.complexity = "simple"` to
 `00-session-state.json`.
@@ -99,11 +104,13 @@ This is the key optimization — Plan and Code are combined.
 Review pass counts follow the `simple` row of the review matrix in
 `azure-defaults/references/adversarial-review-protocol.md`.
 
-1. Delegate to the IaC Planner (05b or 05t based on `iac_tool`)
+1. **Present the IaC Planner handoff** (05b or 05t based on `iac_tool`)
+   — the Planner uses `askQuestions` for the Deployment Strategy Gate,
+   so it must run as a direct handoff, not via `#runSubagent`.
    - **Skip governance discovery** (simple projects have no custom policies)
    - **Skip adversarial review** of the plan (1-pass at code stage)
    - Single deployment phase (no phased deployment needed)
-2. Immediately delegate to the IaC CodeGen agent (06b or 06t)
+2. Immediately delegate to the IaC CodeGen agent (06b or 06t) via `#runSubagent`
    - 1-pass comprehensive adversarial review (not 3-pass)
    - Standard validation (lint + review subagents)
 
