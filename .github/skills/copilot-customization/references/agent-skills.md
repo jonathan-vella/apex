@@ -1,4 +1,5 @@
 <!-- ref:agent-skills-v1 -->
+
 # Agent Skills Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/agent-skills
@@ -128,9 +129,8 @@ Control access with these frontmatter fields (on SKILL.md, as of VS Code docs):
 | `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE)        | Yes                |
 | `make-skill-template`  | Meta-skill for scaffolding new skills          | No                 |
 | `git-commit`           | Conventional commit message generation         | No                 |
-| `microsoft-docs`       | Query official Microsoft documentation         | No                 |
 
-Total: 21 skills in `.github/skills/`.
+Total: 18 skills in `.github/skills/`.
 
 ## Common Mistakes
 

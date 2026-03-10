@@ -98,37 +98,6 @@ Create a new skill called 'azure-monitoring' for Application Insights
 and Log Analytics best practices.
 ```
 
-### microsoft-docs
-
-Queries official Microsoft/Azure documentation to understand concepts,
-find tutorials, and get current best practices.
-
-```text
-@workspace Use the microsoft-docs skill to look up Azure Container Apps
-networking modes and limitations.
-```
-
-### microsoft-code-reference
-
-Verifies SDK methods, finds working code samples, and catches hallucinated
-API calls by querying official documentation.
-
-```text
-@workspace Use microsoft-code-reference to find the correct Azure SDK
-method for listing Key Vault secrets in Python.
-```
-
-### microsoft-skill-creator
-
-Creates agent skills for Microsoft technologies using Learn MCP tools.
-Investigates topics deeply, then generates a hybrid skill with essential
-knowledge stored locally and dynamic investigation capability.
-
-```text
-Create a new skill that teaches agents about Azure Container Apps
-networking, scaling, and Dapr integration.
-```
-
 ### azure-artifacts
 
 Artifact template structures, H2 compliance rules, and documentation

@@ -1,4 +1,5 @@
 <!-- ref:mcp-servers-v1 -->
+
 # MCP Servers Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/mcp-servers
@@ -137,12 +138,11 @@ When sandboxing is enabled, tool calls are auto-approved (they run in a controll
 
 From `.vscode/mcp.json`:
 
-| Server            | Type  | Purpose                                 |
-| ----------------- | ----- | --------------------------------------- |
-| `github`          | http  | GitHub Copilot MCP (issues, PRs, repos) |
-| `microsoft-learn` | http  | Microsoft Learn documentation           |
-| `azure-pricing`   | stdio | Custom Azure Pricing MCP server         |
-| `terraform`       | stdio | Terraform registry queries              |
+| Server          | Type  | Purpose                                 |
+| --------------- | ----- | --------------------------------------- |
+| `github`        | http  | GitHub Copilot MCP (issues, PRs, repos) |
+| `azure-pricing` | stdio | Custom Azure Pricing MCP server         |
+| `terraform`     | stdio | Terraform registry queries              |
 
 ## Common Mistakes
 
@@ -156,9 +156,7 @@ From `.vscode/mcp.json`:
 
 ## Verify Freshness
 
-```text
-microsoft_docs_fetch("https://code.visualstudio.com/docs/copilot/customization/mcp-servers")
-```
+Check VS Code docs for upstream changes to MCP servers:\n`https://code.visualstudio.com/docs/copilot/customization/mcp-servers`
 
 Check for: new server types, new capabilities, sandbox changes, new installation methods,
 new settings, or enterprise management features.

@@ -25,7 +25,7 @@ try {
   process.exit(1);
 }
 
-const requiredServers = ["github", "microsoft-learn"];
+const requiredServers = ["github"];
 let missing = false;
 for (const name of requiredServers) {
   if (!mcpConfig?.servers?.[name]) {

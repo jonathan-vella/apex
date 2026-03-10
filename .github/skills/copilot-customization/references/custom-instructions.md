@@ -1,4 +1,5 @@
 <!-- ref:custom-instructions-v1 -->
+
 # Custom Instructions Reference
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/custom-instructions
@@ -112,11 +113,8 @@ This reference covers the VS Code specification; the instruction file covers rep
 
 ## Verify Freshness
 
-Run this Learn MCP query to check for upstream changes:
-
-```text
-microsoft_docs_fetch("https://code.visualstudio.com/docs/copilot/customization/custom-instructions")
-```
+Check VS Code docs for upstream changes to custom instructions:
+`https://code.visualstudio.com/docs/copilot/customization/custom-instructions`
 
 Check for: new frontmatter fields, new file locations, changes to instruction priority,
 new settings, or new instruction file types.

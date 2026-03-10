@@ -69,26 +69,23 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
 | `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
-### Skills (16 total)
+### Skills (13 total)
 
-| Skill                      | Category            | Purpose                                    |
-| -------------------------- | ------------------- | ------------------------------------------ |
-| `azure-adr`                | Document Creation   | Architecture Decision Records              |
-| `azure-artifacts`          | Artifact Generation | Template H2s, styling, generation rules    |
-| `azure-bicep-patterns`     | IaC Patterns        | Reusable Bicep infrastructure patterns     |
-| `azure-defaults`           | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags   |
-| `azure-diagrams`           | Document Creation   | Python architecture diagrams               |
-| `azure-troubleshooting`    | Troubleshooting     | KQL templates, health checks, remediation  |
-| `context-optimizer`        | Agent Optimization  | Context window audit, token waste reduction |
-| `docs-writer`              | Documentation       | Repo-aware docs maintenance                |
-| `git-commit`               | Tool Integration    | Commit conventions                         |
-| `github-operations`        | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases |
-| `golden-principles`        | Agent Conventions   | 10 operating invariants for all agents     |
-| `make-skill-template`      | Meta                | Skill creation helper                      |
-| `microsoft-code-reference` | Docs Integration    | SDK method verification, code samples      |
-| `microsoft-docs`           | Docs Integration    | Official Microsoft documentation queries   |
-| `microsoft-skill-creator`  | Docs Integration    | Create skills for Microsoft technologies   |
-| `terraform-patterns`       | IaC Patterns        | Reusable Terraform infrastructure patterns |
+| Skill                   | Category            | Purpose                                     |
+| ----------------------- | ------------------- | ------------------------------------------- |
+| `azure-adr`             | Document Creation   | Architecture Decision Records               |
+| `azure-artifacts`       | Artifact Generation | Template H2s, styling, generation rules     |
+| `azure-bicep-patterns`  | IaC Patterns        | Reusable Bicep infrastructure patterns      |
+| `azure-defaults`        | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags    |
+| `azure-diagrams`        | Document Creation   | Python architecture diagrams                |
+| `azure-troubleshooting` | Troubleshooting     | KQL templates, health checks, remediation   |
+| `context-optimizer`     | Agent Optimization  | Context window audit, token waste reduction |
+| `docs-writer`           | Documentation       | Repo-aware docs maintenance                 |
+| `git-commit`            | Tool Integration    | Commit conventions                          |
+| `github-operations`     | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases  |
+| `golden-principles`     | Agent Conventions   | 10 operating invariants for all agents      |
+| `make-skill-template`   | Meta                | Skill creation helper                       |
+| `terraform-patterns`    | IaC Patterns        | Reusable Terraform infrastructure patterns  |
 
 ## Prohibited References
 
@@ -103,6 +100,9 @@ Do NOT reference these removed agents/skills:
 - ❌ `github-issues` / `github-pull-requests` skills → Use `github-operations`
 - ❌ `gh-cli` skill → Merged into `github-operations`
 - ❌ `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills
+- ❌ `microsoft-docs` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
+- ❌ `microsoft-code-reference` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
+- ❌ `microsoft-skill-creator` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
 
 ## Content Principles
 

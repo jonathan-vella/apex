@@ -110,9 +110,6 @@ handoffs:
 5. **Read** `.github/instructions/terraform-policy-compliance.instructions.md` — governance mandate, translation table
 6. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression for large plan/governance artifacts
 
-> When verifying AVM-TF module variables or `azurerm` argument types,
-> read `.github/skills/microsoft-code-reference/SKILL.md` on-demand.
-
 ## DO / DON'T
 
 | DO                                                                    | DON'T                                                               |

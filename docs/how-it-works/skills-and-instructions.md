@@ -35,18 +35,18 @@ Skills implement three levels of disclosure:
 
 ### Skill Catalog
 
-The system contains 21 skills across several domains:
+The system contains 18 skills across several domains:
 
-| Domain               | Skills                                                                                 |
-| -------------------- | -------------------------------------------------------------------------------------- |
-| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`                         |
-| Azure Operations     | `azure-troubleshooting`, `azure-diagrams`, `azure-adr`                                 |
-| Artefact Generation  | `azure-artifacts`, `context-shredding`                                                 |
-| Documentation        | `docs-writer`, `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator` |
-| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`                               |
-| Deployment           | `iac-common`                                                                           |
-| GitHub Operations    | `github-operations`, `git-commit`                                                      |
-| Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`                    |
+| Domain               | Skills                                                              |
+| -------------------- | ------------------------------------------------------------------- |
+| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`      |
+| Azure Operations     | `azure-troubleshooting`, `azure-diagrams`, `azure-adr`              |
+| Artefact Generation  | `azure-artifacts`, `context-shredding`                              |
+| Documentation        | `docs-writer`                                                       |
+| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`            |
+| Deployment           | `iac-common`                                                        |
+| GitHub Operations    | `github-operations`, `git-commit`                                   |
+| Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization` |
 
 The `copilot-customization` skill is an authoritative reference for VS Code Copilot
 customisation mechanisms: instructions, prompt files, custom agents, agent skills,

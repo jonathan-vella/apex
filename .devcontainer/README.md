@@ -34,7 +34,6 @@ It includes all required tools, extensions, and configurations to build Azure in
 
 - **Azure MCP Server** - RBAC-aware Azure context for agents
 - **Azure Pricing MCP** - Real-time SKU pricing for cost estimates
-- **Microsoft Learn MCP** - Official Microsoft documentation search, code samples, and page fetching
 - **Terraform MCP Server** - HashiCorp registry, module, and workspace tools (go binary, auto-updated on start)
 
 ### Python Libraries (Auto-installed)

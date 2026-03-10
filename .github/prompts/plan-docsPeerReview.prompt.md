@@ -2,7 +2,7 @@
 description: "Multi-model peer review of all published documentation with adversarial passes. Uses GPT 5.4 and Sonnet 4.6 subagents for independent reviews, then reconciles findings."
 agent: agent
 model: "Claude Opus 4.6 (1M context)(Internal only)"
-tools:vscode, execute, read, agent, browser, 'microsoft-learn/*', edit, search, web, todo
+tools:vscode, execute, read, agent, browser, edit, search, web, todo
 ---
 
 # Docs Peer Review

@@ -41,7 +41,7 @@ loaded into the system prompt when the agent is invoked.
 | 01-Conductor             | Master orchestrator                   | workflow-engine, session-resume |
 | 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults  |
 | 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts |
-| 03-Architect             | WAF assessment and cost estimation    | azure-defaults, microsoft-docs  |
+| 03-Architect             | WAF assessment and cost estimation    | azure-defaults                  |
 | 04-Design                | Diagrams and ADRs                     | azure-diagrams, azure-adr       |
 | 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns            |
 | 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns              |

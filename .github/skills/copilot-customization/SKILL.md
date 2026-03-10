@@ -117,5 +117,5 @@ Load only the reference file relevant to your current task:
 ## Freshness
 
 Content sourced from official VS Code docs (2026-03-08). Each reference file includes
-a "Verify Freshness" section with the exact Learn MCP query to check for updates.
+a "Verify Freshness" section with the URL to check for updates.
 Freshness checks are part of the Quarterly Context Audit in `AGENTS.md`.

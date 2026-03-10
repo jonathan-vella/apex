@@ -6,7 +6,7 @@ toc_depth: 3
 
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
-This project integrates five MCP servers, each providing specialised
+This project integrates four MCP servers, each providing specialised
 capabilities that agents invoke at runtime.
 
 ## :material-lan: MCP Architecture
@@ -40,12 +40,10 @@ flowchart LR
     classDef mcp fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
 
     A["Agent"]:::agent --> M1["GitHub MCP"]:::mcp
-    A --> M2["Learn MCP"]:::mcp
     A --> M3["Azure MCP"]:::mcp
     A --> M4["Pricing MCP"]:::mcp
     A --> M5["Terraform MCP"]:::mcp
     M1 --> G["GitHub API"]
-    M2 --> L["learn.microsoft.com"]
     M3 --> AZ["Azure Resource Manager"]
     M4 --> P["Azure Retail Prices API"]
     M5 --> T["Terraform Registry"]
@@ -64,22 +62,6 @@ The GitHub MCP server is the primary interface for repository operations.
 Agents use it to create issues, open pull requests, search code, read file
 contents, manage branches, and automate the Smart PR Flow lifecycle. It is
 scoped as a default server — every agent has access.
-
-## :material-school-outline: Microsoft Learn MCP Server
-
-| Property  | Value                                    |
-| --------- | ---------------------------------------- |
-| Transport | HTTP                                     |
-| Endpoint  | `https://learn.microsoft.com/api/mcp`    |
-| Auth      | None (public API)                        |
-| Purpose   | Azure docs, SDK references, code samples |
-
-The Microsoft Learn MCP server provides access to official Microsoft
-documentation. Agents query it to look up Azure service limits, find
-quickstart guides, verify SDK method signatures, and discover best
-practices. The `microsoft-docs` and `microsoft-code-reference` skills
-are built on top of this server. It is scoped as a default server alongside
-GitHub.
 
 ## :material-microsoft-azure: Azure MCP Server
 
@@ -100,7 +82,7 @@ against live Azure environments using the authenticated user's credentials.
 Agents use it across the entire workflow — from governance discovery
 (querying Azure Policy assignments) through deployment (validating
 resource state) to as-built documentation (inventorying deployed resources).
-It is scoped as a **default server** alongside GitHub and Microsoft Learn,
+It is scoped as a **default server** alongside GitHub,
 meaning virtually every agent has access.
 
 Installation follows the [Azure MCP Server README](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md#installation)

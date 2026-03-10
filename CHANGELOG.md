@@ -48,7 +48,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fix(session-state): accept both schema_version `"1.0"` and `"2.0"` in validator
-for backwards compatibility.
+  for backwards compatibility.
+
+### Removed
+
+- chore(mcp): remove `microsoft-learn` MCP server from `.vscode/mcp.json` and
+  `.devcontainer/post-create.sh` — Learn MCP tools are now bundled with the
+  `ms-azuretools.vscode-azure-github-copilot` extension.
+- chore(skills): delete `microsoft-docs`, `microsoft-code-reference`, and
+  `microsoft-skill-creator` skills — functionality provided natively by extension.
+- chore(config): remove skill references from `agent-registry.json` and `skill-affinity.json`.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## [0.9.0] — Pre-Bosun Baseline

@@ -247,11 +247,6 @@ default_github = {
     "url": "https://api.githubcopilot.com/mcp/",
 }
 
-default_microsoft_learn = {
-    "type": "http",
-    "url": "https://learn.microsoft.com/api/mcp",
-}
-
 data = {"servers": {}}
 
 if config_path.exists():
@@ -267,8 +262,6 @@ if config_path.exists():
 servers = data.setdefault("servers", {})
 servers.setdefault("azure-pricing", default_azure_pricing)
 servers.setdefault("github", default_github)
-servers.setdefault("microsoft-learn", default_microsoft_learn)
-
 config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 PY
 

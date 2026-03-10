@@ -71,22 +71,19 @@ All shared context previously in `_shared/` is now consolidated into skills:
 
 ## Skill Catalog (14 Skills)
 
-| Skill                      | Folder                      | Category            | Triggers                                  |
-| -------------------------- | --------------------------- | ------------------- | ----------------------------------------- |
-| `azure-adr`                | `azure-adr/`                | Document Creation   | "create ADR", "document decision"         |
-| `azure-artifacts`          | `azure-artifacts/`          | Artifact Generation | "generate documentation"                  |
-| `azure-bicep-patterns`     | `azure-bicep-patterns/`     | IaC Patterns        | "bicep pattern", "hub-spoke"              |
-| `azure-defaults`           | `azure-defaults/`           | Azure Conventions   | "azure defaults", "naming"                |
-| `azure-diagrams`           | `azure-diagrams/`           | Document Creation   | "create diagram"                          |
-| `azure-troubleshooting`    | `azure-troubleshooting/`    | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
-| `docs-writer`              | `docs-writer/`              | Documentation       | "update the docs"                         |
-| `git-commit`               | `git-commit/`               | Tool Integration    | "commit"                                  |
-| `github-operations`        | `github-operations/`        | Workflow            | "create issue", "create PR", "gh command" |
-| `make-skill-template`      | `make-skill-template/`      | Meta                | "create skill"                            |
-| `microsoft-code-reference` | `microsoft-code-reference/` | Docs Integration    | "SDK", "API reference", "code sample"     |
-| `microsoft-docs`           | `microsoft-docs/`           | Docs Integration    | "microsoft docs", "azure docs", "learn"   |
-| `microsoft-skill-creator`  | `microsoft-skill-creator/`  | Meta                | "create microsoft skill"                  |
-| `terraform-patterns`       | `terraform-patterns/`       | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
+| Skill                   | Folder                   | Category            | Triggers                                  |
+| ----------------------- | ------------------------ | ------------------- | ----------------------------------------- |
+| `azure-adr`             | `azure-adr/`             | Document Creation   | "create ADR", "document decision"         |
+| `azure-artifacts`       | `azure-artifacts/`       | Artifact Generation | "generate documentation"                  |
+| `azure-bicep-patterns`  | `azure-bicep-patterns/`  | IaC Patterns        | "bicep pattern", "hub-spoke"              |
+| `azure-defaults`        | `azure-defaults/`        | Azure Conventions   | "azure defaults", "naming"                |
+| `azure-diagrams`        | `azure-diagrams/`        | Document Creation   | "create diagram"                          |
+| `azure-troubleshooting` | `azure-troubleshooting/` | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
+| `docs-writer`           | `docs-writer/`           | Documentation       | "update the docs"                         |
+| `git-commit`            | `git-commit/`            | Tool Integration    | "commit"                                  |
+| `github-operations`     | `github-operations/`     | Workflow            | "create issue", "create PR", "gh command" |
+| `make-skill-template`   | `make-skill-template/`   | Meta                | "create skill"                            |
+| `terraform-patterns`    | `terraform-patterns/`    | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 
 ## Template Inventory (16 Templates)
 

@@ -101,8 +101,6 @@ handoffs:
 5. **Read** `.github/instructions/bicep-policy-compliance.instructions.md` — governance mandate, dynamic tag list
 6. **Read** `.github/skills/context-shredding/SKILL.md` — runtime compression for large plan/governance artifacts
 
-> When verifying AVM module parameters or API versions, read `.github/skills/microsoft-code-reference/SKILL.md` on-demand.
-
 ## DO / DON'T
 
 | DO                                                                     | DON'T                                                             |

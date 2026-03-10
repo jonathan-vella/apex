@@ -20,7 +20,7 @@
     },
     "02-Requirements": {
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
-      "secondary": ["microsoft-docs"],
+      "secondary": [],
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
@@ -30,12 +30,7 @@
       ]
     },
     "03-Architect": {
-      "primary": [
-        "azure-defaults",
-        "azure-artifacts",
-        "session-resume",
-        "microsoft-docs"
-      ],
+      "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
       "secondary": ["context-shredding", "azure-diagrams"],
       "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
     },
@@ -56,7 +51,7 @@
         "azure-bicep-patterns",
         "session-resume"
       ],
-      "secondary": ["microsoft-docs", "context-shredding"],
+      "secondary": ["context-shredding"],
       "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
     },
     "05t-Terraform Planner": {
@@ -66,7 +61,7 @@
         "terraform-patterns",
         "session-resume"
       ],
-      "secondary": ["microsoft-docs", "context-shredding"],
+      "secondary": ["context-shredding"],
       "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
     },
     "06b-Bicep CodeGen": {
@@ -76,7 +71,7 @@
         "azure-bicep-patterns",
         "session-resume"
       ],
-      "secondary": ["context-shredding", "microsoft-code-reference"],
+      "secondary": ["context-shredding"],
       "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
     },
     "06t-Terraform CodeGen": {
@@ -86,7 +81,7 @@
         "terraform-patterns",
         "session-resume"
       ],
-      "secondary": ["context-shredding", "microsoft-code-reference"],
+      "secondary": ["context-shredding"],
       "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
     },
     "07b-Bicep Deploy": {
@@ -121,7 +116,7 @@
     },
     "09-Diagnose": {
       "primary": ["azure-troubleshooting", "azure-defaults"],
-      "secondary": ["microsoft-docs"],
+      "secondary": [],
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",

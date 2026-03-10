@@ -26,25 +26,22 @@ Review column = adversarial passes by `challenger-review-subagent` (3x = rotatin
 
 ## Skills (Auto-Invoked by Agents)
 
-| Skill                      | Purpose                                                               |
-| -------------------------- | --------------------------------------------------------------------- |
-| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing             |
-| `azure-artifacts`          | Template H2 structures, styling, generation rules                     |
-| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                  |
-| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks                   |
-| `azure-diagrams`           | Python architecture diagram generation                                |
-| `azure-adr`                | Architecture Decision Records                                         |
-| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                            |
-| `git-commit`               | Commit message conventions                                            |
-| `docs-writer`              | Documentation generation                                              |
-| `make-skill-template`      | Scaffold new Agent Skills from templates                              |
-| `microsoft-docs`           | Query official Microsoft/Azure docs (requires Learn MCP)              |
-| `microsoft-code-reference` | Verify SDK methods and find working code samples (requires Learn MCP) |
-| `microsoft-skill-creator`  | Create hybrid skills for Microsoft technologies (requires Learn MCP)  |
-| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)     |
-| `session-resume`           | Session state tracking, resume protocol, context budgets              |
-| `workflow-engine`          | DAG workflow graph, complexity routing, step definitions              |
-| `context-shredding`        | Runtime context compression tiers for large artifacts                 |
+| Skill                   | Purpose                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
+| `azure-defaults`        | Regions, tags, naming, AVM, security, governance, pricing         |
+| `azure-artifacts`       | Template H2 structures, styling, generation rules                 |
+| `azure-bicep-patterns`  | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
+| `azure-troubleshooting` | KQL templates, health checks, remediation playbooks               |
+| `azure-diagrams`        | Python architecture diagram generation                            |
+| `azure-adr`             | Architecture Decision Records                                     |
+| `github-operations`     | GitHub issues, PRs, CLI, Actions, releases                        |
+| `git-commit`            | Commit message conventions                                        |
+| `docs-writer`           | Documentation generation                                          |
+| `make-skill-template`   | Scaffold new Agent Skills from templates                          |
+| `terraform-patterns`    | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
+| `session-resume`        | Session state tracking, resume protocol, context budgets          |
+| `workflow-engine`       | DAG workflow graph, complexity routing, step definitions          |
+| `context-shredding`     | Runtime context compression tiers for large artifacts             |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
 
