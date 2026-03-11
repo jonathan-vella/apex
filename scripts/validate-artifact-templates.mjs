@@ -417,15 +417,21 @@ function validateDiagramArtifactReferences(
 ) {
   const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
 
+  // Accept both "./filename.ext" and "filename.ext" — cosmetic difference only
+  function refPresent(ref) {
+    return text.includes(ref) || text.includes(ref.replace(/^\.\//
+, ""));
+  }
+
   for (const expected of expectedReferences) {
-    if (!text.includes(expected.image)) {
+    if (!refPresent(expected.image)) {
       reportFn(
         `${filePath} is missing required diagram image reference: ${expected.image}`,
         { filePath, line: 1 },
       );
     }
 
-    if (!text.includes(expected.source)) {
+    if (!refPresent(expected.source)) {
       reportFn(
         `${filePath} is missing required diagram source reference: ${expected.source}`,
         { filePath, line: 1 },

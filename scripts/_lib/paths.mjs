@@ -16,6 +16,6 @@ export const REGISTRY_PATH = ".github/agent-registry.json";
 export const AFFINITY_PATH = ".github/skill-affinity.json";
 export const COPILOT_INSTRUCTIONS = ".github/copilot-instructions.md";
 
-export const MAX_BODY_LINES = 350;
+export const MAX_BODY_LINES = 400;
 export const MAX_SKILL_LINES_WITHOUT_REFS = 200;
 export const MAX_LINES_WITH_WILDCARD = 50;
