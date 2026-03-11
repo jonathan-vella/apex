@@ -79,7 +79,7 @@ If the subagent returns PARTIAL or FAILED status:
 
 1. **STOP** — Do NOT proceed to implementation planning
 2. Document the failure in the governance constraints file
-3. Mark all constraints as "⚠️ UNVERIFIED - Query Failed"
+3. Mark all constraints as "UNVERIFIED - Query Failed"
 4. Add warning: "⛔ GATE BLOCKED: Deployment CANNOT proceed due to undiscovered
    policy requirements"
 5. **Do NOT generate assumed/best-practice policies as a fallback**
@@ -103,7 +103,7 @@ Does it apply to this deployment?
         │        Document adaptation in "## Plan Adaptations" section
         └─ NO → Flag as DEPLOYMENT BLOCKER
                  Add to "## Deployment Blockers" section
-                 Status: "⚠️ CANNOT PROCEED WITHOUT EXEMPTION"
+                 Status: "CANNOT PROCEED WITHOUT EXEMPTION"
 ```
 
 ## Policy Effect Handling (Shift-Left Enforcement)
@@ -120,9 +120,8 @@ Does it apply to this deployment?
 
 ## Misleading Policy Names — Verify Definitions
 
-> [!WARNING]
-> **NEVER trust policy display names alone.** Policy named "Block Azure RM Resource Creation"
-> may actually only block Classic resources.
+**NEVER trust policy display names alone.** Policy named "Block Azure RM Resource Creation"
+may actually only block Classic resources.
 
 | Policy Name Pattern          | Likely Actual Behavior                    | Verify By Checking                                     |
 | ---------------------------- | ----------------------------------------- | ------------------------------------------------------ |
@@ -164,7 +163,7 @@ Before completing governance constraints, verify:
 
 ## Anti-Patterns (DO NOT DO)
 
-❌ **Assumption-based constraints**:
+**Assumption-based constraints**:
 
 ```markdown
 ## Required Tags
@@ -172,7 +171,7 @@ Before completing governance constraints, verify:
 Based on Azure best practices, the following tags are recommended...
 ```
 
-✅ **Discovery-based constraints**:
+**Discovery-based constraints**:
 
 ```markdown
 ## Required Tags

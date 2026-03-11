@@ -53,11 +53,10 @@ handoffs:
 
 Streamlined orchestrator for **simple** Azure infrastructure projects.
 
-> [!CAUTION]
-> **COMPLEXITY GATE**: This conductor is ONLY for `simple` projects
-> (≤3 resources, no custom policies, single environment).
-> If the project is `standard` or `complex`, hand off to the main
-> `01-Conductor` immediately.
+**COMPLEXITY GATE**: This conductor is ONLY for `simple` projects
+(≤3 resources, no custom policies, single environment).
+If the project is `standard` or `complex`, hand off to the main
+`01-Conductor` immediately.
 
 ## MANDATORY: Read Skills First
 

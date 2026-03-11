@@ -91,18 +91,18 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 Do NOT reference these removed agents/skills:
 
-- ❌ `diagram.agent.md` → Use `azure-diagrams` skill
-- ❌ `adr.agent.md` → Use `azure-adr` skill
-- ❌ `docs.agent.md` → Use `azure-artifacts` skill or `as-built` agent
-- ❌ `azure-workload-docs` skill → Use `azure-artifacts` skill
-- ❌ `azure-deployment-preflight` skill → Merged into deploy agent
-- ❌ `orchestration-helper` skill → Deleted (absorbed into conductor)
-- ❌ `github-issues` / `github-pull-requests` skills → Use `github-operations`
-- ❌ `gh-cli` skill → Merged into `github-operations`
-- ❌ `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills
-- ❌ `microsoft-docs` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
-- ❌ `microsoft-code-reference` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
-- ❌ `microsoft-skill-creator` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
+- `diagram.agent.md` → Use `azure-diagrams` skill
+- `adr.agent.md` → Use `azure-adr` skill
+- `docs.agent.md` → Use `azure-artifacts` skill or `as-built` agent
+- `azure-workload-docs` skill → Use `azure-artifacts` skill
+- `azure-deployment-preflight` skill → Merged into deploy agent
+- `orchestration-helper` skill → Deleted (absorbed into conductor)
+- `github-issues` / `github-pull-requests` skills → Use `github-operations`
+- `gh-cli` skill → Merged into `github-operations`
+- `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills
+- `microsoft-docs` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
+- `microsoft-code-reference` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
+- `microsoft-skill-creator` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
 
 ## Content Principles
 

@@ -94,8 +94,6 @@ handoffs:
 
 # Bicep Code Agent
 
-**Step 5** of the 7-step workflow: `requirements → architect → design → bicep-plan → [bicep-code] → deploy → as-built`
-
 ## MANDATORY: Read Skills First
 
 **Before doing ANY work**, read these skills:
@@ -159,8 +157,7 @@ For EACH resource in `04-implementation-plan.md`:
 
 ### Phase 1.5: Governance Compliance Mapping (MANDATORY)
 
-> [!CAUTION]
-> **HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
+**HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
 
 1. Read `04-governance-constraints.json` — extract all `Deny` policies
 2. Use `azurePropertyPath` (fall back to `bicepPropertyPath` if absent).

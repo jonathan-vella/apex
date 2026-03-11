@@ -46,7 +46,6 @@ Always return results in this exact format:
 
 ```text
 BICEP CODE REVIEW
-─────────────────
 Status: [APPROVED|NEEDS_REVISION|FAILED]
 Template: {path/to/main.bicep}
 Files Reviewed: {count}

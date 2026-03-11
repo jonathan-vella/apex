@@ -132,20 +132,18 @@ resource "azurerm_storage_account" "this" {
 
 ## Enforcement Rule
 
-> [!CAUTION]
-> **Azure Policy always wins.** Current Azure Policy implementation
-> cannot be changed. Code MUST adapt to policy, never the reverse.
-> A governance compliance failure is a HARD GATE — the Terraform Code
-> Generator MUST NOT proceed past Phase 1.5 with unresolved
-> policy violations.
+**Azure Policy always wins.** Current Azure Policy implementation
+cannot be changed. Code MUST adapt to policy, never the reverse.
+A governance compliance failure is a HARD GATE — the Terraform Code
+Generator MUST NOT proceed past Phase 1.5 with unresolved
+policy violations.
 
 ## HCP Terraform Cloud Guardrail
 
-> [!CAUTION]
-> **NEVER** use HCP Terraform Cloud (`terraform { cloud {} }`) or
-> reference `TFE_TOKEN` in generated code. State backend MUST be
-> Azure Storage Account. See
-> `terraform-code-best-practices.instructions.md` § State Backend.
+**NEVER** use HCP Terraform Cloud (`terraform { cloud {} }`) or
+reference `TFE_TOKEN` in generated code. State backend MUST be
+Azure Storage Account. See
+`terraform-code-best-practices.instructions.md` § State Backend.
 
 ## Anti-Patterns
 

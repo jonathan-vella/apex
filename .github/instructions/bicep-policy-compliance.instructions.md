@@ -68,12 +68,11 @@ For every policy in `04-governance-constraints.json`:
 
 ## Enforcement Rule
 
-> [!CAUTION]
-> **Azure Policy always wins.** Current Azure Policy implementation
-> cannot be changed. Code MUST adapt to policy, never the reverse.
-> A governance compliance failure is a HARD GATE — the Bicep Code
-> Generator MUST NOT proceed past Phase 1.5 with unresolved
-> policy violations.
+**Azure Policy always wins.** Current Azure Policy implementation
+cannot be changed. Code MUST adapt to policy, never the reverse.
+A governance compliance failure is a HARD GATE — the Bicep Code
+Generator MUST NOT proceed past Phase 1.5 with unresolved
+policy violations.
 
 ## Anti-Patterns
 

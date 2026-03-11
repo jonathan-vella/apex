@@ -362,9 +362,8 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
 | Region              | Phase 4     | `swedencentral`              |
 | Timeline            | Phase 5     | 1-3 months                   |
 
-> [!IMPORTANT]
-> `iac_tool` is captured **once** in Phase 2. Downstream agents read it from `01-requirements.md`.
-> Do NOT add IaC selection prompts to any other agent.
+**`iac_tool` is captured once in Phase 2.** Downstream agents read it from `01-requirements.md`.
+Do NOT add IaC selection prompts to any other agent.
 
 If `askQuestions` is unavailable, gather via chat questions instead.
 

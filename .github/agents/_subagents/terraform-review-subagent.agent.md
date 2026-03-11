@@ -38,7 +38,6 @@ Always return results in this exact format:
 
 ```text
 TERRAFORM CODE REVIEW
-─────────────────────
 Status: [APPROVED|NEEDS_REVISION|FAILED]
 Module: {path/to/module}
 Files Reviewed: {count}

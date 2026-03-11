@@ -93,8 +93,6 @@ handoffs:
 
 # Bicep Plan Agent
 
-**Step 4** of the 7-step workflow: `requirements → architect → design → [bicep-plan] → bicep-code → deploy → as-built`
-
 ## MANDATORY: Read Skills First
 
 **Before doing ANY work**, read these skills for configuration and template structure:
@@ -155,8 +153,7 @@ Read it for: resource list, SKU recommendations, WAF scores, architecture decisi
 
 ### Phase 1: Governance Discovery (MANDATORY GATE)
 
-> [!CAUTION]
-> **Hard gate.** If governance discovery fails, STOP. Do NOT proceed with incomplete policy data.
+**Hard gate.** If governance discovery fails, STOP. Do NOT proceed with incomplete policy data.
 
 1. **Delegate** to `governance-discovery-subagent` — verifies Azure connectivity, queries ALL
    effective policy assignments via REST API (including management group-inherited), classifies effects
@@ -186,8 +183,7 @@ If deprecation detected: document alternative, adjust plan.
 
 ### Phase 3.5: Deployment Strategy Gate (MANDATORY)
 
-> [!CAUTION]
-> **Mandatory gate.** Ask the user BEFORE generating the plan. Do NOT assume single or phased.
+**Mandatory gate.** Ask the user BEFORE generating the plan. Do NOT assume single or phased.
 
 Use `askQuestions` to present:
 
@@ -260,10 +256,9 @@ then gather the user's proceed/revise decision:
 | Dependency Diagram     | `agent-output/{project}/04-dependency-diagram.py` + `.png` | Python diagrams              |
 | Runtime Diagram        | `agent-output/{project}/04-runtime-diagram.py` + `.png`    | Python diagrams              |
 
-> [!IMPORTANT]
-> `04-governance-constraints.json` is consumed downstream by Code Generator (Phase 1.5) and
-> `bicep-review-subagent`. Each `Deny` policy MUST include `azurePropertyPath` (preferred) AND
-> `bicepPropertyPath` (fallback) plus `requiredValue` to be machine-actionable.
+**`04-governance-constraints.json` is consumed downstream** by Code Generator (Phase 1.5) and
+`bicep-review-subagent`. Each `Deny` policy MUST include `azurePropertyPath` (preferred) AND
+`bicepPropertyPath` (fallback) plus `requiredValue` to be machine-actionable.
 
 Include attribution header from the template file (do not hardcode).
 

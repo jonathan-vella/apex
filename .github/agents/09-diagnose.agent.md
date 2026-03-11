@@ -94,13 +94,12 @@ handoffs:
 This agent is **supplementary** to the 7-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
 
-> [!CAUTION]
-> **HARD RULE — ASK BEFORE YOU READ**
->
-> Your **first action** MUST be asking the user to identify the target resource.
-> Do NOT call `read_file` on skills or templates before Phase 1 resource confirmation.
-> Skill files contain diagnostic templates that prime you to run diagnostics immediately.
-> Confirm the target FIRST so you know what to diagnose.
+**HARD RULE — ASK BEFORE YOU READ**
+
+Your **first action** MUST be asking the user to identify the target resource.
+Do NOT call `read_file` on skills or templates before Phase 1 resource confirmation.
+Skill files contain diagnostic templates that prime you to run diagnostics immediately.
+Confirm the target FIRST so you know what to diagnose.
 
 ## Core Principles
 
@@ -115,21 +114,21 @@ for troubleshooting existing deployments.
 
 ### DO
 
-- ✅ Ask user to identify the target resource FIRST — before reading skills
-- ✅ Always ask for user approval before running ANY Azure CLI command
-- ✅ Explain what each command does and its potential impact
-- ✅ Use Azure Resource Graph as primary discovery tool
-- ✅ Present findings in structured tables with severity ratings
-- ✅ Save diagnostic report to `agent-output/{project}/08-resource-health-report.md`
-- ✅ Offer remediation options with rollback guidance
+- Ask user to identify the target resource FIRST — before reading skills
+- Always ask for user approval before running ANY Azure CLI command
+- Explain what each command does and its potential impact
+- Use Azure Resource Graph as primary discovery tool
+- Present findings in structured tables with severity ratings
+- Save diagnostic report to `agent-output/{project}/08-resource-health-report.md`
+- Offer remediation options with rollback guidance
 
 ### DON'T
 
-- ❌ Read skills or templates before confirming the target resource with the user
-- ❌ Execute commands without explicit user confirmation
-- ❌ Modify infrastructure code (Bicep files) — hand back to Bicep Code agent
-- ❌ Make changes to Azure resources without showing the command first
-- ❌ Skip the discovery phase — always confirm the target resource
+- Read skills or templates before confirming the target resource with the user
+- Execute commands without explicit user confirmation
+- Modify infrastructure code (Bicep files) — hand back to Bicep Code agent
+- Make changes to Azure resources without showing the command first
+- Skip the discovery phase — always confirm the target resource
 
 ## MANDATORY: Read Skills (After Resource Confirmation, Before Diagnostics)
 

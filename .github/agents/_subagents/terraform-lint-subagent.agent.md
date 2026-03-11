@@ -34,7 +34,6 @@ Always return results in this exact format:
 
 ```text
 TERRAFORM LINT RESULT
-─────────────────────
 Status: [PASS|FAIL]
 Module: {path/to/module}
 

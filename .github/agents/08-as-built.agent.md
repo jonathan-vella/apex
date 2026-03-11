@@ -77,8 +77,6 @@ handoffs:
 
 # As-Built Agent
 
-**Step 7** of the 7-step workflow: `requirements → architect → design → bicep-plan → bicep-code → deploy → [as-built]`
-
 ## MANDATORY: Read Skills First
 
 **Before doing ANY work**, read these skills:
@@ -100,27 +98,27 @@ handoffs:
 
 ### DO
 
-- ✅ Read ALL prior artifacts (01-06) before generating any documentation
-- ✅ Query deployed Azure resources for real state (not just planned state)
-- ✅ Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
-- ✅ Generate the as-built architecture diagram using azure-diagrams skill
-- ✅ Match H2 headings from azure-artifacts templates exactly
-- ✅ Include attribution headers from template files
-- ✅ Update `agent-output/{project}/README.md` — mark Step 7 complete
-- ✅ Cross-reference deployment summary for actual resource names and IDs
+- Read ALL prior artifacts (01-06) before generating any documentation
+- Query deployed Azure resources for real state (not just planned state)
+- Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
+- Generate the as-built architecture diagram using azure-diagrams skill
+- Match H2 headings from azure-artifacts templates exactly
+- Include attribution headers from template files
+- Update `agent-output/{project}/README.md` — mark Step 7 complete
+- Cross-reference deployment summary for actual resource names and IDs
 
 ### DON'T
 
-- ❌ Modify any Bicep templates, Terraform configurations, or deployment scripts
-- ❌ Deploy or modify Azure resources
-- ❌ Skip reading prior artifacts — they are your primary input
-- ❌ Use planned values when actual deployed values are available
-- ❌ Generate documentation for resources that failed deployment
-- ❌ Use H2 headings that differ from the templates
-- ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
+- Modify any Bicep templates, Terraform configurations, or deployment scripts
+- Deploy or modify Azure resources
+- Skip reading prior artifacts — they are your primary input
+- Use planned values when actual deployed values are available
+- Generate documentation for resources that failed deployment
+- Use H2 headings that differ from the templates
+- **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
   `07-ab-cost-estimate.md` MUST originate from `cost-estimate-subagent`
   responses
-- ❌ **Call Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
+- **Call Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
 
 ## Prerequisites Check
 
@@ -181,10 +179,9 @@ Generate these files IN ORDER (each builds on the previous):
 
 ## Cost Estimation (07-ab-cost-estimate.md)
 
-> [!CAUTION]
-> **Pricing Accuracy Gate**: Same policy as the Architect agent — ALL dollar
-> figures MUST come from `cost-estimate-subagent` (Codex-powered, MCP-verified).
-> Never write a price from parametric knowledge.
+**Pricing Accuracy Gate**: Same policy as the Architect agent — ALL dollar
+figures MUST come from `cost-estimate-subagent` (Codex-powered, MCP-verified).
+Never write a price from parametric knowledge.
 
 Delegate pricing to `cost-estimate-subagent`:
 

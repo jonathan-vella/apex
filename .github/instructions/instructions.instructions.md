@@ -5,19 +5,44 @@ applyTo: "**/*.instructions.md"
 
 # Custom Instructions File Guidelines
 
-## Required Frontmatter
+For the complete official reference, see
+[VS Code Custom Instructions docs](https://code.visualstudio.com/docs/copilot/customization/custom-instructions).
+
+## Frontmatter
+
+All frontmatter fields are optional. Without `applyTo`, the instructions file
+is not auto-applied but can still be manually attached to a chat request.
 
 ```yaml
 ---
-description: "Brief description of the instruction purpose and scope"
-applyTo: "glob pattern for target files (e.g., **/*.ts, **/*.py)"
+name: "Python Standards"
+description: "Coding conventions for Python files"
+applyTo: "**/*.py"
 ---
 ```
 
-| Field         | Constraints                                                             |
-| ------------- | ----------------------------------------------------------------------- |
-| `description` | Single-quoted string, 1-500 chars, clearly state purpose                |
-| `applyTo`     | Glob pattern(s): `**/*.ts` or `**/*.ts, **/*.tsx` or `**` for all files |
+| Field         | Default   | Constraints                                                             |
+| ------------- | --------- | ----------------------------------------------------------------------- |
+| `name`        | file name | Display name shown in the UI                                            |
+| `description` | —         | 1-500 chars, clearly state purpose and scope                            |
+| `applyTo`     | —         | Glob pattern(s): `**/*.ts` or `**/*.ts, **/*.tsx` or `**` for all files |
+
+## File Locations
+
+| Scope                     | Path                                                       |
+| ------------------------- | ---------------------------------------------------------- |
+| Workspace                 | `.github/instructions/` (searched recursively)             |
+| Workspace (Claude format) | `.claude/rules/` (uses `paths` array instead of `applyTo`) |
+| User profile              | `~/.copilot/instructions/`, `~/.claude/rules/`             |
+| Custom                    | Configured via `chat.instructionsFilesLocations` setting   |
+
+## Priority Order
+
+When multiple instruction sources exist, higher priority wins on conflict:
+
+1. Personal instructions (user-level, highest)
+2. Repository instructions (`.github/copilot-instructions.md` or `AGENTS.md`)
+3. Organization instructions (lowest)
 
 ## File Structure
 
@@ -25,6 +50,8 @@ applyTo: "glob pattern for target files (e.g., **/*.ts, **/*.py)"
 2. **Core sections** organized by domain — prefer tables and bullet lists over prose
 3. **Examples** with `### Good Example` / `### Bad Example` labels and fenced code blocks
 4. **Validation** (optional) — build/lint/test commands
+
+Use `#tool:<tool-name>` to reference agent tools in body text.
 
 ## Writing Rules
 
@@ -60,4 +87,5 @@ applyTo: "glob pattern for target files (e.g., **/*.ts, **/*.py)"
 
 ## Resources
 
-- [Custom Instructions Documentation](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
+- [Custom Instructions docs](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
+- [Community examples](https://github.com/github/awesome-copilot)

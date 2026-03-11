@@ -104,8 +104,6 @@ handoffs:
 
 # Deploy Agent
 
-**Step 6** of the 7-step workflow: `requirements → architect → design → bicep-plan → bicep-code → [deploy] → as-built`
-
 ## MANDATORY: Read Skills First
 
 **Before doing ANY work**, read these skills:
@@ -127,7 +125,7 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 
 ## DO / DON'T
 
-| ✅ DO                                                             | ❌ DON'T                                                  |
+| DO                                                                | DON'T                                                     |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
 | Run preflight validation BEFORE deployment                        | Deploy without running what-if first                      |
 | Check `04-implementation-plan.md` for deployment strategy         | Skip phase gates when plan specifies phased deployment    |

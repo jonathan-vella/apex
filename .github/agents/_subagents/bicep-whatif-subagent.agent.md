@@ -49,7 +49,6 @@ Always return results in this exact format:
 
 ```text
 WHAT-IF ANALYSIS RESULT
-───────────────────────
 Status: [PASS|FAIL|WARNING]
 Template: {path/to/main.bicep}
 Resource Group: {rg-name}

@@ -119,6 +119,14 @@ function validateSkill(skillDir) {
     warnings++;
   }
 
+  // Validate name matches directory name
+  if (frontmatter.name && frontmatter.name !== skillName) {
+    console.error(
+      `❌ ${skillName}: Frontmatter 'name' ("${frontmatter.name}") does not match directory name ("${skillName}"). VS Code will not load the skill.`,
+    );
+    errors++;
+  }
+
   // Validate description is meaningful (not just placeholder)
   if (frontmatter.description) {
     if (frontmatter.description.length < 10) {

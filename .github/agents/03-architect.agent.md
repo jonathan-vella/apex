@@ -114,17 +114,14 @@ handoffs:
 
 # Architect Agent
 
-**Step 2** of the 7-step workflow: `requirements → [architect] → design → {iac}-plan → {iac}-code → deploy → as-built`
-
 ## Prerequisites Check (BEFORE Reading Skills)
 
-> [!CAUTION]
-> **HARD RULE — CHECK PREREQUISITES FIRST**
->
-> Your **first action** MUST be to verify `01-requirements.md` exists and contains
-> the information below. Do NOT read skills or templates before this step.
-> Skill files contain template skeletons that prime you to fill them in immediately.
-> Check prerequisites FIRST so you know what context you have.
+**HARD RULE — CHECK PREREQUISITES FIRST**
+
+Your **first action** MUST be to verify `01-requirements.md` exists and contains
+the information below. Do NOT read skills or templates before this step.
+Skill files contain template skeletons that prime you to fill them in immediately.
+Check prerequisites FIRST so you know what context you have.
 
 Validate `01-requirements.md` exists in `agent-output/{project}/`.
 If missing, STOP and request handoff to Requirements agent.
@@ -241,12 +238,11 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
 ## Cost Estimation (MANDATORY)
 
-> [!CAUTION]
-> **Pricing Accuracy Gate**: Model evaluation found that the Architect agent
-> hallucinated SKU prices (e.g., AKS Standard at $0.60/hr instead of $0.10/hr)
-> when writing prices from parametric knowledge. ALL dollar figures MUST come from
-> the `cost-estimate-subagent` (Codex-powered, MCP-verified). Never write a price
-> that did not originate from a subagent response.
+**Pricing Accuracy Gate**: Model evaluation found that the Architect agent
+hallucinated SKU prices (e.g., AKS Standard at $0.60/hr instead of $0.10/hr)
+when writing prices from parametric knowledge. ALL dollar figures MUST come from
+the `cost-estimate-subagent` (Codex-powered, MCP-verified). Never write a price
+that did not originate from a subagent response.
 
 Delegate ALL pricing work to `cost-estimate-subagent` to keep your context focused on WAF analysis:
 
@@ -279,16 +275,15 @@ The subagent uses these Azure Pricing MCP tools on your behalf:
 | `azure_cost_estimate`    | Fallback for single resource if bulk fails          | Avoid     |
 | `azure_discover_skus`    | Only if SKU name is unknown                         | Avoid     |
 
-> [!TIP]
-> The subagent targets ≤ 5 MCP calls total. When providing the resource list,
-> include service_name, SKU, region, and quantity so it can use `azure_bulk_estimate` in one call.
+**Tip**: The subagent targets ≤ 5 MCP calls total. When providing the resource list,
+include service_name, SKU, region, and quantity so it can use `azure_bulk_estimate` in one call.
 
 Refer to azure-defaults skill for exact `service_name` values.
 
-> [!CAUTION]
-> **No fallback to parametric knowledge or Azure Pricing Calculator.**
-> If `cost-estimate-subagent` fails or is unavailable, STOP and notify the user.
-> Do NOT write dollar figures from memory. Do NOT proceed to artifact generation without subagent-verified prices.
+**No fallback to parametric knowledge or Azure Pricing Calculator.**
+If `cost-estimate-subagent` fails or is unavailable, STOP and notify the user.
+Do NOT write dollar figures from memory. Do NOT proceed to artifact generation
+without subagent-verified prices.
 
 ## Adversarial Review — 3-Pass Architecture + 1-Pass Cost Estimate
 

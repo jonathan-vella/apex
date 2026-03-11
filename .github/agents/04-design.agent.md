@@ -106,8 +106,6 @@ handoffs:
 
 # Design Agent
 
-**Step 3** of the 7-step workflow: `requirements → architect → [design] → bicep-plan → bicep-code → deploy → as-built`
-
 This step is **optional**. Users can skip directly to Step 4 (Implementation Planning).
 
 ## MANDATORY: Read Skills First

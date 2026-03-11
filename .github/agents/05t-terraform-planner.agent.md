@@ -93,11 +93,8 @@ handoffs:
 
 # Terraform Plan Agent
 
-**Step 4** of the 7-step workflow: `requirements → architect → design → [terraform-plan] → terraform-code → deploy → as-built`
-
-> [!CAUTION]
-> **HCP GUARDRAIL**: Never plan for `terraform { cloud { } }` or assume `TFE_TOKEN`.
-> Always specify Azure Storage Account backend only.
+**HCP GUARDRAIL**: Never plan for `terraform { cloud { } }` or assume `TFE_TOKEN`.
+Always specify Azure Storage Account backend only.
 
 ## MANDATORY: Read Skills First
 
@@ -146,8 +143,7 @@ If missing, STOP → handoff to Architect agent. Read for: resource list, SKUs, 
 
 ### Phase 1: Governance Discovery (MANDATORY GATE)
 
-> [!CAUTION]
-> **Hard gate**. If governance discovery fails, STOP. Do NOT proceed with incomplete policy data.
+**Hard gate**. If governance discovery fails, STOP. Do NOT proceed with incomplete policy data.
 
 1. Delegate to `governance-discovery-subagent` (queries REST API + ARG, classifies effects)
 2. Review result — Status must be COMPLETE (if PARTIAL/FAILED, STOP)
@@ -175,8 +171,7 @@ retirement notices, verify SKU availability in target region, scan for Classic/v
 
 ### Phase 3.5: Deployment Strategy Gate (MANDATORY)
 
-> [!CAUTION]
-> You MUST ask the user before generating the plan. Do NOT assume single or phased.
+**You MUST ask the user before generating the plan.** Do NOT assume single or phased.
 
 Use `askQuestions`:
 
@@ -257,10 +252,9 @@ then gather the user's proceed/revise decision:
 | Dependency Diagram     | `agent-output/{project}/04-dependency-diagram.py/.png`  |
 | Runtime Diagram        | `agent-output/{project}/04-runtime-diagram.py/.png`     |
 
-> [!IMPORTANT]
-> `04-governance-constraints.json` is consumed by Terraform CodeGen (Phase 1.5) and
-> `terraform-review-subagent`. Each `Deny` policy MUST include `azurePropertyPath` +
-> `requiredValue` to be machine-actionable.
+**`04-governance-constraints.json` is consumed** by Terraform CodeGen (Phase 1.5) and
+`terraform-review-subagent`. Each `Deny` policy MUST include `azurePropertyPath` +
+`requiredValue` to be machine-actionable.
 
 ## Validation Checklist
 

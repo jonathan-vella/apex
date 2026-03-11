@@ -34,6 +34,9 @@ handoffs:
 ---
 ```
 
+For the complete frontmatter field reference (all supported keys, types, defaults),
+see `.github/instructions/references/agent-file-structure.md`.
+
 ### `name`
 
 - Clear, human-friendly display name.
@@ -58,6 +61,19 @@ handoffs:
 tools: [read/readFile, edit/createFile, agent, "azure-mcp/*"]
 ```
 
+### `argument-hint`
+
+- Optional hint text shown in the chat input field to guide users.
+- Keep it short and action-oriented (for example: `Describe the Azure workload you want to deploy`).
+
+### `agents`
+
+- List agent names available as subagents (must match `name` from target agent's frontmatter).
+- Use `*` to allow all agents, or `[]` to prevent any subagent use.
+- If `agents` is set, the `agent` tool MUST be included in `tools`.
+- **Override rule**: Explicitly listing an agent in `agents` overrides that agent's
+  `disable-model-invocation: true`. This lets coordinator agents access protected subagents.
+
 ### `handoffs`
 
 - Use `handoffs` to connect workflow steps (for example: Architect -> Bicep Plan -> Bicep Code).
@@ -67,10 +83,19 @@ tools: [read/readFile, edit/createFile, agent, "azure-mcp/*"]
 - Do not set `model` on individual handoff entries unless the target agent requires a specific
   model that differs from the agent's own frontmatter `model` value.
 
+### `user-invocable`
+
+- Boolean (default `true`). Controls whether the agent appears in the agents dropdown.
+- Set to `false` for subagents that should only be called by other agents.
+
+### `disable-model-invocation`
+
+- Boolean (default `false`). Prevents the agent from being invoked as a subagent by other agents.
+- Use when an agent should only be directly user-invoked, never delegated to.
+
 ### `model`
 
-> [!IMPORTANT]
-> **Model selection is intentional and must not be changed without explicit approval.**
+**Model selection is intentional and must not be changed without explicit approval.**
 
 Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
@@ -152,6 +177,11 @@ Subagent definition rules:
 - Return structured results (PASS/FAIL, APPROVED/NEEDS_REVISION, etc.) so the parent
   agent can act on the verdict without parsing free-form text.
 
+### Deprecated: `infer`
+
+The `infer` field is deprecated. Use `user-invocable` and `disable-model-invocation` instead.
+If any agent still uses `infer`, migrate it to the new fields.
+
 ## Shared Defaults (Required)
 
 All top-level workflow agents in `.github/agents/` MUST read the `azure-defaults` skill for shared
@@ -171,8 +201,9 @@ When an agent delegates work to a subagent, follow this pattern:
 3. **Receive structured result** — the subagent returns a verdict/report
 4. **Integrate** — use the subagent's output in the parent agent's artifact
 
-This keeps the parent agent's context focused on its primary responsibility while the subagent
-handles isolated, tool-heavy work (pricing queries, REST API calls, lint runs).
+**Context isolation**: Subagents don't inherit parent instructions or conversation
+history. They receive only the task prompt. Pass all required context explicitly.
+VS Code can run multiple subagents in parallel when tasks are independent.
 
 ## Authoritative Standards (Avoid Drift)
 
@@ -191,6 +222,20 @@ If an agent contains an embedded template in its body, it MUST match the relevan
 - If you include fenced code blocks inside a fenced template, use quadruple fences (` ```` `)
   for the outer fence to avoid accidental termination.
 - Keep example templates realistic, but do not hardcode secrets, subscription IDs, or tenant IDs.
+
+## Body Content Guidelines
+
+- The agent body is **prepended to every user chat prompt** — keep it concise to preserve
+  context window budget.
+- Use `#tool:<tool-name>` to reference tools in body text (the official VS Code syntax).
+- Prefer plain Markdown over decorative formatting:
+  - **Bold** (`**text**`) is effective for emphasis — the model responds to it.
+  - `> [!CAUTION]` / `> [!IMPORTANT]` callouts render on GitHub but have no special
+    behavior in the agent runtime. Use bold headings instead to save tokens.
+  - Emoji prefixes (`✅`, `❌`) on list items are redundant when the list is already
+    under a `### DO` / `### DON'T` heading. Omit them.
+  - Step breadcrumb lines (e.g., `requirements → architect → [design] → ...`) duplicate
+    the `description` field. Omit them.
 
 ## Links
 

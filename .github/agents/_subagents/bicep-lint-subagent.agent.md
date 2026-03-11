@@ -42,7 +42,6 @@ Always return results in this exact format:
 
 ```text
 BICEP LINT RESULT
-─────────────────
 Status: [PASS|FAIL]
 Template: {path/to/main.bicep}
 

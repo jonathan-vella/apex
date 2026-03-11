@@ -58,10 +58,10 @@ Read these before doing ANY work:
 
 ## What This Agent Does NOT Do
 
-- ❌ Modify agent definitions, skills, or instructions directly
-- ❌ Execute Azure CLI or infrastructure commands
-- ❌ Access external APIs or pricing tools
-- ❌ Make changes without presenting recommendations first
+- Modify agent definitions, skills, or instructions directly
+- Execute Azure CLI or infrastructure commands
+- Access external APIs or pricing tools
+- Make changes without presenting recommendations first
 
 ## Data Sources
 

@@ -35,10 +35,9 @@ You are a **COST ESTIMATION SUBAGENT** called by parent agents (Architect or As-
 
 ## Azure Pricing MCP Tools
 
-> [!IMPORTANT]
-> **Call Budget**: Target ≤ 5 MCP calls total. Use `azure_bulk_estimate` as the
-> PRIMARY tool — it replaces all individual `azure_cost_estimate` calls.
-> Never call `azure_cost_estimate` in a loop per resource.
+**Call Budget**: Target ≤ 5 MCP calls total. Use `azure_bulk_estimate` as the
+PRIMARY tool — it replaces all individual `azure_cost_estimate` calls.
+Never call `azure_cost_estimate` in a loop per resource.
 
 | Tool                     | When to Use                                                             | Max Calls |
 | ------------------------ | ----------------------------------------------------------------------- | --------- |
@@ -86,7 +85,6 @@ Always return results in this exact format:
 
 ```text
 COST ESTIMATE RESULT
-────────────────────
 Status: [COMPLETE|PARTIAL|FAILED]
 Region: {primary-region}
 Currency: USD
@@ -158,15 +156,14 @@ Override defaults with values from `01-requirements.md` if available.
 
 ## Pricing Provenance
 
-> [!IMPORTANT]
-> The Architect agent is REQUIRED to use your prices verbatim. Every dollar
-> figure you return will be copied directly into `02-architecture-assessment.md`
-> and `03-des-cost-estimate.md`. Accuracy is critical — the parent agent is
-> explicitly prohibited from writing prices from its own knowledge.
->
-> Include per-resource hourly AND monthly rates so the parent can populate both
-> the Cost Assessment table (monthly) and the Detailed Cost Breakdown (hourly
-> rate × hours).
+**The Architect agent is REQUIRED to use your prices verbatim.** Every dollar
+figure you return will be copied directly into `02-architecture-assessment.md`
+and `03-des-cost-estimate.md`. Accuracy is critical — the parent agent is
+explicitly prohibited from writing prices from its own knowledge.
+
+Include per-resource hourly AND monthly rates so the parent can populate both
+the Cost Assessment table (monthly) and the Detailed Cost Breakdown (hourly
+rate × hours).
 
 ### Output Provenance Fields
 

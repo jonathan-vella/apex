@@ -79,21 +79,21 @@ This pattern enables thorough investigation without interrupting the workflow.
 
 **DO:**
 
-- ✅ Research BEFORE creating files
-- ✅ Read templates BEFORE generating output
-- ✅ Query Azure docs BEFORE recommending services
-- ✅ Check existing patterns BEFORE creating new ones
-- ✅ Validate inputs BEFORE proceeding to next step
-- ✅ Ask for clarification when confidence is low
+- Research BEFORE creating files
+- Read templates BEFORE generating output
+- Query Azure docs BEFORE recommending services
+- Check existing patterns BEFORE creating new ones
+- Validate inputs BEFORE proceeding to next step
+- Ask for clarification when confidence is low
 
 **DO NOT:**
 
-- ❌ Skip research to "save time"
-- ❌ Assume requirements without verification
-- ❌ Create output without reading the template first
-- ❌ Recommend Azure services without checking documentation
-- ❌ Proceed with missing inputs from previous workflow steps
-- ❌ Make up information when uncertain
+- Skip research to "save time"
+- Assume requirements without verification
+- Create output without reading the template first
+- Recommend Azure services without checking documentation
+- Proceed with missing inputs from previous workflow steps
+- Make up information when uncertain
 
 ## Per-Agent Research Focus
 

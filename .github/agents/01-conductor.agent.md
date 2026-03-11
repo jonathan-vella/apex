@@ -141,28 +141,27 @@ handoffs:
 
 Master orchestrator for the 7-step Azure infrastructure development workflow.
 
-> [!CAUTION]
-> **HARD RULE — ONE-SHOT PROJECT SETUP**
->
-> Everything below happens in a **single turn** — no back-and-forth.
->
-> 1. Extract a kebab-case project name from the user's message
->    (e.g., "nordic foods" → `nordic-fresh-foods`).
-> 2. Call `askQuestions` with ONE question to confirm or change it:
->    _"I'll use `{kebab-case-name}` as the project folder. Type OK to confirm, or enter a different name."_
->    (If the user's message gives NO clue, ask for it outright.)
-> 3. **Immediately after `askQuestions` returns** (same turn), proceed:
->    a. Check `agent-output/{project}/` for existing artifacts → resume if found
->    b. Otherwise: create folder + `00-session-state.json`
->    c. Read mandatory skills
->    d. Present the **Step 1: Gather Requirements** handoff
->
-> Do NOT end your turn after `askQuestions`. The user answers inline and you
-> continue executing steps 3a-3d in the same response.
->
-> **NEVER ask about IaC tool (Bicep/Terraform).** That is captured exclusively
-> by the Requirements agent in Phase 2. Read `iac_tool` from `01-requirements.md`
-> after Step 1 completes.
+**HARD RULE — ONE-SHOT PROJECT SETUP**
+
+Everything below happens in a **single turn** — no back-and-forth.
+
+1. Extract a kebab-case project name from the user's message
+   (e.g., "nordic foods" → `nordic-fresh-foods`).
+2. Call `askQuestions` with ONE question to confirm or change it:
+   _"I'll use `{kebab-case-name}` as the project folder. Type OK to confirm, or enter a different name."_
+   (If the user's message gives NO clue, ask for it outright.)
+3. **Immediately after `askQuestions` returns** (same turn), proceed:
+   a. Check `agent-output/{project}/` for existing artifacts → resume if found
+   b. Otherwise: create folder + `00-session-state.json`
+   c. Read mandatory skills
+   d. Present the **Step 1: Gather Requirements** handoff
+
+Do NOT end your turn after `askQuestions`. The user answers inline and you
+continue executing steps 3a-3d in the same response.
+
+**NEVER ask about IaC tool (Bicep/Terraform).** That is captured exclusively
+by the Requirements agent in Phase 2. Read `iac_tool` from `01-requirements.md`
+after Step 1 completes.
 
 ## MANDATORY: Read Skills (After Project Name, Before Delegating)
 
@@ -201,7 +200,7 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 
 ## DO / DON'T
 
-| ✅ DO                                                                | ❌ DON'T                                                          |
+| DO                                                                   | DON'T                                                             |
 | -------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | Complete project setup in ONE turn (askQuestions → create → handoff) | Split project setup across multiple turns                         |
 | Use `askQuestions` to confirm project name (not inline messages)     | End turn after `askQuestions` — continue immediately in same turn |
@@ -254,10 +253,9 @@ adversarial review pass count per the review matrix in `adversarial-review-proto
 **Runtime validation**: If `complexity_matrix` key in `workflow-graph.json` does not contain an
 entry for the current complexity value, STOP with error and ask user to classify the project.
 
-> [!IMPORTANT]
-> **Write `00-handoff.md` at every gate before presenting it to the user.**
-> See [Phase Handoff Document](#phase-handoff-document) for the format.
-> This enables the user to start a fresh chat thread at any gate without losing context.
+**Write `00-handoff.md` at every gate before presenting it to the user.**
+See [Phase Handoff Document](#phase-handoff-document) for the format.
+This enables the user to start a fresh chat thread at any gate without losing context.
 
 ### Gate 1: After Requirements
 
@@ -270,9 +268,8 @@ Artifact: agent-output/{project}/01-requirements.md
 ❓ Review requirements (and any Challenger findings) and confirm to proceed
 ```
 
-> [!IMPORTANT]
-> Gate 1 **must** include Challenger findings. If the Requirements agent did not run
-> `challenger-review-subagent`, invoke it now before presenting this gate.
+**Gate 1 must include Challenger findings.** If the Requirements agent did not run
+`challenger-review-subagent`, invoke it now before presenting this gate.
 
 ### Gate 2: After Architecture
 
@@ -358,12 +355,11 @@ For these steps, present the handoff button and let the user click it.
 Do NOT call `#runSubagent` with the step agent name. Do NOT pre-fill
 answers or add "do not ask questions" to the prompt.
 
-> [!IMPORTANT]
-> **Handoff Presentation Rule**: When directing the user to click a handoff
-> button, refer to it by its **exact label** as shown in the UI (e.g.,
-> _"Click **Step 1: Gather Requirements** below to start."_). Do NOT add
-> agent names, arrows, or internal references like "→ @02-Requirements" —
-> these are invisible to the user and create confusion.
+**Handoff Presentation Rule**: When directing the user to click a handoff
+button, refer to it by its **exact label** as shown in the UI (e.g.,
+_"Click **Step 1: Gather Requirements** below to start."_). Do NOT add
+agent names, arrows, or internal references like "→ @02-Requirements" —
+these are invisible to the user and create confusion.
 
 ### Autonomous Steps (use `#runSubagent`)
 
@@ -380,12 +376,11 @@ Step→Agent mapping follows the handoff labels above;
 Terraform path (Steps 4†/5†/6†) used when
 `iac_tool: Terraform` in `01-requirements.md`.
 
-> [!CAUTION]
-> **NEVER call `#runSubagent` for an agent that needs `askQuestions`.**
-> The `askQuestions` tool presents interactive UI panels that require
-> direct user participation. Subagents run autonomously and cannot
-> present these panels — the questions will be silently skipped,
-> producing low-quality artifacts with fabricated defaults.
+**NEVER call `#runSubagent` for an agent that needs `askQuestions`.**
+The `askQuestions` tool presents interactive UI panels that require
+direct user participation. Subagents run autonomously and cannot
+present these panels — the questions will be silently skipped,
+producing low-quality artifacts with fabricated defaults.
 
 ### Subagent Integration
 
@@ -393,10 +388,9 @@ For the full subagent matrix, read `.github/skills/workflow-engine/references/su
 Key points: Challenger runs 3-pass reviews at Steps 2, 4, 5; cost-estimate-subagent handles pricing
 at Steps 2 and 7; governance-discovery-subagent gates Step 4.
 
-> [!NOTE]
-> **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
-> `cost-estimate-subagent` (Codex + Azure Pricing MCP). Never write dollar
-> figures from parametric knowledge.
+**Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
+`cost-estimate-subagent` (Codex + Azure Pricing MCP). Never write dollar
+figures from parametric knowledge.
 
 ## Starting a New Project
 
@@ -432,10 +426,9 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 5. If resuming mid-step (JSON state shows `in_progress` with a `sub_step` value),
    delegate to the appropriate agent with context: _"Resume Step {N} from checkpoint {sub_step}."_
 
-> [!TIP]
-> **Starting a new chat thread mid-workflow?**
-> The agent auto-detects progress from `00-session-state.json`. Just invoke the
-> Conductor with the project name — no special resume prompt needed.
+**Starting a new chat thread mid-workflow?**
+The agent auto-detects progress from `00-session-state.json`. Just invoke the
+Conductor with the project name — no special resume prompt needed.
 
 ## Artifact Tracking
 

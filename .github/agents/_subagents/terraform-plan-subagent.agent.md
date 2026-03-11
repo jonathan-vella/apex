@@ -39,7 +39,6 @@ Always return results in this exact format:
 
 ```text
 TERRAFORM PLAN RESULT
-─────────────────────
 Status: [PASS|WARNING|FAIL]
 Module: {path/to/module}
 Workspace: {workspace-name}
@@ -112,9 +111,8 @@ terraform show -json tfplan | jq '.resource_changes[] | {address, action: .chang
 
 ## Destructive Operations Policy
 
-> [!CAUTION]
-> Any **Destroy** (`-`) or **Replace** (`-/+`) operation MUST be surfaced explicitly.
-> The parent agent MUST obtain explicit human approval before proceeding to `terraform apply`.
+**Any Destroy (`-`) or Replace (`-/+`) operation MUST be surfaced explicitly.**
+The parent agent MUST obtain explicit human approval before proceeding to `terraform apply`.
 
 When destroy or replace operations are found:
 

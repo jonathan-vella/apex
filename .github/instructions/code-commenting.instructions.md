@@ -29,7 +29,7 @@ We do not need comments most of the time.
 
 ## Commenting Guidelines
 
-### ❌ AVOID These Comment Types
+### AVOID These Comment Types
 
 **Obvious Comments**
 
@@ -56,7 +56,7 @@ function getUserName() {
 const tax = price * 0.08; // Actually 8%
 ```
 
-### ✅ WRITE These Comment Types
+### WRITE These Comment Types
 
 **Complex Business Logic**
 

@@ -99,8 +99,6 @@ handoffs:
 
 # Terraform Deploy Agent
 
-**Step 6** of the 7-step workflow: `requirements → architect → design → terraform-plan → terraform-code → [deploy] → as-built`
-
 ## MANDATORY: Read Skills First
 
 **Before doing ANY work**, read these skills:
@@ -124,7 +122,7 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 
 ## DO / DON'T
 
-| ✅ DO                                                                    | ❌ DON'T                                                                 |
+| DO                                                                       | DON'T                                                                    |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
 | Validate Azure CLI token FIRST (`az account get-access-token`)           | Deploy without running `terraform plan` first                            |
 | Verify state backend storage account BEFORE `terraform init`             | Skip phase gates when plan specifies phased deployment                   |

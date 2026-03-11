@@ -28,9 +28,8 @@ Deep-dive content lives in `references/` — load on demand.
 
 ### Required Tags (Azure Policy Enforced)
 
-> [!IMPORTANT]
-> These 4 tags are the MINIMUM baseline. Always defer to
-> `04-governance-constraints.md` for the actual required tag list.
+**These 4 tags are the MINIMUM baseline.** Always defer to
+`04-governance-constraints.md` for the actual required tag list.
 
 | Tag           | Required | Example Values           |
 | ------------- | -------- | ------------------------ |

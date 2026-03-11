@@ -16,8 +16,7 @@ applyTo: "**/*.tf"
 | Provider      | Pin `azurerm` to `~> 4.0`                                                |
 | State backend | Azure Storage Account — **NEVER** HCP Terraform Cloud                    |
 
-> [!IMPORTANT]
-> Policy constraints (`04-governance-constraints.md`) always override these defaults.
+**Policy constraints** (`04-governance-constraints.md`) always override these defaults.
 
 ## File Structure (MANDATORY)
 
@@ -51,8 +50,7 @@ Lowercase with hyphens. CAF abbreviations:
 - **Tags**: 4 mandatory (Environment, ManagedBy, Project, Owner) — `local.tags` everywhere.
 - **Security**: TLS 1.2+, HTTPS-only, no public blob, managed identity preferred.
 
-> [!IMPORTANT]
-> Policy constraints (`04-governance-constraints.md`) ALWAYS override defaults above.
+**Policy constraints** (`04-governance-constraints.md`) ALWAYS override defaults above.
 
 ## RBAC Least Privilege (MANDATORY)
 

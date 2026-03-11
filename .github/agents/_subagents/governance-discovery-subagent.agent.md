@@ -134,7 +134,6 @@ Always return results in this exact format:
 
 ```text
 GOVERNANCE DISCOVERY RESULT
-───────────────────────────
 Status: [COMPLETE|PARTIAL|FAILED]
 Subscription: {subscription-name} ({subscription-id})
 Total Assignments: {count}

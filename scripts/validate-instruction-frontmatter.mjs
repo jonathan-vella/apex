@@ -15,8 +15,11 @@ import path from "node:path";
 import { getInstructions } from "./_lib/workspace-index.mjs";
 
 // Shared parser lowercases keys; match against lowercase allowed fields
-const ALLOWED_FIELDS = ["description", "applyto"];
-const ALLOWED_FIELDS_DISPLAY = ["description", "applyTo"];
+const REQUIRED_FIELDS = ["description", "applyto"];
+const REQUIRED_FIELDS_DISPLAY = ["description", "applyTo"];
+const OPTIONAL_FIELDS = ["name"];
+const ALLOWED_FIELDS = [...REQUIRED_FIELDS, ...OPTIONAL_FIELDS];
+const ALLOWED_FIELDS_DISPLAY = [...REQUIRED_FIELDS_DISPLAY, ...OPTIONAL_FIELDS];
 
 let errors = 0;
 
@@ -32,9 +35,9 @@ function validateFile(fileName, instr) {
     return;
   }
 
-  for (const field of ALLOWED_FIELDS) {
+  for (const field of REQUIRED_FIELDS) {
     if (!fm[field]) {
-      const display = ALLOWED_FIELDS_DISPLAY[ALLOWED_FIELDS.indexOf(field)];
+      const display = REQUIRED_FIELDS_DISPLAY[REQUIRED_FIELDS.indexOf(field)];
       console.log(
         `::error file=${relPath},line=1::Missing required frontmatter field: ${display}`,
       );

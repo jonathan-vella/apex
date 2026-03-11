@@ -94,12 +94,9 @@ handoffs:
 
 # Terraform Code Agent
 
-**Step 5** of the 7-step workflow: `requirements → architect → design → terraform-plan → [terraform-code] → deploy → as-built`
-
-> [!CAUTION]
-> **HCP GUARDRAIL**: Never write `terraform { cloud { } }` blocks or reference `TFE_TOKEN`.
-> Always generate Azure Storage Account backend. Never use `terraform -target` for phased
-> deployment — use `var.deployment_phase` with `count` conditionals instead.
+**HCP GUARDRAIL**: Never write `terraform { cloud { } }` blocks or reference `TFE_TOKEN`.
+Always generate Azure Storage Account backend. Never use `terraform -target` for phased
+deployment — use `var.deployment_phase` with `count` conditionals instead.
 
 ## MANDATORY: Read Skills First
 
@@ -166,8 +163,7 @@ For EACH resource in `04-implementation-plan.md`:
 
 ### Phase 1.5: Governance Compliance Mapping (MANDATORY)
 
-> [!CAUTION]
-> **HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
+**HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
 
 1. Read `04-governance-constraints.json` — extract all `Deny` policies
 2. Translate `azurePropertyPath` → Terraform argument (use translation table in `terraform-policy-compliance.instructions.md`)
