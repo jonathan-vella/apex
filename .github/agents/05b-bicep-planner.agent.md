@@ -162,6 +162,20 @@ If any are missing, STOP and request handoff to the appropriate prior agent.
 
 **Policy effects:** Read `azure-defaults/references/policy-effect-decision-tree.md`.
 
+### Phase 1.5: Deployment Context Discovery (MANDATORY)
+
+**MANDATORY — use the `askQuestions` tool** to collect deployment context
+before AVM verification. Build a single form:
+
+- header: "Deployment Context"
+- question: "Any specific deployment concerns, constraints, or sequencing
+  requirements I should consider for the implementation plan?"
+- `allowFreeformInput: true`, 0 options (pure freeform)
+
+This captures user knowledge that artifacts may not contain (e.g. maintenance
+windows, team preferences, existing CI/CD constraints). **NEVER** skip this
+step — the user's input feeds directly into Phase 3.5 (Deployment Strategy).
+
 ### Phase 2: AVM Module Verification
 
 For EACH resource in the architecture:

@@ -73,6 +73,7 @@ module sqlServer 'br/public:avm/res/sql/server:0.21.1' = {
         sku: sqlDatabaseSku
         maxSizeBytes: 268435456000
         availabilityZone: -1
+        zoneRedundant: false
       }
     ]
     securityAlertPolicies: [

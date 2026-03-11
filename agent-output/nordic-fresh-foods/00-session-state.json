@@ -4,8 +4,8 @@
   "iac_tool": "Bicep",
   "region": "swedencentral",
   "branch": "chore/remove-microsoft-learn-mcp",
-  "updated": "2026-03-11T16:00:00Z",
-  "current_step": 5,
+  "updated": "2026-03-11T18:45:00Z",
+  "current_step": 7,
   "decisions": {
     "region": "swedencentral",
     "compliance": "GDPR,PCI-DSS",
@@ -57,7 +57,9 @@
       "passes_planned": 3,
       "passes_executed": 2,
       "skipped": ["pass_3"],
-      "skip_reasons": ["Conditional: pass 2 (review subagent) had 0 must_fix after remediation"],
+      "skip_reasons": [
+        "Conditional: pass 2 (review subagent) had 0 must_fix after remediation"
+      ],
       "models_used": [
         "bicep-lint-subagent (syntax validation)",
         "bicep-review-subagent (AVM/standards review)"
@@ -122,9 +124,7 @@
         "03-des-diagram.png",
         "03-des-adr-0001-cost-optimized-n-tier-azure-architecture.md"
       ],
-      "context_files_used": [
-        "02-architecture-assessment.md"
-      ]
+      "context_files_used": ["02-architecture-assessment.md"]
     },
     "4": {
       "name": "IaC Plan",
@@ -160,31 +160,61 @@
       "sub_step": "phase_6_artifact",
       "started": "2026-03-11T16:00:00Z",
       "completed": "2025-07-13T12:00:00Z",
-      "artifacts": [
-        "04-preflight-check.md",
-        "05-implementation-reference.md"
-      ],
-      "context_files_used": ["04-implementation-plan.md", "04-governance-constraints.json", "02-architecture-assessment.md"]
+      "artifacts": ["04-preflight-check.md", "05-implementation-reference.md"],
+      "context_files_used": [
+        "04-implementation-plan.md",
+        "04-governance-constraints.json",
+        "02-architecture-assessment.md"
+      ]
     },
     "6": {
       "name": "Deploy",
       "agent": "07b-Bicep Deploy",
-      "status": "in_progress",
-      "sub_step": "phase_2_preview",
+      "status": "complete",
+      "sub_step": "phase_5_artifact",
       "started": "2026-03-11T17:00:00Z",
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": ["05-implementation-reference.md", "04-implementation-plan.md"]
+      "completed": "2026-03-11T17:35:00Z",
+      "artifacts": ["06-deployment-summary.md"],
+      "context_files_used": [
+        "05-implementation-reference.md",
+        "04-implementation-plan.md"
+      ]
     },
     "7": {
       "name": "As-Built",
       "agent": "08-As-Built",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "phase_6_index",
+      "started": "2026-03-11T17:40:00Z",
+      "completed": "2026-03-11T18:45:00Z",
+      "artifacts": [
+        "07-documentation-index.md",
+        "07-design-document.md",
+        "07-operations-runbook.md",
+        "07-resource-inventory.md",
+        "07-backup-dr-plan.md",
+        "07-compliance-matrix.md",
+        "07-ab-cost-estimate.md",
+        "07-ab-diagram.py",
+        "07-ab-diagram.png",
+        "07-ab-cost-distribution.py",
+        "07-ab-cost-distribution.png",
+        "07-ab-cost-projection.py",
+        "07-ab-cost-projection.png",
+        "07-ab-cost-comparison.py",
+        "07-ab-cost-comparison.png",
+        "07-ab-compliance-gaps.py",
+        "07-ab-compliance-gaps.png"
+      ],
+      "context_files_used": [
+        "01-requirements.md",
+        "02-architecture-assessment.md",
+        "03-des-cost-estimate.md",
+        "04-governance-constraints.md",
+        "04-implementation-plan.md",
+        "05-implementation-reference.md",
+        "06-deployment-summary.md"
+      ]
     }
   }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "11500336806404035307"
+      "templateHash": "10079205152539722589"
     }
   },
   "parameters": {
@@ -21849,7 +21849,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "16181042019721609702"
+              "templateHash": "15907860171714483759"
             }
           },
           "parameters": {
@@ -21972,7 +21972,8 @@
                         "name": "[variables('sqlDatabaseName')]",
                         "sku": "[parameters('sqlDatabaseSku')]",
                         "maxSizeBytes": 268435456000,
-                        "availabilityZone": -1
+                        "availabilityZone": -1,
+                        "zoneRedundant": false
                       }
                     ]
                   },

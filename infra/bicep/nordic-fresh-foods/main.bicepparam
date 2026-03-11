@@ -18,12 +18,12 @@ param sqlDatabaseSku = {
   tier: 'Standard'
 }
 
-param sqlAdminGroupObjectId = '<replace-with-entra-group-object-id>'
-param sqlAdminGroupName = '<replace-with-entra-group-name>'
+param sqlAdminGroupObjectId = '8d11c14c-8c03-443f-ad54-2f6378c7131d'
+param sqlAdminGroupName = 'nordic-foods-dba'
 
 param budgetAmount = 800
-param budgetContactEmail = '<replace-with-budget-contact>'
-param technicalContact = '<replace-with-technical-contact>'
+param budgetContactEmail = 'jeff@bezos.com'
+param technicalContact = 'sam@altman.com'
 
 // Governance-enforced tags (9 policy + derived)
 param ownerTag = 'nordic-fresh-foods-team'

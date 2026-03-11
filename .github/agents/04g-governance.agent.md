@@ -70,13 +70,28 @@ If missing, STOP and request handoff to the appropriate prior agent.
 
 ## Core Workflow
 
+### Phase 0.5: Discovery Scope (MANDATORY)
+
+**MANDATORY — use the `askQuestions` tool** before delegating to the subagent.
+Build a single form to scope the discovery:
+
+- header: "Governance Discovery Scope"
+- question: "Which scope should I discover policies for?"
+- Options:
+  1. **Full subscription** (recommended) — discover all policies across the subscription
+  2. **Specific resource types only** — limit to services in the architecture assessment
+  3. **Enter custom answer** — for manual scope specification
+
+**NEVER** skip this step or assume "full subscription" without asking.
+The `askQuestions` tool presents an inline form the user fills out in one shot.
+
 ### Phase 1: Governance Discovery
 
 **Hard gate.** If discovery fails, STOP. Do NOT proceed with incomplete policy data.
 
 1. **Delegate** to `governance-discovery-subagent` via `#runSubagent` — verifies Azure
    connectivity, queries ALL effective policy assignments via REST API (including management
-   group-inherited), classifies effects
+   group-inherited), classifies effects. Pass the user's scope choice to constrain the query.
 2. **Review result** — Status must be COMPLETE (if PARTIAL or FAILED, STOP and present error)
 
 ### Phase 2: Generate Artifacts

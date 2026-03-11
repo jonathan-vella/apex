@@ -121,14 +121,20 @@ Check prerequisites FIRST so you know what context you have.
 Validate `01-requirements.md` exists in `agent-output/{project}/`.
 If missing, STOP and request handoff to Requirements agent.
 
-Verify these are documented — **ask user via `askQuestions` if missing**:
+Verify these are documented. **MANDATORY — use the `askQuestions` tool** to
+collect ALL missing values in a single interactive form, even if only one
+category is missing. **NEVER** list missing items in chat text and ask the
+user to reply — this wastes a full request round-trip.
 
-| Category   | Required                           | If Missing                 |
-| ---------- | ---------------------------------- | -------------------------- |
-| NFRs       | SLA, RTO, RPO, performance targets | Ask user                   |
-| Compliance | Regulatory frameworks              | Ask if any apply           |
-| Budget     | Approximate monthly budget         | Ask for range              |
-| Scale      | Users, transactions, data volume   | Ask for growth projections |
+| Category   | Required                           | If Missing                                               |
+| ---------- | ---------------------------------- | -------------------------------------------------------- |
+| NFRs       | SLA, RTO, RPO, performance targets | `askQuestions`: header "NFR Targets", freeform input      |
+| Compliance | Regulatory frameworks              | `askQuestions`: header "Compliance", multiSelect options   |
+| Budget     | Approximate monthly budget         | `askQuestions`: header "Budget Range", freeform input      |
+| Scale      | Users, transactions, data volume   | `askQuestions`: header "Scale Projections", freeform input |
+
+Build one `askQuestions` call with all missing categories. Do NOT proceed
+to skill reading or WAF assessment until every category has a value.
 
 ## Session State Protocol
 

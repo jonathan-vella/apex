@@ -114,6 +114,8 @@ deployment — use `var.deployment_phase` with `count` conditionals instead.
 | DO                                                                    | DON'T                                                               |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Run preflight check BEFORE writing any Terraform (Phase 1)            | Start coding before preflight check                                 |
+| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5    | Silently halt on blockers without telling the user why              |
+| **NEVER** list blockers in chat text asking user to reply manually     | List blockers in chat and wait for a reply (wastes a round-trip)    |
 | Use AVM-TF modules for EVERY resource that has one                    | Write raw `azurerm` when AVM-TF exists                              |
 | Generate unique suffix ONCE in `locals.tf`, pass to ALL resources     | Hardcode unique strings                                             |
 | Apply baseline tags + governance extras via `local.tags`              | Use hardcoded tag maps ignoring governance                          |
@@ -159,7 +161,16 @@ For EACH resource in `04-implementation-plan.md`:
 4. `terraform/get_latest_module_version` → pin version band (`~> X.Y`)
 5. For non-AVM resources: verify `azurerm` provider arguments via `terraform/search_providers`
 6. Check region limitations
-7. Save to `agent-output/{project}/04-preflight-check.md`; STOP if blockers found
+7. Save to `agent-output/{project}/04-preflight-check.md`
+8. If blockers found, **MANDATORY — use the `askQuestions` tool** to present
+   them in a single interactive form. Build one question with:
+   - header: "Preflight Blockers Found"
+   - question: Brief summary of blockers (e.g. "2 AVM-TF variable mismatches,
+     1 region limitation. See 04-preflight-check.md for details.")
+   - Options: **Fix and re-run preflight** (recommended) / **Abort — return to Planner**
+   **NEVER** list blockers in chat text and ask the user to reply.
+   The `askQuestions` tool presents an inline form the user fills out in one shot.
+   If the user chooses to abort, STOP and present the Return to Step 4 handoff.
 
 ### Phase 1.5: Governance Compliance Mapping (MANDATORY)
 
@@ -169,7 +180,18 @@ For EACH resource in `04-implementation-plan.md`:
 2. Translate `azurePropertyPath` → Terraform argument (use translation table in `terraform-policy-compliance.instructions.md`)
 3. Build compliance map: resource type → TF argument → required value
 4. Merge governance tags with 4 baseline defaults (governance wins)
-5. Validate every planned resource can comply; STOP if any Deny unsatisfiable
+5. Validate every planned resource can comply
+6. If any Deny policy is unsatisfiable, **MANDATORY — use the `askQuestions` tool**
+   to present the unresolved policies. Build one question with:
+   - header: "Unresolved Governance Policy Violations"
+   - question: List each unsatisfiable Deny policy name and affected resource
+   - Options: **Return to Planner** (recommended) / **Override and proceed** (advanced)
+   **NEVER** list governance violations in chat text and ask the user to reply.
+   If the user chooses to return, STOP and present the Return to Step 4 handoff.
+
+> **CRITICAL GATE** — Never proceed to code generation with unresolved Deny
+> policy violations. Never collect user decisions via chat messages — always
+> use the `askQuestions` tool.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
