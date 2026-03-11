@@ -156,7 +156,7 @@ strategies, known issues, and governance-to-code property mapping.
 
 ### session-resume
 
-Session state tracking and resume protocol for the 7-step workflow.
+Session state tracking and resume protocol for the 8-step workflow.
 Manages checkpoint recovery and session-state.json schema.
 
 ```text
@@ -165,7 +165,7 @@ Resume the workflow from step 4 using the existing session state.
 
 ### workflow-engine
 
-Machine-readable workflow DAG for the 7-step pipeline. Defines node
+Machine-readable workflow DAG for the 8-step pipeline. Defines node
 types, edge conditions, gates, and fan-out patterns.
 
 ```text

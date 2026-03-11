@@ -18,8 +18,45 @@ export function parseFrontmatter(content) {
   let currentValue = [];
   let inArray = false;
   let inMultilineString = false;
+  let pendingKey = null;
 
   for (const line of lines) {
+    // Handle key with empty value followed by indented [ or - on next line
+    if (pendingKey && !inArray && !inMultilineString) {
+      const trimmed = line.trim();
+      if (trimmed === "[" || trimmed.startsWith("[")) {
+        currentKey = pendingKey;
+        inArray = true;
+        currentValue = [];
+        pendingKey = null;
+        if (trimmed.includes("]")) {
+          const values = trimmed
+            .replace(/[\[\]]/g, "")
+            .split(",")
+            .map((v) => v.trim().replace(/"/g, ""))
+            .filter(Boolean);
+          frontmatter[currentKey] = values;
+          inArray = false;
+          currentKey = null;
+        }
+        continue;
+      } else if (trimmed.startsWith("-")) {
+        currentKey = pendingKey;
+        inArray = true;
+        currentValue = [];
+        pendingKey = null;
+        const value = trimmed
+          .replace(/^-\s*/, "")
+          .replace(/["\[\],]/g, "")
+          .trim();
+        if (value) currentValue.push(value);
+        continue;
+      } else {
+        frontmatter[pendingKey] = "";
+        pendingKey = null;
+      }
+    }
+
     if (inArray) {
       if (line.trim().startsWith("-") || line.trim().startsWith('"')) {
         const value = line
@@ -82,6 +119,10 @@ export function parseFrontmatter(content) {
       }
 
       frontmatter[currentKey] = rawValue.replace(/^["']|["']$/g, "");
+      if (rawValue === "") {
+        pendingKey = currentKey;
+        delete frontmatter[currentKey];
+      }
     }
   }
 

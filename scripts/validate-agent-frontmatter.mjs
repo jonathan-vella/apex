@@ -120,11 +120,10 @@ function validateAgent(filePath, isSubagent) {
   // Validate agents list format (should be array)
   if ("agents" in frontmatter) {
     if (!Array.isArray(frontmatter.agents)) {
-      console.warn(`⚠️  ${relativePath}: 'agents' should be an array`);
-      console.warn(
-        `  Fix: Use YAML list syntax: agents:\n  - agent-name-1\n  - agent-name-2`,
+      console.error(
+        `❌ ${relativePath}: 'agents' parsed as ${typeof frontmatter.agents}, expected array`,
       );
-      warnings++;
+      errors++;
     }
   }
 

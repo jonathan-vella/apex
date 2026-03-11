@@ -1,0 +1,324 @@
+{
+  "schema_version": "1.0",
+  "project": "nordic-fresh-foods",
+  "subscription_id": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+  "subscription_name": "noalz",
+  "tenant_id": "2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+  "discovery_timestamp": "2026-03-11T13:10:00Z",
+  "discovery_method": "REST API (management.azure.com)",
+  "total_policy_assignments": 21,
+  "discovery_reconciliation": {
+    "subscription_direct": 5,
+    "management_group_inherited": 10,
+    "arcbox_rg_scoped_excluded": 6,
+    "total": 21,
+    "note": "15 policies modeled below (5 sub + 10 MG). 6 ArcBox policies listed in excludedAssignments — they only affect rg-arcbox-swc01 and have zero impact on this project."
+  },
+  "excludedAssignments": [
+    {
+      "displayName": "Enable Azure Monitor for VMs",
+      "scope": "resourceGroup:rg-arcbox-swc01",
+      "effect": "DeployIfNotExists",
+      "reason": "Scoped to ArcBox RG only"
+    },
+    {
+      "displayName": "Enable Azure Monitor for VMSS",
+      "scope": "resourceGroup:rg-arcbox-swc01",
+      "effect": "DeployIfNotExists",
+      "reason": "Scoped to ArcBox RG only"
+    },
+    {
+      "displayName": "Deploy Dependency Agent for Linux VMs",
+      "scope": "resourceGroup:rg-arcbox-swc01",
+      "effect": "DeployIfNotExists",
+      "reason": "Scoped to ArcBox RG only"
+    },
+    {
+      "displayName": "Deploy Dependency Agent for Windows VMs",
+      "scope": "resourceGroup:rg-arcbox-swc01",
+      "effect": "DeployIfNotExists",
+      "reason": "Scoped to ArcBox RG only"
+    },
+    {
+      "displayName": "Configure Linux VMs to run Azure Monitor Agent",
+      "scope": "resourceGroup:rg-arcbox-swc01",
+      "effect": "DeployIfNotExists",
+      "reason": "Scoped to ArcBox RG only"
+    },
+    {
+      "displayName": "Configure Windows VMs to run Azure Monitor Agent",
+      "scope": "resourceGroup:rg-arcbox-swc01",
+      "effect": "DeployIfNotExists",
+      "reason": "Scoped to ArcBox RG only"
+    }
+  ],
+  "policies": {
+    "deny": [
+      {
+        "id": "JV-Enforce-RG-Tags-v3",
+        "displayName": "JV-Enforce Resource Group Tags v3",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Denies resource group creation if any of 9 mandatory tags are missing",
+        "requiredTags": [
+          {
+            "tagName": "environment",
+            "azurePropertyPath": "tags['environment']",
+            "bicepPropertyPath": "tags.environment"
+          },
+          {
+            "tagName": "owner",
+            "azurePropertyPath": "tags['owner']",
+            "bicepPropertyPath": "tags.owner"
+          },
+          {
+            "tagName": "costcenter",
+            "azurePropertyPath": "tags['costcenter']",
+            "bicepPropertyPath": "tags.costcenter"
+          },
+          {
+            "tagName": "application",
+            "azurePropertyPath": "tags['application']",
+            "bicepPropertyPath": "tags.application"
+          },
+          {
+            "tagName": "workload",
+            "azurePropertyPath": "tags['workload']",
+            "bicepPropertyPath": "tags.workload"
+          },
+          {
+            "tagName": "sla",
+            "azurePropertyPath": "tags['sla']",
+            "bicepPropertyPath": "tags.sla"
+          },
+          {
+            "tagName": "backup-policy",
+            "azurePropertyPath": "tags['backup-policy']",
+            "bicepPropertyPath": "tags['backup-policy']"
+          },
+          {
+            "tagName": "maint-window",
+            "azurePropertyPath": "tags['maint-window']",
+            "bicepPropertyPath": "tags['maint-window']"
+          },
+          {
+            "tagName": "technical-contact",
+            "azurePropertyPath": "tags['technical-contact']",
+            "bicepPropertyPath": "tags['technical-contact']"
+          }
+        ],
+        "requiredValue": "Must exist (non-null, non-empty)",
+        "impactedResources": [
+          "Microsoft.Resources/subscriptions/resourceGroups"
+        ],
+        "severity": "blocker",
+        "adaptation": "All resource groups MUST include 9 tags: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact"
+      },
+      {
+        "id": "AzureSQL-AD-Only-Auth-Deny",
+        "displayName": "SFI-ID4.2.2 SQL DB - Safe Secrets Standard",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Denies Azure SQL Server creation without Azure AD-only authentication enabled",
+        "azurePropertyPath": "Microsoft.Sql/servers/azureADOnlyAuthentications/default.properties.azureADOnlyAuthentication",
+        "bicepPropertyPath": "resource azureADOnlyAuthentication 'Microsoft.Sql/servers/azureADOnlyAuthentications@2023-08-01-preview' { properties: { azureADOnlyAuthentication: true } }",
+        "bicepPropertyPathAVM": "The AVM sql/server module abstracts this via the administrators block: administrators.azureADOnlyAuthentication",
+        "requiredValue": true,
+        "impactedResources": ["Microsoft.Sql/servers"],
+        "severity": "blocker",
+        "adaptation": "Azure SQL Server MUST set azureADOnlyAuthentication: true. Already planned — no change needed."
+      },
+      {
+        "id": "Block-Classic-Resources",
+        "displayName": "Block Azure RM Resource Creation",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Blocks Classic (v1) resource types: ClassicCompute, ClassicStorage, ClassicNetwork",
+        "azurePropertyPath": "type",
+        "bicepPropertyPath": "N/A",
+        "requiredValue": "Must not be Classic resource types",
+        "impactedResources": [
+          "Microsoft.ClassicCompute/*",
+          "Microsoft.ClassicStorage/*",
+          "Microsoft.ClassicNetwork/*"
+        ],
+        "severity": "informational",
+        "adaptation": "No impact — project uses only ARM (v2) resource types."
+      },
+      {
+        "id": "Not-Allowed-Resource-Types",
+        "displayName": "Not allowed resource types",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Denies creation of Classic resource types via MCAPSGov initiative",
+        "azurePropertyPath": "type",
+        "bicepPropertyPath": "N/A",
+        "requiredValue": "Must not be in blocked list (Classic resources only)",
+        "impactedResources": [
+          "microsoft.classiccompute/*",
+          "microsoft.classicstorage/*",
+          "microsoft.classicnetwork/*"
+        ],
+        "severity": "informational",
+        "adaptation": "No impact — project uses only ARM (v2) resource types."
+      },
+      {
+        "id": "Block-VM-SKUs-H-M-N",
+        "displayName": "MCAPSGov Deny - Block VM SKUs (H, M, N series)",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Blocks HB, M-series, and N-series (GPU) VM SKUs",
+        "azurePropertyPath": "Microsoft.Compute/virtualMachines/sku.name",
+        "bicepPropertyPath": "N/A",
+        "requiredValue": "Must not be H, M, or N-series SKU",
+        "impactedResources": ["Microsoft.Compute/virtualMachines"],
+        "severity": "informational",
+        "adaptation": "No impact — project does not use VMs."
+      },
+      {
+        "id": "KeyVault-HSM-PurgeProtection",
+        "displayName": "Key Vault Managed HSM - Purge Protection Enabled",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Requires purge protection on Key Vault Managed HSM",
+        "azurePropertyPath": "Microsoft.KeyVault/managedHsms/enablePurgeProtection",
+        "bicepPropertyPath": "properties.enablePurgeProtection",
+        "requiredValue": true,
+        "impactedResources": ["Microsoft.KeyVault/managedHsms"],
+        "severity": "informational",
+        "adaptation": "No impact — project uses Key Vault Standard (not Managed HSM)."
+      },
+      {
+        "id": "MFA-Delete",
+        "displayName": "MFA Enforcement for Resource Delete Actions",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Requires MFA for resource delete operations",
+        "azurePropertyPath": "N/A (control plane)",
+        "bicepPropertyPath": "N/A",
+        "requiredValue": "MFA-authenticated session required for delete",
+        "impactedResources": ["All resources (delete operations only)"],
+        "severity": "warning",
+        "adaptation": "Deployer account must have MFA enabled. Affects teardown only, not creation."
+      },
+      {
+        "id": "MFA-Write",
+        "displayName": "MFA Enforcement for Resource Write Actions",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Deny",
+        "description": "Requires MFA for resource write (create/update) operations",
+        "azurePropertyPath": "N/A (control plane)",
+        "bicepPropertyPath": "N/A",
+        "requiredValue": "MFA-authenticated session required for write",
+        "impactedResources": ["All resources (write operations)"],
+        "severity": "warning",
+        "adaptation": "Deployer account must have MFA enabled. Affects all deployments."
+      }
+    ],
+    "audit": [
+      {
+        "id": "GDPR-2016-679",
+        "displayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+        "scope": "subscription:00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+        "effect": "Audit",
+        "description": "Regulatory compliance initiative for GDPR. Audits services for encryption, access controls, and data residency.",
+        "impactedResources": ["All Azure resources"],
+        "adaptation": "Data residency in swedencentral satisfies EU requirement. TLS 1.2 and encryption at rest align with GDPR."
+      },
+      {
+        "id": "PCI-DSS-v4",
+        "displayName": "PCI DSS v4",
+        "scope": "subscription:00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+        "effect": "Audit",
+        "description": "PCI DSS v4 compliance audit. Checks network segmentation, encryption, access controls.",
+        "impactedResources": ["All Azure resources"],
+        "adaptation": "Private Endpoints + VNet isolation satisfy network segmentation. Payment scope minimized via external gateway."
+      },
+      {
+        "id": "Azure-Security-Baseline",
+        "displayName": "Azure Security Baseline",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "AuditIfNotExists",
+        "description": "Comprehensive security baseline. Audits TLS, encryption, identity, network isolation, and monitoring across all services.",
+        "impactedResources": ["All Azure resources"],
+        "adaptation": "Architecture design already aligns with ASB — TLS 1.2, MI, PE, HTTPS-only, Key Vault."
+      },
+      {
+        "id": "MCAPSGov-Audit-Policies",
+        "displayName": "MCAPSGov Audit Policies",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Audit/AuditIfNotExists",
+        "description": "44 audit policies covering: SQL threat detection, TLS enforcement, FTP-S only for App Service, diagnostic settings, Defender plans, activity logs.",
+        "impactedResources": [
+          "App Service",
+          "Azure SQL",
+          "Storage Account",
+          "Key Vault",
+          "Log Analytics"
+        ],
+        "adaptation": "Key audits relevant to project: App Service FTPS-only, SQL auditing and threat detection, SQL TLS, diagnostic settings. Plan includes all requirements."
+      },
+      {
+        "id": "ASC-Data-Protection",
+        "displayName": "ASC DataProtection",
+        "scope": "subscription:00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+        "effect": "AuditIfNotExists",
+        "description": "Microsoft Defender for Cloud data protection checks",
+        "impactedResources": ["Storage Account", "Azure SQL"],
+        "adaptation": "No action needed during deployment — Defender audits are post-deployment."
+      }
+    ],
+    "deployIfNotExists_modify": [
+      {
+        "id": "JV-Inherit-Multiple-Tags",
+        "displayName": "JV - Inherit Multiple Tags from Resource Group",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "Modify",
+        "description": "Automatically copies 9 tags from resource group to child resources: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact",
+        "impactedResources": ["All child resources"],
+        "adaptation": "Tags set on RG will auto-propagate. Set all 9 tags on RG level; child resources inherit automatically."
+      },
+      {
+        "id": "MCAPSGov-Deploy-Modify",
+        "displayName": "MCAPSGov Deploy and Modify Policies",
+        "scope": "managementGroup:2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "effect": "DeployIfNotExists/Modify",
+        "description": "27 policies including: disable blob anonymous access (Modify), disable local auth on Storage/EventHub/ServiceBus/CosmosDB, enable diagnostics on AI services, enable managed identity on VMs.",
+        "impactedResources": ["Storage Account"],
+        "adaptation": "Storage blob anonymous access already disabled in plan. Local auth disabled via allowSharedKeyAccess=false."
+      }
+    ]
+  },
+  "deployment_blockers": [
+    {
+      "policy": "JV-Enforce Resource Group Tags v3",
+      "blocker": "Resource group creation will fail without ALL 9 required tags",
+      "resolution": "Include all 9 tags in resource group template: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact"
+    },
+    {
+      "policy": "SFI-ID4.2.2 SQL DB - Safe Secrets Standard",
+      "blocker": "SQL Server creation will fail without Azure AD-only auth",
+      "resolution": "Set azureADOnlyAuthentication: true — already in architecture plan"
+    },
+    {
+      "policy": "MFA Enforcement for Resource Write Actions",
+      "blocker": "Deployment will fail if deployer account lacks MFA",
+      "resolution": "Ensure deployer identity has MFA enabled (proven path). OIDC workload identity is a conditional alternative — NOT YET VALIDATED against this tenant's write-action enforcement. Test federated SP write before relying on OIDC for CI/CD."
+    }
+  ],
+  "tag_requirements": {
+    "scope": "Resource Group (Deny) + Auto-inherited (Modify)",
+    "required_tags": [
+      { "name": "environment", "example": "dev, prod" },
+      { "name": "owner", "example": "nordic-fresh-foods-team" },
+      { "name": "costcenter", "example": "NFF-001" },
+      { "name": "application", "example": "freshconnect" },
+      { "name": "workload", "example": "web-app" },
+      { "name": "sla", "example": "99.9%" },
+      { "name": "backup-policy", "example": "daily-30d" },
+      { "name": "maint-window", "example": "sun-02:00-06:00-utc" },
+      { "name": "technical-contact", "example": "cto@nordicfreshfoods.eu" }
+    ],
+    "note": "Tags are enforced at RG level by Deny policy. A Modify policy auto-inherits all 9 tags to child resources."
+  }
+}

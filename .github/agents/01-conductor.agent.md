@@ -9,6 +9,7 @@ agents:
     "02-Requirements",
     "03-Architect",
     "04-Design",
+    "04g-Governance",
     "05b-Bicep Planner",
     "06b-Bicep CodeGen",
     "07b-Bicep Deploy",
@@ -95,9 +96,14 @@ handoffs:
     model: "Claude Opus 4.6 (copilot)"
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate non-Mermaid architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Python diagrams outputs (`03-des-diagram.py` + `.png`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 4."
+    prompt: "Generate non-Mermaid architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Python diagrams outputs (`03-des-diagram.py` + `.png`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 3.5."
     send: false
     model: "GPT-5.3-Codex (copilot)"
+  - label: "Step 3.5: Governance Discovery"
+    agent: 04g-Governance
+    prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
+    send: true
+    model: "Claude Sonnet 4.6 (copilot)"
   - label: "Step 4: Implementation Plan"
     agent: 05b-Bicep Planner
     prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Save `agent-output/{project}/04-implementation-plan.md` plus mandatory Step 4 diagrams: `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
@@ -215,16 +221,17 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 | Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or `00-session-state.json` updates           |
 | Update `00-session-state.json` at EVERY gate                         |                                                                   |
 
-## The 7-Step Workflow
+## The 8-Step Workflow
 
 ```text
-Step 1: Requirements    →  [APPROVAL GATE]  →  01-requirements.md
-Step 2: Architecture    →  [APPROVAL GATE]  →  02-architecture-assessment.md
-Step 3: Design (opt)    →                   →  03-des-*.md/py
-Step 4: IaC Plan        →  [APPROVAL GATE]  →  04-implementation-plan.md + 04-dependency-diagram.* + 04-runtime-diagram.*
-Step 5: IaC Code        →  [VALIDATION]     →  infra/bicep/{project}/ or infra/terraform/{project}/
-Step 6: Deploy          →  [APPROVAL GATE]  →  06-deployment-summary.md
-Step 7: Documentation   →                   →  07-*.md
+Step 1:   Requirements    →  [APPROVAL GATE]  →  01-requirements.md
+Step 2:   Architecture    →  [APPROVAL GATE]  →  02-architecture-assessment.md
+Step 3:   Design (opt)    →                   →  03-des-*.md/py
+Step 3.5: Governance      →  [APPROVAL GATE]  →  04-governance-constraints.md/.json
+Step 4:   IaC Plan        →  [APPROVAL GATE]  →  04-implementation-plan.md + diagrams
+Step 5:   IaC Code        →  [VALIDATION]     →  infra/bicep/{project}/ or infra/terraform/{project}/
+Step 6:   Deploy          →  [APPROVAL GATE]  →  06-deployment-summary.md
+Step 7:   Documentation   →                   →  07-*.md
 ```
 
 ## Mandatory Approval Gates
@@ -277,10 +284,22 @@ Artifact: agent-output/{project}/01-requirements.md
 🏗️ ARCHITECTURE ASSESSMENT COMPLETE
 Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
-✅ Next: Implementation Planning (Step 4) or Design Artifacts (Step 3, optional)
+✅ Next: Governance Discovery (Step 3.5) or Design Artifacts (Step 3, optional)
 💡 SESSION BREAK RECOMMENDED: Context is growing. Consider opening a fresh chat
-   and running @01-Conductor with the project name to resume from Step 4.
+   and running @01-Conductor with the project name to resume from Step 3.5.
 ❓ Review WAF assessment and confirm to proceed (same session or fresh chat)
+```
+
+### Gate 2.5: After Governance
+
+```text
+🔒 GOVERNANCE DISCOVERY COMPLETE
+Artifact: agent-output/{project}/04-governance-constraints.md
+JSON: agent-output/{project}/04-governance-constraints.json
+Blockers: {N} Deny policies | Warnings: {N} Audit policies
+🔍 Challenger Review: {PASS | ⚠️ {N} must-fix / {N} should-fix findings}
+✅ Next: Implementation Planning (Step 4)
+❓ Review governance constraints and confirm to proceed
 ```
 
 ### Gate 3: After Planning
@@ -288,7 +307,6 @@ Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ```text
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
-Governance: agent-output/{project}/04-governance-constraints.md
 Dependency Diagram: agent-output/{project}/04-dependency-diagram.py/.png
 Runtime Diagram: agent-output/{project}/04-runtime-diagram.py/.png
 Deployment: {Phased (N phases) | Single}
@@ -386,7 +404,7 @@ producing low-quality artifacts with fabricated defaults.
 
 For the full subagent matrix, read `.github/skills/workflow-engine/references/subagent-integration.md`.
 Key points: Challenger runs 3-pass reviews at Steps 2, 4, 5; cost-estimate-subagent handles pricing
-at Steps 2 and 7; governance-discovery-subagent gates Step 4.
+at Steps 2 and 7; governance-discovery-subagent runs at Step 3.5 (Governance agent).
 
 **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
 `cost-estimate-subagent` (Codex + Azure Pricing MCP). Never write dollar
@@ -440,8 +458,9 @@ Conductor with the project name — no special resume prompt needed.
 | 1    | `01-requirements.md`                | Exists?                                  |
 | 2    | `02-architecture-assessment.md`     | Exists?                                  |
 | 3    | `03-des-*.md`, `03-des-*.py`        | Optional                                 |
+| 3.5  | `04-governance-constraints.md`      | Governance discovered and reviewed?      |
+| 3.5  | `04-governance-constraints.json`    | Machine-readable policy data?            |
 | 4    | `04-implementation-plan.md`         | Exists?                                  |
-| 4    | `04-governance-constraints.md`      | Governance checked?                      |
 | 4    | `04-dependency-diagram.py` / `.png` | Generated?                               |
 | 4    | `04-runtime-diagram.py` / `.png`    | Generated?                               |
 | 5    | `infra/bicep/{project}/`            | Templates valid? (Bicep path)            |

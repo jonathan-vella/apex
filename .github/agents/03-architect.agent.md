@@ -80,11 +80,11 @@ handoffs:
     prompt: "Save the current architecture assessment to `agent-output/{project}/02-architecture-assessment.md`."
     send: true
   - label: "▶ Generate Architecture Diagram"
-    agent: 03-Architect
+    agent: 04-Design
     prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid Python architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.py` + `03-des-diagram.png` with quality score >= 9/10."
     send: true
   - label: "▶ Create ADR from Assessment"
-    agent: 03-Architect
+    agent: 04-Design
     prompt: "Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale."
     send: true
   - label: "Step 3: Design Artifacts"
@@ -92,16 +92,11 @@ handoffs:
     prompt: "Generate non-Mermaid architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use Python diagrams contract and save `agent-output/{project}/03-des-diagram.py` + `.png`; ADRs remain `03-des-*.md`."
     send: false
     model: "GPT-5.3-Codex (copilot)"
-  - label: "⏭️ Skip to Step 4: IaC Plan (Bicep)"
-    agent: 05b-Bicep Planner
-    prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation."
+  - label: "Step 3.5: Governance Discovery"
+    agent: 04g-Governance
+    prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review. Use when skipping Step 3 (Design) or after Design is complete."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
-  - label: "⏭️ Skip to Step 4: IaC Plan (Terraform)"
-    agent: 05t-Terraform Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all Azure resources, dependencies, and implementation tasks. Skip diagram/ADR generation."
-    send: true
-    model: "Claude Opus 4.6 (copilot)"
+    model: "Claude Sonnet 4.6 (copilot)"
   - label: "↩ Return to Step 1"
     agent: 02-Requirements
     prompt: "Returning to requirements for refinement. Review `agent-output/{project}/01-requirements.md` — architecture assessment identified gaps that need addressing."
@@ -141,7 +136,8 @@ Verify these are documented — **ask user via `askQuestions` if missing**:
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `01-requirements.md`)
 - **My step**: 2
-- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_waf` → `phase_3_cost` → `phase_4_challenger` → `phase_5_artifact`
+- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_waf` →
+  `phase_2.5_compacted` → `phase_3_cost` → `phase_4_challenger` → `phase_5_artifact`
 - **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.2.status`
   is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_cost`,
   skip WAF assessment re-generation and proceed to cost estimation).
@@ -222,19 +218,32 @@ in your WAF assessment recommendations (still produce the identical artifact str
 5. **Checkpoint to disk** — Save research notes to `agent-output/{project}/02-waf-research.tmp.md`
    (scratch file, deleted after final artifact is generated). This prevents holding both
    research context AND final output in memory simultaneously.
-6. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
-7. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
-8. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
-9. **Generate charts** — Read `.github/skills/azure-diagrams/references/waf-cost-charts.md`
-   and produce three matplotlib PNGs in `agent-output/{project}/`:
-   - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF pillar, WAF brand colours
-   - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut chart of cost categories
-   - `03-des-cost-projection.py` + `03-des-cost-projection.png` — 6-month bar + trend chart
-     Execute each `.py` file and verify the PNGs exist before continuing.
-10. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors for your artifacts
-11. **Pricing sanity check** — Verify no dollar figures in your artifacts were
+6. **Context compaction (MANDATORY)** — Context usage reaches ~80% after WAF research
+   and doc lookups. Before pricing delegation, compact the conversation:
+   - Write a single concise summary: WAF pillar scores, resource list with SKUs,
+     key architecture decisions, compliance requirements from `01-requirements.md`
+   - Switch to `SKILL.minimal.md` variants for any further skill reads (>80% tier)
+   - Do NOT re-read `01-requirements.md` or doc search results — rely on the
+     summary and the saved `02-waf-research.tmp.md` on disk
+   - Update session state: `sub_step: "phase_2.5_compacted"`
+7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
+8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
+9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
+10. **Generate charts** — Read `.github/skills/azure-diagrams/references/waf-cost-charts.md`
+    and produce three matplotlib PNGs in `agent-output/{project}/`:
+    - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF
+      pillar, WAF brand colours
+    - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut
+      chart of cost categories
+    - `03-des-cost-projection.py` + `03-des-cost-projection.png` —\n 6-month bar and trend chart
+
+    Execute each `.py` file and verify the PNGs exist before continuing.
+
+11. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors
+    for your artifacts
+12. **Pricing sanity check** — Verify no dollar figures in your artifacts were
     written from memory (grep for `$` and confirm each matches subagent output)
-12. **Approval gate** — Present summary, wait for user approval before handoff
+13. **Approval gate** — Present summary, wait for user approval before handoff
 
 ## Cost Estimation (MANDATORY)
 
@@ -301,20 +310,9 @@ Check `00-session-state.json` `decisions.complexity` to determine pass count per
 > **Model routing**: For pass 1 (security-governance) or comprehensive reviews: invoke `challenger-review-subagent` (GPT-5.4).
 > For pass 2 (architecture-reliability) and pass 3 (cost-feasibility): invoke `challenger-review-codex-subagent` (GPT-5.3-Codex).
 
-For each pass, invoke the appropriate challenger subagent via `#runSubagent`:
-
-- `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
-- `project_name` = `{project}`
-- `artifact_type` = `architecture`
-- `review_focus` = per-pass value from protocol lens table
-- `pass_number` = `1` / `2` / `3`
-- `prior_findings` = `null` for pass 1; compact string for passes 2-3
-
-Write each result to `agent-output/{project}/challenge-findings-architecture-pass{N}.json`.
-
 ### Cost Estimate Review (1 pass)
 
-After architecture passes, invoke `challenger-review-subagent` (GPT-5.4) once more:
+Invoke `challenger-review-subagent` (GPT-5.4):
 
 - `artifact_path` = `agent-output/{project}/03-des-cost-estimate.md`
 - `project_name` = `{project}`
@@ -325,17 +323,45 @@ After architecture passes, invoke `challenger-review-subagent` (GPT-5.4) once mo
 
 Write result to `agent-output/{project}/challenge-findings-cost-estimate.json`.
 
+### Parallel Execution Strategy
+
+> **Architecture pass 1** and **Cost Estimate review** are independent
+> (different artifacts, both `prior_findings=null`). Invoke both via
+> `#runSubagent` **in parallel**, then await both results before
+> proceeding to conditional architecture pass 2.
+
+1. **Parallel**: Invoke architecture pass 1 + cost estimate review simultaneously
+2. **Sequential**: If architecture pass 1 triggers pass 2, invoke it with pass 1's `compact_for_parent`
+3. **Sequential**: If pass 2 triggers pass 3, invoke it with passes 1+2 compact strings
+
+For each architecture pass, invoke the appropriate challenger subagent via `#runSubagent`:
+
+- `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
+- `project_name` = `{project}`
+- `artifact_type` = `architecture`
+- `review_focus` = per-pass value from protocol lens table
+- `pass_number` = `1` / `2` / `3`
+- `prior_findings` = `null` for pass 1; compact string for passes 2-3
+
+Write each result to `agent-output/{project}/challenge-findings-architecture-pass{N}.json`.
+
 ## Approval Gate (MANDATORY)
 
-Use `askQuestions` to present the assessment summary and challenger
-findings, then gather the user's proceed/revise decision:
+**Present findings directly in chat** before asking the user to decide:
 
-- In the question description, include:
-  - WAF pillar scores (Security, Reliability, Performance, Cost,
-    Operations) with estimated monthly cost
-  - Challenger findings summary across ALL passes: `must_fix`
-    (blocking), `should_fix` (recommended), key concerns
-  - Findings file paths for reference
+1. Print WAF pillar scores (Security, Reliability, Performance, Cost,
+   Operations) with estimated monthly cost
+2. For each challenger pass, render a markdown table with columns:
+   **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
+   — list every finding (must_fix first, then should_fix, then suggestion)
+3. Show aggregate totals across all passes: `N must-fix, N should-fix`
+4. Reference the JSON file paths for machine-readable details
+
+Then use `askQuestions` to gather the decision (brief summary only —
+detailed findings are already visible in chat above):
+
+- Question description:
+  `"Challenger: N must-fix, N should-fix across M passes. Revise or proceed?"`
 - Ask a single-select question: _"How would you like to proceed?"_
   with options:
   1. **Revise architecture** — address must-fix findings before

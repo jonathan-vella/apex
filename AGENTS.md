@@ -3,8 +3,8 @@
 > Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
 
 A multi-agent orchestration system for Azure infrastructure development.
-Specialized AI agents collaborate through a structured 7-step workflow:
-**Requirements → Architecture → Design → Plan → Code → Deploy → Documentation**.
+Specialized AI agents collaborate through a structured 8-step workflow:
+**Requirements → Architecture → Design → Governance → Plan → Code → Deploy → Documentation**.
 
 ## Setup Commands
 
@@ -192,25 +192,26 @@ docs/                  # User-facing documentation
   mcp.json             # MCP server configuration (github, azure-pricing, terraform)
 ```
 
-### Agent Workflow (7 Steps)
+### Agent Workflow (8 Steps)
 
-| Step | Phase        | Output                                                   | Review      |
-| ---- | ------------ | -------------------------------------------------------- | ----------- |
-| 1    | Requirements | `01-requirements.md`                                     | 1×          |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×+1×    |
-| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —           |
-| 4    | IaC Plan     | `04-implementation-plan.md` + governance + diagrams      | 0×–1×+1×–3× |
-| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×       |
-| 6    | Deploy       | `06-deployment-summary.md`                               | 0×–1×       |
-| 7    | As-Built     | `07-*.md` documentation suite                            | —           |
+| Step | Phase        | Output                                                   | Review   |
+| ---- | ------------ | -------------------------------------------------------- | -------- |
+| 1    | Requirements | `01-requirements.md`                                     | 1×       |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×+1× |
+| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —        |
+| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | —        |
+| 4    | IaC Plan     | `04-implementation-plan.md` + diagrams                   | 1×–2×    |
+| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×    |
+| 6    | Deploy       | `06-deployment-summary.md`                               | —        |
+| 7    | As-Built     | `07-*.md` documentation suite                            | —        |
 
 All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
 The Conductor agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
-(simple: 3–4 total, standard: 6–8 total, complex: 10–12 total).
-Model diversity: pass 1 uses GPT-5.4 (`challenger-review-subagent`),
-passes 2-3 use GPT-5.3-Codex (`challenger-review-codex-subagent`).
+(simple: 4 total, standard: 5–7 total, complex: 8 total).
+Reviews target AI-generated creative decisions (architecture, plan, code) not
+machine-discovered data (governance) or tool output (what-if/plan previews).
 
 ### Content Sharing Decision Framework
 

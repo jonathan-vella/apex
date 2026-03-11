@@ -69,7 +69,7 @@ the agent system.
 | -------------- | -------------------------------------------------------------- | ----------------------------------------- |
 | Agent Registry | `.github/agent-registry.json`                                  | Agent role → file, model, required skills |
 | Skill Affinity | `.github/skill-affinity.json`                                  | Agent → skill weights (primary/secondary) |
-| Workflow Graph | `.github/skills/workflow-engine/templates/workflow-graph.json` | 7-step DAG with nodes, edges, conditions  |
+| Workflow Graph | `.github/skills/workflow-engine/templates/workflow-graph.json` | 8-step DAG with nodes, edges, conditions  |
 
 ## AGENTS.md — The Table of Contents
 
@@ -83,7 +83,7 @@ serves as the entry point for all agents. At approximately 250 lines, it provide
 - **Testing procedures**: How to validate before committing
 - **Commit conventions**: Conventional commit format with scopes
 - **Project structure**: Directory layout overview
-- **Workflow summary**: The 7-step table
+- **Workflow summary**: The 8-step table
 
 `AGENTS.md` does not contain deep architectural guidance, Azure service details, or
 template structures. Those are delegated to skills.
@@ -94,7 +94,7 @@ The `.github/copilot-instructions.md` file is VS Code Copilot's orchestration la
 It provides:
 
 - **Quick start**: How to enable subagents and invoke the Conductor
-- **7-step workflow table**: Quick reference for which agent handles which step
+- **8-step workflow table**: Quick reference for which agent handles which step
 - **Skills catalog**: Table mapping skill names to their purposes
 - **Chat triggers**: Rules for handling `gh` commands via GitHub operations
 - **Key files**: Table mapping critical paths to their purposes

@@ -1,6 +1,6 @@
 {
   "$schema": "workflow-graph-v1",
-  "description": "7-step Azure infrastructure workflow DAG with Bicep and Terraform tracks",
+  "description": "8-step Azure infrastructure workflow DAG with Bicep and Terraform tracks (governance as Step 3.5)",
   "nodes": {
     "step-1": {
       "id": "step-1",
@@ -63,17 +63,35 @@
       "optional": true,
       "challenger": null
     },
+    "step-3.5": {
+      "id": "step-3.5",
+      "type": "agent-step",
+      "name": "Governance",
+      "agent": "04g-Governance",
+      "requires": ["gate-2"],
+      "produces": [
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
+      "gate": "approval",
+      "challenger": null
+    },
+    "gate-2.5": {
+      "id": "gate-2.5",
+      "type": "gate",
+      "name": "Governance Approval",
+      "requires": ["step-3.5"],
+      "gate": "approval"
+    },
     "step-4b": {
       "id": "step-4b",
       "type": "agent-step",
       "name": "Bicep Plan",
       "agent": "05b-Bicep Planner",
-      "requires": ["gate-2"],
+      "requires": ["gate-2.5"],
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": [
         "04-implementation-plan.md",
-        "04-governance-constraints.md",
-        "04-governance-constraints.json",
         "04-dependency-diagram.py",
         "04-runtime-diagram.py"
       ],
@@ -86,12 +104,8 @@
             "lenses": ["security-governance", "architecture-reliability"]
           },
           "complex": {
-            "passes": 3,
-            "lenses": [
-              "security-governance",
-              "architecture-reliability",
-              "cost-feasibility"
-            ]
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
           }
         }
       }
@@ -101,12 +115,10 @@
       "type": "agent-step",
       "name": "Terraform Plan",
       "agent": "05t-Terraform Planner",
-      "requires": ["gate-2"],
+      "requires": ["gate-2.5"],
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": [
         "04-implementation-plan.md",
-        "04-governance-constraints.md",
-        "04-governance-constraints.json",
         "04-dependency-diagram.py",
         "04-runtime-diagram.py"
       ],
@@ -119,12 +131,8 @@
             "lenses": ["security-governance", "architecture-reliability"]
           },
           "complex": {
-            "passes": 3,
-            "lenses": [
-              "security-governance",
-              "architecture-reliability",
-              "cost-feasibility"
-            ]
+            "passes": 2,
+            "lenses": ["security-governance", "architecture-reliability"]
           }
         }
       }
@@ -208,14 +216,7 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": ["06-deployment-summary.md"],
       "gate": "approval",
-      "challenger": {
-        "complexity_matrix": {
-          "simple": { "passes": 1, "lenses": ["comprehensive"] },
-          "standard": { "passes": 1, "lenses": ["comprehensive"] },
-          "complex": { "passes": 1, "lenses": ["comprehensive"] }
-        },
-        "skip_condition": "complexity == 'simple' && open_findings.length == 0"
-      }
+      "challenger": null
     },
     "step-6t": {
       "id": "step-6t",
@@ -226,14 +227,7 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": ["06-deployment-summary.md"],
       "gate": "approval",
-      "challenger": {
-        "complexity_matrix": {
-          "simple": { "passes": 1, "lenses": ["comprehensive"] },
-          "standard": { "passes": 1, "lenses": ["comprehensive"] },
-          "complex": { "passes": 1, "lenses": ["comprehensive"] }
-        },
-        "skip_condition": "complexity == 'simple' && open_findings.length == 0"
-      }
+      "challenger": null
     },
     "gate-5": {
       "id": "gate-5",
@@ -275,12 +269,12 @@
     { "from": "gate-1", "to": "step-2", "condition": "on_complete" },
     { "from": "step-2", "to": "gate-2", "condition": "on_complete" },
     { "from": "gate-2", "to": "step-3", "condition": "on_complete" },
-    { "from": "gate-2", "to": "step-4b", "condition": "on_complete" },
-    { "from": "gate-2", "to": "step-4t", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-4b", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-4b", "condition": "on_skip" },
-    { "from": "step-3", "to": "step-4t", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-4t", "condition": "on_skip" },
+    { "from": "gate-2", "to": "step-3.5", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-3.5", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-3.5", "condition": "on_skip" },
+    { "from": "step-3.5", "to": "gate-2.5", "condition": "on_complete" },
+    { "from": "gate-2.5", "to": "step-4b", "condition": "on_complete" },
+    { "from": "gate-2.5", "to": "step-4t", "condition": "on_complete" },
     { "from": "step-4b", "to": "gate-3", "condition": "on_complete" },
     { "from": "step-4t", "to": "gate-3", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5b", "condition": "on_complete" },
@@ -294,9 +288,9 @@
     { "from": "gate-5", "to": "step-7", "condition": "on_complete" }
   ],
   "metadata": {
-    "version": "1.0",
+    "version": "2.0",
     "iac_tracks": ["Bicep", "Terraform"],
-    "total_gates": 5,
-    "total_steps": 7
+    "total_gates": 6,
+    "total_steps": 8
   }
 }

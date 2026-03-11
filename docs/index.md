@@ -101,7 +101,7 @@ sequenceDiagram
 
   ***
 
-  Understand the multi-agent architecture, skills system, and 7-step workflow.
+  Understand the multi-agent architecture, skills system, and 8-step workflow.
 
   [:octicons-arrow-right-24: How It Works](how-it-works/index.md)
 
@@ -109,7 +109,7 @@ sequenceDiagram
 
   ***
 
-  The 7-step journey from requirements to deployed infrastructure with approval gates.
+  The 8-step journey from requirements to deployed infrastructure with approval gates.
 
   [:octicons-arrow-right-24: Workflow](workflow.md)
 
@@ -159,13 +159,13 @@ sequenceDiagram
 
 ## :material-chart-box-outline: Key Facts
 
-|                 |                                                    |
-| --------------- | -------------------------------------------------- |
-| **Agents**      | 15 primary + 9 validation subagents                |
-| **Skills**      | 21 reusable domain knowledge modules               |
-| **IaC Tracks**  | Bicep and Terraform (dual-track)                   |
-| **MCP Servers** | Azure, Pricing, Terraform, GitHub, Microsoft Learn |
-| **Workflow**    | 7 steps with mandatory approval gates              |
+|                 |                                       |
+| --------------- | ------------------------------------- |
+| **Agents**      | 16 primary + 11 subagents             |
+| **Skills**      | 18 reusable domain knowledge modules  |
+| **IaC Tracks**  | Bicep and Terraform (dual-track)      |
+| **MCP Servers** | Azure, Pricing, Terraform, GitHub     |
+| **Workflow**    | 8 steps with mandatory approval gates |
 
 ## :material-star-outline: Highlights
 

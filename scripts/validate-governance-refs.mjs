@@ -103,21 +103,12 @@ check(
 );
 check("Checks SKU restrictions", fileContains(reviewPath, "SKU restriction"));
 
-// 3. Bicep Planner references JSON schema completeness
+// 3. Bicep Planner consumes governance JSON as prerequisite
 console.log("\n📄 05b-bicep-planner.agent.md");
 const plannerPath = ".github/agents/05b-bicep-planner.agent.md";
 check(
-  "Notes JSON consumption by Code Generator",
-  fileContains(plannerPath, "consumed downstream"),
-);
-check(
-  "Requires bicepPropertyPath or azurePropertyPath in JSON",
-  fileContains(plannerPath, "bicepPropertyPath") ||
-    fileContains(plannerPath, "azurePropertyPath"),
-);
-check(
-  "Requires requiredValue in JSON",
-  fileContains(plannerPath, "requiredValue"),
+  "References governance constraints as prerequisite",
+  fileContains(plannerPath, "04-governance-constraints"),
 );
 check(
   "Has policy effect decision tree (inline or reference)",
@@ -180,8 +171,9 @@ check(
     fileContains(tfPlannerPath, "always use `azurePropertyPath`"),
 );
 check(
-  "Governance discovery is a HARD GATE",
-  fileContains(tfPlannerPath, "HARD GATE"),
+  "Governance constraints are a prerequisite",
+  fileContains(tfPlannerPath, "REQUIRED") &&
+    fileContains(tfPlannerPath, "04-governance-constraints"),
 );
 check(
   "References 04-governance-constraints.json",

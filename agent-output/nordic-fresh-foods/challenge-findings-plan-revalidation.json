@@ -1,0 +1,19 @@
+{
+  "challenged_artifact": "agent-output/nordic-fresh-foods/04-implementation-plan.md",
+  "artifact_type": "implementation-plan",
+  "review_focus": "security-governance",
+  "pass_number": "revalidation-1",
+  "challenge_summary": "Post-revision re-review. Original 10 must_fix resolved. 2 new must_fix found and immediately fixed: (1) SQL bootstrap execution path added (deploymentScript in VNet for prod, direct sqlcmd for dev), (2) SQL server identity + Graph permissions added. 3 should_fix noted: KV bypass clarified, diagnostic coverage matrix added, SQL threat detection via Defender added.",
+  "must_fix_count_before_fix": 2,
+  "must_fix_count_after_fix": 0,
+  "should_fix_count_before_fix": 3,
+  "should_fix_count_after_fix": 0,
+  "fixes_applied": [
+    "SQL bootstrap: Added deploymentScript (VNet-injected) for prod, direct sqlcmd for dev",
+    "SQL server identity: Added SystemAssigned identity + Graph User.Read.All permission",
+    "KV bypass: Documented AzureServices bypass intentionality with justification",
+    "Diagnostic coverage: Added full diagnostic matrix covering KV, VNet, NSG, PE, Activity Log",
+    "SQL threat detection: Added securityAlertPolicies (Defender for SQL) to sql.bicep task",
+    "Anomaly detection: Separated from budget resource, documented as CostManagement scheduledActions"
+  ]
+}

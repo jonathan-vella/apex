@@ -1,0 +1,72 @@
+{
+  "challenged_artifact": "agent-output/nordic-fresh-foods/04-implementation-plan.md",
+  "artifact_type": "implementation-plan",
+  "review_focus": "cost-feasibility",
+  "pass_number": 3,
+  "challenge_summary": "Core SKUs are mostly aligned with Step 2, but the plan remains cost-feasibility weak in budget enforcement design, observability ingestion control, hidden variable networking costs, and execution realism for a dual-environment rollout.",
+  "compact_for_parent": "Pass 3 (cost-feasibility) | HIGH | 2 must_fix, 5 should_fix | Key: Budget scope conflicts with hard cap; Telemetry ingest model unbounded",
+  "risk_level": "high",
+  "must_fix_count": 2,
+  "should_fix_count": 5,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Budget design conflicts with the hard EUR1K cap across two environments",
+      "description": "The plan hardcodes a single amount: 1000 budget while the project deploys both dev and prod. Does not define whether this is one aggregate or per-environment budgets.",
+      "artifact_section": "Task 9: budget.bicep; Task 10: Parameter Files; Overview",
+      "suggested_mitigation": "Define explicit budget topology: aggregate budget + separate env budgets with parameterized amounts and names."
+    },
+    {
+      "severity": "must_fix",
+      "category": "untested_assumption",
+      "title": "Telemetry cost assumptions are incompatible with configured ingestion limits",
+      "description": "Log Analytics dailyQuotaGb: 5 with allLogs/AllMetrics and no sampling, DCR filtering, or per-environment ingestion budgets defined.",
+      "artifact_section": "Task 3: monitoring.bicep; Task 6/7/8 diagnosticSettings",
+      "suggested_mitigation": "Add explicit ingestion guardrails: per-env daily caps, sampling targets, DCR filtering. Include p50/p90 observability cost bands."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Private networking variable meters are not modeled as operational cost guardrails",
+      "artifact_section": "Resource Inventory; Runtime Flow Diagram",
+      "suggested_mitigation": "Add explicit variable networking assumptions and alerts by meter category (DNS, PE, egress)."
+    },
+    {
+      "severity": "should_fix",
+      "category": "scope_risk",
+      "title": "Dev cost-optimization strategy is not executable from implementation tasks",
+      "artifact_section": "Dev Environment Overrides; Task 10",
+      "suggested_mitigation": "Add concrete dev FinOps controls: scheduled deploy/destroy, lower dev log retention/quotas."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Cost BOM reconciliation is incomplete despite mostly consistent core SKUs",
+      "artifact_section": "Overview; Resource Inventory",
+      "suggested_mitigation": "Create a single BOM table mapping every deployed item per environment to a cost line item."
+    },
+    {
+      "severity": "should_fix",
+      "category": "scope_risk",
+      "title": "Implementation duration estimate is optimistic for cost-safe delivery",
+      "artifact_section": "Estimated Implementation Time; Deployment Phases",
+      "suggested_mitigation": "Re-baseline effort with explicit FinOps validation tasks and contingency buffer."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "No explicit reaction plan for budget variance against expected run-rate",
+      "artifact_section": "Overview; Task 9: budget.bicep",
+      "suggested_mitigation": "Add a cost variance playbook with trigger levels (+15%, +30%) and pre-approved actions."
+    },
+    {
+      "severity": "suggestion",
+      "category": "waf_blind_spot",
+      "title": "Post-launch right-sizing and reservation review checkpoint is missing",
+      "artifact_section": "Overview; Approval Gate",
+      "suggested_mitigation": "Add a 30/60/90-day FinOps checkpoint with CPU, DTU, and cost-per-order KPIs."
+    }
+  ]
+}

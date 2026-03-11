@@ -47,6 +47,7 @@ const EXPECTED_STEP_NAMES = {
   1: "Requirements",
   2: "Architecture",
   3: "Design",
+  3.5: "Governance",
   4: "IaC Plan",
   5: "IaC Code",
   6: "Deploy",
@@ -185,7 +186,14 @@ function validateStateFile(filePath, isTemplate) {
     if (typeof state.review_audit !== "object" || state.review_audit === null) {
       error(label, "review_audit must be an object");
     } else {
-      const validStepKeys = ["step_1", "step_2", "step_4", "step_5", "step_6"];
+      const validStepKeys = [
+        "step_1",
+        "step_2",
+        "step_3.5",
+        "step_4",
+        "step_5",
+        "step_6",
+      ];
       for (const [key, audit] of Object.entries(state.review_audit)) {
         if (!validStepKeys.includes(key)) {
           warn(label, `review_audit has unexpected key: "${key}"`);

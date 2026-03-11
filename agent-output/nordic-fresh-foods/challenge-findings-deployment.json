@@ -1,0 +1,46 @@
+{
+  "pass_number": 1,
+  "artifact_type": "deployment-preview",
+  "review_focus": "comprehensive",
+  "project": "nordic-fresh-foods",
+  "timestamp": "2026-03-11T17:00:00Z",
+  "summary": "The what-if itself has a low blast radius because it is create-only and shows no deprecations, but the production deployment is currently blocked by unresolved SQL Microsoft Entra admin placeholders and still has unautomated post-deploy and cost-governance gaps that the what-if preview does not validate.",
+  "total_must_fix": 1,
+  "total_should_fix": 3,
+  "findings": [
+    {
+      "id": "D1",
+      "severity": "must_fix",
+      "waf_pillar": "Security",
+      "title": "SQL Entra admin placeholders will block SQL server provisioning",
+      "description": "The production parameter file still passes \"<replace-with-entra-group-object-id>\" and \"<replace-with-entra-group-name>\" into the SQL AVM administrators block. Microsoft.Sql server administrator sid values must be valid 36-character GUID object IDs, and the current placeholder is not. That means the what-if success is a false positive here: the SQL logical server creation or its Entra admin provisioning is likely to fail at deployment time. This is an authentication failure risk, not an open-access hole, because Azure AD-only authentication remains enabled.",
+      "recommendation": "Replace both SQL admin placeholders with a real Microsoft Entra security group display name and object ID, validate the group exists in the tenant, and rerun what-if before attempting production deployment."
+    },
+    {
+      "id": "D2",
+      "severity": "should_fix",
+      "waf_pillar": "Reliability",
+      "title": "App Service still lacks automated SQL data-plane bootstrap",
+      "description": "The architecture and implementation plan require a contained SQL user for the App Service managed identity, but the current deployment preview contains no deploymentScript resource and no automated SQL bootstrap. The deploy script only prints manual CREATE USER and ALTER ROLE statements after deployment. Result: the 37 Azure resources can all provision successfully while the application still fails its first database-authenticated operation.",
+      "recommendation": "Automate the contained-user bootstrap inside the deployment path or make it a hard release gate with explicit verification that the App Service managed identity can log in and has the required database roles before production traffic is enabled."
+    },
+    {
+      "id": "D3",
+      "severity": "should_fix",
+      "waf_pillar": "Operational Excellence",
+      "title": "Subscription Activity Log routing is outside what-if and appears miswired",
+      "description": "The plan expected subscription diagnostic routing to use the Log Analytics workspace resource ID, but deploy.ps1 retrieves the Phase 2 output named logAnalyticsWorkspaceName and passes that value to az monitor diagnostic-settings subscription create as --workspace. This subscription-scoped step is not part of the resource-group what-if, so the preview does not validate it. The likely outcome is that Administrative, Security, and Policy logs are left unrouted or require manual correction after deployment, which weakens audit evidence for GDPR and PCI-DSS operations.",
+      "recommendation": "Output and consume logAnalyticsWorkspaceResourceId for the subscription diagnostic setting, then verify the Activity Log diagnostic setting exists and is writing to Log Analytics before production sign-off."
+    },
+    {
+      "id": "D4",
+      "severity": "should_fix",
+      "waf_pillar": "Cost Optimization",
+      "title": "Cost governance is incomplete and too loose for the documented spend profile",
+      "description": "Step 3 modeled roughly $204 per month steady-state and about $308 at peak, but the production budget is set to EUR 800. That means the 80/100/120 percent thresholds do not provide meaningful early warning until spend is far beyond the expected operating range. In addition, the deployed budget module does not implement the repository-required action-group escalation or separate anomaly-detection control, and the budget and technical-contact fields are still placeholders, making alert routing and governance metadata unreliable even if the resource deploys.",
+      "recommendation": "Replace the remaining contact placeholders, size the budget closer to modeled production spend plus a defined buffer, add escalation via action groups for the 100 percent and 120 percent thresholds, and implement the separate anomaly-detection control before go-live."
+    }
+  ],
+  "overall_verdict": "BLOCKED",
+  "deploy_recommendation": "hold"
+}

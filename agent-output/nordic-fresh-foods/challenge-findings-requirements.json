@@ -1,0 +1,79 @@
+{
+  "artifact": "01-requirements.md",
+  "project": "nordic-fresh-foods",
+  "pass": 1,
+  "lens": "comprehensive",
+  "model": "challenger-review-subagent",
+  "timestamp": "2026-03-11T10:19:27Z",
+  "findings": [
+    {
+      "id": "REQ-001",
+      "severity": "must_fix",
+      "category": "untested_assumption",
+      "title": "Azure AD B2C is an invalid default for a 2026 greenfield build",
+      "description": "The requirements hard-code Azure AD B2C plus social identity providers as the customer identity platform for a startup MVP being built in 2026. Microsoft has made Azure AD B2C end-of-sale for new customers as of May 1, 2025. For a greenfield company with no stated existing B2C tenant, this is a procurement and architecture blocker that can invalidate the downstream auth design, pricing, and implementation assumptions.",
+      "recommendation": "Replace the requirement with Microsoft Entra External ID, or explicitly state that an existing Azure AD B2C tenant already exists and is approved for continued use. Re-baseline identity pricing, user-flow support, and social login assumptions before Step 2.",
+      "waf_pillar": "Security"
+    },
+    {
+      "id": "REQ-002",
+      "severity": "must_fix",
+      "category": "compliance_gap",
+      "title": "EU-only residency stops at Azure and ignores external processors",
+      "description": "The artifact says customer PII, payment tokens, order data, and route data must remain EU-only, but it does not constrain the payment gateway, mapping/routing API, email/SMS provider, or social identity providers. Those integrations are likely to process names, addresses, phone numbers, or tokenized payment metadata. As written, the architecture could satisfy Azure regional placement and still violate the stated sovereignty requirement through third-party processors.",
+      "recommendation": "Add explicit residency and transfer requirements for every external processor. Define which data classes may be sent to each integration, whether the processor must keep data in the EU, and what approved transfer mechanism is required if data leaves the EU.",
+      "waf_pillar": "Security"
+    },
+    {
+      "id": "REQ-003",
+      "severity": "must_fix",
+      "category": "missing_requirement",
+      "title": "Environment topology is incompatible with a public regulated launch",
+      "description": "The artifact rationalizes the workload as a single-environment, simple MVP, and the project index currently shows a Dev environment, but the same requirements call for a live consumer portal, restaurant access, GDPR handling, and PCI-scoped payment flows. Without an explicit environment strategy, later steps cannot correctly design production isolation, secrets boundaries, release promotion, test data handling, or rollback procedures.",
+      "recommendation": "Define the minimum environment topology now. At a minimum require separate dev and prod environments, and strongly consider staging/UAT for identity and payment changes. Require separate identities, secrets, data stores, budgets, and diagnostic settings per environment.",
+      "waf_pillar": "Operations"
+    },
+    {
+      "id": "REQ-004",
+      "severity": "should_fix",
+      "category": "architectural_weakness",
+      "title": "The requirements pre-select an undersized platform before architecture validation",
+      "description": "The artifact recommends App Service B1 and Azure SQL Basic while also requiring 10,000 consumers, 500+ restaurant users, near-real-time inventory, route optimization, real-time tracking, and 3x seasonal scaling. That recommendation anchors Step 2 to a cost-first baseline before validating background processing, caching, autoscale behavior, peak concurrency, and database contention. It creates a real risk that downstream design optimizes for the stated SKU instead of the stated workload.",
+      "recommendation": "Replace fixed SKUs in Step 1 with workload envelopes and measurable performance requirements. Require Step 2 to justify platform tiers with concurrency assumptions, load-test targets, autoscale rules, and whether queues/caching/background workers are required.",
+      "waf_pillar": "Performance"
+    },
+    {
+      "id": "REQ-005",
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Complexity is understated and may suppress downstream review depth",
+      "description": "The artifact classifies this project as simple, but the repo review protocol defines simple as three or fewer resource types, single region, no custom policy pressure, and a single environment. This workload already implies identity, web/API, SQL, Key Vault, storage, monitoring, Log Analytics, VNet/private endpoints, and multiple external integrations. Misclassifying it as simple can reduce the number of adversarial passes and governance checks applied in later steps.",
+      "recommendation": "Reclassify the project to at least standard unless scope is explicitly reduced. Update the handoff and session state so Steps 2, 4, and 5 receive the correct review depth and governance scrutiny.",
+      "waf_pillar": "Operations"
+    },
+    {
+      "id": "REQ-006",
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "Public internet exposure has no explicit abuse-resistance requirement",
+      "description": "The requirements explicitly allow public web and API endpoints and explicitly reject WAF for cost reasons, but they do not add compensating controls such as edge rate limiting, bot mitigation, API throttling, credential-stuffing protection, or defined DDoS posture. For a public consumer ordering platform with social sign-in and payment flows, that leaves Step 2 with no concrete requirement for protecting the internet-facing edge from common abuse patterns.",
+      "recommendation": "Add an edge-security requirement now. Either require a managed WAF-capable front door/gateway or document compensating controls such as rate limits, bot protection, IP reputation controls, CDN caching, and alert thresholds for abuse spikes.",
+      "waf_pillar": "Security"
+    },
+    {
+      "id": "REQ-007",
+      "severity": "should_fix",
+      "category": "cost_feasibility",
+      "title": "The hard monthly budget omits several mandatory cost drivers",
+      "description": "The budget is described as a hard startup runway limit of less than EUR 1,000 per month, but the scope includes identity MAU costs, private endpoints and private DNS, Log Analytics ingestion and retention, outbound email/SMS, mapping API usage, and seasonal traffic spikes. The artifact also says it prefers consumption pricing while the recommended core stack uses fixed App Service and SQL tiers. Without clarifying whether third-party services and observability/networking are included in-budget, the architecture step can look compliant on paper while failing the actual spending constraint.",
+      "recommendation": "State whether the EUR 1,000 cap includes third-party SaaS costs and set budget envelopes for platform, networking, observability, identity, and external APIs. Require Step 2 to estimate both steady-state and peak-season costs, including private networking and log ingestion.",
+      "waf_pillar": "Cost"
+    }
+  ],
+  "summary": {
+    "must_fix_count": 3,
+    "should_fix_count": 4,
+    "consider_count": 0,
+    "overall_assessment": "The business intent is clear, but the artifact contains three foundational gaps that can misdirect later steps: it anchors identity to an end-of-sale service, claims EU-only residency without constraining external processors, and leaves environment topology too weak for a public regulated launch. The remaining issues are mostly architecture and governance risks that should be corrected before Step 2 hardens them into design assumptions."
+  }
+}

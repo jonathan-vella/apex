@@ -80,7 +80,11 @@ For orchestrated workflows, parent agents invoke `challenger-review-subagent` di
    - `pass_number` = `1`
    - `prior_findings` = `null`
 5. **Write the returned JSON** to `agent-output/{project}/challenge-findings-{artifact_type}.json`
-6. **Present findings** to the user with a summary of `must_fix`, `should_fix`, and `suggestion` counts
+6. **Present findings directly in chat** — render a markdown table with columns:
+   **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
+   — list every finding from the JSON (must_fix first, then should_fix, then suggestion).
+   Show totals: `N must-fix, N should-fix, N suggestion`.
+   Reference the JSON file path for machine-readable details.
 
 ## Boundaries
 

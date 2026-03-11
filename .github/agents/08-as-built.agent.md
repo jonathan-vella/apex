@@ -142,8 +142,8 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 
 - **Context budget**: 3 files at startup (`00-session-state.json` + `06-deployment-summary.md` + `01-requirements.md`)
 - **My step**: 7
-- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_inventory` →
-  `phase_3_docs` → `phase_4_cost` → `phase_5_diagram` → `phase_6_index`
+- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_1.5_compacted` →
+  `phase_2_inventory` → `phase_3_docs` → `phase_4_cost` → `phase_5_diagram` → `phase_6_index`
 - **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.7.status`
   is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_docs`,
   inventory is done — read `07-resource-inventory.md` on-demand and continue doc generation).
@@ -162,6 +162,24 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
      for deployed resource attributes
 3. **Query deployed resources** via Azure CLI / Resource Graph for actual state
 4. **Read deployment summary** for resource IDs, names, and endpoints
+
+### Phase 1.5: Context Compaction (MANDATORY)
+
+Context usage reaches ~80% after loading 6+ prior artifacts and IaC source.
+**You MUST compact before generating the 7-document suite.**
+
+1. **Summarize prior artifacts** — write a single concise message containing:
+   - Resource inventory (names, types, SKUs, resource IDs from deployment)
+   - Architecture decisions from `02-architecture-assessment.md` (WAF scores, pattern)
+   - Deployment result from `06-deployment-summary.md` (success/partial, resource count)
+   - Compliance requirements from `01-requirements.md`
+   - Cost estimate baseline from `03-des-cost-estimate.md` (monthly total)
+2. **Switch to minimal skill loading** — for any further skill reads, use
+   `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
+3. **Do NOT re-read predecessor artifacts during doc generation** — rely on
+   the summary above and query Azure CLI for specific resource details as needed
+4. **Update session state** — write `sub_step: "phase_1.5_compacted"` to
+   `00-session-state.json` so resume skips re-loading prior context
 
 ### Phase 2: Documentation Generation
 

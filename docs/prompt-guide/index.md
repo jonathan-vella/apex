@@ -54,7 +54,7 @@ infrastructure.
 
 | Agent                  | Persona       | Step | Purpose                                        |
 | ---------------------- | ------------- | ---- | ---------------------------------------------- |
-| **InfraOps Conductor** | 🎼 Maestro    | All  | Orchestrates the full 7-step workflow          |
+| **InfraOps Conductor** | 🎼 Maestro    | All  | Orchestrates the full 8-step workflow          |
 | **Requirements**       | 📜 Scribe     | 1    | Captures business and technical requirements   |
 | **Architect**          | 🏛️ Oracle     | 2    | WAF assessment, cost estimates, SKU comparison |
 | **Design**             | 🎨 Artisan    | 3    | Architecture diagrams and ADRs (optional step) |
@@ -113,7 +113,7 @@ to see available prompts.
 
 | Prompt File           | Agent              | Step | Purpose                                     |
 | --------------------- | ------------------ | ---- | ------------------------------------------- |
-| `run-conductor`       | InfraOps Conductor | All  | End-to-end 7-step orchestration             |
+| `run-conductor`       | InfraOps Conductor | All  | End-to-end 8-step orchestration             |
 | `plan-requirements`   | Requirements       | 1    | Business-first requirements discovery       |
 | `assess-architecture` | Architect          | 2    | WAF assessment with cost estimates          |
 | `design-diagram`      | Design             | 3    | Python architecture diagram generation      |

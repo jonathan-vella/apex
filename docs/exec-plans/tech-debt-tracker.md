@@ -11,8 +11,9 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | ID  | Domain | Description | Priority | Owner | Milestone |
 | --- | ------ | ----------- | -------- | ----- | --------- |
 
-| 10 | Agents | `agents` frontmatter is a string (not array) in 5 agents | Low | — | Phase-next |
+| 10 | Agents | `agents` frontmatter string (not array) in 7 agents | Low | — | Phase-next |
 | 11 | Instructions | 4 `applyTo` warnings: bicep + terraform instruction files | Low | — | Phase-next |
+| 14 | Agents | `01-conductor.agent.md` body 354 lines (>350 limit) | Medium | — | Phase-next |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 

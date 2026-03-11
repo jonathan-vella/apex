@@ -1,0 +1,70 @@
+{
+  "pass": 1,
+  "lens": "comprehensive",
+  "artifact_type": "cost-estimate",
+  "project": "nordic-fresh-foods",
+  "summary": {
+    "must_fix": 1,
+    "should_fix": 5,
+    "suggestion": 1
+  },
+  "compact_for_parent": "Pass 1 (comprehensive) | HIGH | 1 must_fix, 5 should_fix | Key: Peak model inconsistent; Workspace-based AI mispriced; Dev shutdown savings invalid",
+  "findings": [
+    {
+      "id": "COST-CE-001",
+      "severity": "must_fix",
+      "title": "Peak-season cost model is internally inconsistent and not approval-safe",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Canonical peak scope, recalculate with variable-meter sensitivities.",
+      "effort": "medium"
+    },
+    {
+      "id": "COST-CE-002",
+      "severity": "should_fix",
+      "title": "Workspace-based Application Insights is priced with wrong billing model",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Reprice as Log Analytics workspace ingestion.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-CE-003",
+      "severity": "should_fix",
+      "title": "Savings opportunities are not operationally achievable as written",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Replace with feasible actions; remove RI claims for S1.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-CE-004",
+      "severity": "should_fix",
+      "title": "Variable networking and storage meters are omitted or understated",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add baseline/peak lines for PE data processed, egress, storage transactions.",
+      "effort": "medium"
+    },
+    {
+      "id": "COST-CE-005",
+      "severity": "should_fix",
+      "title": "Cost guardrails below repository baseline",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add forecast alerts, anomaly detection, FX assumption.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-CE-006",
+      "severity": "should_fix",
+      "title": "Intermediate subtotals and savings arithmetic do not reconcile",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Regenerate all subtotals from one source table, canonical peak figure.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-CE-007",
+      "severity": "suggestion",
+      "title": "Core SKU rates plausible but not independently auditable",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add pricing evidence appendix with MCP query details.",
+      "effort": "low"
+    }
+  ]
+}

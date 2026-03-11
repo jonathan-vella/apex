@@ -4,7 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
+agents: []
 tools:
   [
     vscode/extensions,
@@ -128,6 +128,7 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 | DO                                                                | DON'T                                                     |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
 | Run preflight validation BEFORE deployment                        | Deploy without running what-if first                      |
+| Scan param file for placeholders; use `askQuestions` to collect   | Pass param files with literal `<replace-with-*>` strings  |
 | Check `04-implementation-plan.md` for deployment strategy         | Skip phase gates when plan specifies phased deployment    |
 | Deploy phases one at a time with approval gates                   | Use `--output yaml/json` for what-if (disables rendering) |
 | Use **default output** for what-if (no `--output` flag)           | Auto-approve production deployments                       |
@@ -184,6 +185,25 @@ bicep build infra/bicep/{project}/main.bicep
 
 If errors → STOP, report, hand off to Bicep Code agent.
 
+### Step 2.5: Scan for Unresolved Placeholders
+
+Before running what-if, scan the param file for any unresolved placeholder values:
+
+```bash
+grep -n "<replace-with-\|<your-\|<TODO\|PLACEHOLDER" infra/bicep/{project}/main.bicepparam 2>/dev/null || true
+```
+
+If **any placeholders are found**:
+
+1. Do **not** proceed to what-if yet.
+2. Use `askQuestions` to collect each missing value interactively —
+   one question per placeholder, with a clear label describing what
+   is needed (e.g. "Enter the Entra group Object ID for SQL admin").
+3. After the user supplies all values, update `main.bicepparam` with the real values.
+4. Re-run `bicep build` to confirm no new errors before continuing.
+
+> This is a **blocking gate** — never pass a param file with literal placeholder strings to what-if or deployment.
+
 ### Step 3: Determine Deployment Scope
 
 Read `targetScope` from `main.bicep`:
@@ -228,33 +248,24 @@ If detected, STOP and report.
 
 Present summary table.
 
-### Step 5.5: Pre-Deploy Adversarial Review (conditional)
+### Step 5.5: Deployment Approval Gate
 
-Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+**Present what-if results directly in chat** before asking the user to decide:
 
-> **Skip condition**: Skip pre-deploy adversarial review ONLY if `decisions.complexity == 'simple'`
-> AND `open_findings` array is empty in session state. Standard and complex projects ALWAYS get 1× deploy review.
+1. Print what-if change summary (creates, modifies, deletes)
+2. If any Delete operations, flag prominently
 
-After what-if, invoke `challenger-review-subagent` via `#runSubagent` with
-`artifact_type=deployment-preview`, `review_focus=comprehensive`, `pass_number=1`.
-Write result to `agent-output/{project}/challenge-findings-deployment.json`.
+Then use `askQuestions` to gather the decision:
 
-### Step 5.6: Deployment Approval Gate
-
-Use `askQuestions` to present the what-if summary and challenger
-findings, then gather the user's deploy/abort decision:
-
-- In the question description, include:
-  - What-if change summary (creates, modifies, deletes)
-  - Challenger findings: `must_fix` (blocking) and `should_fix`
-    (recommended) — flag must-fix items prominently
+- Question description:
+  `"What-if: N creates, N modifies, N deletes. Proceed?"`
 - Ask a single-select question: _"How would you like to proceed?"_
   with options:
   1. **Deploy** — apply the changes
-  2. **Abort** — stop deployment and review findings
-     (recommended if any must-fix or Delete operations exist,
+  2. **Abort** — stop deployment and review
+     (recommended if any Delete operations exist,
      mark as `recommended`)
-- If the user chooses to abort: stop and present findings for review
+- If the user chooses to abort: stop and present details for review
 - If the user chooses to deploy: proceed with deployment execution
 
 ## Deployment Execution
@@ -295,7 +306,9 @@ az graph query -q "HealthResources | where resourceGroup =~ 'rg-{project}-{env}'
 
 ## Stopping Rules
 
-**STOP IMMEDIATELY if:** `bicep build` errors · Delete (`-`) ops without
+**STOP IMMEDIATELY if:** `bicep build` errors ·
+Unresolved placeholders in param file (collect via `askQuestions` first) ·
+Delete (`-`) ops without
 approval · >10 modified resources (summarize first) · user hasn't approved ·
 auth not configured · deprecation signals detected.
 
@@ -333,6 +346,7 @@ After saving, run `npm run lint:artifact-templates` and fix any errors for your 
 
 - [ ] Azure CLI authenticated (`az account get-access-token --resource https://management.azure.com/` succeeds)
 - [ ] `bicep build` passes with no errors
+- [ ] No unresolved `<replace-with-*>` placeholders in param file (collected via `askQuestions`)
 - [ ] What-if analysis completed and reviewed
 - [ ] No unapproved Delete operations
 - [ ] No deprecation signals in what-if output

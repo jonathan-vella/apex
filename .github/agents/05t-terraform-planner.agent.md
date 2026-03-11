@@ -5,7 +5,6 @@ model: ["Claude Opus 4.6"]
 user-invocable: true
 agents:
   [
-    "governance-discovery-subagent",
     "challenger-review-subagent",
     "challenger-review-codex-subagent",
     "challenger-review-batch-subagent",
@@ -111,44 +110,47 @@ Always specify Azure Storage Account backend only.
 | DO                                                                    | DON'T                                                                 |
 | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Verify Azure connectivity (`az account show`) FIRST                   | Write ANY Terraform code — this agent plans only                      |
-| Run governance discovery via REST API + ARG BEFORE planning           | Skip governance discovery (HARD GATE)                                 |
+| Read `04-governance-constraints.md/.json` — prerequisite input        | Skip reading governance constraints                                   |
 | Check AVM-TF for EVERY resource (`terraform/search_modules`)          | Generate plan before asking deployment strategy (Phase 3.5 mandatory) |
 | Use `terraform/get_module_details` for variable schema                | Use `az policy assignment list` alone (misses mgmt group policies)    |
 | always use `azurePropertyPath` (not `bicepPropertyPath`) in plan      | Plan `terraform { cloud { } }` or `TFE_TOKEN` usage                   |
 | Define tasks as YAML specs (resource, module, dependencies, config)   | Plan backends other than Azure Storage Account                        |
-| Generate `04-implementation-plan.md` + `04-governance-constraints.md` | Proceed to terraform-code without explicit user approval              |
+| Generate `04-implementation-plan.md`                                  | Proceed to terraform-code without explicit user approval              |
 | Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram`  | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only     |
-| Ask user for deployment strategy (phased vs single) — MANDATORY GATE  | Use archived tool names (`moduleSearch` etc.) — use `terraform/*` MCP |
-| Use `askQuestions` in Phase 5 to present findings and gather approval | Generate governance from best-practice assumptions                    |
-| Match H2 headings from azure-artifacts templates exactly              |                                                                       |
+| Ask user for deployment strategy (phased vs single) — MANDATORY GATE  | Generate governance from best-practice assumptions                    |
+| Use `askQuestions` in Phase 5 to present findings and gather approval | Re-run governance discovery (already done in Step 3.5)                |
+| Match H2 headings from azure-artifacts templates exactly              | Use archived tool names (`moduleSearch` etc.) — use `terraform/*` MCP |
 
 ## Prerequisites Check
 
-Validate `02-architecture-assessment.md` exists in `agent-output/{project}/`.
-If missing, STOP → handoff to Architect agent. Read for: resource list, SKUs, WAF scores.
+Validate these files exist in `agent-output/{project}/`:
+
+1. `02-architecture-assessment.md` — resource list, SKUs, WAF scores
+2. `04-governance-constraints.md` — **REQUIRED**. Produced by Step 3.5 (Governance agent)
+3. `04-governance-constraints.json` — **REQUIRED**. Machine-readable policy data
+
+If any are missing, STOP → handoff to the appropriate prior agent.
 
 ## Session State Protocol
 
 **Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
-- **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
+- **Context budget**: 3 files at startup (`00-session-state.json` + `02-architecture-assessment.md` + `04-governance-constraints.json`)
 - **My step**: 4
-- **Sub-steps**: `phase_1_governance` → `phase_2_avm` → `phase_3_plan` →
-  `phase_3.5_strategy` → `phase_4_diagrams` → `phase_5_challenger` →
+- **Sub-steps**: `phase_1_prereqs` → `phase_2_avm` → `phase_3_plan` →
+  `phase_3.5_strategy` → `phase_3.6_compacted` → `phase_4_diagrams` → `phase_5_challenger` →
   `phase_6_artifact`
 - **Resume**: Read `00-session-state.json` first. If `steps.4.status = "in_progress"` with a `sub_step`, skip to that checkpoint.
 - **State writes**: Update `00-session-state.json` after each phase.
 
 ## Core Workflow
 
-### Phase 1: Governance Discovery (MANDATORY GATE)
+### Phase 1: Prerequisites and Governance Integration
 
-**Hard gate**. If governance discovery fails, STOP. Do NOT proceed with incomplete policy data.
-
-1. Delegate to `governance-discovery-subagent` (queries REST API + ARG, classifies effects)
-2. Review result — Status must be COMPLETE (if PARTIAL/FAILED, STOP)
-3. Integrate into `04-governance-constraints.md` + `.json`; `Deny` = hard blocker
-4. Run `npm run lint:artifact-templates` after saving
+1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5)
+2. Extract all `Deny` policies — these are hard blockers for the plan
+3. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
+4. Verify governance artifacts are complete — if missing or `PARTIAL`, STOP
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
@@ -181,6 +183,23 @@ Use `askQuestions`:
 
 If phased, also ask: Standard grouping (recommended) or Custom boundaries.
 
+### Phase 3.6: Context Compaction (MANDATORY)
+
+Context usage reaches ~80% by the end of the deployment strategy gate.
+**You MUST compact the conversation before proceeding to Phase 4.**
+
+1. **Summarize prior phases** — write a single concise message containing:
+   - Governance discovery result (pass/fail, blocker count)
+   - AVM-TF module verification summary (AVM vs raw count)
+   - Deployment strategy choice (phased/single, phase grouping)
+   - Key decisions from `02-architecture-assessment.md` (resource list, SKUs)
+2. **Switch to minimal skill loading** — for any further skill reads, use
+   `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
+3. **Do NOT re-read predecessor artifacts** — rely on the summary above
+   and the saved files on disk (`04-governance-constraints.md/json`)
+4. **Update session state** — write `sub_step: "phase_3.6_compacted"` to
+   `00-session-state.json` so resume skips re-loading prior context
+
 ### Phase 4: Implementation Plan Generation
 
 Generate YAML-structured resource specs per resource. Include:
@@ -195,35 +214,42 @@ naming table, security matrix, backend config template, estimated time.
 For Terraform-specific patterns (backend, state locking, provider pin, naming),
 read `terraform-patterns/references/tf-best-practices-examples.md`.
 
-### Phase 4.3: Governance Review (conditional)
-
-Skip governance review if `decisions.complexity == 'simple'` in `00-session-state.json`.
-For `standard`/`complex` projects: invoke `challenger-review-subagent` with `artifact_type = "governance-constraints"`,
-`review_focus = "comprehensive"`, pass 1. Save to `challenge-findings-governance-constraints.json`.
-
-### Phase 4.5: Adversarial Plan Review (3 passes)
+### Phase 4.3–4.4: Adversarial Plan Review (2 lenses max)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table.
-Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
-Invoke challenger subagents 3× with `artifact_type = "implementation-plan"`,
-rotating `review_focus`. Save to `challenge-findings-implementation-plan-pass{N}.json`.
+Check `00-session-state.json` `decisions.complexity` to determine pass count
+per the review matrix in `adversarial-review-protocol.md`.
+
+> **Governance review is NOT needed here** — it was already done in Step 3.5.
+> Plan reviews focus on **security-governance** and **architecture-reliability** only.
+> Cost-feasibility was already reviewed at Step 2 (Architecture).
+
+Invoke challenger subagents on `04-implementation-plan.md`
+(up to 2 passes: security-governance + architecture-reliability).
+Save to `challenge-findings-implementation-plan-pass{N}.json`.
 **Model routing**: Pass 1 (security-governance) →
 `challenger-review-subagent` (GPT-5.4).
-Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+Pass 2 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
 
-> **Conditional passes**: Follow the conditional pass rules from `adversarial-review-protocol.md` —
-> skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`.
+> **Conditional pass**: Follow the conditional pass rules from `adversarial-review-protocol.md` —
+> skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`.
 
 ### Phase 5: Approval Gate
 
-Use `askQuestions` to present the plan summary and challenger findings,
-then gather the user's proceed/revise decision:
+**Present findings directly in chat** before asking the user to decide:
 
-- In the question description, include:
-  - Resource count (AVM-TF vs raw), governance blockers/warnings,
-    deployment strategy, backend configuration
-  - Challenger findings: `must_fix` (blocking) and `should_fix`
-    (recommended) summaries with key concerns
+1. Print plan summary: resource count (AVM-TF vs raw), governance
+   blockers/warnings, deployment strategy, backend configuration
+2. For each challenger pass, render a markdown table with columns:
+   **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
+   — list every finding (must_fix first, then should_fix, then suggestion)
+3. Show aggregate totals: `N must-fix, N should-fix`
+4. Reference the JSON file paths for machine-readable details
+
+Then use `askQuestions` to gather the decision (brief summary only —
+detailed findings are already visible in chat above):
+
+- Question description: `"Challenger found N must-fix and N should-fix. See details in chat above. Revise or proceed?"`
 - Ask a single-select question: _"How would you like to proceed?"_
   with options:
   1. **Revise plan** — address must-fix findings before proceeding
@@ -238,19 +264,20 @@ then gather the user's proceed/revise decision:
 
 ## Boundaries
 
-- **Always**: Run governance discovery, verify AVM-TF modules, ask deployment strategy, generate diagrams
+- **Always**: Read governance constraints, verify AVM-TF modules, ask deployment strategy, generate diagrams
 - **Ask first**: Non-standard phase groupings, custom provider versions, deviation from architecture assessment
-- **Never**: Write Terraform code, skip governance, assume deployment strategy, plan HCP/cloud backends
+- **Never**: Write Terraform code, re-run governance discovery, assume deployment strategy, plan HCP/cloud backends
 
 ## Output Files
 
-| File                   | Location                                                |
-| ---------------------- | ------------------------------------------------------- |
-| Implementation Plan    | `agent-output/{project}/04-implementation-plan.md`      |
-| Governance Constraints | `agent-output/{project}/04-governance-constraints.md`   |
-| Governance JSON        | `agent-output/{project}/04-governance-constraints.json` |
-| Dependency Diagram     | `agent-output/{project}/04-dependency-diagram.py/.png`  |
-| Runtime Diagram        | `agent-output/{project}/04-runtime-diagram.py/.png`     |
+| File                | Location                                               |
+| ------------------- | ------------------------------------------------------ |
+| Implementation Plan | `agent-output/{project}/04-implementation-plan.md`     |
+| Dependency Diagram  | `agent-output/{project}/04-dependency-diagram.py/.png` |
+| Runtime Diagram     | `agent-output/{project}/04-runtime-diagram.py/.png`    |
+
+> **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
+> not by this agent. They are consumed as prerequisites.
 
 **`04-governance-constraints.json` is consumed** by Terraform CodeGen (Phase 1.5) and
 `terraform-review-subagent`. Each `Deny` policy MUST include `azurePropertyPath` +

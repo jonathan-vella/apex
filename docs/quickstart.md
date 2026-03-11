@@ -116,7 +116,7 @@ take precedence for experimental features like subagent invocation.
 
 ### Option A: InfraOps Conductor (Recommended)
 
-The Conductor (🎼 Maestro) orchestrates the complete 7-step workflow:
+The Conductor (🎼 Maestro) orchestrates the complete 8-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
 2. Select **InfraOps Conductor** from the agent dropdown
@@ -132,7 +132,7 @@ Create a simple web app in Azure with:
 - Project name: my-webapp
 ```
 
-The Conductor guides you through all 7 steps with approval gates.
+The Conductor guides you through all 8 steps with approval gates.
 
 ### Option B: Direct Agent Invocation
 
@@ -144,23 +144,25 @@ Invoke agents directly for specific tasks:
 
 ## :material-chart-timeline-variant: Step 7: Follow the Workflow
 
-The agents work in sequence with handoffs. Steps 1-3 and 7 are shared;
+The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection.
 
-| Step | Agent                                 | Persona       | What Happens             |
-| ---- | ------------------------------------- | ------------- | ------------------------ |
-| 1    | `requirements`                        | 📜 Scribe     | Captures requirements    |
-| 2    | `architect`                           | 🏛️ Oracle     | WAF assessment           |
-| 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional) |
-| 4    | `bicep-planner` / `terraform-planner` | 📐 Strategist | Implementation plan      |
-| 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates            |
-| 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment         |
-| 7    | `as-built`                            | 📚 Chronicler | Documentation suite      |
+| Step | Agent                                 | Persona       | What Happens                |
+| ---- | ------------------------------------- | ------------- | --------------------------- |
+| 1    | `requirements`                        | 📜 Scribe     | Captures requirements       |
+| 2    | `architect`                           | 🏛️ Oracle     | WAF assessment              |
+| 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional)    |
+| 3.5  | `governance`                          | 🛡️ Warden     | Policy discovery/compliance |
+| 4    | `bicep-planner` / `terraform-planner` | 📐 Strategist | Implementation plan         |
+| 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates               |
+| 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment            |
+| 7    | `as-built`                            | 📚 Chronicler | Documentation suite         |
 
 **Approval Gates**: The Conductor pauses at key points:
 
 - ⛔ **Gate 1**: After requirements (Step 1) — confirm requirements
 - ⛔ **Gate 2**: After architecture (Step 2) — approve WAF assessment
+- ⛔ **Gate 2.5**: After governance (Step 3.5) — approve governance constraints
 - ⛔ **Gate 3**: After planning (Step 4) — approve implementation plan
 - ⛔ **Gate 4**: After validation (Step 5) — approve preflight results
 - ⛔ **Gate 5**: After deployment (Step 6) — verify resources

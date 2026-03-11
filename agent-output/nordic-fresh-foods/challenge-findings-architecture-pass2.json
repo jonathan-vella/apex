@@ -1,0 +1,70 @@
+{
+  "pass": 2,
+  "lens": "architecture-reliability",
+  "artifact_type": "architecture",
+  "project": "nordic-fresh-foods",
+  "summary": {
+    "must_fix": 3,
+    "should_fix": 3,
+    "suggestion": 1
+  },
+  "compact_for_parent": "Pass 2 (architecture-reliability) | HIGH | 3 must_fix, 3 should_fix | Key: 99.9 SLA budget unproven; Regional DR path incomplete; External API failures can cascade",
+  "findings": [
+    {
+      "id": "REL-001",
+      "severity": "must_fix",
+      "title": "99.9% workload SLA is not currently achievable from the stated availability budget",
+      "waf_pillar": "Reliability",
+      "recommendation": "Set production minimum instances to at least 2, define explicit SLO/error-budget model, move non-critical dependencies off synchronous path.",
+      "effort": "medium"
+    },
+    {
+      "id": "REL-002",
+      "severity": "must_fix",
+      "title": "Regional disaster recovery path is incomplete for full workload recovery",
+      "waf_pillar": "Reliability",
+      "recommendation": "Document full DR runbook for germanywestcentral including app redeploy, DNS failover, secrets restore, and storage recovery.",
+      "effort": "high"
+    },
+    {
+      "id": "REL-003",
+      "severity": "must_fix",
+      "title": "External integration outages can cascade into order-processing failures",
+      "waf_pillar": "Reliability",
+      "recommendation": "Mandate resilience patterns: strict timeouts, bounded retries, circuit breaker, idempotency keys, async outbox for non-critical integrations.",
+      "effort": "medium"
+    },
+    {
+      "id": "REL-004",
+      "severity": "should_fix",
+      "title": "Health-check automation is contradictory across sections",
+      "waf_pillar": "Operational Excellence",
+      "recommendation": "Promote health-check to hard acceptance criterion with explicit endpoint path and threshold in IaC.",
+      "effort": "low"
+    },
+    {
+      "id": "REL-005",
+      "severity": "should_fix",
+      "title": "Autoscale strategy is under-validated for 3x peak and growth path",
+      "waf_pillar": "Performance Efficiency",
+      "recommendation": "Validate with load testing; use multi-metric autoscale and scheduled pre-scaling for known peaks.",
+      "effort": "medium"
+    },
+    {
+      "id": "REL-006",
+      "severity": "should_fix",
+      "title": "RTO/RPO claims are not operationally proven",
+      "waf_pillar": "Operational Excellence",
+      "recommendation": "Define component-level recovery time budgets and run periodic DR drills.",
+      "effort": "medium"
+    },
+    {
+      "id": "REL-007",
+      "severity": "suggestion",
+      "title": "Reliability upgrade triggers are not quantified",
+      "waf_pillar": "Reliability",
+      "recommendation": "Define objective escalation gates for AZ and cross-region enhancements.",
+      "effort": "low"
+    }
+  ]
+}

@@ -75,23 +75,18 @@ handoffs:
     prompt: "Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to `agent-output/{project}/03-des-cost-estimate.md`."
     send: true
     model: "Claude Opus 4.6 (copilot)"
-  - label: "Step 4: Bicep Plan"
-    agent: 05b-Bicep Planner
-    prompt: "Create a detailed Bicep implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all resources, dependencies, and tasks. Save to `agent-output/{project}/04-implementation-plan.md`."
+  - label: "Step 3.5: Governance Discovery"
+    agent: 04g-Governance
+    prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
-  - label: "Step 4: Terraform Plan"
-    agent: 05t-Terraform Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Include all resources, dependencies, and tasks. Save to `agent-output/{project}/04-implementation-plan.md`."
-    send: true
-    model: "Claude Opus 4.6 (copilot)"
-  - label: "⏭️ Skip to Step 5: Bicep Code"
+    model: "Claude Sonnet 4.6 (copilot)"
+  - label: "⏭️ Skip Steps 3.5 & 4: Bicep Code"
     agent: 06b-Bicep CodeGen
-    prompt: "Skip planning and go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
+    prompt: "Skip governance and planning. Go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
     send: true
-  - label: "⏭️ Skip to Step 5: Terraform Code"
+  - label: "⏭️ Skip Steps 3.5 & 4: Terraform Code"
     agent: 06t-Terraform CodeGen
-    prompt: "Skip planning and go directly to Terraform code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save configurations to `infra/terraform/{project}/`."
+    prompt: "Skip governance and planning. Go directly to Terraform code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save configurations to `infra/terraform/{project}/`."
     send: true
   - label: "↩ Return to Step 2"
     agent: 03-Architect

@@ -1,0 +1,62 @@
+{
+  "pass": 1,
+  "lens": "security-governance",
+  "artifact_type": "architecture",
+  "project": "nordic-fresh-foods",
+  "summary": {
+    "must_fix": 3,
+    "should_fix": 3,
+    "suggestion": 0
+  },
+  "compact_for_parent": "Pass 1 (security-governance) | HIGH | 3 must_fix, 3 should_fix | Key: SQL/Storage public access not disabled; GDPR processor validation missing; PCI scope unproven",
+  "findings": [
+    {
+      "id": "SEC-001",
+      "severity": "must_fix",
+      "title": "Private endpoints are specified without explicitly shutting off SQL and Storage public access",
+      "waf_pillar": "Security",
+      "recommendation": "Require explicit public-access shutdown for Azure SQL and Storage, document private DNS and pe-subnet controls.",
+      "effort": "medium"
+    },
+    {
+      "id": "SEC-002",
+      "severity": "must_fix",
+      "title": "GDPR residency and processor obligations are asserted, not validated",
+      "waf_pillar": "Security",
+      "recommendation": "Add processor-by-processor residency and legal-basis matrix, validate external tenant geography, document SCC/DPA requirements.",
+      "effort": "high"
+    },
+    {
+      "id": "SEC-003",
+      "severity": "must_fix",
+      "title": "The PCI token-only model is not proven by the proposed payment flow",
+      "waf_pillar": "Security",
+      "recommendation": "Mandate hosted payment fields or redirect tokenization, block payment payload logging, document PCI scope and SAQ boundary.",
+      "effort": "medium"
+    },
+    {
+      "id": "SEC-004",
+      "severity": "should_fix",
+      "title": "Azure Policy compliance is presented as covered before live discovery occurs",
+      "waf_pillar": "Security",
+      "recommendation": "Add governance-discovery gate before implementation readiness. Mark policy compliance as provisional.",
+      "effort": "low"
+    },
+    {
+      "id": "SEC-005",
+      "severity": "should_fix",
+      "title": "Key Vault is hardened for RBAC and recovery, but not for network isolation",
+      "waf_pillar": "Security",
+      "recommendation": "Add Key Vault private endpoint or firewall; state soft-delete retention and purge/recovery role model.",
+      "effort": "medium"
+    },
+    {
+      "id": "SEC-006",
+      "severity": "should_fix",
+      "title": "Managed Identity and privileged identity scoping are too vague",
+      "waf_pillar": "Security",
+      "recommendation": "Define least-privilege roles for MI, separate customer vs workforce identity, keep admin in workforce tenant with MFA/PIM.",
+      "effort": "medium"
+    }
+  ]
+}

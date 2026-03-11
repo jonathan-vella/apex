@@ -1,0 +1,62 @@
+{
+  "challenged_artifact": "agent-output/nordic-fresh-foods/04-implementation-plan.md",
+  "artifact_type": "implementation-plan",
+  "review_focus": "security-governance",
+  "pass_number": 1,
+  "challenge_summary": "The plan gets the broad security shape right, but it is still too loose where Azure Policy and identity flows require exact implementation detail. The main blockers are an ambiguous 9-tag contract, an AAD-only SQL design that never provisions the App Service managed identity inside the database, and a Key Vault design that disables public access without defining a working private or VNet access path.",
+  "compact_for_parent": "Pass 1 (security-governance) | HIGH | 3 must_fix, 3 should_fix | Key: Tag contract ambiguous; SQL MI user missing; Key Vault access path broken",
+  "risk_level": "high",
+  "must_fix_count": 3,
+  "should_fix_count": 3,
+  "suggestion_count": 0,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Tag contract leaves deny-policy tag names ambiguous",
+      "description": "The plan repeatedly says modules receive 'all 11 tags' but never enumerates the 9 deny-enforced resource-group tag keys. The governance artifacts already contain an inconsistency between technical-contact and tech-contact.",
+      "artifact_section": "Module Structure > Module Interface Contract; Task 1; Task 10",
+      "suggested_mitigation": "Define the 9 policy-required tag keys verbatim in the plan: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact."
+    },
+    {
+      "severity": "must_fix",
+      "category": "hidden_dependency",
+      "title": "AAD-only SQL plan omits contained user creation for App Service MI",
+      "description": "The SQL task correctly sets azureADOnlyAuthentication: true but the plan never defines how the App Service managed identity becomes a contained database user with least-privilege roles.",
+      "artifact_section": "Task 6: sql.bicep; Dependency Graph",
+      "suggested_mitigation": "Add explicit post-deployment step to create the App Service MI as a contained database user and grant only required roles (db_datareader, db_datawriter)."
+    },
+    {
+      "severity": "must_fix",
+      "category": "architectural_weakness",
+      "title": "Key Vault is locked down without a working private access path",
+      "description": "The Key Vault task sets publicNetworkAccess: Disabled and networkAcls.defaultAction: Deny in production, but creates no Key Vault PE, no privatelink.vaultcore.azure.net DNS zone, and no VNet/service-endpoint alternative.",
+      "artifact_section": "Task 4: keyvault.bicep; Task 8: compute.bicep; Security Configuration",
+      "suggested_mitigation": "Add a Key Vault PE + privatelink.vaultcore.azure.net private DNS and VNet link, or explicitly configure service endpoints and virtualNetworkRules."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Network isolation matrix overstates subnet hardening",
+      "description": "snet-app has no NSG even though the governance summary says NSGs exist on all subnets. Dev collapses to a single subnet without documented compliance exception.",
+      "artifact_section": "Task 2: network.bicep; Security Configuration > Network Isolation",
+      "suggested_mitigation": "Attach an NSG to the app subnet and document whether dev is a non-PCI/non-production-data environment."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Diagnostics are not actually planned for all resources",
+      "description": "Task-level plan only defines diagnostics for SQL, Storage, and Compute. Key Vault, VNet/NSGs, Private DNS zones, Private Endpoints, and Activity Log routing are absent.",
+      "artifact_section": "Tasks 2, 4, 5; Runtime Flow Diagram; Security Configuration",
+      "suggested_mitigation": "Add per-resource diagnostic settings for Key Vault AuditEvent, App Service logs, NSG flow logs, and Activity Log routing to Log Analytics."
+    },
+    {
+      "severity": "should_fix",
+      "category": "scope_risk",
+      "title": "Budget monitoring misses mandatory anomaly and escalation controls",
+      "description": "Budget task hardcodes amount and contact email, adds no action group escalation for 100%/120% thresholds, and does not include anomaly detection.",
+      "artifact_section": "Task 9: budget.bicep; Task 10: Parameter Files",
+      "suggested_mitigation": "Parameterize budgetAmount/contacts, add action group for 100%/120% thresholds, include anomaly detection notification."
+    }
+  ]
+}

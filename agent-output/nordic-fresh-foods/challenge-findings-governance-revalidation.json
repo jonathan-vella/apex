@@ -1,0 +1,17 @@
+{
+  "challenged_artifact": "agent-output/nordic-fresh-foods/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "comprehensive",
+  "pass_number": "revalidation-1",
+  "challenge_summary": "Post-revision re-review. Original 3 must_fix resolved. 3 new must_fix found and immediately fixed: (1) JSON inventory reconciliation with excludedAssignments array for ArcBox, (2) SQL AD-only auth ARM path corrected to azureADOnlyAuthentications child resource, (3) Anomaly detection separated from budget resource. 1 should_fix noted and fixed: OIDC workload identity marked as conditional/unverified.",
+  "must_fix_count_before_fix": 3,
+  "must_fix_count_after_fix": 0,
+  "should_fix_count_before_fix": 1,
+  "should_fix_count_after_fix": 0,
+  "fixes_applied": [
+    "JSON reconciliation: Added discovery_reconciliation object + excludedAssignments array (6 ArcBox entries)",
+    "SQL path: Corrected to Microsoft.Sql/servers/azureADOnlyAuthentications/default.properties.azureADOnlyAuthentication with AVM mapping note",
+    "Anomaly detection: Separated from budget resource description, added CostManagement/scheduledActions reference",
+    "OIDC: Marked as conditional/unverified, added validation task, interactive MFA as only proven path"
+  ]
+}

@@ -32,6 +32,14 @@
       "skip_reasons": [],
       "models_used": []
     },
+    "step_3.5": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
     "step_4": {
       "complexity": "",
       "passes_planned": 0,
@@ -81,6 +89,16 @@
     "3": {
       "name": "Design",
       "agent": "04-Design",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3.5": {
+      "name": "Governance",
+      "agent": "04g-Governance",
       "status": "pending",
       "sub_step": null,
       "started": null,

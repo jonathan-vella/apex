@@ -292,11 +292,18 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
    - `pass_number` = `1`
    - `prior_findings` = `null`
 2. Write returned JSON to `agent-output/{project}/challenge-findings-requirements.json`
-3. **Use `askQuestions`** to present findings and gather the user's decision:
-   - Summarize `must_fix` items (blocking) and `should_fix` items (recommended)
-     in the question description so the user sees them before choosing
+3. **Present findings directly in chat** — render a markdown table so the user
+   sees every finding without opening the JSON file:
+   - Print the overall assessment from `summary.overall_assessment`
+   - Render a table with columns: **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
+   - List every finding from the `findings` array (must_fix first, then should_fix, then suggestion)
+   - Show totals: `N must-fix, N should-fix, N suggestion`
+   - Reference the JSON path for machine-readable details
+4. **Use `askQuestions`** to gather the user's decision (brief summary only —
+   the detailed findings are already visible in chat above):
+   - Question description: `"Challenger found N must-fix and N should-fix issues. See details in chat above. Revise or proceed?"`
    - Ask a single-select question: _"How would you like to proceed?"_ with options:
-     1. **Revise requirements** — fix must-fix items and optionally address should-fix
+     1. **Revise requirements (recommended)** — fix must-fix items and optionally address should-fix
         (recommended if any must-fix findings exist, mark as `recommended`)
      2. **Proceed to Architecture** — accept findings as-is and move to Step 2
    - If the user chooses to revise: apply fixes to `01-requirements.md`, then
@@ -311,7 +318,7 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
 
 - ✅ **Call `askQuestions` as your FIRST action** — before reading skills, before ANY file I/O
 - ✅ Use `askQuestions` tool for structured discovery (Phases 1-4)
-- ✅ Use `askQuestions` in Phase 6 to present challenger findings and gather proceed/revise decision
+- ✅ Render challenger findings as a markdown table in chat, then use `askQuestions` only for the proceed/revise decision
 - ✅ **Ask questions in EVERY phase (1-4)** — no phase may be skipped or collapsed
 - ✅ Adapt follow-up depth within each phase based on user's technical fluency
 - ✅ Infer workload pattern from business signals, then **confirm with user**

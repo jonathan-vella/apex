@@ -4,7 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
+agents: []
 tools:
   [
     vscode/extensions,
@@ -127,6 +127,7 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 | Validate Azure CLI token FIRST (`az account get-access-token`)           | Deploy without running `terraform plan` first                            |
 | Verify state backend storage account BEFORE `terraform init`             | Skip phase gates when plan specifies phased deployment                   |
 | Offer `bootstrap-backend.sh/.ps1` if backend missing                     | Use `terraform -target` — code is phase-gated via `var.deployment_phase` |
+| Scan tfvars for placeholders; use `askQuestions` to collect real values  | Pass tfvars with literal `<replace-with-*>` strings to plan/apply        |
 | Run `terraform validate` and `terraform fmt -check` before planning      | Auto-approve production deployments                                      |
 | Check `04-implementation-plan.md` for deployment strategy                | Proceed if plan shows resource destruction without approval              |
 | Deploy phases one at a time with `var.deployment_phase` + approval gates | Proceed if `terraform validate` fails                                    |
@@ -184,7 +185,27 @@ cd infra/terraform/{project}
 chmod +x bootstrap-backend.sh && ./bootstrap-backend.sh
 ```
 
-### Step 3: Validate Configuration
+### Step 3: Scan for Unresolved Placeholders
+
+Before running `terraform init` or plan, scan all tfvars files for unresolved placeholder values:
+
+```bash
+grep -n "<replace-with-\|<your-\|<TODO\|PLACEHOLDER" infra/terraform/{project}/*.tfvars 2>/dev/null || true
+```
+
+If **any placeholders are found**:
+
+1. Do **not** proceed to `terraform init` or plan yet.
+2. Use `askQuestions` to collect each missing value interactively —
+   one question per placeholder, with a clear label describing what
+   is needed (e.g. "Enter the Entra group Object ID for SQL admin").
+3. After the user supplies all values, update the tfvars file(s) with the real values.
+4. Re-run the grep scan to confirm no placeholders remain before continuing.
+
+> This is a **blocking gate** — never pass a tfvars file with
+> literal placeholder strings to `terraform plan` or `apply`.
+
+### Step 4: Validate Configuration
 
 ```bash
 cd infra/terraform/{project}
@@ -202,7 +223,7 @@ terraform fmt -check -recursive
 If `terraform validate` fails → STOP, report errors, hand off to Terraform Code agent.
 If `terraform fmt -check` fails → report formatting issues (safe-to-fix, not a hard stop).
 
-### Step 4: Plan Preview
+### Step 5: Plan Preview
 
 Run `terraform plan` and classify all changes:
 
@@ -230,34 +251,24 @@ If detected, STOP and report.
 
 Present the plan summary table.
 
-### Step 4.5: Pre-Deploy Adversarial Review (conditional)
+### Step 4.5: Deployment Approval Gate
 
-Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+**Present plan results directly in chat** before asking the user to decide:
 
-> **Skip condition**: Skip pre-deploy adversarial review ONLY if `decisions.complexity == 'simple'`
-> AND `open_findings` array is empty in session state. Standard and complex projects ALWAYS get 1× deploy review.
+1. Print plan change summary (creates, updates, destroys, replaces)
+2. If any Destroy or Replace operations, flag prominently
 
-After terraform plan, invoke `challenger-review-subagent` via `#runSubagent`
-with `artifact_type=deployment-preview`, `review_focus=comprehensive`,
-`pass_number=1`. Write result to
-`agent-output/{project}/challenge-findings-deployment.json`.
+Then use `askQuestions` to gather the decision:
 
-### Step 4.6: Deployment Approval Gate
-
-Use `askQuestions` to present the plan summary and challenger findings,
-then gather the user's deploy/abort decision:
-
-- In the question description, include:
-  - Plan change summary (creates, updates, destroys, replaces)
-  - Challenger findings: `must_fix` (blocking) and `should_fix`
-    (recommended) — flag must-fix items prominently
+- Question description:
+  `"Plan: N creates, N updates, N destroys. Proceed?"`
 - Ask a single-select question: _"How would you like to proceed?"_
   with options:
   1. **Deploy** — apply the changes
-  2. **Abort** — stop deployment and review findings
-     (recommended if any must-fix or Destroy/Replace operations
-     exist, mark as `recommended`)
-- If the user chooses to abort: stop and present findings for review
+  2. **Abort** — stop deployment and review
+     (recommended if any Destroy/Replace operations exist,
+     mark as `recommended`)
+- If the user chooses to abort: stop and present details for review
 - If the user chooses to deploy: proceed with deployment execution
 
 ### Step 5: Phase-Aware Deployment
@@ -301,6 +312,7 @@ Report:
 ## Stopping Rules
 
 **STOP IMMEDIATELY if:** `az account get-access-token` fails ·
+Unresolved placeholders in tfvars (collect via `askQuestions` first) ·
 backend missing without bootstrap approval · `terraform validate` errors ·
 Destroy/Replace ops without approval · >10 resource changes
 (summarize first) · user hasn't approved · deprecation signals detected.
@@ -340,6 +352,7 @@ After saving, run `npm run lint:artifact-templates` and fix any errors for your 
 
 - [ ] Azure CLI authenticated (`az account get-access-token` succeeds)
 - [ ] State backend storage account verified (or bootstrapped)
+- [ ] No unresolved `<replace-with-*>` placeholders in tfvars (collected via `askQuestions`)
 - [ ] `terraform init` completed successfully
 - [ ] `terraform validate` passes with no errors
 - [ ] `terraform plan` completed and reviewed

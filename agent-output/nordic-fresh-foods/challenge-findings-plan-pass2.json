@@ -1,0 +1,79 @@
+{
+  "challenged_artifact": "agent-output/nordic-fresh-foods/04-implementation-plan.md",
+  "artifact_type": "implementation-plan",
+  "review_focus": "architecture-reliability",
+  "pass_number": 2,
+  "challenge_summary": "The plan is structurally solid, but reliability execution is under-specified where outages actually occur: rollback mechanics, resource-level recovery mapping to RTO/RPO, and operational detection/response controls.",
+  "compact_for_parent": "Pass 2 (architecture-reliability) | HIGH | 2 must_fix, 6 should_fix | Key: Phase rollback undefined; RTO/RPO not operationalized",
+  "risk_level": "high",
+  "must_fix_count": 2,
+  "should_fix_count": 6,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "missing_failure_mode",
+      "title": "Phased deployment has no executable rollback contract per phase",
+      "description": "No phase-by-phase rollback criteria, rollback commands, checkpoint outputs, or re-entry semantics are defined.",
+      "artifact_section": "Task 11: deploy.ps1; Deployment Phases",
+      "suggested_mitigation": "Add a rollback matrix per phase: pre-checks, success criteria, rollback trigger, exact rollback command set, preserved state artifacts."
+    },
+    {
+      "severity": "must_fix",
+      "category": "untested_assumption",
+      "title": "RTO/RPO targets are not implemented as resource-level recovery procedures",
+      "description": "Requirements define RTO 24h and RPO 12h, but the plan does not map these targets to concrete restore paths for each dependency.",
+      "artifact_section": "Overview; Security Configuration > SQL Security; Deployment Phases",
+      "suggested_mitigation": "Add a DR execution table with per-resource backup source, restore method, time budget, validation checks."
+    },
+    {
+      "severity": "should_fix",
+      "category": "architectural_weakness",
+      "title": "VNet and private DNS topology has no pre-defined failover-region design",
+      "artifact_section": "Task 2; Task 5; Dependency Graph",
+      "suggested_mitigation": "Document a standby network pattern for germanywestcentral."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Standard_LRS storage choice is not reconciled with workload-level RPO objective",
+      "artifact_section": "Resource Inventory; Task 7: storage.bicep",
+      "suggested_mitigation": "Parameterize production redundancy (LRS vs ZRS/GRS) and add blob backup/export cadence."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "Autoscale policy is CPU-only and capped at 3 without validation gate",
+      "artifact_section": "Task 8: compute.bicep",
+      "suggested_mitigation": "Add multi-metric autoscale (CPU + response time) and pre-peak load-test gate."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Health endpoint gate exists but health probe configuration is incomplete",
+      "artifact_section": "Phase 5 Gate; Task 8: compute.bicep",
+      "suggested_mitigation": "Define healthCheckPath in siteConfig, probe thresholds, and availability tests."
+    },
+    {
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "Observability design collects telemetry but lacks actionable reliability alerting",
+      "artifact_section": "Task 3: monitoring.bicep; Runtime Flow Diagram",
+      "suggested_mitigation": "Define alert rule catalog and action groups with SLO-linked thresholds."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "External dependency resilience patterns are not included in implementation handoff",
+      "artifact_section": "Runtime Flow Diagram; Task 8",
+      "suggested_mitigation": "Add acceptance criteria for integration resilience (timeouts, retries, circuit breakers)."
+    },
+    {
+      "severity": "suggestion",
+      "category": "hidden_dependency",
+      "title": "Certificate lifecycle and TLS renewal path is not documented",
+      "artifact_section": "Encryption & TLS; Deployment Phases",
+      "suggested_mitigation": "Document certificate source, renewal automation, expiry alerts, and DR rebind steps."
+    }
+  ]
+}

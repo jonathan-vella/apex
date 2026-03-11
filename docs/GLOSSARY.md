@@ -26,8 +26,8 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes 15 top-level agents (including two Conductor
-variants and a Context Optimizer) plus 9 validation subagents.
+Invoked via `Ctrl+Shift+A`. This project includes 16 top-level agents (including two Conductor
+variants, a Governance agent, and a Context Optimizer) plus 11 subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
@@ -224,7 +224,7 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
 ### InfraOps Conductor
 
-The master orchestrator agent that coordinates all 7 steps of the infrastructure workflow with
+The master orchestrator agent that coordinates all 8 steps of the infrastructure workflow with
 mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
 orchestration features.
 
@@ -370,8 +370,8 @@ for Agentic InfraOps methodology.
 
 A reusable knowledge module stored in `.github/skills/` that agents can invoke. Unlike agents,
 skills don't have their own chat persona — they provide domain knowledge that agents use.
-21 skills are organized across conventions, document creation, infrastructure patterns,
-workflow automation, troubleshooting, and Microsoft docs integration categories.
+18 skills are organized across conventions, document creation, infrastructure patterns,
+workflow automation, and troubleshooting categories.
 
 📁 **See**: [.github/skills/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills)
 

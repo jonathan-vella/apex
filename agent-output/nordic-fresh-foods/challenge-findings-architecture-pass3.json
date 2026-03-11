@@ -1,0 +1,62 @@
+{
+  "pass": 3,
+  "lens": "cost-feasibility",
+  "artifact_type": "architecture",
+  "project": "nordic-fresh-foods",
+  "summary": {
+    "must_fix": 1,
+    "should_fix": 4,
+    "suggestion": 1
+  },
+  "compact_for_parent": "Pass 3 (cost-feasibility) | HIGH | 1 must_fix, 4 should_fix | Key: Peak model omits variable meters; Peak total inconsistent; Free-tier cliffs unmodeled",
+  "findings": [
+    {
+      "id": "COST-001",
+      "severity": "must_fix",
+      "title": "Peak-season estimate scales only compute and underprices 3x demand",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Recompute peak with workload-linked multipliers across all variable meters (SQL, logs, networking), publish p50/p90 bands.",
+      "effort": "medium"
+    },
+    {
+      "id": "COST-002",
+      "severity": "should_fix",
+      "title": "Peak totals are internally inconsistent across sections",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Define canonical scope for peak (Prod-only vs Prod+Dev) and sync all sections.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-003",
+      "severity": "should_fix",
+      "title": "Free-tier assumptions sit at pricing cliffs without overflow modeling",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add priced overflow scenarios for MAU and log ingestion with budget alerts.",
+      "effort": "medium"
+    },
+    {
+      "id": "COST-004",
+      "severity": "should_fix",
+      "title": "Private Link and DNS variable charges are only partially modeled",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add traffic-based networking assumptions and sensitivity bands.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-005",
+      "severity": "should_fix",
+      "title": "Budget monitoring design is below mandatory cost-governance baseline",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add 80/100/120% forecast alerts and anomaly detection per repository governance rules.",
+      "effort": "low"
+    },
+    {
+      "id": "COST-006",
+      "severity": "suggestion",
+      "title": "No explicit checkpoint for reservation or savings-plan reevaluation",
+      "waf_pillar": "Cost Optimization",
+      "recommendation": "Add 3-6 month post-launch FinOps checkpoint for RI/SP evaluation.",
+      "effort": "low"
+    }
+  ]
+}

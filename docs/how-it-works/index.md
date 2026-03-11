@@ -15,17 +15,17 @@ toc_depth: 2
 ## :material-text-box-outline: Executive Summary
 
 Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
-through a structured 7-step workflow to transform Azure infrastructure requirements into deployed,
-production-grade Infrastructure as Code. The system coordinates 15 top-level agents and
-9 subagents through mandatory human approval gates, producing Bicep or Terraform templates
+through a structured 8-step workflow to transform Azure infrastructure requirements into deployed,
+production-grade Infrastructure as Code. The system coordinates 16 top-level agents and
+11 subagents through mandatory human approval gates, producing Bicep or Terraform templates
 that conform to Azure Well-Architected Framework principles, Azure Verified Modules standards,
-and organisational governance policies. The agents are supported by 21 skills, 27 instruction
+and organisational governance policies. The agents are supported by 18 skills, 27 instruction
 files, 3 Copilot hooks, and 5 MCP server integrations.
 
 The core thesis is that **AI agents can reliably produce production-grade Azure infrastructure
 when properly orchestrated with guardrails**. The system achieves this through
 a layered knowledge architecture (agents, skills, instructions, registries), mechanical enforcement
-of invariants via 26 validation scripts, and a human-in-the-loop design
+of invariants via 35 validation scripts, and a human-in-the-loop design
 that preserves operator control at every critical decision point. Cost governance (budget alerts,
 forecast notifications, anomaly detection) and template repeatability (zero hardcoded values)
 are enforced as first-class concerns across all generated infrastructure.
@@ -36,7 +36,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  The 7-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform).
+  The 8-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform).
 
   [:octicons-arrow-right-24: Architecture overview](architecture.md)
 
@@ -52,7 +52,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  15 top-level agents, 9 subagents, the Challenger pattern, and handoff design.
+  16 top-level agents, 11 subagents, the Challenger pattern, and handoff design.
 
   [:octicons-arrow-right-24: Agent deep dive](agents.md)
 
@@ -109,12 +109,12 @@ and instructions, and all decisions in Architecture Decision Records.
 failed: context is a scarce resource, and a giant instruction file crowds out the task.
 Instead, they treat `AGENTS.md` as a table of contents that points to deeper sources.
 This project adopts the same pattern: `AGENTS.md` is approximately 250 lines and points to
-21 skills, 27 instruction files, and multiple configuration registries.
+18 skills, 27 instruction files, and multiple configuration registries.
 
 **Enforce invariants, not implementations.** Rather than prescribing step-by-step procedures,
 the Harness Engineering approach encodes strict boundaries (architectural layering rules,
 naming conventions, security requirements) and lets agents choose their own path within those
-constraints. This project enforces invariants mechanically: 28 validation scripts check
+constraints. This project enforces invariants mechanically: 33 validation scripts check
 naming conventions, template compliance, governance references, and architectural rules.
 
 **Human taste gets encoded.** When a human reviewer catches a pattern issue, the fix is
@@ -151,7 +151,7 @@ per-step `claim` objects.
 
 **Workflow engine as a DAG.** Bosun's `workflow-engine.mjs` and `workflow-nodes.mjs`
 define workflow execution as a directed acyclic graph with typed nodes, conditional edges,
-and fan-out patterns. This project's `workflow-graph.json` encodes the 7-step pipeline
+and fan-out patterns. This project's `workflow-graph.json` encodes the 8-step pipeline
 as a machine-readable DAG with `agent-step`, `gate`, `subagent-fan-out`, and `validation`
 node types.
 

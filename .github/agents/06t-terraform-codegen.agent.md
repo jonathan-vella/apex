@@ -141,7 +141,7 @@ Also read `02-architecture-assessment.md` for tier/SKU context.
 - **Context budget**: 3 files at startup (`00-session-state.json` + `04-implementation-plan.md` + `04-governance-constraints.json`)
 - **My step**: 5
 - **Sub-steps**: `phase_1_preflight` → `phase_1.5_governance` →
-  `phase_2_scaffold` → `phase_3_modules` → `phase_4_lint` →
+  `phase_1.6_compacted` → `phase_2_scaffold` → `phase_3_modules` → `phase_4_lint` →
   `phase_5_challenger` → `phase_6_artifact`
 - **Resume**: Read `00-session-state.json` first. If `steps.5.status = "in_progress"`
   with a `sub_step`, skip to that checkpoint.
@@ -173,6 +173,23 @@ For EACH resource in `04-implementation-plan.md`:
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
+### Phase 1.6: Context Compaction (MANDATORY)
+
+Context usage reaches ~80% after preflight checks and governance mapping.
+**You MUST compact the conversation before proceeding to code generation.**
+
+1. **Summarize prior phases** — write a single concise message containing:
+   - Preflight check result (blockers, AVM-TF vs raw count)
+   - Governance compliance map (Deny policies mapped, unsatisfied count)
+   - Deployment strategy from `04-implementation-plan.md` (phased/single)
+   - Resource list with module sources, version pins, and key variables
+2. **Switch to minimal skill loading** — for any further skill reads, use
+   `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
+3. **Do NOT re-read predecessor artifacts** — rely on the summary above
+   and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
+4. **Update session state** — write `sub_step: "phase_1.6_compacted"` to
+   `00-session-state.json` so resume skips re-loading prior context
+
 ### Phase 2: Progressive Implementation
 
 Build configurations in dependency order from `04-implementation-plan.md`.
@@ -199,11 +216,15 @@ Generate `bootstrap-backend.sh` + `bootstrap-backend.ps1`. Read
 Generate `deploy.sh` + `deploy.ps1`. Read
 `terraform-patterns/references/deploy-script-template.md` for templates.
 
-### Phase 4: Validation (Subagent-Driven)
+### Phase 4: Validation (Subagent-Driven — Parallel)
 
-1. Delegate to `terraform-lint-subagent` (path: `infra/terraform/{project}/`) — expect PASS
-2. Delegate to `terraform-review-subagent` (same path) — expect APPROVED
-3. Both must pass before Phase 4.5
+Invoke both validation subagents **in parallel** via simultaneous `#runSubagent` calls
+(independent checkers — syntax/fmt vs standards — on the same code):
+
+1. `terraform-lint-subagent` (path: `infra/terraform/{project}/`) — expect PASS
+2. `terraform-review-subagent` (same path) — expect APPROVED
+
+Await both results. Both must pass before Phase 4.5.
 
 ### Phase 4.5: Adversarial Code Review (3 passes)
 

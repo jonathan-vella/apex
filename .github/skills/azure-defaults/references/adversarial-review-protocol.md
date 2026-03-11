@@ -35,21 +35,24 @@ Log skipped passes and reasons in `00-session-state.json` `review_audit` (when a
 
 ## 1-Pass Comprehensive
 
-Used for supporting artifacts (governance, cost estimate, deployment).
+Used for requirements (Step 1). Always runs, regardless of complexity.
 
 - `review_focus` = `comprehensive`
 - `pass_number` = `1`
 - `prior_findings` = `null`
 
-## Conditional Governance Review (Step 4)
+## Severity Guardrails
 
-Governance review is conditional on project complexity:
+Challengers MUST apply strict severity definitions:
 
-- **`simple` projects**: Skip standalone governance review entirely (no custom policies expected).
-  Pass 1 of the plan review (security-governance lens) covers governance basics.
-- **`standard`/`complex` projects**: Keep 1-pass governance review as Phase 4.3.
-  Pass 1 of the plan review (security-governance lens) MUST also check the
-  `04-governance-constraints.md` artifact for completeness.
+| Severity     | Definition                                                                                                                                         | Examples                                                         |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `must_fix`   | **Deployment failure** (Policy Deny block, missing config, broken dependency) or **security breach** (public exposure, no auth, plaintext secrets) | Missing PE for locked-down KV, no MI user for AAD-only SQL       |
+| `should_fix` | **WAF violation** or **operational risk** that won't block deploy but degrades production quality                                                  | Missing alerts, SPOF, incomplete diagnostics                     |
+| `suggestion` | Nice-to-have, belongs in Step 7 (as-built), or "v2" item                                                                                           | Failover-region design, cert lifecycle, post-launch right-sizing |
+
+> If a finding describes content that belongs in Step 7 (ops runbook, DR plan,
+> documentation), classify as `suggestion`, not `should_fix`.
 
 ## Complexity Classification Criteria
 
@@ -64,11 +67,16 @@ the Conductor validates. If missing from old sessions, default to `"standard"`.
 
 ## Review Matrix (Complexity-Based Pass Counts)
 
-| Complexity | Step 1 (Req)     | Step 2 (Arch)                    | Step 4 (Plan)                             | Step 5 (Code)                    | Step 6 (Deploy)                     |
-| ---------- | ---------------- | -------------------------------- | ----------------------------------------- | -------------------------------- | ----------------------------------- |
-| simple     | 1× comprehensive | 1× comprehensive                 | 1× comprehensive (no gov)                 | 1× comprehensive                 | Skip                                |
-| standard   | 1× comprehensive | 2× rotating (pass 3 conditional) | 1× gov + 2× rotating (pass 3 conditional) | 2× rotating (pass 3 conditional) | 1× (conditional on Step 5 findings) |
-| complex    | 1× comprehensive | 3× rotating                      | 1× gov + 3× rotating                      | 3× rotating                      | 1×                                  |
+| Complexity | Step 1 (Req)     | Step 2 (Arch)                    | Step 4 (Plan)                              | Step 5 (Code)                    |
+| ---------- | ---------------- | -------------------------------- | ------------------------------------------ | -------------------------------- |
+| simple     | 1× comprehensive | 1× comprehensive                 | 1× comprehensive                           | 1× comprehensive                 |
+| standard   | 1× comprehensive | 2× rotating (pass 3 conditional) | 2× rotating (security + architecture only) | 2× rotating (pass 3 conditional) |
+| complex    | 1× comprehensive | 3× rotating                      | 2× rotating (security + architecture only) | 3× rotating                      |
+
+> **Steps without adversarial review**: Step 3 (Design), Step 3.5 (Governance),
+> Step 6 (Deploy), Step 7 (As-Built). Governance is machine-discovered data;
+> deploy previews are validated by Azure tooling (what-if / terraform plan);
+> the human approves at each gate.
 
 ## Subagent Invocation Template
 
@@ -93,6 +101,29 @@ Use the right model for each review lens:
 | Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent`       | GPT-5.4       | Deep logical reasoning for policy cross-reference, finding inconsistencies                   |
 | Pass 2                 | architecture-reliability            | `challenger-review-codex-subagent` | GPT-5.3-Codex | WAF/failure mode analysis is structured and checklist-driven. Fast execution.                |
 | Pass 3                 | cost-feasibility                    | `challenger-review-codex-subagent` | GPT-5.3-Codex | Quantitative SKU analysis. Structured output strength. Matches cost-estimate-subagent model. |
+
+## Parallel Invocation (Cross-Artifact Reviews)
+
+When a step reviews **multiple independent artifacts**, run their first passes
+in parallel via simultaneous `#runSubagent` calls. Two reviews are independent
+when they target different artifacts AND both use `prior_findings = null`.
+
+| Step               | Parallel Pair                              | Why Safe                                                     |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------ |
+| Step 2 (Architect) | Architecture pass 1 ‖ Cost Estimate review | Different artifacts, both `prior_findings=null`              |
+| Step 5 (CodeGen)   | Lint subagent ‖ Review subagent            | Independent checkers (syntax vs standards) on identical code |
+
+**Rules**:
+
+1. Both calls MUST use `prior_findings = null` (no inter-dependency)
+2. Await both results before proceeding to conditional pass 2
+3. If either returns a blocking failure, halt before subsequent passes
+4. For Step 4: if governance review returns `must_fix` items that affect
+   the plan, feed the compact governance findings into plan pass 2's
+   `prior_findings` alongside plan pass 1's compact string
+
+> **Do NOT parallelize** rotating-lens passes (1→2→3) within the same
+> artifact — each pass depends on `prior_findings` from the previous pass.
 
 ## Batch Invocation (Complex Projects Only)
 

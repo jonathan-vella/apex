@@ -1,0 +1,78 @@
+{
+  "challenged_artifact": "agent-output/nordic-fresh-foods/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "comprehensive",
+  "pass_number": 1,
+  "challenge_summary": "The artifact captures the obvious deny controls, but its discovery evidence is incomplete, the JSON companion is not reliable enough for downstream policy enforcement, and the PCI/network compliance claim is not substantiated strongly enough for approval. Several mixed-effect initiatives and audit-driven controls are also summarized too loosely to prove that Step 5 will encode the right settings and prerequisites.",
+  "compact_for_parent": "Pass 1 (comprehensive) | HIGH | 3 must_fix, 4 should_fix | Key: Policy inventory unverified; JSON policy paths malformed; PCI boundary unproven",
+  "risk_level": "high",
+  "must_fix_count": 3,
+  "should_fix_count": 4,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Policy inventory completeness is unverified and internally inconsistent",
+      "description": "The Discovery Source evidence is not complete enough to prove that all 21 effective assignments were classified correctly. The artifact omits the required Portal validation breakdown, does not enumerate the out-of-scope ArcBox assignments, and contradicts itself by saying ArcBox-scoped policies are 7 in the note but 6 in the summary.",
+      "artifact_section": "Discovery Source / Policy Summary by Effect",
+      "suggested_mitigation": "Add the full discovery evidence: REST vs Portal reconciliation, subscription vs MG-inherited counts, explicit inventory of the ArcBox-scoped assignments and their scopes, and a reconciled 21-assignment total."
+    },
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Tag policy JSON is inconsistent and not machine-consumable",
+      "description": "The JSON companion collapses nine tag checks into comma-delimited azurePropertyPath and bicepPropertyPath strings, and the tag name drifts between technical-contact and tech-contact across Deny, Modify, and tag documentation.",
+      "artifact_section": "Plan Adaptations Based on Policies / Required Tags",
+      "suggested_mitigation": "Normalize the exact live-discovered tag name everywhere, encode required tags as structured per-tag paths or an explicit object/array instead of comma-joined strings."
+    },
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "PCI network compliance is asserted without proving the card-data boundary",
+      "description": "The Network Policies section says Private Endpoints plus VNet isolation satisfy PCI DSS v4 segmentation, but the artifact never carries forward the architecture's hosted-payment or redirect-tokenization constraint.",
+      "artifact_section": "Network Policies / Security Policies",
+      "suggested_mitigation": "Document the PCI boundary explicitly: hosted payment fields or redirect tokenization only, no CHD or payment payload logging in App Service/App Insights."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Mixed-effect initiatives are not decomposed into effect-specific impacts",
+      "description": "The artifact groups MCAPSGov initiatives without separating which relevant member policies are Audit, AINE, Modify, or DINE.",
+      "artifact_section": "Policy Summary by Effect",
+      "suggested_mitigation": "Break mixed initiatives into effect-specific rows for the member policies that actually affect this workload."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "The four plan adaptations do not fully map governance into template work",
+      "description": "The adaptation table only covers expanded tags, SQL AD-only auth, MFA, and blob anonymous access. FTPS-only, SQL auditing, threat detection, TLS, diagnostic settings, and local-auth disable are not traced through the adaptation table.",
+      "artifact_section": "Plan Adaptations Based on Policies",
+      "suggested_mitigation": "Expand the adaptation table to every workload-relevant policy outcome with concrete template changes, auto-remediations, or accepted gaps."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "The security policies matrix is incomplete and partially overstated",
+      "description": "The matrix omits controls including ftpsState: FtpsOnly, allowSharedKeyAccess: false, and broader diagnostic or activity-log expectations.",
+      "artifact_section": "Security Policies",
+      "suggested_mitigation": "Make the matrix canonical: list every workload-relevant control once, distinguish diagnostics vs auditing vs Defender/threat-detection."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Deployment blockers omit governance-evidence and automation-identity prerequisites",
+      "description": "The blocker list never states whether GitHub/OIDC/workload identities are allowed under MFA write enforcement or makes discovery reconciliation a hard gate.",
+      "artifact_section": "Deployment Blockers / Discovery Source",
+      "suggested_mitigation": "Add explicit preflight blockers for policy-count reconciliation and supported deployment identities."
+    },
+    {
+      "severity": "suggestion",
+      "category": "governance_gap",
+      "title": "Cost policy documentation still reflects a weaker single-threshold alert model",
+      "description": "The Cost Policies section still reads like budget monitoring is a planned EUR900 threshold, while the implementation plan already defines 80/100/120% forecast alerts.",
+      "artifact_section": "Cost Policies",
+      "suggested_mitigation": "Sync the Cost Policies section to the actual alert model already planned."
+    }
+  ]
+}

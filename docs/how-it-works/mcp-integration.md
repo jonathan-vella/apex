@@ -153,9 +153,9 @@ AGENTS.md                                    # Table of contents for all agents
   copilot-instructions.md                    # VS Code Copilot orchestration
   agent-registry.json                        # Agent role → file/model/skills
   skill-affinity.json                        # Skill/agent affinity weights
-  agents/                                    # 14 top-level agent definitions
-    _subagents/                              # 9 subagent definitions
-  skills/                                    # 21 skill packages
+  agents/                                    # 16 top-level agent definitions
+    _subagents/                              # 11 subagent definitions
+  skills/                                    # 18 skill packages
     workflow-engine/                          # DAG, workflow graph
     context-shredding/                       # Runtime compression
     session-resume/                          # State tracking + resume protocol

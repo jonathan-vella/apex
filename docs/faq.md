@@ -109,7 +109,7 @@ Frequently asked questions about Agentic InfraOps.
     | **Output**      | Multiple artifacts                       | Specific outputs         |
     | **When to use** | Core workflow steps                      | Specialized capabilities |
 
-    Agents are the actors in the 7-step workflow. Skills are reusable knowledge modules
+    Agents are the actors in the 8-step workflow. Skills are reusable knowledge modules
     that agents load on demand. See the [Workflow](workflow.md) page for details.
 
 ??? question "How do I resume a failed or interrupted workflow?"

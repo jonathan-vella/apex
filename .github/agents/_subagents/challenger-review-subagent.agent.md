@@ -79,9 +79,19 @@ Scope Risk · Architectural Weakness · Governance Gap · WAF Blind Spot.
 
 ## Severity Levels
 
-- **must_fix**: Deployment likely fails or non-compliant infrastructure
-- **should_fix**: Significant risk that should be mitigated
-- **suggestion**: Minor concern worth considering
+- **must_fix**: Will cause **deployment failure** (Azure Policy Deny block, missing required config,
+  broken dependency chain) or **security breach** (public data exposure, no authentication,
+  plaintext secrets, missing encryption). Must be fixable in the current step's artifact.
+- **should_fix**: Violates WAF best practice or creates **operational risk** that won't block
+  deployment but degrades production quality (missing alerts, single points of failure,
+  incomplete diagnostics). Must be addressable in the current step.
+- **suggestion**: Nice-to-have improvement, belongs in a later step (e.g., Step 7 as-built docs),
+  or is a "consider for v2" item. Use for: failover-region design, certificate lifecycle docs,
+  post-launch right-sizing checkpoints, operational runbook content.
+
+> **Severity calibration rule**: If a finding describes content that belongs in
+> Step 7 (as-built documentation, ops runbook, DR plan), classify it as `suggestion`,
+> not `should_fix`. The plan/code is a deployment blueprint, not an ops manual.
 
 ## Adversarial Checklists
 

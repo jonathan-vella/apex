@@ -10,15 +10,15 @@ toc_depth: 2
 
 # :material-chart-timeline-variant: Agent and Skill Workflow
 
-The 7-step infrastructure development workflow.
+The 8-step infrastructure development workflow.
 
 ## :material-eye-outline: Overview
 
 Agentic InfraOps uses a multi-agent orchestration system where specialized AI agents coordinate
 through artifact handoffs to transform Azure infrastructure requirements into deployed infrastructure
 code. The system supports **dual IaC tracks** — Bicep and Terraform — sharing common requirements,
-architecture, and design steps (1-3) then diverging into track-specific planning, code generation,
-and deployment (steps 4-6) before converging again for documentation (step 7).
+architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,
+code generation, and deployment (steps 4-6) before converging again for documentation (step 7).
 
 The **InfraOps Conductor** (🎼 Maestro) orchestrates the complete workflow, routing to
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
@@ -27,7 +27,7 @@ while enforcing mandatory approval gates.
 !!! tip "Quick Start"
 
     Press ++ctrl+shift+i++ to open Copilot Chat, select **InfraOps Conductor**, and
-    describe your project. The Conductor handles all 7 steps with approval gates.
+    describe your project. The Conductor handles all 8 steps with approval gates.
 
 ### Formalized Workflow Engine
 
@@ -67,6 +67,10 @@ graph TB
         ADR["azure-adr<br/>📝 Skill"]
     end
 
+    subgraph "Step 3.5: Governance"
+        GOV["governance<br/>🛡️ Warden"]
+    end
+
     subgraph "Step 4: Planning"
         BPLAN["bicep-plan<br/>📐 Strategist"]
         TPLAN["terraform-plan<br/>📐 Strategist"]
@@ -96,6 +100,7 @@ graph TB
     COND -->|"delegates"| ARCH
     COND -->|"invokes"| DIAG
     COND -->|"invokes"| ADR
+    COND -->|"delegates"| GOV
     COND -->|"Bicep track"| BPLAN
     COND -->|"Terraform track"| TPLAN
     COND -->|"Bicep track"| BCODE
@@ -118,6 +123,7 @@ graph TB
     style MCP fill:#fff9c4
     style DIAG fill:#f3e5f5
     style ADR fill:#e8eaf6
+    style GOV fill:#fff3e0
     style BPLAN fill:#e8f5e9
     style TPLAN fill:#e8f5e9
     style BCODE fill:#fce4ec
@@ -133,7 +139,7 @@ graph TB
 
 | Agent                  | Persona    | Role                                    | Model           |
 | ---------------------- | ---------- | --------------------------------------- | --------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 7-step workflow | Claude Opus 4.6 |
+| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 8-step workflow | Claude Opus 4.6 |
 
 ### Core Agents (7 Steps)
 
@@ -144,6 +150,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                 |
 | 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                      |
 | 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.md/.py/.png`                               |
+| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                 |
 | 4b   | `bicep-plan`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
 | 4t   | `terraform-plan`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
 | 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                             |
@@ -172,10 +179,10 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 ### Standalone Agents
 
-| Agent        | Persona       | Role                                                                                       |
-| ------------ | ------------- | ------------------------------------------------------------------------------------------ |
-| `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges requirements, architecture, plans, code, and deployments |
-| `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                                             |
+| Agent        | Persona       | Role                                                            |
+| ------------ | ------------- | --------------------------------------------------------------- |
+| `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges architecture, plans, and code |
+| `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                  |
 
 ## :material-shield-lock-outline: Approval Gates
 
@@ -186,13 +193,14 @@ The Conductor enforces mandatory pause points for human oversight:
     Gates are non-negotiable. Skipping approval gates can lead to deploying
     infrastructure that violates governance policies or security baselines.
 
-| Gate       | After Step            | User Action                         |
-| ---------- | --------------------- | ----------------------------------- |
-| **Gate 1** | Requirements (Step 1) | Confirm requirements complete       |
-| **Gate 2** | Architecture (Step 2) | Approve WAF assessment              |
-| **Gate 3** | Planning (Step 4)     | Approve implementation plan         |
-| **Gate 4** | Pre-Deploy (Step 5)   | Approve lint/what-if/review results |
-| **Gate 5** | Post-Deploy (Step 6)  | Verify deployment                   |
+| Gate         | After Step            | User Action                         |
+| ------------ | --------------------- | ----------------------------------- |
+| **Gate 1**   | Requirements (Step 1) | Confirm requirements complete       |
+| **Gate 2**   | Architecture (Step 2) | Approve WAF assessment              |
+| **Gate 2.5** | Governance (Step 3.5) | Approve governance constraints      |
+| **Gate 3**   | Planning (Step 4)     | Approve implementation plan         |
+| **Gate 4**   | Pre-Deploy (Step 5)   | Approve lint/what-if/review results |
+| **Gate 5**   | Post-Deploy (Step 6)  | Verify deployment                   |
 
 ## :material-list-status: Workflow Steps
 
@@ -251,30 +259,52 @@ Output: agent-output/{project}/03-des-diagram.py, 03-des-adr-*.md
 
 **ADR content**: Decision, context, alternatives, consequences
 
+### Step 3.5: Governance (🛡️ Warden)
+
+**Agent**: `governance` (`04g-Governance`)
+
+Discover Azure Policy constraints and produce governance artifacts.
+
+```text
+Invoke: Ctrl+Shift+A → governance
+Output: agent-output/{project}/04-governance-constraints.md, 04-governance-constraints.json
+```
+
+**Features**:
+
+- Azure Policy REST API discovery via `governance-discovery-subagent`
+- Policy effect classification (Deny, Audit, Modify, DeployIfNotExists)
+- Dual-track property mapping (`bicepPropertyPath` + `azurePropertyPath`)
+
+!!! info "Approval Gate"
+
+    The user must approve governance constraints before proceeding to planning.
+
 ### Step 4: Planning (📐 Strategist)
 
 **Agent**: `bicep-plan` (Bicep track) or `terraform-plan` (Terraform track)
 
-Create detailed implementation plan with governance discovery.
+Create detailed implementation plan using governance constraints as input.
 
 === "Bicep"
 
     ```text
     Invoke: Ctrl+Shift+A → bicep-plan
-    Output: agent-output/{project}/04-implementation-plan.md, 04-governance-constraints.md
+    Output: agent-output/{project}/04-implementation-plan.md
     ```
 
 === "Terraform"
 
     ```text
     Invoke: Ctrl+Shift+A → terraform-plan
-    Output: agent-output/{project}/04-implementation-plan.md, 04-governance-constraints.md
+    Output: agent-output/{project}/04-implementation-plan.md
     ```
+
+**Prerequisites**: `04-governance-constraints.md/.json` from Step 3.5
 
 **Features**:
 
-- Azure Policy compliance discovery (governance-discovery-subagent produces both
-  `bicepPropertyPath` and `azurePropertyPath` for dual-track consumption)
+- Governance constraints integration from Step 3.5
 - AVM module selection (Bicep: `br/public:avm/res/`, Terraform: AVM-TF registry)
 - Resource dependency mapping
 - Auto-generated Step 4 diagrams (`04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`)
@@ -381,6 +411,37 @@ Output: agent-output/{project}/07-*.md
 | `07-compliance-matrix.md`   | Security control mapping       |
 | `07-backup-dr-plan.md`      | Disaster recovery procedures   |
 
+## :material-scale-balance: Complexity Classification
+
+The Requirements agent classifies project complexity based on scope.
+The Conductor validates the classification. Complexity drives the number
+of adversarial review passes at Steps 1, 2, 4, and 5.
+
+| Tier         | Criteria                                                                     |
+| ------------ | ---------------------------------------------------------------------------- |
+| **Simple**   | ≤3 resource types, single region, no custom Azure Policy, single environment |
+| **Standard** | 4–8 resource types, multi-region OR multi-env (not both), ≤3 custom policies |
+| **Complex**  | >8 resource types, multi-region + multi-env, >3 custom policies, hub-spoke   |
+
+### Adversarial Review Matrix
+
+Reviews target AI-generated creative decisions (architecture, plan, code)
+— not machine-discovered data (governance) or Azure tool output (what-if).
+
+| Complexity | Step 1 (Req) | Step 2 (Arch) | Step 4 (Plan) | Step 5 (Code) |
+| ---------- | ------------ | ------------- | ------------- | ------------- |
+| simple     | 1×           | 1×            | 1×            | 1×            |
+| standard   | 1×           | 2× (→3×)      | 2×            | 2× (→3×)      |
+| complex    | 1×           | 3×            | 2×            | 3×            |
+
+> **Conditional passes**: "(→3×)" means pass 3 only runs if pass 2
+> returned ≥1 `must_fix`. Plan reviews are capped at 2 passes because
+> the cost-feasibility lens was already applied at Step 2.
+>
+> **Steps without review**: Design (3), Governance (3.5), Deploy (6),
+> As-Built (7). Governance is machine-discovered; deploy previews
+> are validated by Azure tooling; the human approves at each gate.
+
 ## Agents vs Skills
 
 | Aspect          | Agents                                   | Skills                   |
@@ -398,7 +459,7 @@ Output: agent-output/{project}/07-*.md
 ```text
 1. Ctrl+Shift+I → Select "InfraOps Conductor"
 2. Describe your infrastructure project
-3. Follow guided workflow through all 7 steps with approval gates
+3. Follow guided workflow through all 8 steps with approval gates
 ```
 
 ### Direct Agent Invocation

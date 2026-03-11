@@ -53,6 +53,13 @@
       "invokable": true,
       "step": 3
     },
+    "governance": {
+      "agent": ".github/agents/04g-governance.agent.md",
+      "model": "Claude Sonnet 4.6",
+      "skills": ["azure-defaults", "azure-artifacts", "session-resume"],
+      "invokable": true,
+      "step": 3.5
+    },
     "iac-plan": {
       "bicep": {
         "agent": ".github/agents/05b-bicep-planner.agent.md",
