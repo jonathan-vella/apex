@@ -419,8 +419,7 @@ function validateDiagramArtifactReferences(
 
   // Accept both "./filename.ext" and "filename.ext" — cosmetic difference only
   function refPresent(ref) {
-    return text.includes(ref) || text.includes(ref.replace(/^\.\//
-, ""));
+    return text.includes(ref) || text.includes(ref.replace(/^\.\//, ""));
   }
 
   for (const expected of expectedReferences) {
