@@ -12,9 +12,9 @@ toc_depth: 2
 
 > Common issues and solutions for Agentic InfraOps
 
-## :material-account-card-outline: Agent Personas Quick Reference
+## :material-account-card-outline: Agent Codenames Quick Reference
 
-| Agent              | Persona       | Common Issues                    |
+| Agent              | Codename      | Common Issues                    |
 | ------------------ | ------------- | -------------------------------- |
 | InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |
 | requirements       | 📜 Scribe     | Not appearing in list            |

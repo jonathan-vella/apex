@@ -2,7 +2,7 @@
 toc_depth: 3
 ---
 
-# :material-pillar: The Four Pillars
+# :material-pillar: Core Concepts
 
 The system's knowledge architecture is built on four distinct layers, each serving
 a specific purpose in the agent's context window.
@@ -102,3 +102,39 @@ It provides:
 
 This file is shorter than `AGENTS.md` and focused on VS Code-specific orchestration
 concerns rather than repository-wide conventions.
+
+## :material-tools: Tools and MCP Servers
+
+Agents do not call cloud APIs or execute commands directly. Instead, they invoke
+**tools** — structured interfaces provided by the Model Context Protocol (MCP)
+and the VS Code runtime. Tools give agents real-time access to external systems:
+
+- **MCP tools**: JSON-RPC endpoints that wrap cloud APIs. Each MCP server provides
+  a set of typed tools (e.g. `azure_price_search`, `azure_cost_estimate`) that agents
+  discover and call at runtime. The server handles authentication, caching, pagination,
+  and response formatting.
+- **VS Code tools**: Built-in capabilities like file reads/writes, terminal commands,
+  search, and subagent invocation.
+- **Handoffs**: Agents delegate to the next step by writing artifact files to
+  `agent-output/{project}/`. The next agent reads those files as input — there is no
+  direct message passing between agents.
+
+This project integrates four MCP servers:
+
+| Server            | Purpose                            | Transport          |
+| ----------------- | ---------------------------------- | ------------------ |
+| **GitHub MCP**    | Issues, PRs, code search, branches | HTTP (Copilot API) |
+| **Azure MCP**     | RBAC-aware Azure Resource Manager  | VS Code extension  |
+| **Azure Pricing** | Cost estimation (13 tools)         | stdio (Python)     |
+| **Terraform MCP** | Provider/module registry lookups   | stdio (Go)         |
+
+[:octicons-arrow-right-24: MCP Integration details](mcp-integration.md)
+
+---
+
+!!! tip "Further Reading"
+
+    - [Agent Architecture](agents.md) — 16 top-level agents, 11 subagents, the Challenger pattern
+    - [Skills & Instructions](skills-and-instructions.md) — progressive loading, glob-based enforcement
+    - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, 35 validators
+    - [MCP Integration](mcp-integration.md) — four MCP servers and their tool catalogs

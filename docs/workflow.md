@@ -20,7 +20,8 @@ code. The system supports **dual IaC tracks** — Bicep and Terraform — sharin
 architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,
 code generation, and deployment (steps 4-6) before converging again for documentation (step 7).
 
-The **InfraOps Conductor** (🎼 Maestro) orchestrates the complete workflow, routing to
+The **InfraOps Conductor** (🎼 Maestro, also referred to as the Coordinator)
+orchestrates the complete workflow, routing to
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
 while enforcing mandatory approval gates.
 
@@ -45,6 +46,83 @@ The Conductor resolves agent paths and models via `.github/agent-registry.json`.
 ## :material-robot-outline: Agent Architecture
 
 ### The Conductor Pattern
+
+The Conductor (also called Coordinator) orchestrates the entire workflow by delegating
+to specialised agents step by step, enforcing approval gates, and maintaining session state.
+The following diagram shows the end-to-end flow:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 👤 User
+    participant C as 🎼 Conductor Agent
+    participant Agents as 🤖 Agents
+    participant X as ⚔️ Challenger Agent
+
+    Note over C: AI prepares · Humans decide
+
+    U->>C: Describe infrastructure intent
+    C->>Agents: 📋 Gather requirements
+    Agents-->>C: 01-requirements.md
+    C->>X: Challenge requirements
+    X-->>C: Findings
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: 🏛️ Architecture + 💰 Cost
+    Agents-->>C: 02-assessment.md
+    C->>X: Challenge architecture
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: 📐 IaC Plan + Governance
+    Note right of Agents: Bicep or Terraform track
+    Agents-->>C: 04-plan.md + constraints
+    C->>X: Challenge plan
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: ⚒️ Generate IaC (AVM-first)
+    Note right of Agents: lint → review → validate
+    Agents-->>C: infra/{bicep,terraform}/{project}
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve for deploy
+    end
+
+    C->>Agents: 🚀 Deploy to Azure
+    Note right of Agents: what-if / plan preview first
+    Agents-->>C: 06-deployment-summary.md
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 VERIFICATION
+    U-->>C: ✅ Verify resources
+    end
+
+    C->>Agents: 📚 Generate as-built docs
+    Agents-->>C: 07-*.md documentation suite
+    C->>U: Present complete documentation
+
+    Note over U,Agents: ✅ AI Orchestrated · Human Governed · Azure Ready
+```
+
+### Agent Delegation Graph
+
+The detailed delegation graph below shows how the Conductor routes to each
+specialised agent and how subagents are invoked for validation:
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
@@ -137,15 +215,15 @@ graph TB
 
 ### Primary Orchestrator
 
-| Agent                  | Persona    | Role                                    | Model           |
-| ---------------------- | ---------- | --------------------------------------- | --------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 8-step workflow | Claude Opus 4.6 |
+| Agent                  | Codename   | Role                                    | Model                |
+| ---------------------- | ---------- | --------------------------------------- | -------------------- |
+| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 8-step workflow | Claude Opus (latest) |
 
 ### Core Agents (7 Steps)
 
 Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
-| Step | Agent              | Persona       | Role                                 | Artifact                                             |
+| Step | Agent              | Codename      | Role                                 | Artifact                                             |
 | ---- | ------------------ | ------------- | ------------------------------------ | ---------------------------------------------------- |
 | 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                 |
 | 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                      |
@@ -179,7 +257,7 @@ Steps 1-3 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 ### Standalone Agents
 
-| Agent        | Persona       | Role                                                            |
+| Agent        | Codename      | Role                                                            |
 | ------------ | ------------- | --------------------------------------------------------------- |
 | `challenger` | ⚔️ Challenger | Adversarial reviewer — challenges architecture, plans, and code |
 | `diagnose`   | 🔍 Sentinel   | Resource health assessment and troubleshooting                  |

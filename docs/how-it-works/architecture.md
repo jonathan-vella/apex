@@ -64,7 +64,7 @@ flowchart LR
   height="200" style="object-fit: cover; border-radius: 8px;"
   alt="Orchestra performance representing the Conductor pattern"></div><br/>
 
-The InfraOps Conductor (agent `01-Conductor`) is the master orchestrator. It does not
+The InfraOps Conductor (agent `01-Conductor`, also known as the Coordinator) is the master orchestrator. It does not
 generate infrastructure code or documentation itself. Instead, it:
 
 1. Reads the workflow DAG from `workflow-graph.json`
@@ -90,12 +90,17 @@ decision context. The new session resumes from the checkpoint by reading the sta
 
 **Model Selection**: The Conductor routes to different model tiers based on task complexity:
 
-| Tier           | Model             | Used By                                          |
-| -------------- | ----------------- | ------------------------------------------------ |
-| Primary        | Claude Opus 4.6   | Conductor, Steps 1–7 agents                      |
-| Review         | Claude Sonnet 4.6 | Challenger reviews, code reviews (A/B validated) |
-| Heavy API Work | GPT-5.3-Codex     | Governance discovery (batch REST API calls)      |
-| Utility        | GPT-4o-mini       | Session state updates, lightweight tasks         |
+!!! note "Model versions evolve"
+
+    The specific versions below reflect the current configuration. Check agent
+    frontmatter (`model:` field) for the latest selections.
+
+| Tier           | Model         | Used By                                          |
+| -------------- | ------------- | ------------------------------------------------ |
+| Primary        | Claude Opus   | Conductor, Steps 1–7 agents                      |
+| Review         | Claude Sonnet | Challenger reviews, code reviews (A/B validated) |
+| Heavy API Work | GPT Codex     | Governance discovery (batch REST API calls)      |
+| Utility        | GPT-4o-mini   | Session state updates, lightweight tasks         |
 
 **Subagent Integration Matrix**: The full mapping of which subagents are invoked by
 which parent agents is externalised to
@@ -147,3 +152,12 @@ flowchart TD
     Bicep --> AsBuilt
     Terraform --> AsBuilt
 ```
+
+---
+
+!!! tip "Further Reading"
+
+    - [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
+    - [Agent Architecture](agents.md) — 16 top-level agents, 11 subagents, Challenger pattern
+    - [Workflow Engine & Quality](workflow-engine.md) — DAG model, session state, circuit breakers
+    - [MCP Integration](mcp-integration.md) — four MCP servers and tool catalogs

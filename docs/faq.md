@@ -28,8 +28,11 @@ Frequently asked questions about Agentic InfraOps.
 ??? question "What AI models does this require?"
 
     The project is built for **GitHub Copilot** in VS Code. Agents specify their
-    preferred model in their frontmatter — most use Claude Opus 4.6 or GPT-5.3-Codex.
-    The Conductor and review-heavy agents perform best with Claude Opus 4.6.
+    preferred model in their frontmatter — most use the latest Claude Opus or
+    GPT Codex models. The Conductor and review-heavy agents perform best with
+    the latest Claude Opus model.
+
+    Model versions evolve — check agent frontmatter for current selections.
 
     You need an active **GitHub Copilot** license (Individual, Business, or Enterprise).
 

@@ -150,9 +150,9 @@ When `VERSION.md` is updated, check these files for version references:
 
 ## Emoji Conventions in Agent/Skill Tables
 
-Personas use consistent emoji in `docs/README.md`:
+Codenames use consistent emoji in `docs/README.md`:
 
-| Persona    | Emoji | Agent              |
+| Codename   | Emoji | Agent              |
 | ---------- | ----- | ------------------ |
 | Maestro    | 🎼    | InfraOps Conductor |
 | Scribe     | 📜    | Requirements       |
@@ -163,4 +163,4 @@ Personas use consistent emoji in `docs/README.md`:
 | Envoy      | 🚀    | Deploy             |
 | Sentinel   | 🔍    | Diagnose           |
 
-When adding a new agent, choose a unique emoji + persona name.
+When adding a new agent, choose a unique emoji + codename.

@@ -31,6 +31,13 @@ Get running in 10 minutes.
 | Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
 | Azure subscription     | Optional for learning                                       |
 
+!!! info "Docker is required"
+
+    A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+    is the most common choice. Free alternatives include [Rancher Desktop](https://rancherdesktop.io/),
+    [Colima](https://github.com/abiosoft/colima) (macOS), and [Podman](https://podman.io/) (Linux/macOS).
+    See [Dev Container Setup](dev-containers.md) for detailed installation options.
+
 ## :material-source-repository: Step 1: Create Your Repository from the Template
 
 1. Go to the
@@ -59,6 +66,13 @@ code my-infraops-project
    GitHub username and the repository name you chose in Step 1.
 
 ## :material-docker: Step 3: Open in Dev Container
+
+!!! tip "What is a dev container?"
+
+    A [dev container](https://containers.dev/) is a pre-configured development environment
+    that runs inside a Docker container. It ensures every contributor has identical tools,
+    extensions, and settings — no manual setup required. See the
+    [Dev Container Setup](dev-containers.md) page for details.
 
 1. Press `F1` (or `Ctrl+Shift+P`)
 2. Type: `Dev Containers: Reopen in Container`
@@ -116,7 +130,7 @@ take precedence for experimental features like subagent invocation.
 
 ### Option A: InfraOps Conductor (Recommended)
 
-The Conductor (🎼 Maestro) orchestrates the complete 8-step workflow:
+The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete 8-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
 2. Select **InfraOps Conductor** from the agent dropdown
@@ -147,7 +161,9 @@ Invoke agents directly for specific tasks:
 The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection.
 
-| Step | Agent                                 | Persona       | What Happens                |
+Each agent has a thematic codename for easy reference in documentation and prompts.
+
+| Step | Agent                                 | Codename      | What Happens                |
 | ---- | ------------------------------------- | ------------- | --------------------------- |
 | 1    | `requirements`                        | 📜 Scribe     | Captures requirements       |
 | 2    | `architect`                           | 🏛️ Oracle     | WAF assessment              |

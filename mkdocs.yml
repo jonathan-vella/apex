@@ -4,7 +4,7 @@ site_description: Azure infrastructure engineered by AI agents — from requirem
 repo_url: https://github.com/jonathan-vella/azure-agentic-infraops
 repo_name: jonathan-vella/azure-agentic-infraops
 edit_uri: edit/main/docs/
-copyright: "&copy; 2025 Jonathan Vella. Distributed under the MIT License."
+copyright: "&copy; 2025-2026 Jonathan Vella. Distributed under the MIT License."
 
 theme:
   name: material
@@ -99,7 +99,7 @@ nav:
       - How It Works:
           - Overview: how-it-works/index.md
           - System Architecture: how-it-works/architecture.md
-          - The Four Pillars: how-it-works/four-pillars.md
+          - Core Concepts: how-it-works/four-pillars.md
           - Agent Architecture: how-it-works/agents.md
           - Skills & Instructions: how-it-works/skills-and-instructions.md
           - Workflow Engine & Quality: how-it-works/workflow-engine.md

@@ -52,7 +52,7 @@ infrastructure.
 
 ### Agents
 
-| Agent                  | Persona       | Step | Purpose                                        |
+| Agent                  | Codename      | Step | Purpose                                        |
 | ---------------------- | ------------- | ---- | ---------------------------------------------- |
 | **InfraOps Conductor** | 🎼 Maestro    | All  | Orchestrates the full 8-step workflow          |
 | **Requirements**       | 📜 Scribe     | 1    | Captures business and technical requirements   |

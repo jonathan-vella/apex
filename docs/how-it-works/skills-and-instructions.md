@@ -111,3 +111,12 @@ rules across ALL projects (Bicep and Terraform):
 Following the Golden Principle "Mechanical Enforcement Over Documentation," every
 instruction has a corresponding validation script. The rule is: if it can be a linter
 check, it should be one. Documentation is for humans; machines enforce rules.
+
+---
+
+!!! tip "Further Reading"
+
+    - [Core Concepts](four-pillars.md) — the four knowledge layers and how they interact
+    - [Agent Architecture](agents.md) — how agents load and use skills via progressive disclosure
+    - [Workflow Engine & Quality](workflow-engine.md) — 35 validators that enforce instruction rules
+    - [MCP Integration](mcp-integration.md) — external tool interfaces available to agents

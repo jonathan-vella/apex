@@ -13,7 +13,7 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["Claude Opus 4.6"] # (1)!
+model: ["Claude Opus (latest)"] # (1)!
 tools: [list of allowed tools] # (2)!
 handoffs:
   - label: "Step 6: Deploy"
@@ -34,7 +34,26 @@ handoffs:
 The frontmatter is machine-readable metadata. The body is the agent's operating manual,
 loaded into the system prompt when the agent is invoked.
 
-## :material-account-supervisor-outline: Top-Level Agents (15)
+### Tools
+
+Agents interact with external systems through **tools** — structured interfaces provided
+by MCP servers and the VS Code runtime. Each agent's frontmatter declares a `tools:`
+allowlist that restricts which tools it can call. Common tool categories:
+
+- **MCP tools**: Cloud API wrappers (Azure pricing queries, GitHub operations, Terraform registry lookups)
+- **File tools**: Read and write workspace files (create artifacts, read prior step outputs)
+- **Terminal tools**: Execute CLI commands (Bicep build, Terraform validate, Azure CLI)
+- **Subagent tools**: Delegate to specialised subagents via `#runSubagent`
+
+### Handoffs
+
+Agents do not communicate directly. Instead, each agent produces **artifact files**
+in `agent-output/{project}/` that the next agent reads as input. The Conductor
+orchestrates this by delegating to one agent at a time, collecting its output,
+and routing to the next step. At approval gates, the Conductor writes a
+`00-handoff.md` summary document that enables session resume.
+
+## :material-account-supervisor-outline: Top-Level Agents (16)
 
 | Agent                    | Role                                  | Primary Skills                  |
 | ------------------------ | ------------------------------------- | ------------------------------- |
@@ -43,6 +62,7 @@ loaded into the system prompt when the agent is invoked.
 | 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts |
 | 03-Architect             | WAF assessment and cost estimation    | azure-defaults                  |
 | 04-Design                | Diagrams and ADRs                     | azure-diagrams, azure-adr       |
+| 04g-Governance           | Policy discovery and compliance       | azure-defaults                  |
 | 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns            |
 | 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns              |
 | 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns            |
@@ -54,22 +74,24 @@ loaded into the system prompt when the agent is invoked.
 | 10-Challenger            | Standalone adversarial review         | —                               |
 | 11-Context Optimizer     | Context window audit and optimisation | context-optimizer               |
 
-## :material-account-cog-outline: Subagents (9)
+## :material-account-cog-outline: Subagents (11)
 
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
 
-| Subagent                      | Purpose                                | Invoked By          |
-| ----------------------------- | -------------------------------------- | ------------------- |
-| challenger-review-subagent    | Adversarial review of artifacts        | Steps 1, 2, 4, 5, 6 |
-| cost-estimate-subagent        | Azure Pricing MCP queries              | Steps 2, 7          |
-| governance-discovery-subagent | Azure Policy discovery via REST API    | Step 4              |
-| bicep-lint-subagent           | `bicep build` + `bicep lint`           | Step 5 (Bicep)      |
-| bicep-review-subagent         | Code review against AVM standards      | Step 5 (Bicep)      |
-| bicep-whatif-subagent         | `az deployment what-if` preview        | Step 6 (Bicep)      |
-| terraform-lint-subagent       | `terraform fmt` + `terraform validate` | Step 5 (Terraform)  |
-| terraform-review-subagent     | Code review against AVM-TF standards   | Step 5 (Terraform)  |
-| terraform-plan-subagent       | `terraform plan` preview               | Step 6 (Terraform)  |
+| Subagent                         | Purpose                                | Invoked By          |
+| -------------------------------- | -------------------------------------- | ------------------- |
+| challenger-review-subagent       | Adversarial review of artifacts        | Steps 1, 2, 4, 5, 6 |
+| challenger-review-batch-subagent | Batch multi-lens adversarial review    | Steps 2, 4, 5       |
+| challenger-review-codex-subagent | Fast adversarial review (Codex model)  | Steps 2, 4          |
+| cost-estimate-subagent           | Azure Pricing MCP queries              | Steps 2, 7          |
+| governance-discovery-subagent    | Azure Policy discovery via REST API    | Step 4              |
+| bicep-lint-subagent              | `bicep build` + `bicep lint`           | Step 5 (Bicep)      |
+| bicep-review-subagent            | Code review against AVM standards      | Step 5 (Bicep)      |
+| bicep-whatif-subagent            | `az deployment what-if` preview        | Step 6 (Bicep)      |
+| terraform-lint-subagent          | `terraform fmt` + `terraform validate` | Step 5 (Terraform)  |
+| terraform-review-subagent        | Code review against AVM-TF standards   | Step 5 (Terraform)  |
+| terraform-plan-subagent          | `terraform plan` preview               | Step 6 (Terraform)  |
 
 ## :material-sword-cross: The Challenger Pattern
 
@@ -130,4 +152,9 @@ This enables resume from any gate without needing to re-read all prior artefacts
 
 ---
 
-**Next:** [Skills & Instructions](skills-and-instructions.md) · [Workflow Engine & Quality](workflow-engine.md)
+!!! tip "Further Reading"
+
+    - [Core Concepts](four-pillars.md) — the four knowledge layers (agents, skills, instructions, registries)
+    - [Skills & Instructions](skills-and-instructions.md) — progressive skill loading and glob-based enforcement
+    - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, circuit breakers
+    - [MCP Integration](mcp-integration.md) — the four MCP servers and their tool catalogs

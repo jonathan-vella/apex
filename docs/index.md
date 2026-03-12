@@ -19,9 +19,9 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 sequenceDiagram
     autonumber
     participant U as 👤 User
-    participant C as 🎼 Conductor
+    participant C as 🎼 Conductor Agent
     participant Agents as 🤖 Agents
-    participant X as ⚔️ Challenger
+    participant X as ⚔️ Challenger Agent
 
     Note over C: AI prepares · Humans decide
 
@@ -183,3 +183,33 @@ See the [Changelog](CHANGELOG.md) for the full release history.
 - **Troubleshooting**: [Troubleshooting Guide](troubleshooting.md)
 - **MicroHack**: [Hands-on guided challenge](https://jonathan-vella.github.io/microhack-agentic-infraops/)
   — build Azure infrastructure end-to-end using AI agents
+
+---
+
+## :material-presentation-play: Resources
+
+<div class="grid cards" markdown>
+
+- :material-youtube:{ .lg .middle } **Watch the Demo**
+
+  ***
+
+  See Agentic InfraOps in action — full workflow walkthrough from requirements to deployment.
+
+  <div class="video-wrapper">
+    <iframe width="100%" height="315"
+      src="https://www.youtube.com/embed/Hao3F52sZUc"
+      title="Agentic InfraOps Demo" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
+  </div>
+
+- :material-presentation:{ .lg .middle } **Presentation Deck**
+
+  ***
+
+  Download the slide deck for stakeholder presentations and team introductions.
+
+  [:material-download: Download PPTX](assets/downloads/agentic-infraops.PPTX){ .md-button }
+
+</div>

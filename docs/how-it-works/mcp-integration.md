@@ -175,6 +175,15 @@ agent-output/{project}/                      # All agent-generated artefacts
 infra/
   bicep/{project}/                           # Bicep templates
   terraform/{project}/                       # Terraform configurations
-scripts/                                     # 27 validation scripts
+scripts/                                     # 35 validation scripts
 mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 ```
+
+---
+
+!!! tip "Further Reading"
+
+    - [System Architecture](architecture.md) — the Conductor pattern and model selection
+    - [Core Concepts](four-pillars.md) — high-level overview of tools and MCP
+    - [Agent Architecture](agents.md) — which agents use which MCP servers
+    - [Workflow Engine & Quality](workflow-engine.md) — circuit breakers and validation systems

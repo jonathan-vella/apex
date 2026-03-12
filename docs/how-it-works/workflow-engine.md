@@ -142,11 +142,11 @@ experienced 5 forced context summarisations in a single 3h39m session.
 
 ## :material-shield-check-outline: Quality and Safety Systems
 
-### 28 Validation Scripts
+### 35 Validation Scripts
 
-Every convention is backed by a machine-enforceable check. The 26 script files drive
-the validation suite, organised into two parallel groups: `validate:_node` (22 Node.js
-validators) and `validate:_external` (5 external tool validators):
+Every convention is backed by a machine-enforceable check. The validation suite runs
+via two parallel groups: `validate:_node` (23 Node.js
+validators) and `validate:_external` (4 external tool validators):
 
 | Category            | Validators                                                                                |
 | ------------------- | ----------------------------------------------------------------------------------------- |
@@ -229,3 +229,12 @@ at runtime:
 
 Hooks are defined in `hooks.json` files with type (`command`), path to shell script,
 and timeout. They run automatically — agents do not invoke them explicitly.
+
+---
+
+!!! tip "Further Reading"
+
+    - [System Architecture](architecture.md) — the 8-step workflow, Conductor pattern, dual IaC tracks
+    - [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
+    - [Agent Architecture](agents.md) — handoffs, the Challenger pattern, context shredding
+    - [MCP Integration](mcp-integration.md) — four MCP servers and how agents invoke tools
