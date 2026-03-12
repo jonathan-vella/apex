@@ -19,13 +19,13 @@ through a structured 8-step workflow to transform Azure infrastructure requireme
 production-grade Infrastructure as Code. The system coordinates 16 top-level agents and
 11 subagents through mandatory human approval gates, producing Bicep or Terraform templates
 that conform to Azure Well-Architected Framework principles, Azure Verified Modules standards,
-and organisational governance policies. The agents are supported by 18 skills, 27 instruction
-files, 3 Copilot hooks, and 4 MCP server integrations.
+and organisational governance policies. The agents are supported by reusable skills, instruction
+files, Copilot hooks, and MCP server integrations.
 
 The core thesis is that **AI agents can reliably produce production-grade Azure infrastructure
 when properly orchestrated with guardrails**. The system achieves this through
 a layered knowledge architecture (agents, skills, instructions, registries), mechanical enforcement
-of invariants via 35 validation scripts, and a human-in-the-loop design
+of invariants via automated validation scripts, and a human-in-the-loop design
 that preserves operator control at every critical decision point. Cost governance (budget alerts,
 forecast notifications, anomaly detection) and template repeatability (zero hardcoded values)
 are enforced as first-class concerns across all generated infrastructure.
@@ -68,7 +68,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  DAG model, approval gates, session state, 35 validators, Copilot hooks, and circuit breakers.
+  DAG model, approval gates, session state, validators, Copilot hooks, and circuit breakers.
 
   [:octicons-arrow-right-24: Workflow & quality](workflow-engine.md)
 
@@ -109,12 +109,12 @@ and instructions, and all decisions in Architecture Decision Records.
 failed: context is a scarce resource, and a giant instruction file crowds out the task.
 Instead, they treat `AGENTS.md` as a table of contents that points to deeper sources.
 This project adopts the same pattern: `AGENTS.md` is approximately 250 lines and points to
-18 skills, 27 instruction files, and multiple configuration registries.
+skills, instruction files, and multiple configuration registries.
 
 **Enforce invariants, not implementations.** Rather than prescribing step-by-step procedures,
 the Harness Engineering approach encodes strict boundaries (architectural layering rules,
 naming conventions, security requirements) and lets agents choose their own path within those
-constraints. This project enforces invariants mechanically: 35 validation scripts check
+constraints. This project enforces invariants mechanically: validation scripts check
 naming conventions, template compliance, governance references, and architectural rules.
 
 **Human taste gets encoded.** When a human reviewer catches a pattern issue, the fix is
@@ -257,7 +257,7 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | ---------------------- | ------------------------------------ | ----------------------------------- | -------------------------------- | ------------------------------------------------------------- |
 | Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
 | Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
-| Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | 35 validators + pre-commit/push hooks + 3 Copilot hooks       |
+| Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
 | Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent                       |
 | Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model                      |
 | Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |

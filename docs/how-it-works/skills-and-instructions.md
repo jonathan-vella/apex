@@ -35,7 +35,7 @@ Skills implement three levels of disclosure:
 
 ### Skill Catalog
 
-The system contains 18 skills across several domains:
+The system contains the following skills across several domains:
 
 | Domain               | Skills                                                              |
 | -------------------- | ------------------------------------------------------------------- |
@@ -118,5 +118,5 @@ check, it should be one. Documentation is for humans; machines enforce rules.
 
     - [Core Concepts](four-pillars.md) — the four knowledge layers and how they interact
     - [Agent Architecture](agents.md) — how agents load and use skills via progressive disclosure
-    - [Workflow Engine & Quality](workflow-engine.md) — 35 validators that enforce instruction rules
+    - [Workflow Engine & Quality](workflow-engine.md) — validators that enforce instruction rules
     - [MCP Integration](mcp-integration.md) — external tool interfaces available to agents

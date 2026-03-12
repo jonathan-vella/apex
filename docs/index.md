@@ -162,7 +162,7 @@ sequenceDiagram
 |                 |                                       |
 | --------------- | ------------------------------------- |
 | **Agents**      | 16 primary + 11 subagents             |
-| **Skills**      | 18 reusable domain knowledge modules  |
+| **Skills**      | Reusable domain knowledge modules     |
 | **IaC Tracks**  | Bicep and Terraform (dual-track)      |
 | **MCP Servers** | Azure, Pricing, Terraform, GitHub     |
 | **Workflow**    | 8 steps with mandatory approval gates |

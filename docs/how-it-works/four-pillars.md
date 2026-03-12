@@ -136,5 +136,5 @@ This project integrates four MCP servers:
 
     - [Agent Architecture](agents.md) — 16 top-level agents, 11 subagents, the Challenger pattern
     - [Skills & Instructions](skills-and-instructions.md) — progressive loading, glob-based enforcement
-    - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, 35 validators
+    - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, validators
     - [MCP Integration](mcp-integration.md) — four MCP servers and their tool catalogs

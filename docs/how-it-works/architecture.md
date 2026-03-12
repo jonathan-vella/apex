@@ -37,6 +37,8 @@ flowchart LR
     S2["Step 2\nArchitecture"]
     G2{{"Gate 2\n🔒 Approval"}}:::gate
     S3["Step 3\nDesign\n(optional)"]
+    S35["Step 3.5\nGovernance"]
+    G25{{"Gate 2.5\n🔒 Approval"}}:::gate
     S4["Step 4\nIaC Plan"]
     G3{{"Gate 3\n🔒 Approval"}}:::gate
     S5["Step 5\nIaC Code"]
@@ -45,7 +47,7 @@ flowchart LR
     G5{{"Gate 5\n🔒 Approval"}}:::gate
     S7["Step 7\nAs-Built Docs"]:::endNode
 
-    S1 --> G1 --> S2 --> G2 --> S3 --> S4 --> G3 --> S5 --> G4 --> S6 --> G5 --> S7
+    S1 --> G1 --> S2 --> G2 --> S3 --> S35 --> G25 --> S4 --> G3 --> S5 --> G4 --> S6 --> G5 --> S7
 ```
 
 | Step | Phase        | Agent                              | Output                                   | Review            |
@@ -53,7 +55,8 @@ flowchart LR
 | 1    | Requirements | 02-Requirements                    | `01-requirements.md`                     | 1 challenger pass |
 | 2    | Architecture | 03-Architect                       | `02-architecture-assessment.md` + cost   | 3+1 passes        |
 | 3    | Design (opt) | 04-Design                          | `03-des-*.{py,png,md}`                   | —                 |
-| 4    | IaC Plan     | 05b-Bicep Planner / 05t-TF Planner | `04-implementation-plan.md` + governance | 1+3 passes        |
+| 3.5  | Governance   | 04g-Governance                     | `04-governance-constraints.md/.json`     | —                 |
+| 4    | IaC Plan     | 05b-Bicep Planner / 05t-TF Planner | `04-implementation-plan.md`              | 1+3 passes        |
 | 5    | IaC Code     | 06b-Bicep CodeGen / 06t-TF CodeGen | `infra/bicep/` or `infra/terraform/`     | 3 passes          |
 | 6    | Deploy       | 07b-Bicep Deploy / 07t-TF Deploy   | `06-deployment-summary.md`               | 1 pass            |
 | 7    | As-Built     | 08-As-Built                        | `07-*.md` documentation suite            | —                 |

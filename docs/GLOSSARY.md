@@ -370,7 +370,7 @@ for Agentic InfraOps methodology.
 
 A reusable knowledge module stored in `.github/skills/` that agents can invoke. Unlike agents,
 skills don't have their own chat persona — they provide domain knowledge that agents use.
-18 skills are organized across conventions, document creation, infrastructure patterns,
+Skills are organized across conventions, document creation, infrastructure patterns,
 workflow automation, and troubleshooting categories.
 
 📁 **See**: [.github/skills/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills)

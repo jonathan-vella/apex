@@ -153,9 +153,9 @@ AGENTS.md                                    # Table of contents for all agents
   copilot-instructions.md                    # VS Code Copilot orchestration
   agent-registry.json                        # Agent role → file/model/skills
   skill-affinity.json                        # Skill/agent affinity weights
-  agents/                                    # 16 top-level agent definitions
-    _subagents/                              # 11 subagent definitions
-  skills/                                    # 18 skill packages
+  agents/                                    # Top-level agent definitions
+    _subagents/                              # Subagent definitions
+  skills/                                    # Skill packages
     workflow-engine/                          # DAG, workflow graph
     context-shredding/                       # Runtime compression
     session-resume/                          # State tracking + resume protocol
@@ -167,7 +167,7 @@ AGENTS.md                                    # Table of contents for all agents
     iac-common/                              # Deploy patterns + circuit breaker
     github-operations/                       # GitHub MCP + CLI + Smart PR Flow
     ...
-  instructions/                              # 27 instruction files (glob-based)
+  instructions/                              # Instruction files (glob-based)
 agent-output/{project}/                      # All agent-generated artefacts
   00-session-state.json                      # Machine-readable workflow state
   00-handoff.md                              # Human-readable gate summary
@@ -175,7 +175,7 @@ agent-output/{project}/                      # All agent-generated artefacts
 infra/
   bicep/{project}/                           # Bicep templates
   terraform/{project}/                       # Terraform configurations
-scripts/                                     # 35 validation scripts
+scripts/                                     # Validation scripts
 mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 ```
 
