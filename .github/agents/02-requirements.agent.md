@@ -128,7 +128,8 @@ documents. You must complete Phases 1-4 of questioning before writing anything.
 - **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_workload` →
   `phase_3_nfr` → `phase_4_technical` → `phase_5_artifact`
 - **State writes**: Update `00-session-state.json` after completing each
-  phase (set `sub_step` + `updated` timestamp)
+  phase (set `sub_step` + `updated` timestamp).
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 - **On completion**: Set `steps.1.status = "complete"`, list produced
   artifacts, update `decisions` with captured values (region, iac_tool, budget,
   complexity)

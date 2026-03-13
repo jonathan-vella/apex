@@ -150,6 +150,7 @@ If any are missing, STOP and request handoff to the appropriate prior agent.
   skip to the saved `sub_step` checkpoint.
 - **State writes**: Update after each phase. On completion, set `steps.4.status = "complete"`
   and populate `decisions.deployment_strategy`.
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 
 ## Core Workflow
 

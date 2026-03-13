@@ -239,6 +239,65 @@ function validateStateFile(filePath, isTemplate) {
     }
   }
 
+  // Validate optional decision_log (don't break old sessions)
+  if (state.decision_log !== undefined) {
+    if (!Array.isArray(state.decision_log)) {
+      error(label, "decision_log must be an array");
+    } else {
+      const requiredEntryFields = [
+        "id",
+        "step",
+        "agent",
+        "title",
+        "choice",
+        "rationale",
+      ];
+      const idPattern = /^D\d+$/;
+      for (let i = 0; i < state.decision_log.length; i++) {
+        const entry = state.decision_log[i];
+        const prefix = `decision_log[${i}]`;
+        if (typeof entry !== "object" || entry === null) {
+          error(label, `${prefix} must be an object`);
+          continue;
+        }
+        for (const field of requiredEntryFields) {
+          if (!(field in entry)) {
+            error(label, `${prefix}: missing required field "${field}"`);
+          }
+        }
+        if (entry.id !== undefined && !idPattern.test(entry.id)) {
+          error(
+            label,
+            `${prefix}: id must match pattern D001, D002, etc. Got: "${entry.id}"`,
+          );
+        }
+        if (
+          entry.step !== undefined &&
+          (typeof entry.step !== "number" || entry.step < 1 || entry.step > 7)
+        ) {
+          error(label, `${prefix}: step must be a number between 1 and 7`);
+        }
+        if (entry.timestamp !== undefined && entry.timestamp !== null) {
+          const d = new Date(entry.timestamp);
+          if (isNaN(d.getTime())) {
+            error(
+              label,
+              `${prefix}: timestamp is not a valid ISO date: "${entry.timestamp}"`,
+            );
+          }
+        } else {
+          warn(label, `${prefix}: missing timestamp`);
+        }
+        if (
+          entry.alternatives !== undefined &&
+          !Array.isArray(entry.alternatives)
+        ) {
+          error(label, `${prefix}: alternatives must be an array of strings`);
+        }
+      }
+    }
+  }
+
   if (!state.steps || typeof state.steps !== "object") {
     error(label, "Missing or invalid steps object");
     return;

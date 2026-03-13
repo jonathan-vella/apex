@@ -142,6 +142,7 @@ If any are missing, STOP → handoff to the appropriate prior agent.
   `phase_6_artifact`
 - **Resume**: Read `00-session-state.json` first. If `steps.4.status = "in_progress"` with a `sub_step`, skip to that checkpoint.
 - **State writes**: Update `00-session-state.json` after each phase.
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 
 ## Core Workflow
 

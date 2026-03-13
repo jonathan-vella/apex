@@ -48,7 +48,9 @@ The parent agent provides:
 ## Adversarial Review Workflow
 
 1. **Read the artifact completely** — understand the proposed approach end to end
-2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps
+2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps.
+   Read `decision_log` from `00-session-state.json` to understand rationale behind prior
+   choices — challenge the reasoning, not just the outcome.
 3. **Verify claims against skills and instructions** — cross-reference azure-defaults, bicep-policy-compliance,
    and governance-discovery instructions. Do not trust claims like "all policies covered" — verify them
 4. **If `prior_findings` provided**, read them and avoid duplicating existing issues. Focus

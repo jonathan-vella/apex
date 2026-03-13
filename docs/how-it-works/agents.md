@@ -55,24 +55,24 @@ and routing to the next step. At approval gates, the Conductor writes a
 
 ## :material-account-supervisor-outline: Top-Level Agents (16)
 
-| Agent                    | Role                                  | Primary Skills                  |
-| ------------------------ | ------------------------------------- | ------------------------------- |
-| 01-Conductor             | Master orchestrator                   | workflow-engine, session-resume |
-| 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults  |
-| 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts |
-| 03-Architect             | WAF assessment and cost estimation    | azure-defaults                  |
-| 04-Design                | Diagrams and ADRs                     | azure-diagrams, azure-adr       |
-| 04g-Governance           | Policy discovery and compliance       | azure-defaults                  |
-| 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns            |
-| 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns              |
-| 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns            |
-| 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns              |
-| 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common      |
+| Agent                    | Role                                  | Primary Skills                                 |
+| ------------------------ | ------------------------------------- | ---------------------------------------------- |
+| 01-Conductor             | Master orchestrator                   | workflow-engine, session-resume                |
+| 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults                 |
+| 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts                |
+| 03-Architect             | WAF assessment and cost estimation    | azure-defaults                                 |
+| 04-Design                | Diagrams and ADRs                     | azure-diagrams, azure-adr                      |
+| 04g-Governance           | Policy discovery and compliance       | azure-defaults                                 |
+| 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns                           |
+| 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns                             |
+| 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns                           |
+| 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns                             |
+| 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common                     |
 | 07t-Terraform Deploy     | Terraform deployment execution        | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built              | Post-deployment documentation         | azure-artifacts, azure-diagrams |
-| 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics               |
-| 10-Challenger            | Standalone adversarial review         | —                               |
-| 11-Context Optimizer     | Context window audit and optimisation | context-optimizer               |
+| 08-As-Built              | Post-deployment documentation         | azure-artifacts, azure-diagrams                |
+| 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics                              |
+| 10-Challenger            | Standalone adversarial review         | —                                              |
+| 11-Context Optimizer     | Context window audit and optimisation | context-optimizer                              |
 
 ## :material-account-cog-outline: Subagents (11)
 
@@ -116,8 +116,8 @@ Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Onl
 it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero `must_fix`
 items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
 
-**Context Shredding for Challenger Inputs**: The challenger applies context compression
-tiers when loading predecessor artefacts for review:
+**Context Shredding for Challenger Inputs**: The challenger is instructed to apply
+context compression tiers when loading predecessor artefacts for review:
 
 | Context Usage | Loading Strategy                                               |
 | ------------- | -------------------------------------------------------------- |
@@ -125,9 +125,17 @@ tiers when loading predecessor artefacts for review:
 | 60–80%        | Key H2 sections only (resource list, SKUs, WAF scores, budget) |
 | > 80%         | Decision summary from `00-session-state.json` + resource list  |
 
-This achieves 40–70% input reduction for heavy artefacts. After each review pass,
-only the `compact_for_parent` string is carried forward (not the full JSON findings),
-preventing context bloat across multi-pass reviews.
+!!! warning "Reliability note"
+
+    The tier selection above depends on the LLM estimating its own context usage —
+    there is no runtime API to measure actual token consumption. The LLM may not
+    apply compression consistently. The **`compact_for_parent` carry-forward** (below)
+    is the part that reliably works because it is a structural contract in the
+    subagent's JSON output format, not a voluntary LLM behaviour.
+
+After each review pass, only the `compact_for_parent` string (~200 characters) is carried
+forward — not the full JSON findings. This prevents context bloat across multi-pass reviews
+and is enforced by the output schema.
 
 !!! tip "If a challenger review hangs"
 

@@ -144,6 +144,7 @@ Also read `02-architecture-assessment.md` for SKU/tier context.
 - **Resume**: Read `00-session-state.json` first. If `steps.5.status = "in_progress"`
   with a `sub_step`, skip to that checkpoint.
 - **State writes**: Update `00-session-state.json` after each phase.
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 
 ## Workflow
 

@@ -126,9 +126,9 @@ collect ALL missing values in a single interactive form, even if only one
 category is missing. **NEVER** list missing items in chat text and ask the
 user to reply — this wastes a full request round-trip.
 
-| Category   | Required                           | If Missing                                               |
-| ---------- | ---------------------------------- | -------------------------------------------------------- |
-| NFRs       | SLA, RTO, RPO, performance targets | `askQuestions`: header "NFR Targets", freeform input      |
+| Category   | Required                           | If Missing                                                 |
+| ---------- | ---------------------------------- | ---------------------------------------------------------- |
+| NFRs       | SLA, RTO, RPO, performance targets | `askQuestions`: header "NFR Targets", freeform input       |
 | Compliance | Regulatory frameworks              | `askQuestions`: header "Compliance", multiSelect options   |
 | Budget     | Approximate monthly budget         | `askQuestions`: header "Budget Range", freeform input      |
 | Scale      | Users, transactions, data volume   | `askQuestions`: header "Scale Projections", freeform input |
@@ -149,6 +149,7 @@ to skill reading or WAF assessment until every category has a value.
   skip WAF assessment re-generation and proceed to cost estimation).
 - **State writes**: Update `00-session-state.json` after each phase. On completion, set
   `steps.2.status = "complete"` and populate `decisions` with architecture pattern and budget.
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 
 ## MANDATORY: Read Skills (After Prerequisites, Before Assessment)
 

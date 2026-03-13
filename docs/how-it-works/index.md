@@ -165,7 +165,11 @@ node types.
 **Context shredding.** Bosun's `context-shredding-config.mjs` implements tiered context
 compression to manage token budgets across long-running sessions. This project's
 `context-shredding` skill defines three compression tiers (`full`, `summarized`, `minimal`)
-with per-artifact compression templates.
+with per-artifact compression templates. Note: the pre-built skill file variants
+(`SKILL.digest.md`, `SKILL.minimal.md`) and hardcoded compaction checkpoints in agent
+bodies work reliably; the dynamic tier selection based on LLM self-estimated context
+percentage is best-effort (see [Context Compression](workflow-engine.md#context-compression)
+for details on current limitations).
 
 **Circuit breaker and anomaly detection.** Bosun's `anomaly-detector.mjs` and
 `error-detector.mjs` detect stalled loops and repeated failures, triggering escalation.
