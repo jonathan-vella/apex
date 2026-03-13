@@ -641,7 +641,7 @@ This project uses [Semantic Versioning](https://semver.org/):
 
 ## Links
 
-- [VERSION.md](../VERSION.md) - Detailed version history
+- [VERSION.md](VERSION.md) - Detailed version history
 - [GitHub Releases](https://github.com/jonathan-vella/azure-agentic-infraops/releases)
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
