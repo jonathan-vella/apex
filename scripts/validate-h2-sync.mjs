@@ -17,7 +17,7 @@ import path from "node:path";
 const SKILL_PATH = ".github/skills/azure-artifacts/SKILL.md";
 const SKILL_REFS_DIR = ".github/skills/azure-artifacts/references";
 const H2_REF_PATH = ".github/instructions/azure-artifacts.instructions.md";
-const VALIDATOR_PATH = "scripts/validate-artifact-templates.mjs";
+const VALIDATOR_PATH = "scripts/_lib/artifact-headings.mjs";
 
 // Artifact types that have H2 definitions in all three sources
 // PROJECT-README uses different naming across sources, handled separately
@@ -91,7 +91,7 @@ function parseValidatorHeadings(text) {
   const result = new Map();
 
   const blockMatch = text.match(
-    /const ARTIFACT_HEADINGS\s*=\s*\{([\s\S]*?)\n\};/,
+    /(?:const|export const) ARTIFACT_HEADINGS\s*=\s*\{([\s\S]*?)\n\};/,
   );
   if (!blockMatch) return result;
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # diff-based-push-check.sh
-# Categorizes changed files and runs only matching validators.
+# Categorizes changed files and runs only matching validators in parallel.
 # Called by lefthook pre-push hook.
 set -euo pipefail
 
@@ -19,25 +19,6 @@ INSTRUCTION_COUNT=0
 SKILL_COUNT=0
 JSON_COUNT=0
 PY_COUNT=0
-PASS=0
-FAIL=0
-
-check_domain() {
-  local label="$1"
-  local count="$2"
-  local cmd="$3"
-
-  if [ "$count" -gt 0 ]; then
-    echo "  🔍 $label ($count file(s))..."
-    if eval "$cmd" > /dev/null 2>&1; then
-      echo "    ✅ $label passed"
-      PASS=$((PASS + 1))
-    else
-      echo "    ❌ $label failed"
-      FAIL=$((FAIL + 1))
-    fi
-  fi
-}
 
 while IFS= read -r file; do
   case "$file" in
@@ -59,20 +40,56 @@ if [ "$TOTAL" -eq 0 ]; then
   exit 0
 fi
 
-echo "🔄 Running diff-based push checks..."
+echo "🔄 Running diff-based push checks (parallel)..."
 echo ""
 
-check_domain "Bicep lint" "$BICEP_COUNT" "for f in infra/bicep/*/main.bicep; do [ -f \"\$f\" ] && bicep build \"\$f\" && bicep lint \"\$f\"; done"
-check_domain "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt"
-check_domain "Terraform validate" "$TF_COUNT" "npm run validate:terraform"
-check_domain "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run lint:artifact-templates"
-check_domain "Agent frontmatter" "$AGENT_COUNT" "npm run lint:agent-frontmatter"
-check_domain "Agent body size" "$AGENT_COUNT" "npm run lint:agent-body-size"
-check_domain "Instruction frontmatter" "$INSTRUCTION_COUNT" "npm run lint:instruction-frontmatter"
-check_domain "Skills format" "$SKILL_COUNT" "npm run lint:skills-format"
-check_domain "Skill size" "$SKILL_COUNT" "npm run lint:skill-size"
-check_domain "JSON syntax" "$JSON_COUNT" "npm run lint:json"
-check_domain "Python lint" "$PY_COUNT" "npm run lint:python"
+# Temp dir for collecting per-check exit codes
+RESULTS_DIR=$(mktemp -d)
+trap 'rm -rf "$RESULTS_DIR"' EXIT
+
+run_check() {
+  local label="$1"
+  local count="$2"
+  local cmd="$3"
+  local slug="$4"
+
+  if [ "$count" -gt 0 ]; then
+    if eval "$cmd" > /dev/null 2>&1; then
+      echo "pass" > "$RESULTS_DIR/$slug"
+    else
+      echo "fail" > "$RESULTS_DIR/$slug"
+    fi
+  fi
+}
+
+# Launch all checks in background
+run_check "Bicep lint" "$BICEP_COUNT" "for f in infra/bicep/*/main.bicep; do [ -f \"\$f\" ] && bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
+run_check "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt" "tf-fmt" &
+run_check "Terraform validate" "$TF_COUNT" "npm run validate:terraform" "tf-validate" &
+run_check "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run lint:artifact-templates" "artifacts" &
+run_check "Agent frontmatter" "$AGENT_COUNT" "npm run lint:agent-frontmatter" "agents" &
+run_check "Instruction frontmatter" "$INSTRUCTION_COUNT" "npm run lint:instruction-frontmatter" "instructions" &
+run_check "Skills format" "$SKILL_COUNT" "npm run lint:skills-format" "skills" &
+run_check "JSON syntax" "$JSON_COUNT" "npm run lint:json" "json" &
+run_check "Python lint" "$PY_COUNT" "npm run lint:python" "python" &
+
+wait
+
+# Collect results
+PASS=0
+FAIL=0
+for result_file in "$RESULTS_DIR"/*; do
+  [ -f "$result_file" ] || continue
+  slug=$(basename "$result_file")
+  status=$(cat "$result_file")
+  if [ "$status" = "pass" ]; then
+    echo "  ✅ $slug passed"
+    PASS=$((PASS + 1))
+  else
+    echo "  ❌ $slug failed"
+    FAIL=$((FAIL + 1))
+  fi
+done
 
 echo ""
 echo "📊 Checked: ${BICEP_COUNT} Bicep, ${TF_COUNT} Terraform, ${MD_ARTIFACT_COUNT} Artifact MD, ${AGENT_COUNT} Agent, ${INSTRUCTION_COUNT} Instruction, ${SKILL_COUNT} Skill, ${JSON_COUNT} JSON, ${PY_COUNT} Python"

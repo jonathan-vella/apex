@@ -189,7 +189,7 @@ mcp/
 scripts/               # Validation and maintenance scripts (Node.js) — 27 validators
 docs/                  # User-facing documentation
 .vscode/
-  mcp.json             # MCP server configuration (github, azure-pricing, terraform)
+  mcp.json             # MCP server configuration (github, azure-pricing, terraform, microsoft-learn)
 ```
 
 ### Agent Workflow (8 Steps)

@@ -61,6 +61,7 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
+    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,

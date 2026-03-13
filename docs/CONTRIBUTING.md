@@ -1,12 +1,16 @@
-# :material-heart-outline: Contributing to Agentic InfraOps
+<a id="top"></a>
+
+# Contributing to Agentic InfraOps
 
 Thank you for your interest in contributing! Agentic InfraOps revolutionizes how IT Pros build
 Azure environments through coordinated AI agents.
 
 This file is the quick contributor entrypoint.
-For the agent orchestration workflow, see [Agent Architecture](how-it-works/agents.md).
+The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-## What We're Looking For
+- [Development Workflow Guide](workflow.md)
+
+## 🎯 What We're Looking For
 
 ### High-Priority Contributions
 
@@ -24,8 +28,9 @@ For the agent orchestration workflow, see [Agent Architecture](how-it-works/agen
    - Bicep and Terraform patterns and templates
    - Azure Verified Module usage examples (Bicep and AVM-TF)
    - Security and compliance guidance
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Contribution Guidelines
+## 📋 Contribution Guidelines
 
 ### Before You Start
 
@@ -34,15 +39,11 @@ For the agent orchestration workflow, see [Agent Architecture](how-it-works/agen
 
 ### Branching and PRs (Canonical)
 
-!!! warning "Protected main branch"
-
-    Direct pushes to `main` are blocked. All changes must go through a pull request
-    with passing status checks and at least one approval.
-
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Agent orchestration reference: [Agent and Skill Workflow](workflow.md)
+- Workflow details: [Development Workflow Guide](workflow.md)
+- Agent workflow details: [Agent Workflow Reference](workflow.md)
 
 ### Code Standards
 
@@ -88,16 +89,15 @@ npm run lint:links
 # Auto-fix issues
 npm run lint:md:fix
 ```
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Contribution Process
+## 🚀 Contribution Process
 
 ### 1. Fork & Clone
 
-!!! note "Contributing to the upstream project"
-
-    For **using** Agentic InfraOps, create your own repo from the
-    [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator).
-    The instructions below are for contributing back to this upstream project.
+> **Note:** For **using** Agentic InfraOps, create your own repo from the
+> [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+> instead. The instructions below are for contributing back to this upstream project.
 
 ```bash
 git clone https://github.com/YOUR-USERNAME/azure-agentic-infraops.git
@@ -122,7 +122,7 @@ git checkout -b fix/issue-description
 
 For the full local-to-PR flow, see:
 
-- [Agent and Skill Workflow](workflow.md)
+- [Development Workflow Guide](workflow.md)
 
 ### 4. Commit & Push
 
@@ -133,15 +133,12 @@ git push origin feature/your-feature-name
 ```
 
 Note: commit message format is enforced by hooks and CI.
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Commit Message Format (Required)
-
-!!! info "Enforced by commitlint"
-
-    Commit messages are validated automatically before each commit.
-    Non-conforming messages will be rejected with a helpful error.
+## 📝 Commit Message Format (Required)
 
 This repository uses [Conventional Commits](https://www.conventionalcommits.org/) with automated enforcement.
+Commit messages are validated by commitlint before each commit.
 
 ### Format
 
@@ -213,8 +210,9 @@ doesn't follow the format, you'll see a helpful error with examples.
 2. Click "New Pull Request"
 3. Fill out the PR template
 4. Link related issues
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Pull Request Checklist
+## 📝 Pull Request Checklist
 
 Before submitting:
 
@@ -226,8 +224,9 @@ Before submitting:
 - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Community Standards
+## 🤝 Community Standards
 
 ### Code of Conduct
 
@@ -240,9 +239,14 @@ Before submitting:
 
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## License
+## 📄 License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
-**Thank you for helping improve the Azure infrastructure workflow!**
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
+
+**Thank you for helping improve the Azure infrastructure workflow!** 🚀
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

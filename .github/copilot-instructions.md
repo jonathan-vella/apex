@@ -29,22 +29,25 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 4, 5).
 
 ## Skills (Auto-Invoked by Agents)
 
-| Skill                   | Purpose                                                           |
-| ----------------------- | ----------------------------------------------------------------- |
-| `azure-defaults`        | Regions, tags, naming, AVM, security, governance, pricing         |
-| `azure-artifacts`       | Template H2 structures, styling, generation rules                 |
-| `azure-bicep-patterns`  | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
-| `azure-troubleshooting` | KQL templates, health checks, remediation playbooks               |
-| `azure-diagrams`        | Python architecture diagram generation                            |
-| `azure-adr`             | Architecture Decision Records                                     |
-| `github-operations`     | GitHub issues, PRs, CLI, Actions, releases                        |
-| `git-commit`            | Commit message conventions                                        |
-| `docs-writer`           | Documentation generation                                          |
-| `make-skill-template`   | Scaffold new Agent Skills from templates                          |
-| `terraform-patterns`    | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
-| `session-resume`        | Session state tracking, resume protocol, context budgets          |
-| `workflow-engine`       | DAG workflow graph, complexity routing, step definitions          |
-| `context-shredding`     | Runtime context compression tiers for large artifacts             |
+| Skill                      | Purpose                                                           |
+| -------------------------- | ----------------------------------------------------------------- |
+| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing         |
+| `azure-artifacts`          | Template H2 structures, styling, generation rules                 |
+| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
+| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks               |
+| `azure-diagrams`           | Python architecture diagram generation                            |
+| `azure-adr`                | Architecture Decision Records                                     |
+| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                        |
+| `git-commit`               | Commit message conventions                                        |
+| `docs-writer`              | Documentation generation                                          |
+| `make-skill-template`      | Scaffold new Agent Skills from templates                          |
+| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
+| `session-resume`           | Session state tracking, resume protocol, context budgets          |
+| `workflow-engine`          | DAG workflow graph, complexity routing, step definitions          |
+| `context-shredding`        | Runtime context compression tiers for large artifacts             |
+| `microsoft-docs`           | Official Microsoft documentation search and retrieval             |
+| `microsoft-code-reference` | Azure SDK/API verification and code sample lookup                 |
+| `microsoft-skill-creator`  | Generate custom agent skills for Microsoft technologies           |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.digest.md`"** in their body.
 At >60% context, agents load `SKILL.digest.md` (compact); at >80% they load
@@ -78,21 +81,21 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 
 ## Key Files
 
-| Path                                           | Purpose                                                   |
-| ---------------------------------------------- | --------------------------------------------------------- |
-| `AGENTS.md`                                    | Cross-agent project conventions and commands              |
-| `.github/agents/*.agent.md`                    | Agent definitions                                         |
-| `.github/skills/*/SKILL.md`                    | Reusable skill knowledge                                  |
-| `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                   |
-| `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                    |
-| `.github/skill-affinity.json`                  | Skill/agent affinity weights                              |
-| `agent-output/{project}/`                      | Agent-generated artifacts                                 |
-| `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (session-resume skill) |
-| `infra/bicep/{project}/`                       | Bicep templates                                           |
-| `mcp/azure-pricing-mcp/`                       | Azure Pricing MCP server                                  |
-| `.vscode/mcp.json`                             | MCP server configuration                                  |
-| `infra/terraform/{project}/`                   | Terraform templates by project                            |
-| `docs/tf-support/`                             | Terraform support planning docs and prompts               |
+| Path                                           | Purpose                                                                      |
+| ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| `AGENTS.md`                                    | Cross-agent project conventions and commands                                 |
+| `.github/agents/*.agent.md`                    | Agent definitions                                                            |
+| `.github/skills/*/SKILL.md`                    | Reusable skill knowledge                                                     |
+| `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                                      |
+| `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                                       |
+| `.github/skill-affinity.json`                  | Skill/agent affinity weights                                                 |
+| `agent-output/{project}/`                      | Agent-generated artifacts                                                    |
+| `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (session-resume skill)                    |
+| `infra/bicep/{project}/`                       | Bicep templates                                                              |
+| `mcp/azure-pricing-mcp/`                       | Azure Pricing MCP server                                                     |
+| `.vscode/mcp.json`                             | MCP server configuration (github, azure-pricing, terraform, microsoft-learn) |
+| `infra/terraform/{project}/`                   | Terraform templates by project                                               |
+| `docs/tf-support/`                             | Terraform support planning docs and prompts                                  |
 
 ## Validation
 

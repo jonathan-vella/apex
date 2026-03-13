@@ -15,7 +15,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
-import { SKILLS_DIR } from "./_lib/paths.mjs";
+import { getSkills } from "./_lib/workspace-index.mjs";
 
 const r = new Reporter("Skill Digest Validator");
 const AUTO_GEN_HEADER =
@@ -102,13 +102,10 @@ function validateDigest(skillDir, skillName) {
 
 console.log("\n📋 Validating skill digests...\n");
 
-const skillDirs = fs
-  .readdirSync(SKILLS_DIR, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .map((d) => d.name);
+const skills = getSkills();
 
-for (const skillName of skillDirs) {
-  validateDigest(path.join(SKILLS_DIR, skillName), skillName);
+for (const [skillName, skill] of skills) {
+  validateDigest(skill.dir, skillName);
 }
 
 console.log(`\n📊 Results: ${r.errors} error(s), ${r.warnings} warning(s)\n`);
