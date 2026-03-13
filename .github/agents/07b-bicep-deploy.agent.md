@@ -1,7 +1,7 @@
 ---
 name: 07b-Bicep Deploy
 model: ["Claude Sonnet 4.6"]
-description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
+description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
 agents: []
@@ -315,6 +315,25 @@ Then use `askQuestions` to gather the decision:
 ## Deployment Execution
 
 Read `04-implementation-plan.md` `## Deployment Phases` to determine phased vs single deployment.
+Check if the project has an `azure.yaml` file — if yes, use **azd** (preferred). If not, fall back to **deploy.ps1**.
+
+### Option 1: azd (preferred — when azure.yaml exists)
+
+```bash
+cd infra/bicep/{project}
+
+# Create/select environment
+azd env new {env}
+azd env set AZURE_LOCATION swedencentral
+
+# Preview changes (replaces what-if)
+azd provision --preview
+
+# Deploy (after approval)
+azd provision
+```
+
+### Option 2: deploy.ps1 (legacy — when no azure.yaml)
 
 **Phased**: Deploy each phase sequentially — run what-if
 (`deploy.ps1 -Phase {name} -WhatIf`), get approval,
@@ -323,12 +342,14 @@ execute (`deploy.ps1 -Phase {name}`), verify via ARG, then repeat.
 **Single**: One what-if + deploy cycle.
 
 ```bash
-# Option 1: PowerShell (recommended)
 cd infra/bicep/{project}
 pwsh -File deploy.ps1 -WhatIf   # Preview first
 pwsh -File deploy.ps1            # Execute (after approval)
+```
 
-# Option 2: Azure CLI (fallback)
+### Option 3: Azure CLI (fallback)
+
+```bash
 az group create --name rg-{project}-{env} --location swedencentral
 az deployment group create \
   --resource-group rg-{project}-{env} \

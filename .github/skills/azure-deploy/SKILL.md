@@ -9,11 +9,6 @@ metadata:
 
 # Azure Deploy
 
-> **STATUS: NOT ACTIVE** — This skill is imported from the Azure Skills Plugin
-> but is not wired to any agent. It requires azd CLI which is not yet installed
-> in the devcontainer. Activation is tracked as a future enhancement.
-> See `.github/plugins/PLUGIN_VERSION.md` for details.
-
 > **AUTHORITATIVE GUIDANCE — MANDATORY COMPLIANCE**
 >
 > **PREREQUISITE**: The **azure-validate** skill **MUST** be invoked and completed with status `Validated` BEFORE executing this skill.

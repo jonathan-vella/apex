@@ -110,15 +110,15 @@ handoffs:
 | DO                                                                     | DON'T                                                             |
 | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | Run preflight check BEFORE writing any Bicep (Phase 1)                 | Start coding before preflight check                               |
-| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5     | Silently halt on blockers without telling the user why             |
-| **NEVER** list blockers in chat text asking user to reply manually      | List blockers in chat and wait for a reply (wastes a round-trip)   |
+| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5     | Silently halt on blockers without telling the user why            |
+| **NEVER** list blockers in chat text asking user to reply manually     | List blockers in chat and wait for a reply (wastes a round-trip)  |
 | Use AVM modules for EVERY resource that has one                        | Write raw Bicep when AVM exists                                   |
 | Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules      | Hardcode unique strings                                           |
 | Apply baseline tags + governance extras                                | Use hardcoded tag lists ignoring governance                       |
 | Parse `04-governance-constraints.json` — map each Deny policy to Bicep | Skip governance compliance mapping (HARD GATE)                    |
 | Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)      |
 | Use `take()` for length-constrained resources (KV≤24, Storage≤24)      | Put hyphens in Storage Account names                              |
-| Generate `deploy.ps1` + `.bicepparam` per environment                  | Deploy — that's the Deploy agent's job                            |
+| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment   | Deploy — that's the Deploy agent's job                            |
 | Run `bicep build` + `bicep lint` after generation                      | Proceed without checking AVM parameter types (known issues exist) |
 | Save `05-implementation-reference.md` + update project README          | Use phase parameter if plan specifies single deployment           |
 
@@ -162,9 +162,9 @@ For EACH resource in `04-implementation-plan.md`:
    - question: Brief summary of blockers (e.g. "2 AVM schema mismatches,
      1 region limitation. See 04-preflight-check.md for details.")
    - Options: **Fix and re-run preflight** (recommended) / **Abort — return to Planner**
-   **NEVER** list blockers in chat text and ask the user to reply.
-   The `askQuestions` tool presents an inline form the user fills out in one shot.
-   If the user chooses to abort, STOP and present the Return to Step 4 handoff.
+     **NEVER** list blockers in chat text and ask the user to reply.
+     The `askQuestions` tool presents an inline form the user fills out in one shot.
+     If the user chooses to abort, STOP and present the Return to Step 4 handoff.
 
 ### Phase 1.5: Governance Compliance Mapping (MANDATORY)
 
@@ -181,8 +181,8 @@ For EACH resource in `04-implementation-plan.md`:
    - header: "Unresolved Governance Policy Violations"
    - question: List each unsatisfiable Deny policy name and affected resource
    - Options: **Return to Planner** (recommended) / **Override and proceed** (advanced)
-   **NEVER** list governance violations in chat text and ask the user to reply.
-   If the user chooses to return, STOP and present the Return to Step 4 handoff.
+     **NEVER** list governance violations in chat text and ask the user to reply.
+     If the user chooses to return, STOP and present the Return to Step 4 handoff.
 
 > **CRITICAL GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Never collect user decisions via chat messages — always
@@ -214,18 +214,24 @@ Build templates in dependency order from `04-implementation-plan.md`.
 If **phased**: add `@allowed` `phase` parameter, wrap modules in `if phase == 'all' || phase == '{name}'`.
 If **single**: no phase parameter needed.
 
-| Round | Content                                                              |
-| ----- | -------------------------------------------------------------------- |
-| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`       |
-| 2     | Networking, Key Vault, Log Analytics + App Insights                  |
-| 3     | Compute, Data, Messaging                                             |
-| 4     | Budget + alerts, Diagnostic settings, role assignments, `deploy.ps1` |
+| Round | Content                                                                             |
+| ----- | ----------------------------------------------------------------------------------- |
+| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`                      |
+| 2     | Networking, Key Vault, Log Analytics + App Insights                                 |
+| 3     | Compute, Data, Messaging                                                            |
+| 4     | Budget + alerts, Diagnostic settings, role assignments, `azure.yaml` + `deploy.ps1` |
 
 After each round: `bicep build` to catch errors early.
 
 ### Phase 3: Deployment Script
 
-Generate `infra/bicep/{project}/deploy.ps1` with:
+Generate `infra/bicep/{project}/azure.yaml` (azd manifest) with:
+
+- `name`, `metadata.template`, `infra.provider: bicep`, `infra.path`, `infra.module`
+- `hooks.preprovision` — ARM token validation, banner
+- `hooks.postprovision` — resource verification via ARG
+
+Also generate `infra/bicep/{project}/deploy.ps1` (legacy fallback) with:
 
 - Banner, parameter validation (ResourceGroup, Location, Environment, Phase)
 - `az group create` + `az deployment group create --template-file --parameters`
@@ -265,7 +271,8 @@ Save validation status in `05-implementation-reference.md`. Run `npm run lint:ar
 infra/bicep/{project}/
 ├── main.bicep              # Entry point — uniqueSuffix, orchestrates modules
 ├── main.bicepparam         # Environment-specific parameters
-├── deploy.ps1              # PowerShell deployment script
+├── azure.yaml              # azd project manifest (preferred deployment method)
+├── deploy.ps1              # PowerShell deployment script (legacy fallback)
 └── modules/
     ├── budget.bicep        # Azure Budget + forecast alerts + anomaly detection
     ├── key-vault.bicep     # Per-resource modules
@@ -289,7 +296,7 @@ infra/bicep/{project}/
 - [ ] Length constraints respected (KV≤24, Storage≤24)
 - [ ] `bicep-lint-subagent` PASS + `bicep-review-subagent` APPROVED
 - [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)
-- [ ] `deploy.ps1` generated; `05-implementation-reference.md` saved
+- [ ] `azure.yaml` generated; `deploy.ps1` generated; `05-implementation-reference.md` saved
 - [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
 - [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
 - [ ] `projectName` is a required parameter with no default value

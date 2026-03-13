@@ -24,7 +24,8 @@
       "tflint": "0.61.0",
       "installTFsec": false
     },
-    "ghcr.io/devcontainers/features/go:1": {}
+    "ghcr.io/devcontainers/features/go:1": {},
+    "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts

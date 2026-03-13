@@ -9,7 +9,12 @@ Agent instructions specific to the `infra/bicep/` subtree.
 bicep build infra/bicep/{project}/main.bicep
 bicep lint infra/bicep/{project}/main.bicep
 
-# Deploy (what-if preview first)
+# Deploy with azd (preferred — when azure.yaml exists)
+cd infra/bicep/{project}
+azd provision --preview    # Preview
+azd provision              # Deploy
+
+# Deploy with deploy.ps1 (legacy fallback)
 cd infra/bicep/{project}
 pwsh deploy.ps1 -WhatIf
 pwsh deploy.ps1
@@ -23,7 +28,8 @@ Each project follows this layout:
 infra/bicep/{project}/
   main.bicep           # Orchestrator — parameters, unique suffix, module calls
   main.bicepparam      # Parameter values
-  deploy.ps1           # Deployment script (PowerShell)
+  azure.yaml           # azd project manifest (preferred deployment method)
+  deploy.ps1           # Deployment script — legacy fallback
   modules/
     *.bicep            # One module per resource or logical group
 ```

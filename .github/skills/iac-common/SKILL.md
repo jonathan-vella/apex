@@ -15,7 +15,36 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 
 ## Deployment Strategies
 
-### Phased Deployment (recommended for >5 resources)
+### azd Deployment (recommended for Bicep projects with azure.yaml)
+
+Use `azd` when the project has an `azure.yaml` manifest:
+
+```bash
+# Create/select environment
+azd env new dev
+azd env set AZURE_LOCATION swedencentral
+
+# Preview changes (replaces what-if)
+azd provision --preview
+
+# Deploy infrastructure
+azd provision
+
+# Full provision + deploy in one step
+azd up
+```
+
+**azd hooks** replace custom deploy.ps1 pre/post steps:
+
+- `preprovision` — auth validation, banner, prerequisite checks
+- `postprovision` — resource verification, diagnostic setup
+
+**Environment management** replaces manual parameterization:
+
+- `azd env new prod` / `azd env new dev`
+- `azd env set AZURE_LOCATION swedencentral`
+
+### Phased Deployment via deploy.ps1 (legacy, backward-compatible)
 
 | Phase      | Resources                             | Gate          |
 | ---------- | ------------------------------------- | ------------- |
@@ -31,6 +60,17 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 ### Single Deployment (only for <5 resources, dev/test)
 
 Deploy everything in one operation. Still requires user approval.
+
+### Decision: azd vs deploy.ps1
+
+| Factor                 | azd                            | deploy.ps1                  |
+| ---------------------- | ------------------------------ | --------------------------- |
+| Cross-platform         | Yes                            | PowerShell only             |
+| Environment management | Built-in (`azd env`)           | Manual parameters           |
+| Hooks (pre/post)       | `azure.yaml` hooks             | Custom script logic         |
+| Phased deployment      | Single provision               | Fine-grained phases         |
+| New projects           | **Use azd**                    | Not generated               |
+| Existing projects      | Use azd if `azure.yaml` exists | Fallback if no `azure.yaml` |
 
 ---
 

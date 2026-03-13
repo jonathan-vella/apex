@@ -118,6 +118,7 @@
           "azure-defaults",
           "azure-artifacts",
           "azure-validate",
+          "azure-deploy",
           "iac-common",
           "github-operations"
         ]
@@ -129,6 +130,7 @@
           "azure-defaults",
           "azure-artifacts",
           "azure-validate",
+          "azure-deploy",
           "iac-common",
           "terraform-patterns",
           "github-operations"

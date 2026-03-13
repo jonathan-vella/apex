@@ -27,6 +27,7 @@ pip install -r requirements.txt
 ### Pre-installed Tools (Dev Container)
 
 - **Azure CLI** (`az`) with Bicep extension
+- **Azure Developer CLI** (`azd`) for standardized deployments
 - **Terraform CLI** with TFLint
 - **GitHub CLI** (`gh`)
 - **Node.js** + npm (validation scripts)
@@ -236,7 +237,7 @@ machine-discovered data (governance) or tool output (what-if/plan previews).
 - **Required tags**: Same as above, with `ManagedBy = "Bicep"`
 - **AVM registry**: `br/public:avm/res/{provider}/{resource}:{version}`
 - **Parameter files**: Use `.bicepparam` format
-- **Deployment scripts**: PowerShell (`deploy.ps1`) in each project folder
+- **Deployment**: `azure.yaml` manifest for `azd` (preferred); `deploy.ps1` PowerShell script (legacy fallback)
 
 ## Security Considerations
 
