@@ -46,7 +46,7 @@ For general GitHub Actions best practices, rely on
 
 ### Naming and Structure
 
-- **Workflow file**: Descriptive kebab-case (e.g., `docs-freshness.yml`, `agent-validation.yml`)
+- **Workflow file**: Descriptive kebab-case (e.g., `ci.yml`, `weekly-maintenance.yml`)
 - **Workflow `name`**: Human-readable title
 - **Job `name`**: Clear, concise label
 - **Step `name`**: Descriptive action (e.g., "Validate agent frontmatter")
@@ -64,16 +64,13 @@ concurrency:
 
 ## Existing Workflows
 
-| Workflow                        | Purpose                               | Trigger                   |
-| ------------------------------- | ------------------------------------- | ------------------------- |
-| `lint.yml`                      | Markdown lint + code quality          | PR + push to main         |
-| `agent-validation.yml`          | Agent/skill/VS Code config validation | Changes to agents/skills  |
-| `policy-compliance-check.yml`   | Governance guardrail validation       | Changes to agents/skills  |
-| `link-check.yml`                | Broken link detection in docs/        | Changes to docs/ + weekly |
-| `docs.yml`                      | MkDocs site deployment to Pages       | Push to main (docs/)      |
-| `docs-freshness.yml`            | Doc count/reference drift detection   | Weekly + manual dispatch  |
-| `avm-version-check.yml`         | Azure Verified Module version checks  | Weekly + manual dispatch  |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring          | Weekly + manual dispatch  |
+| Workflow                        | Purpose                                          | Trigger                    |
+| ------------------------------- | ------------------------------------------------ | -------------------------- |
+| `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature  |
+| `link-check.yml`                | Broken link detection in docs/                   | Changes to docs/ + weekly  |
+| `docs.yml`                      | MkDocs site deployment to Pages                  | Push to main (docs/)       |
+| `weekly-maintenance.yml`        | AVM version audit + docs freshness checks        | Weekly (Mon 07:00) + manual |
+| `azure-deprecation-tracker.yml` | Azure deprecation monitoring                     | Weekly (Mon 06:00) + manual |
 
 ## Validation Scripts
 
