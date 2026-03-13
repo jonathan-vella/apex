@@ -4,21 +4,26 @@
 # - .md files → markdownlint
 # - .tf files → terraform fmt
 # Receives JSON input via stdin; outputs JSON to stdout.
+# Docs: https://code.visualstudio.com/docs/copilot/customization/hooks
 set -euo pipefail
 
 INPUT=$(cat)
 
-TOOL_NAME=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('toolName',''))" 2>/dev/null || echo "")
+TOOL_NAME=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
 
-if [[ "$TOOL_NAME" != "editFiles" && "$TOOL_NAME" != "createFile" ]]; then
-  echo '{"continue": true}'
-  exit 0
-fi
+case "$TOOL_NAME" in
+  replace_string_in_file|multi_replace_string_in_file|create_file|editFiles)
+    ;;
+  *)
+    echo '{"continue": true}'
+    exit 0
+    ;;
+esac
 
 FILE_PATH=$(echo "$INPUT" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
-ti = data.get('toolInput', {})
+ti = data.get('tool_input', {})
 print(ti.get('filePath', ti.get('path', '')))
 " 2>/dev/null || echo "")
 
