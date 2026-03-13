@@ -117,6 +117,7 @@
         "skills": [
           "azure-defaults",
           "azure-artifacts",
+          "azure-validate",
           "iac-common",
           "github-operations"
         ]
@@ -127,6 +128,7 @@
         "skills": [
           "azure-defaults",
           "azure-artifacts",
+          "azure-validate",
           "iac-common",
           "terraform-patterns",
           "github-operations"
@@ -142,6 +144,7 @@
         "azure-defaults",
         "azure-artifacts",
         "azure-diagrams",
+        "azure-cost-optimization",
         "context-shredding",
         "session-resume"
       ],
@@ -151,7 +154,7 @@
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
       "model": "Claude Sonnet 4.6",
-      "skills": ["azure-troubleshooting", "azure-defaults"],
+      "skills": ["azure-diagnostics", "azure-defaults"],
       "invokable": true,
       "step": null
     },

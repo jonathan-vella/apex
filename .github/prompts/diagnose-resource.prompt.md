@@ -11,7 +11,7 @@ Interactive diagnostic workflow for Azure resource health assessment.
 ## Instructions
 
 1. Ask the user which Azure resource or resource group to diagnose.
-2. Read `.github/skills/azure-troubleshooting/SKILL.md` for diagnostic patterns.
+2. Read `.github/skills/azure-diagnostics/SKILL.md` for diagnostic patterns.
 3. Validate Azure CLI authentication: `az account show`.
 4. Run health checks against the target resource:
    - Resource provisioning state

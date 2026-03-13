@@ -67,10 +67,10 @@ and routing to the next step. At approval gates, the Conductor writes a
 | 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns              |
 | 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns            |
 | 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns              |
-| 07b-Bicep Deploy         | Bicep deployment execution            | iac-common                      |
-| 07t-Terraform Deploy     | Terraform deployment execution        | iac-common, terraform-patterns  |
+| 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common      |
+| 07t-Terraform Deploy     | Terraform deployment execution        | azure-validate, iac-common, terraform-patterns |
 | 08-As-Built              | Post-deployment documentation         | azure-artifacts, azure-diagrams |
-| 09-Diagnose              | Azure resource troubleshooting        | azure-troubleshooting           |
+| 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics               |
 | 10-Challenger            | Standalone adversarial review         | —                               |
 | 11-Context Optimizer     | Context window audit and optimisation | context-optimizer               |
 

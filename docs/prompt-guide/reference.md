@@ -46,13 +46,13 @@ diagnostic settings, AVM-TF module composition, and known AVM pitfalls.
 @workspace Show me the hub-spoke pattern from terraform-patterns.
 ```
 
-### azure-troubleshooting
+### azure-diagnostics
 
 KQL templates, metric thresholds, health checks, and remediation playbooks
 for diagnosing Azure resource issues.
 
 ```text
-@workspace What KQL queries are available in azure-troubleshooting?
+@workspace What KQL queries are available in azure-diagnostics?
 ```
 
 ### azure-adr

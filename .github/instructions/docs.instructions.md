@@ -78,7 +78,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `azure-bicep-patterns`  | IaC Patterns        | Reusable Bicep infrastructure patterns      |
 | `azure-defaults`        | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags    |
 | `azure-diagrams`        | Document Creation   | Python architecture diagrams                |
-| `azure-troubleshooting` | Troubleshooting     | KQL templates, health checks, remediation   |
+| `azure-diagnostics`     | Troubleshooting     | KQL templates, health checks, remediation   |
 | `context-optimizer`     | Agent Optimization  | Context window audit, token waste reduction |
 | `docs-writer`           | Documentation       | Repo-aware docs maintenance                 |
 | `git-commit`            | Tool Integration    | Commit conventions                          |

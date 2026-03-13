@@ -78,7 +78,7 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `azure-bicep-patterns`  | `azure-bicep-patterns/`  | IaC Patterns        | "bicep pattern", "hub-spoke"              |
 | `azure-defaults`        | `azure-defaults/`        | Azure Conventions   | "azure defaults", "naming"                |
 | `azure-diagrams`        | `azure-diagrams/`        | Document Creation   | "create diagram"                          |
-| `azure-troubleshooting` | `azure-troubleshooting/` | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
+| `azure-diagnostics`     | `azure-diagnostics/`     | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
 | `docs-writer`           | `docs-writer/`           | Documentation       | "update the docs"                         |
 | `git-commit`            | `git-commit/`            | Tool Integration    | "commit"                                  |
 | `github-operations`     | `github-operations/`     | Workflow            | "create issue", "create PR", "gh command" |

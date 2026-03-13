@@ -1,6 +1,6 @@
 {
   "$schema": "skill-affinity-v1",
-  "description": "Maps each agent to skills with affinity weights: primary (always load), secondary (on demand), never (skip)",
+  "description": "Maps each agent to skills with affinity weights: primary (always load), secondary (on demand), never (skip). Plugin skills from Issue #240 use canonical plugin names.",
   "agents": {
     "01-Conductor": {
       "primary": [
@@ -10,29 +10,45 @@
         "azure-artifacts",
         "workflow-engine"
       ],
-      "secondary": ["context-shredding", "github-operations"],
+      "secondary": [
+        "context-shredding",
+        "github-operations",
+        "azure-prepare"
+      ],
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
-        "azure-troubleshooting",
-        "azure-diagrams"
+        "azure-diagnostics",
+        "azure-diagrams",
+        "azure-deploy"
       ]
     },
     "02-Requirements": {
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
-      "secondary": [],
+      "secondary": ["azure-prepare"],
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
-        "azure-troubleshooting",
+        "azure-diagnostics",
         "azure-diagrams",
-        "iac-common"
+        "iac-common",
+        "azure-deploy"
       ]
     },
     "03-Architect": {
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
-      "secondary": ["context-shredding", "azure-diagrams"],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "secondary": [
+        "context-shredding",
+        "azure-diagrams",
+        "azure-prepare",
+        "azure-cost-optimization"
+      ],
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "04-Design": {
       "primary": ["azure-diagrams", "azure-adr"],
@@ -41,7 +57,8 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-troubleshooting"
+        "azure-diagnostics",
+        "azure-deploy"
       ]
     },
     "05b-Bicep Planner": {
@@ -52,7 +69,12 @@
         "session-resume"
       ],
       "secondary": ["context-shredding"],
-      "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
+      "never": [
+        "terraform-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "05t-Terraform Planner": {
       "primary": [
@@ -62,7 +84,12 @@
         "session-resume"
       ],
       "secondary": ["context-shredding"],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "06b-Bicep CodeGen": {
       "primary": [
@@ -72,7 +99,12 @@
         "session-resume"
       ],
       "secondary": ["context-shredding"],
-      "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
+      "never": [
+        "terraform-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "06t-Terraform CodeGen": {
       "primary": [
@@ -82,22 +114,42 @@
         "session-resume"
       ],
       "secondary": ["context-shredding"],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "07b-Bicep Deploy": {
-      "primary": ["azure-defaults", "azure-artifacts", "iac-common"],
+      "primary": [
+        "azure-defaults",
+        "azure-artifacts",
+        "azure-validate",
+        "iac-common"
+      ],
       "secondary": ["session-resume", "github-operations"],
-      "never": ["terraform-patterns", "azure-bicep-patterns", "azure-diagrams"]
+      "never": [
+        "terraform-patterns",
+        "azure-bicep-patterns",
+        "azure-diagrams",
+        "azure-deploy"
+      ]
     },
     "07t-Terraform Deploy": {
       "primary": [
         "azure-defaults",
         "azure-artifacts",
+        "azure-validate",
         "iac-common",
         "terraform-patterns"
       ],
       "secondary": ["session-resume", "github-operations"],
-      "never": ["azure-bicep-patterns", "azure-diagrams"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagrams",
+        "azure-deploy"
+      ]
     },
     "08-As-Built": {
       "primary": [
@@ -106,28 +158,38 @@
         "azure-diagrams",
         "session-resume"
       ],
-      "secondary": ["context-shredding"],
+      "secondary": [
+        "context-shredding",
+        "azure-cost-optimization"
+      ],
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-troubleshooting"
+        "azure-diagnostics",
+        "azure-deploy"
       ]
     },
     "09-Diagnose": {
-      "primary": ["azure-troubleshooting", "azure-defaults"],
-      "secondary": [],
+      "primary": ["azure-diagnostics", "azure-defaults"],
+      "secondary": ["azure-cost-optimization"],
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-artifacts",
-        "azure-diagrams"
+        "azure-diagrams",
+        "azure-deploy"
       ]
     },
     "10-Challenger": {
       "primary": [],
       "secondary": ["golden-principles"],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "11-Context Optimizer": {
       "primary": ["context-optimizer"],
@@ -136,7 +198,8 @@
         "azure-defaults",
         "azure-bicep-patterns",
         "terraform-patterns",
-        "iac-common"
+        "iac-common",
+        "azure-deploy"
       ]
     }
   },
@@ -144,57 +207,97 @@
     "challenger-review-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "challenger-review-codex-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "challenger-review-batch-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "cost-estimate-subagent": {
       "primary": ["azure-defaults"],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-deploy"
+      ]
     },
     "governance-discovery-subagent": {
       "primary": ["azure-defaults"],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "azure-deploy"
+      ]
     },
     "bicep-lint-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["terraform-patterns", "azure-troubleshooting"]
+      "never": [
+        "terraform-patterns",
+        "azure-diagnostics",
+        "azure-deploy"
+      ]
     },
     "bicep-review-subagent": {
       "primary": ["azure-bicep-patterns"],
       "secondary": ["azure-defaults"],
-      "never": ["terraform-patterns"]
+      "never": ["terraform-patterns", "azure-deploy"]
     },
     "bicep-whatif-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["terraform-patterns", "azure-troubleshooting"]
+      "never": [
+        "terraform-patterns",
+        "azure-diagnostics",
+        "azure-deploy"
+      ]
     },
     "terraform-lint-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "azure-deploy"
+      ]
     },
     "terraform-review-subagent": {
       "primary": ["terraform-patterns"],
       "secondary": ["azure-defaults"],
-      "never": ["azure-bicep-patterns"]
+      "never": ["azure-bicep-patterns", "azure-deploy"]
     },
     "terraform-plan-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "azure-deploy"
+      ]
     }
   }
 }

@@ -23,6 +23,9 @@ const KNOWN_OVERSIZED = new Set([
   "azure-adr",
   "github-operations",
   "make-skill-template",
+  "azure-kusto", // Plugin skill (Issue #240) — 231 lines, no references/ dir
+  "azure-cost-optimization", // Plugin skill (Issue #240) — 394 lines, has templates/
+  "azure-quotas", // Plugin skill (Issue #240) — 324 lines, has references/
 ]);
 
 const r = new Reporter("Skill Size Validator");

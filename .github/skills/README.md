@@ -12,7 +12,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | `azure-defaults`        | Azure conventions, naming, AVM, WAF, pricing, tags   | "azure defaults", "naming", "AVM"                |
 | `azure-artifacts`       | Template H2 structures, styling, generation rules    | "generate documentation", "create runbook"       |
 | `azure-bicep-patterns`  | Reusable Bicep patterns (hub-spoke, PE, diagnostics) | "bicep pattern", "private endpoint", "hub-spoke" |
-| `azure-troubleshooting` | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"       |
+| `azure-diagnostics`     | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"       |
 
 ### Category 2: Document Creation
 

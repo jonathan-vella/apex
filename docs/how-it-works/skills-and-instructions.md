@@ -40,12 +40,13 @@ The system contains the following skills across several domains:
 | Domain               | Skills                                                              |
 | -------------------- | ------------------------------------------------------------------- |
 | Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`      |
-| Azure Operations     | `azure-troubleshooting`, `azure-diagrams`, `azure-adr`              |
+| Azure Operations     | `azure-diagnostics`, `azure-diagrams`, `azure-adr`              |
 | Artefact Generation  | `azure-artifacts`, `context-shredding`                              |
 | Documentation        | `docs-writer`                                                       |
 | Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`            |
-| Deployment           | `iac-common`                                                        |
+| Deployment           | `iac-common`, `azure-validate`                                      |
 | GitHub Operations    | `github-operations`, `git-commit`                                   |
+| Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-deploy` (not active), `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-messaging`, `azure-kusto`, `azure-ai`, `azure-aigateway`, `azure-quotas`, `azure-resource-lookup`, `azure-resource-visualizer`, `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, `appinsights-instrumentation`, `entra-app-registration`, `microsoft-foundry` |
 | Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization` |
 
 The `copilot-customization` skill is an authoritative reference for VS Code Copilot

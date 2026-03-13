@@ -78,7 +78,7 @@ infrastructure.
 | `azure-adr`             | Architecture Decision Records                        |
 | `azure-bicep-patterns`  | Reusable Bicep patterns (hub-spoke, PE, diagnostics) |
 | `terraform-patterns`    | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)  |
-| `azure-troubleshooting` | KQL templates, health checks, remediation playbooks  |
+| `azure-diagnostics`     | KQL templates, health checks, remediation playbooks  |
 | `git-commit`            | Conventional commit message conventions              |
 | `github-operations`     | GitHub issues, PRs, CLI, Actions, releases           |
 | `docs-writer`           | Documentation generation and maintenance             |
