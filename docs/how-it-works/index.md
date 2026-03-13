@@ -76,7 +76,8 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  Three MCP servers plus one VS Code extension: GitHub, Azure Pricing, Terraform Registry, and Azure MCP (extension).
+  Five MCP servers: GitHub, Azure, Azure Pricing, Terraform Registry,
+  and Microsoft Learn.
 
   [:octicons-arrow-right-24: MCP servers](mcp-integration.md)
 

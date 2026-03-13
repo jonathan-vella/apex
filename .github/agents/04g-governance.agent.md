@@ -14,6 +14,7 @@ tools:
     web,
     vscode/askQuestions,
     "azure-mcp/*",
+    "microsoft-learn/*",
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:

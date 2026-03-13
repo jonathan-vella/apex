@@ -53,6 +53,7 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
+    "microsoft-learn/*",
     todo,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
@@ -126,9 +127,9 @@ collect ALL missing values in a single interactive form, even if only one
 category is missing. **NEVER** list missing items in chat text and ask the
 user to reply — this wastes a full request round-trip.
 
-| Category   | Required                           | If Missing                                               |
-| ---------- | ---------------------------------- | -------------------------------------------------------- |
-| NFRs       | SLA, RTO, RPO, performance targets | `askQuestions`: header "NFR Targets", freeform input      |
+| Category   | Required                           | If Missing                                                 |
+| ---------- | ---------------------------------- | ---------------------------------------------------------- |
+| NFRs       | SLA, RTO, RPO, performance targets | `askQuestions`: header "NFR Targets", freeform input       |
 | Compliance | Regulatory frameworks              | `askQuestions`: header "Compliance", multiSelect options   |
 | Budget     | Approximate monthly budget         | `askQuestions`: header "Budget Range", freeform input      |
 | Scale      | Users, transactions, data volume   | `askQuestions`: header "Scale Projections", freeform input |

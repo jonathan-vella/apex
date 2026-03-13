@@ -46,6 +46,7 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
+    "microsoft-learn/*",
     "bicep/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,

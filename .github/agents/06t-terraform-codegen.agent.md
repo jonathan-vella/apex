@@ -53,6 +53,7 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
+    "microsoft-learn/*",
     "terraform/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
@@ -115,7 +116,7 @@ deployment — use `var.deployment_phase` with `count` conditionals instead.
 | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Run preflight check BEFORE writing any Terraform (Phase 1)            | Start coding before preflight check                                 |
 | **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5    | Silently halt on blockers without telling the user why              |
-| **NEVER** list blockers in chat text asking user to reply manually     | List blockers in chat and wait for a reply (wastes a round-trip)    |
+| **NEVER** list blockers in chat text asking user to reply manually    | List blockers in chat and wait for a reply (wastes a round-trip)    |
 | Use AVM-TF modules for EVERY resource that has one                    | Write raw `azurerm` when AVM-TF exists                              |
 | Generate unique suffix ONCE in `locals.tf`, pass to ALL resources     | Hardcode unique strings                                             |
 | Apply baseline tags + governance extras via `local.tags`              | Use hardcoded tag maps ignoring governance                          |
@@ -168,9 +169,9 @@ For EACH resource in `04-implementation-plan.md`:
    - question: Brief summary of blockers (e.g. "2 AVM-TF variable mismatches,
      1 region limitation. See 04-preflight-check.md for details.")
    - Options: **Fix and re-run preflight** (recommended) / **Abort — return to Planner**
-   **NEVER** list blockers in chat text and ask the user to reply.
-   The `askQuestions` tool presents an inline form the user fills out in one shot.
-   If the user chooses to abort, STOP and present the Return to Step 4 handoff.
+     **NEVER** list blockers in chat text and ask the user to reply.
+     The `askQuestions` tool presents an inline form the user fills out in one shot.
+     If the user chooses to abort, STOP and present the Return to Step 4 handoff.
 
 ### Phase 1.5: Governance Compliance Mapping (MANDATORY)
 
@@ -186,8 +187,8 @@ For EACH resource in `04-implementation-plan.md`:
    - header: "Unresolved Governance Policy Violations"
    - question: List each unsatisfiable Deny policy name and affected resource
    - Options: **Return to Planner** (recommended) / **Override and proceed** (advanced)
-   **NEVER** list governance violations in chat text and ask the user to reply.
-   If the user chooses to return, STOP and present the Return to Step 4 handoff.
+     **NEVER** list governance violations in chat text and ask the user to reply.
+     If the user chooses to return, STOP and present the Return to Step 4 handoff.
 
 > **CRITICAL GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Never collect user decisions via chat messages — always

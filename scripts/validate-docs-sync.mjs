@@ -5,13 +5,14 @@
  * for files that should stay in sync. Fails if they diverge.
  *
  * Checked pairs:
- *   - docs/CONTRIBUTING.md ↔ CONTRIBUTING.md
- *   - docs/CHANGELOG.md    ↔ CHANGELOG.md
+ *   - docs/CONTRIBUTING.md <-> CONTRIBUTING.md
+ *   - docs/CHANGELOG.md    <-> CHANGELOG.md
  */
 
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = process.cwd();
 
@@ -20,7 +21,8 @@ const SYNC_PAIRS = [
   { docs: "docs/CHANGELOG.md", root: "CHANGELOG.md" },
 ];
 
-let hasError = false;
+const r = new Reporter("Docs Sync Validator");
+r.header();
 
 function hashFile(relPath) {
   const absPath = path.join(ROOT, relPath);
@@ -30,33 +32,27 @@ function hashFile(relPath) {
 }
 
 for (const pair of SYNC_PAIRS) {
+  r.tick();
   const docsHash = hashFile(pair.docs);
   const rootHash = hashFile(pair.root);
 
   if (!docsHash) {
-    console.log(`⚠️  ${pair.docs} not found — skipping`);
+    r.warn(`${pair.docs} not found — skipping`);
     continue;
   }
   if (!rootHash) {
-    console.log(`⚠️  ${pair.root} not found — skipping`);
+    r.warn(`${pair.root} not found — skipping`);
     continue;
   }
 
   if (docsHash !== rootHash) {
-    console.error(
-      `❌ ${pair.docs} and ${pair.root} have diverged. Sync them before committing.`,
+    r.error(
+      `${pair.docs} and ${pair.root} have diverged. Sync them before committing.`,
     );
-    hasError = true;
   } else {
-    console.log(`✅ ${pair.docs} ↔ ${pair.root} — in sync`);
+    r.ok(`${pair.docs} ↔ ${pair.root} — in sync`);
   }
 }
 
-if (hasError) {
-  console.error(
-    "\n🛑 Docs sync check failed. Copy the updated file to keep both in sync.",
-  );
-  process.exit(1);
-} else {
-  console.log("\n✅ All docs sync checks passed.");
-}
+r.summary();
+r.exitOnError("Docs sync check passed", "Docs sync check failed");

@@ -51,6 +51,7 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
+    "microsoft-learn/*",
     "terraform/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,

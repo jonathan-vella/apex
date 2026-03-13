@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * VS Code 1.109 Agent Frontmatter Validator
+ * Agent Frontmatter & Body Size Validator
  *
  * Validates that all agent files conform to VS Code 1.109 agent definition spec:
  * - Required frontmatter fields present
@@ -8,100 +8,73 @@
  * - agents list syntax valid
  * - handoffs have send property
  * - model fallback configuration present
+ * - Body size ≤ MAX_BODY_LINES (context optimization)
  *
  * @example
  * node scripts/validate-agent-frontmatter.mjs
  */
 
-import fs from "node:fs";
-import path from "node:path";
-import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { getAgents } from "./_lib/workspace-index.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
+import { MAX_BODY_LINES } from "./_lib/paths.mjs";
 
-// Required fields for main agents (user-invocable: true)
 const MAIN_AGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
-
-// Required fields for subagents (user-invocable: false/never)
 const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
-
-// Recommended fields for 1.109 orchestration
 const RECOMMENDED_FIELDS = ["agents", "model"];
-
-let errors = 0;
-let warnings = 0;
-
-// Block scalar check — must run on raw content before parsing
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 
-/**
- * Validate a single agent file
- */
-function validateAgent(filePath, isSubagent) {
-  const content = fs.readFileSync(filePath, "utf8");
-  const frontmatter = parseFrontmatter(content);
-  const relativePath = path.relative(process.cwd(), filePath);
+const r = new Reporter("Agent Frontmatter Validator");
+r.header();
+
+const agents = getAgents();
+let mainCount = 0;
+let subCount = 0;
+
+for (const [file, agent] of agents) {
+  r.tick();
+  const { path: filePath, content, frontmatter, isSubagent } = agent;
+  const relativePath = filePath;
+
+  if (isSubagent) subCount++;
+  else mainCount++;
 
   // Check for block scalar description BEFORE parsing (parser swallows it)
   if (BLOCK_SCALAR_PATTERN.test(content)) {
-    console.error(
-      `❌ ${relativePath}: description uses a YAML block scalar (>, >-, | or |-)`,
+    r.error(
+      relativePath,
+      "description uses a YAML block scalar (>, >-, | or |-). Use a single-line inline string.",
     );
-    console.error(
-      `  Fix: Replace with a single-line description: "..." inline string.`,
-    );
-    console.error(
-      `  Block scalars break VS Code prompts-diagnostics-provider.`,
-    );
-    errors++;
   }
 
   if (!frontmatter) {
-    console.error(`❌ ${relativePath}: No frontmatter found`);
-    console.error(
-      `  Fix: Add YAML frontmatter at the top: ---\nname: ...\ndescription: ...\nuser-invocable: true\ntools: []\n---`,
-    );
-    errors++;
-    return;
+    r.error(relativePath, "No frontmatter found");
+    continue;
   }
 
   const requiredFields = isSubagent ? SUBAGENT_REQUIRED : MAIN_AGENT_REQUIRED;
 
-  // Check required fields
   for (const field of requiredFields) {
     if (!(field in frontmatter)) {
-      console.error(`❌ ${relativePath}: Missing required field '${field}'`);
-      console.error(
-        `  Fix: Add '${field}: ...' to the YAML frontmatter block.`,
-      );
-      errors++;
+      r.error(relativePath, `Missing required field '${field}'`);
     }
   }
 
   // Validate user-invocable for subagents
   if (isSubagent) {
-    const userInvokable = frontmatter["user-invocable"];
-    if (
-      userInvokable !== "false" &&
-      userInvokable !== "never" &&
-      userInvokable !== false
-    ) {
-      console.error(
-        `❌ ${relativePath}: Subagent must have user-invocable: false or never (got: ${userInvokable})`,
+    const ui = frontmatter["user-invocable"];
+    if (ui !== "false" && ui !== "never" && ui !== false) {
+      r.error(
+        relativePath,
+        `Subagent must have user-invocable: false or never (got: ${ui})`,
       );
-      errors++;
     }
   } else {
-    // Main agents should be user-invocable
-    const userInvokable = frontmatter["user-invocable"];
-    if (
-      userInvokable !== "true" &&
-      userInvokable !== "always" &&
-      userInvokable !== true
-    ) {
-      console.warn(
-        `⚠️  ${relativePath}: Main agent should have user-invocable: true (got: ${userInvokable})`,
+    const ui = frontmatter["user-invocable"];
+    if (ui !== "true" && ui !== "always" && ui !== true) {
+      r.warn(
+        relativePath,
+        `Main agent should have user-invocable: true (got: ${ui})`,
       );
-      warnings++;
     }
   }
 
@@ -109,22 +82,17 @@ function validateAgent(filePath, isSubagent) {
   if (!isSubagent) {
     for (const field of RECOMMENDED_FIELDS) {
       if (!(field in frontmatter)) {
-        console.warn(
-          `⚠️  ${relativePath}: Missing recommended 1.109 field '${field}'`,
-        );
-        warnings++;
+        r.warn(relativePath, `Missing recommended 1.109 field '${field}'`);
       }
     }
   }
 
-  // Validate agents list format (should be array)
-  if ("agents" in frontmatter) {
-    if (!Array.isArray(frontmatter.agents)) {
-      console.error(
-        `❌ ${relativePath}: 'agents' parsed as ${typeof frontmatter.agents}, expected array`,
-      );
-      errors++;
-    }
+  // Validate agents list format
+  if ("agents" in frontmatter && !Array.isArray(frontmatter.agents)) {
+    r.error(
+      relativePath,
+      `'agents' parsed as ${typeof frontmatter.agents}, expected array`,
+    );
   }
 
   // Check for handoffs with send property
@@ -136,64 +104,30 @@ function validateAgent(filePath, isSubagent) {
       const handoffSection = handoffMatch[0];
       const labelCount = (handoffSection.match(/label:/g) || []).length;
       const sendCount = (handoffSection.match(/send:/g) || []).length;
-
       if (labelCount > 0 && sendCount === 0) {
-        console.warn(
-          `⚠️  ${relativePath}: Handoffs missing 'send' property (1.109 feature)`,
+        r.warn(
+          relativePath,
+          "Handoffs missing 'send' property (1.109 feature)",
         );
-        warnings++;
       }
     }
   }
 
-  // Check model configuration
-  if ("model" in frontmatter) {
-    const model = frontmatter.model;
-    if (Array.isArray(model) && model.length > 1) {
-      console.log(
-        `✓ ${relativePath}: Model fallback configured (${model.length} models)`,
+  // Body size check (merged from validate-agent-body-size)
+  const fmEnd = content.indexOf("\n---", content.indexOf("---") + 3);
+  if (fmEnd !== -1) {
+    const body = content.substring(fmEnd + 4);
+    const bodyLines = body.split("\n").length;
+    if (bodyLines > MAX_BODY_LINES) {
+      r.error(
+        relativePath,
+        `Body is ${bodyLines} lines (>${MAX_BODY_LINES}). Extract to skill references/ or scripts/.`,
       );
     }
   }
-
-  console.log(`✓ ${relativePath}: Frontmatter valid`);
-}
-
-/**
- * Find agent files in a directory
- */
-function findAgentFiles(dir) {
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(".agent.md"))
-    .map((f) => path.join(dir, f));
-}
-
-console.log("\n🔍 Agent Frontmatter Validator\n");
-
-const agents = getAgents();
-let mainCount = 0;
-let subCount = 0;
-
-for (const [file, agent] of agents) {
-  validateAgent(agent.path, agent.isSubagent);
-  if (agent.isSubagent) subCount++;
-  else mainCount++;
 }
 
 console.log(`\nFound ${mainCount} main agents and ${subCount} subagents`);
 
-console.log("\n" + "=".repeat(60));
-if (errors > 0) {
-  console.error(
-    `❌ Validation FAILED: ${errors} error(s), ${warnings} warning(s)`,
-  );
-  process.exit(1);
-} else if (warnings > 0) {
-  console.log(`⚠️  Validation passed with ${warnings} warning(s)`);
-  process.exit(0);
-} else {
-  console.log("✅ All agents passed validation");
-  process.exit(0);
-}
+r.summary();
+r.exitOnError("All agents passed validation", "Agent validation FAILED");

@@ -41,7 +41,8 @@
         "azure-defaults",
         "azure-artifacts",
         "context-shredding",
-        "session-resume"
+        "session-resume",
+        "microsoft-docs"
       ],
       "invokable": true,
       "step": 2
@@ -56,7 +57,12 @@
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
       "model": "Claude Sonnet 4.6",
-      "skills": ["azure-defaults", "azure-artifacts", "session-resume"],
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts",
+        "session-resume",
+        "microsoft-docs"
+      ],
       "invokable": true,
       "step": 3.5
     },
@@ -68,7 +74,9 @@
           "azure-defaults",
           "azure-artifacts",
           "azure-bicep-patterns",
-          "session-resume"
+          "session-resume",
+          "microsoft-docs",
+          "microsoft-code-reference"
         ]
       },
       "terraform": {
@@ -78,7 +86,9 @@
           "azure-defaults",
           "azure-artifacts",
           "terraform-patterns",
-          "session-resume"
+          "session-resume",
+          "microsoft-docs",
+          "microsoft-code-reference"
         ]
       },
       "invokable": true,
@@ -93,7 +103,9 @@
           "azure-artifacts",
           "azure-bicep-patterns",
           "context-shredding",
-          "session-resume"
+          "session-resume",
+          "microsoft-docs",
+          "microsoft-code-reference"
         ]
       },
       "terraform": {
@@ -104,7 +116,9 @@
           "azure-artifacts",
           "terraform-patterns",
           "context-shredding",
-          "session-resume"
+          "session-resume",
+          "microsoft-docs",
+          "microsoft-code-reference"
         ]
       },
       "invokable": true,
@@ -143,7 +157,8 @@
         "azure-artifacts",
         "azure-diagrams",
         "context-shredding",
-        "session-resume"
+        "session-resume",
+        "microsoft-docs"
       ],
       "invokable": true,
       "step": 7
@@ -151,7 +166,12 @@
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
       "model": "Claude Sonnet 4.6",
-      "skills": ["azure-troubleshooting", "azure-defaults"],
+      "skills": [
+        "azure-troubleshooting",
+        "azure-defaults",
+        "microsoft-docs",
+        "microsoft-code-reference"
+      ],
       "invokable": true,
       "step": null
     },
