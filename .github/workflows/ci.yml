@@ -42,8 +42,8 @@ jobs:
       - name: Lint Markdown
         run: npm run lint:md
 
-      - name: Run all Node.js validators
-        run: npm run validate:_node
+      - name: Run Node.js validators (CI-safe)
+        run: npm run validate:_node-ci
 
       - name: Validate handoff references
         run: |
