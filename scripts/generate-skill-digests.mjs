@@ -65,7 +65,12 @@ function generateDigest(skillDir) {
     remaining -= trimmed.length + 1;
   }
 
-  return digestLines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+  return (
+    digestLines
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trimEnd() + "\n"
+  );
 }
 
 function generateMinimal(skillDir, digestContent) {
@@ -99,7 +104,12 @@ function generateMinimal(skillDir, digestContent) {
   minimalLines.push("");
   minimalLines.push("Read `SKILL.md` or `SKILL.digest.md` for full content.");
 
-  return minimalLines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+  return (
+    minimalLines
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trimEnd() + "\n"
+  );
 }
 
 const targetSkill = process.argv[2];
