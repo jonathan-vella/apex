@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "project": "e2e-ralph-loop",
+  "iac_tool": "Bicep",
+  "region": "swedencentral",
+  "branch": "feat/azure-skills-integration",
+  "updated": "2026-03-15T00:00:00Z",
+  "current_step": 1,
+  "decisions": {
+    "region": "swedencentral",
+    "compliance": "GDPR",
+    "budget": "<EUR500/month",
+    "architecture_pattern": "N-Tier Web Application, Cost-Optimized",
+    "deployment_strategy": "phased-3-phase-simple",
+    "complexity": "simple"
+  },
+  "open_findings": [],
+  "decision_log": [],
+  "review_audit": {
+    "step_1": {
+      "complexity": "simple",
+      "passes_planned": 1,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_2": {
+      "complexity": "simple",
+      "passes_planned": 1,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_3.5": {
+      "complexity": "simple",
+      "passes_planned": 1,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_4": {
+      "complexity": "simple",
+      "passes_planned": 1,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_5": {
+      "complexity": "simple",
+      "passes_planned": 1,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_6": {
+      "complexity": "simple",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    }
+  },
+  "steps": {
+    "1": {
+      "name": "Requirements",
+      "agent": "02-Requirements",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-15T00:00:00Z",
+      "completed": "2026-03-15T00:01:00Z",
+      "artifacts": ["01-requirements.md"],
+      "context_files_used": []
+    },
+    "2": {
+      "name": "Architecture",
+      "agent": "03-Architect",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3": {
+      "name": "Design",
+      "agent": "04-Design",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3.5": {
+      "name": "Governance",
+      "agent": "04g-Governance",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "4": {
+      "name": "IaC Plan",
+      "agent": "05b-Bicep Planner",
+      "status": "complete",
+      "sub_step": null,
+      "started": "2026-03-15T00:01:00Z",
+      "completed": "2026-03-15T00:02:00Z",
+      "artifacts": [
+        "04-implementation-plan.md",
+        "04-dependency-diagram.py",
+        "04-runtime-diagram.py"
+      ],
+      "context_files_used": ["01-requirements.md"]
+    },
+    "5": {
+      "name": "IaC Code",
+      "agent": "06b-Bicep CodeGen",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "6": {
+      "name": "Deploy",
+      "agent": "07b-Bicep Deploy",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "7": {
+      "name": "As-Built",
+      "agent": "08-As-Built",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    }
+  }
+}
