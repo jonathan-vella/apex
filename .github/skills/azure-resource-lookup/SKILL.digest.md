@@ -34,7 +34,6 @@ Use this skill when the user wants to:
 | `mcp_azure_mcp_subscription_list` | List available subscriptions | Discover subscription scope before querying |
 | `mcp_azure_mcp_group_list` | List resource groups | Narrow query scope |
 
-
 ## Workflow
 
 ### Step 1: Check for a Dedicated MCP Tool
@@ -56,3 +55,11 @@ For single-resource-type queries, check if a dedicated MCP tool can handle it:
 | Empty results | No matching resources or wrong scope | Check `--subscriptions` flag; verify resource type spelling |
 
 > _See SKILL.md for full content._
+
+## Constraints
+
+- ✅ **Always** use `=~` for case-insensitive type matching (types are lowercase)
+- ✅ **Always** scope queries with `--subscriptions` or `--first` for large tenants
+- ✅ **Prefer** dedicated MCP tools for single-resource-type queries
+- ❌ **Never** use ARG for real-time monitoring (data has slight delay)
+- ❌ **Never** attempt mutations through ARG (read-only)

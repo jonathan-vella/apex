@@ -2,20 +2,19 @@
 
 # Make Skill Template (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 
-**Prerequisites**: 
+**Prerequisites**:
 
-**Creating a New Skill**: 
+**Creating a New Skill**:
 📋 **Reference**: Read `references/step-by-step-guide.md` for the detailed 4-step creation process:
 
-**Example: Complete Skill Structure**: 
+**Example: Complete Skill Structure**:
 ```text
 
-**Quick Start: Duplicate This Template**: 
+**Quick Start: Duplicate This Template**:
 1. Copy the `make-skill-template/` folder
 
-**Validation Checklist**: 
-
+**Validation Checklist**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

@@ -130,7 +130,7 @@ take precedence for experimental features like subagent invocation.
 
 ### Option A: InfraOps Conductor (Recommended)
 
-The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete 8-step workflow:
+The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete multi-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
 2. Select **InfraOps Conductor** from the agent dropdown
@@ -146,7 +146,7 @@ Create a simple web app in Azure with:
 - Project name: my-webapp
 ```
 
-The Conductor guides you through all 8 steps with approval gates.
+The Conductor guides you through all steps with approval gates.
 
 ### Option B: Direct Agent Invocation
 

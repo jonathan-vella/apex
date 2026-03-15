@@ -2,14 +2,16 @@
 
 # Azure Validate (Minimal)
 
-**Triggers**: 
+**Triggers**:
 
-**Rules**: 
+**Rules**:
 1. Run after azure-prepare, before azure-deploy
 
-**Steps**: 
+**Steps**:
 
-**InfraOps-Specific References**: 
+**InfraOps-Specific References**:
 
+**Reference Index**:
+Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

@@ -274,7 +274,7 @@ and timeout. They run automatically — agents do not invoke them explicitly.
 
 !!! tip "Further Reading"
 
-    - [System Architecture](architecture.md) — the 8-step workflow, Conductor pattern, dual IaC tracks
+    - [System Architecture](architecture.md) — the multi-step workflow, Conductor pattern, dual IaC tracks
     - [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
     - [Agent Architecture](agents.md) — handoffs, the Challenger pattern, context shredding
     - [MCP Integration](mcp-integration.md) — MCP servers and how agents invoke tools

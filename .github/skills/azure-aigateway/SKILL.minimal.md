@@ -2,25 +2,27 @@
 
 # Azure AI Gateway (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 
-**Quick Reference**: 
+**Quick Reference**:
 
-**Get Gateway Details**: 
+**Get Gateway Details**:
 ```bash
 
-**Test AI Endpoint**: 
+**Test AI Endpoint**:
 ```bash
 
-**Common Tasks**: 
+**Common Tasks**:
 ### Add AI Backend
 
-**Troubleshooting**: 
+**Troubleshooting**:
 See [references/troubleshooting.md](references/troubleshooting.md) for details.
 
-**References**: 
+**References**:
 
-**SDK Quick References**: 
+**SDK Quick References**:
 
+**Reference Index**:
+Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

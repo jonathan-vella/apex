@@ -9,7 +9,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 Create standardized, semantic git commits using the Conventional Commits specification.
 Analyze the actual diff to determine appropriate type, scope, and message.
 
-
 ## Conventional Commit Format
 
 ```text
@@ -51,7 +50,6 @@ feat: allow config to extend other configs
 # If files are staged, use staged diff
 git diff --staged
 
-
 > _See SKILL.md for full content._
 
 ## Best Practices
@@ -62,7 +60,6 @@ git diff --staged
 - Reference issues: `Closes #123`, `Refs #456`
 - Keep description under 72 characters
 
-
 ## Git Safety Protocol
 
 - NEVER update git config
@@ -70,4 +67,3 @@ git diff --staged
 - NEVER skip hooks (--no-verify) unless user asks
 - NEVER force push to main/master
 - If commit fails due to hooks, fix and create NEW commit (don't amend)
-

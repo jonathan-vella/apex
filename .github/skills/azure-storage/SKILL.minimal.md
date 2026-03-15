@@ -2,22 +2,24 @@
 
 # Azure Storage Services (Minimal)
 
-**Services**: 
+**Services**:
 
-**MCP Server (Preferred)**: 
+**MCP Server (Preferred)**:
 When Azure MCP is enabled:
 
-**CLI Fallback**: 
+**CLI Fallback**:
 ```bash
 
-**Storage Account Tiers**: 
+**Storage Account Tiers**:
 
-**Blob Access Tiers**: 
+**Blob Access Tiers**:
 
-**Redundancy Options**: 
+**Redundancy Options**:
 
-**Service Details**: 
+**Service Details**:
 For deep documentation on specific services:
 
+**SDK Quick References**:
+For building applications with Azure Storage SDKs, see the condensed guides:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

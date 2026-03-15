@@ -1,11 +1,15 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
-# Context Shredding (Minimal)
+# Context Shredding Skill (Minimal)
 
-| Context | Artifact Tier | Skill Tier       |
-| ------- | ------------- | ---------------- |
-| < 60%   | full          | SKILL.md         |
-| 60-80%  | summarized    | SKILL.digest.md  |
-| > 80%   | minimal       | SKILL.minimal.md |
+**When to Use**:
 
-Read `SKILL.md` or `SKILL.digest.md` for selection protocol.
+**Compression Tiers**:
+
+**Action Rules**:
+Before loading any artifact file:
+
+**Tier Selection Protocol**:
+```text
+
+Read `SKILL.md` or `SKILL.digest.md` for full content.

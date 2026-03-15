@@ -6,7 +6,7 @@ model: "Claude Opus 4.6"
 
 # Step 2 — Architecture Assessment
 
-Resume the 7-step workflow at Step 2. Evaluate requirements against all 5 WAF pillars and produce
+Resume the multi-step workflow at Step 2. Evaluate requirements against all 5 WAF pillars and produce
 cost estimates.
 
 ## Prerequisites

@@ -1,7 +1,7 @@
 ---
 name: 07t-Terraform Deploy
 model: ["GPT-5.4"]
-description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the 7-step agentic workflow.
+description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
 agents: ["terraform-plan-subagent"]

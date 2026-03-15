@@ -23,3 +23,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 > No matching scenario? Use `mcp_azure_mcp_documentation` and `mcp_azure_mcp_get_bestpractices` tools.
 
+## Output Directory
+
+All output goes to `<source-folder>-azure/` at workspace root. Never modify the source directory.

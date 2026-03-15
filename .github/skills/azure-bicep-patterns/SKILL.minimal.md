@@ -2,16 +2,15 @@
 
 # Azure Bicep Patterns Skill (Minimal)
 
-**Quick Reference**: 
+**Quick Reference**:
 
-**Canonical Example — Module Interface**: 
+**Canonical Example — Module Interface**:
 ```bicep
 
-**Key Rules Summary**: 
+**Key Rules Summary**:
 
-**Reference Index**: 
+**Reference Index**:
 
-**Learn More**: 
-
+**Learn More**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

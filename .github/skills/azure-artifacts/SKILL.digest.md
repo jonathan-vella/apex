@@ -45,7 +45,6 @@ npm run lint:h2-sync              # Template ↔ artifact sync
 npm run validate:all              # All validators together
 ```
 
-
 > _See SKILL.md for full content._
 
 ## Quality Checklist

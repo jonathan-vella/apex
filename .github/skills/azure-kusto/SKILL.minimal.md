@@ -2,38 +2,37 @@
 
 # Azure Data Explorer (Kusto) Query & Analytics (Minimal)
 
-**Skill Activation Triggers**: 
+**Skill Activation Triggers**:
 **Use this skill immediately when the user asks to:**
 
-**Overview**: 
+**Overview**:
 This skill enables querying and managing Azure Data Explorer (Kusto), a fast and highly scalable data exploration servic
 
-**Core Workflow**: 
+**Core Workflow**:
 1. **Discover Resources**: List available clusters and databases in subscription
 
-**Query Patterns**: 
+**Query Patterns**:
 📋 **Reference**: Read `references/query-patterns.md` for 5 detailed KQL patterns with examples:
 
-**Key Data Fields**: 
+**Key Data Fields**:
 When executing queries, common field patterns:
 
-**Result Format**: 
+**Result Format**:
 Query results include:
 
-**KQL Best Practices**: 
+**KQL Best Practices**:
 📋 **Reference**: Read `references/query-patterns.md` for complete function reference and performance tips.
 
-**Best Practices**: 
+**Best Practices**:
 
-**MCP Tools Used**: 
+**MCP Tools Used**:
 **Required Parameters**:
 
-**Fallback Strategy: Azure CLI**: 
+**Fallback Strategy: Azure CLI**:
 📋 **Reference**: Read `references/fallback-strategy.md` for CLI command reference and KQL query via REST API.
 
-**Common Issues**: 
+**Common Issues**:
 
-**Use Cases**: 
-
+**Use Cases**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

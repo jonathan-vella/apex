@@ -12,14 +12,12 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | Primary capabilities | Comprehensive Resources Assessment, Key Vault Expiration Monitoring |
 | MCP tools | azqr, subscription and resource group listing, Key Vault item inspection |
 
-
 ## When to Use This Skill
 
 - Run azqr or Azure Quick Review for compliance assessment
 - Validate Azure resource configuration against best practices
 - Identify orphaned or misconfigured resources
 - Audit Key Vault keys, secrets, and certificates for expiration
-
 
 ## Skill Activation Triggers
 
@@ -37,7 +35,6 @@ Activate this skill when user wants to:
 - Authentication: user is logged in to Azure via `az login`
 - Permissions to read resource configuration and Key Vault metadata
 
-
 ## Assessments
 
 | Assessment | Reference |
@@ -45,7 +42,6 @@ Activate this skill when user wants to:
 | Comprehensive Compliance (azqr) | [references/azure-quick-review.md](references/azure-quick-review.md) |
 | Key Vault Expiration | [references/azure-keyvault-expiration-audit.md](references/azure-keyvault-expiration-audit.md) |
 | Resource Graph Queries | [references/azure-resource-graph.md](references/azure-resource-graph.md) |
-
 
 ## MCP Tools
 
@@ -55,5 +51,15 @@ Activate this skill when user wants to:
 | `mcp_azure_mcp_subscription_list` | List available subscriptions |
 | `mcp_azure_mcp_group_list` | List resource groups |
 | `keyvault_key_list` | List all keys in vault |
+
+> _See SKILL.md for full content._
+
+## Assessment Workflow
+
+1. Select scope (subscription or resource group) for Comprehensive Resources Assessment.
+2. Run azqr and capture output artifacts.
+3. Analyze Scan Results and summarize findings and recommendations.
+4. Review Key Vault Expiration Monitoring output for keys, secrets, and certificates.
+5. Classify issues and propose remediation or fix steps for each finding.
 
 > _See SKILL.md for full content._

@@ -9,9 +9,9 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 **What are Azure Quotas?**
 
 Azure quotas (also called service limits) are the maximum number of resources you can deploy in a subscription. Quotas:
+
 - Prevent accidental over-provisioning
 - Ensure fair resource distribution across Azure
-- Represent **available capacity** in each region
 
 > _See SKILL.md for full content._
 
@@ -28,21 +28,21 @@ Invoke this skill when:
 
 ## Quick Reference
 
-| **Property** | **Details** |
-|--------------|-------------|
-| **Primary Tool** | Azure CLI (`az quota`) - **USE THIS FIRST, ALWAYS** |
-| **Extension Required** | `az extension add --name quota` (MUST install first) |
-| **Key Commands** | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show` |
-| **Complete CLI Reference** | [commands.md](./references/commands.md) |
+| **Property**               | **Details**                                                                                                          |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Primary Tool**           | Azure CLI (`az quota`) - **USE THIS FIRST, ALWAYS**                                                                  |
+| **Extension Required**     | `az extension add --name quota` (MUST install first)                                                                 |
+| **Key Commands**           | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show`                                       |
+| **Complete CLI Reference** | [commands.md](./references/commands.md)                                                                              |
 
 > _See SKILL.md for full content._
 
 ## Quota Types
 
-| **Type** | **Adjustability** | **Approval** | **Examples** |
-|----------|-------------------|--------------|--------------|
-| **Adjustable** | Can increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
-| **Non-adjustable** | Fixed limits | Cannot be changed | Subscription-wide hard limits |
+| **Type**           | **Adjustability**               | **Approval**          | **Examples**                           |
+| ------------------ | ------------------------------- | --------------------- | -------------------------------------- |
+| **Adjustable**     | Can increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
+| **Non-adjustable** | Fixed limits                    | Cannot be changed     | Subscription-wide hard limits          |
 
 **Important:** Requesting quota increases is **free**. You only pay for resources you actually use, not for quota allocation.
 
@@ -53,7 +53,6 @@ Invoke this skill when:
 **⚠️ CRITICAL:** There is **NO 1:1 mapping** between ARM resource types and quota resource names. Never assume the quota resource name from the ARM type.
 
 📋 **Reference**: Read `references/resource-name-mapping.md` for example mappings and the discovery workflow.
-
 
 ## Core Workflows
 
@@ -70,15 +69,14 @@ Invoke this skill when:
 
 📋 **Reference**: Read `references/troubleshooting.md` for common errors (ExtensionNotFound, BadRequest, QuotaExceeded, InvalidScope) and supported/unsupported resource providers.
 
-
 ## Additional Resources
 
-| Resource | Link |
-|----------|------|
-| **CLI Commands Reference** | [commands.md](./references/commands.md) - Complete syntax, parameters, examples |
-| **Azure Quotas Overview** | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview) |
+| Resource                         | Link                                                                                                                                     |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **CLI Commands Reference**       | [commands.md](./references/commands.md) - Complete syntax, parameters, examples                                                          |
+| **Azure Quotas Overview**        | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview)                                                        |
 | **Service Limits Documentation** | [Azure subscription limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) |
-| **Azure Portal - My Quotas** | [Portal Link](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) |
+| **Azure Portal - My Quotas**     | [Portal Link](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas)                                          |
 
 > _See SKILL.md for full content._
 

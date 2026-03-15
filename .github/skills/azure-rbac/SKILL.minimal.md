@@ -2,5 +2,4 @@
 
 # Skill (Minimal)
 
-
 Read `SKILL.md` or `SKILL.digest.md` for full content.

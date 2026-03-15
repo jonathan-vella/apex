@@ -7,11 +7,11 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 ## Skill Activation Triggers
 
 **Use this skill immediately when the user asks to:**
+
 - "Query my Kusto database for [data pattern]"
 - "Show me events in the last hour from Azure Data Explorer"
 - "Analyze logs in my ADX cluster"
 - "Run a KQL query on [database]"
-- "What tables are in my Kusto database?"
 
 > _See SKILL.md for full content._
 
@@ -20,9 +20,9 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 This skill enables querying and managing Azure Data Explorer (Kusto), a fast and highly scalable data exploration service optimized for log and telemetry data. Azure Data Explorer provides sub-second query performance on billions of records using the Kusto Query Language (KQL).
 
 Key capabilities:
+
 - **Query Execution**: Run KQL queries against massive datasets
 - **Schema Exploration**: Discover tables, columns, and data types
-- **Resource Management**: List clusters and databases
 
 > _See SKILL.md for full content._
 
@@ -33,37 +33,38 @@ Key capabilities:
 3. **Query Data**: Execute KQL queries for analysis, filtering, aggregation
 4. **Analyze Results**: Process query output for insights and reporting
 
-
 ## Query Patterns
 
 📋 **Reference**: Read `references/query-patterns.md` for 5 detailed KQL patterns with examples:
 
-| Pattern | Use For |
-|---------|--------|
-| Basic Data Retrieval | Quick inspection, recent events |
-| Aggregation Analysis | Counting, distribution, top-N |
+| Pattern               | Use For                            |
+| --------------------- | ---------------------------------- |
+| Basic Data Retrieval  | Quick inspection, recent events    |
+| Aggregation Analysis  | Counting, distribution, top-N      |
 
 > _See SKILL.md for full content._
 
 ## Key Data Fields
 
 When executing queries, common field patterns:
+
 - **Timestamp**: Time of event (datetime) - use `ago()`, `between()`, `bin()` for time filtering
 - **EventType/Category**: Classification field for grouping
 - **CorrelationId/SessionId**: For tracing related events
 - **Severity/Level**: For filtering by importance
-- **Dimensions**: Custom properties for grouping and filtering
 
 > _See SKILL.md for full content._
 
 ## Result Format
 
 Query results include:
+
 - **Columns**: Field names and data types
 - **Rows**: Data records matching query
 - **Statistics**: Row count, execution time, resource utilization
 - **Visualization**: Chart rendering hints (timechart, barchart, etc.)
 
+> _See SKILL.md for full content._
 
 ## KQL Best Practices
 
@@ -72,7 +73,6 @@ Query results include:
 - Always include time range filters for time series data
 - Use `summarize` for aggregations, `bin()` for time bucketing
 - Use `project` to select only needed columns
-
 
 > _See SKILL.md for full content._
 

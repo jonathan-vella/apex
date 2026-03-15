@@ -2,14 +2,19 @@
 
 # Azure AI Services (Minimal)
 
-**Services**: 
+**Services**:
 
-**MCP Server (Preferred)**: 
+**MCP Server (Preferred)**:
 When Azure MCP is enabled:
 
-**AI Search Capabilities**: 
+**AI Search Capabilities**:
 
-**Speech Capabilities**: 
+**Speech Capabilities**:
 
+**SDK Quick References**:
+For programmatic access to these services, see the condensed SDK guides:
+
+**Service Details**:
+For deep documentation on specific services:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

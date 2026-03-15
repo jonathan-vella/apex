@@ -10,7 +10,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 pip install diagrams matplotlib pillow && apt-get install -y graphviz
 ```
 
-
 ## Execution Method
 
 Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Never use heredoc execution.
@@ -18,7 +17,6 @@ Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Neve
 ```bash
 python3 agent-output/{project}/03-des-diagram.py
 ```
-
 
 ## Architecture Diagram Contract
 
@@ -49,7 +47,6 @@ Identity, AI/ML, Analytics, IoT, DevOps, Web, Monitor — all under `diagrams.az
 
 See `references/azure-components.md` for the complete list of **700+ components**.
 
-
 ## Common Architecture Patterns
 
 Ready-to-use patterns: 3-Tier Web App, Microservices (AKS),
@@ -57,7 +54,6 @@ Serverless/Event-Driven, Data Platform, Hub-Spoke Networking, and more.
 
 See `references/common-patterns.md` for all patterns with code.
 See `references/iac-to-diagram.md` to generate diagrams from Bicep/Terraform/ARM.
-
 
 ## Workflow Integration
 
@@ -88,7 +84,6 @@ Min line `#DC3545` · Target line `#28A745` · Trend `#FF8C00` · Grid `#E0E0E0`
 3. **Generate Python Code** — Create diagram with proper clusters and edges
 4. **Execute & Verify** — Run Python to generate PNG, confirm file exists
 
-
 ## Guardrails
 
 **DO:** Create files in `agent-output/{project}/` with step-prefixed names ·
@@ -96,6 +91,5 @@ Use valid `diagrams.azure.*` imports · Include docstring with prerequisites ·
 Use `Cluster()` for Azure hierarchy · Include CIDR blocks ·
 Always execute script and verify PNG · Apply design tokens to every chart ·
 Generate `02-waf-scores.png` when WAF scores are assigned.
-
 
 > _See SKILL.md for full content._

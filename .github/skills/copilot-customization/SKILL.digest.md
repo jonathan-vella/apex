@@ -12,7 +12,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 - Reviewing a customization file for spec compliance
 - Comparing mechanisms (instructions vs skills vs agents vs prompts)
 
-
 > _See SKILL.md for full content._
 
 ## Quick Decision Tree
@@ -55,7 +54,6 @@ I want to...
 3. **Skill progressive loading**: Discovery (name+description) → Instructions (SKILL.md body) → Resources (references/)
 4. **Agent + Skill**: Agents can reference skills via "Read `.github/skills/{name}/SKILL.md`"
 5. **MCP tools**: Available to agents and prompts via their `tools` list
-
 
 ## Existing Enforcement Rules
 

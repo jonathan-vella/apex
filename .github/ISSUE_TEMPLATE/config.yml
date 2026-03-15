@@ -8,4 +8,4 @@ contact_links:
     about: Ask questions and share ideas in Discussions
   - name: 🔧 Agentic InfraOps Workflow
     url: https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/docs/reference/workflow.md
-    about: Learn about the 7-step agentic workflow
+    about: Learn about the multi-step agentic workflow

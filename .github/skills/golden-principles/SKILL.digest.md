@@ -42,7 +42,6 @@ rather than scripts ("first create identity, then assign role...")?
 
 ### 4. Parse at Boundaries
 
-
 > _See SKILL.md for full content._
 
 ## How to Apply These Principles
@@ -65,4 +64,3 @@ rather than scripts ("first create identity, then assign role...")?
 1. Does the change follow the golden path or create a new one? (Principle 6)
 2. Does it add context load or reduce it? (Principle 8)
 3. Does it enforce invariants or prescribe implementation? (Principle 3)
-

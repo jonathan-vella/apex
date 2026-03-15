@@ -2,22 +2,21 @@
 
 # Azure Artifacts Skill (Minimal)
 
-**Artifact Generation Rules**: 
+**Artifact Generation Rules**:
 ### Mandatory Compliance
 
-**Mandatory: Project README**: 
+**Mandatory: Project README**:
 Every project in `agent-output/{project}/` **MUST** have a
 
-**Placeholder Syntax**: 
+**Placeholder Syntax**:
 All templates use single-brace `{placeholder-name}` syntax:
 
-**Automated Validation**: 
+**Automated Validation**:
 ```bash
 
-**Quality Checklist**: 
+**Quality Checklist**:
 
-**Reference Index**: 
+**Reference Index**:
 When generating a Step N artifact, read the corresponding template:
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

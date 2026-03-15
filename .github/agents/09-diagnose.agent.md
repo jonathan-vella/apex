@@ -92,7 +92,7 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
-This agent is **supplementary** to the 7-step workflow. Use it after Step 6 (Deploy) or
+This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
 
 <investigate_before_answering>

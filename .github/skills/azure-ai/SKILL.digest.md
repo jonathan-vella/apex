@@ -36,3 +36,14 @@ When Azure MCP is enabled:
 | AI enrichment | Entity extraction, OCR, sentiment |
 
 > _See SKILL.md for full content._
+
+## Speech Capabilities
+
+| Feature | Description |
+|---------|-------------|
+| Speech-to-text | Real-time and batch transcription |
+| Text-to-speech | Neural voices, SSML support |
+| Speaker diarization | Identify who spoke when |
+| Custom models | Domain-specific vocabulary |
+
+> _See SKILL.md for full content._

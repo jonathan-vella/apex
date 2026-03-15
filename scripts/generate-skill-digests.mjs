@@ -26,7 +26,7 @@ function extractTitle(content) {
 }
 
 function trimSection(section, maxLines) {
-  const lines = section.lines;
+  const lines = section.lines.map((l) => l.trimEnd());
   if (lines.length <= maxLines) return lines;
 
   const trimmed = lines.slice(0, maxLines);
@@ -65,7 +65,7 @@ function generateDigest(skillDir) {
     remaining -= trimmed.length + 1;
   }
 
-  return digestLines.join("\n");
+  return digestLines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }
 
 function generateMinimal(skillDir, digestContent) {
@@ -84,13 +84,13 @@ function generateMinimal(skillDir, digestContent) {
 
   for (const section of sections) {
     if (remaining <= 2) break;
-    minimalLines.push(`**${section.heading}**: `);
+    minimalLines.push(`**${section.heading}**:`);
 
     const firstContent = section.lines
       .slice(1)
       .find((l) => l.trim().length > 0 && !/^[|>-]/.test(l.trim()));
     if (firstContent) {
-      minimalLines.push(firstContent.trim().slice(0, 120));
+      minimalLines.push(firstContent.trim().slice(0, 120).trimEnd());
     }
     minimalLines.push("");
     remaining -= 3;
@@ -99,7 +99,7 @@ function generateMinimal(skillDir, digestContent) {
   minimalLines.push("");
   minimalLines.push("Read `SKILL.md` or `SKILL.digest.md` for full content.");
 
-  return minimalLines.join("\n");
+  return minimalLines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }
 
 const targetSkill = process.argv[2];

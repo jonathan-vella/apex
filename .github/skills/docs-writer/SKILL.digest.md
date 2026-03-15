@@ -15,11 +15,9 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | "Proofread the docs"           | Language, tone, and accuracy review |
 | "Generate a changelog entry"   | Changelog from git history          |
 
-
 ## Prerequisites
 
 None — all tools and references are workspace-local.
-
 
 ## Scope
 
@@ -35,7 +33,6 @@ All markdown documentation **except** `agent-output/**/*.md`:
 - `CHANGELOG.md` — release history
 - `QUALITY_SCORE.md` — project health grades
 - `.github/instructions/docs.instructions.md` — architecture tables
-
 
 > _See SKILL.md for full content._
 
@@ -54,7 +51,6 @@ All markdown documentation **except** `agent-output/**/*.md`:
 5. **Verify links**: Check all relative links resolve to existing files.
 6. **Run validation**: Offer to run `npm run lint:md` and `npm run lint:links`.
 
-
 > _See SKILL.md for full content._
 
 ## Guardrails
@@ -66,7 +62,6 @@ All markdown documentation **except** `agent-output/**/*.md`:
 - **Preserve** existing Mermaid diagram theme directives
 - **Use** `VERSION.md` as the single source of truth for version numbers
 
-
 ## Troubleshooting
 
 | Issue                     | Solution                                                        |
@@ -76,13 +71,11 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | Version mismatch          | Read `VERSION.md` and propagate to all docs                     |
 | Count mismatch            | List `.github/agents/` and `.github/skills/` directories        |
 
-
 ## References
 
 - `references/repo-architecture.md` — Repo structure, entity inventory
 - `references/doc-standards.md` — Formatting conventions, validation
 - `references/freshness-checklist.md` — Audit targets and auto-fix rules
-
 
 ## Reference Index
 
@@ -91,4 +84,3 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | `references/doc-standards.md`       | When checking documentation standards |
 | `references/freshness-checklist.md` | When running freshness audits         |
 | `references/repo-architecture.md`   | When analyzing repo structure         |
-

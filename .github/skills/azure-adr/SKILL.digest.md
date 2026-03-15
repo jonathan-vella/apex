@@ -30,7 +30,6 @@ agent-output/{project}/
 
 📋 **Reference**: Read `references/adr-template.md` for the full ADR template with all sections (Context, Decision, Alternatives, Consequences, WAF Pillar Analysis, Compliance, Implementation Notes).
 
-
 ## Example Prompts
 
 ### Design Phase ADR
@@ -50,7 +49,6 @@ Consider WAF implications and cost trade-offs.
 | Step 5 (Bicep Code) | After implementation choices | As-built ADR (`07-ab-adr-*`) |
 | Step 6 (Deploy)     | After deployment decisions   | As-built ADR (`07-ab-adr-*`) |
 
-
 ## Best Practices
 
 1. **One decision per ADR** - Keep ADRs focused on a single decision
@@ -58,7 +56,6 @@ Consider WAF implications and cost trade-offs.
 3. **Map to WAF pillars** - Show impact on each Well-Architected pillar
 4. **Link to requirements** - Reference the requirement that drove the decision
 5. **Keep it concise** - ADRs should be readable in 5 minutes
-
 
 ## Common ADR Topics
 
@@ -77,7 +74,6 @@ Consider WAF implications and cost trade-offs.
 - ❌ Create architecture diagrams (use `azure-diagrams` skill)
 - ❌ Deploy resources (use `deploy` agent)
 - ❌ Create implementation plans (use `bicep-plan` agent)
-
 
 ## Workflow Integration
 

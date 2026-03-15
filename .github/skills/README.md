@@ -5,14 +5,18 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ## Available Skills
 
+> The tables below show representative skills by category. For the complete
+> catalog, list all `SKILL.md` files: `find .github/skills -name SKILL.md`.
+> See `.github/count-manifest.json` for current counts.
+
 ### Category 1: Azure Conventions
 
-| Skill                   | Description                                          | Triggers                                         |
-| ----------------------- | ---------------------------------------------------- | ------------------------------------------------ |
-| `azure-defaults`        | Azure conventions, naming, AVM, WAF, pricing, tags   | "azure defaults", "naming", "AVM"                |
-| `azure-artifacts`       | Template H2 structures, styling, generation rules    | "generate documentation", "create runbook"       |
-| `azure-bicep-patterns`  | Reusable Bicep patterns (hub-spoke, PE, diagnostics) | "bicep pattern", "private endpoint", "hub-spoke" |
-| `azure-diagnostics`     | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"       |
+| Skill                  | Description                                          | Triggers                                         |
+| ---------------------- | ---------------------------------------------------- | ------------------------------------------------ |
+| `azure-defaults`       | Azure conventions, naming, AVM, WAF, pricing, tags   | "azure defaults", "naming", "AVM"                |
+| `azure-artifacts`      | Template H2 structures, styling, generation rules    | "generate documentation", "create runbook"       |
+| `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics) | "bicep pattern", "private endpoint", "hub-spoke" |
+| `azure-diagnostics`    | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"       |
 
 ### Category 2: Document Creation
 

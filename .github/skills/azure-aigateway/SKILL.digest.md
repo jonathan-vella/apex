@@ -69,3 +69,11 @@ See [references/patterns.md](references/patterns.md#pattern-1-add-ai-model-backe
 | Backend auth 401 | Grant APIM "Cognitive Services User" role |
 
 > _See SKILL.md for full content._
+
+## References
+
+- [**Detailed Policies**](references/policies.md) - Full policy examples
+- [**Configuration Patterns**](references/patterns.md) - Step-by-step patterns
+- [**Troubleshooting**](references/troubleshooting.md) - Common issues
+- [AI-Gateway Samples](https://github.com/Azure-Samples/AI-Gateway)
+- [GenAI Gateway Docs](https://learn.microsoft.com/azure/api-management/genai-gateway-capabilities)

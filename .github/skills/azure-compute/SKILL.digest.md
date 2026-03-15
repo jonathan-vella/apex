@@ -15,7 +15,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 - User needs autoscaling, high availability, or load-balanced VM recommendations
 - User asks about VMSS orchestration modes (Flexible vs Uniform)
 
-
 ## Workflow
 
 > Use reference files for initial filtering
@@ -33,9 +32,6 @@ Ask the user for (infer when possible):
 | **GPU needed?**        | Yes → GPU families; No → general/compute/memory                    |
 | **Storage needs**      | High IOPS, large temp disk, premium SSD                            |
 | **Budget priority**    | Cost-sensitive, performance-first, balanced                        |
-| **OS**                 | Linux or Windows (affects pricing)                                 |
-| **Region**             | Affects availability and price                                     |
-| **Instance count**     | Single instance, fixed count, or variable/dynamic                  |
 
 > _See SKILL.md for full content._
 
@@ -49,10 +45,18 @@ Ask the user for (infer when possible):
 | Unclear if VM or VMSS needed    | Ask about scaling and instance count; default to single VM if unsure           |
 | User asks VMSS pricing directly | Use same VM pricing API — VMSS has no extra charge; multiply by instance count |
 
-
 ## References
 
 - [VM Family Guide](references/vm-families.md) — Family-to-workload mapping and selection
 - [Retail Prices API Guide](references/retail-prices-api.md) — Query patterns, filters, and examples
 - [VMSS Guide](references/vmss-guide.md) — When to use VMSS, orchestration modes, and autoscale patterns
 
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/retail-prices-api.md` | Retail Prices Api |
+| `references/vm-families.md` | Vm Families |
+| `references/vmss-guide.md` | Vmss Guide |

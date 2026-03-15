@@ -2,15 +2,14 @@
 
 # AppInsights Instrumentation Guide (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 
-**When to Use azure-prepare Instead**: 
+**When to Use azure-prepare Instead**:
 
-**Prerequisites**: 
+**Prerequisites**:
 The app in the workspace must be one of these kinds
 
-**Guidelines**: 
+**Guidelines**:
 ### Collect context information
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

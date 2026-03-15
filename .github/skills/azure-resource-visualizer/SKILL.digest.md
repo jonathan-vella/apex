@@ -12,7 +12,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 4. **Diagram Generation**: Create detailed, accurate Mermaid diagrams
 5. **Documentation Creation**: Produce clear markdown files with embedded diagrams
 
-
 ## Workflow Process
 
 ### Step 1: Resource Group Selection
@@ -30,8 +29,6 @@ If a resource group is specified, validate it exists and proceed.
 
 For bulk resource discovery across subscriptions, use Azure Resource Graph queries. See [Azure Resource Graph Queries](references/azure-resource-graph.md) for cross-subscription inventory and relationship discovery patterns.
 
-Once you have the resource group:
-
 > _See SKILL.md for full content._
 
 ## Operating Guidelines
@@ -46,12 +43,10 @@ Once you have the resource group:
 
 ### Tool Usage Patterns
 
-1. **Azure MCP Search**: 
+1. **Azure MCP Search**:
    - Use `intent="list resource groups"` to discover resource groups
    - Use `intent="list resources in group"` with group name to get all resources
    - Use `intent="get resource details"` for individual resource analysis
-   - Use `command` parameter when you need specific Azure operations
-
 
 > _See SKILL.md for full content._
 
@@ -72,6 +67,7 @@ Once you have the resource group:
 - Use bullet lists for notes and recommendations
 - Use code blocks with `mermaid` language tag for diagrams
 
+> _See SKILL.md for full content._
 
 ## Success Criteria
 
@@ -87,3 +83,10 @@ A successful analysis includes:
 
 Your goal is to provide clarity and insight into Azure architectures, making complex resource relationships easy to understand through excellent visualization.
 
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/azure-resource-graph.md` | Azure Resource Graph |

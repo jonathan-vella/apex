@@ -109,7 +109,7 @@ This pattern enables thorough investigation without interrupting the workflow.
 
 ## Integration with Workflow
 
-This research-first pattern integrates with the 7-step workflow:
+This research-first pattern integrates with the multi-step workflow:
 
 1. Each step should validate outputs from previous steps exist
 2. Each step should read its output template before generating content

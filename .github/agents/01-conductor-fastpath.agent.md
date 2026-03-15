@@ -4,7 +4,19 @@ description: "Experimental fast-path conductor for simple Azure projects (<=3 re
 model: ["Claude Sonnet 4.6"]
 argument-hint: Describe a simple Azure infrastructure project (≤3 resources)
 user-invocable: true
-agents: ["02-Requirements", "03-Architect", "05b-Bicep Planner", "06b-Bicep CodeGen", "07b-Bicep Deploy", "08-As-Built", "05t-Terraform Planner", "06t-Terraform CodeGen", "07t-Terraform Deploy", "challenger-review-subagent"]
+agents:
+  [
+    "02-Requirements",
+    "03-Architect",
+    "05b-Bicep Planner",
+    "06b-Bicep CodeGen",
+    "07b-Bicep Deploy",
+    "08-As-Built",
+    "05t-Terraform Planner",
+    "06t-Terraform CodeGen",
+    "07t-Terraform Deploy",
+    "challenger-review-subagent",
+  ]
 tools:
   [
     vscode/askQuestions,
@@ -53,7 +65,7 @@ handoffs:
     send: true
   - label: "↩ Switch to Full Conductor"
     agent: 01-Conductor
-    prompt: "This project is too complex for fast-path. Switching to the full 7-step conductor workflow."
+    prompt: "This project is too complex for fast-path. Switching to the full multi-step conductor workflow."
     send: false
 ---
 
@@ -82,7 +94,7 @@ If the project is `standard` or `complex`, hand off to the main
 
 ## Fast-Path Workflow (5 Steps)
 
-The fast path combines and streamlines the standard 7-step workflow:
+The fast path combines and streamlines the standard multi-step workflow:
 
 ### Step 1: Requirements (same as standard)
 

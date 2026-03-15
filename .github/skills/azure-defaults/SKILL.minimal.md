@@ -2,21 +2,20 @@
 
 # Azure Defaults Skill (Minimal)
 
-**Quick Reference (Load First)**: 
+**Quick Reference (Load First)**:
 ### Default Regions
 
-**CAF Naming Conventions**: 
+**CAF Naming Conventions**:
 For extended abbreviations and length-constraint examples, read
 
-**Azure Verified Modules (AVM)**: 
+**Azure Verified Modules (AVM)**:
 1. **ALWAYS** check AVM availability first
 
-**Template-First Output Rules**: 
+**Template-First Output Rules**:
 
-**Validation Checklist**: 
+**Validation Checklist**:
 
-**Reference Index**: 
+**Reference Index**:
 Load these on demand — do NOT read all at once:
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

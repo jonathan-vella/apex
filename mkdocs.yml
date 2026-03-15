@@ -104,7 +104,7 @@ nav:
           - Skills & Instructions: how-it-works/skills-and-instructions.md
           - Workflow Engine & Quality: how-it-works/workflow-engine.md
           - MCP Integration: how-it-works/mcp-integration.md
-      - 7-Step Workflow: workflow.md
+      - Workflow: workflow.md
   - Guides:
       - Prompt Guide:
           - Overview: prompt-guide/index.md

@@ -2,42 +2,41 @@
 
 # Azure Architecture Diagrams Skill (Minimal)
 
-**Prerequisites**: 
+**Prerequisites**:
 ```bash
 
-**Execution Method**: 
+**Execution Method**:
 Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Never use heredoc execution.
 
-**Architecture Diagram Contract**: 
+**Architecture Diagram Contract**:
 ### Required outputs
 
-**Professional Output Standards**: 
+**Professional Output Standards**:
 Critical settings for clean output — use `labelloc="t"` to keep labels inside clusters:
 
-**Azure Service Categories**: 
+**Azure Service Categories**:
 13 categories: Compute, Networking, Database, Storage, Integration, Security,
 
-**Common Architecture Patterns**: 
+**Common Architecture Patterns**:
 Ready-to-use patterns: 3-Tier Web App, Microservices (AKS),
 
-**Workflow Integration**: 
+**Workflow Integration**:
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 
-**Data Visualization Charts**: 
+**Data Visualization Charts**:
 WAF and cost charts use `matplotlib` (never Mermaid). See `references/waf-cost-charts.md` for full implementations.
 
-**Generation Workflow**: 
+**Generation Workflow**:
 1. **Gather Context** — Read Bicep/Terraform templates or architecture assessment
 
-**Guardrails**: 
+**Guardrails**:
 **DO:** Create files in `agent-output/{project}/` with step-prefixed names ·
 
-**Scope Exclusions**: 
+**Scope Exclusions**:
 Does NOT: generate Bicep/Terraform code · create workload docs ·
 
-**Scripts**: 
+**Scripts**:
 
-**Reference Index**: 
-
+**Reference Index**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

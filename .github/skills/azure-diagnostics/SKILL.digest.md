@@ -7,13 +7,12 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 ## Triggers
 
 Activate this skill when user wants to:
+
 - Debug or troubleshoot production issues
 - Diagnose errors in Azure services
 - Analyze application logs or metrics
 - Fix image pull, cold start, or health probe issues
 - Investigate why Azure resources are failing
-- Find root cause of application errors
-- Troubleshoot Azure Function Apps (invocation failures, timeouts, binding errors)
 
 > _See SKILL.md for full content._
 
@@ -27,6 +26,7 @@ Activate this skill when user wants to:
 
 ---
 
+> _See SKILL.md for full content._
 
 ## Quick Diagnosis Flow
 
@@ -38,16 +38,16 @@ Activate this skill when user wants to:
 
 ---
 
+> _See SKILL.md for full content._
 
 ## Troubleshooting Guides by Service
 
-| Service | Common Issues | Reference |
-|---------|---------------|-----------|
-| **Container Apps** | Image pull failures, cold starts, health probes, port mismatches | [container-apps/](references/container-apps/README.md) |
-| **Function Apps** | App details, invocation failures, timeouts, binding errors, cold starts, missing app settings | [functions/](references/functions/README.md) |
+| Service            | Common Issues                                                                                 | Reference                                              |
+| ------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **Container Apps** | Image pull failures, cold starts, health probes, port mismatches                              | [container-apps/](references/container-apps/README.md) |
+| **Function Apps**  | App details, invocation failures, timeouts, binding errors, cold starts, missing app settings | [functions/](references/functions/README.md)           |
 
 ---
-
 
 ## Quick Reference
 
@@ -58,7 +58,6 @@ Activate this skill when user wants to:
 az resource show --ids RESOURCE_ID
 
 # View activity log
-az monitor activity-log list -g RG --max-events 20
 
 > _See SKILL.md for full content._
 
@@ -71,6 +70,14 @@ mcp_azure_mcp_resourcehealth
   intent: "check health status of <resource-name>"
   command: "get"
   parameters:
-    resourceId: "<resource-id>"
 
 > _See SKILL.md for full content._
+
+## References
+
+- [KQL Query Library](references/kql-queries.md)
+- [Azure Resource Graph Queries](references/azure-resource-graph.md)
+- [InfraOps KQL Templates](references/infraops-kql-templates.md) — custom Azure Resource Graph and Log Analytics queries
+- [InfraOps Health Checks](references/infraops-health-checks.md) — per-resource-type diagnostic commands
+- [InfraOps Remediation Playbooks](references/infraops-remediation-playbooks.md) — 6-phase diagnostic workflow
+- [Function Apps Troubleshooting](references/functions/README.md)

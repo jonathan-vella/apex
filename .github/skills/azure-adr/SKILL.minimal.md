@@ -2,37 +2,33 @@
 
 # Azure Architecture Decision Records (ADR) Skill (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 
-**Output Format**: 
+**Output Format**:
 ADRs are saved to the project's agent-output folder:
 
-**ADR Template Structure**: 
+**ADR Template Structure**:
 📋 **Reference**: Read `references/adr-template.md` for the full ADR template with all sections (Context, Decision, Alte
 
-**Example Prompts**: 
+**Example Prompts**:
 ### Design Phase ADR
 
-**Integration with Workflow**: 
+**Integration with Workflow**:
 
-**Best Practices**: 
+**Best Practices**:
 1. **One decision per ADR** - Keep ADRs focused on a single decision
 
-**Common ADR Topics**: 
+**Common ADR Topics**:
 
-**What This Skill Does NOT Do**: 
+**What This Skill Does NOT Do**:
 
-**Workflow Integration**: 
+**Workflow Integration**:
 This skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).
 
-**Generation Workflow**: 
+**Generation Workflow**:
 Follow these steps when creating ADRs:
 
-**Quality Checklist**: 
+**Quality Checklist**:
 Before finalizing the ADR, verify:
-
-**Guardrails**: 
-📋 **Reference**: Read `references/guardrails.md` for detailed DO/DON'T rules and anti-pattern table.
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

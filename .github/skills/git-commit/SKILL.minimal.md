@@ -2,26 +2,25 @@
 
 # Git Commit with Conventional Commits (Minimal)
 
-**Overview**: 
+**Overview**:
 Create standardized, semantic git commits using the Conventional Commits specification.
 
-**Conventional Commit Format**: 
+**Conventional Commit Format**:
 ```text
 
-**Commit Types**: 
+**Commit Types**:
 
-**Breaking Changes**: 
+**Breaking Changes**:
 ```text
 
-**Workflow**: 
+**Workflow**:
 ### 1. Analyze Diff
 
-**Best Practices**: 
+**Best Practices**:
 
-**Git Safety Protocol**: 
+**Git Safety Protocol**:
 
-**After Committing**: 
+**After Committing**:
 To push and create a PR, read `.github/skills/github-operations/SKILL.md`.
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

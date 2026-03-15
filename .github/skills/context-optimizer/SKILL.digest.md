@@ -34,7 +34,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ### Enabling Debug Logs
 
-
 > _See SKILL.md for full content._
 
 ## Analysis Methodology
@@ -53,4 +52,3 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 See `templates/optimization-report.md` for the full output template.
 
 ---
-

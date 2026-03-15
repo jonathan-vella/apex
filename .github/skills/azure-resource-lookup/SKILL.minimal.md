@@ -2,19 +2,21 @@
 
 # Azure Resource Lookup (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 Use this skill when the user wants to:
 
-**Quick Reference**: 
+**Quick Reference**:
 
-**MCP Tools**: 
+**MCP Tools**:
 
-**Workflow**: 
+**Workflow**:
 ### Step 1: Check for a Dedicated MCP Tool
 
-**Error Handling**: 
+**Error Handling**:
 
-**Constraints**: 
+**Constraints**:
 
+**Reference Index**:
+Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

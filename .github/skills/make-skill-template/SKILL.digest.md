@@ -11,13 +11,11 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 - User needs help structuring a skill with bundled resources
 - User wants to duplicate this template as a starting point
 
-
 ## Prerequisites
 
 - Understanding of what the skill should accomplish
 - A clear, keyword-rich description of capabilities and triggers
 - Knowledge of any bundled resources needed (scripts, references, assets, templates)
-
 
 ## Creating a New Skill
 

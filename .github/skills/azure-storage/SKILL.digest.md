@@ -44,7 +44,6 @@ az storage container list --account-name ACCOUNT --output table
 | Standard | General purpose, backup | Milliseconds |
 | Premium | Databases, high IOPS | Sub-millisecond |
 
-
 ## Blob Access Tiers
 
 | Tier | Access Frequency | Cost |
@@ -53,5 +52,16 @@ az storage container list --account-name ACCOUNT --output table
 | Cool | Infrequent (30+ days) | Lower storage, higher access |
 | Cold | Rare (90+ days) | Lower still |
 | Archive | Rarely (180+ days) | Lowest storage, rehydration required |
+
+> _See SKILL.md for full content._
+
+## Redundancy Options
+
+| Type | Durability | Use Case |
+|------|------------|----------|
+| LRS | 11 nines | Dev/test, recreatable data |
+| ZRS | 12 nines | Regional high availability |
+| GRS | 16 nines | Disaster recovery |
+| GZRS | 16 nines | Best durability |
 
 > _See SKILL.md for full content._

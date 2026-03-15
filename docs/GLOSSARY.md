@@ -26,8 +26,8 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes 16 top-level agents (including two Conductor
-variants, a Governance agent, and a Context Optimizer) plus 11 subagents.
+Invoked via `Ctrl+Shift+A`. This project includes top-level agents (including two Conductor
+variants, a Governance agent, and a Context Optimizer) plus subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
@@ -224,7 +224,7 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
 ### InfraOps Conductor
 
-The master orchestrator agent that coordinates all 8 steps of the infrastructure workflow with
+The master orchestrator agent that coordinates all steps of the infrastructure workflow with
 mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
 orchestration features.
 
@@ -475,7 +475,7 @@ YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
 
 ## Numbers & Symbols
 
-### 8-Step Agentic Workflow
+### Multi-Step Agentic Workflow
 
 The core Agentic InfraOps workflow: `requirements` → `architect` → Design Artifacts →
 Governance → IaC Plan → IaC Code → Deploy → Documentation. Step 3.5 (Governance)

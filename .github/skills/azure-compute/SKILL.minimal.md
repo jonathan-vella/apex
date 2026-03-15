@@ -2,14 +2,16 @@
 
 # Azure Compute Skill (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 
-**Workflow**: 
+**Workflow**:
 ### Step 1: Gather Requirements
 
-**Error Handling**: 
+**Error Handling**:
 
-**References**: 
+**References**:
 
+**Reference Index**:
+Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

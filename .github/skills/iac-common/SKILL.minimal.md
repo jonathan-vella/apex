@@ -2,13 +2,12 @@
 
 # IaC Common Skill (Minimal)
 
-**Deployment Strategies**: 
-### Phased Deployment (recommended for >5 resources)
+**Deployment Strategies**:
+### azd Deployment (recommended for Bicep projects with azure.yaml)
 
-**Reference Index**: 
+**Reference Index**:
 
-**Circuit Breaker**: 
+**Circuit Breaker**:
 Deploy agents MUST read `references/circuit-breaker.md` before starting
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

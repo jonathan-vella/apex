@@ -2,24 +2,26 @@
 
 # Azure Diagnostics (Minimal)
 
-**Triggers**: 
+**Triggers**:
 Activate this skill when user wants to:
 
-**Rules**: 
+**Rules**:
 1. Start with systematic diagnosis flow
 
-**Quick Diagnosis Flow**: 
+**Quick Diagnosis Flow**:
 1. **Identify symptoms** - What's failing?
 
-**Troubleshooting Guides by Service**: 
+**Troubleshooting Guides by Service**:
 
-**Quick Reference**: 
+**Quick Reference**:
 ### Common Diagnostic Commands
 
-**Check Azure Resource Health**: 
+**Check Azure Resource Health**:
 ### Using MCP
 
-**References**: 
+**References**:
 
+**Reference Index**:
+Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

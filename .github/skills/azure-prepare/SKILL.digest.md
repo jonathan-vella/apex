@@ -80,3 +80,11 @@ Execute the approved plan. Update `.azure/plan.md` status after each step.
 | Dockerfiles | `src/<component>/Dockerfile` |
 
 > _See SKILL.md for full content._
+
+## SDK Quick References
+
+- **Azure Developer CLI**: [azd](references/sdk/azd-deployment.md)
+- **Azure Identity**: [Python](references/sdk/azure-identity-py.md) | [.NET](references/sdk/azure-identity-dotnet.md) | [TypeScript](references/sdk/azure-identity-ts.md) | [Java](references/sdk/azure-identity-java.md)
+- **App Configuration**: [Python](references/sdk/azure-appconfiguration-py.md) | [TypeScript](references/sdk/azure-appconfiguration-ts.md) | [Java](references/sdk/azure-appconfiguration-java.md)
+
+---

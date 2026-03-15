@@ -2,25 +2,24 @@
 
 # docs-writer (Minimal)
 
-**When to Use This Skill**: 
+**When to Use This Skill**:
 
-**Prerequisites**: 
+**Prerequisites**:
 None — all tools and references are workspace-local.
 
-**Scope**: 
+**Scope**:
 ### In Scope
 
-**Step-by-Step Workflows**: 
+**Step-by-Step Workflows**:
 ### Workflow 1: Update Existing Documentation
 
-**Guardrails**: 
+**Guardrails**:
 or `.github/skills/azure-artifacts/templates/`
 
-**Troubleshooting**: 
+**Troubleshooting**:
 
-**References**: 
+**References**:
 
-**Reference Index**: 
-
+**Reference Index**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

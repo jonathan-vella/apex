@@ -203,7 +203,7 @@ backup/DR plan, and resource inventory.
 
 ### InfraOps Conductor — 🎼 Maestro
 
-Use the Conductor for end-to-end projects where you want the full 8-step
+Use the Conductor for end-to-end projects where you want the full multi-step
 workflow with approval gates.
 
 ```text
@@ -218,7 +218,7 @@ and provide a summary of current project state.
 ### Diagnose — 🔍 Sentinel
 
 Use Diagnose for troubleshooting deployed Azure resources. It works outside
-the 8-step workflow.
+the multi-step workflow.
 
 ```text
 Check the health of all resources in resource group rg-payment-gateway-prod.

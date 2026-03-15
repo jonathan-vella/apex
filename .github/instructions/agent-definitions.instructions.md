@@ -131,7 +131,7 @@ Current model assignments:
 ### Top-Level Agents
 
 Top-level agents live in `.github/agents/` and are `user-invocable: true`. They correspond to
-the 7-step workflow:
+the multi-step workflow:
 
 | Step | Agent                | File                             |
 | ---- | -------------------- | -------------------------------- |

@@ -2,19 +2,21 @@
 
 # Azure Deploy (Minimal)
 
-**Triggers**: 
+**Triggers**:
 Activate this skill when user wants to:
 
-**Rules**: 
+**Rules**:
 1. Run after azure-prepare and azure-validate
 
-**Steps**: 
+**Steps**:
 
-**SDK Quick References**: 
+**SDK Quick References**:
 
-**MCP Tools**: 
+**MCP Tools**:
 
-**References**: 
+**References**:
 
+**Reference Index**:
+Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

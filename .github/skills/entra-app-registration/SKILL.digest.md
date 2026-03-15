@@ -15,7 +15,6 @@ Microsoft Entra ID (formerly Azure Active Directory) is Microsoft's cloud-based 
 | **App Registration** | Configuration that allows an app to use Microsoft identity platform |
 | **Application (Client) ID** | Unique identifier for your application |
 | **Tenant ID** | Unique identifier for your Azure AD tenant/directory |
-| **Client Secret** | Password for the application (confidential clients only) |
 
 > _See SKILL.md for full content._
 
@@ -31,7 +30,6 @@ Create an app registration in the Azure portal or using Azure CLI.
 3. Provide name, supported account types, and redirect URI
 4. Click "Register"
 
-
 > _See SKILL.md for full content._
 
 ## Common Patterns
@@ -46,7 +44,6 @@ Walk user through their first app registration step-by-step.
 - Redirect URIs (if applicable)
 - Required permissions
 
-
 > _See SKILL.md for full content._
 
 ## MCP Tools and CLI
@@ -60,7 +57,6 @@ Walk user through their first app registration step-by-step.
 | `az ad app show` | Show app details |
 | `az ad app permission add` | Add API permission |
 | `az ad app credential reset` | Generate new client secret |
-| `az ad sp create` | Create service principal |
 
 > _See SKILL.md for full content._
 
@@ -75,7 +71,6 @@ Walk user through their first app registration step-by-step.
 | **Enable MFA** | Require multi-factor authentication for users |
 | **Use managed identity** | For Azure-hosted apps, avoid secrets entirely |
 | **Validate tokens** | Always validate issuer, audience, expiration |
-| **Use HTTPS only** | All redirect URIs must use HTTPS (except localhost) |
 
 > _See SKILL.md for full content._
 
@@ -84,7 +79,6 @@ Walk user through their first app registration step-by-step.
 - **Azure Identity**: [Python](references/sdk/azure-identity-py.md) | [.NET](references/sdk/azure-identity-dotnet.md) | [TypeScript](references/sdk/azure-identity-ts.md) | [Java](references/sdk/azure-identity-java.md) | [Rust](references/sdk/azure-identity-rust.md)
 - **Key Vault (secrets)**: [Python](references/sdk/azure-keyvault-py.md) | [TypeScript](references/sdk/azure-keyvault-secrets-ts.md)
 - **Auth Events**: [.NET](references/sdk/microsoft-azure-webjobs-extensions-authentication-events-dotnet.md)
-
 
 ## References
 
@@ -95,7 +89,6 @@ Walk user through their first app registration step-by-step.
 - [API Permissions](references/api-permissions.md) - Understanding and configuring permissions
 - [Troubleshooting](references/troubleshooting.md) - Common issues and solutions
 
-
 ## External Resources
 
 - [Microsoft Identity Platform Documentation](https://learn.microsoft.com/entra/identity-platform/)
@@ -103,3 +96,16 @@ Walk user through their first app registration step-by-step.
 - [MSAL Documentation](https://learn.microsoft.com/entra/msal/)
 - [Microsoft Graph API](https://learn.microsoft.com/graph/)
 
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/api-permissions.md` | Api Permissions |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/cli-commands.md` | Cli Commands |
+| `references/console-app-example.md` | Console App Example |
+| `references/first-app-registration.md` | First App Registration |
+
+> _See SKILL.md for full content._

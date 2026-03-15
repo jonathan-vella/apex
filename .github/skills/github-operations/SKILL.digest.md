@@ -31,7 +31,6 @@ Follow this protocol for every GitHub task:
 | `mcp_github_search_issues`     | Search issues          |
 | `mcp_github_add_issue_comment` | Add comments           |
 
-
 > _See SKILL.md for full content._
 
 ## Pull Requests (MCP Tools)
@@ -76,7 +75,6 @@ Follow this protocol for every GitHub task:
 
 ---
 
-
 ## DO / DON'T
 
 - **DO**: Use MCP tools first for issues and PRs
@@ -99,14 +97,12 @@ Follow this protocol for every GitHub task:
 - GraphQL API: https://docs.github.com/en/graphql
 - Commit conventions: `.github/skills/git-commit/SKILL.md`
 
-
 ## Reference Index
 
 | Reference     | File                              | Content                                      |
 | ------------- | --------------------------------- | -------------------------------------------- |
 | Smart PR Flow | `references/smart-pr-flow.md`     | PR lifecycle states, auto-labels, auto-merge |
 | CLI Commands  | `references/detailed-commands.md` | Repos, Actions, Releases, Secrets, API, Auth |
-
 
 ## Smart PR Flow
 

@@ -7,9 +7,9 @@
 
 1. Enable subagents: `"github.copilot.chat": { "customAgentInSubagent": { "enabled": true } }`
 2. Open Chat (`Ctrl+Shift+I`) → Select **InfraOps Conductor** → Describe your project
-3. The Conductor guides you through all 7 steps with approval gates
+3. The Conductor guides you through all steps with approval gates
 
-## 7-Step Workflow
+## Multi-Step Workflow
 
 | Step | Agent                                                                      | Output                                                                                       | Review | Gate       |
 | ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------ | ---------- |

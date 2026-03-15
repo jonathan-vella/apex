@@ -43,7 +43,6 @@ For the full Bicep + Terraform AVM module registry, read
 
 ---
 
-
 ## Template-First Output Rules
 
 | Rule         | Requirement                                    |
@@ -68,7 +67,6 @@ For the full Bicep + Terraform AVM module registry, read
 - [ ] Region defaults correct
 
 ---
-
 
 ## Reference Index
 

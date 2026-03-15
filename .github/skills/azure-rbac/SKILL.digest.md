@@ -11,4 +11,3 @@ To assign RBAC roles to identities, you need a role that includes the `Microsoft
 - **User Access Administrator** (least privilege - recommended for role assignment only)
 - **Owner** (full access including role assignment)
 - **Custom Role** with `Microsoft.Authorization/roleAssignments/write`
-

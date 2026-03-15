@@ -20,6 +20,7 @@ The workflow is a Directed Acyclic Graph (DAG) with:
 | Concept     | Description                                                     |
 | ----------- | --------------------------------------------------------------- |
 | **Node**    | A unit of work (agent step, gate, validation, or fan-out)       |
+| **Edge**    | A dependency between nodes with a condition                     |
 
 > _See SKILL.md for full content._
 
@@ -32,11 +33,14 @@ The full machine-readable DAG is in:
 
 ```text
 1. Load workflow-graph.json
+2. Read 00-session-state.json → current_step
 
 > _See SKILL.md for full content._
 
 ## Reference Index
 
-| Reference      | File                            | Content                      |
-| -------------- | ------------------------------- | ---------------------------- |
-| Workflow Graph | `templates/workflow-graph.json` | Full DAG for 7-step workflow |
+| Reference            | File                                    | Content                                             |
+| -------------------- | --------------------------------------- | --------------------------------------------------- |
+| Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for the multi-step workflow                |
+| Conductor Handoff    | `references/conductor-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
+| Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |

@@ -19,4 +19,6 @@ After each workflow step, validate before proceeding:
 
 **Tool Usage Conventions**:
 
+**References**:
+
 Read `SKILL.md` or `SKILL.digest.md` for full content.

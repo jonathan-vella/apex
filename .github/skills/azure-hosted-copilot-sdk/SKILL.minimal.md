@@ -2,13 +2,15 @@
 
 # GitHub Copilot SDK on Azure (Minimal)
 
-**Step 1: Route**: 
+**Step 1: Route**:
 
-**Step 2A: Scaffold New (Greenfield)**: 
+**Step 2A: Scaffold New (Greenfield)**:
 `azd init --template azure-samples/copilot-sdk-service`
 
-**Step 2B: Add SDK Service to Existing Repo**: 
+**Step 2B: Add SDK Service to Existing Repo**:
 User has existing code and wants a new Copilot SDK service alongside it. Scaffold template to a temp dir, copy the API s
 
+**Step 2C: Deploy Existing SDK App**:
+User already has a working Copilot SDK app and needs Azure infra. See [deploy existing ref](references/deploy-existing.m
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

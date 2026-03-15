@@ -3,7 +3,7 @@
 > Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
 
 A multi-agent orchestration system for Azure infrastructure development.
-Specialized AI agents collaborate through a structured 7-step workflow:
+Specialized AI agents collaborate through a structured multi-step workflow:
 **Requirements → Architecture → Design → Governance → Plan → Code → Deploy → Documentation**.
 
 ## Setup Commands
@@ -170,7 +170,7 @@ Always run `npm run lint:md` and relevant validations before committing.
 
 ```text
 .github/
-  agents/              # Agent definitions (*.agent.md) — 16 top-level + 11 subagents
+  agents/              # Agent definitions (*.agent.md) — top-level + subagents
     _subagents/        # Subagent definitions (non-user-invocable)
   skills/              # Reusable domain knowledge (SKILL.md per skill)
     workflow-engine/   # DAG model, workflow-graph.json
@@ -187,13 +187,13 @@ infra/
   terraform/{project}/ # Terraform configurations (main.tf + modules/)
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)
-scripts/               # Validation and maintenance scripts (Node.js) — 27 validators
+scripts/               # Validation and maintenance scripts (Node.js)
 docs/                  # User-facing documentation
 .vscode/
   mcp.json             # MCP server configuration (github, azure-pricing, terraform)
 ```
 
-### Agent Workflow (7 Steps)
+### Agent Workflow
 
 | Step | Phase        | Output                                                   | Review |
 | ---- | ------------ | -------------------------------------------------------- | ------ |

@@ -10,7 +10,7 @@ toc_depth: 2
 
 # :material-chart-timeline-variant: Agent and Skill Workflow
 
-The 8-step infrastructure development workflow.
+The multi-step infrastructure development workflow.
 
 ## :material-eye-outline: Overview
 
@@ -28,7 +28,7 @@ while enforcing mandatory approval gates.
 !!! tip "Quick Start"
 
     Press ++ctrl+shift+i++ to open Copilot Chat, select **InfraOps Conductor**, and
-    describe your project. The Conductor handles all 8 steps with approval gates.
+    describe your project. The Conductor handles all steps with approval gates.
 
 ### Formalized Workflow Engine
 
@@ -215,9 +215,9 @@ graph TB
 
 ### Primary Orchestrator
 
-| Agent                  | Codename   | Role                                    | Model                |
-| ---------------------- | ---------- | --------------------------------------- | -------------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 8-step workflow | Claude Opus (latest) |
+| Agent                  | Codename   | Role                                        | Model                |
+| ---------------------- | ---------- | ------------------------------------------- | -------------------- |
+| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for multi-step workflow | Claude Opus (latest) |
 
 ### Core Agents (8 Steps)
 
@@ -537,7 +537,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 ```text
 1. Ctrl+Shift+I → Select "InfraOps Conductor"
 2. Describe your infrastructure project
-3. Follow guided workflow through all 8 steps with approval gates
+3. Follow guided workflow through all steps with approval gates
 ```
 
 ### Direct Agent Invocation

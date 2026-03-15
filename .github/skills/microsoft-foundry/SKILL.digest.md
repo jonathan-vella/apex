@@ -51,3 +51,13 @@ After each workflow step, validate before proceeding:
 |------|------|-------------|
 | **Prompt** | `"prompt"` | LLM-based, backed by model deployment |
 | **Hosted** | `"hosted"` | Container-based, running custom code |
+
+## Agent: Setup Types
+
+| Setup | Capability Host | Description |
+|-------|----------------|-------------|
+| **Basic** | None | Default. All resources Microsoft-managed. |
+| **Standard** | Azure AI Services | Bring-your-own storage and search (public network). See [standard-agent-setup](references/standard-agent-setup.md). |
+| **Standard + Private Network** | Azure AI Services | Standard setup with VNet isolation and private endpoints. See [private-network-standard-agent-setup](references/private-network-standard-agent-setup.md). |
+
+> _See SKILL.md for full content._

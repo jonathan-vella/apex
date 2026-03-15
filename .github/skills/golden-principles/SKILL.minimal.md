@@ -2,11 +2,10 @@
 
 # Golden Principles (Minimal)
 
-**The 10 Principles**: 
+**The 10 Principles**:
 ### 1. Repository Is the System of Record
 
-**How to Apply These Principles**: 
+**How to Apply These Principles**:
 ### For Agents
-
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

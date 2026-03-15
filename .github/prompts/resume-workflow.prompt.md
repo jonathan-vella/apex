@@ -1,12 +1,12 @@
 ---
-description: "Resume the 7-step workflow from where it left off by reading session state and routing to the correct agent."
+description: "Resume the multi-step workflow from where it left off by reading session state and routing to the correct agent."
 agent: "01-Conductor"
 model: "Claude Opus 4.6"
 ---
 
 # Resume Workflow
 
-Resume the 7-step Azure infrastructure workflow from the last checkpoint.
+Resume the multi-step Azure infrastructure workflow from the last checkpoint.
 
 ## Prerequisites
 

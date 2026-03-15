@@ -9,11 +9,11 @@
 ```text
 azure-agentic-infraops/
 ├── .github/
-││   ├── agents/              # 13 agent definitions + 9 subagents
+││   ├── agents/              # Agent definitions + subagents
 ││   │   └── _subagents/      # Validation subagents (lint, what-if, review)
-││   ├── skills/              # 14 skill definitions (incl. docs-writer)
-││   │   └── azure-artifacts/templates/ # 16 artifact templates
-││   ├── instructions/        # 25 file-type instruction files
+││   ├── skills/              # Skill definitions (see count-manifest.json)
+││   │   └── azure-artifacts/templates/ # Artifact templates
+││   ├── instructions/        # File-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
 │   ├── exec-plans/          # Execution plans and tech debt tracker
@@ -136,7 +136,7 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `terraform-code-best-practices.instructions.md` | `**/*.tf`                                               |
 | `workload-documentation` (moved to skill)       | `docs-writer/references/workload-documentation.md`      |
 
-## Artifact Flow (7-Step Workflow)
+## Artifact Flow (Multi-Step Workflow)
 
 ```text
 Step 1          Step 2            Step 3         Step 4
@@ -175,7 +175,7 @@ updating when agents or skills change:
 | -------------------------- | ------------------------------------------------ |
 | `README.md`                | Documentation hub with quick links               |
 | `quickstart.md`            | 10-minute getting started guide                  |
-| `workflow.md`              | Detailed 7-step workflow reference               |
+| `workflow.md`              | Detailed multi-step workflow reference           |
 | `troubleshooting.md`       | Common issues and fixes                          |
 | `dev-containers.md`        | Dev container setup                              |
 | `terraform-roadmap.md`     | Future Terraform support plans                   |
@@ -198,7 +198,7 @@ These skills are explicitly referenced in agent body text via mandatory
 
 | Skill               | Referenced By                                          |
 | ------------------- | ------------------------------------------------------ |
-| `azure-defaults`    | all 13 primary agents                                  |
+| `azure-defaults`    | all primary agents                                     |
 | `azure-artifacts`   | requirements, architect, bicep-plan, deploy, conductor |
 | `azure-diagrams`    | design, architect agents                               |
 | `azure-adr`         | design agent                                           |
