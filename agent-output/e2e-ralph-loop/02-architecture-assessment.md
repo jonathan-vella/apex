@@ -28,7 +28,7 @@
 
 | Requirement Area        | Status     | Validation Notes                                                        |
 | ----------------------- | ---------- | ----------------------------------------------------------------------- |
-| NFRs (SLA, RTO, RPO)    | ✅ Defined | SLA 99.9%, RTO 24h, RPO 24h — relaxed recovery objectives for MVP      |
+| NFRs (SLA, RTO, RPO)    | ✅ Defined | SLA 99.9%, RTO 24h, RPO 24h — relaxed recovery objectives for MVP       |
 | Compliance requirements | ✅ Defined | GDPR applicable — EU data residency, Article 17 erasure support         |
 | Budget (approximate)    | ✅ Defined | <€500/month hard cap                                                    |
 | Scale requirements      | ✅ Defined | ~500 users, ~50 orders/day, <50 concurrent users                        |
@@ -88,10 +88,10 @@ flowchart TB
 
 | Pillar                    | Score | Confidence | Summary                                                              |
 | ------------------------- | ----- | ---------- | -------------------------------------------------------------------- |
-| 🔒 Security               | 8/10  | High       | Strong security posture with MI, TLS 1.2, firewall rules, AD-only   |
+| 🔒 Security               | 8/10  | High       | Strong security posture with MI, TLS 1.2, firewall rules, AD-only    |
 | 🔄 Reliability            | 6/10  | Medium     | Single-region, basic tier, relaxed RTO/RPO — acceptable for MVP      |
 | ⚡ Performance            | 6/10  | Medium     | Budget-tier SKUs sufficient for <50 concurrent users, limited growth |
-| 💰 Cost Optimization      | 9/10  | High       | ~€16/month against €500 cap — 97% budget headroom                   |
+| 💰 Cost Optimization      | 9/10  | High       | ~€16/month against €500 cap — 97% budget headroom                    |
 | 🔧 Operational Excellence | 6/10  | Medium     | Monitoring in place but no automation, runbooks, or staging env      |
 
 **Primary Pillar Optimized**: 💰 Cost Optimization
@@ -180,16 +180,16 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 
 ### 💰 Cost Assessment (9/10)
 
-| Service                | SKU                | Monthly Cost (EUR) | Notes                                  |
-| ---------------------- | ------------------ | -----------------: | -------------------------------------- |
-| App Service Plan       | B1 Linux           |             €11.17 | €0.0153/hr × 730 hrs                   |
-| Azure SQL Database     | Basic (5 DTU)      |              €4.15 | €0.1364/day × 30.44 days               |
-| Storage Account        | Standard LRS (Hot) |              €0.16 | ~10 GB @ €0.0156/GB/month              |
-| Key Vault              | Standard           |              €0.10 | ~1K ops/month @ €0.0254/10K            |
-| Log Analytics          | Pay-as-you-go      |              €0.00 | ~2 GB/month within 5 GB free tier      |
-| Application Insights   | Workspace-based    |              €0.00 | Data ingestion included in LA free tier |
-| SQL PITR Backup        | LRS                |              €0.10 | ~1 GB @ €0.1008/GB/month               |
-| **Total Estimated**    |                    |         **€15.68** | **97% under €500 budget cap**          |
+| Service              | SKU                | Monthly Cost (EUR) | Notes                                   |
+| -------------------- | ------------------ | -----------------: | --------------------------------------- |
+| App Service Plan     | B1 Linux           |             €11.17 | €0.0153/hr × 730 hrs                    |
+| Azure SQL Database   | Basic (5 DTU)      |              €4.15 | €0.1364/day × 30.44 days                |
+| Storage Account      | Standard LRS (Hot) |              €0.16 | ~10 GB @ €0.0156/GB/month               |
+| Key Vault            | Standard           |              €0.10 | ~1K ops/month @ €0.0254/10K             |
+| Log Analytics        | Pay-as-you-go      |              €0.00 | ~2 GB/month within 5 GB free tier       |
+| Application Insights | Workspace-based    |              €0.00 | Data ingestion included in LA free tier |
+| SQL PITR Backup      | LRS                |              €0.10 | ~1 GB @ €0.1008/GB/month                |
+| **Total Estimated**  |                    |         **€15.68** | **97% under €500 budget cap**           |
 
 **Cost Optimization Applied:**
 
@@ -229,23 +229,23 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 
 ## 📦 Resource SKU Recommendations
 
-| Service              | Recommended SKU    | Configuration                    | Monthly Est. | Justification                                    |
-| -------------------- | ------------------ | -------------------------------- | ------------ | ------------------------------------------------ |
-| App Service Plan     | B1 Linux           | 1 core, 1.75 GB RAM, 10 GB disk | €11.17       | Minimum paid tier, sufficient for <50 users       |
-| Azure SQL Database   | Basic (5 DTU)      | 2 GB max size, 7-day PITR       | €4.15        | Minimum DTU tier, sufficient for 50 orders/day    |
-| Storage Account      | Standard LRS (Hot) | GPv2, HTTPS-only, no public blob | €0.16        | Lowest-cost blob storage for ~10 GB               |
-| Key Vault            | Standard           | Software-backed keys, RBAC       | €0.10        | Standard sufficient for non-HSM requirements      |
-| Log Analytics        | Pay-as-you-go      | 5 GB/month free tier, 30-day ret | €0.00        | Free tier covers ~2 GB/month telemetry            |
-| Application Insights | Workspace-based    | Connected to Log Analytics       | €0.00        | Included with LA workspace ingestion              |
+| Service              | Recommended SKU    | Configuration                    | Monthly Est. | Justification                                  |
+| -------------------- | ------------------ | -------------------------------- | ------------ | ---------------------------------------------- |
+| App Service Plan     | B1 Linux           | 1 core, 1.75 GB RAM, 10 GB disk  | €11.17       | Minimum paid tier, sufficient for <50 users    |
+| Azure SQL Database   | Basic (5 DTU)      | 2 GB max size, 7-day PITR        | €4.15        | Minimum DTU tier, sufficient for 50 orders/day |
+| Storage Account      | Standard LRS (Hot) | GPv2, HTTPS-only, no public blob | €0.16        | Lowest-cost blob storage for ~10 GB            |
+| Key Vault            | Standard           | Software-backed keys, RBAC       | €0.10        | Standard sufficient for non-HSM requirements   |
+| Log Analytics        | Pay-as-you-go      | 5 GB/month free tier, 30-day ret | €0.00        | Free tier covers ~2 GB/month telemetry         |
+| Application Insights | Workspace-based    | Connected to Log Analytics       | €0.00        | Included with LA workspace ingestion           |
 
 <details>
 <summary><strong>App Service Plan</strong> — Pricing Tier Comparison</summary>
 
-| Tier       | vCPU | RAM     | Price/mo (EUR) | Fits?  |
-| ---------- | ---- | ------- | -------------- | ------ |
-| Free (F1)  | —    | 1 GB    | €0.00          | ❌ No custom domain, 60min/day CPU limit |
-| Basic (B1) | 1    | 1.75 GB | €11.17         | ✅ Custom domain, always-on, SSL        |
-| Standard (S1) | 1 | 1.75 GB | €62.05         | ⚠️ Auto-scale, staging — overkill for MVP |
+| Tier          | vCPU | RAM     | Price/mo (EUR) | Fits?                                     |
+| ------------- | ---- | ------- | -------------- | ----------------------------------------- |
+| Free (F1)     | —    | 1 GB    | €0.00          | ❌ No custom domain, 60min/day CPU limit  |
+| Basic (B1)    | 1    | 1.75 GB | €11.17         | ✅ Custom domain, always-on, SSL          |
+| Standard (S1) | 1    | 1.75 GB | €62.05         | ⚠️ Auto-scale, staging — overkill for MVP |
 
 **Selected**: B1 — Cheapest tier with custom domain support, always-on, and SSL. Upgrade path to S1 available when auto-scale is needed.
 
@@ -254,11 +254,11 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 <details>
 <summary><strong>Azure SQL Database</strong> — Pricing Tier Comparison</summary>
 
-| Tier         | Capacity | Price/mo (EUR) | Fits?  |
-| ------------ | -------- | -------------- | ------ |
-| Basic (5 DTU) | 2 GB    | €4.15          | ✅ Sufficient for 50 orders/day              |
-| S0 (10 DTU)  | 250 GB   | €12.45         | ⚠️ More DTU headroom, needed at ~200 orders/day |
-| S1 (20 DTU)  | 250 GB   | €24.91         | ❌ Overkill for current workload              |
+| Tier          | Capacity | Price/mo (EUR) | Fits?                                           |
+| ------------- | -------- | -------------- | ----------------------------------------------- |
+| Basic (5 DTU) | 2 GB     | €4.15          | ✅ Sufficient for 50 orders/day                 |
+| S0 (10 DTU)   | 250 GB   | €12.45         | ⚠️ More DTU headroom, needed at ~200 orders/day |
+| S1 (20 DTU)   | 250 GB   | €24.91         | ❌ Overkill for current workload                |
 
 **Selected**: Basic (5 DTU) — Minimum cost tier, 2 GB max sufficient for startup. Upgrade to S0 when transaction volume exceeds 200/day.
 
@@ -268,18 +268,18 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 
 ## 🎯 Architecture Decision Summary
 
-| Decision                        | Choice                    | Rationale                                                          |
-| ------------------------------- | ------------------------- | ------------------------------------------------------------------ |
-| Compute tier                    | App Service B1 Linux      | Minimum paid tier supporting custom domains and SSL                |
-| Database tier                   | SQL Basic (5 DTU)         | Lowest cost DTU model, sufficient for 50 orders/day                |
-| Storage redundancy              | LRS (locally redundant)   | No cross-region DR requirement; lowest cost                        |
-| Authentication                  | Managed Identity + Entra  | Zero-credential architecture; GDPR-aligned                         |
-| Private endpoints               | Not included              | Complexity budget: simple tier; firewall rules provide network isolation |
-| VNet integration                | Not included              | Not required at current scale; adds cost and complexity             |
-| Monitoring stack                | LA + App Insights         | Free tier covers expected telemetry volume                         |
-| Secrets management              | Key Vault Standard        | Software-backed keys sufficient; HSM not required                  |
-| Region                          | swedencentral             | EU GDPR compliance, data residency requirement                     |
-| IaC tool                        | Bicep                     | Native Azure tooling, AVM module support, azd integration          |
+| Decision           | Choice                   | Rationale                                                                |
+| ------------------ | ------------------------ | ------------------------------------------------------------------------ |
+| Compute tier       | App Service B1 Linux     | Minimum paid tier supporting custom domains and SSL                      |
+| Database tier      | SQL Basic (5 DTU)        | Lowest cost DTU model, sufficient for 50 orders/day                      |
+| Storage redundancy | LRS (locally redundant)  | No cross-region DR requirement; lowest cost                              |
+| Authentication     | Managed Identity + Entra | Zero-credential architecture; GDPR-aligned                               |
+| Private endpoints  | Not included             | Complexity budget: simple tier; firewall rules provide network isolation |
+| VNet integration   | Not included             | Not required at current scale; adds cost and complexity                  |
+| Monitoring stack   | LA + App Insights        | Free tier covers expected telemetry volume                               |
+| Secrets management | Key Vault Standard       | Software-backed keys sufficient; HSM not required                        |
+| Region             | swedencentral            | EU GDPR compliance, data residency requirement                           |
+| IaC tool           | Bicep                    | Native Azure tooling, AVM module support, azd integration                |
 
 ---
 
@@ -289,49 +289,49 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 
 The architecture is approved for implementation with the following key parameters:
 
-| Parameter      | Value                                  |
-| -------------- | -------------------------------------- |
-| Region         | swedencentral                          |
-| Environment    | prod                                   |
-| Budget         | €500/month (estimated: €15.68/month)   |
-| Resource Count | 6 (+ supporting resources)             |
+| Parameter      | Value                                |
+| -------------- | ------------------------------------ |
+| Region         | swedencentral                        |
+| Environment    | prod                                 |
+| Budget         | €500/month (estimated: €15.68/month) |
+| Resource Count | 6 (+ supporting resources)           |
 
 ### Resources to Provision
 
-| #   | Resource           | SKU                | Key Config                                               |
-| --- | ------------------ | ------------------ | -------------------------------------------------------- |
-| 1   | Resource Group     | —                  | `rg-e2e-ralph-loop-prod`                                 |
-| 2   | App Service Plan   | B1 Linux           | Always-on, HTTPS-only, TLS 1.2                           |
-| 3   | App Service        | —                  | Managed Identity, health check endpoint                   |
-| 4   | Azure SQL Server   | —                  | Azure AD-only auth, firewall rules for App Service IPs   |
-| 5   | Azure SQL Database | Basic (5 DTU)      | 2 GB max, 7-day PITR, TDE enabled                        |
-| 6   | Storage Account    | Standard LRS (Hot) | GPv2, HTTPS-only, no public blob, firewall rules          |
-| 7   | Key Vault          | Standard           | RBAC access, soft delete, purge protection                |
-| 8   | Log Analytics      | Pay-as-you-go      | 30-day retention, 5 GB free tier                          |
-| 9   | Application Insights | Workspace-based  | Connected to Log Analytics workspace                      |
+| #   | Resource             | SKU                | Key Config                                             |
+| --- | -------------------- | ------------------ | ------------------------------------------------------ |
+| 1   | Resource Group       | —                  | `rg-e2e-ralph-loop-prod`                               |
+| 2   | App Service Plan     | B1 Linux           | Always-on, HTTPS-only, TLS 1.2                         |
+| 3   | App Service          | —                  | Managed Identity, health check endpoint                |
+| 4   | Azure SQL Server     | —                  | Azure AD-only auth, firewall rules for App Service IPs |
+| 5   | Azure SQL Database   | Basic (5 DTU)      | 2 GB max, 7-day PITR, TDE enabled                      |
+| 6   | Storage Account      | Standard LRS (Hot) | GPv2, HTTPS-only, no public blob, firewall rules       |
+| 7   | Key Vault            | Standard           | RBAC access, soft delete, purge protection             |
+| 8   | Log Analytics        | Pay-as-you-go      | 30-day retention, 5 GB free tier                       |
+| 9   | Application Insights | Workspace-based    | Connected to Log Analytics workspace                   |
 
 ### Security Requirements for Implementation
 
-| Requirement                  | Implementation                                                        |
-| ---------------------------- | --------------------------------------------------------------------- |
-| Managed Identity             | System-assigned MI on App Service; RBAC roles to SQL, Storage, KV     |
-| TLS 1.2 minimum              | `minTlsVersion: '1.2'` on App Service, Storage, SQL                   |
-| HTTPS-only                   | `httpsOnly: true` on App Service; `supportsHttpsTrafficOnly: true`    |
-| No public blob access        | `allowBlobPublicAccess: false` on Storage Account                     |
-| Azure AD-only SQL auth       | `azureADOnlyAuthentication: true` on SQL Server                       |
-| SQL firewall rules           | Allow App Service outbound IPs only                                   |
-| Storage firewall             | Default action: Deny; allow Azure trusted services                    |
-| Key Vault soft delete        | `enableSoftDelete: true`, `enablePurgeProtection: true`               |
-| Required tags                | Environment=prod, ManagedBy=Bicep, Project=e2e-ralph-loop, Owner=E2E  |
+| Requirement            | Implementation                                                       |
+| ---------------------- | -------------------------------------------------------------------- |
+| Managed Identity       | System-assigned MI on App Service; RBAC roles to SQL, Storage, KV    |
+| TLS 1.2 minimum        | `minTlsVersion: '1.2'` on App Service, Storage, SQL                  |
+| HTTPS-only             | `httpsOnly: true` on App Service; `supportsHttpsTrafficOnly: true`   |
+| No public blob access  | `allowBlobPublicAccess: false` on Storage Account                    |
+| Azure AD-only SQL auth | `azureADOnlyAuthentication: true` on SQL Server                      |
+| SQL firewall rules     | Allow App Service outbound IPs only                                  |
+| Storage firewall       | Default action: Deny; allow Azure trusted services                   |
+| Key Vault soft delete  | `enableSoftDelete: true`, `enablePurgeProtection: true`              |
+| Required tags          | Environment=prod, ManagedBy=Bicep, Project=e2e-ralph-loop, Owner=E2E |
 
 ### Monitoring Requirements for Implementation
 
-| Requirement                  | Implementation                                                        |
-| ---------------------------- | --------------------------------------------------------------------- |
-| Application performance      | Application Insights SDK in App Service, connected to LA workspace    |
-| Infrastructure metrics       | Azure Monitor diagnostic settings on all resources → LA workspace     |
-| Alerting                     | CPU >80%, response time p95 >500ms, SQL DTU >80%, 5xx error rate     |
-| GDPR audit logging           | Key Vault audit logs and SQL audit logs → Log Analytics               |
+| Requirement             | Implementation                                                     |
+| ----------------------- | ------------------------------------------------------------------ |
+| Application performance | Application Insights SDK in App Service, connected to LA workspace |
+| Infrastructure metrics  | Azure Monitor diagnostic settings on all resources → LA workspace  |
+| Alerting                | CPU >80%, response time p95 >500ms, SQL DTU >80%, 5xx error rate   |
+| GDPR audit logging      | Key Vault audit logs and SQL audit logs → Log Analytics            |
 
 ---
 
@@ -353,8 +353,8 @@ The architecture is approved for implementation with the following key parameter
 > **Confidence Level**: High
 >
 > - [ ] **Approved** — proceed to Bicep Planner
-> - Approver: ___
-> - Date: ___
+> - Approver: \_\_\_
+> - Date: \_\_\_
 >
 > Reply **"approve"** to proceed to Bicep Planner, or provide feedback for revisions.
 

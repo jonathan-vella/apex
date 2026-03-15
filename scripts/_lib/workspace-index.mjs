@@ -31,14 +31,23 @@ let _instructions = null;
 export function getAgents() {
   if (_agents) return _agents;
   _agents = new Map();
-  for (const [dir, isSubagent] of [[AGENTS_DIR, false], [SUBAGENTS_DIR, true]]) {
+  for (const [dir, isSubagent] of [
+    [AGENTS_DIR, false],
+    [SUBAGENTS_DIR, true],
+  ]) {
     if (!fs.existsSync(dir)) continue;
     for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith(".agent.md")) continue;
       const filePath = path.join(dir, file);
       const content = fs.readFileSync(filePath, "utf-8");
       const frontmatter = parseFrontmatter(content);
-      _agents.set(file, { path: filePath, dir, content, frontmatter, isSubagent });
+      _agents.set(file, {
+        path: filePath,
+        dir,
+        content,
+        frontmatter,
+        isSubagent,
+      });
     }
   }
   return _agents;
@@ -78,7 +87,13 @@ export function getSkills() {
     const refFiles = hasRefs
       ? fs.readdirSync(refsDir).filter((f) => f.endsWith(".md"))
       : [];
-    _skills.set(entry.name, { dir: skillDir, content, frontmatter, hasRefs, refFiles });
+    _skills.set(entry.name, {
+      dir: skillDir,
+      content,
+      frontmatter,
+      hasRefs,
+      refFiles,
+    });
   }
   return _skills;
 }
@@ -97,7 +112,10 @@ export function getInstructions() {
   if (_instructions) return _instructions;
   _instructions = new Map();
   if (!fs.existsSync(INSTRUCTIONS_DIR)) return _instructions;
-  for (const entry of fs.readdirSync(INSTRUCTIONS_DIR, { withFileTypes: true, recursive: true })) {
+  for (const entry of fs.readdirSync(INSTRUCTIONS_DIR, {
+    withFileTypes: true,
+    recursive: true,
+  })) {
     if (!entry.isFile() || !entry.name.endsWith(".instructions.md")) continue;
     const filePath = path.join(entry.parentPath || entry.path, entry.name);
     const content = fs.readFileSync(filePath, "utf-8");

@@ -97,7 +97,16 @@
       "sub_step": "phase_5_artifact",
       "started": "2026-03-15T00:03:00Z",
       "completed": "2026-03-15T19:59:00Z",
-      "artifacts": ["02-architecture-assessment.md", "03-des-cost-estimate.md", "02-waf-scores.py", "02-waf-scores.png", "03-des-cost-distribution.py", "03-des-cost-distribution.png", "03-des-cost-projection.py", "03-des-cost-projection.png"],
+      "artifacts": [
+        "02-architecture-assessment.md",
+        "03-des-cost-estimate.md",
+        "02-waf-scores.py",
+        "02-waf-scores.png",
+        "03-des-cost-distribution.py",
+        "03-des-cost-distribution.png",
+        "03-des-cost-projection.py",
+        "03-des-cost-projection.png"
+      ],
       "context_files_used": ["01-requirements.md"]
     },
     "3": {

@@ -41,8 +41,8 @@
 > Budget: €500/month (hard) | Utilization: 3% (€15.68 of €500)
 > ```
 >
-> | Status            | Indicator                           |
-> | ----------------- | ----------------------------------- |
+> | Status            | Indicator                            |
+> | ----------------- | ------------------------------------ |
 > | Cost Trend        | ➡️ Stable (fixed SKUs, no autoscale) |
 > | Savings Available | 💰 Minimal — already at lowest tiers |
 > | Compliance        | ✅ GDPR-aligned (swedencentral)      |
@@ -57,25 +57,25 @@
 
 ## 🔁 Requirements → Cost Mapping
 
-| Requirement                    | Architecture Decision         | Cost Impact    | Mandatory |
-| ------------------------------ | ----------------------------- | -------------- | --------- |
-| SLA 99.9%, RTO/RPO 24h        | Single-region, Basic tiers    | Base cost only | Yes       |
-| GDPR EU data residency         | swedencentral region          | +€0/month      | Yes       |
-| GDPR Article 17 erasure        | SQL stored procedure + ops    | +€0/month      | Yes       |
-| <50 concurrent users           | B1 App Service (1 core)       | €11.17/month   | Yes       |
-| ~50 orders/day                 | SQL Basic (5 DTU)             | €4.15/month    | Yes       |
-| Managed Identity               | System-assigned MI            | +€0/month      | Yes       |
-| Monitoring                     | LA + App Insights (free tier) | €0.00/month    | Yes       |
+| Requirement             | Architecture Decision         | Cost Impact    | Mandatory |
+| ----------------------- | ----------------------------- | -------------- | --------- |
+| SLA 99.9%, RTO/RPO 24h  | Single-region, Basic tiers    | Base cost only | Yes       |
+| GDPR EU data residency  | swedencentral region          | +€0/month      | Yes       |
+| GDPR Article 17 erasure | SQL stored procedure + ops    | +€0/month      | Yes       |
+| <50 concurrent users    | B1 App Service (1 core)       | €11.17/month   | Yes       |
+| ~50 orders/day          | SQL Basic (5 DTU)             | €4.15/month    | Yes       |
+| Managed Identity        | System-assigned MI            | +€0/month      | Yes       |
+| Monitoring              | LA + App Insights (free tier) | €0.00/month    | Yes       |
 
 ## 📊 Top 5 Cost Drivers
 
-| Rank | Resource              | Monthly Cost | % of Total | Trend | Optimization           |
-| ---- | --------------------- | ------------ | ---------- | ----- | ---------------------- |
-| 1️⃣   | App Service Plan B1   | €11.17       | 71.2%      | ➡️    | Already at lowest tier  |
-| 2️⃣   | Azure SQL Basic       | €4.15        | 26.5%      | ➡️    | Already at lowest tier  |
-| 3️⃣   | Storage Account LRS   | €0.16        | 1.0%       | ➡️    | Hot tier appropriate    |
-| 4️⃣   | Key Vault Standard    | €0.10        | 0.6%       | ➡️    | Negligible cost         |
-| 5️⃣   | SQL PITR Backup       | €0.10        | 0.6%       | ➡️    | Included with SQL Basic |
+| Rank | Resource            | Monthly Cost | % of Total | Trend | Optimization            |
+| ---- | ------------------- | ------------ | ---------- | ----- | ----------------------- |
+| 1️⃣   | App Service Plan B1 | €11.17       | 71.2%      | ➡️    | Already at lowest tier  |
+| 2️⃣   | Azure SQL Basic     | €4.15        | 26.5%      | ➡️    | Already at lowest tier  |
+| 3️⃣   | Storage Account LRS | €0.16        | 1.0%       | ➡️    | Hot tier appropriate    |
+| 4️⃣   | Key Vault Standard  | €0.10        | 0.6%       | ➡️    | Negligible cost         |
+| 5️⃣   | SQL PITR Backup     | €0.10        | 0.6%       | ➡️    | Included with SQL Basic |
 
 > 💡 **Quick Win**: Cost is already optimized at ~€16/month. The primary optimization is to monitor for unexpected data growth in Storage or Log Analytics.
 
@@ -84,22 +84,22 @@
 
 #### 1️⃣ App Service Plan (B1 Linux)
 
-| Aspect            | Detail                                   |
-| ----------------- | ---------------------------------------- |
-| Current SKU       | B1 Linux                                 |
-| Monthly Cost      | €11.17                                   |
-| Cost Breakdown    | Compute: €11.17 (flat hourly rate)        |
-| Optimization      | No further optimization without downgrade |
+| Aspect            | Detail                                                         |
+| ----------------- | -------------------------------------------------------------- |
+| Current SKU       | B1 Linux                                                       |
+| Monthly Cost      | €11.17                                                         |
+| Cost Breakdown    | Compute: €11.17 (flat hourly rate)                             |
+| Optimization      | No further optimization without downgrade                      |
 | Potential Savings | F1 (Free) saves €11.17 but loses custom domain, SSL, always-on |
 
 #### 2️⃣ Azure SQL Database (Basic 5 DTU)
 
-| Aspect            | Detail                                   |
-| ----------------- | ---------------------------------------- |
-| Current SKU       | Basic (5 DTU, 2 GB)                      |
-| Monthly Cost      | €4.15                                    |
-| Optimization      | No lower tier available                  |
-| Potential Savings | None — this is the minimum DTU tier      |
+| Aspect            | Detail                              |
+| ----------------- | ----------------------------------- |
+| Current SKU       | Basic (5 DTU, 2 GB)                 |
+| Monthly Cost      | €4.15                               |
+| Optimization      | No lower tier available             |
+| Potential Savings | None — this is the minimum DTU tier |
 
 </details>
 
@@ -107,11 +107,11 @@
 
 ### Cost Distribution
 
-| Category            | Monthly Cost (EUR) | Share  |
-| ------------------- | -----------------: | -----: |
-| 💻 Compute          |             €11.17 | 71.2%  |
-| 💾 Data Services    |              €4.41 | 28.1%  |
-| 🔑 Security / Mgmt  |              €0.10 | 0.6%   |
+| Category           | Monthly Cost (EUR) | Share |
+| ------------------ | -----------------: | ----: |
+| 💻 Compute         |             €11.17 | 71.2% |
+| 💾 Data Services   |              €4.41 | 28.1% |
+| 🔑 Security / Mgmt |              €0.10 |  0.6% |
 
 ![Monthly Cost Distribution](./03-des-cost-distribution.png)
 
@@ -125,13 +125,13 @@
 
 ### Key Design Decisions Affecting Cost
 
-| Decision                | Cost Impact     | Business Rationale                  | Status   |
-| ----------------------- | --------------- | ----------------------------------- | -------- |
-| B1 vs S1 App Service    | -€50.88/month   | 50 users don't need auto-scale      | Required |
-| Basic vs S0 SQL         | -€8.30/month    | 50 orders/day fits within 5 DTU     | Required |
-| LRS vs GRS Storage      | -€0.07/month    | No cross-region DR requirement      | Required |
-| No private endpoints    | -€7.30/month    | Firewall rules sufficient for MVP   | Optional |
-| No CDN                  | -€0/month       | <500 users, product images via blob  | Optional |
+| Decision             | Cost Impact   | Business Rationale                  | Status   |
+| -------------------- | ------------- | ----------------------------------- | -------- |
+| B1 vs S1 App Service | -€50.88/month | 50 users don't need auto-scale      | Required |
+| Basic vs S0 SQL      | -€8.30/month  | 50 orders/day fits within 5 DTU     | Required |
+| LRS vs GRS Storage   | -€0.07/month  | No cross-region DR requirement      | Required |
+| No private endpoints | -€7.30/month  | Firewall rules sufficient for MVP   | Optional |
+| No CDN               | -€0/month     | <500 users, product images via blob | Optional |
 
 ## 🧾 What We Are Not Paying For (Yet)
 
@@ -153,11 +153,11 @@
 
 ## ⚠️ Cost Risk Indicators
 
-| Resource          | Risk Level | Issue                                                | Mitigation                                        |
-| ----------------- | ---------- | ---------------------------------------------------- | ------------------------------------------------- |
-| Log Analytics     | 🟡 Medium  | Data ingestion exceeding 5 GB free tier → €2.53/GB   | Set daily cap at 5 GB; alert at 4 GB              |
-| Storage Account   | 🟢 Low     | Unexpected blob growth                                | Set budget alert at €5/month for storage           |
-| SQL Database      | 🟢 Low     | Basic tier 2 GB limit could be hit with order volume  | Monitor DB size; plan S0 upgrade at 1.5 GB         |
+| Resource        | Risk Level | Issue                                                | Mitigation                                 |
+| --------------- | ---------- | ---------------------------------------------------- | ------------------------------------------ |
+| Log Analytics   | 🟡 Medium  | Data ingestion exceeding 5 GB free tier → €2.53/GB   | Set daily cap at 5 GB; alert at 4 GB       |
+| Storage Account | 🟢 Low     | Unexpected blob growth                               | Set budget alert at €5/month for storage   |
+| SQL Database    | 🟢 Low     | Basic tier 2 GB limit could be hit with order volume | Monitor DB size; plan S0 upgrade at 1.5 GB |
 
 > **⚠️ Watch Item**: Log Analytics is the only service where unexpected costs could appear. Configure a 5 GB daily cap to stay within the free tier.
 
@@ -165,13 +165,13 @@
 
 _"If you need X, expect to pay Y more"_
 
-| Requirement                | Additional Cost | SKU Change            | Verdict     | Notes                           |
-| -------------------------- | --------------- | --------------------- | ----------- | ------------------------------- |
-| Auto-scaling               | +€50.88/month   | B1 → S1 App Service   | 🟡 Monitor  | Trigger at >50 concurrent users |
-| More SQL capacity          | +€8.30/month    | Basic → S0 (10 DTU)   | 🟡 Monitor  | Trigger at >200 orders/day      |
-| Private Endpoints          | +€14.60/month   | 2× PE (SQL + Storage) | 🟢 Go       | When VNet becomes required       |
-| Multi-region DR            | +€15.68/month   | Full resource duplication | 🔴 Investigate | Only if RTO <4h required     |
-| Redis Cache                | +€13.00/month   | Basic C0 (250 MB)     | 🟡 Monitor  | When p95 >500ms consistently    |
+| Requirement       | Additional Cost | SKU Change                | Verdict        | Notes                           |
+| ----------------- | --------------- | ------------------------- | -------------- | ------------------------------- |
+| Auto-scaling      | +€50.88/month   | B1 → S1 App Service       | 🟡 Monitor     | Trigger at >50 concurrent users |
+| More SQL capacity | +€8.30/month    | Basic → S0 (10 DTU)       | 🟡 Monitor     | Trigger at >200 orders/day      |
+| Private Endpoints | +€14.60/month   | 2× PE (SQL + Storage)     | 🟢 Go          | When VNet becomes required      |
+| Multi-region DR   | +€15.68/month   | Full resource duplication | 🔴 Investigate | Only if RTO <4h required        |
+| Redis Cache       | +€13.00/month   | Basic C0 (250 MB)         | 🟡 Monitor     | When p95 >500ms consistently    |
 
 ## 💰 Savings Opportunities
 
@@ -200,27 +200,27 @@ _"If you need X, expect to pay Y more"_
 
 ### Line Items
 
-| Category            | Service              | SKU / Meter            | Quantity / Units     | Est. Monthly (EUR) |
-| ------------------- | -------------------- | ---------------------- | -------------------- | -----------------: |
-| 💻 Compute          | App Service Plan     | B1 Linux               | 730 hrs              |             €11.17 |
-| 💾 Data Services    | Azure SQL Database   | Basic (5 DTU)          | 30.44 days           |              €4.15 |
-| 💾 Data Services    | Storage Account      | Standard LRS (Hot)     | ~10 GB stored        |              €0.16 |
-| 💾 Data Services    | SQL PITR Backup      | LRS Backup             | ~1 GB                |              €0.10 |
-| 🔑 Security / Mgmt  | Key Vault            | Standard Operations    | ~1K ops              |              €0.10 |
-| 📊 Monitoring       | Log Analytics        | Pay-as-you-go          | ~2 GB (free tier)    |              €0.00 |
-| 📊 Monitoring       | Application Insights | Workspace-based        | Included in LA       |              €0.00 |
-| **Total**           |                      |                        |                      |         **€15.68** |
+| Category           | Service              | SKU / Meter         | Quantity / Units  | Est. Monthly (EUR) |
+| ------------------ | -------------------- | ------------------- | ----------------- | -----------------: |
+| 💻 Compute         | App Service Plan     | B1 Linux            | 730 hrs           |             €11.17 |
+| 💾 Data Services   | Azure SQL Database   | Basic (5 DTU)       | 30.44 days        |              €4.15 |
+| 💾 Data Services   | Storage Account      | Standard LRS (Hot)  | ~10 GB stored     |              €0.16 |
+| 💾 Data Services   | SQL PITR Backup      | LRS Backup          | ~1 GB             |              €0.10 |
+| 🔑 Security / Mgmt | Key Vault            | Standard Operations | ~1K ops           |              €0.10 |
+| 📊 Monitoring      | Log Analytics        | Pay-as-you-go       | ~2 GB (free tier) |              €0.00 |
+| 📊 Monitoring      | Application Insights | Workspace-based     | Included in LA    |              €0.00 |
+| **Total**          |                      |                     |                   |         **€15.68** |
 
 ### Pricing Sources
 
-| Service          | API Price          | Unit          | API Query Date |
-| ---------------- | -----------------: | ------------- | -------------- |
-| App Service B1   | €0.0153            | 1 Hour        | 2026-03-15     |
-| SQL Basic        | €0.1364            | 1/Day         | 2026-03-15     |
-| Storage LRS Hot  | €0.0156            | 1 GB/Month    | 2026-03-15     |
-| LA Ingestion     | €2.5336            | 1 GB          | 2026-03-15     |
-| KV Operations    | €0.0254            | 10K           | 2026-03-15     |
-| SQL Backup LRS   | €0.1008            | 1 GB/Month    | 2026-03-15     |
+| Service         | API Price | Unit       | API Query Date |
+| --------------- | --------: | ---------- | -------------- |
+| App Service B1  |   €0.0153 | 1 Hour     | 2026-03-15     |
+| SQL Basic       |   €0.1364 | 1/Day      | 2026-03-15     |
+| Storage LRS Hot |   €0.0156 | 1 GB/Month | 2026-03-15     |
+| LA Ingestion    |   €2.5336 | 1 GB       | 2026-03-15     |
+| KV Operations   |   €0.0254 | 10K        | 2026-03-15     |
+| SQL Backup LRS  |   €0.1008 | 1 GB/Month | 2026-03-15     |
 
 ### Notes
 

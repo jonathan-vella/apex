@@ -164,7 +164,7 @@ flowchart LR
 
 | Scope              | Requirement                                                                  |
 | ------------------ | ---------------------------------------------------------------------------- |
-| Stores in scope    | Azure SQL (customer PII, order data), Storage Account (uploaded files)        |
+| Stores in scope    | Azure SQL (customer PII, order data), Storage Account (uploaded files)       |
 | Data classes       | Customer name, email, address, order history                                 |
 | Response window    | 30 days from verified request                                                |
 | Deletion method    | Hard delete from SQL; blob deletion from Storage                             |
@@ -236,9 +236,9 @@ flowchart LR
 
 ## 💰 Budget
 
-| Field              | Value                                   |
-| ------------------ | --------------------------------------- |
-| 💰 Monthly Budget  | <€500/month (Azure platform only)       |
+| Field              | Value                                                 |
+| ------------------ | ----------------------------------------------------- |
+| 💰 Monthly Budget  | <€500/month (Azure platform only)                     |
 | 📅 Annual Budget   | ~€6,000 (Azure platform only)                         |
 | 🚦 Limit Type      | 🔴 Hard = evaluation constraints                      |
 | 📊 Cost Model Pref | Cost-optimized managed services within budget ceiling |
@@ -284,11 +284,11 @@ flowchart LR
 
 ### Backup & Disaster Recovery
 
-| Component          | Backup Frequency | Retention | Recovery Method                    |
-| ------------------ | ---------------- | --------- | ---------------------------------- |
-| Azure SQL Database | Daily            | 30 days   | Automated (PITR)                   |
-| Storage Account    | Blob soft delete | 7 days    | Soft delete + blob versioning      |
-| App Configuration  | IaC re-deploy    | N/A       | Bicep redeploy                     |
+| Component          | Backup Frequency | Retention | Recovery Method               |
+| ------------------ | ---------------- | --------- | ----------------------------- |
+| Azure SQL Database | Daily            | 30 days   | Automated (PITR)              |
+| Storage Account    | Blob soft delete | 7 days    | Soft delete + blob versioning |
+| App Configuration  | IaC re-deploy    | N/A       | Bicep redeploy                |
 
 > **Note**: Storage Account uses LRS for redundancy, not backup. Blob soft delete (7-day retention) and blob versioning provide recoverability for stored objects. These are separate from the redundancy tier.
 
@@ -316,13 +316,13 @@ flowchart LR
 
 ### Handoff Summary
 
-| Aspect               | Key Points                                                                                  |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| Critical Constraints | Budget <€500/month; GDPR data residency; single prod environment                            |
-| Key Decisions        | Bicep IaC; Cost-Optimized tier; Simple web app pattern; no private endpoints; prod env only |
+| Aspect               | Key Points                                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Critical Constraints | Budget <€500/month; GDPR data residency; single prod environment                                                                              |
+| Key Decisions        | Bicep IaC; Cost-Optimized tier; Simple web app pattern; no private endpoints; prod env only                                                   |
 | Open Risks           | GDPR backup retention overlap (SQL PITR may retain PII up to 30 days post-deletion); governance policies may require stricter network posture |
-| Recommended Pattern  | App Service + Azure SQL + Storage Account (SKUs per Step 2)                                 |
-| Budget Envelope      | <€500/month (Azure platform)                                                                |
+| Recommended Pattern  | App Service + Azure SQL + Storage Account (SKUs per Step 2)                                                                                   |
+| Budget Envelope      | <€500/month (Azure platform)                                                                                                                  |
 
 ### Requirements Completeness
 
