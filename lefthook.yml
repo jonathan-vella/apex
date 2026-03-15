@@ -99,6 +99,22 @@ pre-commit:
         🔧 Check YAML syntax in agent definitions
         📚 Reference: .github/instructions/agent-definitions.instructions.md
 
+    model-alignment:
+      glob: "**/*.agent.md,**/*.prompt.md"
+      run: |
+        STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|prompt)\.md$' || true)
+        if [ -n "$STAGED" ]; then
+          echo "🔗 Checking model-prompt alignment..."
+          npm run lint:model-alignment
+        else
+          echo "ℹ️  No agent/prompt files to check"
+        fi
+      fail_text: |
+        ❌ Model-prompt alignment check failed!
+
+        🔧 Fix prompt model mismatches or stale handoff overrides
+        📚 Reference: .github/instructions/model-prompt-alignment.instructions.md
+
     instruction-frontmatter:
       glob: "**/*.instructions.md"
       run: |
