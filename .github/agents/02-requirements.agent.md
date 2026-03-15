@@ -5,7 +5,12 @@ description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
 user-invocable: true
-agents: ["challenger-review-subagent", "challenger-review-codex-subagent", "10-Challenger"]
+agents:
+  [
+    "challenger-review-subagent",
+    "challenger-review-codex-subagent",
+    "10-Challenger",
+  ]
 tools:
   [
     vscode/extensions,

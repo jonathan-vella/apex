@@ -429,13 +429,13 @@ Include attribution header from the template file (do not hardcode).
 Input: N-Tier web app with App Service, SQL Database, Key Vault, CDN in swedencentral.
 Decision logic: Score each pillar 1-10 with confidence.
 
-| WAF Pillar       | Score | Confidence | Key Factor                                    |
-|------------------|-------|------------|-----------------------------------------------|
-| Security         | 8/10  | High       | Managed Identity, TLS 1.2, KV secrets, no PBA |
-| Reliability      | 7/10  | Medium     | Zone-redundant SQL, single-region App Service  |
-| Performance      | 7/10  | Medium     | CDN for static, S1 App Service may bottleneck  |
-| Cost             | 8/10  | High       | ~$450/mo via MCP, within $500 budget           |
-| Operations       | 6/10  | Medium     | No runbook automation, manual scaling          |
+| WAF Pillar  | Score | Confidence | Key Factor                                    |
+| ----------- | ----- | ---------- | --------------------------------------------- |
+| Security    | 8/10  | High       | Managed Identity, TLS 1.2, KV secrets, no PBA |
+| Reliability | 7/10  | Medium     | Zone-redundant SQL, single-region App Service |
+| Performance | 7/10  | Medium     | CDN for static, S1 App Service may bottleneck |
+| Cost        | 8/10  | High       | ~$450/mo via MCP, within $500 budget          |
+| Operations  | 6/10  | Medium     | No runbook automation, manual scaling         |
 
 Output: Include this table in 02-architecture-assessment.md under ## WAF Assessment Summary.
 </example>

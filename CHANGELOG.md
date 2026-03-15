@@ -7,60 +7,6 @@ All notable changes to **Agentic InfraOps** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.0.1] — 2026-03-15
-
-### Added
-
-- feat(instructions): add `model-prompt-alignment.instructions.md` — auto-applies to
-  `*.agent.md` and `*.prompt.md` with model-specific prompt engineering patterns for
-  Claude (selective XML blocks, reasoning_effort, language calibration) and GPT
-  (structured markdown, tool-call-first phrasing), plus cross-model rules for handoff
-  overrides, prompt-agent model sync, and few-shot guidance.
-- feat(scripts): add `lint-model-alignment.mjs` validator with 5 checks: prompt↔agent
-  model sync, redundant handoff model overrides, Claude reasoning_effort comments,
-  large-agent context_awareness, and investigate block presence; registered in
-  `validate:_node` suite and `lefthook.yml` pre-commit hook.
-
-### Changed
-
-- refactor(agents): align 8 Claude Opus/Sonnet agent definitions with Anthropic prompting
-  best practices — add selective XML blocks (`investigate_before_answering` to 5 agents,
-  `output_contract` to 5, `context_awareness` to 3, `subagent_budget` to Conductor,
-  `scope_fencing` to 3, `empty_result_recovery` to Diagnose + 2 subagents), add
-  `reasoning_effort` comments to 8 agents, add few-shot examples to Conductor/Architect/Planners.
-- refactor(agents): align 6 GPT-5.4/5.3-Codex agent definitions with OpenAI prompting
-  best practices — add structured `<output_contract>` blocks, tool-call-first phrasing,
-  and explicit phase-numbered workflows.
-- refactor(agents): conservative language softening across 8 agents — reduce duplicate
-  absolute language (`MANDATORY`, `NEVER`, `CRITICAL`) by ~30% while preserving constraint
-  emphasis at security baseline, approval gates, and governance compliance.
-- refactor(prompts): enhance 14 prompt files — fix 5 model mismatches (Claude/Sonnet→GPT-5.4),
-  add prerequisites/variables/session-state-detection to 9 Claude prompt files.
-
-### Fixed
-
-- fix(agents): resolve 19 handoff inconsistencies identified by dual adversarial review
-  (Claude Sonnet 4.6 + GPT-5.4 reviewers):
-  - **Critical**: fix 09-Diagnose model mismatch (registry Sonnet→Opus to match frontmatter),
-    remove wrong model override on 04-Design→Governance handoff (Sonnet→removed, target is
-    GPT-5.4), add missing "Return to Step 2" handoff to 07t-Terraform Deploy (symmetry
-    with 07b-Bicep Deploy).
-  - **High**: gate 04-Design skip paths with `send: false` and risk warnings (was bypassing
-    mandatory governance + planning), redirect 05b/05t "Refresh Governance" to 04g-Governance
-    (was self-handoff bypassing governance agent), add `challenger-review-subagent` to
-    04g-Governance agents list (was claiming review but couldn't execute it), add 5 missing
-    step handoffs to Fast Path conductor, add `10-Challenger` to 02-Requirements agents list,
-    change interactive Requirements handoffs to `send: false`.
-  - **Cleanup**: wire orphaned `bicep-whatif-subagent` and `terraform-plan-subagent` to their
-    deploy agents, redirect Diagnose workload-docs handoff to 08-As-Built, fix governance
-    planner prompts to reference both `.md` and `.json` artifacts, remove `05t-Terraform
-    Planner` from 03-Architect agents list, remove 5 redundant model overrides across
-    04-Design/04g-Governance/07b-Deploy.
-- fix(agents): remove 12 stale handoff model overrides from Conductor (9), Architect (2),
-  and Requirements/Diagnose/Planners (3) — overrides were either redundant (matching target
-  model) or pointing to wrong models after prior refactoring.
-- fix(prompts): fix `diagnose-resource.prompt.md` model field (Sonnet→Opus to match agent).
-
 ## [0.10.0] — Unreleased
 
 ### Added
@@ -114,6 +60,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(config): remove skill references from `agent-registry.json` and `skill-affinity.json`.
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+
+## [0.9.0.1] — 2026-03-15
+
+### Added
+
+- feat(skills): integrate 22 skills from Azure Skills Plugin (`microsoft/azure-skills`):
+  `appinsights-instrumentation`, `azure-ai`, `azure-aigateway`, `azure-cloud-migrate`,
+  `azure-compliance`, `azure-compute`, `azure-cost-optimization`, `azure-deploy`,
+  `azure-diagnostics`, `azure-hosted-copilot-sdk`, `azure-kusto`, `azure-messaging`,
+  `azure-prepare`, `azure-quotas`, `azure-rbac`, `azure-resource-lookup`,
+  `azure-resource-visualizer`, `azure-storage`, `azure-validate`,
+  `copilot-customization`, `entra-app-registration`, `microsoft-foundry`.
+- feat(skills): add SKILL.digest.md and SKILL.minimal.md variants for all new skills.
+- feat(agents): implement cross-agent decision logging (#250) — add `decision_log[]` field
+  to session state schema, `decision-logging.instructions.md`, and propagate to 6 agents
+  (Requirements, Architect, Bicep/Terraform Planners, Bicep/Terraform CodeGen) plus
+  challenger-review-subagent.
+- feat(instructions): add `model-prompt-alignment.instructions.md` — auto-applies to
+  `*.agent.md` and `*.prompt.md` with model-specific prompt engineering patterns for
+  Claude (selective XML blocks, reasoning_effort, language calibration) and GPT
+  (structured markdown, tool-call-first phrasing), plus cross-model rules for handoff
+  overrides, prompt-agent model sync, and few-shot guidance.
+- feat(scripts): add `lint-model-alignment.mjs` validator with 5 checks: prompt↔agent
+  model sync, redundant handoff model overrides, Claude reasoning_effort comments,
+  large-agent context_awareness, and investigate block presence; registered in
+  `validate:_node` suite and `lefthook.yml` pre-commit hook.
+- feat(scripts): add `generate-skill-digests.mjs` for automated digest generation.
+- feat(docs): add Azure Skills Plugin migration documentation.
+
+### Changed
+
+- refactor(agents): align 8 Claude Opus/Sonnet agent definitions with Anthropic prompting
+  best practices — add selective XML blocks (`investigate_before_answering` to 5 agents,
+  `output_contract` to 5, `context_awareness` to 3, `subagent_budget` to Conductor,
+  `scope_fencing` to 3, `empty_result_recovery` to Diagnose + 2 subagents), add
+  `reasoning_effort` comments to 8 agents, add few-shot examples to Conductor/Architect/Planners.
+- refactor(agents): align 6 GPT-5.4/5.3-Codex agent definitions with OpenAI prompting
+  best practices — add structured `<output_contract>` blocks, tool-call-first phrasing,
+  and explicit phase-numbered workflows.
+- refactor(agents): conservative language softening across 8 agents — reduce duplicate
+  absolute language (`MANDATORY`, `NEVER`, `CRITICAL`) by ~30% while preserving constraint
+  emphasis at security baseline, approval gates, and governance compliance.
+- refactor(prompts): enhance 14 prompt files — fix 5 model mismatches (Claude/Sonnet→GPT-5.4),
+  add prerequisites/variables/session-state-detection to 9 Claude prompt files.
+- refactor(agents): update 06b-Bicep CodeGen, 07b-Bicep Deploy agent definitions with
+  enhanced deployment patterns and skill references.
+- refactor(config): update `agent-registry.json`, `skill-affinity.json`, and
+  `copilot-instructions.md` for new skill integrations.
+
+### Fixed
+
+- fix(agents): resolve 19 handoff inconsistencies identified by dual adversarial review
+  (Claude Sonnet 4.6 + GPT-5.4 reviewers):
+  - **Critical**: fix 09-Diagnose model mismatch (registry Sonnet→Opus to match frontmatter),
+    remove wrong model override on 04-Design→Governance handoff (Sonnet→removed, target is
+    GPT-5.4), add missing "Return to Step 2" handoff to 07t-Terraform Deploy (symmetry
+    with 07b-Bicep Deploy).
+  - **High**: gate 04-Design skip paths with `send: false` and risk warnings (was bypassing
+    mandatory governance + planning), redirect 05b/05t "Refresh Governance" to 04g-Governance
+    (was self-handoff bypassing governance agent), add `challenger-review-subagent` to
+    04g-Governance agents list (was claiming review but couldn't execute it), add 5 missing
+    step handoffs to Fast Path conductor, add `10-Challenger` to 02-Requirements agents list,
+    change interactive Requirements handoffs to `send: false`.
+  - **Cleanup**: wire orphaned `bicep-whatif-subagent` and `terraform-plan-subagent` to their
+    deploy agents, redirect Diagnose workload-docs handoff to 08-As-Built, fix governance
+    planner prompts to reference both `.md` and `.json` artifacts, remove `05t-Terraform
+    Planner` from 03-Architect agents list, remove 5 redundant model overrides across
+    04-Design/04g-Governance/07b-Deploy.
+- fix(agents): remove 12 stale handoff model overrides from Conductor (9), Architect (2),
+  and Requirements/Diagnose/Planners (3) — overrides were either redundant (matching target
+  model) or pointing to wrong models after prior refactoring.
+- fix(hooks): fix VS Code hook scripts — correct API field names (`toolName`→`tool_name`,
+  `toolInput`→`tool_input`), update tool name patterns to match actual VS Code tool IDs,
+  use `permissionDecision:deny` for dangerous command blocking.
+- fix(prompts): fix `diagnose-resource.prompt.md` model field (Sonnet→Opus to match agent).
+
+### Removed
+
+- chore(skills): remove deprecated `azure-troubleshooting` skill (replaced by
+  `azure-diagnostics` from Azure Skills Plugin).
 
 ## [0.9.0] — Pre-Bosun Baseline
 
@@ -670,11 +696,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(legacy): remove legacy scenarios/resources folders.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## [0.0.1] - 2024-06-01
+## [0.0.1] - 2025-10-01
 
 ### Added
 
-- feat(init): add initial repository structure.
+- feat(init): initial repository structure (forked from `github-copilot-itpro`).
 - feat(bicep): add basic Bicep templates.
 - feat(deploy): add PowerShell deployment scripts.
 - docs(copilot): add initial Copilot instructions.
