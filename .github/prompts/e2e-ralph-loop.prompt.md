@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: "RALPH-style E2E workflow execution loop. Runs the full 7-step InfraOps pipeline autonomously with self-correction, validation, challenger reviews, and benchmark scoring."
 tools:
   - agent
