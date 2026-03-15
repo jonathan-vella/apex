@@ -16,6 +16,7 @@ Resume the 7-step Azure infrastructure workflow from the last checkpoint.
 ## Session State Detection
 
 The agent reads `00-session-state.json` to determine:
+
 - Which step to resume from (`current_step`)
 - Whether to use Bicep or Terraform agents (`decisions.iac_tool`)
 - Any in-progress sub-step checkpoints (`steps.{N}.sub_step`)

@@ -26,14 +26,14 @@ Sources: [Anthropic Claude Prompting Best Practices][claude-guide].
 Add XML blocks only where they serve the agent's actual role. Each block should
 be 3-5 lines. Place them after the first `#` heading, before the body content.
 
-| Block | Add when | Do NOT add when |
-|-------|----------|-----------------|
+| Block                            | Add when                                                         | Do NOT add when                                                      |
+| -------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `<investigate_before_answering>` | Agent researches before deciding (Architect, Planners, Diagnose) | ONE-SHOT agents (Requirements), procedural wrappers (lint subagents) |
-| `<output_contract>` | Agent produces a formal artifact with defined structure | Agent has no structured output |
-| `<context_awareness>` | Agent definition exceeds ~300 lines | Small agents, subagents |
-| `<scope_fencing>` | Agent produces scoped artifacts where creep is a risk | Agents whose job is comprehensive analysis (Architect) |
-| `<empty_result_recovery>` | Agent queries Azure APIs that may return empty results | Agents that don't call external APIs |
-| `<subagent_budget>` | Agent orchestrates 3+ subagents | Leaf agents that don't delegate |
+| `<output_contract>`              | Agent produces a formal artifact with defined structure          | Agent has no structured output                                       |
+| `<context_awareness>`            | Agent definition exceeds ~300 lines                              | Small agents, subagents                                              |
+| `<scope_fencing>`                | Agent produces scoped artifacts where creep is a risk            | Agents whose job is comprehensive analysis (Architect)               |
+| `<empty_result_recovery>`        | Agent queries Azure APIs that may return empty results           | Agents that don't call external APIs                                 |
+| `<subagent_budget>`              | Agent orchestrates 3+ subagents                                  | Leaf agents that don't delegate                                      |
 
 **Never add**: `<use_parallel_tool_calls>` (Claude does this natively),
 `<avoid_overengineering>` on comprehensive-analysis agents.

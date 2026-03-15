@@ -52,7 +52,11 @@ function normalizeModel(modelStr) {
   if (!modelStr) return "";
   const s = Array.isArray(modelStr) ? modelStr[0] : modelStr;
   if (!s) return "";
-  return s.replace(/\s*\(copilot\)/gi, "").replace(/[[\]"']/g, "").trim().toLowerCase();
+  return s
+    .replace(/\s*\(copilot\)/gi, "")
+    .replace(/[[\]"']/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 // Get body content (everything after the frontmatter closing ---)
@@ -82,7 +86,9 @@ function checkPromptModelSync() {
     }
   }
 
-  const promptFiles = fs.readdirSync(PROMPTS_DIR).filter((f) => f.endsWith(".prompt.md"));
+  const promptFiles = fs
+    .readdirSync(PROMPTS_DIR)
+    .filter((f) => f.endsWith(".prompt.md"));
 
   for (const file of promptFiles) {
     const filePath = path.join(PROMPTS_DIR, file);
@@ -121,7 +127,10 @@ function checkHandoffOverrides() {
   const agentModelMap = new Map();
   for (const [, agent] of agents) {
     if (agent.frontmatter?.name) {
-      agentModelMap.set(agent.frontmatter.name.toLowerCase(), agent.frontmatter.model);
+      agentModelMap.set(
+        agent.frontmatter.name.toLowerCase(),
+        agent.frontmatter.model,
+      );
     }
   }
 
@@ -167,7 +176,10 @@ function checkReasoningEffort() {
     const body = getBody(agent.content);
 
     if (!body.includes("reasoning_effort")) {
-      r.warn(relPath, "Claude agent missing <!-- Recommended reasoning_effort: --> comment");
+      r.warn(
+        relPath,
+        "Claude agent missing <!-- Recommended reasoning_effort: --> comment",
+      );
     }
   }
 }
@@ -218,7 +230,9 @@ function checkInvestigateBlock() {
     if (!isClaude(family)) continue;
 
     // Only check agents expected to have investigate
-    const matchesKnown = INVESTIGATE_AGENTS.some((prefix) => filename.startsWith(prefix));
+    const matchesKnown = INVESTIGATE_AGENTS.some((prefix) =>
+      filename.startsWith(prefix),
+    );
     if (!matchesKnown) continue;
 
     r.tick();
@@ -226,7 +240,10 @@ function checkInvestigateBlock() {
     const body = getBody(agent.content);
 
     if (!body.includes("<investigate_before_answering>")) {
-      r.warn(relPath, "Claude research agent missing <investigate_before_answering> block");
+      r.warn(
+        relPath,
+        "Claude research agent missing <investigate_before_answering> block",
+      );
     }
   }
 }
