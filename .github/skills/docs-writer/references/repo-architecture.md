@@ -71,19 +71,19 @@ All shared context previously in `_shared/` is now consolidated into skills:
 
 ## Skill Catalog (14 Skills)
 
-| Skill                   | Folder                   | Category            | Triggers                                  |
-| ----------------------- | ------------------------ | ------------------- | ----------------------------------------- |
-| `azure-adr`             | `azure-adr/`             | Document Creation   | "create ADR", "document decision"         |
-| `azure-artifacts`       | `azure-artifacts/`       | Artifact Generation | "generate documentation"                  |
-| `azure-bicep-patterns`  | `azure-bicep-patterns/`  | IaC Patterns        | "bicep pattern", "hub-spoke"              |
-| `azure-defaults`        | `azure-defaults/`        | Azure Conventions   | "azure defaults", "naming"                |
-| `azure-diagrams`        | `azure-diagrams/`        | Document Creation   | "create diagram"                          |
-| `azure-diagnostics`     | `azure-diagnostics/`     | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
-| `docs-writer`           | `docs-writer/`           | Documentation       | "update the docs"                         |
-| `git-commit`            | `git-commit/`            | Tool Integration    | "commit"                                  |
-| `github-operations`     | `github-operations/`     | Workflow            | "create issue", "create PR", "gh command" |
-| `make-skill-template`   | `make-skill-template/`   | Meta                | "create skill"                            |
-| `terraform-patterns`    | `terraform-patterns/`    | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
+| Skill                  | Folder                  | Category            | Triggers                                  |
+| ---------------------- | ----------------------- | ------------------- | ----------------------------------------- |
+| `azure-adr`            | `azure-adr/`            | Document Creation   | "create ADR", "document decision"         |
+| `azure-artifacts`      | `azure-artifacts/`      | Artifact Generation | "generate documentation"                  |
+| `azure-bicep-patterns` | `azure-bicep-patterns/` | IaC Patterns        | "bicep pattern", "hub-spoke"              |
+| `azure-defaults`       | `azure-defaults/`       | Azure Conventions   | "azure defaults", "naming"                |
+| `azure-diagrams`       | `azure-diagrams/`       | Document Creation   | "create diagram"                          |
+| `azure-diagnostics`    | `azure-diagnostics/`    | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
+| `docs-writer`          | `docs-writer/`          | Documentation       | "update the docs"                         |
+| `git-commit`           | `git-commit/`           | Tool Integration    | "commit"                                  |
+| `github-operations`    | `github-operations/`    | Workflow            | "create issue", "create PR", "gh command" |
+| `make-skill-template`  | `make-skill-template/`  | Meta                | "create skill"                            |
+| `terraform-patterns`   | `terraform-patterns/`   | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 
 ## Template Inventory (16 Templates)
 
@@ -110,33 +110,31 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 
 ## Instruction File Map (25 Files)
 
-| Instruction                                     | Applies To (glob)                                 |
-| ----------------------------------------------- | ------------------------------------------------- |
-| `agent-research-first.instructions.md`          | `**/*.agent.md`                                   |
-| `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                   |
-| `agent-definitions.instructions.md`             | `**/*.agent.md`                                   |
-| `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                         |
-| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                      |
-| `bicep-policy-compliance.instructions.md`       | `**/*.bicep, **/*.agent.md`                       |
-| `code-commenting.instructions.md`               | `**`                                              |
-| `code-review.instructions.md`                   | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `cost-estimate.instructions.md`                 | `**/03-des-cost-estimate.md`, etc.                |
-| `docs.instructions.md`                          | `docs/**/*.md`                                    |
-| `docs-trigger.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}` |
-| `github-actions.instructions.md`                | `.github/workflows/*.yml`                         |
-| `governance-discovery.instructions.md`          | `**/04-governance-*.md`                           |
-| `instructions.instructions.md`                  | `**/*.instructions.md`                            |
-| `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                               |
-| `json.instructions.md`                          | `**/*.{json,jsonc}`                               |
-| `markdown.instructions.md`                      | `**/*.md`                                         |
-| `no-heredoc.instructions.md`                    | `**`                                              |
-| `powershell.instructions.md`                    | `**/*.ps1`, `**/*.psm1`                           |
-| `prompt.instructions.md`                        | `**/*.prompt.md`                                  |
-| `python.instructions.md`                        | `**/*.py`                                         |
-| `shell.instructions.md`                         | `**/*.sh`                                         |
-| `terraform-code-best-practices.instructions.md` | `**/*.tf`                                         |
-| `terraform-policy-compliance.instructions.md`   | `**/*.tf, **/*.agent.md`                          |
-| `workload-documentation.instructions.md`        | `**/agent-output/**/07-*.md`                      |
+| Instruction                                     | Applies To (glob)                                       |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| `agent-research-first.instructions.md`          | `**/*.agent.md`                                         |
+| `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                         |
+| `agent-definitions.instructions.md`             | `**/*.agent.md`                                         |
+| `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                               |
+| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                            |
+| `iac-policy-compliance.instructions.md`         | `**/*.bicep, **/*.tf`                                   |
+| `code-quality.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`       |
+| `cost-estimate` (moved to skill)                | `azure-artifacts/references/cost-estimate-standards.md` |
+| `docs.instructions.md`                          | `docs/**/*.md`                                          |
+| `docs-trigger.instructions.md`                  | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`          |
+| `github-actions.instructions.md`                | `.github/workflows/*.yml`                               |
+| `governance-discovery.instructions.md`          | `**/04-governance-*.md`                                 |
+| `instructions.instructions.md`                  | `**/*.instructions.md`                                  |
+| `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                     |
+| `json.instructions.md`                          | `**/*.{json,jsonc}`                                     |
+| `markdown.instructions.md`                      | `**/*.md`                                               |
+| `no-heredoc.instructions.md`                    | `**`                                                    |
+| `powershell.instructions.md`                    | `**/*.ps1`, `**/*.psm1`                                 |
+| `prompt.instructions.md`                        | `**/*.prompt.md`                                        |
+| `python.instructions.md`                        | `**/*.py`                                               |
+| `shell.instructions.md`                         | `**/*.sh`                                               |
+| `terraform-code-best-practices.instructions.md` | `**/*.tf`                                               |
+| `workload-documentation` (moved to skill)       | `docs-writer/references/workload-documentation.md`      |
 
 ## Artifact Flow (7-Step Workflow)
 

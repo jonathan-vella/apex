@@ -81,8 +81,7 @@ Deploy everything in one operation. Still requires user approval.
 | Preflight validation          | `azure-validate/references/infraops-preflight.md`             |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`      |
 | Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`    |
-| Bicep policy compliance       | `instructions/bicep-policy-compliance.instructions.md`        |
-| Terraform policy compliance   | `instructions/terraform-policy-compliance.instructions.md`    |
+| IaC policy compliance         | `instructions/iac-policy-compliance.instructions.md`          |
 | Bootstrap backend templates   | `terraform-patterns/references/bootstrap-backend-template.md` |
 | Deploy script templates       | `terraform-patterns/references/deploy-script-template.md`     |
 | Circuit breaker               | `references/circuit-breaker.md`                               |

@@ -17,12 +17,12 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Reference Index
 
-| Reference                     | Location                                                      |
-| ----------------------------- | ------------------------------------------------------------- |
-| Preflight validation          | `azure-validate/references/infraops-preflight.md`             |
-| CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`      |
-| Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`    |
-| Bicep policy compliance       | `instructions/bicep-policy-compliance.instructions.md`        |
+| Reference                     | Location                                                   |
+| ----------------------------- | ---------------------------------------------------------- |
+| Preflight validation          | `azure-validate/references/infraops-preflight.md`          |
+| CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`   |
+| Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md` |
+| IaC policy compliance         | `instructions/iac-policy-compliance.instructions.md`       |
 
 > _See SKILL.md for full content._
 

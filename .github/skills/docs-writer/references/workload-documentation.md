@@ -1,8 +1,3 @@
----
-description: "Standards for comprehensive Azure workload documentation generation"
-applyTo: "**/agent-output/**/07-*.md"
----
-
 # Workload Documentation Standards
 
 ## Visual Styling

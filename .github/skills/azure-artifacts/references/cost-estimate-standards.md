@@ -1,8 +1,3 @@
----
-description: "Standards for Azure cost estimate documentation with architecture and business context"
-applyTo: "**/03-des-cost-estimate.md, **/07-ab-cost-estimate.md, **/docs/*-cost-estimate.md"
----
-
 # Azure Cost Estimate Documentation Standards
 
 ## Document Purpose

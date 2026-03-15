@@ -7,16 +7,12 @@ applyTo: "**/*.bicep"
 
 ## Quick Reference
 
-| Rule          | Standard                                                            |
-| ------------- | ------------------------------------------------------------------- |
-| Region        | `swedencentral` (alt: `germanywestcentral`)                         |
-| Unique suffix | `var uniqueSuffix = uniqueString(resourceGroup().id)` in main.bicep |
-| AVM first     | **MANDATORY** - Use Azure Verified Modules where available          |
-| Tags          | Environment, ManagedBy, Project, Owner on ALL resources             |
+Region, tags, AVM-first mandate, unique suffix, and security baseline
+are defined in the root `AGENTS.md` (always loaded). This file covers
+Bicep-specific patterns only.
 
-**The 4 tags above are baseline defaults.** Discovered Azure Policy constraints
-(`04-governance-constraints.md`) ALWAYS take precedence. See
-`bicep-policy-compliance.instructions.md`.
+**Policy constraints** (`04-governance-constraints.md`) ALWAYS take precedence.
+See `iac-policy-compliance.instructions.md`.
 
 ## Naming Conventions
 
@@ -60,9 +56,11 @@ param uniqueSuffix string
 
 ## Security Defaults (MANDATORY)
 
-**The security settings below are baseline defaults.** Discovered Azure Policy
+**Baseline security is defined in `AGENTS.md`.** Discovered Azure Policy
 security constraints (`04-governance-constraints.md`) ALWAYS take precedence.
-See `bicep-policy-compliance.instructions.md`.
+See `iac-policy-compliance.instructions.md`.
+
+Bicep-specific implementation:
 
 ```bicep
 // Storage

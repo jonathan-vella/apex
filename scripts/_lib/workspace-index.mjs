@@ -14,11 +14,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseFrontmatter } from "./parse-frontmatter.mjs";
-
-const AGENTS_DIR = ".github/agents";
-const SUBAGENTS_DIR = ".github/agents/_subagents";
-const SKILLS_DIR = ".github/skills";
-const INSTRUCTIONS_DIR = ".github/instructions";
+import {
+  AGENTS_DIR,
+  SUBAGENTS_DIR,
+  SKILLS_DIR,
+  INSTRUCTIONS_DIR,
+} from "./paths.mjs";
 
 let _agents = null;
 let _skills = null;

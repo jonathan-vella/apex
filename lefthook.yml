@@ -115,14 +115,29 @@ pre-commit:
         🔧 Fix prompt model mismatches or stale handoff overrides
         📚 Reference: .github/instructions/model-prompt-alignment.instructions.md
 
-    instruction-frontmatter:
+    agent-checks:
+      glob: "**/*.agent.md"
+      run: |
+        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.agent\.md$' || true)
+        if [ -n "$STAGED_AGENTS" ]; then
+          echo "📝 Checking agent body size + language density..."
+          npm run lint:agent-checks
+        else
+          echo "ℹ️  No agent files to check"
+        fi
+      fail_text: |
+        ❌ Agent checks failed!
+
+        🔧 Fix body size (>400 lines) or soften absolute language (>5/100 lines)
+
+    instruction-checks:
       glob: "**/*.instructions.md"
       run: |
         STAGED_INSTR=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.instructions\.md$' || true)
         if [ -n "$STAGED_INSTR" ]; then
           COUNT=$(echo "$STAGED_INSTR" | wc -l | tr -d ' ')
           echo "📋 Validating $COUNT instruction file(s)..."
-          npm run lint:instruction-frontmatter
+          npm run validate:instruction-checks
         else
           echo "ℹ️  No instruction files to validate"
         fi
@@ -138,7 +153,7 @@ pre-commit:
         STAGED_REFS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|instructions)\.md$|SKILL\.md$' || true)
         if [ -n "$STAGED_REFS" ]; then
           echo "🔗 Validating instruction cross-references..."
-          npm run validate:instruction-refs
+          npm run validate:instruction-checks
         else
           echo "ℹ️  No agent/skill/instruction files to check references"
         fi
@@ -146,7 +161,7 @@ pre-commit:
         ❌ Instruction reference validation failed!
 
         🔧 A referenced instruction or skill file does not exist.
-        📚 Run: npm run validate:instruction-refs
+        📚 Run: npm run validate:instruction-checks
 
     python-lint:
       glob: "mcp/**/*.py"

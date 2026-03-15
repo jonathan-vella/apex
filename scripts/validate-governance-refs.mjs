@@ -9,7 +9,7 @@
  * 1. Bicep Code Generator references 04-governance-constraints
  * 2. bicep-review-subagent has Governance Compliance checklist
  * 3. Bicep Planner references JSON output schema completeness
- * 4. bicep-policy-compliance.instructions.md exists with correct applyTo
+ * 4. iac-policy-compliance.instructions.md exists with correct applyTo
  *
  * @example
  * node scripts/validate-governance-refs.mjs
@@ -64,8 +64,8 @@ check(
   fileContains(codeGenPath, "Phase 1.5"),
 );
 check(
-  "References bicep-policy-compliance.instructions.md",
-  fileContains(codeGenPath, "bicep-policy-compliance.instructions.md"),
+  "References iac-policy-compliance.instructions.md",
+  fileContains(codeGenPath, "iac-policy-compliance.instructions.md"),
 );
 check(
   "DO list includes governance constraint parsing",
@@ -116,18 +116,18 @@ check(
     fileContains(plannerPath, "policy-effect-decision-tree"),
 );
 
-// 4. bicep-policy-compliance.instructions.md exists and is valid
-console.log("\n📄 bicep-policy-compliance.instructions.md");
+// 4. iac-policy-compliance.instructions.md exists and is valid
+console.log("\n📄 iac-policy-compliance.instructions.md");
 const policyInstrPath =
-  ".github/instructions/bicep-policy-compliance.instructions.md";
+  ".github/instructions/iac-policy-compliance.instructions.md";
 check("File exists", fileExists(policyInstrPath));
 check(
   "Has correct applyTo scope including *.bicep",
   fileContains(policyInstrPath, "**/*.bicep"),
 );
 check(
-  "applyTo no longer includes agent.md files",
-  !fileContains(policyInstrPath, "**/*.agent.md"),
+  "Has correct applyTo scope including *.tf",
+  fileContains(policyInstrPath, "**/*.tf"),
 );
 check(
   'States "Azure Policy always wins"',
@@ -210,10 +210,10 @@ check(
   fileContains(tfReviewPath, "azurePropertyPath"),
 );
 
-// 9. terraform-policy-compliance.instructions.md exists and is valid
-console.log("\n📄 terraform-policy-compliance.instructions.md");
+// 9. iac-policy-compliance also covers Terraform (merged file)
+console.log("\n📄 iac-policy-compliance.instructions.md (Terraform section)");
 const tfPolicyInstrPath =
-  ".github/instructions/terraform-policy-compliance.instructions.md";
+  ".github/instructions/iac-policy-compliance.instructions.md";
 check("File exists", fileExists(tfPolicyInstrPath));
 check(
   "Has correct applyTo scope including *.tf",

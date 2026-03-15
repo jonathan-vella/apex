@@ -15,26 +15,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { SKILLS_DIR } from "./_lib/paths.mjs";
+import { extractH2Sections } from "./_lib/h2-parser.mjs";
 
 const AUTO_GEN_HEADER =
   "<!-- digest:auto-generated from SKILL.md — do not edit manually -->";
-
-function extractH2Sections(content) {
-  const lines = content.split("\n");
-  const sections = [];
-  let current = null;
-
-  for (const line of lines) {
-    if (/^## /.test(line)) {
-      if (current) sections.push(current);
-      current = { heading: line.replace(/^## /, "").trim(), lines: [line] };
-    } else if (current) {
-      current.lines.push(line);
-    }
-  }
-  if (current) sections.push(current);
-  return sections;
-}
 
 function extractTitle(content) {
   const match = content.match(/^# (.+)$/m);

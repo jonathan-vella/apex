@@ -209,8 +209,8 @@ VS Code can run multiple subagents in parallel when tasks are independent.
 
 When an agent outputs a specific document type, it MUST treat these as authoritative:
 
-- Cost estimates: `.github/instructions/cost-estimate.instructions.md`
-- Workload docs: `.github/instructions/workload-documentation.instructions.md`
+- Cost estimates: `.github/skills/azure-artifacts/references/cost-estimate-standards.md`
+- Workload docs: `.github/skills/docs-writer/references/workload-documentation.md`
 - Markdown style: `.github/instructions/markdown.instructions.md`
 - Bicep: `.github/instructions/bicep-code-best-practices.instructions.md`
 

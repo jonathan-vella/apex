@@ -26,7 +26,7 @@ JSON findings. The parent agent writes output files — you do NOT write files.
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — agent operating principles
 2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM, security
 3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category checklists
-4. **Read** `.github/instructions/bicep-policy-compliance.instructions.md` — governance enforcement rules
+4. **Read** `.github/instructions/iac-policy-compliance.instructions.md` — governance enforcement rules
 
 ## Inputs
 

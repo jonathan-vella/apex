@@ -126,7 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Cleanup**: wire orphaned `bicep-whatif-subagent` and `terraform-plan-subagent` to their
     deploy agents, redirect Diagnose workload-docs handoff to 08-As-Built, fix governance
     planner prompts to reference both `.md` and `.json` artifacts, remove `05t-Terraform
-    Planner` from 03-Architect agents list, remove 5 redundant model overrides across
+Planner` from 03-Architect agents list, remove 5 redundant model overrides across
     04-Design/04g-Governance/07b-Deploy.
 - fix(agents): remove 12 stale handoff model overrides from Conductor (9), Architect (2),
   and Requirements/Diagnose/Planners (3) — overrides were either redundant (matching target

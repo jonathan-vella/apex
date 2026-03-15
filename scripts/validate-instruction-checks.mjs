@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 /**
- * Instruction Reference Validator
+ * Instruction Checks Validator
  *
- * Scans agents, skills, and instructions for cross-references
- * and validates that referenced files exist within the repo.
+ * Combined instruction validation:
+ * 1. Frontmatter: required fields (description, applyTo), no unknown fields
+ * 2. References: instruction file refs exist, applyTo globs match files,
+ *    skill refs exist, cross-references between instruction files valid
  *
- * Validation rules:
- * 1. Every `Read .github/instructions/X` reference → file X must exist
- * 2. Every `applyTo` glob pattern → at least 1 matching file should exist
- * 3. Every `Read .github/skills/X/SKILL.md` reference → skill dir and SKILL.md must exist
+ * Replaces validate-instruction-frontmatter.mjs and
+ * validate-instruction-references.mjs.
  *
  * @example
- * node scripts/validate-instruction-references.mjs
+ * node scripts/validate-instruction-checks.mjs
  */
 
 import fs, { globSync } from "node:fs";
 import path from "node:path";
+import { getInstructions } from "./_lib/workspace-index.mjs";
 
 const ROOT = process.cwd();
 
@@ -61,19 +62,7 @@ function collectFiles(dirs, extensions) {
   return files;
 }
 
-/**
- * Splits a comma-separated `applyTo` glob string into individual patterns,
- * respecting brace expressions such as `path/{bicep,tf}` where the comma is
- * part of the glob syntax and must NOT be treated as a delimiter.
- *
- * Brace depth is tracked so that commas inside `{...}` are preserved as-is,
- * while top-level commas (depth === 0) are used as split points.
- *
- * @param {string} pattern - Raw `applyTo` value from instruction frontmatter.
- * @returns {string[]} Array of trimmed, non-empty glob patterns.
- */
 function splitApplyTo(pattern) {
-  // Split on commas that are NOT inside brace expressions {a,b,c}
   const parts = [];
   let depth = 0;
   let current = "";
@@ -95,22 +84,8 @@ function splitApplyTo(pattern) {
   return parts.filter(Boolean);
 }
 
-/**
- * Returns true if at least one file in the workspace matches the given glob
- * pattern (or any of the comma-separated patterns it contains).
- *
- * In addition to the patterns as written, hidden-directory variants are
- * automatically derived for `**`-prefixed patterns — e.g. `**\/*.bicep` maps
- * to `.github/**\/*.bicep` and `.vscode/**\/*.bicep` — because
- * `globSync` skips dot-prefixed directories by default and would otherwise
- * miss files that live exclusively inside `.github` or `.vscode`.
- *
- * @param {string} pattern - Raw `applyTo` value, may be comma-separated.
- * @returns {boolean} True if any matching file exists; false otherwise.
- */
 function globHasMatch(pattern) {
   const patterns = splitApplyTo(pattern);
-  // Also derive hidden-dir variants: "**/*.foo" → ".github/**/*.foo" etc.
   const hiddenPrefixes = [".github", ".vscode"];
   const expanded = [];
   for (const pat of patterns) {
@@ -122,7 +97,6 @@ function globHasMatch(pattern) {
     }
   }
   try {
-    // Exclude generated/dependency directories for speed and accuracy
     const matches = globSync(expanded, {
       cwd: ROOT,
       exclude: (p) =>
@@ -134,11 +108,62 @@ function globHasMatch(pattern) {
   }
 }
 
-// --- Rule 1: Instruction file references ---
+function stripCodeBlocks(content) {
+  return content.replace(/```[\s\S]*?```/g, "");
+}
 
-console.log("\n🔍 Instruction Reference Validator\n");
+// ── Part 1: Frontmatter validation ──
+
+console.log("\n🔍 Instruction Checks Validator\n");
 console.log("─".repeat(60));
-console.log("📄 Rule 1: Instruction file references exist\n");
+console.log("📄 Part 1: Frontmatter validation\n");
+
+const REQUIRED_FIELDS = ["description", "applyto"];
+const REQUIRED_FIELDS_DISPLAY = ["description", "applyTo"];
+const OPTIONAL_FIELDS = ["name"];
+const ALLOWED_FIELDS = [...REQUIRED_FIELDS, ...OPTIONAL_FIELDS];
+const ALLOWED_FIELDS_DISPLAY = [...REQUIRED_FIELDS_DISPLAY, ...OPTIONAL_FIELDS];
+
+const instructions = getInstructions();
+console.log(`Found ${instructions.size} instruction file(s)\n`);
+
+for (const [fileName, instr] of instructions) {
+  const { path: filePath, frontmatter: fm } = instr;
+  const relPath = path.relative(ROOT, filePath);
+
+  if (!fm) {
+    console.log(
+      `::error file=${relPath},line=1::Missing YAML frontmatter (requires description and applyTo)`,
+    );
+    errors++;
+    continue;
+  }
+
+  for (const field of REQUIRED_FIELDS) {
+    if (!fm[field]) {
+      const display = REQUIRED_FIELDS_DISPLAY[REQUIRED_FIELDS.indexOf(field)];
+      console.log(
+        `::error file=${relPath},line=1::Missing required frontmatter field: ${display}`,
+      );
+      errors++;
+    }
+  }
+
+  const unknownFields = Object.keys(fm).filter(
+    (k) => !ALLOWED_FIELDS.includes(k),
+  );
+  if (unknownFields.length > 0) {
+    console.log(
+      `::error file=${relPath},line=1::Unknown frontmatter fields: ${unknownFields.join(", ")} (allowed: ${ALLOWED_FIELDS_DISPLAY.join(", ")})`,
+    );
+    errors++;
+  }
+}
+
+// ── Part 2: Instruction file references exist ──
+
+console.log("\n" + "─".repeat(60));
+console.log("📄 Part 2: Instruction file references exist\n");
 
 const scanDirs = [
   ".github/agents",
@@ -180,10 +205,10 @@ if (foundInstructionRefs.size === 0) {
   console.log("  ℹ️  No instruction references found in scanned files");
 }
 
-// --- Rule 2: applyTo globs have matching files ---
+// ── Part 3: applyTo globs have matching files ──
 
 console.log("\n" + "─".repeat(60));
-console.log("📄 Rule 2: applyTo glob patterns have matching files\n");
+console.log("📄 Part 3: applyTo glob patterns have matching files\n");
 
 const instructionFiles = collectFiles(
   [".github/instructions"],
@@ -201,7 +226,6 @@ for (const filePath of instructionFiles) {
 
   const applyTo = applyToMatch[1].trim();
 
-  // Skip wildcard patterns that match everything
   if (applyTo === "**" || applyTo === "*") {
     console.log(
       `  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (universal — skipped)`,
@@ -217,10 +241,10 @@ for (const filePath of instructionFiles) {
   );
 }
 
-// --- Rule 3: Skill references exist ---
+// ── Part 4: Skill SKILL.md references exist ──
 
 console.log("\n" + "─".repeat(60));
-console.log("📄 Rule 3: Skill SKILL.md references exist\n");
+console.log("📄 Part 4: Skill SKILL.md references exist\n");
 
 const skillRefPattern =
   /[Rr]ead\s+[`"]?\.github\/skills\/([^/`"\s]+)\/SKILL\.md[`"]?/g;
@@ -234,10 +258,8 @@ for (const filePath of allMdFiles) {
 
   skillRefPattern.lastIndex = 0;
   while ((match = skillRefPattern.exec(content)) !== null) {
-    // Skip template placeholders like {name} used in documentation examples
     if (match[1].includes("{") || match[1].includes("}")) continue;
-    const skillDir = `.github/skills/${match[1]}`;
-    const skillFile = `${skillDir}/SKILL.md`;
+    const skillFile = `.github/skills/${match[1]}/SKILL.md`;
     if (!foundSkillRefs.has(skillFile)) {
       foundSkillRefs.set(skillFile, []);
     }
@@ -256,19 +278,13 @@ if (foundSkillRefs.size === 0) {
   console.log("  ℹ️  No skill references found in scanned files");
 }
 
-// --- Also check for cross-references between instruction files ---
+// ── Part 5: Cross-references between instruction files ──
 
 console.log("\n" + "─".repeat(60));
-console.log("📄 Rule 4: Cross-references between instruction files\n");
+console.log("📄 Part 5: Cross-references between instruction files\n");
 
 const crossRefPattern = /[`"]?([a-z][\w-]+\.instructions\.md)[`"]?/g;
-
-// Patterns commonly used as examples, not real references
 const EXAMPLE_PATTERNS = ["react-best-practices.instructions.md"];
-
-function stripCodeBlocks(content) {
-  return content.replace(/```[\s\S]*?```/g, "");
-}
 
 const crossRefs = new Map();
 
@@ -283,7 +299,6 @@ for (const filePath of allMdFiles) {
     const refName = match[1];
     if (EXAMPLE_PATTERNS.includes(refName)) continue;
     const refPath = `.github/instructions/${refName}`;
-    // Skip self-references
     if (relFile.endsWith(refName)) continue;
     if (!crossRefs.has(refPath)) {
       crossRefs.set(refPath, new Set());
@@ -303,16 +318,16 @@ if (crossRefs.size === 0) {
   console.log("  ℹ️  No cross-references found");
 }
 
-// --- Summary ---
+// ── Summary ──
 
 console.log(`\n${"═".repeat(60)}`);
 console.log(`Checks: ${checks} | Errors: ${errors} | Warnings: ${warnings}`);
 
 if (errors > 0) {
-  console.log(`\n❌ ${errors} broken reference(s) found`);
+  console.log(`\n❌ ${errors} error(s) found`);
   process.exit(1);
 } else if (warnings > 0) {
   console.log(`\n⚠️  Passed with ${warnings} warning(s)`);
 } else {
-  console.log(`\n✅ All instruction references valid`);
+  console.log(`\n✅ All instruction checks passed`);
 }

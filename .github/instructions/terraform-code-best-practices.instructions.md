@@ -7,16 +7,16 @@ applyTo: "**/*.tf"
 
 ## Quick Reference
 
-| Rule          | Standard                                                                 |
-| ------------- | ------------------------------------------------------------------------ |
-| Region        | `swedencentral` (alt: `germanywestcentral`)                              |
-| Unique suffix | `resource "random_string" "suffix" { length = 4; lower = true }` in root |
-| AVM first     | **MANDATORY** - Use Azure Verified Modules where available               |
-| Tags          | Environment, ManagedBy, Project, Owner on ALL resources                  |
-| Provider      | Pin `azurerm` to `~> 4.0`                                                |
-| State backend | Azure Storage Account — **NEVER** HCP Terraform Cloud                    |
+Region, tags, AVM-first mandate, unique suffix, and security baseline
+are defined in the root `AGENTS.md` (always loaded). This file covers
+Terraform-specific patterns only.
 
-**Policy constraints** (`04-governance-constraints.md`) always override these defaults.
+| Rule          | Standard                                              |
+| ------------- | ----------------------------------------------------- |
+| Provider      | Pin `azurerm` to `~> 4.0`                             |
+| State backend | Azure Storage Account — **NEVER** HCP Terraform Cloud |
+
+**Policy constraints** (`04-governance-constraints.md`) always override defaults.
 
 ## File Structure (MANDATORY)
 
@@ -44,11 +44,11 @@ Lowercase with hyphens. CAF abbreviations:
 
 ## Core Configuration
 
-- **Unique Suffix**: `random_string` (length 4, lower+numeric) — generate once, pass everywhere.
+- **Unique Suffix**: See `AGENTS.md` (Terraform: `random_string`, length 4, lower+numeric — generate once, pass everywhere)
 - **Provider**: Pin `azurerm ~> 4.0`, `random ~> 3.0`. Terraform >= 1.9.
 - **State Backend**: Azure Storage Account. **NEVER** HCP Terraform Cloud.
-- **Tags**: 4 mandatory (Environment, ManagedBy, Project, Owner) — `local.tags` everywhere.
-- **Security**: TLS 1.2+, HTTPS-only, no public blob, managed identity preferred.
+- **Tags**: See `AGENTS.md` (4 mandatory baseline; governance may require more)
+- **Security**: See `AGENTS.md` (TLS 1.2+, HTTPS-only, no public blob, managed identity preferred)
 
 **Policy constraints** (`04-governance-constraints.md`) ALWAYS override defaults above.
 
@@ -94,7 +94,7 @@ terraform plan -out=plan.tfplan
 
 ## Cross-References
 
-- **Policy**: `terraform-policy-compliance.instructions.md`
+- **Policy**: `iac-policy-compliance.instructions.md`
 - **Governance**: `governance-discovery.instructions.md`
 - **Patterns**: `terraform-patterns/SKILL.md` | **Defaults**: `azure-defaults/SKILL.md`
 - **HCL examples**: `terraform-patterns/references/tf-best-practices-examples.md`
