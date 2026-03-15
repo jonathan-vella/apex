@@ -75,8 +75,8 @@ handoffs:
     prompt: "Re-run the resource health assessment to check for status changes after remediation actions."
     send: true
   - label: "▶ Generate Workload Documentation"
-    agent: 09-Diagnose
-    prompt: "Use the azure-artifacts skill to generate comprehensive as-built documentation incorporating health assessment findings."
+    agent: 08-As-Built
+    prompt: "Generate as-built documentation incorporating health assessment findings from `agent-output/{project}/08-resource-health-report.md`. Input: all prior artifacts + diagnostic report. Output: `07-*.md` documentation suite."
     send: true
   - label: "↩ Escalate to Architect"
     agent: 03-Architect
@@ -103,12 +103,13 @@ This avoids running commands that will return empty results.
 
 <empty_result_recovery>
 If an Azure Resource Graph query or diagnostic command returns empty results:
+
 1. Verify the resource ID and resource group name are correct.
 2. Check if the resource type supports the queried metric or log category.
 3. Suggest enabling diagnostics if logs are not configured.
 4. Try alternative discovery methods (az resource list, activity log).
-Do not report "no issues found" when the real problem is missing telemetry.
-</empty_result_recovery>
+   Do not report "no issues found" when the real problem is missing telemetry.
+   </empty_result_recovery>
 
 **HARD RULE — ASK BEFORE YOU READ**
 

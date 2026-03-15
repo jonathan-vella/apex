@@ -4,7 +4,7 @@ model: ["GPT-5.4 (copilot)"]
 description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-agents: []
+agents: ["bicep-whatif-subagent"]
 tools:
   [
     vscode/extensions,
@@ -95,7 +95,6 @@ handoffs:
     agent: 03-Architect
     prompt: "Review the deployment results and validate WAF compliance of the deployed infrastructure. Assessment at `agent-output/{project}/02-architecture-assessment.md`."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
     prompt: "Returning from Step 6 (Bicep Deploy). Deployment completed; summary at `agent-output/{project}/06-deployment-summary.md`. Resources verified via Azure Resource Graph. Ready for as-built documentation."

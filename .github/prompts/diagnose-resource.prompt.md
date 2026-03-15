@@ -1,7 +1,7 @@
 ---
 description: "Diagnose Azure resource health issues with guided troubleshooting and remediation planning."
 agent: "09-Diagnose"
-model: "Claude Sonnet 4.6"
+model: "Claude Opus 4.6"
 ---
 
 # Diagnose Azure Resource

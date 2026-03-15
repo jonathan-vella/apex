@@ -9,7 +9,6 @@ agents:
     "challenger-review-subagent",
     "challenger-review-codex-subagent",
     "challenger-review-batch-subagent",
-    "05t-Terraform Planner",
   ]
 tools:
   [

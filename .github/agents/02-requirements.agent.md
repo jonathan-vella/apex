@@ -5,7 +5,7 @@ description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
 user-invocable: true
-agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
+agents: ["challenger-review-subagent", "challenger-review-codex-subagent", "10-Challenger"]
 tools:
   [
     vscode/extensions,
@@ -66,11 +66,11 @@ handoffs:
   - label: "▶ Ask Clarifying Questions"
     agent: 02-Requirements
     prompt: "Generate clarifying questions to fill gaps in the current requirements. Focus on NFRs, compliance, budget, and regional preferences."
-    send: true
+    send: false
   - label: "▶ Validate Completeness"
     agent: 02-Requirements
     prompt: "Validate the requirements document for completeness against the template. Check all required sections are filled and flag any gaps."
-    send: true
+    send: false
   - label: "🔍 Run Challenger Review"
     agent: 10-Challenger
     prompt: "Review the requirements artifact at `agent-output/{project}/01-requirements.md`. Use artifact_type=requirements, review_focus=comprehensive, pass_number=1. Return structured findings with must_fix and should_fix items."

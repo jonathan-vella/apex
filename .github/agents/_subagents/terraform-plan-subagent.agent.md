@@ -20,11 +20,12 @@ List every resource change with address and action type.
 
 <empty_result_recovery>
 If terraform plan returns no changes:
+
 1. Verify the .tfvars file matches the target environment.
 2. Confirm terraform init was run after recent module changes.
 3. Report "No changes — configuration matches deployed state" with Status: PASS.
-Do not treat an empty plan as an error.
-</empty_result_recovery>
+   Do not treat an empty plan as an error.
+   </empty_result_recovery>
 
 **Your specialty**: Terraform plan analysis and change classification
 

@@ -4,7 +4,7 @@ description: Azure governance discovery agent. Queries Azure Policy assignments 
 model: "GPT-5.4 (copilot)"
 argument-hint: Discover governance constraints for a project
 user-invocable: true
-agents: ["governance-discovery-subagent"]
+agents: ["governance-discovery-subagent", "challenger-review-subagent"]
 tools:
   [
     execute,
@@ -24,14 +24,12 @@ handoffs:
     send: true
   - label: "Step 4: Bicep Plan"
     agent: 05b-Bicep Planner
-    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md`."
+    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 4: Terraform Plan"
     agent: 05t-Terraform Planner
-    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md`."
+    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
     prompt: "Governance discovery is complete. Resume the workflow."

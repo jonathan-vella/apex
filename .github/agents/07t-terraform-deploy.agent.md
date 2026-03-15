@@ -4,7 +4,7 @@ model: ["GPT-5.4 (copilot)"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: []
+agents: ["terraform-plan-subagent"]
 tools:
   [
     vscode/extensions,
@@ -91,6 +91,10 @@ handoffs:
     agent: 06t-Terraform CodeGen
     prompt: "The deployment encountered errors. Review the error messages and fix the Terraform configurations in `infra/terraform/{project}/` to resolve the issues."
     send: true
+  - label: "↩ Return to Step 2"
+    agent: 03-Architect
+    prompt: "Review the deployment results and validate WAF compliance of the deployed infrastructure. Assessment at `agent-output/{project}/02-architecture-assessment.md`."
+    send: false
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
     prompt: "Returning from Step 6 (Terraform Deploy). Deployment completed; summary at `agent-output/{project}/06-deployment-summary.md`. Resources verified via Azure Resource Graph. Ready for as-built documentation."

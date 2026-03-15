@@ -155,7 +155,7 @@
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Opus 4.6",
       "skills": ["azure-diagnostics", "azure-defaults"],
       "invokable": true,
       "step": null

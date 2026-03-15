@@ -43,6 +43,26 @@ handoffs:
     agent: 01-Conductor (Fast Path)
     prompt: "Begin the fast-path workflow for a simple Azure project."
     send: false
+  - label: "Step 1: Gather Requirements"
+    agent: 02-Requirements
+    prompt: "Your FIRST action must be calling askQuestions. Start with Phase 1 Round 1 questions. You must complete all 4 questioning phases via askQuestions before generating any document. Complexity MUST be classified as simple."
+    send: true
+  - label: "Step 2: Architecture (Streamlined)"
+    agent: 03-Architect
+    prompt: "Create a streamlined WAF assessment with cost estimates for a simple project. Input: `agent-output/{project}/01-requirements.md`. Output: `02-architecture-assessment.md` and `03-des-cost-estimate.md`. 1-pass review (not 3-pass)."
+    send: true
+  - label: "Step 3: IaC Plan + Code"
+    agent: 05b-Bicep Planner
+    prompt: "Create and execute a combined plan+code step for a simple project. Input: `agent-output/{project}/02-architecture-assessment.md`. Single deployment phase, 1-pass review."
+    send: true
+  - label: "Step 4: Deploy"
+    agent: 07b-Bicep Deploy
+    prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure. What-if is mandatory. User approval required."
+    send: false
+  - label: "Step 5: Documentation (Streamlined)"
+    agent: 08-As-Built
+    prompt: "Generate streamlined documentation for a simple project. Only: design document, operations runbook, resource inventory. Input: all prior artifacts in `agent-output/{project}/`."
+    send: true
   - label: "↩ Switch to Full Conductor"
     agent: 01-Conductor
     prompt: "This project is too complex for fast-path. Switching to the full 7-step conductor workflow."
@@ -113,7 +133,9 @@ Review pass counts follow the `simple` row of the review matrix in
 1. **Present the IaC Planner handoff** (05b or 05t based on `iac_tool`)
    — the Planner uses `askQuestions` for the Deployment Strategy Gate,
    so it must run as a direct handoff, not via `#runSubagent`.
-   - **Skip governance discovery** (simple projects have no custom policies)
+   - **Skip governance discovery** (simple projects have no custom policies —
+     this is an intentional exception documented in the complexity gate above.
+     If the subscription has custom policies, use the full Conductor instead.)
    - **Skip adversarial review** of the plan (1-pass at code stage)
    - Single deployment phase (no phased deployment needed)
 2. Immediately delegate to the IaC CodeGen agent (06b or 06t) via `#runSubagent`

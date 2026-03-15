@@ -74,25 +74,22 @@ handoffs:
     agent: 03-Architect
     prompt: "Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to `agent-output/{project}/03-des-cost-estimate.md`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
     send: true
-    model: "Claude Sonnet 4.6 (copilot)"
   - label: "⏭️ Skip Steps 3.5 & 4: Bicep Code"
     agent: 06b-Bicep CodeGen
-    prompt: "Skip governance and planning. Go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
-    send: true
+    prompt: "WARNING: Skipping governance discovery and implementation planning. IaC will be generated without Azure Policy constraint validation — deployment may fail if policies block resources. Generate Bicep templates based on architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save to `infra/bicep/{project}/`."
+    send: false
   - label: "⏭️ Skip Steps 3.5 & 4: Terraform Code"
     agent: 06t-Terraform CodeGen
-    prompt: "Skip governance and planning. Go directly to Terraform code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save configurations to `infra/terraform/{project}/`."
-    send: true
+    prompt: "WARNING: Skipping governance discovery and implementation planning. IaC will be generated without Azure Policy constraint validation — deployment may fail if policies block resources. Generate Terraform configurations based on architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save to `infra/terraform/{project}/`."
+    send: false
   - label: "↩ Return to Step 2"
     agent: 03-Architect
     prompt: "Returning to architecture assessment for further refinement. Review `agent-output/{project}/02-architecture-assessment.md` for re-evaluation."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
     prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.py`. Ready for governance discovery or IaC planning."

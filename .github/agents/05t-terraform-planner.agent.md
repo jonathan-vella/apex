@@ -64,8 +64,8 @@ tools:
   ]
 handoffs:
   - label: "▶ Refresh Governance"
-    agent: 05t-Terraform Planner
-    prompt: "Re-query Azure Resource Graph for updated policy assignments and governance constraints. Update `agent-output/{project}/04-governance-constraints.md`."
+    agent: 04g-Governance
+    prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json in `agent-output/{project}/`."
     send: true
   - label: "▶ Revise Plan"
     agent: 05t-Terraform Planner
@@ -334,10 +334,10 @@ Input: App Service, SQL Database, Key Vault, VNet, Private Endpoints. Strategy: 
 Decision logic: Resources with no dependencies deploy first. Each resource deploys after its deps.
 
 Phase 1 (Foundation): VNet → no dependencies
-Phase 2 (Security):   Key Vault → depends on VNet (private endpoint)
-Phase 3 (Data):       SQL Database → depends on VNet (PE), Key Vault (connection string)
-Phase 4 (Compute):    App Service → depends on SQL, Key Vault, VNet (VNet integration)
+Phase 2 (Security): Key Vault → depends on VNet (private endpoint)
+Phase 3 (Data): SQL Database → depends on VNet (PE), Key Vault (connection string)
+Phase 4 (Compute): App Service → depends on SQL, Key Vault, VNet (VNet integration)
 
 Output: YAML task specs in this order in 04-implementation-plan.md, with explicit depends_on fields.
-  Use var.deployment_phase + count for phased gating.
+Use var.deployment_phase + count for phased gating.
 </example>
