@@ -274,25 +274,27 @@ file structure, `locals.tf` pattern, and phased deployment pattern.
 
 <output_contract>
 Expected output in `infra/terraform/{project}/`:
+
 - `versions.tf`, `providers.tf`, `backend.tf` — Provider and backend config
 - `variables.tf`, `locals.tf` — Input variables and computed locals
 - `main.tf` — Resource group and module orchestration
 - `outputs.tf` — Deployment outputs
 - `bootstrap-backend.sh` + `bootstrap-backend.ps1` — State backend bootstrap
 - `deploy.sh` + `deploy.ps1` — Deployment scripts
-In `agent-output/{project}/`:
+  In `agent-output/{project}/`:
 - `04-preflight-check.md` — Preflight validation results
 - `05-implementation-reference.md` — Configuration structure and validation status
-Validation: `terraform validate` + `terraform fmt -check` + `npm run lint:artifact-templates`.
-</output_contract>
+  Validation: `terraform validate` + `terraform fmt -check` + `npm run lint:artifact-templates`.
+  </output_contract>
 
 <user_updates_spec>
 After completing each major phase, provide a brief status update in chat:
+
 - What was just completed (phase name, key results)
 - What comes next (next phase name)
 - Any blockers or decisions needed
-This keeps the user informed during multi-phase operations.
-</user_updates_spec>
+  This keeps the user informed during multi-phase operations.
+  </user_updates_spec>
 
 ## Boundaries
 

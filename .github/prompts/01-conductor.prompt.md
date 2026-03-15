@@ -9,6 +9,15 @@ argument-hint: "Describe the Azure infrastructure project you want to build end-
 
 Start a new Azure infrastructure project using the 7-step agentic workflow.
 
+## Prerequisites
+
+- No prior project artifacts required (this is the entry point)
+- The agent will create `agent-output/{project}/` and initialize session state
+
+## Variables
+
+- `{project}`: kebab-case project name derived from user description (max 30 chars)
+
 ## Instructions
 
 1. Ask the user to describe their project requirements in natural language.

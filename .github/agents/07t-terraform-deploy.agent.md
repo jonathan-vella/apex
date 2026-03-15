@@ -388,9 +388,10 @@ Do NOT compose the artifact from memory. Do NOT skip the post-save lint check.
 
 <output_contract>
 Expected output in `agent-output/{project}/`:
+
 - `06-deployment-summary.md` — Deployment results (copy-then-fill from template)
-Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
-</output_contract>
+  Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
+  </output_contract>
 
 <empty_result_recovery>
 If terraform plan shows no changes, report the result and confirm with the user before proceeding.

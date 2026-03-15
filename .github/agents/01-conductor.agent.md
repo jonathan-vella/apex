@@ -88,64 +88,78 @@ handoffs:
     agent: 02-Requirements
     prompt: "Your FIRST action must be calling askQuestions to ask the user about their project. Do NOT read files, search, or generate content before asking. Start with Phase 1 Round 1 questions (project name, industry, company size, system type). You must complete all 4 questioning phases via askQuestions before generating any document."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 2: Architecture Assessment"
     agent: 03-Architect
-    prompt: "Create a WAF assessment with cost estimates based on the requirements in `agent-output/{project}/01-requirements.md`. Save to `agent-output/{project}/02-architecture-assessment.md`."
+    prompt: "Create a WAF assessment with cost estimates based on the requirements in `agent-output/{project}/01-requirements.md`. The requirements document contains the project scope, NFRs, compliance needs, and budget. Your output is `02-architecture-assessment.md` (WAF scores + SKU recommendations) and `03-des-cost-estimate.md` (MCP-verified pricing). Save both to `agent-output/{project}/`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
     prompt: "Generate non-Mermaid architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Python diagrams outputs (`03-des-diagram.py` + `.png`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 3.5."
     send: false
-    model: "GPT-5.3-Codex (copilot)"
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
-    prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
+    prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API (including management-group inherited policies), produce 04-governance-constraints.md/.json, and run adversarial review. Input: `02-architecture-assessment.md` resource list. Output: governance constraint artifacts for IaC planning."
     send: true
-    model: "Claude Sonnet 4.6 (copilot)"
   - label: "Step 4: Implementation Plan"
     agent: 05b-Bicep Planner
-    prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Save `agent-output/{project}/04-implementation-plan.md` plus mandatory Step 4 diagrams: `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
+    prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen
     prompt: "Implement the Bicep templates according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/bicep/{project}/`. Proceed directly to completion - Deploy agent will validate."
     send: true
   - label: "Step 6: Deploy"
     agent: 07b-Bicep Deploy
-    prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure after preflight validation. Check `agent-output/{project}/04-implementation-plan.md` for deployment strategy (phased or single) and follow accordingly."
+    prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure after preflight validation. Input: `04-implementation-plan.md` for deployment strategy (phased or single). Output: `06-deployment-summary.md`."
     send: false
-    model: "GPT-5.3-Codex (copilot)"
   - label: "Step 7: As-Built Documentation"
     agent: 08-As-Built
-    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
+    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Input: all prior artifacts (01-06) in `agent-output/{project}/` plus deployed resource state. Output: `07-*.md` documentation suite (design doc, runbook, cost estimate, compliance matrix, resource inventory)."
     send: true
-    model: "GPT-5.3-Codex (copilot)"
   - label: "🔧 Diagnose Issues"
     agent: 09-Diagnose
     prompt: "Troubleshoot issues with the current workflow or Azure resources."
     send: false
   - label: "Step 4: IaC Plan (Terraform)"
     agent: 05t-Terraform Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Save `agent-output/{project}/04-implementation-plan.md` plus mandatory Step 4 diagrams: `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
+    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 5: Generate Terraform"
     agent: 06t-Terraform CodeGen
     prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Proceed directly to completion - Deploy agent will validate."
     send: true
   - label: "Step 6: Deploy (Terraform)"
     agent: 07t-Terraform Deploy
-    prompt: "Deploy the Terraform configuration in `infra/terraform/{project}/` to Azure after preflight validation. Check `agent-output/{project}/04-implementation-plan.md` for deployment strategy."
+    prompt: "Deploy the Terraform configuration in `infra/terraform/{project}/` to Azure after preflight validation. Input: `04-implementation-plan.md` for deployment strategy. Output: `06-deployment-summary.md`."
     send: false
-    model: "GPT-5.3-Codex (copilot)"
 ---
 
 # InfraOps Conductor Agent
 
+<!-- Recommended reasoning_effort: high -->
+
 Master orchestrator for the 7-step Azure infrastructure development workflow.
+
+<context_awareness>
+Before loading large skill files, check if SKILL.digest.md or SKILL.minimal.md variants exist.
+If context approaches 80%, switch to compressed variants per the context-shredding skill.
+At gates, write 00-handoff.md to preserve state for potential session breaks.
+</context_awareness>
+
+<subagent_budget>
+Invoke no more than 3 subagents sequentially before checkpointing progress with the user.
+This preserves context and prevents runaway delegation. If a step requires more than 3
+subagent calls, checkpoint after the third and confirm with the user before continuing.
+</subagent_budget>
+
+<output_contract>
+Session state: agent-output/{project}/00-session-state.json — update at every gate with
+current_step, step status, decisions, and artifact inventory.
+Handoff: agent-output/{project}/00-handoff.md — overwrite at every gate (under 60 lines,
+paths only, never embed artifact content).
+Gate format: structured text block with artifact paths, challenger findings summary,
+and next-step guidance (see gate templates below).
+</output_contract>
 
 **HARD RULE — ONE-SHOT PROJECT SETUP**
 
@@ -159,7 +173,7 @@ Everything below happens in a **single turn** — no back-and-forth.
 3. **Immediately after `askQuestions` returns** (same turn), proceed:
    a. Check `agent-output/{project}/` for existing artifacts → resume if found
    b. Otherwise: create folder + `00-session-state.json`
-   c. Read mandatory skills
+   c. Read skills
    d. Present the **Step 1: Gather Requirements** handoff
 
 Do NOT end your turn after `askQuestions`. The user answers inline and you
@@ -169,7 +183,7 @@ continue executing steps 3a-3d in the same response.
 by the Requirements agent in Phase 2. Read `iac_tool` from `01-requirements.md`
 after Step 1 completes.
 
-## MANDATORY: Read Skills (After Project Name, Before Delegating)
+## Read Skills (After Project Name, Before Delegating)
 
 **After confirming the project name**, read:
 
@@ -234,7 +248,7 @@ Step 6:   Deploy          →  [APPROVAL GATE]  →  06-deployment-summary.md
 Step 7:   Documentation   →                   →  07-*.md
 ```
 
-## Mandatory Approval Gates
+## Approval Gates
 
 ### IaC Routing Logic
 
@@ -425,7 +439,7 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 4. Create `agent-output/{project-name}/` and `00-session-state.json` from
    `.github/skills/azure-artifacts/templates/00-session-state.template.json`
    — set `project`, `branch`, `updated`, `current_step: 1`
-5. Read mandatory skills (see [MANDATORY: Read Skills](#mandatory-read-skills-after-project-name-before-delegating))
+5. Read skills (see [Read Skills](#read-skills-after-project-name-before-delegating))
 6. **Present the Step 1 handoff** to the Requirements agent — do NOT use
    `#runSubagent` for Step 1. Tell the user: _"Click **Step 1: Gather Requirements** below to start."_
 7. Wait for Gate 1 approval
@@ -452,7 +466,7 @@ Conductor with the project name — no special resume prompt needed.
 
 | Step | Artifact                            | Check                                    |
 | ---- | ----------------------------------- | ---------------------------------------- |
-| —    | `README.md`                         | Exists? (mandatory)                      |
+| —    | `README.md`                         | Exists? (required)                       |
 | —    | `00-handoff.md`                     | Updated at every gate? (human companion) |
 | —    | `00-session-state.json`             | Updated at every gate? (machine state)   |
 | 1    | `01-requirements.md`                | Exists?                                  |
@@ -494,3 +508,13 @@ At Gates 2 and 3, recommend starting a fresh chat session to prevent context exh
 
 At resumption, the Conductor reads `00-session-state.json` and restores full context
 from artifact paths — no information is lost. See [Resuming a Project](#resuming-a-project).
+
+<example title="Workflow routing after Step 2 completes">
+Input state: 00-session-state.json shows steps.2.status = "complete", decisions.iac_tool = "Bicep"
+Decision logic:
+  1. Step 2 complete → check if Step 3 (Design) should run → user said "skip design"
+  2. Follow on_skip edge → next node = Step 3.5 (Governance)
+  3. Governance agent is GPT-5.4 → delegate via handoff
+Output: Present Gate 2 with session break recommendation, then hand off to 04g-Governance
+  with prompt including project name and architecture artifact path.
+</example>

@@ -8,6 +8,18 @@ model: "Claude Opus 4.6"
 
 Resume the 7-step Azure infrastructure workflow from the last checkpoint.
 
+## Prerequisites
+
+- At least one project folder exists under `agent-output/` with `00-session-state.json`
+- The session state file contains `current_step` and step statuses
+
+## Session State Detection
+
+The agent reads `00-session-state.json` to determine:
+- Which step to resume from (`current_step`)
+- Whether to use Bicep or Terraform agents (`decisions.iac_tool`)
+- Any in-progress sub-step checkpoints (`steps.{N}.sub_step`)
+
 ## Instructions
 
 1. Scan `agent-output/` for project folders containing `00-session-state.json`.

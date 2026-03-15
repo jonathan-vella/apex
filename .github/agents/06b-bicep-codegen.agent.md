@@ -284,24 +284,26 @@ infra/bicep/{project}/
 
 <output_contract>
 Expected output in `infra/bicep/{project}/`:
+
 - `main.bicep` — Entry point with uniqueSuffix, orchestrates modules
 - `main.bicepparam` — Environment-specific parameters
 - `azure.yaml` — azd project manifest
 - `deploy.ps1` — PowerShell deployment script (legacy fallback)
 - `modules/*.bicep` — Per-resource AVM module wrappers
-In `agent-output/{project}/`:
+  In `agent-output/{project}/`:
 - `04-preflight-check.md` — Preflight validation results
 - `05-implementation-reference.md` — Template structure and validation status
-Validation: `bicep build main.bicep` + `bicep lint main.bicep` + `npm run lint:artifact-templates`.
-</output_contract>
+  Validation: `bicep build main.bicep` + `bicep lint main.bicep` + `npm run lint:artifact-templates`.
+  </output_contract>
 
 <user_updates_spec>
 After completing each major phase, provide a brief status update in chat:
+
 - What was just completed (phase name, key results)
 - What comes next (next phase name)
 - Any blockers or decisions needed
-This keeps the user informed during multi-phase operations.
-</user_updates_spec>
+  This keeps the user informed during multi-phase operations.
+  </user_updates_spec>
 
 ## Boundaries
 

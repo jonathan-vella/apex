@@ -82,7 +82,6 @@ handoffs:
     agent: 03-Architect
     prompt: "Completed a resource health assessment that identified architectural issues requiring WAF evaluation. Please review the findings in `agent-output/{project}/08-resource-health-report.md` and provide architectural recommendations."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
     prompt: "Returning from Diagnostics. Report at `agent-output/{project}/08-resource-health-report.md`. Advise on next steps."
@@ -91,8 +90,25 @@ handoffs:
 
 # Azure Resource Health Diagnostician Agent
 
+<!-- Recommended reasoning_effort: medium -->
+
 This agent is **supplementary** to the 7-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
+
+<investigate_before_answering>
+Before running diagnostic commands, query Azure Resource Graph to understand the resource's
+type, location, and relationships. Check if diagnostic settings and Log Analytics are configured.
+This avoids running commands that will return empty results.
+</investigate_before_answering>
+
+<empty_result_recovery>
+If an Azure Resource Graph query or diagnostic command returns empty results:
+1. Verify the resource ID and resource group name are correct.
+2. Check if the resource type supports the queried metric or log category.
+3. Suggest enabling diagnostics if logs are not configured.
+4. Try alternative discovery methods (az resource list, activity log).
+Do not report "no issues found" when the real problem is missing telemetry.
+</empty_result_recovery>
 
 **HARD RULE — ASK BEFORE YOU READ**
 
@@ -130,7 +146,7 @@ Confirm the target FIRST so you know what to diagnose.
 - Make changes to Azure resources without showing the command first
 - Skip the discovery phase — always confirm the target resource
 
-## MANDATORY: Read Skills (After Resource Confirmation, Before Diagnostics)
+## Read Skills (After Resource Confirmation, Before Diagnostics)
 
 **After Phase 1 resource confirmation**, read:
 

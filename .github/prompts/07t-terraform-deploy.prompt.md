@@ -1,7 +1,7 @@
 ---
 description: "Deploy Terraform configurations to Azure with plan preview and phased execution."
 agent: "07t-Terraform Deploy"
-model: "Claude Sonnet 4.6"
+model: "GPT-5.4"
 argument-hint: "Deploy the Terraform configuration for a specific project"
 ---
 

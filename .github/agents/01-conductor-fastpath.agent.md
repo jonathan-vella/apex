@@ -51,7 +51,14 @@ handoffs:
 
 # Fast-Path Conductor (Experimental)
 
+<!-- Recommended reasoning_effort: medium -->
+
 Streamlined orchestrator for **simple** Azure infrastructure projects.
+
+<context_awareness>
+Before loading skill files, check if SKILL.digest.md variants exist.
+Fast-path projects are small — prefer digest variants to preserve context for the combined Plan+Code step.
+</context_awareness>
 
 **COMPLEXITY GATE**: This conductor is ONLY for `simple` projects
 (≤3 resources, no custom policies, single environment).

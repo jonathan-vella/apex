@@ -8,6 +8,11 @@ model: "Claude Sonnet 4.6"
 
 Interactive diagnostic workflow for Azure resource health assessment.
 
+## Prerequisites
+
+- Active Azure CLI session (`az account show` succeeds)
+- Target resource name, resource group, or resource ID known by user
+
 ## Instructions
 
 1. Ask the user which Azure resource or resource group to diagnose.

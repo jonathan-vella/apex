@@ -8,6 +8,16 @@ model: "Claude Opus 4.6"
 
 Create a comprehensive, machine-readable Bicep implementation plan based on the approved architecture.
 
+## Prerequisites
+
+- `agent-output/{project}/02-architecture-assessment.md` (Step 2 complete)
+- `agent-output/{project}/04-governance-constraints.md/.json` (Step 3.5 complete)
+- `00-session-state.json` with `decisions.iac_tool = "Bicep"`
+
+## Variables
+
+- `{project}`: project folder name under `agent-output/`
+
 ## Instructions
 
 1. Read `agent-output/{project}/00-session-state.json` to confirm IaC tool is `Bicep` and

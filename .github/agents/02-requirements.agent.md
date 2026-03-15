@@ -77,9 +77,8 @@ handoffs:
     send: true
   - label: "Step 2: Architecture Assessment"
     agent: 03-Architect
-    prompt: "Review the requirements in `agent-output/{project}/01-requirements.md` and create a comprehensive WAF assessment with cost estimates. Save to `agent-output/{project}/02-architecture-assessment.md`."
+    prompt: "Review the requirements in `agent-output/{project}/01-requirements.md` and create a comprehensive WAF assessment with cost estimates. Input: completed requirements with NFRs, compliance, budget, workload pattern. Output: `02-architecture-assessment.md` (WAF scores) and `03-des-cost-estimate.md` (MCP-verified pricing)."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Open in Editor"
     agent: agent
     prompt: "#createFile the requirements plan as is into an untitled file (`untitled:plan-${camelCaseName}.prompt.md` without frontmatter) for further refinement."
@@ -92,6 +91,26 @@ handoffs:
 ---
 
 <!-- ONE-SHOT GATE — the model must complete ALL phases in a single turn -->
+<!-- Recommended reasoning_effort: medium -->
+
+<output_contract>
+Primary artifact: agent-output/{project}/01-requirements.md — H2 structure must match
+azure-artifacts template exactly. Includes: business context, workload pattern, NFRs,
+compliance frameworks, service recommendations, budget, region, iac_tool.
+Secondary artifact: agent-output/{project}/README.md — project status dashboard.
+Session state: update 00-session-state.json after each phase with sub_step checkpoint.
+Challenger output: challenge-findings-requirements.json (structured JSON).
+</output_contract>
+
+<scope_fencing>
+Audit your output against the 01-requirements.template.md. Do not add sections, features,
+or analysis beyond what the template specifies. Architecture decisions belong to Step 2.
+</scope_fencing>
+
+<context_awareness>
+Before loading skill files in Phase 5, check if SKILL.digest.md variants exist.
+Only load skills after completing Phases 1-4 questioning — not before.
+</context_awareness>
 
 **This agent completes ALL work in ONE turn.** Call `askQuestions` for each phase
 sequentially (Phases 1→2→3→4), then generate the document, save it, and run the
@@ -138,12 +157,12 @@ documents. You must complete Phases 1-4 of questioning before writing anything.
 
 ## Phase 1: Business Discovery — CALL `askQuestions` NOW
 
-### Round 1: Core Business Context (MANDATORY — always ask)
+### Round 1: Core Business Context (always ask)
 
 Use `askQuestions` — 4 questions: Project name (freeform), Industry (6 options + freeform),
 Company Size (3 options), System type / project description (6 options + freeform).
 
-All rounds in Phase 1 are MANDATORY. Even if the user's initial prompt provides
+All rounds in Phase 1 are required. Even if the user's initial prompt provides
 some answers, still ask the remaining questions. Pre-fill known answers as
 `recommended` options but always let the user confirm or override.
 
@@ -163,7 +182,7 @@ from scratch.
 >   the UI renders single-select radio buttons.
 > - Questions marked `(multiSelect: true)` below require this flag.
 
-### Round 1b: Project Identity (MANDATORY — always ask)
+### Round 1b: Project Identity (always ask)
 
 Use `askQuestions` — 3 questions: Scenario (greenfield/migration/modernize/extend),
 Target environments (Dev/Test/Staging/Production — `multiSelect: true`, default Dev+Production),
@@ -180,7 +199,7 @@ DO NOT ask user to self-classify from scratch. Use Detection Signals and Busines
 Domain Signals tables from the azure-defaults skill to INFER the workload pattern,
 then present it as a `recommended` option for user confirmation.
 
-All questions in this phase are MANDATORY. You must ask about budget,
+All questions in this phase are required. You must ask about budget,
 scale, and data sensitivity even if you think you can infer them.
 
 Use `askQuestions` — up to 4 questions: Pattern confirmation (present inferred pattern
@@ -207,7 +226,7 @@ on budget/scale options matching the company size from Phase 1.
 
 ## Phase 3: Service Recommendations — CALL `askQuestions`
 
-This phase is MANDATORY. Always ask about service tier, availability,
+This phase is required. Always ask about service tier, availability,
 and recovery objectives. Never auto-select or skip.
 
 Present options from the Service Recommendation Matrix in azure-defaults skill.
@@ -233,7 +252,7 @@ Allow user to add/remove services. Use business-friendly labels with Azure names
 
 ## Phase 4: Security & Compliance — CALL `askQuestions`
 
-This phase is MANDATORY. Always ask about compliance, security controls,
+This phase is required. Always ask about compliance, security controls,
 authentication, and region. Never assume based on earlier answers.
 
 Pre-select compliance frameworks using Industry Compliance Pre-Selection from azure-defaults.
@@ -277,11 +296,11 @@ These skills are your single source of truth. Do NOT use hardcoded values.
    - Mark Step 1 as complete, all other steps as Pending
    - Populate Project Summary with project name, region, environment from requirements
    - Set status badge to `In Progress`, step badge to `Step 1 of 7`
-   - This is **MANDATORY** for every new project — do NOT skip
+   - This is **required** for every new project — do NOT skip
 4. Run `npm run lint:artifact-templates` — if errors appear for your artifact, fix them before continuing
-5. Confirm save, then proceed immediately to **Phase 6: Challenger Review** — do NOT present handoff yet
+5. Confirm save, then proceed to **Phase 6: Challenger Review** — do NOT present handoff yet
 
-## Phase 6: Challenger Review (MANDATORY — Do NOT Skip)
+## Phase 6: Challenger Review (Do NOT Skip)
 
 This phase is required before presenting Gate 1. Do NOT skip it, even for simple projects.
 
@@ -343,7 +362,7 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
 - ❌ Assume answers the user has not explicitly provided
 - ❌ Generate the requirements document until Phases 1-4 are complete
 
-## Must-Have Information
+## Required Information
 
 | Requirement         | Gathered In | Default                      |
 | ------------------- | ----------- | ---------------------------- |
