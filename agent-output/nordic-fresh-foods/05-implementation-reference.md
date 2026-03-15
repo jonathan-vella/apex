@@ -47,54 +47,54 @@ infra/bicep/nordic-fresh-foods/
 
 ## ✅ Validation Status
 
-| Check                | Result | Details                                                         |
-| -------------------- | ------ | --------------------------------------------------------------- |
-| `bicep build`        | ✅      | 0 errors, 34 warnings (BCP318 conditional modules, BCP321 nullable MI outputs, no-hardcoded-env-urls DNS) |
-| `bicep lint`         | ✅      | 0 errors                                                        |
-| `bicep-lint-subagent`   | ✅ PASS     | 0 errors, 34 warnings (all acceptable)                   |
-| `bicep-review-subagent` | ✅ APPROVED | NEEDS_REVISION → all must_fix items resolved, re-validated |
+| Check                   | Result      | Details                                                                                                      |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
+| `bicep build`           | ✅          | 0 errors, ⚠️ 34 warnings (BCP318 conditional modules, BCP321 nullable MI outputs, no-hardcoded-env-urls DNS) |
+| `bicep lint`            | ✅          | 0 errors                                                                                                     |
+| `bicep-lint-subagent`   | ✅ PASS     | 0 errors, 34 warnings (all acceptable)                                                                       |
+| `bicep-review-subagent` | ✅ APPROVED | ❌ NEEDS_REVISION → all must_fix items resolved, re-validated                                                |
 
 ### Review Findings Applied
 
-| Finding | Severity | Description | Resolution |
-| ------- | -------- | ----------- | ---------- |
-| H2 | HIGH | NSGs used raw Bicep instead of AVM | Replaced with `br/public:avm/res/network/network-security-group:0.5.2` |
-| H3 | HIGH | NSG names missing project identifier | Updated to `nsg-${projectName}-{role}-${environment}` |
-| H4 | HIGH | deploy.ps1 missing ARM token validation | Added `az account get-access-token` check |
-| H5 | HIGH | deploy.ps1 wildcard in deployment name query | Track phase-2 name explicitly via `$phase2DeploymentName` |
-| M3 | MEDIUM | ftpsState set to FtpsOnly | Changed to `Disabled` per security baseline |
-| M6 | MEDIUM | Hardcoded technical contact email in deploy.ps1 | Parameterized as `$TechnicalContact` |
-| H1 | HIGH (FP) | dailyQuotaGb type — reviewer claimed int but BCP036 confirmed `null \| string` | No change needed — string is correct |
-| M2 | MEDIUM (FP) | availabilityZone: -1 questioned — build confirmed int works | No change needed |
+| Finding | Severity    | Description                                                                    | Resolution                                                             |
+| ------- | ----------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| H2      | HIGH        | NSGs used raw Bicep instead of AVM                                             | Replaced with `br/public:avm/res/network/network-security-group:0.5.2` |
+| H3      | HIGH        | NSG names missing project identifier                                           | Updated to `nsg-${projectName}-{role}-${environment}`                  |
+| H4      | HIGH        | deploy.ps1 missing ARM token validation                                        | Added `az account get-access-token` check                              |
+| H5      | HIGH        | deploy.ps1 wildcard in deployment name query                                   | Track phase-2 name explicitly via `$phase2DeploymentName`              |
+| M3      | MEDIUM      | ftpsState set to FtpsOnly                                                      | Changed to `Disabled` per security baseline                            |
+| M6      | MEDIUM      | Hardcoded technical contact email in deploy.ps1                                | Parameterized as `$TechnicalContact`                                   |
+| H1      | HIGH (FP)   | dailyQuotaGb type — reviewer claimed int but BCP036 confirmed `null \| string` | No change needed — string is correct                                   |
+| M2      | MEDIUM (FP) | availabilityZone: -1 questioned — build confirmed int works                    | No change needed                                                       |
 
 ### Findings Deferred (Non-Blocking)
 
-| Finding | Severity | Description | Rationale |
-| ------- | -------- | ----------- | --------- |
-| M1 | MEDIUM | SQL missing diagnosticSettings | AVM SQL Server module does not support `diagnosticSettings` parameter (build error confirmed) |
-| M4 | MEDIUM | Standard_LRS in prod | Implementation plan specifies Standard_LRS; aligns with cost-optimized architecture |
-| M5 | MEDIUM | Budget startDate resets on each deploy | `utcNow()` in param default is acceptable pattern; deployer can override |
-| M7 | MEDIUM | PE subnet network policies | `Enabled` is correct GA behavior for API 2024-01-01 |
-| L1-L5 | LOW | Health probe, log retention, blob diagnostics, autoscale ceiling, dev KV access | Non-blocking; addressable in subsequent iteration |
+| Finding | Severity | Description                                                                     | Rationale                                                                                     |
+| ------- | -------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| M1      | MEDIUM   | SQL missing diagnosticSettings                                                  | AVM SQL Server module does not support `diagnosticSettings` parameter (build error confirmed) |
+| M4      | MEDIUM   | Standard_LRS in prod                                                            | Implementation plan specifies Standard_LRS; aligns with cost-optimized architecture           |
+| M5      | MEDIUM   | Budget startDate resets on each deploy                                          | `utcNow()` in param default is acceptable pattern; deployer can override                      |
+| M7      | MEDIUM   | PE subnet network policies                                                      | `Enabled` is correct GA behavior for API 2024-01-01                                           |
+| L1-L5   | LOW      | Health probe, log retention, blob diagnostics, autoscale ceiling, dev KV access | Non-blocking; addressable in subsequent iteration                                             |
 
 ## 🏗️ Resources Created
 
-| Resource | AVM Module | Module File |
-| -------- | ---------- | ----------- |
-| Virtual Network | `br/public:avm/res/network/virtual-network:0.7.2` | network.bicep |
-| NSG (App) | `br/public:avm/res/network/network-security-group:0.5.2` | network.bicep |
-| NSG (Data) | `br/public:avm/res/network/network-security-group:0.5.2` | network.bicep |
-| NSG (PE) | `br/public:avm/res/network/network-security-group:0.5.2` | network.bicep |
-| Log Analytics Workspace | `br/public:avm/res/operational-insights/workspace:0.15.0` | monitoring.bicep |
-| Application Insights | `br/public:avm/res/insights/component:0.7.1` | monitoring.bicep |
-| Key Vault | `br/public:avm/res/key-vault/vault:0.13.3` | keyvault.bicep |
-| Private DNS Zones (×3) | `br/public:avm/res/network/private-dns-zone:0.8.1` | dns.bicep |
-| SQL Server + Database | `br/public:avm/res/sql/server:0.21.1` | sql.bicep |
-| Storage Account | `br/public:avm/res/storage/storage-account:0.32.0` | storage.bicep |
-| App Service Plan | `br/public:avm/res/web/serverfarm:0.7.0` | compute.bicep |
-| App Service | `br/public:avm/res/web/site:0.22.0` | compute.bicep |
-| Private Endpoints (×3) | `br/public:avm/res/network/private-endpoint:0.12.0` | keyvault/sql/storage.bicep |
-| Consumption Budget | Raw Bicep (`Microsoft.Consumption/budgets`) | budget.bicep |
+| Resource                | AVM Module                                                | Module File                |
+| ----------------------- | --------------------------------------------------------- | -------------------------- |
+| Virtual Network         | `br/public:avm/res/network/virtual-network:0.7.2`         | network.bicep              |
+| NSG (App)               | `br/public:avm/res/network/network-security-group:0.5.2`  | network.bicep              |
+| NSG (Data)              | `br/public:avm/res/network/network-security-group:0.5.2`  | network.bicep              |
+| NSG (PE)                | `br/public:avm/res/network/network-security-group:0.5.2`  | network.bicep              |
+| Log Analytics Workspace | `br/public:avm/res/operational-insights/workspace:0.15.0` | monitoring.bicep           |
+| Application Insights    | `br/public:avm/res/insights/component:0.7.1`              | monitoring.bicep           |
+| Key Vault               | `br/public:avm/res/key-vault/vault:0.13.3`                | keyvault.bicep             |
+| Private DNS Zones (×3)  | `br/public:avm/res/network/private-dns-zone:0.8.1`        | dns.bicep                  |
+| SQL Server + Database   | `br/public:avm/res/sql/server:0.21.1`                     | sql.bicep                  |
+| Storage Account         | `br/public:avm/res/storage/storage-account:0.32.0`        | storage.bicep              |
+| App Service Plan        | `br/public:avm/res/web/serverfarm:0.7.0`                  | compute.bicep              |
+| App Service             | `br/public:avm/res/web/site:0.22.0`                       | compute.bicep              |
+| Private Endpoints (×3)  | `br/public:avm/res/network/private-endpoint:0.12.0`       | keyvault/sql/storage.bicep |
+| Consumption Budget      | Raw Bicep (`Microsoft.Consumption/budgets`)               | budget.bicep               |
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
@@ -184,13 +184,13 @@ az deployment group create \
 
 ### Deployment Phases
 
-| Phase | Name | Resources | Approx. Time |
-| ----- | ---- | --------- | ------------ |
-| 1 | Foundation | VNet, Subnets, NSGs | ~2 min |
-| 2 | Observability | Log Analytics, App Insights | ~3 min |
-| 3 | Security | Key Vault, DNS Zones, KV PE | ~5 min |
-| 4 | Data | SQL Server, Database, Storage, PEs | ~8 min |
-| 5 | Compute | App Service Plan, App Service, Budget, RBAC, Autoscale | ~5 min |
+| Phase | Name          | Resources                                              | Approx. Time |
+| ----- | ------------- | ------------------------------------------------------ | ------------ |
+| 1     | Foundation    | VNet, Subnets, NSGs                                    | ~2 min       |
+| 2     | Observability | Log Analytics, App Insights                            | ~3 min       |
+| 3     | Security      | Key Vault, DNS Zones, KV PE                            | ~5 min       |
+| 4     | Data          | SQL Server, Database, Storage, PEs                     | ~8 min       |
+| 5     | Compute       | App Service Plan, App Service, Budget, RBAC, Autoscale | ~5 min       |
 
 ### Pre-Deployment Checklist
 
@@ -203,15 +203,15 @@ az deployment group create \
 
 ## 📝 Key Implementation Notes
 
-| Note | Impact | Reference |
-| ---- | ------ | --------- |
-| Unique suffix via `uniqueString(resourceGroup().id)` | All resource names (KV, Storage, SQL, App) | main.bicep |
-| 11 mandatory tags (9 governance Deny + 2 baseline) | All resources — Azure Policy enforced | main.bicep `var tags` |
-| Azure AD-only SQL auth | No SQL password management; MI-based access | sql.bicep |
-| Phased deployment with `@allowed` phase parameter | Supports incremental rollout and re-entry | main.bicep |
-| Private endpoints conditional on `enablePrivateEndpoints` | Prod: full PE isolation; Dev: public access | all PE modules |
-| FTPS disabled on App Service | Security baseline — no FTP attack surface | compute.bicep |
-| Budget alerts at 80%/100%/120% forecast + 90% actual | Cost governance with anomaly detection | budget.bicep |
+| Note                                                      | Impact                                      | Reference             |
+| --------------------------------------------------------- | ------------------------------------------- | --------------------- |
+| Unique suffix via `uniqueString(resourceGroup().id)`      | All resource names (KV, Storage, SQL, App)  | main.bicep            |
+| 11 mandatory tags (9 governance Deny + 2 baseline)        | All resources — Azure Policy enforced       | main.bicep `var tags` |
+| Azure AD-only SQL auth                                    | No SQL password management; MI-based access | sql.bicep             |
+| Phased deployment with `@allowed` phase parameter         | Supports incremental rollout and re-entry   | main.bicep            |
+| Private endpoints conditional on `enablePrivateEndpoints` | Prod: full PE isolation; Dev: public access | all PE modules        |
+| FTPS disabled on App Service                              | Security baseline — no FTP attack surface   | compute.bicep         |
+| Budget alerts at 80%/100%/120% forecast + 90% actual      | Cost governance with anomaly detection      | budget.bicep          |
 
 ```bicep
 var uniqueSuffix = uniqueString(resourceGroup().id)

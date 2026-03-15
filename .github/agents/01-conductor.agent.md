@@ -1,10 +1,24 @@
 ---
 name: 01-Conductor
 description: Master orchestrator for the 7-step Azure infrastructure workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["Claude Opus 4.6 (copilot)"]
+model: ["Claude Opus 4.6"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invocable: true
-agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05b-Bicep Planner", "06b-Bicep CodeGen", "07b-Bicep Deploy", "08-As-Built", "09-Diagnose", "05t-Terraform Planner", "06t-Terraform CodeGen", "07t-Terraform Deploy"]
+agents:
+  [
+    "02-Requirements",
+    "03-Architect",
+    "04-Design",
+    "04g-Governance",
+    "05b-Bicep Planner",
+    "06b-Bicep CodeGen",
+    "07b-Bicep Deploy",
+    "08-As-Built",
+    "09-Diagnose",
+    "05t-Terraform Planner",
+    "06t-Terraform CodeGen",
+    "07t-Terraform Deploy",
+  ]
 tools:
   [
     vscode/extensions,
@@ -102,6 +116,10 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate the complete Step 7 documentation suite for the deployed project. Input: all prior artifacts (01-06) in `agent-output/{project}/` plus deployed resource state. Output: `07-*.md` documentation suite (design doc, runbook, cost estimate, compliance matrix, resource inventory)."
     send: true
+  - label: "⚡ Switch to Fast Path"
+    agent: 01-Conductor (Fast Path)
+    prompt: "Switch to fast-path conductor for simple projects (≤3 resources, single env, no custom policies)."
+    send: false
   - label: "🔧 Diagnose Issues"
     agent: 09-Diagnose
     prompt: "Troubleshoot issues with the current workflow or Azure resources."
@@ -221,17 +239,17 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 | Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or `00-session-state.json` updates           |
 | Update `00-session-state.json` at EVERY gate                         |                                                                   |
 
-## The 8-Step Workflow
+## The 7-Step Workflow
 
 ```text
-Step 1:   Requirements    →  [APPROVAL GATE]  →  01-requirements.md
-Step 2:   Architecture    →  [APPROVAL GATE]  →  02-architecture-assessment.md
-Step 3:   Design (opt)    →                   →  03-des-*.md/py
-Step 3.5: Governance      →  [APPROVAL GATE]  →  04-governance-constraints.md/.json
-Step 4:   IaC Plan        →  [APPROVAL GATE]  →  04-implementation-plan.md + diagrams
-Step 5:   IaC Code        →  [VALIDATION]     →  infra/bicep/{project}/ or infra/terraform/{project}/
-Step 6:   Deploy          →  [APPROVAL GATE]  →  06-deployment-summary.md
-Step 7:   Documentation   →                   →  07-*.md
+Step 1:   Requirements    →  [Gate 1: Requirements Approval]  →  01-requirements.md
+Step 2:   Architecture    →  [Gate 2: Architecture Approval]  →  02-architecture-assessment.md
+Step 3:   Design (opt)    →                                   →  03-des-*.md/py
+Step 3.5: Governance      →  [Gate 2.5: Governance Approval]  →  04-governance-constraints.md/.json
+Step 4:   IaC Plan        →  [Gate 3: Plan Approval]          →  04-implementation-plan.md + diagrams
+Step 5:   IaC Code        →  [Gate 4: Code Validation]        →  infra/bicep/{project}/ or infra/terraform/{project}/
+Step 6:   Deploy          →  [Gate 5: Deploy Approval]        →  06-deployment-summary.md
+Step 7:   Documentation   →                                   →  07-*.md
 ```
 
 ## Approval Gates, Handoff Document & Delegation Rules

@@ -1,7 +1,7 @@
 ---
 name: cost-estimate-subagent
 description: Azure cost estimation subagent. Queries Azure Pricing MCP tools for real-time SKU pricing, compares regions, and returns structured cost breakdown. Isolates pricing API calls from the parent Architect agent's context window.
-model: "GPT-5.3-Codex (copilot)"
+model: ["GPT-5.3-Codex"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

@@ -7,7 +7,7 @@
 **Prerequisites**: 
 
 **Creating a New Skill**: 
-### Step 1: Create the Skill Directory
+📋 **Reference**: Read `references/step-by-step-guide.md` for the detailed 4-step creation process:
 
 **Example: Complete Skill Structure**: 
 ```text
@@ -16,29 +16,6 @@
 1. Copy the `make-skill-template/` folder
 
 **Validation Checklist**: 
-
-**Troubleshooting**: 
-
-**Project-Specific Scaffold Templates**: 
-When creating skills for _this_ project, use one of these skeletons that match
-
-**Quick Reference**: 
-
-**{Pattern/Section Name}**: 
-Explanation and code example:
-
-**Learn More**: 
-````
-
-**Quick Reference**: 
-
-**Workflow**: 
-### Step 1: ...
-
-**Troubleshooting**: 
-```
-
-**References**: 
 
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

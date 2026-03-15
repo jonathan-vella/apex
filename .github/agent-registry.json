@@ -49,7 +49,7 @@
     "design": {
       "agent": ".github/agents/04-design.agent.md",
       "model": "GPT-5.4",
-      "skills": ["azure-diagrams", "azure-adr"],
+      "skills": ["azure-diagrams", "azure-adr", "session-resume"],
       "invokable": true,
       "step": 3
     },
@@ -120,7 +120,8 @@
           "azure-validate",
           "azure-deploy",
           "iac-common",
-          "github-operations"
+          "github-operations",
+          "session-resume"
         ]
       },
       "terraform": {
@@ -133,7 +134,8 @@
           "azure-deploy",
           "iac-common",
           "terraform-patterns",
-          "github-operations"
+          "github-operations",
+          "session-resume"
         ]
       },
       "invokable": true,

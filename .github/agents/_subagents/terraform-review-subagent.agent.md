@@ -1,7 +1,7 @@
 ---
 name: terraform-review-subagent
 description: Terraform code review subagent. Reviews Terraform configurations against AVM-TF standards, CAF naming conventions, security baseline, and governance compliance. Returns structured APPROVED/NEEDS_REVISION/FAILED verdict with actionable feedback.
-model: "Claude Sonnet 4.6 (copilot)"
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

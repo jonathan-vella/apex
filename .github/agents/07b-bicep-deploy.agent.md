@@ -1,6 +1,6 @@
 ---
 name: 07b-Bicep Deploy
-model: ["GPT-5.4 (copilot)"]
+model: ["GPT-5.4"]
 description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true

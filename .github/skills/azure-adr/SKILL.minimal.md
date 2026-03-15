@@ -8,25 +8,7 @@
 ADRs are saved to the project's agent-output folder:
 
 **ADR Template Structure**: 
-```markdown
-
-**🔍 Context**: 
-What is the issue that we're seeing that is motivating this decision or change?
-
-**✅ Decision**: 
-What is the change that we're proposing and/or doing?
-
-**🔄 Alternatives Considered**: 
-
-**⚖️ Consequences**: 
-### Positive
-
-**🏛️ WAF Pillar Analysis**: 
-
-**🔒 Compliance Considerations**: 
-
-**📝 Implementation Notes**: 
-<div align="center">
+📋 **Reference**: Read `references/adr-template.md` for the full ADR template with all sections (Context, Decision, Alte
 
 **Example Prompts**: 
 ### Design Phase ADR
@@ -50,9 +32,7 @@ Follow these steps when creating ADRs:
 Before finalizing the ADR, verify:
 
 **Guardrails**: 
-### DO
-
-**Patterns to Avoid**: 
+📋 **Reference**: Read `references/guardrails.md` for detailed DO/DON'T rules and anti-pattern table.
 
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

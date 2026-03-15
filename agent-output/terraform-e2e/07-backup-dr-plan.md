@@ -43,11 +43,11 @@
 
 This plan defines backup and recovery procedures for the deployed Terraform workload.
 
-| Metric | Current | Target |
-| ------ | ------- | ------ |
-| **RPO** | 12 hours | 12 hours |
-| **RTO** | 24 hours | 24 hours |
-| **Availability Objective** | 99.5% | 99.5% |
+| Metric                     | Current  | Target   |
+| -------------------------- | -------- | -------- |
+| **RPO**                    | 12 hours | 12 hours |
+| **RTO**                    | 24 hours | 24 hours |
+| **Availability Objective** | 99.5%    | 99.5%    |
 
 Current posture is single-region with manual DR orchestration.
 
@@ -57,19 +57,19 @@ Current posture is single-region with manual DR orchestration.
 
 ### 1.1 Recovery Time Objective (RTO)
 
-| Tier | RTO Target | Services |
-| ---- | ---------- | -------- |
-| 🔴 Critical | 24 hours | Backend App Service, SQL DB |
-| 🟠 Important | 24 hours | Frontend App Service, Key Vault |
-| 🟢 Standard | 48 hours | App Insights, Log Analytics, smart detector rules |
+| Tier         | RTO Target | Services                                          |
+| ------------ | ---------- | ------------------------------------------------- |
+| 🔴 Critical  | 24 hours   | Backend App Service, SQL DB                       |
+| 🟠 Important | 24 hours   | Frontend App Service, Key Vault                   |
+| 🟢 Standard  | 48 hours   | App Insights, Log Analytics, smart detector rules |
 
 ### 1.2 Recovery Point Objective (RPO)
 
-| Data Type | RPO Target | Backup Strategy |
-| --------- | ---------- | --------------- |
-| SQL ecommerce data | 12 hours | Azure SQL automated backups + point-in-time restore |
-| Infrastructure config | 1 hour | Terraform code in Git + remote state |
-| Operational telemetry | 24 hours | Log Analytics retention + App Insights historical data |
+| Data Type             | RPO Target | Backup Strategy                                        |
+| --------------------- | ---------- | ------------------------------------------------------ |
+| SQL ecommerce data    | 12 hours   | Azure SQL automated backups + point-in-time restore    |
+| Infrastructure config | 1 hour     | Terraform code in Git + remote state                   |
+| Operational telemetry | 24 hours   | Log Analytics retention + App Insights historical data |
 
 ---
 
@@ -77,14 +77,17 @@ Current posture is single-region with manual DR orchestration.
 
 ### 2.1 Azure SQL Database
 
-| Setting | Configuration |
-| ------- | ------------- |
-| Backup Type | Platform-managed automated backups |
-| Backup Redundancy | Geo |
-| Restore Type | Point-in-time restore |
-| Target DB | sqldb-terraform-e2e-dev |
+| Setting           | Configuration                      |
+| ----------------- | ---------------------------------- |
+| Backup Type       | Platform-managed automated backups |
+| Backup Redundancy | Geo                                |
+| Restore Type      | Point-in-time restore              |
+| Target DB         | sqldb-terraform-e2e-dev            |
 
 **Point-in-Time Restore Command:**
+
+<details>
+<summary><strong>SQL restore and recovery commands</strong></summary>
 
 ```bash
 az sql db restore \
@@ -97,23 +100,40 @@ az sql db restore \
 
 ### 2.2 Key Vault
 
-| Setting | Configuration |
-| ------- | ------------- |
-| Soft Delete | Enabled |
-| Purge Protection | Enabled |
-| Auth Model | RBAC |
+| Setting          | Configuration |
+| ---------------- | ------------- |
+| Soft Delete      | Enabled       |
+| Purge Protection | Enabled       |
+| Auth Model       | RBAC          |
 
 ### 2.3 Terraform State and IaC
 
-| Setting | Configuration |
-| ------- | ------------- |
-| Source backup | Git repository history |
-| State backend | Azure Blob (`azurerm` backend) |
+| Setting            | Configuration                                          |
+| ------------------ | ------------------------------------------------------ |
+| Source backup      | Git repository history                                 |
+| State backend      | Azure Blob (`azurerm` backend)                         |
 | Recovery mechanism | `terraform init` + `terraform apply` from known commit |
+
+</details>
 
 ---
 
 ## 🌍 3. Disaster Recovery Procedures
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    A["Incident Detected"] --> B{"Primary Region Available?"}
+    B -- Yes --> C["Restore from Backup"]
+    B -- No --> D["Activate DR Failover"]
+    C --> E["SQL Point-in-Time Restore"]
+    D --> F["Redeploy via Terraform in Secondary Region"]
+    F --> G["Update DNS / Traffic Manager"]
+    E --> H["Validate & Resume"]
+    G --> H
+    style A fill:#D83B01,color:#fff
+    style H fill:#107C10,color:#fff
+```
 
 ### 3.1 Failover Procedure
 
@@ -137,52 +157,52 @@ az sql db restore \
 
 ## 🧪 4. Testing Schedule
 
-| Test Type | Frequency | Last Test | Next Test |
-| --------- | --------- | --------- | --------- |
-| SQL restore test | Quarterly | Not recorded | Next quarter from publication date |
-| Terraform rebuild test | Quarterly | Not recorded | Next quarter from publication date |
-| End-to-end DR drill | Semi-annual | Not recorded | Next half-year from publication date |
+| Test Type              | Frequency   | Last Test    | Next Test                            |
+| ---------------------- | ----------- | ------------ | ------------------------------------ |
+| SQL restore test       | Quarterly   | Not recorded | Next quarter from publication date   |
+| Terraform rebuild test | Quarterly   | Not recorded | Next quarter from publication date   |
+| End-to-end DR drill    | Semi-annual | Not recorded | Next half-year from publication date |
 
 ---
 
 ## 📢 5. Communication Plan
 
-| Audience | Channel | Template |
-| -------- | ------- | -------- |
-| Engineering | Teams/Slack | Incident update template |
-| Stakeholders | Email | Business impact summary |
-| Governance | Ticket system | Control impact + remediation plan |
+| Audience     | Channel       | Template                          |
+| ------------ | ------------- | --------------------------------- |
+| Engineering  | Teams/Slack   | Incident update template          |
+| Stakeholders | Email         | Business impact summary           |
+| Governance   | Ticket system | Control impact + remediation plan |
 
 ---
 
 ## 👥 6. Roles and Responsibilities
 
-| Role | Team | Responsibility |
-| ---- | ---- | -------------- |
+| Role               | Team                | Responsibility                      |
+| ------------------ | ------------------- | ----------------------------------- |
 | Incident Commander | team-terraform lead | DR decision and execution oversight |
-| Platform Engineer | team-terraform | Terraform deploy/recover operations |
-| Application Owner | app team | App validation and smoke tests |
-| Security Reviewer | governance/security | Post-incident control verification |
+| Platform Engineer  | team-terraform      | Terraform deploy/recover operations |
+| Application Owner  | app team            | App validation and smoke tests      |
+| Security Reviewer  | governance/security | Post-incident control verification  |
 
 ---
 
 ## 🔗 7. Dependencies
 
-| Dependency | Impact | Mitigation |
-| ---------- | ------ | ---------- |
-| Azure control plane availability | Blocks redeploy/failover | Use tested scripts and documented manual fallback |
-| SQL restore point viability | Data recovery risk | Regular restore tests and retention verification |
-| Identity and RBAC continuity | Access disruption risk | Verify role assignments in post-failover checklist |
+| Dependency                       | Impact                   | Mitigation                                         |
+| -------------------------------- | ------------------------ | -------------------------------------------------- |
+| Azure control plane availability | Blocks redeploy/failover | Use tested scripts and documented manual fallback  |
+| SQL restore point viability      | Data recovery risk       | Regular restore tests and retention verification   |
+| Identity and RBAC continuity     | Access disruption risk   | Verify role assignments in post-failover checklist |
 
 ---
 
 ## 📖 8. Recovery Runbooks
 
-| Scenario | Runbook | Owner |
-| -------- | ------- | ----- |
-| SQL corruption or deletion | Restore DB from PITR and repoint app config | Platform + DBA |
-| App runtime outage | Restart apps, rollback config, redeploy if needed | Platform on-call |
-| Region outage | Regional Terraform redeploy + SQL recovery | Incident Commander |
+| Scenario                   | Runbook                                           | Owner              |
+| -------------------------- | ------------------------------------------------- | ------------------ |
+| SQL corruption or deletion | Restore DB from PITR and repoint app config       | Platform + DBA     |
+| App runtime outage         | Restart apps, rollback config, redeploy if needed | Platform on-call   |
+| Region outage              | Regional Terraform redeploy + SQL recovery        | Incident Commander |
 
 ---
 
@@ -196,11 +216,11 @@ az sql db restore \
 
 ## References
 
-| Topic | Link |
-| ----- | ---- |
-| Azure Backup overview | [Overview](https://learn.microsoft.com/azure/backup/backup-overview) |
-| Azure SQL restore | [Restore DB](https://learn.microsoft.com/azure/azure-sql/database/recovery-using-backups) |
-| DR planning | [Well-Architected DR](https://learn.microsoft.com/azure/well-architected/reliability/disaster-recovery) |
+| Topic                 | Link                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| Azure Backup overview | [Overview](https://learn.microsoft.com/azure/backup/backup-overview)                                    |
+| Azure SQL restore     | [Restore DB](https://learn.microsoft.com/azure/azure-sql/database/recovery-using-backups)               |
+| DR planning           | [Well-Architected DR](https://learn.microsoft.com/azure/well-architected/reliability/disaster-recovery) |
 
 ---
 

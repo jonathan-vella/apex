@@ -11,23 +11,8 @@ Follow this protocol for every GitHub task:
 **Pull Requests (MCP Tools)**: 
 ### Available Tools
 
-**Repositories (gh CLI)**: 
-```bash
-
-**GitHub Actions (gh CLI)**: 
-### Workflows
-
-**Releases (gh CLI)**: 
-```bash
-
-**Secrets & Variables (gh CLI)**: 
-```bash
-
-**API Requests (gh CLI)**: 
-```bash
-
-**Auth & Search (gh CLI)**: 
-```bash
+**CLI Commands (gh)**: 
+📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI commands covering:
 
 **Global Flags**: 
 

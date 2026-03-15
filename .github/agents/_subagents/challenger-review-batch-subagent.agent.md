@@ -1,8 +1,8 @@
 ---
 name: challenger-review-batch-subagent
 description: "Batch adversarial review subagent for complex projects. Runs multiple lenses sequentially in one invocation. Returns array of per-lens findings."
-model: "GPT-5.3-Codex (copilot)"
-# Model rationale: GPT-5.3-Codex (copilot) for passes 2+3 batch. Same model as codex subagent.
+model: ["GPT-5.3-Codex"]
+# Model rationale: GPT-5.3-Codex for passes 2+3 batch. Same model as codex subagent.
 # Internal sequential execution preserves inter-pass context.
 user-invocable: false
 agents: []

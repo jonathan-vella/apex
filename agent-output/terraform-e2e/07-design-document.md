@@ -59,12 +59,12 @@ This design document captures the deployed (as-built) architecture for `terrafor
 
 ### 1.3 Design Objectives
 
-| Objective    | Target | Implementation |
-| ------------ | ------ | -------------- |
-| Availability | 99.5%+ | PremiumV3 App Service plan (zone redundant), managed PaaS services |
-| Performance  | <500ms API p95 (target) | PremiumV3 Linux App Service + Azure SQL Basic |
-| Security     | TLS 1.2+, HTTPS only, AAD-only SQL | Key Vault RBAC, HTTPS-only web apps, SQL AAD-only auth |
-| Scalability  | Growth path to production | App Service and SQL tier upgrades, DR failover runbooks |
+| Objective    | Target                             | Implementation                                                     |
+| ------------ | ---------------------------------- | ------------------------------------------------------------------ |
+| Availability | 99.5%+                             | PremiumV3 App Service plan (zone redundant), managed PaaS services |
+| Performance  | <500ms API p95 (target)            | PremiumV3 Linux App Service + Azure SQL Basic                      |
+| Security     | TLS 1.2+, HTTPS only, AAD-only SQL | Key Vault RBAC, HTTPS-only web apps, SQL AAD-only auth             |
+| Scalability  | Growth path to production          | App Service and SQL tier upgrades, DR failover runbooks            |
 
 ### 1.4 Constraints & Assumptions
 
@@ -80,10 +80,10 @@ This design document captures the deployed (as-built) architecture for `terrafor
 
 ### 1.5 Stakeholders
 
-| Role | Team | Responsibility |
-| ---- | ---- | -------------- |
-| Product Owner | team-terraform | Business prioritization |
-| Platform Engineer | team-terraform | IaC lifecycle and deployments |
+| Role              | Team              | Responsibility                  |
+| ----------------- | ----------------- | ------------------------------- |
+| Product Owner     | team-terraform    | Business prioritization         |
+| Platform Engineer | team-terraform    | IaC lifecycle and deployments   |
 | Security Reviewer | Shared governance | Policy and control verification |
 
 ---
@@ -98,14 +98,14 @@ Source: [03-des-diagram.py](./03-des-diagram.py)
 
 ### 2.2 Resource Summary
 
-| Category | Count |
-| -------- | ----- |
-| Compute | 3 |
-| Networking | 0 |
-| Data | 3 |
-| Security | 1 |
-| Monitoring/Operations | 3 |
-| **Total** | **10** |
+| Category              | Count  |
+| --------------------- | ------ |
+| Compute               | 3      |
+| Networking            | 0      |
+| Data                  | 3      |
+| Security              | 1      |
+| Monitoring/Operations | 3      |
+| **Total**             | **10** |
 
 ### 2.3 As-Built Resource Topology
 
@@ -165,23 +165,25 @@ Source: [03-des-diagram.py](./03-des-diagram.py)
 <details>
 <summary><strong>🔒 Security Controls</strong></summary>
 
-| Control | Implementation | Evidence |
-| ------- | -------------- | -------- |
-| TLS 1.2+ | SQL min TLS 1.2; platform TLS for App Service | [06-deployment-summary.md](./06-deployment-summary.md) |
-| HTTPS-only | `https_only = true` on both web apps | [06-deployment-summary.md](./06-deployment-summary.md) |
-| Managed Identity | System-assigned MI on both web apps | [05-implementation-reference.md](./05-implementation-reference.md) |
-| Network posture | SQL PNA disabled; KV ACL default deny | Azure Resource Graph results (2026-02-26) |
+| Control          | Implementation                                | Evidence                                                           |
+| ---------------- | --------------------------------------------- | ------------------------------------------------------------------ |
+| TLS 1.2+         | SQL min TLS 1.2; platform TLS for App Service | [06-deployment-summary.md](./06-deployment-summary.md)             |
+| HTTPS-only       | `https_only = true` on both web apps          | [06-deployment-summary.md](./06-deployment-summary.md)             |
+| Managed Identity | System-assigned MI on both web apps           | [05-implementation-reference.md](./05-implementation-reference.md) |
+| Network posture  | SQL PNA disabled; KV ACL default deny         | Azure Resource Graph results (2026-02-26)                          |
 
 </details>
 
 <details>
 <summary><strong>📋 Compliance Mapping</strong></summary>
 
-| Framework | Control ID | Status |
-| --------- | ---------- | ------ |
-| GDPR (applicable) | Data residency in EU | ✅ |
-| Azure Policy Baseline | Required tags and security settings | ✅ |
-| Azure SQL hardening | AAD-only authentication | ✅ |
+| Framework             | Control ID                          | Status          |
+| --------------------- | ----------------------------------- | --------------- |
+| GDPR (applicable)     | Data residency in EU                | ✅              |
+| Azure Policy Baseline | Required tags and security settings | ✅              |
+| Azure SQL hardening   | AAD-only authentication             | ✅              |
+| Private networking    | Private endpoints for data services | ⚠️ Not in dev   |
+| WAF/Front Door        | Application-layer protection        | ❌ Not deployed |
 
 </details>
 
@@ -225,9 +227,9 @@ For full control-by-control mapping and gap tracking, see [07-compliance-matrix.
 <details>
 <summary>📚 Reference Architecture Links</summary>
 
-| Architecture | Link |
-| ------------ | ---- |
-| Runtime flow | [04-runtime-diagram.py](./04-runtime-diagram.py) |
+| Architecture     | Link                                                   |
+| ---------------- | ------------------------------------------------------ |
+| Runtime flow     | [04-runtime-diagram.py](./04-runtime-diagram.py)       |
 | Dependency graph | [04-dependency-diagram.py](./04-dependency-diagram.py) |
 
 </details>
@@ -236,12 +238,12 @@ For full control-by-control mapping and gap tracking, see [07-compliance-matrix.
 
 ## References
 
-| Topic | Link |
-| ----- | ---- |
-| Well-Architected Framework | [Overview](https://learn.microsoft.com/azure/well-architected/) |
-| Azure Architecture Center | [Architectures](https://learn.microsoft.com/azure/architecture/) |
-| Security Baseline | [MCSB overview](https://learn.microsoft.com/security/benchmark/azure/overview) |
-| Azure SQL security | [AAD-only authentication](https://learn.microsoft.com/azure/azure-sql/database/authentication-aad-configure) |
+| Topic                      | Link                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Well-Architected Framework | [Overview](https://learn.microsoft.com/azure/well-architected/)                                              |
+| Azure Architecture Center  | [Architectures](https://learn.microsoft.com/azure/architecture/)                                             |
+| Security Baseline          | [MCSB overview](https://learn.microsoft.com/security/benchmark/azure/overview)                               |
+| Azure SQL security         | [AAD-only authentication](https://learn.microsoft.com/azure/azure-sql/database/authentication-aad-configure) |
 
 ---
 

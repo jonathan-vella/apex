@@ -14,6 +14,7 @@ Execute KQL queries and manage Azure Data Explorer resources for fast, scalable 
 ## Skill Activation Triggers
 
 **Use this skill immediately when the user asks to:**
+
 - "Query my Kusto database for [data pattern]"
 - "Show me events in the last hour from Azure Data Explorer"
 - "Analyze logs in my ADX cluster"
@@ -25,6 +26,7 @@ Execute KQL queries and manage Azure Data Explorer resources for fast, scalable 
 - "Create a time series chart from my logs"
 
 **Key Indicators:**
+
 - Mentions "Kusto", "Azure Data Explorer", "ADX", or "KQL"
 - Log analytics or telemetry analysis requests
 - Time series data exploration
@@ -38,6 +40,7 @@ Execute KQL queries and manage Azure Data Explorer resources for fast, scalable 
 This skill enables querying and managing Azure Data Explorer (Kusto), a fast and highly scalable data exploration service optimized for log and telemetry data. Azure Data Explorer provides sub-second query performance on billions of records using the Kusto Query Language (KQL).
 
 Key capabilities:
+
 - **Query Execution**: Run KQL queries against massive datasets
 - **Schema Exploration**: Discover tables, columns, and data types
 - **Resource Management**: List clusters and databases
@@ -52,69 +55,20 @@ Key capabilities:
 
 ## Query Patterns
 
-### Pattern 1: Basic Data Retrieval
-Fetch recent records from a table with simple filtering.
+📋 **Reference**: Read `references/query-patterns.md` for 5 detailed KQL patterns with examples:
 
-**Example KQL**:
-```kql
-Events
-| where Timestamp > ago(1h)
-| take 100
-```
-
-**Use for**: Quick data inspection, recent event retrieval
-
-### Pattern 2: Aggregation Analysis
-Summarize data by dimensions for insights and reporting.
-
-**Example KQL**:
-```kql
-Events
-| summarize count() by EventType, bin(Timestamp, 1h)
-| order by count_ desc
-```
-
-**Use for**: Event counting, distribution analysis, top-N queries
-
-### Pattern 3: Time Series Analytics
-Analyze data over time windows for trends and patterns.
-
-**Example KQL**:
-```kql
-Telemetry
-| where Timestamp > ago(24h)
-| summarize avg(ResponseTime), percentiles(ResponseTime, 50, 95, 99) by bin(Timestamp, 5m)
-| render timechart
-```
-
-**Use for**: Performance monitoring, trend analysis, anomaly detection
-
-### Pattern 4: Join and Correlation
-Combine multiple tables for cross-dataset analysis.
-
-**Example KQL**:
-```kql
-Events
-| where EventType == "Error"
-| join kind=inner (
-    Logs
-    | where Severity == "Critical"
-) on CorrelationId
-| project Timestamp, EventType, LogMessage, Severity
-```
-
-**Use for**: Root cause analysis, correlated event tracking
-
-### Pattern 5: Schema Discovery
-Explore table structure before querying.
-
-**Tools**: `kusto_table_schema_get`
-
-**Use for**: Understanding data model, query planning
+| Pattern               | Use For                            |
+| --------------------- | ---------------------------------- |
+| Basic Data Retrieval  | Quick inspection, recent events    |
+| Aggregation Analysis  | Counting, distribution, top-N      |
+| Time Series Analytics | Performance monitoring, trends     |
+| Join and Correlation  | Root cause analysis, event tracing |
+| Schema Discovery      | Data model exploration             |
 
 ## Key Data Fields
 
 When executing queries, common field patterns:
+
 - **Timestamp**: Time of event (datetime) - use `ago()`, `between()`, `bin()` for time filtering
 - **EventType/Category**: Classification field for grouping
 - **CorrelationId/SessionId**: For tracing related events
@@ -124,6 +78,7 @@ When executing queries, common field patterns:
 ## Result Format
 
 Query results include:
+
 - **Columns**: Field names and data types
 - **Rows**: Data records matching query
 - **Statistics**: Row count, execution time, resource utilization
@@ -131,24 +86,13 @@ Query results include:
 
 ## KQL Best Practices
 
-**🟢 Performance Optimized:**
-- Filter early: Use `where` before joins and aggregations
-- Limit result size: Use `take` or `limit` to reduce data transfer
-- Time filters: Always filter by time range for time series data
-- Indexed columns: Filter on indexed columns first
-
-**🔵 Query Patterns:**
-- Use `summarize` for aggregations instead of `count()` alone
-- Use `bin()` for time bucketing in time series
+- Filter early: `where` before joins and aggregations
+- Limit results: `take` or `limit` for exploratory queries
+- Always include time range filters for time series data
+- Use `summarize` for aggregations, `bin()` for time bucketing
 - Use `project` to select only needed columns
-- Use `extend` to add calculated fields
 
-**🟡 Common Functions:**
-- `ago(timespan)`: Relative time (ago(1h), ago(7d))
-- `between(start .. end)`: Range filtering
-- `startswith()`, `contains()`, `matches regex`: String filtering
-- `parse`, `extract`: Extract values from strings
-- `percentiles()`, `avg()`, `sum()`, `max()`, `min()`: Aggregations
+📋 **Reference**: Read `references/query-patterns.md` for complete function reference and performance tips.
 
 ## Best Practices
 
@@ -164,14 +108,15 @@ Query results include:
 
 ## MCP Tools Used
 
-| Tool | Purpose |
-|------|---------|
-| `kusto_cluster_list` | List all Azure Data Explorer clusters in a subscription |
-| `kusto_database_list` | List all databases in a specific Kusto cluster |
-| `kusto_query` | Execute KQL queries against a Kusto database |
-| `kusto_table_schema_get` | Retrieve schema information for a specific table |
+| Tool                     | Purpose                                                 |
+| ------------------------ | ------------------------------------------------------- |
+| `kusto_cluster_list`     | List all Azure Data Explorer clusters in a subscription |
+| `kusto_database_list`    | List all databases in a specific Kusto cluster          |
+| `kusto_query`            | Execute KQL queries against a Kusto database            |
+| `kusto_table_schema_get` | Retrieve schema information for a specific table        |
 
 **Required Parameters**:
+
 - `subscription`: Azure subscription ID or display name
 - `cluster`: Kusto cluster name (e.g., "mycluster")
 - `database`: Database name
@@ -179,38 +124,15 @@ Query results include:
 - `table`: Table name (for schema operations)
 
 **Optional Parameters**:
+
 - `resource-group`: Resource group name (for listing operations)
 - `tenant`: Azure AD tenant ID
 
-## Fallback Strategy: Azure CLI Commands
+## Fallback Strategy: Azure CLI
 
-If Azure MCP Kusto tools fail, timeout, or are unavailable, use Azure CLI commands as fallback.
+📋 **Reference**: Read `references/fallback-strategy.md` for CLI command reference and KQL query via REST API.
 
-### CLI Command Reference
-
-| Operation | Azure CLI Command |
-|-----------|-------------------|
-| List clusters | `az kusto cluster list --resource-group <rg-name>` |
-| List databases | `az kusto database list --cluster-name <cluster> --resource-group <rg-name>` |
-| Show cluster | `az kusto cluster show --name <cluster> --resource-group <rg-name>` |
-| Show database | `az kusto database show --cluster-name <cluster> --database-name <db> --resource-group <rg-name>` |
-
-### KQL Query via Azure CLI
-
-For queries, use the Kusto REST API or direct cluster URL:
-```bash
-az rest --method post \
-  --url "https://<cluster>.<region>.kusto.windows.net/v1/rest/query" \
-  --body "{ \"db\": \"<database>\", \"csl\": \"<kql-query>\" }"
-```
-
-### When to Fallback
-
-Switch to Azure CLI when:
-- MCP tool returns timeout error (queries > 60 seconds)
-- MCP tool returns "service unavailable" or connection errors
-- Authentication failures with MCP tools
-- Empty response when database is known to have data
+Switch to CLI when MCP tools return timeout, service unavailable, auth failures, or empty responses.
 
 ## Common Issues
 
@@ -228,4 +150,14 @@ Switch to Azure CLI when:
 - **IoT Analytics**: Sensor data, device telemetry, real-time monitoring
 - **Security Analytics**: SIEM data, threat detection, security event correlation
 - **APM**: Application performance metrics, user behavior, error tracking
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference                         | When to Load                                             |
+| --------------------------------- | -------------------------------------------------------- |
+| `references/query-patterns.md`    | KQL patterns, examples, best practices, common functions |
+| `references/fallback-strategy.md` | CLI commands and REST API fallback when MCP tools fail   |
+
 - **Business Intelligence**: Clickstream analysis, user analytics, operational KPIs

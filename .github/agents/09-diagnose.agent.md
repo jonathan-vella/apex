@@ -1,6 +1,6 @@
 ---
 name: 09-Diagnose
-model: ["Claude Opus 4.6 (copilot)"]
+model: ["Claude Opus 4.6"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
 user-invocable: true
 agents: []

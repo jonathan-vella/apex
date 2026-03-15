@@ -49,93 +49,18 @@ Follow this protocol for every GitHub task:
 
 > _See SKILL.md for full content._
 
-## Repositories (gh CLI)
+## CLI Commands (gh)
 
-```bash
-# Create
-gh repo create my-project --public --clone --gitignore python --license mit
+📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI commands covering:
 
-# Clone / Fork
-gh repo clone owner/repo
-gh repo fork owner/repo --clone
+- **Repositories** — create, clone, fork, view, edit, sync
+- **GitHub Actions** — workflow list/run/enable, run watch/rerun/download
+- **Releases** — create, list, view, download, delete
+- **Secrets & Variables** — set, list, get, delete
+- **API Requests** — GET, POST, pagination, GraphQL
+- **Auth & Search** — login, labels, repo/code/issue search
 
-# View / Edit
-gh repo view owner/repo --json name,description
-
-> _See SKILL.md for full content._
-
-## GitHub Actions (gh CLI)
-
-### Workflows
-
-```bash
-gh workflow list
-gh workflow run ci.yml --ref main
-gh workflow enable ci.yml
-gh workflow disable ci.yml
-```
-
-### Runs
-
-> _See SKILL.md for full content._
-
-## Releases (gh CLI)
-
-```bash
-# Create
-gh release create v1.0.0 --title "v1.0.0" --notes "Release notes"
-gh release create v1.0.0 --generate-notes    # Auto-generate notes
-gh release create v1.0.0 ./dist/*.tar.gz     # With assets
-
-# List / View / Download
-gh release list
-gh release view v1.0.0
-gh release download v1.0.0 --dir ./download
-
-> _See SKILL.md for full content._
-
-## Secrets & Variables (gh CLI)
-
-```bash
-# Secrets
-gh secret set MY_SECRET --body "secret_value"
-gh secret list
-gh secret delete MY_SECRET
-
-# Variables
-gh variable set MY_VAR --body "value"
-gh variable list
-gh variable get MY_VAR
-
-> _See SKILL.md for full content._
-
-## API Requests (gh CLI)
-
-```bash
-# GET
-gh api /user
-gh api /repos/owner/repo --jq '.stargazers_count'
-
-# POST
-gh api --method POST /repos/owner/repo/issues \
-  --field title="Issue title" \
-  --field body="Issue body"
-
-
-> _See SKILL.md for full content._
-
-## Auth & Search (gh CLI)
-
-```bash
-# Auth
-gh auth login
-gh auth status
-gh auth token
-
-# Labels
-gh label create bug --color "d73a4a" --description "Bug report"
-gh label list
-
+> **IMPORTANT**: `gh api -f` does not support object values. Use multiple
 
 > _See SKILL.md for full content._
 
@@ -177,7 +102,23 @@ gh label list
 
 ## Reference Index
 
-| Reference     | File                          | Content                                      |
-| ------------- | ----------------------------- | -------------------------------------------- |
-| Smart PR Flow | `references/smart-pr-flow.md` | PR lifecycle states, auto-labels, auto-merge |
+| Reference     | File                              | Content                                      |
+| ------------- | --------------------------------- | -------------------------------------------- |
+| Smart PR Flow | `references/smart-pr-flow.md`     | PR lifecycle states, auto-labels, auto-merge |
+| CLI Commands  | `references/detailed-commands.md` | Repos, Actions, Releases, Secrets, API, Auth |
 
+
+## Smart PR Flow
+
+Automated PR lifecycle for infrastructure deployments. Defines label-based
+state tracking, auto-label rules on CI pass/fail, and a watchdog pattern
+for the deploy agent.
+
+For full details: **Read** `references/smart-pr-flow.md`
+
+### Quick Reference
+
+| Condition                   | Label Applied        |
+| --------------------------- | -------------------- |
+
+> _See SKILL.md for full content._

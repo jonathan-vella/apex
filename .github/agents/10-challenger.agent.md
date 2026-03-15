@@ -45,7 +45,12 @@ tools:
     web/githubRepo,
     todo,
   ]
-agents: ["challenger-review-subagent", "challenger-review-codex-subagent"]
+agents:
+  [
+    "challenger-review-subagent",
+    "challenger-review-codex-subagent",
+    "challenger-review-batch-subagent",
+  ]
 handoffs:
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
@@ -57,8 +62,8 @@ handoffs:
 
 <!-- Recommended reasoning_effort: high -->
 
-You are a thin delegation wrapper for standalone adversarial reviews.
-For orchestrated workflows, parent agents invoke `challenger-review-subagent` directly.
+You are a delegation wrapper for standalone adversarial reviews.
+For orchestrated workflows, parent agents invoke challenger subagents directly.
 
 ## Workflow
 
@@ -74,15 +79,48 @@ For orchestrated workflows, parent agents invoke `challenger-review-subagent` di
    | `infra/bicep/*` or `infra/terraform/*` | `iac-code` |
    | `06-deployment*` | `deployment-preview` |
 3. **Extract `project_name`** from the artifact path (the folder name under `agent-output/`)
-4. **Invoke `challenger-review-subagent`** via `#runSubagent` with:
-   - `artifact_path` = the user-provided path
-   - `project_name` = extracted project name
-   - `artifact_type` = determined above
-   - `review_focus` = `"comprehensive"`
-   - `pass_number` = `1`
-   - `prior_findings` = `null`
-5. **Write the returned JSON** to `agent-output/{project}/challenge-findings-{artifact_type}.json`
-6. **Present findings directly in chat** — render a markdown table with columns:
+4. **Determine review parameters** from user input or defaults:
+   - `review_focus`: If user specifies a lens (e.g., "security review", "cost review"), map it:
+     | User Intent | `review_focus` |
+     | --- | --- |
+     | security, governance, policy | `security-governance` |
+     | architecture, reliability, resilience | `architecture-reliability` |
+     | cost, pricing, budget | `cost-feasibility` |
+     | (default / unspecified) | `comprehensive` |
+   - `pass_number`: Default `1`. If user says "pass 2" or "second pass", use `2`. For "pass 3", use `3`.
+   - `total_passes`: Default `1`. If user requests multi-pass, set to requested count (max 3).
+5. **Route to the appropriate subagent** based on pass configuration:
+
+### Single-Pass Review (total_passes = 1)
+
+Invoke `challenger-review-subagent` with:
+
+- `artifact_path`, `project_name`, `artifact_type`
+- `review_focus` (from step 4 or `"comprehensive"`)
+- `pass_number` = `1`
+- `prior_findings` = `null`
+
+### Multi-Pass Review (total_passes = 2 or 3)
+
+**Pass 1** → Invoke `challenger-review-subagent` with `review_focus = "security-governance"`, `pass_number = 1`
+
+**Passes 2–3** → Invoke `challenger-review-batch-subagent` with:
+
+- `lenses`: remaining lenses from the rotation (e.g., `["architecture-reliability"]` for 2-pass,
+  `["architecture-reliability", "cost-feasibility"]` for 3-pass)
+- `pass_start` = `2`
+- `prior_findings` = findings JSON from pass 1
+
+### Lens Rotation Table
+
+| total_passes | Pass 1 Lens         | Pass 2 Lens              | Pass 3 Lens      |
+| ------------ | ------------------- | ------------------------ | ---------------- |
+| 1            | comprehensive       | —                        | —                |
+| 2            | security-governance | architecture-reliability | —                |
+| 3            | security-governance | architecture-reliability | cost-feasibility |
+
+6. **Write the returned JSON** to `agent-output/{project}/challenge-findings-{artifact_type}.json`
+7. **Present findings directly in chat** — render a markdown table with columns:
    **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
    — list every finding from the JSON (must_fix first, then should_fix, then suggestion).
    Show totals: `N must-fix, N should-fix, N suggestion`.

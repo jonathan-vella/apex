@@ -2,13 +2,14 @@
 
 # Azure Terraform Patterns Skill (Minimal)
 
-**Quick Reference**:
+**Quick Reference**: 
 
-**Canonical Example — Module Composition**:
+**Canonical Example — Module Composition**: 
 Wire AVM child modules by passing outputs as inputs; never hardcode IDs:
 
-**Key Rules**:
+**Key Rules**: 
 
-**Reference Index**:
+**Reference Index**: 
+
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

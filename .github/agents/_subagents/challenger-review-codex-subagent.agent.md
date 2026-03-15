@@ -1,7 +1,7 @@
 ---
 name: challenger-review-codex-subagent
 description: "Fast adversarial review subagent for architecture-reliability and cost-feasibility lenses. Uses GPT-5.3-Codex for structured checklist-driven analysis. Returns same JSON format as challenger-review-subagent."
-model: "GPT-5.3-Codex (copilot)"
+model: ["GPT-5.3-Codex"]
 # Model rationale: GPT-5.3-Codex for passes 2-3. Structured output and speed.
 # WAF/cost analysis is checklist-driven.
 user-invocable: false

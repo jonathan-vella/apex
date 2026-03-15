@@ -28,70 +28,8 @@ agent-output/{project}/
 
 ## ADR Template Structure
 
-```markdown
-# ADR-{NNNN}: {Decision Title}
+📋 **Reference**: Read `references/adr-template.md` for the full ADR template with all sections (Context, Decision, Alternatives, Consequences, WAF Pillar Analysis, Compliance, Implementation Notes).
 
-![Step](https://img.shields.io/badge/Step-3-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Proposed-orange?style=for-the-badge)
-![Type](https://img.shields.io/badge/Type-ADR-purple?style=for-the-badge)
-
-> _See SKILL.md for full content._
-
-## 🔍 Context
-
-What is the issue that we're seeing that is motivating this decision or change?
-
-
-## ✅ Decision
-
-What is the change that we're proposing and/or doing?
-
-
-## 🔄 Alternatives Considered
-
-| Option   | Pros | Cons | WAF Impact                     |
-| -------- | ---- | ---- | ------------------------------ |
-| Option A | ...  | ...  | Security: +, Cost: -           |
-| Option B | ...  | ...  | Reliability: +, Performance: + |
-
-
-## ⚖️ Consequences
-
-### Positive
-
-- List of positive outcomes
-
-### Negative
-
-
-> _See SKILL.md for full content._
-
-## 🏛️ WAF Pillar Analysis
-
-| Pillar      | Impact | Notes |
-| ----------- | ------ | ----- |
-| Security    | ↑/↓/→  | ...   |
-| Reliability | ↑/↓/→  | ...   |
-| Performance | ↑/↓/→  | ...   |
-| Cost        | ↑/↓/→  | ...   |
-
-> _See SKILL.md for full content._
-
-## 🔒 Compliance Considerations
-
-- List any regulatory or compliance implications
-
-
-## 📝 Implementation Notes
-
-- Key implementation details or constraints
-
----
-
-<div align="center">
-
-
-> _See SKILL.md for full content._
 
 ## Example Prompts
 

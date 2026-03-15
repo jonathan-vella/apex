@@ -31,72 +31,6 @@ Before starting, verify these tools and permissions are available:
 
 **Required Permissions:**
 - Cost Management Reader role
-- Monitoring Reader role
-
-> _See SKILL.md for full content._
-
-## Executive Summary
-- Total Monthly Cost: $X (💰 ACTUAL DATA)
-- Top Cost Drivers: [List top 3 resources with Azure Portal links]
-
-
-## Cost Breakdown
-[Table with top 10 resources by cost, including Azure Portal links]
-
-
-## Free Tier Analysis
-[Resources operating within free tiers showing $0 cost]
-
-
-## Orphaned Resources (Immediate Savings)
-[From azqr - resources that can be deleted immediately]
-- Resource name with Portal link - $X/month savings
-
-
-## Optimization Recommendations
-
-### Priority 1: High Impact, Low Risk
-[Example: Delete orphaned resources]
-- 💰 ACTUAL cost: $X/month
-- 📊 ESTIMATED savings: $Y/month
-- Commands to execute (with warnings)
-
-### Priority 2: Medium Impact, Medium Risk
-[Example: Rightsize VM from D4s_v5 to D2s_v5]
-- 💰 ACTUAL baseline: D4s_v5, $X/month
-- 📈 ACTUAL metrics: CPU 8%, Memory 30%
-- 💵 VALIDATED pricing: D4s_v5 $Y/hr, D2s_v5 $Z/hr
-- 📊 ESTIMATED savings: $S/month
-- Commands to execute
-
-
-> _See SKILL.md for full content._
-
-## Total Estimated Savings
-- Monthly: $X
-- Annual: $Y
-
-
-## Implementation Commands
-[Safe commands with approval warnings]
-
-
-## Validation Appendix
-
-### Data Sources and Files
-- **Cost Query Results**: `output/cost-query-result<timestamp>.json`
-  - Raw cost data from Azure Cost Management API
-  - Audit trail proving actual costs at report generation time
-  - Keep for at least 12 months for historical comparison
-  - Contains every resource's exact cost over the analysis period
-- **Pricing Sources**: [Links to Azure pricing pages]
-- **Free Tier Allowances**: [Applicable allowances]
-
-> **Note**: The `temp/cost-query.json` file (if present) is a temporary query template and can be safely deleted. All permanent audit data is in the `output/` folder.
-```
-
-**Portal Link Format:**
-```
 
 > _See SKILL.md for full content._
 
@@ -116,24 +50,24 @@ The skill generates:
 
 ## Important Notes
 
-### Data Classification
-- 💰 **ACTUAL DATA** = Retrieved from Azure Cost Management API
-- 📈 **ACTUAL METRICS** = Retrieved from Azure Monitor
-- 💵 **VALIDATED PRICING** = Retrieved from official Azure pricing pages
-- 📊 **ESTIMATED SAVINGS** = Calculated based on actual data and validated pricing
+📋 **Reference**: Read `references/best-practices-notes.md` for data classification labels, best practices, common pitfalls, and safety requirements.
 
-### Best Practices
-- Always query actual costs first - never estimate or assume
-- Validate pricing from official sources - account for free tiers
-- Use REST API for cost queries (more reliable than `az costmanagement query`)
-- Save audit trail - include all queries and responses
-- Include Azure Portal links for all resources
-- Use UTF-8 encoding when creating report files
-- For costs < $10/month, emphasize operational improvements over financial savings
-
-> _See SKILL.md for full content._
 
 ## SDK Quick References
 
 - **Redis Management**: [.NET](references/sdk/azure-resource-manager-redis-dotnet.md)
+
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/azure-quick-review.md` | Azure Quick Review |
+| `references/azure-redis.md` | Azure Redis |
+| `references/azure-resource-graph.md` | Azure Resource Graph |
+| `references/detailed-workflow-steps.md` | Steps 4-9: cost queries, pricing, metrics, report, audit, cleanup |
+| `references/best-practices-notes.md` | Data classification, best practices, pitfalls, safety |
 

@@ -46,11 +46,13 @@ infra/terraform/terraform-e2e/
 
 ## ✅ Validation Status
 
-| Check                | Result | Details                      |
-| -------------------- | ------ | ---------------------------- |
-| `terraform fmt`      | ✅     | All files formatted          |
-| `terraform init`     | ✅     | All providers/modules cached |
-| `terraform validate` | ✅     | Configuration is valid       |
+| Check                | Result | Details                                                            |
+| -------------------- | ------ | ------------------------------------------------------------------ |
+| `terraform fmt`      | ✅     | All files formatted                                                |
+| `terraform init`     | ✅     | All providers/modules cached                                       |
+| `terraform validate` | ✅     | Configuration is valid                                             |
+| Governance mapping   | ⚠️     | SQL RBAC scope broader than least-privilege (see deployment notes) |
+| Private endpoints    | ❌     | Not deployed in dev — required before production                   |
 
 ## 🏗️ Resources Created
 
@@ -87,7 +89,7 @@ graph TD
     SQL --> |"Database"| SQLDB["sqldb-terraform-e2e-dev"]
 ```
 
-## 🔐 Governance Compliance Mapping
+### 🔐 Governance Compliance Mapping
 
 ### Deny Policies → Terraform Arguments
 

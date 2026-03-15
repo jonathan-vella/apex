@@ -77,6 +77,8 @@ The full machine-readable DAG is in:
 
 ## Reference Index
 
-| Reference      | File                            | Content                      |
-| -------------- | ------------------------------- | ---------------------------- |
-| Workflow Graph | `templates/workflow-graph.json` | Full DAG for 7-step workflow |
+| Reference            | File                                    | Content                                             |
+| -------------------- | --------------------------------------- | --------------------------------------------------- |
+| Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for 7-step workflow                        |
+| Conductor Handoff    | `references/conductor-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
+| Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |

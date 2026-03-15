@@ -14,13 +14,13 @@ Invoke this skill when:
 **Important:** Requesting quota increases is **free**. You only pay for resources you actually use, not for quota alloca
 
 **Understanding Resource Name Mapping**: 
-**⚠️ CRITICAL:** There is **NO 1:1 mapping** between ARM resource types and quota resource names.
+**⚠️ CRITICAL:** There is **NO 1:1 mapping** between ARM resource types and quota resource names. Never assume the quota
 
 **Core Workflows**: 
-### Workflow 1: Check Quota for a Specific Resource
+📋 **Reference**: Read `references/core-workflows.md` for 4 detailed workflows with full bash scripts:
 
 **Troubleshooting**: 
-### Common Errors
+📋 **Reference**: Read `references/troubleshooting.md` for common errors (ExtensionNotFound, BadRequest, QuotaExceeded, 
 
 **Additional Resources**: 
 
@@ -29,6 +29,9 @@ Invoke this skill when:
 
 **Workflow Summary**: 
 ```
+
+**Reference Index**: 
+Load these on demand — do NOT read all at once:
 
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

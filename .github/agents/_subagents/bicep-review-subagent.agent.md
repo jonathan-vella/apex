@@ -1,7 +1,7 @@
 ---
 name: bicep-review-subagent
 description: Bicep code review subagent. Reviews Bicep templates against Azure Verified Modules (AVM) standards, naming conventions, security baseline, and best practices. Returns structured APPROVED/NEEDS_REVISION/FAILED verdict with actionable feedback.
-model: "Claude Sonnet 4.6 (copilot)"
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

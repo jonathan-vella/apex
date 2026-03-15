@@ -12,7 +12,7 @@ This skill enables querying and managing Azure Data Explorer (Kusto), a fast and
 1. **Discover Resources**: List available clusters and databases in subscription
 
 **Query Patterns**: 
-### Pattern 1: Basic Data Retrieval
+📋 **Reference**: Read `references/query-patterns.md` for 5 detailed KQL patterns with examples:
 
 **Key Data Fields**: 
 When executing queries, common field patterns:
@@ -21,15 +21,15 @@ When executing queries, common field patterns:
 Query results include:
 
 **KQL Best Practices**: 
-**🟢 Performance Optimized:**
+📋 **Reference**: Read `references/query-patterns.md` for complete function reference and performance tips.
 
 **Best Practices**: 
 
 **MCP Tools Used**: 
 **Required Parameters**:
 
-**Fallback Strategy: Azure CLI Commands**: 
-If Azure MCP Kusto tools fail, timeout, or are unavailable, use Azure CLI commands as fallback.
+**Fallback Strategy: Azure CLI**: 
+📋 **Reference**: Read `references/fallback-strategy.md` for CLI command reference and KQL query via REST API.
 
 **Common Issues**: 
 

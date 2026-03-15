@@ -19,6 +19,23 @@
         "azure-deploy"
       ]
     },
+    "01-Conductor (Fast Path)": {
+      "primary": [
+        "golden-principles",
+        "session-resume",
+        "azure-defaults",
+        "azure-artifacts"
+      ],
+      "secondary": ["context-shredding", "github-operations", "azure-prepare"],
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "azure-diagnostics",
+        "azure-diagrams",
+        "azure-deploy",
+        "workflow-engine"
+      ]
+    },
     "02-Requirements": {
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
       "secondary": ["azure-prepare"],
@@ -54,6 +71,18 @@
         "terraform-patterns",
         "iac-common",
         "azure-diagnostics",
+        "azure-deploy"
+      ]
+    },
+    "04g-Governance": {
+      "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
+      "secondary": [],
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "azure-diagnostics",
+        "azure-diagrams",
         "azure-deploy"
       ]
     },
