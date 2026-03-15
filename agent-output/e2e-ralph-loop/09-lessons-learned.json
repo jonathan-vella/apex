@@ -1,12 +1,29 @@
 {
   "run_id": "e2e-ralph-001",
-  "timestamp": "",
-  "lessons": [],
+  "timestamp": "2026-03-15T00:00:00Z",
+  "lessons": [
+    {
+      "id": "LL-001",
+      "step": 1,
+      "category": "artifact-quality",
+      "severity": "high",
+      "title": "Pre-seeded requirements had 3 must_fix gaps in GDPR erasure, storage backup, and data-plane security",
+      "observation": "Challenger found storage backup conflated LRS with backup, GDPR erasure lacked deletion boundaries, and SQL/Storage network posture was ambiguous for a PII workload",
+      "expected": "Pre-seeded artifacts should pass challenger review without must_fix findings",
+      "root_cause": "Template-based pre-seeding did not include data-plane specifics or GDPR operational detail",
+      "self_corrected": true,
+      "iterations_to_fix": 1,
+      "recommendation": "Enhance pre-seeded templates with explicit erasure scope, backup vs redundancy distinction, and data-store firewall requirements",
+      "applies_to": ["02-Requirements"],
+      "applies_to_paths": [".github/agents/02-Requirements.agent.md"],
+      "status": "new"
+    }
+  ],
   "summary": {
-    "total_lessons": 0,
-    "by_category": {},
-    "by_severity": {},
-    "self_correction_rate": "0%",
-    "improvement_candidates": []
+    "total_lessons": 1,
+    "by_category": { "artifact-quality": 1 },
+    "by_severity": { "high": 1 },
+    "self_correction_rate": "100%",
+    "improvement_candidates": [".github/agents/02-Requirements.agent.md"]
   }
 }

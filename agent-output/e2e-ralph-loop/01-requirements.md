@@ -160,6 +160,17 @@ flowchart LR
 | Data residency   | Yes           | All data must reside in EU regions (swedencentral primary) |
 | Right to erasure | Yes           | Must support GDPR Article 17 — customer data deletion      |
 
+**GDPR Article 17 — Erasure Requirements:**
+
+| Scope              | Requirement                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| Stores in scope    | Azure SQL (customer PII, order data), Storage Account (uploaded files)        |
+| Data classes       | Customer name, email, address, order history                                 |
+| Response window    | 30 days from verified request                                                |
+| Deletion method    | Hard delete from SQL; blob deletion from Storage                             |
+| Telemetry handling | Application Insights PII fields anonymized; Log Analytics retains aggregates |
+| Backup exception   | SQL PITR backups (30 days) may retain data until natural expiry              |
+
 </details>
 
 <details>
@@ -200,12 +211,16 @@ flowchart LR
 
 ### Network Security
 
-| Control                     | Required | Notes                                |
-| --------------------------- | -------- | ------------------------------------ |
-| Private endpoints           | ❌       | Not required — simple complexity     |
-| VNet integration            | ❌       | Not required — simple complexity     |
-| Public endpoints acceptable | ✅       | Web frontend and API via App Service |
-| WAF required                | ❌       | Not required for MVP                 |
+| Control                     | Required | Notes                                                              |
+| --------------------------- | -------- | ------------------------------------------------------------------ |
+| Private endpoints           | ❌       | Not required — simple complexity                                   |
+| VNet integration            | ❌       | Not required — simple complexity                                   |
+| Public endpoints acceptable | ✅       | Web frontend and API via App Service                               |
+| WAF required                | ❌       | Not required for MVP                                               |
+| SQL firewall rules          | ✅       | Azure SQL must restrict access to App Service IPs + Azure services |
+| Storage firewall rules      | ✅       | Storage Account must restrict to App Service + Azure services      |
+| SQL public network access   | ✅       | Enabled with firewall restrictions (governance may override)       |
+| Storage public access       | ❌       | No anonymous blob access (`allowBlobPublicAccess: false`)          |
 
 ### Recommended Security Controls
 
@@ -224,9 +239,9 @@ flowchart LR
 | Field              | Value                                   |
 | ------------------ | --------------------------------------- |
 | 💰 Monthly Budget  | <€500/month (Azure platform only)       |
-| 📅 Annual Budget   | ~€6,000 (Azure platform only)           |
-| 🚦 Limit Type      | 🔴 Hard = evaluation constraints        |
-| 📊 Cost Model Pref | Consumption — pay only for what is used |
+| 📅 Annual Budget   | ~€6,000 (Azure platform only)                         |
+| 🚦 Limit Type      | 🔴 Hard = evaluation constraints                      |
+| 📊 Cost Model Pref | Cost-optimized managed services within budget ceiling |
 
 ### Budget Envelopes
 
@@ -269,11 +284,13 @@ flowchart LR
 
 ### Backup & Disaster Recovery
 
-| Component          | Backup Frequency | Retention | Recovery Method  |
-| ------------------ | ---------------- | --------- | ---------------- |
-| Azure SQL Database | Daily            | 30 days   | Automated (PITR) |
-| Storage Account    | LRS replication  | 30 days   | Automated        |
-| App Configuration  | IaC re-deploy    | N/A       | Bicep redeploy   |
+| Component          | Backup Frequency | Retention | Recovery Method                    |
+| ------------------ | ---------------- | --------- | ---------------------------------- |
+| Azure SQL Database | Daily            | 30 days   | Automated (PITR)                   |
+| Storage Account    | Blob soft delete | 7 days    | Soft delete + blob versioning      |
+| App Configuration  | IaC re-deploy    | N/A       | Bicep redeploy                     |
+
+> **Note**: Storage Account uses LRS for redundancy, not backup. Blob soft delete (7-day retention) and blob versioning provide recoverability for stored objects. These are separate from the redundancy tier.
 
 ## 🌍 Regional Preferences
 
@@ -303,7 +320,7 @@ flowchart LR
 | -------------------- | ------------------------------------------------------------------------------------------- |
 | Critical Constraints | Budget <€500/month; GDPR data residency; single prod environment                            |
 | Key Decisions        | Bicep IaC; Cost-Optimized tier; Simple web app pattern; no private endpoints; prod env only |
-| Open Risks           | None significant — simple project scope                                                     |
+| Open Risks           | GDPR backup retention overlap (SQL PITR may retain PII up to 30 days post-deletion); governance policies may require stricter network posture |
 | Recommended Pattern  | App Service + Azure SQL + Storage Account (SKUs per Step 2)                                 |
 | Budget Envelope      | <€500/month (Azure platform)                                                                |
 

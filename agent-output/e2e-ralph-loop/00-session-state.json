@@ -4,8 +4,8 @@
   "iac_tool": "Bicep",
   "region": "swedencentral",
   "branch": "feat/azure-skills-integration",
-  "updated": "2026-03-15T00:00:00Z",
-  "current_step": 1,
+  "updated": "2026-03-15T19:59:00Z",
+  "current_step": 3,
   "decisions": {
     "region": "swedencentral",
     "compliance": "GDPR",
@@ -15,15 +15,28 @@
     "complexity": "simple"
   },
   "open_findings": [],
-  "decision_log": [],
+  "decision_log": [
+    {
+      "step": 2,
+      "decision": "Architecture pattern: App Service B1 + SQL Basic + Storage LRS",
+      "rationale": "Cost-optimized for <50 users, ~€16/month against €500 cap",
+      "timestamp": "2026-03-15T19:59:00Z"
+    },
+    {
+      "step": 2,
+      "decision": "WAF scores: Security 8, Reliability 6, Performance 6, Cost 9, Operations 6",
+      "rationale": "Primary optimization on Cost; acceptable trade-offs on reliability and performance for MVP",
+      "timestamp": "2026-03-15T19:59:00Z"
+    }
+  ],
   "review_audit": {
     "step_1": {
       "complexity": "simple",
       "passes_planned": 1,
-      "passes_executed": 0,
+      "passes_executed": 1,
       "skipped": [],
       "skip_reasons": [],
-      "models_used": []
+      "models_used": ["challenger-review-subagent"]
     },
     "step_2": {
       "complexity": "simple",
@@ -80,12 +93,12 @@
     "2": {
       "name": "Architecture",
       "agent": "03-Architect",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "phase_5_artifact",
+      "started": "2026-03-15T00:03:00Z",
+      "completed": "2026-03-15T19:59:00Z",
+      "artifacts": ["02-architecture-assessment.md", "03-des-cost-estimate.md", "02-waf-scores.py", "02-waf-scores.png", "03-des-cost-distribution.py", "03-des-cost-distribution.png", "03-des-cost-projection.py", "03-des-cost-projection.png"],
+      "context_files_used": ["01-requirements.md"]
     },
     "3": {
       "name": "Design",
