@@ -1,3 +1,4 @@
+<!-- ref:global-rules-v1 -->
 # Global Rules
 
 > **MANDATORY** — These rules apply to ALL skills. Violations are unacceptable.

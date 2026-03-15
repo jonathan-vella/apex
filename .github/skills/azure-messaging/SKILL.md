@@ -56,3 +56,12 @@ See [Service Troubleshooting Guide](references/service-troubleshooting.md) for p
 ## References
 
 Use `mcp_azure_mcp_documentation` to search Microsoft Learn for latest guidance. See [Service Troubleshooting Guide](references/service-troubleshooting.md) for network and service-level docs.
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/service-troubleshooting.md` | Service Troubleshooting |

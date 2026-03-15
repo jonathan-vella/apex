@@ -1,3 +1,4 @@
+<!-- ref:architecture-v1 -->
 # Architecture Planning
 
 Select hosting stack and map components to Azure services.

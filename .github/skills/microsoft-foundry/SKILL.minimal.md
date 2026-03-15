@@ -2,22 +2,21 @@
 
 # Microsoft Foundry Skill (Minimal)
 
-**Sub-Skills**: 
+**Sub-Skills**:
 Onboarding flow: `project/create` → `deploy` → `invoke`
 
-**Agent Lifecycle**: 
+**Agent Lifecycle**:
 
-**Project Context Resolution**: 
+**Project Context Resolution**:
 Resolve only missing values. Extract from user message first, then azd, then ask.
 
-**Validation**: 
+**Validation**:
 After each workflow step, validate before proceeding:
 
-**Agent Types**: 
+**Agent Types**:
 
-**Agent: Setup Types**: 
+**Agent: Setup Types**:
 
-**Tool Usage Conventions**: 
-
+**Tool Usage Conventions**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

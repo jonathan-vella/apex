@@ -4,21 +4,7 @@ description: Master orchestrator for the 7-step Azure infrastructure workflow. C
 model: ["Claude Opus 4.6 (copilot)"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invocable: true
-agents:
-  [
-    "02-Requirements",
-    "03-Architect",
-    "04-Design",
-    "04g-Governance",
-    "05b-Bicep Planner",
-    "06b-Bicep CodeGen",
-    "07b-Bicep Deploy",
-    "08-As-Built",
-    "09-Diagnose",
-    "05t-Terraform Planner",
-    "06t-Terraform CodeGen",
-    "07t-Terraform Deploy",
-  ]
+agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05b-Bicep Planner", "06b-Bicep CodeGen", "07b-Bicep Deploy", "08-As-Built", "09-Diagnose", "05t-Terraform Planner", "06t-Terraform CodeGen", "07t-Terraform Deploy"]
 tools:
   [
     vscode/extensions,

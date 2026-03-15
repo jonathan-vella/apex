@@ -1,3 +1,4 @@
+<!-- ref:analyze-v1 -->
 # Analyze Workspace
 
 ## ⛔ MANDATORY FIRST — Specialized Technology Delegation

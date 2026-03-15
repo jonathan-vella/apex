@@ -1,3 +1,4 @@
+<!-- ref:first-app-registration-v1 -->
 # First App Registration - Step-by-Step Guide
 
 This guide walks you through creating your first Microsoft Entra app registration from scratch.

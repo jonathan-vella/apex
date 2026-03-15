@@ -106,3 +106,15 @@ For programmatic Key Vault access, see the condensed SDK guides:
 - **Keys**: [.NET](references/sdk/azure-security-keyvault-keys-dotnet.md) | [Java](references/sdk/azure-security-keyvault-keys-java.md) | [TypeScript](references/sdk/azure-keyvault-keys-ts.md) | [Rust](references/sdk/azure-keyvault-keys-rust.md)
 - **Certificates**: [Rust](references/sdk/azure-keyvault-certificates-rust.md)
 
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/azqr-recommendations.md` | Azqr Recommendations |
+| `references/azqr-remediation-patterns.md` | Azqr Remediation Patterns |
+| `references/azure-keyvault-expiration-audit.md` | Azure Keyvault Expiration Audit |
+| `references/azure-quick-review.md` | Azure Quick Review |
+| `references/azure-resource-graph.md` | Azure Resource Graph |

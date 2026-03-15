@@ -41,3 +41,11 @@ All output goes to `<source-folder>-azure/` at workspace root. Never modify the 
 5. **Hand off** to azure-prepare for infrastructure, testing, and deployment
 
 Track progress in `migration-status.md` — see [workflow-details.md](references/workflow-details.md).
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/workflow-details.md` | Workflow Details |

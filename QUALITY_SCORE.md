@@ -2,16 +2,16 @@
 
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 
-| Domain          | Grade | Status                                                                     | Next Action                                  |
-| --------------- | ----- | -------------------------------------------------------------------------- | -------------------------------------------- |
-| Agents          | A-    | 16 primary + 11 subagents; 01-conductor.agent.md is 354 lines (>350 limit) | Trim conductor to ≤350 lines                 |
-| Skills          | A     | 18 GA skills; 14 split with references/; 69 on-demand reference files      | Maintain as new skills added                 |
-| Instructions    | A     | 27 instruction files; 5 split with references; narrow globs enforced       | Monitor via `lint:glob-audit`                |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)      | Expand Terraform E2E templates when needed   |
-| Documentation   | A-    | 15 doc pages had stale 7-step/count refs; fixed 2026-03-11                 | Run doc-gardening after structural changes   |
-| CI / Validation | A     | 35 validators; 1 failing (validate:agent-body-size: conductor 354 lines)   | Fix conductor body size to unblock A+        |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline; 69 ref files      | Quarterly audit via AGENTS.md checklist      |
-| Backlog         | B+    | 3 active debt items; 12 resolved                                           | Close resolved issues; track frontmatter fix |
+| Domain          | Grade | Status                                                                       | Next Action                                   |
+| --------------- | ----- | ---------------------------------------------------------------------------- | --------------------------------------------- |
+| Agents          | A-    | 16 primary + 11 subagents; 01-conductor.agent.md is 363 lines (>350 limit)   | Trim conductor to ≤350 lines                  |
+| Skills          | A     | 38 GA skills; 32 split with references/; 834 on-demand reference files       | Fix pre-existing lint in plugin SKILL.md files |
+| Instructions    | A     | 25 instruction files; narrow globs enforced; all refs valid                   | Monitor via `lint:glob-audit`                 |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)        | Expand Terraform E2E templates when needed    |
+| Documentation   | A     | All docs updated within last 15 days; no stale files (>90 days)              | Run doc-gardening after structural changes    |
+| CI / Validation | A-    | 46 validators; lint:md failing on pre-existing plugin content (not our code)  | Fix plugin SKILL.md lint errors               |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline; 834 ref files       | Quarterly audit via AGENTS.md checklist       |
+| Backlog         | A-    | 2 active debt items; 16 resolved                                             | Fix conductor body size + plugin lint         |
 
 ## Grading Scale
 
@@ -64,7 +64,15 @@
 | 2026-03-11 | CI / Validation | Validator count corrected 33 → 35 (distinct lint: + validate: scripts)                           |
 | 2026-03-11 | Context Budget  | Ref files corrected 60 → 69                                                                      |
 | 2026-03-11 | Backlog         | Active debt items 2 → 3 (added #14)                                                              |
-
+| 2026-03-15 | Skills          | Skills count 18 → 38: 20 Azure skills integrated (azure-skills plugin #240-#245)                  |
+| 2026-03-15 | Skills          | Ref files 69 → 834; skills with refs 14 → 32; grade A → A- (19 missing Reference Index)          |
+| 2026-03-15 | Instructions    | Instruction count corrected 27 → 25                                                               |
+| 2026-03-15 | CI / Validation | Validator count 35 → 46; lint:md failing on 3 SKILL.minimal.md files                              |
+| 2026-03-15 | CI / Validation | Grade A → A-: markdown lint errors in microsoft-foundry, terraform-patterns, workflow-engine       |
+| 2026-03-15 | Documentation   | Grade A- → A: all docs updated within 15 days; no stale files                     |
+| 2026-03-15 | Agents          | Conductor body 354 → 363 lines; 2 codegen agents have absolute-language warnings  |
+| 2026-03-15 | Backlog         | Debt #11 resolved (glob audit now clean); debt #15 added (markdown lint); #10 updated (8 agents) |
+| 2026-03-15 | All             | Stale ref fixed: CHANGELOG.md `azure-troubleshooting` → `azure-diagnostics`       |
 ## How to Update
 
 1. Run the doc-gardening prompt: `.github/prompts/doc-gardening.prompt.md`

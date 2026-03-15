@@ -3,14 +3,7 @@ name: 06b-Bicep CodeGen
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
 model: ["GPT-5.4 (copilot)"]
 user-invocable: true
-agents:
-  [
-    "bicep-lint-subagent",
-    "bicep-review-subagent",
-    "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
-  ]
+agents: ["bicep-lint-subagent", "bicep-review-subagent", "challenger-review-subagent", "challenger-review-codex-subagent", "challenger-review-batch-subagent"]
 tools:
   [
     vscode/extensions,

@@ -4,19 +4,7 @@ description: "Experimental fast-path conductor for simple Azure projects (<=3 re
 model: ["Claude Sonnet 4.6"]
 argument-hint: Describe a simple Azure infrastructure project (≤3 resources)
 user-invocable: true
-agents:
-  [
-    "02-Requirements",
-    "03-Architect",
-    "05b-Bicep Planner",
-    "06b-Bicep CodeGen",
-    "07b-Bicep Deploy",
-    "08-As-Built",
-    "05t-Terraform Planner",
-    "06t-Terraform CodeGen",
-    "07t-Terraform Deploy",
-    "challenger-review-subagent",
-  ]
+agents: ["02-Requirements", "03-Architect", "05b-Bicep Planner", "06b-Bicep CodeGen", "07b-Bicep Deploy", "08-As-Built", "05t-Terraform Planner", "06t-Terraform CodeGen", "07t-Terraform Deploy", "challenger-review-subagent"]
 tools:
   [
     vscode/askQuestions,

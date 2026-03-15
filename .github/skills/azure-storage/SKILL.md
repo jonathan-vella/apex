@@ -98,3 +98,12 @@ For full package listing across all languages, see [SDK Usage Guide](references/
 ## Azure SDKs
 
 For building applications that interact with Azure Storage programmatically, Azure provides SDK packages in multiple languages (.NET, Java, JavaScript, Python, Go, Rust). See [SDK Usage Guide](references/sdk-usage.md) for package names, installation commands, and quick start examples.
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/sdk-usage.md` | Sdk Usage |

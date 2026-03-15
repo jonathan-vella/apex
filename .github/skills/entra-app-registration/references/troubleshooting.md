@@ -1,3 +1,4 @@
+<!-- ref:troubleshooting-v1 -->
 # Troubleshooting Microsoft Entra App Registration
 
 This guide helps you diagnose and fix common issues with app registrations and authentication.

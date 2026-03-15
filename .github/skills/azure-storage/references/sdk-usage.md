@@ -1,3 +1,4 @@
+<!-- ref:sdk-usage-v1 -->
 # Azure Storage SDK Usage
 
 SDK packages and quick start examples for Azure Storage services.

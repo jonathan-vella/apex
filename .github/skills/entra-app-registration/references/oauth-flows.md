@@ -1,3 +1,4 @@
+<!-- ref:oauth-flows-v1 -->
 # OAuth 2.0 Flows
 
 This document provides an illustration of OAuth 2.0 authentication flows supported by Microsoft Entra ID.

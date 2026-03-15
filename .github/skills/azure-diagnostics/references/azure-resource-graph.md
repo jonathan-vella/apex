@@ -1,3 +1,4 @@
+<!-- ref:azure-resource-graph-v1 -->
 # Azure Resource Graph Queries for Diagnostics
 
 Azure Resource Graph (ARG) enables fast, cross-subscription resource querying using KQL via `az graph query`. Use it to check resource health, find degraded resources, and correlate incidents.

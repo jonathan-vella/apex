@@ -140,3 +140,27 @@ Execute the approved plan. Update `.azure/plan.md` status after each step.
 > Skipping validation leads to deployment failures. Be patient and follow the complete workflow for the highest success outcome.
 
 **→ Update plan status to `Ready for Validation`, then invoke azure-validate**
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/analyze.md` | Analyze |
+| `references/apim.md` | Apim |
+| `references/architecture.md` | Architecture |
+| `references/aspire.md` | Aspire |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/azure-context.md` | Azure Context |
+| `references/generate.md` | Generate |
+| `references/global-rules.md` | Global Rules |
+| `references/plan-template.md` | Plan Template |
+| `references/recipe-selection.md` | Recipe Selection |
+| `references/region-availability.md` | Region Availability |
+| `references/requirements.md` | Requirements |
+| `references/research.md` | Research |
+| `references/resources-limits-quotas.md` | Resources Limits Quotas |
+| `references/scan.md` | Scan |
+| `references/security.md` | Security |
+| `references/specialized-routing.md` | Specialized Routing |

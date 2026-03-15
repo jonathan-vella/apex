@@ -189,3 +189,17 @@ MSAL is the recommended library for integrating Microsoft identity platform.
 - [OAuth 2.0 and OpenID Connect protocols](https://learn.microsoft.com/entra/identity-platform/v2-protocols)
 - [MSAL Documentation](https://learn.microsoft.com/entra/msal/)
 - [Microsoft Graph API](https://learn.microsoft.com/graph/)
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/api-permissions.md` | Api Permissions |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/cli-commands.md` | Cli Commands |
+| `references/console-app-example.md` | Console App Example |
+| `references/first-app-registration.md` | First App Registration |
+| `references/oauth-flows.md` | Oauth Flows |
+| `references/troubleshooting.md` | Troubleshooting |

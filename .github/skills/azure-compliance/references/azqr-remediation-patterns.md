@@ -1,3 +1,4 @@
+<!-- ref:azqr-remediation-patterns-v1 -->
 # Remediation Patterns for Common azqr Findings
 
 This document provides remediation templates for frequently identified compliance issues.

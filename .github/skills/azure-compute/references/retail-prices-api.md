@@ -1,3 +1,4 @@
+<!-- ref:retail-prices-api-v1 -->
 # Azure Retail Prices API Guide
 
 The [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices) is **unauthenticated** — no Azure account or subscription needed.

@@ -70,3 +70,14 @@ No matter which option you choose, recommend the user to create the App Insights
 
 - **OpenTelemetry Distro**: [Python](references/sdk/azure-monitor-opentelemetry-py.md) | [TypeScript](references/sdk/azure-monitor-opentelemetry-ts.md)
 - **OpenTelemetry Exporter**: [Python](references/sdk/azure-monitor-opentelemetry-exporter-py.md) | [Java](references/sdk/azure-monitor-opentelemetry-exporter-java.md)
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/aspnetcore.md` | Aspnetcore |
+| `references/auto.md` | Auto |
+| `references/nodejs.md` | Nodejs |
+| `references/python.md` | Python |

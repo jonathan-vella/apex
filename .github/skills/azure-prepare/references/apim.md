@@ -1,3 +1,4 @@
+<!-- ref:apim-v1 -->
 # APIM Deployment Guide
 
 Deploy Azure API Management (APIM) as part of your Azure infrastructure.

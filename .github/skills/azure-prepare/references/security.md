@@ -1,3 +1,4 @@
+<!-- ref:security-v1 -->
 # Security Hardening
 
 Secure Azure resources following Zero Trust principles.

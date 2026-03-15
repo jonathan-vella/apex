@@ -45,11 +45,9 @@ After each workflow step, validate before proceeding:
 3. If failed → diagnose using troubleshoot sub-skill → fix → retry
 4. Only proceed to next step when validation passes
 
-
 ## Agent Types
 
 | Type | Kind | Description |
 |------|------|-------------|
 | **Prompt** | `"prompt"` | LLM-based, backed by model deployment |
 | **Hosted** | `"hosted"` | Container-based, running custom code |
-

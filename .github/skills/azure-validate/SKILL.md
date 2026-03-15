@@ -68,3 +68,14 @@ metadata:
 
 - [InfraOps Preflight Validation](references/infraops-preflight.md) — CLI auth checks, known issues, governance-to-code mapping, stop rules
   > If any validation failed, fix the issues and re-run azure-validate before proceeding.
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/global-rules.md` | Global Rules |
+| `references/infraops-preflight.md` | Infraops Preflight |
+| `references/policy-validation.md` | Policy Validation |
+| `references/region-availability.md` | Region Availability |

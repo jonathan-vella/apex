@@ -1,3 +1,4 @@
+<!-- ref:research-v1 -->
 # Research Components
 
 After architecture planning, research each selected component to gather best practices before generating artifacts.

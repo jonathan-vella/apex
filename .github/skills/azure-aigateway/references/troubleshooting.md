@@ -1,3 +1,4 @@
+<!-- ref:troubleshooting-v1 -->
 # AI Gateway Troubleshooting
 
 Common issues when using Azure API Management as an AI Gateway.

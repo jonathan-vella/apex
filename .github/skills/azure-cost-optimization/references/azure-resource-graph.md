@@ -1,3 +1,4 @@
+<!-- ref:azure-resource-graph-v1 -->
 # Azure Resource Graph Queries for Cost Optimization
 
 Azure Resource Graph (ARG) enables fast, cross-subscription resource querying using KQL via `az graph query`. Use it to find orphaned resources, unused infrastructure, and optimization targets.

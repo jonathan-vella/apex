@@ -1,3 +1,4 @@
+<!-- ref:conductor-handoff-guide-v1 -->
 # Conductor Handoff Guide
 
 Gate templates, delegation rules, and handoff presentation rules

@@ -1,3 +1,4 @@
+<!-- ref:azure-keyvault-expiration-audit-v1 -->
 # Key Vault Expiration Audit & Compliance
 
 Automated auditing of Azure Key Vault resources to identify expired or expiring keys, secrets, and certificates before they cause service disruptions.

@@ -1,3 +1,4 @@
+<!-- ref:standard-agent-setup-v1 -->
 # Standard Agent Setup
 
 > **MANDATORY:** Read [Standard Agent Setup docs](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup?view=foundry) before proceeding with standard setup.

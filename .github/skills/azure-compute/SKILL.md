@@ -158,3 +158,13 @@ For VMSS recommendations, also mention:
 - [VM Family Guide](references/vm-families.md) — Family-to-workload mapping and selection
 - [Retail Prices API Guide](references/retail-prices-api.md) — Query patterns, filters, and examples
 - [VMSS Guide](references/vmss-guide.md) — When to use VMSS, orchestration modes, and autoscale patterns
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/retail-prices-api.md` | Retail Prices Api |
+| `references/vm-families.md` | Vm Families |
+| `references/vmss-guide.md` | Vmss Guide |

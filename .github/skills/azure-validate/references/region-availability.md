@@ -1,3 +1,4 @@
+<!-- ref:region-availability-v1 -->
 # Azure Region Availability Reference
 
 > **AUTHORITATIVE SOURCE** — Consult this file BEFORE recommending any region.

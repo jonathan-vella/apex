@@ -1,3 +1,4 @@
+<!-- ref:azure-quick-review-v1 -->
 ## Azure Quick Review (azqr) for Cost Optimization
 
 Azure Quick Review (azqr) generates compliance and governance reports that identify cost-impacting issues and orphaned resources.

@@ -1,3 +1,4 @@
+<!-- ref:cost-estimate-standards-v1 -->
 # Azure Cost Estimate Documentation Standards
 
 ## Document Purpose

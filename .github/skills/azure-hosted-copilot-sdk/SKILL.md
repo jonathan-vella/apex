@@ -53,3 +53,15 @@ Invoke **azure-prepare** (skip its Step 0 routing — scaffolding is done) → *
 
 - Read `AGENTS.md` in user's repo before changes
 - Docker required (`docker info`)
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/azure-model-config.md` | Azure Model Config |
+| `references/copilot-sdk.md` | Copilot Sdk |
+| `references/deploy-existing.md` | Deploy Existing |
+| `references/existing-project-integration.md` | Existing Project Integration |

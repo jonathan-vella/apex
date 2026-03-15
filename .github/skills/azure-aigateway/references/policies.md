@@ -1,3 +1,4 @@
+<!-- ref:policies-v1 -->
 # AI Gateway Policies
 
 Complete reference for Azure API Management AI governance policies.

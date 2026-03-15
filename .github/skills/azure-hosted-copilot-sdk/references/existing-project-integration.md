@@ -1,3 +1,4 @@
+<!-- ref:existing-project-integration-v1 -->
 # Integrating Copilot SDK into Existing Projects
 
 Add Copilot SDK AI features to an existing application.

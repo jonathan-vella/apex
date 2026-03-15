@@ -3,14 +3,7 @@ name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
 model: ["GPT-5.4 (copilot)"]
 user-invocable: true
-agents:
-  [
-    "terraform-lint-subagent",
-    "terraform-review-subagent",
-    "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
-  ]
+agents: ["terraform-lint-subagent", "terraform-review-subagent", "challenger-review-subagent", "challenger-review-codex-subagent", "challenger-review-batch-subagent"]
 tools:
   [
     vscode/extensions,

@@ -103,3 +103,11 @@ Use `--first N` to limit results. Use `--subscriptions` to scope.
 - ✅ **Prefer** dedicated MCP tools for single-resource-type queries
 - ❌ **Never** use ARG for real-time monitoring (data has slight delay)
 - ❌ **Never** attempt mutations through ARG (read-only)
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/azure-resource-graph.md` | Azure Resource Graph |

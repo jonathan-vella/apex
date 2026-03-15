@@ -1,3 +1,4 @@
+<!-- ref:specialized-routing-v1 -->
 # Specialized Technology Routing
 
 **MANDATORY**: Before starting any planning, check the user's prompt for specialized technology keywords. If matched, invoke the corresponding skill FIRST — it has tested templates and optimized workflows for that technology.

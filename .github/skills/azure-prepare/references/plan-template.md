@@ -1,3 +1,4 @@
+<!-- ref:plan-template-v1 -->
 # Plan Template
 
 Create `.azure/plan.md` using this template. This file is **mandatory** and serves as the source of truth for the entire workflow.

@@ -1,3 +1,4 @@
+<!-- ref:generate-v1 -->
 # Artifact Generation
 
 Generate infrastructure and configuration files based on selected recipe.

@@ -179,3 +179,11 @@ A successful analysis includes:
 - ✅ Professional, architect-level output
 
 Your goal is to provide clarity and insight into Azure architectures, making complex resource relationships easy to understand through excellent visualization.
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/azure-resource-graph.md` | Azure Resource Graph |

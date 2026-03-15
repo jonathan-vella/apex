@@ -1,3 +1,4 @@
+<!-- ref:azure-redis-v1 -->
 ## Azure Redis Cost Optimization
 
 Reference guide for identifying cost savings opportunities in Azure Redis deployments through analysis and targeted scans.

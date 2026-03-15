@@ -1,3 +1,4 @@
+<!-- ref:resources-limits-quotas-v1 -->
 # Azure Resource Limits and Quotas
 
 Check Azure resource availability during azure-prepare workflow. Validate after customer selects region.

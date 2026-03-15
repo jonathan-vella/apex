@@ -1,3 +1,4 @@
+<!-- ref:console-app-example-v1 -->
 # Console Application Examples
 
 This document provides complete working examples of console applications that authenticate with Microsoft Entra ID using MSAL (Microsoft Authentication Library).

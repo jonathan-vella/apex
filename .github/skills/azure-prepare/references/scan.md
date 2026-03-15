@@ -1,3 +1,4 @@
+<!-- ref:scan-v1 -->
 # Codebase Scan
 
 Analyze workspace to identify components, technologies, and dependencies.

@@ -140,3 +140,15 @@ az monitor activity-log list -g RG --max-events 20
 - [InfraOps Health Checks](references/infraops-health-checks.md) — per-resource-type diagnostic commands
 - [InfraOps Remediation Playbooks](references/infraops-remediation-playbooks.md) — 6-phase diagnostic workflow
 - [Function Apps Troubleshooting](references/functions/README.md)
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/azure-resource-graph.md` | Azure Resource Graph |
+| `references/infraops-health-checks.md` | Infraops Health Checks |
+| `references/infraops-kql-templates.md` | Infraops Kql Templates |
+| `references/infraops-remediation-playbooks.md` | Infraops Remediation Playbooks |
+| `references/kql-queries.md` | Kql Queries |

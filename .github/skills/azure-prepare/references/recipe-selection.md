@@ -1,3 +1,4 @@
+<!-- ref:recipe-selection-v1 -->
 # Recipe Selection
 
 Choose the deployment recipe based on project needs and existing tooling.

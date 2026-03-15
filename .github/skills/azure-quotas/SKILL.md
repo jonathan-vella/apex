@@ -322,3 +322,12 @@ az quota list \
     Proceed          Request increase
                      or change region
 ```
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/advanced-commands.md` | Advanced Commands |
+| `references/commands.md` | Commands |

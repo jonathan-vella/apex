@@ -1,3 +1,4 @@
+<!-- ref:troubleshooting-v1 -->
 # Troubleshooting
 
 This reference covers common errors encountered during Azure deployment with `azd` and how to resolve them.

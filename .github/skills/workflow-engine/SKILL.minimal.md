@@ -2,15 +2,14 @@
 
 # Workflow Engine Skill (Minimal)
 
-**When to Use**: 
+**When to Use**:
 
-**Core Concepts**: 
+**Core Concepts**:
 ### DAG Model
 
-**Workflow Graph**: 
+**Workflow Graph**:
 The full machine-readable DAG is in:
 
-**Reference Index**: 
-
+**Reference Index**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

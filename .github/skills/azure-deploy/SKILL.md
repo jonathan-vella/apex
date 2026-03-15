@@ -89,3 +89,15 @@ Activate this skill when user wants to:
 
 - [Troubleshooting](references/troubleshooting.md) - Common issues and solutions
 - [Post-Deployment Steps](references/recipes/azd/post-deployment.md) - SQL + EF Core setup
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/global-rules.md` | Global Rules |
+| `references/pre-deploy-checklist.md` | Pre Deploy Checklist |
+| `references/region-availability.md` | Region Availability |
+| `references/troubleshooting.md` | Troubleshooting |

@@ -1,3 +1,4 @@
+<!-- ref:service-troubleshooting-v1 -->
 # Service-Level Troubleshooting
 
 Covers connectivity, firewall, and network issues that apply regardless of SDK language.

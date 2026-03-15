@@ -1,3 +1,4 @@
+<!-- ref:api-permissions-v1 -->
 # API Permissions Guide
 
 This document explains how to configure and manage API permissions for your Microsoft Entra app registration.

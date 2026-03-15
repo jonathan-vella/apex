@@ -1,3 +1,4 @@
+<!-- ref:azure-model-config-v1 -->
 # Model Configuration
 
 Three model paths for the Copilot SDK. Each session needs different configuration.

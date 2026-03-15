@@ -99,3 +99,13 @@ After each workflow step, validate before proceeding:
 ## Dependencies
 
 Scripts in sub-skills require: Azure CLI (`az`) ≥2.0, `jq` (for shell scripts). Install via `pip install azure-ai-projects azure-identity` for Python SDK usage.
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/private-network-standard-agent-setup.md` | Private Network Standard Agent Setup |
+| `references/standard-agent-setup.md` | Standard Agent Setup |

@@ -1,3 +1,4 @@
+<!-- ref:workload-documentation-v1 -->
 # Workload Documentation Standards
 
 ## Visual Styling

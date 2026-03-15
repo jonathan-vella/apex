@@ -138,7 +138,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 ### Removed
 
-- chore(skills): remove deprecated `azure-troubleshooting` skill (replaced by
+- chore(skills): remove deprecated `azure-diagnostics` legacy skill (replaced by
   `azure-diagnostics` from Azure Skills Plugin).
 
 ## [0.9.0] — Pre-Bosun Baseline

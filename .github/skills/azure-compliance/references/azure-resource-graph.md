@@ -1,3 +1,4 @@
+<!-- ref:azure-resource-graph-v1 -->
 # Azure Resource Graph Queries for Compliance Auditing
 
 Azure Resource Graph (ARG) enables fast, cross-subscription resource querying using KQL via `az graph query`. Use it for compliance scanning, tag audits, and configuration validation.

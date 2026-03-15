@@ -11,7 +11,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 - Validating that all steps have proper dependencies and outputs
 - Understanding fan-out (parallel sub-steps) and conditional routing
 
-
 ## Core Concepts
 
 ### DAG Model
@@ -41,4 +40,3 @@ The full machine-readable DAG is in:
 | Reference      | File                            | Content                      |
 | -------------- | ------------------------------- | ---------------------------- |
 | Workflow Graph | `templates/workflow-graph.json` | Full DAG for 7-step workflow |
-

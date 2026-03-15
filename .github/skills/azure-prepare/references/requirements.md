@@ -1,3 +1,4 @@
+<!-- ref:requirements-v1 -->
 # Requirements Gathering
 
 Collect project requirements through conversation before making architecture decisions.

@@ -127,3 +127,14 @@ See [references/troubleshooting.md](references/troubleshooting.md) for details.
 
 - **Content Safety**: [Python](references/sdk/azure-ai-contentsafety-py.md) | [TypeScript](references/sdk/azure-ai-contentsafety-ts.md)
 - **API Management**: [Python](references/sdk/azure-mgmt-apimanagement-py.md) | [.NET](references/sdk/azure-mgmt-apimanagement-dotnet.md)
+
+## Reference Index
+
+Load these on demand — do NOT read all at once:
+
+| Reference | When to Load |
+| --------- | ------------ |
+| `references/auth-best-practices.md` | Auth Best Practices |
+| `references/patterns.md` | Patterns |
+| `references/policies.md` | Policies |
+| `references/troubleshooting.md` | Troubleshooting |

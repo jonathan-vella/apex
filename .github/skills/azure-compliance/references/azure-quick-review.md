@@ -1,3 +1,4 @@
+<!-- ref:azure-quick-review-v1 -->
 # Azure Quick Review Compliance Assessment
 
 This skill enables comprehensive Azure compliance assessments using Azure Quick Review (azqr), analyzing findings against Azure best practices, and providing actionable remediation guidance.

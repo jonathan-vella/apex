@@ -1,3 +1,4 @@
+<!-- ref:copilot-sdk-v1 -->
 # Copilot SDK Reference
 
 ## Template

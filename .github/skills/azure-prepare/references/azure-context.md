@@ -1,3 +1,4 @@
+<!-- ref:azure-context-v1 -->
 # Azure Context (Subscription & Location)
 
 Detect and confirm Azure subscription and location before generating artifacts. Run region capacity check for customer selected location

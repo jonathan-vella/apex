@@ -1,3 +1,4 @@
+<!-- ref:pre-deploy-checklist-v1 -->
 # Pre-Deployment Checklist
 
 > **CRITICAL**: Before running ANY provisioning commands, you MUST complete this checklist IN ORDER.

@@ -1,3 +1,4 @@
+<!-- ref:azqr-recommendations-v1 -->
 # azqr Recommendation Categories
 
 This document describes how to interpret azqr recommendations and prioritize remediation.

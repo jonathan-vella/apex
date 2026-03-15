@@ -1,3 +1,4 @@
+<!-- ref:deploy-existing-v1 -->
 # Deploy Existing Copilot SDK App
 
 Adapt a user's existing Copilot SDK app for Azure by scaffolding the template to a temp directory, then copying infra into the user's project.

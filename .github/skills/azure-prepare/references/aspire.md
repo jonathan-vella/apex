@@ -1,3 +1,4 @@
+<!-- ref:aspire-v1 -->
 # .NET Aspire Projects
 
 > ⛔ **CRITICAL - READ THIS FIRST**

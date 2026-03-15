@@ -1,3 +1,4 @@
+<!-- ref:vmss-guide-v1 -->
 # VMSS Guide
 
 Determine when to recommend a Virtual Machine Scale Set (VMSS) over a single VM, and which VMSS configuration to suggest.

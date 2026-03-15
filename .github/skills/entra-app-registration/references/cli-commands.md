@@ -1,3 +1,4 @@
+<!-- ref:cli-commands-v1 -->
 # Azure CLI Commands for App Registration
 
 This document provides a comprehensive reference for managing Microsoft Entra app registrations using Azure CLI.
