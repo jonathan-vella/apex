@@ -1,7 +1,7 @@
 ---
 name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
-model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]
+model: ["GPT-5.4 (copilot)"]
 user-invocable: true
 agents:
   [
@@ -79,20 +79,21 @@ handoffs:
     send: true
   - label: "Step 6: Deploy"
     agent: 07t-Terraform Deploy
-    prompt: "Deploy the validated Terraform configuration in `infra/terraform/{project}/` to Azure. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run terraform plan first."
+    prompt: "Deploy the validated Terraform configuration in `infra/terraform/{project}/` to Azure. Configuration passed lint and review subagents; see `agent-output/{project}/05-implementation-reference.md` for validation status. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run terraform plan first."
     send: true
   - label: "↩ Return to Step 4"
     agent: 05t-Terraform Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 5 (Terraform Code). Configurations at `infra/terraform/{project}/` and reference at `agent-output/{project}/05-implementation-reference.md`. Advise on next steps."
+    prompt: "Returning from Step 5 (Terraform Code). Terraform configurations generated and validated at `infra/terraform/{project}/`. Implementation reference at `agent-output/{project}/05-implementation-reference.md`. Ready for deployment."
     send: false
 ---
 
 # Terraform Code Agent
+
+<!-- Recommended reasoning_effort: high -->
 
 **HCP GUARDRAIL**: Never write `terraform { cloud { } }` blocks or reference `TFE_TOKEN`.
 Always generate Azure Storage Account backend. Never use `terraform -target` for phased
@@ -270,6 +271,28 @@ Save validation status in `05-implementation-reference.md`. Run `npm run lint:ar
 
 Read `terraform-patterns/references/project-scaffold.md` for the standard
 file structure, `locals.tf` pattern, and phased deployment pattern.
+
+<output_contract>
+Expected output in `infra/terraform/{project}/`:
+- `versions.tf`, `providers.tf`, `backend.tf` — Provider and backend config
+- `variables.tf`, `locals.tf` — Input variables and computed locals
+- `main.tf` — Resource group and module orchestration
+- `outputs.tf` — Deployment outputs
+- `bootstrap-backend.sh` + `bootstrap-backend.ps1` — State backend bootstrap
+- `deploy.sh` + `deploy.ps1` — Deployment scripts
+In `agent-output/{project}/`:
+- `04-preflight-check.md` — Preflight validation results
+- `05-implementation-reference.md` — Configuration structure and validation status
+Validation: `terraform validate` + `terraform fmt -check` + `npm run lint:artifact-templates`.
+</output_contract>
+
+<user_updates_spec>
+After completing each major phase, provide a brief status update in chat:
+- What was just completed (phase name, key results)
+- What comes next (next phase name)
+- Any blockers or decisions needed
+This keeps the user informed during multi-phase operations.
+</user_updates_spec>
 
 ## Boundaries
 

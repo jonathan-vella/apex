@@ -1,12 +1,23 @@
 ---
 description: "Generate the as-built documentation suite from all prior artifacts and deployed state."
 agent: "08-As-Built"
-model: "GPT-5.3-Codex"
+model: "GPT-5.4"
 ---
 
 # Step 7 — As-Built Documentation
 
 Generate comprehensive workload documentation after successful deployment.
+
+## Prerequisites
+
+Before running, confirm these artifacts exist in `agent-output/{project}/`:
+
+- `01-requirements.md` — Original requirements (required)
+- `02-architecture-assessment.md` — WAF assessment (required)
+- `04-implementation-plan.md` — Planned architecture (required)
+- `06-deployment-summary.md` — Deployment results (required)
+- `03-des-cost-estimate.md` — Original cost estimate (optional)
+- `05-implementation-reference.md` — IaC validation results (optional)
 
 ## Instructions
 

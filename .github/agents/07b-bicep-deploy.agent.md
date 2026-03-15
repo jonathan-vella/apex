@@ -1,6 +1,6 @@
 ---
 name: 07b-Bicep Deploy
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4 (copilot)"]
 description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
@@ -81,7 +81,7 @@ handoffs:
     send: true
   - label: "Step 7: As-Built Documentation"
     agent: 08-As-Built
-    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
+    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Deployment succeeded; summary at `agent-output/{project}/06-deployment-summary.md`. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
@@ -98,11 +98,13 @@ handoffs:
     model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 6 (Deploy). Summary at `agent-output/{project}/06-deployment-summary.md`. Advise on next steps."
+    prompt: "Returning from Step 6 (Bicep Deploy). Deployment completed; summary at `agent-output/{project}/06-deployment-summary.md`. Resources verified via Azure Resource Graph. Ready for as-built documentation."
     send: false
 ---
 
 # Deploy Agent
+
+<!-- Recommended reasoning_effort: medium -->
 
 ## MANDATORY: Read Skills First
 
@@ -399,6 +401,24 @@ Mark status as "Simulated".
 
 Follow the **Copy-Then-Fill Artifact Protocol** above — copy the template, fill placeholders, validate.
 Do NOT compose the artifact from memory. Do NOT skip the post-save lint check.
+
+<output_contract>
+Expected output in `agent-output/{project}/`:
+- `06-deployment-summary.md` — Deployment results (copy-then-fill from template)
+Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
+</output_contract>
+
+<empty_result_recovery>
+If what-if returns no changes (all resources `NoChange`), report the result and confirm with the user.
+If what-if fails due to missing resource group, create the RG first and retry once.
+If deployment returns 0 resources created, verify the template was not empty and report findings.
+</empty_result_recovery>
+
+<default_follow_through_policy>
+When an approval gate is presented and the user approves, proceed immediately to the next phase.
+Do not re-confirm or ask additional questions after approval is given.
+If the user provides a custom response at an approval gate, interpret it as instructions and adapt.
+</default_follow_through_policy>
 
 ## Boundaries
 

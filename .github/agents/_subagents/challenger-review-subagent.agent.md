@@ -109,6 +109,14 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 | Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
 | Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                        |
 
+<output_contract>
+Return ONLY valid JSON matching the schema below. No markdown wrapper, no explanation outside JSON.
+Required top-level fields: challenged_artifact, artifact_type, review_focus, pass_number,
+challenge_summary, compact_for_parent, risk_level, must_fix_count, should_fix_count, suggestion_count, issues[].
+Each issue must have: severity, category, title, description, failure_scenario, artifact_section, suggested_mitigation.
+If `artifact_path` does not exist or is empty, return error JSON: `{"status": "artifact_not_found", "artifact_path": "...", "issues": []}`.
+</output_contract>
+
 ## Output Format
 
 Return ONLY valid JSON (no markdown wrapper, no explanation outside JSON):

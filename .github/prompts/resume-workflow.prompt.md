@@ -1,7 +1,7 @@
 ---
 description: "Resume the 7-step workflow from where it left off by reading session state and routing to the correct agent."
 agent: "01-Conductor"
-model: "GPT-5.4"
+model: "Claude Opus 4.6"
 ---
 
 # Resume Workflow

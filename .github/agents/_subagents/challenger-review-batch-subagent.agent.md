@@ -2,7 +2,7 @@
 name: challenger-review-batch-subagent
 description: "Batch adversarial review subagent for complex projects. Runs multiple lenses sequentially in one invocation. Returns array of per-lens findings."
 model: "GPT-5.3-Codex (copilot)"
-# Model rationale: GPT-5.3-Codex for passes 2+3 batch. Same model as codex subagent.
+# Model rationale: GPT-5.3-Codex (copilot) for passes 2+3 batch. Same model as codex subagent.
 # Internal sequential execution preserves inter-pass context.
 user-invocable: false
 agents: []
@@ -45,6 +45,10 @@ The parent agent provides:
 - `prior_findings`: Compact string from pass 1 (required — batch always follows pass 1)
 
 ## Execution Protocol
+
+**Parallel Independence**: Process each artifact lens independently. Do not let findings
+from one lens bias the scoring or severity calibration of another. Each lens starts from
+the artifact text, not from the prior lens's conclusions.
 
 1. **Read the artifact completely** — understand the proposed approach
 2. **Read prior artifacts** — check `agent-output/{project}/` for earlier step context

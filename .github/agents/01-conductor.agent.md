@@ -1,7 +1,7 @@
 ---
 name: 01-Conductor
 description: Master orchestrator for the 7-step Azure infrastructure workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["GPT-5.4"]
+model: ["Claude Opus 4.6 (copilot)"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invocable: true
 agents:

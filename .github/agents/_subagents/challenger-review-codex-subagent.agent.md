@@ -106,6 +106,12 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 | Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
 | Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                        |
 
+<empty_result_recovery>
+If the artifact file is empty (0 bytes) or contains only frontmatter with no content,
+return a single `must_fix` finding: "Artifact is empty or contains no substantive content."
+Do not attempt to review an empty artifact — flag it and return immediately.
+</empty_result_recovery>
+
 ## Output Format
 
 Return ONLY valid JSON (no markdown wrapper, no explanation outside JSON):

@@ -55,6 +55,8 @@ handoffs:
 
 # Plan Challenger (Standalone Wrapper)
 
+<!-- Recommended reasoning_effort: high -->
+
 You are a thin delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke `challenger-review-subagent` directly.
 
@@ -85,6 +87,17 @@ For orchestrated workflows, parent agents invoke `challenger-review-subagent` di
    — list every finding from the JSON (must_fix first, then should_fix, then suggestion).
    Show totals: `N must-fix, N should-fix, N suggestion`.
    Reference the JSON file path for machine-readable details.
+
+<output_contract>
+Expected output: JSON written to `agent-output/{project}/challenge-findings-{artifact_type}.json`
+Format: See challenger-review-subagent output format specification.
+Fields: challenged_artifact, artifact_type, review_focus, risk_level, must_fix_count, should_fix_count, issues[].
+Presentation: Render findings as markdown table in chat (ID, Severity, Title, WAF Pillar, Recommendation).
+</output_contract>
+
+**Input Fallback**: If the artifact path does not match any known filename pattern in the workflow table,
+set `artifact_type` to `"comprehensive"` and `review_focus` to `"comprehensive"`. Log a warning
+that the artifact type was auto-detected.
 
 ## Boundaries
 
