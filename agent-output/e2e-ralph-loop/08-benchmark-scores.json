@@ -1,13 +1,13 @@
 {
   "run_id": "e2e-ralph-001",
-  "timestamp": "2026-03-16T09:03:58.167Z",
+  "timestamp": "2026-03-16T17:42:24.110Z",
   "scores": {
     "artifact_completeness": {
-      "score": 100,
-      "found": 21,
-      "total": 21,
+      "score": 74,
+      "found": 31,
+      "total": 42,
       "missing": [],
-      "grade": "A"
+      "grade": "C"
     },
     "structural_compliance": {
       "score": 100,
@@ -20,6 +20,7 @@
     },
     "code_quality": {
       "score": 80,
+      "iac_tool": "Bicep",
       "build_pass": true,
       "lint_pass": true,
       "avm_module_count": 0,
@@ -61,6 +62,7 @@
         "project: correct",
         "iac_tool: set",
         "decisions: populated",
+        "decision_log: 5 entries",
         "steps completed: 8/8"
       ],
       "grade": "A"
@@ -72,7 +74,7 @@
     }
   },
   "composite": {
-    "score": 88,
+    "score": 83,
     "grade": "B"
   }
 }

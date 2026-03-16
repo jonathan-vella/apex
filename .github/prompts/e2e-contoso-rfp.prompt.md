@@ -25,12 +25,16 @@ generates ALL artifacts from scratch — nothing is pre-seeded.
 
 - **Project**: `contoso-service-hub-run-2` (update suffix for each run: -run-2, -run-3)
 - **Output directory**: `agent-output/contoso-service-hub-run-2/`
-- **Bicep directory**: `infra/bicep/contoso-service-hub-run-2/`
-- **IaC tool**: Bicep
+- **IaC directory**: Bicep: `infra/bicep/contoso-service-hub-run-2/` | Terraform: `infra/terraform/contoso-service-hub-run-2/`
+- **IaC tool**: Bicep _(Change to `Terraform` and update agent refs below for Terraform track runs)_
 - **Complexity**: determined at runtime by Step 1 (expected: complex)
 - **RFP source**: `tmp/00-rfp.md`
 - **Pre-seeded artifacts**: NONE — everything generated from RFP
 - **Session state**: `agent-output/contoso-service-hub-run-1/00-session-state.json`
+
+> **IaC Tool Routing**: The IaC tool field above controls which agents and validators are invoked.
+> If `Bicep`: invoke `@05b-Bicep Planner`, `@06b-Bicep CodeGen`, `@07b-Bicep Deploy`; validate with `bicep build`/`bicep lint`; code dir = `infra/bicep/{project}/`.
+> If `Terraform`: invoke `@05t-Terraform Planner`, `@06t-Terraform CodeGen`, `@07t-Terraform Deploy`; validate with `terraform validate`/`terraform fmt -check`; code dir = `infra/terraform/{project}/`.
 
 ## RALPH Loop Protocol
 

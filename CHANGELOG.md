@@ -50,6 +50,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`e2e-conductor.agent.md`) with pre-validation after every subagent return,
   auto-challenge (1 pass per step), self-correction, benchmark collection, and
   lesson capture — no human gates.
+- feat(e2e): add Terraform support to Ralph Loop E2E testing — prompt parameterization
+  with IaC tool routing, e2e-conductor dual-track (Bicep + Terraform subagents),
+  Terraform validators in `validate-e2e-step.mjs` (`terraform validate`, `terraform fmt -check`),
+  and Terraform scoring in `benchmark-e2e.mjs` (`scoreCodeQuality()` with AVM-TF detection).
+- feat(e2e): add `e2e:validate` and `e2e:benchmark` npm scripts for E2E testing.
+- feat(e2e): register `e2e-conductor` in `agent-registry.json`.
+- feat(e2e): add `e2e-validation.yml` CI workflow (manual dispatch + weekly schedule)
+  with benchmark report upload. Add structural E2E validation step to `lint.yml`.
+- feat(e2e): add configurable benchmark threshold via `E2E_PASS_THRESHOLD` env var.
+- feat(e2e): add multi-project benchmark comparison (`--compare` flag) with auto-discovery.
+- docs(e2e): add dedicated E2E testing documentation (`docs/e2e-testing.md`) with
+  IaC track matrix, benchmark dimensions, and troubleshooting guide.
+- docs(e2e): add Ralph Loop, E2E Benchmark, E2E Conductor to glossary.
+- docs(e2e): add E2E testing guidance to `AGENTS.md` and `CONTRIBUTING.md`.
 - feat(e2e): add E2E evaluation scripts: `benchmark-e2e.mjs` (8-dimension scoring engine
   with complexity-normalized baselines) and `validate-e2e-step.mjs` (per-step validator
   orchestrator composing existing lint/validate commands).

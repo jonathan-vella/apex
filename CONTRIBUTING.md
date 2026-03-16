@@ -28,7 +28,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Bicep and Terraform patterns and templates
    - Azure Verified Module usage examples (Bicep and AVM-TF)
    - Security and compliance guidance
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
+   <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 📋 Contribution Guidelines
 
@@ -73,6 +73,23 @@ Contributions land via pull requests with required checks and review.
 - Document prerequisites
 - Use Mermaid for diagrams
 
+### Running E2E Tests
+
+After changing agents, skills, or validators, validate the E2E pipeline artifacts:
+
+```bash
+# Structural validation (fast, no agent invocation)
+npm run e2e:validate
+
+# Benchmark scoring (Bicep default project)
+npm run e2e:benchmark
+
+# Benchmark scoring (Terraform project)
+npm run e2e:benchmark -- terraform-e2e
+```
+
+See [E2E Testing](docs/e2e-testing.md) for details on the Ralph Loop workflow.
+
 ### Markdown Linting
 
 This repository uses [markdownlint](https://github.com/DavidAnson/markdownlint) for consistent formatting.
@@ -89,6 +106,7 @@ npm run lint:links
 # Auto-fix issues
 npm run lint:md:fix
 ```
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 🚀 Contribution Process
@@ -133,6 +151,7 @@ git push origin feature/your-feature-name
 ```
 
 Note: commit message format is enforced by hooks and CI.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 📝 Commit Message Format (Required)

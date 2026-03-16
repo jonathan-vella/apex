@@ -23,10 +23,14 @@ You are the **E2E Evaluation Conductor** running an automated, self-correcting e
 
 - **Project**: `e2e-ralph-loop` (Nordic Fresh Foods Lite)
 - **Output directory**: `agent-output/e2e-ralph-loop/`
-- **IaC tool**: Bicep
+- **IaC tool**: Bicep _(Change to `Terraform` and update agent refs below for Terraform track runs)_
 - **Complexity**: simple (1 review pass per step)
 - **Pre-seeded artifacts**: `01-requirements.md` (Step 1), `04-implementation-plan.md` + diagrams (Step 4)
 - **Session state**: `agent-output/e2e-ralph-loop/00-session-state.json`
+
+> **IaC Tool Routing**: The IaC tool field above controls which agents and validators are invoked.
+> If `Bicep`: invoke `@05b-Bicep Planner`, `@06b-Bicep CodeGen`, `@07b-Bicep Deploy`; validate with `bicep build`/`bicep lint`; code dir = `infra/bicep/{project}/`.
+> If `Terraform`: invoke `@05t-Terraform Planner`, `@06t-Terraform CodeGen`, `@07t-Terraform Deploy`; validate with `terraform validate`/`terraform fmt -check`; code dir = `infra/terraform/{project}/`.
 
 ## RALPH Loop Protocol
 
@@ -74,7 +78,8 @@ while step.status != "complete" AND iteration < 5:
 5. Run 1-pass challenger via `@challenger-review-subagent` (comprehensive lens)
 6. If validation fails or must_fix > 0: feed findings back, re-invoke architect (max 3 iterations)
 7. Record benchmark metrics (WAF scores, cost accuracy, timing)
-8. Update session state: Step 2 → `complete`, auto-approve Gate 2
+8. Append architectural decisions to `decision_log` in session state (architecture pattern, SKU choices, security model, deployment strategy — follow `decision-logging.instructions.md` schema)
+9. Update session state: Step 2 → `complete`, auto-approve Gate 2
 
 ### PHASE B.5: Design (Step 3) — Optional
 
@@ -100,25 +105,33 @@ while step.status != "complete" AND iteration < 5:
 1. Re-validate `04-implementation-plan.md` against governance constraints from Step 3.5
 2. Run 1-pass challenger via `@challenger-review-subagent` (security-governance lens) on `04-implementation-plan.md`
 3. If must_fix > 0: edit the plan to incorporate governance findings, re-validate (max 2 iterations)
-4. Update session state: Step 4 → confirmed `complete`, auto-approve Gate 3
+4. Append any IaC planning decisions to `decision_log` (module selection, deployment phases, parameter choices)
+5. Update session state: Step 4 → confirmed `complete`, auto-approve Gate 3
 
 ### PHASE E: IaC Code (Step 5)
 
 1. Update session state: Step 5 → `in_progress`
-2. Invoke `@06b-Bicep CodeGen` subagent: _"Implement the Bicep templates according to `agent-output/e2e-ralph-loop/04-implementation-plan.md`. Save to `infra/bicep/e2e-ralph-loop/`. Read governance constraints from `agent-output/e2e-ralph-loop/04-governance-constraints.json`. Do NOT use askQuestions — all decisions are in the plan."_
-3. **Pre-validate**: `infra/bicep/e2e-ralph-loop/main.bicep` exists, non-empty, `modules/` directory present
-4. Run `bicep build infra/bicep/e2e-ralph-loop/main.bicep` — if errors contain hallucinated property names, log lesson with `factual-accuracy` category
-5. Run `bicep lint infra/bicep/e2e-ralph-loop/main.bicep`
-6. Self-correct: feed lint/build errors back (max 5 iterations)
-7. Run 1-pass challenger via `@bicep-review-subagent` (security-governance lens)
+2. **If IaC tool is Bicep:** Invoke `@06b-Bicep CodeGen` subagent: _"Implement the Bicep templates according to `agent-output/e2e-ralph-loop/04-implementation-plan.md`. Save to `infra/bicep/e2e-ralph-loop/`. Read governance constraints from `agent-output/e2e-ralph-loop/04-governance-constraints.json`. Do NOT use askQuestions — all decisions are in the plan."_
+   **If IaC tool is Terraform:** Invoke `@06t-Terraform CodeGen` subagent: _"Implement the Terraform configuration according to `agent-output/e2e-ralph-loop/04-implementation-plan.md`. Save to `infra/terraform/e2e-ralph-loop/`. Read governance constraints from `agent-output/e2e-ralph-loop/04-governance-constraints.json`. Do NOT use askQuestions — all decisions are in the plan."_
+3. **Pre-validate**:
+   - Bicep: `infra/bicep/e2e-ralph-loop/main.bicep` exists, non-empty, `modules/` directory present
+   - Terraform: `infra/terraform/e2e-ralph-loop/main.tf` exists, non-empty, `modules/` directory present
+4. **Validate**:
+   - Bicep: Run `bicep build infra/bicep/e2e-ralph-loop/main.bicep` — if errors contain hallucinated property names, log lesson with `factual-accuracy` category. Run `bicep lint`.
+   - Terraform: Run `terraform -chdir=infra/terraform/e2e-ralph-loop init -backend=false` then `terraform validate`. Run `terraform fmt -check`.
+5. Self-correct: feed lint/build/validate errors back (max 5 iterations)
+6. **Review**:
+   - Bicep: Run 1-pass challenger via `@bicep-review-subagent` (security-governance lens)
+   - Terraform: Run 1-pass challenger via `@terraform-review-subagent` (security-governance lens)
+7. Append implementation decisions to `decision_log` (AVM module versions, security config, networking choices)
 8. Update session state: Step 5 → `complete`, auto-approve Gate 4
 
 ### PHASE F: Deploy (Step 6) — Dry Run
 
 1. Update session state: Step 6 → `in_progress`
 2. Since this is an E2E evaluation, perform dry-run validation only:
-   - Run `bicep build infra/bicep/e2e-ralph-loop/main.bicep` (final confirmation)
-   - If Azure credentials available: run `az deployment group what-if` via `@bicep-whatif-subagent`
+   - **Bicep**: Run `bicep build infra/bicep/e2e-ralph-loop/main.bicep` (final confirmation). If Azure credentials available: run `az deployment group what-if` via `@bicep-whatif-subagent`.
+   - **Terraform**: Run `terraform -chdir=infra/terraform/e2e-ralph-loop plan` (dry-run). If Azure credentials available: run `terraform plan` via `@terraform-plan-subagent`.
    - Otherwise: mark as `validated-not-deployed`
 3. Create `agent-output/e2e-ralph-loop/06-deployment-summary.md` with dry-run results
 4. Update session state: Step 6 → `complete`
@@ -150,16 +163,16 @@ while step.status != "complete" AND iteration < 5:
 
 ## Pre-Validation Checklist (Per Step)
 
-| Step | Expected Artifact(s)                    | Expected H2 Headings (first 3)                                                  |
-| ---- | --------------------------------------- | ------------------------------------------------------------------------------- |
-| 1    | `01-requirements.md`                    | 🎯 Project Overview, 🚀 Functional Requirements, ⚡ Non-Functional Requirements |
-| 2    | `02-architecture-assessment.md`         | Check for WAF-related H2s                                                       |
-| 3    | `03-des-*.md`, `03-des-*.py`            | At least 1 ADR file + 1 diagram script                                          |
-| 3.5  | `04-governance-constraints.md`, `.json` | JSON parseable, .md has policy content                                          |
-| 4    | `04-implementation-plan.md`             | 📋 Overview, 📦 Resource Inventory, 🗂️ Module Structure                         |
-| 5    | `infra/bicep/e2e-ralph-loop/main.bicep` | `bicep build` succeeds, `modules/` dir exists                                   |
-| 6    | `06-deployment-summary.md`              | Deployment result documented                                                    |
-| 7    | `07-*.md` (≥5 files)                    | Documentation suite present                                                     |
+| Step | Expected Artifact(s)                                                                | Expected H2 Headings (first 3)                                                                                        |
+| ---- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1    | `01-requirements.md`                                                                | 🎯 Project Overview, 🚀 Functional Requirements, ⚡ Non-Functional Requirements                                       |
+| 2    | `02-architecture-assessment.md`                                                     | Check for WAF-related H2s                                                                                             |
+| 3    | `03-des-*.md`, `03-des-*.py`                                                        | At least 1 ADR file + 1 diagram script                                                                                |
+| 3.5  | `04-governance-constraints.md`, `.json`                                             | JSON parseable, .md has policy content                                                                                |
+| 4    | `04-implementation-plan.md`                                                         | 📋 Overview, 📦 Resource Inventory, 🗂️ Module Structure                                                               |
+| 5    | `infra/bicep/e2e-ralph-loop/main.bicep` or `infra/terraform/e2e-ralph-loop/main.tf` | Bicep: `bicep build` succeeds, `modules/` dir exists. Terraform: `terraform validate` succeeds, `modules/` dir exists |
+| 6    | `06-deployment-summary.md`                                                          | Deployment result documented                                                                                          |
+| 7    | `07-*.md` (≥5 files)                                                                | Documentation suite present                                                                                           |
 
 ## Lesson Capture Rules
 
@@ -170,6 +183,7 @@ Record a lesson to `09-lessons-learned.json` whenever:
 - Pre-validation fails (agent returned garbage/empty)
 - A challenger finding reveals a gap
 - `bicep build` fails with hallucinated properties → `factual-accuracy` category
+- `terraform validate` fails with hallucinated resource types → `factual-accuracy` category
 - Context budget concern → `context-budget` category
 - Step exceeds timing threshold (simple ≤ 3 min, codegen ≤ 10 min) → `workflow-design` category
 

@@ -1,0 +1,64 @@
+{
+  "run_id": "e2e-ralph-001",
+  "timestamp": "2026-03-16T17:17:56.863Z",
+  "scores": {
+    "artifact_completeness": {
+      "score": 95,
+      "found": 20,
+      "total": 21,
+      "missing": [
+        "00-session-state.json"
+      ],
+      "grade": "A"
+    },
+    "structural_compliance": {
+      "score": 100,
+      "checks": [
+        "artifact-templates: PASS",
+        "h2-sync: PASS",
+        "session-state: PASS"
+      ],
+      "grade": "A"
+    },
+    "code_quality": {
+      "score": 0,
+      "details": "main.bicep not found",
+      "grade": "F"
+    },
+    "review_thoroughness": {
+      "score": 0,
+      "details": "No review audit data",
+      "grade": "F"
+    },
+    "waf_coverage": {
+      "score": 100,
+      "pillars_found": [
+        "Security",
+        "Reliability",
+        "Performance",
+        "Cost",
+        "Operations"
+      ],
+      "grade": "A"
+    },
+    "cost_accuracy": {
+      "score": 50,
+      "details": "No budget in decisions",
+      "grade": "D"
+    },
+    "session_state_integrity": {
+      "score": 0,
+      "details": "Invalid or missing session state",
+      "grade": "F"
+    },
+    "timing_performance": {
+      "score": 50,
+      "details": "No iteration log data",
+      "grade": "D"
+    }
+  },
+  "composite": {
+    "score": 52,
+    "grade": "F"
+  }
+}

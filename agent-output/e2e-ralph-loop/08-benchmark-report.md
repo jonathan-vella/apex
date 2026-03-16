@@ -10,13 +10,13 @@
 | Steps Completed    | 8/8     |
 | Total Iterations   | 0             |
 | Session Splits     | 0                              |
-| Composite Score    | 88/100 (B) |
+| Composite Score    | 83/100 (B) |
 
 ## Per-Dimension Scorecard
 
 | Dimension              | Score  | Grade | Weight | Weighted |
 | ---------------------- | ------ | ----- | ------ | -------- |
-| artifact completeness | 100/100 | A | 20% | 20 |
+| artifact completeness | 74/100 | C | 20% | 15 |
 | structural compliance | 100/100 | A | 15% | 15 |
 | code quality | 80/100 | B | 20% | 16 |
 | review thoroughness | 83/100 | B | 10% | 8 |
@@ -24,7 +24,7 @@
 | cost accuracy | 80/100 | B | 5% | 4 |
 | session state integrity | 100/100 | A | 10% | 10 |
 | timing performance | 50/100 | D | 10% | 5 |
-| **Composite** | **88/100** | **B** | 100% | 88 |
+| **Composite** | **83/100** | **B** | 100% | 83 |
 
 ## Per-Step Results
 
@@ -41,7 +41,7 @@
 
 ## Quality Grade
 
-Composite score: **88/100** → Grade: **B**
+Composite score: **83/100** → Grade: **B**
 
 | Grade | Range    | Meaning                    |
 | ----- | -------- | -------------------------- |
@@ -53,13 +53,16 @@ Composite score: **88/100** → Grade: **B**
 
 ## Improvement Backlog
 
-_Auto-generated from 3 lessons learned._
+_Auto-generated from 6 lessons learned._
 
 | # | Severity | Category | Title | Applies To |
 | - | -------- | -------- | ----- | ---------- |
 | LL-001 | high | artifact-quality | Pre-seeded requirements had 3 must_fix gaps in GDPR erasure, storage backup, and data-plane security | .github/agents/02-Requirements.agent.md |
 | LL-003 | high | validation-gap | Pre-seeded plan omitted Key Vault and lacked explicit SQL Entra/Storage RBAC config | .github/agents/05b-Bicep Planner.agent.md |
 | LL-002 | medium | artifact-quality | Storage firewall requirement inconsistent with no-VNet network model | .github/agents/02-Requirements.agent.md |
+| LL-004 | medium | agent-behavior | Bicep Storage networkAcls bypass value required spaces after commas |  |
+| LL-005 | medium | validation-gap | E2E step validator referenced non-existent npm script name | scripts/validate-e2e-step.mjs |
+| LL-006 | low | validation-gap | Session state decision_log entries missing required fields | .github/skills/session-resume/SKILL.md |
 
 ---
 

@@ -1,47 +1,39 @@
 # E2E RALPH Loop — Benchmark Report
 
 > Run: e2e-ralph-001 | Date: 2026-03-16
-> Project: contoso-service-hub-run-1 | Complexity: simple | IaC: Bicep
+> Project: terraform-e2e | Complexity: simple | IaC: Bicep
 
 ## Execution Summary
 
 | Metric             | Value                          |
 | ------------------ | ------------------------------ |
-| Steps Completed    | 8/8     |
+| Steps Completed    | 0/8     |
 | Total Iterations   | 0             |
 | Session Splits     | 0                              |
-| Composite Score    | 73/100 (C) |
+| Composite Score    | 52/100 (F) |
 
 ## Per-Dimension Scorecard
 
 | Dimension              | Score  | Grade | Weight | Weighted |
 | ---------------------- | ------ | ----- | ------ | -------- |
-| artifact completeness | 55/100 | F | 20% | 11 |
+| artifact completeness | 95/100 | A | 20% | 19 |
 | structural compliance | 100/100 | A | 15% | 15 |
-| code quality | 80/100 | B | 20% | 16 |
-| review thoroughness | 17/100 | F | 10% | 2 |
+| code quality | 0/100 | F | 20% | 0 |
+| review thoroughness | 0/100 | F | 10% | 0 |
 | waf coverage | 100/100 | A | 10% | 10 |
-| cost accuracy | 80/100 | B | 5% | 4 |
-| session state integrity | 100/100 | A | 10% | 10 |
+| cost accuracy | 50/100 | D | 5% | 3 |
+| session state integrity | 0/100 | F | 10% | 0 |
 | timing performance | 50/100 | D | 10% | 5 |
-| **Composite** | **73/100** | **C** | 100% | 73 |
+| **Composite** | **52/100** | **F** | 100% | 52 |
 
 ## Per-Step Results
 
 | Step | Name | Status | Iterations | Findings |
 | ---- | ---- | ------ | ---------- | -------- |
-| 1 | Requirements | complete | 0 | 2 artifacts |
-| 2 | Architecture | complete | 0 | 2 artifacts |
-| 3 | Design | complete | 0 | 4 artifacts |
-| 4 | IaC Plan | complete | 0 | 5 artifacts |
-| 5 | IaC Code | complete | 0 | 2 artifacts |
-| 6 | Deploy | complete | 0 | 1 artifacts |
-| 7 | As-Built | complete | 0 | 7 artifacts |
-| 3.5 | Governance | complete | 0 | 2 artifacts |
 
 ## Quality Grade
 
-Composite score: **73/100** → Grade: **C**
+Composite score: **52/100** → Grade: **F**
 
 | Grade | Range    | Meaning                    |
 | ----- | -------- | -------------------------- |

@@ -128,6 +128,18 @@ These are non-negotiable for all generated infrastructure code:
 # Run all validations (CI equivalent)
 npm run validate:all
 
+# E2E Ralph Loop — validate artifacts (structural, no agent invocation)
+npm run e2e:validate
+
+# E2E Ralph Loop — benchmark scoring (8 dimensions, 0-100)
+npm run e2e:benchmark
+
+# E2E Ralph Loop — Terraform project benchmark
+npm run e2e:benchmark -- terraform-e2e
+
+# E2E Ralph Loop — multi-project comparison
+npm run e2e:benchmark -- --compare
+
 # Pre-commit hooks (installed via lefthook)
 npm run prepare
 

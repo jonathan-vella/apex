@@ -8,13 +8,20 @@ agents:
     "03-Architect",
     "04-Design",
     "04g-Governance",
+    "05b-Bicep Planner",
+    "05t-Terraform Planner",
     "06b-Bicep CodeGen",
+    "06t-Terraform CodeGen",
     "07b-Bicep Deploy",
+    "07t-Terraform Deploy",
     "08-As-Built",
     "challenger-review-subagent",
     "bicep-lint-subagent",
     "bicep-review-subagent",
     "bicep-whatif-subagent",
+    "terraform-lint-subagent",
+    "terraform-review-subagent",
+    "terraform-plan-subagent",
   ]
 tools:
   [
@@ -65,7 +72,27 @@ Track approximate context usage per step. If context approaches 60% capacity
 | Benchmark           | Not tracked                    | Per-step timing + scoring          |
 | Lesson capture      | Not tracked                    | Structured JSON lessons            |
 | Max iterations      | Unlimited (human decides)      | 5 per step, 40 total               |
-| Deploy              | Real Azure deployment          | Dry-run only (bicep what-if)       |
+| Deploy              | Real Azure deployment          | Dry-run only (what-if / plan)      |
+
+## IaC Tool Routing
+
+Read `decisions.iac_tool` from `00-session-state.json` (or from `01-requirements.md`)
+to determine which IaC track to use. Route accordingly:
+
+| Aspect         | Bicep Track                                    | Terraform Track                                      |
+| -------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| Planner        | `@05b-Bicep Planner`                           | `@05t-Terraform Planner`                             |
+| CodeGen        | `@06b-Bicep CodeGen`                           | `@06t-Terraform CodeGen`                             |
+| Deploy         | `@07b-Bicep Deploy` / `@bicep-whatif-subagent` | `@07t-Terraform Deploy` / `@terraform-plan-subagent` |
+| Code Review    | `@bicep-review-subagent`                       | `@terraform-review-subagent`                         |
+| Lint           | `@bicep-lint-subagent`                         | `@terraform-lint-subagent`                           |
+| Code Dir       | `infra/bicep/{project}/`                       | `infra/terraform/{project}/`                         |
+| Entry File     | `main.bicep`                                   | `main.tf`                                            |
+| Build/Validate | `bicep build` + `bicep lint`                   | `terraform validate` + `terraform fmt -check`        |
+| AVM Pattern    | `br/public:avm`                                | `registry.terraform.io/Azure/avm-res-`               |
+
+Steps 1–3.5 (Requirements, Architecture, Design, Governance) are IaC-agnostic and shared
+across both tracks. Only Steps 4–6 diverge based on the IaC tool decision.
 
 ## Read Skills (First Action)
 
@@ -88,6 +115,7 @@ Update session state after every step completion:
 - Add artifact filenames to `.artifacts` array
 - Update `current_step` to next step number
 - Update `updated` timestamp
+- Append any significant decisions to `decision_log` array (see `decision-logging.instructions.md` for entry schema: id, step, agent, title, choice, rationale, alternatives, impact)
 
 ## Pre-Validation Gate (After Every Subagent Return)
 

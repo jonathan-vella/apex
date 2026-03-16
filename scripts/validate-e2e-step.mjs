@@ -29,6 +29,25 @@ const projectFlag = rawArgs.find((a) => a.startsWith("--project="));
 const PROJECT = projectFlag ? projectFlag.split("=")[1] : "e2e-ralph-loop";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
+const TF_DIR = path.join("infra", "terraform", PROJECT);
+
+// Detect IaC tool from session state
+function detectIacTool() {
+  try {
+    const state = JSON.parse(
+      fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"),
+    );
+    return (
+      state.iac_tool ||
+      state.decisions?.iac_tool ||
+      "Bicep"
+    ).toLowerCase();
+  } catch {
+    return "bicep";
+  }
+}
+
+const IAC_TOOL = detectIacTool();
 
 // Expected H2 headings per artifact (first 3 for pre-validation)
 const EXPECTED_H2S = {
@@ -58,6 +77,7 @@ const EXPECTED_H2S = {
   },
   5: {
     bicepFile: "main.bicep",
+    terraformFile: "main.tf",
     modulesDir: "modules",
     headings: [],
   },
@@ -145,18 +165,33 @@ function preValidateStep(step) {
   if (!spec) return { pass: false, findings: [`Unknown step: ${step}`] };
 
   if (step === 5) {
-    // Bicep-specific pre-validation
-    const mainBicep = path.join(BICEP_DIR, spec.bicepFile);
-    if (!fileExists(mainBicep)) {
-      findings.push(`Missing: ${mainBicep}`);
-    }
-    const modulesPath = path.join(BICEP_DIR, spec.modulesDir);
-    try {
-      if (!fs.statSync(modulesPath).isDirectory()) {
-        findings.push(`Not a directory: ${modulesPath}`);
+    // IaC-specific pre-validation
+    if (IAC_TOOL === "terraform") {
+      const mainTf = path.join(TF_DIR, spec.terraformFile);
+      if (!fileExists(mainTf)) {
+        findings.push(`Missing: ${mainTf}`);
       }
-    } catch {
-      findings.push(`Missing directory: ${modulesPath}`);
+      const modulesPath = path.join(TF_DIR, spec.modulesDir);
+      try {
+        if (!fs.statSync(modulesPath).isDirectory()) {
+          findings.push(`Not a directory: ${modulesPath}`);
+        }
+      } catch {
+        findings.push(`Missing directory: ${modulesPath}`);
+      }
+    } else {
+      const mainBicep = path.join(BICEP_DIR, spec.bicepFile);
+      if (!fileExists(mainBicep)) {
+        findings.push(`Missing: ${mainBicep}`);
+      }
+      const modulesPath = path.join(BICEP_DIR, spec.modulesDir);
+      try {
+        if (!fs.statSync(modulesPath).isDirectory()) {
+          findings.push(`Not a directory: ${modulesPath}`);
+        }
+      } catch {
+        findings.push(`Missing directory: ${modulesPath}`);
+      }
     }
   } else if (step === 7) {
     // Step 7: check multiple 07-*.md files
@@ -230,16 +265,33 @@ function validateStep(step) {
     ...(STEP_VALIDATORS[step] || []),
   ];
 
-  // Step 5: Bicep build + lint
+  // Step 5: IaC build/validate
   if (step === 5) {
-    const mainBicep = path.join(BICEP_DIR, "main.bicep");
-    const buildResult = runCommand(`bicep build ${mainBicep}`);
-    if (!buildResult.success) {
-      findings.push(`bicep build failed: ${buildResult.output}`);
-    }
-    const lintResult = runCommand(`bicep lint ${mainBicep}`);
-    if (!lintResult.success) {
-      findings.push(`bicep lint failed: ${lintResult.output}`);
+    if (IAC_TOOL === "terraform") {
+      const initResult = runCommand(
+        `terraform -chdir=${TF_DIR} init -backend=false -input=false`,
+      );
+      if (!initResult.success) {
+        findings.push(`terraform init failed: ${initResult.output}`);
+      }
+      const validateResult = runCommand(`terraform -chdir=${TF_DIR} validate`);
+      if (!validateResult.success) {
+        findings.push(`terraform validate failed: ${validateResult.output}`);
+      }
+      const fmtResult = runCommand(`terraform fmt -check -recursive ${TF_DIR}`);
+      if (!fmtResult.success) {
+        findings.push(`terraform fmt check failed: ${fmtResult.output}`);
+      }
+    } else {
+      const mainBicep = path.join(BICEP_DIR, "main.bicep");
+      const buildResult = runCommand(`bicep build ${mainBicep}`);
+      if (!buildResult.success) {
+        findings.push(`bicep build failed: ${buildResult.output}`);
+      }
+      const lintResult = runCommand(`bicep lint ${mainBicep}`);
+      if (!lintResult.success) {
+        findings.push(`bicep lint failed: ${lintResult.output}`);
+      }
     }
   }
 

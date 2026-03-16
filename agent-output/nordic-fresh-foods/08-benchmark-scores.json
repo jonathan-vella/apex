@@ -1,13 +1,13 @@
 {
   "run_id": "e2e-ralph-001",
-  "timestamp": "2026-03-16T17:42:11.020Z",
+  "timestamp": "2026-03-16T17:42:38.621Z",
   "scores": {
     "artifact_completeness": {
-      "score": 55,
-      "found": 23,
+      "score": 100,
+      "found": 42,
       "total": 42,
       "missing": [],
-      "grade": "F"
+      "grade": "A"
     },
     "structural_compliance": {
       "score": 100,
@@ -27,16 +27,15 @@
       "grade": "B"
     },
     "review_thoroughness": {
-      "score": 17,
+      "score": 80,
       "details": [
-        "step_1: 1 passes",
-        "step_2: no review",
-        "step_3.5: no review",
-        "step_4: no review",
-        "step_5: no review",
+        "step_1: 2 passes",
+        "step_2: 4 passes",
+        "step_4: 6 passes",
+        "step_5: 2 passes",
         "step_6: no review"
       ],
-      "grade": "F"
+      "grade": "B"
     },
     "waf_coverage": {
       "score": 100,
@@ -51,21 +50,21 @@
     },
     "cost_accuracy": {
       "score": 80,
-      "budget_stated": "EUR 8547/month PAYG (validated); EUR 7047/month with 3yr RI",
+      "budget_stated": "<EUR1000/month",
       "cost_estimate_exists": true,
       "grade": "B"
     },
     "session_state_integrity": {
-      "score": 100,
+      "score": 85,
       "checks": [
         "schema_version: present",
         "project: correct",
         "iac_tool: set",
         "decisions: populated",
-        "decision_log: 8 entries",
-        "steps completed: 8/8"
+        "decision_log: empty or missing",
+        "steps completed: 6/8"
       ],
-      "grade": "A"
+      "grade": "B"
     },
     "timing_performance": {
       "score": 50,
@@ -74,7 +73,7 @@
     }
   },
   "composite": {
-    "score": 73,
-    "grade": "C"
+    "score": 87,
+    "grade": "B"
   }
 }

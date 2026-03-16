@@ -179,6 +179,18 @@
       "skills": ["context-optimizer"],
       "invokable": true,
       "step": null
+    },
+    "e2e-conductor": {
+      "agent": ".github/agents/e2e-conductor.agent.md",
+      "model": "Claude Opus 4.6",
+      "skills": [
+        "session-resume",
+        "workflow-engine",
+        "azure-artifacts",
+        "context-shredding"
+      ],
+      "invokable": false,
+      "step": null
     }
   },
   "subagents": {

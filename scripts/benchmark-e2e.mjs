@@ -3,8 +3,9 @@
  * E2E Benchmark Scoring Engine
  *
  * Benchmarks E2E RALPH loop results against a per-complexity expected set.
- * Simple projects: ~25 artifacts (vs Nordic standard ~49).
- * Nordic is a structural quality reference (H2 compliance, JSON schema).
+ * Expected artifacts aligned with nordic-fresh-foods gold standard (~45 items).
+ * Includes visual artifacts (WAF charts, cost projections, as-built diagrams)
+ * and adversarial review outputs (challenge-findings-*.json).
  *
  * Dimensions scored 0-100:
  *   - Artifact completeness
@@ -31,23 +32,61 @@ import { execSync } from "node:child_process";
 const PROJECT = process.argv[2] || "e2e-ralph-loop";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
+const TF_DIR = path.join("infra", "terraform", PROJECT);
 
-// Simple-complexity expected artifact set (~25 artifacts)
+// Detect IaC tool from session state
+function detectIacTool() {
+  try {
+    const state = JSON.parse(
+      fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"),
+    );
+    return (
+      state.iac_tool ||
+      state.decisions?.iac_tool ||
+      "Bicep"
+    ).toLowerCase();
+  } catch {
+    return "bicep";
+  }
+}
+
+const IAC_TOOL = detectIacTool();
+
+// Expected artifact set — aligned with nordic-fresh-foods gold standard
 const EXPECTED_ARTIFACTS = {
+  // Step 0 — Session
   "00-session-state.json": { required: true, step: 0 },
   "00-handoff.md": { required: true, step: 0 },
+  // Step 1 — Requirements
   "01-requirements.md": { required: true, step: 1 },
+  // Step 2 — Architecture
   "02-architecture-assessment.md": { required: true, step: 2 },
-  "03-des-cost-estimate.md": { required: false, step: 2 },
+  "02-waf-scores.py": { required: false, step: 2 },
+  "02-waf-scores.png": { required: false, step: 2 },
+  // Step 3 — Design
+  "03-des-cost-estimate.md": { required: false, step: 3 },
   "03-des-diagram.py": { required: false, step: 3 },
   "03-des-diagram.png": { required: false, step: 3 },
+  "03-des-cost-distribution.py": { required: false, step: 3 },
+  "03-des-cost-distribution.png": { required: false, step: 3 },
+  "03-des-cost-projection.py": { required: false, step: 3 },
+  "03-des-cost-projection.png": { required: false, step: 3 },
   "03-des-adr-*.md": { required: false, step: 3, glob: true },
+  // Step 3.5 — Governance
   "04-governance-constraints.md": { required: true, step: 3.5 },
   "04-governance-constraints.json": { required: true, step: 3.5 },
+  // Step 4 — IaC Plan
   "04-implementation-plan.md": { required: true, step: 4 },
+  "04-preflight-check.md": { required: false, step: 4 },
   "04-dependency-diagram.py": { required: true, step: 4 },
+  "04-dependency-diagram.png": { required: false, step: 4 },
   "04-runtime-diagram.py": { required: true, step: 4 },
+  "04-runtime-diagram.png": { required: false, step: 4 },
+  // Step 5 — IaC Code (reference doc)
+  "05-implementation-reference.md": { required: false, step: 5 },
+  // Step 6 — Deploy
   "06-deployment-summary.md": { required: true, step: 6 },
+  // Step 7 — As-Built documents
   "07-documentation-index.md": { required: true, step: 7 },
   "07-design-document.md": { required: true, step: 7 },
   "07-operations-runbook.md": { required: true, step: 7 },
@@ -55,6 +94,19 @@ const EXPECTED_ARTIFACTS = {
   "07-backup-dr-plan.md": { required: true, step: 7 },
   "07-compliance-matrix.md": { required: false, step: 7 },
   "07-ab-cost-estimate.md": { required: false, step: 7 },
+  // Step 7 — As-Built diagrams & charts
+  "07-ab-diagram.py": { required: false, step: 7 },
+  "07-ab-diagram.png": { required: false, step: 7 },
+  "07-ab-cost-distribution.py": { required: false, step: 7 },
+  "07-ab-cost-distribution.png": { required: false, step: 7 },
+  "07-ab-cost-projection.py": { required: false, step: 7 },
+  "07-ab-cost-projection.png": { required: false, step: 7 },
+  "07-ab-cost-comparison.py": { required: false, step: 7 },
+  "07-ab-cost-comparison.png": { required: false, step: 7 },
+  "07-ab-compliance-gaps.py": { required: false, step: 7 },
+  "07-ab-compliance-gaps.png": { required: false, step: 7 },
+  // Adversarial review outputs (any step)
+  "challenge-findings-*.json": { required: false, step: 0, glob: true },
 };
 
 // Weight each dimension for composite score
@@ -176,6 +228,47 @@ function scoreStructuralCompliance() {
 }
 
 function scoreCodeQuality() {
+  if (IAC_TOOL === "terraform") {
+    const mainTf = path.join(TF_DIR, "main.tf");
+    if (!fileExists(mainTf)) {
+      return { score: 0, details: "main.tf not found", grade: "F" };
+    }
+
+    const initPass = runCmd(
+      `terraform -chdir=${TF_DIR} init -backend=false -input=false`,
+    );
+    const validatePass = initPass
+      ? runCmd(`terraform -chdir=${TF_DIR} validate`)
+      : false;
+    const fmtPass = runCmd(`terraform fmt -check -recursive ${TF_DIR}`);
+
+    // Check for AVM-TF module usage
+    let avmCount = 0;
+    try {
+      const content = fs.readFileSync(mainTf, "utf-8");
+      avmCount = (
+        content.match(/registry\.terraform\.io\/Azure\/avm-res-/g) || []
+      ).length;
+    } catch {
+      /* empty */
+    }
+
+    let score = 0;
+    if (validatePass) score += 50;
+    if (fmtPass) score += 30;
+    if (avmCount > 0) score += 20;
+
+    return {
+      score,
+      iac_tool: "Terraform",
+      validate_pass: validatePass,
+      fmt_pass: fmtPass,
+      avm_module_count: avmCount,
+      grade: gradeScore(score),
+    };
+  }
+
+  // Bicep (default)
   const mainBicep = path.join(BICEP_DIR, "main.bicep");
   if (!fileExists(mainBicep)) {
     return { score: 0, details: "main.bicep not found", grade: "F" };
@@ -200,6 +293,7 @@ function scoreCodeQuality() {
 
   return {
     score,
+    iac_tool: "Bicep",
     build_pass: buildPass,
     lint_pass: lintPass,
     avm_module_count: avmCount,
@@ -304,8 +398,14 @@ function scoreSessionStateIntegrity() {
     checks.push("iac_tool: set");
   }
   if (state.decisions && Object.keys(state.decisions).length >= 5) {
-    score += 20;
+    score += 15;
     checks.push("decisions: populated");
+  }
+  if (Array.isArray(state.decision_log) && state.decision_log.length > 0) {
+    score += 5;
+    checks.push(`decision_log: ${state.decision_log.length} entries`);
+  } else {
+    checks.push("decision_log: empty or missing");
   }
   if (state.steps) {
     const completedSteps = Object.values(state.steps).filter(
@@ -363,7 +463,7 @@ function generateBenchmarkReport(scores, composite) {
   let report = `# E2E RALPH Loop — Benchmark Report
 
 > Run: e2e-ralph-001 | Date: ${new Date().toISOString().split("T")[0]}
-> Project: ${PROJECT} | Complexity: simple | IaC: Bicep
+> Project: ${PROJECT} | Complexity: simple | IaC: ${IAC_TOOL === "terraform" ? "Terraform" : "Bicep"}
 
 ## Execution Summary
 
@@ -440,6 +540,84 @@ function generateBenchmarkReport(scores, composite) {
   return report;
 }
 
+// --- Compare Mode ---
+
+function runCompare() {
+  console.log("🏁 E2E Benchmark — Multi-Project Comparison\n");
+
+  // Discover all projects with session state
+  const agentOutputDir = "agent-output";
+  let projects;
+  try {
+    projects = fs
+      .readdirSync(agentOutputDir)
+      .filter((d) => {
+        const statePath = path.join(agentOutputDir, d, "00-session-state.json");
+        return fileExists(statePath);
+      })
+      .sort();
+  } catch {
+    console.error("  ❌ Cannot read agent-output/ directory");
+    process.exit(1);
+  }
+
+  if (projects.length === 0) {
+    console.error("  ❌ No projects with 00-session-state.json found");
+    process.exit(1);
+  }
+
+  const results = [];
+  for (const proj of projects) {
+    const scoresPath = path.join(
+      agentOutputDir,
+      proj,
+      "08-benchmark-scores.json",
+    );
+    const existingScores = readJson(scoresPath);
+    if (existingScores?.composite) {
+      const state = readJson(
+        path.join(agentOutputDir, proj, "00-session-state.json"),
+      );
+      const iacTool =
+        state?.iac_tool || state?.decisions?.iac_tool || "Unknown";
+      results.push({
+        project: proj,
+        iac_tool: iacTool,
+        score: existingScores.composite.score,
+        grade: existingScores.composite.grade,
+        timestamp: existingScores.timestamp || "N/A",
+      });
+    }
+  }
+
+  if (results.length === 0) {
+    console.log(
+      "  ⚠️  No benchmark scores found. Run benchmarks on individual projects first.",
+    );
+    process.exit(0);
+  }
+
+  console.log(`  Found ${results.length} benchmarked project(s):\n`);
+  console.log("  | Project | IaC Tool | Score | Grade | Last Run |");
+  console.log("  | ------- | -------- | ----- | ----- | -------- |");
+  for (const r of results) {
+    console.log(
+      `  | ${r.project} | ${r.iac_tool} | ${r.score}/100 | ${r.grade} | ${r.timestamp.split("T")[0] || "N/A"} |`,
+    );
+  }
+
+  const avgScore = Math.round(
+    results.reduce((sum, r) => sum + r.score, 0) / results.length,
+  );
+  console.log(`\n  📊 Average composite: ${avgScore}/100`);
+  process.exit(0);
+}
+
+// Check for --compare flag
+if (process.argv.includes("--compare")) {
+  runCompare();
+}
+
 // --- Main ---
 
 console.log("🏁 E2E Benchmark Scoring Engine\n");
@@ -491,7 +669,7 @@ console.log(`\n  📄 Report: ${OUTPUT_DIR}/08-benchmark-report.md`);
 console.log(`  📊 Scores: ${OUTPUT_DIR}/08-benchmark-scores.json`);
 
 // Exit with appropriate code
-const passThreshold = 60;
+const passThreshold = parseInt(process.env.E2E_PASS_THRESHOLD, 10) || 60;
 if (composite.score >= passThreshold) {
   console.log(`\n  ✅ PASS (${composite.score} >= ${passThreshold})`);
   process.exit(0);

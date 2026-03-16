@@ -54,6 +54,8 @@
     "lint:agent-language": "echo '⚠️  Merged into lint:agent-checks' && node scripts/lint-agent-checks.mjs",
     "generate:digests": "node scripts/generate-skill-digests.mjs",
     "validate:docs-sync": "node scripts/validate-docs-sync.mjs",
+    "e2e:validate": "node scripts/validate-e2e-step.mjs all",
+    "e2e:benchmark": "node scripts/benchmark-e2e.mjs",
     "init": "node scripts/init-from-template.mjs",
     "validate:no-hardcoded-counts": "node scripts/validate-no-hardcoded-counts.mjs",
     "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format validate:instruction-checks lint:governance-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-checks validate:stale-refs lint:json lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness lint:model-alignment lint:agent-checks validate:no-hardcoded-counts",

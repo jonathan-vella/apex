@@ -60,3 +60,7 @@ jobs:
       - name: Docs freshness check
         run: npm run lint:docs-freshness
         continue-on-error: true
+
+      - name: E2E structural validation
+        run: npm run e2e:validate
+        continue-on-error: true

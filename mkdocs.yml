@@ -112,6 +112,7 @@ nav:
           - Workflow Prompts: prompt-guide/workflow-prompts.md
           - Skill & Subagent Reference: prompt-guide/reference.md
       - Troubleshooting: troubleshooting.md
+      - E2E Testing: e2e-testing.md
   - Reference:
       - Glossary: GLOSSARY.md
       - FAQ: faq.md
