@@ -23,6 +23,8 @@ Composable architecture building blocks for Azure Terraform. Complements
 | Managed Identity        | Any service-to-service authentication            | `references/common-patterns.md`          |
 | Plan Interpretation     | Pre-deployment validation and change analysis    | `references/plan-interpretation.md`      |
 | AVM Pitfalls            | Set-type diffs, provider pins, 4.x changes       | `references/avm-pitfalls.md`             |
+| AVM Authoring           | AVM certification requirements, compliance        | `references/avm-authoring-requirements.md` |
+| Module Refactoring      | Monolith → module extraction, state migration     | `references/refactor-module.md`          |
 
 ---
 
@@ -75,7 +77,9 @@ module "key_vault" {
 | `references/common-patterns.md`            | Diagnostics, conditional deployment, module composition, identity |
 | `references/plan-interpretation.md`        | Plan commands, change symbols, red flags, summary script          |
 | `references/avm-pitfalls.md`               | Set-type diffs, provider pins, tag ignore, moved blocks, 4.x      |
-| `references/tf-best-practices-examples.md` | Best-practice code examples                                       |
+| `references/tf-best-practices-examples.md` | Best-practice code examples, formatting, code review checklist    |
 | `references/bootstrap-backend-template.md` | Backend bootstrap template                                        |
 | `references/deploy-script-template.md`     | Deployment script template                                        |
 | `references/project-scaffold.md`           | Project scaffolding structure                                     |
+| `references/avm-authoring-requirements.md` | AVM certification: 37 requirements, compliance checklist          |
+| `references/refactor-module.md`            | Module extraction, state migration, refactoring patterns          |

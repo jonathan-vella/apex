@@ -42,6 +42,8 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 4, 5).
 | `docs-writer`          | Documentation generation                                          |
 | `make-skill-template`  | Scaffold new Agent Skills from templates                          |
 | `terraform-patterns`   | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
+| `terraform-test`       | Terraform testing framework (.tftest.hcl, mocks, assertions)      |
+| `terraform-search-import` | Azure resource discovery and bulk Terraform import              |
 | `session-resume`       | Session state tracking, resume protocol, context budgets          |
 | `workflow-engine`      | DAG workflow graph, complexity routing, step definitions          |
 | `context-shredding`    | Runtime context compression tiers for large artifacts             |

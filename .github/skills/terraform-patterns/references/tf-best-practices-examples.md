@@ -204,3 +204,122 @@ output "resource_group_name" {
   value       = azurerm_resource_group.this.name
 }
 ```
+
+---
+
+## Code Formatting & Ordering
+
+> Naming conventions and file organization are in
+> `terraform-code-best-practices.instructions.md`. Below covers
+> formatting and block-internal ordering only.
+
+### Indentation and Alignment
+
+- Use **two spaces** per nesting level (no tabs)
+- Align equals signs for consecutive arguments
+
+```hcl
+resource "azurerm_linux_virtual_machine" "web" {
+  name                = "vm-web-${var.environment}"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = var.location
+  size                = "Standard_B2s"
+
+  tags = merge(local.tags, {
+    Role = "web-server"
+  })
+}
+```
+
+### Block Organization
+
+Arguments precede blocks, with meta-arguments first:
+
+```hcl
+resource "azurerm_linux_virtual_machine" "example" {
+  # Meta-arguments
+  count = var.instance_count
+
+  # Arguments (required then optional, alphabetical)
+  admin_username      = var.admin_username
+  location            = var.location
+  name                = "vm-${var.project}-${count.index}"
+  resource_group_name = azurerm_resource_group.this.name
+  size                = var.vm_size
+
+  # Blocks
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+
+  # Lifecycle last
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+
+### Dynamic Resource Creation
+
+Prefer `for_each` over `count` for named resources
+(see `terraform-code-best-practices.instructions.md` for the rule;
+this shows the pattern):
+
+```hcl
+# for_each with named instances
+variable "subnet_map" {
+  type = map(object({
+    address_prefix = string
+  }))
+}
+
+resource "azurerm_subnet" "this" {
+  for_each             = var.subnet_map
+  name                 = each.key
+  resource_group_name  = azurerm_resource_group.this.name
+  virtual_network_name = azurerm_virtual_network.this.name
+  address_prefixes     = [each.value.address_prefix]
+}
+```
+
+Use `count` only for conditional creation:
+
+```hcl
+resource "azurerm_nat_gateway" "this" {
+  count               = var.enable_nat_gateway ? 1 : 0
+  name                = "ng-${var.project}-${var.environment}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
+}
+```
+
+## Version Control
+
+**Never commit:**
+
+- `terraform.tfstate`, `terraform.tfstate.backup`
+- `.terraform/` directory
+- `*.tfplan`
+- `.tfvars` files with sensitive data
+
+**Always commit:**
+
+- All `.tf` configuration files
+- `.terraform.lock.hcl` (dependency lock file)
+
+## Code Review Checklist
+
+- [ ] Code formatted with `terraform fmt`
+- [ ] Configuration validated with `terraform validate`
+- [ ] Files organized per standard structure
+- [ ] All variables have `type` and `description`
+- [ ] All outputs have `description`
+- [ ] Resource names use descriptive nouns with underscores
+- [ ] Version constraints pinned explicitly (`~> X.Y`)
+- [ ] Sensitive values marked with `sensitive = true`
+- [ ] No hardcoded credentials or secrets
+- [ ] Security best practices applied (TLS 1.2, HTTPS-only, managed identity)
+- [ ] AVM modules used where available
+
+_Source: [HashiCorp Terraform Style Guide](https://developer.hashicorp.com/terraform/language/style)_

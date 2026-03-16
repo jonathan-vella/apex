@@ -96,6 +96,8 @@
       "secondary": ["context-shredding"],
       "never": [
         "terraform-patterns",
+        "terraform-test",
+        "terraform-search-import",
         "azure-diagnostics",
         "iac-common",
         "azure-deploy"
@@ -108,7 +110,11 @@
         "terraform-patterns",
         "session-resume"
       ],
-      "secondary": ["context-shredding"],
+      "secondary": [
+        "context-shredding",
+        "terraform-test",
+        "terraform-search-import"
+      ],
       "never": [
         "azure-bicep-patterns",
         "azure-diagnostics",
@@ -126,6 +132,8 @@
       "secondary": ["context-shredding"],
       "never": [
         "terraform-patterns",
+        "terraform-test",
+        "terraform-search-import",
         "azure-diagnostics",
         "iac-common",
         "azure-deploy"
@@ -136,6 +144,8 @@
         "azure-defaults",
         "azure-artifacts",
         "terraform-patterns",
+        "terraform-test",
+        "terraform-search-import",
         "session-resume"
       ],
       "secondary": ["context-shredding"],
@@ -154,7 +164,13 @@
         "iac-common"
       ],
       "secondary": ["session-resume", "github-operations", "azure-deploy"],
-      "never": ["terraform-patterns", "azure-bicep-patterns", "azure-diagrams"]
+      "never": [
+        "terraform-patterns",
+        "terraform-test",
+        "terraform-search-import",
+        "azure-bicep-patterns",
+        "azure-diagrams"
+      ]
     },
     "07t-Terraform Deploy": {
       "primary": [
@@ -284,13 +300,23 @@
     },
     "terraform-review-subagent": {
       "primary": ["terraform-patterns"],
-      "secondary": ["azure-defaults"],
-      "never": ["azure-bicep-patterns", "azure-deploy"]
+      "secondary": ["azure-defaults", "terraform-test"],
+      "never": [
+        "azure-bicep-patterns",
+        "azure-deploy",
+        "terraform-search-import"
+      ]
     },
     "terraform-plan-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "azure-diagnostics", "azure-deploy"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "azure-deploy",
+        "terraform-test",
+        "terraform-search-import"
+      ]
     }
   }
 }

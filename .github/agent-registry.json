@@ -78,6 +78,8 @@
           "azure-defaults",
           "azure-artifacts",
           "terraform-patterns",
+          "terraform-test",
+          "terraform-search-import",
           "session-resume"
         ]
       },
@@ -103,6 +105,8 @@
           "azure-defaults",
           "azure-artifacts",
           "terraform-patterns",
+          "terraform-test",
+          "terraform-search-import",
           "context-shredding",
           "session-resume"
         ]
@@ -235,7 +239,7 @@
     "terraform-review-subagent": {
       "agent": ".github/agents/_subagents/terraform-review-subagent.agent.md",
       "model": "Claude Sonnet 4.6",
-      "skills": ["terraform-patterns"],
+      "skills": ["terraform-patterns", "terraform-test"],
       "invokable": false
     },
     "terraform-plan-subagent": {
