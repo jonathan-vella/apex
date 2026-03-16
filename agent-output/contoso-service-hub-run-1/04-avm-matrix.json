@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0",
+  "project": "contoso-service-hub-run-1",
+  "generated": "2026-03-16T10:40:00Z",
+  "source": "agent-output/contoso-service-hub-run-1/04-implementation-plan.md",
+  "modules": [
+    {
+      "resource": "Log Analytics Workspace",
+      "avm_path": "br/public:avm/res/operational-insights/workspace",
+      "version": "0.15.0",
+      "resource_type": "Microsoft.OperationalInsights/workspaces",
+      "key_params": ["retentionInDays", "sku", "dailyQuotaGb"]
+    },
+    {
+      "resource": "Key Vault",
+      "avm_path": "br/public:avm/res/key-vault/vault",
+      "version": "0.13.3",
+      "resource_type": "Microsoft.KeyVault/vaults",
+      "key_params": [
+        "sku",
+        "enableSoftDelete",
+        "enablePurgeProtection",
+        "enableRbacAuthorization",
+        "publicNetworkAccess",
+        "networkAcls"
+      ]
+    },
+    {
+      "resource": "Virtual Network",
+      "avm_path": "br/public:avm/res/network/virtual-network",
+      "version": "0.7.2",
+      "resource_type": "Microsoft.Network/virtualNetworks",
+      "key_params": ["addressPrefixes", "subnets"]
+    },
+    {
+      "resource": "Network Security Group",
+      "avm_path": "br/public:avm/res/network/network-security-group",
+      "version": "0.5.2",
+      "resource_type": "Microsoft.Network/networkSecurityGroups",
+      "key_params": ["securityRules"]
+    },
+    {
+      "resource": "Private DNS Zone",
+      "avm_path": "br/public:avm/res/network/private-dns-zone",
+      "version": "0.8.1",
+      "resource_type": "Microsoft.Network/privateDnsZones",
+      "key_params": ["name", "virtualNetworkLinks"]
+    },
+    {
+      "resource": "Private Endpoint",
+      "avm_path": "br/public:avm/res/network/private-endpoint",
+      "version": "0.12.0",
+      "resource_type": "Microsoft.Network/privateEndpoints",
+      "key_params": [
+        "groupIds",
+        "privateLinkServiceId",
+        "subnetResourceId",
+        "privateDnsZoneGroup"
+      ]
+    },
+    {
+      "resource": "Consumption Budget",
+      "avm_path": "br/public:avm/res/consumption/budget/rg-scope",
+      "version": "0.1.0",
+      "resource_type": "Microsoft.Consumption/budgets",
+      "key_params": ["amount", "timeGrain", "notifications"]
+    },
+    {
+      "resource": "PostgreSQL Flexible Server",
+      "avm_path": "br/public:avm/res/db-for-postgre-sql/flexible-server",
+      "version": "0.15.2",
+      "resource_type": "Microsoft.DBforPostgreSQL/flexibleServers",
+      "key_params": [
+        "version",
+        "sku",
+        "storageSizeGB",
+        "highAvailability",
+        "backup",
+        "authConfig"
+      ]
+    },
+    {
+      "resource": "Azure Managed Redis (Enterprise)",
+      "avm_path": "br/public:avm/res/cache/redis-enterprise",
+      "version": "0.2.2",
+      "resource_type": "Microsoft.Cache/redisEnterprise",
+      "key_params": ["sku", "capacity", "minimumTlsVersion", "zones"]
+    },
+    {
+      "resource": "Storage Account",
+      "avm_path": "br/public:avm/res/storage/storage-account",
+      "version": "0.32.0",
+      "resource_type": "Microsoft.Storage/storageAccounts",
+      "key_params": [
+        "kind",
+        "sku",
+        "accessTier",
+        "allowBlobPublicAccess",
+        "supportsHttpsTrafficOnly",
+        "minimumTlsVersion",
+        "allowSharedKeyAccess"
+      ]
+    },
+    {
+      "resource": "Managed Disk",
+      "avm_path": "br/public:avm/res/compute/disk",
+      "version": "0.6.0",
+      "resource_type": "Microsoft.Compute/disks",
+      "key_params": ["sku", "diskSizeGB", "osType"]
+    },
+    {
+      "resource": "Front Door Premium + WAF",
+      "avm_path": "br/public:avm/res/cdn/profile",
+      "version": "0.19.0",
+      "resource_type": "Microsoft.Cdn/profiles",
+      "key_params": [
+        "sku",
+        "originResponseTimeoutSeconds",
+        "endpointName",
+        "originGroupName",
+        "origins",
+        "securityPolicyName",
+        "wafPolicyId"
+      ]
+    },
+    {
+      "resource": "API Management",
+      "avm_path": "br/public:avm/res/api-management/service",
+      "version": "0.14.1",
+      "resource_type": "Microsoft.ApiManagement/service",
+      "key_params": [
+        "sku",
+        "capacity",
+        "virtualNetworkType",
+        "publicNetworkAccess",
+        "zones"
+      ]
+    },
+    {
+      "resource": "AKS Cluster",
+      "avm_path": "br/public:avm/res/container-service/managed-cluster",
+      "version": "0.13.0",
+      "resource_type": "Microsoft.ContainerService/managedClusters",
+      "key_params": [
+        "kubernetesVersion",
+        "agentPoolProfiles",
+        "networkProfile",
+        "aadProfile",
+        "disableLocalAccounts",
+        "enablePrivateCluster",
+        "sku"
+      ]
+    },
+    {
+      "resource": "Virtual Machine",
+      "avm_path": "br/public:avm/res/compute/virtual-machine",
+      "version": "0.21.0",
+      "resource_type": "Microsoft.Compute/virtualMachines",
+      "key_params": [
+        "vmSize",
+        "imageReference",
+        "osDisk",
+        "networkInterfaces",
+        "adminUsername"
+      ]
+    }
+  ]
+}

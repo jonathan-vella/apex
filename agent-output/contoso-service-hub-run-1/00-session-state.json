@@ -4,37 +4,121 @@
   "iac_tool": "Bicep",
   "region": "swedencentral",
   "branch": "feat/azure-skills-integration",
-  "updated": "2026-03-16T10:00:00Z",
-  "current_step": 1,
+  "updated": "2026-03-16T14:15:00Z",
+  "current_step": 7,
   "decisions": {
     "region": "swedencentral",
-    "compliance": "GDPR",
-    "budget": "",
-    "architecture_pattern": "",
-    "deployment_strategy": "",
-    "complexity": ""
+    "compliance": "GDPR + SAQ-A PCI-DSS",
+    "budget": "EUR 8547/month PAYG (validated); EUR 7047/month with 3yr RI",
+    "architecture_pattern": "N-Tier Web + AKS Container (Enterprise)",
+    "deployment_strategy": "phased-4-phases: Foundation(monitoring+kv+network+budget) → Data(postgresql+redis+storage) → Edge(apim+frontdoor+identity) → Platform(aks+vm)",
+    "complexity": "complex",
+    "iac_tool": "Bicep"
   },
-  "open_findings": [],
-  "decision_log": [],
+  "open_findings": [
+    "OQ-4: PCI-DSS scope resolved — tokenized payment via external gateway (SAQ-A)"
+  ],
+  "decision_log": [
+    {
+      "id": "D001",
+      "step": 2,
+      "agent": "03-Architect",
+      "title": "Budget validation with pricing data",
+      "choice": "EUR 7,951/month PAYG across 3 environments (Prod EUR 5,588 + Staging EUR 1,750 + Dev EUR 463 + Shared EUR 150). With 3-year RI: EUR 6,531/month.",
+      "rationale": "Detailed SKU-level pricing validates RFP estimate of EUR 8K-12K/month. Initial cost at lower bound; growth to 2M txn/year by 2027 projects EUR 9,500-10,500/month.",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:00:00Z"
+    },
+    {
+      "id": "D002",
+      "step": 2,
+      "agent": "03-Architect",
+      "title": "Redis 128 GB tier selection",
+      "choice": "Azure Managed Redis M100 (128 GB native)",
+      "rationale": "Exact 128 GB capacity match without relying on a retiring SKU. Azure Managed Redis M100 avoids the March 2027 Enterprise E50 retirement window inside the three-year contract term, preserves private networking and managed-service operations, and removes the need to accept Premium-tier under-capacity or clustering trade-offs.",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:00:00Z"
+    },
+    {
+      "id": "D003",
+      "step": 2,
+      "agent": "03-Architect",
+      "title": "Container platform selection",
+      "choice": "Azure Kubernetes Service (AKS) with Standard tier",
+      "rationale": "RFP explicitly references Managed Kubernetes (Section 4.1 #10). 15-service platform complexity requires full Kubernetes control (kubectl, Helm, Kustomize), fine-grained VNet integration with private endpoints, dedicated node pools for workload isolation, and predictable scaling model for 40x growth trajectory. Container Apps considered but insufficient for networking and compliance requirements.",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:00:00Z"
+    },
+    {
+      "id": "D004",
+      "step": 2,
+      "agent": "03-Architect",
+      "title": "PCI-DSS compliance scope",
+      "choice": "Tokenized payment via PCI-certified external gateway — SAQ-A scope",
+      "rationale": "Minimizes PCI-DSS compliance surface. Platform never stores, processes, or transmits raw card data. SAQ-A requires only basic security controls already met by the architecture (TLS 1.2, WAF, network segmentation).",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:00:00Z"
+    },
+    {
+      "id": "D005",
+      "step": 1,
+      "agent": "02-Requirements",
+      "title": "Complexity classification",
+      "choice": "complex",
+      "rationale": "15 resource types (>8), 3 environments, GDPR + potential PCI-DSS compliance, 99.9% SLA, 40x growth trajectory.",
+      "status": "confirmed",
+      "timestamp": "2026-03-16T10:15:00Z"
+    },
+    {
+      "id": "D006",
+      "step": 3,
+      "agent": "04-Design",
+      "title": "Design artifacts generated",
+      "choice": "Produced architecture diagram and ADRs for container platform and caching tier decisions.",
+      "rationale": "Step 3 now captures the approved private AKS topology, private endpoint data plane, and the updated Azure Managed Redis M100 decision in durable design artifacts.",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:45:00Z"
+    },
+    {
+      "id": "D007",
+      "step": 3.5,
+      "agent": "04g-Governance",
+      "title": "Live Azure Policy constraints discovered for Contoso Service Hub",
+      "choice": "Use live tenant governance from subscription noalz and the tenant root management group, not a fallback template.",
+      "rationale": "Active Azure credentials were available. Discovery found MFA write enforcement as the only immediate deployment blocker, storage secure-access auto-remediation, an AKS pool-count deny limit, and a tag-governance inconsistency between `technical-contact` and `tech-contact` that the implementation plan must handle explicitly.",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:38:43Z"
+    },
+    {
+      "id": "D008",
+      "step": 4,
+      "agent": "05b-Bicep Planner",
+      "title": "Deployment strategy: phased 4-phase with approval gates",
+      "choice": "Phased deployment: Foundation (monitoring+KV+network+budget) → Data (PostgreSQL+Redis+Storage) → Edge (APIM+FrontDoor+Identity) → Platform (AKS+VM). 12 Bicep modules, ~90 min total deployment.",
+      "rationale": "16 resources across 3 environments with GDPR compliance requires phased deployment. Foundation first ensures observability and network isolation before data services. Edge before platform ensures ingress security is verified before compute workloads. AVM modules used for 14/16 resources (87.5% coverage).",
+      "status": "resolved",
+      "timestamp": "2026-03-16T11:50:00Z"
+    }
+  ],
   "review_audit": {
     "step_1": {
-      "complexity": "",
+      "complexity": "complex",
       "passes_planned": 1,
-      "passes_executed": 0,
+      "passes_executed": 1,
       "skipped": [],
       "skip_reasons": [],
       "models_used": []
     },
     "step_2": {
-      "complexity": "",
-      "passes_planned": 0,
+      "complexity": "complex",
+      "passes_planned": 3,
       "passes_executed": 0,
       "skipped": [],
       "skip_reasons": [],
       "models_used": []
     },
     "step_3.5": {
-      "complexity": "",
+      "complexity": "complex",
       "passes_planned": 1,
       "passes_executed": 0,
       "skipped": [],
@@ -42,23 +126,23 @@
       "models_used": []
     },
     "step_4": {
-      "complexity": "",
-      "passes_planned": 0,
+      "complexity": "complex",
+      "passes_planned": 2,
       "passes_executed": 0,
       "skipped": [],
       "skip_reasons": [],
       "models_used": []
     },
     "step_5": {
-      "complexity": "",
-      "passes_planned": 0,
+      "complexity": "complex",
+      "passes_planned": 3,
       "passes_executed": 0,
       "skipped": [],
       "skip_reasons": [],
       "models_used": []
     },
     "step_6": {
-      "complexity": "",
+      "complexity": "complex",
       "passes_planned": 0,
       "passes_executed": 0,
       "skipped": [],
@@ -70,82 +154,157 @@
     "1": {
       "name": "Requirements",
       "agent": "02-Requirements",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": ["tmp/00-rfp.md"]
+      "status": "complete",
+      "sub_step": "phase_5_artifact",
+      "started": "2026-03-16T10:01:00Z",
+      "completed": "2026-03-16T10:15:00Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/01-requirements.md",
+        "agent-output/contoso-service-hub-run-1/README.md"
+      ],
+      "context_files_used": [
+        "tmp/00-rfp.md",
+        ".github/skills/azure-artifacts/templates/01-requirements.template.md",
+        ".github/skills/azure-defaults/SKILL.digest.md"
+      ]
     },
     "2": {
       "name": "Architecture",
       "agent": "03-Architect",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "phase_5_artifact",
+      "started": "2026-03-16T10:20:00Z",
+      "completed": "2026-03-16T11:00:00Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/02-architecture-assessment.md",
+        "agent-output/contoso-service-hub-run-1/03-des-cost-estimate.md"
+      ],
+      "context_files_used": [
+        "agent-output/contoso-service-hub-run-1/01-requirements.md",
+        ".github/skills/azure-defaults/SKILL.digest.md",
+        ".github/skills/azure-artifacts/SKILL.digest.md",
+        ".github/skills/azure-artifacts/templates/02-architecture-assessment.template.md",
+        ".github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md"
+      ]
     },
     "3": {
       "name": "Design",
       "agent": "04-Design",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "phase_4_artifact",
+      "started": "2026-03-16T10:36:00Z",
+      "completed": "2026-03-16T11:45:00Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/03-des-diagram.py",
+        "agent-output/contoso-service-hub-run-1/03-des-diagram.png",
+        "agent-output/contoso-service-hub-run-1/03-des-adr-001-container-platform.md",
+        "agent-output/contoso-service-hub-run-1/03-des-adr-002-caching-tier.md"
+      ],
+      "context_files_used": [
+        "agent-output/contoso-service-hub-run-1/02-architecture-assessment.md",
+        "agent-output/contoso-service-hub-run-1/01-requirements.md"
+      ]
     },
     "3.5": {
       "name": "Governance",
       "agent": "04g-Governance",
-      "status": "pending",
+      "status": "complete",
       "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "started": "2026-03-16T11:38:43Z",
+      "completed": "2026-03-16T11:38:43Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/04-governance-constraints.md",
+        "agent-output/contoso-service-hub-run-1/04-governance-constraints.json"
+      ],
+      "context_files_used": [
+        "agent-output/contoso-service-hub-run-1/00-session-state.json",
+        "agent-output/contoso-service-hub-run-1/02-architecture-assessment.md",
+        ".github/skills/azure-defaults/SKILL.digest.md",
+        ".github/skills/azure-artifacts/SKILL.digest.md",
+        ".github/skills/azure-artifacts/templates/04-governance-constraints.template.md",
+        ".github/skills/session-resume/SKILL.digest.md"
+      ]
     },
     "4": {
       "name": "IaC Plan",
       "agent": "05b-Bicep Planner",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "phase_6_artifact",
+      "started": "2026-03-16T11:49:00Z",
+      "completed": "2026-03-16T11:50:00Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/04-implementation-plan.md",
+        "agent-output/contoso-service-hub-run-1/04-dependency-diagram.py",
+        "agent-output/contoso-service-hub-run-1/04-dependency-diagram.png",
+        "agent-output/contoso-service-hub-run-1/04-runtime-diagram.py",
+        "agent-output/contoso-service-hub-run-1/04-runtime-diagram.png"
+      ],
+      "context_files_used": [
+        "agent-output/contoso-service-hub-run-1/00-session-state.json",
+        "agent-output/contoso-service-hub-run-1/02-architecture-assessment.md",
+        "agent-output/contoso-service-hub-run-1/04-governance-constraints.json",
+        ".github/skills/azure-defaults/SKILL.digest.md",
+        ".github/skills/azure-artifacts/SKILL.digest.md",
+        ".github/skills/azure-artifacts/templates/04-implementation-plan.template.md",
+        ".github/skills/azure-bicep-patterns/SKILL.md"
+      ]
     },
     "5": {
       "name": "IaC Code",
       "agent": "06b-Bicep CodeGen",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "phase_4_complete",
+      "started": "2026-03-16T11:55:00Z",
+      "completed": "2026-03-16T12:55:00Z",
+      "artifacts": [
+        "infra/bicep/contoso-service-hub-run-1/main.bicep",
+        "infra/bicep/contoso-service-hub-run-1/main.bicepparam"
+      ],
+      "context_files_used": [
+        "agent-output/contoso-service-hub-run-1/04-implementation-plan.md",
+        "agent-output/contoso-service-hub-run-1/04-governance-constraints.json",
+        "agent-output/contoso-service-hub-run-1/04-avm-matrix.json"
+      ]
     },
     "6": {
       "name": "Deploy",
       "agent": "07b-Bicep Deploy",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "validated-not-deployed",
+      "started": "2026-03-16T12:56:00Z",
+      "completed": "2026-03-16T13:00:00Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/06-deployment-summary.md"
+      ],
+      "context_files_used": ["infra/bicep/contoso-service-hub-run-1/main.bicep"]
     },
     "7": {
       "name": "As-Built",
       "agent": "08-As-Built",
-      "status": "pending",
+      "status": "complete",
       "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "started": "2026-03-16T13:01:00Z",
+      "completed": "2026-03-16T14:15:00Z",
+      "artifacts": [
+        "agent-output/contoso-service-hub-run-1/07-documentation-index.md",
+        "agent-output/contoso-service-hub-run-1/07-design-document.md",
+        "agent-output/contoso-service-hub-run-1/07-operations-runbook.md",
+        "agent-output/contoso-service-hub-run-1/07-resource-inventory.md",
+        "agent-output/contoso-service-hub-run-1/07-backup-dr-plan.md",
+        "agent-output/contoso-service-hub-run-1/07-compliance-matrix.md",
+        "agent-output/contoso-service-hub-run-1/07-ab-cost-estimate.md"
+      ],
+      "context_files_used": [
+        "agent-output/contoso-service-hub-run-1/01-requirements.md",
+        "agent-output/contoso-service-hub-run-1/02-architecture-assessment.md",
+        "agent-output/contoso-service-hub-run-1/03-des-adr-001-container-platform.md",
+        "agent-output/contoso-service-hub-run-1/03-des-adr-002-caching-tier.md",
+        "agent-output/contoso-service-hub-run-1/03-des-cost-estimate.md",
+        "agent-output/contoso-service-hub-run-1/04-governance-constraints.md",
+        "agent-output/contoso-service-hub-run-1/04-implementation-plan.md",
+        "agent-output/contoso-service-hub-run-1/06-deployment-summary.md",
+        "infra/bicep/contoso-service-hub-run-1/main.bicep"
+      ]
     }
   }
 }

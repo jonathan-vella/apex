@@ -1,27 +1,13 @@
 {
   "run_id": "e2e-ralph-001",
-  "timestamp": "2026-03-16T10:34:59.934Z",
+  "timestamp": "2026-03-16T14:35:21.143Z",
   "scores": {
     "artifact_completeness": {
-      "score": 10,
-      "found": 2,
+      "score": 100,
+      "found": 21,
       "total": 21,
-      "missing": [
-        "01-requirements.md",
-        "02-architecture-assessment.md",
-        "04-governance-constraints.md",
-        "04-governance-constraints.json",
-        "04-implementation-plan.md",
-        "04-dependency-diagram.py",
-        "04-runtime-diagram.py",
-        "06-deployment-summary.md",
-        "07-documentation-index.md",
-        "07-design-document.md",
-        "07-operations-runbook.md",
-        "07-resource-inventory.md",
-        "07-backup-dr-plan.md"
-      ],
-      "grade": "F"
+      "missing": [],
+      "grade": "A"
     },
     "structural_compliance": {
       "score": 100,
@@ -33,14 +19,16 @@
       "grade": "A"
     },
     "code_quality": {
-      "score": 0,
-      "details": "main.bicep not found",
-      "grade": "F"
+      "score": 80,
+      "build_pass": true,
+      "lint_pass": true,
+      "avm_module_count": 0,
+      "grade": "B"
     },
     "review_thoroughness": {
-      "score": 0,
+      "score": 17,
       "details": [
-        "step_1: no review",
+        "step_1: 1 passes",
         "step_2: no review",
         "step_3.5: no review",
         "step_4: no review",
@@ -50,25 +38,32 @@
       "grade": "F"
     },
     "waf_coverage": {
-      "score": 0,
-      "details": "No architecture assessment",
-      "grade": "F"
+      "score": 100,
+      "pillars_found": [
+        "Security",
+        "Reliability",
+        "Performance",
+        "Cost",
+        "Operations"
+      ],
+      "grade": "A"
     },
     "cost_accuracy": {
-      "score": 50,
-      "details": "No budget in decisions",
-      "grade": "D"
+      "score": 80,
+      "budget_stated": "EUR 8547/month PAYG (validated); EUR 7047/month with 3yr RI",
+      "cost_estimate_exists": true,
+      "grade": "B"
     },
     "session_state_integrity": {
-      "score": 60,
+      "score": 100,
       "checks": [
         "schema_version: present",
         "project: correct",
         "iac_tool: set",
         "decisions: populated",
-        "steps completed: 0/8"
+        "steps completed: 8/8"
       ],
-      "grade": "D"
+      "grade": "A"
     },
     "timing_performance": {
       "score": 50,
@@ -77,7 +72,7 @@
     }
   },
   "composite": {
-    "score": 31,
-    "grade": "F"
+    "score": 82,
+    "grade": "B"
   }
 }

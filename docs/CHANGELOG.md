@@ -24,12 +24,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   roles to definition files, default models, and required skills.
 - feat(config): add `.github/skill-affinity.json` — skill/agent affinity catalog with
   `primary`/`secondary`/`never` weights for context budget optimization.
-- feat(scripts): add 5 new validators: `validate-session-lock`, `validate-workflow-graph`,
-  `validate-agent-registry`, `validate-skill-affinity`, `validate-docs-sync`;
-  validator count 22 → 27.
+- feat(scripts): add validators: `validate-session-lock`, `validate-workflow-graph`,
+  `validate-agent-registry`, `validate-skill-affinity`.
 - feat(hooks): add `pre-push` hook to `lefthook.yml` with diff-based domain routing;
   only runs validators for changed file types, in parallel.
 - feat(scripts): add `diff-based-push-check.sh` helper for pre-push hook domain detection.
+- feat(skills): add `terraform-test` skill with run blocks, mock providers (TF 1.7+),
+  assertions, CI/CD patterns, and Azure examples (`azurerm_resource_group`,
+  `azurerm_virtual_network`, `azurerm_key_vault`).
+- feat(skills): add `terraform-search-import` skill with manual discovery workflow,
+  20-row ARM↔Terraform mapping table, and bulk import script.
+- feat(skills): extend `terraform-patterns` with 2 new references:
+  `avm-authoring-requirements.md` (37 AVM certification checks) and
+  `refactor-module.md` (monolith-to-module extraction with state migration).
+- feat(skills): add `count-registry` skill for agent runtime entity count lookups
+  from `count-manifest.json`.
+- feat(config): add `.github/count-manifest.json` as single source of truth for entity
+  counts (agents, skills, instructions, validators).
+- feat(instructions): add `no-hardcoded-counts.instructions.md` to prevent hard-coded
+  entity counts across all markdown, JSON, and script files.
+- feat(scripts): add `validate-no-hardcoded-counts.mjs` validator.
+- feat(agents): add RALPH-style E2E autonomous workflow conductor
+  (`e2e-conductor.agent.md`) with pre-validation after every subagent return,
+  auto-challenge (1 pass per step), self-correction, benchmark collection, and
+  lesson capture — no human gates.
+- feat(e2e): add E2E evaluation scripts: `benchmark-e2e.mjs` (8-dimension scoring engine
+  with complexity-normalized baselines) and `validate-e2e-step.mjs` (per-step validator
+  orchestrator composing existing lint/validate commands).
+- feat(e2e): add E2E prompts: `e2e-ralph-loop.prompt.md` (RALPH-style 8-phase loop driver),
+  `e2e-analyze-lessons.prompt.md` (post-loop lessons analysis), and
+  `e2e-contoso-rfp.prompt.md` (full 7-step loop for Contoso Service Hub).
+- feat(e2e): complete `e2e-ralph-loop` (Nordic Fresh Foods Lite) end-to-end — all 7 steps
+  with design diagrams, ADR, governance constraints, deployment summary, as-built
+  documentation suite (7 docs), Bicep templates (main + 6 modules), benchmark score 88/100,
+  and lessons-learned artifacts.
+- feat(e2e): bootstrap Contoso Service Hub RFP loop (`contoso-service-hub-run-1`) with
+  session state, handoff, and benchmark scaffolding.
+- feat(docs): add interactive D3 architecture explorer (`docs/architecture-explorer.html`) —
+  self-contained HTML visualization of the full system topology (agents, subagents, skills,
+  instructions, validators, workflow gates, MCP servers, prompts, CI workflows) with
+  force-directed layout, search, filtering, and view presets.
 
 ### Changed
 
@@ -42,11 +76,142 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   references to Bicep Deploy and Terraform Deploy agents.
 - refactor(instructions): add runtime compression and skill affinity sections to
   `context-optimization.instructions.md`.
+- refactor(agents,skills): agent system consistency pass across all agent files —
+  standardize model field to array format, rename 8-step workflow references to
+  multi-step, add Fast Path and Governance entries to `skill-affinity.json`,
+  add `session-resume` to design/deploy agents in `agent-registry.json`.
+- refactor(agents): enhance `10-Challenger` with multi-pass routing via
+  `challenger-review-batch-subagent`, lens rotation table
+  (security-governance, architecture-reliability, cost-feasibility), and
+  pass-number routing (single → subagent, multi → batch).
+- refactor(agents): Conductor gate naming (Gates 1–5 + Gate 2.5 Governance)
+  and Switch to Fast Path handoff for simple projects.
+- refactor(skills): context optimization of 7 skills — extract verbose content to
+  reference files, reducing SKILL.md sizes by 40–70%: `azure-cost-optimization`,
+  `azure-quotas`, `context-optimizer`, `github-operations`, `azure-adr`,
+  `azure-kusto`, `make-skill-template`.
+- refactor(agents,scripts,instructions): consolidate instructions (#255) — merge
+  bicep/terraform policy compliance into `iac-policy-compliance.instructions.md`,
+  merge code-commenting + code-review into `code-quality.instructions.md`, move
+  workload-documentation and cost-estimate to skill references.
+- refactor(scripts): merge 6 validators into 3: agent-body-size + agent-language →
+  `lint-agent-checks`, skill-size + skill-digests → `validate-skill-checks`,
+  instruction-frontmatter + instruction-references → `validate-instruction-checks`.
+- refactor(scripts): extract shared `_lib/h2-parser.mjs` utility; add `getBody()` export
+  to `parse-frontmatter.mjs`; reformat `workspace-index.mjs` for readability.
+- refactor(skills): merge `terraform-patterns` style-guide delta into
+  `tf-best-practices-examples.md` (code formatting, version control, code review sections).
+- refactor(e2e): parameterize E2E scripts for multi-project support — `benchmark-e2e.mjs`
+  accepts project name via argv, `validate-e2e-step.mjs` accepts `--project=name` flag.
+- refactor(docs,scripts): update D3 explorer and reformat digest generator.
+- docs: replace 105 hard-coded entity counts across 45+ files with descriptive language;
+  resolve '7-step' vs '8-step' workflow conflict (all refs now say 'multi-step').
 
 ### Fixed
 
 - fix(session-state): accept both schema_version `"1.0"` and `"2.0"` in validator
   for backwards compatibility.
+- fix(skills): remove 19 duplicate nested skill directories introduced by Azure
+  skills plugin integration — each had a redundant self-named subdirectory shadowing
+  the canonical content at the parent level.
+- fix(agents,skills): resolve tech debt #10, #15, #16 — convert multi-line agents
+  frontmatter to inline arrays (8 agents), add Reference Index sections to 19 skills,
+  add canary markers to 76 reference files.
+- fix(agents,skills): resolve 26 artifact template drift warnings — add collapsible ToC,
+  traffic-light indicators, Mermaid diagrams, details blocks; fix H2→H3 demotions;
+  add attribution header to deployment-summary template.
+- fix(prompts): correct frontmatter key from `mode` to `agent` in e2e-ralph-loop prompt.
+- fix(skills): fix trailing spaces and blank lines in SKILL.minimal.md and
+  SKILL.digest.md files.
+
+### Removed
+
+- chore(mcp): remove `microsoft-learn` MCP server from `.vscode/mcp.json` and
+  `.devcontainer/post-create.sh` — Learn MCP tools are now bundled with the
+  `ms-azuretools.vscode-azure-github-copilot` extension.
+- chore(skills): delete `microsoft-docs`, `microsoft-code-reference`, and
+  `microsoft-skill-creator` skills — functionality provided natively by extension.
+- chore(config): remove skill references from `agent-registry.json` and `skill-affinity.json`.
+
+## [0.9.0.1] — 2026-03-15
+
+### Added
+
+- feat(skills): integrate 22 skills from Azure Skills Plugin (`microsoft/azure-skills`):
+  `appinsights-instrumentation`, `azure-ai`, `azure-aigateway`, `azure-cloud-migrate`,
+  `azure-compliance`, `azure-compute`, `azure-cost-optimization`, `azure-deploy`,
+  `azure-diagnostics`, `azure-hosted-copilot-sdk`, `azure-kusto`, `azure-messaging`,
+  `azure-prepare`, `azure-quotas`, `azure-rbac`, `azure-resource-lookup`,
+  `azure-resource-visualizer`, `azure-storage`, `azure-validate`,
+  `copilot-customization`, `entra-app-registration`, `microsoft-foundry`.
+- feat(skills): add SKILL.digest.md and SKILL.minimal.md variants for all new skills.
+- feat(agents): implement cross-agent decision logging (#250) — add `decision_log[]` field
+  to session state schema, `decision-logging.instructions.md`, and propagate to 6 agents
+  (Requirements, Architect, Bicep/Terraform Planners, Bicep/Terraform CodeGen) plus
+  challenger-review-subagent.
+- feat(instructions): add `model-prompt-alignment.instructions.md` — auto-applies to
+  `*.agent.md` and `*.prompt.md` with model-specific prompt engineering patterns for
+  Claude (selective XML blocks, reasoning_effort, language calibration) and GPT
+  (structured markdown, tool-call-first phrasing), plus cross-model rules for handoff
+  overrides, prompt-agent model sync, and few-shot guidance.
+- feat(scripts): add `lint-model-alignment.mjs` validator with 5 checks: prompt↔agent
+  model sync, redundant handoff model overrides, Claude reasoning_effort comments,
+  large-agent context_awareness, and investigate block presence; registered in
+  `validate:_node` suite and `lefthook.yml` pre-commit hook.
+- feat(scripts): add `generate-skill-digests.mjs` for automated digest generation.
+- feat(docs): add Azure Skills Plugin migration documentation.
+
+### Changed
+
+- refactor(agents): align 8 Claude Opus/Sonnet agent definitions with Anthropic prompting
+  best practices — add selective XML blocks (`investigate_before_answering` to 5 agents,
+  `output_contract` to 5, `context_awareness` to 3, `subagent_budget` to Conductor,
+  `scope_fencing` to 3, `empty_result_recovery` to Diagnose + 2 subagents), add
+  `reasoning_effort` comments to 8 agents, add few-shot examples to Conductor/Architect/Planners.
+- refactor(agents): align 6 GPT-5.4/5.3-Codex agent definitions with OpenAI prompting
+  best practices — add structured `<output_contract>` blocks, tool-call-first phrasing,
+  and explicit phase-numbered workflows.
+- refactor(agents): conservative language softening across 8 agents — reduce duplicate
+  absolute language (`MANDATORY`, `NEVER`, `CRITICAL`) by ~30% while preserving constraint
+  emphasis at security baseline, approval gates, and governance compliance.
+- refactor(prompts): enhance 14 prompt files — fix 5 model mismatches (Claude/Sonnet→GPT-5.4),
+  add prerequisites/variables/session-state-detection to 9 Claude prompt files.
+- refactor(agents): update 06b-Bicep CodeGen, 07b-Bicep Deploy agent definitions with
+  enhanced deployment patterns and skill references.
+- refactor(config): update `agent-registry.json`, `skill-affinity.json`, and
+  `copilot-instructions.md` for new skill integrations.
+
+### Fixed
+
+- fix(agents): resolve 19 handoff inconsistencies identified by dual adversarial review
+  (Claude Sonnet 4.6 + GPT-5.4 reviewers):
+  - **Critical**: fix 09-Diagnose model mismatch (registry Sonnet→Opus to match frontmatter),
+    remove wrong model override on 04-Design→Governance handoff (Sonnet→removed, target is
+    GPT-5.4), add missing "Return to Step 2" handoff to 07t-Terraform Deploy (symmetry
+    with 07b-Bicep Deploy).
+  - **High**: gate 04-Design skip paths with `send: false` and risk warnings (was bypassing
+    mandatory governance + planning), redirect 05b/05t "Refresh Governance" to 04g-Governance
+    (was self-handoff bypassing governance agent), add `challenger-review-subagent` to
+    04g-Governance agents list (was claiming review but couldn't execute it), add 5 missing
+    step handoffs to Fast Path conductor, add `10-Challenger` to 02-Requirements agents list,
+    change interactive Requirements handoffs to `send: false`.
+  - **Cleanup**: wire orphaned `bicep-whatif-subagent` and `terraform-plan-subagent` to their
+    deploy agents, redirect Diagnose workload-docs handoff to 08-As-Built, fix governance
+    planner prompts to reference both `.md` and `.json` artifacts, remove `05t-Terraform
+Planner` from 03-Architect agents list, remove 5 redundant model overrides across
+    04-Design/04g-Governance/07b-Deploy.
+- fix(agents): remove 12 stale handoff model overrides from Conductor (9), Architect (2),
+  and Requirements/Diagnose/Planners (3) — overrides were either redundant (matching target
+  model) or pointing to wrong models after prior refactoring.
+- fix(hooks): fix VS Code hook scripts — correct API field names (`toolName`→`tool_name`,
+  `toolInput`→`tool_input`), update tool name patterns to match actual VS Code tool IDs,
+  use `permissionDecision:deny` for dangerous command blocking.
+- fix(prompts): fix `diagnose-resource.prompt.md` model field (Sonnet→Opus to match agent).
+
+### Removed
+
+- chore(skills): remove deprecated `azure-diagnostics` legacy skill (replaced by
+  `azure-diagnostics` from Azure Skills Plugin).
 
 ## [0.9.0] — 2026-02-12 — Pre-Bosun Baseline
 
