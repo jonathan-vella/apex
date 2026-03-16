@@ -23,9 +23,9 @@ generates ALL artifacts from scratch — nothing is pre-seeded.
 
 ## Project Context
 
-- **Project**: `contoso-service-hub-run-1` (update suffix for each run: -run-2, -run-3)
-- **Output directory**: `agent-output/contoso-service-hub-run-1/`
-- **Bicep directory**: `infra/bicep/contoso-service-hub-run-1/`
+- **Project**: `contoso-service-hub-run-2` (update suffix for each run: -run-2, -run-3)
+- **Output directory**: `agent-output/contoso-service-hub-run-2/`
+- **Bicep directory**: `infra/bicep/contoso-service-hub-run-2/`
 - **IaC tool**: Bicep
 - **Complexity**: determined at runtime by Step 1 (expected: complex)
 - **RFP source**: `tmp/00-rfp.md`
