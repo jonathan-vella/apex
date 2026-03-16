@@ -17,13 +17,102 @@
       "applies_to": ["02-Requirements"],
       "applies_to_paths": [".github/agents/02-Requirements.agent.md"],
       "status": "new"
+    },
+    {
+      "id": "LL-002",
+      "step": 1,
+      "category": "artifact-quality",
+      "severity": "medium",
+      "title": "Storage firewall requirement inconsistent with no-VNet network model",
+      "observation": "Second challenger pass found storage firewall rules stated App Service IP restriction but VNet integration was explicitly not required, creating an unimplementable posture",
+      "expected": "Network security requirements should be internally consistent with the chosen connectivity model",
+      "root_cause": "First challenger fix addressed symptoms but did not reconcile the storage firewall rule with the public-endpoint-only architecture",
+      "self_corrected": true,
+      "iterations_to_fix": 1,
+      "recommendation": "When no private endpoints or VNet integration, use Entra RBAC as the storage access control model instead of IP-based firewall rules",
+      "applies_to": ["02-Requirements"],
+      "applies_to_paths": [".github/agents/02-Requirements.agent.md"],
+      "status": "new"
+    },
+    {
+      "id": "LL-003",
+      "step": 4,
+      "category": "validation-gap",
+      "severity": "high",
+      "title": "Pre-seeded plan omitted Key Vault and lacked explicit SQL Entra/Storage RBAC config",
+      "observation": "Challenger security-governance review found Key Vault removed ('simple complexity'), SQL AD-only auth not concrete enough, and Storage shared key access not disabled",
+      "expected": "Implementation plan should carry forward all resources from approved architecture and governance constraints",
+      "root_cause": "Pre-seeded plan was created before governance discovery; simplification removed Key Vault",
+      "self_corrected": true,
+      "iterations_to_fix": 1,
+      "recommendation": "IaC Plan agents must cross-reference governance constraints JSON before finalizing resource inventory",
+      "applies_to": ["05b-Bicep Planner"],
+      "applies_to_paths": [".github/agents/05b-Bicep Planner.agent.md"],
+      "status": "new"
+    },
+    {
+      "id": "LL-004",
+      "step": 5,
+      "category": "agent-behavior",
+      "severity": "medium",
+      "title": "Bicep Storage networkAcls bypass value required spaces after commas",
+      "observation": "Initial fix used 'AzureServices,Logging,Metrics' which Bicep type system rejected; correct value is 'AzureServices, Logging, Metrics'",
+      "expected": "Generated Bicep should use correct enum literal values on first attempt",
+      "root_cause": "AVM module type constraints use specific string enum values with spaces; conductor applied standard comma-separated formatting",
+      "self_corrected": true,
+      "iterations_to_fix": 1,
+      "recommendation": "When adding networkAcls bypass values, check AVM module type definition for exact accepted string literals",
+      "applies_to": ["E2E Conductor"],
+      "applies_to_paths": [],
+      "status": "new"
+    },
+    {
+      "id": "LL-005",
+      "step": 3.5,
+      "category": "validation-gap",
+      "severity": "medium",
+      "title": "E2E step validator referenced non-existent npm script name",
+      "observation": "validate-e2e-step.mjs referenced 'npm run validate:governance-refs' but correct name is 'npm run lint:governance-refs'",
+      "expected": "E2E validator should reference correct npm script names",
+      "root_cause": "Script naming inconsistency between validate: and lint: prefixes in package.json",
+      "self_corrected": true,
+      "iterations_to_fix": 1,
+      "recommendation": "Add a validator cross-reference check: ensure all npm scripts referenced in validate-e2e-step.mjs exist in package.json",
+      "applies_to": ["validate-e2e-step.mjs"],
+      "applies_to_paths": ["scripts/validate-e2e-step.mjs"],
+      "status": "new"
+    },
+    {
+      "id": "LL-006",
+      "step": 0,
+      "category": "validation-gap",
+      "severity": "low",
+      "title": "Session state decision_log entries missing required fields",
+      "observation": "Pre-seeded session state had decision_log entries with 'decision' field instead of required 'id', 'agent', 'title', 'choice' fields",
+      "expected": "Pre-seeded session state should conform to the validate-session-state.mjs schema",
+      "root_cause": "Session state was pre-seeded with a different decision_log schema than the validator expects",
+      "self_corrected": true,
+      "iterations_to_fix": 1,
+      "recommendation": "Pre-seeded session state files should be validated against the schema before committing",
+      "applies_to": ["session-resume"],
+      "applies_to_paths": [".github/skills/session-resume/SKILL.md"],
+      "status": "new"
     }
   ],
   "summary": {
-    "total_lessons": 1,
-    "by_category": { "artifact-quality": 1 },
-    "by_severity": { "high": 1 },
+    "total_lessons": 6,
+    "by_category": {
+      "artifact-quality": 2,
+      "validation-gap": 3,
+      "agent-behavior": 1
+    },
+    "by_severity": { "high": 2, "medium": 3, "low": 1 },
     "self_correction_rate": "100%",
-    "improvement_candidates": [".github/agents/02-Requirements.agent.md"]
+    "improvement_candidates": [
+      ".github/agents/02-Requirements.agent.md",
+      ".github/agents/05b-Bicep Planner.agent.md",
+      "scripts/validate-e2e-step.mjs",
+      ".github/skills/session-resume/SKILL.md"
+    ]
   }
 }

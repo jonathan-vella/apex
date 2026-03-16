@@ -23,7 +23,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const PROJECT = "e2e-ralph-loop";
+// Support --project=name or positional project name before step arg
+const rawArgs = process.argv.slice(2);
+const projectFlag = rawArgs.find((a) => a.startsWith("--project="));
+const PROJECT = projectFlag ? projectFlag.split("=")[1] : "e2e-ralph-loop";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
 
@@ -78,7 +81,7 @@ const STEP_VALIDATORS = {
   ],
   2: ["npm run lint:artifact-templates --silent 2>&1"],
   3: [],
-  3.5: ["npm run validate:governance-refs --silent 2>&1"],
+  3.5: ["npm run lint:governance-refs --silent 2>&1"],
   4: [
     "npm run lint:artifact-templates --silent 2>&1",
     "npm run lint:h2-sync --silent 2>&1",
@@ -275,12 +278,14 @@ function validateStep(step) {
 }
 
 // Main
-const args = process.argv.slice(2);
+const args = process.argv.slice(2).filter((a) => !a.startsWith("--project="));
 const isPre = args[0] === "pre";
 const stepArg = isPre ? args[1] : args[0];
 
 if (!stepArg) {
-  console.error("Usage: node scripts/validate-e2e-step.mjs [pre] <step|all>");
+  console.error(
+    "Usage: node scripts/validate-e2e-step.mjs [--project=name] [pre] <step|all>",
+  );
   process.exit(1);
 }
 

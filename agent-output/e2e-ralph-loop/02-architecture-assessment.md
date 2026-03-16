@@ -113,13 +113,13 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 - Azure AD-only authentication for SQL Database (no SQL auth passwords)
 - Key Vault for secrets management with RBAC access policies
 - SQL firewall rules restricting access to App Service outbound IPs
-- Storage Account firewall restricting to Azure trusted services
+- Storage Account access secured via Entra RBAC (no shared keys); no anonymous blob access
 - All data at rest encrypted (Azure-managed keys)
 - EU data residency enforced (swedencentral region)
 
 **Gaps:**
 
-- No private endpoints — data-plane traffic traverses public network (mitigated by firewall rules)
+- No private endpoints — data-plane traffic traverses public network (mitigated by Entra RBAC and managed identity)
 - No VNet integration for App Service — outbound traffic not locked to a VNet
 - No DDoS Protection Standard (acceptable: Basic DDoS is included)
 - No WAF/Front Door — web tier exposed directly (acceptable for <500 users)
@@ -138,7 +138,7 @@ limited performance headroom (B1 tier), no staging environment for pre-prod test
 - Storage Account LRS provides 99.9% availability (11 nines durability)
 - App Service B1 provides 99.95% SLA
 - SQL PITR (Point-in-Time Restore) with 7-day retention (Basic tier)
-- Effective composite SLA: ~99.84% (exceeds 99.9% requirement per service SLAs)
+- Effective composite SLA: ~99.84% (below the 99.9% target — accepted as MVP trade-off)
 
 **Gaps:**
 
@@ -305,7 +305,7 @@ The architecture is approved for implementation with the following key parameter
 | 3   | App Service          | —                  | Managed Identity, health check endpoint                |
 | 4   | Azure SQL Server     | —                  | Azure AD-only auth, firewall rules for App Service IPs |
 | 5   | Azure SQL Database   | Basic (5 DTU)      | 2 GB max, 7-day PITR, TDE enabled                      |
-| 6   | Storage Account      | Standard LRS (Hot) | GPv2, HTTPS-only, no public blob, firewall rules       |
+| 6   | Storage Account      | Standard LRS (Hot) | GPv2, HTTPS-only, no public blob, Entra RBAC auth      |
 | 7   | Key Vault            | Standard           | RBAC access, soft delete, purge protection             |
 | 8   | Log Analytics        | Pay-as-you-go      | 30-day retention, 5 GB free tier                       |
 | 9   | Application Insights | Workspace-based    | Connected to Log Analytics workspace                   |
@@ -320,7 +320,7 @@ The architecture is approved for implementation with the following key parameter
 | No public blob access  | `allowBlobPublicAccess: false` on Storage Account                    |
 | Azure AD-only SQL auth | `azureADOnlyAuthentication: true` on SQL Server                      |
 | SQL firewall rules     | Allow App Service outbound IPs only                                  |
-| Storage firewall       | Default action: Deny; allow Azure trusted services                   |
+| Storage access control | Entra RBAC auth via managed identity; no shared key access           |
 | Key Vault soft delete  | `enableSoftDelete: true`, `enablePurgeProtection: true`              |
 | Required tags          | Environment=prod, ManagedBy=Bicep, Project=e2e-ralph-loop, Owner=E2E |
 

@@ -4,8 +4,8 @@
   "iac_tool": "Bicep",
   "region": "swedencentral",
   "branch": "feat/azure-skills-integration",
-  "updated": "2026-03-15T19:59:00Z",
-  "current_step": 3,
+  "updated": "2026-03-16T13:00:00Z",
+  "current_step": 7,
   "decisions": {
     "region": "swedencentral",
     "compliance": "GDPR",
@@ -17,16 +17,49 @@
   "open_findings": [],
   "decision_log": [
     {
+      "id": "D001",
       "step": 2,
-      "decision": "Architecture pattern: App Service B1 + SQL Basic + Storage LRS",
+      "agent": "03-Architect",
+      "title": "Architecture pattern selection",
+      "choice": "App Service B1 + SQL Basic + Storage LRS",
       "rationale": "Cost-optimized for <50 users, ~€16/month against €500 cap",
       "timestamp": "2026-03-15T19:59:00Z"
     },
     {
+      "id": "D002",
       "step": 2,
-      "decision": "WAF scores: Security 8, Reliability 6, Performance 6, Cost 9, Operations 6",
+      "agent": "03-Architect",
+      "title": "WAF pillar scoring",
+      "choice": "Security 8, Reliability 6, Performance 6, Cost 9, Operations 6",
       "rationale": "Primary optimization on Cost; acceptable trade-offs on reliability and performance for MVP",
       "timestamp": "2026-03-15T19:59:00Z"
+    },
+    {
+      "id": "D003",
+      "step": 3,
+      "agent": "04-Design",
+      "title": "Compute tier ADR recorded",
+      "choice": "Azure App Service B1 Linux retained as initial production compute tier",
+      "rationale": "Best fit for the simple MVP workload and <EUR500 monthly budget while preserving a clean upgrade path to S1",
+      "timestamp": "2026-03-16T08:25:18Z"
+    },
+    {
+      "id": "D004",
+      "step": 3.5,
+      "agent": "04g-Governance",
+      "title": "Governance artifact source",
+      "choice": "Generated fallback governance template for the E2E run",
+      "rationale": "Azure subscription context was available, but live Azure CLI REST policy assignment discovery did not return usable data in the automated environment, so the requested GDPR-focused fallback baseline was emitted instead.",
+      "timestamp": "2026-03-16T08:29:29Z"
+    },
+    {
+      "id": "D005",
+      "step": 5,
+      "agent": "06b-Bicep CodeGen",
+      "title": "Phase-safe AVM implementation strategy",
+      "choice": "Implemented a deterministic naming model with AVM wrappers and three deployment phases: foundation, data, and compute.",
+      "rationale": "Deterministic resource names allow each phase to be deployed independently without cross-deployment output coupling while still satisfying the plan, governance constraints, and AVM-first requirements.",
+      "timestamp": "2026-03-16T12:00:00Z"
     }
   ],
   "review_audit": {
@@ -41,34 +74,34 @@
     "step_2": {
       "complexity": "simple",
       "passes_planned": 1,
-      "passes_executed": 0,
+      "passes_executed": 1,
       "skipped": [],
       "skip_reasons": [],
-      "models_used": []
+      "models_used": ["challenger-review-subagent"]
     },
     "step_3.5": {
       "complexity": "simple",
       "passes_planned": 1,
-      "passes_executed": 0,
+      "passes_executed": 1,
       "skipped": [],
       "skip_reasons": [],
-      "models_used": []
+      "models_used": ["04g-Governance"]
     },
     "step_4": {
       "complexity": "simple",
       "passes_planned": 1,
-      "passes_executed": 0,
+      "passes_executed": 1,
       "skipped": [],
       "skip_reasons": [],
-      "models_used": []
+      "models_used": ["challenger-review-subagent"]
     },
     "step_5": {
       "complexity": "simple",
       "passes_planned": 1,
-      "passes_executed": 0,
+      "passes_executed": 1,
       "skipped": [],
       "skip_reasons": [],
-      "models_used": []
+      "models_used": ["bicep-review-subagent"]
     },
     "step_6": {
       "complexity": "simple",
@@ -112,22 +145,35 @@
     "3": {
       "name": "Design",
       "agent": "04-Design",
-      "status": "pending",
+      "status": "complete",
       "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "started": "2026-03-16T00:00:00Z",
+      "completed": "2026-03-16T08:25:18Z",
+      "artifacts": [
+        "03-des-diagram.py",
+        "03-des-diagram.png",
+        "03-des-adr-001-compute-tier.md"
+      ],
+      "context_files_used": [
+        "02-architecture-assessment.md",
+        "01-requirements.md"
+      ]
     },
     "3.5": {
       "name": "Governance",
       "agent": "04g-Governance",
-      "status": "pending",
+      "status": "complete",
       "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "started": "2026-03-16T00:05:00Z",
+      "completed": "2026-03-16T08:29:29Z",
+      "artifacts": [
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
+      "context_files_used": [
+        "00-session-state.json",
+        "02-architecture-assessment.md"
+      ]
     },
     "4": {
       "name": "IaC Plan",
@@ -146,32 +192,74 @@
     "5": {
       "name": "IaC Code",
       "agent": "06b-Bicep CodeGen",
-      "status": "pending",
+      "status": "complete",
       "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "started": "2026-03-16T00:10:00Z",
+      "completed": "2026-03-16T12:00:00Z",
+      "artifacts": [
+        "04-preflight-check.md",
+        "05-implementation-reference.md",
+        "infra/bicep/e2e-ralph-loop/main.bicep",
+        "infra/bicep/e2e-ralph-loop/main.bicepparam",
+        "infra/bicep/e2e-ralph-loop/modules/monitoring.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/sql.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/storage.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/keyvault.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/compute.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/budget.bicep"
+      ],
+      "context_files_used": [
+        "02-architecture-assessment.md",
+        "04-implementation-plan.md",
+        "04-governance-constraints.json",
+        "04-governance-constraints.md"
+      ]
     },
     "6": {
       "name": "Deploy",
       "agent": "07b-Bicep Deploy",
-      "status": "pending",
-      "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "status": "complete",
+      "sub_step": "validated-not-deployed",
+      "started": "2026-03-16T08:55:00Z",
+      "completed": "2026-03-16T08:57:00Z",
+      "artifacts": ["06-deployment-summary.md"],
+      "context_files_used": ["infra/bicep/e2e-ralph-loop/main.bicep"]
     },
     "7": {
       "name": "As-Built",
       "agent": "08-As-Built",
-      "status": "pending",
+      "status": "complete",
       "sub_step": null,
-      "started": null,
-      "completed": null,
-      "artifacts": [],
-      "context_files_used": []
+      "started": "2026-03-16T09:00:00Z",
+      "completed": "2026-03-16T13:00:00Z",
+      "artifacts": [
+        "07-documentation-index.md",
+        "07-design-document.md",
+        "07-operations-runbook.md",
+        "07-resource-inventory.md",
+        "07-backup-dr-plan.md",
+        "07-compliance-matrix.md",
+        "07-ab-cost-estimate.md"
+      ],
+      "context_files_used": [
+        "01-requirements.md",
+        "02-architecture-assessment.md",
+        "03-des-cost-estimate.md",
+        "03-des-adr-001-compute-tier.md",
+        "04-governance-constraints.md",
+        "04-implementation-plan.md",
+        "04-preflight-check.md",
+        "05-implementation-reference.md",
+        "06-deployment-summary.md",
+        "infra/bicep/e2e-ralph-loop/main.bicep",
+        "infra/bicep/e2e-ralph-loop/main.bicepparam",
+        "infra/bicep/e2e-ralph-loop/modules/monitoring.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/sql.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/storage.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/keyvault.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/compute.bicep",
+        "infra/bicep/e2e-ralph-loop/modules/budget.bicep"
+      ]
     }
   }
 }

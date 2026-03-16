@@ -20,7 +20,7 @@ Your job is to read the lessons learned and benchmark report, then produce
 
 ## Input Files
 
-Read these files from `agent-output/e2e-ralph-loop/`:
+Read these files from the project's `agent-output/{project}/` directory (e.g., `agent-output/e2e-ralph-loop/` or whichever project was evaluated):
 
 1. `09-lessons-learned.json` — structured lesson data with `applies_to_paths`
 2. `08-benchmark-report.md` — benchmark scores and improvement backlog

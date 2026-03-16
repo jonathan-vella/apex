@@ -41,7 +41,7 @@ This plan defines the Bicep implementation for the Nordic Fresh Foods Lite — a
 | **Region**                 | swedencentral             |
 | **Environments**           | Prod only                 |
 | **Deployment Strategy**    | Phased (3 phases)         |
-| **Total Resources**        | 5 resource types          |
+| **Total Resources**        | 6 resource types          |
 | **Estimated Monthly Cost** | ~€150 (Prod steady-state) |
 | **Budget**                 | <€500/month               |
 | **Compliance**             | GDPR                      |
@@ -62,7 +62,8 @@ This plan defines the Bicep implementation for the Nordic Fresh Foods Lite — a
 | 6   | Azure SQL Server        | `Microsoft.Sql/servers`                    | `br/public:avm/res/sql/server`                     | `0.21.1` | —               |
 | 7   | Azure SQL Database      | `Microsoft.Sql/servers/databases`          | (via SQL Server module)                            | —        | Basic (5 DTU)   |
 | 8   | Storage Account         | `Microsoft.Storage/storageAccounts`        | `br/public:avm/res/storage/storage-account`        | `0.32.0` | Standard LRS    |
-| 9   | Budget Alert            | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —        | €500/month      |
+| 9   | Key Vault               | `Microsoft.KeyVault/vaults`                | `br/public:avm/res/key-vault/vault`                | `0.11.0` | Standard RBAC   |
+| 10  | Budget Alert            | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —        | €500/month      |
 
 ---
 
@@ -74,8 +75,9 @@ infra/bicep/e2e-ralph-loop/
 ├── main.bicepparam                 # Parameter file (prod defaults)
 ├── modules/
 │   ├── monitoring.bicep            # Log Analytics + App Insights
-│   ├── sql.bicep                   # SQL Server + Database
-│   ├── storage.bicep               # Storage Account
+│   ├── sql.bicep                   # SQL Server + Database (Entra-only auth)
+│   ├── storage.bicep               # Storage Account (Entra RBAC, no shared keys)
+│   ├── keyvault.bicep              # Key Vault (RBAC access, soft delete)
 │   ├── compute.bicep               # App Service Plan + App Service
 │   └── budget.bicep                # Consumption budget + alerts
 ```
@@ -101,16 +103,17 @@ Outputs (standard):
 
 ### Task List
 
-| #   | Task                           | Module           | Depends On | Est. Time |
-| --- | ------------------------------ | ---------------- | ---------- | --------- |
-| 1   | Create main.bicep orchestrator | main             | —          | 30 min    |
-| 2   | Implement monitoring module    | monitoring.bicep | —          | 20 min    |
-| 3   | Implement SQL module           | sql.bicep        | —          | 30 min    |
-| 4   | Implement storage module       | storage.bicep    | —          | 15 min    |
-| 5   | Implement compute module       | compute.bicep    | 2, 3, 4    | 30 min    |
-| 6   | Implement budget module        | budget.bicep     | —          | 15 min    |
-| 7   | Create parameter file          | main.bicepparam  | 1          | 10 min    |
-| 8   | Validate and lint              | —                | 1-7        | 15 min    |
+| #   | Task                                              | Module           | Depends On | Est. Time |
+| --- | ------------------------------------------------- | ---------------- | ---------- | --------- |
+| 1   | Create main.bicep orchestrator                    | main             | —          | 30 min    |
+| 2   | Implement monitoring module                       | monitoring.bicep | —          | 20 min    |
+| 3   | Implement SQL module (Entra admin + AD-only auth) | sql.bicep        | —          | 30 min    |
+| 4   | Implement storage module (RBAC, no shared keys)   | storage.bicep    | —          | 15 min    |
+| 5   | Implement Key Vault module                        | keyvault.bicep   | —          | 15 min    |
+| 6   | Implement compute module                          | compute.bicep    | 2, 3, 4, 5 | 30 min    |
+| 7   | Implement budget module                           | budget.bicep     | —          | 15 min    |
+| 8   | Create parameter file                             | main.bicepparam  | 1          | 10 min    |
+| 9   | Validate and lint                                 | —                | 1-8        | 15 min    |
 
 ---
 
@@ -123,6 +126,7 @@ Outputs (standard):
 | Resource Group          | Container for all resources        |
 | Log Analytics Workspace | Centralized logging                |
 | Application Insights    | Application performance monitoring |
+| Key Vault               | Secrets management (RBAC access)   |
 | Budget Alert            | Cost control                       |
 
 ### Phase 2: Data & Storage
@@ -200,15 +204,18 @@ flowchart LR
 
 ## 🔐 Security Configuration
 
-| Control             | Setting                          |
-| ------------------- | -------------------------------- |
-| TLS Minimum Version | 1.2                              |
-| HTTPS Only          | true                             |
-| Public Blob Access  | false                            |
-| SQL Authentication  | Azure AD-only                    |
-| Managed Identity    | System-assigned for App Service  |
-| Key Vault           | Not included (simple complexity) |
-| Private Endpoints   | Not included (simple complexity) |
+| Control             | Setting                                              |
+| ------------------- | ---------------------------------------------------- |
+| TLS Minimum Version | 1.2                                                  |
+| HTTPS Only          | true                                                 |
+| Public Blob Access  | false                                                |
+| SQL Authentication  | Azure AD-only (`azureADOnlyAuthentication: true`)    |
+| SQL Entra Admin     | App Service managed identity as Entra administrator  |
+| Managed Identity    | System-assigned for App Service                      |
+| Key Vault           | Standard, RBAC access, soft delete, purge protection |
+| Storage Shared Keys | Disabled (`allowSharedKeyAccess: false`)             |
+| Storage RBAC        | App Service MI granted Storage Blob Data Contributor |
+| Private Endpoints   | Not included (simple complexity)                     |
 
 ---
 

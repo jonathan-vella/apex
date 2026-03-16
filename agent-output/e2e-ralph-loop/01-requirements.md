@@ -211,16 +211,16 @@ flowchart LR
 
 ### Network Security
 
-| Control                     | Required | Notes                                                              |
-| --------------------------- | -------- | ------------------------------------------------------------------ |
-| Private endpoints           | ❌       | Not required — simple complexity                                   |
-| VNet integration            | ❌       | Not required — simple complexity                                   |
-| Public endpoints acceptable | ✅       | Web frontend and API via App Service                               |
-| WAF required                | ❌       | Not required for MVP                                               |
-| SQL firewall rules          | ✅       | Azure SQL must restrict access to App Service IPs + Azure services |
-| Storage firewall rules      | ✅       | Storage Account must restrict to App Service + Azure services      |
-| SQL public network access   | ✅       | Enabled with firewall restrictions (governance may override)       |
-| Storage public access       | ❌       | No anonymous blob access (`allowBlobPublicAccess: false`)          |
+| Control                     | Required | Notes                                                                               |
+| --------------------------- | -------- | ----------------------------------------------------------------------------------- |
+| Private endpoints           | ❌       | Not required — simple complexity                                                    |
+| VNet integration            | ❌       | Not required — simple complexity                                                    |
+| Public endpoints acceptable | ✅       | Web frontend and API via App Service                                                |
+| WAF required                | ❌       | Not required for MVP                                                                |
+| SQL firewall rules          | ✅       | Azure SQL must restrict access to App Service IPs + Azure services                  |
+| Storage access model        | ✅       | Public endpoint allowed; Entra RBAC auth (no shared keys); no anonymous blob access |
+| SQL public network access   | ✅       | Enabled with firewall restrictions (governance may override)                        |
+| Storage public access       | ❌       | No anonymous blob access (`allowBlobPublicAccess: false`)                           |
 
 ### Recommended Security Controls
 

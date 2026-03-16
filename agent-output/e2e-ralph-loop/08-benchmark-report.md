@@ -1,47 +1,47 @@
 # E2E RALPH Loop — Benchmark Report
 
-> Run: e2e-ralph-001 | Date: 2026-03-15
+> Run: e2e-ralph-001 | Date: 2026-03-16
 > Project: e2e-ralph-loop | Complexity: simple | IaC: Bicep
 
 ## Execution Summary
 
 | Metric             | Value                          |
 | ------------------ | ------------------------------ |
-| Steps Completed    | 2/8     |
+| Steps Completed    | 8/8     |
 | Total Iterations   | 0             |
 | Session Splits     | 0                              |
-| Composite Score    | 35/100 (F) |
+| Composite Score    | 88/100 (B) |
 
 ## Per-Dimension Scorecard
 
 | Dimension              | Score  | Grade | Weight | Weighted |
 | ---------------------- | ------ | ----- | ------ | -------- |
-| artifact completeness | 29/100 | F | 20% | 6 |
+| artifact completeness | 100/100 | A | 20% | 20 |
 | structural compliance | 100/100 | A | 15% | 15 |
-| code quality | 0/100 | F | 20% | 0 |
-| review thoroughness | 0/100 | F | 10% | 0 |
-| waf coverage | 0/100 | F | 10% | 0 |
-| cost accuracy | 40/100 | F | 5% | 2 |
-| session state integrity | 70/100 | C | 10% | 7 |
+| code quality | 80/100 | B | 20% | 16 |
+| review thoroughness | 83/100 | B | 10% | 8 |
+| waf coverage | 100/100 | A | 10% | 10 |
+| cost accuracy | 80/100 | B | 5% | 4 |
+| session state integrity | 100/100 | A | 10% | 10 |
 | timing performance | 50/100 | D | 10% | 5 |
-| **Composite** | **35/100** | **F** | 100% | 35 |
+| **Composite** | **88/100** | **B** | 100% | 88 |
 
 ## Per-Step Results
 
 | Step | Name | Status | Iterations | Findings |
 | ---- | ---- | ------ | ---------- | -------- |
 | 1 | Requirements | complete | 0 | 1 artifacts |
-| 2 | Architecture | pending | 0 | 0 artifacts |
-| 3 | Design | pending | 0 | 0 artifacts |
+| 2 | Architecture | complete | 0 | 8 artifacts |
+| 3 | Design | complete | 0 | 3 artifacts |
 | 4 | IaC Plan | complete | 0 | 3 artifacts |
-| 5 | IaC Code | pending | 0 | 0 artifacts |
-| 6 | Deploy | pending | 0 | 0 artifacts |
-| 7 | As-Built | pending | 0 | 0 artifacts |
-| 3.5 | Governance | pending | 0 | 0 artifacts |
+| 5 | IaC Code | complete | 0 | 10 artifacts |
+| 6 | Deploy | complete | 0 | 1 artifacts |
+| 7 | As-Built | complete | 0 | 7 artifacts |
+| 3.5 | Governance | complete | 0 | 2 artifacts |
 
 ## Quality Grade
 
-Composite score: **35/100** → Grade: **F**
+Composite score: **88/100** → Grade: **B**
 
 | Grade | Range    | Meaning                    |
 | ----- | -------- | -------------------------- |
@@ -50,6 +50,16 @@ Composite score: **35/100** → Grade: **F**
 | C     | 70-79    | Acceptable — needs work     |
 | D     | 60-69    | Below average — significant gaps |
 | F     | <60      | Failing — major issues       |
+
+## Improvement Backlog
+
+_Auto-generated from 3 lessons learned._
+
+| # | Severity | Category | Title | Applies To |
+| - | -------- | -------- | ----- | ---------- |
+| LL-001 | high | artifact-quality | Pre-seeded requirements had 3 must_fix gaps in GDPR erasure, storage backup, and data-plane security | .github/agents/02-Requirements.agent.md |
+| LL-003 | high | validation-gap | Pre-seeded plan omitted Key Vault and lacked explicit SQL Entra/Storage RBAC config | .github/agents/05b-Bicep Planner.agent.md |
+| LL-002 | medium | artifact-quality | Storage firewall requirement inconsistent with no-VNet network model | .github/agents/02-Requirements.agent.md |
 
 ---
 
