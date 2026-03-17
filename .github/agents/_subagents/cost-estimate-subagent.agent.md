@@ -5,7 +5,7 @@ model: ["GPT-5.3-Codex"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [read, search, web, "azure-pricing/*", "azure-mcp/*"]
+tools: [read, search, web, 'azure-pricing/*', 'azure-mcp/*']
 ---
 
 # Cost Estimate Subagent

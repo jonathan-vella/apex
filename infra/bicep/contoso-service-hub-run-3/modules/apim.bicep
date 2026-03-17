@@ -1,3 +1,11 @@
+@allowed([
+  'dev'
+  'staging'
+  'prod'
+])
+@description('Deployment environment used to size the API Management service.')
+param environmentName string
+
 @description('Azure region for the API Management deployment.')
 param location string
 
@@ -19,28 +27,19 @@ param keyVaultResourceId string
 @description('Log Analytics workspace resource ID used for APIM diagnostic settings.')
 param logAnalyticsWorkspaceResourceId string
 
-@description('Application Insights resource ID used for APIM logger integration.')
-param applicationInsightsResourceId string
-
 @description('Subnet resource ID used for API Management internal VNet deployment.')
 param apimSubnetResourceId string
 
 var lockDownPolicyXml = '''
 <policies>
-  <inbound>
-    <base />
-  </inbound>
-  <backend>
-    <base />
-  </backend>
-  <outbound>
-    <base />
-  </outbound>
-  <on-error>
-    <base />
-  </on-error>
+  <inbound />
+  <backend />
+  <outbound />
+  <on-error />
 </policies>
 '''
+
+var apimSku = environmentName == 'dev' ? 'Developer' : 'Premium'
 
 module apim 'br/public:avm/res/api-management/service:0.14.1' = {
   params: {
@@ -71,10 +70,9 @@ module apim 'br/public:avm/res/api-management/service:0.14.1' = {
     }
     minApiVersion: '2021-08-01'
     name: apimName
-    publicNetworkAccess: 'Disabled'
     publisherEmail: publisherEmail
     publisherName: publisherName
-    sku: 'Standard'
+    sku: apimSku
     skuCapacity: 1
     subnetResourceId: apimSubnetResourceId
     tags: tags
@@ -88,20 +86,6 @@ resource apimService 'Microsoft.ApiManagement/service@2024-05-01' existing = {
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: last(split(keyVaultResourceId, '/'))
-}
-
-resource appInsightsLogger 'Microsoft.ApiManagement/service/loggers@2024-05-01' = {
-  parent: apimService
-  name: 'appinsights'
-  dependsOn: [
-    apim
-  ]
-  properties: {
-    description: 'Application Insights logger for APIM gateway telemetry.'
-    isBuffered: true
-    loggerType: 'applicationInsights'
-    resourceId: applicationInsightsResourceId
-  }
 }
 
 resource gatewayPolicy 'Microsoft.ApiManagement/service/policies@2024-05-01' = {

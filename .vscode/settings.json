@@ -30,5 +30,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.rulers": [120],
     "editor.wordWrap": "wordWrapColumn"
-  }
+  },
+  "python.terminal.useEnvFile": true
 }

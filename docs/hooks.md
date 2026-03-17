@@ -4,6 +4,12 @@ VS Code Agent Hooks automate code quality enforcement by running shell commands 
 lifecycle points during agent sessions. They complement the instruction-based approach
 with deterministic, code-driven automation.
 
+!!! note "Git hooks vs. Agent hooks"
+
+    This page covers **VS Code Agent Hooks** (lifecycle events during agent sessions).
+    For **git hooks** (pre-commit, pre-push, commit-msg via lefthook), see the
+    [Validation & Linting Reference](validation-reference.md).
+
 !!! info "Preview Feature"
 Agent hooks are a [VS Code Preview feature](https://code.visualstudio.com/docs/copilot/customization/hooks).
 Agent-scoped hooks (defined in `.agent.md` frontmatter) require

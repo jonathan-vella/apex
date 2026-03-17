@@ -80,8 +80,7 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `azure-diagrams`       | `azure-diagrams/`       | Document Creation   | "create diagram"                          |
 | `azure-diagnostics`    | `azure-diagnostics/`    | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
 | `docs-writer`          | `docs-writer/`          | Documentation       | "update the docs"                         |
-| `git-commit`           | `git-commit/`           | Tool Integration    | "commit"                                  |
-| `github-operations`    | `github-operations/`    | Workflow            | "create issue", "create PR", "gh command" |
+| `github-operations`    | `github-operations/`    | Workflow            | "commit", "create issue", "create PR"     |
 | `make-skill-template`  | `make-skill-template/`  | Meta                | "create skill"                            |
 | `terraform-patterns`   | `terraform-patterns/`   | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 
@@ -209,7 +208,6 @@ These skills are explicitly referenced in agent body text via mandatory
 Discovered purely by prompt keyword matching — no agent explicitly
 references them:
 
-- `git-commit` — Triggered by "commit", "git commit" prompts
 - `docs-writer` — Triggered by "update docs", "check staleness" prompts
 - `make-skill-template` — Triggered by "create skill", "new skill" prompts
 

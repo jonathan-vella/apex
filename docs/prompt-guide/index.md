@@ -79,7 +79,7 @@ infrastructure.
 | `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics) |
 | `terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)  |
 | `azure-diagnostics`    | KQL templates, health checks, remediation playbooks  |
-| `git-commit`           | Conventional commit message conventions              |
+| `github-operations`    | Branch naming, conventional commits, PRs, CLI        |
 | `github-operations`    | GitHub issues, PRs, CLI, Actions, releases           |
 | `docs-writer`          | Documentation generation and maintenance             |
 | `make-skill-template`  | Scaffold new skills from a template                  |

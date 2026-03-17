@@ -231,6 +231,23 @@ commit-msg:
 pre-push:
   parallel: true
   commands:
+    branch-naming:
+      run: bash scripts/validate-branch-naming.sh
+      fail_text: |
+        ❌ Branch naming convention violated!
+
+        🔧 Rename your branch using an approved prefix:
+           docs/, agents/, skills/, infra/, scripts/, instructions/,
+           fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/
+
+    branch-scope:
+      run: bash scripts/validate-branch-scope.sh
+      fail_text: |
+        ❌ Branch scope violation!
+
+        Domain-scoped branches (docs/, agents/, skills/, etc.) should only
+        modify files within their domain. Use feat/ or fix/ for cross-cutting changes.
+
     diff-based-check:
       run: bash scripts/diff-based-push-check.sh
       fail_text: |

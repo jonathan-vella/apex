@@ -1,15 +1,7 @@
 ---
 agent: agent
 description: "Post-loop lessons analysis. Reads E2E RALPH loop results and generates actionable improvements for agents, skills, validators, and prompts."
-tools:
-  - read/readFile
-  - search/textSearch
-  - search/fileSearch
-  - search/listDirectory
-  - edit/editFiles
-  - edit/createFile
-  - execute/runInTerminal
-  - todo
+tools:[vscode, execute, read, agent, browser, edit, search, web, 'azure-mcp/*', 'microsoft-learn/*', todo]
 ---
 
 # E2E Lessons Analysis — Close the Loop

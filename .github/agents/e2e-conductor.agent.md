@@ -25,24 +25,23 @@ agents:
   ]
 tools:
   [
-    execute/runInTerminal,
-    execute/getTerminalOutput,
-    execute/runTests,
-    execute/testFailure,
-    read/readFile,
-    read/problems,
-    read/terminalLastCommand,
+    vscode,
+    execute,
+    read,
     agent,
-    edit/createFile,
-    edit/editFiles,
-    edit/createDirectory,
+    browser,
+    edit,
     search,
-    search/fileSearch,
-    search/listDirectory,
-    search/textSearch,
-    search/codebase,
-    search/changes,
+    web,
+    "azure-mcp/*",
+    "microsoft-learn/*",
     todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 ---
 

@@ -37,8 +37,7 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 4, 5).
 | `azure-diagnostics`    | KQL templates, health checks, remediation playbooks               |
 | `azure-diagrams`       | Python architecture diagram generation                            |
 | `azure-adr`            | Architecture Decision Records                                     |
-| `github-operations`    | GitHub issues, PRs, CLI, Actions, releases                        |
-| `git-commit`           | Commit message conventions                                        |
+| `github-operations`    | Branch naming, commits, GitHub issues, PRs, CLI, Actions          |
 | `docs-writer`          | Documentation generation                                          |
 | `make-skill-template`  | Scaffold new Agent Skills from templates                          |
 | `terraform-patterns`   | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |

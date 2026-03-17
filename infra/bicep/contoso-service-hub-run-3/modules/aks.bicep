@@ -30,6 +30,9 @@ param acrResourceId string
 @description('Azure Container Registry login server associated with the cluster workloads.')
 param acrLoginServer string
 
+@description('SSH public key used for Linux authentication on AKS nodes in this E2E environment.')
+param sshPublicKey string = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCizGmgt+RI7S3S1MpNCgyTBBzCDJF1jhQyGwiUmPJNEeC6UCqyoiqOTR/c5znefitw1E+K3Izf8M434ItU9qLjh9p7XhiPD9ZmUGE5EtEPo/YoXZIZeZa79RR6yErH9WZgPsDtdYXgcsddyhba2jq/gr8/MP++/NJMw2bQ1VRbPBvfXo8+5oa3JlfDc6DtfVYEVzJlcaO7I/rotMkjKYrC4xrPXk3PuD8oToDHHF6sE11FsLbUyqdINAhkLMp3DzOsaMVenduvQuspP1jpcGBqkeycPrPCTecGMblOwOwt4fHpBoHgA3aTNMNaQZoT2+mjqvBMauAsAenSt3u/11+iUJe0NSJzmjOjuVB0Kb4nnDixRA0+5jkbIwnKEBEPNJz03I261c8ZQ7tedSgttjCVC7/dXcB1TsbxJ64g6FCXIp5r6kwWWVgwqFjgK3tI/Lmm7zl9yqtyuB85zBqw2xPp/zSPhDPohM3xABljijMhvDttlL3b9fgwuA3cPhNOdAuM9NZceqoBqPFUX9X50g/bOdGJ5MV0pX5LeALVMNX65jKssdG3+voRdjd2UqxLn8bFNKawq9A2nTlfvpSBC9kok9jKGF/1qoi3bOZCjFKzI4l68zQ+9EQcw61/svBbY9jXYBlQ/GNJWZ7wbCR+UchZBrtiatvB8HsHyWyeVCJqew=='
+
 var nodeCount = environmentName == 'prod' ? 3 : environmentName == 'staging' ? 2 : 1
 var agentVmSize = environmentName == 'prod' ? 'Standard_D8s_v5' : 'Standard_D4s_v5'
 var agentZones = environmentName == 'prod' ? [
@@ -38,16 +41,27 @@ var agentZones = environmentName == 'prod' ? [
   3
 ] : null
 var dnsPrefix = take(replace('${aksName}-dns', '--', '-'), 54)
+var nodeResourceGroupName = take('rg-aks-${take(replace(aksName, '-', ''), 32)}-${take(uniqueString(resourceGroup().id), 6)}', 80)
 
 module aks 'br/public:avm/res/container-service/managed-cluster:0.13.0' = {
   params: {
     azurePolicyEnabled: true
-    disableLocalAccounts: true
+    disableLocalAccounts: false
     dnsPrefix: dnsPrefix
     enableKeyvaultSecretsProvider: true
     enableRBAC: true
     enableSecretRotation: true
-    kubernetesVersion: '1.30'
+    kubernetesVersion: '1.33'
+    linuxProfile: {
+      adminUsername: 'azureuser'
+      ssh: {
+        publicKeys: [
+          {
+            keyData: sshPublicKey
+          }
+        ]
+      }
+    }
     location: location
     managedIdentities: {
       systemAssigned: true
@@ -56,6 +70,7 @@ module aks 'br/public:avm/res/container-service/managed-cluster:0.13.0' = {
     name: aksName
     networkPlugin: 'azure'
     networkPolicy: 'calico'
+    nodeResourceGroup: nodeResourceGroupName
     omsAgentEnabled: true
     primaryAgentPoolProfiles: [
       {

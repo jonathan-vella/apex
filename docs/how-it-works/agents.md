@@ -53,7 +53,7 @@ orchestrates this by delegating to one agent at a time, collecting its output,
 and routing to the next step. At approval gates, the Conductor writes a
 `00-handoff.md` summary document that enables session resume.
 
-## :material-account-supervisor-outline: Top-Level Agents (16)
+## :material-account-supervisor-outline: Top-Level Agents
 
 | Agent                    | Role                                  | Primary Skills                                 |
 | ------------------------ | ------------------------------------- | ---------------------------------------------- |
@@ -74,7 +74,7 @@ and routing to the next step. At approval gates, the Conductor writes a
 | 10-Challenger            | Standalone adversarial review         | —                                              |
 | 11-Context Optimizer     | Context window audit and optimisation | context-optimizer                              |
 
-## :material-account-cog-outline: Subagents (11)
+## :material-account-cog-outline: Subagents
 
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
@@ -166,9 +166,116 @@ This enables resume from any gate without needing to re-read all prior artefacts
 
 ---
 
+## :material-plus-circle-outline: Creating a Custom Agent
+
+This section walks through creating a new agent from scratch.
+
+### Step 1: Choose Agent Type and Model
+
+| Type            | File Location                               | User-Invocable | Use When                                  |
+| --------------- | ------------------------------------------- | -------------- | ----------------------------------------- |
+| Top-level agent | `.github/agents/{name}.agent.md`            | Yes            | User-facing workflow steps                |
+| Subagent        | `.github/agents/_subagents/{name}.agent.md` | No             | Isolated tasks delegated by parent agents |
+
+Model selection depends on the task:
+
+- **Planning agents** (accuracy-first) — use `Claude Opus (latest)`
+- **Execution subagents** (speed) — check `.github/agent-registry.json` for current assignments
+- **Adversarial review** — use a different model family than the artifact author
+
+### Step 2: Create the Agent File
+
+Create a `.agent.md` file with the required frontmatter:
+
+```yaml
+---
+name: My Custom Agent
+description: >-
+  One-line description of what this agent does.
+  USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers.
+model:
+  - Claude Opus (latest)
+tools:
+  - read_file
+  - create_file
+  - replace_string_in_file
+  - run_in_terminal
+  - runSubagent
+handoffs:
+  - label: "Next Step"
+    agent: next-agent-name
+    prompt: "Hand off with context..."
+---
+```
+
+Required frontmatter fields: `name`, `description`, `model`, `tools`.
+Optional: `handoffs`, `user-invocable` (defaults to `true` for top-level).
+
+See `.github/instructions/agent-definitions.instructions.md` for the
+complete frontmatter specification.
+
+### Step 3: Write the Agent Body
+
+The body (below the frontmatter) is the agent's operating manual:
+
+```markdown
+## MANDATORY: Read Skills First
+
+1. **Read** `.github/skills/azure-defaults/SKILL.md`
+2. **Read** `.github/skills/session-resume/SKILL.md`
+
+## DO (required behaviours)
+
+- Always check for existing session state before starting
+- Load skills progressively (SKILL.md first, then references/ on demand)
+
+## DO NOT (prohibited behaviours)
+
+- Do not skip approval gates
+- Do not hardcode project-specific values
+```
+
+Keep the body under 350 lines. Use skill references for deep domain
+knowledge rather than inlining it.
+
+### Step 4: Register the Agent
+
+Update two registry files:
+
+1. **`.github/agent-registry.json`** — add the agent's role, file path,
+   model, and skill list
+2. **`.github/skill-affinity.json`** — set primary/secondary/never
+   affinities for each skill the agent uses
+
+### Step 5: Validate
+
+```bash
+# Validate frontmatter syntax
+npm run lint:agent-frontmatter
+
+# Check body size and language quality
+npm run lint:agent-checks
+
+# Verify registry consistency
+npm run validate:agent-registry
+npm run validate:skill-affinity
+```
+
+### Troubleshooting
+
+| Problem                     | Cause                           | Fix                                                 |
+| --------------------------- | ------------------------------- | --------------------------------------------------- |
+| Agent not appearing in chat | Missing or invalid frontmatter  | Run `npm run lint:agent-frontmatter`                |
+| Tool not available          | Tool not in `tools:` allowlist  | Add the tool name to frontmatter                    |
+| Handoff not triggering      | Wrong agent name in `handoffs:` | Verify target agent file exists                     |
+| Skills not loading          | Typo in skill path              | Check path matches `.github/skills/{name}/SKILL.md` |
+
+---
+
 !!! tip "Further Reading"
 
     - [Core Concepts](four-pillars.md) — the four knowledge layers (agents, skills, instructions, registries)
     - [Skills & Instructions](skills-and-instructions.md) — progressive skill loading and glob-based enforcement
     - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, circuit breakers
     - [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
+    - [Validation & Linting](../validation-reference.md) — all validation scripts and hooks

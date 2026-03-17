@@ -1,7 +1,7 @@
 using './main.bicep'
 
 param environmentName = 'dev'
-param deploymentPhase = 'foundation'
+param deploymentPhase = 'platform'
 param location = 'swedencentral'
 
 param projectName = 'contoso-service-hub-run-3'

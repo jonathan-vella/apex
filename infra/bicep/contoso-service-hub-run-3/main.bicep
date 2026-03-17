@@ -65,7 +65,6 @@ var appInsightsName = take('appi-${shortProjectName}-${environmentName}-${suffix
 var keyVaultName = take('kv-${take(shortProjectName, 8)}-${environmentCode}-${suffix6}', 24)
 var vnetName = take('vnet-${projectName}-${environmentName}', 64)
 var budgetName = take('budget-${projectName}-${environmentName}', 63)
-var keyVaultPrivateDnsZoneId = resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net')
 var postgresqlName = take('psql-${take(shortProjectName, 8)}-${environmentCode}-${suffix6}', 63)
 var redisName = take('redis-${projectName}-${environmentName}-${suffix6}', 63)
 var storageAccountName = take('st${take(shortProjectName, 8)}${environmentCode}${suffix6}', 24)
@@ -75,8 +74,6 @@ var frontDoorEndpointName = take('ep-api-${shortProjectName}-${environmentName}-
 var frontDoorOriginGroupName = 'og-apim'
 var frontDoorOriginName = 'origin-apim'
 var frontDoorRouteName = 'rt-api'
-var frontDoorSecurityPolicyName = 'sp-waf'
-var frontDoorWafPolicyName = take('waf-${shortProjectName}-${environmentCode}-${suffix6}', 128)
 var identityName = take('id-${shortProjectName}-${environmentName}-${suffix6}', 128)
 var acrName = take('acr${take(shortProjectName, 10)}${environmentCode}${suffix6}', 50)
 var aksName = take('aks-${projectName}-${environmentName}-${suffix6}', 63)
@@ -101,10 +98,6 @@ var foundationSubnetIds = deployFoundation
 var foundationLogAnalyticsWorkspaceId = deployFoundation
   ? (monitoring.?outputs.?logAnalyticsWorkspaceId ?? resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName))
   : resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName)
-
-var foundationAppInsightsId = deployFoundation
-  ? (monitoring.?outputs.?appInsightsId ?? resourceId('Microsoft.Insights/components', appInsightsName))
-  : resourceId('Microsoft.Insights/components', appInsightsName)
 
 var foundationVirtualNetworkId = deployFoundation
   ? (networking.?outputs.?vnetId ?? resourceId('Microsoft.Network/virtualNetworks', vnetName))
@@ -138,11 +131,11 @@ module keyVault 'modules/keyvault.bicep' = if (deployFoundation) {
   params: {
     environmentName: environmentName
     keyVaultName: keyVaultName
-    keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneId
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.?outputs.?logAnalyticsWorkspaceId ?? ''
     privateEndpointSubnetResourceId: networking.?outputs.?subnetIds.?pe ?? ''
     tags: tags
+    virtualNetworkResourceId: foundationVirtualNetworkId
   }
 }
 
@@ -195,7 +188,7 @@ module apim 'modules/apim.bicep' = if (deployEdge) {
   params: {
     apimName: apimName
     apimSubnetResourceId: foundationSubnetIds.apim
-    applicationInsightsResourceId: foundationAppInsightsId
+    environmentName: environmentName
     keyVaultResourceId: foundationKeyVaultId
     location: location
     logAnalyticsWorkspaceResourceId: foundationLogAnalyticsWorkspaceId
@@ -208,18 +201,14 @@ module apim 'modules/apim.bicep' = if (deployEdge) {
 module frontDoor 'modules/frontdoor.bicep' = if (deployEdge) {
   params: {
     apiHostname: apim.?outputs.?apimGatewayHostName ?? '${apimName}.azure-api.net'
-    apiManagementResourceId: apim.?outputs.?apimId ?? resourceId('Microsoft.ApiManagement/service', apimName)
     endpointName: frontDoorEndpointName
     healthProbePath: '/status-0123456789abcdef'
     logAnalyticsWorkspaceResourceId: foundationLogAnalyticsWorkspaceId
     originGroupName: frontDoorOriginGroupName
     originName: frontDoorOriginName
     profileName: frontDoorProfileName
-    resourceLocation: location
     routeName: frontDoorRouteName
-    securityPolicyName: frontDoorSecurityPolicyName
     tags: tags
-    wafPolicyName: frontDoorWafPolicyName
   }
 }
 

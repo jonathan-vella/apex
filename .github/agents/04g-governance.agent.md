@@ -7,14 +7,21 @@ user-invocable: true
 agents: ["governance-discovery-subagent", "challenger-review-subagent"]
 tools:
   [
+    vscode,
     execute,
-    agent,
     read,
-    search,
+    agent,
+    browser,
     edit,
+    search,
     web,
-    vscode/askQuestions,
     "azure-mcp/*",
+    "microsoft-learn/*",
+    todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:

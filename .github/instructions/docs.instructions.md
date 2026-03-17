@@ -81,8 +81,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `azure-diagnostics`    | Troubleshooting     | KQL templates, health checks, remediation   |
 | `context-optimizer`    | Agent Optimization  | Context window audit, token waste reduction |
 | `docs-writer`          | Documentation       | Repo-aware docs maintenance                 |
-| `git-commit`           | Tool Integration    | Commit conventions                          |
-| `github-operations`    | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases  |
+| `github-operations`    | Workflow Automation | Branch naming, commits, PRs, CLI, Actions   |
 | `golden-principles`    | Agent Conventions   | 10 operating invariants for all agents      |
 | `make-skill-template`  | Meta                | Skill creation helper                       |
 | `terraform-patterns`   | IaC Patterns        | Reusable Terraform infrastructure patterns  |

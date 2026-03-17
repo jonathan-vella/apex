@@ -88,22 +88,28 @@ module postgresql 'br/public:avm/res/db-for-postgre-sql/flexible-server:0.15.2' 
   }
 }
 
-resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-03-01-preview' existing = {
+resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' existing = {
   name: postgresqlName
 }
 
-resource requireSecureTransport 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2024-03-01-preview' = {
+resource requireSecureTransport 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2024-08-01' = {
   parent: postgresqlServer
   name: 'require_secure_transport'
+  dependsOn: [
+    postgresql
+  ]
   properties: {
     source: 'user-override'
     value: 'ON'
   }
 }
 
-resource minimumTlsVersion 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2024-03-01-preview' = {
+resource minimumTlsVersion 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2024-08-01' = {
   parent: postgresqlServer
   name: 'ssl_min_protocol_version'
+  dependsOn: [
+    postgresql
+  ]
   properties: {
     source: 'user-override'
     value: 'TLSv1.2'

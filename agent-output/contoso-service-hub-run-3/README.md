@@ -4,7 +4,7 @@
 
 <div align="center">
 
-![Status](https://img.shields.io/badge/Status-Step%207%20Complete-brightgreen?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Blocked-red?style=for-the-badge)
 
 ![Step](https://img.shields.io/badge/Step-7%20of%207-blue?style=for-the-badge)
 
@@ -36,19 +36,19 @@
 ## ✅ Workflow Progress
 
 ```text
-[██████████] 100% Complete
+[█████████░] Deployment Blocked
 ```
 
-| Step | Phase          |                                Status                                 | Artifact                                                           |
-| :--: | -------------- | :-------------------------------------------------------------------: | ------------------------------------------------------------------ |
-|  1   | Requirements   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [01-requirements.md](./01-requirements.md)                         |
-|  2   | Architecture   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [02-architecture-assessment.md](./02-architecture-assessment.md)   |
-|  3   | Design         | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [03-des-diagram.png](./03-des-diagram.png)                         |
-| 3.5  | Governance     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-governance-constraints.md](./04-governance-constraints.md)     |
-|  4   | Planning       | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-implementation-plan.md](./04-implementation-plan.md)           |
-|  5   | Implementation | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [05-implementation-reference.md](./05-implementation-reference.md) |
-|  6   | Deployment     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [06-deployment-summary.md](./06-deployment-summary.md)             |
-|  7   | Documentation  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [07-documentation-index.md](./07-documentation-index.md)           |
+| Step | Phase          |                                    Status                                     | Artifact                                                           |
+| :--: | -------------- | :---------------------------------------------------------------------------: | ------------------------------------------------------------------ |
+|  1   | Requirements   |     ![Done](https://img.shields.io/badge/-Done-success?style=flat-square)     | [01-requirements.md](./01-requirements.md)                         |
+|  2   | Architecture   |     ![Done](https://img.shields.io/badge/-Done-success?style=flat-square)     | [02-architecture-assessment.md](./02-architecture-assessment.md)   |
+|  3   | Design         |     ![Done](https://img.shields.io/badge/-Done-success?style=flat-square)     | [03-des-diagram.png](./03-des-diagram.png)                         |
+| 3.5  | Governance     |     ![Done](https://img.shields.io/badge/-Done-success?style=flat-square)     | [04-governance-constraints.md](./04-governance-constraints.md)     |
+|  4   | Planning       |     ![Done](https://img.shields.io/badge/-Done-success?style=flat-square)     | [04-implementation-plan.md](./04-implementation-plan.md)           |
+|  5   | Implementation |     ![Done](https://img.shields.io/badge/-Done-success?style=flat-square)     | [05-implementation-reference.md](./05-implementation-reference.md) |
+|  6   | Deployment     |      ![WIP](https://img.shields.io/badge/-WIP-yellow?style=flat-square)       | [06-deployment-summary.md](./06-deployment-summary.md)             |
+|  7   | Documentation  | ![Pending](https://img.shields.io/badge/-Pending-lightgrey?style=flat-square) | [07-documentation-index.md](./07-documentation-index.md)           |
 
 > **Legend**:
 > ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) Complete
@@ -66,10 +66,10 @@
 
 | Resource                      | Type                    | SKU             | Purpose                               |
 | ----------------------------- | ----------------------- | --------------- | ------------------------------------- |
-| Azure Front Door + WAF        | CDN + WAF               | Premium         | Edge security, CDN, WAF               |
+| Azure Front Door              | CDN                     | Premium         | Edge entry point; WAF follow-up still required |
 | Microsoft Entra External ID   | Identity                | Free tier       | Customer identity and CIAM            |
-| Azure API Management          | API Gateway             | Standard        | Internal VNet API ingress             |
-| Azure Kubernetes Service      | Container Orchestration | Standard        | Microservices hosting (3 x D8s_v5)    |
+| Azure API Management          | API Gateway             | Developer       | Internal VNet API ingress             |
+| Azure Kubernetes Service      | Container Orchestration | Standard        | Microservices hosting; deployment currently blocked in Step 6 |
 | Azure Database for PostgreSQL | Relational Database     | General Purpose | Primary datastore with private access |
 | Azure Cache for Redis         | In-memory Cache         | Premium P4      | Session state and hot-path caching    |
 | Azure Storage                 | Object and file storage | ZRS             | Content, shared files, and documents  |
@@ -139,9 +139,9 @@
 <details open>
 <summary><strong>📁 Step 6: Deployment</strong></summary>
 
-| File                                                   | Description                           |                                Status                                 | Created    |
-| ------------------------------------------------------ | ------------------------------------- | :-------------------------------------------------------------------: | ---------- |
-| [06-deployment-summary.md](./06-deployment-summary.md) | Dry-run deployment validation summary | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
+| File                                                   | Description                   |                                Status                                 | Created    |
+| ------------------------------------------------------ | ----------------------------- | :-------------------------------------------------------------------: | ---------- |
+| [06-deployment-summary.md](./06-deployment-summary.md) | Foundation deployment summary | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
 
 </details>
 

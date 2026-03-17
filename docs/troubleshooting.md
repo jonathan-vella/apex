@@ -14,6 +14,12 @@ toc_depth: 2
 
 ## :material-account-card-outline: Agent Codenames Quick Reference
 
+!!! info "Related guides"
+
+    - [Session Debugging](session-debugging.md) — session resume failures, stale locks, state recovery
+    - [Cost Governance](cost-governance.md) — budget alert setup and post-deployment validation
+    - [Validation & Linting](validation-reference.md) — all validation scripts and CI workflows
+
 | Agent              | Codename      | Common Issues                    |
 | ------------------ | ------------- | -------------------------------- |
 | InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |

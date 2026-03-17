@@ -29,8 +29,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 | Skill                 | Description                                | Triggers                                  |
 | --------------------- | ------------------------------------------ | ----------------------------------------- |
-| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases | "create issue", "create PR", "gh command" |
-| `git-commit`          | Create conventional commit messages        | "commit", "git commit"                    |
+| `github-operations`   | Branch naming, commits, PRs, CLI, Actions  | "commit", "create PR", "gh command"       |
 | `docs-writer`         | Repo-aware documentation maintenance       | "update docs", "check staleness"          |
 | `make-skill-template` | Create new skills from template            | "create skill", "new skill"               |
 

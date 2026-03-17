@@ -215,6 +215,9 @@ resource deployedVnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = 
 resource vnetDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: '${vnetName}-diagnostics'
   scope: deployedVnet
+  dependsOn: [
+    vnet
+  ]
   properties: {
     logs: [
       {

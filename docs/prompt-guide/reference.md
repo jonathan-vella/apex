@@ -64,18 +64,14 @@ Document the decision to use Azure Front Door instead of
 Application Gateway as an ADR.
 ```
 
-### git-commit
+### github-operations
 
-Provides conventional commit message conventions for this repository.
+Full contribution lifecycle: branch naming, conventional commits, GitHub issues,
+PRs, Actions, and releases. Uses MCP tools first, falls back to `gh` CLI.
 
 ```text
 @workspace What commit message format does this repo use?
 ```
-
-### github-operations
-
-Manages GitHub issues, PRs, Actions, and releases. Uses MCP tools first,
-falls back to `gh` CLI.
 
 ```text
 Create a GitHub issue for adding monitoring to the payment gateway.

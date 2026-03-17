@@ -6,7 +6,26 @@ model: ["GPT-5.3-Codex"]
 # Internal sequential execution preserves inter-pass context.
 user-invocable: false
 agents: []
-tools: [read, search, web, "azure-mcp/*"]
+tools:
+  [
+    vscode,
+    execute,
+    read,
+    agent,
+    browser,
+    edit,
+    search,
+    web,
+    "azure-mcp/*",
+    "microsoft-learn/*",
+    todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 ---
 
 # Challenger Review Batch Subagent

@@ -94,5 +94,249 @@
     "applies_to": ["06b-Bicep CodeGen"],
     "applies_to_paths": [".github/agents/06b-Bicep-CodeGen.agent.md"],
     "status": "new"
+  },
+  {
+    "id": "LL-007",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "high",
+    "title": "Key Vault networkAcls.bypass=None rejected when enabledForDeployment is true",
+    "observation": "Foundation deployment failed with BadRequest: When enabledForDeployment is true, networkAcls.bypass must include AzureServices. The AVM Key Vault module enables enabledForDeployment by default.",
+    "expected": "networkAcls.bypass should have been set to AzureServices from the start, since ARM's own deployment infrastructure needs the bypass to manage secrets during provisioning.",
+    "root_cause": "CodeGen agent applied a maximally restrictive network ACL (bypass: None) without accounting for the AVM module's default enabledForDeployment=true, which requires AzureServices bypass at the Azure platform level.",
+    "self_corrected": false,
+    "iterations_to_fix": 1,
+    "recommendation": "Add a validation rule in the azure-bicep-patterns skill: when Key Vault networkAcls.bypass is None, verify that enabledForDeployment, enabledForDiskEncryption, and enabledForTemplateDeployment are all false. Otherwise set bypass to AzureServices.",
+    "applies_to": ["06b-Bicep CodeGen"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "BadRequest (networkAcls.bypass must include AzureServices when enabledForDeployment is true)"
+    ],
+    "failed_deployments": ["keyVault-oq2sgfzidhbnk", "keyVault-hht7rcfkbeslm"],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-008",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "high",
+    "title": "VNet diagnostic settings race condition due to missing dependsOn on existing resource",
+    "observation": "First foundation deployment failed with ResourceNotFound for the VNet during the nested networking deployment. The VNet diagnostic settings used an existing resource reference to scope the diagnostics but had no explicit dependency on the AVM VNet module that creates it.",
+    "expected": "The diagnostic settings resource should have included dependsOn: [vnet] to ensure ARM waits for the VNet module to complete before evaluating the scoped existing resource.",
+    "root_cause": "The Bicep existing keyword only resolves a resource reference at deployment time — it does not create an implicit dependency on the module that provisions the resource. ARM can therefore evaluate the diagnostics resource before the VNet exists.",
+    "self_corrected": false,
+    "iterations_to_fix": 1,
+    "recommendation": "Add a pattern note in the azure-bicep-patterns skill: when using existing resources to scope child resources or diagnostic settings, always add an explicit dependsOn to the module that creates the parent resource.",
+    "applies_to": ["06b-Bicep CodeGen"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "ResourceNotFound (vnet-contoso-service-hub-run-3-dev)"
+    ],
+    "failed_deployments": ["networking-7ktmv3loly32o"],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-009",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "medium",
+    "title": "azd environment missing subscription and resource group for first non-interactive deploy",
+    "observation": "azd provision --preview --no-prompt failed with 'no default response for prompt Select an Azure Subscription' because the azd environment only had AZURE_ENV_NAME and AZURE_LOCATION but not AZURE_SUBSCRIPTION_ID or AZURE_RESOURCE_GROUP.",
+    "expected": "The deploy agent or azure.yaml preprovision hook should pre-populate these values from the active az CLI context for first deployments.",
+    "root_cause": "The CodeGen agent created the azure.yaml and azd environment but did not set AZURE_SUBSCRIPTION_ID or AZURE_RESOURCE_GROUP. These are required for --no-prompt first deploys since azd cannot interactively prompt.",
+    "self_corrected": false,
+    "iterations_to_fix": 1,
+    "recommendation": "Update the deploy agent preflight checklist to always verify azd env get-values includes AZURE_SUBSCRIPTION_ID and AZURE_RESOURCE_GROUP before running azd provision --no-prompt. Add this to the iac-common skill.",
+    "applies_to": ["07b-Bicep Deploy", "06b-Bicep CodeGen"],
+    "applies_to_paths": [
+      ".github/agents/07b-Bicep-Deploy.agent.md",
+      ".github/skills/iac-common/SKILL.md"
+    ],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-010",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "medium",
+    "title": "Key Vault private endpoint used a DNS zone ID for a zone that was never created",
+    "observation": "A later foundation deployment failed with InvalidPrivateDnsZoneIds on the Key Vault privateDnsZoneGroups child resource. main.bicep passed resourceId('Microsoft.Network/privateDnsZones', 'privatelink.vaultcore.azure.net') into modules/keyvault.bicep, but no module actually created or linked that private DNS zone.",
+    "expected": "The Key Vault module should create the privatelink.vaultcore.azure.net private DNS zone, link it to the foundation VNet, and pass the created zone's output resource ID into the AVM private endpoint configuration.",
+    "root_cause": "The Key Vault path diverged from the pattern already used by PostgreSQL, Redis, and Storage, all of which create their private DNS zones within the module. The code assumed the Key Vault zone would already exist and treated a fabricated resourceId as sufficient.",
+    "self_corrected": false,
+    "iterations_to_fix": 1,
+    "recommendation": "Standardize private endpoint modules on a single rule in azure-bicep-patterns: if a module needs a private DNS zone and the project does not explicitly provision shared DNS centrally, the module must create the zone and VNet link locally instead of accepting a bare resourceId.",
+    "applies_to": ["06b-Bicep CodeGen", "07b-Bicep Deploy"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/agents/07b-Bicep-Deploy.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "InvalidPrivateDnsZoneIds (pe-kv-contosos-dev-rdk3tp privateDnsZoneGroups/default)"
+    ],
+    "failed_deployments": [
+      "keyVault-q5jbiz5pf77em",
+      "25vd5tdvxvxtk-keyVault-PrivateEndpoint-0",
+      "7dwm5ayuxaawg-PrivateEndpoint-PrivateDnsZoneGroup"
+    ],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-011",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "high",
+    "title": "APIM internal-mode deployment required environment-specific SKU and creation-path adjustments",
+    "observation": "The edge phase failed repeatedly until the APIM module stopped hardcoding `sku: 'Standard'`, removed `publicNetworkAccess: 'Disabled'` during creation, and replaced the invalid global policy/logger resources.",
+    "expected": "The APIM module should choose an internal-VNet-capable SKU for the target environment and avoid creation-time settings or follow-up resources that Azure rejects for that topology.",
+    "root_cause": "The module mixed an internal VNet design with a non-supported SKU and then layered additional APIM resources that were valid syntactically but invalid for the live service during provisioning.",
+    "self_corrected": false,
+    "iterations_to_fix": 4,
+    "recommendation": "Add a deploy-time compatibility matrix for APIM to azure-bicep-patterns and the deploy agent: validate SKU, VNet mode, publicNetworkAccess, and post-create resources as one bundle before the first edge deployment attempt.",
+    "applies_to": ["06b-Bicep CodeGen", "07b-Bicep Deploy"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/agents/07b-Bicep-Deploy.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "ManagingVirtualNetworkConfigurationNotSupported (Internal VNet not supported for Standard SKU)",
+      "ActivateServiceWithPrivateEndpointAccessNotAllowed (publicNetworkAccess disabled during creation)",
+      "ValidationError (incorrect field values after SKU fix)"
+    ],
+    "failed_deployments": [
+      "apim-pzwutdeqwtxmq",
+      "apim-f4n2uvebujzd6",
+      "apim-sikppgxjwjgea",
+      "apim-3xg7bqugjmuzc",
+      "apim-spxedudpigu5q"
+    ],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-012",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "high",
+    "title": "Front Door WAF and private-link path did not match the live APIM topology",
+    "observation": "The Front Door module first failed when its WAF policy ARM ID format was rejected, then failed again when the CDN WAF path hit service retirement behavior, and finally failed because shared private link is not supported for APIM services deployed in internal VNet mode.",
+    "expected": "The Front Door module should use a security model and origin connectivity pattern that is known to work with the selected APIM topology in the target Azure environment.",
+    "root_cause": "The module combined three assumptions that were not validated together in a live environment: a reusable WAF resource type, a supported Front Door security-policy attachment path, and APIM private-link support while APIM is VNet-injected in internal mode.",
+    "self_corrected": false,
+    "iterations_to_fix": 4,
+    "recommendation": "Add a live-tested decision tree for Front Door + APIM integration to azure-bicep-patterns. Validate WAF resource family, security-policy association rules, and whether the chosen APIM network mode supports Front Door private link before generating the edge module.",
+    "applies_to": ["06b-Bicep CodeGen", "07b-Bicep Deploy"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/agents/07b-Bicep-Deploy.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "BadRequest (WAF Policy ArmResourceId has incorrect formatting)",
+      "BadRequest (CDN WAF Policy creation fails due to CDN WAF retirement)",
+      "BadRequest (PrivateEndpointNotSupportedForVnetInjectedService — APIM in Internal VNet mode)"
+    ],
+    "failed_deployments": [
+      "frontDoor-llak5rk5jj5n2",
+      "frontDoor-vjydw67mjf5kq",
+      "frontDoor-qqoqwply6unte",
+      "frontDoor-m7zfcm5ue73qw",
+      "frontDoor-ovgxns47efea6"
+    ],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-013",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "high",
+    "title": "AKS platform phase blocked by 5 distinct errors across network, naming, versioning, AAD, and SSH",
+    "observation": "After foundation, data, and edge succeeded, the platform phase failed across 5 AKS deployment attempts with 4 distinct errors: (1) node resource group name 'MC_rg-contoso-service-hub-run-3-dev_aks-contoso-service-hub-run-3-dev-rdk3tp_swedencentral' exceeded the 80-char limit at 83 chars; (2) disableLocalAccounts was set without managed AAD integration enabled; (3) K8s version 1.30.14 is only available for Long-Term Support requiring Premium tier and LTS support plan; (4) service CIDR 10.0.0.0/16 overlapped existing subnet CIDR 10.0.0.0/21. Additionally, 8 companion jumpbox VM deployments all failed with invalid SSH public key data.",
+    "expected": "The AKS module should supply a non-overlapping service CIDR, a node resource group name within 80 chars, a supported K8s version for the target tier, only disable local accounts when managed AAD is configured, and use a verified SSH key input pattern.",
+    "root_cause": "The AVM wrapper relied too heavily on defaults for cluster networking, naming, versioning, and SSH handling. Those defaults were not cross-checked against the project's VNet address space, resource naming length limits, K8s version support tiers, or AKS preflight rules in swedencentral.",
+    "self_corrected": false,
+    "iterations_to_fix": 5,
+    "recommendation": "Add explicit AKS parameters for service CIDR, DNS service IP, node resource group name (with length validation ≤80 chars), K8s version (check `az aks get-versions`), AAD integration mode, and SSH input validation in azure-bicep-patterns. The deploy agent should preflight all five constraints before the first platform apply.",
+    "applies_to": ["06b-Bicep CodeGen", "07b-Bicep Deploy"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/agents/07b-Bicep-Deploy.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "InvalidParameter (node RG name length 83 > max 80)",
+      "BadRequest (disableLocalAccounts requires AAD integration)",
+      "K8sVersionNotSupported (1.30.14 requires Premium + LTS)",
+      "ServiceCidrOverlapExistingSubnetsCidr (10.0.0.0/16 vs 10.0.0.0/21)"
+    ],
+    "failed_deployments": [
+      "aks-u5peenyiz4yoc",
+      "aks-wirvqqiym3nw6",
+      "aks-grx3lettmuwvi",
+      "aks-ybarbqgomkqe2",
+      "aks-l6obuar5efqwm"
+    ],
+    "status": "new"
+  },
+  {
+    "id": "LL-014",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "medium",
+    "title": "PostgreSQL existing resource reference failed with ResourceNotFound during data phase",
+    "observation": "The data phase deployment failed with ResourceNotFound for 'Microsoft.DBforPostgreSQL/flexibleServers/psql-contosos-dev-rdk3tp'. The error occurred twice in the same deployment, indicating two child resources (likely diagnostics and/or private endpoint configuration) tried to reference the PostgreSQL server via an existing resource reference before it was fully provisioned.",
+    "expected": "Child resources that reference the PostgreSQL server should have explicit dependsOn to the module that creates the server, following the same pattern identified in LL-008 for VNet diagnostic settings.",
+    "root_cause": "Same class of issue as LL-008: the Bicep `existing` keyword resolves a resource reference at deployment time but does not create ARM deployment ordering. Without an explicit dependsOn, ARM can evaluate dependent resources before the parent resource exists.",
+    "self_corrected": true,
+    "iterations_to_fix": 1,
+    "recommendation": "Extend the LL-008 pattern rule in azure-bicep-patterns to cover all data-tier resources: when using `existing` references for PostgreSQL, Redis, or Storage child resources, always add explicit dependsOn to the creating module.",
+    "applies_to": ["06b-Bicep CodeGen"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": ["ResourceNotFound (psql-contosos-dev-rdk3tp)"],
+    "failed_deployments": ["postgresql-umowlt3quukpe"],
+    "status": "resolved"
+  },
+  {
+    "id": "LL-015",
+    "step": 6,
+    "category": "deployment-failure",
+    "severity": "medium",
+    "title": "Jumpbox VM SSH public key data invalid across all platform-phase VM deployments",
+    "observation": "All 8 jumpbox VM deployments in the platform phase failed with 'The value of parameter linuxConfiguration.ssh.publicKeys.keyData is invalid'. The error was consistent across every retry attempt, indicating the SSH key value passed to the AVM compute module was malformed or empty.",
+    "expected": "The SSH public key should be generated or sourced correctly before being passed to the VM module. If no SSH key is available, the module should fall back to password authentication or skip jumpbox creation.",
+    "root_cause": "The CodeGen agent generated a placeholder or incorrectly formatted SSH public key value. The AVM compute module accepted the parameter syntactically but Azure's compute RP rejected it at deployment time.",
+    "self_corrected": false,
+    "iterations_to_fix": 0,
+    "recommendation": "Add SSH key validation to the deploy agent preflight: verify the SSH public key starts with a valid algorithm prefix (ssh-rsa, ssh-ed25519, ecdsa-sha2-*) and is base64-decodable before attempting VM or AKS deployments. Consider generating a key pair in the deploy script if none is provided.",
+    "applies_to": ["06b-Bicep CodeGen", "07b-Bicep Deploy"],
+    "applies_to_paths": [
+      ".github/agents/06b-Bicep-CodeGen.agent.md",
+      ".github/agents/07b-Bicep-Deploy.agent.md",
+      ".github/skills/azure-bicep-patterns/SKILL.md"
+    ],
+    "azure_error_codes": [
+      "InvalidParameter (linuxConfiguration.ssh.publicKeys.keyData)"
+    ],
+    "failed_deployments": [
+      "vm-pceryblx3ri7q",
+      "vm-uqbend2f7uuqa",
+      "vm-z27kvgz4hes32",
+      "vm-5y4a6zqadsqgc",
+      "vm-xa3udqdok2dta",
+      "vm-nmw2dgzvan4ha",
+      "vm-dzboe3edngzcs",
+      "vm-rqrc7ptdiphua"
+    ],
+    "status": "new"
   }
 ]

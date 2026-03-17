@@ -21,10 +21,26 @@ param logAnalyticsWorkspaceResourceId string
 @description('Subnet resource ID used for the Key Vault private endpoint.')
 param privateEndpointSubnetResourceId string
 
-@description('Private DNS zone resource ID for privatelink.vaultcore.azure.net.')
-param keyVaultPrivateDnsZoneResourceId string
+@description('Virtual network resource ID used to link the Key Vault private DNS zone.')
+param virtualNetworkResourceId string
+
+var keyVaultPrivateDnsZoneName = 'privatelink.vaultcore.azure.net'
 
 var purgeProtectionEnabled = environmentName != 'dev' ? true : true
+
+module keyVaultPrivateDnsZone 'br/public:avm/res/network/private-dns-zone:0.8.1' = {
+  params: {
+    location: 'global'
+    name: keyVaultPrivateDnsZoneName
+    tags: tags
+    virtualNetworkLinks: [
+      {
+        registrationEnabled: false
+        virtualNetworkResourceId: virtualNetworkResourceId
+      }
+    ]
+  }
+}
 
 module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
   params: {
@@ -51,7 +67,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
     location: location
     name: keyVaultName
     networkAcls: {
-      bypass: 'None'
+      bypass: 'AzureServices'
       defaultAction: 'Deny'
     }
     privateEndpoints: [
@@ -62,7 +78,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
           privateDnsZoneGroupConfigs: [
             {
               name: 'vaultcore'
-              privateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+              privateDnsZoneResourceId: keyVaultPrivateDnsZone.outputs.resourceId
             }
           ]
         }

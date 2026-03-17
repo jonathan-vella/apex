@@ -4,24 +4,44 @@
 
 Compact reference for agent startup. Read full `SKILL.md` for details.
 
+## Contribution Lifecycle
+
+```text
+1. Create branch (naming convention) →
+2. Make changes →
+3. Commit (conventional commits) →
+4. Push (pre-push hooks validate) →
+5. Create PR (MCP tools) →
+6. Review + Merge
+```
+
+## Branch Naming (Mandatory)
+
+Validate branch: `git rev-parse --abbrev-ref HEAD`
+
+| Type          | Prefixes                                                                             | File Scope |
+| ------------- | ------------------------------------------------------------------------------------ | ---------- |
+| Domain-scoped | `docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`                 | Restricted |
+| Cross-cutting | `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/` | Any files  |
+
+📋 Full rules: `references/branch-strategy.md`
+
+## Conventional Commits (Mandatory)
+
+Format: `<type>[scope]: <description>`
+Enforced by commitlint hook.
+
+📋 Full workflow: `references/commit-conventions.md`
+
 ## MCP Priority Protocol (Mandatory)
 
-Follow this protocol for every GitHub task:
-
-1. Identify required operation (issue, PR, search, Actions, release, repo admin, etc.)
-2. Check whether an MCP tool exists for that exact operation
-3. If MCP exists, use MCP only
-4. Use `gh` CLI only when no equivalent MCP write tool is available
-
-### Devcontainer Reliability Rule
-
-- Do not run `gh auth login` or `gh auth status` in devcontainer workflows
+1. Check whether an MCP tool exists for the operation
+2. If MCP exists, use MCP only
+3. Use `gh` CLI only when no equivalent MCP tool is available
 
 > _See SKILL.md for full content._
 
 ## Issues (MCP Tools)
-
-### Available Tools
 
 | Tool                           | Purpose                |
 | ------------------------------ | ---------------------- |
@@ -34,8 +54,6 @@ Follow this protocol for every GitHub task:
 > _See SKILL.md for full content._
 
 ## Pull Requests (MCP Tools)
-
-### Available Tools
 
 | Tool                                   | Purpose               |
 | -------------------------------------- | --------------------- |
@@ -90,19 +108,14 @@ Follow this protocol for every GitHub task:
 
 > _See SKILL.md for full content._
 
-## References
-
-- GitHub CLI Manual: https://cli.github.com/manual/
-- REST API: https://docs.github.com/en/rest
-- GraphQL API: https://docs.github.com/en/graphql
-- Commit conventions: `.github/skills/git-commit/SKILL.md`
-
 ## Reference Index
 
-| Reference     | File                              | Content                                      |
-| ------------- | --------------------------------- | -------------------------------------------- |
-| Smart PR Flow | `references/smart-pr-flow.md`     | PR lifecycle states, auto-labels, auto-merge |
-| CLI Commands  | `references/detailed-commands.md` | Repos, Actions, Releases, Secrets, API, Auth |
+| Reference          | File                               | Content                                      |
+| ------------------ | ---------------------------------- | -------------------------------------------- |
+| Branch Strategy    | `references/branch-strategy.md`    | Naming convention, scope tables, enforcement |
+| Commit Conventions | `references/commit-conventions.md` | Format, types, staging, safety protocol      |
+| Smart PR Flow      | `references/smart-pr-flow.md`      | PR lifecycle states, auto-labels, auto-merge |
+| CLI Commands       | `references/detailed-commands.md`  | Repos, Actions, Releases, Secrets, API, Auth |
 
 ## Smart PR Flow
 
@@ -114,7 +127,7 @@ For full details: **Read** `references/smart-pr-flow.md`
 
 ### Quick Reference
 
-| Condition                   | Label Applied        |
-| --------------------------- | -------------------- |
+| Condition | Label Applied |
+| --------- | ------------- |
 
 > _See SKILL.md for full content._

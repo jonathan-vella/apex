@@ -36,6 +36,9 @@ pip install -r requirements.txt
 
 ## Build & Validation
 
+For the complete reference of all validation scripts, linting commands, git hooks,
+and CI workflows, see the [Validation & Linting Reference](docs/validation-reference.md).
+
 ```bash
 # Full validation suite
 npm run validate:all
