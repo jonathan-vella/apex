@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: contoso-service-hub-run-2
+metadata:
+  template: azure-agentic-infraops/contoso-service-hub-run-2
+
+infra:
+  provider: bicep
+  path: ./
+  module: main
+
+hooks:
+  preprovision:
+    shell: sh
+    run: |
+      echo "Contoso Service Hub pre-provision checks"
+      if ! az account get-access-token --resource https://management.azure.com/ --output none 2>/dev/null; then
+        echo "ARM token invalid. Run: az login --use-device-code"
+        exit 1
+      fi
+
+      az bicep version >/dev/null 2>&1 || az bicep install >/dev/null
+      az bicep build --file main.bicep >/dev/null
+
+  postprovision:
+    shell: sh
+    run: |
+      echo "Verifying deployed resources in ${AZURE_RESOURCE_GROUP}"
+      az resource list --resource-group "${AZURE_RESOURCE_GROUP}" --output table || true

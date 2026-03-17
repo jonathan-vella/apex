@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": ".github/hooks/session-report/session-report.sh",
+        "timeout": 180
+      }
+    ]
+  }
+}

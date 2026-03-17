@@ -1,0 +1,409 @@
+{
+  "metadata": {
+    "project": "contoso-service-hub-run-3",
+    "generatedAt": "2026-03-17T11:20:10Z",
+    "generator": "04g-Governance",
+    "discoveryMethod": "ARM REST via az rest",
+    "subscription": {
+      "name": "noalz",
+      "id": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "tenantId": "2d04cb4c-999b-4e60-a3a7-e8993edc768b"
+    },
+    "scope": "subscription + inherited management group assignments",
+    "architectureSource": "agent-output/contoso-service-hub-run-3/02-architecture-assessment.md"
+  },
+  "summary": {
+    "totalAssignmentsDiscovered": 21,
+    "relevantAssignmentsAnalyzed": 8,
+    "blockerCount": 2,
+    "warningCount": 10,
+    "autoRemediationCount": 5,
+    "clearedAfterDefinitionAnalysis": 1
+  },
+  "requiredResourceTypes": [
+    "Microsoft.ContainerService/managedClusters",
+    "Microsoft.DBforPostgreSQL/flexibleServers",
+    "Microsoft.Cache/Redis",
+    "Microsoft.Storage/storageAccounts",
+    "Microsoft.ApiManagement/service",
+    "Microsoft.Cdn/profiles",
+    "Microsoft.Network/frontDoors",
+    "Microsoft.KeyVault/vaults",
+    "Microsoft.Compute/virtualMachines",
+    "Microsoft.Network/virtualNetworks",
+    "Microsoft.Network/networkSecurityGroups",
+    "Microsoft.OperationalInsights/workspaces",
+    "Microsoft.Insights/components",
+    "Microsoft.Resources/subscriptions/resourceGroups"
+  ],
+  "assignments": [
+    {
+      "displayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/7326812a-86a4-40c8-af7c-8945de9c4913",
+      "effectFamily": "audit",
+      "relevance": "high"
+    },
+    {
+      "displayName": "Azure Security Baseline",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+      "effectFamily": "audit",
+      "relevance": "medium"
+    },
+    {
+      "displayName": "MCAPSGov Deny Policies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policySetDefinitions/MCAPSGovDenyPolicies",
+      "effectFamily": "deny",
+      "relevance": "high"
+    },
+    {
+      "displayName": "MCAPSGov Audit Policies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policySetDefinitions/MCAPSGovAuditPolicies",
+      "effectFamily": "audit",
+      "relevance": "medium"
+    },
+    {
+      "displayName": "MCAPSGov Deploy and Modify Policies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policySetDefinitions/MCAPSGovDeployPolicies",
+      "effectFamily": "modify",
+      "relevance": "high"
+    },
+    {
+      "displayName": "JV - Inherit Multiple Tags from Resource Group",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "effectFamily": "modify",
+      "relevance": "high"
+    },
+    {
+      "displayName": "JV-Enforce Resource Group Tags v3",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "effectFamily": "deny",
+      "relevance": "high"
+    }
+  ],
+  "tagPolicy": {
+    "liveResourceGroupRequiredTags": [
+      "environment",
+      "owner",
+      "costcenter",
+      "application",
+      "workload",
+      "sla",
+      "backup-policy",
+      "maint-window",
+      "tech-contact"
+    ],
+    "projectRequiredTags": ["Environment", "ManagedBy", "Project", "Owner"],
+    "note": "Live deny policy enforces the lowercase governance tag set on resource groups. Project tags should be added in parallel unless downstream governance confirms a mapping strategy."
+  },
+  "controls": [
+    {
+      "id": "CTRL-001",
+      "source": "live-assignment",
+      "assignmentDisplayName": "JV-Enforce Resource Group Tags v3",
+      "policyDisplayName": "JV-Enforce Resource Group Tags",
+      "effect": "deny",
+      "appliesTo": ["Microsoft.Resources/subscriptions/resourceGroups"],
+      "actuallyBlocks": "Resource groups missing one or more required lowercase governance tags.",
+      "evidence": "policyRule.if checks type Microsoft.Resources/subscriptions/resourceGroups and any missing required tags.",
+      "azurePropertyPath": "tags",
+      "bicepPropertyPath": "tags",
+      "requiredValue": "All nine lowercase governance tags present",
+      "status": "blocker"
+    },
+    {
+      "id": "CTRL-002",
+      "source": "live-assignment",
+      "assignmentDisplayName": "MCAPSGov Deny Policies",
+      "policyDisplayName": "Deny AKS deployment with agent pool count greater than 10",
+      "effect": "deny",
+      "appliesTo": ["Microsoft.ContainerService/managedClusters"],
+      "actuallyBlocks": "AKS deployments with more than 10 agent pools.",
+      "evidence": "policyRule.if counts Microsoft.ContainerService/managedClusters/agentPoolProfiles[*] and denies when greater than 10.",
+      "azurePropertyPath": "properties.agentPoolProfiles",
+      "bicepPropertyPath": "properties.agentPoolProfiles",
+      "requiredValue": "10 or fewer total pools",
+      "status": "blocker"
+    },
+    {
+      "id": "CTRL-003",
+      "source": "live-assignment",
+      "assignmentDisplayName": "Block Azure RM Resource Creation",
+      "policyDisplayName": "NotAllowedResourceTypes (classic only)",
+      "effect": "deny",
+      "appliesTo": [
+        "microsoft.classiccompute/*",
+        "microsoft.classicnetwork/*",
+        "microsoft.classicstorage/*"
+      ],
+      "actuallyBlocks": "Classic resource types only.",
+      "evidence": "Definition reference resolves to NotAllowedResourceTypes for classic providers.",
+      "azurePropertyPath": "type",
+      "bicepPropertyPath": "type",
+      "requiredValue": "Use ARM-native resource types",
+      "status": "cleared"
+    },
+    {
+      "id": "CTRL-004",
+      "source": "live-assignment",
+      "assignmentDisplayName": "JV - Inherit Multiple Tags from Resource Group",
+      "policyDisplayName": "Inherit resource tags from the resource group",
+      "effect": "modify",
+      "appliesTo": ["Indexed resources"],
+      "actuallyBlocks": "Does not block; auto-adds missing governance tags from the resource group.",
+      "evidence": "policyRule.if checks tag existence and then addOrReplace operations copy values from resourceGroup().tags.",
+      "azurePropertyPath": "tags",
+      "bicepPropertyPath": "tags",
+      "requiredValue": "Inherited RG tag values",
+      "status": "auto-remediation"
+    },
+    {
+      "id": "CTRL-005",
+      "source": "live-assignment",
+      "assignmentDisplayName": "MCAPSGov Deploy and Modify Policies",
+      "policyDisplayName": "Ensure secure access to storage account containers",
+      "effect": "modify",
+      "appliesTo": ["Microsoft.Storage/storageAccounts"],
+      "actuallyBlocks": "Does not block; remediates blob public access to false.",
+      "evidence": "policyRule.if matches storage accounts where allowBlobPublicAccess is missing or true, then addOrReplace false.",
+      "azurePropertyPath": "properties.allowBlobPublicAccess",
+      "bicepPropertyPath": "properties.allowBlobPublicAccess",
+      "requiredValue": false,
+      "status": "auto-remediation"
+    },
+    {
+      "id": "CTRL-006",
+      "source": "live-assignment",
+      "assignmentDisplayName": "MCAPSGov Deploy and Modify Policies",
+      "policyDisplayName": "SFI-ID4.2.1 Storage Accounts - Safe Secrets Standard",
+      "effect": "modify",
+      "appliesTo": ["Microsoft.Storage/storageAccounts"],
+      "actuallyBlocks": "Does not block; remediates shared key access unless excluded with SecurityControl=Ignore.",
+      "evidence": "policyRule.if matches storage accounts with allowSharedKeyAccess != false and no exclusion tag.",
+      "azurePropertyPath": "properties.allowSharedKeyAccess",
+      "bicepPropertyPath": "properties.allowSharedKeyAccess",
+      "requiredValue": false,
+      "status": "auto-remediation"
+    },
+    {
+      "id": "CTRL-007",
+      "source": "live-assignment",
+      "assignmentDisplayName": "MCAPSGov Deploy and Modify Policies",
+      "policyDisplayName": "Add system-assigned managed identity to enable Guest Configuration assignments on virtual machines with no identities",
+      "effect": "modify",
+      "appliesTo": ["Microsoft.Compute/virtualMachines"],
+      "actuallyBlocks": "Does not block; auto-adds a system-assigned identity to targeted Windows Desktop VMs without identity.",
+      "evidence": "policyRule.if matches targeted Windows Desktop VM images with missing identity.type.",
+      "azurePropertyPath": "identity.type",
+      "bicepPropertyPath": "identity.type",
+      "requiredValue": "SystemAssigned",
+      "status": "auto-remediation"
+    },
+    {
+      "id": "CTRL-008",
+      "source": "live-assignment",
+      "assignmentDisplayName": "MCAPSGov Deploy and Modify Policies",
+      "policyDisplayName": "Add system-assigned managed identity to enable Guest Configuration assignments on VMs with a user-assigned identity",
+      "effect": "modify",
+      "appliesTo": ["Microsoft.Compute/virtualMachines"],
+      "actuallyBlocks": "Does not block; appends system-assigned identity to targeted Windows Desktop VMs that already use user-assigned identity.",
+      "evidence": "policyRule.if matches targeted Windows Desktop VM images where identity.type contains UserAssigned but not SystemAssigned.",
+      "azurePropertyPath": "identity.type",
+      "bicepPropertyPath": "identity.type",
+      "requiredValue": "UserAssigned,SystemAssigned",
+      "status": "auto-remediation"
+    },
+    {
+      "id": "CTRL-009",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Authorized IP ranges should be defined on Kubernetes Services",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.ContainerService/managedClusters"],
+      "azurePropertyPath": "properties.apiServerAccessProfile.authorizedIpRanges",
+      "bicepPropertyPath": "properties.apiServerAccessProfile.authorizedIpRanges",
+      "requiredValue": "Non-empty authorized IP ranges",
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-010",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Azure Policy Add-on for Kubernetes service (AKS) should be installed and enabled on your clusters",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.ContainerService/managedClusters"],
+      "azurePropertyPath": "properties.addonProfiles.azurepolicy.enabled",
+      "bicepPropertyPath": "properties.addonProfiles.azurepolicy.enabled",
+      "requiredValue": true,
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-011",
+      "source": "project-baseline-gap",
+      "assignmentDisplayName": null,
+      "policyDisplayName": "AKS network policy must be enabled",
+      "effect": "project-baseline",
+      "appliesTo": ["Microsoft.ContainerService/managedClusters"],
+      "azurePropertyPath": "properties.networkProfile.networkPolicy",
+      "bicepPropertyPath": "properties.networkProfile.networkPolicy",
+      "requiredValue": "azure or calico",
+      "status": "warning",
+      "note": "No explicit tenant policy was discovered for AKS network policy, but the architecture and security baseline require it."
+    },
+    {
+      "id": "CTRL-012",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Public network access should be disabled for PostgreSQL flexible servers",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.DBforPostgreSQL/flexibleServers"],
+      "azurePropertyPath": "properties.network.publicNetworkAccess",
+      "bicepPropertyPath": "properties.network.publicNetworkAccess",
+      "requiredValue": "Disabled",
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-013",
+      "source": "project-baseline-gap",
+      "assignmentDisplayName": null,
+      "policyDisplayName": "Private endpoint or private subnet required for PostgreSQL Flexible Server",
+      "effect": "project-baseline",
+      "appliesTo": ["Microsoft.DBforPostgreSQL/flexibleServers"],
+      "azurePropertyPath": "properties.network.delegatedSubnetResourceId",
+      "bicepPropertyPath": "properties.network.delegatedSubnetResourceId",
+      "requiredValue": "Private-only network path",
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-014",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Azure Cache for Redis should use private link",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.Cache/Redis"],
+      "azurePropertyPath": "properties.privateEndpointConnections",
+      "bicepPropertyPath": "properties.privateEndpointConnections",
+      "requiredValue": "At least one approved private endpoint connection",
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-015",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Storage account public access should be disallowed",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.Storage/storageAccounts"],
+      "azurePropertyPath": "properties.allowBlobPublicAccess",
+      "bicepPropertyPath": "properties.allowBlobPublicAccess",
+      "requiredValue": false,
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-016",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Secure transfer to storage accounts should be enabled",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.Storage/storageAccounts"],
+      "azurePropertyPath": "properties.supportsHttpsTrafficOnly",
+      "bicepPropertyPath": "properties.supportsHttpsTrafficOnly",
+      "requiredValue": true,
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-017",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Storage accounts should have the specified minimum TLS version",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.Storage/storageAccounts"],
+      "azurePropertyPath": "properties.minimumTlsVersion",
+      "bicepPropertyPath": "properties.minimumTlsVersion",
+      "requiredValue": "TLS1_2",
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-018",
+      "source": "live-assignment",
+      "assignmentDisplayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "policyDisplayName": "Key vaults should have deletion protection enabled",
+      "effect": "audit",
+      "appliesTo": ["Microsoft.KeyVault/vaults"],
+      "azurePropertyPath": "properties.enablePurgeProtection",
+      "bicepPropertyPath": "properties.enablePurgeProtection",
+      "requiredValue": true,
+      "status": "warning"
+    },
+    {
+      "id": "CTRL-019",
+      "source": "project-baseline-gap",
+      "assignmentDisplayName": null,
+      "policyDisplayName": "Key Vault soft delete must be enabled",
+      "effect": "project-baseline",
+      "appliesTo": ["Microsoft.KeyVault/vaults"],
+      "azurePropertyPath": "properties.enableSoftDelete",
+      "bicepPropertyPath": "properties.enableSoftDelete",
+      "requiredValue": true,
+      "status": "warning",
+      "note": "Soft delete is mandatory by project baseline; the live policy evidence captured in this run explicitly surfaced purge protection instead."
+    },
+    {
+      "id": "CTRL-020",
+      "source": "project-baseline-gap",
+      "assignmentDisplayName": null,
+      "policyDisplayName": "EU-only region enforcement",
+      "effect": "project-baseline",
+      "appliesTo": ["All planned resources"],
+      "azurePropertyPath": "location",
+      "bicepPropertyPath": "location",
+      "requiredValue": ["swedencentral", "westeurope", "germanywestcentral"],
+      "status": "warning",
+      "note": "No explicit allowed-locations deny assignment was discovered. Enforce this through parameters and validation in IaC."
+    },
+    {
+      "id": "CTRL-021",
+      "source": "project-baseline-gap",
+      "assignmentDisplayName": null,
+      "policyDisplayName": "APIM internal mode behind Front Door",
+      "effect": "project-baseline",
+      "appliesTo": ["Microsoft.ApiManagement/service"],
+      "azurePropertyPath": "properties.virtualNetworkType",
+      "bicepPropertyPath": "properties.virtualNetworkType",
+      "requiredValue": "Internal",
+      "status": "warning",
+      "note": "Required by the architecture assessment; no direct tenant policy was discovered."
+    },
+    {
+      "id": "CTRL-022",
+      "source": "project-baseline-gap",
+      "assignmentDisplayName": null,
+      "policyDisplayName": "Front Door WAF as sole public ingress",
+      "effect": "project-baseline",
+      "appliesTo": [
+        "Microsoft.Cdn/profiles",
+        "Microsoft.ApiManagement/service",
+        "Microsoft.ContainerService/managedClusters"
+      ],
+      "azurePropertyPath": "network topology",
+      "bicepPropertyPath": "network topology",
+      "requiredValue": "Only Front Door public ingress; backend services private or internal",
+      "status": "warning"
+    }
+  ],
+  "planAdaptations": [
+    "Create the resource group with the nine live lowercase governance tags before any resource deployments.",
+    "Keep AKS agent pool count at 10 or fewer and enable AKS Azure Policy add-on and authorized IP ranges.",
+    "Disable PostgreSQL Flexible Server public network access and deploy it on a private network path only.",
+    "Deploy Redis with private endpoint connectivity and no public application dependency.",
+    "Set storage account allowBlobPublicAccess=false, allowSharedKeyAccess=false, supportsHttpsTrafficOnly=true, and minimumTlsVersion=TLS1_2.",
+    "Enable Key Vault purge protection and soft delete, and assign expirations to keys and secrets.",
+    "Treat APIM internal VNet mode and Front Door WAF as architecture-mandated controls because no direct tenant deny enforces them.",
+    "Restrict all locations to swedencentral, westeurope, or germanywestcentral through IaC parameters and validation."
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tmp/00-rfp.md as input, runs the full 7-step InfraOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
+description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes docs/e2e-inputs/contoso-rfq.md as input, runs the full 7-step InfraOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
 tools:
   - agent
   - search
@@ -28,7 +28,7 @@ generates ALL artifacts from scratch — nothing is pre-seeded.
 - **IaC directory**: Bicep: `infra/bicep/contoso-service-hub-run-2/` | Terraform: `infra/terraform/contoso-service-hub-run-2/`
 - **IaC tool**: Bicep _(Change to `Terraform` and update agent refs below for Terraform track runs)_
 - **Complexity**: determined at runtime by Step 1 (expected: complex)
-- **RFP source**: `tmp/00-rfp.md`
+- **RFP source**: `docs/e2e-inputs/contoso-rfq.md`
 - **Pre-seeded artifacts**: NONE — everything generated from RFP
 - **Session state**: `agent-output/contoso-service-hub-run-1/00-session-state.json`
 
@@ -80,9 +80,9 @@ Read complexity from session state after Step 1 completes. Use this matrix:
 
 1. Read `00-session-state.json` — confirm all steps are `pending`
 2. Update session state: Step 1 → `in_progress`
-3. Read `tmp/00-rfp.md` fully — this is the Contoso Service Hub RFQ
+3. Read `docs/e2e-inputs/contoso-rfq.md` fully — this is the Contoso Service Hub RFQ
 4. Invoke `@02-Requirements` subagent with this prompt:
-   \_"You are generating requirements from an RFP document. Read `tmp/00-rfp.md` completely.
+   \_"You are generating requirements from an RFP document. Read `docs/e2e-inputs/contoso-rfq.md` completely.
    Do NOT use askQuestions — this is an automated E2E evaluation. Extract ALL requirements
    from the RFP and generate `01-requirements.md` in `agent-output/contoso-service-hub-run-1/`
    using the standard requirements template with these H2 headings: 🎯 Project Overview,

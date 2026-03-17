@@ -129,6 +129,14 @@ sequenceDiagram
 
   [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
 
+- :material-hook:{ .lg .middle } **Agent Hooks**
+
+  ***
+
+  Automated code quality enforcement during agent sessions.
+
+  [:octicons-arrow-right-24: Agent Hooks](hooks.md)
+
 - :material-book-open-variant:{ .lg .middle } **Glossary**
 
   ***

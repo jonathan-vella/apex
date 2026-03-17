@@ -1,0 +1,82 @@
+{
+  "run_id": "e2e-ralph-001",
+  "timestamp": "2026-03-17T12:05:16.203Z",
+  "scores": {
+    "artifact_completeness": {
+      "score": 67,
+      "found": 28,
+      "total": 42,
+      "missing": [
+        "00-handoff.md"
+      ],
+      "grade": "D"
+    },
+    "structural_compliance": {
+      "score": 100,
+      "checks": [
+        "artifact-templates: PASS",
+        "h2-sync: PASS",
+        "session-state: PASS"
+      ],
+      "grade": "A"
+    },
+    "code_quality": {
+      "score": 80,
+      "iac_tool": "Bicep",
+      "build_pass": true,
+      "lint_pass": true,
+      "avm_module_count": 0,
+      "grade": "B"
+    },
+    "review_thoroughness": {
+      "score": 17,
+      "details": [
+        "step_1: 1 passes",
+        "step_2: no review",
+        "step_3.5: no review",
+        "step_4: no review",
+        "step_5: no review",
+        "step_6: no review"
+      ],
+      "grade": "F"
+    },
+    "waf_coverage": {
+      "score": 100,
+      "pillars_found": [
+        "Security",
+        "Reliability",
+        "Performance",
+        "Cost",
+        "Operations"
+      ],
+      "grade": "A"
+    },
+    "cost_accuracy": {
+      "score": 80,
+      "budget_stated": "~$9,280/month (bottom-up volumetric estimate across 3 environments)",
+      "cost_estimate_exists": true,
+      "grade": "B"
+    },
+    "session_state_integrity": {
+      "score": 100,
+      "checks": [
+        "schema_version: present",
+        "project: correct",
+        "iac_tool: set",
+        "decisions: populated",
+        "decision_log: 13 entries",
+        "steps completed: 8/8"
+      ],
+      "grade": "A"
+    },
+    "timing_performance": {
+      "score": 50,
+      "details": "No iteration log data",
+      "grade": "D"
+    }
+  },
+  "composite": {
+    "score": 75,
+    "grade": "C"
+  }
+}

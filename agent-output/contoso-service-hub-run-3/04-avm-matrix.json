@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "project": "contoso-service-hub-run-3",
+  "generated": "2026-03-17T10:00:00Z",
+  "modules": [
+    {
+      "resource": "Log Analytics Workspace",
+      "avm_path": "br/public:avm/res/operational-insights/workspace",
+      "version": "0.15.0",
+      "key_params": ["dailyQuotaGb", "retentionInDays", "skuName"]
+    },
+    {
+      "resource": "Application Insights",
+      "avm_path": "br/public:avm/res/insights/component",
+      "version": "0.7.1",
+      "key_params": ["workspaceResourceId", "kind", "applicationType"]
+    },
+    {
+      "resource": "Key Vault",
+      "avm_path": "br/public:avm/res/key-vault/vault",
+      "version": "0.13.3",
+      "key_params": [
+        "enableSoftDelete",
+        "enablePurgeProtection",
+        "softDeleteRetentionInDays",
+        "networkAcls",
+        "privateEndpoints"
+      ]
+    },
+    {
+      "resource": "Virtual Network",
+      "avm_path": "br/public:avm/res/network/virtual-network",
+      "version": "0.7.2",
+      "key_params": ["addressPrefixes", "subnets", "peerings"]
+    },
+    {
+      "resource": "Network Security Group",
+      "avm_path": "br/public:avm/res/network/network-security-group",
+      "version": "0.5.2",
+      "key_params": ["securityRules"]
+    },
+    {
+      "resource": "Consumption Budget",
+      "avm_path": "br/public:avm/res/consumption/budget/rg-scope",
+      "version": "0.1.0",
+      "key_params": ["amount", "timeGrain", "notifications", "category"]
+    },
+    {
+      "resource": "PostgreSQL Flexible Server",
+      "avm_path": "br/public:avm/res/db-for-postgre-sql/flexible-server",
+      "version": "0.15.2",
+      "key_params": [
+        "skuName",
+        "storageSizeGB",
+        "version",
+        "highAvailability",
+        "backup",
+        "delegatedSubnetResourceId",
+        "privateDnsZoneResourceId"
+      ]
+    },
+    {
+      "resource": "Redis Cache",
+      "avm_path": "br/public:avm/res/cache/redis",
+      "version": "0.16.4",
+      "key_params": [
+        "skuName",
+        "family",
+        "capacity",
+        "enableNonSslPort",
+        "minimumTlsVersion",
+        "privateEndpoints"
+      ]
+    },
+    {
+      "resource": "Storage Account",
+      "avm_path": "br/public:avm/res/storage/storage-account",
+      "version": "0.32.0",
+      "key_params": [
+        "skuName",
+        "kind",
+        "allowBlobPublicAccess",
+        "supportsHttpsTrafficOnly",
+        "minimumTlsVersion",
+        "blobServices",
+        "fileServices",
+        "privateEndpoints"
+      ]
+    },
+    {
+      "resource": "Managed Disk",
+      "avm_path": "br/public:avm/res/compute/disk",
+      "version": "0.6.0",
+      "key_params": ["diskSizeGB", "sku", "osType"]
+    },
+    {
+      "resource": "API Management",
+      "avm_path": "br/public:avm/res/api-management/service",
+      "version": "0.14.1",
+      "key_params": [
+        "skuName",
+        "skuCapacity",
+        "virtualNetworkType",
+        "subnetResourceId",
+        "publisherName",
+        "publisherEmail"
+      ]
+    },
+    {
+      "resource": "Front Door + WAF",
+      "avm_path": "br/public:avm/res/cdn/profile",
+      "version": "0.19.0",
+      "key_params": [
+        "skuName",
+        "originGroups",
+        "afdEndpoints",
+        "securityPolicies"
+      ]
+    },
+    {
+      "resource": "AKS Cluster",
+      "avm_path": "br/public:avm/res/container-service/managed-cluster",
+      "version": "0.13.0",
+      "key_params": [
+        "kubernetesVersion",
+        "agentPoolProfiles",
+        "networkProfile",
+        "addonProfiles",
+        "aadProfile",
+        "managedIdentities",
+        "omsAgentEnabled"
+      ]
+    },
+    {
+      "resource": "Virtual Machine",
+      "avm_path": "br/public:avm/res/compute/virtual-machine",
+      "version": "0.21.0",
+      "key_params": [
+        "vmSize",
+        "imageReference",
+        "osDisk",
+        "nicConfigurations",
+        "managedIdentities"
+      ]
+    },
+    {
+      "resource": "Container Registry",
+      "avm_path": "br/public:avm/res/container-registry/registry",
+      "version": "0.11.0",
+      "key_params": ["skuName", "adminUserEnabled", "policies"]
+    },
+    {
+      "resource": "Private Endpoint",
+      "avm_path": "br/public:avm/res/network/private-endpoint",
+      "version": "0.12.0",
+      "key_params": [
+        "groupIds",
+        "privateLinkServiceId",
+        "subnetResourceId",
+        "privateDnsZoneConfigs"
+      ]
+    }
+  ]
+}

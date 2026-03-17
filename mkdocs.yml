@@ -111,6 +111,7 @@ nav:
           - Best Practices: prompt-guide/best-practices.md
           - Workflow Prompts: prompt-guide/workflow-prompts.md
           - Skill & Subagent Reference: prompt-guide/reference.md
+      - Agent Hooks: hooks.md
       - Troubleshooting: troubleshooting.md
       - E2E Testing: e2e-testing.md
   - Reference:

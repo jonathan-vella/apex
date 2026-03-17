@@ -163,7 +163,7 @@
         "agent-output/contoso-service-hub-run-1/README.md"
       ],
       "context_files_used": [
-        "tmp/00-rfp.md",
+        "docs/e2e-inputs/contoso-rfq.md",
         ".github/skills/azure-artifacts/templates/01-requirements.template.md",
         ".github/skills/azure-defaults/SKILL.digest.md"
       ]

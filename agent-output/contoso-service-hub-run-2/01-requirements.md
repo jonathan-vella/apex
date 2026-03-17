@@ -154,18 +154,20 @@ flowchart LR
 
 ## ⚡ Non-Functional Requirements (NFRs)
 
-| WAF Pillar     | Metric             | Target                                    | Current | Gap        |
-| -------------- | ------------------ | ----------------------------------------- | ------- | ---------- |
-| 🔄 Reliability | SLA                | 99.9%                                     | N/A     | Greenfield |
-| 🔄 Reliability | RTO                | 4 hours                                   | N/A     | Greenfield |
-| 🔄 Reliability | RPO                | 1 hour                                    | N/A     | Greenfield |
-| ⚡ Performance | API Response (p95) | < 500 ms                                  | N/A     | Greenfield |
-| ⚡ Performance | Concurrent Users   | 500 (2026), 2,000 (2027)                  | N/A     | Greenfield |
-| ⚡ Performance | Transactions/month | 50K (2026) → 2M (2027)                    | N/A     | Greenfield |
-| 🔒 Security    | Auth Method        | OAuth 2.0 / OIDC via Entra External ID    | —       | —          |
-| 🔒 Security    | Encryption         | At-rest (AES-256) + In-transit (TLS 1.2+) | —       | —          |
-| 💰 Cost        | Monthly Budget     | ~€8,000–12,000 (estimated — see Budget)   | —       | —          |
-| 🔧 Operations  | Uptime Monitoring  | Yes (Azure Monitor + App Insights)        | —       | —          |
+| WAF Pillar     | Metric             | Target                   | Current | Gap        |
+| -------------- | ------------------ | ------------------------ | ------- | ---------- |
+| 🔄 Reliability | SLA                | 99.9%                    | N/A     | Greenfield |
+| 🔄 Reliability | RTO                | 4 hours                  | N/A     | Greenfield |
+| 🔄 Reliability | RPO                | 1 hour                   | N/A     | Greenfield |
+| ⚡ Performance | API Response (p95) | < 500 ms                 | N/A     | Greenfield |
+| ⚡ Performance | Concurrent Users   | 500 (2026), 2,000 (2027) | N/A     | Greenfield |
+| ⚡ Performance | Transactions/month | 50K (2026) → 2M (2027)   | N/A     | Greenfield |
+
+> **Performance Target Scope**: The <500 ms p95 target applies to **first-party API endpoints** only (edge-to-first-byte for platform-owned services). External dependency latency (payment gateway, CIAM token issuance, partner API calls) is excluded from this target. Step 2 must define a latency budget per request class and the expected request mix.
+> | 🔒 Security | Auth Method | OAuth 2.0 / OIDC via Entra External ID | — | — |
+> | 🔒 Security | Encryption | At-rest (AES-256) + In-transit (TLS 1.2+) | — | — |
+> | 💰 Cost | Monthly Budget | ~€8,000–12,000 (estimated — see Budget) | — | — |
+> | 🔧 Operations | Uptime Monitoring | Yes (Azure Monitor + App Insights) | — | — |
 
 ### Scalability
 
@@ -313,6 +315,9 @@ No health data processing is in scope for the Service Hub.
 | 📊 Cost Model Pref | Hybrid (reserved instances for steady-state + consumption for burst) |
 | 💶 Currency        | EUR (EU-based operations)                                            |
 
+> [!WARNING]
+> **Budget Validation Required**: This estimate may be optimistic. DDoS Protection Standard (~€2,500/mo), multiple Private Endpoints/DNS zones, zone-redundant production tiers, backup vault costs, Log Analytics ingestion, egress charges, and the 128 GB Redis-class service are high-variance items. Step 2 must validate the budget against the full security/HA posture before using it as a planning constraint.
+
 ### Estimated Cost Breakdown by Service (Production)
 
 | #   | Azure Service                            | Estimated Monthly Cost (EUR) | Notes                                   |
@@ -416,6 +421,18 @@ No health data processing is in scope for the Service Hub.
 | Azure Front Door  | Global (EU PoPs) | Edge service — confirm EU-only PoP config |
 | Entra External ID | EU tenant        | Ensure tenant data location is set to EU  |
 
+### Non-Regional / Global Service GDPR Validation (Mandatory)
+
+> [!IMPORTANT]
+> Azure Front Door and Microsoft Entra External ID are non-regional or global Azure services. Microsoft EU Data Boundary documentation distinguishes these from standard regional services. Some Entra customer data processing may temporarily occur outside EU regions per Microsoft's documented exceptions.
+
+| Service           | GDPR Risk                                                                                                | Required Action                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Azure Front Door  | Edge PoPs cache content globally; WAF logs, telemetry, and session data may be processed outside the EU  | Architect must validate EU Data Boundary compliance; restrict PoPs to EU if technically possible      |
+| Entra External ID | Most tenant data stored in EU, but some components may transfer data outside EU per Microsoft exceptions | Architect must review Microsoft EU Data Boundary docs and obtain Contoso written approval if required |
+
+**Requirement**: Any global or non-regional Azure service must be validated against [Microsoft EU Data Boundary](https://learn.microsoft.com/privacy/eudb/eu-data-boundary-learn) documentation. If any customer data, logs, telemetry, cache, or support-plane data can leave the EU, Contoso must provide prior written approval per RFQ Section 4.3, or an alternative service pattern must be selected.
+
 ---
 
 ## 📊 Complexity Classification
@@ -482,7 +499,7 @@ No health data processing is in scope for the Service Hub.
 
 ---
 
-_Requirements captured from Contoso RFQ (tmp/00-rfp.md) by @requirements agent_
+_Requirements captured from Contoso RFQ (docs/e2e-inputs/contoso-rfq.md) by @requirements agent_
 
 ---
 
