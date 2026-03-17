@@ -4,8 +4,8 @@
   "iac_tool": "Bicep",
   "region": "swedencentral",
   "branch": "feat/azure-skills-integration",
-  "updated": "2026-03-17T13:15:00Z",
-  "current_step": 7,
+  "updated": "2026-03-17T13:25:00Z",
+  "current_step": 6,
   "decisions": {
     "region": "swedencentral",
     "compliance": "GDPR",
@@ -260,7 +260,7 @@
       "models_used": []
     },
     "step_5": {
-      "complexity": "TBD",
+      "complexity": "complex",
       "passes_planned": 0,
       "passes_executed": 0,
       "skipped": [],
@@ -388,26 +388,29 @@
       "name": "IaC Code",
       "agent": "06b-Bicep CodeGen",
       "status": "complete",
-      "sub_step": "phase_4_complete",
+      "sub_step": "phase_6_artifact",
       "started": "2026-03-17T10:10:00Z",
-      "completed": "2026-03-17T11:00:00Z",
+      "completed": "2026-03-17T12:44:57Z",
       "artifacts": [
         "infra/bicep/contoso-service-hub-run-3/main.bicep",
-        "infra/bicep/contoso-service-hub-run-3/main.bicepparam"
+        "infra/bicep/contoso-service-hub-run-3/main.bicepparam",
+        "infra/bicep/contoso-service-hub-run-3/azure.yaml",
+        "agent-output/contoso-service-hub-run-3/05-implementation-reference.md"
       ],
       "context_files_used": [
         "agent-output/contoso-service-hub-run-3/04-implementation-plan.md",
         "agent-output/contoso-service-hub-run-3/04-governance-constraints.json",
-        "agent-output/contoso-service-hub-run-3/04-avm-matrix.json"
+        "agent-output/contoso-service-hub-run-3/04-avm-matrix.json",
+        ".github/skills/azure-artifacts/templates/05-implementation-reference.template.md",
+        "infra/bicep/contoso-service-hub-run-2/azure.yaml"
       ]
     },
     "6": {
       "name": "Deploy",
       "agent": "07b-Bicep Deploy",
-      "status": "complete",
-      "sub_step": "validated-not-deployed",
-      "started": "2026-03-17T11:01:00Z",
-      "completed": "2026-03-17T11:10:00Z",
+      "status": "in_progress",
+      "sub_step": "phase_1_auth",
+      "started": "2026-03-17T13:25:00Z",
       "artifacts": [
         "agent-output/contoso-service-hub-run-3/06-deployment-summary.md"
       ],

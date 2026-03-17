@@ -39,16 +39,16 @@
 [██████████] 100% Complete
 ```
 
-| Step | Phase          |                                Status                                 | Artifact                                                                                                         |
-| :--: | -------------- | :-------------------------------------------------------------------: | ---------------------------------------------------------------------------------------------------------------- |
-|  1   | Requirements   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [01-requirements.md](./01-requirements.md)                                                                       |
-|  2   | Architecture   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [02-architecture-assessment.md](./02-architecture-assessment.md)                                                 |
-|  3   | Design         | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [03-des-diagram.png](./03-des-diagram.png)                                                                       |
-| 3.5  | Governance     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-governance-constraints.md](./04-governance-constraints.md)                                                   |
-|  4   | Planning       | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-implementation-plan.md](./04-implementation-plan.md)                                                         |
-|  5   | Implementation | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [../../infra/bicep/contoso-service-hub-run-3/main.bicep](../../infra/bicep/contoso-service-hub-run-3/main.bicep) |
-|  6   | Deployment     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [06-deployment-summary.md](./06-deployment-summary.md)                                                           |
-|  7   | Documentation  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [07-documentation-index.md](./07-documentation-index.md)                                                         |
+| Step | Phase          |                                Status                                 | Artifact                                                           |
+| :--: | -------------- | :-------------------------------------------------------------------: | ------------------------------------------------------------------ |
+|  1   | Requirements   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [01-requirements.md](./01-requirements.md)                         |
+|  2   | Architecture   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [02-architecture-assessment.md](./02-architecture-assessment.md)   |
+|  3   | Design         | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [03-des-diagram.png](./03-des-diagram.png)                         |
+| 3.5  | Governance     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-governance-constraints.md](./04-governance-constraints.md)     |
+|  4   | Planning       | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-implementation-plan.md](./04-implementation-plan.md)           |
+|  5   | Implementation | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [05-implementation-reference.md](./05-implementation-reference.md) |
+|  6   | Deployment     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [06-deployment-summary.md](./06-deployment-summary.md)             |
+|  7   | Documentation  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [07-documentation-index.md](./07-documentation-index.md)           |
 
 > **Legend**:
 > ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) Complete
@@ -127,10 +127,12 @@
 <details open>
 <summary><strong>📁 Step 5: Implementation</strong></summary>
 
-| File                                                                                                                       | Description        |                                Status                                 | Created    |
-| -------------------------------------------------------------------------------------------------------------------------- | ------------------ | :-------------------------------------------------------------------: | ---------- |
-| [../../infra/bicep/contoso-service-hub-run-3/main.bicep](../../infra/bicep/contoso-service-hub-run-3/main.bicep)           | Bicep orchestrator | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
-| [../../infra/bicep/contoso-service-hub-run-3/main.bicepparam](../../infra/bicep/contoso-service-hub-run-3/main.bicepparam) | Parameter baseline | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
+| File                                                                                                                       | Description            |                                Status                                 | Created    |
+| -------------------------------------------------------------------------------------------------------------------------- | ---------------------- | :-------------------------------------------------------------------: | ---------- |
+| [05-implementation-reference.md](./05-implementation-reference.md)                                                         | Implementation handoff | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
+| [../../infra/bicep/contoso-service-hub-run-3/main.bicep](../../infra/bicep/contoso-service-hub-run-3/main.bicep)           | Bicep orchestrator     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
+| [../../infra/bicep/contoso-service-hub-run-3/main.bicepparam](../../infra/bicep/contoso-service-hub-run-3/main.bicepparam) | Parameter baseline     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
+| [../../infra/bicep/contoso-service-hub-run-3/azure.yaml](../../infra/bicep/contoso-service-hub-run-3/azure.yaml)           | azd manifest           | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | 2026-03-17 |
 
 </details>
 
