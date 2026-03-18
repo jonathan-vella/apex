@@ -80,7 +80,9 @@ my-awesome-skill/
 
 ## Project-Specific Scaffold Templates
 
-📋 **Reference**: Read `references/scaffold-templates.md` for Azure Knowledge Skill and Integration Skill skeleton templates, plus the "Before Committing a New Skill" checklist.
+📋 **Reference**: Read `references/scaffold-templates.md` for Azure Knowledge Skill
+and Integration Skill skeleton templates,
+plus the "Before Committing a New Skill" checklist.
 
 ## References
 

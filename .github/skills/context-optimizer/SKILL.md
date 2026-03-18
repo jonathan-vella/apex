@@ -63,7 +63,8 @@ in VS Code settings to capture verbose tool-call data.
 
 - **Log Format Reference** — `ccreq` line parsing, request types, latency heuristics
 - **Steps 1-5** — Log parsing, turn-cost profiling, agent definition audit, context growth mapping, optimization recommendations
-- **Common Optimization Patterns** — Subagent extraction, instruction narrowing, progressive skill loading, prompt deduplication, context summarization
+- **Common Optimization Patterns** — Subagent extraction, instruction narrowing,
+  progressive skill loading, prompt deduplication, context summarization
 - **Baseline Comparison** — Automated snapshot/diff workflow (Phase 0 and Phase 6)
 
 ---

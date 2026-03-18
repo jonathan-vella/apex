@@ -135,7 +135,9 @@ If missing, STOP and request handoff to Architect agent.
 2. Read `01-requirements.md` for business-critical paths and actor context
 3. Generate `agent-output/{project}/03-des-diagram.py` using the azure-diagrams contract
 4. Execute `python3 agent-output/{project}/03-des-diagram.py`
-5. Validate quality gate score (>=9/10); regenerate once if below threshold. Do not finalize until verification passes. If a check fails, retry with a different strategy before reporting blocked.
+5. Validate quality gate score (>=9/10); regenerate once if below threshold.
+   Do not finalize until verification passes.
+   If a check fails, retry with a different strategy before reporting blocked.
 6. Save final PNG to `agent-output/{project}/03-des-diagram.png`
 
 ### ADR Generation

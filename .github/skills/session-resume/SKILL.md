@@ -78,7 +78,8 @@ All agents MUST enforce schema version at read time:
 1. **On read**: Check `schema_version` field. If `"1.0"` or missing → migrate to `"2.0"` immediately:
    - Add `"schema_version": "2.0"`
    - Add `"lock"` object if missing (see Claim Protocol below)
-   - For each step with `status: "in_progress"`: add `"claim": { "owner_id": null, "heartbeat": null, "attempt_token": null, "event_log": [] }`
+   - For each step with `status: "in_progress"`: add `"claim"` object with fields:
+     `owner_id: null`, `heartbeat: null`, `attempt_token: null`, `event_log: []`
    - For `complete`/`pending`/`skipped` steps: no claim field needed
    - Write the migrated file back atomically (write to `.tmp`, rename to target, keep `.bak`)
 2. **On create**: Always use `"schema_version": "2.0"`. Never create v1.0 files.

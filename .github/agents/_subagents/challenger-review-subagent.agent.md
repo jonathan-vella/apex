@@ -133,7 +133,8 @@ Return ONLY valid JSON matching the schema below. No markdown wrapper, no explan
 Required top-level fields: challenged_artifact, artifact_type, review_focus, pass_number,
 challenge_summary, compact_for_parent, risk_level, must_fix_count, should_fix_count, suggestion_count, issues[].
 Each issue must have: severity, category, title, description, failure_scenario, artifact_section, suggested_mitigation.
-If `artifact_path` does not exist or is empty, return error JSON: `{"status": "artifact_not_found", "artifact_path": "...", "issues": []}`.
+If `artifact_path` does not exist or is empty, return error JSON:
+`{"status": "artifact_not_found", "artifact_path": "...", "issues": []}`.
 </output_contract>
 
 ## Output Format

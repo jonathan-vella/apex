@@ -224,7 +224,8 @@ Invoke both validation subagents **in parallel** via simultaneous `#runSubagent`
 
 Await both results. Both must pass before Phase 4.5.
 
-3. Run `npm run validate:iac-security-baseline` on `infra/bicep/{project}/` — violations are a hard gate (fix before Phase 4.5).
+Run `npm run validate:iac-security-baseline` on `infra/bicep/{project}/` —
+violations are a hard gate (fix before Phase 4.5).
 
 ### Phase 4.5: Adversarial Code Review (3 passes)
 

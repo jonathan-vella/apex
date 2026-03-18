@@ -35,7 +35,7 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 4, 5).
 | `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing         |
 | `azure-artifacts`          | Template H2 structures, styling, generation rules                 |
 | `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
-| `azure-diagnostics`    | KQL templates, health checks, remediation playbooks               |
+| `azure-diagnostics`        | KQL templates, health checks, remediation playbooks               |
 | `azure-diagrams`           | Python architecture diagram generation                            |
 | `azure-adr`                | Architecture Decision Records                                     |
 | `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                        |

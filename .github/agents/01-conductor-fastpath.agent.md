@@ -135,8 +135,11 @@ Review pass counts follow the `simple` row of the review matrix in
    so it must run as a direct handoff, not via `#runSubagent`.
    - **Governance pre-check (required)**: Before skipping full governance
      discovery, run this validation:
-     1. Validate auth: `az account show --query id -o tsv` — if this fails (exit code non-zero), STOP and hand off to main `01-Conductor`
-     2. Run: `az policy assignment list --scope "/subscriptions/$SUB_ID" --query "[?parameters.effect.value=='Deny' || properties.enforcementMode=='Default'].{name:displayName, effect:parameters.effect.value}" --only-show-errors -o json`
+     1. Validate auth: `az account show --query id -o tsv` — if this fails (exit code non-zero),
+        STOP and hand off to main `01-Conductor`
+     2. Run governance check (single command):
+        `az policy assignment list --scope "/subscriptions/$SUB_ID"`
+        with `--query "[?parameters.effect.value=='Deny']..."` `--only-show-errors -o json`
      3. If exit code is non-zero: STOP. CLI failed — cannot validate assumption. Hand off to main `01-Conductor`
      4. If output is not a valid JSON array: STOP. Malformed response — hand off to main `01-Conductor`
      5. If the array contains ANY Deny-effect policies: STOP. Update

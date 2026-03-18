@@ -41,7 +41,9 @@ agent-output/{project}/
 
 ## ADR Template Structure
 
-📋 **Reference**: Read `references/adr-template.md` for the full ADR template with all sections (Context, Decision, Alternatives, Consequences, WAF Pillar Analysis, Compliance, Implementation Notes).
+📋 **Reference**: Read `references/adr-template.md` for the full ADR template
+with all sections (Context, Decision, Alternatives, Consequences,
+WAF Pillar Analysis, Compliance, Implementation Notes).
 
 ## Example Prompts
 
@@ -152,7 +154,8 @@ Before finalizing the ADR, verify:
 
 📋 **Reference**: Read `references/guardrails.md` for detailed DO/DON'T rules and anti-pattern table.
 
-**Key rules**: Always include WAF analysis, document 2-3 alternatives, include both positive and negative consequences, use specific decision statements.
+**Key rules**: Always include WAF analysis, document 2-3 alternatives,
+include both positive and negative consequences, use specific decision statements.
 
 ## Reference Index
 

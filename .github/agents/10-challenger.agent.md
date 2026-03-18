@@ -93,8 +93,8 @@ Invoke `challenger-review-subagent` with:
 | 2            | security-governance | architecture-reliability | —                |
 | 3            | security-governance | architecture-reliability | cost-feasibility |
 
-6. **Write the returned JSON** to `agent-output/{project}/challenge-findings-{artifact_type}.json`
-7. **Present findings directly in chat** — render a markdown table with columns:
+1. **Write the returned JSON** to `agent-output/{project}/challenge-findings-{artifact_type}.json`
+2. **Present findings directly in chat** — render a markdown table with columns:
    **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
    — list every finding from the JSON (must_fix first, then should_fix, then suggestion).
    Show totals: `N must-fix, N should-fix, N suggestion`.

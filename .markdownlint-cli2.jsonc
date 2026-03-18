@@ -153,5 +153,44 @@
 
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
+
+    // Skill reference docs (MCP-fetched, auto-generated — not hand-authored)
+    ".github/skills/**/references/**",
+
+    // Skill digest/minimal files (auto-generated from SKILL.md by generate:digests)
+    ".github/skills/**/SKILL.digest.md",
+    ".github/skills/**/SKILL.minimal.md",
+
+    // Skill template files (example/sample content from plugin skills)
+    ".github/skills/**/templates/**",
+
+    // Plugin skill content (imported from VS Code extensions and MCP tools;
+    // validated structurally by validate:skills-format, not by markdownlint)
+    ".github/skills/azure-prepare/**",
+    ".github/skills/azure-deploy/**",
+    ".github/skills/azure-validate/**",
+    ".github/skills/azure-compute/**",
+    ".github/skills/azure-compliance/**",
+    ".github/skills/azure-cost-optimization/**",
+    ".github/skills/azure-diagnostics/**",
+    ".github/skills/azure-messaging/**",
+    ".github/skills/azure-storage/**",
+    ".github/skills/azure-quotas/**",
+    ".github/skills/azure-rbac/**",
+    ".github/skills/azure-resource-lookup/**",
+    ".github/skills/azure-resource-visualizer/**",
+    ".github/skills/azure-hosted-copilot-sdk/**",
+    ".github/skills/azure-ai/**",
+    ".github/skills/azure-kusto/**",
+    ".github/skills/azure-cloud-migrate/**",
+    ".github/skills/appinsights-instrumentation/**",
+    ".github/skills/entra-app-registration/**",
+    ".github/skills/microsoft-foundry/**",
+
+    // E2E test input documents (long-form RFQ/RFP prose, not production docs)
+    "docs/e2e-inputs/**",
+
+    // MkDocs build output
+    "site/**",
   ],
 }
