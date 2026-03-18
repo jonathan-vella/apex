@@ -2,8 +2,7 @@
 
 # Azure Architecture Diagrams Skill (Minimal)
 
-**Prerequisites**:
-```bash
+**Prerequisites**: `pip install diagrams matplotlib pillow`
 
 **Execution Method**:
 Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Never use heredoc execution.

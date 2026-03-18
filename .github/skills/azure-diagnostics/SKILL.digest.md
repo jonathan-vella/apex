@@ -58,6 +58,8 @@ Activate this skill when user wants to:
 az resource show --ids RESOURCE_ID
 
 # View activity log
+az monitor activity-log list --resource-group <rg-name> --output table
+```
 
 > _See SKILL.md for full content._
 
@@ -65,11 +67,12 @@ az resource show --ids RESOURCE_ID
 
 ### Using MCP
 
-```
+```text
 mcp_azure_mcp_resourcehealth
   intent: "check health status of <resource-name>"
   command: "get"
-  parameters:
+  parameters: ...
+```
 
 > _See SKILL.md for full content._
 

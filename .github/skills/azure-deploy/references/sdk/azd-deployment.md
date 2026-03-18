@@ -5,7 +5,22 @@
 > in the **azd-deployment** plugin skill if installed.
 
 ## Install
+
+> **Security note**: Piping a remote script directly into `bash` carries supply-chain risk.
+> For a more auditable approach, download the script first, review it, then execute:
+>
+> ```bash
+> curl -fsSL https://aka.ms/install-azd.sh -o install-azd.sh
+> less install-azd.sh   # review before running
+> bash install-azd.sh
+> ```
+>
+> Alternatively, use your OS package manager (`winget install microsoft.azd`, `brew install azd`).
+
+```bash
+# Quick install (trusts the remote script)
 curl -fsSL https://aka.ms/install-azd.sh | bash
+```
 
 ## Quick Start
 ```bash

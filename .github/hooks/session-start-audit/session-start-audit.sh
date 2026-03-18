@@ -28,15 +28,16 @@ echo "$SESSION_INFO" >> "$LOG_FILE"
 # ── Project context injection ──
 CONTEXT_PARTS=()
 
-# Last completed workflow step from session state
-SESSION_STATE=$(find agent-output -maxdepth 2 -name '00-session-state.json' -print -quit 2>/dev/null || true)
+# Last completed workflow step from session state (pick most recently modified if multiple exist)
+SESSION_STATE=$(find agent-output -maxdepth 2 -name '00-session-state.json' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2- || true)
 if [[ -n "$SESSION_STATE" && -f "$SESSION_STATE" ]]; then
   STEP_INFO=$(python3 -c "
 import json, sys
 with open(sys.argv[1]) as f:
     data = json.load(f)
-step = data.get('currentStep', data.get('lastCompletedStep', 'N/A'))
-name = data.get('stepName', '')
+step = data.get('current_step', 'N/A')
+steps = data.get('steps', {})
+name = steps.get(str(step), {}).get('name', '')
 print(f'{step} ({name})' if name else str(step))
 " "$SESSION_STATE" 2>/dev/null || echo "N/A")
   CONTEXT_PARTS+=("Step: ${STEP_INFO}")
