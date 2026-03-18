@@ -81,6 +81,9 @@ Use `#tool:<tool-name>` to reference agent tools in body text.
 
 ## Maintenance
 
+When multiple instructions apply to the same file via overlapping `applyTo` globs,
+see `.github/instructions/references/precedence-matrix.md` for resolution rules.
+
 - Review when dependencies or frameworks are updated
 - Keep glob patterns accurate as project structure evolves
 - Target under 150 lines; split large content into a companion skill's `references/` folder

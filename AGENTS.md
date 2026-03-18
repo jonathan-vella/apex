@@ -58,6 +58,7 @@ npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
 npm run validate:skill-affinity          # Skill/agent affinity catalog validation
+npm run validate:iac-security-baseline   # IaC security baseline (TLS, HTTPS, blob, identity, SQL auth)
 
 # Bicep validation (replace {project} with actual project name)
 bicep build infra/bicep/{project}/main.bicep
@@ -216,10 +217,11 @@ docs/                  # User-facing documentation
 | 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×  |
 | 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —      |
 | 3.5  | Governance   | `04-governance-constraints.md/.json`                     | —      |
-| 4    | IaC Plan     | `04-implementation-plan.md` + diagrams                   | 1×–2×  |
+| 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | 1×–2×  |
 | 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×  |
 | 6    | Deploy       | `06-deployment-summary.md`                               | —      |
 | 7    | As-Built     | `07-*.md` documentation suite                            | —      |
+| Post | Lessons      | `09-lessons-learned.json/.md`                            | —      |
 
 All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).

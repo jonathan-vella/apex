@@ -136,9 +136,14 @@ If any are missing, STOP → handoff to the appropriate prior agent.
 ### Phase 1: Prerequisites and Governance Integration
 
 1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5)
-2. Extract all `Deny` policies — these are hard blockers for the plan
-3. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
-4. Verify governance artifacts are complete — if missing or `PARTIAL`, STOP
+2. **Validate governance completeness (MANDATORY)**:
+   - File exists and is non-empty
+   - JSON is well-formed (parse succeeds)
+   - `discovery_status` field is `"COMPLETE"` (not `"PARTIAL"` or missing)
+   - Policy array is present (empty array is valid if discovery_status is COMPLETE)
+   - If ANY of these checks fail: **STOP.** Present the Refresh Governance handoff to user.
+3. Extract all `Deny` policies — these are hard blockers for the plan
+4. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 

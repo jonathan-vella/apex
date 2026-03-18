@@ -4,7 +4,7 @@ model: ["GPT-5.4"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: ["terraform-plan-subagent"]
+agents: ["terraform-plan-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -84,6 +84,17 @@ handoffs:
 3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
+5. **Read** `.github/skills/session-resume/SKILL.digest.md` — session state checkpoint protocol
+
+## Pre-Deploy Challenger Review (MANDATORY)
+
+Before executing any deployment (after terraform plan, before `terraform apply`):
+
+1. Invoke `@challenger-review-subagent` with the plan output summary
+2. Focus lens: security-governance (Deny policy violations, destructive operations, missing tags)
+3. If `must_fix` count > 0: STOP deployment and present findings to user
+4. If `should_fix` count > 0: present findings and ask user for explicit approval to proceed
+5. Log review result to `00-session-state.json` under `review_audit.step_6`
 
 ## MANDATORY: Copy-Then-Fill Artifact Protocol
 
@@ -128,6 +139,12 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 2. Apply label `infraops-ci-pass` or `infraops-needs-fix`
 3. If all gates pass and review approved, execute auto-merge
 4. See `.github/skills/github-operations/references/smart-pr-flow.md` for full protocol
+
+## Preflight: Security Baseline Check
+
+Run `npm run validate:iac-security-baseline` before terraform plan.
+If violations found → STOP, hand back to Code agent.
+Skip if `05-implementation-reference.md` confirms `security_validation_status: PASSED`.
 
 ## DO / DON'T
 

@@ -211,7 +211,12 @@ Step 4:   IaC Plan        →  [Gate 3: Plan Approval]          →  04-implemen
 Step 5:   IaC Code        →  [Gate 4: Code Validation]        →  infra/bicep/{project}/ or infra/terraform/{project}/
 Step 6:   Deploy          →  [Gate 5: Deploy Approval]        →  06-deployment-summary.md
 Step 7:   Documentation   →                                   →  07-*.md
+Post:     Lessons         →                                   →  09-lessons-learned.*
 ```
+
+At workflow start, initialize `09-lessons-learned.json` per
+`lesson-collection.instructions.md`. After Step 7, generate the
+lessons narrative as a completion artifact.
 
 ## Approval Gates, Handoff Document & Delegation Rules
 

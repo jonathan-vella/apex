@@ -60,8 +60,9 @@
     "init": "node scripts/init-from-template.mjs",
     "validate:no-hardcoded-counts": "node scripts/validate-no-hardcoded-counts.mjs",
     "validate:hooks": "node scripts/validate-hooks.mjs",
+    "validate:iac-security-baseline": "node scripts/validate-iac-security-baseline.mjs",
     "test:hooks": "bash scripts/test-hooks.sh",
-    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format validate:instruction-checks lint:governance-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-checks validate:stale-refs lint:json lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness lint:model-alignment lint:agent-checks validate:no-hardcoded-counts validate:hooks",
+    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format validate:instruction-checks lint:governance-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-checks validate:stale-refs lint:json lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness lint:model-alignment lint:agent-checks validate:no-hardcoded-counts validate:hooks validate:iac-security-baseline",
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform",
     "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'"
   },

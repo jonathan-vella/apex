@@ -176,37 +176,9 @@ while step.status != "complete" AND iteration < 5:
 
 ## Lesson Capture Rules
 
-Record a lesson to `09-lessons-learned.json` whenever:
-
-- A step needs >1 iteration (self-correction fired)
-- A validator fails on first pass
-- Pre-validation fails (agent returned garbage/empty)
-- A challenger finding reveals a gap
-- `bicep build` fails with hallucinated properties → `factual-accuracy` category
-- `terraform validate` fails with hallucinated resource types → `factual-accuracy` category
-- Context budget concern → `context-budget` category
-- Step exceeds timing threshold (simple ≤ 3 min, codegen ≤ 10 min) → `workflow-design` category
-
-### Lesson Schema
-
-```json
-{
-  "id": "LL-NNN",
-  "step": 5,
-  "category": "agent-behavior|skill-gap|prompt-quality|validation-gap|workflow-design|context-budget|artifact-quality|factual-accuracy",
-  "severity": "critical|high|medium|low",
-  "title": "Short description",
-  "observation": "What happened",
-  "expected": "What should have happened",
-  "root_cause": "Why it happened",
-  "self_corrected": true,
-  "iterations_to_fix": 2,
-  "recommendation": "Actionable fix",
-  "applies_to": ["Agent or skill name"],
-  "applies_to_paths": [".github/agents/path-to-file.agent.md"],
-  "status": "new"
-}
-```
+Record a lesson to `09-lessons-learned.json` per the triggers in
+`lesson-collection.instructions.md`. Use the schema from
+`.github/skills/session-resume/references/lesson-schema.md`.
 
 ## Context Budget Management
 

@@ -85,7 +85,7 @@ The Dev Container installs all tools automatically:
 - PowerShell 7
 - Python 3 + diagrams library
 - Go (Terraform MCP server)
-- 27+ VS Code extensions
+- 26 VS Code extensions
 
 ## :material-check-circle-outline: Step 4: Verify Setup
 

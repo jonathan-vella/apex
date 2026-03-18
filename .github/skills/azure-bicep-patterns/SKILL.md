@@ -21,6 +21,7 @@ Reusable infrastructure patterns for Azure Bicep templates. Complements
 | Conditional Deployment   | Optional resources controlled by parameters      | [common-patterns](references/common-patterns.md)                   |
 | Module Composition       | Breaking main.bicep into reusable modules        | [common-patterns](references/common-patterns.md)                   |
 | Managed Identity Binding | Any service-to-service authentication            | [common-patterns](references/common-patterns.md)                   |
+| Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                     |
 | What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                         |
 
 ---
@@ -51,6 +52,7 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
 - **Diagnostics**: `categoryGroup: 'allLogs'` + `AllMetrics`; pass workspace **name** not ID
 - **Conditional**: `bool` params with defaults; guard outputs with ternary
 - **Identity**: `guid()` for idempotent role names; `principalType: 'ServicePrincipal'`; scope narrowly
+- **Budget**: 3 forecast thresholds (80%/100%/120%); amount and emails MUST be parameters
 - **What-If**: Run before every deploy; watch for unexpected deletes and SKU downgrades
 - **AVM**: Always pin versions; wrap modules to override defaults; verify outputs in README
 
@@ -63,6 +65,7 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
 | [hub-spoke-pattern.md](references/hub-spoke-pattern.md)               | Hub-spoke VNet orchestration with peering                             |
 | [private-endpoint-pattern.md](references/private-endpoint-pattern.md) | PE wiring + DNS zone groups + group ID table                          |
 | [common-patterns.md](references/common-patterns.md)                   | Diagnostics, conditional deploy, module composition, managed identity |
+| [budget-pattern.md](references/budget-pattern.md)                     | Consumption budget, forecast alerts, anomaly detection                |
 | [avm-pitfalls.md](references/avm-pitfalls.md)                         | What-if interpretation, AVM gotchas, learn more links                 |
 
 ---

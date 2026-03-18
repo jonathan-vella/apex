@@ -113,7 +113,8 @@ At the start of every run, ensure these files exist:
 1. `00-session-state.json` — initialize if not present (use session-resume skill schema)
 2. `00-handoff.md` — create with project name, run ID, start timestamp, and IaC tool
 3. `08-iteration-log.json` — initialize: `{ "run_id": "", "started": "", "entries": [] }`
-4. `09-lessons-learned.json` — initialize: `[]`
+4. `09-lessons-learned.json` — initialize per `lesson-collection.instructions.md`:
+   `{ "workflow_mode": "e2e", "project": "{project}", "lessons": [] }`
 
 Update session state after every step completion:
 
@@ -152,6 +153,23 @@ After every step completes validation:
 > the challenger review — go back and run it. Steps 1, 2, 4, and 5 MUST have
 > challenger reviews. Steps 3.5 and 6 are strongly recommended but not blocking.
 > This is the #1 cause of low benchmark scores (17/100 F in 2 of 4 E2E runs).
+
+## Governance Validation Gate (MANDATORY)
+
+After Step 3.5 (Governance) completes:
+
+1. Read `agent-output/{project}/04-governance-constraints.json`
+2. Validate the file:
+   - Exists and is non-empty
+   - Is valid JSON
+   - Contains `discovery_status` field with value `"COMPLETE"` (not `"PARTIAL"` or missing)
+   - Contains at least one entry in the `policies` array (even if empty array is valid for subscriptions with no policies, the `discovery_status` MUST be `"COMPLETE"`)
+3. If validation FAILS: re-invoke `@04g-Governance` agent for retry (up to max 3 attempts)
+4. If validation passes after 3 retries still fails: mark step as `blocked`, log lesson, continue to next steps with WARNING that governance artifacts may be incomplete
+5. Log governance validation result to `08-iteration-log.json`
+
+> **RATIONALE**: E2E runs previously auto-approved governance without validation,
+> certifying broken workflows as passing. This gate prevents that.
 
 ## Self-Correction Protocol (RALPH Principle)
 

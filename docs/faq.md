@@ -48,6 +48,12 @@ Frequently asked questions about Agentic InfraOps.
     permissions to create resources. Step 2 (Architecture) optionally uses the Azure
     Pricing MCP server, which queries public pricing APIs and does not require a subscription.
 
+??? question "When should I use the Fast-Path Conductor?"
+
+    Use the **01-Conductor (Fast Path)** for simple projects with ≤3 resources, a single
+    environment, and no custom Azure policies. It combines Plan and Code into one step
+    with a 1-pass review. For anything more complex, use the standard 01-Conductor.
+
 ---
 
 ## IaC Tracks

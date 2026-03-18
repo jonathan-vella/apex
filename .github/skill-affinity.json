@@ -1,6 +1,7 @@
 {
   "$schema": "skill-affinity-v1",
   "description": "Maps each agent to skills with affinity weights: primary (always load), secondary (on demand), never (skip). Plugin skills from Issue #240 use canonical plugin names.",
+  "_reconciliation": "This file is the AUTHORITATIVE source for skill loading tiers. agent-registry.json lists the union of primary + secondary skills as a flat array. Key mapping: registry 'conductor' = affinity '01-Conductor', registry 'iac-plan.bicep' = affinity '05b-Bicep Planner', etc. Both files MUST be updated together. Validators: validate:skill-affinity and validate:agent-registry.",
   "agents": {
     "01-Conductor": {
       "primary": [

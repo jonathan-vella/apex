@@ -94,12 +94,13 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 ### Governance and Compliance Validators
 
-| npm Command                    | Script                                   | Purpose                                 |
-| ------------------------------ | ---------------------------------------- | --------------------------------------- |
-| `lint:governance-refs`         | `validate-governance-refs.mjs`           | Governance guardrails integrity         |
-| `validate:no-hardcoded-counts` | `validate-no-hardcoded-counts.mjs`       | Prevent hardcoded entity counts         |
-| `validate:stale-refs`          | `validate-no-stale-skill-references.mjs` | Detect stale skill references           |
-| `lint:deprecated-refs`         | `validate-no-deprecated-refs.mjs`        | Block deprecated API/pattern references |
+| npm Command                      | Script                                   | Purpose                                                      |
+| -------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
+| `lint:governance-refs`           | `validate-governance-refs.mjs`           | Governance guardrails integrity                              |
+| `validate:no-hardcoded-counts`   | `validate-no-hardcoded-counts.mjs`       | Prevent hardcoded entity counts                              |
+| `validate:stale-refs`            | `validate-no-stale-skill-references.mjs` | Detect stale skill references                                |
+| `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`        | Block deprecated API/pattern references                      |
+| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs`     | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
 
 ### Session and State Validators
 

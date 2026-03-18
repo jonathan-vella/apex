@@ -107,6 +107,9 @@ const EXPECTED_ARTIFACTS = {
   "07-ab-compliance-gaps.png": { required: false, step: 7 },
   // Adversarial review outputs (any step)
   "challenge-findings-*.json": { required: false, step: 0, glob: true },
+  // Completion artifacts (lessons learned)
+  "09-lessons-learned.json": { required: false, step: 7 },
+  "09-lessons-learned.md": { required: false, step: 7 },
 };
 
 // Weight each dimension for composite score

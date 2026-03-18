@@ -55,14 +55,32 @@ flowchart TD
    npm run validate:session-state
    ```
 
-2. If the file is unrecoverable, rename it and restart:
+2. If the file is unrecoverable, check for a backup:
+
+   ```bash
+   ls agent-output/{project}/00-session-state.json.bak
+   ```
+
+   If a `.bak` file exists, restore it:
+
+   ```bash
+   cp agent-output/{project}/00-session-state.json.bak agent-output/{project}/00-session-state.json
+   ```
+
+3. If no backup exists, rename the corrupt file and restart:
 
    ```bash
    cd agent-output/{project}
-   mv 00-session-state.json 00-session-state.json.bak
+   mv 00-session-state.json 00-session-state.json.corrupt
    ```
 
-   The Conductor will create a fresh state file on the next run.
+   The Conductor creates a fresh v2.0 state file on the next run.
+   All steps reset to `pending`.
+
+!!! tip "Prevention"
+
+    The session-resume skill uses atomic writes (write to `.tmp`, rename to target,
+    keep `.bak` of previous version) to prevent corruption during agent crashes.
 
 ### Stale Lock
 

@@ -52,10 +52,15 @@ checkpoint after any interruption — mid-step, cross-step, or direct invocation
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "project": "my-project",
   "current_step": 2,
   "updated": "2026-03-02T10:15:00Z",
+  "lock": {
+    "owner_id": null,
+    "heartbeat": null,
+    "attempt_token": null
+  },
   "steps": {
     "2": {
       "status": "in_progress",
@@ -65,6 +70,27 @@ checkpoint after any interruption — mid-step, cross-step, or direct invocation
   }
 }
 ```
+
+## Schema Version Enforcement (MANDATORY)
+
+All agents MUST enforce schema version at read time:
+
+1. **On read**: Check `schema_version` field. If `"1.0"` or missing → migrate to `"2.0"` immediately:
+   - Add `"schema_version": "2.0"`
+   - Add `"lock"` object if missing (see Claim Protocol below)
+   - For each step with `status: "in_progress"`: add `"claim": { "owner_id": null, "heartbeat": null, "attempt_token": null, "event_log": [] }`
+   - For `complete`/`pending`/`skipped` steps: no claim field needed
+   - Write the migrated file back atomically (write to `.tmp`, rename to target, keep `.bak`)
+2. **On create**: Always use `"schema_version": "2.0"`. Never create v1.0 files.
+3. **On mismatch**: If `schema_version` is not `"2.0"`, do NOT proceed with step work.
+   Migrate first, then proceed.
+
+### Corrupt State Recovery
+
+- Before `JSON.parse`: check file size > 0 bytes
+- If parse fails: check for `00-session-state.json.bak` — restore if found
+- If no backup exists: create fresh state from template, mark all steps `pending`, log recovery event
+- Atomic write protocol: write to `.tmp` first, rename to target, keep `.bak` of previous version
 
 ## Reference Index
 
@@ -92,6 +118,15 @@ sessions from double-writing the same step.
 6. On each sub-step: renew heartbeat (update lock.heartbeat + claim.heartbeat)
 7. On completion: release claim, clear lock
 ```
+
+### Configuration Constants
+
+| Constant                | Value          | Description                                                        |
+| ----------------------- | -------------- | ------------------------------------------------------------------ |
+| `stale_threshold_ms`    | 300000 (5 min) | Heartbeat older than this = stale lock. All agents use this value. |
+| `heartbeat_interval_ms` | 60000 (1 min)  | Renew heartbeat after each sub-step or at this interval.           |
+
+Both values are immutable. Changing requires updating ALL agents simultaneously.
 
 ### Optimistic Concurrency
 

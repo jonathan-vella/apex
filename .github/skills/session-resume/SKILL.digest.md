@@ -13,18 +13,18 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Quick Reference
 
-| Concept           | Key Detail                                                     |
-| ----------------- | -------------------------------------------------------------- |
-| State file        | `agent-output/{project}/00-session-state.json`                 |
-| Human companion   | `agent-output/{project}/00-handoff.md`                         |
-| Resume detection  | Read JSON → check `steps.{N}.status` → branch accordingly      |
-| Status values     | `pending` / `in_progress` / `complete` / `skipped`             |
+| Concept          | Key Detail                                                |
+| ---------------- | --------------------------------------------------------- |
+| State file       | `agent-output/{project}/00-session-state.json`            |
+| Human companion  | `agent-output/{project}/00-handoff.md`                    |
+| Resume detection | Read JSON → check `steps.{N}.status` → branch accordingly |
+| Status values    | `pending` / `in_progress` / `complete` / `skipped`        |
 
 > _See SKILL.md for full content._
 
 ## Resume Flow (compact)
 
-```text
+````text
 00-session-state.json exists?
   NO  → Fresh start (create from template)
   YES → steps.{N}.status?
@@ -45,10 +45,11 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "project": "my-project",
   "current_step": 2,
   "updated": "2026-03-02T10:15:00Z",
+  "lock": { "owner_id": null, "heartbeat": null, "attempt_token": null },
 
 > _See SKILL.md for full content._
 
@@ -59,3 +60,4 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Conductor integration, portability |
 | State File Schema | `references/state-file-schema.md` | Full JSON template (v2.0), lock/claim field definitions, all step definitions                 |
 | Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
+````

@@ -112,6 +112,7 @@ nav:
           - Workflow Prompts: prompt-guide/workflow-prompts.md
           - Skill & Subagent Reference: prompt-guide/reference.md
       - Cost Governance: cost-governance.md
+      - Security Baseline: security-baseline.md
       - Session Debugging: session-debugging.md
       - Agent Hooks: hooks.md
       - Troubleshooting: troubleshooting.md

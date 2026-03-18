@@ -103,6 +103,15 @@ specific tasks:
 The `challenger-review-subagent` implements adversarial review at critical workflow steps.
 It operates with rotating lenses:
 
+!!! info "Challenger Selection Rules"
+
+    Pass 1 (security-governance) always uses `challenger-review-subagent` (GPT-5.4).
+    Passes 2-3 use `challenger-review-codex-subagent` (GPT-5.3-Codex) for
+    architecture-reliability and cost-feasibility lenses. For complex projects,
+    `challenger-review-batch-subagent` combines passes 2+3 in one invocation.
+    See `.github/skills/azure-defaults/references/challenger-selection-rules.md`
+    for the full routing table and conditional skip rules.
+
 - **1-pass review** (comprehensive): A single review covering all dimensions. Used for
   requirements (Step 1) and deploy (Step 6).
 - **3-pass review** (rotating lenses): Three separate reviews, each focused on a specific

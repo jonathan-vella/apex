@@ -5,9 +5,9 @@
 
 | Domain          | Grade | Status                                                                  | Next Action                                    |
 | --------------- | ----- | ----------------------------------------------------------------------- | ---------------------------------------------- |
-| Agents          | A     | 16 primary + 11 subagents; conductor body well under 400-line limit     | Monitor via `lint:agent-checks`                |
-| Skills          | A     | 39 GA skills (incl. count-registry); 32+ split with references/         | Fix pre-existing lint in plugin SKILL.md files |
-| Instructions    | A     | 26 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`                  |
+| Agents          | A     | 17 primary + 11 subagents; conductor body well under 400-line limit     | Monitor via `lint:agent-checks`                |
+| Skills          | A     | 40 GA skills (incl. count-registry); 32+ split with references/         | Fix pre-existing lint in plugin SKILL.md files |
+| Instructions    | A     | 27 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`                  |
 | Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed     |
 | Documentation   | A     | All docs updated; no hard-coded counts; descriptive language enforced   | Run doc-gardening after structural changes     |
 | CI / Validation | A     | 28 validators (incl. no-hardcoded-counts); lint:md plugin-only failures | Accept plugin SKILL.md lint as known debt      |

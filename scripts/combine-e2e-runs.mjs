@@ -116,8 +116,10 @@ function combineLessons() {
     const runNum = ri + 1;
     const prefix = `R${runNum}`;
     const filePath = path.join(AGENT_OUTPUT, run, "09-lessons-learned.json");
-    const lessons = readJson(filePath);
+    const raw = readJson(filePath);
 
+    // Support both old format (bare array) and new format (object with lessons array)
+    const lessons = Array.isArray(raw) ? raw : (raw && raw.lessons) || null;
     if (!lessons || !Array.isArray(lessons)) {
       console.warn(`  ⚠ No lessons found in ${filePath}`);
       continue;

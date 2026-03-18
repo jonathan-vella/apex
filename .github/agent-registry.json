@@ -1,6 +1,7 @@
 {
   "$schema": "agent-registry-v1",
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
+  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/never), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan.bicep'), affinity uses display names (e.g. '05b-Bicep Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
   "agents": {
     "conductor": {
       "agent": ".github/agents/01-conductor.agent.md",

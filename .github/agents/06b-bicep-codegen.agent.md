@@ -64,7 +64,7 @@ handoffs:
 
 <!-- Recommended reasoning_effort: high -->
 
-## MANDATORY: Read Skills First
+## Read Skills First (Required)
 
 **Before doing ANY work**, read these skills:
 
@@ -159,13 +159,13 @@ For EACH resource in `04-implementation-plan.md`:
      **NEVER** list governance violations in chat text and ask the user to reply.
      If the user chooses to return, STOP and present the Return to Step 4 handoff.
 
-> **CRITICAL GATE** — Never proceed to code generation with unresolved Deny
+> **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Never collect user decisions via chat messages — always
 > use the `askQuestions` tool.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
-### Phase 1.6: Context Compaction (MANDATORY)
+### Phase 1.6: Context Compaction
 
 Context usage reaches ~80% after preflight checks and governance mapping.
 **You MUST compact the conversation before proceeding to code generation.**
@@ -223,6 +223,8 @@ Invoke both validation subagents **in parallel** via simultaneous `#runSubagent`
 
 Await both results. Both must pass before Phase 4.5.
 
+3. Run `npm run validate:iac-security-baseline` on `infra/bicep/{project}/` — violations are a hard gate (fix before Phase 4.5).
+
 ### Phase 4.5: Adversarial Code Review (3 passes)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
@@ -230,9 +232,10 @@ Check `00-session-state.json` `decisions.complexity` to determine pass count per
 
 Invoke challenger subagents with `artifact_type = "iac-code"`,
 rotating `review_focus` per protocol.
-**Model routing**: Pass 1 (security-governance) →
-`challenger-review-subagent` (GPT-5.4).
-Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+
+**Read** `azure-defaults/references/challenger-selection-rules.md` for the
+pass routing table, model selection, and conditional skip rules.
+
 Follow the conditional pass rules from `adversarial-review-protocol.md` —
 skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`;
 skip pass 3 if pass 2 has 0 `must_fix`.
@@ -286,22 +289,5 @@ After completing each major phase, provide a brief status update in chat:
 
 ## Validation Checklist
 
-- [ ] Preflight check saved to `04-preflight-check.md`
-- [ ] AVM modules used for all available resources
-- [ ] `uniqueSuffix` generated once, passed to all modules
-- [ ] Governance compliance map complete — all Deny policies satisfied
-- [ ] Security baseline applied (TLS 1.2, HTTPS, managed identity)
-- [ ] Length constraints respected (KV≤24, Storage≤24)
-- [ ] `bicep-lint-subagent` PASS + `bicep-review-subagent` APPROVED
-- [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)
-- [ ] `azure.yaml` generated; `deploy.ps1` generated; `05-implementation-reference.md` saved
-- [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
-- [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
-- [ ] `projectName` is a required parameter with no default value
-- [ ] PostgreSQL uses AAD-only auth (`activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`)
-- [ ] APIM VNet model matches SKU tier (Standard v2 = virtualNetworkIntegration, not virtualNetworkType)
-- [ ] Front Door uses separate location params (profile=global, privateLinkLocation=resource region)
-- [ ] Key Vault `networkAcls.bypass` includes `'AzureServices'` when any enabledFor\* flag is true
-- [ ] All `existing` resource references have explicit `dependsOn` to the creating module
-- [ ] AKS service CIDR does not overlap VNet/subnet CIDRs; node RG name ≤80 chars
-- [ ] PE modules create their own private DNS zones (not bare `resourceId()` to non-existent zones)
+**Read** `.github/skills/azure-bicep-patterns/references/codegen-validation-checklist.md`
+— verify ALL items before marking Step 5 complete.

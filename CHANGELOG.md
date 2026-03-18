@@ -72,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `e2e-contoso-rfp.prompt.md` (full 7-step loop for Contoso Service Hub).
 - feat(e2e): complete `e2e-ralph-loop` (Nordic Fresh Foods Lite) end-to-end — all 7 steps
   with design diagrams, ADR, governance constraints, deployment summary, as-built
-  documentation suite (7 docs), Bicep templates (main + 6 modules), benchmark score 88/100,
+  documentation suite (7 docs), Bicep templates (main + 6 modules), benchmark score 87/100,
   and lessons-learned artifacts.
 - feat(e2e): bootstrap Contoso Service Hub RFP loop (`contoso-service-hub-run-1`) with
   session state, handoff, and benchmark scaffolding.

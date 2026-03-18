@@ -45,7 +45,7 @@ The system contains the following skills across several domains:
 | Documentation        | `docs-writer`                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`                                                                                                                                                                                                                                                                                                                                                            |
 | Deployment           | `iac-common`, `azure-validate`                                                                                                                                                                                                                                                                                                                                                                                      |
-| GitHub Operations    | `github-operations`                                                                                                                                                                                                                                                                                                                                                                                   |
+| GitHub Operations    | `github-operations`                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-deploy` (not active), `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-messaging`, `azure-kusto`, `azure-ai`, `azure-aigateway`, `azure-quotas`, `azure-resource-lookup`, `azure-resource-visualizer`, `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, `appinsights-instrumentation`, `entra-app-registration`, `microsoft-foundry` |
 | Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`                                                                                                                                                                                                                                                                                                                                                 |
 
@@ -90,6 +90,12 @@ when each instruction activates:
 | `powershell`                    | `**/*.ps1`, `**/*.psm1`                            | PowerShell cmdlet best practices         |
 | `prompt`                        | `**/*.prompt.md`                                   | Prompt file guidelines                   |
 | `no-heredoc`                    | `**`                                               | Prevents terminal heredoc corruption     |
+
+When multiple instructions apply to the same file via overlapping `applyTo` globs,
+precedence rules determine which takes priority. See
+`.github/instructions/references/precedence-matrix.md` for the full matrix.
+Short version: Azure Policy compliance (Tier 1) always wins over domain IaC (Tier 2),
+which wins over cross-cutting cost rules (Tier 3), which wins over general code quality (Tier 4).
 
 **`iac-cost-repeatability`** is a cross-cutting instruction that enforces two mandatory
 rules across ALL projects (Bicep and Terraform):

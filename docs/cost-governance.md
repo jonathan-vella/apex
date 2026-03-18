@@ -211,6 +211,9 @@ az consumption budget show \
     - The mandatory `iac-cost-repeatability` instruction
       (`.github/instructions/iac-cost-repeatability.instructions.md`)
       enforces these patterns automatically via glob matching
+    - **Reusable budget patterns** are available in the IaC pattern skills:
+        - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`
+        - Terraform: `.github/skills/terraform-patterns/references/budget-pattern.md`
     - [MCP Integration](how-it-works/mcp-integration.md)
       — Azure Pricing MCP server and tool catalog
     - [Workflow](workflow.md) — how cost estimation fits into the agent workflow

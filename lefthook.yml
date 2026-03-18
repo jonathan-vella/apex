@@ -210,6 +210,22 @@ pre-commit:
           echo "ℹ️  No Terraform project to validate"
         fi
 
+    iac-security-baseline:
+      glob: "{infra/bicep/**/*.bicep,infra/terraform/**/*.tf}"
+      run: |
+        STAGED_IAC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(bicep|tf)$' || true)
+        if [ -n "$STAGED_IAC" ]; then
+          echo "🔒 Checking IaC security baseline..."
+          npm run validate:iac-security-baseline
+        else
+          echo "ℹ️  No IaC files to security-check"
+        fi
+      fail_text: |
+        ❌ IaC security baseline violation!
+
+        🔧 Fix: TLS 1.2+, HTTPS-only, no public blob access, managed identity
+        📚 Reference: AGENTS.md Security Baseline section
+
 commit-msg:
   commands:
     commitlint:

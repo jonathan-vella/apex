@@ -133,12 +133,27 @@ Review pass counts follow the `simple` row of the review matrix in
 1. **Present the IaC Planner handoff** (05b or 05t based on `iac_tool`)
    — the Planner uses `askQuestions` for the Deployment Strategy Gate,
    so it must run as a direct handoff, not via `#runSubagent`.
-   - **Skip governance discovery** (simple projects have no custom policies —
-     this is an intentional exception documented in the complexity gate above.
-     If the subscription has custom policies, use the full Conductor instead.)
-   - **Skip adversarial review** of the plan (1-pass at code stage)
+   - **Governance pre-check (required)**: Before skipping full governance
+     discovery, run this validation:
+     1. Validate auth: `az account show --query id -o tsv` — if this fails (exit code non-zero), STOP and hand off to main `01-Conductor`
+     2. Run: `az policy assignment list --scope "/subscriptions/$SUB_ID" --query "[?parameters.effect.value=='Deny' || properties.enforcementMode=='Default'].{name:displayName, effect:parameters.effect.value}" --only-show-errors -o json`
+     3. If exit code is non-zero: STOP. CLI failed — cannot validate assumption. Hand off to main `01-Conductor`
+     4. If output is not a valid JSON array: STOP. Malformed response — hand off to main `01-Conductor`
+     5. If the array contains ANY Deny-effect policies: STOP. Update
+        `00-session-state.json`: set `decisions.complexity` to null, add
+        `decision_log` entry: "Fast-path fallback — complexity reset due to
+        Deny policies." Hand off to main `01-Conductor` with message:
+        "Subscription has active Deny policies — fast-path governance bypass
+        is not safe. Switching to full conductor with governance discovery."
+     6. If the array is empty or contains only Audit/Modify policies:
+        proceed without full governance discovery (documented exception).
    - Single deployment phase (no phased deployment needed)
 2. Immediately delegate to the IaC CodeGen agent (06b or 06t) via `#runSubagent`
+   - **Accepted risk**: No intermediate approval gate between Plan and Code
+     (production workflow has `gate-3` here). This is acceptable for `simple`
+     projects only because: single deployment phase, ≤3 resources, 1-pass
+     review at Code stage catches plan errors. If plan quality degrades,
+     re-introduce the gate.
    - 1-pass comprehensive adversarial review (not 3-pass)
    - Standard validation (lint + review subagents)
 
