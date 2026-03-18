@@ -26,8 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   roles to definition files, default models, and required skills.
 - feat(config): add `.github/skill-affinity.json` — skill/agent affinity catalog with
   `primary`/`secondary`/`never` weights for context budget optimization.
-- feat(scripts): add validators: `validate-session-lock`, `validate-workflow-graph`,
-  `validate-agent-registry`, `validate-skill-affinity`.
+- feat(scripts): add 5 new validators: `validate-session-lock`, `validate-workflow-graph`,
+  `validate-agent-registry`, `validate-skill-affinity`;
+  validator count 22 → 25.
 - feat(hooks): add `pre-push` hook to `lefthook.yml` with diff-based domain routing;
   only runs validators for changed file types, in parallel.
 - feat(scripts): add `diff-based-push-check.sh` helper for pre-push hook domain detection.
@@ -72,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `e2e-contoso-rfp.prompt.md` (full 7-step loop for Contoso Service Hub).
 - feat(e2e): complete `e2e-ralph-loop` (Nordic Fresh Foods Lite) end-to-end — all 7 steps
   with design diagrams, ADR, governance constraints, deployment summary, as-built
-  documentation suite (7 docs), Bicep templates (main + 6 modules), benchmark score 87/100,
+  documentation suite (7 docs), Bicep templates (main + 6 modules), benchmark score 88/100,
   and lessons-learned artifacts.
 - feat(e2e): bootstrap Contoso Service Hub RFP loop (`contoso-service-hub-run-1`) with
   session state, handoff, and benchmark scaffolding.
@@ -139,8 +140,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(prompts): correct frontmatter key from `mode` to `agent` in e2e-ralph-loop prompt.
 - fix(skills): fix trailing spaces and blank lines in SKILL.minimal.md and
   SKILL.digest.md files.
-
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## [0.9.0.1] — 2026-03-15
 
@@ -221,6 +220,17 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - chore(skills): remove deprecated `azure-diagnostics` legacy skill (replaced by
   `azure-diagnostics` from Azure Skills Plugin).
+
+### Removed
+
+- chore(mcp): remove `microsoft-learn` MCP server from `.vscode/mcp.json` and
+  `.devcontainer/post-create.sh` — Learn MCP tools are now bundled with the
+  `ms-azuretools.vscode-azure-github-copilot` extension.
+- chore(skills): delete `microsoft-docs`, `microsoft-code-reference`, and
+  `microsoft-skill-creator` skills — functionality provided natively by extension.
+- chore(config): remove skill references from `agent-registry.json` and `skill-affinity.json`.
+
+<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## [0.9.0] — Pre-Bosun Baseline
 
@@ -777,11 +787,11 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - chore(legacy): remove legacy scenarios/resources folders.
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## [0.0.1] - 2025-10-01
+## [0.0.1] - 2024-06-01
 
 ### Added
 
-- feat(init): initial repository structure (forked from `github-copilot-itpro`).
+- feat(init): add initial repository structure.
 - feat(bicep): add basic Bicep templates.
 - feat(deploy): add PowerShell deployment scripts.
 - docs(copilot): add initial Copilot instructions.

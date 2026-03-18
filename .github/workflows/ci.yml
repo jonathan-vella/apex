@@ -1,0 +1,81 @@
+# CI Workflow
+# Single required status check for all PRs to main
+# Consolidates: lint, agent-validation, policy-compliance-check
+# Runs markdown linting + all Node.js validators + handoff validation
+
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, feature/*]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint Markdown
+        run: npm run lint:md
+
+      - name: Run Node.js validators (CI-safe)
+        run: npm run validate:_node-ci
+
+      - name: Validate handoff references
+        run: |
+          echo "Validating agent handoff references..."
+
+          grep -rh "agent:" .github/agents/ --include="*.agent.md" 2>/dev/null | \
+            grep -v "^---" | \
+            sed 's/.*agent: *//' | \
+            tr -d '"' | \
+            sort -u > /tmp/handoffs.txt
+
+          grep -rh "^name:" .github/agents/ --include="*.agent.md" 2>/dev/null | \
+            sed 's/name: *//' | \
+            tr -d '"' | \
+            sort -u > /tmp/agents.txt
+
+          BUILTIN_AGENTS="agent"
+          ERRORS=0
+          while IFS= read -r handoff; do
+            [ -z "$handoff" ] && continue
+            if echo "$BUILTIN_AGENTS" | grep -qiw "$handoff"; then
+              continue
+            fi
+            if ! grep -qi "^${handoff}$" /tmp/agents.txt; then
+              echo "Invalid handoff reference: $handoff"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < /tmp/handoffs.txt
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "Found $ERRORS invalid handoff reference(s)"
+            exit 1
+          else
+            echo "All handoff references are valid"
+          fi

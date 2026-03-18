@@ -206,7 +206,7 @@ mcp/
 scripts/               # Validation and maintenance scripts (Node.js)
 docs/                  # User-facing documentation
 .vscode/
-  mcp.json             # MCP server configuration (github, azure-pricing, terraform)
+  mcp.json             # MCP server configuration (github, azure-pricing, terraform, microsoft-learn)
 ```
 
 ### Agent Workflow

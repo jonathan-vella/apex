@@ -16,8 +16,8 @@ on:
       - "docs/**"
       - ".markdown-link-check.json"
   schedule:
-    # Run weekly on Monday at 07:00 UTC (staggered from other weekly workflows)
-    - cron: "0 7 * * 1"
+    # Run weekly on Monday at 08:00 UTC (staggered: deprecation 06:00, maintenance 07:00, links 08:00)
+    - cron: "0 8 * * 1"
   workflow_dispatch:
 
 permissions:

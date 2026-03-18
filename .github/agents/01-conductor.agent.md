@@ -29,6 +29,10 @@ tools:
     edit,
     search,
     web,
+    web/fetch,
+    web/githubRepo,
+    "azure-mcp/*",
+    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
   ]

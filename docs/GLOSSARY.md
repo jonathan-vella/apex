@@ -277,10 +277,13 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 
 ### MCP (Model Context Protocol)
 
-Protocol for extending AI assistants with external tools and data sources. The Azure Pricing MCP
-server provides real-time Azure pricing to Copilot.
+Protocol for extending AI assistants with external tools and data sources. This project
+uses five MCP servers: GitHub (repo operations), Azure (RBAC-aware resource access),
+Azure Pricing (cost estimation), Terraform Registry (module lookup), and Microsoft
+Learn (official documentation search and code sample discovery).
 
-📁 **See**: [mcp/azure-pricing-mcp/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp)
+📁 **See**: [mcp/azure-pricing-mcp/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp),
+[MCP Integration](how-it-works/mcp-integration.md)
 
 ### MJS (ECMAScript Module)
 

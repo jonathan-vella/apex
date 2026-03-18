@@ -1,17 +1,17 @@
-# AVM Version Check Workflow
-# Checks for outdated Azure Verified Module versions in Bicep templates
-# and creates an issue when updates are available
+# Weekly Maintenance Workflow
+# Consolidates: avm-version-check, docs-freshness
+# Runs AVM version audit and docs freshness checks, creates issues on findings
 
-name: AVM Version Check
+name: Weekly Maintenance
 
 on:
   schedule:
-    # Run weekly on Monday at 6:00 AM UTC
-    - cron: "0 6 * * 1"
+    # Run weekly on Mondays at 07:00 UTC (staggered from deprecation tracker at 06:00)
+    - cron: "0 7 * * 1"
   workflow_dispatch:
     inputs:
       create_issue:
-        description: "Create GitHub issue for outdated modules"
+        description: "Create GitHub issues for findings"
         required: false
         default: true
         type: boolean
@@ -24,11 +24,13 @@ permissions:
   contents: read
   issues: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
-  check-avm-versions:
+  avm-versions:
     name: Check AVM Versions
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -57,7 +59,6 @@ jobs:
           echo "| File | Module Path | Current Version |" >> current-versions.md
           echo "|------|-------------|-----------------|" >> current-versions.md
 
-          # Find all Bicep files and extract AVM module references
           find infra/bicep -name "*.bicep" -type f 2>/dev/null | while read -r file; do
             grep -oP "br/public:avm/res/[^'\"]+:[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null | while read -r module; do
               path=$(echo "$module" | sed "s/:.*//")
@@ -66,7 +67,6 @@ jobs:
             done
           done || true
 
-          # Also check implementation plans for documented versions
           find agent-output -name "04-implementation-plan.md" -type f 2>/dev/null | while read -r file; do
             grep -oP "br/public:avm/res/[^'\"]+:[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null | while read -r module; do
               path=$(echo "$module" | sed "s/:.*//")
@@ -75,7 +75,6 @@ jobs:
             done
           done || true
 
-          # Count module rows found (exclude header/separator rows)
           module_count=$(awk 'BEGIN{c=0} /^\| / && $0 !~ /^\| File / && $0 !~ /^\|[-]+\|/{c++} END{print c}' current-versions.md)
           echo "module_count=$module_count" >> "$GITHUB_OUTPUT"
 
@@ -88,9 +87,6 @@ jobs:
           echo "" >> version-report.md
           echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> version-report.md
           echo "" >> version-report.md
-
-          # Note: In a real implementation, this would query the AVM registry
-          # For now, we document the manual check process
           echo "### Manual Verification Required" >> version-report.md
           echo "" >> version-report.md
           echo "To check latest AVM versions:" >> version-report.md
@@ -100,7 +96,6 @@ jobs:
           echo "" >> version-report.md
 
           cat current-versions.md >> version-report.md
-
           cat version-report.md
 
       - name: Create issue if modules are found
@@ -111,7 +106,6 @@ jobs:
             const fs = require('fs');
             const report = fs.readFileSync('version-report.md', 'utf8');
 
-            // Check if an open issue already exists
             const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -123,7 +117,6 @@ jobs:
             const labels = ['avm-versions', 'automation'];
 
             if (existingIssue) {
-              // Update existing issue
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -132,11 +125,10 @@ jobs:
               });
               console.log(`Updated existing issue #${existingIssue.number}`);
             } else {
-              // Create new issue
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: '🔄 AVM Module Version Check - Review Required',
+                title: 'AVM Module Version Check - Review Required',
                 body: `## AVM Version Audit\n\nThis automated check identifies Azure Verified Module versions in use.\n\n${report}\n\nModules detected: ${{ steps.extract.outputs.module_count }}\n\n### Action Required\n\n1. Review each module against the latest AVM versions\n2. Update \`04-implementation-plan.md\` files with current versions\n3. Use the **Refresh AVM Versions** handoff in the Bicep Plan agent\n\n### How to Check Latest Versions\n\n\`\`\`\nUse mcp_bicep_list_avm_metadata tool in GitHub Copilot Chat\n\`\`\`\n\nOr visit: https://aka.ms/avm/index`,
                 labels
               });
@@ -151,3 +143,50 @@ jobs:
             current-versions.md
             version-report.md
           retention-days: 30
+
+  docs-freshness:
+    name: Check Docs Freshness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run freshness check
+        id: freshness
+        run: |
+          npm run lint:docs-freshness 2>&1 | tee freshness-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+      - name: Create issue for staleness
+        if: steps.freshness.outputs.exit_code != '0'
+        run: |
+          BODY=$(cat freshness-output.txt)
+          {
+            echo "## Automatic Freshness Check Failed"
+            echo ""
+            echo "The weekly docs freshness check found issues:"
+            echo ""
+            echo '```'
+            echo "$BODY"
+            echo '```'
+            echo ""
+            echo "**Action required**: Review the findings above and update stale documentation."
+            echo ""
+            echo 'Run `npm run lint:docs-freshness` locally to reproduce.'
+          } > issue-body.md
+          gh issue create \
+            --title "Docs freshness: staleness detected ($(date +%Y-%m-%d))" \
+            --body-file issue-body.md \
+            --label "documentation,maintenance"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

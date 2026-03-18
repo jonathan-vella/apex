@@ -20,6 +20,7 @@ tools:
     search,
     web,
     "azure-mcp/*",
+    "microsoft-learn/*",
     "bicep/*",
     "microsoft-learn/*",
     todo,

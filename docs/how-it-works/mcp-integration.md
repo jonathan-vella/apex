@@ -6,17 +6,17 @@ toc_depth: 3
 
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
-This project integrates five MCP servers, each providing specialised capabilities
-that agents invoke at runtime. Four are declared in `.vscode/mcp.json`; the fifth
-(Azure MCP Server) runs as a VS Code extension.
+This project integrates five MCP servers, each providing specialised capabilities that
+agents invoke at runtime. Four are declared in `.vscode/mcp.json`; the fifth (Azure MCP)
+runs as a VS Code extension.
 
 ## :material-lan: MCP Architecture
 
-Four MCP servers are declared in `.vscode/mcp.json` and start automatically
-when VS Code invokes them. The fifth — the Azure MCP Server — runs as a VS Code
-extension (`ms-azuretools.vscode-azure-mcp-server`) and uses `az login` credentials.
-Agents never call cloud APIs directly — they call MCP tools, which handle
-authentication, caching, pagination, retries, and response formatting.
+Four of the five MCP servers are declared in `.vscode/mcp.json` and start automatically
+when VS Code invokes them. The fifth — the Azure MCP Server — runs as a VS Code extension
+(`ms-azuretools.vscode-azure-mcp-server`) and uses `az login` credentials. Agents never call cloud APIs directly — they
+call MCP tools, which handle authentication, caching, pagination, retries,
+and response formatting.
 
 ```mermaid
 %%{
@@ -46,11 +46,13 @@ flowchart LR
     A --> M3["Azure MCP"]:::mcp
     A --> M4["Pricing MCP"]:::mcp
     A --> M5["Terraform MCP"]:::mcp
+    A --> M6["Learn MCP"]:::mcp
     M1 --> G["GitHub API"]
     M2 --> L["Microsoft Learn API"]
     M3 --> AZ["Azure Resource Manager"]
     M4 --> P["Azure Retail Prices API"]
     M5 --> T["Terraform Registry"]
+    M6 --> L["learn.microsoft.com"]
 ```
 
 ## :octicons-mark-github-16: GitHub MCP Server
@@ -181,6 +183,49 @@ Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
 CodeGen** (Step 5t), **terraform-lint-subagent**, and
 **terraform-review-subagent**.
 
+## :material-book-open-page-variant: Microsoft Learn MCP Server
+
+| Property  | Value                                                          |
+| --------- | -------------------------------------------------------------- |
+| Transport | HTTP                                                           |
+| Endpoint  | `https://learn.microsoft.com/api/mcp?maxTokenBudget=4000`      |
+| Auth      | None                                                           |
+| Purpose   | Official Microsoft documentation search, code sample discovery |
+
+The Microsoft Learn MCP server provides agents with direct access to official
+Microsoft documentation on learn.microsoft.com. Agents use it to verify Azure
+service configurations, look up SDK methods, find working code samples, and
+ground their outputs in current, authoritative documentation rather than
+potentially outdated training data.
+
+Three skills leverage this server:
+
+| Skill                      | Purpose                                                        |
+| -------------------------- | -------------------------------------------------------------- |
+| `microsoft-docs`           | Search and fetch documentation — concepts, guides, limits      |
+| `microsoft-code-reference` | Verify SDK methods, find code samples, catch hallucinated APIs |
+| `microsoft-skill-creator`  | Generate new agent skills for Microsoft technologies           |
+
+| Tool                           | Purpose                                  |
+| ------------------------------ | ---------------------------------------- |
+| `microsoft_docs_search`        | Search learn.microsoft.com documentation |
+| `microsoft_docs_fetch`         | Fetch full page content from a docs URL  |
+| `microsoft_code_sample_search` | Find official Microsoft code samples     |
+
+The `maxTokenBudget=4000` parameter prevents oversized responses from consuming
+excessive context window space.
+
+Scoped as a **secondary** skill to most workflow agents — it is loaded on demand
+when agents need to verify facts, not on every invocation. Code-generating agents
+(Steps 4–5 planners, codegen, and Diagnose) also get `microsoft-code-reference`
+for SDK/API verification.
+
+!!! tip "CLI Fallback"
+
+    If the Learn MCP server is unavailable, agents can use the `mslearn` CLI:
+    `npx @microsoft/learn-cli search "azure functions timeout"`. All three
+    skills include CLI fallback tables.
+
 ## :material-file-tree-outline: File Map
 
 ```text
@@ -202,6 +247,9 @@ AGENTS.md                                    # Table of contents for all agents
     terraform-patterns/                      # Terraform composition patterns
     iac-common/                              # Deploy patterns + circuit breaker
     github-operations/                       # GitHub MCP + CLI + Smart PR Flow
+    microsoft-docs/                          # Microsoft Learn doc search
+    microsoft-code-reference/                # SDK/API verification
+    microsoft-skill-creator/                 # Skill generation for MS tech
     ...
   instructions/                              # Instruction files (glob-based)
 agent-output/{project}/                      # All agent-generated artefacts

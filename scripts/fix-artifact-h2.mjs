@@ -15,7 +15,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { ARTIFACT_HEADINGS } from "./validate-artifact-templates.mjs";
+import { ARTIFACT_HEADINGS } from "./_lib/artifact-headings.mjs";
 
 // Strip emoji prefixes for comparison (handles variation selectors)
 const EMOJI_RE = /[\p{Extended_Pictographic}\u{FE0E}\u{FE0F}]+\s*/gu;
