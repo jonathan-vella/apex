@@ -65,7 +65,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore(data): Update Azure deprecation tracking [skip ci]"
-          branch: "automation/azure-deprecation-tracker"
+          branch: "chore/azure-deprecation-tracker"
           delete-branch: true
           title: "chore(data): Update Azure deprecation tracking"
           body: |
