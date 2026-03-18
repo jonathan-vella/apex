@@ -15,6 +15,17 @@
 # ============================================================================
 # Variables (add to variables.tf if not already present)
 # ============================================================================
+variable "vnet_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable VNet integration and private endpoints"
+}
+
+variable "environment_name" {
+  type        = string
+  description = "Environment name used for resource naming and tagging"
+}
+
 variable "sql_database_name" {
   type        = string
   default     = "appdb"
@@ -29,6 +40,16 @@ variable "sql_admin_object_id" {
 variable "sql_admin_login" {
   type        = string
   description = "AAD admin login name (UPN or group name)"
+}
+
+# ============================================================================
+# Locals (merge with base template locals if already defined)
+# ============================================================================
+locals {
+  tags = {
+    "Environment" = var.environment_name
+    "ManagedBy"   = "Terraform"
+  }
 }
 
 # ============================================================================
