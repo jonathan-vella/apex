@@ -35,8 +35,11 @@ For deployments with Azure SQL Database and managed identity:
 ### Verify SQL Access
 
 ```bash
-# Load environment variables
-eval $(azd env get-values)
+# Load environment variables safely (parse key=value pairs with proper quoting)
+while IFS='=' read -r key value; do
+  [[ -z "$key" || "$key" =~ ^# ]] && continue
+  export "$key"="$value"
+done < <(azd env get-values)
 
 # Check managed identity user exists in database
 az sql db query \
