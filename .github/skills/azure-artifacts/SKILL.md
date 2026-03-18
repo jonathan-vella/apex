@@ -95,3 +95,4 @@ When generating a Step N artifact, read the corresponding template:
 | `references/06-deploy-template.md`       | Generating Step 6 deployment summary                 |
 | `references/07-docs-template.md`         | Generating Step 7 workload documentation             |
 | `references/styling-standards.md`        | Applying callouts, badges, emoji, navigation         |
+| `references/cost-estimate-sections.md`   | Cost estimate H2 structure and formatting rules      |

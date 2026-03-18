@@ -1,11 +1,31 @@
 ---
 name: terraform-lint-subagent
 description: Terraform syntax validation subagent. Runs terraform fmt -check, terraform validate, and tfsec (if available) to validate configuration syntax and catch errors before deployment. Returns structured PASS/FAIL with diagnostics.
-model: "Claude Sonnet 4.6 (copilot)"
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [execute, read, search, web, "azure-mcp/*"]
+tools:
+  [
+    vscode,
+    execute,
+    read,
+    agent,
+    browser,
+    edit,
+    search,
+    web,
+    "terraform/*",
+    "azure-mcp/*",
+    "microsoft-learn/*",
+    todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 ---
 
 # Terraform Lint Subagent

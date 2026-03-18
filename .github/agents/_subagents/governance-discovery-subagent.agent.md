@@ -7,11 +7,22 @@ disable-model-invocation: false
 agents: []
 tools:
   [
+    vscode,
     execute,
     read,
+    agent,
+    browser,
+    edit,
     search,
     web,
     "azure-mcp/*",
+    "microsoft-learn/*",
+    todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 ---
@@ -49,12 +60,21 @@ az account get-access-token --resource https://management.azure.com/ --output no
 
 If this fails, instruct user to run `az login --use-device-code`.
 
+<empty_result_recovery>
+If discovery returns 0 policy assignments, this is a valid result — not an error.
+Return COMPLETE status with zero counts. Do not retry or fabricate policies.
+If the REST API returns an authentication error, return FAILED status with clear instructions.
+If the API returns partial data (timeout, pagination), return PARTIAL status and include
+what was retrieved with a note about incomplete data.
+</empty_result_recovery>
+
 ## Policy Discovery Commands
 
 ### Preferred: Batch Script Approach
 
-For efficiency, run a single batch query to fetch all assignments and expand
-policy definitions in one pass. Use this Python one-liner pattern:
+For efficiency, always prefer the batch script approach over step-by-step REST calls.
+The batch script collapses 20+ sequential REST calls into a single execution,
+caching shared policy definitions.
 
 ```bash
 python3 -c "

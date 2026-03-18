@@ -1,61 +1,30 @@
 ---
 name: 07b-Bicep Deploy
-model: ["Claude Sonnet 4.6"]
-description: Executes Azure deployments using generated Bicep templates. Runs deploy.ps1 scripts, performs what-if analysis, and manages deployment lifecycle. Step 6 of the 7-step agentic workflow.
+model: ["GPT-5.4"]
+description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-agents: []
+agents: ["bicep-whatif-subagent", "challenger-review-subagent"]
 tools:
   [
-    vscode/extensions,
-    vscode/getProjectSetupInfo,
-    vscode/installExtension,
-    vscode/newWorkspace,
-    browser,
-    vscode/runCommand,
-    vscode/askQuestions,
-    vscode/vscodeAPI,
-    execute/getTerminalOutput,
-    execute/awaitTerminal,
-    execute/killTerminal,
-    execute/createAndRunTask,
-    execute/runTests,
-    execute/runInTerminal,
-    execute/runNotebookCell,
-    execute/testFailure,
-    read/terminalSelection,
-    read/terminalLastCommand,
-    read/getNotebookSummary,
-    read/problems,
-    read/readFile,
-    read/readNotebookCellOutput,
+    vscode,
+    execute,
+    read,
     agent,
-    edit/createDirectory,
-    edit/createFile,
-    edit/createJupyterNotebook,
-    edit/editFiles,
-    edit/editNotebook,
+    browser,
+    edit,
     search,
-    search/changes,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/searchResults,
-    search/textSearch,
-    search/usages,
     web,
-    web/fetch,
-    web/githubRepo,
     "azure-mcp/*",
     "bicep/*",
+    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
@@ -81,7 +50,7 @@ handoffs:
     send: true
   - label: "Step 7: As-Built Documentation"
     agent: 08-As-Built
-    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
+    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Deployment succeeded; summary at `agent-output/{project}/06-deployment-summary.md`. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
@@ -95,14 +64,15 @@ handoffs:
     agent: 03-Architect
     prompt: "Review the deployment results and validate WAF compliance of the deployed infrastructure. Assessment at `agent-output/{project}/02-architecture-assessment.md`."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 6 (Deploy). Summary at `agent-output/{project}/06-deployment-summary.md`. Advise on next steps."
+    prompt: "Returning from Step 6 (Bicep Deploy). Deployment completed; summary at `agent-output/{project}/06-deployment-summary.md`. Resources verified via Azure Resource Graph. Ready for as-built documentation."
     send: false
 ---
 
 # Deploy Agent
+
+<!-- Recommended reasoning_effort: medium -->
 
 ## MANDATORY: Read Skills First
 
@@ -113,6 +83,23 @@ handoffs:
 3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
+5. **Read** `.github/skills/session-resume/SKILL.digest.md` — session state checkpoint protocol
+
+## Pre-Deploy Challenger Review (MANDATORY)
+
+Before executing any deployment (after what-if analysis, before `az deployment`):
+
+1. Invoke `@challenger-review-subagent` with the what-if output summary
+2. Focus lens: security-governance (Deny policy violations, destructive operations, missing tags)
+3. If `must_fix` count > 0: STOP deployment and present findings to user
+4. If `should_fix` count > 0: present findings and ask user for explicit approval to proceed
+5. Log review result to `00-session-state.json` under `review_audit.step_6`
+
+## Preflight: Security Baseline Check
+
+Run `npm run validate:iac-security-baseline` before what-if analysis.
+If violations found → STOP, hand back to Code agent.
+Skip if `05-implementation-reference.md` confirms `security_validation_status: PASSED`.
 
 ## MANDATORY: Copy-Then-Fill Artifact Protocol
 
@@ -315,6 +302,25 @@ Then use `askQuestions` to gather the decision:
 ## Deployment Execution
 
 Read `04-implementation-plan.md` `## Deployment Phases` to determine phased vs single deployment.
+Check if the project has an `azure.yaml` file — if yes, use **azd** (preferred). If not, fall back to **deploy.ps1**.
+
+### Option 1: azd (preferred — when azure.yaml exists)
+
+```bash
+cd infra/bicep/{project}
+
+# Create/select environment
+azd env new {env}
+azd env set AZURE_LOCATION swedencentral
+
+# Preview changes (replaces what-if)
+azd provision --preview
+
+# Deploy (after approval)
+azd provision
+```
+
+### Option 2: deploy.ps1 (legacy — when no azure.yaml)
 
 **Phased**: Deploy each phase sequentially — run what-if
 (`deploy.ps1 -Phase {name} -WhatIf`), get approval,
@@ -323,12 +329,14 @@ execute (`deploy.ps1 -Phase {name}`), verify via ARG, then repeat.
 **Single**: One what-if + deploy cycle.
 
 ```bash
-# Option 1: PowerShell (recommended)
 cd infra/bicep/{project}
 pwsh -File deploy.ps1 -WhatIf   # Preview first
 pwsh -File deploy.ps1            # Execute (after approval)
+```
 
-# Option 2: Azure CLI (fallback)
+### Option 3: Azure CLI (fallback)
+
+```bash
 az group create --name rg-{project}-{env} --location swedencentral
 az deployment group create \
   --resource-group rg-{project}-{env} \
@@ -378,6 +386,25 @@ Mark status as "Simulated".
 
 Follow the **Copy-Then-Fill Artifact Protocol** above — copy the template, fill placeholders, validate.
 Do NOT compose the artifact from memory. Do NOT skip the post-save lint check.
+
+<output_contract>
+Expected output in `agent-output/{project}/`:
+
+- `06-deployment-summary.md` — Deployment results (copy-then-fill from template)
+  Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
+  </output_contract>
+
+<empty_result_recovery>
+If what-if returns no changes (all resources `NoChange`), report the result and confirm with the user.
+If what-if fails due to missing resource group, create the RG first and retry once.
+If deployment returns 0 resources created, verify the template was not empty and report findings.
+</empty_result_recovery>
+
+<default_follow_through_policy>
+When an approval gate is presented and the user approves, proceed immediately to the next phase.
+Do not re-confirm or ask additional questions after approval is given.
+If the user provides a custom response at an approval gate, interpret it as instructions and adapt.
+</default_follow_through_policy>
 
 ## Boundaries
 

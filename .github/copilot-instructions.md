@@ -7,20 +7,21 @@
 
 1. Enable subagents: `"github.copilot.chat": { "customAgentInSubagent": { "enabled": true } }`
 2. Open Chat (`Ctrl+Shift+I`) → Select **InfraOps Conductor** → Describe your project
-3. The Conductor guides you through all 8 steps with approval gates
+3. The Conductor guides you through all steps with approval gates
 
-## 8-Step Workflow
+## Multi-Step Workflow
 
-| Step | Agent                                                                      | Output                                                                                       | Review   | Gate       |
-| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- | ---------- |
-| 1    | Requirements                                                               | `01-requirements.md`                                                                         | 1×       | Approval   |
-| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                              | 1×–3×+1× | Approval   |
-| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}`                                                                       | —        | —          |
-| 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                         | —        | Approval   |
-| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | 1×–2×    | Approval   |
-| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                     | 1×–3×    | Validation |
-| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                   | —        | Approval   |
-| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                | —        | —          |
+| Step | Agent                                                                      | Output                                                                                       | Review | Gate       |
+| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------ | ---------- |
+| 1    | Requirements                                                               | `01-requirements.md`                                                                         | 1×     | Approval   |
+| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                              | 1×–3×  | Approval   |
+| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}` diagrams and ADRs                                                     | —      | —          |
+| 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                         | —      | Approval   |
+| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | 1×–2×  | Approval   |
+| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                     | 1×–3×  | Validation |
+| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                   | —      | Approval   |
+| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                | —      | —          |
+| Post | Lessons (Conductor)                                                        | `09-lessons-learned.json/.md`                                                                | —      | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
 Review column = adversarial passes by challenger subagents, complexity-dependent
@@ -34,7 +35,7 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 4, 5).
 | `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing         |
 | `azure-artifacts`          | Template H2 structures, styling, generation rules                 |
 | `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
-| `azure-troubleshooting`    | KQL templates, health checks, remediation playbooks               |
+| `azure-diagnostics`        | KQL templates, health checks, remediation playbooks               |
 | `azure-diagrams`           | Python architecture diagram generation                            |
 | `azure-adr`                | Architecture Decision Records                                     |
 | `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                        |
@@ -42,6 +43,8 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 4, 5).
 | `docs-writer`              | Documentation generation                                          |
 | `make-skill-template`      | Scaffold new Agent Skills from templates                          |
 | `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
+| `terraform-test`           | Terraform testing framework (.tftest.hcl, mocks, assertions)      |
+| `terraform-search-import`  | Azure resource discovery and bulk Terraform import                |
 | `session-resume`           | Session state tracking, resume protocol, context budgets          |
 | `workflow-engine`          | DAG workflow graph, complexity routing, step definitions          |
 | `context-shredding`        | Runtime context compression tiers for large artifacts             |

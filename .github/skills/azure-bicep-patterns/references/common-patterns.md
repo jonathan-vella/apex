@@ -145,3 +145,91 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 - Always use `guid()` for deterministic, idempotent assignment names
 - Set `principalType: 'ServicePrincipal'` for managed identities
 - Scope to the narrowest resource possible
+
+---
+
+## Existing Resource Dependencies (Race Condition Prevention)
+
+The Bicep `existing` keyword resolves a resource reference at deployment time
+but does **NOT** create an implicit ARM dependency. When using `existing` to
+scope child resources (diagnostic settings, PE DNS zone groups), always add
+explicit `dependsOn` to the module that creates the parent:
+
+```bicep
+resource vnetExisting 'Microsoft.Network/virtualNetworks@2024-01-01' existing = {
+  name: vnetName
+}
+
+resource diagSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'diag'
+  scope: vnetExisting
+  dependsOn: [vnetModule]  // REQUIRED — ARM may evaluate before VNet exists
+  properties: { /* ... */ }
+}
+```
+
+This applies to ALL resource types: VNet, PostgreSQL, Redis, Storage, Key Vault.
+ARM can evaluate the `existing` reference before the creating module completes.
+
+---
+
+## Key Vault Network ACLs
+
+When `enabledForDeployment`, `enabledForDiskEncryption`, or
+`enabledForTemplateDeployment` is `true`, `networkAcls.bypass` MUST include
+`'AzureServices'`. Setting `bypass: 'None'` with these flags causes a BadRequest
+at deployment time. The AVM Key Vault module defaults `enabledForDeployment: true`.
+
+**Default**: Use `bypass: 'AzureServices'` unless all three flags are explicitly `false`.
+
+---
+
+## APIM SKU Compatibility Matrix
+
+| Capability                     | Basic v2 | Standard v2 | Premium v2        | Premium (classic)  |
+| ------------------------------ | -------- | ----------- | ----------------- | ------------------ |
+| Zone redundancy                | No       | No          | Yes               | Yes (≥3 units)     |
+| Internal VNet injection        | No       | No          | Yes               | Yes                |
+| VNet integration (outbound)    | Yes      | Yes         | Yes               | N/A                |
+| Private Endpoint (inbound)     | Yes      | Yes         | Yes               | Yes                |
+| `virtualNetworkType` property  | N/A      | N/A         | Internal/External | Internal/External  |
+| Front Door Private Link origin | Yes      | Yes         | Yes               | No (VNet injected) |
+
+**Rule**: Standard v2 uses `virtualNetworkIntegration` (outbound) + Private Endpoint
+(inbound). Never use `virtualNetworkType: Internal/External` — that is the
+classic model for Developer/Premium only.
+
+---
+
+## Front Door + APIM Integration
+
+1. **WAF resource**: Use `Microsoft.Network/FrontDoorWebApplicationFirewallPolicies`
+   (not `Microsoft.Cdn/CdnWebApplicationFirewallPolicies` — CDN WAF creation is retired)
+2. **Security policy**: Associate WAF via `securityPolicies` child resource on the
+   Front Door profile
+3. **APIM origin connectivity**:
+   - Standard/Basic v2: Public origin with APIM's built-in TLS. Private Link supported.
+   - Premium v2 (VNet injected, internal): Front Door Private Link is NOT supported
+     for VNet-injected APIM. Use APIM's internal IP as origin with NSG allowing
+     Front Door backend IPs.
+4. **Front Door location**: Profile location is always `global`. For Private Link
+   origins, `privateLinkLocation` must be the target resource's **region**
+   (e.g., `swedencentral`), NOT `global`.
+
+---
+
+## AKS Preflight Constraints
+
+Before deploying AKS, validate:
+
+1. **Service CIDR**: Must NOT overlap any existing subnet CIDRs in the VNet
+2. **Node RG name**: Must be ≤80 chars. Formula: `MC_{rgName}_{clusterName}_{region}`
+   — shorten cluster name if total exceeds 80
+3. **K8s version**: Verify with `az aks get-versions --location {region}`.
+   Non-LTS versions require Standard tier; LTS versions require Premium tier
+4. **Local accounts**: `disableLocalAccounts: true` requires `aadProfile`
+   with managed AAD integration enabled
+5. **Min nodes per zone**: `minCount` ≥ number of availability zones for
+   true multi-zone resilience
+6. **SSH public key**: Must start with `ssh-rsa`, `ssh-ed25519`, or
+   `ecdsa-sha2-*` and be base64-decodable. Generate in deploy script if absent.

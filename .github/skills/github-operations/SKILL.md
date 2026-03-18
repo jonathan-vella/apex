@@ -1,45 +1,89 @@
 ---
 name: github-operations
-description: Handles GitHub issues, pull requests, repositories, Actions, releases, and API tasks using MCP-first workflows with gh CLI fallback for advanced operations.
+description: "Full contribution lifecycle: branch naming, conventional commits, GitHub issues, PRs, Actions, and releases. MCP-first with gh CLI fallback. USE FOR: commit, push, PR, branch, issue, release, GitHub operations. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions."
 license: MIT
 metadata:
   author: azure-agentic-infraops
-  version: "2.0"
+  version: "3.0"
   category: github
 ---
 
 # GitHub Operations
 
-Manage all GitHub operations using MCP tools (preferred) and GitHub CLI (fallback).
+Full contribution lifecycle — from branch creation to PR merge.
+MCP tools preferred; `gh` CLI as fallback.
 
-> **MCP-first**: Use MCP tools for issues and PRs — no extra auth, works everywhere.
-> **CLI fallback**: Use `gh` CLI for Actions, releases, repos, secrets, and API calls.
+## Contribution Lifecycle
+
+```text
+1. Create branch (naming convention) →
+2. Make changes →
+3. Commit (conventional commits) →
+4. Push (pre-push hooks validate branch + scope) →
+5. Create PR (MCP tools) →
+6. Review + Merge
+```
+
+## Branch Naming (Mandatory)
+
+Before any commit or PR, validate the branch name:
+
+```bash
+git rev-parse --abbrev-ref HEAD
+```
+
+| Type          | Prefixes                                                                             | File Scope                 |
+| ------------- | ------------------------------------------------------------------------------------ | -------------------------- |
+| Domain-scoped | `docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`                 | Restricted to domain paths |
+| Cross-cutting | `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/` | Any files                  |
+
+If the branch name is invalid, **stop** and suggest renaming:
+`git branch -m <old-name> feat/<descriptive-name>`
+
+For domain-scoped branches, verify changed files are within scope.
+If files are out of scope, suggest `feat/` or `fix/` instead.
+
+📋 **Full rules**: Read `references/branch-strategy.md` for scope tables,
+validation commands, and enforcement layers.
+
+## Conventional Commits (Mandatory)
+
+Commit messages **must** follow Conventional Commits format (enforced by commitlint):
+
+```text
+<type>[optional scope]: <description>
+```
+
+| Type       | Purpose       | Type     | Purpose      |
+| ---------- | ------------- | -------- | ------------ |
+| `feat`     | New feature   | `test`   | Tests        |
+| `fix`      | Bug fix       | `build`  | Build system |
+| `docs`     | Documentation | `ci`     | CI/CD config |
+| `refactor` | Refactor      | `chore`  | Maintenance  |
+| `perf`     | Performance   | `revert` | Revert       |
+
+Scopes: `agents`, `skills`, `instructions`, `bicep`, `terraform`, `mcp`, `docs`, `scripts`
+
+📋 **Full workflow**: Read `references/commit-conventions.md` for staging,
+breaking changes, best practices, and safety protocol.
 
 ## MCP Priority Protocol (Mandatory)
 
-Follow this protocol for every GitHub task:
-
-1. Identify required operation (issue, PR, search, Actions, release, repo admin, etc.)
-2. Check whether an MCP tool exists for that exact operation
+1. Identify required operation (issue, PR, search, Actions, release, etc.)
+2. Check whether an MCP tool exists for that operation
 3. If MCP exists, use MCP only
-4. Use `gh` CLI only when no equivalent MCP write tool is available
+4. Use `gh` CLI only when no equivalent MCP tool is available
 
 ### Devcontainer Reliability Rule
 
-- Do not run `gh auth login` or `gh auth status` in devcontainer workflows
-  unless the user explicitly asks for CLI auth troubleshooting.
+- Do not run `gh auth login` in devcontainer workflows
 - `GH_TOKEN` must be set via VS Code User Settings (`terminal.integrated.env.linux`)
-  — shell exports (`.bashrc`, `.profile`) do NOT propagate reliably into devcontainers.
-- For PR/issue creation, rely on MCP tool authentication by default.
-- If MCP write tools are missing in the current environment,
-  report the limitation explicitly and provide a no-auth fallback path
-  (for example, PR compare URL).
+- For PR/issue creation, rely on MCP tool authentication by default
+- If MCP write tools are missing, report explicitly and provide fallback
 
 ---
 
 ## Issues (MCP Tools)
-
-### Available Tools
 
 | Tool                           | Purpose                |
 | ------------------------------ | ---------------------- |
@@ -49,39 +93,12 @@ Follow this protocol for every GitHub task:
 | `mcp_github_search_issues`     | Search issues          |
 | `mcp_github_add_issue_comment` | Add comments           |
 
-### Creating Issues
-
-**Required**: `owner`, `repo`, `title`, `body`
-**Optional**: `labels`, `assignees`, `milestone`
-
-**Title guidelines**:
-
-- Prefix with type: `[Bug]`, `[Feature]`, `[Docs]`
-- Be specific and actionable
-- Keep under 72 characters
-
-**Body templates by type**:
-
-| User says             | Template sections                                             |
-| --------------------- | ------------------------------------------------------------- |
-| Bug, error, broken    | Description, Steps to Reproduce, Expected/Actual, Environment |
-| Feature, enhancement  | Summary, Motivation, Proposed Solution, Acceptance Criteria   |
-| Task, chore, refactor | Description, Tasks checklist, Acceptance Criteria             |
-
-### Common Labels
-
-| Label           | Use For                    |
-| --------------- | -------------------------- |
-| `bug`           | Something isn't working    |
-| `enhancement`   | New feature or improvement |
-| `documentation` | Documentation updates      |
-| `high-priority` | Urgent issues              |
+**Creating issues** — Required: `owner`, `repo`, `title`, `body`.
+Title guidelines: prefix with `[Bug]`, `[Feature]`, `[Docs]`; keep under 72 chars.
 
 ---
 
 ## Pull Requests (MCP Tools)
-
-### Available Tools
 
 | Tool                                   | Purpose               |
 | -------------------------------------- | --------------------- |
@@ -96,180 +113,28 @@ Follow this protocol for every GitHub task:
 ### Creating PRs
 
 **Required**: `owner`, `repo`, `title`, `head` (source branch), `base` (target branch)
-**Optional**: `body`, `draft`
 
-**Title guidelines** (conventional commit):
+**Pre-flight checks** (mandatory before creating):
 
-- `feat:`, `fix:`, `docs:`, `refactor:`
-- Be specific, under 72 characters
+1. Validate branch name (see Branch Naming above)
+2. For domain branches, verify files are in scope
+3. Search for PR templates in `.github/PULL_REQUEST_TEMPLATE/`
+4. Title must follow conventional commit format
 
-**Body sections**: Summary, Changes, Testing, Checklist
+**Default merge method**: `squash` unless user specifies otherwise.
 
-> **Before creating**: Search for PR templates in `.github/PULL_REQUEST_TEMPLATE/`
-> or `pull_request_template.md` and use if found.
-
-### Merging PRs
-
-**Required**: `owner`, `repo`, `pullNumber`
-**Optional**: `merge_method` (`squash` | `merge` | `rebase`), `commit_title`
-
-**Default**: Use `squash` unless user specifies otherwise.
-
-### Reviewing PRs
-
-Use `mcp_github_pull_request_review_write` with `method: "create"`:
-
-| Event             | Use When                  |
-| ----------------- | ------------------------- |
-| `APPROVE`         | Changes ready to merge    |
-| `REQUEST_CHANGES` | Issues must be fixed      |
-| `COMMENT`         | Feedback without blocking |
-
-**Complex review workflow**:
-
-1. `create` (pending review)
-2. `add_comment_to_pending_review` (line comments)
-3. `submit_pending` (finalize)
+📋 **Smart PR Flow**: Read `references/smart-pr-flow.md` for PR lifecycle
+states, auto-labels, and auto-merge conditions.
 
 ---
 
-## Repositories (gh CLI)
+## CLI Commands (gh)
 
-```bash
-# Create
-gh repo create my-project --public --clone --gitignore python --license mit
-
-# Clone / Fork
-gh repo clone owner/repo
-gh repo fork owner/repo --clone
-
-# View / Edit
-gh repo view owner/repo --json name,description
-gh repo edit --default-branch main --delete-branch-on-merge
-
-# Sync fork
-gh repo sync
-
-# Set default repo (avoid --repo flag)
-gh repo set-default owner/repo
-```
-
----
-
-## GitHub Actions (gh CLI)
-
-### Workflows
-
-```bash
-gh workflow list
-gh workflow run ci.yml --ref main
-gh workflow enable ci.yml
-gh workflow disable ci.yml
-```
-
-### Runs
-
-```bash
-gh run list --workflow ci.yml --limit 5
-gh run watch <run-id>
-gh run view <run-id> --log
-gh run rerun <run-id>
-gh run rerun <run-id> --failed    # Only failed jobs
-gh run download <run-id> --dir ./artifacts
-gh run cancel <run-id>
-```
-
-### CI/CD Pattern
-
-```bash
-gh workflow run ci.yml --ref main
-RUN_ID=$(gh run list --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID"
-gh run download "$RUN_ID" --dir ./artifacts
-```
-
----
-
-## Releases (gh CLI)
-
-```bash
-# Create
-gh release create v1.0.0 --title "v1.0.0" --notes "Release notes"
-gh release create v1.0.0 --generate-notes    # Auto-generate notes
-gh release create v1.0.0 ./dist/*.tar.gz     # With assets
-
-# List / View / Download
-gh release list
-gh release view v1.0.0
-gh release download v1.0.0 --dir ./download
-
-# Delete
-gh release delete v1.0.0 --yes
-```
-
----
-
-## Secrets & Variables (gh CLI)
-
-```bash
-# Secrets
-gh secret set MY_SECRET --body "secret_value"
-gh secret list
-gh secret delete MY_SECRET
-
-# Variables
-gh variable set MY_VAR --body "value"
-gh variable list
-gh variable get MY_VAR
-```
-
----
-
-## API Requests (gh CLI)
-
-```bash
-# GET
-gh api /user
-gh api /repos/owner/repo --jq '.stargazers_count'
-
-# POST
-gh api --method POST /repos/owner/repo/issues \
-  --field title="Issue title" \
-  --field body="Issue body"
-
-# Pagination
-gh api /user/repos --paginate
-
-# GraphQL
-gh api graphql -f query='{
-  viewer { login repositories(first: 5) { nodes { name } } }
-}'
-```
+📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI
+commands covering repos, Actions, releases, secrets, API, and auth.
 
 > **IMPORTANT**: `gh api -f` does not support object values. Use multiple
 > `-f` flags with hierarchical keys and string values instead.
-
----
-
-## Auth & Search (gh CLI)
-
-```bash
-# Auth
-gh auth login
-gh auth status
-gh auth token
-
-# Labels
-gh label create bug --color "d73a4a" --description "Bug report"
-gh label list
-
-# Search
-gh search repos "azure bicep" --language hcl
-gh search code "uniqueString" --repo owner/repo
-gh search issues "label:bug is:open" --repo owner/repo
-```
-
----
 
 ## Global Flags
 
@@ -285,32 +150,28 @@ gh search issues "label:bug is:open" --repo owner/repo
 
 ## DO / DON'T
 
+- **DO**: Validate branch name before committing or creating PRs
 - **DO**: Use MCP tools first for issues and PRs
 - **DO**: Use `gh` CLI for Actions, releases, repos, secrets, API
-- **DO**: Explain when MCP write tools are unavailable and why fallback is required
 - **DO**: Confirm repository context before creating issues/PRs
 - **DO**: Search for existing issues/PRs before creating duplicates
 - **DO**: Check for PR templates before creating PRs
-- **DO**: Ask for missing critical information rather than guessing
+- **DON'T**: Commit on a branch with an invalid name
 - **DON'T**: Create issues/PRs without confirming repo owner and name
 - **DON'T**: Merge PRs without user confirmation
 - **DON'T**: Use `gh` CLI for issues/PRs when MCP tools are available
-- **DON'T**: Attempt `gh` auth flows in devcontainers unless explicitly requested
+- **DON'T**: Skip hooks (--no-verify) unless user explicitly asks
 
 ---
 
-## References
-
-- GitHub CLI Manual: https://cli.github.com/manual/
-- REST API: https://docs.github.com/en/rest
-- GraphQL API: https://docs.github.com/en/graphql
-- Commit conventions: `.github/skills/git-commit/SKILL.md`
-
 ## Reference Index
 
-| Reference     | File                          | Content                                      |
-| ------------- | ----------------------------- | -------------------------------------------- |
-| Smart PR Flow | `references/smart-pr-flow.md` | PR lifecycle states, auto-labels, auto-merge |
+| Reference          | File                               | Content                                             |
+| ------------------ | ---------------------------------- | --------------------------------------------------- |
+| Branch Strategy    | `references/branch-strategy.md`    | Naming convention, scope tables, enforcement layers |
+| Commit Conventions | `references/commit-conventions.md` | Format, types, staging workflow, safety protocol    |
+| Smart PR Flow      | `references/smart-pr-flow.md`      | PR lifecycle states, auto-labels, auto-merge        |
+| CLI Commands       | `references/detailed-commands.md`  | Repos, Actions, Releases, Secrets, API, Auth        |
 
 ## Smart PR Flow
 

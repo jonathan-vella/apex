@@ -201,8 +201,8 @@ RBAC evidence:
 
 Open compliance risks:
 
-- Several policy tags (`application`, `costcenter`, `backup-policy`, `maint-window`, `sla`, `workload`) are present but empty values in deployed tags.
-- App Service ingress restrictions are currently allow-all.
+- ⚠️ Several policy tags (`application`, `costcenter`, `backup-policy`, `maint-window`, `sla`, `workload`) are present but empty values in deployed tags.
+- ❌ App Service ingress restrictions are currently allow-all (no WAF/IP restrictions configured).
 
 ---
 

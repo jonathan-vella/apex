@@ -37,17 +37,18 @@ Skills implement three levels of disclosure:
 
 The system contains the following skills across several domains:
 
-| Domain               | Skills                                                                  |
-| -------------------- | ----------------------------------------------------------------------- |
-| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`          |
-| Azure Operations     | `azure-troubleshooting`, `azure-diagrams`, `azure-adr`                  |
-| Artefact Generation  | `azure-artifacts`, `context-shredding`                                  |
-| Documentation        | `docs-writer`                                                           |
-| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`                |
-| Deployment           | `iac-common`                                                            |
-| GitHub Operations    | `github-operations`, `git-commit`                                       |
-| Microsoft Learn      | `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator` |
-| Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`     |
+| Domain               | Skills                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`                                                                                                                                                                                                                                                                                                                                                      |
+| Azure Operations     | `azure-diagnostics`, `azure-diagrams`, `azure-adr`                                                                                                                                                                                                                                                                                                                                                                  |
+| Artefact Generation  | `azure-artifacts`, `context-shredding`                                                                                                                                                                                                                                                                                                                                                                              |
+| Documentation        | `docs-writer`                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`                                                                                                                                                                                                                                                                                                                                                            |
+| Deployment           | `iac-common`                                                                                                                                                                                                                                                                                                                                                                                                        |
+| GitHub Operations    | `github-operations`, `git-commit`                                                                                                                                                                                                                                                                                                                                                                                   |
+| Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-deploy` (not active), `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-messaging`, `azure-kusto`, `azure-ai`, `azure-aigateway`, `azure-quotas`, `azure-resource-lookup`, `azure-resource-visualizer`, `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, `appinsights-instrumentation`, `entra-app-registration`, `microsoft-foundry` |
+| Microsoft Learn      | `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator`                                                                                                                                                                                                                                                                                                                                             |
+| Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`                                                                                                                                                                                                                                                                                                                                                 |
 
 The `copilot-customization` skill is an authoritative reference for VS Code Copilot
 customisation mechanisms: instructions, prompt files, custom agents, agent skills,
@@ -91,6 +92,12 @@ when each instruction activates:
 | `prompt`                        | `**/*.prompt.md`                                   | Prompt file guidelines                   |
 | `no-heredoc`                    | `**`                                               | Prevents terminal heredoc corruption     |
 
+When multiple instructions apply to the same file via overlapping `applyTo` globs,
+precedence rules determine which takes priority. See
+`.github/instructions/references/precedence-matrix.md` for the full matrix.
+Short version: Azure Policy compliance (Tier 1) always wins over domain IaC (Tier 2),
+which wins over cross-cutting cost rules (Tier 3), which wins over general code quality (Tier 4).
+
 **`iac-cost-repeatability`** is a cross-cutting instruction that enforces two mandatory
 rules across ALL projects (Bicep and Terraform):
 
@@ -113,6 +120,115 @@ Following the Golden Principle "Mechanical Enforcement Over Documentation," ever
 instruction has a corresponding validation script. The rule is: if it can be a linter
 check, it should be one. Documentation is for humans; machines enforce rules.
 
+## :material-plus-circle-outline: Creating a Custom Skill
+
+This section walks through creating a new skill from scratch.
+
+### Step 1: Scaffold
+
+Use the `make-skill-template` skill to generate the folder structure:
+
+```text
+@workspace /make-skill-template Create a skill called "my-new-skill"
+```
+
+This creates:
+
+```text
+.github/skills/my-new-skill/
+├── SKILL.md          # Core overview (≤ 500 lines)
+├── references/       # Deep reference material
+└── templates/        # Template files for artifact generation
+```
+
+For the full scaffolding guide, see
+`.github/skills/make-skill-template/references/step-by-step-guide.md`.
+
+### Step 2: Write SKILL.md
+
+The SKILL.md file requires YAML frontmatter:
+
+```yaml
+---
+name: my-new-skill
+description: "Short description of the skill's purpose.
+  USE FOR: keyword triggers.
+  DO NOT USE FOR: anti-triggers."
+compatibility: List of compatible agents
+---
+# My New Skill
+
+Quick-reference tables, decision frameworks, and pointers to deeper content.
+```
+
+**Frontmatter rules** (from `.github/instructions/agent-skills.instructions.md`):
+
+- `name` must match the folder name exactly
+- `description` must be an inline string (not a YAML block scalar)
+- Keep SKILL.md under 500 lines — move deep content to `references/`
+
+### Step 3: Add References and Templates
+
+Use the three levels of disclosure:
+
+| Level | Directory     | Loaded When                   | Content                            |
+| ----- | ------------- | ----------------------------- | ---------------------------------- |
+| 1     | `SKILL.md`    | Agent reads the skill         | Overview, quick-reference tables   |
+| 2     | `references/` | Sub-task needs deep knowledge | Detailed guides, lookup tables     |
+| 3     | `templates/`  | Output generation phase       | Structural skeletons for artifacts |
+
+Example: a pricing skill might have `SKILL.md` with a service-to-tool
+mapping table, `references/pricing-guidance.md` with detailed MCP tool
+usage, and `templates/cost-estimate.template.md` with the output skeleton.
+
+### Step 4: Register in Skill Affinity
+
+Update `.github/skill-affinity.json` to declare which agents use the skill:
+
+```json
+{
+  "my-new-skill": {
+    "primary": ["06b-Bicep CodeGen"],
+    "secondary": ["03-Architect"],
+    "never": ["09-Diagnose"]
+  }
+}
+```
+
+- **primary** — agent loads this skill by default
+- **secondary** — agent loads on demand when relevant
+- **never** — agent must not load this skill (prevents context waste)
+
+### Step 5: Wire Into Agent Bodies
+
+Add a skill reference in the relevant agent's `.agent.md` body:
+
+```markdown
+## MANDATORY: Read Skills First
+
+1. **Read** `.github/skills/my-new-skill/SKILL.md`
+```
+
+### Step 6: Validate
+
+```bash
+# Check skill format and frontmatter
+npm run lint:skills-format
+
+# Check skill size and references
+npm run validate:skill-checks
+
+# Verify skill-affinity consistency
+npm run validate:skill-affinity
+```
+
+### How Skill Discovery Works
+
+Agents discover skills through **description keywords**. When a user's
+request matches keywords in the skill's `description` field (USE FOR /
+DO NOT USE FOR), VS Code automatically suggests loading that skill.
+Write descriptions with specific, searchable trigger words.
+
 ---
 
 !!! tip "Further Reading"
@@ -121,3 +237,4 @@ check, it should be one. Documentation is for humans; machines enforce rules.
     - [Agent Architecture](agents.md) — how agents load and use skills via progressive disclosure
     - [Workflow Engine & Quality](workflow-engine.md) — validators that enforce instruction rules
     - [MCP Integration](mcp-integration.md) — external tool interfaces available to agents
+    - [Validation & Linting](../validation-reference.md) — all validation scripts and hooks

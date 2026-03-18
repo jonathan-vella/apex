@@ -167,5 +167,5 @@ body:
           required: false
         - label: I've considered Well-Architected Framework pillars (Reliability, Security, Cost, Operations, Performance)
           required: true
-        - label: I understand this will go through the 7-step agentic workflow for review
+        - label: I understand this will go through the multi-step agentic workflow for review
           required: true

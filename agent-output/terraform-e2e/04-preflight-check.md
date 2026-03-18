@@ -77,7 +77,7 @@ flowchart LR
 | avm-res-web-serverfarm                |   209,042 |
 | avm-res-sql-server                    |   174,107 |
 
-## 🔗 Provider Version Resolution
+### 🔗 Provider Version Resolution
 
 | Provider            | Pinned   | Latest   | Match | Source   |
 | ------------------- | -------- | -------- | ----- | -------- |
@@ -222,7 +222,7 @@ Optional variables used:
 
 </details>
 
-## 📋 Variable Schema Cross-Validation
+### 📋 Variable Schema Cross-Validation
 
 Cross-validation of every variable used in `main.tf` against registry-sourced module schemas:
 
@@ -259,6 +259,9 @@ Cross-validation of every variable used in `main.tf` against registry-sourced mo
 
 ## ⚠️ Pitfalls Checklist
 
+<details>
+<summary><strong>AVM Known Pitfalls Validation (10 items)</strong></summary>
+
 Based on AVM Known Pitfalls (terraform-patterns skill) and registry schema validation:
 
 - [x] App Service Plan uses `parent_id` (resource group ID) — not `resource_group_name`
@@ -271,6 +274,8 @@ Based on AVM Known Pitfalls (terraform-patterns skill) and registry schema valid
 - [x] No Storage Account names contain hyphens
 - [x] All `~>` version pins resolve to published versions within their constraint bands
 - [x] `azurerm` provider pinned `~> 4.0` — latest `4.61.0` compatible
+
+</details>
 
 ## 🚀 Ready for Implementation
 

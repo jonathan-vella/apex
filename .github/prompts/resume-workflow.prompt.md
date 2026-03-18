@@ -1,12 +1,25 @@
 ---
-description: "Resume the 7-step workflow from where it left off by reading session state and routing to the correct agent."
+description: "Resume the multi-step workflow from where it left off by reading session state and routing to the correct agent."
 agent: "01-Conductor"
-model: "GPT-5.4"
+model: "Claude Opus 4.6"
 ---
 
 # Resume Workflow
 
-Resume the 7-step Azure infrastructure workflow from the last checkpoint.
+Resume the multi-step Azure infrastructure workflow from the last checkpoint.
+
+## Prerequisites
+
+- At least one project folder exists under `agent-output/` with `00-session-state.json`
+- The session state file contains `current_step` and step statuses
+
+## Session State Detection
+
+The agent reads `00-session-state.json` to determine:
+
+- Which step to resume from (`current_step`)
+- Whether to use Bicep or Terraform agents (`decisions.iac_tool`)
+- Any in-progress sub-step checkpoints (`steps.{N}.sub_step`)
 
 ## Instructions
 

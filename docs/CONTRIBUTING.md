@@ -45,6 +45,65 @@ Contributions land via pull requests with required checks and review.
 - Workflow details: [Development Workflow Guide](docs/workflow.md)
 - Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
 
+#### Branch Naming Convention
+
+All branches must use an approved prefix that indicates the change domain.
+This is enforced by lefthook pre-push hooks and
+GitHub Actions CI.
+
+| Prefix          | Scope                                                        | Example                         |
+| --------------- | ------------------------------------------------------------ | ------------------------------- |
+| `docs/`         | Documentation (`docs/`, `mkdocs.yml`, `README.md`)           | `docs/update-workflow-guide`    |
+| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-conductor`      |
+| `skills/`       | Skill files (`.github/skills/`, `skill-affinity.json`)       | `skills/add-tf-patterns`        |
+| `infra/`        | Infrastructure code (`infra/bicep/`, `infra/terraform/`)     | `infra/add-private-endpoints`   |
+| `scripts/`      | Validation scripts (`scripts/`, `package.json`)              | `scripts/fix-h2-sync`           |
+| `instructions/` | Instruction files (`.github/instructions/`)                  | `instructions/update-bicep`     |
+| `fix/`          | Bug fixes (cross-cutting, any files)                         | `fix/session-state-schema`      |
+| `feat/`         | New features (cross-cutting, any files)                      | `feat/azure-skills-integration` |
+| `chore/`        | Maintenance, deps, tooling (cross-cutting)                   | `chore/update-lefthook`         |
+| `ci/`           | CI/CD workflows (cross-cutting)                              | `ci/add-branch-enforcement`     |
+| `refactor/`     | Code refactoring (cross-cutting)                             | `refactor/simplify-handoffs`    |
+| `perf/`         | Performance improvements (cross-cutting)                     | `perf/faster-validation`        |
+| `test/`         | Test additions/updates (cross-cutting)                       | `test/add-e2e-terraform`        |
+| `build/`        | Build system changes (cross-cutting)                         | `build/update-node-deps`        |
+| `revert/`       | Reverting previous changes (cross-cutting)                   | `revert/broken-lint-rule`       |
+
+#### Branch Scope Enforcement
+
+**Domain-scoped branches** (`docs/`, `agents/`, `skills/`, `infra/`,
+`scripts/`, `instructions/`) are restricted to modifying files within
+their domain. This prevents accidental cross-cutting changes in
+narrow-scope branches.
+
+**Cross-cutting branches** (`feat/`, `fix/`, `chore/`, `ci/`, `refactor/`,
+`perf/`, `test/`, `build/`, `revert/`) may modify any files.
+
+| Domain Prefix   | Allowed File Paths                                                    |
+| --------------- | --------------------------------------------------------------------- |
+| `docs/`         | `docs/`, `mkdocs.yml`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
+| `agents/`       | `.github/agents/`, `.github/agent-registry.json`                      |
+| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`                      |
+| `infra/`        | `infra/`                                                              |
+| `scripts/`      | `scripts/`, `package.json`                                            |
+| `instructions/` | `.github/instructions/`                                               |
+
+!!! tip "Fixing a scope violation"
+
+    If your `docs/` branch needs to edit a script, either rename the branch
+    to `feat/` (cross-cutting) or split the work into two branches.
+
+#### Enforcement Mechanisms
+
+Branch naming and scope are enforced at three levels:
+
+1. **Local (lefthook pre-push)** — instant feedback before push via
+   `scripts/validate-branch-naming.sh` and `scripts/validate-branch-scope.sh`
+2. **CI (GitHub Actions)** — the `branch-enforcement.yml` workflow validates
+   naming and scope on every PR to `main`
+3. **GitHub Rulesets** — optional server-side enforcement configured in
+   repository Settings → Rules → Rulesets
+
 ### Code Standards
 
 **Bicep:**
@@ -107,10 +166,14 @@ git remote add upstream https://github.com/jonathan-vella/azure-agentic-infraops
 
 ### 2. Create a Branch
 
+Use an approved prefix (see [Branch Naming Convention](#branch-naming-convention) above):
+
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b feat/your-feature-name
 # or
 git checkout -b fix/issue-description
+# or domain-scoped:
+git checkout -b docs/update-workflow-guide
 ```
 
 ### 3. Make Your Changes

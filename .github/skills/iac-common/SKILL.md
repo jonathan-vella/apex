@@ -1,34 +1,62 @@
 ---
 name: iac-common
-description: "Shared IaC patterns for Bicep and Terraform deploy agents: CLI auth validation, deployment strategies, known issues, and governance-to-code property mapping. USE FOR: Deploy agent auth, known issues lookup, phased deployment, governance mapping. DO NOT USE FOR: Code generation (use azure-bicep-patterns or terraform-patterns), architecture decisions, cost estimation."
+description: "Shared IaC deploy patterns for Bicep and Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. For preflight validation (auth, governance, stop rules), see azure-validate. USE FOR: Phased deployment, circuit breaker, deploy-specific known issues. DO NOT USE FOR: Preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns)."
 ---
 
 # IaC Common Skill
 
-Shared infrastructure-as-code patterns used by both Bicep and Terraform
-deploy agents (07b, 07t) and review subagents.
+Shared deployment patterns used by both Bicep and Terraform deploy agents
+(07b, 07t) and review subagents.
 
----
-
-## Azure CLI Authentication
-
-**Always** validate CLI auth with a two-step check before any deployment:
-
-1. `az account show` — confirms login session exists
-2. `az account get-access-token --resource https://management.azure.com/` — confirms ARM token is valid
-
-> `az account show` alone is NOT sufficient. MSAL token cache can be stale
-> in devcontainers/WSL. See `azure-defaults/references/azure-cli-auth-validation.md`
-> for the full recovery procedure.
-
-**VS Code extension auth ≠ CLI auth**: Being signed into the Azure extension
-does NOT authenticate CLI commands. Always validate independently.
+> **Preflight validation** (CLI auth, governance mapping, stop rules, known issues)
+> has moved to the **azure-validate** skill. See `azure-validate/references/infraops-preflight.md`.
 
 ---
 
 ## Deployment Strategies
 
-### Phased Deployment (recommended for >5 resources)
+### azd Deployment (recommended for Bicep projects with azure.yaml)
+
+Use `azd` when the project has an `azure.yaml` manifest:
+
+```bash
+# Create/select environment
+azd env new dev
+azd env set AZURE_LOCATION swedencentral
+
+# Preview changes (replaces what-if)
+azd provision --preview
+
+# Deploy infrastructure
+azd provision
+
+# Full provision + deploy in one step
+azd up
+```
+
+**azd hooks** replace custom deploy.ps1 pre/post steps:
+
+- `preprovision` — auth validation, banner, prerequisite checks
+- `postprovision` — resource verification, diagnostic setup
+
+**Environment management** replaces manual parameterization:
+
+- `azd env new prod` / `azd env new dev`
+- `azd env set AZURE_LOCATION swedencentral`
+
+### azd Environment Preflight (MANDATORY for --no-prompt Deploys)
+
+Before `azd provision --no-prompt`, verify these environment values are set:
+
+- `AZURE_SUBSCRIPTION_ID` — from `az account show --query id -o tsv`
+- `AZURE_RESOURCE_GROUP` — target resource group name
+- `AZURE_ENV_NAME` — environment name
+- `AZURE_LOCATION` — target region
+
+Run `azd env get-values` and check for missing values. If any are empty,
+set them via `azd env set {KEY} {VALUE}` before attempting `--no-prompt`.
+
+### Phased Deployment via deploy.ps1 (legacy, backward-compatible)
 
 | Phase      | Resources                             | Gate          |
 | ---------- | ------------------------------------- | ------------- |
@@ -45,59 +73,16 @@ does NOT authenticate CLI commands. Always validate independently.
 
 Deploy everything in one operation. Still requires user approval.
 
----
+### Decision: azd vs deploy.ps1
 
-## Known Issues (Cross-IaC)
-
-| Issue                                 | Workaround                                            |
-| ------------------------------------- | ----------------------------------------------------- |
-| MSAL token stale (devcontainer/WSL)   | `az login --use-device-code` in the **same terminal** |
-| Azure extension auth ≠ CLI auth       | Validate CLI auth independently                       |
-| RBAC permission errors                | Use validation-level flags to isolate                 |
-| JSON parsing errors in deploy scripts | Use direct `az deployment` / `terraform` commands     |
-
-### Bicep-Specific
-
-| Issue                            | Workaround                             |
-| -------------------------------- | -------------------------------------- |
-| What-if fails (RG doesn't exist) | Create RG first: `az group create ...` |
-
-### Terraform-Specific
-
-| Issue                                    | Workaround                                        |
-| ---------------------------------------- | ------------------------------------------------- |
-| `terraform init` fails — backend missing | Run `bootstrap-backend.sh` first                  |
-| Backend state lock held                  | `terraform force-unlock {id}` (requires approval) |
-| Provider init slow                       | Set `TF_PLUGIN_CACHE_DIR`                         |
-| `terraform fmt -check` fails             | Run `terraform fmt -recursive` to auto-fix        |
-
----
-
-## Governance-to-Code Property Mapping
-
-When translating Azure Policy `Deny` constraints to IaC:
-
-1. Read `04-governance-constraints.json` for the machine-actionable policy data
-2. For each `Deny` policy, extract `azurePropertyPath` + `requiredValue`
-3. Translate to IaC property:
-   - **Bicep**: Drop leading resource-type segment from `azurePropertyPath`
-   - **Terraform**: Use translation table in `terraform-policy-compliance.instructions.md`
-4. Governance-discovered tags always win over the 4 baseline defaults
-
-**Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
-
----
-
-## Stop Rules (Both IaC Tracks)
-
-**STOP IMMEDIATELY if:**
-
-- Auth validation fails (`az account get-access-token` error)
-- Validation errors (`bicep build` / `terraform validate`)
-- Delete/Destroy operations without explicit user approval
-- > 10 resource changes (summarize first, then ask)
-- User hasn't approved the deployment
-- Deprecation signals detected in preview output
+| Factor                 | azd                            | deploy.ps1                  |
+| ---------------------- | ------------------------------ | --------------------------- |
+| Cross-platform         | Yes                            | PowerShell only             |
+| Environment management | Built-in (`azd env`)           | Manual parameters           |
+| Hooks (pre/post)       | `azure.yaml` hooks             | Custom script logic         |
+| Phased deployment      | Single provision               | Fine-grained phases         |
+| New projects           | **Use azd**                    | Not generated               |
+| Existing projects      | Use azd if `azure.yaml` exists | Fallback if no `azure.yaml` |
 
 ---
 
@@ -105,10 +90,10 @@ When translating Azure Policy `Deny` constraints to IaC:
 
 | Reference                     | Location                                                      |
 | ----------------------------- | ------------------------------------------------------------- |
+| Preflight validation          | `azure-validate/references/infraops-preflight.md`             |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`      |
 | Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`    |
-| Bicep policy compliance       | `instructions/bicep-policy-compliance.instructions.md`        |
-| Terraform policy compliance   | `instructions/terraform-policy-compliance.instructions.md`    |
+| IaC policy compliance         | `instructions/iac-policy-compliance.instructions.md`          |
 | Bootstrap backend templates   | `terraform-patterns/references/bootstrap-backend-template.md` |
 | Deploy script templates       | `terraform-patterns/references/deploy-script-template.md`     |
 | Circuit breaker               | `references/circuit-breaker.md`                               |

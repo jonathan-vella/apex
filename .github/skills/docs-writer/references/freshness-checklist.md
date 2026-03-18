@@ -33,7 +33,8 @@
 **Source of truth**: List `.github/agents/*.agent.md` files
 (exclude `_subagents/` directory).
 
-**Expected count** (as of 2026-02-26): **13 agents**
+**Expected count**: computed dynamically from `.github/count-manifest.json`
+(run `validate:no-hardcoded-counts` to verify)
 
 **Files to check**:
 
@@ -52,7 +53,8 @@ no longer exist.
 **Source of truth**: List `.github/skills/*/` directories
 (exclude `README.md` file).
 
-**Expected count** (as of 2026-02-26): **14 skills**
+**Expected count**: computed dynamically from `.github/count-manifest.json`
+(run `validate:no-hardcoded-counts` to verify)
 
 **Files to check**:
 

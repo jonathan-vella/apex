@@ -1,7 +1,7 @@
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
-model: ["Claude Opus 4.6", "Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 user-invocable: true
 agents:
   [
@@ -13,56 +13,25 @@ agents:
   ]
 tools:
   [
-    vscode/extensions,
-    vscode/getProjectSetupInfo,
-    vscode/installExtension,
-    vscode/newWorkspace,
-    browser,
-    vscode/runCommand,
-    vscode/askQuestions,
-    vscode/vscodeAPI,
-    execute/getTerminalOutput,
-    execute/awaitTerminal,
-    execute/killTerminal,
-    execute/createAndRunTask,
-    execute/runTests,
-    execute/runInTerminal,
-    execute/runNotebookCell,
-    execute/testFailure,
-    read/terminalSelection,
-    read/terminalLastCommand,
-    read/getNotebookSummary,
-    read/problems,
-    read/readFile,
-    read/readNotebookCellOutput,
+    vscode,
+    execute,
+    read,
     agent,
-    edit/createDirectory,
-    edit/createFile,
-    edit/createJupyterNotebook,
-    edit/editFiles,
-    edit/editNotebook,
+    browser,
+    edit,
     search,
-    search/changes,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/searchResults,
-    search/textSearch,
-    search/usages,
     web,
-    web/fetch,
-    web/githubRepo,
     "azure-mcp/*",
     "microsoft-learn/*",
     "bicep/*",
+    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
@@ -80,22 +49,23 @@ handoffs:
     send: true
   - label: "Step 6: Deploy"
     agent: 07b-Bicep Deploy
-    prompt: "Deploy the validated Bicep templates in `infra/bicep/{project}/` to Azure. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run what-if analysis first."
+    prompt: "Deploy the validated Bicep templates in `infra/bicep/{project}/` to Azure. Templates passed lint and review subagents; see `agent-output/{project}/05-implementation-reference.md` for validation status. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run what-if analysis first."
     send: true
   - label: "↩ Return to Step 4"
     agent: 05b-Bicep Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 5 (Bicep Code). Templates at `infra/bicep/{project}/` and reference at `agent-output/{project}/05-implementation-reference.md`. Advise on next steps."
+    prompt: "Returning from Step 5 (Bicep Code). Bicep templates generated and validated at `infra/bicep/{project}/`. Implementation reference at `agent-output/{project}/05-implementation-reference.md`. Ready for deployment."
     send: false
 ---
 
 # Bicep Code Agent
 
-## MANDATORY: Read Skills First
+<!-- Recommended reasoning_effort: high -->
+
+## Read Skills First (Required)
 
 **Before doing ANY work**, read these skills:
 
@@ -103,25 +73,29 @@ handoffs:
 2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. **Read** artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. **Read** `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, managed identity, module composition
-5. **Read** `.github/instructions/bicep-policy-compliance.instructions.md` — governance mandate, dynamic tag list
+5. **Read** `.github/instructions/iac-policy-compliance.instructions.md` — governance mandate, dynamic tag list
 6. **Read** `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
 
 ## DO / DON'T
 
-| DO                                                                     | DON'T                                                             |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Run preflight check BEFORE writing any Bicep (Phase 1)                 | Start coding before preflight check                               |
-| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5     | Silently halt on blockers without telling the user why            |
-| **NEVER** list blockers in chat text asking user to reply manually     | List blockers in chat and wait for a reply (wastes a round-trip)  |
-| Use AVM modules for EVERY resource that has one                        | Write raw Bicep when AVM exists                                   |
-| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules      | Hardcode unique strings                                           |
-| Apply baseline tags + governance extras                                | Use hardcoded tag lists ignoring governance                       |
-| Parse `04-governance-constraints.json` — map each Deny policy to Bicep | Skip governance compliance mapping (HARD GATE)                    |
-| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)      |
-| Use `take()` for length-constrained resources (KV≤24, Storage≤24)      | Put hyphens in Storage Account names                              |
-| Generate `deploy.ps1` + `.bicepparam` per environment                  | Deploy — that's the Deploy agent's job                            |
-| Run `bicep build` + `bicep lint` after generation                      | Proceed without checking AVM parameter types (known issues exist) |
-| Save `05-implementation-reference.md` + update project README          | Use phase parameter if plan specifies single deployment           |
+| DO                                                                                     | DON'T                                                                                    |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Run preflight check BEFORE writing any Bicep (Phase 1)                                 | Start coding before preflight check                                                      |
+| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5                     | Silently halt on blockers without telling the user why                                   |
+| **NEVER** list blockers in chat text asking user to reply manually                     | List blockers in chat and wait for a reply (wastes a round-trip)                         |
+| Use AVM modules for EVERY resource that has one                                        | Write raw Bicep when AVM exists                                                          |
+| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules                      | Hardcode unique strings                                                                  |
+| Apply baseline tags + governance extras                                                | Use hardcoded tag lists ignoring governance                                              |
+| Parse `04-governance-constraints.json` — map each Deny policy to Bicep                 | Skip governance compliance mapping (HARD GATE)                                           |
+| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)                  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)                             |
+| PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`               | Allow password-only auth on any database (security baseline)                             |
+| APIM: check SKU compatibility matrix before VNet config (common-patterns.md)           | Use `virtualNetworkType` on Standard/Basic v2 (classic model only)                       |
+| Front Door: use separate `location` (global) and `resourceLocation` (region)           | Share a single location param for both profile and Private Link                          |
+| Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true | Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true |
+| Use `take()` for length-constrained resources (KV≤24, Storage≤24)                      | Put hyphens in Storage Account names                                                     |
+| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment                   | Deploy — that's the Deploy agent's job                                                   |
+| Run `bicep build` + `bicep lint` after generation                                      | Proceed without checking AVM parameter types (known issues exist)                        |
+| Save `05-implementation-reference.md` + update project README                          | Use phase parameter if plan specifies single deployment                                  |
 
 ## Prerequisites Check
 
@@ -145,6 +119,7 @@ Also read `02-architecture-assessment.md` for SKU/tier context.
 - **Resume**: Read `00-session-state.json` first. If `steps.5.status = "in_progress"`
   with a `sub_step`, skip to that checkpoint.
 - **State writes**: Update `00-session-state.json` after each phase.
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 
 ## Workflow
 
@@ -185,13 +160,13 @@ For EACH resource in `04-implementation-plan.md`:
      **NEVER** list governance violations in chat text and ask the user to reply.
      If the user chooses to return, STOP and present the Return to Step 4 handoff.
 
-> **CRITICAL GATE** — Never proceed to code generation with unresolved Deny
+> **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Never collect user decisions via chat messages — always
 > use the `askQuestions` tool.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
-### Phase 1.6: Context Compaction (MANDATORY)
+### Phase 1.6: Context Compaction
 
 Context usage reaches ~80% after preflight checks and governance mapping.
 **You MUST compact the conversation before proceeding to code generation.**
@@ -215,18 +190,24 @@ Build templates in dependency order from `04-implementation-plan.md`.
 If **phased**: add `@allowed` `phase` parameter, wrap modules in `if phase == 'all' || phase == '{name}'`.
 If **single**: no phase parameter needed.
 
-| Round | Content                                                              |
-| ----- | -------------------------------------------------------------------- |
-| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`       |
-| 2     | Networking, Key Vault, Log Analytics + App Insights                  |
-| 3     | Compute, Data, Messaging                                             |
-| 4     | Budget + alerts, Diagnostic settings, role assignments, `deploy.ps1` |
+| Round | Content                                                                             |
+| ----- | ----------------------------------------------------------------------------------- |
+| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`                      |
+| 2     | Networking, Key Vault, Log Analytics + App Insights                                 |
+| 3     | Compute, Data, Messaging                                                            |
+| 4     | Budget + alerts, Diagnostic settings, role assignments, `azure.yaml` + `deploy.ps1` |
 
 After each round: `bicep build` to catch errors early.
 
 ### Phase 3: Deployment Script
 
-Generate `infra/bicep/{project}/deploy.ps1` with:
+Generate `infra/bicep/{project}/azure.yaml` (azd manifest) with:
+
+- `name`, `metadata.template`, `infra.provider: bicep`, `infra.path`, `infra.module`
+- `hooks.preprovision` — ARM token validation, banner
+- `hooks.postprovision` — resource verification via ARG
+
+Also generate `infra/bicep/{project}/deploy.ps1` (legacy fallback) with:
 
 - Banner, parameter validation (ResourceGroup, Location, Environment, Phase)
 - `az group create` + `az deployment group create --template-file --parameters`
@@ -243,6 +224,9 @@ Invoke both validation subagents **in parallel** via simultaneous `#runSubagent`
 
 Await both results. Both must pass before Phase 4.5.
 
+Run `npm run validate:iac-security-baseline` on `infra/bicep/{project}/` —
+violations are a hard gate (fix before Phase 4.5).
+
 ### Phase 4.5: Adversarial Code Review (3 passes)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
@@ -250,9 +234,10 @@ Check `00-session-state.json` `decisions.complexity` to determine pass count per
 
 Invoke challenger subagents with `artifact_type = "iac-code"`,
 rotating `review_focus` per protocol.
-**Model routing**: Pass 1 (security-governance) →
-`challenger-review-subagent` (GPT-5.4).
-Passes 2-3 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+
+**Read** `azure-defaults/references/challenger-selection-rules.md` for the
+pass routing table, model selection, and conditional skip rules.
+
 Follow the conditional pass rules from `adversarial-review-protocol.md` —
 skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`;
 skip pass 3 if pass 2 has 0 `must_fix`.
@@ -266,13 +251,37 @@ Save validation status in `05-implementation-reference.md`. Run `npm run lint:ar
 infra/bicep/{project}/
 ├── main.bicep              # Entry point — uniqueSuffix, orchestrates modules
 ├── main.bicepparam         # Environment-specific parameters
-├── deploy.ps1              # PowerShell deployment script
+├── azure.yaml              # azd project manifest (preferred deployment method)
+├── deploy.ps1              # PowerShell deployment script (legacy fallback)
 └── modules/
     ├── budget.bicep        # Azure Budget + forecast alerts + anomaly detection
     ├── key-vault.bicep     # Per-resource modules
     ├── networking.bicep
     └── ...
 ```
+
+<output_contract>
+Expected output in `infra/bicep/{project}/`:
+
+- `main.bicep` — Entry point with uniqueSuffix, orchestrates modules
+- `main.bicepparam` — Environment-specific parameters
+- `azure.yaml` — azd project manifest
+- `deploy.ps1` — PowerShell deployment script (legacy fallback)
+- `modules/*.bicep` — Per-resource AVM module wrappers
+  In `agent-output/{project}/`:
+- `04-preflight-check.md` — Preflight validation results
+- `05-implementation-reference.md` — Template structure and validation status
+  Validation: `bicep build main.bicep` + `bicep lint main.bicep` + `npm run lint:artifact-templates`.
+  </output_contract>
+
+<user_updates_spec>
+After completing each major phase, provide a brief status update in chat:
+
+- What was just completed (phase name, key results)
+- What comes next (next phase name)
+- Any blockers or decisions needed
+  This keeps the user informed during multi-phase operations.
+  </user_updates_spec>
 
 ## Boundaries
 
@@ -282,15 +291,5 @@ infra/bicep/{project}/
 
 ## Validation Checklist
 
-- [ ] Preflight check saved to `04-preflight-check.md`
-- [ ] AVM modules used for all available resources
-- [ ] `uniqueSuffix` generated once, passed to all modules
-- [ ] Governance compliance map complete — all Deny policies satisfied
-- [ ] Security baseline applied (TLS 1.2, HTTPS, managed identity)
-- [ ] Length constraints respected (KV≤24, Storage≤24)
-- [ ] `bicep-lint-subagent` PASS + `bicep-review-subagent` APPROVED
-- [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)
-- [ ] `deploy.ps1` generated; `05-implementation-reference.md` saved
-- [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
-- [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
-- [ ] `projectName` is a required parameter with no default value
+**Read** `.github/skills/azure-bicep-patterns/references/codegen-validation-checklist.md`
+— verify ALL items before marking Step 5 complete.

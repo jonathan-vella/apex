@@ -4,7 +4,7 @@ toc_depth: 3
 
 # :material-transit-connection-variant: System Architecture Overview
 
-## :material-format-list-numbered: The 8-Step Workflow
+## :material-format-list-numbered: The Multi-Step Workflow
 
 The system follows a strict sequential workflow with mandatory human approval gates
 between critical phases:
@@ -162,6 +162,6 @@ flowchart TD
 !!! tip "Further Reading"
 
     - [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
-    - [Agent Architecture](agents.md) — 16 top-level agents, 11 subagents, Challenger pattern
+    - [Agent Architecture](agents.md) — top-level agents, subagents, Challenger pattern
     - [Workflow Engine & Quality](workflow-engine.md) — DAG model, session state, circuit breakers
     - [MCP Integration](mcp-integration.md) — MCP servers and tool catalogs

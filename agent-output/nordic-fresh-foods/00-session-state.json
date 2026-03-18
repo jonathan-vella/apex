@@ -1,10 +1,10 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "project": "nordic-fresh-foods",
   "iac_tool": "Bicep",
   "region": "swedencentral",
   "branch": "chore/remove-microsoft-learn-mcp",
-  "updated": "2026-03-11T18:45:00Z",
+  "updated": "2026-03-18T12:00:00Z",
   "current_step": 7,
   "decisions": {
     "region": "swedencentral",
@@ -15,6 +15,7 @@
     "complexity": "standard"
   },
   "open_findings": [],
+  "decision_log": [],
   "review_audit": {
     "step_1": {
       "complexity": "standard",

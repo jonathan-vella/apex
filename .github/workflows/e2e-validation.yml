@@ -1,0 +1,62 @@
+# E2E Validation Workflow
+# Validates Ralph Loop E2E artifacts and runs benchmark scoring.
+# Manual trigger + weekly schedule. Does NOT invoke agents — validates existing artifacts.
+
+name: e2e-validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project to benchmark (default: e2e-ralph-loop)"
+        required: false
+        default: "e2e-ralph-loop"
+  schedule:
+    - cron: "0 6 * * 1" # Weekly on Monday at 06:00 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-validate:
+    name: E2E Validation & Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate E2E artifacts (all steps)
+        run: npm run e2e:validate
+
+      - name: Benchmark Bicep project (e2e-ralph-loop)
+        run: npm run e2e:benchmark
+        continue-on-error: true
+
+      - name: Benchmark Terraform project (terraform-e2e)
+        run: npm run e2e:benchmark -- terraform-e2e
+        continue-on-error: true
+
+      - name: Upload benchmark reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-benchmark-reports
+          path: |
+            agent-output/e2e-ralph-loop/08-benchmark-report.md
+            agent-output/e2e-ralph-loop/08-benchmark-scores.json
+            agent-output/terraform-e2e/08-benchmark-report.md
+            agent-output/terraform-e2e/08-benchmark-scores.json
+          retention-days: 30

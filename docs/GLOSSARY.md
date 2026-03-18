@@ -26,8 +26,8 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes 16 top-level agents (including two Conductor
-variants, a Governance agent, and a Context Optimizer) plus 11 subagents.
+Invoked via `Ctrl+Shift+A`. This project includes top-level agents (including two Conductor
+variants, a Governance agent, and a Context Optimizer) plus subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
@@ -184,6 +184,24 @@ configuration.
 A visual diagram showing how data entities relate to each other. Used in the Design step
 (Step 3) to model data architectures.
 
+## E
+
+### E2E Benchmark
+
+The 8-dimension scoring model used to evaluate Ralph Loop runs. Dimensions: artifact completeness,
+structural compliance, code quality, review thoroughness, WAF coverage, cost accuracy, session
+state integrity, and timing performance. Composite score 0–100 with letter grades (A–F).
+
+📁 **Output**: `agent-output/{project}/08-benchmark-report.md`, `08-benchmark-scores.json`
+
+### E2E Conductor
+
+Orchestration agent that drives the Ralph Loop. Executes all 7 InfraOps steps without human
+gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
+Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
+
+📁 **See**: [.github/agents/e2e-conductor.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-conductor.agent.md)
+
 ## F
 
 ### Fast Path
@@ -224,7 +242,7 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
 ### InfraOps Conductor
 
-The master orchestrator agent that coordinates all 8 steps of the infrastructure workflow with
+The master orchestrator agent that coordinates all steps of the infrastructure workflow with
 mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
 orchestration features.
 
@@ -324,6 +342,15 @@ Used in presenter materials to quantify the value of Agentic InfraOps.
 
 A protocol for executing functions on a remote server. MCP servers communicate using
 JSON-RPC, a lightweight RPC protocol encoded in JSON.
+
+### Ralph Loop
+
+An autonomous, self-correcting E2E evaluation workflow based on the
+[RALPH pattern](https://ghuntley.com/ralph/). Runs all 7 InfraOps pipeline steps without
+human gates, with built-in self-correction, challenger reviews, and benchmark scoring.
+Supports both Bicep and Terraform IaC tracks.
+
+📁 **See**: [E2E Testing documentation](e2e-testing.md)
 
 ## S
 
@@ -478,7 +505,7 @@ YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
 
 ## Numbers & Symbols
 
-### 8-Step Agentic Workflow
+### Multi-Step Agentic Workflow
 
 The core Agentic InfraOps workflow: `requirements` → `architect` → Design Artifacts →
 Governance → IaC Plan → IaC Code → Deploy → Documentation. Step 3.5 (Governance)

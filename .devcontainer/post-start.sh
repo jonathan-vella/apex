@@ -42,6 +42,18 @@ npm install --loglevel=error 2>&1 | tail -1 \
     && printf "✅ ok\n" \
     || printf "⚠️  npm install failed (continuing)\n"
 
+# ─── Azure Developer CLI (azd) auth check ────────────────────────────────────
+if command -v azd &>/dev/null; then
+    printf "    azd auth              "
+    if azd auth token --output json &>/dev/null; then
+        printf "✅ authenticated\n"
+    else
+        printf "⚠️  not authenticated — run 'azd auth login'\n"
+    fi
+else
+    printf "    azd                   ⚠️  not installed — rebuild container\n"
+fi
+
 # ─── Python tools via uv ─────────────────────────────────────────────────────
 if command -v uv &>/dev/null; then
     printf "    python packages      "

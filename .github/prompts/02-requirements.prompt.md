@@ -9,6 +9,15 @@ argument-hint: "Describe the Azure workload or project you want to gather requir
 
 Capture Azure infrastructure requirements for a new or existing project.
 
+## Prerequisites
+
+- `agent-output/{project}/00-session-state.json` should exist (created by Conductor)
+- If running standalone, the agent will create session state from template
+
+## Variables
+
+- `{project}`: project folder name under `agent-output/`
+
 ## Instructions
 
 1. Read `agent-output/{project}/00-session-state.json` to identify the project and current state.

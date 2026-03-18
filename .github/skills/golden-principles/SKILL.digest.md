@@ -2,26 +2,65 @@
 
 # Golden Principles (Digest)
 
-Compact reference — 10 operating principles for all agents.
-Read full `SKILL.md` for detailed explanations and application guidance.
+Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## The 10 Principles
 
-| #   | Principle                                 | One-Line Summary                                            | Test                                                   |
-| --- | ----------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
-| 1   | Repository Is the System of Record        | All context lives in-repo, not in chat history              | Can a new session reconstruct context from repo alone? |
-| 2   | Map, Not Manual                           | Instructions point to deeper sources; never dump everything | Does each file stay under 200 lines?                   |
-| 3   | Enforce Invariants, Not Implementations   | Set boundaries, allow autonomous expression                 | Rules as constraints, not scripts?                     |
-| 4   | Parse at Boundaries                       | Validate inputs/outputs at module edges                     | Agent checks prerequisites before starting?            |
-| 5   | AVM-First, Security Baseline Always       | Prefer AVM modules; apply TLS/HTTPS/MI to all               | Every resource checked against AVM?                    |
-| 6   | Golden Path Pattern                       | Use shared skills over hand-rolled helpers                  | Duplicate conventions consolidated?                    |
-| 7   | Human Taste Gets Encoded                  | Feedback → rules, not ad-hoc fixes                          | Lesson encoded into instruction/skill?                 |
-| 8   | Context Is Scarce                         | Every token must earn its keep                              | Agent loads ≤5 instructions? Skills on-demand?         |
-| 9   | Progressive Disclosure                    | Start small, point to deeper docs                           | Basic task needs only AGENTS.md + 1 skill?             |
-| 10  | Mechanical Enforcement Over Documentation | If a rule can be a linter, make it one                      | Corresponding validator in scripts/?                   |
+### 1. Repository Is the System of Record
 
-## How to Apply
+All context must live in-repo, not in external docs or chat history.
+If knowledge isn't committed to the repository, it doesn't exist for agents.
+Agent outputs go to `agent-output/`, decisions go to ADRs, conventions go to
+skills and instructions.
 
-- **Agents**: Read this first, use as decision framework when uncertain
-- **Contributors**: Check Principles 2, 7, 10 before adding content
-- **Code Review**: Check Principles 6, 8, 3 for each change
+**Test**: Can a new agent session reconstruct full project context from repo files alone?
+
+---
+
+### 2. Map, Not Manual
+
+Instructions point to deeper sources; never dump everything into context.
+`AGENTS.md` is the table of contents. Skills hold deep knowledge. Instructions
+enforce rules. No single file should try to be comprehensive.
+
+**Test**: Does each context-loaded file stay under 200 lines? Does it point to
+deeper sources rather than inline them?
+
+---
+
+### 3. Enforce Invariants, Not Implementations
+
+Set strict boundaries but allow autonomous expression within them.
+Enforce WHAT must be true (TLS 1.2, AVM-first, governance compliance),
+not HOW to achieve it. Agents choose their implementation path within
+the invariant envelope.
+
+**Test**: Are rules expressed as constraints ("MUST use managed identity")
+rather than scripts ("first create identity, then assign role...")?
+
+---
+
+### 4. Parse at Boundaries
+
+> _See SKILL.md for full content._
+
+## How to Apply These Principles
+
+### For Agents
+
+1. Read this skill FIRST, before `azure-defaults`
+2. Use the principles as a decision framework when uncertain
+3. When two approaches are equally valid, choose the one that better
+   aligns with these principles
+
+### For Contributors
+
+1. When adding a new instruction, check if it could be a linter rule instead (Principle 10)
+2. When adding content to an instruction, check if it exceeds 200 lines (Principle 2)
+3. When fixing a bug, encode the lesson into a rule (Principle 7)
+
+### For Code Review
+
+1. Does the change follow the golden path or create a new one? (Principle 6)
+2. Does it add context load or reduce it? (Principle 8)
+3. Does it enforce invariants or prescribe implementation? (Principle 3)

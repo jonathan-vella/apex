@@ -104,15 +104,21 @@ nav:
           - Skills & Instructions: how-it-works/skills-and-instructions.md
           - Workflow Engine & Quality: how-it-works/workflow-engine.md
           - MCP Integration: how-it-works/mcp-integration.md
-      - 7-Step Workflow: workflow.md
+      - Workflow: workflow.md
   - Guides:
       - Prompt Guide:
           - Overview: prompt-guide/index.md
           - Best Practices: prompt-guide/best-practices.md
           - Workflow Prompts: prompt-guide/workflow-prompts.md
           - Skill & Subagent Reference: prompt-guide/reference.md
+      - Cost Governance: cost-governance.md
+      - Security Baseline: security-baseline.md
+      - Session Debugging: session-debugging.md
+      - Agent Hooks: hooks.md
       - Troubleshooting: troubleshooting.md
+      - E2E Testing: e2e-testing.md
   - Reference:
+      - Validation & Linting: validation-reference.md
       - Glossary: GLOSSARY.md
       - FAQ: faq.md
   - Project:

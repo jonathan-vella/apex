@@ -14,7 +14,7 @@
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
-        "azure-troubleshooting",
+        "azure-diagnostics",
         "azure-diagrams"
       ]
     },
@@ -24,7 +24,7 @@
       "never": [
         "azure-bicep-patterns",
         "terraform-patterns",
-        "azure-troubleshooting",
+        "azure-diagnostics",
         "azure-diagrams",
         "iac-common"
       ]
@@ -41,7 +41,7 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-troubleshooting"
+        "azure-diagnostics"
       ]
     },
     "05b-Bicep Planner": {
@@ -56,7 +56,7 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
+      "never": ["terraform-patterns", "azure-diagnostics", "iac-common"]
     },
     "05t-Terraform Planner": {
       "primary": [
@@ -70,7 +70,7 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
+      "never": ["azure-bicep-patterns", "azure-diagnostics", "iac-common"]
     },
     "06b-Bicep CodeGen": {
       "primary": [
@@ -84,7 +84,7 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["terraform-patterns", "azure-troubleshooting", "iac-common"]
+      "never": ["terraform-patterns", "azure-diagnostics", "iac-common"]
     },
     "06t-Terraform CodeGen": {
       "primary": [
@@ -98,7 +98,7 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting", "iac-common"]
+      "never": ["azure-bicep-patterns", "azure-diagnostics", "iac-common"]
     },
     "07b-Bicep Deploy": {
       "primary": ["azure-defaults", "azure-artifacts", "iac-common"],
@@ -127,11 +127,11 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-troubleshooting"
+        "azure-diagnostics"
       ]
     },
     "09-Diagnose": {
-      "primary": ["azure-troubleshooting", "azure-defaults"],
+      "primary": ["azure-diagnostics", "azure-defaults"],
       "secondary": ["microsoft-docs", "microsoft-code-reference"],
       "never": [
         "azure-bicep-patterns",
@@ -185,7 +185,7 @@
     "bicep-lint-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["terraform-patterns", "azure-troubleshooting"]
+      "never": ["terraform-patterns", "azure-diagnostics"]
     },
     "bicep-review-subagent": {
       "primary": ["azure-bicep-patterns"],
@@ -195,12 +195,12 @@
     "bicep-whatif-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["terraform-patterns", "azure-troubleshooting"]
+      "never": ["terraform-patterns", "azure-diagnostics"]
     },
     "terraform-lint-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting"]
+      "never": ["azure-bicep-patterns", "azure-diagnostics"]
     },
     "terraform-review-subagent": {
       "primary": ["terraform-patterns"],
@@ -210,7 +210,7 @@
     "terraform-plan-subagent": {
       "primary": [],
       "secondary": [],
-      "never": ["azure-bicep-patterns", "azure-troubleshooting"]
+      "never": ["azure-bicep-patterns", "azure-diagnostics"]
     }
   }
 }

@@ -110,7 +110,7 @@ When a new agent or skill is added to the repo:
 1. **Load architecture**: Read `references/repo-architecture.md`.
 2. **Answer questions**: Use the reference to explain how components
    connect — agents, skills, instructions, templates, artifacts,
-   and the 7-step workflow.
+   and the multi-step workflow.
 3. **Cite sources**: Point to specific files when answering.
 4. **Stay current**: If the reference seems outdated vs. filesystem,
    note the discrepancy and offer to update the reference.
@@ -171,20 +171,21 @@ technical accuracy.
      (`name:` field) — e.g., "Bicep Code" not "bicep code agent".
 4. **Layer 3 — Technical accuracy**:
    - Load `references/repo-architecture.md` for ground truth.
-   - Verify agent/skill counts, names, and descriptions match
-     the actual filesystem.
-   - Confirm workflow step numbers and artifact filenames are correct.
-   - Check that capability claims are truthful (e.g., if a doc says
-     "supports 8 skills", verify 8 skill folders exist).
+   - Verify agent/skill names and descriptions match
+     the actual filesystem. Do not hard-code counts — reference
+     `.github/count-manifest.json` for canonical numbers.
+   - Confirm artifact filenames are correct.
+   - Check that capability claims are truthful and verifiable
+     against the filesystem.
    - Cross-check version numbers against `VERSION.md`.
 5. **Report findings**: Present a table per file:
 
    ```markdown
-   | #   | Line | Layer       | Issue                      | Suggestion       |
-   | --- | ---- | ----------- | -------------------------- | ---------------- |
-   | 1   | 12   | Language    | Passive voice              | Rewrite actively |
-   | 2   | 34   | Terminology | "IaC tool" not in glossary | Use "Bicep"      |
-   | 3   | 56   | Accuracy    | Says 6 agents, actual is 8 | Update count     |
+   | #   | Line | Layer       | Issue                      | Suggestion               |
+   | --- | ---- | ----------- | -------------------------- | ------------------------ |
+   | 1   | 12   | Language    | Passive voice              | Rewrite actively         |
+   | 2   | 34   | Terminology | "IaC tool" not in glossary | Use "Bicep"              |
+   | 3   | 56   | Accuracy    | Hard-coded count detected  | Use descriptive language |
    ```
 
 6. **Apply fixes**: After user review, apply corrections. For

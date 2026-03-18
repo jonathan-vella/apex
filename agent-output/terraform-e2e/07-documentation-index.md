@@ -23,36 +23,36 @@
 
 ## 📦 1. Document Package Contents
 
-| Document                                         | Description                                         | Status |
-| ------------------------------------------------ | --------------------------------------------------- | ------ |
-| [07-design-document.md](./07-design-document.md) | As-built technical architecture and rationale       | ✅     |
-| [07-operations-runbook.md](./07-operations-runbook.md) | Day-2 operations, incident response, procedures | ✅     |
-| [07-resource-inventory.md](./07-resource-inventory.md) | Deployed resource inventory and key properties  | ✅     |
-| [07-backup-dr-plan.md](./07-backup-dr-plan.md)   | Recovery objectives, backup strategy, DR process    | ✅     |
-| [07-compliance-matrix.md](./07-compliance-matrix.md) | Control mapping, gaps, and remediation tracker   | ✅     |
-| [07-ab-cost-estimate.md](./07-ab-cost-estimate.md) | As-built cost posture and deltas vs design       | ✅     |
+| Document                                               | Description                                      | Status |
+| ------------------------------------------------------ | ------------------------------------------------ | ------ |
+| [07-design-document.md](./07-design-document.md)       | As-built technical architecture and rationale    | ✅     |
+| [07-operations-runbook.md](./07-operations-runbook.md) | Day-2 operations, incident response, procedures  | ✅     |
+| [07-resource-inventory.md](./07-resource-inventory.md) | Deployed resource inventory and key properties   | ✅     |
+| [07-backup-dr-plan.md](./07-backup-dr-plan.md)         | Recovery objectives, backup strategy, DR process | ✅     |
+| [07-compliance-matrix.md](./07-compliance-matrix.md)   | Control mapping, gaps, and remediation tracker   | ✅     |
+| [07-ab-cost-estimate.md](./07-ab-cost-estimate.md)     | As-built cost posture and deltas vs design       | ✅     |
 
 ## 📚 2. Source Artifacts
 
-| Artifact                          | Source File                                                     |
-| --------------------------------- | --------------------------------------------------------------- |
-| Requirements                      | [01-requirements.md](./01-requirements.md)                     |
-| Architecture assessment           | [02-architecture-assessment.md](./02-architecture-assessment.md) |
-| Design cost estimate              | [03-des-cost-estimate.md](./03-des-cost-estimate.md)           |
-| Governance constraints            | [04-governance-constraints.md](./04-governance-constraints.md) |
-| Terraform implementation plan     | [04-implementation-plan.md](./04-implementation-plan.md)       |
-| Terraform implementation reference| [05-implementation-reference.md](./05-implementation-reference.md) |
-| Deployment summary                | [06-deployment-summary.md](./06-deployment-summary.md)         |
+| Artifact                           | Source File                                                        |
+| ---------------------------------- | ------------------------------------------------------------------ |
+| Requirements                       | [01-requirements.md](./01-requirements.md)                         |
+| Architecture assessment            | [02-architecture-assessment.md](./02-architecture-assessment.md)   |
+| Design cost estimate               | [03-des-cost-estimate.md](./03-des-cost-estimate.md)               |
+| Governance constraints             | [04-governance-constraints.md](./04-governance-constraints.md)     |
+| Terraform implementation plan      | [04-implementation-plan.md](./04-implementation-plan.md)           |
+| Terraform implementation reference | [05-implementation-reference.md](./05-implementation-reference.md) |
+| Deployment summary                 | [06-deployment-summary.md](./06-deployment-summary.md)             |
 
 ## 📋 3. Project Summary
 
-| Attribute          | Value |
-| ------------------ | ----- |
-| **Project Name**   | terraform-e2e |
-| **IaC Tool**       | Terraform |
-| **Environment**    | dev |
-| **Primary Region** | swedencentral |
-| **Resource Group** | rg-terraform-e2e-dev |
+| Attribute             | Value                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| **Project Name**      | terraform-e2e                                                                                 |
+| **IaC Tool**          | Terraform                                                                                     |
+| **Environment**       | dev                                                                                           |
+| **Primary Region**    | swedencentral                                                                                 |
+| **Resource Group**    | rg-terraform-e2e-dev                                                                          |
 | **Primary Endpoints** | app-terraform-e2e-fe-dev-3hpu.azurewebsites.net, app-terraform-e2e-dev-3hpu.azurewebsites.net |
 
 ## 🔗 4. Related Resources
@@ -63,6 +63,18 @@
 - Runtime diagram: [04-runtime-diagram.png](./04-runtime-diagram.png)
 
 ## ⚡ 5. Quick Links
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    IDX["07-documentation-index"] --> DD["07-design-document"]
+    IDX --> RB["07-operations-runbook"]
+    IDX --> RI["07-resource-inventory"]
+    IDX --> DR["07-backup-dr-plan"]
+    IDX --> CM["07-compliance-matrix"]
+    IDX --> CE["07-ab-cost-estimate"]
+    style IDX fill:#0078D4,color:#fff
+```
 
 - [As-built design](./07-design-document.md)
 - [As-built runbook](./07-operations-runbook.md)

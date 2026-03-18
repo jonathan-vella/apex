@@ -125,6 +125,7 @@
 | App Service ingress and SCM rules allow all (`Allow all`)                                                 | 🟠       | Medium     | Add IP restrictions/WAF/Front Door controls                 | 4 weeks   |
 | Log Analytics public query/ingestion still enabled                                                        | 🟡       | Medium     | Evaluate Private Link and disable public access as feasible | 4-6 weeks |
 | DR test evidence not yet recorded                                                                         | 🟡       | Low        | Execute and capture quarterly restore/failover drills       | 1 quarter |
+| App Service lacks WAF/Front Door protection                                                               | 🟠       | High       | ❌ Deploy WAF or Front Door before production traffic       | Pre-prod  |
 
 ![Compliance Gaps by Severity](./07-ab-compliance-gaps.png)
 
@@ -185,6 +186,20 @@
 ---
 
 ## References
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    A["Control"] --> B{"Implemented?"}
+    B -- Yes --> C{"Evidence Collected?"}
+    B -- No --> D["❌ Gap"]
+    C -- Yes --> E["✅ Compliant"]
+    C -- No --> F["⚠️ Pending Evidence"]
+    D --> G["Remediation Tracker"]
+    style E fill:#107C10,color:#fff
+    style D fill:#D83B01,color:#fff
+    style F fill:#FFB900,color:#000
+```
 
 > [!NOTE]
 > 📚 The following Microsoft Learn resources provide compliance guidance.

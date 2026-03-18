@@ -46,13 +46,13 @@ diagnostic settings, AVM-TF module composition, and known AVM pitfalls.
 @workspace Show me the hub-spoke pattern from terraform-patterns.
 ```
 
-### azure-troubleshooting
+### azure-diagnostics
 
 KQL templates, metric thresholds, health checks, and remediation playbooks
 for diagnosing Azure resource issues.
 
 ```text
-@workspace What KQL queries are available in azure-troubleshooting?
+@workspace What KQL queries are available in azure-diagnostics?
 ```
 
 ### azure-adr
@@ -64,18 +64,14 @@ Document the decision to use Azure Front Door instead of
 Application Gateway as an ADR.
 ```
 
-### git-commit
+### github-operations
 
-Provides conventional commit message conventions for this repository.
+Full contribution lifecycle: branch naming, conventional commits, GitHub issues,
+PRs, Actions, and releases. Uses MCP tools first, falls back to `gh` CLI.
 
 ```text
 @workspace What commit message format does this repo use?
 ```
-
-### github-operations
-
-Manages GitHub issues, PRs, Actions, and releases. Uses MCP tools first,
-falls back to `gh` CLI.
 
 ```text
 Create a GitHub issue for adding monitoring to the payment gateway.
@@ -157,7 +153,7 @@ strategies, known issues, and governance-to-code property mapping.
 
 ### session-resume
 
-Session state tracking and resume protocol for the 8-step workflow.
+Session state tracking and resume protocol for the multi-step workflow.
 Manages checkpoint recovery and session-state.json schema.
 
 ```text
@@ -166,7 +162,7 @@ Resume the workflow from step 4 using the existing session state.
 
 ### workflow-engine
 
-Machine-readable workflow DAG for the 8-step pipeline. Defines node
+Machine-readable workflow DAG for the multi-step pipeline. Defines node
 types, edge conditions, gates, and fan-out patterns.
 
 ## :material-account-cog-outline: Subagents

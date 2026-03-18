@@ -34,9 +34,9 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 - Use reference-style links for external URLs
 - No broken links (validated in CI)
 
-## Current Architecture (as of 2026-02-26)
+## Current Architecture
 
-### Agents (14 top-level + 9 subagents)
+### Agents (see count-manifest.json for current counts)
 
 | Agent                | Purpose                                      |
 | -------------------- | -------------------------------------------- |
@@ -69,23 +69,22 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
 | `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
-### Skills (13 total)
+### Skills (see count-manifest.json for current counts)
 
-| Skill                   | Category            | Purpose                                     |
-| ----------------------- | ------------------- | ------------------------------------------- |
-| `azure-adr`             | Document Creation   | Architecture Decision Records               |
-| `azure-artifacts`       | Artifact Generation | Template H2s, styling, generation rules     |
-| `azure-bicep-patterns`  | IaC Patterns        | Reusable Bicep infrastructure patterns      |
-| `azure-defaults`        | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags    |
-| `azure-diagrams`        | Document Creation   | Python architecture diagrams                |
-| `azure-troubleshooting` | Troubleshooting     | KQL templates, health checks, remediation   |
-| `context-optimizer`     | Agent Optimization  | Context window audit, token waste reduction |
-| `docs-writer`           | Documentation       | Repo-aware docs maintenance                 |
-| `git-commit`            | Tool Integration    | Commit conventions                          |
-| `github-operations`     | Workflow Automation | GitHub issues, PRs, CLI, Actions, releases  |
-| `golden-principles`     | Agent Conventions   | 10 operating invariants for all agents      |
-| `make-skill-template`   | Meta                | Skill creation helper                       |
-| `terraform-patterns`    | IaC Patterns        | Reusable Terraform infrastructure patterns  |
+| Skill                  | Category            | Purpose                                     |
+| ---------------------- | ------------------- | ------------------------------------------- |
+| `azure-adr`            | Document Creation   | Architecture Decision Records               |
+| `azure-artifacts`      | Artifact Generation | Template H2s, styling, generation rules     |
+| `azure-bicep-patterns` | IaC Patterns        | Reusable Bicep infrastructure patterns      |
+| `azure-defaults`       | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags    |
+| `azure-diagrams`       | Document Creation   | Python architecture diagrams                |
+| `azure-diagnostics`    | Troubleshooting     | KQL templates, health checks, remediation   |
+| `context-optimizer`    | Agent Optimization  | Context window audit, token waste reduction |
+| `docs-writer`          | Documentation       | Repo-aware docs maintenance                 |
+| `github-operations`    | Workflow Automation | Branch naming, commits, PRs, CLI, Actions   |
+| `golden-principles`    | Agent Conventions   | 10 operating invariants for all agents      |
+| `make-skill-template`  | Meta                | Skill creation helper                       |
+| `terraform-patterns`   | IaC Patterns        | Reusable Terraform infrastructure patterns  |
 
 ## Prohibited References
 

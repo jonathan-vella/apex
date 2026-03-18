@@ -12,8 +12,11 @@
   "chat.hookFilesLocations": {
     ".github/hooks/block-dangerous-commands": true,
     ".github/hooks/post-edit-format": true,
-    ".github/hooks/session-start-audit": true
+    ".github/hooks/session-start-audit": true,
+    ".github/hooks/subagent-validation": true,
+    ".github/hooks/session-report": true
   },
+  "chat.useCustomAgentHooks": true,
   "chat.useAgentSkills": true,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -27,5 +30,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.rulers": [120],
     "editor.wordWrap": "wordWrapColumn"
-  }
+  },
+  "python.terminal.useEnvFile": true
 }

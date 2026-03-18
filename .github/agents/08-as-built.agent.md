@@ -1,7 +1,7 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["GPT-5.3-Codex (copilot)"]
+model: ["GPT-5.4"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
 tools:
@@ -72,11 +72,13 @@ handoffs:
     send: true
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 7 (As-Built Documentation). Documentation suite at `agent-output/{project}/07-*.md`. Advise on next steps."
+    prompt: "Returning from Step 7 (As-Built Documentation). Complete documentation suite generated at `agent-output/{project}/07-*.md` including design document, operations runbook, cost estimate, compliance matrix, and resource inventory. Workflow is complete."
     send: false
 ---
 
 # As-Built Agent
+
+<!-- Recommended reasoning_effort: medium -->
 
 ## MANDATORY: Read Skills First
 
@@ -268,6 +270,29 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 | Design vs As-Built Chart  | `agent-output/{project}/07-ab-cost-comparison.png`   |
 | Compliance Gaps Chart     | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
+<output_contract>
+Expected output in `agent-output/{project}/`:
+
+- `07-resource-inventory.md` — Deployed resources with IDs and config
+- `07-design-document.md` — Architecture decisions and rationale
+- `07-ab-cost-estimate.md` — As-built costs (prices from cost-estimate-subagent only)
+- `07-compliance-matrix.md` — Security and compliance controls mapping
+- `07-backup-dr-plan.md` — Backup, DR, and business continuity
+- `07-operations-runbook.md` — Day-2 ops, monitoring, troubleshooting
+- `07-documentation-index.md` — Index of all project artifacts
+- `07-ab-diagram.py` + `07-ab-diagram.png` — As-built architecture diagram
+  Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
+  </output_contract>
+
+<user_updates_spec>
+After completing each major phase, provide a brief status update in chat:
+
+- What was just completed (phase name, key results)
+- What comes next (next phase name)
+- Any blockers or decisions needed
+  This keeps the user informed during multi-phase operations.
+  </user_updates_spec>
+
 ## Boundaries
 
 - **Always**: Read all prior artifacts (Steps 1-6), generate complete documentation suite, verify deployment state
@@ -283,6 +308,9 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 - [ ] Cost estimate uses `cost-estimate-subagent` prices — no hardcoded dollar figures
 - [ ] Planned vs as-built cost delta documented
 - [ ] Compliance matrix maps controls to actual resource configurations
+- [ ] Resource inventory cross-referenced against 04-implementation-plan.md — every planned resource appears
+- [ ] For GDPR projects: compliance matrix maps each requirements clause to a specific Azure control with evidence
+- [ ] DR plan includes control-plane state recovery for all PaaS services with declared RTO (APIM APIOps, identity config)
 - [ ] Operations runbook includes real endpoints and resource names
 - [ ] README.md updated with Step 7 completion status
 - [ ] `npm run lint:artifact-templates` passes for all 07-\* files

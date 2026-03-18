@@ -99,14 +99,45 @@ pre-commit:
         🔧 Check YAML syntax in agent definitions
         📚 Reference: .github/instructions/agent-definitions.instructions.md
 
-    instruction-frontmatter:
+    model-alignment:
+      glob: "**/*.agent.md,**/*.prompt.md"
+      run: |
+        STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|prompt)\.md$' || true)
+        if [ -n "$STAGED" ]; then
+          echo "🔗 Checking model-prompt alignment..."
+          npm run lint:model-alignment
+        else
+          echo "ℹ️  No agent/prompt files to check"
+        fi
+      fail_text: |
+        ❌ Model-prompt alignment check failed!
+
+        🔧 Fix prompt model mismatches or stale handoff overrides
+        📚 Reference: .github/instructions/model-prompt-alignment.instructions.md
+
+    agent-checks:
+      glob: "**/*.agent.md"
+      run: |
+        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.agent\.md$' || true)
+        if [ -n "$STAGED_AGENTS" ]; then
+          echo "📝 Checking agent body size + language density..."
+          npm run lint:agent-checks
+        else
+          echo "ℹ️  No agent files to check"
+        fi
+      fail_text: |
+        ❌ Agent checks failed!
+
+        🔧 Fix body size (>400 lines) or soften absolute language (>5/100 lines)
+
+    instruction-checks:
       glob: "**/*.instructions.md"
       run: |
         STAGED_INSTR=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.instructions\.md$' || true)
         if [ -n "$STAGED_INSTR" ]; then
           COUNT=$(echo "$STAGED_INSTR" | wc -l | tr -d ' ')
           echo "📋 Validating $COUNT instruction file(s)..."
-          npm run lint:instruction-frontmatter
+          npm run validate:instruction-checks
         else
           echo "ℹ️  No instruction files to validate"
         fi
@@ -122,7 +153,7 @@ pre-commit:
         STAGED_REFS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|instructions)\.md$|SKILL\.md$' || true)
         if [ -n "$STAGED_REFS" ]; then
           echo "🔗 Validating instruction cross-references..."
-          npm run validate:instruction-refs
+          npm run validate:instruction-checks
         else
           echo "ℹ️  No agent/skill/instruction files to check references"
         fi
@@ -130,7 +161,7 @@ pre-commit:
         ❌ Instruction reference validation failed!
 
         🔧 A referenced instruction or skill file does not exist.
-        📚 Run: npm run validate:instruction-refs
+        📚 Run: npm run validate:instruction-checks
 
     python-lint:
       glob: "mcp/**/*.py"
@@ -179,6 +210,22 @@ pre-commit:
           echo "ℹ️  No Terraform project to validate"
         fi
 
+    iac-security-baseline:
+      glob: "{infra/bicep/**/*.bicep,infra/terraform/**/*.tf}"
+      run: |
+        STAGED_IAC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(bicep|tf)$' || true)
+        if [ -n "$STAGED_IAC" ]; then
+          echo "🔒 Checking IaC security baseline..."
+          npm run validate:iac-security-baseline
+        else
+          echo "ℹ️  No IaC files to security-check"
+        fi
+      fail_text: |
+        ❌ IaC security baseline violation!
+
+        🔧 Fix: TLS 1.2+, HTTPS-only, no public blob access, managed identity
+        📚 Reference: AGENTS.md Security Baseline section
+
 commit-msg:
   commands:
     commitlint:
@@ -200,6 +247,23 @@ commit-msg:
 pre-push:
   parallel: true
   commands:
+    branch-naming:
+      run: bash scripts/validate-branch-naming.sh
+      fail_text: |
+        ❌ Branch naming convention violated!
+
+        🔧 Rename your branch using an approved prefix:
+           docs/, agents/, skills/, infra/, scripts/, instructions/,
+           fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/
+
+    branch-scope:
+      run: bash scripts/validate-branch-scope.sh
+      fail_text: |
+        ❌ Branch scope violation!
+
+        Domain-scoped branches (docs/, agents/, skills/, etc.) should only
+        modify files within their domain. Use feat/ or fix/ for cross-cutting changes.
+
     diff-based-check:
       run: bash scripts/diff-based-push-check.sh
       fail_text: |

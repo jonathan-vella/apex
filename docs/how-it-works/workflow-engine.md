@@ -210,7 +210,7 @@ The circuit breaker pattern protects against runaway agent loops during deployme
 
 ### Context Compression
 
-When agents approach model context limits, the context-shredding system activates:
+The context-shredding system defines three compression tiers for artifact loading:
 
 | Tier         | Trigger    | Strategy                                   |
 | ------------ | ---------- | ------------------------------------------ |
@@ -218,12 +218,43 @@ When agents approach model context limits, the context-shredding system activate
 | `summarized` | 60–80%     | Key H2 sections only (tables preserved)    |
 | `minimal`    | > 80%      | Decision summaries only (< 500 characters) |
 
-When the `challenger-review-subagent` loads predecessor artefacts for review, it applies
-the same 3-tier compression with additional intelligence: at the `summarized` tier, it
-preserves only resource list, SKUs, WAF scores, compliance matrix, and budget sections;
-at `minimal`, it uses only the `decisions` field from `00-session-state.json` plus the
-resource list. After each review pass, only the `compact_for_parent` string is carried
-forward (not the full JSON findings), preventing context bloat across multi-pass reviews.
+!!! warning "Partially implemented — know the limits"
+
+    **What works today:**
+
+    - **Pre-built skill variants** — `SKILL.digest.md` and `SKILL.minimal.md` files
+      exist on disk for key skills, generated and validated by scripts
+      (`generate-skill-digests.mjs`, `validate-skill-digests.mjs`).
+    - **Hardcoded compaction checkpoints** — agents like the Architect (Phase 2.5)
+      and Terraform Planner (Phase 3.6) have fixed points in their bodies where they
+      write a summary and switch to minimal skill loading. These are positional, not
+      dynamic.
+    - **`compact_for_parent` carry-forward** — the challenger subagent's JSON output
+      contract limits inter-pass data to a ~200-character string, preventing context
+      bloat across multi-pass reviews.
+
+    **What does not work today:**
+
+    - **Dynamic tier selection** — the 60%/80% thresholds rely on the LLM estimating
+      its own context consumption. VS Code Copilot provides no API for agents to
+      query actual token usage. The LLM has no reliable way to know whether it is at
+      55% or 75% of its context window, so tier triggers are effectively best-effort.
+    - **Automatic artifact compression** — the per-artifact compression templates
+      (`compression-templates.md`) describe which H2 sections to keep per tier, but
+      no code enforces this. Compression depends on the LLM reading the template,
+      deciding its tier, and selectively extracting sections. In practice, LLMs tend
+      to read entire files.
+
+    The hardcoded compaction checkpoints in agent bodies are the most reliable
+    mechanism. The dynamic tier system is a design intent that nudges LLM behaviour
+    but is not deterministic.
+
+When the `challenger-review-subagent` loads predecessor artefacts for review, it is
+instructed to apply the same 3-tier compression: at the `summarized` tier, preserving
+only resource list, SKUs, WAF scores, compliance matrix, and budget sections; at
+`minimal`, using only the `decisions` field from `00-session-state.json` plus the
+resource list. Whether the LLM follows these instructions consistently varies —
+the `compact_for_parent` carry-forward between passes is the part that reliably works.
 
 ### Copilot Hooks
 
@@ -243,7 +274,7 @@ and timeout. They run automatically — agents do not invoke them explicitly.
 
 !!! tip "Further Reading"
 
-    - [System Architecture](architecture.md) — the 8-step workflow, Conductor pattern, dual IaC tracks
+    - [System Architecture](architecture.md) — the multi-step workflow, Conductor pattern, dual IaC tracks
     - [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
     - [Agent Architecture](agents.md) — handoffs, the Challenger pattern, context shredding
     - [MCP Integration](mcp-integration.md) — MCP servers and how agents invoke tools

@@ -9,6 +9,11 @@ model: "Claude Opus 4.6"
 Analyze Copilot Chat debug logs to identify context bloat, redundant file reads, and optimization
 opportunities across agents.
 
+## Prerequisites
+
+- Copilot Chat debug logging enabled in VS Code
+- Log files at `~/.vscode-server/data/logs/*/exthost1/GitHub.copilot-chat/`
+
 ## Instructions
 
 1. Read `.github/skills/context-optimizer/SKILL.md` for audit methodology.

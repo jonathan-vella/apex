@@ -38,6 +38,7 @@
     "deployment_strategy": "",
     "complexity": ""
   },
+  "decision_log": [],
   "open_findings": [],
   "review_audit": {
     "step_1": {
@@ -224,6 +225,16 @@
 | `lock.acquired`                       | ISO or null    | When the lock was first acquired                                                                                                  |
 | `decisions`                           | object         | Key project decisions (accumulated across steps)                                                                                  |
 | `decisions.complexity`                | string         | `"simple"`, `"standard"`, `"complex"`, or `""` — set by Requirements agent, defaults to `"standard"` if missing (backward compat) |
+| `decision_log`                        | array          | Sequential log of cross-agent decisions with rationale — see `decision-logging.instructions.md` for entry schema                  |
+| `decision_log[].id`                   | string         | Sequential ID (`D001`, `D002`, …) — matches pattern `^D\d+$`                                                                      |
+| `decision_log[].step`                 | number         | Workflow step where the decision was made (1–7)                                                                                   |
+| `decision_log[].agent`                | string         | Agent that made the decision                                                                                                      |
+| `decision_log[].title`                | string         | Short decision title                                                                                                              |
+| `decision_log[].choice`               | string         | What was chosen                                                                                                                   |
+| `decision_log[].rationale`            | string         | Why this choice was made                                                                                                          |
+| `decision_log[].alternatives`         | array          | Optional — what was rejected                                                                                                      |
+| `decision_log[].impact`               | string         | Optional — downstream effect on later steps                                                                                       |
+| `decision_log[].timestamp`            | ISO string     | Optional — when the decision was made                                                                                             |
 | `open_findings`                       | array          | Unresolved `must_fix` challenger findings (titles only)                                                                           |
 | `steps.N.status`                      | string         | `pending` / `in_progress` / `complete` / `skipped`                                                                                |
 | `steps.N.sub_step`                    | string or null | Current sub-step checkpoint identifier (e.g. `"phase_2_waf"`)                                                                     |

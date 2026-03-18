@@ -2,7 +2,7 @@
 
 # Cost Estimate — Section Templates
 
-Full templates and examples for `cost-estimate.instructions.md`.
+Full templates and examples for `cost-estimate-standards.md`.
 Rules and enforcement live in the instruction file.
 
 ## Required Header Template

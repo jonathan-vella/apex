@@ -1,62 +1,38 @@
 ---
 name: 04-Design
-model: ["GPT-5.3-Codex"]
+model: ["GPT-5.4"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
 tools:
   [
     vscode/extensions,
+    vscode/askQuestions,
     vscode/getProjectSetupInfo,
     vscode/installExtension,
     vscode/newWorkspace,
-    browser,
     vscode/runCommand,
-    vscode/askQuestions,
     vscode/vscodeAPI,
-    execute/getTerminalOutput,
-    execute/awaitTerminal,
-    execute/killTerminal,
-    execute/createAndRunTask,
-    execute/runTests,
-    execute/runInTerminal,
-    execute/runNotebookCell,
-    execute/testFailure,
-    read/terminalSelection,
-    read/terminalLastCommand,
-    read/getNotebookSummary,
-    read/problems,
-    read/readFile,
-    read/readNotebookCellOutput,
+    execute,
+    read,
     agent,
+    browser,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
     search,
-    search/changes,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/searchResults,
-    search/textSearch,
-    search/usages,
     web,
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
     "microsoft-learn/*",
     "pylance-mcp-server/*",
+    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
-    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
     ms-python.python/getPythonEnvironmentInfo,
     ms-python.python/getPythonExecutableCommand,
     ms-python.python/installPythonPackage,
@@ -75,32 +51,31 @@ handoffs:
     agent: 03-Architect
     prompt: "Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to `agent-output/{project}/03-des-cost-estimate.md`."
     send: true
-    model: "Claude Opus 4.6 (copilot)"
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
     send: true
-    model: "Claude Sonnet 4.6 (copilot)"
   - label: "⏭️ Skip Steps 3.5 & 4: Bicep Code"
     agent: 06b-Bicep CodeGen
-    prompt: "Skip governance and planning. Go directly to Bicep code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save templates to `infra/bicep/{project}/`."
-    send: true
+    prompt: "WARNING: Skipping governance discovery and implementation planning. IaC will be generated without Azure Policy constraint validation — deployment may fail if policies block resources. Generate Bicep templates based on architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save to `infra/bicep/{project}/`."
+    send: false
   - label: "⏭️ Skip Steps 3.5 & 4: Terraform Code"
     agent: 06t-Terraform CodeGen
-    prompt: "Skip governance and planning. Go directly to Terraform code generation based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save configurations to `infra/terraform/{project}/`."
-    send: true
+    prompt: "WARNING: Skipping governance discovery and implementation planning. IaC will be generated without Azure Policy constraint validation — deployment may fail if policies block resources. Generate Terraform configurations based on architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save to `infra/terraform/{project}/`."
+    send: false
   - label: "↩ Return to Step 2"
     agent: 03-Architect
     prompt: "Returning to architecture assessment for further refinement. Review `agent-output/{project}/02-architecture-assessment.md` for re-evaluation."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 3 (Design). Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.py`. Advise on next steps."
+    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.py`. Ready for governance discovery or IaC planning."
     send: false
 ---
 
 # Design Agent
+
+<!-- Recommended reasoning_effort: medium -->
 
 This step is **optional**. Users can skip directly to Step 4 (Implementation Planning).
 
@@ -160,7 +135,9 @@ If missing, STOP and request handoff to Architect agent.
 2. Read `01-requirements.md` for business-critical paths and actor context
 3. Generate `agent-output/{project}/03-des-diagram.py` using the azure-diagrams contract
 4. Execute `python3 agent-output/{project}/03-des-diagram.py`
-5. Validate quality gate score (>=9/10); regenerate once if below threshold
+5. Validate quality gate score (>=9/10); regenerate once if below threshold.
+   Do not finalize until verification passes.
+   If a check fails, retry with a different strategy before reporting blocked.
 6. Save final PNG to `agent-output/{project}/03-des-diagram.png`
 
 ### ADR Generation
@@ -187,6 +164,15 @@ If missing, STOP and request handoff to Architect agent.
 | `03-des-cost-estimate.md` | Cost estimate (via Architect handoff) |
 
 Include attribution: `> Generated by design agent | {YYYY-MM-DD}`
+
+<output_contract>
+Expected output files in `agent-output/{project}/`:
+
+- `03-des-diagram.py` + `03-des-diagram.png` — Architecture diagram (Python source + rendered PNG)
+- `03-des-adr-NNNN-{slug}.md` — Architecture Decision Records (1+ files)
+- `03-des-cost-estimate.md` — Cost estimate (via Architect handoff)
+  Validation: `npm run lint:artifact-templates` must pass for all output files.
+  </output_contract>
 
 ## Boundaries
 

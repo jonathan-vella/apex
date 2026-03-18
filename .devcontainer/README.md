@@ -42,7 +42,7 @@ It includes all required tools, extensions, and configurations to build Azure in
 - **matplotlib**, **pillow** - Image processing
 - **checkov** - Infrastructure security scanner
 
-### VS Code Extensions (26 Pre-installed)
+### VS Code Extensions (Pre-installed)
 
 - ✅ **GitHub Copilot** + Copilot Chat + Mermaid Diagrams
 - ✅ **Python** (IntelliSense via Pylance, linting, debugging)

@@ -11,62 +11,31 @@ agents:
   ]
 tools:
   [
-    vscode/extensions,
-    vscode/getProjectSetupInfo,
-    vscode/installExtension,
-    vscode/newWorkspace,
-    browser,
-    vscode/runCommand,
-    vscode/askQuestions,
-    vscode/vscodeAPI,
-    execute/getTerminalOutput,
-    execute/awaitTerminal,
-    execute/killTerminal,
-    execute/createAndRunTask,
-    execute/runTests,
-    execute/runInTerminal,
-    execute/runNotebookCell,
-    execute/testFailure,
-    read/terminalSelection,
-    read/terminalLastCommand,
-    read/getNotebookSummary,
-    read/problems,
-    read/readFile,
-    read/readNotebookCellOutput,
+    vscode,
+    execute,
+    read,
     agent,
-    edit/createDirectory,
-    edit/createFile,
-    edit/createJupyterNotebook,
-    edit/editFiles,
-    edit/editNotebook,
+    browser,
+    edit,
     search,
-    search/changes,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/searchResults,
-    search/textSearch,
-    search/usages,
     web,
-    web/fetch,
-    web/githubRepo,
     "azure-mcp/*",
     "microsoft-learn/*",
     "bicep/*",
+    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
   - label: "▶ Refresh Governance"
-    agent: 05b-Bicep Planner
-    prompt: "Re-query Azure Resource Graph for updated policy assignments and governance constraints. Update `agent-output/{project}/04-governance-constraints.md`."
+    agent: 04g-Governance
+    prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json in `agent-output/{project}/`."
     send: true
   - label: "▶ Revise Plan"
     agent: 05b-Bicep Planner
@@ -84,7 +53,6 @@ handoffs:
     agent: 03-Architect
     prompt: "Returning to architecture assessment for re-evaluation. Review `agent-output/{project}/02-architecture-assessment.md` — WAF scores and recommendations may need adjustment."
     send: false
-    model: "Claude Opus 4.6 (copilot)"
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
     prompt: "Returning from Step 4 (Bicep Planning). Artifacts at `agent-output/{project}/04-implementation-plan.md` and `agent-output/{project}/04-governance-constraints.md`. Advise on next steps."
@@ -93,7 +61,27 @@ handoffs:
 
 # Bicep Plan Agent
 
-## MANDATORY: Read Skills First
+<!-- Recommended reasoning_effort: high -->
+
+<investigate_before_answering>
+Before writing the implementation plan, verify AVM module availability for every resource
+via mcp_bicep_list_avm_metadata. Check deprecation notices for non-AVM SKUs. Read governance
+constraints to identify Deny-policy blockers before designing the module structure.
+</investigate_before_answering>
+
+<output_contract>
+Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
+specs, module inventory, deployment phases, dependency order. H2 structure from template.
+Diagrams: 04-dependency-diagram.py/.png and 04-runtime-diagram.py/.png.
+Session state: update 00-session-state.json after each phase with sub_step checkpoint.
+</output_contract>
+
+<scope_fencing>
+Audit your output against the 04-implementation-plan.template.md. Do not add sections,
+features, or analysis beyond what the template specifies. Code generation belongs to Step 5.
+</scope_fencing>
+
+## Read Skills First
 
 **Before doing ANY work**, read these skills for configuration and template structure:
 
@@ -151,21 +139,27 @@ If any are missing, STOP and request handoff to the appropriate prior agent.
   skip to the saved `sub_step` checkpoint.
 - **State writes**: Update after each phase. On completion, set `steps.4.status = "complete"`
   and populate `decisions.deployment_strategy`.
+  Append significant decisions to `decision_log` (see decision-logging instruction).
 
 ## Core Workflow
 
 ### Phase 1: Prerequisites and Governance Integration
 
 1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5)
-2. Extract all `Deny` policies — these are hard blockers for the plan
-3. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
-4. Verify governance artifacts are complete — if missing or `PARTIAL`, STOP
+2. **Validate governance completeness (MANDATORY)**:
+   - File exists and is non-empty
+   - JSON is well-formed (parse succeeds)
+   - `discovery_status` field is `"COMPLETE"` (not `"PARTIAL"` or missing)
+   - Policy array is present (empty array is valid if discovery_status is COMPLETE)
+   - If ANY of these checks fail: **STOP.** Present the Refresh Governance handoff to user.
+3. Extract all `Deny` policies — these are hard blockers for the plan
+4. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
 
 **Policy effects:** Read `azure-defaults/references/policy-effect-decision-tree.md`.
 
-### Phase 1.5: Deployment Context Discovery (MANDATORY)
+### Phase 1.5: Deployment Context Discovery
 
-**MANDATORY — use the `askQuestions` tool** to collect deployment context
+**Use the `askQuestions` tool** to collect deployment context
 before AVM verification. Build a single form:
 
 - header: "Deployment Context"
@@ -192,9 +186,9 @@ For EACH resource in the architecture:
 Use deprecation patterns from azure-defaults skill (Azure Updates, regional SKU availability, Classic/v1).
 If deprecation detected: document alternative, adjust plan.
 
-### Phase 3.5: Deployment Strategy Gate (MANDATORY)
+### Phase 3.5: Deployment Strategy Gate
 
-**Mandatory gate.** Ask the user BEFORE generating the plan. Do NOT assume single or phased.
+**Required gate.** Ask the user BEFORE generating the plan. Do NOT assume single or phased.
 
 Use `askQuestions` to present:
 
@@ -204,10 +198,10 @@ Use `askQuestions` to present:
 If phased, ask grouping: **Standard** (Foundation → Security → Data → Compute → Edge) or **Custom**.
 Record choice for `## Deployment Phases` section.
 
-### Phase 3.6: Context Compaction (MANDATORY)
+### Phase 3.6: Context Compaction
 
 Context usage reaches ~80% by the end of the deployment strategy gate.
-**You MUST compact the conversation before proceeding to Phase 4.**
+**You must compact the conversation before proceeding to Phase 4.**
 
 1. **Summarize prior phases** — write a single concise message containing:
    - Governance discovery result (pass/fail, blocker count)
@@ -229,7 +223,7 @@ Include: resource inventory, module structure (`main.bicep` + `modules/`), tasks
 deployment phases (from Phase 3.5 choice), diagram artifacts (`04-dependency-diagram.py/.png`,
 `04-runtime-diagram.py/.png`), naming conventions table, security config matrix, estimated time.
 
-> **MANDATORY**: The plan MUST include an Azure Budget resource (`Microsoft.Consumption/budgets`)
+> **Important**: The plan must include an Azure Budget resource (`Microsoft.Consumption/budgets`)
 > with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
 > thresholds and Anomaly Detection. See `iac-cost-repeatability.instructions.md`.
 
@@ -315,3 +309,15 @@ Include attribution header from the template file (do not hardcode).
 - [ ] 04-implementation-plan and governance artifacts saved to `agent-output/{project}/`
 - [ ] `04-dependency-diagram.py/.png` generated and referenced in plan
 - [ ] `04-runtime-diagram.py/.png` generated and referenced in plan
+
+<example title="Dependency ordering for phased deployment">
+Input: App Service, SQL Database, Key Vault, VNet, Private Endpoints. Strategy: phased.
+Decision logic: Resources with no dependencies deploy first. Each resource deploys after its deps.
+
+Phase 1 (Foundation): VNet → no dependencies
+Phase 2 (Security): Key Vault → depends on VNet (private endpoint)
+Phase 3 (Data): SQL Database → depends on VNet (PE), Key Vault (connection string)
+Phase 4 (Compute): App Service → depends on SQL, Key Vault, VNet (VNet integration)
+
+Output: YAML task specs in this order in 04-implementation-plan.md, with explicit dependsOn fields.
+</example>

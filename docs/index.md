@@ -101,7 +101,7 @@ sequenceDiagram
 
   ***
 
-  Understand the multi-agent architecture, skills system, and 8-step workflow.
+  Understand the multi-agent architecture, skills system, and multi-step workflow.
 
   [:octicons-arrow-right-24: How It Works](how-it-works/index.md)
 
@@ -109,7 +109,7 @@ sequenceDiagram
 
   ***
 
-  The 8-step journey from requirements to deployed infrastructure with approval gates.
+  The multi-step journey from requirements to deployed infrastructure with approval gates.
 
   [:octicons-arrow-right-24: Workflow](workflow.md)
 
@@ -128,6 +128,14 @@ sequenceDiagram
   Common issues, diagnostic decision tree, and solutions.
 
   [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
+
+- :material-hook:{ .lg .middle } **Agent Hooks**
+
+  ***
+
+  Automated code quality enforcement during agent sessions.
+
+  [:octicons-arrow-right-24: Agent Hooks](hooks.md)
 
 - :material-book-open-variant:{ .lg .middle } **Glossary**
 
@@ -161,18 +169,18 @@ sequenceDiagram
 
 |                 |                                                          |
 | --------------- | -------------------------------------------------------- |
-| **Agents**      | 16 top-level + 11 subagents                              |
+| **Agents**      | Specialized top-level agents and subagents               |
 | **Skills**      | Reusable domain knowledge modules                        |
 | **IaC Tracks**  | Bicep and Terraform (dual-track)                         |
 | **MCP Servers** | GitHub, Azure Pricing, Terraform + Azure MCP (extension) |
-| **Workflow**    | 8 steps with mandatory approval gates                    |
+| **Workflow**    | Multi-step with mandatory approval gates                 |
 
 ## :material-star-outline: Highlights
 
 See the [Changelog](CHANGELOG.md) for the full release history.
 
 - **v0.10.0** — Workflow Engine DAG, Context Shredding, Circuit Breaker pattern, session lock model
-- **v0.9.0** — Dual IaC Track (Bicep + Terraform), Challenger Agent, 20 skills, Fast Path Conductor
+- **v0.9.0** — Dual IaC Track (Bicep + Terraform), Challenger Agent, expanded skills, Fast Path Conductor
 
 ---
 

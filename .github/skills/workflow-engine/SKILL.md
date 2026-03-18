@@ -1,6 +1,6 @@
 ---
 name: workflow-engine
-description: "Machine-readable workflow DAG for the 7-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Conductor step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting."
+description: "Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Conductor step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting."
 ---
 
 # Workflow Engine Skill
@@ -77,6 +77,8 @@ The full machine-readable DAG is in:
 
 ## Reference Index
 
-| Reference      | File                            | Content                      |
-| -------------- | ------------------------------- | ---------------------------- |
-| Workflow Graph | `templates/workflow-graph.json` | Full DAG for 7-step workflow |
+| Reference            | File                                    | Content                                             |
+| -------------------- | --------------------------------------- | --------------------------------------------------- |
+| Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for the multi-step workflow                |
+| Conductor Handoff    | `references/conductor-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
+| Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |

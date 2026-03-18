@@ -15,9 +15,9 @@ toc_depth: 2
 ## :material-text-box-outline: Executive Summary
 
 Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
-through a structured 8-step workflow to transform Azure infrastructure requirements into deployed,
-production-grade Infrastructure as Code. The system coordinates 16 top-level agents and
-11 subagents through mandatory human approval gates, producing Bicep or Terraform templates
+through a structured multi-step workflow to transform Azure infrastructure requirements into deployed,
+production-grade Infrastructure as Code. The system coordinates specialized agents and
+subagents through mandatory human approval gates, producing Bicep or Terraform templates
 that conform to Azure Well-Architected Framework principles, Azure Verified Modules standards,
 and organisational governance policies. The agents are supported by reusable skills, instruction
 files, Copilot hooks, and MCP server integrations.
@@ -36,7 +36,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  The 8-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform).
+  The multi-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform).
 
   [:octicons-arrow-right-24: Architecture overview](architecture.md)
 
@@ -52,7 +52,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  16 top-level agents, 11 subagents, the Challenger pattern, and handoff design.
+  Top-level agents, subagents, the Challenger pattern, and handoff design.
 
   [:octicons-arrow-right-24: Agent deep dive](agents.md)
 
@@ -152,7 +152,7 @@ per-step `claim` objects.
 
 **Workflow engine as a DAG.** Bosun's `workflow-engine.mjs` and `workflow-nodes.mjs`
 define workflow execution as a directed acyclic graph with typed nodes, conditional edges,
-and fan-out patterns. This project's `workflow-graph.json` encodes the 8-step pipeline
+and fan-out patterns. This project's `workflow-graph.json` encodes the multi-step pipeline
 as a machine-readable DAG with `agent-step`, `gate`, `subagent-fan-out`, and `validation`
 node types.
 
@@ -166,7 +166,11 @@ node types.
 **Context shredding.** Bosun's `context-shredding-config.mjs` implements tiered context
 compression to manage token budgets across long-running sessions. This project's
 `context-shredding` skill defines three compression tiers (`full`, `summarized`, `minimal`)
-with per-artifact compression templates.
+with per-artifact compression templates. Note: the pre-built skill file variants
+(`SKILL.digest.md`, `SKILL.minimal.md`) and hardcoded compaction checkpoints in agent
+bodies work reliably; the dynamic tier selection based on LLM self-estimated context
+percentage is best-effort (see [Context Compression](workflow-engine.md#context-compression)
+for details on current limitations).
 
 **Circuit breaker and anomaly detection.** Bosun's `anomaly-detector.mjs` and
 `error-detector.mjs` detect stalled loops and repeated failures, triggering escalation.

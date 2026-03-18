@@ -1,13 +1,23 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
-# Session Resume (Minimal)
+# Session Resume Skill (Minimal)
 
-State file: `agent-output/{project}/00-session-state.json`
+**When to Use**:
 
-Write moments: step start, sub-step done, step done, decision made, finding update.
+**Quick Reference**:
 
-Resume: read JSON → check `steps.{N}.status` → branch (pending/in_progress/complete/skipped).
+**Resume Flow (compact)**:
+```text
 
-Claim: check lock heartbeat → acquire → renew on sub-step → release on completion.
+**State Write Moments**:
+1. **Step start** — `status: "in_progress"`, set `started`
 
-Read `SKILL.md` or `SKILL.digest.md` for full protocol.
+**Minimal State Snippet**:
+```json
+
+**Reference Index**:
+
+**Claim Protocol (v2.0)**:
+The v2.0 schema adds an atomic claim-based model to prevent concurrent
+
+Read `SKILL.md` or `SKILL.digest.md` for full content.

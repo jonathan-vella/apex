@@ -20,43 +20,43 @@
 > Last applied: **2026-02-26 — Re-apply run (tag drift + RBAC least-privilege upgrade)**
 > Status: **DEPLOYED AND VERIFIED**
 
-| ⬅️ Previous                                                      | 📑 Index            | Next ➡️                                      |
-| ---------------------------------------------------------------- | ------------------- | -------------------------------------------- |
+| ⬅️ Previous                                                      | 📑 Index            | Next ➡️                                          |
+| ---------------------------------------------------------------- | ------------------- | ------------------------------------------------ |
 | [05-implementation-reference.md](05-implementation-reference.md) | [README](README.md) | [07-ab-cost-estimate.md](07-ab-cost-estimate.md) |
 
 ## ✅ Preflight Validation
 
-| Property                  | Value                                  |
-| ------------------------- | -------------------------------------- |
-| **IaC Tool**              | Terraform                              |
-| **Terraform Version**     | >= 1.9                                 |
-| **Provider**              | azurerm `~> 4.0`                       |
-| **Region**                | `swedencentral`                        |
-| **Backend**               | AzureRM remote state (AAD auth)        |
-| **`terraform validate`**  | ✅ Pass                                |
-| **`terraform fmt -check`** | ✅ Pass                               |
-| **`terraform plan`**      | ✅ Pass (re-apply: 1 add, 6 change, 1 destroy) |
+| Property                   | Value                                          |
+| -------------------------- | ---------------------------------------------- |
+| **IaC Tool**               | Terraform                                      |
+| **Terraform Version**      | >= 1.9                                         |
+| **Provider**               | azurerm `~> 4.0`                               |
+| **Region**                 | `swedencentral`                                |
+| **Backend**                | AzureRM remote state (AAD auth)                |
+| **`terraform validate`**   | ✅ Pass                                        |
+| **`terraform fmt -check`** | ✅ Pass                                        |
+| **`terraform plan`**       | ✅ Pass (re-apply: 1 add, 6 change, 1 destroy) |
 
 ### Change Summary (Initial 3-Phase Deployment)
 
-| Phase | Scope                      | Result                               |
-| ----- | -------------------------- | ------------------------------------ |
-| 1     | Foundation & Monitoring    | ✅ 9 added, 0 changed, 0 destroyed   |
-| 2     | Security & Data            | ✅ 7 added, 2 changed, 0 destroyed   |
-| 3     | Compute & Frontend         | ✅ 13 added, 5 changed, 0 destroyed  |
+| Phase | Scope                   | Result                              |
+| ----- | ----------------------- | ----------------------------------- |
+| 1     | Foundation & Monitoring | ✅ 9 added, 0 changed, 0 destroyed  |
+| 2     | Security & Data         | ✅ 7 added, 2 changed, 0 destroyed  |
+| 3     | Compute & Frontend      | ✅ 13 added, 5 changed, 0 destroyed |
 
 ### Change Summary (Re-apply Run — 2026-02-26)
 
-| # | Resource                                         | Change    | Reason                                                  |
-| - | ------------------------------------------------ | --------- | ------------------------------------------------------- |
-| + | `azurerm_role_assignment.app_sql_db_contributor` | **Create** | Least-privilege upgrade: SQL DB Contributor on `sqldb-terraform-e2e-dev` |
-| ~ | `module.app_insights` (App Insights)             | **Update** | Tag drift reconciliation (remove extra tags added outside Terraform) |
-| ~ | `module.app_service_plan` (ASP)                  | **Update** | Tag drift reconciliation |
-| ~ | `module.key_vault` (Key Vault)                   | **Update** | Tag drift reconciliation |
-| ~ | `module.log_analytics` (Log Analytics)           | **Update** | Tag drift reconciliation |
-| ~ | `module.sql_server` (SQL Server)                 | **Update** | Tag drift reconciliation |
-| ~ | `module.sql_server.database["ecommerce"]` (SQL DB) | **Update** | Tag drift reconciliation |
-| - | `azurerm_role_assignment.app_sql_contributor`    | **Destroy** | Removed over-privileged Contributor role (replaced by SQL DB Contributor) |
+| #   | Resource                                           | Change      | Reason                                                                    |
+| --- | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------- |
+| +   | `azurerm_role_assignment.app_sql_db_contributor`   | **Create**  | Least-privilege upgrade: SQL DB Contributor on `sqldb-terraform-e2e-dev`  |
+| ~   | `module.app_insights` (App Insights)               | **Update**  | Tag drift reconciliation (remove extra tags added outside Terraform)      |
+| ~   | `module.app_service_plan` (ASP)                    | **Update**  | Tag drift reconciliation                                                  |
+| ~   | `module.key_vault` (Key Vault)                     | **Update**  | Tag drift reconciliation                                                  |
+| ~   | `module.log_analytics` (Log Analytics)             | **Update**  | Tag drift reconciliation                                                  |
+| ~   | `module.sql_server` (SQL Server)                   | **Update**  | Tag drift reconciliation                                                  |
+| ~   | `module.sql_server.database["ecommerce"]` (SQL DB) | **Update**  | Tag drift reconciliation                                                  |
+| -   | `azurerm_role_assignment.app_sql_contributor`      | **Destroy** | Removed over-privileged Contributor role (replaced by SQL DB Contributor) |
 
 **Apply result**: `Apply complete! Resources: 1 added, 6 changed, 1 destroyed.`
 
@@ -66,34 +66,35 @@
 - Availability zones remain enabled for the App Service Plan (supported by `P1v3`).
 - Key Vault AVM module emits a non-blocking deprecation warning (`enable_rbac_authorization` → `rbac_authorization_enabled`, scheduled for removal in provider v5.0).
 - **Re-apply (2026-02-26)**: Tag drift was detected on 5 resources (extra tags added outside Terraform: `application`, `backup-policy`, `costcenter`, `maint-window`, `sla`, `tech-contact`, `workload`). Reconciled to match Terraform configuration.
-- **Security improvement**: Contributor role on SQL Server scope replaced with SQL DB Contributor on the specific database scope (least-privilege).
+- ⚠️ Key Vault AVM module emits a non-blocking deprecation warning (`enable_rbac_authorization` → `rbac_authorization_enabled`).
+- ❌ Over-privileged Contributor role on SQL Server was removed and replaced with scoped SQL DB Contributor (least-privilege).
 
 ## 📋 Deployment Details
 
-| Field                 | Value                    |
-| --------------------- | ------------------------ |
-| **Project**           | `terraform-e2e`          |
-| **Environment**       | `dev`                    |
-| **Subscription**      | `00858ffc-dded-4f0f-8bbf-e17fff0d47d9` |
-| **Resource Group**    | `rg-terraform-e2e-dev`   |
-| **Location**          | `swedencentral`          |
-| **Deployment Model**  | 3-phase Terraform apply  |
-| **Final Status**      | ✅ Succeeded             |
+| Field                | Value                                  |
+| -------------------- | -------------------------------------- |
+| **Project**          | `terraform-e2e`                        |
+| **Environment**      | `dev`                                  |
+| **Subscription**     | `00858ffc-dded-4f0f-8bbf-e17fff0d47d9` |
+| **Resource Group**   | `rg-terraform-e2e-dev`                 |
+| **Location**         | `swedencentral`                        |
+| **Deployment Model** | 3-phase Terraform apply                |
+| **Final Status**     | ✅ Succeeded                           |
 
 ## 🏗️ Deployed Resources
 
-| Resource                      | Name                                      | Type                                           | State/Status |
-| ----------------------------- | ----------------------------------------- | ---------------------------------------------- | ------------ |
-| Smart Detector Rule           | `Failure Anomalies - appi-terraform-e2e-dev-3hpu` | `microsoft.alertsmanagement/smartdetectoralertrules` | ✅ Enabled |
-| Application Insights          | `appi-terraform-e2e-dev-3hpu`             | `microsoft.insights/components`                | ✅ Succeeded |
-| Key Vault                     | `kv-tfe2dev-3hpu`                         | `microsoft.keyvault/vaults`                    | ✅ Succeeded |
-| Log Analytics Workspace       | `log-terraform-e2e-dev-3hpu`              | `microsoft.operationalinsights/workspaces`     | ✅ Succeeded |
-| SQL Server                    | `sql-terraform-e2e-dev-3hpu`              | `microsoft.sql/servers`                        | ✅ Ready |
-| SQL DB (system)               | `master`                                  | `microsoft.sql/servers/databases`              | ✅ Online |
-| SQL DB (app)                  | `sqldb-terraform-e2e-dev`                 | `microsoft.sql/servers/databases`              | ✅ Online |
-| App Service Plan              | `asp-terraform-e2e-dev`                   | `microsoft.web/serverfarms`                    | ✅ Succeeded |
-| Backend App Service           | `app-terraform-e2e-dev-3hpu`              | `microsoft.web/sites`                          | ✅ Running |
-| Frontend App Service          | `app-terraform-e2e-fe-dev-3hpu`           | `microsoft.web/sites`                          | ✅ Running |
+| Resource                | Name                                              | Type                                                 | State/Status |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------------------- | ------------ |
+| Smart Detector Rule     | `Failure Anomalies - appi-terraform-e2e-dev-3hpu` | `microsoft.alertsmanagement/smartdetectoralertrules` | ✅ Enabled   |
+| Application Insights    | `appi-terraform-e2e-dev-3hpu`                     | `microsoft.insights/components`                      | ✅ Succeeded |
+| Key Vault               | `kv-tfe2dev-3hpu`                                 | `microsoft.keyvault/vaults`                          | ✅ Succeeded |
+| Log Analytics Workspace | `log-terraform-e2e-dev-3hpu`                      | `microsoft.operationalinsights/workspaces`           | ✅ Succeeded |
+| SQL Server              | `sql-terraform-e2e-dev-3hpu`                      | `microsoft.sql/servers`                              | ✅ Ready     |
+| SQL DB (system)         | `master`                                          | `microsoft.sql/servers/databases`                    | ✅ Online    |
+| SQL DB (app)            | `sqldb-terraform-e2e-dev`                         | `microsoft.sql/servers/databases`                    | ✅ Online    |
+| App Service Plan        | `asp-terraform-e2e-dev`                           | `microsoft.web/serverfarms`                          | ✅ Succeeded |
+| Backend App Service     | `app-terraform-e2e-dev-3hpu`                      | `microsoft.web/sites`                                | ✅ Running   |
+| Frontend App Service    | `app-terraform-e2e-fe-dev-3hpu`                   | `microsoft.web/sites`                                | ✅ Running   |
 
 ## 📤 Outputs (Expected)
 
@@ -122,7 +123,10 @@ terraform plan -out=tfplan
 terraform apply "tfplan"
 ```
 
-## 🩺 Resource Health Verification
+### 🩺 Resource Health Verification
+
+<details>
+<summary><strong>Post-deployment health check commands and results</strong></summary>
 
 > Last verified: 2026-02-26 — post re-apply run
 
@@ -141,20 +145,22 @@ az sql server show --name sql-terraform-e2e-dev-3hpu → state: Ready
 az role assignment list --scope .../sqldb-terraform-e2e-dev → SQL DB Contributor ✅
 ```
 
-| Resource                        | Name                                  | Status       |
-| ------------------------------- | ------------------------------------- | ------------ |
-| Application Insights            | `appi-terraform-e2e-dev-3hpu`         | ✅ Succeeded |
-| Key Vault                       | `kv-tfe2dev-3hpu`                     | ✅ Succeeded |
-| Log Analytics Workspace         | `log-terraform-e2e-dev-3hpu`          | ✅ Succeeded |
-| App Service Plan                | `asp-terraform-e2e-dev`               | ✅ Succeeded |
-| SQL Server                      | `sql-terraform-e2e-dev-3hpu`          | ✅ Ready     |
-| SQL Database (app)              | `sqldb-terraform-e2e-dev`             | ✅ Online    |
-| Backend App Service             | `app-terraform-e2e-dev-3hpu`          | ✅ Running   |
-| Frontend App Service            | `app-terraform-e2e-fe-dev-3hpu`       | ✅ Running   |
-| Smart Detector Alert Rule       | `Failure Anomalies - appi-*`          | ✅ Enabled   |
-| SQL DB Contributor (RBAC)       | App Service MI → `sqldb-terraform-e2e-dev` | ✅ Assigned |
+| Resource                  | Name                                       | Status       |
+| ------------------------- | ------------------------------------------ | ------------ |
+| Application Insights      | `appi-terraform-e2e-dev-3hpu`              | ✅ Succeeded |
+| Key Vault                 | `kv-tfe2dev-3hpu`                          | ✅ Succeeded |
+| Log Analytics Workspace   | `log-terraform-e2e-dev-3hpu`               | ✅ Succeeded |
+| App Service Plan          | `asp-terraform-e2e-dev`                    | ✅ Succeeded |
+| SQL Server                | `sql-terraform-e2e-dev-3hpu`               | ✅ Ready     |
+| SQL Database (app)        | `sqldb-terraform-e2e-dev`                  | ✅ Online    |
+| Backend App Service       | `app-terraform-e2e-dev-3hpu`               | ✅ Running   |
+| Frontend App Service      | `app-terraform-e2e-fe-dev-3hpu`            | ✅ Running   |
+| Smart Detector Alert Rule | `Failure Anomalies - appi-*`               | ✅ Enabled   |
+| SQL DB Contributor (RBAC) | App Service MI → `sqldb-terraform-e2e-dev` | ✅ Assigned  |
 
 Result: ✅ All 10 resources present and operational. RBAC least-privilege upgrade confirmed.
+
+</details>
 
 ## 📝 Post-Deployment Tasks
 

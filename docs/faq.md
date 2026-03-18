@@ -2,7 +2,7 @@
 
 Frequently asked questions about Agentic InfraOps.
 
-**Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Troubleshooting](#troubleshooting)
+**Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) <!-- markdownlint-disable-line MD013 -->
 
 ---
 
@@ -47,6 +47,12 @@ Frequently asked questions about Agentic InfraOps.
     **For deployment**: Yes. Step 6 (Deploy) requires an active Azure subscription with
     permissions to create resources. Step 2 (Architecture) optionally uses the Azure
     Pricing MCP server, which queries public pricing APIs and does not require a subscription.
+
+??? question "When should I use the Fast-Path Conductor?"
+
+    Use the **01-Conductor (Fast Path)** for simple projects with ≤3 resources, a single
+    environment, and no custom Azure policies. It combines Plan and Code into one step
+    with a 1-pass review. For anything more complex, use the standard 01-Conductor.
 
 ---
 
@@ -114,7 +120,7 @@ Frequently asked questions about Agentic InfraOps.
     | **Output**      | Multiple artifacts                       | Specific outputs         |
     | **When to use** | Core workflow steps                      | Specialized capabilities |
 
-    Agents are the actors in the 8-step workflow. Skills are reusable knowledge modules
+    Agents are the actors in the multi-step workflow. Skills are reusable knowledge modules
     that agents load on demand. See the [Workflow](workflow.md) page for details.
 
 ??? question "How do I resume a failed or interrupted workflow?"
@@ -134,6 +140,81 @@ Frequently asked questions about Agentic InfraOps.
     hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents,
     from requirements to deployment. It includes structured exercises, guided prompts, and
     reference solutions for each of the 8 workflow steps.
+
+---
+
+## Customization & Multi-Project
+
+??? question "How do I customize upstream-owned files like the `azure-defaults` skill?"
+
+    When you create a repository from the Accelerator template, every file immediately
+    becomes yours — there is no fork relationship, so there are no automatic upstream
+    changes unless you opt in via the sync workflow.
+
+    **Strategy A — Edit directly (simplest)**
+
+    Edit any file in place. If you never want upstream updates, disable the sync
+    workflow in **Repo Settings → Actions → Workflows → Disable "Upstream Sync"**.
+    If you later re-enable sync, the workflow runs `git checkout upstream/main -- .`
+    and then restores a fixed set of excluded paths. This is a **full overwrite, not a
+    merge** — any edits outside the excluded paths will be lost and you will need to
+    re-apply them.
+
+    **Strategy B — Override layer (recommended for teams)**
+
+    Keep sync enabled and layer your customizations in **sync-safe locations**.
+    The sync workflow (`weekly-upstream-sync.yml`) preserves four paths by default:
+
+    | Excluded from sync (safe to edit)  | Overwritten by sync (not safe without changes) |
+    | ----------------------------------- | ----------------------------------------------- |
+    | `agent-output/`                     | Root `AGENTS.md`                                |
+    | `infra/bicep/`                      | `infra/terraform/`                              |
+    | `.github/workflows/`                | `.github/instructions/`                         |
+    | `README.md`                         | All skills in `.github/skills/`                 |
+
+    Strategy B override options:
+
+    - **Extend the exclusion list** — `.github/workflows/` is yours and is never
+      overwritten. Open `weekly-upstream-sync.yml` and add paths (e.g. `AGENTS.md`,
+      `infra/terraform`) to `EXCLUDE_PATHS` and the matching `for path in ...` restore
+      loop. Once protected, use root `AGENTS.md` for project-wide overrides.
+    - **`infra/bicep/AGENTS.md`** — Already excluded from sync. VS Code loads subfolder
+      `AGENTS.md` files automatically for that directory tree, making it a reliable
+      place for Bicep-specific or project-wide instructions without touching the root.
+    - **VS Code user-profile instructions** — Create `.instructions.md` files in your
+      VS Code profile's `prompts/` folder. These live entirely outside the repo and
+      apply across all workspaces on your machine.
+
+    | Strategy | Approach | Best for |
+    | -------- | -------- | -------- |
+    | **A — Direct edit** | Edit in place; optionally disable sync | Solo developers; teams opting out of upstream updates |
+    | **B — Override layer** | Keep sync; extend `EXCLUDE_PATHS` or use sync-safe paths | Teams that want continuous upstream improvements |
+
+??? question "One repo with many projects, or one repo per project?"
+
+    The Accelerator is designed for **one repo containing multiple projects**. Each
+    project gets its own subdirectories under `agent-output/{project}/`,
+    `infra/bicep/{project}/`, and `infra/terraform/{project}/`. Agents, skills,
+    instructions, and the dev container are all shared across projects in the same repo.
+
+    **One repo per project** is equally valid when teams need separate governance,
+    permissions, or isolation. Each repo is created independently from the Accelerator
+    template with its own full copy of agents and skills.
+
+    Because the dev container definition lives inside the repo, separate repos give
+    each project an independent dev container configuration — useful when projects
+    need different tool versions or container images.
+
+    **Cross-team sharing across multiple repos:**
+
+    - **Extend the sync exclusion list** in each repo to protect `AGENTS.md`, then
+      maintain a standard overrides section you copy into each new instance at setup time.
+    - **VS Code user-profile instructions** — Personal preferences placed in your VS Code
+      profile `prompts/` folder apply across all repos on your machine without any
+      per-repo configuration.
+    - **Team wiki or internal repo** — Keep a canonical overrides snippet (naming
+      conventions, approved regions, required tags) and paste it into new instances
+      as part of your project setup checklist.
 
 ---
 

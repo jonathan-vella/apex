@@ -14,6 +14,12 @@ toc_depth: 2
 
 ## :material-account-card-outline: Agent Codenames Quick Reference
 
+!!! info "Related guides"
+
+    - [Session Debugging](session-debugging.md) — session resume failures, stale locks, state recovery
+    - [Cost Governance](cost-governance.md) — budget alert setup and post-deployment validation
+    - [Validation & Linting](validation-reference.md) — all validation scripts and CI workflows
+
 | Agent              | Codename      | Common Issues                    |
 | ------------------ | ------------- | -------------------------------- |
 | InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |
@@ -55,7 +61,7 @@ flowchart TD
     VALIDATE_B --> VALIDATE_B1["Run: bicep build main.bicep<br/>bicep lint main.bicep"]
     VALIDATE_T --> VALIDATE_T1["Run: terraform validate<br/>terraform fmt -check"]
 
-    AUTH --> AUTH1["Run: az login"]
+    AUTH --> AUTH1["az: az login\nazd: azd auth login --use-device-code"]
 
     style START fill:#e1f5fe
     style AGENT fill:#fff3e0
@@ -265,25 +271,52 @@ terraform force-unlock <lock-id>
 
 ### 6. Azure Authentication Issues
 
-**Symptom**: "Not logged in" or subscription errors.
+**Symptom**: "Not logged in" or subscription errors during `az` or `azd` operations.
 
-**Solutions**:
+!!! warning "Two separate auth contexts"
+
+    `az` and `azd` use **independent** MSAL token caches. Being logged in to one does **not**
+    authenticate the other. Container restarts, new devcontainer sessions, and VS Code remote
+    connections can invalidate either context independently.
+
+#### Azure CLI (`az`)
 
 ```bash
-# Login to Azure
-az login
+# Check (informational only — does NOT validate the token)
+az account show --output table
 
-# Set correct subscription
+# Mandatory — validate a real ARM token
+az account get-access-token \
+  --resource https://management.azure.com/ --output none
+
+# Recovery
+az login --use-device-code
 az account set --subscription "<subscription-id>"
-
-# Verify
-az account show
 ```
 
-For Service Principal:
+#### Azure Developer CLI (`azd`)
 
 ```bash
-az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+# Check azd auth status
+azd auth login --check-status
+
+# Login (device code works reliably in devcontainers/Codespaces)
+azd auth login --use-device-code
+```
+
+#### Service Principal (both `az` and `azd`)
+
+```bash
+# az
+az login --service-principal \
+  -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET \
+  --tenant $AZURE_TENANT_ID
+
+# azd
+azd auth login \
+  --client-id "$AZURE_CLIENT_ID" \
+  --client-secret "$AZURE_CLIENT_SECRET" \
+  --tenant-id "$AZURE_TENANT_ID"
 ```
 
 ### 7. Artifact Validation Failures

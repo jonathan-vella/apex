@@ -42,11 +42,13 @@ flowchart LR
     classDef mcp fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
 
     A["Agent"]:::agent --> M1["GitHub MCP"]:::mcp
+    A --> M2["MS Learn MCP"]:::mcp
     A --> M3["Azure MCP"]:::mcp
     A --> M4["Pricing MCP"]:::mcp
     A --> M5["Terraform MCP"]:::mcp
     A --> M6["Learn MCP"]:::mcp
     M1 --> G["GitHub API"]
+    M2 --> L["Microsoft Learn API"]
     M3 --> AZ["Azure Resource Manager"]
     M4 --> P["Azure Retail Prices API"]
     M5 --> T["Terraform Registry"]
@@ -137,6 +139,31 @@ codes for consistent agent error handling.
 
 Primarily scoped to the **Architect** agent (Step 2), the
 **cost-estimate-subagent**, and the **As-Built** agent (Step 7).
+
+## :material-book-open-variant: Microsoft Learn MCP Server
+
+| Property  | Value                                                     |
+| --------- | --------------------------------------------------------- |
+| Transport | HTTP                                                      |
+| Endpoint  | `https://learn.microsoft.com/api/mcp?maxTokenBudget=4000` |
+| Auth      | None (public API)                                         |
+| Purpose   | Search and fetch official Microsoft documentation         |
+
+The Microsoft Learn MCP server provides agents with access to official
+Microsoft and Azure documentation. Agents use it to look up service
+configurations, verify best practices, and ground architecture decisions
+in authoritative sources.
+
+| Tool                           | Purpose                                    |
+| ------------------------------ | ------------------------------------------ |
+| `microsoft_docs_search`        | Search docs, return concise content chunks |
+| `microsoft_docs_fetch`         | Fetch full page content as markdown        |
+| `microsoft_code_sample_search` | Search for code examples in Microsoft docs |
+
+Used across the workflow — the **Architect** agent (Step 2) searches
+documentation for each Azure service, **Bicep Planner** (Step 4b) looks
+up AVM module documentation, and the `copilot-customization` skill
+caches fetched pages for offline reference.
 
 ## :material-terraform: Terraform Registry MCP Server
 
@@ -236,6 +263,67 @@ scripts/                                     # Validation scripts
 mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
 ```
 
+## :material-cog-outline: Operations and Setup
+
+This section covers installation verification, authentication, error
+handling, and adding custom MCP servers.
+
+### Verifying MCP Servers
+
+All MCP servers are configured in `.vscode/mcp.json` and start
+automatically when VS Code invokes them. To verify they are working:
+
+1. Open any agent chat (e.g. the Conductor)
+2. The agent's tool list should include MCP tools
+3. Run `npm run lint:mcp-config` to validate the configuration file
+
+The Azure MCP Server extension is installed via the dev container
+(`.devcontainer/devcontainer.json`). Verify it appears in the
+VS Code Extensions panel.
+
+### Authentication Flows
+
+| Server                | Auth Method                                | Setup                           |
+| --------------------- | ------------------------------------------ | ------------------------------- |
+| GitHub MCP            | Automatic via Copilot token                | No setup needed                 |
+| Microsoft Learn MCP   | None (public API)                          | No setup needed                 |
+| Azure Pricing MCP     | None for pricing; Azure CLI for Spot tools | `az login` for Spot VM features |
+| Terraform MCP         | None                                       | No setup needed                 |
+| Azure MCP (extension) | Azure CLI or managed identity              | Run `az login` before using     |
+
+### Error Handling
+
+Common MCP errors and their resolution:
+
+| Error                    | Cause                  | Fix                                       |
+| ------------------------ | ---------------------- | ----------------------------------------- |
+| Tool timeout             | Slow API response      | Retry; check network connectivity         |
+| Auth failure (Azure MCP) | Expired credentials    | Run `az login` to refresh                 |
+| Server not found         | MCP server not started | Restart VS Code; check `.vscode/mcp.json` |
+| Invalid parameters       | Wrong tool arguments   | Check tool documentation via agent chat   |
+
+### Adding Custom MCP Servers
+
+To add a new MCP server:
+
+1. Place server code in `mcp/{server-name}/` (for custom servers)
+2. Add the server entry to `.vscode/mcp.json`:
+
+   ```json
+   {
+     "servers": {
+       "my-server": {
+         "type": "stdio",
+         "command": "path/to/binary",
+         "args": ["serve"]
+       }
+     }
+   }
+   ```
+
+3. Run `npm run lint:mcp-config` to validate the configuration
+4. Scope the server to relevant agents via `tools:` in their frontmatter
+
 ---
 
 !!! tip "Further Reading"
@@ -244,3 +332,4 @@ mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
     - [Core Concepts](four-pillars.md) — high-level overview of tools and MCP
     - [Agent Architecture](agents.md) — which agents use which MCP servers
     - [Workflow Engine & Quality](workflow-engine.md) — circuit breakers and validation systems
+    - [Validation & Linting](../validation-reference.md) — MCP config validation and all scripts

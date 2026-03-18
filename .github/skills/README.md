@@ -5,14 +5,18 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ## Available Skills
 
+> The tables below show representative skills by category. For the complete
+> catalog, list all `SKILL.md` files: `find .github/skills -name SKILL.md`.
+> See `.github/count-manifest.json` for current counts.
+
 ### Category 1: Azure Conventions
 
-| Skill                   | Description                                          | Triggers                                         |
-| ----------------------- | ---------------------------------------------------- | ------------------------------------------------ |
-| `azure-defaults`        | Azure conventions, naming, AVM, WAF, pricing, tags   | "azure defaults", "naming", "AVM"                |
-| `azure-artifacts`       | Template H2 structures, styling, generation rules    | "generate documentation", "create runbook"       |
-| `azure-bicep-patterns`  | Reusable Bicep patterns (hub-spoke, PE, diagnostics) | "bicep pattern", "private endpoint", "hub-spoke" |
-| `azure-troubleshooting` | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"       |
+| Skill                  | Description                                          | Triggers                                         |
+| ---------------------- | ---------------------------------------------------- | ------------------------------------------------ |
+| `azure-defaults`       | Azure conventions, naming, AVM, WAF, pricing, tags   | "azure defaults", "naming", "AVM"                |
+| `azure-artifacts`      | Template H2 structures, styling, generation rules    | "generate documentation", "create runbook"       |
+| `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics) | "bicep pattern", "private endpoint", "hub-spoke" |
+| `azure-diagnostics`    | KQL templates, health checks, remediation playbooks  | "diagnose", "troubleshoot", "health check"       |
 
 ### Category 2: Document Creation
 
@@ -25,8 +29,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 | Skill                 | Description                                | Triggers                                  |
 | --------------------- | ------------------------------------------ | ----------------------------------------- |
-| `github-operations`   | GitHub issues, PRs, CLI, Actions, releases | "create issue", "create PR", "gh command" |
-| `git-commit`          | Create conventional commit messages        | "commit", "git commit"                    |
+| `github-operations`   | Branch naming, commits, PRs, CLI, Actions  | "commit", "create PR", "gh command"       |
 | `docs-writer`         | Repo-aware documentation maintenance       | "update docs", "check staleness"          |
 | `make-skill-template` | Create new skills from template            | "create skill", "new skill"               |
 

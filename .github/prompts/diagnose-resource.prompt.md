@@ -1,17 +1,22 @@
 ---
 description: "Diagnose Azure resource health issues with guided troubleshooting and remediation planning."
 agent: "09-Diagnose"
-model: "Claude Sonnet 4.6"
+model: "Claude Opus 4.6"
 ---
 
 # Diagnose Azure Resource
 
 Interactive diagnostic workflow for Azure resource health assessment.
 
+## Prerequisites
+
+- Active Azure CLI session (`az account show` succeeds)
+- Target resource name, resource group, or resource ID known by user
+
 ## Instructions
 
 1. Ask the user which Azure resource or resource group to diagnose.
-2. Read `.github/skills/azure-troubleshooting/SKILL.md` for diagnostic patterns.
+2. Read `.github/skills/azure-diagnostics/SKILL.md` for diagnostic patterns.
 3. Validate Azure CLI authentication: `az account show`.
 4. Run health checks against the target resource:
    - Resource provisioning state

@@ -33,23 +33,23 @@
 
 ## ⚡ Quick Reference
 
-| Item | Value |
-| ---- | ----- |
-| **Primary Region** | swedencentral |
-| **Resource Group** | rg-terraform-e2e-dev |
+| Item                  | Value                                                   |
+| --------------------- | ------------------------------------------------------- |
+| **Primary Region**    | swedencentral                                           |
+| **Resource Group**    | rg-terraform-e2e-dev                                    |
 | **Frontend Endpoint** | https://app-terraform-e2e-fe-dev-3hpu.azurewebsites.net |
-| **Backend Endpoint** | https://app-terraform-e2e-dev-3hpu.azurewebsites.net |
-| **Support Contact** | team-terraform |
-| **Escalation Path** | On-call engineer → Platform lead → Subscription owner |
+| **Backend Endpoint**  | https://app-terraform-e2e-dev-3hpu.azurewebsites.net    |
+| **Support Contact**   | team-terraform                                          |
+| **Escalation Path**   | On-call engineer → Platform lead → Subscription owner   |
 
 ### Critical Resources
 
-| Resource | Name | Resource Group | Severity |
-| -------- | ---- | -------------- | -------- |
-| App Service (Frontend) | app-terraform-e2e-fe-dev-3hpu | rg-terraform-e2e-dev | 🟠 P2 |
-| App Service (Backend) | app-terraform-e2e-dev-3hpu | rg-terraform-e2e-dev | 🔴 P1 |
-| SQL Database | sqldb-terraform-e2e-dev | rg-terraform-e2e-dev | 🔴 P1 |
-| Key Vault | kv-tfe2dev-3hpu | rg-terraform-e2e-dev | 🟠 P2 |
+| Resource               | Name                          | Resource Group       | Severity |
+| ---------------------- | ----------------------------- | -------------------- | -------- |
+| App Service (Frontend) | app-terraform-e2e-fe-dev-3hpu | rg-terraform-e2e-dev | 🟠 P2    |
+| App Service (Backend)  | app-terraform-e2e-dev-3hpu    | rg-terraform-e2e-dev | 🔴 P1    |
+| SQL Database           | sqldb-terraform-e2e-dev       | rg-terraform-e2e-dev | 🔴 P1    |
+| Key Vault              | kv-tfe2dev-3hpu               | rg-terraform-e2e-dev | 🟠 P2    |
 
 ---
 
@@ -81,35 +81,56 @@ requests
 
 **Priority Logs to Review:**
 
-| Log Source | Query Focus | Action Threshold |
-| ---------- | ----------- | ---------------- |
-| Application Insights | Failed requests and dependencies | >2% failures over 15 min |
-| App Service platform logs | Availability and restart events | Any repeated restart event |
-| Azure SQL diagnostics | Connectivity/authentication issues | >5 failures in 15 min |
+| Log Source                | Query Focus                        | Action Threshold           |
+| ------------------------- | ---------------------------------- | -------------------------- |
+| Application Insights      | Failed requests and dependencies   | >2% failures over 15 min   |
+| App Service platform logs | Availability and restart events    | Any repeated restart event |
+| Azure SQL diagnostics     | Connectivity/authentication issues | >5 failures in 15 min      |
 
 ---
 
 ## 🚨 2. Incident Response
 
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    A["Alert Triggered"] --> B{"Severity?"}
+    B -- P1 --> C["L1 Triage 15min"]
+    B -- P2 --> D["L1 Triage 30min"]
+    B -- P3 --> E["L1 Triage 4hr"]
+    C --> F{"Resolved?"}
+    D --> F
+    F -- No --> G["Escalate to L2"]
+    G --> H{"Resolved?"}
+    H -- No --> I["Escalate to L3"]
+    F -- Yes --> J["✅ Close Incident"]
+    H -- Yes --> J
+    style A fill:#D83B01,color:#fff
+    style J fill:#107C10,color:#fff
+```
+
 ### 2.1 Severity Definitions
 
-| Severity | Definition | Response Time |
-| -------- | ---------- | ------------- |
-| 🔴 P1 | Backend unavailable or SQL outage | 15 min |
-| 🟠 P2 | Partial degradation (high latency, intermittent errors) | 30 min |
-| 🟢 P3 | Non-critical issue (single feature impact) | 4 hours |
+| Severity | Definition                                              | Response Time |
+| -------- | ------------------------------------------------------- | ------------- |
+| 🔴 P1    | Backend unavailable or SQL outage                       | 15 min        |
+| 🟠 P2    | Partial degradation (high latency, intermittent errors) | 30 min        |
+| 🟢 P3    | Non-critical issue (single feature impact)              | 4 hours       |
 
 ### 2.2 Runbooks by Alert
 
-| Alert | Runbook | Owner |
-| ----- | ------- | ----- |
-| Failure Anomalies smart detector | Triage App Insights failures, then app logs and SQL connectivity | Platform on-call |
-| App unavailable | Validate app runtime state, restart app if needed, rollback recent config | Platform on-call |
-| SQL connectivity failures | Validate SQL server status and AAD auth configuration | Platform + DBA |
+| Alert                            | Runbook                                                                   | Owner            |
+| -------------------------------- | ------------------------------------------------------------------------- | ---------------- |
+| Failure Anomalies smart detector | Triage App Insights failures, then app logs and SQL connectivity          | Platform on-call |
+| App unavailable                  | Validate app runtime state, restart app if needed, rollback recent config | Platform on-call |
+| SQL connectivity failures        | Validate SQL server status and AAD auth configuration                     | Platform + DBA   |
 
 ---
 
 ## 🔧 3. Common Procedures
+
+<details>
+<summary><strong>Operational commands and procedures</strong></summary>
 
 ### 3.1 Restart Services
 
@@ -140,25 +161,27 @@ az keyvault show --name kv-tfe2dev-3hpu --resource-group rg-terraform-e2e-dev --
 az role assignment list --scope /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.KeyVault/vaults/kv-tfe2dev-3hpu -o table
 ```
 
+</details>
+
 ---
 
 ## 🕐 4. Maintenance Windows
 
-| Task | Schedule | Duration |
-| ---- | -------- | -------- |
-| Terraform patching/updates | Saturdays 09:00 UTC | 1 hour |
-| App dependency refresh | Monthly, first business Monday | 1 hour |
-| DR rehearsal | Quarterly | 2 hours |
+| Task                       | Schedule                       | Duration |
+| -------------------------- | ------------------------------ | -------- |
+| Terraform patching/updates | Saturdays 09:00 UTC            | 1 hour   |
+| App dependency refresh     | Monthly, first business Monday | 1 hour   |
+| DR rehearsal               | Quarterly                      | 2 hours  |
 
 ---
 
 ## 📞 5. Contacts & Escalation
 
-| Role | Contact | Phone | On-Call Rotation |
-| ---- | ------- | ----- | ---------------- |
-| L1 On-Call Engineer | team-terraform | N/A | Weekly |
-| L2 Platform Lead | team-terraform lead | N/A | Weekly backup |
-| L3 Subscription Owner | subscription admin | N/A | Escalation only |
+| Role                  | Contact             | Phone | On-Call Rotation |
+| --------------------- | ------------------- | ----- | ---------------- |
+| L1 On-Call Engineer   | team-terraform      | N/A   | Weekly           |
+| L2 Platform Lead      | team-terraform lead | N/A   | Weekly backup    |
+| L3 Subscription Owner | subscription admin  | N/A   | Escalation only  |
 
 ### Escalation Path
 
@@ -170,20 +193,20 @@ az role assignment list --scope /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d4
 
 ## 📝 6. Change Log
 
-| Date | Change | Author |
-| ---- | ------ | ------ |
+| Date       | Change                                                                                  | Author         |
+| ---------- | --------------------------------------------------------------------------------------- | -------------- |
 | 2026-02-26 | Initial as-built runbook generated from deployed Terraform state and deployment summary | as-built agent |
 
 ---
 
 ## References
 
-| Topic | Link |
-| ----- | ---- |
-| Azure Monitor Alerts | [Alerting Best Practices](https://learn.microsoft.com/azure/azure-monitor/best-practices-alerts) |
-| KQL Queries | [KQL Reference](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries) |
-| Azure Service Health | [Overview](https://learn.microsoft.com/azure/service-health/overview) |
-| App Service Operations | [Operations guide](https://learn.microsoft.com/azure/app-service/overview) |
+| Topic                  | Link                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| Azure Monitor Alerts   | [Alerting Best Practices](https://learn.microsoft.com/azure/azure-monitor/best-practices-alerts) |
+| KQL Queries            | [KQL Reference](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries)        |
+| Azure Service Health   | [Overview](https://learn.microsoft.com/azure/service-health/overview)                            |
+| App Service Operations | [Operations guide](https://learn.microsoft.com/azure/app-service/overview)                       |
 
 ---
 

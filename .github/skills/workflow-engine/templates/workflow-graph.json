@@ -1,6 +1,6 @@
 {
   "$schema": "workflow-graph-v1",
-  "description": "8-step Azure infrastructure workflow DAG with Bicep and Terraform tracks (governance as Step 3.5)",
+  "description": "Multi-step Azure infrastructure workflow DAG with Bicep and Terraform tracks (governance as Step 3.5)",
   "nodes": {
     "step-1": {
       "id": "step-1",
@@ -291,6 +291,6 @@
     "version": "2.0",
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
-    "total_steps": 8
+    "total_steps": 7
   }
 }

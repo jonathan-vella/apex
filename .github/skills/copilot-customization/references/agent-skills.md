@@ -128,9 +128,9 @@ Control access with these frontmatter fields (on SKILL.md, as of VS Code docs):
 | `azure-defaults`       | Azure regions, tags, naming, security baseline | Yes                |
 | `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE)        | Yes                |
 | `make-skill-template`  | Meta-skill for scaffolding new skills          | No                 |
-| `git-commit`           | Conventional commit message generation         | No                 |
+| `github-operations`    | Branch naming, commits, PRs, CLI, Actions      | Yes                |
 
-Total: 18 skills in `.github/skills/`.
+See `.github/skills/` for the full catalog and `.github/count-manifest.json` for current counts.
 
 ## Common Mistakes
 

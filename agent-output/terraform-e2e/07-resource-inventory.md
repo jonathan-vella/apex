@@ -32,74 +32,90 @@
 
 ## 📊 Summary
 
-| Category | Count |
-| -------- | ----- |
-| **Total Resources** | 10 |
-| 💻 Compute | 3 |
-| 💾 Data Services | 3 |
-| 🌐 Networking | 0 |
-| 📨 Messaging | 0 |
-| 🔐 Security | 1 |
-| 📊 Monitoring | 3 |
+| Category            | Count |
+| ------------------- | ----- |
+| **Total Resources** | 10    |
+| 💻 Compute          | 3     |
+| 💾 Data Services    | 3     |
+| 🌐 Networking       | 0     |
+| 📨 Messaging        | 0     |
+| 🔐 Security         | 1     |
+| 📊 Monitoring       | 3     |
 
 ---
 
 ## 📦 Resource Listing
 
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    RG["rg-terraform-e2e-dev"] --> ASP["App Service Plan"]
+    ASP --> BE["Backend App Service"]
+    ASP --> FE["Frontend App Service"]
+    RG --> SQL["SQL Server"]
+    SQL --> DB["SQL Database"]
+    RG --> KV["Key Vault"]
+    RG --> AI["App Insights"]
+    AI --> LA["Log Analytics"]
+    BE -.-> KV
+    BE -.-> SQL
+    style RG fill:#0078D4,color:#fff
+```
+
 ### 💻 Compute Resources
 
-| Name | Type | SKU | Location | Purpose | Resource ID |
-| ---- | ---- | --- | -------- | ------- | ----------- |
-| asp-terraform-e2e-dev | Microsoft.Web/serverfarms | P1v3 (PremiumV3), capacity 3, zone redundant | swedencentral | Shared App Service plan for FE/BE | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Web/serverfarms/asp-terraform-e2e-dev |
-| app-terraform-e2e-dev-3hpu | Microsoft.Web/sites | PremiumV3 (via plan), Linux | swedencentral | Backend API app | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Web/sites/app-terraform-e2e-dev-3hpu |
-| app-terraform-e2e-fe-dev-3hpu | Microsoft.Web/sites | PremiumV3 (via plan), Linux | swedencentral | Frontend app | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Web/sites/app-terraform-e2e-fe-dev-3hpu |
+| Name                          | Type                      | SKU                                          | Location      | Purpose                           | Resource ID                                                                                                                                         |
+| ----------------------------- | ------------------------- | -------------------------------------------- | ------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| asp-terraform-e2e-dev         | Microsoft.Web/serverfarms | P1v3 (PremiumV3), capacity 3, zone redundant | swedencentral | Shared App Service plan for FE/BE | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Web/serverfarms/asp-terraform-e2e-dev   |
+| app-terraform-e2e-dev-3hpu    | Microsoft.Web/sites       | PremiumV3 (via plan), Linux                  | swedencentral | Backend API app                   | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Web/sites/app-terraform-e2e-dev-3hpu    |
+| app-terraform-e2e-fe-dev-3hpu | Microsoft.Web/sites       | PremiumV3 (via plan), Linux                  | swedencentral | Frontend app                      | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Web/sites/app-terraform-e2e-fe-dev-3hpu |
 
 ### 💾 Data Services
 
-| Name | Type | SKU | Configuration | Location | Resource ID |
-| ---- | ---- | --- | ------------- | -------- | ----------- |
-| sql-terraform-e2e-dev-3hpu | Microsoft.Sql/servers | N/A | AAD-only auth, min TLS 1.2, state Ready | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Sql/servers/sql-terraform-e2e-dev-3hpu |
-| sqldb-terraform-e2e-dev | Microsoft.Sql/servers/databases | Basic (5 DTU) | Online, 2 GB max size, geo backup redundancy | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Sql/servers/sql-terraform-e2e-dev-3hpu/databases/sqldb-terraform-e2e-dev |
-| master | Microsoft.Sql/servers/databases | Basic (5 DTU) | System DB, Online | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Sql/servers/sql-terraform-e2e-dev-3hpu/databases/master |
+| Name                       | Type                            | SKU           | Configuration                                | Location      | Resource ID                                                                                                                                                                          |
+| -------------------------- | ------------------------------- | ------------- | -------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| sql-terraform-e2e-dev-3hpu | Microsoft.Sql/servers           | N/A           | AAD-only auth, min TLS 1.2, state Ready      | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Sql/servers/sql-terraform-e2e-dev-3hpu                                   |
+| sqldb-terraform-e2e-dev    | Microsoft.Sql/servers/databases | Basic (5 DTU) | Online, 2 GB max size, geo backup redundancy | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Sql/servers/sql-terraform-e2e-dev-3hpu/databases/sqldb-terraform-e2e-dev |
+| master                     | Microsoft.Sql/servers/databases | Basic (5 DTU) | System DB, Online                            | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Sql/servers/sql-terraform-e2e-dev-3hpu/databases/master                  |
 
 ### 🔐 Security Resources
 
-| Name | Type | Configuration | Location | Resource ID |
-| ---- | ---- | ------------- | -------- | ----------- |
+| Name            | Type                      | Configuration                                                    | Location      | Resource ID                                                                                                                                 |
+| --------------- | ------------------------- | ---------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | kv-tfe2dev-3hpu | Microsoft.KeyVault/vaults | RBAC enabled, purge protection enabled, network ACL default deny | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.KeyVault/vaults/kv-tfe2dev-3hpu |
 
 ### 📊 Monitoring Resources
 
-| Name | Type | Retention/SKU | Location | Resource ID |
-| ---- | ---- | ------------- | -------- | ----------- |
-| appi-terraform-e2e-dev-3hpu | Microsoft.Insights/components | Workspace-based App Insights, 90-day retention | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Insights/components/appi-terraform-e2e-dev-3hpu |
-| log-terraform-e2e-dev-3hpu | Microsoft.OperationalInsights/workspaces | PerGB2018, 30-day retention | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.OperationalInsights/workspaces/log-terraform-e2e-dev-3hpu |
-| Failure Anomalies - appi-terraform-e2e-dev-3hpu | Microsoft.AlertsManagement/smartDetectorAlertRules | Enabled, Sev3 | global | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/Failure Anomalies - appi-terraform-e2e-dev-3hpu |
+| Name                                            | Type                                               | Retention/SKU                                  | Location      | Resource ID                                                                                                                                                                                          |
+| ----------------------------------------------- | -------------------------------------------------- | ---------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| appi-terraform-e2e-dev-3hpu                     | Microsoft.Insights/components                      | Workspace-based App Insights, 90-day retention | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.Insights/components/appi-terraform-e2e-dev-3hpu                                          |
+| log-terraform-e2e-dev-3hpu                      | Microsoft.OperationalInsights/workspaces           | PerGB2018, 30-day retention                    | swedencentral | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.OperationalInsights/workspaces/log-terraform-e2e-dev-3hpu                                |
+| Failure Anomalies - appi-terraform-e2e-dev-3hpu | Microsoft.AlertsManagement/smartDetectorAlertRules | Enabled, Sev3                                  | global        | /subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-terraform-e2e-dev/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/Failure Anomalies - appi-terraform-e2e-dev-3hpu |
 
 ### Runtime Endpoints
 
-| Endpoint Type | Value |
-| ------------- | ----- |
-| Frontend | https://app-terraform-e2e-fe-dev-3hpu.azurewebsites.net |
-| Backend | https://app-terraform-e2e-dev-3hpu.azurewebsites.net |
-| Key Vault URI | https://kv-tfe2dev-3hpu.vault.azure.net/ |
-| SQL FQDN | sql-terraform-e2e-dev-3hpu.database.windows.net |
+| Endpoint Type | Value                                                   |
+| ------------- | ------------------------------------------------------- |
+| Frontend      | https://app-terraform-e2e-fe-dev-3hpu.azurewebsites.net |
+| Backend       | https://app-terraform-e2e-dev-3hpu.azurewebsites.net    |
+| Key Vault URI | https://kv-tfe2dev-3hpu.vault.azure.net/                |
+| SQL FQDN      | sql-terraform-e2e-dev-3hpu.database.windows.net         |
 
 ---
 
 ## References
 
-| Topic | Link |
-| ----- | ---- |
-| Deployment outputs | [06-deployment-summary.md](./06-deployment-summary.md) |
-| Terraform resources | [../../infra/terraform/terraform-e2e/main.tf](../../infra/terraform/terraform-e2e/main.tf) |
-| Azure Resource Graph | [ARG Overview](https://learn.microsoft.com/azure/governance/resource-graph/overview) |
+| Topic                | Link                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| Deployment outputs   | [06-deployment-summary.md](./06-deployment-summary.md)                                     |
+| Terraform resources  | [../../infra/terraform/terraform-e2e/main.tf](../../infra/terraform/terraform-e2e/main.tf) |
+| Azure Resource Graph | [ARG Overview](https://learn.microsoft.com/azure/governance/resource-graph/overview)       |
 
 ---
 
 <div align="center">
 
 | ⬅️ [07-operations-runbook.md](07-operations-runbook.md) | 🏠 [Project Index](README.md) | ➡️ [07-backup-dr-plan.md](07-backup-dr-plan.md) |
-| ------------------------------------------------------- | ----------------------------- | ------------------------------------------------ |
+| ------------------------------------------------------- | ----------------------------- | ----------------------------------------------- |
 
 </div>

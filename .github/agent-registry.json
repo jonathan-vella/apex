@@ -1,6 +1,7 @@
 {
   "$schema": "agent-registry-v1",
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
+  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/never), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan.bicep'), affinity uses display names (e.g. '05b-Bicep Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
   "agents": {
     "conductor": {
       "agent": ".github/agents/01-conductor.agent.md",
@@ -49,8 +50,8 @@
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "GPT-5.3-Codex",
-      "skills": ["azure-diagrams", "azure-adr"],
+      "model": "GPT-5.4",
+      "skills": ["azure-diagrams", "azure-adr", "session-resume"],
       "invokable": true,
       "step": 3
     },
@@ -86,6 +87,8 @@
           "azure-defaults",
           "azure-artifacts",
           "terraform-patterns",
+          "terraform-test",
+          "terraform-search-import",
           "session-resume",
           "microsoft-docs",
           "microsoft-code-reference"
@@ -97,7 +100,7 @@
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "Claude Opus 4.6",
+        "model": "GPT-5.4",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -110,11 +113,13 @@
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "Claude Opus 4.6",
+        "model": "GPT-5.4",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
           "terraform-patterns",
+          "terraform-test",
+          "terraform-search-import",
           "context-shredding",
           "session-resume",
           "microsoft-docs",
@@ -127,23 +132,29 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.4",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
+          "azure-validate",
+          "azure-deploy",
           "iac-common",
-          "github-operations"
+          "github-operations",
+          "session-resume"
         ]
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.4",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
+          "azure-validate",
+          "azure-deploy",
           "iac-common",
           "terraform-patterns",
-          "github-operations"
+          "github-operations",
+          "session-resume"
         ]
       },
       "invokable": true,
@@ -151,11 +162,12 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.4",
       "skills": [
         "azure-defaults",
         "azure-artifacts",
         "azure-diagrams",
+        "azure-cost-optimization",
         "context-shredding",
         "session-resume",
         "microsoft-docs"
@@ -167,7 +179,7 @@
       "agent": ".github/agents/09-diagnose.agent.md",
       "model": "Claude Sonnet 4.6",
       "skills": [
-        "azure-troubleshooting",
+        "azure-diagnostics",
         "azure-defaults",
         "microsoft-docs",
         "microsoft-code-reference"
@@ -187,6 +199,18 @@
       "model": "Claude Opus 4.6",
       "skills": ["context-optimizer"],
       "invokable": true,
+      "step": null
+    },
+    "e2e-conductor": {
+      "agent": ".github/agents/e2e-conductor.agent.md",
+      "model": "Claude Opus 4.6",
+      "skills": [
+        "session-resume",
+        "workflow-engine",
+        "azure-artifacts",
+        "context-shredding"
+      ],
+      "invokable": false,
       "step": null
     }
   },
@@ -248,7 +272,7 @@
     "terraform-review-subagent": {
       "agent": ".github/agents/_subagents/terraform-review-subagent.agent.md",
       "model": "Claude Sonnet 4.6",
-      "skills": ["terraform-patterns"],
+      "skills": ["terraform-patterns", "terraform-test"],
       "invokable": false
     },
     "terraform-plan-subagent": {

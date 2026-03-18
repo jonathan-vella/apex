@@ -1,20 +1,21 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
-# Azure Defaults (Minimal)
+# Azure Defaults Skill (Minimal)
 
-| Region | Default         | Failover             |
-| ------ | --------------- | -------------------- |
-| All    | `swedencentral` | `germanywestcentral` |
-| SWA    | `westeurope`    | —                    |
+**Quick Reference (Load First)**:
+### Default Regions
 
-| Tag           | Required |
-| ------------- | -------- |
-| `Environment` | Yes      |
-| `ManagedBy`   | Yes      |
-| `Project`     | Yes      |
-| `Owner`       | Yes      |
+**CAF Naming Conventions**:
+For extended abbreviations and length-constraint examples, read
 
-Security: HTTPS-only, TLS 1.2, no public blob, Managed Identity.
-AVM-first: always check AVM before raw Bicep/TF.
+**Azure Verified Modules (AVM)**:
+1. **ALWAYS** check AVM availability first
 
-Read `SKILL.md` or `SKILL.digest.md` for naming, reference index.
+**Template-First Output Rules**:
+
+**Validation Checklist**:
+
+**Reference Index**:
+Load these on demand — do NOT read all at once:
+
+Read `SKILL.md` or `SKILL.digest.md` for full content.

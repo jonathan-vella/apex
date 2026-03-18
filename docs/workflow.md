@@ -10,7 +10,7 @@ toc_depth: 2
 
 # :material-chart-timeline-variant: Agent and Skill Workflow
 
-The 8-step infrastructure development workflow.
+The multi-step infrastructure development workflow.
 
 ## :material-eye-outline: Overview
 
@@ -28,7 +28,7 @@ while enforcing mandatory approval gates.
 !!! tip "Quick Start"
 
     Press ++ctrl+shift+i++ to open Copilot Chat, select **InfraOps Conductor**, and
-    describe your project. The Conductor handles all 8 steps with approval gates.
+    describe your project. The Conductor handles all steps with approval gates.
 
 ### Formalized Workflow Engine
 
@@ -42,6 +42,14 @@ graph instead of relying on hardcoded step logic:
 - **Fan-out**: Step 7 substeps (cost estimate, runbook, etc.) can execute in parallel
 
 The Conductor resolves agent paths and models via `.github/agent-registry.json`.
+
+### Fast-Path Variant
+
+For **simple projects** (≤3 resources, single environment, no custom policies), the
+**01-Conductor (Fast Path)** combines Plan and Code into a single step with 1-pass review.
+Before skipping governance discovery, it validates the subscription has no Deny-effect
+policies via Azure CLI. If Deny policies are found, it falls back to the full Conductor
+automatically.
 
 ## :material-robot-outline: Agent Architecture
 
@@ -215,9 +223,9 @@ graph TB
 
 ### Primary Orchestrator
 
-| Agent                  | Codename   | Role                                    | Model                |
-| ---------------------- | ---------- | --------------------------------------- | -------------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for 8-step workflow | Claude Opus (latest) |
+| Agent                  | Codename   | Role                                        | Model                |
+| ---------------------- | ---------- | ------------------------------------------- | -------------------- |
+| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for multi-step workflow | Claude Opus (latest) |
 
 ### Core Agents (8 Steps)
 
@@ -363,6 +371,10 @@ Output: agent-output/{project}/04-governance-constraints.md, 04-governance-const
 **Agent**: `bicep-plan` (Bicep track) or `terraform-plan` (Terraform track)
 
 Create detailed implementation plan using governance constraints as input.
+The planner validates governance completeness before proceeding: the
+`04-governance-constraints.json` file must exist, be valid JSON, have
+`discovery_status: "COMPLETE"`, and contain a policy array. If any check
+fails, the planner stops and requests governance refresh.
 
 === "Bicep"
 
@@ -440,6 +452,13 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 **Agent**: `bicep-deploy` (Bicep track) or `terraform-deploy` (Terraform track)
 
 Execute Azure deployment with preflight validation.
+
+!!! warning "Pre-Deploy Security Review"
+
+    Before deployment, the agent runs `npm run validate:iac-security-baseline`
+    (TLS 1.2, HTTPS-only, no public blob, managed identity, SQL Entra-only auth)
+    and invokes `challenger-review-subagent` for a security-governance review
+    of the what-if/plan output. Violations block deployment.
 
 === "Bicep"
 
@@ -537,7 +556,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 ```text
 1. Ctrl+Shift+I → Select "InfraOps Conductor"
 2. Describe your infrastructure project
-3. Follow guided workflow through all 8 steps with approval gates
+3. Follow guided workflow through all steps with approval gates
 ```
 
 ### Direct Agent Invocation

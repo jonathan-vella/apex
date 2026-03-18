@@ -92,7 +92,7 @@ Recommendation from VS Code docs:
 | `no-heredoc.instructions.md`                | `**`                         | Prevent terminal heredoc corruption |
 | `context-optimization.instructions.md`      | Agents, skills, instructions | Context window limits               |
 
-Total: 27 instruction files in `.github/instructions/`.
+See `.github/instructions/` for the full set and `.github/count-manifest.json` for current counts.
 
 ## Common Mistakes
 

@@ -85,7 +85,7 @@ The Dev Container installs all tools automatically:
 - PowerShell 7
 - Python 3 + diagrams library
 - Go (Terraform MCP server)
-- 27+ VS Code extensions
+- 26 VS Code extensions
 
 ## :material-check-circle-outline: Step 4: Verify Setup
 
@@ -130,7 +130,7 @@ take precedence for experimental features like subagent invocation.
 
 ### Option A: InfraOps Conductor (Recommended)
 
-The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete 8-step workflow:
+The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete multi-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
 2. Select **InfraOps Conductor** from the agent dropdown
@@ -146,7 +146,7 @@ Create a simple web app in Azure with:
 - Project name: my-webapp
 ```
 
-The Conductor guides you through all 8 steps with approval gates.
+The Conductor guides you through all steps with approval gates.
 
 ### Option B: Direct Agent Invocation
 

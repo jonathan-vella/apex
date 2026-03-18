@@ -10,6 +10,17 @@ argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output
 Challenge an Azure infrastructure artifact for untested assumptions, governance gaps,
 WAF blind spots, and architectural weaknesses.
 
+## Prerequisites
+
+- Target artifact file exists in `agent-output/{project}/`
+- `00-session-state.json` exists with complexity classification
+
+## Artifact Type Hint
+
+When providing the artifact path, the agent auto-detects `artifact_type` from the filename.
+Supported types: `requirements`, `architecture`, `implementation-plan`, `governance-constraints`,
+`iac-code`, `cost-estimate`, `deployment-preview`. If auto-detection fails, provide the type explicitly.
+
 ## Instructions
 
 1. Accept the artifact path from the user (e.g. `agent-output/{project}/04-implementation-plan.md`).

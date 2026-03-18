@@ -2,7 +2,7 @@
 
 # Code Review — Detailed Checklists and Examples
 
-Detailed standards and examples for `code-review.instructions.md`.
+Detailed standards and examples for `code-quality.instructions.md`.
 Prioritization, comment format, and security bullet list live in the instruction file.
 
 ## Code Quality Standards

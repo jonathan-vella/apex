@@ -48,8 +48,10 @@ Optionally open a pull request to `main` only if the user explicitly requests on
 
 - Workspace must be a git repository with a configured `origin` remote.
 - GitHub MCP tools must be available in the current session (no `gh auth` needed).
-- The `git-commit` skill at `.github/skills/git-commit/SKILL.md` defines the
-  conventional commit format used in this repo.
+- The `github-operations` skill at `.github/skills/github-operations/SKILL.md` defines the
+  full contribution lifecycle: branch naming, commit format, and PR creation.
+- Branch naming and scope rules are in
+  `.github/skills/github-operations/references/branch-strategy.md`.
 - Minimise round-trips: the only user confirmation is the commit message review.
 
 ## Defaults (applied automatically — no questions asked)
@@ -74,7 +76,7 @@ Optionally open a pull request to `main` only if the user explicitly requests on
 
 ## Workflow
 
-### Step 1 — Inspect the working tree
+### Step 1 — Inspect the working tree and validate branch
 
 Run the following commands simultaneously and show the output:
 
@@ -89,6 +91,20 @@ If `git status --short` returns nothing, stop and tell the user: "Working tree i
 
 If the current branch is `main`, warn and stop.
 
+**Branch naming check**: The branch must start with an approved prefix:
+`docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`,
+`feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/`.
+
+If the branch name is invalid, warn the user and suggest renaming:
+`git branch -m <current-name> feat/<descriptive-name>`
+
+For domain-scoped branches (`docs/`, `agents/`, `skills/`, `infra/`,
+`scripts/`, `instructions/`), check that changed files are within scope.
+If files are out of scope, warn and suggest using `feat/` or `fix/` instead.
+
+Read `.github/skills/github-operations/references/branch-strategy.md` for
+the full scope rules if needed.
+
 ### Step 2 — Stage all changes and generate commit message
 
 Stage everything:
@@ -97,7 +113,7 @@ Stage everything:
 git add -A
 ```
 
-Read `.github/skills/git-commit/SKILL.md` to load the conventional commit
+Read `.github/skills/github-operations/references/commit-conventions.md` to load the conventional commit
 format rules for this repository.
 
 If the user provided a message via the argument-hint, use it as the subject

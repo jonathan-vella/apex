@@ -39,14 +39,14 @@
 
 This matrix maps as-built controls to requirements from project artifacts and enforced Azure Policies.
 
-| Compliance Area | Coverage | Status |
-| --------------- | -------- | ------ |
-| Network Security | 80% | ✅ |
-| Data Protection | 85% | ✅ |
-| Access Control | 85% | ✅ |
-| Monitoring & Audit | 80% | ✅ |
-| Incident Response | 70% | ⚠️ |
-| Overall | 80% | ✅ |
+| Compliance Area    | Coverage | Status |
+| ------------------ | -------- | ------ |
+| Network Security   | 80%      | ✅     |
+| Data Protection    | 85%      | ✅     |
+| Access Control     | 85%      | ✅     |
+| Monitoring & Audit | 80%      | ✅     |
+| Incident Response  | 70%      | ⚠️     |
+| Overall            | 80%      | ✅     |
 
 ---
 
@@ -54,72 +54,76 @@ This matrix maps as-built controls to requirements from project artifacts and en
 
 ### Requirement 1: Governance Policy Compliance
 
-| Control | Requirement | Implementation | Status |
-| ------- | ----------- | -------------- | ------ |
-| Allowed locations | Deploy only in approved regions | Resources deployed in `swedencentral` (plus global alert rule) | ✅ |
-| Required resource tags | `Environment`, `Project` enforced | Applied to deployed resources (`Environment=dev`, `Project=terraform-e2e`) | ✅ |
-| Required RG tags | 9 lowercase tags enforced | RG tagging model implemented in Terraform locals | ✅ |
+| Control                | Requirement                       | Implementation                                                             | Status |
+| ---------------------- | --------------------------------- | -------------------------------------------------------------------------- | ------ |
+| Allowed locations      | Deploy only in approved regions   | Resources deployed in `swedencentral` (plus global alert rule)             | ✅     |
+| Required resource tags | `Environment`, `Project` enforced | Applied to deployed resources (`Environment=dev`, `Project=terraform-e2e`) | ✅     |
+| Required RG tags       | 9 lowercase tags enforced         | RG tagging model implemented in Terraform locals                           | ✅     |
 
 ### Requirement 2: Secure Application Platform
 
-| Control | Requirement | Implementation | Status |
-| ------- | ----------- | -------------- | ------ |
-| Web HTTPS | App Service must be HTTPS-only | Both web apps deployed with `https_only = true` | ✅ |
-| SQL AAD-only | SQL server must use AAD-only auth | `azureADOnlyAuthentication = true` in deployed SQL server | ✅ |
-| TLS baseline | SQL minimum TLS 1.2 | `minimalTlsVersion = 1.2` on SQL server | ✅ |
-| Key Vault hardening | RBAC + purge protection | `enableRbacAuthorization = true`, purge protection enabled | ✅ |
+| Control             | Requirement                       | Implementation                                             | Status |
+| ------------------- | --------------------------------- | ---------------------------------------------------------- | ------ |
+| Web HTTPS           | App Service must be HTTPS-only    | Both web apps deployed with `https_only = true`            | ✅     |
+| SQL AAD-only        | SQL server must use AAD-only auth | `azureADOnlyAuthentication = true` in deployed SQL server  | ✅     |
+| TLS baseline        | SQL minimum TLS 1.2               | `minimalTlsVersion = 1.2` on SQL server                    | ✅     |
+| Key Vault hardening | RBAC + purge protection           | `enableRbacAuthorization = true`, purge protection enabled | ✅     |
 
 ### Requirement 3: Monitoring and Operations
 
-| Control | Requirement | Implementation | Status |
-| ------- | ----------- | -------------- | ------ |
-| Centralized telemetry | App + platform logs | App Insights linked to Log Analytics workspace | ✅ |
-| Alerting | Failure anomaly detection | Smart detector alert rule enabled | ✅ |
-| Operational runbooks | Day-2 guidance | Documented in [07-operations-runbook.md](./07-operations-runbook.md) | ✅ |
+| Control               | Requirement               | Implementation                                                       | Status |
+| --------------------- | ------------------------- | -------------------------------------------------------------------- | ------ |
+| Centralized telemetry | App + platform logs       | App Insights linked to Log Analytics workspace                       | ✅     |
+| Alerting              | Failure anomaly detection | Smart detector alert rule enabled                                    | ✅     |
+| Operational runbooks  | Day-2 guidance            | Documented in [07-operations-runbook.md](./07-operations-runbook.md) | ✅     |
 
 ---
 
 ## 🔍 2. Gap Analysis
 
-| Gap | Severity | Risk Level | Remediation | Timeline |
-| --- | -------- | ---------- | ----------- | -------- |
-| Single-region deployment | 🟡 | Medium | Implement warm standby pattern in secondary EU region | Before production |
-| Broad SQL RBAC role (`Contributor`) | 🟡 | Medium | Narrow to least-privilege SQL roles | Next sprint |
-| No private endpoints | 🟢 | Low (dev), Medium (prod) | Add private endpoints + VNet integration for production | Before production |
-| Manual DR orchestration | 🟡 | Medium | Automate failover runbook and test quarterly | Next quarter |
+| Gap                                 | Severity | Risk Level               | Remediation                                             | Timeline          |
+| ----------------------------------- | -------- | ------------------------ | ------------------------------------------------------- | ----------------- |
+| Single-region deployment            | 🟡       | Medium                   | Implement warm standby pattern in secondary EU region   | Before production |
+| Broad SQL RBAC role (`Contributor`) | 🟡       | Medium                   | Narrow to least-privilege SQL roles                     | Next sprint       |
+| No private endpoints                | 🟢       | Low (dev), Medium (prod) | Add private endpoints + VNet integration for production | Before production |
+| Manual DR orchestration             | 🟡       | Medium                   | Automate failover runbook and test quarterly            | Next quarter      |
+| No WAF or DDoS protection           | 🟡       | High (prod)              | ❌ Must deploy WAF/Front Door before production traffic | Pre-prod          |
 
 ---
 
 ## 📁 3. Evidence Collection
 
-| Control | Evidence Type | Location | Last Collected |
-| ------- | ------------- | -------- | -------------- |
-| Deployment outcomes | Deployment summary | [06-deployment-summary.md](./06-deployment-summary.md) | 2026-02-26 |
-| Resource configuration | Inventory snapshot | [07-resource-inventory.md](./07-resource-inventory.md) | 2026-02-26 |
-| Policy constraints | Governance artifact | [04-governance-constraints.md](./04-governance-constraints.md) | 2026-02-26 |
-| Terraform control definitions | IaC source | [../../infra/terraform/terraform-e2e/main.tf](../../infra/terraform/terraform-e2e/main.tf) | 2026-02-26 |
+| Control                       | Evidence Type       | Location                                                                                   | Last Collected |
+| ----------------------------- | ------------------- | ------------------------------------------------------------------------------------------ | -------------- |
+| Deployment outcomes           | Deployment summary  | [06-deployment-summary.md](./06-deployment-summary.md)                                     | 2026-02-26     |
+| Resource configuration        | Inventory snapshot  | [07-resource-inventory.md](./07-resource-inventory.md)                                     | 2026-02-26     |
+| Policy constraints            | Governance artifact | [04-governance-constraints.md](./04-governance-constraints.md)                             | 2026-02-26     |
+| Terraform control definitions | IaC source          | [../../infra/terraform/terraform-e2e/main.tf](../../infra/terraform/terraform-e2e/main.tf) | 2026-02-26     |
 
 ---
 
 ## 📝 4. Audit Trail
 
-| Date | Auditor | Finding | Status | Commit |
-| ---- | ------- | ------- | ------ | ------ |
-| 2026-02-26 | as-built agent | Step 7 compliance mapping created from deployed state | ✅ Complete | N/A |
+| Date       | Auditor        | Finding                                               | Status      | Commit |
+| ---------- | -------------- | ----------------------------------------------------- | ----------- | ------ |
+| 2026-02-26 | as-built agent | Step 7 compliance mapping created from deployed state | ✅ Complete | N/A    |
 
 ---
 
 ## 🔧 5. Remediation Tracker
 
-| Finding | Owner | Due Date | Status |
-| ------- | ----- | -------- | ------ |
-| Replace broad SQL scope role with least privilege | Platform engineering | 2026-03-31 | 🔄 In Progress |
-| Define production private networking baseline | Architecture + Security | 2026-04-30 | ⬜ Todo |
-| Run DR simulation and capture evidence | Operations | 2026-05-15 | ⬜ Todo |
+| Finding                                           | Owner                   | Due Date   | Status         |
+| ------------------------------------------------- | ----------------------- | ---------- | -------------- |
+| Replace broad SQL scope role with least privilege | Platform engineering    | 2026-03-31 | 🔄 In Progress |
+| Define production private networking baseline     | Architecture + Security | 2026-04-30 | ⬜ Todo        |
+| Run DR simulation and capture evidence            | Operations              | 2026-05-15 | ⬜ Todo        |
 
 ---
 
 ## 📎 6. Appendix
+
+<details>
+<summary><strong>Compliance framework references and security baseline mapping</strong></summary>
 
 ### A. Compliance Framework Reference
 
@@ -134,15 +138,31 @@ This matrix maps as-built controls to requirements from project artifacts and en
 - Centralized monitoring: implemented
 - Private networking hardening: deferred to production posture
 
+</details>
+
 ---
 
 ## References
 
-| Topic | Link |
-| ----- | ---- |
-| Microsoft Cloud Security Benchmark | [Overview](https://learn.microsoft.com/security/benchmark/azure/overview) |
-| Azure Policy | [Policy overview](https://learn.microsoft.com/azure/governance/policy/overview) |
-| Azure compliance offerings | [Compliance](https://learn.microsoft.com/azure/compliance/) |
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    A["Control"] --> B{"Implemented?"}
+    B -- Yes --> C{"Evidence Collected?"}
+    B -- No --> D["❌ Gap"]
+    C -- Yes --> E["✅ Compliant"]
+    C -- No --> F["⚠️ Pending Evidence"]
+    D --> G["Remediation Tracker"]
+    style E fill:#107C10,color:#fff
+    style D fill:#D83B01,color:#fff
+    style F fill:#FFB900,color:#000
+```
+
+| Topic                              | Link                                                                            |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| Microsoft Cloud Security Benchmark | [Overview](https://learn.microsoft.com/security/benchmark/azure/overview)       |
+| Azure Policy                       | [Policy overview](https://learn.microsoft.com/azure/governance/policy/overview) |
+| Azure compliance offerings         | [Compliance](https://learn.microsoft.com/azure/compliance/)                     |
 
 ---
 

@@ -1,12 +1,31 @@
 ---
 name: challenger-review-subagent
 description: "Adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports 3-pass rotating-lens reviews for critical steps."
-model: "GPT-5.4"
+model: ["GPT-5.4"]
 # Model rationale: GPT-5.4 for pass 1 (security-governance) and comprehensive reviews.
 # Strong logical reasoning for deep policy cross-reference analysis.
 user-invocable: false
 agents: []
-tools: [read, search, web, "azure-mcp/*"]
+tools:
+  [
+    vscode,
+    execute,
+    read,
+    agent,
+    browser,
+    edit,
+    search,
+    web,
+    "azure-mcp/*",
+    "microsoft-learn/*",
+    todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 ---
 
 # Challenger Review Subagent
@@ -26,7 +45,7 @@ The parent agent writes the output file — you do NOT write files.
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — agent operating principles and invariants
 2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM, security baselines, governance
 3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category and per-artifact-type checklists
-4. **Read** `.github/instructions/bicep-policy-compliance.instructions.md` — governance enforcement rules
+4. **Read** `.github/instructions/iac-policy-compliance.instructions.md` — governance enforcement rules
 
 > **Context optimization**: Do NOT read the full `azure-artifacts/SKILL.md`.
 > Only read `adversarial-checklists.md` for H2 structural validation.
@@ -48,7 +67,9 @@ The parent agent provides:
 ## Adversarial Review Workflow
 
 1. **Read the artifact completely** — understand the proposed approach end to end
-2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps
+2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps.
+   Read `decision_log` from `00-session-state.json` to understand rationale behind prior
+   choices — challenge the reasoning, not just the outcome.
 3. **Verify claims against skills and instructions** — cross-reference azure-defaults, bicep-policy-compliance,
    and governance-discovery instructions. Do not trust claims like "all policies covered" — verify them
 4. **If `prior_findings` provided**, read them and avoid duplicating existing issues. Focus
@@ -106,6 +127,15 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 | Artifact-type-specific categories            | `.github/skills/azure-defaults/references/artifact-type-categories.md`    |
 | Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
 | Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                        |
+
+<output_contract>
+Return ONLY valid JSON matching the schema below. No markdown wrapper, no explanation outside JSON.
+Required top-level fields: challenged_artifact, artifact_type, review_focus, pass_number,
+challenge_summary, compact_for_parent, risk_level, must_fix_count, should_fix_count, suggestion_count, issues[].
+Each issue must have: severity, category, title, description, failure_scenario, artifact_section, suggested_mitigation.
+If `artifact_path` does not exist or is empty, return error JSON:
+`{"status": "artifact_not_found", "artifact_path": "...", "issues": []}`.
+</output_contract>
 
 ## Output Format
 

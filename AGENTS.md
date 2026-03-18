@@ -3,7 +3,7 @@
 > Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
 
 A multi-agent orchestration system for Azure infrastructure development.
-Specialized AI agents collaborate through a structured 8-step workflow:
+Specialized AI agents collaborate through a structured multi-step workflow:
 **Requirements → Architecture → Design → Governance → Plan → Code → Deploy → Documentation**.
 
 ## Setup Commands
@@ -27,6 +27,7 @@ pip install -r requirements.txt
 ### Pre-installed Tools (Dev Container)
 
 - **Azure CLI** (`az`) with Bicep extension
+- **Azure Developer CLI** (`azd`) for standardized deployments
 - **Terraform CLI** with TFLint
 - **GitHub CLI** (`gh`)
 - **Node.js** + npm (validation scripts)
@@ -34,6 +35,9 @@ pip install -r requirements.txt
 - **Go** (Terraform MCP server)
 
 ## Build & Validation
+
+For the complete reference of all validation scripts, linting commands, git hooks,
+and CI workflows, see the [Validation & Linting Reference](docs/validation-reference.md).
 
 ```bash
 # Full validation suite
@@ -54,6 +58,7 @@ npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
 npm run validate:skill-affinity          # Skill/agent affinity catalog validation
+npm run validate:iac-security-baseline   # IaC security baseline (TLS, HTTPS, blob, identity, SQL auth)
 
 # Bicep validation (replace {project} with actual project name)
 bicep build infra/bicep/{project}/main.bicep
@@ -127,6 +132,18 @@ These are non-negotiable for all generated infrastructure code:
 # Run all validations (CI equivalent)
 npm run validate:all
 
+# E2E Ralph Loop — validate artifacts (structural, no agent invocation)
+npm run e2e:validate
+
+# E2E Ralph Loop — benchmark scoring (8 dimensions, 0-100)
+npm run e2e:benchmark
+
+# E2E Ralph Loop — Terraform project benchmark
+npm run e2e:benchmark -- terraform-e2e
+
+# E2E Ralph Loop — multi-project comparison
+npm run e2e:benchmark -- --compare
+
 # Pre-commit hooks (installed via lefthook)
 npm run prepare
 
@@ -169,7 +186,7 @@ Always run `npm run lint:md` and relevant validations before committing.
 
 ```text
 .github/
-  agents/              # Agent definitions (*.agent.md) — 14 top-level + 9 subagents
+  agents/              # Agent definitions (*.agent.md) — top-level + subagents
     _subagents/        # Subagent definitions (non-user-invocable)
   skills/              # Reusable domain knowledge (SKILL.md per skill)
     workflow-engine/   # DAG model, workflow-graph.json
@@ -186,24 +203,25 @@ infra/
   terraform/{project}/ # Terraform configurations (main.tf + modules/)
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)
-scripts/               # Validation and maintenance scripts (Node.js) — 27 validators
+scripts/               # Validation and maintenance scripts (Node.js)
 docs/                  # User-facing documentation
 .vscode/
   mcp.json             # MCP server configuration (github, azure-pricing, terraform, microsoft-learn)
 ```
 
-### Agent Workflow (8 Steps)
+### Agent Workflow
 
-| Step | Phase        | Output                                                   | Review   |
-| ---- | ------------ | -------------------------------------------------------- | -------- |
-| 1    | Requirements | `01-requirements.md`                                     | 1×       |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×+1× |
-| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —        |
-| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | —        |
-| 4    | IaC Plan     | `04-implementation-plan.md` + diagrams                   | 1×–2×    |
-| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×    |
-| 6    | Deploy       | `06-deployment-summary.md`                               | —        |
-| 7    | As-Built     | `07-*.md` documentation suite                            | —        |
+| Step | Phase        | Output                                                   | Review |
+| ---- | ------------ | -------------------------------------------------------- | ------ |
+| 1    | Requirements | `01-requirements.md`                                     | 1×     |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×  |
+| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —      |
+| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | —      |
+| 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | 1×–2×  |
+| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×  |
+| 6    | Deploy       | `06-deployment-summary.md`                               | —      |
+| 7    | As-Built     | `07-*.md` documentation suite                            | —      |
+| Post | Lessons      | `09-lessons-learned.json/.md`                            | —      |
 
 All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
@@ -236,7 +254,7 @@ machine-discovered data (governance) or tool output (what-if/plan previews).
 - **Required tags**: Same as above, with `ManagedBy = "Bicep"`
 - **AVM registry**: `br/public:avm/res/{provider}/{resource}:{version}`
 - **Parameter files**: Use `.bicepparam` format
-- **Deployment scripts**: PowerShell (`deploy.ps1`) in each project folder
+- **Deployment**: `azure.yaml` manifest for `azd` (preferred); `deploy.ps1` PowerShell script (legacy fallback)
 
 ## Security Considerations
 

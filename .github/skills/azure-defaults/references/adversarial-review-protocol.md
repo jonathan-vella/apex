@@ -170,7 +170,8 @@ When passing predecessor artifacts to the challenger, apply context shredding
 - **60–80% context**: Pass only key H2 sections (resource list, SKU decisions,
   WAF scores, compliance requirements, budget). Drop detailed prose.
 - **> 80% context**: Pass only the decision summary from `00-session-state.json`
-  `decisions` field plus the resource list.
+  `decisions` field plus `decision_log` entries plus the resource list.
+  The `decision_log` provides rationale for prior choices without loading full artifacts.
 
 This reduces challenger input by 40–70% and cuts turn latency proportionally.
 

@@ -18,9 +18,10 @@
     "lint:docs-freshness": "node scripts/check-docs-freshness.mjs",
     "lint:agent-frontmatter": "node scripts/validate-agent-frontmatter.mjs",
     "lint:skills-format": "node scripts/validate-skills-format.mjs",
-    "lint:instruction-frontmatter": "node scripts/validate-instruction-frontmatter.mjs",
+    "lint:instruction-frontmatter": "echo '⚠️  Merged into validate:instruction-checks' && node scripts/validate-instruction-checks.mjs",
     "lint:governance-refs": "node scripts/validate-governance-refs.mjs",
-    "validate:instruction-refs": "node scripts/validate-instruction-references.mjs",
+    "validate:instruction-refs": "echo '⚠️  Merged into validate:instruction-checks' && node scripts/validate-instruction-checks.mjs",
+    "validate:instruction-checks": "node scripts/validate-instruction-checks.mjs",
     "validate:session-state": "node scripts/validate-session-state.mjs",
     "lint:prose": "vale --config .vale.ini docs/ .github/ README.md || echo 'Vale not installed - run: brew install vale'",
     "lint:json": "node scripts/lint-json.mjs",
@@ -33,6 +34,9 @@
     "fetch:deprecations": "node scripts/fetch-azure-deprecations.mjs",
     "snapshot:baseline": "bash scripts/snapshot-agent-context.sh",
     "diff:baseline": "bash scripts/diff-context-baseline.sh",
+    "lint:skill-size": "echo '⚠️  Merged into validate:skill-checks' && node scripts/validate-skill-checks.mjs",
+    "lint:agent-body-size": "echo '⚠️  Merged into lint:agent-checks' && node scripts/lint-agent-checks.mjs",
+    "lint:agent-checks": "node scripts/lint-agent-checks.mjs",
     "lint:glob-audit": "node scripts/validate-glob-audit.mjs",
     "lint:skill-references": "node scripts/validate-skill-references.mjs",
     "lint:orphaned-content": "node scripts/validate-orphaned-content.mjs",
@@ -40,10 +44,22 @@
     "validate:workflow-graph": "node scripts/validate-workflow-graph.mjs",
     "validate:agent-registry": "node scripts/validate-agent-registry.mjs",
     "validate:skill-affinity": "node scripts/validate-skill-affinity.mjs",
-    "validate:skill-digests": "node scripts/validate-skill-digests.mjs",
+    "validate:skill-digests": "echo '⚠️  Merged into validate:skill-checks' && node scripts/validate-skill-checks.mjs",
+    "validate:skill-checks": "node scripts/validate-skill-checks.mjs",
+    "validate:stale-refs": "node scripts/validate-no-stale-skill-references.mjs",
+    "lint:model-alignment": "node scripts/lint-model-alignment.mjs",
+    "lint:agent-language": "echo '⚠️  Merged into lint:agent-checks' && node scripts/lint-agent-checks.mjs",
+    "generate:digests": "node scripts/generate-skill-digests.mjs",
     "validate:docs-sync": "node scripts/validate-docs-sync.mjs",
+    "e2e:validate": "node scripts/validate-e2e-step.mjs all",
+    "e2e:benchmark": "node scripts/benchmark-e2e.mjs",
+    "e2e:combine": "node scripts/combine-e2e-runs.mjs",
     "init": "node scripts/init-from-template.mjs",
-    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format lint:instruction-frontmatter lint:governance-refs validate:instruction-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-digests lint:json lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness validate:docs-sync validate:vscode",
+    "validate:no-hardcoded-counts": "node scripts/validate-no-hardcoded-counts.mjs",
+    "validate:hooks": "node scripts/validate-hooks.mjs",
+    "validate:iac-security-baseline": "node scripts/validate-iac-security-baseline.mjs",
+    "test:hooks": "bash scripts/test-hooks.sh",
+    "validate:_node": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format lint:instruction-frontmatter validate:instruction-refs lint:governance-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-checks validate:skill-digests validate:stale-refs lint:json lint:glob-audit lint:skill-references lint:orphaned-content lint:docs-freshness lint:model-alignment lint:agent-checks validate:no-hardcoded-counts validate:hooks validate:iac-security-baseline validate:docs-sync validate:vscode",
     "validate:_node-ci": "run-p lint:artifact-templates lint:h2-sync lint:version-sync lint:deprecated-refs lint:mcp-config lint:agent-frontmatter lint:skills-format lint:instruction-frontmatter lint:governance-refs validate:instruction-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-affinity validate:skill-digests lint:json lint:glob-audit lint:skill-references lint:orphaned-content validate:docs-sync validate:vscode",
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform",
     "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'"
@@ -51,10 +67,10 @@
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^20.4.1",
-    "fast-xml-parser": "^5.3.8",
+    "fast-xml-parser": "^5.5.6",
     "lefthook": "^2.1.0",
-    "markdown-link-check": "^3.12.0",
-    "markdownlint-cli2": "^0.20.0",
+    "markdown-link-check": "^3.14.2",
+    "markdownlint-cli2": "^0.21.0",
     "npm-run-all2": "^8.0.4"
   },
   "repository": {
@@ -72,5 +88,8 @@
     "azure-verified-modules"
   ],
   "author": "Jonathan Vella",
-  "license": "MIT"
+  "license": "MIT",
+  "overrides": {
+    "undici": ">=7.24.0"
+  }
 }

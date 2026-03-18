@@ -135,3 +135,13 @@ export function parseFrontmatter(content) {
 
   return frontmatter;
 }
+
+/**
+ * Extract body content after YAML frontmatter delimiters.
+ * @param {string} content - Full file content with --- delimiters
+ * @returns {string} Body text after closing ---
+ */
+export function getBody(content) {
+  const match = content.match(/^---\n[\s\S]*?\n---\n?([\s\S]*)$/);
+  return match ? match[1] : content;
+}

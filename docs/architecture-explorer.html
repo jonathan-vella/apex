@@ -1,0 +1,1261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agentic InfraOps — Architecture Explorer</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        overflow: hidden;
+      }
+      #app {
+        display: flex;
+        height: 100vh;
+      }
+      #sidebar {
+        width: 300px;
+        background: #1e293b;
+        border-right: 1px solid #334155;
+        display: flex;
+        flex-direction: column;
+        z-index: 10;
+      }
+      #sidebar h1 {
+        font-size: 14px;
+        padding: 16px;
+        border-bottom: 1px solid #334155;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      #filters {
+        padding: 12px;
+        border-bottom: 1px solid #334155;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .filter-btn {
+        padding: 4px 10px;
+        border-radius: 12px;
+        border: 1px solid #475569;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .filter-btn.active {
+        border-color: var(--cat-color);
+        color: #fff;
+        background: var(--cat-color);
+      }
+      .filter-btn:hover {
+        border-color: #64748b;
+        color: #cbd5e1;
+      }
+      #details {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
+      #details::-webkit-scrollbar {
+        width: 6px;
+      }
+      #details::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 3px;
+      }
+      .detail-card {
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .detail-card h3 {
+        font-size: 13px;
+        color: #f1f5f9;
+        margin-bottom: 6px;
+      }
+      .detail-card p {
+        font-size: 11px;
+        color: #94a3b8;
+        line-height: 1.5;
+      }
+      .detail-card .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 8px;
+        font-size: 10px;
+        margin-right: 4px;
+        margin-bottom: 4px;
+      }
+      .conn-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 6px;
+      }
+      .conn-list li {
+        font-size: 11px;
+        color: #94a3b8;
+        padding: 2px 0;
+        cursor: pointer;
+      }
+      .conn-list li:hover {
+        color: #60a5fa;
+      }
+      .conn-list li::before {
+        content: "→ ";
+        color: #475569;
+      }
+      #graph {
+        flex: 1;
+        position: relative;
+      }
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+      .link {
+        stroke-opacity: 0.3;
+        fill: none;
+      }
+      .link.highlighted {
+        stroke-opacity: 0.9;
+        stroke-width: 2.5px !important;
+      }
+      .node circle {
+        stroke-width: 2px;
+        cursor: pointer;
+        transition: r 0.2s;
+      }
+      .node circle:hover {
+        filter: brightness(1.3);
+      }
+      .node text {
+        font-size: 9px;
+        fill: #94a3b8;
+        pointer-events: none;
+      }
+      .node.dimmed circle {
+        opacity: 0.15;
+      }
+      .node.dimmed text {
+        opacity: 0.1;
+      }
+      .link.dimmed {
+        stroke-opacity: 0.03;
+      }
+      #legend {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: #1e293bdd;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 12px;
+        z-index: 5;
+      }
+      #legend h4 {
+        font-size: 11px;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 4px;
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      #search {
+        width: 100%;
+        padding: 8px 12px;
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        color: #e2e8f0;
+        font-size: 12px;
+        margin-bottom: 8px;
+        outline: none;
+      }
+      #search:focus {
+        border-color: #3b82f6;
+      }
+      #stats {
+        padding: 8px 12px;
+        font-size: 11px;
+        color: #64748b;
+        border-bottom: 1px solid #334155;
+      }
+      #tooltip {
+        position: absolute;
+        background: #1e293bf0;
+        border: 1px solid #475569;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 11px;
+        pointer-events: none;
+        z-index: 20;
+        max-width: 280px;
+        display: none;
+        backdrop-filter: blur(8px);
+      }
+      #tooltip h4 {
+        color: #f1f5f9;
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+      #tooltip p {
+        color: #94a3b8;
+        line-height: 1.4;
+      }
+      .view-toggle {
+        display: flex;
+        gap: 4px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #334155;
+      }
+      .view-btn {
+        flex: 1;
+        padding: 6px;
+        border-radius: 4px;
+        border: 1px solid #334155;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 11px;
+        cursor: pointer;
+        text-align: center;
+      }
+      .view-btn.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="sidebar">
+        <h1>Agentic InfraOps Explorer</h1>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="all">All</button>
+          <button class="view-btn" data-view="workflow">Workflow</button>
+          <button class="view-btn" data-view="skills">Skills</button>
+          <button class="view-btn" data-view="ci">CI/Lint</button>
+        </div>
+        <div id="stats"></div>
+        <div id="filters"></div>
+        <div id="details">
+          <input type="text" id="search" placeholder="Search nodes…" />
+          <div id="detail-content">
+            <div class="detail-card">
+              <h3>Click a node to explore</h3>
+              <p>
+                Hover for quick info. Click to see connections. Use view toggles
+                to focus on subsystems.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="graph">
+        <div id="tooltip"></div>
+        <div id="legend">
+          <h4>Component Types</h4>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ─── DATA MODEL ──────────────────────────────────────────────────────────────
+      const CATEGORIES = {
+        agent: { color: "#3b82f6", label: "Agent", icon: "●", radius: 14 },
+        subagent: { color: "#6366f1", label: "Subagent", icon: "●", radius: 9 },
+        skill: { color: "#10b981", label: "Skill", icon: "●", radius: 10 },
+        instruction: {
+          color: "#f59e0b",
+          label: "Instruction",
+          icon: "●",
+          radius: 8,
+        },
+        prompt: { color: "#ec4899", label: "Prompt", icon: "●", radius: 7 },
+        validator: {
+          color: "#8b5cf6",
+          label: "Validator",
+          icon: "●",
+          radius: 7,
+        },
+        workflow: {
+          color: "#ef4444",
+          label: "CI Workflow",
+          icon: "●",
+          radius: 8,
+        },
+        gate: { color: "#f97316", label: "Gate", icon: "◆", radius: 11 },
+        mcp: { color: "#06b6d4", label: "MCP Server", icon: "●", radius: 12 },
+      };
+
+      const LINK_TYPES = {
+        "uses-skill": { color: "#10b981", label: "uses skill" },
+        handoff: { color: "#3b82f6", label: "handoff" },
+        delegates: { color: "#6366f1", label: "delegates to" },
+        triggers: { color: "#ec4899", label: "triggers" },
+        validates: { color: "#8b5cf6", label: "validates" },
+        enforces: { color: "#f59e0b", label: "enforces on" },
+        runs: { color: "#ef4444", label: "runs" },
+        connects: { color: "#06b6d4", label: "connects to" },
+        "workflow-edge": { color: "#f97316", label: "workflow flow" },
+      };
+
+      // ─── BUILD GRAPH DATA ────────────────────────────────────────────────────────
+      const nodes = [];
+      const links = [];
+      const nodeMap = {};
+
+      function addNode(id, label, category, meta = {}) {
+        if (nodeMap[id]) return;
+        const n = { id, label, category, ...meta };
+        nodes.push(n);
+        nodeMap[id] = n;
+      }
+      function addLink(source, target, type) {
+        if (!nodeMap[source] || !nodeMap[target]) return;
+        if (
+          links.find(
+            (l) =>
+              l.source === source && l.target === target && l.type === type,
+          )
+        )
+          return;
+        links.push({ source, target, type });
+      }
+
+      // Agents
+      const agents = {
+        "01-Conductor": { model: "Claude Opus 4.6", step: null },
+        "01-Conductor-FastPath": { model: "Claude Sonnet 4.6", step: null },
+        "02-Requirements": { model: "Claude Opus 4.6", step: 1 },
+        "03-Architect": { model: "Claude Opus 4.6", step: 2 },
+        "04-Design": { model: "GPT-5.4", step: 3 },
+        "04g-Governance": { model: "GPT-5.4", step: 3.5 },
+        "05b-Bicep Planner": { model: "Claude Opus 4.6", step: 4 },
+        "05t-Terraform Planner": { model: "Claude Opus 4.6", step: 4 },
+        "06b-Bicep CodeGen": { model: "GPT-5.4", step: 5 },
+        "06t-Terraform CodeGen": { model: "GPT-5.4", step: 5 },
+        "07b-Bicep Deploy": { model: "GPT-5.4", step: 6 },
+        "07t-Terraform Deploy": { model: "GPT-5.4", step: 6 },
+        "08-As-Built": { model: "GPT-5.4", step: 7 },
+        "09-Diagnose": { model: "Claude Opus 4.6", step: null },
+        "10-Challenger": { model: "GPT-5.4", step: null },
+        "11-Context Optimizer": { model: "Claude Opus 4.6", step: null },
+      };
+      for (const [name, meta] of Object.entries(agents)) {
+        addNode(`agent:${name}`, name, "agent", {
+          model: meta.model,
+          step: meta.step,
+        });
+      }
+
+      // Subagents
+      const subagents = [
+        "challenger-review",
+        "challenger-review-codex",
+        "challenger-review-batch",
+        "cost-estimate",
+        "governance-discovery",
+        "bicep-lint",
+        "bicep-review",
+        "bicep-whatif",
+        "terraform-lint",
+        "terraform-review",
+        "terraform-plan",
+      ];
+      subagents.forEach((s) => addNode(`subagent:${s}`, s, "subagent"));
+
+      // Delegation links
+      const delegations = {
+        "01-Conductor": [
+          "challenger-review",
+          "challenger-review-codex",
+          "challenger-review-batch",
+          "cost-estimate",
+          "governance-discovery",
+        ],
+        "05b-Bicep Planner": ["governance-discovery"],
+        "05t-Terraform Planner": ["governance-discovery"],
+        "06b-Bicep CodeGen": ["bicep-lint", "bicep-review"],
+        "06t-Terraform CodeGen": ["terraform-lint", "terraform-review"],
+        "07b-Bicep Deploy": ["bicep-whatif"],
+        "07t-Terraform Deploy": ["terraform-plan"],
+        "03-Architect": ["cost-estimate"],
+        "10-Challenger": [
+          "challenger-review",
+          "challenger-review-codex",
+          "challenger-review-batch",
+        ],
+      };
+      for (const [agent, subs] of Object.entries(delegations)) {
+        subs.forEach((s) =>
+          addLink(`agent:${agent}`, `subagent:${s}`, "delegates"),
+        );
+      }
+
+      // Skills
+      const skills = [
+        "appinsights-instrumentation",
+        "azure-adr",
+        "azure-ai",
+        "azure-aigateway",
+        "azure-artifacts",
+        "azure-bicep-patterns",
+        "azure-cloud-migrate",
+        "azure-compliance",
+        "azure-compute",
+        "azure-cost-optimization",
+        "azure-defaults",
+        "azure-deploy",
+        "azure-diagnostics",
+        "azure-diagrams",
+        "azure-hosted-copilot-sdk",
+        "azure-kusto",
+        "azure-messaging",
+        "azure-prepare",
+        "azure-quotas",
+        "azure-rbac",
+        "azure-resource-lookup",
+        "azure-resource-visualizer",
+        "azure-storage",
+        "azure-validate",
+        "context-optimizer",
+        "context-shredding",
+        "copilot-customization",
+        "count-registry",
+        "docs-writer",
+        "entra-app-registration",
+        "github-operations",
+        "golden-principles",
+        "iac-common",
+        "make-skill-template",
+        "microsoft-foundry",
+        "session-resume",
+        "terraform-patterns",
+        "workflow-engine",
+      ];
+      skills.forEach((s) => addNode(`skill:${s}`, s, "skill"));
+
+      // Skill affinity links
+      const affinity = {
+        "01-Conductor": {
+          primary: [
+            "golden-principles",
+            "session-resume",
+            "azure-defaults",
+            "azure-artifacts",
+            "workflow-engine",
+          ],
+          secondary: [
+            "context-shredding",
+            "github-operations",
+            "azure-prepare",
+          ],
+        },
+        "01-Conductor-FastPath": {
+          primary: [
+            "golden-principles",
+            "session-resume",
+            "azure-defaults",
+            "azure-artifacts",
+          ],
+          secondary: [
+            "context-shredding",
+            "github-operations",
+            "azure-prepare",
+          ],
+        },
+        "02-Requirements": {
+          primary: ["azure-defaults", "azure-artifacts", "session-resume"],
+          secondary: ["azure-prepare"],
+        },
+        "03-Architect": {
+          primary: ["azure-defaults", "azure-artifacts", "session-resume"],
+          secondary: [
+            "context-shredding",
+            "azure-diagrams",
+            "azure-prepare",
+            "azure-cost-optimization",
+          ],
+        },
+        "04-Design": {
+          primary: ["azure-diagrams", "azure-adr"],
+          secondary: ["azure-artifacts", "session-resume"],
+        },
+        "04g-Governance": {
+          primary: ["azure-defaults", "azure-artifacts", "session-resume"],
+          secondary: [],
+        },
+        "05b-Bicep Planner": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "azure-bicep-patterns",
+            "session-resume",
+          ],
+          secondary: ["context-shredding"],
+        },
+        "05t-Terraform Planner": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "terraform-patterns",
+            "session-resume",
+          ],
+          secondary: ["context-shredding"],
+        },
+        "06b-Bicep CodeGen": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "azure-bicep-patterns",
+            "session-resume",
+          ],
+          secondary: ["context-shredding"],
+        },
+        "06t-Terraform CodeGen": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "terraform-patterns",
+            "session-resume",
+          ],
+          secondary: ["context-shredding"],
+        },
+        "07b-Bicep Deploy": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "azure-validate",
+            "iac-common",
+          ],
+          secondary: ["session-resume", "github-operations", "azure-deploy"],
+        },
+        "07t-Terraform Deploy": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "azure-validate",
+            "iac-common",
+            "terraform-patterns",
+          ],
+          secondary: ["session-resume", "github-operations", "azure-deploy"],
+        },
+        "08-As-Built": {
+          primary: [
+            "azure-defaults",
+            "azure-artifacts",
+            "azure-diagrams",
+            "session-resume",
+          ],
+          secondary: ["context-shredding", "azure-cost-optimization"],
+        },
+        "09-Diagnose": {
+          primary: ["azure-diagnostics", "azure-defaults"],
+          secondary: ["azure-cost-optimization"],
+        },
+        "10-Challenger": { primary: [], secondary: ["golden-principles"] },
+        "11-Context Optimizer": {
+          primary: ["context-optimizer"],
+          secondary: [],
+        },
+      };
+      for (const [agent, sk] of Object.entries(affinity)) {
+        [...sk.primary, ...sk.secondary].forEach((s) =>
+          addLink(`agent:${agent}`, `skill:${s}`, "uses-skill"),
+        );
+      }
+
+      // Instructions
+      const instructions = [
+        "agent-definitions",
+        "agent-research-first",
+        "agent-skills",
+        "azure-artifacts",
+        "bicep-code-best-practices",
+        "code-quality",
+        "context-optimization",
+        "decision-logging",
+        "docs",
+        "docs-trigger",
+        "github-actions",
+        "governance-discovery",
+        "iac-cost-repeatability",
+        "iac-policy-compliance",
+        "instructions",
+        "javascript",
+        "json",
+        "markdown",
+        "model-prompt-alignment",
+        "no-hardcoded-counts",
+        "no-heredoc",
+        "powershell",
+        "prompt",
+        "python",
+        "shell",
+        "terraform-code-best-practices",
+      ];
+      instructions.forEach((i) => addNode(`instr:${i}`, i, "instruction"));
+
+      // Instruction → target type enforcement links
+      const instrTargets = {
+        "agent-definitions": [
+          "agent:01-Conductor",
+          "agent:02-Requirements",
+          "agent:03-Architect",
+        ],
+        "agent-skills": ["skill:azure-defaults", "skill:azure-artifacts"],
+        "bicep-code-best-practices": [
+          "agent:06b-Bicep CodeGen",
+          "agent:05b-Bicep Planner",
+        ],
+        "terraform-code-best-practices": [
+          "agent:06t-Terraform CodeGen",
+          "agent:05t-Terraform Planner",
+        ],
+        markdown: ["skill:docs-writer", "skill:azure-artifacts"],
+        "no-heredoc": ["agent:01-Conductor", "agent:06b-Bicep CodeGen"],
+        "no-hardcoded-counts": ["skill:count-registry", "skill:docs-writer"],
+        "model-prompt-alignment": ["agent:01-Conductor", "agent:03-Architect"],
+        "decision-logging": ["agent:02-Requirements", "agent:03-Architect"],
+        "iac-policy-compliance": [
+          "agent:06b-Bicep CodeGen",
+          "agent:06t-Terraform CodeGen",
+        ],
+      };
+      for (const [instr, targets] of Object.entries(instrTargets)) {
+        targets.forEach((t) => {
+          if (nodeMap[t]) addLink(`instr:${instr}`, t, "enforces");
+        });
+      }
+
+      // Prompts
+      const prompts = [
+        "01-conductor",
+        "02-requirements",
+        "03-architect",
+        "04-design",
+        "04g-governance",
+        "05b-bicep-planner",
+        "05t-terraform-planner",
+        "06b-bicep-codegen",
+        "06t-terraform-codegen",
+        "07b-bicep-deploy",
+        "07t-terraform-deploy",
+        "08-as-built",
+        "challenger-review",
+        "context-audit",
+        "diagnose-resource",
+        "doc-gardening",
+        "git-commit-push",
+        "resume-workflow",
+      ];
+      prompts.forEach((p) => addNode(`prompt:${p}`, p, "prompt"));
+
+      // Prompt → Agent links
+      const promptAgent = {
+        "01-conductor": "01-Conductor",
+        "02-requirements": "02-Requirements",
+        "03-architect": "03-Architect",
+        "04-design": "04-Design",
+        "04g-governance": "04g-Governance",
+        "05b-bicep-planner": "05b-Bicep Planner",
+        "05t-terraform-planner": "05t-Terraform Planner",
+        "06b-bicep-codegen": "06b-Bicep CodeGen",
+        "06t-terraform-codegen": "06t-Terraform CodeGen",
+        "07b-bicep-deploy": "07b-Bicep Deploy",
+        "07t-terraform-deploy": "07t-Terraform Deploy",
+        "08-as-built": "08-As-Built",
+        "challenger-review": "10-Challenger",
+        "diagnose-resource": "09-Diagnose",
+        "resume-workflow": "01-Conductor",
+        "context-audit": "11-Context Optimizer",
+      };
+      for (const [p, a] of Object.entries(promptAgent)) {
+        addLink(`prompt:${p}`, `agent:${a}`, "triggers");
+      }
+
+      // Validators
+      const validators = [
+        "artifact-templates",
+        "h2-sync",
+        "version-sync",
+        "deprecated-refs",
+        "mcp-config",
+        "agent-frontmatter",
+        "skills-format",
+        "instruction-checks",
+        "governance-refs",
+        "session-state",
+        "session-lock",
+        "workflow-graph",
+        "agent-registry",
+        "skill-affinity",
+        "skill-checks",
+        "stale-refs",
+        "json",
+        "glob-audit",
+        "skill-references",
+        "orphaned-content",
+        "docs-freshness",
+        "model-alignment",
+        "agent-checks",
+        "no-hardcoded-counts",
+        "md",
+        "python",
+        "terraform-fmt",
+        "terraform-validate",
+      ];
+      validators.forEach((v) => addNode(`validator:${v}`, v, "validator"));
+
+      // CI Workflows
+      const ciWorkflows = [
+        "lint",
+        "agent-validation",
+        "policy-compliance-check",
+        "docs-freshness",
+        "docs",
+        "link-check",
+        "avm-version-check",
+        "azure-deprecation-tracker",
+      ];
+      ciWorkflows.forEach((w) => addNode(`ci:${w}`, w, "workflow"));
+
+      // Workflow → Validator links
+      const wfValidators = {
+        lint: [
+          "md",
+          "json",
+          "artifact-templates",
+          "h2-sync",
+          "version-sync",
+          "deprecated-refs",
+          "mcp-config",
+          "docs-freshness",
+        ],
+        "agent-validation": [
+          "agent-frontmatter",
+          "skills-format",
+          "mcp-config",
+          "h2-sync",
+          "governance-refs",
+          "instruction-checks",
+        ],
+        "policy-compliance-check": [
+          "agent-frontmatter",
+          "skills-format",
+          "instruction-checks",
+          "governance-refs",
+          "session-state",
+          "session-lock",
+          "workflow-graph",
+          "agent-registry",
+          "skill-affinity",
+          "skill-checks",
+          "stale-refs",
+          "json",
+          "glob-audit",
+          "skill-references",
+          "orphaned-content",
+          "docs-freshness",
+          "model-alignment",
+          "agent-checks",
+          "no-hardcoded-counts",
+          "artifact-templates",
+          "h2-sync",
+          "version-sync",
+          "deprecated-refs",
+          "mcp-config",
+        ],
+      };
+      for (const [wf, vals] of Object.entries(wfValidators)) {
+        vals.forEach((v) => addLink(`ci:${wf}`, `validator:${v}`, "runs"));
+      }
+
+      // MCP Servers
+      ["github", "azure-pricing", "terraform"].forEach((m) =>
+        addNode(`mcp:${m}`, m, "mcp"),
+      );
+      // MCP → Agent usage
+      addLink("mcp:github", "agent:01-Conductor", "connects");
+      addLink("mcp:github", "agent:07b-Bicep Deploy", "connects");
+      addLink("mcp:github", "agent:07t-Terraform Deploy", "connects");
+      addLink("mcp:azure-pricing", "agent:03-Architect", "connects");
+      addLink("mcp:azure-pricing", "subagent:cost-estimate", "connects");
+      addLink("mcp:terraform", "agent:05t-Terraform Planner", "connects");
+      addLink("mcp:terraform", "agent:06t-Terraform CodeGen", "connects");
+
+      // Workflow gates
+      const gates = [
+        "gate-1",
+        "gate-2",
+        "gate-2.5",
+        "gate-3",
+        "gate-4",
+        "gate-5",
+      ];
+      const gateNames = {
+        "gate-1": "Requirements Approval",
+        "gate-2": "Architecture Approval",
+        "gate-2.5": "Governance Approval",
+        "gate-3": "Plan Approval",
+        "gate-4": "Code Validation",
+        "gate-5": "Deploy Approval",
+      };
+      gates.forEach((g) => addNode(`gate:${g}`, gateNames[g], "gate"));
+
+      // Workflow edges
+      const workflowFlow = [
+        ["agent:02-Requirements", "gate:gate-1"],
+        ["gate:gate-1", "agent:03-Architect"],
+        ["agent:03-Architect", "gate:gate-2"],
+        ["gate:gate-2", "agent:04-Design"],
+        ["gate:gate-2", "agent:04g-Governance"],
+        ["agent:04g-Governance", "gate:gate-2.5"],
+        ["gate:gate-2.5", "agent:05b-Bicep Planner"],
+        ["gate:gate-2.5", "agent:05t-Terraform Planner"],
+        ["agent:05b-Bicep Planner", "gate:gate-3"],
+        ["agent:05t-Terraform Planner", "gate:gate-3"],
+        ["gate:gate-3", "agent:06b-Bicep CodeGen"],
+        ["gate:gate-3", "agent:06t-Terraform CodeGen"],
+        ["agent:06b-Bicep CodeGen", "gate:gate-4"],
+        ["agent:06t-Terraform CodeGen", "gate:gate-4"],
+        ["gate:gate-4", "agent:07b-Bicep Deploy"],
+        ["gate:gate-4", "agent:07t-Terraform Deploy"],
+        ["agent:07b-Bicep Deploy", "gate:gate-5"],
+        ["agent:07t-Terraform Deploy", "gate:gate-5"],
+        ["gate:gate-5", "agent:08-As-Built"],
+      ];
+      workflowFlow.forEach(([s, t]) => addLink(s, t, "workflow-edge"));
+
+      // Handoff from conductor
+      [
+        "02-Requirements",
+        "03-Architect",
+        "04-Design",
+        "04g-Governance",
+        "05b-Bicep Planner",
+        "06b-Bicep CodeGen",
+        "07b-Bicep Deploy",
+        "05t-Terraform Planner",
+        "06t-Terraform CodeGen",
+        "07t-Terraform Deploy",
+        "08-As-Built",
+        "09-Diagnose",
+      ].forEach((a) => addLink("agent:01-Conductor", `agent:${a}`, "handoff"));
+
+      // ─── VIEW PRESETS ────────────────────────────────────────────────────────────
+      const views = {
+        all: () => true,
+        workflow: (n) => ["agent", "gate", "subagent"].includes(n.category),
+        skills: (n) => ["agent", "skill", "subagent"].includes(n.category),
+        ci: (n) =>
+          ["validator", "workflow", "instruction"].includes(n.category),
+      };
+
+      // ─── D3 RENDERING ────────────────────────────────────────────────────────────
+      const width = window.innerWidth - 300;
+      const height = window.innerHeight;
+
+      const svg = d3
+        .select("#graph")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const defs = svg.append("defs");
+      // Arrow markers
+      for (const [type, conf] of Object.entries(LINK_TYPES)) {
+        defs
+          .append("marker")
+          .attr("id", `arrow-${type}`)
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 20)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-4L10,0L0,4")
+          .attr("fill", conf.color)
+          .attr("opacity", 0.5);
+      }
+
+      const g = svg.append("g");
+      const zoom = d3
+        .zoom()
+        .scaleExtent([0.1, 4])
+        .on("zoom", (e) => g.attr("transform", e.transform));
+      svg.call(zoom);
+
+      const linkG = g.append("g").attr("class", "links");
+      const nodeG = g.append("g").attr("class", "nodes");
+
+      const simulation = d3
+        .forceSimulation(nodes)
+        .force(
+          "link",
+          d3
+            .forceLink(links)
+            .id((d) => d.id)
+            .distance((d) => {
+              if (d.type === "workflow-edge") return 60;
+              if (d.type === "delegates") return 50;
+              if (d.type === "uses-skill") return 80;
+              return 100;
+            })
+            .strength((d) => (d.type === "workflow-edge" ? 1.2 : 0.3)),
+        )
+        .force(
+          "charge",
+          d3.forceManyBody().strength((d) => {
+            if (d.category === "agent") return -400;
+            if (d.category === "gate") return -300;
+            return -120;
+          }),
+        )
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force(
+          "collision",
+          d3.forceCollide().radius((d) => CATEGORIES[d.category].radius + 4),
+        )
+        .force("x", d3.forceX(width / 2).strength(0.03))
+        .force("y", d3.forceY(height / 2).strength(0.03));
+
+      let linkEls = linkG.selectAll("line");
+      let nodeEls = nodeG.selectAll("g.node");
+
+      function render(nodeFilter = views.all) {
+        const visibleNodes = new Set(nodes.filter(nodeFilter).map((n) => n.id));
+        const visibleLinks = links.filter((l) => {
+          const sid = typeof l.source === "object" ? l.source.id : l.source;
+          const tid = typeof l.target === "object" ? l.target.id : l.target;
+          return visibleNodes.has(sid) && visibleNodes.has(tid);
+        });
+
+        linkEls = linkG
+          .selectAll("line")
+          .data(
+            visibleLinks,
+            (d) => `${d.source.id || d.source}-${d.target.id || d.target}`,
+          );
+        linkEls.exit().remove();
+        linkEls = linkEls
+          .enter()
+          .append("line")
+          .attr("class", "link")
+          .attr("stroke", (d) => LINK_TYPES[d.type]?.color || "#475569")
+          .attr("stroke-width", (d) => (d.type === "workflow-edge" ? 2 : 1))
+          .attr("marker-end", (d) => `url(#arrow-${d.type})`)
+          .merge(linkEls);
+
+        nodeEls = nodeG.selectAll("g.node").data(
+          nodes.filter((n) => visibleNodes.has(n.id)),
+          (d) => d.id,
+        );
+        nodeEls.exit().remove();
+        const enter = nodeEls
+          .enter()
+          .append("g")
+          .attr("class", "node")
+          .call(
+            d3
+              .drag()
+              .on("start", dragStart)
+              .on("drag", dragging)
+              .on("end", dragEnd),
+          )
+          .on("click", (e, d) => selectNode(d))
+          .on("mouseover", (e, d) => showTooltip(e, d))
+          .on("mouseout", hideTooltip);
+        enter
+          .append("circle")
+          .attr("r", (d) => CATEGORIES[d.category].radius)
+          .attr("fill", (d) => CATEGORIES[d.category].color)
+          .attr("stroke", (d) =>
+            d3.color(CATEGORIES[d.category].color).brighter(0.5),
+          );
+        enter
+          .append("text")
+          .attr("dy", (d) => CATEGORIES[d.category].radius + 12)
+          .attr("text-anchor", "middle")
+          .text((d) =>
+            d.label.length > 20 ? d.label.slice(0, 18) + "…" : d.label,
+          );
+        nodeEls = enter.merge(nodeEls);
+
+        simulation.nodes(nodes.filter((n) => visibleNodes.has(n.id)));
+        simulation.force("link").links(visibleLinks);
+        simulation.alpha(0.8).restart();
+      }
+
+      simulation.on("tick", () => {
+        linkEls
+          .attr("x1", (d) => d.source.x)
+          .attr("y1", (d) => d.source.y)
+          .attr("x2", (d) => d.target.x)
+          .attr("y2", (d) => d.target.y);
+        nodeEls.attr("transform", (d) => `translate(${d.x},${d.y})`);
+      });
+
+      function dragStart(e, d) {
+        if (!e.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+      function dragging(e, d) {
+        d.fx = e.x;
+        d.fy = e.y;
+      }
+      function dragEnd(e, d) {
+        if (!e.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      // ─── INTERACTIVITY ───────────────────────────────────────────────────────────
+      const tooltip = d3.select("#tooltip");
+
+      function showTooltip(event, d) {
+        const cat = CATEGORIES[d.category];
+        let html = `<h4 style="color:${cat.color}">${cat.label}: ${d.label}</h4>`;
+        if (d.model) html += `<p>Model: ${d.model}</p>`;
+        if (d.step !== undefined && d.step !== null)
+          html += `<p>Step: ${d.step}</p>`;
+        const conns = links.filter(
+          (l) =>
+            (l.source.id || l.source) === d.id ||
+            (l.target.id || l.target) === d.id,
+        );
+        html += `<p>${conns.length} connections</p>`;
+        tooltip
+          .html(html)
+          .style("display", "block")
+          .style("left", event.pageX - 300 + 15 + "px")
+          .style("top", event.pageY + 15 + "px");
+      }
+      function hideTooltip() {
+        tooltip.style("display", "none");
+      }
+
+      function selectNode(d) {
+        const connected = new Set();
+        connected.add(d.id);
+        const connLinks = [];
+        links.forEach((l) => {
+          const sid = l.source.id || l.source;
+          const tid = l.target.id || l.target;
+          if (sid === d.id) {
+            connected.add(tid);
+            connLinks.push(l);
+          }
+          if (tid === d.id) {
+            connected.add(sid);
+            connLinks.push(l);
+          }
+        });
+
+        nodeEls.classed("dimmed", (n) => !connected.has(n.id));
+        linkEls.classed("dimmed", (l) => {
+          const sid = l.source.id || l.source;
+          const tid = l.target.id || l.target;
+          return !(sid === d.id || tid === d.id);
+        });
+        linkEls.classed("highlighted", (l) => {
+          const sid = l.source.id || l.source;
+          const tid = l.target.id || l.target;
+          return sid === d.id || tid === d.id;
+        });
+
+        // Update detail panel
+        const cat = CATEGORIES[d.category];
+        const outgoing = connLinks.filter(
+          (l) => (l.source.id || l.source) === d.id,
+        );
+        const incoming = connLinks.filter(
+          (l) => (l.target.id || l.target) === d.id,
+        );
+
+        let html = `<div class="detail-card">
+    <h3 style="color:${cat.color}">${cat.label}: ${d.label}</h3>
+    ${d.model ? `<p>Model: <strong>${d.model}</strong></p>` : ""}
+    ${d.step != null ? `<p>Workflow Step: <strong>${d.step}</strong></p>` : ""}
+    <p>${connLinks.length} total connections</p>
+  </div>`;
+
+        if (outgoing.length) {
+          html += `<div class="detail-card"><h3>Outgoing (${outgoing.length})</h3><ul class="conn-list">`;
+          outgoing.forEach((l) => {
+            const tid = l.target.id || l.target;
+            const tn = nodeMap[tid];
+            html += `<li data-id="${tid}" style="color:${LINK_TYPES[l.type]?.color || "#94a3b8"}">${LINK_TYPES[l.type]?.label || l.type}: ${tn?.label || tid}</li>`;
+          });
+          html += "</ul></div>";
+        }
+        if (incoming.length) {
+          html += `<div class="detail-card"><h3>Incoming (${incoming.length})</h3><ul class="conn-list">`;
+          incoming.forEach((l) => {
+            const sid = l.source.id || l.source;
+            const sn = nodeMap[sid];
+            html += `<li data-id="${sid}" style="color:${LINK_TYPES[l.type]?.color || "#94a3b8"}">${LINK_TYPES[l.type]?.label || l.type}: ${sn?.label || sid}</li>`;
+          });
+          html += "</ul></div>";
+        }
+
+        document.getElementById("detail-content").innerHTML = html;
+        // Make connection list items clickable
+        document.querySelectorAll(".conn-list li").forEach((li) => {
+          li.addEventListener("click", () => {
+            const targetId = li.dataset.id;
+            const targetNode = nodes.find((n) => n.id === targetId);
+            if (targetNode) selectNode(targetNode);
+          });
+        });
+      }
+
+      // Reset on background click
+      svg.on("click", (e) => {
+        if (e.target === svg.node()) {
+          nodeEls.classed("dimmed", false);
+          linkEls.classed("dimmed", false).classed("highlighted", false);
+        }
+      });
+
+      // ─── SIDEBAR CONTROLS ────────────────────────────────────────────────────────
+      // Stats
+      const catCounts = {};
+      nodes.forEach((n) => {
+        catCounts[n.category] = (catCounts[n.category] || 0) + 1;
+      });
+      document.getElementById("stats").textContent =
+        `${nodes.length} nodes · ${links.length} edges`;
+
+      // Legend
+      const legendEl = document.getElementById("legend");
+      for (const [key, cat] of Object.entries(CATEGORIES)) {
+        if (!catCounts[key]) continue;
+        const div = document.createElement("div");
+        div.className = "legend-item";
+        div.innerHTML = `<div class="legend-dot" style="background:${cat.color}"></div>${cat.label} (${catCounts[key]})`;
+        legendEl.appendChild(div);
+      }
+
+      // Category filter buttons
+      const filtersEl = document.getElementById("filters");
+      for (const [key, cat] of Object.entries(CATEGORIES)) {
+        if (!catCounts[key]) continue;
+        const btn = document.createElement("button");
+        btn.className = "filter-btn active";
+        btn.style.setProperty("--cat-color", cat.color);
+        btn.textContent = `${cat.label} (${catCounts[key]})`;
+        btn.dataset.category = key;
+        btn.addEventListener("click", () => {
+          btn.classList.toggle("active");
+          applyFilters();
+        });
+        filtersEl.appendChild(btn);
+      }
+
+      function applyFilters() {
+        const active = new Set(
+          [...document.querySelectorAll(".filter-btn.active")].map(
+            (b) => b.dataset.category,
+          ),
+        );
+        render((n) => active.has(n.category));
+      }
+
+      // View toggles
+      document.querySelectorAll(".view-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".view-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const view = btn.dataset.view;
+          // Reset filter buttons to match view
+          const viewCategories = {
+            all: Object.keys(CATEGORIES),
+            workflow: ["agent", "gate", "subagent"],
+            skills: ["agent", "skill", "subagent"],
+            ci: ["validator", "workflow", "instruction"],
+          }[view];
+          document.querySelectorAll(".filter-btn").forEach((fb) => {
+            fb.classList.toggle(
+              "active",
+              viewCategories.includes(fb.dataset.category),
+            );
+          });
+          render(views[view]);
+        });
+      });
+
+      // Search
+      document.getElementById("search").addEventListener("input", (e) => {
+        const q = e.target.value.toLowerCase();
+        if (!q) {
+          nodeEls.classed("dimmed", false);
+          linkEls.classed("dimmed", false);
+          return;
+        }
+        const matches = new Set(
+          nodes
+            .filter((n) => n.label.toLowerCase().includes(q))
+            .map((n) => n.id),
+        );
+        nodeEls.classed("dimmed", (n) => !matches.has(n.id));
+        linkEls.classed("dimmed", (l) => {
+          const sid = l.source.id || l.source;
+          const tid = l.target.id || l.target;
+          return !matches.has(sid) && !matches.has(tid);
+        });
+      });
+
+      // Initial render
+      render();
+      // Auto-zoom to fit after stabilization
+      setTimeout(() => {
+        const bounds = g.node().getBBox();
+        const fullWidth = bounds.width || width;
+        const fullHeight = bounds.height || height;
+        const midX = bounds.x + fullWidth / 2;
+        const midY = bounds.y + fullHeight / 2;
+        const scale = 0.85 / Math.max(fullWidth / width, fullHeight / height);
+        const transform = d3.zoomIdentity
+          .translate(width / 2 - midX * scale, height / 2 - midY * scale)
+          .scale(scale);
+        svg.transition().duration(750).call(zoom.transform, transform);
+      }, 3000);
+    </script>
+  </body>
+</html>

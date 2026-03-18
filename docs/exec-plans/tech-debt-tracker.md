@@ -8,12 +8,10 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 
 ## Active Debt Items
 
-| ID  | Domain | Description | Priority | Owner | Milestone |
-| --- | ------ | ----------- | -------- | ----- | --------- |
-
-| 10 | Agents | `agents` frontmatter string (not array) in 7 agents | Low | — | Phase-next |
-| 11 | Instructions | 4 `applyTo` warnings: bicep + terraform instruction files | Low | — | Phase-next |
-| 14 | Agents | `01-conductor.agent.md` body 354 lines (>350 limit) | Medium | — | Phase-next |
+| ID  | Domain | Description                                                                                | Priority | Owner | Milestone  |
+| --- | ------ | ------------------------------------------------------------------------------------------ | -------- | ----- | ---------- |
+| 14  | Agents | `01-conductor.agent.md` body 363 lines (>350 limit)                                        | Medium   | —     | Phase-next |
+| 17  | Skills | Pre-existing lint errors (MD013/MD040) in Azure skills plugin SKILL.md and reference files | Low      | —     | Phase-next |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
@@ -32,6 +30,10 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 6   | Infrastructure | Terraform tf-dev branch not merged to main; dual-IaC only on tf-dev                                    | 2026-03-04 | tf-dev merged; IaC content archived as .tar.gz (by design)                       |
 | 5   | CI/CD          | `validate:terraform` silently ran against zero projects — no main.tf in terraform-e2e                  | 2026-03-06 | IaC archived by design; script runs clean with zero projects; expected behaviour |
 | 13  | Documentation  | docs/README.md skill count said 18, filesystem had 20 (`workflow-engine`, `context-shredding` missing) | 2026-03-06 | Updated to 20 in 3 locations; skills added to category tables                    |
+| 11  | Instructions   | 4 `applyTo` warnings: bicep + terraform instruction files                                              | 2026-03-15 | `lint:glob-audit` now passes clean; glob patterns narrowed                       |
+| 10  | Agents         | `agents` frontmatter string (not array) in 8 agents                                                    | 2026-03-15 | Converted to inline array format                                                 |
+| 15  | Skills         | 19 skills missing `## Reference Index`; 76 refs missing canary markers                                 | 2026-03-15 | Added Reference Index sections and canary markers                                |
+| 16  | CI/CD          | `lint:md` SKILL.minimal.md trailing spaces/blanks in 3 files                                           | 2026-03-15 | Fixed trailing spaces, multiple blanks, trailing newlines                        |
 | —   | All            | Tracker created — no resolved items at inception                                                       | 2026-02-26 | Initial seeding from audit                                                       |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

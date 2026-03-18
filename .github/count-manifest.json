@@ -1,0 +1,35 @@
+{
+  "$schema": "count-manifest-v1",
+  "description": "Single source of truth for project entity counts. Validators auto-compute actual values from computed_from globs and compare. Never hard-code these counts elsewhere — use descriptive language and reference this file when exact numbers are needed.",
+  "counts": {
+    "primary_agents": {
+      "computed_from": ".github/agents/*.agent.md (excluding _subagents/)",
+      "description": "Top-level user-invocable agent definitions"
+    },
+    "subagents": {
+      "computed_from": ".github/agents/_subagents/*.agent.md",
+      "description": "Non-user-invocable subagent definitions delegated to by parent agents"
+    },
+    "skills": {
+      "computed_from": ".github/skills/*/SKILL.md",
+      "description": "GA agent skills with SKILL.md entry points"
+    },
+    "instructions": {
+      "computed_from": ".github/instructions/*.instructions.md",
+      "description": "Instruction files with glob-based auto-application"
+    },
+    "validators": {
+      "computed_from": "package.json validate:_node + validate:_external unique script names",
+      "description": "Validation and lint scripts registered in the npm suite"
+    },
+    "vscode_extensions": {
+      "computed_from": ".devcontainer/devcontainer.json customizations.vscode.extensions[]",
+      "description": "Pre-installed VS Code extensions in the dev container"
+    },
+    "golden_principles": {
+      "value": 10,
+      "description": "Agent-first operating principles (static, unlikely to change)"
+    }
+  },
+  "updated": "2026-03-15"
+}

@@ -1,11 +1,11 @@
 ---
 name: cost-estimate-subagent
 description: Azure cost estimation subagent. Queries Azure Pricing MCP tools for real-time SKU pricing, compares regions, and returns structured cost breakdown. Isolates pricing API calls from the parent Architect agent's context window.
-model: "GPT-5.3-Codex (copilot)"
+model: ["GPT-5.3-Codex"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [read, search, web, "azure-pricing/*", "azure-mcp/*"]
+tools: [read, search, web, 'azure-pricing/*', 'azure-mcp/*']
 ---
 
 # Cost Estimate Subagent
@@ -38,6 +38,14 @@ You are a **COST ESTIMATION SUBAGENT** called by parent agents (Architect or As-
 **Call Budget**: Target ≤ 5 MCP calls total. Use `azure_bulk_estimate` as the
 PRIMARY tool — it replaces all individual `azure_cost_estimate` calls.
 Never call `azure_cost_estimate` in a loop per resource.
+**If budget exhausted** (5 calls made), report partial results with a `[budget_exceeded]` flag
+in the output. Do not silently drop resources — list unpriced items explicitly.
+
+<empty_result_recovery>
+If `azure_bulk_estimate` returns no pricing data for a SKU, try the SKU with `azure_price_search` once.
+If still no data, mark the resource as "Estimate unavailable" with confidence "Low".
+Do not fabricate prices — flag unknowns explicitly in the output.
+</empty_result_recovery>
 
 | Tool                     | When to Use                                                             | Max Calls |
 | ------------------------ | ----------------------------------------------------------------------- | --------- |

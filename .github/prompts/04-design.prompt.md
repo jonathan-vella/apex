@@ -1,12 +1,17 @@
 ---
 description: "Generate architecture diagrams and Architecture Decision Records (ADRs). Optional step — can be skipped."
 agent: "04-Design"
-model: "GPT-5.3-Codex"
+model: "GPT-5.4"
 ---
 
 # Step 3 — Design Artifacts (Optional)
 
 Generate visual architecture diagrams and formal ADRs based on the approved architecture.
+
+## Expected Variables
+
+- `{project}` — Project name (folder under `agent-output/`)
+- Architecture assessment at `agent-output/{project}/02-architecture-assessment.md`
 
 ## Instructions
 

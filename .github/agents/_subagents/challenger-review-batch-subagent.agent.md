@@ -1,12 +1,31 @@
 ---
 name: challenger-review-batch-subagent
 description: "Batch adversarial review subagent for complex projects. Runs multiple lenses sequentially in one invocation. Returns array of per-lens findings."
-model: "GPT-5.3-Codex (copilot)"
+model: ["GPT-5.3-Codex"]
 # Model rationale: GPT-5.3-Codex for passes 2+3 batch. Same model as codex subagent.
 # Internal sequential execution preserves inter-pass context.
 user-invocable: false
 agents: []
-tools: [read, search, web, "azure-mcp/*"]
+tools:
+  [
+    vscode,
+    execute,
+    read,
+    agent,
+    browser,
+    edit,
+    search,
+    web,
+    "azure-mcp/*",
+    "microsoft-learn/*",
+    todo,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_azure_verified_module,
+    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
+    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
+    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
+    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
+    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
+  ]
 ---
 
 # Challenger Review Batch Subagent
@@ -26,7 +45,7 @@ JSON findings. The parent agent writes output files — you do NOT write files.
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — agent operating principles
 2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM, security
 3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category checklists
-4. **Read** `.github/instructions/bicep-policy-compliance.instructions.md` — governance enforcement rules
+4. **Read** `.github/instructions/iac-policy-compliance.instructions.md` — governance enforcement rules
 
 ## Inputs
 
@@ -45,6 +64,10 @@ The parent agent provides:
 - `prior_findings`: Compact string from pass 1 (required — batch always follows pass 1)
 
 ## Execution Protocol
+
+**Parallel Independence**: Process each artifact lens independently. Do not let findings
+from one lens bias the scoring or severity calibration of another. Each lens starts from
+the artifact text, not from the prior lens's conclusions.
 
 1. **Read the artifact completely** — understand the proposed approach
 2. **Read prior artifacts** — check `agent-output/{project}/` for earlier step context

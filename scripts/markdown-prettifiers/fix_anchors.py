@@ -15,7 +15,7 @@ emoji_map = {
     "### Bosun (VirtEngine)": "### ⚓ Bosun (VirtEngine)",
     "### How This Project Synthesises Both": "### ⚖️ How This Project Synthesises Both",
     "## System Architecture Overview": "## 📐 System Architecture Overview",
-    "### The 7-Step Workflow": "### 🔄 The 7-Step Workflow",
+    "### The Multi-Step Workflow": "### 🔄 The Multi-Step Workflow",
     "### The Conductor Pattern": "### 🎼 The Conductor Pattern",
     "### Dual IaC Tracks": "### 🛤️ Dual IaC Tracks",
     "## The Four Pillars": "## 🏛️ The Four Pillars",
@@ -68,21 +68,21 @@ new_lines = []
 for idx, line in enumerate(lines):
     if line.startswith("```"):
         in_code_block = not in_code_block
-    
+
     if not in_code_block:
         stripped = line.strip()
         if stripped in emoji_map:
             clean_text = stripped.replace('#', '').strip()
             slug = create_slug(clean_text)
-            
+
             if stripped.startswith("## ") and stripped not in ["## Table of Contents", "## Executive Summary", "## Intellectual Foundations"]:
                 new_lines.append('<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>\n\n')
-            
+
             new_lines.append(f'<a id="{slug}"></a>\n')
             line = line.replace(stripped, emoji_map[stripped])
         elif stripped == "---":
             line = '<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">\n'
-    
+
     new_lines.append(line)
 
 new_lines.append('\n<div align="right"><a href="#table-of-contents"><b>⬆️ Back to Top</b></a></div>\n')
