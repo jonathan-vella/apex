@@ -44,6 +44,21 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
 }
 ```
 
+## DNS Zone Provisioning Rule
+
+If a module needs a private DNS zone and the project does NOT provision
+shared DNS zones centrally, the module MUST:
+
+1. Create the `privatelink.*` DNS zone within the module
+2. Create a VNet link to the foundation VNet
+3. Pass the created zone's output resource ID into the PE configuration
+
+Never use a bare `resourceId()` pointing to a DNS zone that nothing creates.
+All PE modules (PostgreSQL, Redis, Storage, Key Vault) must follow the same
+pattern — do not diverge per service.
+
+---
+
 ## Group IDs by Service Type
 
 | Service       | Group ID    | DNS Zone                             |

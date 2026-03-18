@@ -307,6 +307,9 @@ After completing each major phase, provide a brief status update in chat:
 - [ ] Cost estimate uses `cost-estimate-subagent` prices — no hardcoded dollar figures
 - [ ] Planned vs as-built cost delta documented
 - [ ] Compliance matrix maps controls to actual resource configurations
+- [ ] Resource inventory cross-referenced against 04-implementation-plan.md — every planned resource appears
+- [ ] For GDPR projects: compliance matrix maps each requirements clause to a specific Azure control with evidence
+- [ ] DR plan includes control-plane state recovery for all PaaS services with declared RTO (APIM APIOps, identity config)
 - [ ] Operations runbook includes real endpoints and resource names
 - [ ] README.md updated with Step 7 completion status
 - [ ] `npm run lint:artifact-templates` passes for all 07-\* files

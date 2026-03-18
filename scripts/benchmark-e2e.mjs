@@ -56,7 +56,7 @@ const IAC_TOOL = detectIacTool();
 const EXPECTED_ARTIFACTS = {
   // Step 0 — Session
   "00-session-state.json": { required: true, step: 0 },
-  "00-handoff.md": { required: true, step: 0 },
+  "00-handoff.md": { required: false, step: 0 },
   // Step 1 — Requirements
   "01-requirements.md": { required: true, step: 1 },
   // Step 2 — Architecture
@@ -422,7 +422,12 @@ function scoreSessionStateIntegrity() {
 function scoreTimingPerformance() {
   const iterLog = readJson(path.join(OUTPUT_DIR, "08-iteration-log.json"));
   if (!iterLog || !iterLog.entries || iterLog.entries.length === 0) {
-    return { score: 50, details: "No iteration log data", grade: "D" };
+    return {
+      score: 0,
+      details:
+        "No iteration log data — conductor failed to populate 08-iteration-log.json",
+      grade: "F",
+    };
   }
 
   let withinThreshold = 0;

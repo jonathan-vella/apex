@@ -103,10 +103,17 @@ Before executing any step, read:
 
 ## State Management
 
-- **Session state**: `agent-output/e2e-ralph-loop/00-session-state.json`
-- **Handoff**: `agent-output/e2e-ralph-loop/00-handoff.md`
-- **Iteration log**: `agent-output/e2e-ralph-loop/08-iteration-log.json`
-- **Lessons**: `agent-output/e2e-ralph-loop/09-lessons-learned.json`
+- **Session state**: `agent-output/{project}/00-session-state.json`
+- **Handoff**: `agent-output/{project}/00-handoff.md`
+- **Iteration log**: `agent-output/{project}/08-iteration-log.json`
+- **Lessons**: `agent-output/{project}/09-lessons-learned.json`
+
+At the start of every run, ensure these files exist:
+
+1. `00-session-state.json` — initialize if not present (use session-resume skill schema)
+2. `00-handoff.md` — create with project name, run ID, start timestamp, and IaC tool
+3. `08-iteration-log.json` — initialize: `{ "run_id": "", "started": "", "entries": [] }`
+4. `09-lessons-learned.json` — initialize: `[]`
 
 Update session state after every step completion:
 
@@ -131,14 +138,20 @@ On pre-validation failure:
 - Retry the step (up to max iterations)
 - On 3 consecutive pre-validation failures: mark step as `blocked`
 
-## Challenger Protocol
+## Challenger Protocol (MANDATORY — Zero-Skip Policy)
 
 After every step completes validation:
 
 1. Invoke `@challenger-review-subagent` with the step's primary artifact
 2. Use `comprehensive` lens for all steps (simple complexity = 1 pass)
 3. If `must_fix` count > 0: feed findings back to the step agent for self-correction
-4. Record challenger invocation in `review_audit` section of session state
+4. **IMMEDIATELY** update `review_audit.step_{N}.passes_executed` in session state
+
+> **ENFORCEMENT**: Before moving to the next step, verify the current step's
+> `review_audit` entry shows `passes_executed >= 1`. If it shows 0, you skipped
+> the challenger review — go back and run it. Steps 1, 2, 4, and 5 MUST have
+> challenger reviews. Steps 3.5 and 6 are strongly recommended but not blocking.
+> This is the #1 cause of low benchmark scores (17/100 F in 2 of 4 E2E runs).
 
 ## Self-Correction Protocol (RALPH Principle)
 
@@ -150,7 +163,7 @@ When validation fails or challenger finds must_fix issues:
 4. Increment iteration counter
 5. Log a lesson with `self_corrected: true` and `iterations_to_fix`
 
-## Iteration Tracking
+## Iteration Tracking (MANDATORY — Benchmark Depends on This)
 
 For every step attempt, append to `08-iteration-log.json`:
 
@@ -166,6 +179,13 @@ For every step attempt, append to `08-iteration-log.json`:
   "timestamp": ""
 }
 ```
+
+> **ENFORCEMENT**: The timing_performance benchmark scores 50/D (flat) when
+> `08-iteration-log.json` has no entries. This happened in ALL 4 E2E runs.
+> You MUST write an entry with `duration_ms` (use approximate elapsed time)
+> and `timestamp` for every step attempt. Initialize the file at the start
+> of the run if it doesn't exist:
+> `{ "run_id": "{run_id}", "started": "{iso_timestamp}", "entries": [] }`
 
 ## Benchmark Collection
 

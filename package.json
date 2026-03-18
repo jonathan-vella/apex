@@ -56,6 +56,7 @@
     "validate:docs-sync": "node scripts/validate-docs-sync.mjs",
     "e2e:validate": "node scripts/validate-e2e-step.mjs all",
     "e2e:benchmark": "node scripts/benchmark-e2e.mjs",
+    "e2e:combine": "node scripts/combine-e2e-runs.mjs",
     "init": "node scripts/init-from-template.mjs",
     "validate:no-hardcoded-counts": "node scripts/validate-no-hardcoded-counts.mjs",
     "validate:hooks": "node scripts/validate-hooks.mjs",

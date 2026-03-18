@@ -77,20 +77,24 @@ handoffs:
 
 ## DO / DON'T
 
-| DO                                                                     | DON'T                                                             |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Run preflight check BEFORE writing any Bicep (Phase 1)                 | Start coding before preflight check                               |
-| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5     | Silently halt on blockers without telling the user why            |
-| **NEVER** list blockers in chat text asking user to reply manually     | List blockers in chat and wait for a reply (wastes a round-trip)  |
-| Use AVM modules for EVERY resource that has one                        | Write raw Bicep when AVM exists                                   |
-| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules      | Hardcode unique strings                                           |
-| Apply baseline tags + governance extras                                | Use hardcoded tag lists ignoring governance                       |
-| Parse `04-governance-constraints.json` — map each Deny policy to Bicep | Skip governance compliance mapping (HARD GATE)                    |
-| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)      |
-| Use `take()` for length-constrained resources (KV≤24, Storage≤24)      | Put hyphens in Storage Account names                              |
-| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment   | Deploy — that's the Deploy agent's job                            |
-| Run `bicep build` + `bicep lint` after generation                      | Proceed without checking AVM parameter types (known issues exist) |
-| Save `05-implementation-reference.md` + update project README          | Use phase parameter if plan specifies single deployment           |
+| DO                                                                                     | DON'T                                                                                    |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Run preflight check BEFORE writing any Bicep (Phase 1)                                 | Start coding before preflight check                                                      |
+| **MUST** use `askQuestions` to present blockers from Phase 1 + 1.5                     | Silently halt on blockers without telling the user why                                   |
+| **NEVER** list blockers in chat text asking user to reply manually                     | List blockers in chat and wait for a reply (wastes a round-trip)                         |
+| Use AVM modules for EVERY resource that has one                                        | Write raw Bicep when AVM exists                                                          |
+| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules                      | Hardcode unique strings                                                                  |
+| Apply baseline tags + governance extras                                                | Use hardcoded tag lists ignoring governance                                              |
+| Parse `04-governance-constraints.json` — map each Deny policy to Bicep                 | Skip governance compliance mapping (HARD GATE)                                           |
+| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)                  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)                             |
+| PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`               | Allow password-only auth on any database (security baseline)                             |
+| APIM: check SKU compatibility matrix before VNet config (common-patterns.md)           | Use `virtualNetworkType` on Standard/Basic v2 (classic model only)                       |
+| Front Door: use separate `location` (global) and `resourceLocation` (region)           | Share a single location param for both profile and Private Link                          |
+| Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true | Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true |
+| Use `take()` for length-constrained resources (KV≤24, Storage≤24)                      | Put hyphens in Storage Account names                                                     |
+| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment                   | Deploy — that's the Deploy agent's job                                                   |
+| Run `bicep build` + `bicep lint` after generation                                      | Proceed without checking AVM parameter types (known issues exist)                        |
+| Save `05-implementation-reference.md` + update project README                          | Use phase parameter if plan specifies single deployment                                  |
 
 ## Prerequisites Check
 
@@ -294,3 +298,10 @@ After completing each major phase, provide a brief status update in chat:
 - [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
 - [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
 - [ ] `projectName` is a required parameter with no default value
+- [ ] PostgreSQL uses AAD-only auth (`activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`)
+- [ ] APIM VNet model matches SKU tier (Standard v2 = virtualNetworkIntegration, not virtualNetworkType)
+- [ ] Front Door uses separate location params (profile=global, privateLinkLocation=resource region)
+- [ ] Key Vault `networkAcls.bypass` includes `'AzureServices'` when any enabledFor\* flag is true
+- [ ] All `existing` resource references have explicit `dependsOn` to the creating module
+- [ ] AKS service CIDR does not overlap VNet/subnet CIDRs; node RG name ≤80 chars
+- [ ] PE modules create their own private DNS zones (not bare `resourceId()` to non-existent zones)

@@ -232,6 +232,18 @@ Use `askQuestions` — 4 questions: Compliance frameworks (`multiSelect: true`, 
 Security measures (`multiSelect: true` with business descriptions),
 Authentication method, Region.
 
+### GDPR / Data Residency Guardrails
+
+When data residency is EU/GDPR-constrained:
+
+- **Auto-flag non-regional services**: Front Door, Entra External ID, Traffic Manager,
+  and Azure DNS are global services excluded from Microsoft EU Data Boundary.
+  Add an explicit EU Data Boundary validation requirement to the project.
+- **Storage redundancy**: GRS replicates to a paired region — flag as incompatible
+  with single-region data residency. Recommend ZRS instead.
+- **Deprecated services**: Check azure-defaults Deprecated Services table. Never
+  recommend Azure AD B2C (use Entra External ID) for new projects.
+
 ## Phase 5: Draft & Confirm — ONLY AFTER Phases 1-4 Are Complete
 
 Verify that `askQuestions` was called at least once in each of Phases 1, 2, 3,

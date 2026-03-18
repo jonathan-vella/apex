@@ -44,6 +44,18 @@ azd up
 - `azd env new prod` / `azd env new dev`
 - `azd env set AZURE_LOCATION swedencentral`
 
+### azd Environment Preflight (MANDATORY for --no-prompt Deploys)
+
+Before `azd provision --no-prompt`, verify these environment values are set:
+
+- `AZURE_SUBSCRIPTION_ID` — from `az account show --query id -o tsv`
+- `AZURE_RESOURCE_GROUP` — target resource group name
+- `AZURE_ENV_NAME` — environment name
+- `AZURE_LOCATION` — target region
+
+Run `azd env get-values` and check for missing values. If any are empty,
+set them via `azd env set {KEY} {VALUE}` before attempting `--no-prompt`.
+
 ### Phased Deployment via deploy.ps1 (legacy, backward-compatible)
 
 | Phase      | Resources                             | Gate          |

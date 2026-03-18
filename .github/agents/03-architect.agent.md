@@ -176,7 +176,19 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
   `02-architecture-assessment.md` and `03-des-cost-estimate.md` MUST originate
   from `cost-estimate-subagent` responses
-- ❌ **Guess SKU hourly rates** — pricing tiers change frequently; only subagent-verified figures are trustworthy
+- ❌ **Guess SKU hourly rates** — pricing tiers change frequently;
+  only subagent-verified figures are trustworthy
+- ❌ **Recommend deprecated services** — check `azure-defaults` Deprecated
+  Services table. Never recommend Azure AD B2C (use Entra External ID),
+  Redis Enterprise E50, or CDN WAF classic
+- ❌ **Use GRS with GDPR single-region constraints** — GRS replicates to
+  a paired region. Use ZRS when data residency prohibits cross-region transfer
+- ❌ **Claim zone redundancy without SKU verification** — verify the selected
+  SKU/tier supports availability zones (APIM Standard v2 does NOT)
+- ❌ **Skip memory reservation in capacity sizing** — Azure Managed Redis
+  reserves ~20% for internal operations. Apply reservation factors
+- ❌ **Make arithmetic errors in RPS calculations** — use:
+  `monthly_txn / (days × hours × 3600)`. Apply 3-5× concentration for peaks
 
 ## Core Workflow
 
@@ -389,6 +401,11 @@ Include attribution header from the template file (do not hardcode).
 - [ ] Region selection justified (default: swedencentral)
 - [ ] AVM modules recommended where available
 - [ ] Trade-offs explicitly documented
+- [ ] No deprecated services recommended (checked against azure-defaults Deprecated Services table)
+- [ ] Service retirement timelines verified for any multi-year RI commitments
+- [ ] Storage redundancy tier compatible with data residency requirements (no GRS with single-region GDPR)
+- [ ] Global/non-regional services (Front Door, Entra, Traffic Manager) flagged for EU Data Boundary compliance
+- [ ] SKU zone-redundancy capabilities verified for all services claiming AZ support
 - [ ] Approval gate presented before handoff
 - [ ] Files saved to `agent-output/{project}/`
 
