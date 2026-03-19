@@ -1,6 +1,6 @@
 ---
 name: 07b-Bicep Deploy
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
@@ -73,18 +73,23 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
-## MANDATORY: Read Skills First
+<context_awareness>
+This is a large agent definition (~537 lines). At >60% context, load SKILL.digest.md variants.
+At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+</context_awareness>
 
-**Before doing ANY work**, read these skills:
+## Read Skills First
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `06-deployment-summary.md`
-3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
+Before doing any work, read these skills:
+
+1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline
+2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `06-deployment-summary.md`
+3. Read `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
-4. **Read** `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
-5. **Read** `.github/skills/session-resume/SKILL.digest.md` — session state checkpoint protocol
+4. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
+5. Read `.github/skills/session-resume/SKILL.digest.md` — session state checkpoint protocol
 
-## Pre-Deploy Challenger Review (MANDATORY)
+## Pre-Deploy Challenger Review
 
 Before executing any deployment (after what-if analysis, before `az deployment`):
 
@@ -100,9 +105,9 @@ Run `npm run validate:iac-security-baseline` before what-if analysis.
 If violations found → STOP, hand back to Code agent.
 Skip if `05-implementation-reference.md` confirms `security_validation_status: PASSED`.
 
-## MANDATORY: Copy-Then-Fill Artifact Protocol
+## Copy-Then-Fill Artifact Protocol
 
-> **CRITICAL**: NEVER compose `06-deployment-summary.md` from memory.
+> Never compose `06-deployment-summary.md` from memory.
 > Always start from the template skeleton. This prevents H2 misordering,
 > missing sections, wrong emoji, and cascading fix loops.
 
@@ -149,8 +154,8 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 | DO                                                                 | DON'T                                                     |
 | ------------------------------------------------------------------ | --------------------------------------------------------- |
 | Run preflight validation BEFORE deployment                         | Deploy without running what-if first                      |
-| Scan param file for placeholders; **MUST** use `askQuestions` tool | Pass param files with literal `<replace-with-*>` strings  |
-| **NEVER** list placeholders in chat asking user to reply manually  | List placeholders in chat text and wait for a reply       |
+| Scan param file for placeholders; use `askQuestions` tool          | Pass param files with literal `<replace-with-*>` strings  |
+| Do not list placeholders in chat asking user to reply manually     | List placeholders in chat text and wait for a reply       |
 | Check `04-implementation-plan.md` for deployment strategy          | Skip phase gates when plan specifies phased deployment    |
 | Deploy phases one at a time with approval gates                    | Use `--output yaml/json` for what-if (disables rendering) |
 | Use **default output** for what-if (no `--output` flag)            | Auto-approve production deployments                       |
@@ -183,7 +188,7 @@ Before starting, validate:
 - **State writes**: Update `00-session-state.json` after each phase. On completion, set
   `steps.6.status = "complete"` and list deployment outputs in `steps.6.artifacts`.
 
-## MANDATORY: Azure CLI Token Validation
+## Azure CLI Token Validation
 
 Read `azure-defaults/references/azure-cli-auth-validation.md` for the
 full two-step validation procedure and recovery steps.
@@ -218,21 +223,21 @@ grep -n "<replace-with-\|<your-\|<TODO\|PLACEHOLDER" infra/bicep/{project}/main.
 If **any placeholders are found**:
 
 1. Do **not** proceed to what-if yet.
-2. **MANDATORY — use the `askQuestions` tool** to collect every missing
+2. Use the `askQuestions` tool to collect every missing
    value in a **single** interactive form. Build one question per
    placeholder with a clear header and description (e.g.
    header: "SQL Admin Entra Group Object ID",
    question: "Azure AD / Entra group Object ID that will have SQL admin
    access (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)").
-   **NEVER** list the placeholders in chat text and ask the user to
+   Do not list the placeholders in chat text and ask the user to
    reply — this wastes a full request round-trip. The `askQuestions`
    tool presents an inline form the user fills out in one shot.
 3. After the user supplies all values, update `main.bicepparam` with the real values.
 4. Re-run `bicep build` to confirm no new errors before continuing.
 
 > **CRITICAL GATE** — Never pass a param file with literal placeholder
-> strings to what-if or deployment. Never collect placeholder values
-> via chat messages — always use the `askQuestions` tool.
+> strings to what-if or deployment. Always use the `askQuestions` tool
+> to collect placeholder values.
 
 ### Step 3: Determine Deployment Scope
 

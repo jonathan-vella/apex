@@ -1,7 +1,7 @@
 ---
 description: "Generate near-production-ready Terraform configurations from the implementation plan."
 agent: "06t-Terraform CodeGen"
-model: "GPT-5.4"
+model: "Claude Sonnet 4.6"
 ---
 
 # Step 5 — Terraform Code Generation

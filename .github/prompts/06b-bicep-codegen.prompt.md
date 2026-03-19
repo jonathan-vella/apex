@@ -1,7 +1,7 @@
 ---
 description: "Generate near-production-ready Bicep templates from the implementation plan."
 agent: "06b-Bicep CodeGen"
-model: "GPT-5.4"
+model: "Claude Sonnet 4.6"
 ---
 
 # Step 5 — Bicep Code Generation

@@ -176,13 +176,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `output_contract` to 5, `context_awareness` to 3, `subagent_budget` to Conductor,
   `scope_fencing` to 3, `empty_result_recovery` to Diagnose + 2 subagents), add
   `reasoning_effort` comments to 8 agents, add few-shot examples to Conductor/Architect/Planners.
-- refactor(agents): align 6 GPT-5.4/5.3-Codex agent definitions with OpenAI prompting
+- refactor(agents): align 6 Claude Sonnet 4.6/GPT-5.3-Codex agent definitions with OpenAI prompting
   best practices — add structured `<output_contract>` blocks, tool-call-first phrasing,
   and explicit phase-numbered workflows.
 - refactor(agents): conservative language softening across 8 agents — reduce duplicate
   absolute language (`MANDATORY`, `NEVER`, `CRITICAL`) by ~30% while preserving constraint
   emphasis at security baseline, approval gates, and governance compliance.
-- refactor(prompts): enhance 14 prompt files — fix 5 model mismatches (Claude/Sonnet→GPT-5.4),
+- refactor(prompts): enhance 14 prompt files — fix 5 model mismatches (Claude/Sonnet→Claude Sonnet 4.6),
   add prerequisites/variables/session-state-detection to 9 Claude prompt files.
 - refactor(agents): update 06b-Bicep CodeGen, 07b-Bicep Deploy agent definitions with
   enhanced deployment patterns and skill references.
@@ -192,10 +192,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fix(agents): resolve 19 handoff inconsistencies identified by dual adversarial review
-  (Claude Sonnet 4.6 + GPT-5.4 reviewers):
+  (Claude Sonnet 4.6 + Claude Sonnet 4.6 reviewers):
   - **Critical**: fix 09-Diagnose model mismatch (registry Sonnet→Opus to match frontmatter),
     remove wrong model override on 04-Design→Governance handoff (Sonnet→removed, target is
-    GPT-5.4), add missing "Return to Step 2" handoff to 07t-Terraform Deploy (symmetry
+    Claude Sonnet 4.6), add missing "Return to Step 2" handoff to 07t-Terraform Deploy (symmetry
     with 07b-Bicep Deploy).
   - **High**: gate 04-Design skip paths with `send: false` and risk warnings (was bypassing
     mandatory governance + planning), redirect 05b/05t "Refresh Governance" to 04g-Governance

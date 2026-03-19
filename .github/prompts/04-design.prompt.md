@@ -1,7 +1,7 @@
 ---
 description: "Generate architecture diagrams and Architecture Decision Records (ADRs). Optional step — can be skipped."
 agent: "04-Design"
-model: "GPT-5.4"
+model: "Claude Sonnet 4.6"
 ---
 
 # Step 3 — Design Artifacts (Optional)

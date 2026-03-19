@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 tools:
@@ -35,6 +35,14 @@ handoffs:
 # Plan Challenger (Standalone Wrapper)
 
 <!-- Recommended reasoning_effort: high -->
+
+<subagent_budget>
+This agent orchestrates 3 subagents: challenger-review-subagent, challenger-review-codex-subagent, challenger-review-batch-subagent.
+Use subagents for their specialized review capabilities. For simple single-pass reviews,
+invoke challenger-review-subagent directly.
+For multi-pass reviews, use challenger-review-batch-subagent to run remaining lenses in one invocation.
+Do not invoke all three subagents when a single pass suffices.
+</subagent_budget>
 
 You are a delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke challenger subagents directly.

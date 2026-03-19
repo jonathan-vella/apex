@@ -32,10 +32,10 @@
       "skipped": [],
       "skip_reasons": [],
       "models_used": [
-        "GPT-5.4 (pass 1, security-governance)",
+        "Claude Sonnet 4.6 (pass 1, security-governance)",
         "GPT-5.3-Codex (pass 2, architecture-reliability)",
         "GPT-5.3-Codex (pass 3, cost-feasibility)",
-        "GPT-5.4 (cost-estimate comprehensive)"
+        "Claude Sonnet 4.6 (cost-estimate comprehensive)"
       ]
     },
     "step_4": {
@@ -45,12 +45,12 @@
       "skipped": [],
       "skip_reasons": [],
       "models_used": [
-        "GPT-5.4 (governance comprehensive)",
-        "GPT-5.4 (pass 1, security-governance)",
+        "Claude Sonnet 4.6 (governance comprehensive)",
+        "Claude Sonnet 4.6 (pass 1, security-governance)",
         "GPT-5.3-Codex (pass 2, architecture-reliability)",
         "GPT-5.3-Codex (pass 3, cost-feasibility)",
-        "GPT-5.4 (revalidation, plan security-governance)",
-        "GPT-5.4 (revalidation, governance comprehensive)"
+        "Claude Sonnet 4.6 (revalidation, plan security-governance)",
+        "Claude Sonnet 4.6 (revalidation, governance comprehensive)"
       ]
     },
     "step_5": {
