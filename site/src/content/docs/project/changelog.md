@@ -1,6 +1,8 @@
 ---
 title: "Changelog"
 description: "All notable changes to Agentic InfraOps"
+tableOfContents:
+  maxDepth: 2
 ---
 
 All notable changes to **Agentic InfraOps** are documented in this file.

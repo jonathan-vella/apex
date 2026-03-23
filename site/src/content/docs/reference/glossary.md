@@ -1,6 +1,8 @@
 ---
 title: "Glossary"
 description: "Terms and definitions used in Agentic InfraOps"
+tableOfContents:
+  maxDepth: 2
 ---
 
 # Glossary

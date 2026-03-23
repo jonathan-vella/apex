@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import starlightLinksValidator from "starlight-links-validator";
 import rehypeMermaid from "rehype-mermaid-lite";
 
 // https://astro.build/config
@@ -32,24 +33,51 @@ export default defineConfig({
           href: "https://github.com/jonathan-vella/azure-agentic-infraops",
         },
       ],
+      head: [
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content:
+              "https://jonathan-vella.github.io/azure-agentic-infraops/images/og-card.png",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: { property: "og:type", content: "website" },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:card",
+            content: "summary_large_image",
+          },
+        },
+      ],
       customCss: [
         "@fontsource/space-grotesk/400.css",
-        "@fontsource/space-grotesk/500.css",
         "@fontsource/space-grotesk/700.css",
         "@fontsource/manrope/400.css",
-        "@fontsource/manrope/500.css",
-        "@fontsource/manrope/600.css",
         "@fontsource/manrope/700.css",
         "@fontsource/ibm-plex-mono/400.css",
-        "@fontsource/ibm-plex-mono/500.css",
         "./src/styles/custom.css",
       ],
       expressiveCode: {
         styleOverrides: { borderRadius: "0.5rem" },
       },
+      components: {
+        Footer: "./src/components/Footer.astro",
+      },
+      plugins: [
+        starlightLinksValidator({
+          errorOnRelativeLinks: false,
+          errorOnInvalidHashes: false,
+        }),
+      ],
       sidebar: [
         {
           label: "Getting Started",
+          collapsed: true,
           items: [
             { label: "Quickstart", slug: "getting-started/quickstart" },
             {
@@ -60,9 +88,11 @@ export default defineConfig({
         },
         {
           label: "Concepts",
+          collapsed: true,
           items: [
             {
               label: "How It Works",
+              collapsed: true,
               items: [
                 {
                   label: "Overview",
@@ -99,9 +129,11 @@ export default defineConfig({
         },
         {
           label: "Guides",
+          collapsed: true,
           items: [
             {
               label: "Prompt Guide",
+              collapsed: true,
               items: [
                 { label: "Overview", slug: "guides/prompt-guide" },
                 {
@@ -128,6 +160,7 @@ export default defineConfig({
         },
         {
           label: "Reference",
+          collapsed: true,
           items: [
             {
               label: "Validation & Linting",
@@ -143,6 +176,7 @@ export default defineConfig({
         },
         {
           label: "Project",
+          collapsed: true,
           items: [
             { label: "Contributing", slug: "project/contributing" },
             { label: "Changelog", slug: "project/changelog" },
@@ -150,6 +184,8 @@ export default defineConfig({
         },
         {
           label: "Demo: Nordic Fresh Foods",
+          collapsed: true,
+          badge: { text: "New", variant: "tip" },
           items: [
             { label: "Overview", slug: "demo" },
             { label: "Step 1 — Requirements", slug: "demo/01-requirements" },

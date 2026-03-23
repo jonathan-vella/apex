@@ -3,6 +3,8 @@ title: "Step 7 — As-Built Documentation"
 description: "Complete post-deployment documentation suite"
 sidebar:
   order: 8
+tableOfContents:
+  maxDepth: 2
 ---
 
 :::note[Documentation Suite]
