@@ -63,7 +63,7 @@ run_check() {
 }
 
 # Launch all checks in background
-run_check "Bicep lint" "$BICEP_COUNT" "for f in infra/bicep/*/main.bicep; do [ -f \"\$f\" ] && bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
+run_check "Bicep lint" "$BICEP_COUNT" "shopt -s nullglob; for f in infra/bicep/*/main.bicep; do bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
 run_check "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt" "tf-fmt" &
 run_check "Terraform validate" "$TF_COUNT" "npm run validate:terraform" "tf-validate" &
 run_check "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run lint:artifact-templates" "artifacts" &
