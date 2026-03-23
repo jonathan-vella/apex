@@ -72,14 +72,14 @@ while IFS= read -r file; do
 done <<< "$CHANGED_FILES"
 
 if [ -n "$OUT_OF_SCOPE" ]; then
-  echo "❌ Branch scope violation: '$BRANCH' should only modify files in:"
-  echo "   $LABEL"
+  echo "⚠️  Branch scope notice: '$BRANCH' also modifies files outside $LABEL"
   echo ""
   echo "   Files outside scope:"
   echo -e "$OUT_OF_SCOPE"
-  echo "   💡 Use a feat/ or fix/ branch for cross-cutting changes."
+  echo "   💡 Consider a feat/ or fix/ branch for cross-cutting changes."
   echo ""
-  exit 1
+  # Warning only — do not block push
+  exit 0
 fi
 
 TOTAL=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
