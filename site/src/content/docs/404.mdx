@@ -4,7 +4,7 @@ description: "The page you're looking for doesn't exist"
 template: splash
 ---
 
-import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
 
 <div style="text-align: center; padding: 3rem 1rem;">
   <p style="font-size: 4rem; margin: 0; opacity: 0.3;">404</p>
@@ -14,8 +14,24 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 </div>
 
 <CardGrid>
-  <LinkCard title="Home" description="Back to the landing page" href="/azure-agentic-infraops/" />
-  <LinkCard title="Quickstart" description="Get started with Agentic InfraOps" href="/azure-agentic-infraops/getting-started/quickstart/" />
-  <LinkCard title="FAQ" description="Find answers to common questions" href="/azure-agentic-infraops/reference/faq/" />
-  <LinkCard title="Demo" description="See the Nordic Fresh Foods walkthrough" href="/azure-agentic-infraops/demo/" />
+  <LinkCard
+    title="Home"
+    description="Back to the landing page"
+    href="/azure-agentic-infraops/"
+  />
+  <LinkCard
+    title="Quickstart"
+    description="Get started with Agentic InfraOps"
+    href="/azure-agentic-infraops/getting-started/quickstart/"
+  />
+  <LinkCard
+    title="FAQ"
+    description="Find answers to common questions"
+    href="/azure-agentic-infraops/reference/faq/"
+  />
+  <LinkCard
+    title="Demo"
+    description="See the Nordic Fresh Foods walkthrough"
+    href="/azure-agentic-infraops/demo/"
+  />
 </CardGrid>

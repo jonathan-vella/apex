@@ -10,7 +10,7 @@ description: "All validation scripts, linting, and CI workflows"
 Validation runs at three stages, catching issues progressively earlier:
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["Pre-Commit<br/>(lefthook)"] --> B["Pre-Push<br/>(lefthook)"]
     B --> C["CI<br/>(GitHub Actions)"]
     style A fill:#e8f5e9,stroke:#4caf50

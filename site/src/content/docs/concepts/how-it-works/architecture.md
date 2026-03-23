@@ -11,24 +11,21 @@ The system follows a strict sequential workflow with mandatory human approval ga
 between critical phases:
 
 ```mermaid
-flowchart LR
-
-
-
-    S1["Step 1\nRequirements"]
-    G1{{"Gate 1\n🔒 Approval"}}:::gate
-    S2["Step 2\nArchitecture"]
-    G2{{"Gate 2\n🔒 Approval"}}:::gate
-    S3["Step 3\nDesign\n(optional)"]
-    S35["Step 3.5\nGovernance"]
-    G25{{"Gate 2.5\n🔒 Approval"}}:::gate
-    S4["Step 4\nIaC Plan"]
-    G3{{"Gate 3\n🔒 Approval"}}:::gate
-    S5["Step 5\nIaC Code"]
-    G4{{"Gate 4\n✔ Validation"}}:::gate
-    S6["Step 6\nDeploy"]
-    G5{{"Gate 5\n🔒 Approval"}}:::gate
-    S7["Step 7\nAs-Built Docs"]:::endNode
+flowchart TD
+    S1["Step 1 — Requirements"]
+    G1{{"🔒 Gate 1"}}
+    S2["Step 2 — Architecture"]
+    G2{{"🔒 Gate 2"}}
+    S3["Step 3 — Design (opt)"]
+    S35["Step 3.5 — Governance"]
+    G25{{"🔒 Gate 2.5"}}
+    S4["Step 4 — IaC Plan"]
+    G3{{"🔒 Gate 3"}}
+    S5["Step 5 — IaC Code"]
+    G4{{"✔ Gate 4"}}
+    S6["Step 6 — Deploy"]
+    G5{{"🔒 Gate 5"}}
+    S7["Step 7 — As-Built Docs"]
 
     S1 --> G1 --> S2 --> G2 --> S3 --> S35 --> G25 --> S4 --> G3 --> S5 --> G4 --> S6 --> G5 --> S7
 ```

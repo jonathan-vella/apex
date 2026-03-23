@@ -27,7 +27,6 @@ The As-Built agent generates a complete documentation package after successful d
 
 ![Compliance Gaps](/azure-agentic-infraops/demo/07-ab-compliance-gaps.png)
 
-
 ---
 
 ## Design Document
@@ -286,7 +285,6 @@ _Design document generated from deployed infrastructure artifacts._
 
 </div>
 
-
 ---
 
 ## Operations Runbook
@@ -315,22 +313,22 @@ _Design document generated from deployed infrastructure artifacts._
 
 ### ⚡ Quick Reference
 
-| Item | Value |
-| ---- | ----- |
-| **Primary Region** | swedencentral |
-| **Resource Group** | rg-nordic-fresh-foods-prod |
-| **Support Contact** | technical-contact tag: sam@altman.com |
+| Item                | Value                                          |
+| ------------------- | ---------------------------------------------- |
+| **Primary Region**  | swedencentral                                  |
+| **Resource Group**  | rg-nordic-fresh-foods-prod                     |
+| **Support Contact** | technical-contact tag: sam@altman.com          |
 | **Escalation Path** | L1 On-call -> L2 Team Lead -> L3 Service Owner |
 
 ### Critical Resources
 
-| Resource | Name | Resource Group | Severity |
-| -------- | ---- | -------------- | -------- |
-| App Service | app-nordic-fresh-foods-prod-7jrcjf | rg-nordic-fresh-foods-prod | 🔴 P1 |
-| SQL Database | sqldb-freshconnect-prod | rg-nordic-fresh-foods-prod | 🔴 P1 |
-| Key Vault | kv-nff-prod-7jrcjfo3iqck | rg-nordic-fresh-foods-prod | 🔴 P1 |
-| Storage Account | stnffprod7jrcjfo3iqckk | rg-nordic-fresh-foods-prod | 🟠 P2 |
-| Log Analytics | log-nordic-fresh-foods-prod | rg-nordic-fresh-foods-prod | 🟢 P3 |
+| Resource        | Name                               | Resource Group             | Severity |
+| --------------- | ---------------------------------- | -------------------------- | -------- |
+| App Service     | app-nordic-fresh-foods-prod-7jrcjf | rg-nordic-fresh-foods-prod | 🔴 P1    |
+| SQL Database    | sqldb-freshconnect-prod            | rg-nordic-fresh-foods-prod | 🔴 P1    |
+| Key Vault       | kv-nff-prod-7jrcjfo3iqck           | rg-nordic-fresh-foods-prod | 🔴 P1    |
+| Storage Account | stnffprod7jrcjfo3iqckk             | rg-nordic-fresh-foods-prod | 🟠 P2    |
+| Log Analytics   | log-nordic-fresh-foods-prod        | rg-nordic-fresh-foods-prod | 🟢 P3    |
 
 ---
 
@@ -356,11 +354,11 @@ AppRequests
 
 **Priority Logs to Review:**
 
-| Log Source | Query Focus | Action Threshold |
-| ---------- | ----------- | ---------------- |
-| Application Insights | Failed requests, dependency failures | >2% failures over 15 min |
-| Log Analytics | Platform warnings/errors | Any Critical/Sev0 event |
-| SQL diagnostics | Connection/auth anomalies | Repeated auth/network failures |
+| Log Source           | Query Focus                          | Action Threshold               |
+| -------------------- | ------------------------------------ | ------------------------------ |
+| Application Insights | Failed requests, dependency failures | >2% failures over 15 min       |
+| Log Analytics        | Platform warnings/errors             | Any Critical/Sev0 event        |
+| SQL diagnostics      | Connection/auth anomalies            | Repeated auth/network failures |
 
 ---
 
@@ -368,16 +366,16 @@ AppRequests
 
 ### 2.1 Severity Definitions
 
-| Severity | Definition | Response Time |
-| -------- | ---------- | ------------- |
-| 🔴 P1 | Customer-impacting outage or data-path failure | 15 minutes |
-| 🟠 P2 | Major feature degradation with workaround | 1 hour |
-| 🟢 P3 | Non-critical issue or maintenance defect | 1 business day |
+| Severity | Definition                                     | Response Time  |
+| -------- | ---------------------------------------------- | -------------- |
+| 🔴 P1    | Customer-impacting outage or data-path failure | 15 minutes     |
+| 🟠 P2    | Major feature degradation with workaround      | 1 hour         |
+| 🟢 P3    | Non-critical issue or maintenance defect       | 1 business day |
 
 ### Incident Response Flow
 
 ```mermaid
-flowchart LR
+flowchart TD
     D["🔍 Detect"] --> T["🎯 Triage"]
     T --> E["⚠️ Escalate"]
     E --> R["🛠️ Resolve"]
@@ -388,12 +386,12 @@ flowchart LR
 
 ### 2.2 Runbooks by Alert
 
-| Alert | Runbook | Owner |
-| ----- | ------- | ----- |
-| App service unavailable | Restart app, inspect platform logs, validate VNet integration | App operations |
-| SQL connectivity failures | Validate PE/DNS, test SQL endpoint, review auth | Data operations |
-| Secret resolution failures | Check MI role assignment and Key Vault endpoint/health | Security operations |
-| Budget threshold breach | Review cost drivers and scale settings | Platform owner |
+| Alert                      | Runbook                                                       | Owner               |
+| -------------------------- | ------------------------------------------------------------- | ------------------- |
+| App service unavailable    | Restart app, inspect platform logs, validate VNet integration | App operations      |
+| SQL connectivity failures  | Validate PE/DNS, test SQL endpoint, review auth               | Data operations     |
+| Secret resolution failures | Check MI role assignment and Key Vault endpoint/health        | Security operations |
+| Budget threshold breach    | Review cost drivers and scale settings                        | Platform owner      |
 
 ---
 
@@ -421,10 +419,10 @@ az appservice plan update \
 
 ### 🕐 4. Maintenance Windows
 
-| Task | Schedule | Duration |
-| ---- | -------- | -------- |
+| Task                         | Schedule               | Duration  |
+| ---------------------------- | ---------------------- | --------- |
 | Platform patch + app updates | Sunday 02:00-06:00 UTC | 2-4 hours |
-| DR and restore validation | Quarterly | 1 day |
+| DR and restore validation    | Quarterly              | 1 day     |
 
 ```mermaid
 gantt
@@ -444,11 +442,11 @@ gantt
 
 ### 📞 5. Contacts & Escalation
 
-| Role | Contact | Phone | On-Call Rotation |
-| ---- | ------- | ----- | ---------------- |
-| L1 On-call Engineer | Platform on-call | N/A | Weekly |
-| L2 Team Lead | Engineering lead | N/A | Weekly |
-| L3 Service Owner | Product/platform owner | N/A | Monthly |
+| Role                | Contact                | Phone | On-Call Rotation |
+| ------------------- | ---------------------- | ----- | ---------------- |
+| L1 On-call Engineer | Platform on-call       | N/A   | Weekly           |
+| L2 Team Lead        | Engineering lead       | N/A   | Weekly           |
+| L3 Service Owner    | Product/platform owner | N/A   | Monthly          |
 
 ### Escalation Path
 
@@ -463,8 +461,8 @@ flowchart TD
 
 ### 📝 6. Change Log
 
-| Date | Change | Author |
-| ---- | ------ | ------ |
+| Date       | Change                                                          | Author            |
+| ---------- | --------------------------------------------------------------- | ----------------- |
 | 2026-03-11 | Initial as-built operations runbook created from deployed state | 08-As-Built agent |
 
 ---
@@ -474,12 +472,12 @@ flowchart TD
 > [!NOTE]
 > 📚 The following Microsoft Learn resources provide operational guidance.
 
-| Topic | Link |
-| ----- | ---- |
-| Azure Monitor Alerts | [Alerting Best Practices](https://learn.microsoft.com/azure/azure-monitor/best-practices-alerts) |
-| Log Analytics Queries | [KQL Reference](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries) |
-| Incident Management | [Azure Status](https://status.azure.com/) |
-| Service Health | [Azure Service Health](https://learn.microsoft.com/azure/service-health/overview) |
+| Topic                 | Link                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------ |
+| Azure Monitor Alerts  | [Alerting Best Practices](https://learn.microsoft.com/azure/azure-monitor/best-practices-alerts) |
+| Log Analytics Queries | [KQL Reference](https://learn.microsoft.com/azure/azure-monitor/logs/get-started-queries)        |
+| Incident Management   | [Azure Status](https://status.azure.com/)                                                        |
+| Service Health        | [Azure Service Health](https://learn.microsoft.com/azure/service-health/overview)                |
 
 ---
 
@@ -493,7 +491,6 @@ _Operations runbook generated from infrastructure artifacts._
 | ------------------------------------------------- | ----------------------------- | ------------------------------------------------------- |
 
 </div>
-
 
 ---
 
@@ -741,7 +738,6 @@ _Backup and DR plan generated from infrastructure artifacts._
 
 </div>
 
-
 ---
 
 ## Compliance Matrix
@@ -905,7 +901,7 @@ _Backup and DR plan generated from infrastructure artifacts._
 ### References
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["Control"] --> B{"Implemented?"}
     B -- Yes --> C{"Evidence Collected?"}
     B -- No --> D["❌ Gap"]
@@ -939,7 +935,6 @@ _Compliance matrix generated from infrastructure artifacts._
 | ----------------------------------------------- | ----------------------------- | --------------------------------------------------- |
 
 </div>
-
 
 ---
 
@@ -987,64 +982,64 @@ _Compliance matrix generated from infrastructure artifacts._
 
 ### 💻 Compute Resources
 
-| Name | Type | SKU | Location | Monthly Cost | Purpose | Portal |
-| ---- | ---- | --- | -------- | ------------ | ------- | ------ |
-| asp-nordic-fresh-foods-prod | Microsoft.Web/serverFarms | S1 (capacity 2) | swedencentral | $146.00 | Linux App Service Plan for web/API workload | [View](https://portal.azure.com/#@/resource/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Web/serverFarms/asp-nordic-fresh-foods-prod/overview) |
-| app-nordic-fresh-foods-prod-7jrcjf | Microsoft.Web/sites | Standard (on S1 plan) | swedencentral | $0.00 (plan-backed) | FreshConnect application endpoint | [View](https://portal.azure.com/#@/resource/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Web/sites/app-nordic-fresh-foods-prod-7jrcjf/overview) |
-| autoscale-asp-nordic-fresh-foods-prod | Microsoft.Insights/autoscalesettings | N/A | swedencentral | $0.00 | Autoscale policy for App Service Plan (min 2, max 3) | [View](https://portal.azure.com/#@/resource/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Insights/autoscalesettings/autoscale-asp-nordic-fresh-foods-prod/overview) |
+| Name                                  | Type                                 | SKU                   | Location      | Monthly Cost        | Purpose                                              | Portal                                                                                                                                                                                                                                  |
+| ------------------------------------- | ------------------------------------ | --------------------- | ------------- | ------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| asp-nordic-fresh-foods-prod           | Microsoft.Web/serverFarms            | S1 (capacity 2)       | swedencentral | $146.00             | Linux App Service Plan for web/API workload          | [View](https://portal.azure.com/#@/resource/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Web/serverFarms/asp-nordic-fresh-foods-prod/overview)                      |
+| app-nordic-fresh-foods-prod-7jrcjf    | Microsoft.Web/sites                  | Standard (on S1 plan) | swedencentral | $0.00 (plan-backed) | FreshConnect application endpoint                    | [View](https://portal.azure.com/#@/resource/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Web/sites/app-nordic-fresh-foods-prod-7jrcjf/overview)                     |
+| autoscale-asp-nordic-fresh-foods-prod | Microsoft.Insights/autoscalesettings | N/A                   | swedencentral | $0.00               | Autoscale policy for App Service Plan (min 2, max 3) | [View](https://portal.azure.com/#@/resource/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Insights/autoscalesettings/autoscale-asp-nordic-fresh-foods-prod/overview) |
 
 ### 💾 Data Services
 
-| Name | Type | SKU | Configuration | Location | Monthly Cost |
-| ---- | ---- | --- | ------------- | -------- | ------------ |
-| sql-nordic-fresh-foods-prod | Microsoft.Sql/servers | v12.0 | Azure AD-only auth, public network disabled, TLS 1.2 | swedencentral | $0.00 |
-| sqldb-freshconnect-prod | Microsoft.Sql/servers/databases | S0 (Standard, 10 DTU) | Max size 250 GB, zoneRedundant false, status Online | swedencentral | $14.71 |
-| master | Microsoft.Sql/servers/databases | System | System database | swedencentral | Included |
-| stnffprod7jrcjfo3iqckk | Microsoft.Storage/storageAccounts | Standard_LRS | HTTPS-only, public network disabled, no shared key auth, no public blob access | swedencentral | $1.86 (assumed 50 GB hot + txns) |
-| assets | Blob container | N/A | Documented in deployment summary; data-plane read blocked by network rules | swedencentral | Included |
-| product-images | Blob container | N/A | Documented in deployment summary; data-plane read blocked by network rules | swedencentral | Included |
+| Name                        | Type                              | SKU                   | Configuration                                                                  | Location      | Monthly Cost                     |
+| --------------------------- | --------------------------------- | --------------------- | ------------------------------------------------------------------------------ | ------------- | -------------------------------- |
+| sql-nordic-fresh-foods-prod | Microsoft.Sql/servers             | v12.0                 | Azure AD-only auth, public network disabled, TLS 1.2                           | swedencentral | $0.00                            |
+| sqldb-freshconnect-prod     | Microsoft.Sql/servers/databases   | S0 (Standard, 10 DTU) | Max size 250 GB, zoneRedundant false, status Online                            | swedencentral | $14.71                           |
+| master                      | Microsoft.Sql/servers/databases   | System                | System database                                                                | swedencentral | Included                         |
+| stnffprod7jrcjfo3iqckk      | Microsoft.Storage/storageAccounts | Standard_LRS          | HTTPS-only, public network disabled, no shared key auth, no public blob access | swedencentral | $1.86 (assumed 50 GB hot + txns) |
+| assets                      | Blob container                    | N/A                   | Documented in deployment summary; data-plane read blocked by network rules     | swedencentral | Included                         |
+| product-images              | Blob container                    | N/A                   | Documented in deployment summary; data-plane read blocked by network rules     | swedencentral | Included                         |
 
 ### 🌐 Networking Resources
 
-| Name | Type | Configuration | Location |
-| ---- | ---- | ------------- | -------- |
-| vnet-nordic-fresh-foods-prod | Microsoft.Network/virtualNetworks | 10.0.0.0/16 with `snet-app` (10.0.1.0/24), `snet-data` (10.0.2.0/24), `snet-pe` (10.0.3.0/24) | swedencentral |
-| nsg-nordic-fresh-foods-app-prod | Microsoft.Network/networkSecurityGroups | NSG bound to `snet-app` | swedencentral |
-| nsg-nordic-fresh-foods-data-prod | Microsoft.Network/networkSecurityGroups | NSG bound to `snet-data` | swedencentral |
-| nsg-nordic-fresh-foods-pe-prod | Microsoft.Network/networkSecurityGroups | NSG bound to `snet-pe` | swedencentral |
-| pep-sql-nordic-fresh-foods-prod-sqlServer-0 | Microsoft.Network/privateEndpoints | SQL private endpoint | swedencentral |
-| pep-stnffprod7jrcjfo3iqckk-blob-0 | Microsoft.Network/privateEndpoints | Blob private endpoint | swedencentral |
-| pep-kv-nff-prod-7jrcjfo3iqck-vault-0 | Microsoft.Network/privateEndpoints | Key Vault private endpoint | swedencentral |
-| pep-sql-...nic... | Microsoft.Network/networkInterfaces | NIC for SQL PE | swedencentral |
-| pep-st...nic... | Microsoft.Network/networkInterfaces | NIC for Blob PE | swedencentral |
-| pep-kv-...nic... | Microsoft.Network/networkInterfaces | NIC for KV PE | swedencentral |
-| privatelink.database.windows.net | Microsoft.Network/privateDnsZones | SQL private DNS zone with VNet link | global |
-| privatelink.blob.core.windows.net | Microsoft.Network/privateDnsZones | Blob private DNS zone with VNet link | global |
-| privatelink.vaultcore.azure.net | Microsoft.Network/privateDnsZones | Key Vault private DNS zone with VNet link | global |
+| Name                                        | Type                                    | Configuration                                                                                 | Location      |
+| ------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------- | ------------- |
+| vnet-nordic-fresh-foods-prod                | Microsoft.Network/virtualNetworks       | 10.0.0.0/16 with `snet-app` (10.0.1.0/24), `snet-data` (10.0.2.0/24), `snet-pe` (10.0.3.0/24) | swedencentral |
+| nsg-nordic-fresh-foods-app-prod             | Microsoft.Network/networkSecurityGroups | NSG bound to `snet-app`                                                                       | swedencentral |
+| nsg-nordic-fresh-foods-data-prod            | Microsoft.Network/networkSecurityGroups | NSG bound to `snet-data`                                                                      | swedencentral |
+| nsg-nordic-fresh-foods-pe-prod              | Microsoft.Network/networkSecurityGroups | NSG bound to `snet-pe`                                                                        | swedencentral |
+| pep-sql-nordic-fresh-foods-prod-sqlServer-0 | Microsoft.Network/privateEndpoints      | SQL private endpoint                                                                          | swedencentral |
+| pep-stnffprod7jrcjfo3iqckk-blob-0           | Microsoft.Network/privateEndpoints      | Blob private endpoint                                                                         | swedencentral |
+| pep-kv-nff-prod-7jrcjfo3iqck-vault-0        | Microsoft.Network/privateEndpoints      | Key Vault private endpoint                                                                    | swedencentral |
+| pep-sql-...nic...                           | Microsoft.Network/networkInterfaces     | NIC for SQL PE                                                                                | swedencentral |
+| pep-st...nic...                             | Microsoft.Network/networkInterfaces     | NIC for Blob PE                                                                               | swedencentral |
+| pep-kv-...nic...                            | Microsoft.Network/networkInterfaces     | NIC for KV PE                                                                                 | swedencentral |
+| privatelink.database.windows.net            | Microsoft.Network/privateDnsZones       | SQL private DNS zone with VNet link                                                           | global        |
+| privatelink.blob.core.windows.net           | Microsoft.Network/privateDnsZones       | Blob private DNS zone with VNet link                                                          | global        |
+| privatelink.vaultcore.azure.net             | Microsoft.Network/privateDnsZones       | Key Vault private DNS zone with VNet link                                                     | global        |
 
 ### 📨 Messaging Resources
 
-| Name | Type | SKU | Configuration | Location |
-| ---- | ---- | --- | ------------- | -------- |
-| None | N/A | N/A | Messaging services were not deployed in this workload | N/A |
+| Name | Type | SKU | Configuration                                         | Location |
+| ---- | ---- | --- | ----------------------------------------------------- | -------- |
+| None | N/A  | N/A | Messaging services were not deployed in this workload | N/A      |
 
 ### 🔐 Security Resources
 
-| Name | Type | Configuration | Location |
-| ---- | ---- | ------------- | -------- |
+| Name                     | Type                      | Configuration                                                                                 | Location      |
+| ------------------------ | ------------------------- | --------------------------------------------------------------------------------------------- | ------------- |
 | kv-nff-prod-7jrcjfo3iqck | Microsoft.KeyVault/vaults | Premium, RBAC enabled, soft delete 90 days, purge protection enabled, public network disabled | swedencentral |
 
 ### 📊 Monitoring Resources
 
-| Name | Type | Retention | Location |
-| ---- | ---- | --------- | -------- |
-| log-nordic-fresh-foods-prod | Microsoft.OperationalInsights/workspaces | 30 days | swedencentral |
-| appi-nordic-fresh-foods-prod | Microsoft.Insights/components | 365 days | swedencentral |
+| Name                         | Type                                     | Retention | Location      |
+| ---------------------------- | ---------------------------------------- | --------- | ------------- |
+| log-nordic-fresh-foods-prod  | Microsoft.OperationalInsights/workspaces | 30 days   | swedencentral |
+| appi-nordic-fresh-foods-prod | Microsoft.Insights/components            | 365 days  | swedencentral |
 
 ### 💰 Governance Resources
 
-| Name | Type | Configuration | Location |
-| ---- | ---- | ------------- | -------- |
+| Name                           | Type                          | Configuration                                                           | Location |
+| ------------------------------ | ----------------------------- | ----------------------------------------------------------------------- | -------- |
 | budget-nordic-fresh-foods-prod | Microsoft.Consumption/budgets | USD 800 monthly budget, actual 90% + forecast 80/100/120% notifications | rg scope |
 
 ---
@@ -1064,11 +1059,11 @@ pie showData
 
 ### References
 
-| Topic | Link |
-| ---- | ---- |
+| Topic                | Link                                                                                                                   |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Azure Resource Types | [Resource Providers](https://learn.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types) |
-| Naming Conventions | [CAF Naming](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) |
-| Pricing Calculator | [Azure Pricing](https://azure.microsoft.com/pricing/calculator/) |
+| Naming Conventions   | [CAF Naming](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming)    |
+| Pricing Calculator   | [Azure Pricing](https://azure.microsoft.com/pricing/calculator/)                                                       |
 
 ---
 
@@ -1082,7 +1077,6 @@ _Resource inventory generated from deployed resources and Bicep templates._
 | ------------------------------------------------------- | ----------------------------- | ----------------------------------------------- |
 
 </div>
-
 
 ---
 
@@ -1293,4 +1287,3 @@ _"If you need X, expect to pay Y more"_
 | ----------------------------------------------------- | ----------------------------- | ---- |
 
 </div>
-

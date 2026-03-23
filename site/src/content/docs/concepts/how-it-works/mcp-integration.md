@@ -20,7 +20,7 @@ call MCP tools, which handle authentication, caching, pagination, retries,
 and response formatting.
 
 ```mermaid
-flowchart LR
+flowchart TD
 
 
 

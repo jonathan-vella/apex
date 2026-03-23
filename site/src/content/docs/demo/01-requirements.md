@@ -47,7 +47,7 @@ sidebar:
 ### State Transition
 
 ```mermaid
-flowchart LR
+flowchart TD
     A["🏢 Current State<br/>Spreadsheets + WordPress + Manual Processes"] -->|"Greenfield Build"| B["☁️ Desired State<br/>FreshConnect Cloud Platform on Azure"]
     B --> C["✅ Success Criteria<br/>< 1% order errors, real-time inventory, automated routing"]
 ```
