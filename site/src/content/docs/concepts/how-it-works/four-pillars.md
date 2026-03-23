@@ -2,9 +2,6 @@
 title: "Core Concepts"
 description: "Core concepts behind the agent framework"
 ---
-
-# Core Concepts
-
 The system's knowledge architecture is built on four distinct layers, each serving
 a specific purpose in the agent's context window.
 

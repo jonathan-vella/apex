@@ -2,9 +2,6 @@
 title: "Skill and Subagent Reference"
 description: "Complete skills and subagent reference"
 ---
-
-# Skill and Subagent Reference
-
 ## Skills
 
 Skills are invoked automatically by agents, but you can also reference them

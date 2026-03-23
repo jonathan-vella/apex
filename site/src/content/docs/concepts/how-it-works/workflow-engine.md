@@ -2,9 +2,6 @@
 title: "Workflow Engine and Quality Systems"
 description: "Workflow DAG, quality gates, and review cycles"
 ---
-
-# Workflow Engine and Quality Systems
-
 ## Workflow Engine
 
 <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop"

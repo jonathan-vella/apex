@@ -2,9 +2,6 @@
 title: "Prompting Best Practices"
 description: "Best practices for writing effective prompts"
 ---
-
-# Prompting Best Practices
-
 ## Choose the Right Interface
 
 | Interface                    | Best For                                                    |

@@ -2,9 +2,6 @@
 title: "Skills and Instructions"
 description: "How skills and instructions guide agents"
 ---
-
-# Skills and Instructions
-
 ## Skills System
 
 ### Skill Structure

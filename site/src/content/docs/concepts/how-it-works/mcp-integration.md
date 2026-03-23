@@ -2,9 +2,6 @@
 title: "MCP Server Integration"
 description: "MCP server integration for real-time data"
 ---
-
-# MCP Server Integration
-
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
 This project integrates five MCP servers, each providing specialised capabilities that

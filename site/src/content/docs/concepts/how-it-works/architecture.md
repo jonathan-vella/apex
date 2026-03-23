@@ -2,20 +2,27 @@
 title: "System Architecture Overview"
 description: "System architecture and component overview"
 ---
-
-# System Architecture Overview
-
 ## The Multi-Step Workflow
 
 The system follows a strict sequential workflow with mandatory human approval gates
 between critical phases:
 
-```mermaid
-flowchart LR
-    S1["Step 1\nRequirements"] --> G1{{"🔒"}} --> S2["Step 2\nArchitecture"] --> G2{{"🔒"}} --> S3["Step 3\nDesign"]
-    S3 --> S35["Step 3.5\nGovernance"] --> G25{{"🔒"}} --> S4["Step 4\nIaC Plan"] --> G3{{"🔒"}} --> S5["Step 5\nIaC Code"]
-    S5 --> G4{{"✔"}} --> S6["Step 6\nDeploy"] --> G5{{"🔒"}} --> S7["Step 7\nAs-Built"]
-```
+<div class="workflow-stepper not-content">
+<div class="step"><span class="step-num">1</span><span class="step-label">Requirements</span></div>
+<div class="gate">🔒</div>
+<div class="step"><span class="step-num">2</span><span class="step-label">Architecture</span></div>
+<div class="gate">🔒</div>
+<div class="step"><span class="step-num">3</span><span class="step-label">Design</span></div>
+<div class="step"><span class="step-num">3.5</span><span class="step-label">Governance</span></div>
+<div class="gate">🔒</div>
+<div class="step"><span class="step-num">4</span><span class="step-label">IaC Plan</span></div>
+<div class="gate">🔒</div>
+<div class="step"><span class="step-num">5</span><span class="step-label">IaC Code</span></div>
+<div class="gate">✔</div>
+<div class="step"><span class="step-num">6</span><span class="step-label">Deploy</span></div>
+<div class="gate">🔒</div>
+<div class="step"><span class="step-num">7</span><span class="step-label">As-Built</span></div>
+</div>
 
 | Step | Phase        | Agent                              | Output                                 | Review            |
 | ---- | ------------ | ---------------------------------- | -------------------------------------- | ----------------- |

@@ -665,6 +665,53 @@ tr:last-child td {
   height: auto;
 }
 
+/* ── Workflow stepper ── */
+
+.workflow-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  margin-block: 1rem;
+  background: var(--sl-color-bg);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+}
+
+.workflow-stepper .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  min-width: 5.5rem;
+}
+
+.workflow-stepper .step-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sl-color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.workflow-stepper .step-label {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+.workflow-stepper .gate {
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
 .starlight-aside {
   border-radius: 0.5rem;
   border-left-width: 3px;

@@ -2,9 +2,6 @@
 title: "Agent Architecture"
 description: "Agent roles, orchestration, and delegation model"
 ---
-
-# Agent Architecture
-
 ## Agent Anatomy
 
 Every agent definition follows a standard structure:
