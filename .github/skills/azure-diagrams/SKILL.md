@@ -1,7 +1,7 @@
 ---
 name: azure-diagrams
 description: "Azure architecture diagrams (editable .drawio with official icons + SVG export) and WAF/cost charts (Python matplotlib). Draw.io is the default for architecture diagrams. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams, WAF radar charts, cost pie charts. DO NOT USE FOR: Bicep/Terraform code, ADR writing, troubleshooting, cost calculations."
-compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Requires jgraph/drawio-mcp MCP server configured in .vscode/mcp.json. Python diagrams library for charts.
+compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Requires drawio-mcp-server (Deno) configured in .vscode/mcp.json. Python diagrams library for charts.
 license: MIT
 metadata:
   author: azure-agentic-infraops
@@ -22,9 +22,9 @@ and WAF/cost charts (Python matplotlib).
 
 ## Prerequisites
 
-- jgraph/drawio-mcp configured in `.vscode/mcp.json` (already configured)
+- drawio-mcp-server (Deno) configured in `.vscode/mcp.json` (already configured at `mcp/drawio-mcp-server/`)
 - Azure icon libraries built: `npm run build:drawio-icons` (pre-built in `assets/drawio-libraries/`)
-- For SVG export: draw.io Desktop + `xvfb` (optional — `.drawio` files are the primary output)
+- For SVG export: use the `hediet.vscode-drawio` VS Code extension (right-click → Export) — `.drawio` files are the primary output
 - For Python charts: `pip install diagrams matplotlib pillow && apt-get install -y graphviz`
 
 ## Architecture Diagram Contract (Draw.io — Default)
@@ -41,11 +41,10 @@ and WAF/cost charts (Python matplotlib).
 
 After generating `.drawio`, export to SVG for doc embedding:
 
-```bash
-scripts/drawio/drawio-export.sh agent-output/{project}/03-des-diagram.drawio --format svg
-```
+- **VS Code**: Right-click the `.drawio` file → "Export" → SVG
+- **CLI fallback**: `scripts/drawio/drawio-export.sh` (requires draw.io Desktop, not installed by default)
 
-If draw.io Desktop is not available, skip SVG export — the `.drawio` file is the primary deliverable.
+The `.drawio` file is the primary deliverable. SVG export is optional.
 
 Embed in markdown: `![Architecture](03-des-diagram.drawio.svg)`
 
@@ -53,7 +52,7 @@ Embed in markdown: `![Architecture](03-des-diagram.drawio.svg)`
 
 Each `.drawio` file is a standard mxGraphModel XML file that can be:
 
-- Opened directly in draw.io Desktop or web editor
+- Opened directly in VS Code (via `hediet.vscode-drawio` extension) or draw.io web editor
 - Version-controlled as XML in git (human-readable diffs)
 - Exported to PNG/SVG/PDF with embedded XML (round-trip editing)
 
@@ -197,10 +196,68 @@ To find the right icon:
 
 ## MCP Tool Integration
 
-Use the `open_drawio_xml` tool from jgraph/drawio-mcp for interactive preview:
+The drawio-mcp-server provides rich diagram tools. Key tools:
 
-```
-Use open_drawio_xml to preview the diagram with the XML content of the .drawio file
+| Category        | Tools                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------- |
+| Shape discovery | `search-shapes`, `get-shape-categories`, `get-shapes-in-category`, `get-style-presets`       |
+| Diagram build   | `add-cells` (batch), `edit-cells`, `edit-edges`, `set-cell-shape`, `delete-cell-by-id`       |
+| Containers      | `create-groups`, `add-cells-to-group`, `list-group-children`                                 |
+| Inspection      | `list-paged-model`, `get-diagram-stats`, `export-diagram`, `import-diagram`, `clear-diagram` |
+| Pages/layers    | `create-page`, `list-pages`, `create-layer`, `set-active-layer`                              |
+| Finish          | `finish-diagram` (resolves placeholders to full SVG)                                         |
+
+### MCP-First Diagram Workflow
+
+1. `search-shapes` — Find icons for required Azure services
+2. `add-cells` (batch, `transactional: true`) — Add all resources with placeholders
+3. `create-groups` — Create VNet/subnet/RG containers
+4. `add-cells-to-group` — Place resources inside containers
+5. `add-cells` (edges) — Add labeled connections with protocol/port
+6. `edit-cells` — Adjust positions, styles, labels
+7. `finish-diagram` — Resolve all placeholders to full SVG
+8. `export-diagram` — Get final XML
+9. Save as `.drawio` file
+
+### Transactional Mode (50+ shapes)
+
+For complex diagrams, pass `transactional: true` on each tool call to use lightweight
+placeholder SVGs (~2-5KB per call instead of 200KB+). Call `finish-diagram` at the
+end to resolve all placeholders to production-ready SVG XML.
+
+### Example: add-cells with Azure icons
+
+```json
+{
+  "cells": [
+    {
+      "type": "vertex",
+      "temp_id": "web",
+      "x": 100,
+      "y": 100,
+      "width": 64,
+      "height": 64,
+      "text": "Web App",
+      "shape_name": "App Services"
+    },
+    {
+      "type": "vertex",
+      "temp_id": "sql",
+      "x": 300,
+      "y": 100,
+      "width": 64,
+      "height": 64,
+      "text": "SQL Database",
+      "shape_name": "SQL Database"
+    },
+    {
+      "type": "edge",
+      "source_id": "web",
+      "target_id": "sql",
+      "text": "SQL:1433"
+    }
+  ]
+}
 ```
 
 ## Python Charts (WAF / Cost / Compliance)
@@ -273,8 +330,8 @@ Performance `#FF8C00` · Cost `#FFB900` · Operational Excellence `#8764B8`.
 2. **Identify Resources & Hierarchy** — List Azure resources, map RG → VNet → Subnet
 3. **Generate Draw.io XML** — Create mxGraphModel with Azure icons from built libraries
 4. **Save `.drawio` file** in `agent-output/{project}/` with step-prefixed name
-5. **Export SVG** — Run `scripts/drawio/drawio-export.sh` if draw.io Desktop is available
-6. **Preview** — Use `open_drawio_xml` MCP tool for interactive preview
+5. **Export SVG** — Use VS Code draw.io extension (right-click → Export → SVG), or skip if not needed
+6. **Preview** — Use MCP `export-diagram` to get XML, or `import-diagram` to load existing `.drawio` for inspection
 7. **Verify quality gate** — Score ≥ 9/10; regenerate if below threshold
 
 ### Charts (Python matplotlib)

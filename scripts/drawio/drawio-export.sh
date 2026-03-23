@@ -88,11 +88,9 @@ if [[ -z "${DRAWIO_CMD}" ]]; then
 fi
 
 if [[ -z "${DRAWIO_CMD}" ]]; then
-  echo "❌ draw.io Desktop not found. Install it or add it to PATH." >&2
-  echo "   See: https://github.com/jgraph/drawio-desktop/releases" >&2
-  echo "" >&2
-  echo "   For devcontainer, add to onCreateCommand:" >&2
-  echo "   curl -L -o /tmp/drawio.deb https://github.com/jgraph/drawio-desktop/releases/download/v26.0.16/drawio-amd64-26.0.16.deb && sudo dpkg -i /tmp/drawio.deb || sudo apt-get install -f -y" >&2
+  echo "❌ draw.io Desktop not found (not installed by default)." >&2
+  echo "   Use the hediet.vscode-drawio VS Code extension instead:" >&2
+  echo "   Right-click a .drawio file → Export → SVG/PNG" >&2
   exit 1
 fi
 

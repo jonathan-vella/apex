@@ -239,7 +239,7 @@ Execute each `.py` file and verify the PNGs exist before continuing.
 Use the azure-diagrams skill to generate:
 
 - `agent-output/{project}/07-ab-diagram.drawio` — Editable draw.io architecture diagram
-- `agent-output/{project}/07-ab-diagram.drawio.svg` — SVG export (if draw.io Desktop available)
+- `agent-output/{project}/07-ab-diagram.drawio.svg` — SVG export (optional, via VS Code draw.io extension)
 
 The diagram MUST reflect actual deployed resources (not just planned ones).
 Follow the MANDATORY layout rules from the azure-diagrams skill:
@@ -247,7 +247,7 @@ Follow the MANDATORY layout rules from the azure-diagrams skill:
 - `labelWidth=160` on all icon cells, labels max 2 lines
 - Icons at least 260px apart horizontally
 - Subnets min 500px wide, VNet min 600px, RG min 800px
-- Run SVG export via `scripts/drawio/drawio-export.sh`
+- SVG export is optional — users can right-click the `.drawio` file in VS Code → Export → SVG
 
 ### Phase 4: Finalize
 

@@ -138,16 +138,14 @@ If missing, STOP and request handoff to Architect agent.
 3. Generate draw.io XML (mxGraphModel) using Azure icons from built libraries
 4. Load `references/drawio-quick-reference.md` for icon style snippets
 5. Save as `agent-output/{project}/03-des-diagram.drawio`
-6. **MANDATORY** — Export SVG immediately after saving the `.drawio` file.
-   Run: `scripts/drawio/drawio-export.sh agent-output/{project}/03-des-diagram.drawio --format svg`
-   This produces `agent-output/{project}/03-des-diagram.drawio.svg`.
-   If draw.io Desktop is not installed (exit code 1), report to the user:
-   _"SVG export requires draw.io Desktop. Install it or rebuild the devcontainer."_
-   Do NOT silently skip this step.
+6. **SVG Export** — The `.drawio` file is the primary deliverable.
+   SVG export is optional — users can export via the VS Code draw.io extension
+   (right-click the `.drawio` file → Export → SVG).
+   If `scripts/drawio/drawio-export.sh` is available, it can also be used as a CLI fallback.
 7. Validate quality gate score (>=9/10); regenerate once if below threshold.
    Do not finalize until verification passes.
    If a check fails, retry with a different strategy before reporting blocked.
-8. Use `open_drawio_xml` MCP tool for interactive preview
+8. Use MCP `export-diagram` to get the final XML, or `import-diagram` to preview existing `.drawio` files
 
 ### ADR Generation
 

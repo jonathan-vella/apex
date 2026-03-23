@@ -51,7 +51,7 @@ def container(cell_id: str, label: str, x: int, y: int,
         "rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=5 5;"
         "fillColor=#E8F0FE;strokeColor=#0078D4;fontSize=13;"
         f"fontFamily=Arial;fontStyle={font_style};verticalAlign=top;"
-        "spacingTop=8;arcSize=6;" + style_extra
+        "spacingTop=8;arcSize=6;container=1;pointerEvents=0;" + style_extra
     )
     escaped = html.escape(label)
     return (
@@ -69,7 +69,7 @@ def vnet_container(cell_id: str, label: str, x: int, y: int,
         "rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;"
         "fillColor=#F0F8FF;strokeColor=#0078D4;fontSize=12;"
         "fontFamily=Arial;fontStyle=1;verticalAlign=top;"
-        "spacingTop=8;arcSize=4;"
+        "spacingTop=8;arcSize=4;container=1;pointerEvents=0;"
     )
     escaped = html.escape(label)
     return (
@@ -87,6 +87,7 @@ def subnet_container(cell_id: str, label: str, x: int, y: int,
         "rounded=1;whiteSpace=wrap;html=1;dashed=0;"
         "fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;"
         "fontFamily=Arial;verticalAlign=top;spacingTop=6;"
+        "container=1;pointerEvents=0;"
     )
     escaped = html.escape(label)
     return (
@@ -302,9 +303,13 @@ def main():
 </mxfile>
 """
 
-    output_path = OUTPUT_DIR / "03-des-diagram.drawio"
-    output_path.write_text(diagram_xml, encoding="utf-8")
-    print(f"✅ Generated: {output_path}")
+    DEMO_DIR = Path("site/public/demo")
+    for out_dir in [OUTPUT_DIR, DEMO_DIR]:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / "03-des-diagram.drawio"
+        out_path.write_text(diagram_xml, encoding="utf-8")
+        print(f"✅ Generated: {out_path}")
+
     print(f"   Cells: {len(cells)}")
 
 

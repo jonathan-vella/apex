@@ -632,7 +632,9 @@ config:
 
 ## 🔗 Dependency Graph
 
-![Dependency Diagram](/azure-agentic-infraops/demo/04-dependency-diagram.png)
+![Dependency Diagram](/azure-agentic-infraops/demo/04-dependency-diagram.svg)
+
+Source: [04-dependency-diagram.drawio](/azure-agentic-infraops/demo/04-dependency-diagram.drawio)
 
 ```text
 Resource Group
@@ -660,7 +662,9 @@ See [04-dependency-diagram.py](./04-dependency-diagram.py) for the Python source
 
 ## 🔄 Runtime Flow Diagram
 
-![Runtime Flow Diagram](/azure-agentic-infraops/demo/04-runtime-diagram.png)
+![Runtime Flow Diagram](/azure-agentic-infraops/demo/04-runtime-diagram.svg)
+
+Source: [04-runtime-diagram.drawio](/azure-agentic-infraops/demo/04-runtime-diagram.drawio)
 
 ```text
 User Request

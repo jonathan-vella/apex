@@ -19,17 +19,17 @@
           <mxGeometry x="50" y="220" width="48" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="rg-prod" value="rg-nordic-fresh-foods-prod"
-                style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=5 5;fillColor=#E8F0FE;strokeColor=#0078D4;fontSize=13;fontFamily=Arial;fontStyle=1;verticalAlign=top;spacingTop=8;arcSize=6;"
+                style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=5 5;fillColor=#E8F0FE;strokeColor=#0078D4;fontSize=13;fontFamily=Arial;fontStyle=1;verticalAlign=top;spacingTop=8;arcSize=6;container=1;pointerEvents=0;"
                 vertex="1" parent="1">
           <mxGeometry x="240" y="80" width="1260" height="880" as="geometry"/>
         </mxCell>
         <mxCell id="vnet-1" value="vnet-nordic-fresh-foods-prod (10.0.0.0/16)"
-                style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=#F0F8FF;strokeColor=#0078D4;fontSize=12;fontFamily=Arial;fontStyle=1;verticalAlign=top;spacingTop=8;arcSize=4;"
+                style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=#F0F8FF;strokeColor=#0078D4;fontSize=12;fontFamily=Arial;fontStyle=1;verticalAlign=top;spacingTop=8;arcSize=4;container=1;pointerEvents=0;"
                 vertex="1" parent="rg-prod">
           <mxGeometry x="30" y="50" width="1000" height="790" as="geometry"/>
         </mxCell>
         <mxCell id="snet-app" value="snet-app (10.0.1.0/24) — VNet Integration"
-                style="rounded=1;whiteSpace=wrap;html=1;dashed=0;fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;fontFamily=Arial;verticalAlign=top;spacingTop=6;"
+                style="rounded=1;whiteSpace=wrap;html=1;dashed=0;fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;fontFamily=Arial;verticalAlign=top;spacingTop=6;container=1;pointerEvents=0;"
                 vertex="1" parent="vnet-1">
           <mxGeometry x="20" y="60" width="540" height="220" as="geometry"/>
         </mxCell>
@@ -46,7 +46,7 @@
           <mxGeometry x="310" y="65" width="48" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="snet-data" value="snet-data (10.0.2.0/24)"
-                style="rounded=1;whiteSpace=wrap;html=1;dashed=0;fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;fontFamily=Arial;verticalAlign=top;spacingTop=6;"
+                style="rounded=1;whiteSpace=wrap;html=1;dashed=0;fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;fontFamily=Arial;verticalAlign=top;spacingTop=6;container=1;pointerEvents=0;"
                 vertex="1" parent="vnet-1">
           <mxGeometry x="20" y="320" width="540" height="170" as="geometry"/>
         </mxCell>
@@ -63,7 +63,7 @@
           <mxGeometry x="310" y="45" width="48" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="snet-pe" value="snet-pe (10.0.3.0/24) — Private Endpoints"
-                style="rounded=1;whiteSpace=wrap;html=1;dashed=0;fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;fontFamily=Arial;verticalAlign=top;spacingTop=6;"
+                style="rounded=1;whiteSpace=wrap;html=1;dashed=0;fillColor=#FFFFFF;strokeColor=#98C1D9;fontSize=11;fontFamily=Arial;verticalAlign=top;spacingTop=6;container=1;pointerEvents=0;"
                 vertex="1" parent="vnet-1">
           <mxGeometry x="20" y="530" width="540" height="200" as="geometry"/>
         </mxCell>

@@ -31,6 +31,7 @@
     "lint:yaml": "find . \\( -name '*.yml' -o -name '*.yaml' \\) ! -path './node_modules/*' ! -path './infra/*' -exec yamllint -c .yamllint.yml {} \\; 2>/dev/null || echo 'yamllint not installed - run: pip install yamllint'",
     "lint:python": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
     "lint:python:fix": "cd mcp/azure-pricing-mcp && python -m ruff check --fix src/ tests/",
+    "lint:drawio-mcp": "cd mcp/drawio-mcp-server && deno task lint",
     "lint:terraform-fmt": "terraform fmt -check -recursive infra/terraform/",
     "validate:terraform": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
     "validate:vscode": "node scripts/validate-vscode-config.mjs",
