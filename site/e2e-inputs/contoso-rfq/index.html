@@ -1,0 +1,2448 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC">
+      
+      
+      
+        <link rel="canonical" href="https://jonathan-vella.github.io/azure-agentic-infraops/e2e-inputs/contoso-rfq/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Contoso Request for Quotation (RFQ) - Agentic InfraOps</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contoso-request-for-quotation-rfq" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Agentic InfraOps" class="md-header__button md-logo" aria-label="Agentic InfraOps" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Agentic InfraOps
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contoso Request for Quotation (RFQ)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jonathan-vella/azure-agentic-infraops" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jonathan-vella/azure-agentic-infraops
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../quickstart/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../how-it-works/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../prompt-guide/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../validation-reference/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../CONTRIBUTING/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Project
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Agentic InfraOps" class="md-nav__button md-logo" aria-label="Agentic InfraOps" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Agentic InfraOps
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jonathan-vella/azure-agentic-infraops" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jonathan-vella/azure-agentic-infraops
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev-containers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dev Container Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../how-it-works/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How It Works
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How It Works
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/four-pillars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/skills-and-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills & Instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/workflow-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Engine & Quality
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/mcp-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../prompt-guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prompt-guide/best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prompt-guide/workflow-prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prompt-guide/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill & Subagent Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../session-debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../e2e-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2E Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation & Linting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GLOSSARY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#selection-of-cloud-services-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selection of Cloud Services Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-company" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Company
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-service-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Service Hub
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rfq-scope-and-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. RFQ Scope and Objectives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. RFQ Scope and Objectives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Introduction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-high-level-application-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 High-Level Application Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-regions-and-data-residency-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Regions and Data Residency Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-cloud-environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Cloud Environments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-performance-requirements-and-expected-volume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Performance Requirements and Expected Volume
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-proposal-submission-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Proposal Submission Requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Proposal Submission Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-technical-proposal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Technical Proposal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-financial-proposal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Financial Proposal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-rfq-process-and-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. RFQ Process and Timeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. RFQ Process and Timeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-rfq-milestones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 RFQ Milestones
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-submission-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Submission Method
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-rfq-terms-and-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. RFQ Terms and Conditions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. RFQ Terms and Conditions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-confidential-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Confidential Information
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-conflict-of-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Conflict of Interest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-ethics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Ethics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-submission-and-cost-of-participating-in-the-tender" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Submission and Cost of Participating in the Tender
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-ownership-of-documents-and-intellectual-property" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Ownership of Documents and Intellectual Property
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-non-binding-legal-relations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 Non-Binding Legal Relations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-contosos-additional-rights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.7 Contoso's Additional Rights
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#78-governing-law" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.8 Governing Law
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#79-disclaimer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.9 Disclaimer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#710-precedence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.10 Precedence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#711-acceptance-of-terms-and-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.11 Acceptance of Terms and Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#712-tender-currency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.12 Tender Currency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#713-validity-of-proposals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.13 Validity of Proposals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#714-compliance-with-applicable-laws" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.14 Compliance with Applicable Laws
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#715-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.15 Language
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="contoso-request-for-quotation-rfq">Contoso Request for Quotation (RFQ)<a class="headerlink" href="#contoso-request-for-quotation-rfq" title="Permanent link">&para;</a></h1>
+<h2 id="selection-of-cloud-services-provider">Selection of Cloud Services Provider<a class="headerlink" href="#selection-of-cloud-services-provider" title="Permanent link">&para;</a></h2>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Purpose</li>
+<li>The Company</li>
+<li>Service Hub</li>
+<li>RFQ Scope and Objectives</li>
+<li>Proposal Submission Requirements</li>
+<li>RFQ Process and Timeline</li>
+<li>RFQ Terms and Conditions</li>
+</ol>
+<h2 id="1-purpose">1. Purpose<a class="headerlink" href="#1-purpose" title="Permanent link">&para;</a></h2>
+<p>Contoso invites qualified Cloud Services Providers, referred to in this document as the Candidates, to submit a quotation for secure, scalable, and highly available cloud hosting and managed services for its digital services platform and mobile application, referred to as the Service Hub.</p>
+<p>The selected provider will be responsible for delivering cloud services that satisfy Contoso's technical, operational, security, and compliance requirements. This RFQ sets out the scope of services, high-level expectations, proposal content requirements, and the commercial and procedural terms applicable to the procurement process.</p>
+<h2 id="2-the-company">2. The Company<a class="headerlink" href="#2-the-company" title="Permanent link">&para;</a></h2>
+<p>Contoso operates digital and operational services that support residents, visitors, tenants, partners, and internal business users across a large mixed-use real estate and lifestyle ecosystem within the European Union.</p>
+<p>Contoso's service areas include the following:</p>
+<ol>
+<li>Management and administration of residential communities and mixed-use properties.</li>
+<li>Management and maintenance of common areas, amenities, and facilities.</li>
+<li>Operation and commercialization of sports, leisure, and community venues.</li>
+<li>Lifestyle, convenience, and day-to-day support services for end users.</li>
+<li>Operational and financial support services for leased and managed properties.</li>
+<li>Development and operation of digital services and smart environment capabilities.</li>
+<li>Parking and mobility-related services.</li>
+</ol>
+<h2 id="3-service-hub">3. Service Hub<a class="headerlink" href="#3-service-hub" title="Permanent link">&para;</a></h2>
+<p>The Service Hub is the digital channel through which Contoso provides a unified experience for its users across mobile and digital touchpoints. The platform acts as a one-stop destination for booking services, accessing digital content, making payments, interacting with venues and service providers, and supporting customer engagement across the broader service ecosystem.</p>
+<p>The Service Hub is intended to expose Contoso's product and service portfolio to a broad audience, improve customer adoption, and support a consistent digital experience for residents, visitors, and partners.</p>
+<p>The current indicative product roadmap is shown below.</p>
+<table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Target Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MVP + utilities sales</td>
+<td>May 2026</td>
+</tr>
+<tr>
+<td>Release 1.0</td>
+<td>July 2026</td>
+</tr>
+<tr>
+<td>Release 1.1</td>
+<td>October 2026</td>
+</tr>
+<tr>
+<td>Release 2.0</td>
+<td>March 2027</td>
+</tr>
+<tr>
+<td>Release 2.1</td>
+<td>September 2027</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1: Service Hub Delivery Milestones</p>
+<h2 id="4-rfq-scope-and-objectives">4. RFQ Scope and Objectives<a class="headerlink" href="#4-rfq-scope-and-objectives" title="Permanent link">&para;</a></h2>
+<h3 id="41-introduction">4.1 Introduction<a class="headerlink" href="#41-introduction" title="Permanent link">&para;</a></h3>
+<p>This RFQ covers public cloud infrastructure and managed services across IaaS and PaaS categories for a period of three years, from March 2026 through February 2029.</p>
+<p>The requested scope includes, at a minimum, the following service domains:</p>
+<ol>
+<li>Compute.</li>
+<li>Storage.</li>
+<li>Databases.</li>
+<li>In-memory caching.</li>
+<li>Networking.</li>
+<li>Security.</li>
+<li>CDN and DNS.</li>
+<li>Observability and monitoring.</li>
+<li>Backup.</li>
+<li>Managed Kubernetes.</li>
+<li>Serverless capabilities.</li>
+<li>SDLC and DevOps-enabling services where applicable.</li>
+</ol>
+<p>Disaster recovery across multiple regions is not included in the current RFQ scope.</p>
+<h3 id="42-high-level-application-architecture">4.2 High-Level Application Architecture<a class="headerlink" href="#42-high-level-application-architecture" title="Permanent link">&para;</a></h3>
+<p>The Service Hub consists of multiple digital channels and shared backend capabilities. The overall solution is expected to support customer-facing applications, internal administrative functions, API-based integrations, transaction processing, content delivery, and centralized monitoring and security controls.</p>
+<p>The table below lists the proposed cloud services and indicative volumetrics for the 2026 production environment.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Cloud Service</th>
+<th>Indicative Volumetrics / Sizing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Web Application Firewall (WAF)</td>
+<td>1,500,000 requests per month</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Edge Security and CDN</td>
+<td>1,500,000 requests per month</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Customer Identity and Access Management (CIAM)</td>
+<td>15,000 monthly active users</td>
+</tr>
+<tr>
+<td>4</td>
+<td>API Management</td>
+<td>5,000,000 API requests per month</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Container Engine</td>
+<td>Standard 8 vCPU virtual machines</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Database (PostgreSQL)</td>
+<td>General purpose tier, 256 GB</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Object Storage</td>
+<td>200 GB</td>
+</tr>
+<tr>
+<td>8</td>
+<td>File Storage</td>
+<td>256 GB SSD</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Block Storage</td>
+<td>256 GB SSD</td>
+</tr>
+<tr>
+<td>10</td>
+<td>In-memory Cache</td>
+<td>128 GB</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Key and Secrets Management</td>
+<td>100,000 operations per month</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Virtual Machine</td>
+<td>Standard 8 vCPU virtual machines</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Network Services</td>
+<td>As required</td>
+</tr>
+<tr>
+<td>14</td>
+<td>SDLC Services (DevOps)</td>
+<td>CI/CD pipelines, source code and artifact repository, security tooling hosting</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Observability and Monitoring Services</td>
+<td>Hosted on general purpose 8 vCPU virtual machines or equivalent managed services</td>
+</tr>
+</tbody>
+</table>
+<p>Table 2: Proposed Cloud Services</p>
+<h3 id="43-regions-and-data-residency-requirements">4.3 Regions and Data Residency Requirements<a class="headerlink" href="#43-regions-and-data-residency-requirements" title="Permanent link">&para;</a></h3>
+<p>The proposed production deployment region must be located within the European Union and must comply with GDPR requirements. All production data must be stored and processed within EU regions.</p>
+<p>Candidates must state the exact region or regions proposed and confirm that no data will be transferred outside the EU without prior written approval from Contoso.</p>
+<p>The following requirements apply:</p>
+<ol>
+<li>The primary cloud region must be located within the European Union and should provide low latency to the core user base.</li>
+<li>All customer data, application logs, backups, and service metadata must remain within EU borders.</li>
+<li>No processing, replication, caching, indexing, telemetry analysis, or backup outside the EU is permitted unless explicitly authorized in writing by Contoso.</li>
+<li>Any remote support access must be performed under GDPR-compliant safeguards, including Standard Contractual Clauses where relevant.</li>
+</ol>
+<h3 id="44-cloud-environments">4.4 Cloud Environments<a class="headerlink" href="#44-cloud-environments" title="Permanent link">&para;</a></h3>
+<p>Three cloud environments are required: Development, Staging, and Production.</p>
+<p>The environments are expected to support development, release management, operations, and controlled change deployment as follows:</p>
+<ol>
+<li>The Production environment must support high availability, auto-scaling, strong security controls, continuous monitoring, and optimized performance for end users.</li>
+<li>The Staging environment should closely mirror Production to support realistic functional, load, and security validation before release.</li>
+<li>The Development environment should provide flexible and cost-efficient infrastructure for engineering activities, integration testing, and CI/CD execution.</li>
+</ol>
+<h3 id="45-performance-requirements-and-expected-volume">4.5 Performance Requirements and Expected Volume<a class="headerlink" href="#45-performance-requirements-and-expected-volume" title="Permanent link">&para;</a></h3>
+<p>Contoso projects approximately 50,000 transactions during 2026, covering the period from May through December, with growth to nearly 2,000,000 transactions in 2027.</p>
+<p>The initial active user base is expected to be approximately 5,000 users, with continued growth over the term of the contract. The target service availability for the Service Hub is at least 99.9%.</p>
+<p>In the event that the selected Cloud Services Provider fails to meet agreed SLA availability or performance commitments during any billing period, the provider shall grant service credits as a financial remedy for such breach.</p>
+<p>The service credit mechanism must:</p>
+<ol>
+<li>Be defined as a percentage of the monthly fees associated with the affected service or services.</li>
+<li>Be tiered according to the degree to which the actual service level falls below the committed SLA threshold.</li>
+<li>Be clearly described in the proposed SLA schedule submitted with the proposal.</li>
+</ol>
+<h2 id="5-proposal-submission-requirements">5. Proposal Submission Requirements<a class="headerlink" href="#5-proposal-submission-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="51-technical-proposal">5.1 Technical Proposal<a class="headerlink" href="#51-technical-proposal" title="Permanent link">&para;</a></h3>
+<p>The Technical Proposal must provide a comprehensive description of the Candidate's proposed solution for supporting the Service Hub.</p>
+<p>At a minimum, the Technical Proposal must include the following:</p>
+<ol>
+<li>Solution architecture overview.</li>
+<li>Description of the cloud services to be used.</li>
+<li>Assumptions regarding usage volumes and scale.</li>
+<li>Proposed SLAs.</li>
+<li>Approach to scalability, availability, and operational resilience.</li>
+<li>Security and compliance approach.</li>
+<li>Operating model and support approach.</li>
+</ol>
+<p>Candidates may additionally propose provisional professional services related to solution architecture, design, migration planning, implementation setup, or service onboarding.</p>
+<p>The Technical Proposal must also include:</p>
+<ol>
+<li>A draft proposed agreement or contract terms.</li>
+<li>All applicable payment terms.</li>
+<li>Proposed SLA commitments and reimbursement mechanisms.</li>
+<li>A statement of any corporate insurance policies in force and the scope of their coverage.</li>
+</ol>
+<h3 id="52-financial-proposal">5.2 Financial Proposal<a class="headerlink" href="#52-financial-proposal" title="Permanent link">&para;</a></h3>
+<p>The Financial Proposal must include a clear breakdown of all costs associated with the proposed cloud and managed services.</p>
+<p>This includes, as applicable:</p>
+<ol>
+<li>Compute resources.</li>
+<li>Storage.</li>
+<li>Databases.</li>
+<li>Networking.</li>
+<li>CDN.</li>
+<li>Monitoring and observability.</li>
+<li>Security-related services.</li>
+<li>Managed platform services.</li>
+<li>One-time onboarding or setup costs.</li>
+<li>Optional professional services, if included.</li>
+</ol>
+<p>The Financial Proposal must clearly describe pricing structure, including pay-as-you-go, reserved capacity, fixed recurring charges, assumptions, volume tiers, scaling behavior, and any discounts.</p>
+<p>The Financial Proposal must also describe:</p>
+<ol>
+<li>The proposed service credits mechanism or equivalent reimbursement arrangements in the event of SLA breach.</li>
+<li>Any provisional professional services referred to in the Technical Proposal.</li>
+</ol>
+<h2 id="6-rfq-process-and-timeline">6. RFQ Process and Timeline<a class="headerlink" href="#6-rfq-process-and-timeline" title="Permanent link">&para;</a></h2>
+<h3 id="61-rfq-milestones">6.1 RFQ Milestones<a class="headerlink" href="#61-rfq-milestones" title="Permanent link">&para;</a></h3>
+<p>The RFQ process will follow a structured timeline to ensure transparency, consistency, and adequate response time for all participating providers. Contoso reserves the right to request clarifications and conduct negotiations before award.</p>
+<table>
+<thead>
+<tr>
+<th>Milestone</th>
+<th>Date / Time (Local)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Launch of RFQ</td>
+<td>18 FEB 2026</td>
+</tr>
+<tr>
+<td>Deadline for Questions (Q&amp;A)</td>
+<td>24 FEB 2026, 23:59</td>
+</tr>
+<tr>
+<td>Deadline for Proposal Submission</td>
+<td>03 MAR 2026, 23:59</td>
+</tr>
+<tr>
+<td>Bid Clarifications, if required</td>
+<td>06 MAR 2026, 23:59</td>
+</tr>
+</tbody>
+</table>
+<p>Table 3: RFQ Milestones</p>
+<h3 id="62-submission-method">6.2 Submission Method<a class="headerlink" href="#62-submission-method" title="Permanent link">&para;</a></h3>
+<p>This RFQ is issued to Candidates through Contoso's approved procurement portal.</p>
+<p>The main RFQ workspace will include the following folders or sections:</p>
+<ol>
+<li>RFQ Documents: RFQ chapters, appendices, schedules, templates, annexes, attachments, and supporting information to be downloaded by Candidates.</li>
+<li>Answers to Tender Queries: Responses issued by Contoso during the Q&amp;A period.</li>
+<li>Tender Bulletins: Announcements, amendments, and addenda related to the RFQ.</li>
+<li>Technical Proposal: Upload location for the Candidate's technical submission in compressed electronic format.</li>
+<li>Financial Proposal: Upload location for the Candidate's financial submission in compressed electronic format.</li>
+</ol>
+<p>Following receipt of this RFQ, Candidates may submit written clarification questions during the Q&amp;A period in accordance with the milestone dates set out above.</p>
+<p>The following submission rules apply:</p>
+<ol>
+<li>Clarification requests must be submitted in writing through the procurement portal by the deadline stated in Section 6.1.</li>
+<li>Responses to clarification requests may be issued to all Candidates on an anonymous basis where appropriate.</li>
+<li>Contoso reserves the right not to answer a query.</li>
+<li>Where a response could reveal commercially sensitive information about the requesting Candidate, Contoso may respond only to that Candidate, provided equal treatment obligations are maintained.</li>
+<li>Candidates must upload Technical and Financial Proposals separately.</li>
+<li>Proposals must be submitted in PDF and native editable formats where applicable.</li>
+<li>Proposals must be fully compliant with the requirements of this RFQ. Material qualifications, exceptions, or deviations may result in disqualification.</li>
+<li>No proposal may be edited, amended, or withdrawn after the submission deadline without Contoso's written consent.</li>
+<li>False statements, omissions, or failure to disclose material information may result in exclusion from the procedure.</li>
+</ol>
+<h2 id="7-rfq-terms-and-conditions">7. RFQ Terms and Conditions<a class="headerlink" href="#7-rfq-terms-and-conditions" title="Permanent link">&para;</a></h2>
+<p>Contoso assumes no responsibility and accepts no liability for the completeness of RFQ documents, updates, or amendments obtained from any source other than the approved procurement portal.</p>
+<h3 id="71-confidential-information">7.1 Confidential Information<a class="headerlink" href="#71-confidential-information" title="Permanent link">&para;</a></h3>
+<ol>
+<li>The contents of this RFQ are confidential and may be used only for the purposes of preparing and submitting a proposal.</li>
+<li>Candidates may acquire access to confidential information during the RFQ process and must not use, publish, or disclose such information to any third party except as permitted for the RFQ.</li>
+<li>Contoso and each Candidate shall take reasonable steps to protect confidential information and shall not disclose it to third parties without prior written consent, except to personnel or advisors directly involved in the RFQ and bound by equivalent confidentiality obligations.</li>
+<li>Each Candidate remains responsible for any confidentiality breach by its employees, agents, consultants, subcontractors, or advisors.</li>
+</ol>
+<h3 id="72-conflict-of-interest">7.2 Conflict of Interest<a class="headerlink" href="#72-conflict-of-interest" title="Permanent link">&para;</a></h3>
+<p>Each Candidate must fully disclose in writing, on or before the RFQ closing date, any actual, potential, or perceived conflict of interest that could arise if the Candidate were selected.</p>
+<p>Contoso reserves the right to reject any proposal where, in its judgment, a conflict of interest exists or may reasonably be perceived to exist.</p>
+<h3 id="73-ethics">7.3 Ethics<a class="headerlink" href="#73-ethics" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Candidates must not attempt to influence the RFQ process through inducements, gifts, rewards, or personal benefit to any representative of Contoso.</li>
+<li>Contoso reserves the right to request declarations or supporting evidence to ensure the probity of the procurement process.</li>
+<li>Candidates must not engage in collusive, deceptive, or improper conduct in preparing their proposals or in discussions with Contoso.</li>
+<li>Participation in the RFQ constitutes a representation that the proposal is genuine, not collusive, and not submitted on behalf of any undisclosed party.</li>
+</ol>
+<h3 id="74-submission-and-cost-of-participating-in-the-tender">7.4 Submission and Cost of Participating in the Tender<a class="headerlink" href="#74-submission-and-cost-of-participating-in-the-tender" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Each Candidate must submit its proposal by the stated deadline.</li>
+<li>No proposal may be added to, amended, or withdrawn after submission without written consent from Contoso.</li>
+<li>Contoso may request clarification or supplementary information in relation to any submitted proposal.</li>
+<li>Each Candidate bears its own costs associated with preparing, presenting, and submitting its proposal, including any negotiations.</li>
+<li>Contoso shall not be liable for any such costs under any circumstances.</li>
+</ol>
+<h3 id="75-ownership-of-documents-and-intellectual-property">7.5 Ownership of Documents and Intellectual Property<a class="headerlink" href="#75-ownership-of-documents-and-intellectual-property" title="Permanent link">&para;</a></h3>
+<ol>
+<li>This RFQ and its contents remain the property of Contoso. All intellectual property rights in the RFQ remain with Contoso or its licensors.</li>
+<li>RFQ materials may not be reproduced, copied, stored, or distributed except as necessary to prepare a proposal.</li>
+<li>Contoso may request destruction or return of RFQ materials and any copies, and Candidates must comply promptly.</li>
+<li>All submitted proposal documents become the property of Contoso and will not be returned.</li>
+<li>Intellectual property rights in each proposal remain with the Candidate or its licensors, but the Candidate grants Contoso a non-exclusive, perpetual, royalty-free license to retain, use, copy, and disclose proposal content for purposes related to the RFQ process.</li>
+</ol>
+<h3 id="76-non-binding-legal-relations">7.6 Non-Binding Legal Relations<a class="headerlink" href="#76-non-binding-legal-relations" title="Permanent link">&para;</a></h3>
+<ol>
+<li>This RFQ is not an offer and does not create a binding contract or commitment by Contoso.</li>
+<li>Contoso reserves the right to reject any or all proposals and to negotiate with any Candidate in the manner it considers appropriate.</li>
+<li>Contoso may award all, part, or separate portions of the requirements described in this RFQ.</li>
+<li>No legal relationship is created between Contoso and any Candidate except with respect to binding confidentiality, representations made by the Candidate, and any terms expressly stated to be binding.</li>
+<li>No contract shall exist unless and until a definitive agreement is signed by both parties.</li>
+<li>No Candidate may assign any rights or obligations arising from this RFQ without prior written consent from Contoso.</li>
+</ol>
+<h3 id="77-contosos-additional-rights">7.7 Contoso's Additional Rights<a class="headerlink" href="#77-contosos-additional-rights" title="Permanent link">&para;</a></h3>
+<p>Contoso may, at its discretion and with or without prior notice where legally permissible:</p>
+<ol>
+<li>Amend, suspend, cancel, or re-issue the RFQ or any part of it.</li>
+<li>Amend the timeline, requirements, or evaluation approach.</li>
+<li>Accept a late proposal.</li>
+<li>Answer a question submitted after the formal deadline.</li>
+<li>Accept or reject any proposal, in whole or in part.</li>
+<li>Accept or reject any non-compliant, non-conforming, or alternative proposal.</li>
+<li>Decide not to accept the lowest priced proposal.</li>
+<li>Decide not to enter into a contract with any Candidate.</li>
+<li>Liaise or negotiate with any Candidate without being required to do the same with all Candidates.</li>
+<li>Provide or withhold information where it considers this appropriate, reasonable, or necessary for legal, contractual, or confidentiality reasons.</li>
+<li>Waive irregularities or formal defects where it considers it appropriate to do so.</li>
+</ol>
+<p>Contoso may also request that any Candidate confirm whether individual elements of its proposal can be awarded separately unless the proposal expressly states otherwise.</p>
+<p>Contoso is not bound to award any contract and is not required to provide reasons for rejecting a proposal.</p>
+<h3 id="78-governing-law">7.8 Governing Law<a class="headerlink" href="#78-governing-law" title="Permanent link">&para;</a></h3>
+<p>This RFQ and the procurement process shall be governed by the laws of the applicable EU member state identified by Contoso in the final contract documentation. Each Candidate agrees to submit to the jurisdiction identified in that documentation for disputes relating to the RFQ or subsequent tender process.</p>
+<h3 id="79-disclaimer">7.9 Disclaimer<a class="headerlink" href="#79-disclaimer" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Contoso makes no representation, warranty, or undertaking as to the accuracy or completeness of the information provided in or in connection with this RFQ.</li>
+<li>Contoso shall not be liable for any inaccuracy, omission, misleading statement, or failure to update information provided through the RFQ process.</li>
+<li>Nothing in this RFQ or in any communication with Candidates constitutes legal, financial, or other professional advice.</li>
+<li>Contoso shall not be liable, whether in contract, tort, equity, or otherwise, for any direct or indirect loss, damage, cost, or expense incurred by any Candidate in connection with this RFQ or the tender process.</li>
+</ol>
+<h3 id="710-precedence">7.10 Precedence<a class="headerlink" href="#710-precedence" title="Permanent link">&para;</a></h3>
+<ol>
+<li>If there is any conflict or inconsistency between documents having the same level of precedence, the later-issued document shall prevail.</li>
+<li>This RFQ and its associated documents supersede prior written or oral communications relating to the services described herein.</li>
+</ol>
+<h3 id="711-acceptance-of-terms-and-conditions">7.11 Acceptance of Terms and Conditions<a class="headerlink" href="#711-acceptance-of-terms-and-conditions" title="Permanent link">&para;</a></h3>
+<p>Participation in this RFQ process constitutes acceptance by each Candidate of the terms and conditions set out in this RFQ and any ancillary procurement documents.</p>
+<h3 id="712-tender-currency">7.12 Tender Currency<a class="headerlink" href="#712-tender-currency" title="Permanent link">&para;</a></h3>
+<p>All prices, rates, and commercial values submitted in response to this RFQ must be expressed in Euros. Candidates must include all applicable taxes, duties, and charges, excluding VAT unless otherwise stated.</p>
+<h3 id="713-validity-of-proposals">7.13 Validity of Proposals<a class="headerlink" href="#713-validity-of-proposals" title="Permanent link">&para;</a></h3>
+<p>Proposals shall remain valid and binding for a period of one hundred twenty calendar days from the proposal submission deadline, unless extended by Contoso.</p>
+<h3 id="714-compliance-with-applicable-laws">7.14 Compliance with Applicable Laws<a class="headerlink" href="#714-compliance-with-applicable-laws" title="Permanent link">&para;</a></h3>
+<p>Each Candidate is solely responsible for complying with all applicable laws and regulations relating to its participation in the RFQ process, the preparation and submission of its proposal, and any subsequent contractual performance.</p>
+<h3 id="715-language">7.15 Language<a class="headerlink" href="#715-language" title="Permanent link">&para;</a></h3>
+<p>All proposals, appendices, supporting documentation, presentations, resumes, certifications, and correspondence submitted in connection with this RFQ must be in English.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025-2026 Jonathan Vella. Distributed under the MIT License.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.path", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

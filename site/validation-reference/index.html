@@ -1,0 +1,2721 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC">
+      
+      
+      
+        <link rel="canonical" href="https://jonathan-vella.github.io/azure-agentic-infraops/validation-reference/">
+      
+      
+        <link rel="prev" href="../e2e-testing/">
+      
+      
+        <link rel="next" href="../GLOSSARY/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Validation & Linting - Agentic InfraOps</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#validation-and-linting-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Agentic InfraOps" class="md-header__button md-logo" aria-label="Agentic InfraOps" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Agentic InfraOps
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Validation & Linting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jonathan-vella/azure-agentic-infraops" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jonathan-vella/azure-agentic-infraops
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../quickstart/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../how-it-works/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../prompt-guide/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../CONTRIBUTING/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Project
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Agentic InfraOps" class="md-nav__button md-logo" aria-label="Agentic InfraOps" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    Agentic InfraOps
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jonathan-vella/azure-agentic-infraops" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jonathan-vella/azure-agentic-infraops
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev-containers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dev Container Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../how-it-works/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How It Works
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How It Works
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-it-works/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-it-works/four-pillars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-it-works/agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-it-works/skills-and-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills & Instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-it-works/workflow-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Engine & Quality
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-it-works/mcp-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../prompt-guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompt Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompt Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompt-guide/best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompt-guide/workflow-prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompt-guide/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill & Subagent Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session-debugging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../e2e-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2E Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation & Linting
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation & Linting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#validation-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lefthook-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lefthook Hooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lefthook Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Commit Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commit-msg-hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit-Msg Hook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-push-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Push Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Post-Commit Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Scripts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validation Scripts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-and-registry-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture and Registry Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artifact-and-template-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Artifact and Template Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-and-compliance-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance and Compliance Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-and-state-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session and State Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-and-cross-reference-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality and Cross-Reference Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-and-format-linters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code and Format Linters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aggregate Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI Workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-validations-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Validations Locally
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GLOSSARY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#validation-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lefthook-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lefthook Hooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lefthook Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Commit Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commit-msg-hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit-Msg Hook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-push-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Push Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Post-Commit Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Scripts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validation Scripts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-and-registry-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture and Registry Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#artifact-and-template-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Artifact and Template Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-and-compliance-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance and Compliance Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-and-state-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session and State Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-and-cross-reference-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality and Cross-Reference Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Validators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-and-format-linters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code and Format Linters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aggregate Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI Workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-validations-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Validations Locally
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href=".." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Reference
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="validation-and-linting-reference"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m23 12-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68zm-13 5-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9z"/></svg></span> Validation and Linting Reference<a class="headerlink" href="#validation-and-linting-reference" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Central reference for all validation scripts, linting commands, git hooks, and CI workflows.</p>
+</blockquote>
+<h2 id="validation-architecture">Validation Architecture<a class="headerlink" href="#validation-architecture" title="Permanent link">&para;</a></h2>
+<p>Validation runs at three stages, catching issues progressively earlier:</p>
+<pre class="mermaid"><code>flowchart LR
+    A["Pre-Commit&lt;br/&gt;(lefthook)"] --&gt; B["Pre-Push&lt;br/&gt;(lefthook)"]
+    B --&gt; C["CI&lt;br/&gt;(GitHub Actions)"]
+    style A fill:#e8f5e9,stroke:#4caf50
+    style B fill:#fff3e0,stroke:#ff9800
+    style C fill:#ffebee,stroke:#f44336</code></pre>
+<ol>
+<li><strong>Pre-commit</strong> — validates staged files only (fast, file-type scoped)</li>
+<li><strong>Pre-push</strong> — validates all changed files vs <code>main</code> (domain-scoped, parallel)</li>
+<li><strong>CI</strong> — validates the full repository on every PR and push to <code>main</code></li>
+</ol>
+<p>A <strong>post-commit</strong> layer also runs lightweight checks after each commit.</p>
+<h2 id="lefthook-hooks">Lefthook Hooks<a class="headerlink" href="#lefthook-hooks" title="Permanent link">&para;</a></h2>
+<p>All hooks are defined in <code>lefthook.yml</code> at the repository root.</p>
+<h3 id="pre-commit-hooks">Pre-Commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Trigger (glob)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>markdown-lint</code></td>
+<td><code>*.md</code></td>
+<td>markdownlint on staged markdown files</td>
+</tr>
+<tr>
+<td><code>link-check</code></td>
+<td><code>docs/**/*.md</code></td>
+<td>Verify URLs in staged docs files</td>
+</tr>
+<tr>
+<td><code>h2-sync</code></td>
+<td>SKILL.md, azure-artifacts files</td>
+<td>Check H2 heading sync across sources</td>
+</tr>
+<tr>
+<td><code>artifact-validation</code></td>
+<td><code>agent-output/**/*.md</code></td>
+<td>Validate artifact H2 structure against templates</td>
+</tr>
+<tr>
+<td><code>agent-frontmatter</code></td>
+<td><code>**/*.agent.md</code></td>
+<td>Validate agent YAML frontmatter syntax</td>
+</tr>
+<tr>
+<td><code>model-alignment</code></td>
+<td><code>**/*.agent.md</code>, <code>**/*.prompt.md</code></td>
+<td>Check model-prompt alignment</td>
+</tr>
+<tr>
+<td><code>agent-checks</code></td>
+<td><code>**/*.agent.md</code></td>
+<td>Agent body size and language density</td>
+</tr>
+<tr>
+<td><code>instruction-checks</code></td>
+<td><code>**/*.instructions.md</code></td>
+<td>Instruction frontmatter validation</td>
+</tr>
+<tr>
+<td><code>instruction-refs</code></td>
+<td>Agents, skills, instructions</td>
+<td>Cross-reference validation</td>
+</tr>
+<tr>
+<td><code>python-lint</code></td>
+<td><code>mcp/**/*.py</code></td>
+<td>Ruff linter on Python files</td>
+</tr>
+<tr>
+<td><code>terraform-fmt</code></td>
+<td><code>*.tf</code></td>
+<td>Terraform formatting check</td>
+</tr>
+<tr>
+<td><code>terraform-validate</code></td>
+<td><code>*.tf</code></td>
+<td>Terraform validation per project</td>
+</tr>
+</tbody>
+</table>
+<h3 id="commit-msg-hook">Commit-Msg Hook<a class="headerlink" href="#commit-msg-hook" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commitlint</code></td>
+<td>Enforce <a href="https://www.conventionalcommits.org/">Conventional Commits</a> format</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pre-push-hooks">Pre-Push Hooks<a class="headerlink" href="#pre-push-hooks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branch-naming</code></td>
+<td>Validate branch name uses an approved prefix</td>
+</tr>
+<tr>
+<td><code>branch-scope</code></td>
+<td>Validate domain branches only modify in-scope files</td>
+</tr>
+<tr>
+<td><code>diff-based-check</code></td>
+<td>Run domain-scoped validators for changed file types</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-commit-hooks">Post-Commit Hooks<a class="headerlink" href="#post-commit-hooks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version-sync</code></td>
+<td>Check version consistency across <code>VERSION.md</code>, <code>package.json</code>, <code>mkdocs.yml</code></td>
+</tr>
+<tr>
+<td><code>deprecated-refs</code></td>
+<td>Detect deprecated references in changed markdown</td>
+</tr>
+<tr>
+<td><code>json-syntax</code></td>
+<td>Validate JSON syntax of changed <code>.json</code> files</td>
+</tr>
+</tbody>
+</table>
+<h2 id="validation-scripts">Validation Scripts<a class="headerlink" href="#validation-scripts" title="Permanent link">&para;</a></h2>
+<p>All scripts are in the <code>scripts/</code> directory. Run via <code>npm run &lt;command&gt;</code>.</p>
+<h3 id="architecture-and-registry-validators">Architecture and Registry Validators<a class="headerlink" href="#architecture-and-registry-validators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lint:agent-frontmatter</code></td>
+<td><code>validate-agent-frontmatter.mjs</code></td>
+<td>Agent definition frontmatter compliance</td>
+</tr>
+<tr>
+<td><code>lint:agent-checks</code></td>
+<td><code>lint-agent-checks.mjs</code></td>
+<td>Agent body size (≤350 lines) and language density</td>
+</tr>
+<tr>
+<td><code>lint:model-alignment</code></td>
+<td><code>lint-model-alignment.mjs</code></td>
+<td>Model-specific prompt pattern compliance</td>
+</tr>
+<tr>
+<td><code>lint:skills-format</code></td>
+<td><code>validate-skills-format.mjs</code></td>
+<td>Skill file format and frontmatter</td>
+</tr>
+<tr>
+<td><code>validate:skill-checks</code></td>
+<td><code>validate-skill-checks.mjs</code></td>
+<td>Skill size (≤500 lines) and references</td>
+</tr>
+<tr>
+<td><code>validate:instruction-checks</code></td>
+<td><code>validate-instruction-checks.mjs</code></td>
+<td>Instruction frontmatter and applyTo patterns</td>
+</tr>
+<tr>
+<td><code>validate:agent-registry</code></td>
+<td><code>validate-agent-registry.mjs</code></td>
+<td>Agent registry consistency</td>
+</tr>
+<tr>
+<td><code>validate:skill-affinity</code></td>
+<td><code>validate-skill-affinity.mjs</code></td>
+<td>Skill-to-agent affinity mappings</td>
+</tr>
+<tr>
+<td><code>validate:workflow-graph</code></td>
+<td><code>validate-workflow-graph.mjs</code></td>
+<td>DAG integrity (no orphans, no cycles)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="artifact-and-template-validators">Artifact and Template Validators<a class="headerlink" href="#artifact-and-template-validators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lint:artifact-templates</code></td>
+<td><code>validate-artifact-templates.mjs</code></td>
+<td>H2 heading strictness for agent outputs</td>
+</tr>
+<tr>
+<td><code>lint:h2-sync</code></td>
+<td><code>validate-h2-sync.mjs</code></td>
+<td>H2 heading consistency across three sources</td>
+</tr>
+<tr>
+<td><code>fix:artifact-h2</code></td>
+<td><code>fix-artifact-h2.mjs</code></td>
+<td>Auto-fix artifact H2 headings</td>
+</tr>
+<tr>
+<td><code>e2e:validate</code></td>
+<td><code>validate-e2e-step.mjs</code></td>
+<td>E2E pipeline structural validation</td>
+</tr>
+<tr>
+<td><code>e2e:benchmark</code></td>
+<td><code>benchmark-e2e.mjs</code></td>
+<td>8-dimension benchmark scoring</td>
+</tr>
+</tbody>
+</table>
+<h3 id="governance-and-compliance-validators">Governance and Compliance Validators<a class="headerlink" href="#governance-and-compliance-validators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lint:governance-refs</code></td>
+<td><code>validate-governance-refs.mjs</code></td>
+<td>Governance guardrails integrity</td>
+</tr>
+<tr>
+<td><code>validate:no-hardcoded-counts</code></td>
+<td><code>validate-no-hardcoded-counts.mjs</code></td>
+<td>Prevent hardcoded entity counts</td>
+</tr>
+<tr>
+<td><code>validate:stale-refs</code></td>
+<td><code>validate-no-stale-skill-references.mjs</code></td>
+<td>Detect stale skill references</td>
+</tr>
+<tr>
+<td><code>lint:deprecated-refs</code></td>
+<td><code>validate-no-deprecated-refs.mjs</code></td>
+<td>Block deprecated API/pattern references</td>
+</tr>
+</tbody>
+</table>
+<h3 id="session-and-state-validators">Session and State Validators<a class="headerlink" href="#session-and-state-validators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate:session-state</code></td>
+<td><code>validate-session-state.mjs</code></td>
+<td>Session state JSON schema compliance</td>
+</tr>
+<tr>
+<td><code>validate:session-lock</code></td>
+<td><code>validate-session-lock.mjs</code></td>
+<td>Distributed lock/claim model integrity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="quality-and-cross-reference-validators">Quality and Cross-Reference Validators<a class="headerlink" href="#quality-and-cross-reference-validators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lint:glob-audit</code></td>
+<td><code>validate-glob-audit.mjs</code></td>
+<td>Detect overly broad glob patterns</td>
+</tr>
+<tr>
+<td><code>lint:skill-references</code></td>
+<td><code>validate-skill-references.mjs</code></td>
+<td>Validate skill cross-references</td>
+</tr>
+<tr>
+<td><code>lint:orphaned-content</code></td>
+<td><code>validate-orphaned-content.mjs</code></td>
+<td>Detect unreferenced skills/content</td>
+</tr>
+<tr>
+<td><code>validate:docs-sync</code></td>
+<td><code>validate-docs-sync.mjs</code></td>
+<td>Documentation file sync checks</td>
+</tr>
+<tr>
+<td><code>lint:docs-freshness</code></td>
+<td><code>check-docs-freshness.mjs</code></td>
+<td>Documentation staleness detection</td>
+</tr>
+<tr>
+<td><code>lint:version-sync</code></td>
+<td><code>validate-version-sync.mjs</code></td>
+<td>Version consistency across files</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuration-validators">Configuration Validators<a class="headerlink" href="#configuration-validators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate:vscode</code></td>
+<td><code>validate-vscode-config.mjs</code></td>
+<td>VS Code settings completeness</td>
+</tr>
+<tr>
+<td><code>validate:hooks</code></td>
+<td><code>validate-hooks.mjs</code></td>
+<td>Hook script structure and syntax</td>
+</tr>
+<tr>
+<td><code>lint:mcp-config</code></td>
+<td><code>validate-mcp-config.mjs</code></td>
+<td>MCP server configuration validity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="code-and-format-linters">Code and Format Linters<a class="headerlink" href="#code-and-format-linters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lint:md</code></td>
+<td>markdownlint-cli2</td>
+<td>Markdown formatting and style</td>
+</tr>
+<tr>
+<td><code>lint:links</code></td>
+<td>markdown-link-check</td>
+<td>URL validity in all markdown files</td>
+</tr>
+<tr>
+<td><code>lint:links:docs</code></td>
+<td>markdown-link-check</td>
+<td>URL validity in <code>docs/</code> only</td>
+</tr>
+<tr>
+<td><code>lint:json</code></td>
+<td><code>lint-json.mjs</code></td>
+<td>JSON/JSONC syntax validation</td>
+</tr>
+<tr>
+<td><code>lint:python</code></td>
+<td>ruff</td>
+<td>Python code quality (<code>mcp/azure-pricing-mcp/</code>)</td>
+</tr>
+<tr>
+<td><code>lint:terraform-fmt</code></td>
+<td>terraform fmt</td>
+<td>Terraform formatting compliance</td>
+</tr>
+<tr>
+<td><code>validate:terraform</code></td>
+<td>terraform validate</td>
+<td>Terraform validation per project</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aggregate-commands">Aggregate Commands<a class="headerlink" href="#aggregate-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>npm Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate:all</code></td>
+<td>Run all validators (parallel Node + external)</td>
+</tr>
+<tr>
+<td><code>validate:_node</code></td>
+<td>All Node.js validators in parallel</td>
+</tr>
+<tr>
+<td><code>validate:_external</code></td>
+<td>All external tool validators in parallel</td>
+</tr>
+<tr>
+<td><code>validate:agents</code></td>
+<td>Agent frontmatter + skills format combined</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ci-workflows">CI Workflows<a class="headerlink" href="#ci-workflows" title="Permanent link">&para;</a></h2>
+<p>All workflows are in <code>.github/workflows/</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>File</th>
+<th>Trigger</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lint</td>
+<td><code>lint.yml</code></td>
+<td>PR to <code>main</code>, push to <code>main</code></td>
+<td>Markdown, artifacts, H2 sync, instructions, JSON, MCP config</td>
+</tr>
+<tr>
+<td>Agent Validation</td>
+<td><code>agent-validation.yml</code></td>
+<td>Changes to agents/skills/instructions</td>
+<td>Agent frontmatter, skills format, VS Code config</td>
+</tr>
+<tr>
+<td>Branch Enforcement</td>
+<td><code>branch-enforcement.yml</code></td>
+<td>PR to <code>main</code></td>
+<td>Branch naming convention and scope validation</td>
+</tr>
+<tr>
+<td>Link Check</td>
+<td><code>link-check.yml</code></td>
+<td>Docs changes</td>
+<td>URL validity in documentation</td>
+</tr>
+<tr>
+<td>Docs</td>
+<td><code>docs.yml</code></td>
+<td>Docs changes</td>
+<td>Build and deploy MkDocs site</td>
+</tr>
+<tr>
+<td>Docs Freshness</td>
+<td><code>docs-freshness.yml</code></td>
+<td>Scheduled</td>
+<td>Documentation staleness detection</td>
+</tr>
+<tr>
+<td>E2E Validation</td>
+<td><code>e2e-validation.yml</code></td>
+<td>Agent output changes</td>
+<td>E2E pipeline structural validation</td>
+</tr>
+<tr>
+<td>Policy Compliance</td>
+<td><code>policy-compliance-check.yml</code></td>
+<td>IaC changes</td>
+<td>Azure Policy compliance checks</td>
+</tr>
+<tr>
+<td>AVM Version Check</td>
+<td><code>avm-version-check.yml</code></td>
+<td>Scheduled</td>
+<td>Azure Verified Module version updates</td>
+</tr>
+<tr>
+<td>Azure Deprecation Tracker</td>
+<td><code>azure-deprecation-tracker.yml</code></td>
+<td>Scheduled</td>
+<td>Track Azure service deprecations</td>
+</tr>
+</tbody>
+</table>
+<h2 id="running-validations-locally">Running Validations Locally<a class="headerlink" href="#running-validations-locally" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Run everything</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>npm<span class="w"> </span>run<span class="w"> </span>validate:all
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Run a specific category</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>npm<span class="w"> </span>run<span class="w"> </span>lint:md<span class="w">                    </span><span class="c1"># Markdown only</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>npm<span class="w"> </span>run<span class="w"> </span>lint:agent-frontmatter<span class="w">     </span><span class="c1"># Agent definitions only</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>npm<span class="w"> </span>run<span class="w"> </span>validate:session-state<span class="w">     </span><span class="c1"># Session state only</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Auto-fix where supported</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>npm<span class="w"> </span>run<span class="w"> </span>lint:md:fix<span class="w">                </span><span class="c1"># Fix markdown issues</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>npm<span class="w"> </span>run<span class="w"> </span>fix:artifact-h2<span class="w"> </span>&lt;file&gt;<span class="w"> </span>--apply<span class="w">  </span><span class="c1"># Fix artifact H2 headings</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>npm<span class="w"> </span>run<span class="w"> </span>lint:python:fix<span class="w">            </span><span class="c1"># Fix Python lint issues</span>
+</span></code></pre></div>
+<hr />
+<div class="admonition tip">
+<p class="admonition-title">Further Reading</p>
+<ul>
+<li><a href="../CONTRIBUTING/">Contributing</a> — branch naming and commit conventions</li>
+<li><a href="../hooks/">Agent Hooks</a> — VS Code agent hooks (lifecycle automation)</li>
+<li><a href="../e2e-testing/">E2E Testing</a> — Ralph Loop evaluation framework</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025-2026 Jonathan Vella. Distributed under the MIT License.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.path", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

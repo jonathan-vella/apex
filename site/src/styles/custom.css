@@ -660,7 +660,8 @@ tr:last-child td {
 }
 
 .mermaid svg {
-  max-width: 100%;
+  width: auto !important;
+  max-width: none !important;
   height: auto;
 }
 

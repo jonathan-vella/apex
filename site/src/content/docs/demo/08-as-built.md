@@ -375,7 +375,7 @@ AppRequests
 ### Incident Response Flow
 
 ```mermaid
-flowchart TD
+flowchart LR
     D["🔍 Detect"] --> T["🎯 Triage"]
     T --> E["⚠️ Escalate"]
     E --> R["🛠️ Resolve"]
@@ -451,7 +451,7 @@ gantt
 ### Escalation Path
 
 ```mermaid
-flowchart TD
+flowchart LR
     L1["🟢 L1: On-Call Engineer"] --> L2["🟠 L2: Team Lead"]
     L2 --> L3["🔴 L3: Service Owner"]
     L3 --> MGMT["⚠️ Management"]
@@ -901,7 +901,7 @@ _Backup and DR plan generated from infrastructure artifacts._
 ### References
 
 ```mermaid
-flowchart TD
+flowchart LR
     A["Control"] --> B{"Implemented?"}
     B -- Yes --> C{"Evidence Collected?"}
     B -- No --> D["❌ Gap"]
