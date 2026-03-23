@@ -116,7 +116,7 @@ Current model assignments:
 | Bicep Code   | Opus 4.6 / Sonnet 4.6      | Code generation      |
 | Deploy       | Sonnet 4.6                 | Deployment execution |
 | As-Built     | GPT-5.3-Codex              | Documentation gen    |
-| Challenger   | GPT-5.4                    | Deep adversarial     |
+| Challenger   | Claude Sonnet 4.6          | Deep adversarial     |
 | Subagents    | GPT-5.3-Codex / Sonnet 4.6 | Fast validation      |
 
 **Rules:**

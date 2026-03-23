@@ -50,7 +50,7 @@
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": ["azure-diagrams", "azure-adr", "session-resume"],
       "invokable": true,
       "step": 3
@@ -100,7 +100,7 @@
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -113,7 +113,7 @@
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -132,7 +132,7 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -145,7 +145,7 @@
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -162,7 +162,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [
         "azure-defaults",
         "azure-artifacts",
@@ -189,7 +189,7 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": true,
       "step": null

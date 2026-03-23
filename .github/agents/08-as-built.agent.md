@@ -1,7 +1,7 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
 tools:
@@ -80,15 +80,26 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
-## MANDATORY: Read Skills First
+<context_awareness>
+This is a large agent definition (~405 lines). At >60% context, load SKILL.digest.md variants.
+At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+</context_awareness>
 
-**Before doing ANY work**, read these skills:
+<scope_fencing>
+This agent generates as-built documentation only: design document, operations runbook, cost estimate,
+compliance matrix, backup/DR plan, resource inventory, and documentation index.
+Do not modify deployed infrastructure, change IaC templates, or skip prior artifact review.
+</scope_fencing>
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
-3. **Read** `.github/skills/azure-diagrams/SKILL.md` — diagram generation contract
-4. **Read** `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
-5. **Read** the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
+## Read Skills First
+
+Before doing any work, read these skills:
+
+1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
+2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
+3. Read `.github/skills/azure-diagrams/SKILL.md` — diagram generation contract
+4. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
+5. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
    - `07-ab-cost-estimate.template.md`
@@ -99,7 +110,7 @@ handoffs:
 
 ## DO / DON'T
 
-### DO
+**Do:**
 
 - Read ALL prior artifacts (01-06) before generating any documentation
 - Query deployed Azure resources for real state (not just planned state)
@@ -110,18 +121,17 @@ handoffs:
 - Update `agent-output/{project}/README.md` — mark Step 7 complete
 - Cross-reference deployment summary for actual resource names and IDs
 
-### DON'T
+**Avoid:**
 
-- Modify any Bicep templates, Terraform configurations, or deployment scripts
-- Deploy or modify Azure resources
-- Skip reading prior artifacts — they are your primary input
-- Use planned values when actual deployed values are available
-- Generate documentation for resources that failed deployment
-- Use H2 headings that differ from the templates
-- **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
-  `07-ab-cost-estimate.md` MUST originate from `cost-estimate-subagent`
-  responses
-- **Call Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
+- Modifying any Bicep templates, Terraform configurations, or deployment scripts
+- Deploying or modifying Azure resources
+- Skipping reading prior artifacts — they are your primary input
+- Using planned values when actual deployed values are available
+- Generating documentation for resources that failed deployment
+- Using H2 headings that differ from the templates
+- **Hardcoding prices** — ALL prices in `07-ab-cost-estimate.md` MUST originate from
+  `cost-estimate-subagent` responses
+- **Calling Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
 
 ## Prerequisites Check
 
@@ -166,10 +176,10 @@ If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 3. **Query deployed resources** via Azure CLI / Resource Graph for actual state
 4. **Read deployment summary** for resource IDs, names, and endpoints
 
-### Phase 1.5: Context Compaction (MANDATORY)
+### Phase 1.5: Context Compaction
 
 Context usage reaches ~80% after loading 6+ prior artifacts and IaC source.
-**You MUST compact before generating the 7-document suite.**
+Compact before generating the 7-document suite.
 
 1. **Summarize prior artifacts** — write a single concise message containing:
    - Resource inventory (names, types, SKUs, resource IDs from deployment)

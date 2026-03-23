@@ -1,6 +1,6 @@
 ---
 name: 04-Design
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
@@ -77,38 +77,43 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
+<scope_fencing>
+This agent generates design artifacts only: architecture diagrams, ADRs, and cost estimate handoffs.
+Do not generate IaC code, modify architecture assessments, or make infrastructure decisions without an ADR.
+</scope_fencing>
+
 This step is **optional**. Users can skip directly to Step 4 (Implementation Planning).
 
-## MANDATORY: Read Skills First
+## Read Skills First
 
-**Before doing ANY work**, read these skills:
+Before doing any work, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
-3. **Read** `.github/skills/azure-diagrams/SKILL.md` — diagram generation instructions
-4. **Read** `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
+1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
+2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
+3. Read `.github/skills/azure-diagrams/SKILL.md` — diagram generation instructions
+4. Read `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
 
 ## DO / DON'T
 
-### DO
+**Do:**
 
-- ✅ Read `02-architecture-assessment.md` BEFORE generating any design artifact
-- ✅ Use the `azure-diagrams` skill for Python architecture diagrams
-- ✅ Use the `azure-adr` skill for Architecture Decision Records
-- ✅ Save diagrams to `agent-output/{project}/03-des-diagram.py`
-- ✅ Save ADRs to `agent-output/{project}/03-des-adr-NNNN-{title}.md`
-- ✅ Save cost estimates to `agent-output/{project}/03-des-cost-estimate.md`
-- ✅ Include all Azure resources from the architecture in diagrams
-- ✅ Match H2 headings from azure-artifacts skill for cost estimates
-- ✅ Update `agent-output/{project}/README.md` — mark Step 3 complete, add your artifacts (see azure-artifacts skill)
+- Read `02-architecture-assessment.md` before generating any design artifact
+- Use the `azure-diagrams` skill for Python architecture diagrams
+- Use the `azure-adr` skill for Architecture Decision Records
+- Save diagrams to `agent-output/{project}/03-des-diagram.py`
+- Save ADRs to `agent-output/{project}/03-des-adr-NNNN-{title}.md`
+- Save cost estimates to `agent-output/{project}/03-des-cost-estimate.md`
+- Include all Azure resources from the architecture in diagrams
+- Match H2 headings from azure-artifacts skill for cost estimates
+- Update `agent-output/{project}/README.md` — mark Step 3 complete, add your artifacts (see azure-artifacts skill)
 
-### DON'T
+**Avoid:**
 
-- ❌ Create Bicep or infrastructure code
-- ❌ Modify existing architecture assessment
-- ❌ Generate diagrams without reading architecture assessment first
-- ❌ Use generic placeholder resources — use actual project resources
-- ❌ Skip the attribution header on output files
+- Creating Bicep or infrastructure code
+- Modifying existing architecture assessment
+- Generating diagrams without reading architecture assessment first
+- Using generic placeholder resources — use actual project resources
+- Skipping the attribution header on output files
 
 ## Prerequisites Check
 

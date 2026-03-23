@@ -1,6 +1,6 @@
 ---
 name: 07t-Terraform Deploy
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
@@ -72,20 +72,25 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
-## MANDATORY: Read Skills First
+<context_awareness>
+This is a large agent definition (~576 lines). At >60% context, load SKILL.digest.md variants.
+At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+</context_awareness>
 
-**Before doing ANY work**, read these skills:
+## Read Skills First
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline,
+Before doing any work, read these skills:
+
+1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline,
    and the **Terraform Conventions** section
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for
+2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for
    `06-deployment-summary.md`
-3. **Read** `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
+3. Read `.github/skills/azure-artifacts/templates/06-deployment-summary.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
-4. **Read** `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
-5. **Read** `.github/skills/session-resume/SKILL.digest.md` — session state checkpoint protocol
+4. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
+5. Read `.github/skills/session-resume/SKILL.digest.md` — session state checkpoint protocol
 
-## Pre-Deploy Challenger Review (MANDATORY)
+## Pre-Deploy Challenger Review
 
 Before executing any deployment (after terraform plan, before `terraform apply`):
 
@@ -95,9 +100,9 @@ Before executing any deployment (after terraform plan, before `terraform apply`)
 4. If `should_fix` count > 0: present findings and ask user for explicit approval to proceed
 5. Log review result to `00-session-state.json` under `review_audit.step_6`
 
-## MANDATORY: Copy-Then-Fill Artifact Protocol
+## Copy-Then-Fill Artifact Protocol
 
-> **CRITICAL**: NEVER compose `06-deployment-summary.md` from memory.
+> Never compose `06-deployment-summary.md` from memory.
 > Always start from the template skeleton. This prevents H2 misordering,
 > missing sections, wrong emoji, and cascading fix loops.
 
@@ -152,8 +157,8 @@ Skip if `05-implementation-reference.md` confirms `security_validation_status: P
 | Validate Azure CLI token FIRST (`az account get-access-token`)           | Deploy without running `terraform plan` first                            |
 | Verify state backend storage account BEFORE `terraform init`             | Skip phase gates when plan specifies phased deployment                   |
 | Offer `bootstrap-backend.sh/.ps1` if backend missing                     | Use `terraform -target` — code is phase-gated via `var.deployment_phase` |
-| Scan tfvars for placeholders; **MUST** use `askQuestions` tool           | Pass tfvars with literal `<replace-with-*>` strings to plan/apply        |
-| **NEVER** list placeholders in chat asking user to reply manually        | List placeholders in chat text and wait for a reply                      |
+| Scan tfvars for placeholders; use `askQuestions` tool                    | Pass tfvars with literal `<replace-with-*>` strings to plan/apply        |
+| Do not list placeholders in chat asking user to reply manually           | List placeholders in chat text and wait for a reply                      |
 | Run `terraform validate` and `terraform fmt -check` before planning      | Auto-approve production deployments                                      |
 | Check `04-implementation-plan.md` for deployment strategy                | Proceed if plan shows resource destruction without approval              |
 | Deploy phases one at a time with `var.deployment_phase` + approval gates | Proceed if `terraform validate` fails                                    |
@@ -222,21 +227,21 @@ grep -n "<replace-with-\|<your-\|<TODO\|PLACEHOLDER" infra/terraform/{project}/*
 If **any placeholders are found**:
 
 1. Do **not** proceed to `terraform init` or plan yet.
-2. **MANDATORY — use the `askQuestions` tool** to collect every missing
+2. Use the `askQuestions` tool to collect every missing
    value in a **single** interactive form. Build one question per
    placeholder with a clear header and description (e.g.
    header: "SQL Admin Entra Group Object ID",
    question: "Azure AD / Entra group Object ID that will have SQL admin
    access (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)").
-   **NEVER** list the placeholders in chat text and ask the user to
+   Do not list the placeholders in chat text and ask the user to
    reply — this wastes a full request round-trip. The `askQuestions`
    tool presents an inline form the user fills out in one shot.
 3. After the user supplies all values, update the tfvars file(s) with the real values.
 4. Re-run the grep scan to confirm no placeholders remain before continuing.
 
 > **CRITICAL GATE** — Never pass a tfvars file with literal placeholder
-> strings to `terraform plan` or `apply`. Never collect placeholder values
-> via chat messages — always use the `askQuestions` tool.
+> strings to `terraform plan` or `apply`. Always use the `askQuestions`
+> tool to collect placeholder values.
 
 ### Step 4: Validate Configuration
 
