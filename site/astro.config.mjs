@@ -53,6 +53,13 @@ export default defineConfig({
             content: "summary_large_image",
           },
         },
+        {
+          tag: "script",
+          attrs: {
+            type: "module",
+          },
+          content: `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#0078d4',primaryTextColor:'#f0f6fc',lineColor:'#6e7681',secondaryColor:'#21262d',tertiaryColor:'#30363d'}});`,
+        },
       ],
       customCss: [
         "@fontsource/space-grotesk/400.css",
