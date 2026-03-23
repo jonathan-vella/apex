@@ -2,9 +2,9 @@
 
 Permanent source documents consumed by E2E evaluation prompts (RALPH loop).
 
-- **Prompts** remain in `.github/prompts/`
-- **Agent output** remains in `agent-output/{project}/`
-- **IaC code** remains in `infra/bicep/{project}/` or `infra/terraform/{project}/`
+- **Prompts** are in `tests/prompts/`
+- **Agent output** goes to `agent-output/{project}/`
+- **IaC code** goes to `infra/bicep/{project}/` or `infra/terraform/{project}/`
 
 This folder holds only the **input fixtures** — RFPs, RFQs, sample requirements,
 and reference documents that seed the evaluation pipeline.
