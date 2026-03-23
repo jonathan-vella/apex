@@ -2,145 +2,101 @@
 title: Agentic InfraOps
 description: Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC
 template: splash
-hero:
-  tagline: Transform Azure infrastructure requirements into deploy-ready IaC code using coordinated AI agents, aligned with the Azure Well-Architected Framework.
-  actions:
-    - text: Get Started
-      link: /azure-agentic-infraops/getting-started/quickstart/
-      icon: right-arrow
-      variant: primary
-    - text: Use the Template
-      link: https://github.com/jonathan-vella/azure-agentic-infraops-accelerator
-      icon: external
-      variant: minimal
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+import AgentChat from "../../components/AgentChat.astro";
 
-## Explore the Documentation
+<section class="landing-hero not-content">
+  <div class="landing-hero__copy">
+    <p class="landing-eyebrow">Multi-Agent Azure IaC</p>
+    <h1>
+      <span>Agentic</span>
+      <span>InfraOps</span>
+    </h1>
+    <p class="landing-hero__tagline">
+      Transform Azure infrastructure requirements into deploy-ready IaC code
+      using coordinated AI agents, aligned with the Azure Well-Architected
+      Framework — Bicep or Terraform.
+    </p>
 
-<CardGrid>
-  <LinkCard
-    title="Getting Started"
-    description="Set up from the Accelerator template and run your first agent workflow."
-    href="/azure-agentic-infraops/getting-started/quickstart/"
-  />
-  <LinkCard
-    title="How It Works"
-    description="Understand the multi-agent architecture, skills system, and workflow."
-    href="/azure-agentic-infraops/concepts/how-it-works/"
-  />
-  <LinkCard
-    title="Workflow"
-    description="The multi-step journey from requirements to deployed infrastructure."
-    href="/azure-agentic-infraops/concepts/workflow/"
-  />
-  <LinkCard
-    title="Prompt Guide"
-    description="Ready-to-use prompt examples for every agent and skill."
-    href="/azure-agentic-infraops/guides/prompt-guide/"
-  />
-  <LinkCard
-    title="Troubleshooting"
-    description="Common issues, diagnostic decision tree, and solutions."
-    href="/azure-agentic-infraops/guides/troubleshooting/"
-  />
-  <LinkCard
-    title="Agent Hooks"
-    description="Automated code quality enforcement during agent sessions."
-    href="/azure-agentic-infraops/guides/hooks/"
-  />
-  <LinkCard
-    title="Glossary"
-    description="Quick reference for terms used throughout the documentation."
-    href="/azure-agentic-infraops/reference/glossary/"
-  />
-  <LinkCard
-    title="FAQ"
-    description="Answers to common questions about the project and customization."
-    href="/azure-agentic-infraops/reference/faq/"
-  />
-</CardGrid>
+    <div class="landing-hero__actions">
+      <a class="sl-link-button primary not-content" href="getting-started/quickstart/">
+        Get Started
+      </a>
+      <a class="sl-link-button minimal not-content" href="https://github.com/jonathan-vella/azure-agentic-infraops-accelerator">
+        Use the Template
+      </a>
+    </div>
 
----
+  </div>
 
-## Key Facts
+  <div class="landing-hero__demo demo-window">
+    <div class="landing-hero__demo-frame">
+      <AgentChat />
+    </div>
+  </div>
+</section>
 
-|                 |                                                          |
-| --------------- | -------------------------------------------------------- |
-| **Agents**      | Specialized top-level agents and subagents               |
-| **Skills**      | Reusable domain knowledge modules                        |
-| **IaC Tracks**  | Bicep and Terraform (dual-track)                         |
-| **MCP Servers** | GitHub, Azure Pricing, Terraform + Azure MCP (extension) |
+<section class="landing-section scenario-frame not-content">
+  <div class="scenario-frame__head">
+    <div class="section-label">How It Works</div>
+    <h2>From requirements to resilient Azure infrastructure</h2>
+    <p>AI agents prepare. Humans decide. Azure delivers.</p>
+  </div>
 
----
+  <div class="scenario-frame__body">
+    <div class="scenario-frame__columns">
+      <div class="scenario-panel">
+        <div class="scenario-panel__label">The Workflow</div>
+        <p>Specialized AI agents collaborate through a structured multi-step
+        pipeline: <strong>Requirements → Architecture → Governance → IaC Plan →
+        Code → Deploy → Documentation</strong>. Each step includes adversarial
+        review and human approval gates.</p>
+      </div>
 
-## Workflow
+      <div class="scenario-panel scenario-panel--tasks">
+        <div class="scenario-panel__label">What you get</div>
+        <ul class="scenario-checklist">
+          <li>Production-ready Bicep or Terraform templates using Azure Verified Modules.</li>
+          <li>WAF-aligned architecture with cost estimates and governance compliance.</li>
+          <li>Automated validation, linting, and adversarial reviews at every step.</li>
+          <li>Complete as-built documentation, runbooks, and deployment summaries.</li>
+        </ul>
+      </div>
+    </div>
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as 👤 User
-    participant C as 🎼 Conductor Agent
-    participant Agents as 🤖 Agents
-    participant X as ⚔️ Challenger Agent
+  </div>
+</section>
 
-    Note over C: AI prepares · Humans decide
+<section class="landing-section scenario-frame explore-section not-content">
+  <div class="scenario-frame__head">
+    <div class="section-label">Explore</div>
+    <h2>Everything you need to get started</h2>
+  </div>
 
-    U->>C: Describe infrastructure intent
-    C->>Agents: 📋 Gather requirements
-    Agents-->>C: 01-requirements.md
-    C->>X: Challenge requirements
-    X-->>C: Findings
-    C->>U: Present for review
-
-    rect rgba(255, 200, 0, 0.15)
-    Note over U,C: 🛑 APPROVAL GATE
-    U-->>C: ✅ Approve
-    end
-
-    C->>Agents: 🏛️ Architecture + 💰 Cost
-    Agents-->>C: 02-assessment.md
-    C->>X: Challenge architecture
-    C->>U: Present for review
-
-    rect rgba(255, 200, 0, 0.15)
-    Note over U,C: 🛑 APPROVAL GATE
-    U-->>C: ✅ Approve
-    end
-
-    C->>Agents: 📐 IaC Plan + Governance
-    Note right of Agents: Bicep or Terraform track
-    Agents-->>C: 04-plan.md + constraints
-    C->>X: Challenge plan
-    C->>U: Present for review
-
-    rect rgba(255, 200, 0, 0.15)
-    Note over U,C: 🛑 APPROVAL GATE
-    U-->>C: ✅ Approve
-    end
-
-    C->>Agents: ⚒️ Generate IaC (AVM-first)
-    Note right of Agents: lint → review → validate
-    Agents-->>C: infra/{bicep,terraform}/{project}
-
-    rect rgba(255, 200, 0, 0.15)
-    Note over U,C: 🛑 APPROVAL GATE
-    U-->>C: ✅ Approve for deploy
-    end
-
-    C->>Agents: 🚀 Deploy to Azure
-    Note right of Agents: what-if / plan preview first
-    Agents-->>C: 06-deployment-summary.md
-
-    rect rgba(255, 200, 0, 0.15)
-    Note over U,C: 🛑 VERIFICATION
-    U-->>C: ✅ Verify resources
-    end
-
-    C->>Agents: 📚 Generate as-built docs
-    Agents-->>C: 07-*.md documentation suite
-    C->>U: Present complete documentation
-
-    Note over U,Agents: ✅ AI Orchestrated · Human Governed · Azure Ready
-```
+  <div class="scenario-frame__body">
+    <CardGrid>
+      <LinkCard
+        title="Getting Started"
+        description="Set up from the Accelerator template and run your first agent workflow."
+        href="getting-started/quickstart/"
+      />
+      <LinkCard
+        title="How It Works"
+        description="Understand the multi-agent architecture, skills system, and workflow."
+        href="concepts/how-it-works/"
+      />
+      <LinkCard
+        title="Prompt Guide"
+        description="Ready-to-use prompt examples for every agent and skill."
+        href="guides/prompt-guide/"
+      />
+      <LinkCard
+        title="Troubleshooting"
+        description="Common issues, diagnostic decision tree, and solutions."
+        href="guides/troubleshooting/"
+      />
+    </CardGrid>
+  </div>
+</section>
