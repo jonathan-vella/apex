@@ -3,7 +3,7 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=11
+TOTAL_STEPS=12
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0
@@ -94,7 +94,31 @@ else
     step_warn "k6 skipped: unsupported architecture $ARCH (supported: amd64, arm64)"
 fi
 
-# ─── Step 4: Directories & Git ───────────────────────────────────────────────
+# ─── Step 4: draw.io Desktop (headless SVG export) ──────────────────────────
+
+step_start "🎨" "Installing draw.io Desktop for SVG export..."
+ARCH=$(dpkg --print-architecture)
+if [ "$ARCH" = "amd64" ]; then
+    DRAWIO_VER="26.0.16"
+    DRAWIO_DEB="/tmp/drawio-${DRAWIO_VER}.deb"
+    if command -v drawio &>/dev/null; then
+        step_done "draw.io Desktop already installed"
+    elif curl -fsSL -o "$DRAWIO_DEB" "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VER}/drawio-amd64-${DRAWIO_VER}.deb" 2>/dev/null; then
+        if sudo dpkg -i "$DRAWIO_DEB" 2>/dev/null || sudo apt-get install -f -y 2>/dev/null; then
+            rm -f "$DRAWIO_DEB"
+            step_done "draw.io Desktop v${DRAWIO_VER} installed (SVG/PNG export enabled)"
+        else
+            rm -f "$DRAWIO_DEB"
+            step_warn "draw.io Desktop install failed — SVG export unavailable"
+        fi
+    else
+        step_warn "draw.io Desktop download failed — SVG export unavailable"
+    fi
+else
+    step_warn "draw.io Desktop skipped: no arm64 build available — SVG export unavailable"
+fi
+
+# ─── Step 5: Directories & Git ───────────────────────────────────────────────
 
 step_start "🔐" "Configuring Git & directories..."
 mkdir -p "${HOME}/.cache" "${HOME}/.config/gh"
@@ -106,7 +130,7 @@ git config --global --add safe.directory "${PWD}"
 git config --global core.autocrlf input
 step_done "Git configured, cache dirs created"
 
-# ─── Step 5: Python packages ─────────────────────────────────────────────────
+# ─── Step 6: Python packages ─────────────────────────────────────────────────
 
 step_start "🐍" "Installing Python packages..."
 export PATH="${HOME}/.local/bin:${PATH}"
@@ -127,7 +151,7 @@ else
     fi
 fi
 
-# ─── Step 6: PowerShell modules ──────────────────────────────────────────────
+# ─── Step 7: PowerShell modules ──────────────────────────────────────────────
 
 step_start "🔧" "Installing Azure PowerShell modules..."
 pwsh -NoProfile -Command "
@@ -155,7 +179,7 @@ pwsh -NoProfile -Command "
     \$jobs | Remove-Job -Force
 " && step_done "PowerShell modules installed" || step_warn "PowerShell module installation incomplete"
 
-# ─── Step 7: Azure Pricing MCP Server ────────────────────────────────────────
+# ─── Step 8: Azure Pricing MCP Server ────────────────────────────────────────
 
 step_start "💰" "Setting up Azure Pricing MCP Server..."
 MCP_DIR="${PWD}/mcp/azure-pricing-mcp"
@@ -180,7 +204,7 @@ else
     step_fail "MCP directory not found at $MCP_DIR"
 fi
 
-# ─── Step 8: Terraform MCP Server binary ────────────────────────────────────
+# ─── Step 9: Terraform MCP Server binary ────────────────────────────────────
 
 step_start "🏗️ " "Installing Terraform MCP Server binary (go install)..."
 if command -v go &> /dev/null; then
@@ -197,7 +221,7 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
-# ─── Step 9: Python dependencies (authoritative) ─────────────────────────────
+# ─── Step 10: Python dependencies (authoritative) ────────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
@@ -211,7 +235,7 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 10: Azure CLI defaults ────────────────────────────────────
+# ─── Step 11: Azure CLI defaults ────────────────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI..."
 if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then
@@ -221,7 +245,7 @@ else
     step_warn "Azure CLI config skipped (not authenticated)"
 fi
 
-# ─── Step 11: MCP config & final verification ─────────────────────────────
+# ─── Step 12: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 
@@ -280,6 +304,7 @@ printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ n
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "draw.io:" "$(drawio --version 2>/dev/null || echo '❌ not installed (SVG export disabled)')"
 
 step_done "All verifications complete"
 

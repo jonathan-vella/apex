@@ -24,12 +24,8 @@ tools:
     edit/editNotebook,
     search,
     web,
-    web/fetch,
-    web/githubRepo,
-    "azure-mcp/*",
     "microsoft-learn/*",
-    "pylance-mcp-server/*",
-    "microsoft-learn/*",
+    "drawio/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -41,16 +37,16 @@ tools:
 handoffs:
   - label: "▶ Generate Diagram"
     agent: 04-Design
-    prompt: "Generate a non-Mermaid Azure architecture diagram using the azure-diagrams skill contract. Produce `agent-output/{project}/03-des-diagram.py` + `03-des-diagram.png` with deterministic layout, enforced naming conventions, and quality score >= 9/10."
-    send: true
+    prompt: "Generate an Azure architecture diagram using the azure-diagrams skill (draw.io default). Produce `agent-output/{project}/03-des-diagram.drawio` + `03-des-diagram.drawio.svg` with deterministic layout, enforced naming conventions, and quality score >= 9/10."
+    send: false
   - label: "▶ Generate ADR"
     agent: 04-Design
     prompt: "Create an Architecture Decision Record using the azure-adr skill based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`."
-    send: true
+    send: false
   - label: "▶ Generate Cost Estimate"
     agent: 03-Architect
     prompt: "Generate a detailed cost estimate for the architecture. Use Azure Pricing MCP tools and save to `agent-output/{project}/03-des-cost-estimate.md`."
-    send: true
+    send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
@@ -69,7 +65,7 @@ handoffs:
     send: false
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.py`. Ready for governance discovery or IaC planning."
+    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.drawio`. Ready for governance discovery or IaC planning."
     send: false
 ---
 
@@ -90,7 +86,7 @@ Before doing any work, read these skills:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
-3. Read `.github/skills/azure-diagrams/SKILL.md` — diagram generation instructions
+3. Read `.github/skills/azure-diagrams/SKILL.md` — diagram generation (draw.io default + Python charts)
 4. Read `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
 
 ## DO / DON'T
@@ -98,9 +94,10 @@ Before doing any work, read these skills:
 **Do:**
 
 - Read `02-architecture-assessment.md` before generating any design artifact
-- Use the `azure-diagrams` skill for Python architecture diagrams
+- Use the `azure-diagrams` skill for all diagram generation (draw.io default for architecture, Python for charts)
 - Use the `azure-adr` skill for Architecture Decision Records
-- Save diagrams to `agent-output/{project}/03-des-diagram.py`
+- Always generate draw.io (`.drawio`) + SVG export for architecture diagrams
+- Save diagrams to `agent-output/{project}/03-des-diagram.drawio`
 - Save ADRs to `agent-output/{project}/03-des-adr-NNNN-{title}.md`
 - Save cost estimates to `agent-output/{project}/03-des-cost-estimate.md`
 - Include all Azure resources from the architecture in diagrams
@@ -134,16 +131,23 @@ If missing, STOP and request handoff to Architect agent.
 
 ## Workflow
 
-### Diagram Generation
+### Diagram Generation (Draw.io — Default)
 
 1. Read `02-architecture-assessment.md` for resource list, boundaries, and flows
 2. Read `01-requirements.md` for business-critical paths and actor context
-3. Generate `agent-output/{project}/03-des-diagram.py` using the azure-diagrams contract
-4. Execute `python3 agent-output/{project}/03-des-diagram.py`
-5. Validate quality gate score (>=9/10); regenerate once if below threshold.
+3. Generate draw.io XML (mxGraphModel) using Azure icons from built libraries
+4. Load `references/drawio-quick-reference.md` for icon style snippets
+5. Save as `agent-output/{project}/03-des-diagram.drawio`
+6. **MANDATORY** — Export SVG immediately after saving the `.drawio` file.
+   Run: `scripts/drawio/drawio-export.sh agent-output/{project}/03-des-diagram.drawio --format svg`
+   This produces `agent-output/{project}/03-des-diagram.drawio.svg`.
+   If draw.io Desktop is not installed (exit code 1), report to the user:
+   _"SVG export requires draw.io Desktop. Install it or rebuild the devcontainer."_
+   Do NOT silently skip this step.
+7. Validate quality gate score (>=9/10); regenerate once if below threshold.
    Do not finalize until verification passes.
    If a check fails, retry with a different strategy before reporting blocked.
-6. Save final PNG to `agent-output/{project}/03-des-diagram.png`
+8. Use `open_drawio_xml` MCP tool for interactive preview
 
 ### ADR Generation
 
@@ -161,19 +165,19 @@ If missing, STOP and request handoff to Architect agent.
 
 ## Output Files
 
-| File                      | Purpose                               |
-| ------------------------- | ------------------------------------- |
-| `03-des-diagram.py`       | Python architecture diagram source    |
-| `03-des-diagram.png`      | Generated diagram image               |
-| `03-des-adr-NNNN-*.md`    | Architecture Decision Records         |
-| `03-des-cost-estimate.md` | Cost estimate (via Architect handoff) |
+| File                        | Purpose                                   |
+| --------------------------- | ----------------------------------------- |
+| `03-des-diagram.drawio`     | Editable draw.io architecture diagram     |
+| `03-des-diagram.drawio.svg` | SVG export for embedding in documentation |
+| `03-des-adr-NNNN-*.md`      | Architecture Decision Records             |
+| `03-des-cost-estimate.md`   | Cost estimate (via Architect handoff)     |
 
 Include attribution: `> Generated by design agent | {YYYY-MM-DD}`
 
 <output_contract>
 Expected output files in `agent-output/{project}/`:
 
-- `03-des-diagram.py` + `03-des-diagram.png` — Architecture diagram (Python source + rendered PNG)
+- `03-des-diagram.drawio` + `03-des-diagram.drawio.svg` — Architecture diagram (draw.io + SVG export)
 - `03-des-adr-NNNN-{slug}.md` — Architecture Decision Records (1+ files)
 - `03-des-cost-estimate.md` — Cost estimate (via Architect handoff)
   Validation: `npm run lint:artifact-templates` must pass for all output files.

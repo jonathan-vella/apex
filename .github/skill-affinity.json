@@ -18,6 +18,21 @@
         "azure-diagrams"
       ]
     },
+    "01-Conductor-FastPath": {
+      "primary": [
+        "golden-principles",
+        "session-resume",
+        "azure-defaults",
+        "azure-artifacts"
+      ],
+      "secondary": ["context-shredding", "github-operations", "microsoft-docs"],
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "azure-diagnostics",
+        "azure-diagrams"
+      ]
+    },
     "02-Requirements": {
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
       "secondary": ["microsoft-docs"],
@@ -42,6 +57,17 @@
         "terraform-patterns",
         "iac-common",
         "azure-diagnostics"
+      ]
+    },
+    "04g-Governance": {
+      "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
+      "secondary": ["microsoft-docs"],
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "azure-diagnostics",
+        "azure-diagrams",
+        "iac-common"
       ]
     },
     "05b-Bicep Planner": {

@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(skills): merge `azure-diagrams-drawio` into `azure-diagrams` as unified skill (v5.0).
+  Draw.io is now the default format for architecture diagrams with SVG export support.
+  Python matplotlib retained for WAF/cost charts only.
+- feat(diagrams): fix text label overlap in draw.io diagrams — add `labelWidth=120;overflow=width;html=1;fontSize=9` to icon cell styles.
+- feat(diagrams): add SVG export step to diagram workflow via `scripts/drawio/drawio-export.sh --format svg`.
+
+### Changed
+
+- refactor(agents): update 04-Design and 08-As-Built agents to use unified `azure-diagrams` skill.
+- refactor(config): remove `azure-diagrams-drawio` from agent-registry.json, skill-affinity.json, and copilot-instructions.md.
+- refactor(scripts): update `generate-component-mapping.py` and `generate-quick-reference.py` output paths.
+
+### Removed
+
+- chore(skills): delete `.github/skills/azure-diagrams-drawio/` directory (merged into `azure-diagrams`).
+
+### Added
+
 - feat(skills): add `workflow-engine` skill with machine-readable DAG (`workflow-graph.json`)
   for graph-based step routing in the Conductor, replacing hardcoded step logic.
 - feat(skills): add `context-shredding` skill with 3-tier runtime compression

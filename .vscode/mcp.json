@@ -23,6 +23,11 @@
     "astro-docs": {
       "type": "http",
       "url": "https://mcp.docs.astro.build/mcp"
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@drawio/mcp"]
     }
   }
 }

@@ -114,9 +114,9 @@ Cloud-based farm-to-table ordering platform connecting farms, restaurants, and c
 
 ### 2.1 Architecture Diagram
 
-![System Context Diagram - nordic-fresh-foods](/azure-agentic-infraops/demo/07-ab-diagram.png)
+![System Context Diagram - nordic-fresh-foods](/azure-agentic-infraops/demo/07-ab-diagram.drawio.svg)
 
-Source: [07-ab-diagram.py](./07-ab-diagram.py)
+Source: [07-ab-diagram.drawio](./07-ab-diagram.drawio)
 
 ### 2.2 Resource Summary
 

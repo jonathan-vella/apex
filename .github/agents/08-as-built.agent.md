@@ -64,7 +64,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
+    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` with deterministic layout and quality score >= 9/10."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -238,10 +238,16 @@ Execute each `.py` file and verify the PNGs exist before continuing.
 
 Use the azure-diagrams skill to generate:
 
-- `agent-output/{project}/07-ab-diagram.py` — Python diagram source
-- `agent-output/{project}/07-ab-diagram.png` — Rendered diagram
+- `agent-output/{project}/07-ab-diagram.drawio` — Editable draw.io architecture diagram
+- `agent-output/{project}/07-ab-diagram.drawio.svg` — SVG export (if draw.io Desktop available)
 
 The diagram MUST reflect actual deployed resources (not just planned ones).
+Follow the MANDATORY layout rules from the azure-diagrams skill:
+
+- `labelWidth=160` on all icon cells, labels max 2 lines
+- Icons at least 260px apart horizontally
+- Subnets min 500px wide, VNet min 600px, RG min 800px
+- Run SVG export via `scripts/drawio/drawio-export.sh`
 
 ### Phase 4: Finalize
 
@@ -264,21 +270,21 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                      | Location                                             |
-| ------------------------- | ---------------------------------------------------- |
-| Resource Inventory        | `agent-output/{project}/07-resource-inventory.md`    |
-| Design Document           | `agent-output/{project}/07-design-document.md`       |
-| Cost Estimate (As-Built)  | `agent-output/{project}/07-ab-cost-estimate.md`      |
-| Compliance Matrix         | `agent-output/{project}/07-compliance-matrix.md`     |
-| Backup & DR Plan          | `agent-output/{project}/07-backup-dr-plan.md`        |
-| Operations Runbook        | `agent-output/{project}/07-operations-runbook.md`    |
-| Documentation Index       | `agent-output/{project}/07-documentation-index.md`   |
-| As-Built Diagram (Python) | `agent-output/{project}/07-ab-diagram.py`            |
-| As-Built Diagram (Image)  | `agent-output/{project}/07-ab-diagram.png`           |
-| Cost Distribution Chart   | `agent-output/{project}/07-ab-cost-distribution.png` |
-| Cost Projection Chart     | `agent-output/{project}/07-ab-cost-projection.png`   |
-| Design vs As-Built Chart  | `agent-output/{project}/07-ab-cost-comparison.png`   |
-| Compliance Gaps Chart     | `agent-output/{project}/07-ab-compliance-gaps.png`   |
+| File                       | Location                                             |
+| -------------------------- | ---------------------------------------------------- |
+| Resource Inventory         | `agent-output/{project}/07-resource-inventory.md`    |
+| Design Document            | `agent-output/{project}/07-design-document.md`       |
+| Cost Estimate (As-Built)   | `agent-output/{project}/07-ab-cost-estimate.md`      |
+| Compliance Matrix          | `agent-output/{project}/07-compliance-matrix.md`     |
+| Backup & DR Plan           | `agent-output/{project}/07-backup-dr-plan.md`        |
+| Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
+| Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
+| As-Built Diagram (draw.io) | `agent-output/{project}/07-ab-diagram.drawio`        |
+| As-Built Diagram (SVG)     | `agent-output/{project}/07-ab-diagram.drawio.svg`    |
+| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.png` |
+| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.png`   |
+| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |
+| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
 <output_contract>
 Expected output in `agent-output/{project}/`:
@@ -290,7 +296,7 @@ Expected output in `agent-output/{project}/`:
 - `07-backup-dr-plan.md` — Backup, DR, and business continuity
 - `07-operations-runbook.md` — Day-2 ops, monitoring, troubleshooting
 - `07-documentation-index.md` — Index of all project artifacts
-- `07-ab-diagram.py` + `07-ab-diagram.png` — As-built architecture diagram
+- `07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` — As-built architecture diagram (draw.io)
   Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
   </output_contract>
 

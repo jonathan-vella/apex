@@ -459,9 +459,14 @@
         "golden-principles",
         "iac-common",
         "make-skill-template",
+        "microsoft-code-reference",
+        "microsoft-docs",
         "microsoft-foundry",
+        "microsoft-skill-creator",
         "session-resume",
         "terraform-patterns",
+        "terraform-search-import",
+        "terraform-test",
         "workflow-engine",
       ];
       skills.forEach((s) => addNode(`skill:${s}`, s, "skill"));
@@ -479,7 +484,7 @@
           secondary: [
             "context-shredding",
             "github-operations",
-            "azure-prepare",
+            "microsoft-docs",
           ],
         },
         "01-Conductor-FastPath": {
@@ -492,25 +497,20 @@
           secondary: [
             "context-shredding",
             "github-operations",
-            "azure-prepare",
+            "microsoft-docs",
           ],
         },
         "02-Requirements": {
           primary: ["azure-defaults", "azure-artifacts", "session-resume"],
-          secondary: ["azure-prepare"],
+          secondary: ["microsoft-docs"],
         },
         "03-Architect": {
           primary: ["azure-defaults", "azure-artifacts", "session-resume"],
-          secondary: [
-            "context-shredding",
-            "azure-diagrams",
-            "azure-prepare",
-            "azure-cost-optimization",
-          ],
+          secondary: ["context-shredding", "azure-diagrams", "microsoft-docs"],
         },
         "04-Design": {
           primary: ["azure-diagrams", "azure-adr"],
-          secondary: ["azure-artifacts", "session-resume"],
+          secondary: ["azure-artifacts", "session-resume", "microsoft-docs"],
         },
         "04g-Governance": {
           primary: ["azure-defaults", "azure-artifacts", "session-resume"],
@@ -523,7 +523,11 @@
             "azure-bicep-patterns",
             "session-resume",
           ],
-          secondary: ["context-shredding"],
+          secondary: [
+            "context-shredding",
+            "microsoft-docs",
+            "microsoft-code-reference",
+          ],
         },
         "05t-Terraform Planner": {
           primary: [
@@ -532,7 +536,11 @@
             "terraform-patterns",
             "session-resume",
           ],
-          secondary: ["context-shredding"],
+          secondary: [
+            "context-shredding",
+            "microsoft-docs",
+            "microsoft-code-reference",
+          ],
         },
         "06b-Bicep CodeGen": {
           primary: [
@@ -541,7 +549,11 @@
             "azure-bicep-patterns",
             "session-resume",
           ],
-          secondary: ["context-shredding"],
+          secondary: [
+            "context-shredding",
+            "microsoft-docs",
+            "microsoft-code-reference",
+          ],
         },
         "06t-Terraform CodeGen": {
           primary: [
@@ -550,26 +562,24 @@
             "terraform-patterns",
             "session-resume",
           ],
-          secondary: ["context-shredding"],
+          secondary: [
+            "context-shredding",
+            "microsoft-docs",
+            "microsoft-code-reference",
+          ],
         },
         "07b-Bicep Deploy": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "azure-validate",
-            "iac-common",
-          ],
-          secondary: ["session-resume", "github-operations", "azure-deploy"],
+          primary: ["azure-defaults", "azure-artifacts", "iac-common"],
+          secondary: ["session-resume", "github-operations"],
         },
         "07t-Terraform Deploy": {
           primary: [
             "azure-defaults",
             "azure-artifacts",
-            "azure-validate",
             "iac-common",
             "terraform-patterns",
           ],
-          secondary: ["session-resume", "github-operations", "azure-deploy"],
+          secondary: ["session-resume", "github-operations"],
         },
         "08-As-Built": {
           primary: [
@@ -578,11 +588,11 @@
             "azure-diagrams",
             "session-resume",
           ],
-          secondary: ["context-shredding", "azure-cost-optimization"],
+          secondary: ["context-shredding", "microsoft-docs"],
         },
         "09-Diagnose": {
           primary: ["azure-diagnostics", "azure-defaults"],
-          secondary: ["azure-cost-optimization"],
+          secondary: ["microsoft-docs", "microsoft-code-reference"],
         },
         "10-Challenger": { primary: [], secondary: ["golden-principles"] },
         "11-Context Optimizer": {
@@ -601,6 +611,7 @@
         "agent-definitions",
         "agent-research-first",
         "agent-skills",
+        "astro",
         "azure-artifacts",
         "bicep-code-best-practices",
         "code-quality",
@@ -615,6 +626,7 @@
         "instructions",
         "javascript",
         "json",
+        "lesson-collection",
         "markdown",
         "model-prompt-alignment",
         "no-hardcoded-counts",
@@ -678,6 +690,7 @@
         "diagnose-resource",
         "doc-gardening",
         "git-commit-push",
+        "plan-docsPeerReview",
         "resume-workflow",
       ];
       prompts.forEach((p) => addNode(`prompt:${p}`, p, "prompt"));
@@ -740,20 +753,19 @@
 
       // CI Workflows
       const ciWorkflows = [
-        "lint",
-        "agent-validation",
-        "policy-compliance-check",
-        "docs-freshness",
+        "ci",
         "docs",
         "link-check",
-        "avm-version-check",
+        "e2e-validation",
+        "branch-enforcement",
+        "weekly-maintenance",
         "azure-deprecation-tracker",
       ];
       ciWorkflows.forEach((w) => addNode(`ci:${w}`, w, "workflow"));
 
       // Workflow → Validator links
       const wfValidators = {
-        lint: [
+        ci: [
           "md",
           "json",
           "artifact-templates",
@@ -762,16 +774,6 @@
           "deprecated-refs",
           "mcp-config",
           "docs-freshness",
-        ],
-        "agent-validation": [
-          "agent-frontmatter",
-          "skills-format",
-          "mcp-config",
-          "h2-sync",
-          "governance-refs",
-          "instruction-checks",
-        ],
-        "policy-compliance-check": [
           "agent-frontmatter",
           "skills-format",
           "instruction-checks",
@@ -783,19 +785,12 @@
           "skill-affinity",
           "skill-checks",
           "stale-refs",
-          "json",
           "glob-audit",
           "skill-references",
           "orphaned-content",
-          "docs-freshness",
           "model-alignment",
           "agent-checks",
           "no-hardcoded-counts",
-          "artifact-templates",
-          "h2-sync",
-          "version-sync",
-          "deprecated-refs",
-          "mcp-config",
         ],
       };
       for (const [wf, vals] of Object.entries(wfValidators)) {
@@ -803,9 +798,14 @@
       }
 
       // MCP Servers
-      ["github", "azure-pricing", "terraform"].forEach((m) =>
-        addNode(`mcp:${m}`, m, "mcp"),
-      );
+      [
+        "github",
+        "azure-pricing",
+        "terraform",
+        "microsoft-learn",
+        "astro-docs",
+        "drawio",
+      ].forEach((m) => addNode(`mcp:${m}`, m, "mcp"));
       // MCP → Agent usage
       addLink("mcp:github", "agent:01-Conductor", "connects");
       addLink("mcp:github", "agent:07b-Bicep Deploy", "connects");
@@ -814,6 +814,10 @@
       addLink("mcp:azure-pricing", "subagent:cost-estimate", "connects");
       addLink("mcp:terraform", "agent:05t-Terraform Planner", "connects");
       addLink("mcp:terraform", "agent:06t-Terraform CodeGen", "connects");
+      addLink("mcp:microsoft-learn", "agent:03-Architect", "connects");
+      addLink("mcp:microsoft-learn", "agent:02-Requirements", "connects");
+      addLink("mcp:drawio", "agent:04-Design", "connects");
+      addLink("mcp:drawio", "agent:08-As-Built", "connects");
 
       // Workflow gates
       const gates = [

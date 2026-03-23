@@ -256,7 +256,7 @@ Create visual and textual design documentation.
 
 ```text
 Trigger: "Create an architecture diagram for {project}"
-Output: agent-output/{project}/03-des-diagram.py, 03-des-adr-*.md
+Output: agent-output/{project}/03-des-diagram.drawio, 03-des-adr-*.md
 ```
 
 **Diagram types**: Azure architecture, business flows, ERD, timelines
@@ -506,11 +506,11 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 | -------------- | --------- | ----------------------------------------------------------- |
 | Requirements   | `01-`     | `01-requirements.md`                                        |
 | Architecture   | `02-`     | `02-architecture-assessment.md`                             |
-| Design         | `03-des-` | `03-des-diagram.py`, `03-des-adr-0001-*.md`                 |
+| Design         | `03-des-` | `03-des-diagram.drawio`, `03-des-adr-0001-*.md`             |
 | Planning       | `04-`     | `04-implementation-plan.md`, `04-governance-constraints.md` |
 | Implementation | `05-`     | `05-implementation-reference.md`                            |
 | Deployment     | `06-`     | `06-deployment-summary.md`                                  |
-| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.py`                 |
+| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.drawio`             |
 | Diagnostics    | `08-`     | `08-resource-health-report.md`                              |
 
 ## Next Steps

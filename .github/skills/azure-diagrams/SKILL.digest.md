@@ -4,92 +4,70 @@
 
 Compact reference for agent startup. Read full `SKILL.md` for details.
 
-## Prerequisites
+## Routing Guide
 
-```bash
-pip install diagrams matplotlib pillow && apt-get install -y graphviz
-```
+- **Architecture diagrams** → Draw.io XML (`.drawio` + `.drawio.svg`) — DEFAULT
+- **WAF bar charts, cost donuts** → Python matplotlib (`.py` + `.png`)
 
-## Execution Method
+## Architecture Diagram Contract (Draw.io)
 
-Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Never use heredoc execution.
+| Step | Draw.io files                                                                               | Python chart files (if applicable)                                   |
+| ---- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 3    | `03-des-diagram.drawio` + `.drawio.svg`                                                     | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 4    | `04-dependency-diagram.drawio` + `.drawio.svg`, `04-runtime-diagram.drawio` + `.drawio.svg` | —                                                                    |
+| 7    | `07-ab-diagram.drawio` + `.drawio.svg`                                                      | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
 
-```bash
-python3 agent-output/{project}/03-des-diagram.py
-```
+## Layout Rules (MANDATORY)
 
-## Architecture Diagram Contract
+### Icon & Label Sizing
 
-### Required outputs
+- Use `labelWidth=160;overflow=width;html=1;fontSize=9` on **all** icon cells
+- Space icons **at least 260px apart** horizontally within the same container
+- Keep icon labels to **max 2 lines** — abbreviate resource names if needed
+- Never use `labelWidth` below 160 — values < 160 cause label truncation
 
-| Step | Files                                                         |
-| ---- | ------------------------------------------------------------- |
-| 3    | `03-des-diagram.py/.png`                                      |
-| 4    | `04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png` |
+### Container Minimum Sizes
 
-> _See SKILL.md for full content._
+| Container | Min Width | Min Height | Notes                                         |
+| --------- | --------- | ---------- | --------------------------------------------- |
+| Subnet    | 500px     | 170px      | Must fit 2 icons at 260px spacing + padding   |
+| VNet      | 600px     | 500px      | Must contain all subnets with 40px margins    |
+| RG        | 800px     | 600px      | Must contain VNet + sidebar (KV, monitoring)  |
+| Canvas    | 1600px    | 1000px     | Scale up 200px per additional resource column |
 
-## Professional Output Standards
+### Spacing Rules
 
-Critical settings for clean output — use `labelloc="t"` to keep labels inside clusters:
+- Icons inside containers: min 50px from left edge, min 45px from top edge
+- Vertical spacing between stacked icons (outside VNet): min 180px
+- Sidebar icons (monitoring, KV): position at `VNet.width + 80px` inside RG
+- External boxes (SaaS): position at `RG.x + RG.width + 60px`
+- Edge labels must not overlap with source/target resource labels
 
-```python
-node_attr = {"fontname": "Arial Bold", "fontsize": "11", "labelloc": "t"}
-graph_attr = {"bgcolor": "white", "pad": "0.8", "nodesep": "0.9", "ranksep": "0.9",
-              "splines": "spline", "fontname": "Arial Bold", "fontsize": "16", "dpi": "150"}
+## Quality Gate (/10)
 
-> _See SKILL.md for full content._
-
-## Azure Service Categories
-
-13 categories: Compute, Networking, Database, Storage, Integration, Security,
-Identity, AI/ML, Analytics, IoT, DevOps, Web, Monitor — all under `diagrams.azure.*`.
-
-See `references/azure-components.md` for the complete list of **700+ components**.
-
-## Common Architecture Patterns
-
-Ready-to-use patterns: 3-Tier Web App, Microservices (AKS),
-Serverless/Event-Driven, Data Platform, Hub-Spoke Networking, and more.
-
-See `references/common-patterns.md` for all patterns with code.
-See `references/iac-to-diagram.md` to generate diagrams from Bicep/Terraform/ARM.
-
-## Workflow Integration
-
-| Step | Files                                                                | Description                               |
-| ---- | -------------------------------------------------------------------- | ----------------------------------------- |
-| 2    | `02-waf-scores.py/.png`                                              | WAF pillar score bar chart                |
-| 3    | `03-des-diagram.py/.png`                                             | Proposed architecture                     |
-| 3    | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` | Cost donut + projection                   |
-| 7    | `07-ab-diagram.py/.png`                                              | Deployed architecture                     |
-
-> _See SKILL.md for full content._
+Readable at 100% zoom · No label overlap or truncation · Minimal line crossing ·
+Clear tier grouping · Correct Azure icons · Security boundary visible ·
+All labels fully visible (no "..." truncation) · Icons not cramped in containers.
+If < 9/10, regenerate with simplification.
 
 ## Data Visualization Charts
 
-WAF and cost charts use `matplotlib` (never Mermaid). See `references/waf-cost-charts.md` for full implementations.
+WAF and cost charts use `matplotlib` (never Mermaid). See `references/waf-cost-charts.md`.
 
-**Design tokens:** Background `#F8F9FA` · Azure blue `#0078D4` ·
-Min line `#DC3545` · Target line `#28A745` · Trend `#FF8C00` · Grid `#E0E0E0` · DPI 150.
-
+**Design tokens:** Background `#F8F9FA` · Azure blue `#0078D4` · DPI 150.
 **WAF pillar colours:** Security `#C00000` · Reliability `#107C10` ·
+Performance `#FF8C00` · Cost `#FFB900` · Operational Excellence `#8764B8`.
 
 > _See SKILL.md for full content._
 
-## Generation Workflow
-
-1. **Gather Context** — Read Bicep/Terraform templates or architecture assessment
-2. **Identify Resources & Hierarchy** — List Azure resources, map Subscription → RG → VNet → Subnet
-3. **Generate Python Code** — Create diagram with proper clusters and edges
-4. **Execute & Verify** — Run Python to generate PNG, confirm file exists
-
 ## Guardrails
 
-**DO:** Create files in `agent-output/{project}/` with step-prefixed names ·
-Use valid `diagrams.azure.*` imports · Include docstring with prerequisites ·
-Use `Cluster()` for Azure hierarchy · Include CIDR blocks ·
-Always execute script and verify PNG · Apply design tokens to every chart ·
-Generate `02-waf-scores.png` when WAF scores are assigned.
+**DO:** Generate architecture diagrams as `.drawio` by default ·
+Use Azure icons from built libraries · Include CIDR blocks ·
+Use container cells for resource hierarchy · Apply layout rules above.
+
+**DON'T:** Use Python `diagrams` library for architecture diagrams (use draw.io) ·
+Use `labelWidth` below 160 · Place icons less than 260px apart ·
+Use subnets narrower than 500px · Skip quality gate verification.
 
 > _See SKILL.md for full content._

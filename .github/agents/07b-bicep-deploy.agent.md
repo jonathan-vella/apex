@@ -53,7 +53,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
+    prompt: "Use the azure-diagrams skill to generate a draw.io as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` with deterministic layout and quality score >= 9/10. Follow MANDATORY layout rules from the skill."
     send: true
   - label: "↩ Fix Deployment Issues"
     agent: 06b-Bicep CodeGen
@@ -151,21 +151,21 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 
 ## DO / DON'T
 
-| DO                                                                 | DON'T                                                     |
-| ------------------------------------------------------------------ | --------------------------------------------------------- |
-| Run preflight validation BEFORE deployment                         | Deploy without running what-if first                      |
-| Scan param file for placeholders; use `askQuestions` tool          | Pass param files with literal `<replace-with-*>` strings  |
-| Do not list placeholders in chat asking user to reply manually     | List placeholders in chat text and wait for a reply       |
-| Check `04-implementation-plan.md` for deployment strategy          | Skip phase gates when plan specifies phased deployment    |
-| Deploy phases one at a time with approval gates                    | Use `--output yaml/json` for what-if (disables rendering) |
-| Use **default output** for what-if (no `--output` flag)            | Auto-approve production deployments                       |
-| Validate auth via `az account get-access-token` (not just `show`)  | Proceed if what-if shows Delete ops without approval      |
-| Present what-if summary; wait for user approval                    | Proceed if `bicep build` fails                            |
-| Require explicit approval for Delete (`-`) operations              | Create/modify Bicep templates — hand back to Code agent   |
-| Generate `06-deployment-summary.md` after deployment               |                                                           |
-| Verify resources via Azure Resource Graph post-deploy              |                                                           |
-| Scan what-if output for deprecation signals                        |                                                           |
-| Update `agent-output/{project}/README.md` — mark Step 6 complete   |                                                           |
+| DO                                                                | DON'T                                                     |
+| ----------------------------------------------------------------- | --------------------------------------------------------- |
+| Run preflight validation BEFORE deployment                        | Deploy without running what-if first                      |
+| Scan param file for placeholders; use `askQuestions` tool         | Pass param files with literal `<replace-with-*>` strings  |
+| Do not list placeholders in chat asking user to reply manually    | List placeholders in chat text and wait for a reply       |
+| Check `04-implementation-plan.md` for deployment strategy         | Skip phase gates when plan specifies phased deployment    |
+| Deploy phases one at a time with approval gates                   | Use `--output yaml/json` for what-if (disables rendering) |
+| Use **default output** for what-if (no `--output` flag)           | Auto-approve production deployments                       |
+| Validate auth via `az account get-access-token` (not just `show`) | Proceed if what-if shows Delete ops without approval      |
+| Present what-if summary; wait for user approval                   | Proceed if `bicep build` fails                            |
+| Require explicit approval for Delete (`-`) operations             | Create/modify Bicep templates — hand back to Code agent   |
+| Generate `06-deployment-summary.md` after deployment              |                                                           |
+| Verify resources via Azure Resource Graph post-deploy             |                                                           |
+| Scan what-if output for deprecation signals                       |                                                           |
+| Update `agent-output/{project}/README.md` — mark Step 6 complete  |                                                           |
 
 ## Prerequisites Check
 
