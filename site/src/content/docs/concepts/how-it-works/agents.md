@@ -2,6 +2,7 @@
 title: "Agent Architecture"
 description: "Agent roles, orchestration, and delegation model"
 ---
+
 ## Agent Anatomy
 
 Every agent definition follows a standard structure:
@@ -29,8 +30,8 @@ handoffs:
 3. Handoff target — the next agent in the workflow
 4. Skills are loaded on demand to preserve context budget
 
-The frontmatter is machine-readable metadata. The body is the agent's operating manual,
-loaded into the system prompt when the agent is invoked.
+The frontmatter is machine-readable metadata. The body is the agent's full operating
+manual — the runtime loads it into the system prompt at invocation.
 
 ### Tools
 
@@ -280,9 +281,10 @@ npm run validate:skill-affinity
 ---
 
 :::tip[Further Reading]
+
 - [Core Concepts](four-pillars.md) — the four knowledge layers (agents, skills, instructions, registries)
 - [Skills & Instructions](skills-and-instructions.md) — progressive skill loading and glob-based enforcement
 - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, circuit breakers
 - [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
 - [Validation & Linting](../validation-reference.md) — all validation scripts and hooks
-:::
+  :::

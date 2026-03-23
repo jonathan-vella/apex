@@ -2,7 +2,7 @@
 
 # Repo Architecture Reference
 
-> For use by the `docs-writer` skill. Last verified: 2026-02-26.
+> For use by the `docs-writer` skill. Last verified: 2026-03-23.
 
 ## Workspace Root Structure
 
@@ -16,26 +16,32 @@ azure-agentic-infraops/
 ││   ├── instructions/        # File-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
 ├── docs/                    # User-facing documentation
-│   ├── exec-plans/          # Execution plans and tech debt tracker
+│   ├── how-it-works/        # Architecture explanations
+│   ├── migration/           # Migration guides
 │   ├── prompt-guide/        # Agent & skill prompt examples
-│   ├── presenter/           # Presentation materials
-│   └── testing/             # Test checklists
+│   └── presenter/           # Presentation materials
+├── tests/                   # Test checklists and exec plans
+│   └── exec-plans/          # Execution plans and tech debt tracker
 ├── infra/bicep/             # Bicep module library
 ├── mcp/azure-pricing-mcp/   # Azure Pricing MCP server
 ├── scripts/                 # Validation and automation scripts
 └── temp/                    # Scratch space (gitignored for outputs)
 ```
 
-## Agent Inventory (13 Primary + 9 Subagents)
+## Agent Inventory
+
+See `.github/count-manifest.json` for canonical counts.
 
 ### Primary Agents
 
 | Agent              | File                             | Model      | Step | Artifacts                       |
 | ------------------ | -------------------------------- | ---------- | ---- | ------------------------------- |
 | InfraOps Conductor | `01-conductor.agent.md`          | Opus 4.6   | All  | Orchestration                   |
+| Conductor (Fast)   | `01-conductor-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
 | Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`            |
 | Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md` |
 | Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{py,png,md}`          |
+| Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`  |
 | Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`     |
 | Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
 | Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
@@ -45,20 +51,24 @@ azure-agentic-infraops/
 | As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
 | Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports              |
 | Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings              |
+| Context Optimizer  | `11-context-optimizer.agent.md`  | Sonnet 4.5 | —    | Optimization reports            |
+| E2E Conductor      | `e2e-conductor.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent                      | File                                     | Purpose                     |
-| ----------------------------- | ---------------------------------------- | --------------------------- |
-| cost-estimate-subagent        | `cost-estimate-subagent.agent.md`        | Azure Pricing MCP queries   |
-| governance-discovery-subagent | `governance-discovery-subagent.agent.md` | Azure Policy discovery      |
-| challenger-review-subagent    | `challenger-review-subagent.agent.md`    | Adversarial artifact review |
-| bicep-lint-subagent           | `bicep-lint-subagent.agent.md`           | Syntax validation           |
-| bicep-whatif-subagent         | `bicep-whatif-subagent.agent.md`         | Deployment preview          |
-| bicep-review-subagent         | `bicep-review-subagent.agent.md`         | AVM code review             |
-| terraform-lint-subagent       | `terraform-lint-subagent.agent.md`       | Syntax validation           |
-| terraform-review-subagent     | `terraform-review-subagent.agent.md`     | AVM-TF code review          |
-| terraform-plan-subagent       | `terraform-plan-subagent.agent.md`       | Deployment preview          |
+| Subagent                         | File                                        | Purpose                      |
+| -------------------------------- | ------------------------------------------- | ---------------------------- |
+| cost-estimate-subagent           | `cost-estimate-subagent.agent.md`           | Azure Pricing MCP queries    |
+| governance-discovery-subagent    | `governance-discovery-subagent.agent.md`    | Azure Policy discovery       |
+| challenger-review-subagent       | `challenger-review-subagent.agent.md`       | Adversarial artifact review  |
+| challenger-review-batch-subagent | `challenger-review-batch-subagent.agent.md` | Batch multi-lens review      |
+| challenger-review-codex-subagent | `challenger-review-codex-subagent.agent.md` | Fast checklist-driven review |
+| bicep-lint-subagent              | `bicep-lint-subagent.agent.md`              | Syntax validation            |
+| bicep-whatif-subagent            | `bicep-whatif-subagent.agent.md`            | Deployment preview           |
+| bicep-review-subagent            | `bicep-review-subagent.agent.md`            | AVM code review              |
+| terraform-lint-subagent          | `terraform-lint-subagent.agent.md`          | Syntax validation            |
+| terraform-review-subagent        | `terraform-review-subagent.agent.md`        | AVM-TF code review           |
+| terraform-plan-subagent          | `terraform-plan-subagent.agent.md`          | Deployment preview           |
 
 ### Shared Knowledge (via Skills)
 
@@ -69,27 +79,65 @@ All shared context previously in `_shared/` is now consolidated into skills:
 | `azure-defaults`  | `defaults.md`, `avm-pitfalls.md`, `research-patterns.md`, `service-lifecycle-validation.md` |
 | `azure-artifacts` | `documentation-styling.md`, all template H2 structures                                      |
 
-## Skill Catalog (14 Skills)
+## Skill Catalog
 
-| Skill                  | Folder                  | Category            | Triggers                                  |
-| ---------------------- | ----------------------- | ------------------- | ----------------------------------------- |
-| `azure-adr`            | `azure-adr/`            | Document Creation   | "create ADR", "document decision"         |
-| `azure-artifacts`      | `azure-artifacts/`      | Artifact Generation | "generate documentation"                  |
-| `azure-bicep-patterns` | `azure-bicep-patterns/` | IaC Patterns        | "bicep pattern", "hub-spoke"              |
-| `azure-defaults`       | `azure-defaults/`       | Azure Conventions   | "azure defaults", "naming"                |
-| `azure-diagrams`       | `azure-diagrams/`       | Document Creation   | "create diagram"                          |
-| `azure-diagnostics`    | `azure-diagnostics/`    | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
-| `docs-writer`          | `docs-writer/`          | Documentation       | "update the docs"                         |
-| `github-operations`    | `github-operations/`    | Workflow            | "commit", "create issue", "create PR"     |
-| `make-skill-template`  | `make-skill-template/`  | Meta                | "create skill"                            |
-| `terraform-patterns`   | `terraform-patterns/`   | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
+See `.github/count-manifest.json` for canonical skill counts.
+Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 
-## Template Inventory (16 Templates)
+| Skill                         | Folder                         | Category            | Triggers                                  |
+| ----------------------------- | ------------------------------ | ------------------- | ----------------------------------------- |
+| `appinsights-instrumentation` | `appinsights-instrumentation/` | Observability       | "instrument app", "App Insights"          |
+| `azure-adr`                   | `azure-adr/`                   | Document Creation   | "create ADR", "document decision"         |
+| `azure-ai`                    | `azure-ai/`                    | AI Services         | "AI Search", "speech-to-text", "OCR"      |
+| `azure-aigateway`             | `azure-aigateway/`             | AI Governance       | "AI gateway", "semantic caching"          |
+| `azure-artifacts`             | `azure-artifacts/`             | Artifact Generation | "generate documentation"                  |
+| `azure-bicep-patterns`        | `azure-bicep-patterns/`        | IaC Patterns        | "bicep pattern", "hub-spoke"              |
+| `azure-cloud-migrate`         | `azure-cloud-migrate/`         | Migration           | "migrate to Azure", "cross-cloud"         |
+| `azure-compliance`            | `azure-compliance/`            | Security            | "compliance scan", "security audit"       |
+| `azure-compute`               | `azure-compute/`               | Compute             | "recommend VM", "VM sizing"               |
+| `azure-cost-optimization`     | `azure-cost-optimization/`     | Cost                | "optimize costs", "reduce spending"       |
+| `azure-defaults`              | `azure-defaults/`              | Azure Conventions   | "azure defaults", "naming"                |
+| `azure-deploy`                | `azure-deploy/`                | Deployment          | "azd up", "deploy", "go live"             |
+| `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
+| `azure-diagrams`              | `azure-diagrams/`              | Document Creation   | "create diagram"                          |
+| `azure-hosted-copilot-sdk`    | `azure-hosted-copilot-sdk/`    | SDK                 | "copilot SDK", "copilot app"              |
+| `azure-kusto`                 | `azure-kusto/`                 | Data & Analytics    | "KQL queries", "Azure Data Explorer"      |
+| `azure-messaging`             | `azure-messaging/`             | Messaging           | "event hub", "service bus"                |
+| `azure-prepare`               | `azure-prepare/`               | Deployment          | "create app", "prepare Azure"             |
+| `azure-quotas`                | `azure-quotas/`                | Capacity            | "check quotas", "service limits"          |
+| `azure-rbac`                  | `azure-rbac/`                  | Identity            | "RBAC role", "least privilege"            |
+| `azure-resource-lookup`       | `azure-resource-lookup/`       | Discovery           | "list resources", "find VMs"              |
+| `azure-resource-visualizer`   | `azure-resource-visualizer/`   | Visualization       | "visualize resources", "resource diagram" |
+| `azure-storage`               | `azure-storage/`               | Storage             | "blob storage", "file shares"             |
+| `azure-validate`              | `azure-validate/`              | Validation          | "validate app", "preflight checks"        |
+| `context-optimizer`           | `context-optimizer/`           | Meta                | "context optimization", "token waste"     |
+| `context-shredding`           | `context-shredding/`           | Meta                | "compress context", "context budget"      |
+| `copilot-customization`       | `copilot-customization/`       | Meta                | "customization", "instructions", "agents" |
+| `count-registry`              | `count-registry/`              | Meta                | "entity count", "how many agents"         |
+| `docs-writer`                 | `docs-writer/`                 | Documentation       | "update docs", "check staleness"          |
+| `entra-app-registration`      | `entra-app-registration/`      | Identity            | "app registration", "Entra ID"            |
+| `github-operations`           | `github-operations/`           | Workflow            | "commit", "create issue", "create PR"     |
+| `golden-principles`           | `golden-principles/`           | Meta                | "operating principles", "agent rules"     |
+| `iac-common`                  | `iac-common/`                  | IaC Patterns        | "deploy patterns", "circuit breaker"      |
+| `make-skill-template`         | `make-skill-template/`         | Meta                | "create skill"                            |
+| `microsoft-code-reference`    | `microsoft-code-reference/`    | SDK Reference       | "Azure SDK", "code sample"                |
+| `microsoft-docs`              | `microsoft-docs/`              | Documentation       | "Azure docs", "quickstart"                |
+| `microsoft-foundry`           | `microsoft-foundry/`           | AI Platform         | "Foundry agent", "deploy agent"           |
+| `microsoft-skill-creator`     | `microsoft-skill-creator/`     | Meta                | "create skill for Microsoft tech"         |
+| `session-resume`              | `session-resume/`              | Workflow            | "resume session", "checkpoint"            |
+| `terraform-patterns`          | `terraform-patterns/`          | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
+| `terraform-search-import`     | `terraform-search-import/`     | IaC Import          | "import resources", "terraform import"    |
+| `terraform-test`              | `terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"           |
+| `workflow-engine`             | `workflow-engine/`             | Workflow            | "workflow DAG", "step routing"            |
+
+## Template Inventory
 
 All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.template.md`.
+See `.github/count-manifest.json` for canonical counts.
 
 | Template                                  | Artifact             | Validation        |
 | ----------------------------------------- | -------------------- | ----------------- |
+| `00-session-state.template.json`          | Session State        | JSON schema       |
 | `01-requirements.template.md`             | Requirements         | Standard (strict) |
 | `02-architecture-assessment.template.md`  | WAF Assessment       | Standard (strict) |
 | `03-des-cost-estimate.template.md`        | Design Cost Estimate | Cost validator    |
@@ -105,35 +153,43 @@ All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.templ
 | `07-documentation-index.template.md`      | Doc Index            | Relaxed           |
 | `07-operations-runbook.template.md`       | Ops Runbook          | Relaxed           |
 | `07-resource-inventory.template.md`       | Resource Inventory   | Relaxed           |
+| `09-lessons-learned.template.md`          | Lessons Learned      | Relaxed           |
 | `PROJECT-README.template.md`              | Project README       | —                 |
 
-## Instruction File Map (25 Files)
+## Instruction File Map
 
-| Instruction                                     | Applies To (glob)                                       |
-| ----------------------------------------------- | ------------------------------------------------------- |
-| `agent-research-first.instructions.md`          | `**/*.agent.md`                                         |
-| `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                         |
-| `agent-definitions.instructions.md`             | `**/*.agent.md`                                         |
-| `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                               |
-| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                            |
-| `iac-policy-compliance.instructions.md`         | `**/*.bicep, **/*.tf`                                   |
-| `code-quality.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`       |
-| `cost-estimate` (moved to skill)                | `azure-artifacts/references/cost-estimate-standards.md` |
-| `docs.instructions.md`                          | `docs/**/*.md`                                          |
-| `docs-trigger.instructions.md`                  | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`          |
-| `github-actions.instructions.md`                | `.github/workflows/*.yml`                               |
-| `governance-discovery.instructions.md`          | `**/04-governance-*.md`                                 |
-| `instructions.instructions.md`                  | `**/*.instructions.md`                                  |
-| `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                     |
-| `json.instructions.md`                          | `**/*.{json,jsonc}`                                     |
-| `markdown.instructions.md`                      | `**/*.md`                                               |
-| `no-heredoc.instructions.md`                    | `**`                                                    |
-| `powershell.instructions.md`                    | `**/*.ps1`, `**/*.psm1`                                 |
-| `prompt.instructions.md`                        | `**/*.prompt.md`                                        |
-| `python.instructions.md`                        | `**/*.py`                                               |
-| `shell.instructions.md`                         | `**/*.sh`                                               |
-| `terraform-code-best-practices.instructions.md` | `**/*.tf`                                               |
-| `workload-documentation` (moved to skill)       | `docs-writer/references/workload-documentation.md`      |
+See `.github/count-manifest.json` for canonical counts.
+
+| Instruction                                     | Applies To (glob)                                               |
+| ----------------------------------------------- | --------------------------------------------------------------- |
+| `agent-definitions.instructions.md`             | `**/*.agent.md`                                                 |
+| `agent-research-first.instructions.md`          | `**/*.agent.md`                                                 |
+| `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                                 |
+| `astro.instructions.md`                         | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
+| `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                                       |
+| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                                    |
+| `code-quality.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`               |
+| `context-optimization.instructions.md`          | `.github/agents/**/*.agent.md, .github/skills/**/SKILL.md`      |
+| `decision-logging.instructions.md`              | `**/*.agent.md`                                                 |
+| `docs.instructions.md`                          | `site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx` |
+| `docs-trigger.instructions.md`                  | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`                  |
+| `github-actions.instructions.md`                | `.github/workflows/*.yml`                                       |
+| `governance-discovery.instructions.md`          | `**/04-governance-*.md`                                         |
+| `iac-cost-repeatability.instructions.md`        | `**/*.bicep, **/*.tf, **/04-implementation-plan.md`             |
+| `iac-policy-compliance.instructions.md`         | `**/*.bicep, **/*.tf`                                           |
+| `instructions.instructions.md`                  | `**/*.instructions.md`                                          |
+| `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                             |
+| `json.instructions.md`                          | `**/*.{json,jsonc}`                                             |
+| `lesson-collection.instructions.md`             | `**/*conductor*.agent.md`                                       |
+| `markdown.instructions.md`                      | `**/*.md`                                                       |
+| `model-prompt-alignment.instructions.md`        | `**/*.agent.md, **/*.prompt.md`                                 |
+| `no-hardcoded-counts.instructions.md`           | `**/*.md, **/*.json, **/*.mjs`                                  |
+| `no-heredoc.instructions.md`                    | `**`                                                            |
+| `powershell.instructions.md`                    | `**/*.ps1, **/*.psm1`                                           |
+| `prompt.instructions.md`                        | `**/*.prompt.md`                                                |
+| `python.instructions.md`                        | `**/*.py`                                                       |
+| `shell.instructions.md`                         | `**/*.sh`                                                       |
+| `terraform-code-best-practices.instructions.md` | `**/*.tf`                                                       |
 
 ## Artifact Flow (Multi-Step Workflow)
 
@@ -157,33 +213,42 @@ Implementation → Deploy       → Documentation
 These files contain counts, tables, or version references that need
 updating when agents or skills change:
 
-| File                                   | Contains                                   |
-| -------------------------------------- | ------------------------------------------ |
-| `docs/README.md`                       | Agent tables, skill tables, structure tree |
-| `docs.instructions.md`                 | Agent count/table, skill count/table       |
-| `docs/prompt-guide/README.md`          | Agent & skill prompt examples              |
-| `QUALITY_SCORE.md`                     | Project health grades (doc-gardening)      |
-| `docs/exec-plans/tech-debt-tracker.md` | Tech debt inventory                        |
-| `VERSION.md`                           | Canonical version number                   |
-| `CHANGELOG.md`                         | Release history                            |
-| `README.md` (root)                     | Overview, project structure, tech stack    |
+| File                                    | Contains                                   |
+| --------------------------------------- | ------------------------------------------ |
+| `docs/README.md`                        | Agent tables, skill tables, structure tree |
+| `docs.instructions.md`                  | Site docs standards                        |
+| `docs/prompt-guide/README.md`           | Agent & skill prompt examples              |
+| `QUALITY_SCORE.md`                      | Project health grades (doc-gardening)      |
+| `tests/exec-plans/tech-debt-tracker.md` | Tech debt inventory                        |
+| `VERSION.md`                            | Canonical version number                   |
+| `CHANGELOG.md`                          | Release history                            |
+| `README.md` (root)                      | Overview, project structure, tech stack    |
 
 ## docs/ Folder Contents
 
-| File                       | Purpose                                          |
-| -------------------------- | ------------------------------------------------ |
-| `README.md`                | Documentation hub with quick links               |
-| `quickstart.md`            | 10-minute getting started guide                  |
-| `workflow.md`              | Detailed multi-step workflow reference           |
-| `troubleshooting.md`       | Common issues and fixes                          |
-| `dev-containers.md`        | Dev container setup                              |
-| `terraform-roadmap.md`     | Future Terraform support plans                   |
-| `GLOSSARY.md`              | Terms and definitions                            |
-| `branch-ruleset-config.md` | Branch protection ruleset configuration          |
-| `exec-plans/`              | Execution plans and tech-debt-tracker            |
-| `prompt-guide/`            | Agent & skill prompt examples and best practices |
-| `presenter/`               | Presentation materials (pptx, ROI, infographics) |
-| `tf-tests/`                | Terraform test checklists and prompt fixtures    |
+| File                         | Purpose                                          |
+| ---------------------------- | ------------------------------------------------ |
+| `index.md`                   | Documentation hub / landing page                 |
+| `quickstart.md`              | Getting started guide                            |
+| `workflow.md`                | Detailed multi-step workflow reference           |
+| `troubleshooting.md`         | Common issues and fixes                          |
+| `dev-containers.md`          | Dev container setup                              |
+| `faq.md`                     | Frequently asked questions                       |
+| `e2e-testing.md`             | E2E testing guide                                |
+| `cost-governance.md`         | Cost governance guide                            |
+| `security-baseline.md`       | Security baseline reference                      |
+| `session-debugging.md`       | Session debugging guide                          |
+| `hooks.md`                   | Git hooks documentation                          |
+| `validation-reference.md`    | Validation and linting reference                 |
+| `GLOSSARY.md`                | Terms and definitions                            |
+| `CHANGELOG.md`               | Documentation changelog                          |
+| `CONTRIBUTING.md`            | Contribution guidelines                          |
+| `architecture-explorer.html` | Interactive architecture explorer                |
+| `assets/`                    | Static assets (images, etc.)                     |
+| `how-it-works/`              | Architecture explanations                        |
+| `migration/`                 | Migration guides                                 |
+| `prompt-guide/`              | Agent & skill prompt examples and best practices |
+| `presenter/`                 | Presentation materials                           |
 
 ## Skill Discovery & Auto-Invocation
 

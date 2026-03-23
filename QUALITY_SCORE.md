@@ -3,16 +3,16 @@
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 > Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
 
-| Domain          | Grade | Status                                                                  | Next Action                                    |
-| --------------- | ----- | ----------------------------------------------------------------------- | ---------------------------------------------- |
-| Agents          | A     | 17 primary + 11 subagents; conductor body well under 400-line limit     | Monitor via `lint:agent-checks`                |
-| Skills          | A     | 40 GA skills (incl. count-registry); 32+ split with references/         | Fix pre-existing lint in plugin SKILL.md files |
-| Instructions    | A     | 27 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`                  |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed     |
-| Documentation   | A     | All docs updated; no hard-coded counts; descriptive language enforced   | Run doc-gardening after structural changes     |
-| CI / Validation | A     | 28 validators (incl. no-hardcoded-counts); lint:md plugin-only failures | Accept plugin SKILL.md lint as known debt      |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline                 | Quarterly audit via AGENTS.md checklist        |
-| Backlog         | A     | 1 active debt item (lint:md plugin files); 18 resolved                  | Accept as known debt or fix upstream           |
+| Domain          | Grade | Status                                                                 | Next Action                                |
+| --------------- | ----- | ---------------------------------------------------------------------- | ------------------------------------------ |
+| Agents          | A     | 17 primary + 11 subagents; conductor 337 lines (under 400)             | Fix 3 model-mismatch warnings in registry  |
+| Skills          | A     | 43 GA skills; 46 with references/; 508 ref files                       | Monitor via `lint:skills-format`           |
+| Instructions    | A     | 28 instruction files; narrow globs enforced; all refs valid            | Monitor via `lint:glob-audit`              |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)  | Expand Terraform E2E templates when needed |
+| Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts    | Run doc-gardening after structural changes |
+| CI / Validation | A-    | 34 validators; lint:md 115 errors (mostly demo content + test prompts) | Accept demo/test lint as known debt        |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)       | Quarterly audit via AGENTS.md checklist    |
+| Backlog         | A-    | 3 active debt items; 20 resolved (incl. #14 conductor body)            | Triage registry model drift + demo lint    |
 
 ## Grading Scale
 
@@ -82,6 +82,14 @@
 | 2026-03-15 | Agents          | Conductor body 354 → 363 lines; 2 codegen agents have absolute-language warnings                  |
 | 2026-03-15 | Backlog         | Debt #11 resolved (glob audit now clean); debt #15 added (markdown lint); #10 updated (8 agents)  |
 | 2026-03-15 | All             | Stale ref fixed: CHANGELOG.md `azure-troubleshooting` → `azure-diagnostics`                       |
+| 2026-03-23 | All             | Doc-gardening run: all checks pass; no stale files; freshness report clean                        |
+| 2026-03-23 | Agents          | Conductor body 363 → 337 lines; debt #14 resolved; 3 registry model-mismatch warnings found       |
+| 2026-03-23 | Skills          | Skills count 40 → 43; ref files 834 → 508; 19 orphaned skills (plugin architecture, by design)    |
+| 2026-03-23 | Instructions    | Instruction count 25 → 28 (3 new); all applyTo globs have matching files                          |
+| 2026-03-23 | CI / Validation | Grade A → A-: 34 validators; lint:md 115 errors in demo (96) + tests (11) + 4 site docs           |
+| 2026-03-23 | CI / Validation | SKILL.md lint errors resolved (debt #17); demo content now the primary lint debt                  |
+| 2026-03-23 | Backlog         | Debt #14 resolved (conductor 337 lines); #17 resolved (no SKILL.md lint errors)                   |
+| 2026-03-23 | Backlog         | New debt #18 (registry model drift, 3 agents), #19 (demo content lint, 96 errors)                 |
 
 ## How to Update
 

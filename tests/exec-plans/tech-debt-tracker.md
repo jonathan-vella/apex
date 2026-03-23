@@ -8,10 +8,10 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 
 ## Active Debt Items
 
-| ID  | Domain | Description                                                                                | Priority | Owner | Milestone  |
-| --- | ------ | ------------------------------------------------------------------------------------------ | -------- | ----- | ---------- |
-| 14  | Agents | `01-conductor.agent.md` body 363 lines (>350 limit)                                        | Medium   | —     | Phase-next |
-| 17  | Skills | Pre-existing lint errors (MD013/MD040) in Azure skills plugin SKILL.md and reference files | Low      | —     | Phase-next |
+| ID  | Domain | Description                                                                                     | Priority | Owner | Milestone  |
+| --- | ------ | ----------------------------------------------------------------------------------------------- | -------- | ----- | ---------- |
+| 18  | Agents | Agent registry model mismatches: governance, diagnose, governance-discovery-subagent (3 agents) | Low      | —     | Phase-next |
+| 19  | CI/CD  | lint:md 115 errors: 96 in demo content (agent-generated), 11 in test prompts, 4 in site docs    | Low      | —     | Phase-next |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
@@ -34,6 +34,8 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 10  | Agents         | `agents` frontmatter string (not array) in 8 agents                                                    | 2026-03-15 | Converted to inline array format                                                 |
 | 15  | Skills         | 19 skills missing `## Reference Index`; 76 refs missing canary markers                                 | 2026-03-15 | Added Reference Index sections and canary markers                                |
 | 16  | CI/CD          | `lint:md` SKILL.minimal.md trailing spaces/blanks in 3 files                                           | 2026-03-15 | Fixed trailing spaces, multiple blanks, trailing newlines                        |
+| 14  | Agents         | `01-conductor.agent.md` body 363 lines (>350 limit)                                                    | 2026-03-23 | Conductor now 337 lines; well under 400-line limit                               |
+| 17  | Skills         | Pre-existing lint errors (MD013/MD040) in Azure skills plugin SKILL.md files                           | 2026-03-23 | No SKILL.md files appear in lint:md output; errors shifted to demo content       |
 | —   | All            | Tracker created — no resolved items at inception                                                       | 2026-02-26 | Initial seeding from audit                                                       |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

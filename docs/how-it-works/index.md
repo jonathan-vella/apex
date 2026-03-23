@@ -76,7 +76,7 @@ are enforced as first-class concerns across all generated infrastructure.
 
   ***
 
-  Five MCP servers: GitHub, Azure, Azure Pricing, Terraform Registry,
+  MCP servers for GitHub, Azure, Azure Pricing, Terraform Registry,
   and Microsoft Learn.
 
   [:octicons-arrow-right-24: MCP servers](mcp-integration.md)

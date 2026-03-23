@@ -110,18 +110,20 @@ appropriate category table. Remove entries for deleted skills.
 
 **Source of truth**: List `.github/instructions/*.instructions.md` files.
 
-**Expected count** (as of 2026-02-26): **25 instruction files**
+**Expected count** (as of 2026-02-26): computed dynamically from `.github/count-manifest.json`
+(run `validate:no-hardcoded-counts` to verify)
 
 **Files to check**: Only relevant if `docs/README.md` or the root
 `README.md` lists instruction files.
 
-**Auto-fix**: Update count and table entries.
+**Auto-fix**: Update table entries.
 
 ### 8. Template Inventory Sync
 
 **Source of truth**: List `.github/skills/azure-artifacts/templates/*.template.md` files.
 
-**Expected count** (as of 2026-02-09): **16 templates**
+**Expected count** (as of 2026-02-09): computed dynamically from `.github/count-manifest.json`
+(run `validate:no-hardcoded-counts` to verify)
 
 **Files to check**: Only relevant if documentation references
 template counts.
@@ -134,10 +136,10 @@ template counts.
 
 **Files to check**:
 
-| File                                   | What to verify                                      |
-| -------------------------------------- | --------------------------------------------------- |
-| `QUALITY_SCORE.md`                     | Grades reflect current state; change log up to date |
-| `docs/exec-plans/tech-debt-tracker.md` | Active items still relevant; resolved items moved   |
+| File                                    | What to verify                                      |
+| --------------------------------------- | --------------------------------------------------- |
+| `QUALITY_SCORE.md`                      | Grades reflect current state; change log up to date |
+| `tests/exec-plans/tech-debt-tracker.md` | Active items still relevant; resolved items moved   |
 
 **Auto-fix**: Update grades and log entries in `QUALITY_SCORE.md`. Mark resolved debt items
 as resolved with the current date.
@@ -155,7 +157,7 @@ When reporting audit results, use this format:
 
 ## Known Issues
 
-No known issues. Last audit: 2026-02-26.
+No known issues. Last audit: 2026-03-23.
 
 All 21 discrepancies identified during the initial audit have been
 resolved (Tasks A–D). Fixes included:

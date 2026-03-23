@@ -2,8 +2,9 @@
 title: "Workflow Prompts"
 description: "Step-by-step workflow prompt templates"
 ---
-The Agentic InfraOps workflow follows eight steps (including Step 3.5 Governance). Use the **InfraOps Conductor** to
-run all steps end-to-end, or invoke individual agents directly.
+
+The Agentic InfraOps workflow follows a multi-step pipeline (including Step 3.5 Governance).
+Use the **InfraOps Conductor** to run all steps end-to-end, or invoke individual agents directly.
 
 ## End-to-End (Conductor)
 

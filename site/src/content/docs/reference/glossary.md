@@ -4,6 +4,7 @@ description: "Terms and definitions used in Agentic InfraOps"
 tableOfContents:
   maxDepth: 2
 ---
+
 Quick reference for terms used throughout Agentic InfraOps documentation.
 
 ## A
@@ -196,7 +197,7 @@ state integrity, and timing performance. Composite score 0–100 with letter gra
 
 ### E2E Conductor
 
-Orchestration agent that drives the Ralph Loop. Executes all 7 InfraOps steps without human
+Orchestration agent that drives the Ralph Loop. Executes all InfraOps steps without human
 gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
 Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
 
@@ -278,7 +279,7 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 ### MCP (Model Context Protocol)
 
 Protocol for extending AI assistants with external tools and data sources. This project
-uses five MCP servers: GitHub (repo operations), Azure (RBAC-aware resource access),
+uses MCP servers for GitHub (repo operations), Azure (RBAC-aware resource access),
 Azure Pricing (cost estimation), Terraform Registry (module lookup), and Microsoft
 Learn (official documentation search and code sample discovery).
 
@@ -346,7 +347,7 @@ JSON-RPC, a lightweight RPC protocol encoded in JSON.
 ### Ralph Loop
 
 An autonomous, self-correcting E2E evaluation workflow based on the
-[RALPH pattern](https://ghuntley.com/ralph/). Runs all 7 InfraOps pipeline steps without
+[RALPH pattern](https://ghuntley.com/ralph/). Runs all InfraOps pipeline steps without
 human gates, with built-in self-correction, challenger reviews, and benchmark scoring.
 Supports both Bicep and Terraform IaC tracks.
 

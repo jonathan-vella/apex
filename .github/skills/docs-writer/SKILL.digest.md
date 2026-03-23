@@ -27,12 +27,12 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 - `docs/` — user-facing docs (quickstart, workflow, troubleshooting, etc.)
 - `docs/prompt-guide/` — agent & skill prompt examples
-- `docs/exec-plans/tech-debt-tracker.md` — tech debt inventory
+- `tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
 - `CONTRIBUTING.md` — contribution guidelines
 - `CHANGELOG.md` — release history
 - `QUALITY_SCORE.md` — project health grades
-- `.github/instructions/docs.instructions.md` — architecture tables
+- `.github/instructions/docs.instructions.md` — site docs standards
 
 > _See SKILL.md for full content._
 

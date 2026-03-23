@@ -71,8 +71,8 @@ body:has(.landing-hero) {
   background:
     radial-gradient(
       circle at 14% 12%,
-      rgba(255, 180, 76, 0.12),
-      transparent 16%
+      rgba(104, 74, 255, 0.1),
+      transparent 20%
     ),
     radial-gradient(
       circle at 76% 14%,
@@ -81,7 +81,7 @@ body:has(.landing-hero) {
     ),
     radial-gradient(
       circle at 62% 30%,
-      rgba(104, 74, 255, 0.12),
+      rgba(104, 74, 255, 0.1),
       transparent 18%
     ),
     linear-gradient(180deg, #0b1018 0%, #0a0d14 42%, #0d1119 100%);
@@ -116,8 +116,8 @@ body:has(.landing-hero)::after {
   background:
     radial-gradient(
       circle at 24% 18%,
-      rgba(255, 170, 93, 0.16),
-      transparent 15%
+      rgba(100, 84, 255, 0.14),
+      transparent 18%
     ),
     radial-gradient(
       circle at 80% 20%,
@@ -344,12 +344,13 @@ body:has(.landing-hero) footer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 8rem;
-  padding: 0.52rem 0.9rem;
+  min-width: 8.5rem;
+  padding: 0.65rem 1.25rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 700;
   line-height: 1;
+  letter-spacing: 0.01em;
   text-decoration: none;
   transition:
     transform 0.2s ease,
@@ -364,18 +365,31 @@ body:has(.landing-hero) footer {
 }
 
 .landing-hero__actions .primary {
-  min-width: 8.5rem;
-  background: linear-gradient(180deg, #9ad7ff, #63b7ff);
-  color: #06111c;
+  min-width: 9rem;
+  background: linear-gradient(160deg, #5ec5ff 0%, #2196f3 55%, #1565c0 100%);
+  color: #ffffff;
   box-shadow:
-    0 16px 38px rgba(0, 120, 212, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    0 4px 24px rgba(0, 120, 212, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.landing-hero__actions .primary:hover {
+  background: linear-gradient(160deg, #7dd3ff 0%, #42a5f5 55%, #1976d2 100%);
+  box-shadow:
+    0 8px 32px rgba(0, 120, 212, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .landing-hero__actions .minimal {
-  color: #f0f6fc;
-  border: 1px solid rgba(124, 135, 160, 0.26);
-  background: rgba(255, 255, 255, 0.03);
+  color: #e8f0fe;
+  border: 1.5px solid rgba(180, 200, 240, 0.38);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.landing-hero__actions .minimal:hover {
+  border-color: rgba(180, 200, 240, 0.6);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ── Demo window ── */
@@ -401,7 +415,7 @@ body:has(.landing-hero) footer {
 .landing-hero__demo::before {
   left: 0;
   top: 2rem;
-  background: rgba(255, 168, 108, 0.48);
+  background: rgba(100, 120, 255, 0.45);
 }
 
 .landing-hero__demo::after {

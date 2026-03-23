@@ -29,7 +29,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Bicep and Terraform patterns and templates
    - Azure Verified Module usage examples (Bicep and AVM-TF)
    - Security and compliance guidance
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📋 Contribution Guidelines
+   <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📋 Contribution Guidelines
 
 ### Before You Start
 
@@ -147,6 +147,7 @@ npm run lint:links
 # Auto-fix issues
 npm run lint:md:fix
 ```
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 🚀 Contribution Process
 
 ### 1. Fork & Clone
@@ -193,6 +194,7 @@ git push origin feature/your-feature-name
 ```
 
 Note: commit message format is enforced by hooks and CI.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📝 Commit Message Format (Required)
 
 This repository uses [Conventional Commits](https://www.conventionalcommits.org/) with automated enforcement.

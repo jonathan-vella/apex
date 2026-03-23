@@ -272,3 +272,22 @@ Or invoke explicitly:
 ```text
 Use the azure-diagrams skill to create a diagram for my-webapp
 ```
+
+---
+
+## :material-arrow-right-circle: What's Next?
+
+You're ready to build. Here's where to go from here:
+
+- **Run a full project** — Select the **InfraOps Conductor** in Copilot Chat and
+  describe your Azure infrastructure needs. The Conductor guides you through every step
+  with approval gates.
+- **Understand the workflow** — Read [System Architecture](how-it-works/architecture.md)
+  for how agents, skills, and approval gates work together.
+- **Write better prompts** — See [Prompt Best Practices](prompt-guide/best-practices.md)
+  for tips on getting the most from each agent.
+- **Review security rules** — Check the [Security Baseline](security-baseline.md) enforced
+  on all generated infrastructure.
+- **Troubleshoot issues** — If something goes wrong, see
+  [Troubleshooting](troubleshooting.md) or
+  [Session Debugging](session-debugging.md) for recovery.

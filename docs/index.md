@@ -1,4 +1,4 @@
-<!-- MkDocs landing page — source of truth is this file -->
+<!-- Landing page — source of truth is this file -->
 
 # Agentic InfraOps
 
@@ -167,13 +167,13 @@ sequenceDiagram
 
 ## :material-chart-box-outline: Key Facts
 
-|                 |                                                          |
-| --------------- | -------------------------------------------------------- |
-| **Agents**      | Specialized top-level agents and subagents               |
-| **Skills**      | Reusable domain knowledge modules                        |
-| **IaC Tracks**  | Bicep and Terraform (dual-track)                         |
-| **MCP Servers** | GitHub, Azure Pricing, Terraform + Azure MCP (extension) |
-| **Workflow**    | Multi-step with mandatory approval gates                 |
+|                 |                                                       |
+| --------------- | ----------------------------------------------------- |
+| **Agents**      | Specialized top-level agents and subagents            |
+| **Skills**      | Reusable domain knowledge modules                     |
+| **IaC Tracks**  | Bicep and Terraform (dual-track)                      |
+| **MCP Servers** | GitHub, MS Learn, Azure Pricing, Terraform, Azure MCP |
+| **Workflow**    | Multi-step with mandatory approval gates              |
 
 ## :material-star-outline: Highlights
 

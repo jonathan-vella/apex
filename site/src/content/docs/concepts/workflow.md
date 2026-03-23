@@ -31,9 +31,9 @@ describe your project. The Conductor handles all steps with approval gates.
 
 ### Formalized Workflow Engine
 
-The workflow is defined as a machine-readable DAG (Directed Acyclic Graph) in
-`.github/skills/workflow-engine/templates/workflow-graph.json`. The Conductor reads this
-graph instead of relying on hardcoded step logic:
+A machine-readable DAG (Directed Acyclic Graph) in
+`.github/skills/workflow-engine/templates/workflow-graph.json` encodes the workflow.
+The Conductor reads this graph instead of relying on hardcoded step logic:
 
 - **Nodes**: agent-step, gate, subagent-fan-out, validation
 - **Edges**: dependency links with conditions (`on_complete`, `on_skip`, `on_fail`)
@@ -134,7 +134,8 @@ Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
 
 <img src="/azure-agentic-infraops/images/agent-delegation-graph.png"
      width="100%" style="border-radius: 10px; margin: 1rem 0;"
-     alt="Agent Delegation Graph — Conductor routes to Requirements, Architect, Design, Governance, then forks into Bicep and Terraform tracks for Planning, CodeGen, and Deploy, converging at As-Built Docs"/>
+     alt="Agent Delegation Graph — Conductor routes to Requirements, Architect, Design, Governance,
+     then forks into Bicep and Terraform tracks for Planning, CodeGen, and Deploy, converging at As-Built Docs"/>
 
 ## Agent Roster
 
@@ -144,7 +145,7 @@ Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
 | ---------------------- | ---------- | ------------------------------------------- | -------------------- |
 | **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for multi-step workflow | Claude Opus (latest) |
 
-### Core Agents (8 Steps)
+### Core Agents (by Workflow Step)
 
 Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 

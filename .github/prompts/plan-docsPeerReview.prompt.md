@@ -1,7 +1,7 @@
 ---
 description: "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report."
 agent: agent
-tools: read, agent, search
+tools: vscode, read, agent, search, web, 'microsoft-learn/*', todo
 argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works only')"
 ---
 
@@ -13,14 +13,13 @@ then reconciliation into a prioritised triage report.
 
 ## Scope
 
-Published pages only. Excludes `docs/exec-plans/` and `docs/presenter/`
-(per `mkdocs.yml` `exclude_docs` directive).
+Published pages only. Excludes `tests/exec-plans/` and `docs/presenter/`.
 
 ### Step 0 — Build file inventory dynamically
 
-Before running any reviewer, read `mkdocs.yml` and extract all file paths from the
-`nav:` section. This is the authoritative list of published pages. Do NOT rely on a
-hardcoded table — the nav changes over time.
+Before running any reviewer, read `site/astro.config.mjs` and extract the `sidebar`
+configuration. This is the authoritative list of published pages. Do NOT rely on a
+hardcoded table — the sidebar changes over time.
 
 Expected sections (for reference, not as source of truth):
 
@@ -33,18 +32,18 @@ Known filename note: `four-pillars.md` renders as "Core Concepts" in the nav.
 
 Reviewers should validate docs claims against these files:
 
-| File                          | What it proves                        |
-| ----------------------------- | ------------------------------------- |
-| `.github/agents/*.agent.md`   | Top-level agent names and count       |
-| `.github/agents/_subagents/`  | Subagent names and count              |
-| `.github/skills/*/SKILL.md`   | Skill names and count                 |
-| `.github/instructions/`       | Instruction file names                |
-| `.github/agent-registry.json` | Agent → file/model/skills mapping     |
-| `.github/skill-affinity.json` | Skill → agent affinity weights        |
-| `.vscode/mcp.json`            | MCP server names and config           |
-| `package.json`                | Validation script names               |
-| `mkdocs.yml`                  | Nav structure and published page list |
-| `AGENTS.md`                   | Project conventions table of contents |
+| File                          | What it proves                            |
+| ----------------------------- | ----------------------------------------- |
+| `.github/agents/*.agent.md`   | Top-level agent names and count           |
+| `.github/agents/_subagents/`  | Subagent names and count                  |
+| `.github/skills/*/SKILL.md`   | Skill names and count                     |
+| `.github/instructions/`       | Instruction file names                    |
+| `.github/agent-registry.json` | Agent → file/model/skills mapping         |
+| `.github/skill-affinity.json` | Skill → agent affinity weights            |
+| `.vscode/mcp.json`            | MCP server names and config               |
+| `package.json`                | Validation script names                   |
+| `site/astro.config.mjs`       | Sidebar structure and published page list |
+| `AGENTS.md`                   | Project conventions table of contents     |
 
 ## Workflow
 

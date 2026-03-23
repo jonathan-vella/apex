@@ -39,12 +39,12 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 - `docs/` — user-facing docs (quickstart, workflow, troubleshooting, etc.)
 - `docs/prompt-guide/` — agent & skill prompt examples
-- `docs/exec-plans/tech-debt-tracker.md` — tech debt inventory
+- `tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
 - `CONTRIBUTING.md` — contribution guidelines
 - `CHANGELOG.md` — release history
 - `QUALITY_SCORE.md` — project health grades
-- `.github/instructions/docs.instructions.md` — architecture tables
+- `.github/instructions/docs.instructions.md` — site docs standards
 
 ### Out of Scope (Has Own Validators)
 
@@ -78,15 +78,15 @@ When a new agent or skill is added to the repo:
    entity inventory and naming conventions.
 2. **Identify all files needing updates**:
    - New agent → update `docs/README.md` agent tables,
-     `.github/instructions/docs.instructions.md` agent count/table
+     `README.md` (root) agent references
    - New skill → update `docs/README.md` skill tables,
-     `.github/instructions/docs.instructions.md` skill count/table
+     `README.md` (root) skill references
 3. **Match existing patterns**: Study adjacent entries in each table
    to match column format, emoji conventions, and description style.
-4. **Update counts**: Increment totals in section headings
-   (e.g., "## Skills (10)" → "## Skills (11)").
-5. **Cross-reference check**: Search for other files mentioning the old
-   count and update them too.
+4. **Update references**: Use descriptive language per the
+   `no-hardcoded-counts` instruction — never hard-code entity totals.
+5. **Cross-reference check**: Search for other files referencing the
+   entity and add it to the appropriate tables.
 
 ### Workflow 3: Freshness Audit (Staleness Check)
 
@@ -98,7 +98,7 @@ When a new agent or skill is added to the repo:
    - No references to removed/renamed agents
 3. **Check project health files**:
    - Read `QUALITY_SCORE.md` — verify grades still reflect reality
-   - Read `docs/exec-plans/tech-debt-tracker.md` — verify items still relevant
+   - Read `tests/exec-plans/tech-debt-tracker.md` — verify items still relevant
 4. **Report findings**: Present a table of issues found with:
    - File path, line number, issue description, suggested fix
 5. **Auto-fix**: For each issue, propose the exact edit and apply it

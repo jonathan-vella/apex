@@ -31,8 +31,8 @@ handoffs:
 3. :material-swap-horizontal: Handoff target — the next agent in the workflow
 4. :material-book-open-variant: Skills are loaded on demand to preserve context budget
 
-The frontmatter is machine-readable metadata. The body is the agent's operating manual,
-loaded into the system prompt when the agent is invoked.
+The frontmatter is machine-readable metadata. The body is the agent's full operating
+manual — the runtime loads it into the system prompt at invocation.
 
 ### Tools
 
@@ -73,6 +73,12 @@ and routing to the next step. At approval gates, the Conductor writes a
 | 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics                              |
 | 10-Challenger            | Standalone adversarial review         | —                                              |
 | 11-Context Optimizer     | Context window audit and optimisation | context-optimizer                              |
+
+!!! note "Internal Agent"
+
+    The **E2E Conductor** (`e2e-conductor.agent.md`) is an internal testing agent used
+    for autonomous Ralph Loop evaluation runs. It is not user-invocable and does not
+    appear in the workflow table above.
 
 ## :material-account-cog-outline: Subagents
 

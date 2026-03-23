@@ -57,7 +57,7 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [
         "azure-defaults",
         "azure-artifacts",
@@ -177,7 +177,7 @@
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Opus 4.6",
       "skills": [
         "azure-diagnostics",
         "azure-defaults",
@@ -241,7 +241,7 @@
     },
     "governance-discovery-subagent": {
       "agent": ".github/agents/_subagents/governance-discovery-subagent.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.4",
       "skills": ["azure-defaults"],
       "invokable": false
     },

@@ -34,7 +34,7 @@ infrastructure.
 
   ***
 
-  Ready-to-use prompts for all 8 workflow steps plus standalone agents.
+  Ready-to-use prompts for every workflow step plus standalone agents.
 
   [:octicons-arrow-right-24: Workflow prompts](workflow-prompts.md)
 

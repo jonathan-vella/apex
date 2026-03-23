@@ -2,7 +2,7 @@
 
 Frequently asked questions about Agentic InfraOps.
 
-**Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) <!-- markdownlint-disable-line MD013 -->
+**Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) · [Glossary](GLOSSARY.md) <!-- markdownlint-disable-line MD013 -->
 
 ---
 
