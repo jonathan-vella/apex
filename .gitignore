@@ -51,7 +51,6 @@ bin/
 obj/
 dist/
 build/
-site/
 
 # Node (if any demos use it)
 node_modules/
@@ -79,8 +78,10 @@ freshness-report.json
 # Baseline snapshots (local working data for context optimizer)
 agent-output/_baselines/
 
-# MkDocs build output (deployed via gh-pages branch, not committed to main)
-site/
+# Astro Starlight (site/ is source code; only ignore build artifacts)
+site/dist/
+site/node_modules/
+site/.astro/
 
 # Terraform
 *.tfstate

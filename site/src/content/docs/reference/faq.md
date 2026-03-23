@@ -1,0 +1,269 @@
+---
+title: "FAQ"
+description: "Frequently asked questions"
+---
+
+Frequently asked questions about Agentic InfraOps.
+
+**Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) <!-- markdownlint-disable-line MD013 -->
+
+---
+
+## General
+
+:::note[How do I get started?]
+Create your own repository from the
+[Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+— click **"Use this template"** on GitHub, clone your new repo, and open it in the dev
+container. See the [Quickstart](quickstart.md) for the step-by-step guide.
+:::
+
+    This upstream repository (`azure-agentic-infraops`) is the source project. The Accelerator
+    template is the recommended starting point for new users.
+
+:::note[Is this project production-ready?]
+Agentic InfraOps is currently at **v0.10.0** (pre-1.0). It is suitable for
+development, testing, and proof-of-concept deployments. The generated IaC templates
+follow Azure Verified Modules standards and include security baselines, but you
+should always review generated code before deploying to production environments.
+:::
+
+    See the [Changelog](CHANGELOG.md) for release history and maturity indicators.
+
+:::note[What AI models does this require?]
+The project is built for **GitHub Copilot** in VS Code. Agents specify their
+preferred model in their frontmatter — most use the latest Claude Opus or
+GPT Codex models. The Conductor and review-heavy agents perform best with
+the latest Claude Opus model.
+:::
+
+    Model versions evolve — check agent frontmatter for current selections.
+
+    You need an active **GitHub Copilot** license (Individual, Business, or Enterprise).
+
+:::note[Do I need an Azure subscription?]
+**For learning**: No. You can run the full workflow through Steps 1-5 (requirements,
+architecture, design, planning, code generation) without an Azure subscription.
+The generated templates are valid and ready to deploy.
+:::
+
+    **For deployment**: Yes. Step 6 (Deploy) requires an active Azure subscription with
+    permissions to create resources. Step 2 (Architecture) optionally uses the Azure
+    Pricing MCP server, which queries public pricing APIs and does not require a subscription.
+
+:::note[When should I use the Fast-Path Conductor?]
+Use the **01-Conductor (Fast Path)** for simple projects with ≤3 resources, a single
+environment, and no custom Azure policies. It combines Plan and Code into one step
+with a 1-pass review. For anything more complex, use the standard 01-Conductor.
+:::
+
+---
+
+## IaC Tracks
+
+:::note[Bicep or Terraform — which should I choose?]
+Both tracks produce production-quality output. Choose based on your team's expertise
+and organizational standards:
+:::
+
+    | Factor             | Bicep                                    | Terraform                                  |
+    | ------------------ | ---------------------------------------- | ------------------------------------------ |
+    | **Azure-only**     | Native DSL, first-class Azure support    | Multi-cloud, Azure via AzureRM provider    |
+    | **State**          | No state file (ARM-managed)              | State file (Azure Storage backend)         |
+    | **Learning curve** | Lower if you know ARM/Azure              | Lower if you know HCL/multi-cloud          |
+    | **AVM modules**    | `br/public:avm/res/`                     | `registry.terraform.io/Azure/avm-res-*/`   |
+    | **CI/CD**          | `az deployment group create`             | `terraform plan` + `terraform apply`       |
+
+    The Requirements agent (Step 1) captures your `iac_tool` preference, and the
+    Conductor routes all subsequent steps to the correct track automatically.
+
+    See [How It Works](how-it-works/index.md) for a deeper comparison.
+
+:::note[Can I switch IaC tracks mid-workflow?]
+Not directly. The `iac_tool` field in `01-requirements.md` determines the track for
+Steps 4-6. To switch, update the `iac_tool` field in requirements and re-run from
+Step 4 (Planning). Steps 1-3 are shared and do not need to be repeated.
+:::
+
+---
+
+## Usage
+
+:::note[Can I use this offline?]
+No. Agentic InfraOps requires:
+:::
+
+    - **GitHub Copilot** — cloud-hosted AI service
+    - **MCP servers** — Azure Pricing, GitHub, Terraform, and Microsoft Learn MCP servers
+      provide real-time data to agents
+
+    The dev container itself runs locally, but agent conversations and MCP tool calls
+    require internet connectivity.
+
+:::note[How do I customize agents or add new ones?]
+Agents are defined in `.github/agents/*.agent.md` as YAML frontmatter + markdown body.
+To create a new agent:
+:::
+
+    1. Copy an existing agent file as a template
+    2. Update the frontmatter (name, description, model, tools, skills)
+    3. Write the agent body with instructions
+    4. Reload VS Code — the agent appears in the `Ctrl+Shift+A` picker
+
+    See [Contributing](CONTRIBUTING.md) for contribution guidelines and the
+    [Agent and Skill Workflow](workflow.md) for how agents fit into the system.
+
+:::note[What's the difference between agents and skills?]
+| Aspect          | Agents                                   | Skills                   |
+| --------------- | ---------------------------------------- | ------------------------ |
+| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit    |
+| **Interaction** | Conversational with handoffs             | Task-focused             |
+| **State**       | Session context                          | Stateless                |
+| **Output**      | Multiple artifacts                       | Specific outputs         |
+| **When to use** | Core workflow steps                      | Specialized capabilities |
+:::
+
+    Agents are the actors in the multi-step workflow. Skills are reusable knowledge modules
+    that agents load on demand. See the [Workflow](workflow.md) page for details.
+
+:::note[How do I resume a failed or interrupted workflow?]
+The Conductor supports session resume via the `session-resume` skill. To resume:
+:::
+
+    1. Open Copilot Chat and select **InfraOps Conductor**
+    2. Say: *"Resume the workflow from where we left off. Check agent-output/{project}/ for existing artifacts."*
+    3. The Conductor reads `00-session-state.json` and existing artifacts to determine
+       which steps are complete, then continues from the next pending step.
+
+    See the [Quickstart](quickstart.md) for the full getting-started flow.
+
+:::note[Is there a guided hands-on exercise?]
+Yes — the [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/) is a
+hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents,
+from requirements to deployment. It includes structured exercises, guided prompts, and
+reference solutions for each of the 8 workflow steps.
+:::
+
+---
+
+## Customization & Multi-Project
+
+:::note[How do I customize upstream-owned files like the `azure-defaults` skill?]
+When you create a repository from the Accelerator template, every file immediately
+becomes yours — there is no fork relationship, so there are no automatic upstream
+changes unless you opt in via the sync workflow.
+:::
+
+    **Strategy A — Edit directly (simplest)**
+
+    Edit any file in place. If you never want upstream updates, disable the sync
+    workflow in **Repo Settings → Actions → Workflows → Disable "Upstream Sync"**.
+    If you later re-enable sync, the workflow runs `git checkout upstream/main -- .`
+    and then restores a fixed set of excluded paths. This is a **full overwrite, not a
+    merge** — any edits outside the excluded paths will be lost and you will need to
+    re-apply them.
+
+    **Strategy B — Override layer (recommended for teams)**
+
+    Keep sync enabled and layer your customizations in **sync-safe locations**.
+    The sync workflow (`weekly-upstream-sync.yml`) preserves four paths by default:
+
+    | Excluded from sync (safe to edit)  | Overwritten by sync (not safe without changes) |
+    | ----------------------------------- | ----------------------------------------------- |
+    | `agent-output/`                     | Root `AGENTS.md`                                |
+    | `infra/bicep/`                      | `infra/terraform/`                              |
+    | `.github/workflows/`                | `.github/instructions/`                         |
+    | `README.md`                         | All skills in `.github/skills/`                 |
+
+    Strategy B override options:
+
+    - **Extend the exclusion list** — `.github/workflows/` is yours and is never
+      overwritten. Open `weekly-upstream-sync.yml` and add paths (e.g. `AGENTS.md`,
+      `infra/terraform`) to `EXCLUDE_PATHS` and the matching `for path in ...` restore
+      loop. Once protected, use root `AGENTS.md` for project-wide overrides.
+    - **`infra/bicep/AGENTS.md`** — Already excluded from sync. VS Code loads subfolder
+      `AGENTS.md` files automatically for that directory tree, making it a reliable
+      place for Bicep-specific or project-wide instructions without touching the root.
+    - **VS Code user-profile instructions** — Create `.instructions.md` files in your
+      VS Code profile's `prompts/` folder. These live entirely outside the repo and
+      apply across all workspaces on your machine.
+
+    | Strategy | Approach | Best for |
+    | -------- | -------- | -------- |
+    | **A — Direct edit** | Edit in place; optionally disable sync | Solo developers; teams opting out of upstream updates |
+    | **B — Override layer** | Keep sync; extend `EXCLUDE_PATHS` or use sync-safe paths | Teams that want continuous upstream improvements |
+
+:::note[One repo with many projects, or one repo per project?]
+The Accelerator is designed for **one repo containing multiple projects**. Each
+project gets its own subdirectories under `agent-output/{project}/`,
+`infra/bicep/{project}/`, and `infra/terraform/{project}/`. Agents, skills,
+instructions, and the dev container are all shared across projects in the same repo.
+:::
+
+    **One repo per project** is equally valid when teams need separate governance,
+    permissions, or isolation. Each repo is created independently from the Accelerator
+    template with its own full copy of agents and skills.
+
+    Because the dev container definition lives inside the repo, separate repos give
+    each project an independent dev container configuration — useful when projects
+    need different tool versions or container images.
+
+    **Cross-team sharing across multiple repos:**
+
+    - **Extend the sync exclusion list** in each repo to protect `AGENTS.md`, then
+      maintain a standard overrides section you copy into each new instance at setup time.
+    - **VS Code user-profile instructions** — Personal preferences placed in your VS Code
+      profile `prompts/` folder apply across all repos on your machine without any
+      per-repo configuration.
+    - **Team wiki or internal repo** — Keep a canonical overrides snippet (naming
+      conventions, approved regions, required tags) and paste it into new instances
+      as part of your project setup checklist.
+
+---
+
+## Troubleshooting
+
+:::note[The Conductor doesn't delegate to other agents — what's wrong?]
+The most common cause is the subagent orchestration setting not being enabled.
+Add this to your **VS Code User Settings** (not workspace settings):
+:::
+
+    ```json
+    {
+      "chat.customAgentInSubagent.enabled": true
+    }
+    ```
+
+    See [Troubleshooting](troubleshooting.md#2-conductorsubagent-invocation-not-working-vs-code-1109)
+    for detailed steps.
+
+:::note[Where do I report bugs or request features?]
+- **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
+- **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
+- **Feature requests**: Open a GitHub issue with the `enhancement` label
+:::
+
+:::note[What happens if an agent produces bad output?]
+Use specific follow-up prompts to correct the issue. For example:
+*"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."*
+If the error persists, start a fresh chat session — context accumulation can degrade
+output quality. The [Troubleshooting](troubleshooting.md) guide covers common failure
+modes and recovery steps.
+:::
+
+:::note[What if MCP servers are unreachable?]
+The workflow degrades gracefully. Steps 1-5 can proceed without MCP — agents skip
+real-time pricing lookups and use documented defaults. Only Step 2 cost estimation
+and Step 7 as-built cost updates depend directly on the Pricing MCP server.
+Governance discovery (Step 3.5) uses Azure REST API, not MCP.
+:::
+
+:::caution[Step 6 (Deploy) requires Azure credentials]
+If you attempt deployment without an active Azure subscription and `az login`,
+the deploy agent will fail with an authentication error.
+See [Troubleshooting](troubleshooting.md) for recovery steps.
+:::
+
+---
+
+**See also:** [Troubleshooting](troubleshooting.md) · [Prompt Guide](prompt-guide/index.md) · [Glossary](GLOSSARY.md)

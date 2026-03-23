@@ -1,6 +1,6 @@
 ---
-description: "Standards for user-facing documentation in the docs/ folder"
-applyTo: "docs/**/*.md"
+description: "Standards for user-facing documentation in the site/src/content/docs/ folder"
+applyTo: "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx"
 ---
 
 # Documentation Standards

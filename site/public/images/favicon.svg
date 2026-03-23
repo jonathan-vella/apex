@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Cloud shape -->
+  <path d="M24 19H9.3a4 4 0 0 1-.56-7.96A5.33 5.33 0 0 1 19.2 9.3 4 4 0 0 1 24 13.3v0a4 4 0 0 1 0 5.7Z"
+        fill="#5C6BC0" stroke="none"/>
+  <!-- Conductor baton -->
+  <line x1="13" y1="25" x2="22" y2="15" stroke="#5C6BC0" stroke-width="2" stroke-linecap="round"/>
+  <!-- Baton spark -->
+  <circle cx="22" cy="15" r="1.5" fill="#FFC107"/>
+</svg>

@@ -1,6 +1,6 @@
 # Docs Deployment Workflow
-# Builds and deploys MkDocs site to GitHub Pages
-# Triggered on changes to docs/ or mkdocs config
+# Builds Astro Starlight site and deploys to GitHub Pages
+# Triggered on changes to site/ source or project docs
 
 name: docs
 
@@ -8,27 +8,46 @@ on:
   push:
     branches: [main]
     paths:
-      - "docs/**"
-      - "mkdocs.yml"
-      - "CONTRIBUTING.md"
-      - "CHANGELOG.md"
-      - "requirements-docs.txt"
+      - "site/src/**"
+      - "site/public/**"
+      - "site/astro.config.mjs"
+      - "site/package.json"
+      - "site/package-lock.json"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
-      - run: pip install -r requirements-docs.txt
-      - run: mkdocs gh-deploy --force
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run build
+        working-directory: site
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

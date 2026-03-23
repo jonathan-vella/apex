@@ -188,9 +188,10 @@
     ".github/skills/microsoft-foundry/**",
 
     // E2E test input documents (long-form RFQ/RFP prose, not production docs)
-    "docs/e2e-inputs/**",
+    "tests/e2e-inputs/**",
 
-    // MkDocs build output
-    "site/**",
+    // Astro Starlight build output
+    "site/dist/**",
+    "site/.astro/**",
   ],
 }

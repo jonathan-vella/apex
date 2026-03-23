@@ -1,0 +1,224 @@
+/* Agentic InfraOps — Custom Starlight Theme
+   Ported from microhack-agentic-infraops, adapted for docs site.
+   Colors: Azure blue accent, dark-first with light mode support. */
+
+:root {
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+
+  /* Starlight theme tokens */
+  --sl-font: var(--font-body);
+  --sl-color-accent-low: #002b4d;
+  --sl-color-accent: #0078d4;
+  --sl-color-accent-high: #6cb8f7;
+  --sl-hue-accent: 207;
+
+  /* Dark mode base (Starlight default) */
+  --sl-color-white: #f0f6fc;
+  --sl-color-gray-1: #d0d7de;
+  --sl-color-gray-2: #8b949e;
+  --sl-color-gray-3: #484f58;
+  --sl-color-gray-4: #30363d;
+  --sl-color-gray-5: #21262d;
+  --sl-color-gray-6: #161b22;
+  --sl-color-black: #0d1117;
+}
+
+/* Light mode overrides */
+:root[data-theme="light"] {
+  --sl-color-accent-low: #dbeafe;
+  --sl-color-accent: #0078d4;
+  --sl-color-accent-high: #003a6b;
+
+  --sl-color-white: #0d1117;
+  --sl-color-gray-1: #24292f;
+  --sl-color-gray-2: #57606a;
+  --sl-color-gray-3: #8b949e;
+  --sl-color-gray-4: #d0d7de;
+  --sl-color-gray-5: #e8ecf0;
+  --sl-color-gray-6: #f6f8fa;
+  --sl-color-black: #ffffff;
+}
+
+/* ── Typography ── */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sl-markdown-content {
+  font-family: var(--font-body);
+  line-height: 1.7;
+}
+
+code,
+pre,
+.expressive-code {
+  font-family: var(--font-mono) !important;
+}
+
+/* ── Sidebar ── */
+
+nav.sidebar {
+  font-family: var(--font-body);
+}
+
+nav.sidebar a {
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+nav.sidebar a[aria-current="page"] {
+  font-weight: 700;
+  color: var(--sl-color-accent);
+}
+
+/* Sidebar group labels */
+.sidebar-content .top-level > li > details > summary,
+.sidebar-content .top-level > li > a {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── Expressive Code ── */
+
+.expressive-code .frame {
+  border: 1px solid var(--sl-color-gray-4);
+}
+
+.expressive-code pre {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* ── Admonitions (Starlight asides) ── */
+
+.starlight-aside {
+  border-radius: 0.5rem;
+  border-left-width: 4px;
+}
+
+.starlight-aside--note {
+  --sl-color-asides-text-accent: var(--sl-color-accent);
+}
+
+/* ── Hero / Landing page ── */
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+@media (min-width: 50rem) {
+  .hero h1 {
+    font-size: 3.5rem;
+  }
+}
+
+.hero .tagline {
+  font-size: 1.25rem;
+  color: var(--sl-color-gray-2);
+  max-width: 42rem;
+  margin: 1rem auto;
+}
+
+/* ── Links ── */
+
+.sl-markdown-content a {
+  color: var(--sl-color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.sl-markdown-content a:hover {
+  color: var(--sl-color-accent-high);
+}
+
+/* ── Tables ── */
+
+.sl-markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.sl-markdown-content th {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: var(--sl-color-gray-6);
+  border-bottom: 2px solid var(--sl-color-gray-4);
+}
+
+.sl-markdown-content td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--sl-color-gray-5);
+}
+
+/* ── Scrollbar ── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sl-color-gray-4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-gray-3);
+}
+
+/* ── Footer ── */
+
+footer {
+  font-size: 0.85rem;
+  color: var(--sl-color-gray-2);
+}
+
+/* ── Mobile adjustments ── */
+
+@media (max-width: 50rem) {
+  .sl-markdown-content {
+    font-size: 0.95rem;
+  }
+
+  .sl-markdown-content table {
+    font-size: 0.8rem;
+  }
+
+  .sl-markdown-content th,
+  .sl-markdown-content td {
+    padding: 0.5rem 0.625rem;
+  }
+}

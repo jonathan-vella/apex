@@ -1,0 +1,146 @@
+---
+title: Agentic InfraOps
+description: Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC
+template: splash
+hero:
+  tagline: Transform Azure infrastructure requirements into deploy-ready IaC code using coordinated AI agents, aligned with the Azure Well-Architected Framework.
+  actions:
+    - text: Get Started
+      link: /azure-agentic-infraops/getting-started/quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: Use the Template
+      link: https://github.com/jonathan-vella/azure-agentic-infraops-accelerator
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Explore the Documentation
+
+<CardGrid>
+  <LinkCard
+    title="Getting Started"
+    description="Set up from the Accelerator template and run your first agent workflow."
+    href="/azure-agentic-infraops/getting-started/quickstart/"
+  />
+  <LinkCard
+    title="How It Works"
+    description="Understand the multi-agent architecture, skills system, and workflow."
+    href="/azure-agentic-infraops/concepts/how-it-works/"
+  />
+  <LinkCard
+    title="Workflow"
+    description="The multi-step journey from requirements to deployed infrastructure."
+    href="/azure-agentic-infraops/concepts/workflow/"
+  />
+  <LinkCard
+    title="Prompt Guide"
+    description="Ready-to-use prompt examples for every agent and skill."
+    href="/azure-agentic-infraops/guides/prompt-guide/"
+  />
+  <LinkCard
+    title="Troubleshooting"
+    description="Common issues, diagnostic decision tree, and solutions."
+    href="/azure-agentic-infraops/guides/troubleshooting/"
+  />
+  <LinkCard
+    title="Agent Hooks"
+    description="Automated code quality enforcement during agent sessions."
+    href="/azure-agentic-infraops/guides/hooks/"
+  />
+  <LinkCard
+    title="Glossary"
+    description="Quick reference for terms used throughout the documentation."
+    href="/azure-agentic-infraops/reference/glossary/"
+  />
+  <LinkCard
+    title="FAQ"
+    description="Answers to common questions about the project and customization."
+    href="/azure-agentic-infraops/reference/faq/"
+  />
+</CardGrid>
+
+---
+
+## Key Facts
+
+|                 |                                                          |
+| --------------- | -------------------------------------------------------- |
+| **Agents**      | Specialized top-level agents and subagents               |
+| **Skills**      | Reusable domain knowledge modules                        |
+| **IaC Tracks**  | Bicep and Terraform (dual-track)                         |
+| **MCP Servers** | GitHub, Azure Pricing, Terraform + Azure MCP (extension) |
+
+---
+
+## Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 👤 User
+    participant C as 🎼 Conductor Agent
+    participant Agents as 🤖 Agents
+    participant X as ⚔️ Challenger Agent
+
+    Note over C: AI prepares · Humans decide
+
+    U->>C: Describe infrastructure intent
+    C->>Agents: 📋 Gather requirements
+    Agents-->>C: 01-requirements.md
+    C->>X: Challenge requirements
+    X-->>C: Findings
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: 🏛️ Architecture + 💰 Cost
+    Agents-->>C: 02-assessment.md
+    C->>X: Challenge architecture
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: 📐 IaC Plan + Governance
+    Note right of Agents: Bicep or Terraform track
+    Agents-->>C: 04-plan.md + constraints
+    C->>X: Challenge plan
+    C->>U: Present for review
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve
+    end
+
+    C->>Agents: ⚒️ Generate IaC (AVM-first)
+    Note right of Agents: lint → review → validate
+    Agents-->>C: infra/{bicep,terraform}/{project}
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 APPROVAL GATE
+    U-->>C: ✅ Approve for deploy
+    end
+
+    C->>Agents: 🚀 Deploy to Azure
+    Note right of Agents: what-if / plan preview first
+    Agents-->>C: 06-deployment-summary.md
+
+    rect rgba(255, 200, 0, 0.15)
+    Note over U,C: 🛑 VERIFICATION
+    U-->>C: ✅ Verify resources
+    end
+
+    C->>Agents: 📚 Generate as-built docs
+    Agents-->>C: 07-*.md documentation suite
+    C->>U: Present complete documentation
+
+    Note over U,Agents: ✅ AI Orchestrated · Human Governed · Azure Ready
+```

@@ -1,0 +1,36 @@
+---
+title: "Architecture Explorer"
+description: "Interactive D3.js force-directed graph showing agents, skills, instructions, and their relationships"
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+:::note[Interactive Graph]
+The Architecture Explorer provides a visual map of the entire Agentic InfraOps ecosystem — agents, skills, instructions, validators, workflows, and their connections.
+:::
+
+## Features
+
+- **View Presets**: Filter by All, Workflow, Skills, or CI/Lint views
+- **Category Filters**: Toggle visibility by node type (Agent, Subagent, Skill, Instruction, etc.)
+- **Search**: Real-time text search to highlight matching nodes
+- **Click Selection**: Click a node to see its connections, type, and details
+- **Drag & Zoom**: Reposition nodes and navigate the graph
+
+## Standalone Version
+
+The full interactive architecture explorer is available as a [standalone HTML page](/azure-agentic-infraops/architecture-explorer.html).
+
+## Node Categories
+
+| Category | Color | Description |
+|----------|-------|-------------|
+| Agent | Blue | Top-level orchestrator agents |
+| Subagent | Indigo | Delegated helper agents |
+| Skill | Green | Reusable domain knowledge modules |
+| Instruction | Amber | Enforcement rules (.instructions.md) |
+| Prompt | Pink | Agent prompt templates |
+| Validator | Purple | CI check validators |
+| CI Workflow | Red | GitHub Actions workflows |
+| Gate | Orange | Workflow approval gates |
+| MCP Server | Cyan | External tool servers |
