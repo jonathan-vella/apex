@@ -20,27 +20,9 @@ call MCP tools, which handle authentication, caching, pagination, retries,
 and response formatting.
 
 ```mermaid
-%%{
-  init: {
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#ffffff',
-      'primaryTextColor': '#333333',
-      'primaryBorderColor': '#14b8a6',
-      'lineColor': '#475569',
-      'fontFamily': 'ui-sans-serif, system-ui, -apple-system, sans-serif'
-    },
-    'flowchart': {
-      'curve': 'basis',
-      'nodeSpacing': 50,
-      'rankSpacing': 50
-    }
-  }
-}%%
 flowchart LR
-    classDef default fill:#ffffff,stroke:#14b8a6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef agent fill:#ffffff,stroke:#8b5cf6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef mcp fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+
+
 
     A["Agent"]:::agent --> M1["GitHub MCP"]:::mcp
     A --> M2["MS Learn MCP"]:::mcp

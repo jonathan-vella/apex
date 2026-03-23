@@ -17,27 +17,9 @@ The workflow is encoded as a machine-readable directed acyclic graph in
 `workflow-graph.json`:
 
 ```mermaid
-%%{
-  init: {
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#ffffff',
-      'primaryTextColor': '#333333',
-      'primaryBorderColor': '#14b8a6',
-      'lineColor': '#475569',
-      'fontFamily': 'ui-sans-serif, system-ui, -apple-system, sans-serif'
-    },
-    'flowchart': {
-      'curve': 'basis',
-      'nodeSpacing': 50,
-      'rankSpacing': 50
-    }
-  }
-}%%
 flowchart TD
-    classDef default fill:#ffffff,stroke:#14b8a6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef gate fill:#ffffff,stroke:#f59e0b,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef endNode fill:#ffffff,stroke:#8b5cf6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+
+
 
     S1["step-1: Requirements"]
     G1{{"gate-1: Approval"}}:::gate

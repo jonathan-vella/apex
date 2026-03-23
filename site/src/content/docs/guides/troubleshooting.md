@@ -35,7 +35,6 @@ description: "Common issues and solutions"
 ## Quick Decision Tree
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 flowchart TD
     START["Problem?"] --> TYPE{"What type?"}
 

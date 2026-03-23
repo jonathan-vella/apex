@@ -93,7 +93,6 @@ infra/bicep/nordic-fresh-foods/
 | Consumption Budget      | Raw Bicep (`Microsoft.Consumption/budgets`)               | budget.bicep               |
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 graph TD
     MAIN["main.bicep"] --> NET["network.bicep"]
     MAIN --> MON["monitoring.bicep"]

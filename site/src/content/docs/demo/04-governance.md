@@ -245,7 +245,6 @@ Child resources automatically receive all 9 policy-enforced tags from their reso
 ## References
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 flowchart TD
     A["Deploy Request"] --> B{"9 RG Tags Present?"}
     B -- Yes --> C{"SQL AAD-Only Auth?"}

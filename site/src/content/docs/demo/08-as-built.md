@@ -377,7 +377,6 @@ AppRequests
 ### Incident Response Flow
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 flowchart LR
     D["🔍 Detect"] --> T["🎯 Triage"]
     T --> E["⚠️ Escalate"]
@@ -428,7 +427,6 @@ az appservice plan update \
 | DR and restore validation | Quarterly | 1 day |
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 gantt
     title Maintenance Schedule
     dateFormat YYYY-MM-DD
@@ -455,7 +453,6 @@ gantt
 ### Escalation Path
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 flowchart TD
     L1["🟢 L1: On-Call Engineer"] --> L2["🟠 L2: Team Lead"]
     L2 --> L3["🔴 L3: Service Owner"]
@@ -564,7 +561,6 @@ _Operations runbook generated from infrastructure artifacts._
 | Secrets/config           | <= 24 hours | Key Vault recoverable soft-delete + IaC rehydration |
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 gantt
     title RPO / RTO Targets by Tier
     dateFormat HH:mm
@@ -639,7 +635,6 @@ az sql db restore \
 | Full tabletop DR exercise         | Semi-annual | Not recorded | 2026-Q3   |
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 gantt
     title DR Testing Schedule
     dateFormat YYYY-MM-DD
@@ -910,7 +905,6 @@ _Backup and DR plan generated from infrastructure artifacts._
 ### References
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 flowchart LR
     A["Control"] --> B{"Implemented?"}
     B -- Yes --> C{"Evidence Collected?"}
@@ -1056,7 +1050,6 @@ _Compliance matrix generated from infrastructure artifacts._
 ---
 
 ```mermaid
-%%{init: {'theme':'base','themeVariables':{pie1:'#0078D4',pie2:'#107C10',pie3:'#5C2D91',pie4:'#D83B01',pie5:'#FFB900',pie6:'#008575'}}}%%
 pie showData
     title Resource Distribution by Category
     "💻 Compute" : 3

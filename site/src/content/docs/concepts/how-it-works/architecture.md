@@ -11,27 +11,9 @@ The system follows a strict sequential workflow with mandatory human approval ga
 between critical phases:
 
 ```mermaid
-%%{
-  init: {
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#ffffff',
-      'primaryTextColor': '#333333',
-      'primaryBorderColor': '#e91e63',
-      'lineColor': '#475569',
-      'fontFamily': 'ui-sans-serif, system-ui, -apple-system, sans-serif'
-    },
-    'flowchart': {
-      'curve': 'basis',
-      'nodeSpacing': 50,
-      'rankSpacing': 50
-    }
-  }
-}%%
 flowchart LR
-    classDef default fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef gate fill:#ffffff,stroke:#3b82f6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef endNode fill:#ffffff,stroke:#10b981,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+
+
 
     S1["Step 1\nRequirements"]
     G1{{"Gate 1\n🔒 Approval"}}:::gate
@@ -123,27 +105,9 @@ diverges based on the `iac_tool` field in the requirements
 document:
 
 ```mermaid
-%%{
-  init: {
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#ffffff',
-      'primaryTextColor': '#333333',
-      'primaryBorderColor': '#8b5cf6',
-      'lineColor': '#475569',
-      'fontFamily': 'ui-sans-serif, system-ui, -apple-system, sans-serif'
-    },
-    'flowchart': {
-      'curve': 'basis',
-      'nodeSpacing': 50,
-      'rankSpacing': 50
-    }
-  }
-}%%
 flowchart TD
-    classDef default fill:#ffffff,stroke:#8b5cf6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef track fill:#ffffff,stroke:#ec4899,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef endNode fill:#ffffff,stroke:#10b981,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
+
+
 
     Shared["Steps 1-3\n(Shared)"]
     Decision{"iac_tool?"}

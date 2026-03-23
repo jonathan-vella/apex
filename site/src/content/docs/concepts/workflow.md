@@ -131,7 +131,6 @@ The detailed delegation graph below shows how the Conductor routes to each
 specialised agent and how subagents are invoked for validation:
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 graph TB
     subgraph "Orchestrator"
         COND["InfraOps Conductor<br/>🎼 Maestro"]
