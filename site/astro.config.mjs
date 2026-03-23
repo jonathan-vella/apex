@@ -58,7 +58,11 @@ export default defineConfig({
           attrs: {
             type: "module",
           },
-          content: `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#0078d4',primaryTextColor:'#f0f6fc',lineColor:'#6e7681',secondaryColor:'#21262d',tertiaryColor:'#30363d'}});`,
+          content: [
+            `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';`,
+            `const d=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&window.matchMedia('(prefers-color-scheme:dark)').matches);`,
+            `mermaid.initialize({startOnLoad:true,theme:d?'dark':'default',themeVariables:d?{primaryColor:'#1e3a5f',primaryTextColor:'#f0f6fc',primaryBorderColor:'#0078d4',lineColor:'#6e7681',secondaryColor:'#21262d',tertiaryColor:'#30363d',noteBkgColor:'#21262d',noteTextColor:'#d0d7de',actorBkg:'#161b22',actorBorder:'#0078d4',actorTextColor:'#f0f6fc'}:{primaryColor:'#dbeafe',primaryTextColor:'#1b1b1f',primaryBorderColor:'#0078d4',lineColor:'#8b949e',secondaryColor:'#eaeef2',tertiaryColor:'#f6f8fa'}});`,
+          ].join(""),
         },
       ],
       customCss: [

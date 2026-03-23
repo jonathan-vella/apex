@@ -653,10 +653,15 @@ tr:last-child td {
 .mermaid {
   border-radius: 0.75rem;
   padding: 1.5rem;
-  background: var(--sl-color-gray-6);
+  background: var(--sl-color-bg);
   border: 1px solid var(--sl-color-gray-5);
   margin-block: 1rem;
   overflow-x: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
 }
 
 .starlight-aside {
