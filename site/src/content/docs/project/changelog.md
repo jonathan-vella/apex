@@ -295,6 +295,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - fix(scripts): prevent YAML block scalar descriptions from recurring after frontmatter cleanup.
 - fix(agents): remove deprecated `agent`/`runSubagent` tool declarations from all 13 agents.
 - build(devcontainer): replace `tfsec` with `checkov`; pin `tflint` to v0.61.0.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.9.0] - 2026-02-12
 
 ### Changed
@@ -324,6 +325,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - fix(lint-yml): simplify markdown-lint trigger paths.
 - fix(skills): correct template paths in deployment preflight skill docs.
 - fix(templates): restore missing header text in governance constraints template.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.44] - 2026-02-04
 
 ### Added
@@ -341,6 +343,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - docs(links): repair broad internal-link drift across docs and artifacts.
 - ci(workflows): fix `workflow_dispatch` input typing and increase link-check timeout.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.43] - 2026-02-03
 
 ### Added
@@ -357,6 +360,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 ### Breaking Changes
 
 - chore(agents): remove `@diagram`, `@adr`, and `@docs`; replace with skill-based workflows.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.42] - 2026-02-03
 
 ### Changed
@@ -367,6 +371,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 ### Removed
 
 - chore(drawio): remove Draw.io MCP server, templates, scripts, and extension integration.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.41] - 2026-02-02
 
 ### Added
@@ -380,52 +385,62 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 ### Fixed
 
 - fix(skills): resolve markdown lint issues in deployment preflight and skill template files.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.40] - 2026-01-23
 
 ### Changed
 
 - feat(workflow): implement automated versioning and branch protection (#40).
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.39] - 2026-01-22
 
 ### Added
 
 - feat(agent-testing): introduce complete agent validation framework.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.38] - 2026-01-22
 
 ### Changed
 
 - feat(agents): rename `@plan` to `@requirements` to avoid collision with VS Code built-in Plan.
 - refactor(agents): rename `plan.agent.md` to `requirements.agent.md` and update references.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.37] - 2026-01-21
 
 ### Added
 
 - feat(testing): add comprehensive agent testing plan prompt.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.36] - 2026-01-21
 
 ### Fixed
 
 - fix(devcontainer): resolve post-create permission issues.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.35] - 2026-01-21
 
 ### Fixed
 
 - fix(devcontainer): remove invalid `PATH` override that blocked container startup.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.34] - 2026-01-21
 
 ### Fixed
 
 - fix(docs): update remaining legacy agent references in embedded docs.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.33] - 2026-01-21
 
 ### Breaking Changes
 
 - feat(agents)!: rename agents to shorter verb-based names.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.32] - 2026-01-21
 
 ### Added
 
 - feat(agents): integrate deploy agent into the workflow.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.31] - 2026-01-21
 
 ### Breaking Changes
@@ -449,16 +464,19 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - chore(husky): remove Husky directory and dependency.
 - chore(terraform): remove Terraform tooling, references, and related config entries.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.30] - 2026-01-20
 
 ### Added
 
 - feat(diagnose): add Azure Resource Health Diagnostician agent.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.29] - 2026-01-19
 
 ### Fixed
 
 - fix(ci): correct version auto-update extraction logic.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.28] - 2026-01-19
 
 ### Added
@@ -469,16 +487,19 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 ### Changed
 
 - docs(workflow): update diagrams and references to use Deploy Agent terminology.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.27] - 2026-01-19
 
 ### Added
 
 - feat(presenter): add dark-themed workflow diagram for presentations.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.26] - 2026-01-19
 
 ### Changed
 
 - chore(release): prepare release transition to `0.0.25` baseline.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.25] - 2026-01-19
 
 ### Breaking Changes
@@ -495,21 +516,25 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - chore(legacy): remove `scenarios/scenario-output/` and legacy docs folders.
 - chore(example): remove `infra/bicep/contoso-patient-portal/`.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.24] - 2026-01-14
 
 ### Added
 
 - feat(demo): add prompt for 30-minute live workflow demo.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.23] - 2026-01-14
 
 ### Fixed
 
 - fix(prompts): convert plan-requirements to proper prompt-file format.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.22] - 2026-01-14
 
 ### Added
 
 - feat(artifacts): complete artifact template compliance rollout.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.21] - 2026-01-14
 
 ### Added
@@ -527,6 +552,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - fix(package): remove duplicate version line.
 - fix(docs): remove outdated design document TOC sections.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.20] - 2026-01-14
 
 ### Added
@@ -544,6 +570,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 ### Fixed
 
 - fix(docs): correct renamed artifact references in ecommerce documentation index.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.19] - 2026-01-14
 
 ### Added
@@ -568,57 +595,68 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - chore(terraform-doc): remove obsolete `terraform-azure.instructions.md`.
 - chore(docs): merge and remove `docs/presenter-toolkit/` and `docs/value-proposition/`.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.18] - 2026-01-13
 
 ### Changed
 
 - refactor(agents): rename `@plan` display references to Project Planner across docs.
 - docs(usage): correct invocation guidance and regenerate workflow diagrams.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.17] - 2025-12-18
 
 ### Fixed
 
 - fix(pricing): update Azure Pricing Calculator URLs with locale-aware links.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.16] - 2025-12-18
 
 ### Fixed
 
 - fix(paths): correct relative paths in `azure-principal-architect.agent.md`.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.15] - 2025-12-18
 
 ### Fixed
 
 - fix(paths): correct shared foundation link path in all agents.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.14] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): correct table link paths.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.13] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): remove non-functional Mermaid click links and add link table.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.12] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): switch Mermaid click links to absolute GitHub URLs.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.11] - 2025-12-18
 
 ### Fixed
 
 - fix(readme): correct Mermaid click links.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.10] - 2025-12-18
 
 ### Fixed
 
 - fix(docs): clean up docs rebuild path/link breakage.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.9] - 2025-12-17
 
 ### Added
 
 - feat(validation): add `static-webapp-test` workflow validation example.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.8] - 2025-12-17
 
 ### Changed
@@ -628,21 +666,25 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - chore(artifacts): standardize `-des` and `-ab` artifact suffixes.
 - refactor(costing): move cost estimates to Step 3 design artifacts.
 - docs(pricing): add Azure Pricing MCP fallback chain guidance.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.7] - 2025-12-17
 
 ### Added
 
 - feat(diagrams): add workflow diagram generator setup.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.6] - 2025-12-17
 
 ### Added
 
 - feat(docs-agent): add workload documentation generator agent for optional Step 7.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.5] - 2025-12-17
 
 ### Added
 
 - feat(outputs): centralize agent outputs and automate versioning.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.4] - 2025-12-07
 
 ### Added
@@ -665,6 +707,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - fix(scenarios): remove duplicate S04 folders.
 - fix(personas): fix character-name collisions across scenarios.
 - fix(mcp): resolve "Connector is closed" server errors.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.3] - 2025-12-03
 
 ### Changed
@@ -678,6 +721,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - chore(paths): move `docs/WORKFLOW.md` to `docs/workflow/WORKFLOW.md`.
 - chore(paths): move `docs/QUICKSTART.md` to `docs/getting-started/QUICKSTART.md`.
 - chore(paths): move `docs/troubleshooting.md` to `docs/guides/troubleshooting.md`.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.2] - 2025-12-01
 
 ### Changed
@@ -696,6 +740,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 ### Removed
 
 - chore(legacy): remove legacy scenarios/resources folders.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## [0.0.1] - 2024-06-01
 
 ### Added
@@ -715,6 +760,7 @@ This project uses [Semantic Versioning](https://semver.org/):
 - **MAJOR**: breaking changes to workflow or agent interfaces.
 - **MINOR**: new agents, demos, or significant feature additions.
 - **PATCH**: bug fixes, documentation improvements, and minor enhancements.
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## Links
 
 - [VERSION.md](VERSION.md) - Detailed version history

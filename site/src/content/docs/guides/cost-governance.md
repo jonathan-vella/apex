@@ -220,4 +220,5 @@ az consumption budget show \
 - [MCP Integration](how-it-works/mcp-integration.md)
   — Azure Pricing MCP server and tool catalog
 - [Workflow](workflow.md) — how cost estimation fits into the agent workflow
+
   :::

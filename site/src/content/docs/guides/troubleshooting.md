@@ -13,9 +13,11 @@ description: "Common issues and solutions"
 ## Agent Codenames Quick Reference
 
 :::note[Related guides]
+
 - [Session Debugging](session-debugging.md) — session resume failures, stale locks, state recovery
 - [Cost Governance](cost-governance.md) — budget alert setup and post-deployment validation
 - [Validation & Linting](validation-reference.md) — all validation scripts and CI workflows
+
 :::
 
 | Agent              | Codename      | Common Issues                    |

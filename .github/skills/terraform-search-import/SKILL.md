@@ -9,6 +9,7 @@ compatibility: Manual workflow requires azurerm ~> 4.0 + Azure CLI. Search workf
 Discover existing Azure resources and generate Terraform configuration for bulk import.
 
 **References:**
+
 - [Terraform Import](https://developer.hashicorp.com/terraform/language/import)
 - [Terraform Search](https://developer.hashicorp.com/terraform/language/block/tfquery/list) (TF 1.14+)
 
@@ -227,6 +228,7 @@ terraform apply
 ### Post-Generation Cleanup
 
 Generated configuration includes all attributes. Clean up by:
+
 1. Remove computed/read-only attributes (`id`, `arn`, etc.)
 2. Replace hardcoded values with variables
 3. Apply CAF naming and mandatory tags

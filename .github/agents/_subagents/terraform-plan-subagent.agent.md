@@ -59,10 +59,12 @@ If terraform plan returns no changes:
    If this fails, instruct user to run `az login --use-device-code`
    (NOT just `az account show`, which can succeed with stale metadata).
 4. **Run terraform plan**:
+
    ```bash
    cd infra/terraform/{project} && \
      terraform plan -out=tfplan -input=false
    ```
+
 5. **Parse plan output** for create, update, destroy, replace counts and resource list
 6. **Flag destructive changes** — any destroy or replace requires explicit approval
 7. **Return structured summary** to parent

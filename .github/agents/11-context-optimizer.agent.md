@@ -126,11 +126,13 @@ Store the label for Phase 6.
 
 1. Ask user which session(s) to analyze (latest, specific date, or all)
 2. Run the log parser script to extract structured data:
+
    ```bash
    python3 .github/skills/context-optimizer/scripts/parse-chat-logs.py \
      --log-dir ~/.vscode-server/data/logs/ \
      --output /tmp/context-audit.json
    ```
+
 3. Present session summary (total requests, models used, time range)
 
 **Checkpoint**: Confirm scope before deep analysis.

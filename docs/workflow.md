@@ -527,19 +527,22 @@ of adversarial review passes at Steps 1, 2, 4, and 5.
 Reviews target AI-generated creative decisions (architecture, plan, code)
 — not machine-discovered data (governance) or Azure tool output (what-if).
 
-| Complexity | Step 1 (Req) | Step 2 (Arch) | Step 4 (Plan) | Step 5 (Code) |
-| ---------- | ------------ | ------------- | ------------- | ------------- |
-| simple     | 1×           | 1×            | 1×            | 1×            |
-| standard   | 1×           | 2× (→3×)      | 2×            | 2× (→3×)      |
-| complex    | 1×           | 3×            | 2×            | 3×            |
+| Complexity | Step 1 (Req) | Step 2 (Arch)     | Step 4 (Plan) | Step 5 (Code) |
+| ---------- | ------------ | ----------------- | ------------- | ------------- |
+| simple     | 1×           | 1× + 1 cost       | 1×            | 1×            |
+| standard   | 1×           | 2× (→3×) + 1 cost | 2×            | 2× (→3×)      |
+| complex    | 1×           | 3× + 1 cost       | 2×            | 3×            |
 
 > **Conditional passes**: "(→3×)" means pass 3 only runs if pass 2
 > returned ≥1 `must_fix`. Plan reviews are capped at 2 passes because
 > the cost-feasibility lens was already applied at Step 2.
+> "+ 1 cost" is a dedicated cost-estimate challenger pass that always
+> runs in parallel with architecture pass 1 (independent artifact).
 >
-> **Steps without review**: Design (3), Governance (3.5), Deploy (6),
-> As-Built (7). Governance is machine-discovered; deploy previews
+> **Steps without review**: Design (3), Deploy (6),
+> As-Built (7). Deploy previews
 > are validated by Azure tooling; the human approves at each gate.
+> Governance (3.5) now has 1 comprehensive challenger pass.
 
 ## Agents vs Skills
 

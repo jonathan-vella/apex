@@ -287,4 +287,5 @@ npm run validate:skill-affinity
 - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, circuit breakers
 - [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
 - [Validation & Linting](../validation-reference.md) — all validation scripts and hooks
+
   :::

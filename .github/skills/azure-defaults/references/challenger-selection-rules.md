@@ -4,6 +4,11 @@
 
 Selection rules for adversarial review passes in CodeGen agents (06b/06t).
 
+> **Convention**: Agent `agents:` arrays list all 3 challenger subagent
+> variants. This represents **parallel multi-model execution options
+> for a single pass**, not 3 sequential passes. The routing table below
+> determines which model runs each pass.
+
 ## Pass Routing Table
 
 | Pass                 | Subagent                           | Model         | Lens                     | Condition                                                             |

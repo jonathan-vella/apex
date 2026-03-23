@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "prepare": "lefthook install",
-    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'",
-    "lint:md:fix": "markdownlint-cli2 --fix '**/*.md' '#node_modules'",
+    "lint:md": "markdownlint-cli2",
+    "lint:md:fix": "markdownlint-cli2 --fix",
     "lint:links": "find . -name '*.md' ! -path './node_modules/*' ! -path './infra/*' ! -path './site/node_modules/*' ! -path './site/dist/*' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
     "lint:links:docs": "find site/src/content/docs -name '*.md' -o -name '*.mdx' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
     "docs:dev": "cd site && npm run dev",

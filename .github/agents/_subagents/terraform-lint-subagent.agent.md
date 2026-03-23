@@ -39,11 +39,13 @@ You are a **SYNTAX VALIDATION SUBAGENT** called by a parent CONDUCTOR agent.
 
 1. **Receive module path** from parent agent
 2. **Run validation commands**:
+
    ```bash
    terraform fmt -check -recursive {module-path}
    terraform validate
    command -v tfsec && tfsec {module-path} || echo "tfsec not available"
    ```
+
 3. **Collect diagnostics** from command output
 4. **Return structured result** to parent
 

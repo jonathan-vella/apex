@@ -54,12 +54,14 @@ If what-if returns no changes (all resources show NoChange):
    If this fails, instruct user to run `az login --use-device-code`
    (NOT just `az account show`, which can succeed with stale metadata).
 4. **Run what-if analysis**:
+
    ```bash
    az deployment group what-if \
      --resource-group {rg-name} \
      --template-file {template-path} \
      --parameters {params-file}
    ```
+
 5. **Analyze results** for policy violations, changes, and cost impact
 6. **Return structured summary** to parent
 

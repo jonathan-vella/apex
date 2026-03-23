@@ -77,7 +77,7 @@ If missing, STOP and request handoff to the appropriate prior agent.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
 - **My step**: 3.5
-- **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_artifacts` → `phase_3_gate`
+- **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
 - **Resume**: If `steps.3.5.status` is `"in_progress"`, skip to the saved `sub_step`.
 - **State writes**: Update after each phase. On completion, set `steps.3.5.status = "complete"`.
 
@@ -116,6 +116,21 @@ If discovery fails, STOP. Do not proceed with incomplete policy data.
 3. Run `npm run lint:artifact-templates` and fix any errors
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
+
+### Phase 2.5: Challenger Review
+
+Run a single comprehensive adversarial review on the governance artifacts.
+
+1. Delegate to `challenger-review-subagent` via `#runSubagent`:
+   - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
+   - `project_name` = `{project}`
+   - `artifact_type` = `governance`
+   - `review_focus` = `comprehensive`
+   - `pass_number` = `1`
+   - `prior_findings` = `null`
+2. Write returned JSON to `agent-output/{project}/challenge-findings-governance.json`
+3. If any `must_fix` findings: fix the governance artifacts and re-run Phase 2.5
+4. Include challenger findings summary in the Gate 2.5 presentation below
 
 ### Phase 3: Approval Gate
 

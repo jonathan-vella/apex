@@ -275,6 +275,7 @@ doesn't follow the format, you'll see a helpful error with examples.
 2. Click "New Pull Request"
 3. Fill out the PR template
 4. Link related issues
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 📝 Pull Request Checklist
@@ -289,6 +290,7 @@ Before submitting:
 - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 🤝 Community Standards
@@ -304,6 +306,7 @@ Before submitting:
 
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 📄 License

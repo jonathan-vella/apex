@@ -117,4 +117,5 @@ flowchart TD
 - [Agent Architecture](agents.md) — top-level agents, subagents, Challenger pattern
 - [Workflow Engine & Quality](workflow-engine.md) — DAG model, session state, circuit breakers
 - [MCP Integration](mcp-integration.md) — MCP servers and tool catalogs
+
   :::

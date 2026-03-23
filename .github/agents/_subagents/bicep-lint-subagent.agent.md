@@ -40,10 +40,12 @@ You are a **SYNTAX VALIDATION SUBAGENT** called by a parent CONDUCTOR agent.
 
 1. **Receive template path** from parent agent
 2. **Run validation commands**:
+
    ```bash
    bicep lint {template-path}
    bicep build {template-path} --stdout > /dev/null
    ```
+
 3. **Collect diagnostics** from command output
 4. **Return structured result** to parent
 
