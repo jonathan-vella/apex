@@ -25,9 +25,6 @@
       "installTFsec": false
     },
     "ghcr.io/devcontainers/features/go:1": {},
-    "ghcr.io/devcontainers/features/deno:1": {
-      "version": "latest"
-    },
     "ghcr.io/azure/azure-dev/azd:latest": {
       "version": "1.23.8"
     }

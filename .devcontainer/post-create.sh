@@ -200,6 +200,19 @@ fi
 # ─── Step 8.5: Draw.io MCP Server (Deno) ────────────────────────────────────
 
 step_start "📐" "Setting up Draw.io MCP Server..."
+
+# Install Deno if not present (feature removed from devcontainers registry)
+if ! command -v deno &> /dev/null; then
+    curl -fsSL https://deno.land/install.sh | sh > /dev/null 2>&1 || true
+    export DENO_INSTALL="${HOME}/.deno"
+    export PATH="${DENO_INSTALL}/bin:${PATH}"
+    # Persist PATH for interactive shells
+    grep -q 'DENO_INSTALL' "${HOME}/.bashrc" 2>/dev/null || {
+        echo 'export DENO_INSTALL="${HOME}/.deno"' >> "${HOME}/.bashrc"
+        echo 'export PATH="${DENO_INSTALL}/bin:${PATH}"' >> "${HOME}/.bashrc"
+    }
+fi
+
 DRAWIO_MCP_DIR="${PWD}/mcp/drawio-mcp-server"
 if [ -d "$DRAWIO_MCP_DIR" ]; then
     if command -v deno &> /dev/null; then

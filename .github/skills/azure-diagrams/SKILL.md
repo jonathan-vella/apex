@@ -65,66 +65,6 @@ Telemetry path visible · Naming conventions followed ·
 All labels fully visible (no "..." truncation) · Icons not cramped in containers.
 If < 9/10, regenerate with simplification.
 
-## Draw.io XML Generation
-
-### Basic structure
-
-```xml
-<mxfile host="agent" modified="2026-03-23" agent="azure-diagrams" version="1.0">
-  <diagram name="Architecture" id="arch-1">
-    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1"
-                  connect="1" arrows="1" fold="1" page="1" pageScale="1"
-                  pageWidth="1169" pageHeight="827" math="0" shadow="0">
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <!-- Resource cells and edges go here -->
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
-```
-
-### Azure resource cell (with icon from built libraries)
-
-To use Azure icons from the built libraries, reference them by their base64-encoded
-SVG style. Read `references/drawio-quick-reference.md` for the icon style lookup method.
-
-```xml
-<mxCell id="vm-1" value="app-vm-prod-01"
-        style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;
-               imageAspect=0;aspect=fixed;labelWidth=160;overflow=width;
-               html=1;fontSize=9;fontFamily=Arial;
-               image=data:image/svg+xml,{BASE64_SVG}"
-        vertex="1" parent="1">
-  <mxGeometry x="400" y="200" width="48" height="48" as="geometry"/>
-</mxCell>
-```
-
-### Container cell (resource group, VNet, subnet)
-
-```xml
-<mxCell id="rg-1" value="rg-project-prod"
-        style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=5 5;
-               fillColor=#E8F0FE;strokeColor=#0078D4;fontSize=14;
-               fontFamily=Arial;fontStyle=1;verticalAlign=top;
-               spacingTop=10;arcSize=8"
-        vertex="1" parent="1">
-  <mxGeometry x="50" y="50" width="800" height="500" as="geometry"/>
-</mxCell>
-```
-
-### Edge (connection with label)
-
-```xml
-<mxCell id="e-1" value="HTTPS"
-        style="endArrow=classic;html=1;strokeColor=#0078D4;
-               fontFamily=Arial;fontSize=10"
-        edge="1" parent="1" source="appgw-1" target="app-1">
-  <mxGeometry relative="1" as="geometry"/>
-</mxCell>
-```
-
 ## Naming Conventions
 
 - **Cell IDs**: `{resource-type}-{number}` (e.g., `vm-1`, `sql-1`, `kv-1`)
@@ -182,17 +122,19 @@ SVG style. Read `references/drawio-quick-reference.md` for the icon style lookup
 - External boxes (SaaS): position at `RG.x + RG.width + 60px`
 - Edge labels must not overlap with source/target resource labels
 
-## Icon Library Usage
+## Icon Discovery (MCP-Only)
 
-Icons are built from Microsoft's official Azure Architecture Icons using
-`scripts/drawio/build-drawio-icons.py`. The built libraries are in
-`assets/drawio-libraries/azure-public-service-icons/`.
+Icons are resolved automatically by the drawio MCP server. Use `search-shapes`
+to find the correct shape name for any Azure service. Do NOT manually embed
+base64 SVG data — the MCP server handles icon resolution.
 
-To find the right icon:
+```json
+{
+  "queries": ["App Services", "SQL Database", "Key Vaults", "Virtual Networks"]
+}
+```
 
-1. Read `references/drawio-quick-reference.md` for common icon style snippets
-2. Read `references/drawio-component-mapping.md` for the full mapping
-3. Each icon's `style` attribute contains `image=data:image/svg+xml,{base64}`
+Use the returned `shape_name` values in `add-cells` calls.
 
 ## MCP Tool Integration
 
@@ -216,8 +158,8 @@ The drawio-mcp-server provides rich diagram tools. Key tools:
 5. `add-cells` (edges) — Add labeled connections with protocol/port
 6. `edit-cells` — Adjust positions, styles, labels
 7. `finish-diagram` — Resolve all placeholders to full SVG
-8. `export-diagram` — Get final XML
-9. Save as `.drawio` file
+8. `export-diagram` — Get final XML (writes to content.json when large)
+9. Save `.drawio` via **terminal extraction** (see Guardrails > Saving .drawio Files)
 
 ### Transactional Mode (50+ shapes)
 
@@ -324,15 +266,28 @@ Performance `#FF8C00` · Cost `#FFB900` · Operational Excellence `#8764B8`.
 
 ## Generation Workflow
 
-### Architecture Diagrams (Draw.io — Default)
+### Architecture Diagrams (Draw.io via MCP — Default)
 
 1. **Gather Context** — Read architecture assessment or Bicep/Terraform templates
 2. **Identify Resources & Hierarchy** — List Azure resources, map RG → VNet → Subnet
-3. **Generate Draw.io XML** — Create mxGraphModel with Azure icons from built libraries
-4. **Save `.drawio` file** in `agent-output/{project}/` with step-prefixed name
-5. **Export SVG** — Use VS Code draw.io extension (right-click → Export → SVG), or skip if not needed
-6. **Preview** — Use MCP `export-diagram` to get XML, or `import-diagram` to load existing `.drawio` for inspection
-7. **Verify quality gate** — Score ≥ 9/10; regenerate if below threshold
+3. **Search shapes** — Call MCP `search-shapes` with all needed Azure service names in one batch
+4. **Build diagram** — Use MCP `add-cells` (transactional mode), `create-groups`, `add-cells-to-group`
+5. **Finish** — Call MCP `finish-diagram` to resolve placeholders to full SVG
+6. **Export** — Call MCP `export-diagram` with `compress: true`
+7. **Save `.drawio` file** — Use terminal command to extract XML from content.json (see below)
+8. **Verify quality gate** — Score ≥ 9/10; regenerate if below threshold
+
+### Saving .drawio Files from MCP Results
+
+`export-diagram` returns compressed XML in a content.json file.
+**NEVER** use `read_file` on the content.json — the compressed data pollutes LLM context.
+Save with a terminal command:
+
+**Bash:**
+
+```bash
+cat '<content-json-path>' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['xml'], end='')" > 'agent-output/{project}/{filename}.drawio'
+```
 
 ### Charts (Python matplotlib)
 
@@ -343,17 +298,20 @@ Performance `#FF8C00` · Cost `#FFB900` · Operational Excellence `#8764B8`.
 ## Guardrails
 
 **DO:** Create files in `agent-output/{project}/` with step-prefixed names ·
-Generate architecture diagrams as `.drawio` by default ·
-Use Azure icons from built libraries · Include CIDR blocks ·
-Use container cells for resource hierarchy ·
+Generate architecture diagrams as `.drawio` using MCP tools (not raw XML) ·
+Use `search-shapes` to find Azure icons · Include CIDR blocks ·
+Use `create-groups` for resource hierarchy ·
 Apply design tokens to every chart ·
 Generate `02-waf-scores.png` when WAF scores are assigned.
 
-**DON'T:** Use Python `diagrams` library for architecture diagrams (use draw.io) ·
+**DON'T:** Use Python `diagrams` library for architecture diagrams (use draw.io MCP) ·
+Manually write mxCell XML with embedded base64 SVG ·
+Read `references/drawio-quick-reference.md` or `references/drawio-component-mapping.md` (use MCP `search-shapes` instead) ·
 Create diagrams mismatched to architecture ·
 Skip quality gate verification · Overwrite diagrams without consent ·
 Output to legacy `docs/diagrams/` · Use placeholder names ·
-Use Mermaid for WAF/cost charts.
+Use Mermaid for WAF/cost charts ·
+Read compressed MCP content.json through the LLM (use terminal extraction).
 
 ## Scope Exclusions
 
@@ -374,11 +332,12 @@ build dashboards · render Mermaid diagrams.
 
 ### Draw.io References (architecture diagrams)
 
-| File                                     | Content                                                                  |
-| ---------------------------------------- | ------------------------------------------------------------------------ |
-| `references/drawio-quick-reference.md`   | Copy-paste XML snippets, container patterns, icon style lookups          |
-| `references/drawio-common-patterns.md`   | Complete architecture pattern templates (3-tier, hub-spoke, serverless)  |
-| `references/drawio-component-mapping.md` | Full mapping of 700+ Azure services to draw.io icon titles and libraries |
+| File                                   | Content                                                                 |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `references/drawio-common-patterns.md` | Complete architecture pattern templates (3-tier, hub-spoke, serverless) |
+
+> **Note:** Icon discovery and component mapping are handled by the MCP `search-shapes` tool.
+> Do NOT load large reference files for icon lookups.
 
 ### Python References (charts and specialized diagrams)
 

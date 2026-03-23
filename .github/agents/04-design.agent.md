@@ -6,33 +6,55 @@ user-invocable: true
 agents: []
 tools:
   [
-    vscode/extensions,
-    vscode/askQuestions,
-    vscode/getProjectSetupInfo,
-    vscode/installExtension,
-    vscode/newWorkspace,
+    vscode/memory,
     vscode/runCommand,
-    vscode/vscodeAPI,
-    execute,
-    read,
-    agent,
-    browser,
+    read/terminalSelection,
+    read/terminalLastCommand,
+    read/getNotebookSummary,
+    read/problems,
+    read/readFile,
+    read/viewImage,
+    read/readNotebookCellOutput,
+    agent/runSubagent,
     edit/createDirectory,
     edit/createFile,
     edit/createJupyterNotebook,
     edit/editFiles,
     edit/editNotebook,
-    search,
-    web,
-    "microsoft-learn/*",
-    "drawio/*",
+    edit/rename,
+    search/changes,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/searchResults,
+    search/textSearch,
+    search/usages,
+    drawio/add-cells,
+    drawio/add-cells-to-group,
+    drawio/clear-diagram,
+    drawio/create-groups,
+    drawio/create-layer,
+    drawio/delete-cell-by-id,
+    drawio/edit-cells,
+    drawio/edit-edges,
+    drawio/export-diagram,
+    drawio/finish-diagram,
+    drawio/get-diagram-stats,
+    drawio/get-shape-categories,
+    drawio/get-shapes-in-category,
+    drawio/get-style-presets,
+    drawio/import-diagram,
+    drawio/list-group-children,
+    drawio/list-layers,
+    drawio/list-paged-model,
+    drawio/move-cell-to-layer,
+    drawio/remove-cell-from-group,
+    drawio/search-shapes,
+    drawio/set-active-layer,
+    drawio/set-cell-shape,
+    drawio/suggest-group-sizing,
+    drawio/validate-group-containment,
     todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
-    ms-python.python/getPythonEnvironmentInfo,
-    ms-python.python/getPythonExecutableCommand,
-    ms-python.python/installPythonPackage,
-    ms-python.python/configurePythonEnvironment,
   ]
 handoffs:
   - label: "▶ Generate Diagram"
@@ -131,21 +153,16 @@ If missing, STOP and request handoff to Architect agent.
 
 ## Workflow
 
-### Diagram Generation (Draw.io — Default)
+### Diagram Generation (Draw.io via MCP — Default)
 
 1. Read `02-architecture-assessment.md` for resource list, boundaries, and flows
 2. Read `01-requirements.md` for business-critical paths and actor context
-3. Generate draw.io XML (mxGraphModel) using Azure icons from built libraries
-4. Load `references/drawio-quick-reference.md` for icon style snippets
-5. Save as `agent-output/{project}/03-des-diagram.drawio`
-6. **SVG Export** — The `.drawio` file is the primary deliverable.
-   SVG export is optional — users can export via the VS Code draw.io extension
-   (right-click the `.drawio` file → Export → SVG).
-   If `scripts/drawio/drawio-export.sh` is available, it can also be used as a CLI fallback.
-7. Validate quality gate score (>=9/10); regenerate once if below threshold.
-   Do not finalize until verification passes.
-   If a check fails, retry with a different strategy before reporting blocked.
-8. Use MCP `export-diagram` to get the final XML, or `import-diagram` to preview existing `.drawio` files
+3. Use MCP `search-shapes` to find Azure icons (one batch call with all service names)
+4. Use MCP `add-cells` (transactional mode), `create-groups`, `add-cells-to-group` to build diagram
+5. Call MCP `finish-diagram` to resolve placeholders to full SVG
+6. Call MCP `export-diagram` with `compress: true`
+7. Save `.drawio` file — extract XML from content.json via terminal (never read compressed XML through LLM)
+8. Validate quality gate score (>=9/10); regenerate once if below threshold
 
 ### ADR Generation
 
