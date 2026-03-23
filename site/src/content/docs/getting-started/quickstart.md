@@ -6,7 +6,6 @@ description: "Get started with Agentic InfraOps in minutes"
 <img src="/azure-agentic-infraops/images/hero-quickstart.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Getting started with development tools"/>
-# Quickstart
 
 Get running in 10 minutes.
 

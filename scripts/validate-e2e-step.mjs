@@ -26,7 +26,9 @@ import { execSync } from "node:child_process";
 // Support --project=name or positional project name before step arg
 const rawArgs = process.argv.slice(2);
 const projectFlag = rawArgs.find((a) => a.startsWith("--project="));
-const PROJECT = projectFlag ? projectFlag.split("=")[1] : "e2e-ralph-loop";
+const PROJECT = projectFlag
+  ? projectFlag.split("=")[1]
+  : "contoso-service-hub-run-1";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
 const TF_DIR = path.join("infra", "terraform", PROJECT);

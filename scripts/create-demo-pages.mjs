@@ -10,39 +10,45 @@ const PAGES = [
     src: null,
     dest: "index.md",
     title: "Demo: Nordic Fresh Foods",
-    description: "Complete end-to-end walkthrough of the Agentic InfraOps pipeline using the Nordic Fresh Foods scenario",
+    description:
+      "Complete end-to-end walkthrough of the Agentic InfraOps pipeline using the Nordic Fresh Foods scenario",
     custom: true,
   },
   {
     src: "01-requirements.md",
     dest: "01-requirements.md",
     title: "Step 1 — Requirements",
-    description: "Business and technical requirements captured by the Requirements agent",
+    description:
+      "Business and technical requirements captured by the Requirements agent",
   },
   {
     src: "02-architecture-assessment.md",
     dest: "02-architecture.md",
     title: "Step 2 — Architecture",
-    description: "Well-Architected Framework assessment and SKU recommendations",
+    description:
+      "Well-Architected Framework assessment and SKU recommendations",
   },
   {
     src: null,
     dest: "03-design.md",
     title: "Step 3 — Design",
-    description: "Architecture Decision Records, cost estimates, and design diagrams",
+    description:
+      "Architecture Decision Records, cost estimates, and design diagrams",
     custom: true,
   },
   {
     src: "04-governance-constraints.md",
     dest: "04-governance.md",
     title: "Step 3.5 — Governance",
-    description: "Azure Policy constraints discovered from the target subscription",
+    description:
+      "Azure Policy constraints discovered from the target subscription",
   },
   {
     src: "04-implementation-plan.md",
     dest: "05-plan.md",
     title: "Step 4 — Implementation Plan",
-    description: "Module-by-module implementation plan with dependency ordering",
+    description:
+      "Module-by-module implementation plan with dependency ordering",
   },
   {
     src: "05-implementation-reference.md",
@@ -74,7 +80,10 @@ const PAGES = [
 
 function cleanContent(content) {
   // Strip MkDocs badge images
-  content = content.replace(/^!\[.*?\]\(https:\/\/img\.shields\.io\/.*?\)\s*\n?/gm, "");
+  content = content.replace(
+    /^!\[.*?\]\(https:\/\/img\.shields\.io\/.*?\)\s*\n?/gm,
+    "",
+  );
   // Strip <details open> / </details> / <summary> wrappers
   content = content.replace(/<details[^>]*>\s*\n?/g, "");
   content = content.replace(/<\/details>\s*\n?/g, "");
@@ -277,7 +286,10 @@ The Challenger agent runs rotating-lens reviews at each workflow step — checki
     if (!existsSync(path)) continue;
     try {
       const data = JSON.parse(readFileSync(path, "utf-8"));
-      const name = file.replace("challenge-findings-", "").replace(".json", "").replace(/-/g, " ");
+      const name = file
+        .replace("challenge-findings-", "")
+        .replace(".json", "")
+        .replace(/-/g, " ");
       const lens = data.lens || data.review_lens || "comprehensive";
       const count = data.findings?.length || data.must_fix?.length || 0;
       const should = data.should_fix?.length || 0;
@@ -294,13 +306,22 @@ The Challenger agent runs rotating-lens reviews at each workflow step — checki
     if (!existsSync(path)) continue;
     try {
       const data = JSON.parse(readFileSync(path, "utf-8"));
-      const name = file.replace("challenge-findings-", "").replace(".json", "").replace(/-/g, " ");
+      const name = file
+        .replace("challenge-findings-", "")
+        .replace(".json", "")
+        .replace(/-/g, " ");
       content += `\n### ${name}\n\n`;
 
       const allFindings = [
         ...(data.must_fix || []).map((f) => ({ ...f, severity: "must-fix" })),
-        ...(data.should_fix || []).map((f) => ({ ...f, severity: "should-fix" })),
-        ...(data.findings || []).map((f) => ({ ...f, severity: f.severity || "info" })),
+        ...(data.should_fix || []).map((f) => ({
+          ...f,
+          severity: "should-fix",
+        })),
+        ...(data.findings || []).map((f) => ({
+          ...f,
+          severity: f.severity || "info",
+        })),
       ];
 
       if (allFindings.length === 0) {

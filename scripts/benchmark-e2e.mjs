@@ -29,7 +29,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const PROJECT = process.argv[2] || "e2e-ralph-loop";
+const PROJECT = process.argv[2] || "contoso-service-hub-run-1";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
 const TF_DIR = path.join("infra", "terraform", PROJECT);

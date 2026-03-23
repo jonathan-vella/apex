@@ -129,7 +129,7 @@ Update session state after every step completion:
 
 Before running full validators, check:
 
-1. **File exists**: Expected artifact path in `agent-output/e2e-ralph-loop/`
+1. **File exists**: Expected artifact path in `agent-output/{project}/`
 2. **Non-empty**: File size > 0 bytes
 3. **Structural**: Contains at least the first 3 expected H2 headings for that artifact
 4. **Session state**: `00-session-state.json` is still valid JSON

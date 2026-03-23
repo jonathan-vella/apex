@@ -31,5 +31,6 @@
     "editor.rulers": [120],
     "editor.wordWrap": "wordWrapColumn"
   },
-  "python.terminal.useEnvFile": true
+  "python.terminal.useEnvFile": true,
+  "azureTerraform.checkTerraformCmd": false
 }

@@ -87,9 +87,9 @@ while step.status != "complete" AND iteration < max_iterations:
 
 ## Available Scenarios
 
-| Scenario | Input | Complexity | IaC Track | Description |
-|----------|-------|------------|-----------|-------------|
-| Contoso Service Hub | `e2e-inputs/contoso-rfq.md` | Complex | Bicep | 15 Azure services, 3 environments, GDPR |
+| Scenario            | Input                       | Complexity | IaC Track | Description                             |
+| ------------------- | --------------------------- | ---------- | --------- | --------------------------------------- |
+| Contoso Service Hub | `e2e-inputs/contoso-rfq.md` | Complex    | Bicep     | 15 Azure services, 3 environments, GDPR |
 
 To add a new scenario, create an RFP/RFQ file in `e2e-inputs/` and a
 corresponding prompt in `prompts/`.
@@ -98,13 +98,13 @@ corresponding prompt in `prompts/`.
 
 E2E runs produce output in these directories (not in `tests/`):
 
-| Output | Location |
-|--------|----------|
-| Agent artifacts | `agent-output/{project}/` |
-| Bicep templates | `infra/bicep/{project}/` |
-| Terraform configs | `infra/terraform/{project}/` |
-| Benchmark scores | `agent-output/{project}/08-benchmark-scores.json` |
-| Lessons learned | `agent-output/{project}/09-lessons-learned.json` |
+| Output            | Location                                          |
+| ----------------- | ------------------------------------------------- |
+| Agent artifacts   | `agent-output/{project}/`                         |
+| Bicep templates   | `infra/bicep/{project}/`                          |
+| Terraform configs | `infra/terraform/{project}/`                      |
+| Benchmark scores  | `agent-output/{project}/08-benchmark-scores.json` |
+| Lessons learned   | `agent-output/{project}/09-lessons-learned.json`  |
 
 ## CI Integration
 
@@ -119,11 +119,11 @@ See `.github/workflows/e2e-validation.yml` for the full CI configuration.
 
 ## Validation Scripts
 
-| Script | Purpose |
-|--------|---------|
+| Script                          | Purpose                      |
+| ------------------------------- | ---------------------------- |
 | `scripts/validate-e2e-step.mjs` | Per-step artifact validation |
-| `scripts/benchmark-e2e.mjs` | 8-dimension quality scoring |
-| `scripts/combine-e2e-runs.mjs` | Multi-run comparison |
+| `scripts/benchmark-e2e.mjs`     | 8-dimension quality scoring  |
+| `scripts/combine-e2e-runs.mjs`  | Multi-run comparison         |
 
 ## Safety
 

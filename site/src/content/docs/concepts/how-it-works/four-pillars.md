@@ -2,6 +2,7 @@
 title: "Core Concepts"
 description: "Core concepts behind the agent framework"
 ---
+
 The system's knowledge architecture is built on four distinct layers, each serving
 a specific purpose in the agent's context window.
 
@@ -128,13 +129,14 @@ This project integrates five MCP servers:
 | **Terraform MCP**   | Provider/module registry lookups   | stdio (Go)         |
 | **Microsoft Learn** | Official docs search, code samples | HTTP               |
 
-[:octicons-arrow-right-24: MCP Integration details](mcp-integration.md)
+[MCP Integration details →](mcp-integration.md)
 
 ---
 
 :::tip[Further Reading]
+
 - [Agent Architecture](agents.md) — top-level agents, subagents, the Challenger pattern
 - [Skills & Instructions](skills-and-instructions.md) — progressive loading, glob-based enforcement
 - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, validators
 - [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
-:::
+  :::

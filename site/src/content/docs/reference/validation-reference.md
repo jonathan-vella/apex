@@ -13,9 +13,9 @@ Validation runs at three stages, catching issues progressively earlier:
 flowchart LR
     A["Pre-Commit<br/>(lefthook)"] --> B["Pre-Push<br/>(lefthook)"]
     B --> C["CI<br/>(GitHub Actions)"]
-    style A fill:#e8f5e9,stroke:#4caf50
-    style B fill:#fff3e0,stroke:#ff9800
-    style C fill:#ffebee,stroke:#f44336
+    style A fill:#e8f5e9,stroke:#4caf50,color:#000
+    style B fill:#fff3e0,stroke:#ff9800,color:#000
+    style C fill:#ffebee,stroke:#f44336,color:#000
 ```
 
 1. **Pre-commit** — validates staged files only (fast, file-type scoped)
@@ -189,7 +189,8 @@ npm run lint:python:fix            # Fix Python lint issues
 ---
 
 :::tip[Further Reading]
+
 - [Contributing](CONTRIBUTING.md) — branch naming and commit conventions
 - [Agent Hooks](hooks.md) — VS Code agent hooks (lifecycle automation)
 - [E2E Testing](e2e-testing.md) — Ralph Loop evaluation framework
-:::
+  :::

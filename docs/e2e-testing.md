@@ -35,7 +35,7 @@ To switch tracks, change the `IaC tool` field in the prompt file's Project Conte
 Validates all E2E artifacts for structural compliance (fast, no agent invocation):
 
 ```bash
-# Default project (e2e-ralph-loop)
+# Default project
 npm run e2e:validate
 
 # Specific project

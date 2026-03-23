@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       project:
-        description: "Project to benchmark (default: e2e-ralph-loop)"
+        description: "Project to benchmark"
         required: false
-        default: "e2e-ralph-loop"
+        default: "contoso-service-hub-run-1"
   schedule:
     - cron: "0 6 * * 1" # Weekly on Monday at 06:00 UTC
 
@@ -41,8 +41,8 @@ jobs:
       - name: Validate E2E artifacts (all steps)
         run: npm run e2e:validate
 
-      - name: Benchmark Bicep project (e2e-ralph-loop)
-        run: npm run e2e:benchmark
+      - name: Benchmark Bicep project
+        run: npm run e2e:benchmark -- ${{ inputs.project || 'contoso-service-hub-run-1' }}
         continue-on-error: true
 
       - name: Benchmark Terraform project (terraform-e2e)
@@ -55,8 +55,6 @@ jobs:
         with:
           name: e2e-benchmark-reports
           path: |
-            agent-output/e2e-ralph-loop/08-benchmark-report.md
-            agent-output/e2e-ralph-loop/08-benchmark-scores.json
-            agent-output/terraform-e2e/08-benchmark-report.md
-            agent-output/terraform-e2e/08-benchmark-scores.json
+            agent-output/*/08-benchmark-report.md
+            agent-output/*/08-benchmark-scores.json
           retention-days: 30

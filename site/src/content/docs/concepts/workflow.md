@@ -6,6 +6,7 @@ description: "Multi-step workflow from requirements to deployment"
 <img src="/azure-agentic-infraops/images/hero-workflow.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Collaborative technology workspace"/>
+
 # Agent and Skill Workflow
 
 The multi-step infrastructure development workflow.
@@ -127,94 +128,13 @@ sequenceDiagram
 
 ### Agent Delegation Graph
 
-The detailed delegation graph below shows how the Conductor routes to each
-specialised agent and how subagents are invoked for validation:
+The Conductor delegates work to specialised agents in sequence.
+Shared steps (1–3.5, 7) are common; steps 4–6 diverge into **Bicep** or **Terraform** tracks.
+Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
 
-```mermaid
-graph TB
-    subgraph "Orchestrator"
-        COND["InfraOps Conductor<br/>🎼 Maestro"]
-    end
-
-    subgraph "Step 1: Requirements"
-        REQ["requirements<br/>📜 Scribe"]
-    end
-
-    subgraph "Step 2: Architecture"
-        ARCH["architect<br/>🏛️ Oracle"]
-        MCP["💰 Azure Pricing MCP"]
-    end
-
-    subgraph "Step 3: Design Artifacts"
-        DIAG["azure-diagrams<br/>🎨 Skill"]
-        ADR["azure-adr<br/>📝 Skill"]
-    end
-
-    subgraph "Step 3.5: Governance"
-        GOV["governance<br/>🛡️ Warden"]
-    end
-
-    subgraph "Step 4: Planning"
-        BPLAN["bicep-plan<br/>📐 Strategist"]
-        TPLAN["terraform-plan<br/>📐 Strategist"]
-    end
-
-    subgraph "Step 5: Implementation"
-        BCODE["bicep-code<br/>⚒️ Forge"]
-        BLINT["bicep-lint-subagent"]
-        BWHATIF["bicep-whatif-subagent"]
-        BREVIEW["bicep-review-subagent"]
-        TCODE["terraform-code<br/>⚒️ Forge"]
-        TLINT["terraform-lint-subagent"]
-        TPLANSA["terraform-plan-subagent"]
-        TREVIEW["terraform-review-subagent"]
-    end
-
-    subgraph "Step 6: Deployment"
-        BDEP["bicep-deploy<br/>🚀 Envoy"]
-        TDEP["terraform-deploy<br/>🚀 Envoy"]
-    end
-
-    subgraph "Step 7: Documentation"
-        DOCS["azure-artifacts<br/>📚 Skill"]
-    end
-
-    COND -->|"delegates"| REQ
-    COND -->|"delegates"| ARCH
-    COND -->|"invokes"| DIAG
-    COND -->|"invokes"| ADR
-    COND -->|"delegates"| GOV
-    COND -->|"Bicep track"| BPLAN
-    COND -->|"Terraform track"| TPLAN
-    COND -->|"Bicep track"| BCODE
-    COND -->|"Terraform track"| TCODE
-    BCODE -->|"validates"| BLINT
-    BCODE -->|"validates"| BWHATIF
-    BCODE -->|"validates"| BREVIEW
-    TCODE -->|"validates"| TLINT
-    TCODE -->|"validates"| TPLANSA
-    TCODE -->|"validates"| TREVIEW
-    COND -->|"Bicep track"| BDEP
-    COND -->|"Terraform track"| TDEP
-    COND -->|"invokes"| DOCS
-
-    MCP -.->|"pricing data"| ARCH
-
-    style COND fill:#8957E5,color:#fff
-    style REQ fill:#e1f5fe
-    style ARCH fill:#fff3e0
-    style MCP fill:#fff9c4
-    style DIAG fill:#f3e5f5
-    style ADR fill:#e8eaf6
-    style GOV fill:#fff3e0
-    style BPLAN fill:#e8f5e9
-    style TPLAN fill:#e8f5e9
-    style BCODE fill:#fce4ec
-    style TCODE fill:#fce4ec
-    style BDEP fill:#c8e6c9
-    style TDEP fill:#c8e6c9
-    style DOCS fill:#e3f2fd
-```
+<img src="/azure-agentic-infraops/images/agent-delegation-graph.png"
+     width="100%" style="border-radius: 10px; margin: 1rem 0;"
+     alt="Agent Delegation Graph — Conductor routes to Requirements, Architect, Design, Governance, then forks into Bicep and Terraform tracks for Planning, CodeGen, and Deploy, converging at As-Built Docs"/>
 
 ## Agent Roster
 

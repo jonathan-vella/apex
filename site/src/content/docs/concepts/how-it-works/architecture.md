@@ -2,44 +2,37 @@
 title: "System Architecture Overview"
 description: "System architecture and component overview"
 ---
+
 ## The Multi-Step Workflow
 
 The system follows a strict sequential workflow with mandatory human approval gates
 between critical phases:
 
-<div class="workflow-stepper not-content">
-<div class="step"><span class="step-num">1</span><span class="step-label">Requirements</span></div>
-<div class="gate">🔒</div>
-<div class="step"><span class="step-num">2</span><span class="step-label">Architecture</span></div>
-<div class="gate">🔒</div>
-<div class="step"><span class="step-num">3</span><span class="step-label">Design</span></div>
-<div class="step"><span class="step-num">3.5</span><span class="step-label">Governance</span></div>
-<div class="gate">🔒</div>
-<div class="step"><span class="step-num">4</span><span class="step-label">IaC Plan</span></div>
-<div class="gate">🔒</div>
-<div class="step"><span class="step-num">5</span><span class="step-label">IaC Code</span></div>
-<div class="gate">✔</div>
-<div class="step"><span class="step-num">6</span><span class="step-label">Deploy</span></div>
-<div class="gate">🔒</div>
-<div class="step"><span class="step-num">7</span><span class="step-label">As-Built</span></div>
+<div class="workflow-table not-content">
+
+|     | Step | Phase             | Agent             | Output                               | Review     |
+| :-: | :--: | ----------------- | ----------------- | ------------------------------------ | ---------- |
+| 🔒  |  1   | 📜 Requirements   | 02-Requirements   | `01-requirements.md`                 | 1 pass     |
+| 🔒  |  2   | 🏛️ Architecture   | 03-Architect      | `02-architecture-assessment.md`      | 3+1 passes |
+|     |  3   | 🎨 Design _(opt)_ | 04-Design         | `03-des-*.{py,png,md}`               | —          |
+| 🔒  | 3.5  | 🛡️ Governance     | 04g-Governance    | `04-governance-constraints.md`       | —          |
+| 🔒  |  4   | 📐 IaC Plan       | 05b / 05t Planner | `04-implementation-plan.md`          | 1+3 passes |
+|  ✔  |  5   | ⚒️ IaC Code       | 06b / 06t CodeGen | `infra/bicep/` or `infra/terraform/` | 3 passes   |
+| 🔒  |  6   | 🚀 Deploy         | 07b / 07t Deploy  | `06-deployment-summary.md`           | 1 pass     |
+|     |  7   | 📚 As-Built       | 08-As-Built       | `07-*.md` docs suite                 | —          |
+
 </div>
 
-| Step | Phase        | Agent                              | Output                                 | Review            |
-| ---- | ------------ | ---------------------------------- | -------------------------------------- | ----------------- |
-| 1    | Requirements | 02-Requirements                    | `01-requirements.md`                   | 1 challenger pass |
-| 2    | Architecture | 03-Architect                       | `02-architecture-assessment.md` + cost | 3+1 passes        |
-| 3    | Design (opt) | 04-Design                          | `03-des-*.{py,png,md}`                 | —                 |
-| 3.5  | Governance   | 04g-Governance                     | `04-governance-constraints.md/.json`   | —                 |
-| 4    | IaC Plan     | 05b-Bicep Planner / 05t-TF Planner | `04-implementation-plan.md`            | 1+3 passes        |
-| 5    | IaC Code     | 06b-Bicep CodeGen / 06t-TF CodeGen | `infra/bicep/` or `infra/terraform/`   | 3 passes          |
-| 6    | Deploy       | 07b-Bicep Deploy / 07t-TF Deploy   | `06-deployment-summary.md`             | 1 pass            |
-| 7    | As-Built     | 08-As-Built                        | `07-*.md` documentation suite          | —                 |
+<small>🔒 human approval gate · ✔ automated validation gate</small>
 
 ## The Conductor Pattern
 
-<img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop"
-  height="200" style="object-fit: cover; border-radius: 8px;"
-  alt="Orchestra performance representing the Conductor pattern"><br/>
+<img
+  src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop"
+  height="200"
+  style="object-fit: cover; border-radius: 8px;"
+  alt="Orchestra performance representing the Conductor pattern"
+/>
 
 The InfraOps Conductor (agent `01-Conductor`, also known as the Coordinator) is the master orchestrator. It does not
 generate infrastructure code or documentation itself. Instead, it:
@@ -86,9 +79,12 @@ to keep the Conductor body under the 350-line limit.
 
 ## Dual IaC Tracks
 
-<img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop"
-  height="200" style="object-fit: cover; border-radius: 8px;"
-  alt="Railway tracks diverging representing dual IaC tracks"><br/>
+<img
+  src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop"
+  height="200"
+  style="object-fit: cover; border-radius: 8px;"
+  alt="Railway tracks diverging representing dual IaC tracks"
+/>
 
 Steps 1–3 (Requirements, Architecture, Design) are shared across both infrastructure
 tracks. Step 3.5 (Governance) is also shared and mandatory. At Step 4, the workflow

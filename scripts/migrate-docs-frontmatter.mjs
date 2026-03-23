@@ -7,30 +7,45 @@ const DOCS_DIR = "site/src/content/docs";
 
 // Title mapping for files — extracted from the first H1 heading
 const DESCRIPTIONS = {
-  "getting-started/quickstart.md": "Get started with Agentic InfraOps in minutes",
-  "getting-started/dev-containers.md": "Set up the VS Code Dev Container environment",
+  "getting-started/quickstart.md":
+    "Get started with Agentic InfraOps in minutes",
+  "getting-started/dev-containers.md":
+    "Set up the VS Code Dev Container environment",
   "concepts/how-it-works/index.md": "Overview of the Agentic InfraOps system",
-  "concepts/how-it-works/architecture.md": "System architecture and component overview",
-  "concepts/how-it-works/four-pillars.md": "Core concepts behind the agent framework",
-  "concepts/how-it-works/agents.md": "Agent roles, orchestration, and delegation model",
-  "concepts/how-it-works/skills-and-instructions.md": "How skills and instructions guide agents",
-  "concepts/how-it-works/workflow-engine.md": "Workflow DAG, quality gates, and review cycles",
-  "concepts/how-it-works/mcp-integration.md": "MCP server integration for real-time data",
+  "concepts/how-it-works/architecture.md":
+    "System architecture and component overview",
+  "concepts/how-it-works/four-pillars.md":
+    "Core concepts behind the agent framework",
+  "concepts/how-it-works/agents.md":
+    "Agent roles, orchestration, and delegation model",
+  "concepts/how-it-works/skills-and-instructions.md":
+    "How skills and instructions guide agents",
+  "concepts/how-it-works/workflow-engine.md":
+    "Workflow DAG, quality gates, and review cycles",
+  "concepts/how-it-works/mcp-integration.md":
+    "MCP server integration for real-time data",
   "concepts/workflow.md": "Multi-step workflow from requirements to deployment",
-  "guides/prompt-guide/index.md": "Guide to effective prompting with InfraOps agents",
-  "guides/prompt-guide/best-practices.md": "Best practices for writing effective prompts",
-  "guides/prompt-guide/workflow-prompts.md": "Step-by-step workflow prompt templates",
+  "guides/prompt-guide/index.md":
+    "Guide to effective prompting with InfraOps agents",
+  "guides/prompt-guide/best-practices.md":
+    "Best practices for writing effective prompts",
+  "guides/prompt-guide/workflow-prompts.md":
+    "Step-by-step workflow prompt templates",
   "guides/prompt-guide/reference.md": "Complete skills and subagent reference",
-  "guides/cost-governance.md": "Budget alerts, forecasts, and cost anomaly detection",
+  "guides/cost-governance.md":
+    "Budget alerts, forecasts, and cost anomaly detection",
   "guides/security-baseline.md": "Non-negotiable security requirements for IaC",
-  "guides/session-debugging.md": "Diagnose and recover from session state issues",
+  "guides/session-debugging.md":
+    "Diagnose and recover from session state issues",
   "guides/hooks.md": "VS Code Agent Hooks for automated code quality",
   "guides/troubleshooting.md": "Common issues and solutions",
   "guides/e2e-testing.md": "End-to-end testing with the Ralph Loop pattern",
-  "reference/validation-reference.md": "All validation scripts, linting, and CI workflows",
+  "reference/validation-reference.md":
+    "All validation scripts, linting, and CI workflows",
   "reference/glossary.md": "Terms and definitions used in Agentic InfraOps",
   "reference/faq.md": "Frequently asked questions",
-  "reference/azure-skills-plugin.md": "Migration guide for the Azure Skills Plugin",
+  "reference/azure-skills-plugin.md":
+    "Migration guide for the Azure Skills Plugin",
   "project/contributing.md": "How to contribute to Agentic InfraOps",
   "project/changelog.md": "All notable changes to Agentic InfraOps",
 };
@@ -90,29 +105,39 @@ function fixFile(filePath) {
   content = content.replace(
     /^([!?]{3})\s+(note|tip|warning|caution|danger|info|abstract|success|question|failure|bug|example|quote)\s*(?:"([^"]*)")?\s*\n((?:    .+\n?)*)/gm,
     (match, marker, type, title, body) => {
-      const starlightType = {
-        note: "note", tip: "tip", warning: "caution", caution: "caution",
-        danger: "danger", info: "note", abstract: "note", success: "tip",
-        question: "note", failure: "danger", bug: "danger", example: "tip",
-        quote: "note"
-      }[type] || "note";
+      const starlightType =
+        {
+          note: "note",
+          tip: "tip",
+          warning: "caution",
+          caution: "caution",
+          danger: "danger",
+          info: "note",
+          abstract: "note",
+          success: "tip",
+          question: "note",
+          failure: "danger",
+          bug: "danger",
+          example: "tip",
+          quote: "note",
+        }[type] || "note";
       const cleanBody = body.replace(/^    /gm, "");
       const titlePart = title ? `[${title}]` : "";
       return `:::${starlightType}${titlePart}\n${cleanBody}:::\n`;
-    }
+    },
   );
 
   // Fix image paths: ../assets/images/ -> relative Astro paths
   content = content.replace(
     /src="\.\.\/assets\/images\//g,
-    'src="/azure-agentic-infraops/images/'
+    'src="/azure-agentic-infraops/images/',
   );
 
   // Fix relative links to other docs (adjust for new directory structure)
   // ../VERSION.md, ../QUALITY_SCORE.md etc -> GitHub links
   content = content.replace(
     /\]\(\.\.\/([A-Z_]+\.md)\)/g,
-    "](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/$1)"
+    "](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/$1)",
   );
 
   // Remove first H1 if it duplicates the frontmatter title (Starlight renders title from frontmatter)

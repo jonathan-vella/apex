@@ -642,6 +642,84 @@ tr:last-child td {
   border-bottom: none;
 }
 
+/* ── Workflow Table ── */
+
+.workflow-table table {
+  width: 100%;
+  font-size: var(--sl-text-body-sm);
+}
+
+.workflow-table th {
+  background: color-mix(
+    in srgb,
+    var(--sl-color-accent) 12%,
+    var(--sl-color-gray-6)
+  );
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-xs);
+  padding: 0.5rem 0.75rem;
+}
+
+.workflow-table td {
+  padding: 0.6rem 0.75rem;
+  vertical-align: middle;
+}
+
+/* Gate icon column */
+.workflow-table td:first-child {
+  width: 2rem;
+  text-align: center;
+  font-size: 0.95rem;
+  padding-right: 0;
+}
+
+/* Step number column */
+.workflow-table td:nth-child(2) {
+  font-family: var(--sl-font-system-mono);
+  font-weight: 700;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-accent);
+  width: 2.5rem;
+  text-align: center;
+}
+
+/* Phase column – emoji + label */
+.workflow-table td:nth-child(3) {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Output column – code style */
+.workflow-table td:nth-child(5) code {
+  font-size: 0.78rem;
+  background: var(--sl-color-gray-6);
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+}
+
+/* Alternating row tint */
+.workflow-table tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--sl-color-gray-6) 40%, transparent);
+}
+
+/* Gate row left accent */
+.workflow-table tr:has(td:first-child:not(:empty)) td {
+  border-left: 0 solid transparent;
+}
+
+/* hover */
+.workflow-table tr:hover td {
+  background: color-mix(in srgb, var(--sl-color-accent) 6%, transparent);
+}
+
+/* Legend beneath table */
+.workflow-table + small {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-xs);
+}
+
 /* ── Components ── */
 
 .sl-badge {
@@ -663,53 +741,7 @@ tr:last-child td {
   width: auto !important;
   max-width: none !important;
   height: auto;
-}
-
-/* ── Workflow stepper ── */
-
-.workflow-stepper {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 1.25rem;
-  margin-block: 1rem;
-  background: var(--sl-color-bg);
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.75rem;
-}
-
-.workflow-stepper .step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--sl-color-gray-6);
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.5rem;
-  min-width: 5.5rem;
-}
-
-.workflow-stepper .step-num {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--sl-color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.workflow-stepper .step-label {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--sl-color-white);
-}
-
-.workflow-stepper .gate {
-  font-size: 0.9rem;
-  opacity: 0.6;
+  min-width: 600px;
 }
 
 .starlight-aside {

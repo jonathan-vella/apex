@@ -2,6 +2,7 @@
 title: "MCP Server Integration"
 description: "MCP server integration for real-time data"
 ---
+
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
 This project integrates five MCP servers, each providing specialised capabilities that
@@ -206,43 +207,6 @@ If the Learn MCP server is unavailable, agents can use the `mslearn` CLI:
 skills include CLI fallback tables.
 :::
 
-## File Map
-
-```text
-AGENTS.md                                    # Table of contents for all agents
-.github/
-  copilot-instructions.md                    # VS Code Copilot orchestration
-  agent-registry.json                        # Agent role → file/model/skills
-  skill-affinity.json                        # Skill/agent affinity weights
-  agents/                                    # Top-level agent definitions
-    _subagents/                              # Subagent definitions
-  skills/                                    # Skill packages
-    workflow-engine/                          # DAG, workflow graph
-    context-shredding/                       # Runtime compression
-    session-resume/                          # State tracking + resume protocol
-    golden-principles/                       # 10 operating principles
-    azure-defaults/                          # Regions, tags, naming, security
-    azure-artifacts/                         # Template structures + H2 rules
-    azure-bicep-patterns/                    # Bicep composition patterns
-    terraform-patterns/                      # Terraform composition patterns
-    iac-common/                              # Deploy patterns + circuit breaker
-    github-operations/                       # GitHub MCP + CLI + Smart PR Flow
-    microsoft-docs/                          # Microsoft Learn doc search
-    microsoft-code-reference/                # SDK/API verification
-    microsoft-skill-creator/                 # Skill generation for MS tech
-    ...
-  instructions/                              # Instruction files (glob-based)
-agent-output/{project}/                      # All agent-generated artefacts
-  00-session-state.json                      # Machine-readable workflow state
-  00-handoff.md                              # Human-readable gate summary
-  01-requirements.md → 07-*.md               # Step artefacts
-infra/
-  bicep/{project}/                           # Bicep templates
-  terraform/{project}/                       # Terraform configurations
-scripts/                                     # Validation scripts
-mcp/azure-pricing-mcp/                       # Custom Azure Pricing MCP server
-```
-
 ## Operations and Setup
 
 This section covers installation verification, authentication, error
@@ -307,9 +271,10 @@ To add a new MCP server:
 ---
 
 :::tip[Further Reading]
+
 - [System Architecture](architecture.md) — the Conductor pattern and model selection
 - [Core Concepts](four-pillars.md) — high-level overview of tools and MCP
 - [Agent Architecture](agents.md) — which agents use which MCP servers
 - [Workflow Engine & Quality](workflow-engine.md) — circuit breakers and validation systems
 - [Validation & Linting](../validation-reference.md) — MCP config validation and all scripts
-:::
+  :::
