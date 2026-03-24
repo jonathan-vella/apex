@@ -24,7 +24,7 @@ tableOfContents:
 
 | ⬅️ Previous                                                  | 📑 Index            | Next ➡️                                                                  |
 | ------------------------------------------------------------ | ------------------- | ------------------------------------------------------------------------ |
-| [04-governance-constraints.md](04-governance-constraints.md) | [README](README.md) | [infra/bicep/nordic-fresh-foods/](../../infra/bicep/nordic-fresh-foods/) |
+| [Governance Constraints](../04-governance/) | [Demo Index](../) | [Bicep templates](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods) |
 
 ---
 
@@ -51,7 +51,7 @@ This plan defines the Bicep implementation for the Nordic Fresh Foods (FreshConn
 - **MFA required** for deployment operations (Management Group Deny)
 - Tag inheritance via Modify policy: 9 tags auto-propagate from RG to child resources
 
-See [04-governance-constraints.md](04-governance-constraints.md) for full details.
+See [Governance Constraints](../04-governance/) for full details.
 
 ---
 
@@ -634,7 +634,7 @@ config:
 
 ![Dependency Diagram](/azure-agentic-infraops/demo/04-dependency-diagram.svg)
 
-Source: [04-dependency-diagram.drawio](/azure-agentic-infraops/demo/04-dependency-diagram.drawio)
+Source: [Dependency diagram Draw.io source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/04-dependency-diagram.drawio)
 
 ```text
 Resource Group
@@ -656,7 +656,7 @@ Resource Group
 └── Budget Alert
 ```
 
-See [04-dependency-diagram.py](./04-dependency-diagram.py) for the Python source.
+The editable source for this diagram is the Draw.io file linked above.
 
 ---
 
@@ -664,7 +664,7 @@ See [04-dependency-diagram.py](./04-dependency-diagram.py) for the Python source
 
 ![Runtime Flow Diagram](/azure-agentic-infraops/demo/04-runtime-diagram.svg)
 
-Source: [04-runtime-diagram.drawio](/azure-agentic-infraops/demo/04-runtime-diagram.drawio)
+Source: [Runtime flow Draw.io source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/04-runtime-diagram.drawio)
 
 ```text
 User Request
@@ -686,7 +686,7 @@ Log Analytics ◄── Diagnostic Settings (all resources)
 Budget Alert ──→ Email notification (CTO)
 ```
 
-See [04-runtime-diagram.py](./04-runtime-diagram.py) for the Python source.
+The editable source for this diagram is the Draw.io file linked above.
 
 ---
 
@@ -840,13 +840,13 @@ See [04-runtime-diagram.py](./04-runtime-diagram.py) for the Python source.
 | CAF Naming Conventions     | [Microsoft Learn](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) |
 | Private Endpoint Reference | [Microsoft Learn](https://learn.microsoft.com/azure/private-link/private-endpoint-overview)                              |
 | Bicep Best Practices       | [Microsoft Learn](https://learn.microsoft.com/azure/azure-resource-manager/bicep/best-practices)                         |
-| Governance Constraints     | [04-governance-constraints.md](04-governance-constraints.md)                                                             |
+| Governance Constraints     | [Governance Constraints](../04-governance/)                                                                   |
 
 ---
 
 <div align="center">
 
-| ⬅️ [04-governance-constraints.md](04-governance-constraints.md) | 🏠 [Project Index](README.md) | ➡️ [Bicep Code](../../infra/bicep/nordic-fresh-foods/) |
+| ⬅️ [Governance Constraints](../04-governance/) | 🏠 [Demo Index](../) | ➡️ [Bicep templates](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods) |
 | --------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------ |
 
 </div>

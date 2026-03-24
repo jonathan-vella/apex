@@ -19,7 +19,7 @@ This demo walks through the complete 7-step workflow output — from requirement
 
 ![Nordic Fresh Foods Architecture](/azure-agentic-infraops/demo/03-des-diagram.svg)
 
-Source: [03-des-diagram.drawio](/azure-agentic-infraops/demo/03-des-diagram.drawio)
+Source: [Draw.io source file](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/03-des-diagram.drawio)
 
 ## Workflow Steps
 

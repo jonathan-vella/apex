@@ -169,7 +169,7 @@ types, edge conditions, gates, and fan-out patterns.
 :::note[Not user-invocable]
 Subagents are delegated to automatically by parent agents. You cannot
 select them from the agent picker (`Ctrl+Shift+A`). See
-[Workflow Prompts](workflow-prompts.md) for end-user scenarios.
+[Workflow Prompts](../workflow-prompts/) for end-user scenarios.
 :::
 
 ```text
@@ -296,5 +296,5 @@ and suggest improvements for WAF alignment.
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
 - [Prompt Engineering for Copilot Chat](https://docs.github.com/en/copilot/using-github-copilot/copilot-chat/prompt-engineering-for-copilot-chat)
 - [VS Code Copilot Prompt Crafting](https://code.visualstudio.com/docs/copilot/prompt-crafting)
-- [Agentic InfraOps Quickstart](../../getting-started/quickstart.md)
-- [Agent Workflow Reference](../../concepts/workflow.md)
+- [Agentic InfraOps Quickstart](../../../getting-started/quickstart/)
+- [Agent Workflow Reference](../../../concepts/workflow/)

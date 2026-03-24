@@ -16,11 +16,11 @@ sidebar:
 
 | ⬅️ Previous                                    | 📑 Index            | Next ➡️                                              |
 | ---------------------------------------------- | ------------------- | ---------------------------------------------------- |
-| [04-preflight-check.md](04-preflight-check.md) | [README](README.md) | [06-deployment-summary.md](06-deployment-summary.md) |
+| [Implementation Plan](../05-plan/) | [Demo Index](../) | [Deployment Summary](../07-deploy/) |
 
 ## 📁 IaC Templates Location
 
-📁 **Code Location**: [`infra/bicep/nordic-fresh-foods/`](../../infra/bicep/nordic-fresh-foods/)
+📁 **Code Location**: [Bicep templates repository folder](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods)
 
 ## 🗂️ File Structure
 
@@ -205,7 +205,7 @@ _Implementation reference generated from Bicep templates._
 
 <div align="center">
 
-| ⬅️ [04-preflight-check.md](04-preflight-check.md) | 🏠 [Project Index](README.md) | ➡️ [06-deployment-summary.md](06-deployment-summary.md) |
+| ⬅️ [Implementation Plan](../05-plan/) | 🏠 [Demo Index](../) | ➡️ [Deployment Summary](../07-deploy/) |
 | ------------------------------------------------- | ----------------------------- | ------------------------------------------------------- |
 
 </div>

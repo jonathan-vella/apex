@@ -518,4 +518,4 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 
 ## Next Steps
 
-- [Quickstart](../getting-started/quickstart.md) — 10-minute getting started walkthrough
+- [Quickstart](../../getting-started/quickstart/) — 10-minute getting started walkthrough

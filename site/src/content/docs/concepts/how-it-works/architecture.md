@@ -113,9 +113,9 @@ flowchart TD
 
 :::tip[Further Reading]
 
-- [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
-- [Agent Architecture](agents.md) — top-level agents, subagents, Challenger pattern
-- [Workflow Engine & Quality](workflow-engine.md) — DAG model, session state, circuit breakers
-- [MCP Integration](mcp-integration.md) — MCP servers and tool catalogs
+- [Core Concepts](../four-pillars/) — agents, skills, instructions, and configuration registries
+- [Agent Architecture](../agents/) — top-level agents, subagents, Challenger pattern
+- [Workflow Engine & Quality](../workflow-engine/) — DAG model, session state, circuit breakers
+- [MCP Integration](../mcp-integration/) — MCP servers and tool catalogs
 
   :::

@@ -9,7 +9,7 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](../concepts/workflow.md)
+- [Development Workflow Guide](../../concepts/workflow/)
 
 ## 🎯 What We're Looking For
 
@@ -41,8 +41,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](../concepts/workflow.md)
-- Agent workflow details: [Agent Workflow Reference](../concepts/workflow.md)
+- Workflow details: [Development Workflow Guide](../../concepts/workflow/)
+- Agent workflow details: [Agent Workflow Reference](../../concepts/workflow/)
 
 #### Branch Naming Convention
 
@@ -183,7 +183,7 @@ git checkout -b docs/update-workflow-guide
 
 For the full local-to-PR flow, see:
 
-- [Development Workflow Guide](../concepts/workflow.md)
+- [Development Workflow Guide](../../concepts/workflow/)
 
 ### 4. Commit & Push
 
