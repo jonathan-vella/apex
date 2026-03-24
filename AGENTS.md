@@ -211,25 +211,25 @@ docs/                  # User-facing documentation
 
 ### Agent Workflow
 
-| Step | Phase        | Output                                                   | Review |
-| ---- | ------------ | -------------------------------------------------------- | ------ |
-| 1    | Requirements | `01-requirements.md`                                     | 1×     |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3×  |
-| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —      |
-| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | —      |
-| 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | 1×–2×  |
-| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×  |
-| 6    | Deploy       | `06-deployment-summary.md`                               | —      |
-| 7    | As-Built     | `07-*.md` documentation suite                            | —      |
-| Post | Lessons      | `09-lessons-learned.json/.md`                            | —      |
+| Step | Phase        | Output                                                   | Review         |
+| ---- | ------------ | -------------------------------------------------------- | -------------- |
+| 1    | Requirements | `01-requirements.md`                                     | 1×             |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3× + 1 cost |
+| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —              |
+| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | 1×             |
+| 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | 1×–2×          |
+| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×          |
+| 6    | Deploy       | `06-deployment-summary.md`                               | —              |
+| 7    | As-Built     | `07-*.md` documentation suite                            | —              |
+| Post | Lessons      | `09-lessons-learned.json/.md`                            | —              |
 
 All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
 The Conductor agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
-(simple: 4 total, standard: 5–7 total, complex: 8 total).
-Reviews target AI-generated creative decisions (architecture, plan, code) not
-machine-discovered data (governance) or tool output (what-if/plan previews).
+Complexity-dependent. Conditional early exits reduce actual passes.
+Reviews target AI-generated creative decisions (architecture, governance, plan, code) not
+tool output (what-if/plan previews).
 
 ### Content Sharing Decision Framework
 

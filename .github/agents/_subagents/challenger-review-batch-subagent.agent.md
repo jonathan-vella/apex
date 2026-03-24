@@ -54,12 +54,14 @@ The parent agent provides:
 - `project_name`: Name of the project (required)
 - `artifact_type`: One of `architecture`, `implementation-plan`, `iac-code` (required)
 - `batch_lenses`: Array of lens objects to execute in order (required):
+
   ```json
   [
     { "review_focus": "architecture-reliability", "pass_number": 2 },
     { "review_focus": "cost-feasibility", "pass_number": 3 }
   ]
   ```
+
 - `prior_findings`: Compact string from pass 1 (required — batch always follows pass 1)
 
 ## Execution Protocol

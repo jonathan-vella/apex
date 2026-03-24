@@ -198,7 +198,7 @@ Step 1          Step 2            Step 3         Step 4
 Requirements → Architecture →  Design       → Planning
 (01-*.md)     (02-*.md)       (03-des-*)     (04-*.md)
                                   │
-                                  ├─ Diagrams (03-des-diagram.py/png)
+                                  ├─ Diagrams (03-des-diagram.drawio/.drawio.svg)
                                   ├─ ADRs (03-des-adr-*.md)
                                   └─ Cost Estimate (03-des-cost-estimate.md)
 

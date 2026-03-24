@@ -138,7 +138,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
    Read `02-architecture-assessment.md` for context. Do NOT use askQuestions.
    This is a complex Contoso Service Hub: AKS, PostgreSQL, Redis, APIM, WAF/CDN, CIAM,
    storage, monitoring, Key Vault, VMs. Generate:
-   - `03-des-diagram.py` (architecture diagram)
+   - `03-des-diagram.drawio` (architecture diagram)
    - `03-des-adr-001-container-platform.md` (AKS vs Container Apps decision)
    - `03-des-adr-002-caching-tier.md` (Redis tier decision)
      Save all to `agent-output/contoso-service-hub-run-1/`."\_
@@ -235,8 +235,8 @@ Do NOT use askQuestions. Generate ONLY:
 - `modules/budget.bicep` (consumption budget)
   Do NOT generate data, edge, or platform modules yet."\_
 
-3. Run `bicep build` + `bicep lint` on `main.bicep`
-4. Self-correct build errors (max 5 iterations)
+1. Run `bicep build` + `bicep lint` on `main.bicep`
+2. Self-correct build errors (max 5 iterations)
 
 **Sub-phase E2: Data** (PostgreSQL, Redis, storage) 5. Invoke `@06b-Bicep CodeGen` with instruction to ADD data modules:
 \_"Add data-tier modules to the existing `infra/bicep/contoso-service-hub-run-1/`.
@@ -247,7 +247,7 @@ Read the implementation plan and AVM matrix. Do NOT use askQuestions. Add ONLY:
 - `modules/storage.bicep` (Storage Account — blob + file + managed disks)
   Update `main.bicep` to reference the new modules."\_
 
-6. Run `bicep build` + `bicep lint`; self-correct (max 5 iterations)
+1. Run `bicep build` + `bicep lint`; self-correct (max 5 iterations)
 
 **Sub-phase E3: Edge** (WAF, CDN, APIM, CIAM) 7. Add edge modules:
 _"Add edge/security modules: `modules/waf.bicep` (Application Gateway + WAF),

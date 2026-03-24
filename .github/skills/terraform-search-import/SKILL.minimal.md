@@ -9,13 +9,13 @@
 ### Step 1: Discover Resources with az CLI
 
 **Post-Import: Adopt AVM Modules**:
-After importing raw `azurerm_*` resources, refactor to AVM modules:
+After importing raw `azurerm_*` resources, refactor to AVM modules using `moved {}` blocks.
 
 **Integration with Terraform MCP**:
 Use Terraform MCP tools during import workflows:
 
 **Terraform Search Workflow (Experimental)**:
-### Version Prerequisite Check
+Uses `.tfquery.hcl` files with `list` blocks to discover resources, then
 
 **Reference Index**:
 

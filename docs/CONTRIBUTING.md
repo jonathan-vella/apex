@@ -8,7 +8,7 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](workflow.md)
+- [Development Workflow Guide](docs/workflow.md)
 
 ## 🎯 What We're Looking For
 
@@ -42,8 +42,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](workflow.md)
-- Agent workflow details: [Agent Workflow Reference](workflow.md)
+- Workflow details: [Development Workflow Guide](docs/workflow.md)
+- Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
 
 #### Branch Naming Convention
 
@@ -186,7 +186,7 @@ git checkout -b docs/update-workflow-guide
 
 For the full local-to-PR flow, see:
 
-- [Development Workflow Guide](workflow.md)
+- [Development Workflow Guide](docs/workflow.md)
 
 ### 4. Commit & Push
 
@@ -275,6 +275,7 @@ doesn't follow the format, you'll see a helpful error with examples.
 2. Click "New Pull Request"
 3. Fill out the PR template
 4. Link related issues
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 📝 Pull Request Checklist
@@ -289,6 +290,7 @@ Before submitting:
 - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 🤝 Community Standards
@@ -304,6 +306,7 @@ Before submitting:
 
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## 📄 License

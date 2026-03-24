@@ -92,11 +92,11 @@ development efforts.
 
 ### 2.1 Architecture Diagram
 
-![System Context Diagram - {project-name}](./03-des-diagram.png)
+![System Context Diagram - {project-name}](./03-des-diagram.drawio.svg)
 
-Source: [03-des-diagram.py](./03-des-diagram.py)
+Source: [03-des-diagram.drawio](./03-des-diagram.drawio)
 
-> Replace with actual generated non-Mermaid architecture diagram for the project.
+> Replace with actual generated draw.io architecture diagram for the project.
 
 ### 2.2 Resource Summary
 

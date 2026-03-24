@@ -23,6 +23,18 @@
     "astro-docs": {
       "type": "http",
       "url": "https://mcp.docs.astro.build/mcp"
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "deno",
+      "args": [
+        "run",
+        "--allow-net",
+        "--allow-read",
+        "--allow-write",
+        "--allow-env",
+        "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"
+      ]
     }
   }
 }

@@ -1,7 +1,6 @@
 ---
 description: "Audit agent context window utilization from Copilot Chat debug logs and produce optimization recommendations."
 agent: "11-Context Optimizer"
-model: "Claude Opus 4.6"
 ---
 
 # Context Window Audit

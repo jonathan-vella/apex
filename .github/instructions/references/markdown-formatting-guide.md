@@ -55,9 +55,9 @@ Python diagrams (`.png`/`.svg`) and embed with Markdown images.
 ### Good Example
 
 ```markdown
-![Design Architecture](./03-des-diagram.png)
+![Design Architecture](./03-des-diagram.drawio.svg)
 
-Source: `03-des-diagram.py`
+Source: `03-des-diagram.drawio`
 ```
 
 ### Mermaid Usage

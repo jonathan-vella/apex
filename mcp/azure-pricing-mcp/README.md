@@ -102,7 +102,7 @@ Azure Retail Prices API.
 `DefaultAzureCredential` and tries, in order:
 
 1. Environment variables (`AZURE_CLIENT_ID` + `AZURE_TENANT_ID`
-   + `AZURE_CLIENT_SECRET`)
+   - `AZURE_CLIENT_SECRET`)
 2. Managed Identity (when running in Azure)
 3. Azure CLI (`az login`)
 
@@ -163,8 +163,8 @@ Tools return structured errors with codes from `error_codes.py`:
 
 ### Prerequisites
 
-+ Python 3.10+
-+ [uv](https://docs.astral.sh/uv/) (recommended) or pip
+- Python 3.10+
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
 
 ### Setup
 

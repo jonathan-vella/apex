@@ -3,16 +3,16 @@
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 > Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
 
-| Domain          | Grade | Status                                                                 | Next Action                                |
-| --------------- | ----- | ---------------------------------------------------------------------- | ------------------------------------------ |
-| Agents          | A     | 17 primary + 11 subagents; conductor 337 lines (under 400)             | Fix 3 model-mismatch warnings in registry  |
-| Skills          | A     | 43 GA skills; 46 with references/; 508 ref files                       | Monitor via `lint:skills-format`           |
-| Instructions    | A     | 28 instruction files; narrow globs enforced; all refs valid            | Monitor via `lint:glob-audit`              |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)  | Expand Terraform E2E templates when needed |
-| Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts    | Run doc-gardening after structural changes |
-| CI / Validation | A-    | 34 validators; lint:md 115 errors (mostly demo content + test prompts) | Accept demo/test lint as known debt        |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)       | Quarterly audit via AGENTS.md checklist    |
-| Backlog         | A-    | 3 active debt items; 20 resolved (incl. #14 conductor body)            | Triage registry model drift + demo lint    |
+| Domain          | Grade | Status                                                                  | Next Action                                |
+| --------------- | ----- | ----------------------------------------------------------------------- | ------------------------------------------ |
+| Agents          | A     | 17 primary + 11 subagents; conductor 337 lines (under 400)              | Fix 3 model-mismatch warnings in registry  |
+| Skills          | A     | 43 GA skills; 46 with references/; 508 ref files                        | Monitor via `lint:skills-format`           |
+| Instructions    | A     | 28 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`              |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed |
+| Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts     | Run doc-gardening after structural changes |
+| CI / Validation | A-    | 34 validators; lint:md 115 errors (mostly demo content + test prompts)  | Accept demo/test lint as known debt        |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)        | Quarterly audit via AGENTS.md checklist    |
+| Backlog         | A-    | Limited active debt items; multiple resolved (incl. #14 conductor body) | Triage registry model drift + demo lint    |
 
 ## Grading Scale
 

@@ -6,12 +6,12 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Services
 
-| Service | Use When | MCP Tools | CLI |
-|---------|----------|-----------|-----|
-| Blob Storage | Objects, files, backups, static content | `azure__storage` | `az storage blob` |
-| File Shares | SMB file shares, lift-and-shift | - | `az storage file` |
-| Queue Storage | Async messaging, task queues | - | `az storage queue` |
-| Table Storage | NoSQL key-value (consider Cosmos DB) | - | `az storage table` |
+| Service       | Use When                                | MCP Tools        | CLI                |
+| ------------- | --------------------------------------- | ---------------- | ------------------ |
+| Blob Storage  | Objects, files, backups, static content | `azure__storage` | `az storage blob`  |
+| File Shares   | SMB file shares, lift-and-shift         | -                | `az storage file`  |
+| Queue Storage | Async messaging, task queues            | -                | `az storage queue` |
+| Table Storage | NoSQL key-value (consider Cosmos DB)    | -                | `az storage table` |
 
 > _See SKILL.md for full content._
 
@@ -59,9 +59,7 @@ az storage container list --account-name ACCOUNT --output table
 
 | Type | Durability | Use Case |
 |------|------------|----------|
-| LRS | 11 nines | Dev/test, recreatable data |
-| ZRS | 12 nines | Regional high availability |
-| GRS | 16 nines | Disaster recovery |
-| GZRS | 16 nines | Best durability |
-
-> _See SKILL.md for full content._
+| LRS | 11 nines | Dev/test |
+| ZRS | 12 nines | Regional HA |
+| GRS/GZRS | 16 nines | Disaster recovery |
+```

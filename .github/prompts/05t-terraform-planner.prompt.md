@@ -1,7 +1,6 @@
 ---
 description: "Create a Terraform implementation plan with governance constraints, dependency and runtime diagrams."
 agent: "05t-Terraform Planner"
-model: "Claude Opus 4.6"
 ---
 
 # Step 4 — Terraform Implementation Plan

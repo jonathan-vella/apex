@@ -23,6 +23,10 @@ const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const RECOMMENDED_FIELDS = ["agents", "model"];
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 
+// Main agents intentionally set to user-invocable: false
+// (e.g. E2E Conductor is automation-only, never user-invoked)
+const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-conductor.agent.md"]);
+
 const r = new Reporter("Agent Frontmatter Validator");
 r.header();
 
@@ -70,7 +74,13 @@ for (const [file, agent] of agents) {
     }
   } else {
     const ui = frontmatter["user-invocable"];
-    if (ui !== "true" && ui !== "always" && ui !== true) {
+    const filename = relativePath.split("/").pop();
+    if (
+      ui !== "true" &&
+      ui !== "always" &&
+      ui !== true &&
+      !ALLOWED_NON_INVOCABLE_MAIN_AGENTS.has(filename)
+    ) {
       r.warn(
         relativePath,
         `Main agent should have user-invocable: true (got: ${ui})`,

@@ -1,7 +1,6 @@
 ---
 description: "Gather Azure infrastructure requirements through structured discovery phases and produce 01-requirements.md."
 agent: "02-Requirements"
-model: "Claude Opus 4.6"
 argument-hint: "Describe the Azure workload or project you want to gather requirements for"
 ---
 

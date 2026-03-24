@@ -60,12 +60,10 @@
     "MD030": false,
 
     // MD031: Fenced code blocks should be surrounded by blank lines
-    // Disabled: Compact code examples in documentation
-    "MD031": false,
+    "MD031": true,
 
     // MD032: Lists should be surrounded by blank lines
-    // Disabled: Compact list formatting in artifacts
-    "MD032": false,
+    "MD032": true,
 
     // MD036: No emphasis used instead of heading
     // Disabled: **Bold** used for inline emphasis in tables
@@ -83,8 +81,8 @@
     // Disabled: Compact table formatting
     "MD058": false,
 
-    // MD060: Link fragments should be valid
-    // Disabled: Cross-file references may not resolve during linting
+    // MD060: Table column style (spacing around pipes)
+    // Disabled: Mixed table styles across hand-authored and generated content
     "MD060": false,
 
     // === HTML & RAW CONTENT (disabled intentionally) ===
@@ -101,8 +99,19 @@
     // Disabled: grid cards in docs/ use *** as card separators
     "MD035": false,
 
+    // === CONSISTENCY RULES (enforced for hand-authored docs) ===
+
+    // MD003: Heading style — enforce ATX style (# headings)
+    "MD003": { "style": "atx" },
+
+    // MD004: Unordered list style — enforce consistent dashes
+    "MD004": { "style": "dash" },
+
     // MD040: Fenced code blocks should have a language specifier
     "MD040": true,
+
+    // MD047: Files should end with a single newline character
+    "MD047": true,
 
     // MD051: Link fragments should be valid
     // Disabled: Dynamic links in templates
@@ -140,6 +149,9 @@
     // Archived content
     "mcp/azure-pricing-mcp/.archive/**",
 
+    // pytest cache (auto-generated, not hand-authored)
+    "mcp/azure-pricing-mcp/.pytest_cache/**",
+
     // Presenter/demo content and planning docs (intentionally less strict)
     "docs/audit-checklists/**",
     "docs/presenter/**",
@@ -165,7 +177,9 @@
     ".github/skills/**/templates/**",
 
     // Plugin skill content (imported from VS Code extensions and MCP tools;
-    // validated structurally by validate:skills-format, not by markdownlint)
+    // validated structurally by validate:skills-format, not by markdownlint).
+    // When adding a new plugin skill, add its ignore entry here.
+    // Cannot use a glob because hand-authored skills in the same parent dir must be linted.
     ".github/skills/azure-prepare/**",
     ".github/skills/azure-deploy/**",
     ".github/skills/azure-validate/**",
@@ -187,10 +201,19 @@
     ".github/skills/entra-app-registration/**",
     ".github/skills/microsoft-foundry/**",
 
+    // Draw.io MCP server (external Deno/TypeScript project with its own conventions)
+    "mcp/drawio-mcp-server/**",
+
     // E2E test input documents (long-form RFQ/RFP prose, not production docs)
     "tests/e2e-inputs/**",
 
-    // Astro Starlight build output
+    // Test prompt files (long-form examples, not production docs)
+    "tests/prompts/**",
+
+    // Demo walkthrough content (rendered agent output, validated by artifact-templates)
+    "site/src/content/docs/demo/**",
+
+    // Astro Starlight build output (also in .gitignore — belt-and-suspenders)
     "site/dist/**",
     "site/.astro/**",
   ],

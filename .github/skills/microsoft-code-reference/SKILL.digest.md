@@ -16,7 +16,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 Use `microsoft_code_sample_search` to get official, working examples:
 
-```text
+````text
 microsoft_code_sample_search(query: "upload file to blob storage", language: "csharp")
 microsoft_code_sample_search(query: "authenticate with managed identity", language: "python")
 microsoft_code_sample_search(query: "send message service bus", language: "javascript")
@@ -47,12 +47,8 @@ and `microsoft_docs_fetch`:
 
 ## When to Verify
 
-Always verify when:
-
-- Method name seems "too convenient" (`UploadFile` vs actual `Upload`)
-- Mixing SDK versions (v11 `CloudBlobClient` vs v12 `BlobServiceClient`)
-- Package name doesn't follow conventions (`Azure.*` for .NET, `azure-*` for Python)
-- Using an API for the first time
+Always verify when method names seem \"too convenient\", mixing SDK versions,
+package name doesn't follow conventions, or using an API for the first time.
 
 > _See SKILL.md for full content._
 
@@ -65,3 +61,4 @@ Before generating code using Microsoft SDKs, verify it's correct:
 3. **Find working sample** — `microsoft_code_sample_search(query: "[task]", language: "[lang]")`
 
 > _See SKILL.md for full content._
+````

@@ -11,6 +11,7 @@ Thank you to everyone who has contributed to making this project better!
 - **Jonathan Vella** ([@jonathan-vella](https://github.com/jonathan-vella)) - Project Lead
 - **Storm Gibson** ([@StormyDevil](https://github.com/StormyDevil)) - Contributor
 - **Fares Zekri** ([@farez_microsoft](https://github.com/farez_microsoft)) - Contributor
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Azure Pricing MCP Server Contributors
@@ -50,6 +51,7 @@ diagramming capabilities for architecture documentation.
 ### Source Repository
 
 - [azure-diagrams-skill](https://github.com/cmb211087/azure-diagrams-skill) - Original skill implementation
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## How to Contribute

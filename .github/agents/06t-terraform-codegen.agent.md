@@ -247,10 +247,18 @@ Await both results. Both must pass before Phase 4.5.
 Run `npm run validate:iac-security-baseline` on `infra/terraform/{project}/` —
 violations are a hard gate (fix before Phase 4.5).
 
-### Phase 4.5: Adversarial Code Review (3 passes)
+### Phase 4.5: Adversarial Code Review (1–3 passes, complexity-based)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
 Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+
+**Complexity routing**:
+
+- `simple`: 1 pass only (comprehensive lens) — skip passes 2 and 3
+- `standard`: up to 3 passes (early exit: skip pass 2 if pass 1 has
+  0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`)
+- `complex`: up to 3 passes (same early exit rules; use batch subagent
+  for passes 2+3 if pass 1 triggers them)
 
 Invoke challenger subagents with `artifact_type = "iac-code"`,
 rotating `review_focus` per protocol.

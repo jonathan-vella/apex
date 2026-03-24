@@ -2,6 +2,7 @@
 title: "Skill and Subagent Reference"
 description: "Complete skills and subagent reference"
 ---
+
 ## Skills
 
 Skills are invoked automatically by agents, but you can also reference them
@@ -295,5 +296,5 @@ and suggest improvements for WAF alignment.
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
 - [Prompt Engineering for Copilot Chat](https://docs.github.com/en/copilot/using-github-copilot/copilot-chat/prompt-engineering-for-copilot-chat)
 - [VS Code Copilot Prompt Crafting](https://code.visualstudio.com/docs/copilot/prompt-crafting)
-- [Agentic InfraOps Quickstart](../quickstart.md)
-- [Agent Workflow Reference](../workflow.md)
+- [Agentic InfraOps Quickstart](../../getting-started/quickstart.md)
+- [Agent Workflow Reference](../../concepts/workflow.md)

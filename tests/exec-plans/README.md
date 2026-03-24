@@ -15,6 +15,7 @@ initiative. Not every task needs one — use them for work that:
 - Spans multiple files or agent sessions
 - Involves architectural decisions worth recording
 - Needs progress tracking across interruptions
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Format
@@ -28,6 +29,7 @@ initiative. Not every task needs one — use them for work that:
 **Decisions**: {key choices made}
 **Progress**: {checklist}
 ```
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Lifecycle
@@ -36,6 +38,7 @@ initiative. Not every task needs one — use them for work that:
 2. Update progress checkboxes as work completes
 3. Move to `completed/` when all items are done
 4. Completed plans serve as decision history for future agent context
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Directory Structure
@@ -49,6 +52,7 @@ docs/exec-plans/
 └── completed/                 # Finished plans (kept for context)
     └── .gitkeep
 ```
+
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
 ## Tech Debt Tracker

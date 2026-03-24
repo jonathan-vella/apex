@@ -197,7 +197,42 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
-# ─── Step 9: Python dependencies (authoritative) ─────────────────────────────
+# ─── Step 8.5: Draw.io MCP Server (Deno) ────────────────────────────────────
+
+step_start "📐" "Setting up Draw.io MCP Server..."
+
+# Install Deno if not present (feature removed from devcontainers registry)
+if ! command -v deno &> /dev/null; then
+    curl -fsSL https://deno.land/install.sh | sh > /dev/null 2>&1 || true
+    export DENO_INSTALL="${HOME}/.deno"
+    export PATH="${DENO_INSTALL}/bin:${PATH}"
+    # Persist PATH for interactive shells
+    grep -q 'DENO_INSTALL' "${HOME}/.bashrc" 2>/dev/null || {
+        echo 'export DENO_INSTALL="${HOME}/.deno"' >> "${HOME}/.bashrc"
+        echo 'export PATH="${DENO_INSTALL}/bin:${PATH}"' >> "${HOME}/.bashrc"
+    }
+fi
+
+DRAWIO_MCP_DIR="${PWD}/mcp/drawio-mcp-server"
+if [ -d "$DRAWIO_MCP_DIR" ]; then
+    if command -v deno &> /dev/null; then
+        cd "$DRAWIO_MCP_DIR"
+        deno cache src/index.ts 2>&1 | tail -1 || true
+        cd - > /dev/null
+
+        if deno check "$DRAWIO_MCP_DIR/src/index.ts" 2>/dev/null; then
+            step_done "Draw.io MCP server deps cached & type check passed"
+        else
+            step_warn "Draw.io MCP server cached but type check inconclusive"
+        fi
+    else
+        step_warn "Deno not found — Draw.io MCP Server not installed"
+    fi
+else
+    step_fail "Draw.io MCP directory not found at $DRAWIO_MCP_DIR"
+fi
+
+# ─── Step 9: Python dependencies (authoritative) ────────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
@@ -247,6 +282,13 @@ default_github = {
     "url": "https://api.githubcopilot.com/mcp/",
 }
 
+default_drawio = {
+    "type": "stdio",
+    "command": "deno",
+    "args": ["run", "--allow-net", "--allow-read", "--allow-write", "--allow-env",
+             "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"],
+}
+
 data = {"servers": {}}
 
 if config_path.exists():
@@ -262,6 +304,10 @@ if config_path.exists():
 servers = data.setdefault("servers", {})
 servers.setdefault("azure-pricing", default_azure_pricing)
 servers.setdefault("github", default_github)
+servers.setdefault("drawio", default_drawio)
+# Remove legacy @drawio/mcp npx entry if present
+if "drawio" in servers and servers["drawio"].get("command") == "npx":
+    servers["drawio"] = default_drawio
 config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 PY
 
@@ -279,7 +325,9 @@ printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --ve
 printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "Deno:" "$(deno --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "draw.io ext:" "$(code --list-extensions 2>/dev/null | grep -q hediet.vscode-drawio && echo '✅ hediet.vscode-drawio' || echo 'hediet.vscode-drawio (via devcontainer extensions)')"
 
 step_done "All verifications complete"
 

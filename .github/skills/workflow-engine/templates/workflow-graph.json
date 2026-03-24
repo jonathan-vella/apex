@@ -58,7 +58,7 @@
       "name": "Design (optional)",
       "agent": "04-Design",
       "requires": ["gate-2"],
-      "produces": ["03-des-diagram.py", "03-des-adr-*.md"],
+      "produces": ["03-des-diagram.drawio", "03-des-adr-*.md"],
       "gate": null,
       "optional": true,
       "challenger": null

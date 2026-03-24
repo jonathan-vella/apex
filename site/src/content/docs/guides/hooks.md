@@ -10,7 +10,7 @@ with deterministic, code-driven automation.
 :::note[Git hooks vs. Agent hooks]
 This page covers **VS Code Agent Hooks** (lifecycle events during agent sessions).
 For **git hooks** (pre-commit, pre-push, commit-msg via lefthook), see the
-[Validation & Linting Reference](validation-reference.md).
+[Validation & Linting Reference](../reference/validation-reference.md).
 :::
 
 :::note[Preview Feature]

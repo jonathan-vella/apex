@@ -276,5 +276,6 @@ To add a new MCP server:
 - [Core Concepts](four-pillars.md) — high-level overview of tools and MCP
 - [Agent Architecture](agents.md) — which agents use which MCP servers
 - [Workflow Engine & Quality](workflow-engine.md) — circuit breakers and validation systems
-- [Validation & Linting](../validation-reference.md) — MCP config validation and all scripts
+- [Validation & Linting](../../reference/validation-reference.md) — MCP config validation and all scripts
+
   :::

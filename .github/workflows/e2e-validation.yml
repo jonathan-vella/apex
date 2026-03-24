@@ -42,7 +42,7 @@ jobs:
         run: npm run e2e:validate
 
       - name: Benchmark Bicep project
-        run: npm run e2e:benchmark -- ${{ inputs.project || 'contoso-service-hub-run-1' }}
+        run: npm run e2e:benchmark -- ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.project || 'contoso-service-hub-run-1' }}
         continue-on-error: true
 
       - name: Benchmark Terraform project (terraform-e2e)

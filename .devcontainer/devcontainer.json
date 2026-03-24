@@ -82,7 +82,8 @@
         "redhat.vscode-yaml",
         "mutantdino.resourcemonitor",
         "HashiCorp.terraform",
-        "ms-azuretools.vscode-azureterraform"
+        "ms-azuretools.vscode-azureterraform",
+        "hediet.vscode-drawio"
       ],
       "settings": {
         "chat.customAgentInSubagent.enabled": true,
