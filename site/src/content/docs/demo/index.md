@@ -17,6 +17,7 @@ This demo walks through the complete 7-step workflow output — from requirement
 
 ## Architecture
 
+<<<<<<< HEAD
 ![Nordic Fresh Foods Architecture](/azure-agentic-infraops/demo/03-des-diagram.svg)
 
 Source: [03-des-diagram.drawio](/azure-agentic-infraops/demo/03-des-diagram.drawio)
@@ -44,5 +45,32 @@ Source: [03-des-diagram.drawio](/azure-agentic-infraops/demo/03-des-diagram.draw
 | **IaC track**           | Bicep (AVM-first)                       |
 | **Region**              | Sweden Central                          |
 | **Diagrams generated**  | 3 draw.io (SVG) + 8 PNG chart artifacts |
+=======
+![Nordic Fresh Foods Architecture](/azure-agentic-infraops/demo/03-des-diagram.png)
+
+## Workflow Steps
+
+| Step | Agent | Output |
+|------|-------|--------|
+| **1. Requirements** | Requirements Agent | [Business & technical requirements](01-requirements/) |
+| **2. Architecture** | Architect Agent | [WAF assessment + cost estimate](02-architecture/) |
+| **3. Design** | Design Agent | [ADRs + diagrams + cost charts](03-design/) |
+| **3.5 Governance** | Governance Agent | [Azure Policy constraints](04-governance/) |
+| **4. Plan** | IaC Planner | [Implementation plan + dependency diagram](05-plan/) |
+| **5. Code** | CodeGen Agent | [Bicep templates (AVM-first)](06-code/) |
+| **6. Deploy** | Deploy Agent | [Deployment results](07-deploy/) |
+| **7. As-Built** | As-Built Agent | [Complete documentation suite](08-as-built/) |
+| **Reviews** | Challenger Agent | [Adversarial findings](09-reviews/) |
+
+## Key Stats
+
+| Metric | Value |
+|--------|-------|
+| **Workflow steps** | 7 (+ governance discovery) |
+| **Adversarial reviews** | 12 challenge passes |
+| **IaC track** | Bicep (AVM-first) |
+| **Region** | Sweden Central |
+| **Diagrams generated** | 11 PNG artifacts |
+>>>>>>> origin/main
 
 [**Start the walkthrough →**](01-requirements/)

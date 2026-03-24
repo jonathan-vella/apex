@@ -270,7 +270,10 @@ doesn't follow the format, you'll see a helpful error with examples.
 2. Click "New Pull Request"
 3. Fill out the PR template
 4. Link related issues
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📝 Pull Request Checklist
 
 Before submitting:
@@ -283,7 +286,10 @@ Before submitting:
 - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 🤝 Community Standards
 
 ### Code of Conduct
@@ -297,7 +303,10 @@ Before submitting:
 
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📄 License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.

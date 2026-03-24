@@ -60,13 +60,20 @@
   ],
   "httpHeaders": [
     {
-      "urls": ["https://github.com"],
+      "urls": [
+        "https://github.com"
+      ],
       "headers": {
         "Accept": "text/html"
       }
     }
   ],
-  "aliveStatusCodes": [200, 206, 301, 302],
+  "aliveStatusCodes": [
+    200,
+    206,
+    301,
+    302
+  ],
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "5s",

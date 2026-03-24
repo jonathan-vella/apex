@@ -238,11 +238,17 @@ Add this to your **VS Code User Settings** (not workspace settings):
     for detailed steps.
 
 :::note[Where do I report bugs or request features?]
+<<<<<<< HEAD
 
 - **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
 - **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
 - **Feature requests**: Open a GitHub issue with the `enhancement` label
 
+=======
+- **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
+- **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
+- **Feature requests**: Open a GitHub issue with the `enhancement` label
+>>>>>>> origin/main
 :::
 
 :::note[What happens if an agent produces bad output?]

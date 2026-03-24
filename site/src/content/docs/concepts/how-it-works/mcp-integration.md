@@ -277,5 +277,8 @@ To add a new MCP server:
 - [Agent Architecture](agents.md) — which agents use which MCP servers
 - [Workflow Engine & Quality](workflow-engine.md) — circuit breakers and validation systems
 - [Validation & Linting](../validation-reference.md) — MCP config validation and all scripts
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
   :::

@@ -28,6 +28,10 @@ The Challenger agent runs rotating-lens reviews at each workflow step — checki
 
 ## Detailed Findings
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 ### requirements
 
 - **[must_fix]** Azure AD B2C is an invalid default for a 2026 greenfield build

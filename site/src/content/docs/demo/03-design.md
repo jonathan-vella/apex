@@ -7,9 +7,13 @@ sidebar:
 
 ## Architecture Diagram
 
+<<<<<<< HEAD
 ![Architecture Diagram](/azure-agentic-infraops/demo/03-des-diagram.svg)
 
 Source: [03-des-diagram.drawio](/azure-agentic-infraops/demo/03-des-diagram.drawio)
+=======
+![Architecture Diagram](/azure-agentic-infraops/demo/03-des-diagram.png)
+>>>>>>> origin/main
 
 ## Cost Distribution
 
@@ -66,12 +70,21 @@ Step 4 before implementation.
 
 ## 🔄 Alternatives Considered
 
+<<<<<<< HEAD
 | Option                                            | Pros                                                            | Cons                                                                           | WAF Impact                           |
 | ------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------ |
 | AKS microservices baseline                        | Maximum flexibility and fine-grained scaling                    | Higher ops overhead and significantly higher MVP cost                          | Reliability +, Operations -, Cost -- |
 | Azure Container Apps + PostgreSQL Flexible Server | Better burst scaling and modern runtime model                   | More moving parts and platform complexity for small team                       | Performance +, Operations -, Cost -  |
 | Azure Functions + Cosmos DB event-driven model    | Consumption-based scaling and rapid feature experimentation     | Architectural refactor of transactional order model and consistency complexity | Cost +, Reliability ->, Operations - |
 | **Selected: App Service + Azure SQL N-tier**      | Lowest complexity with predictable cost and compliance controls | Single-region MVP posture and deferred WAF/DDoS hardening                      | Cost ++, Security +, Reliability -   |
+=======
+| Option | Pros | Cons | WAF Impact |
+| ------ | ---- | ---- | ---------- |
+| AKS microservices baseline | Maximum flexibility and fine-grained scaling | Higher ops overhead and significantly higher MVP cost | Reliability +, Operations -, Cost -- |
+| Azure Container Apps + PostgreSQL Flexible Server | Better burst scaling and modern runtime model | More moving parts and platform complexity for small team | Performance +, Operations -, Cost - |
+| Azure Functions + Cosmos DB event-driven model | Consumption-based scaling and rapid feature experimentation | Architectural refactor of transactional order model and consistency complexity | Cost +, Reliability ->, Operations - |
+| **Selected: App Service + Azure SQL N-tier** | Lowest complexity with predictable cost and compliance controls | Single-region MVP posture and deferred WAF/DDoS hardening | Cost ++, Security +, Reliability - |
+>>>>>>> origin/main
 
 ## ⚖️ Consequences
 
@@ -95,6 +108,7 @@ Step 4 before implementation.
 
 ## 🏛️ WAF Pillar Analysis
 
+<<<<<<< HEAD
 | Pillar                 | Impact          | Notes                                                                                                      |
 | ---------------------- | --------------- | ---------------------------------------------------------------------------------------------------------- |
 | Security               | Positive        | Private Endpoints, Managed Identity, Key Vault RBAC, and TLS 1.2 baseline are built into the design.       |
@@ -102,6 +116,15 @@ Step 4 before implementation.
 | Performance            | Mixed           | Meets current SLA targets; sustained seasonal peaks require pre-peak load validation and autoscale tuning. |
 | Cost Optimization      | Strong Positive | Right-sized SKUs and pay-per-use monitoring keep spend far below budget ceiling.                           |
 | Operational Excellence | Positive        | Bicep-first IaC and Azure-native telemetry improve repeatability and incident visibility.                  |
+=======
+| Pillar | Impact | Notes |
+| ------ | ------ | ----- |
+| Security | Positive | Private Endpoints, Managed Identity, Key Vault RBAC, and TLS 1.2 baseline are built into the design. |
+| Reliability | Mixed | Min 2 App Service instances improves availability, but multi-region failover remains deferred. |
+| Performance | Mixed | Meets current SLA targets; sustained seasonal peaks require pre-peak load validation and autoscale tuning. |
+| Cost Optimization | Strong Positive | Right-sized SKUs and pay-per-use monitoring keep spend far below budget ceiling. |
+| Operational Excellence | Positive | Bicep-first IaC and Azure-native telemetry improve repeatability and incident visibility. |
+>>>>>>> origin/main
 
 ## 🔒 Compliance Considerations
 
@@ -124,10 +147,18 @@ Step 4 before implementation.
 <div align="center">
 
 | ⬅️ [02-architecture-assessment.md](./02-architecture-assessment.md) | 🏠 [README](./README.md) | ➡️ [04-implementation-plan.md](./04-implementation-plan.md) |
+<<<<<<< HEAD
 | ------------------------------------------------------------------- | ------------------------ | ----------------------------------------------------------- |
 
 </div>
 
+=======
+| ------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------ |
+
+</div>
+
+
+>>>>>>> origin/main
 ## Cost Estimate
 
 - [💵 Cost At-a-Glance](#-cost-at-a-glance)

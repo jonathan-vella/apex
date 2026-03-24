@@ -57,7 +57,7 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [
         "azure-defaults",
         "azure-artifacts",
