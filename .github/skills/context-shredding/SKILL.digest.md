@@ -31,11 +31,6 @@ Before loading any artifact file:
 
 ## Tier Selection Protocol
 
-```text
-1. Estimate current context usage (rough: 1 token ≈ 4 chars)
+1. Estimate context usage (1 token ≈ 4 chars)
 2. Check model limit (Opus: 200K, GPT-5.3-Codex: 128K)
-3. Calculate usage percentage
-4. Select tier:
-   < 60%  → full (no compression needed)
-
-> _See SKILL.md for full content._
+3. Select tier: <60% → full, 60-80% → summarized, >80% → minimal

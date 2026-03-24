@@ -1,7 +1,7 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4 (copilot)"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
 tools:
@@ -40,18 +40,16 @@ handoffs:
 
 # As-Built Agent
 
-<!-- Recommended reasoning_effort: medium -->
+## Context Awareness
 
-<context_awareness>
-This is a large agent definition (~405 lines). At >60% context, load SKILL.digest.md variants.
+**This is a large agent definition (~405 lines).** At >60% context, load SKILL.digest.md variants.
 At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
-</context_awareness>
 
-<scope_fencing>
-This agent generates as-built documentation only: design document, operations runbook, cost estimate,
+## Scope
+
+**This agent generates as-built documentation only**: design document, operations runbook, cost estimate,
 compliance matrix, backup/DR plan, resource inventory, and documentation index.
 Do not modify deployed infrastructure, change IaC templates, or skip prior artifact review.
-</scope_fencing>
 
 ## Read Skills First
 
@@ -258,28 +256,32 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 | Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |
 | Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
-<output_contract>
-Expected output in `agent-output/{project}/`:
+## Expected Output
 
-- `07-resource-inventory.md` — Deployed resources with IDs and config
-- `07-design-document.md` — Architecture decisions and rationale
-- `07-ab-cost-estimate.md` — As-built costs (prices from cost-estimate-subagent only)
-- `07-compliance-matrix.md` — Security and compliance controls mapping
-- `07-backup-dr-plan.md` — Backup, DR, and business continuity
-- `07-operations-runbook.md` — Day-2 ops, monitoring, troubleshooting
-- `07-documentation-index.md` — Index of all project artifacts
-- `07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` — As-built architecture diagram (draw.io)
-  Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
-  </output_contract>
+```text
+agent-output/{project}/
+├── 07-resource-inventory.md      # Deployed resources with IDs and config
+├── 07-design-document.md         # Architecture decisions and rationale
+├── 07-ab-cost-estimate.md        # As-built costs (prices from cost-estimate-subagent only)
+├── 07-compliance-matrix.md       # Security and compliance controls mapping
+├── 07-backup-dr-plan.md          # Backup, DR, and business continuity
+├── 07-operations-runbook.md      # Day-2 ops, monitoring, troubleshooting
+├── 07-documentation-index.md     # Index of all project artifacts
+├── 07-ab-diagram.drawio          # As-built architecture diagram (draw.io)
+└── 07-ab-diagram.drawio.svg      # SVG export
+```
 
-<user_updates_spec>
+Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
+
+## User Updates
+
 After completing each major phase, provide a brief status update in chat:
 
 - What was just completed (phase name, key results)
 - What comes next (next phase name)
 - Any blockers or decisions needed
-  This keeps the user informed during multi-phase operations.
-  </user_updates_spec>
+
+This keeps the user informed during multi-phase operations.
 
 ## Boundaries
 

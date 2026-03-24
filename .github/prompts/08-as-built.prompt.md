@@ -1,7 +1,6 @@
 ---
 description: "Generate the as-built documentation suite from all prior artifacts and deployed state."
 agent: "08-As-Built"
-model: "Claude Sonnet 4.6"
 ---
 
 # Step 7 — As-Built Documentation

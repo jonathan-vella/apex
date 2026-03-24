@@ -1,7 +1,6 @@
 ---
 description: "Discover Azure Policy constraints for the project subscription and produce governance constraint artifacts."
 agent: "04g-Governance"
-model: "Claude Sonnet 4.6"
 argument-hint: "Discover governance constraints for a project"
 ---
 

@@ -107,17 +107,17 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
 Current model assignments:
 
-| Agent        | Model                      | Rationale            |
-| ------------ | -------------------------- | -------------------- |
-| Requirements | Opus 4.6                   | Deep understanding   |
-| Architect    | Opus 4.6                   | WAF analysis + cost  |
-| Design       | GPT-5.3-Codex              | Diagram generation   |
-| Bicep Plan   | Opus 4.6                   | Efficient planning   |
-| Bicep Code   | Opus 4.6 / Sonnet 4.6      | Code generation      |
-| Deploy       | Sonnet 4.6                 | Deployment execution |
-| As-Built     | GPT-5.3-Codex              | Documentation gen    |
-| Challenger   | Claude Sonnet 4.6          | Deep adversarial     |
-| Subagents    | GPT-5.3-Codex / Sonnet 4.6 | Fast validation      |
+| Agent        | Model                   | Rationale            |
+| ------------ | ----------------------- | -------------------- |
+| Requirements | Opus 4.6                | Deep understanding   |
+| Architect    | Opus 4.6                | WAF analysis + cost  |
+| Design       | GPT-5.4                 | Diagram generation   |
+| Bicep Plan   | Opus 4.6                | Efficient planning   |
+| Bicep Code   | Opus 4.6 / Sonnet 4.6   | Code generation      |
+| Deploy       | Sonnet 4.6              | Deployment execution |
+| As-Built     | GPT-5.4                 | Documentation gen    |
+| Challenger   | Claude Sonnet 4.6       | Deep adversarial     |
+| Subagents    | GPT-5.4 / GPT-5.3-Codex | Fast validation      |
 
 **Rules:**
 

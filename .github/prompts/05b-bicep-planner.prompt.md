@@ -1,7 +1,6 @@
 ---
 description: "Create a Bicep implementation plan with governance constraints, dependency and runtime diagrams."
 agent: "05b-Bicep Planner"
-model: "Claude Opus 4.6"
 ---
 
 # Step 4 — Bicep Implementation Plan

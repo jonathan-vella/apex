@@ -1,7 +1,7 @@
 ---
 name: terraform-lint-subagent
 description: Terraform syntax validation subagent. Runs terraform fmt -check, terraform validate, and tfsec (if available) to validate configuration syntax and catch errors before deployment. Returns structured PASS/FAIL with diagnostics.
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

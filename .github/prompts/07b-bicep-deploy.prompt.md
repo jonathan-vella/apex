@@ -1,7 +1,6 @@
 ---
 description: "Deploy Bicep templates to Azure with what-if analysis and deployment validation."
 agent: "07b-Bicep Deploy"
-model: "Claude Sonnet 4.6"
 argument-hint: "Deploy the Bicep templates for a specific project"
 ---
 

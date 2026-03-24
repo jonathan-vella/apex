@@ -5,6 +5,7 @@
   "region": "swedencentral",
   "branch": "chore/remove-microsoft-learn-mcp",
   "updated": "2026-03-18T12:00:00Z",
+  "lock": {},
   "current_step": 7,
   "decisions": {
     "region": "swedencentral",

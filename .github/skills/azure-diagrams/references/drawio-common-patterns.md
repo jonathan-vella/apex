@@ -1,3 +1,5 @@
+<!-- ref:drawio-common-patterns-v1 -->
+
 # Common Architecture Patterns — Draw.io
 
 Ready-to-use draw.io XML templates for common Azure architectures.

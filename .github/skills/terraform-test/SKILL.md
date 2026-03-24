@@ -14,16 +14,16 @@ Write, organize, and run Terraform's built-in test framework for Azure infrastru
 
 ## Quick Reference
 
-| Concept | Description | Min Version |
-|---------|-------------|-------------|
-| Test file | `.tftest.hcl` in `tests/` directory | 1.6 |
-| Run block | Single test scenario with assertions | 1.6 |
-| Assert block | Condition that must be true for test to pass | 1.6 |
-| Plan mode | `command = plan` — validates logic, no resources created | 1.6 |
-| Apply mode | `command = apply` (default) — creates real infrastructure | 1.6 |
-| Mock provider | Simulates provider without real API calls | 1.7 |
-| Parallel execution | `parallel = true` on independent run blocks | 1.9 |
-| Expect failures | Verify validation rules reject invalid input | 1.6 |
+| Concept            | Description                                               | Min Version |
+| ------------------ | --------------------------------------------------------- | ----------- |
+| Test file          | `.tftest.hcl` in `tests/` directory                       | 1.6         |
+| Run block          | Single test scenario with assertions                      | 1.6         |
+| Assert block       | Condition that must be true for test to pass              | 1.6         |
+| Plan mode          | `command = plan` — validates logic, no resources created  | 1.6         |
+| Apply mode         | `command = apply` (default) — creates real infrastructure | 1.6         |
+| Mock provider      | Simulates provider without real API calls                 | 1.7         |
+| Parallel execution | `parallel = true` on independent run blocks               | 1.9         |
+| Expect failures    | Verify validation rules reject invalid input              | 1.6         |
 
 ## File Structure
 
@@ -48,74 +48,22 @@ my-module/
 - **0+** `provider` blocks (provider configuration)
 - **0+** `mock_provider` blocks (simulated providers, TF 1.7+)
 
-## Canonical Example — Azure Resource Group Test
+## Canonical Example
 
-```hcl
-# tests/resource_group_unit_test.tftest.hcl
-
-variables {
-  project     = "contoso"
-  environment = "test"
-  location    = "swedencentral"
-  tags = {
-    Environment = "test"
-    ManagedBy   = "Terraform"
-    Project     = "contoso"
-    Owner       = "platform-team"
-  }
-}
-
-# Unit test: validate naming and tags
-run "test_resource_group_name" {
-  command = plan
-
-  assert {
-    condition     = azurerm_resource_group.this.name == "rg-contoso-test"
-    error_message = "Resource group name should follow CAF: rg-{project}-{env}"
-  }
-
-  assert {
-    condition     = azurerm_resource_group.this.location == "swedencentral"
-    error_message = "Location should be swedencentral"
-  }
-}
-
-run "test_mandatory_tags" {
-  command = plan
-
-  assert {
-    condition = alltrue([
-      for tag in ["Environment", "ManagedBy", "Project", "Owner"] :
-      contains(keys(azurerm_resource_group.this.tags), tag)
-    ])
-    error_message = "All 4 mandatory tags must be present"
-  }
-}
-
-# Validation test: reject invalid environment
-run "test_invalid_environment_rejected" {
-  command = plan
-  variables {
-    environment = "invalid"
-  }
-  expect_failures = [var.environment]
-}
-```
+See `references/test-examples.md` for a complete Azure Resource Group test
+(unit tests, tag validation, expect_failures).
 
 ## Key Syntax Rules
 
 ### Run Block Attributes
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `command` | `plan`/`apply` | `apply` | Test mode |
-| `variables` | block | — | Override file-level variables |
-| `module` | block | — | Test alternate module (local/registry only) |
-| `providers` | map | — | Provider overrides |
-| `assert` | block (1+) | — | Validation conditions |
-| `expect_failures` | list | — | Expected validation failures |
-| `state_key` | string | — | State file isolation (TF 1.9+) |
-| `parallel` | bool | `false` | Parallel execution (TF 1.9+) |
+| Attribute         | Type           | Default | Description                                 |
+| ----------------- | -------------- | ------- | ------------------------------------------- |
+| `command`         | `plan`/`apply` | `apply` | Test mode                                   |
+| `variables`       | block          | —       | Override file-level variables               |
+| `module`          | block          | —       | Test alternate module (local/registry only) |
+| `assert`          | block (1+)     | —       | Validation conditions                       |
+| `expect_failures` | list           | —       | Expected validation failures                |
 
 ### Assert Syntax
 
@@ -127,185 +75,21 @@ assert {
 ```
 
 Assertions can reference: resource attributes, outputs, `run.<name>.<output>`, `var.*`, data sources.
-
-### Variables Precedence
-
-Test file variables have **highest precedence**, overriding all other sources.
-Run-block variables override file-level variables.
-
-```hcl
-variables {
-  location = "swedencentral"  # File-level default
-}
-
-run "test_with_override" {
-  command = plan
-  variables {
-    location = "germanywestcentral"  # Overrides file-level
-  }
-  assert {
-    condition     = azurerm_resource_group.this.location == "germanywestcentral"
-    error_message = "Should use overridden location"
-  }
-}
-```
-
-### Referencing Prior Run Outputs
-
-```hcl
-run "setup" {
-  command = apply
-}
-
-run "validate" {
-  command = plan
-  variables {
-    resource_group_name = run.setup.resource_group_name
-  }
-  assert {
-    condition     = var.resource_group_name == run.setup.resource_group_name
-    error_message = "Should reference prior run output"
-  }
-}
-```
-
-### Module Block (Testing Specific Modules)
-
-Supports **local** and **registry** sources only (no git/HTTP):
-
-```hcl
-run "test_networking_module" {
-  command = plan
-  module {
-    source = "./modules/networking"
-  }
-  variables {
-    address_space = ["10.0.0.0/16"]
-  }
-  assert {
-    condition     = output.vnet_id != ""
-    error_message = "VNet should be created"
-  }
-}
-```
-
-### Plan Options
-
-```hcl
-run "test_targeted" {
-  command = plan
-  plan_options {
-    mode    = "normal"       # or "refresh-only"
-    refresh = true
-    target  = [azurerm_resource_group.this]
-  }
-}
-```
+Variables precedence: run-block > file-level > all other sources.
+See `references/test-examples.md` for module blocks, plan options, and prior run references.
 
 ## Mock Providers (TF 1.7+)
 
-Simulate Azure provider without API calls — ideal for unit tests:
-
-```hcl
-mock_provider "azurerm" {
-  mock_resource "azurerm_resource_group" {
-    defaults = {
-      id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test"
-      name     = "rg-test"
-      location = "swedencentral"
-      tags     = {}
-    }
-  }
-
-  mock_resource "azurerm_virtual_network" {
-    defaults = {
-      id            = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.Network/virtualNetworks/vnet-test"
-      name          = "vnet-test"
-      address_space = ["10.0.0.0/16"]
-      tags          = {}
-    }
-  }
-
-  mock_data "azurerm_client_config" {
-    defaults = {
-      tenant_id       = "00000000-0000-0000-0000-000000000000"
-      subscription_id = "00000000-0000-0000-0000-000000000000"
-      object_id       = "00000000-0000-0000-0000-000000000000"
-    }
-  }
-}
-
-run "test_with_azure_mocks" {
-  command = plan
-
-  assert {
-    condition     = azurerm_resource_group.this.location == "swedencentral"
-    error_message = "Mock should return swedencentral"
-  }
-}
-```
-
-**When to use mocks**: Unit tests, CI without Azure credentials, fast local development.
+Simulate Azure provider without API calls — ideal for unit tests.
+Use `mock_provider "azurerm"` with `mock_resource` and `mock_data` blocks.
+**When to use**: Unit tests, CI without Azure credentials, fast local development.
 **When NOT to use**: Integration tests, validating actual Azure API behavior.
-
-See `references/mock-providers.md` for advanced mock patterns.
+See `references/mock-providers.md` for full mock patterns and examples.
 
 ## Common Test Patterns
 
-### Conditional Resources
-
-```hcl
-run "test_nat_gateway_created" {
-  command = plan
-  variables { enable_nat_gateway = true }
-  assert {
-    condition     = length(azurerm_nat_gateway.this) == 1
-    error_message = "NAT gateway should be created when enabled"
-  }
-}
-
-run "test_nat_gateway_not_created" {
-  command = plan
-  variables { enable_nat_gateway = false }
-  assert {
-    condition     = length(azurerm_nat_gateway.this) == 0
-    error_message = "NAT gateway should not be created when disabled"
-  }
-}
-```
-
-### Tag Validation
-
-```hcl
-run "test_mandatory_tags" {
-  command = plan
-  assert {
-    condition = alltrue([
-      for tag in ["Environment", "ManagedBy", "Project", "Owner"] :
-      contains(keys(azurerm_resource_group.this.tags), tag)
-    ])
-    error_message = "All mandatory tags must be present"
-  }
-}
-```
-
-### Resource Count with for_each
-
-```hcl
-run "test_subnet_count" {
-  command = plan
-  variables {
-    subnets = {
-      web = { address_prefix = "10.0.1.0/24" }
-      app = { address_prefix = "10.0.2.0/24" }
-    }
-  }
-  assert {
-    condition     = length(keys(azurerm_subnet.this)) == 2
-    error_message = "Should create 2 subnets"
-  }
-}
-```
+See `references/test-examples.md` for: conditional resources, tag validation,
+resource count with for_each, variables precedence, and prior run references.
 
 ## Running Tests
 
@@ -337,8 +121,9 @@ test assertions exist in the target provider version.
 
 ## Reference Index
 
-| File | Contents |
-|------|----------|
-| `references/test-patterns.md` | Unit vs integration patterns, CI/CD examples, complex assertions |
+| File                           | Contents                                                         |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `references/test-examples.md`  | Canonical example, common patterns, variables, module blocks     |
+| `references/test-patterns.md`  | Unit vs integration patterns, CI/CD examples, complex assertions |
 | `references/mock-providers.md` | Mock provider setup, mock resources/data sources, override files |
-| `references/test-execution.md` | CLI commands, parallel execution, verbose/debug, diagnostics |
+| `references/test-execution.md` | CLI commands, parallel execution, verbose/debug, diagnostics     |

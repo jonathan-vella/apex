@@ -68,7 +68,7 @@ After a run completes, analyze the lessons learned:
 
 Each step follows this self-correcting loop:
 
-```
+```text
 iteration = 0
 while step.status != "complete" AND iteration < max_iterations:
     result = execute_step(step)

@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(export): add `scripts/export-agent-output-html.py` and the
+  `npm run export:agent-output-html` command to render each `agent-output/{project}/`
 - feat(skills): merge `azure-diagrams-drawio` into `azure-diagrams` as unified skill (v5.0).
   Draw.io is now the default format for architecture diagrams with SVG export support.
   Python matplotlib retained for WAF/cost charts only.
-- feat(diagrams): fix text label overlap in draw.io diagrams — add `labelWidth=120;overflow=width;html=1;fontSize=9` to icon cell styles.
+- feat(diagrams): fix text label overlap in draw.io diagrams —
+  add `labelWidth=120;overflow=width;html=1;fontSize=9` to icon cell styles.
 - feat(diagrams): add SVG export step to diagram workflow via `scripts/drawio/drawio-export.sh --format svg`.
 
 ### Changed

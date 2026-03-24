@@ -116,7 +116,7 @@ Every page in this demo section contains **actual output** from the Agentic Infr
 
 **Nordic Fresh Foods** is a Stockholm-based farm-to-table delivery company preparing for peak season. They need secure, scalable Azure infrastructure supporting online ordering, operations reporting, and future growth.
 
-This demo walks through the complete 7-step workflow output — from requirements capture to as-built documentation — showing exactly what the agents produce.
+This demo walks through the complete multi-step workflow output — from requirements capture to as-built documentation — showing exactly what the agents produce.
 
 ## Architecture
 

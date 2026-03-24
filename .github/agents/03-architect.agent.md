@@ -81,6 +81,11 @@ in scope. Verify SKU availability, AVM module versions, and service lifecycle st
 Do not rely on parametric knowledge for pricing — delegate to cost-estimate-subagent.
 </investigate_before_answering>
 
+<context_awareness>
+This is a large agent definition (~354 lines). At >60% context, load SKILL.digest.md variants.
+At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+</context_awareness>
+
 <output_contract>
 Primary artifact: agent-output/{project}/02-architecture-assessment.md — all 5 WAF pillar
 scores (1-10) with confidence, service maturity table, SKU recommendations, cost table.

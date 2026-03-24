@@ -149,6 +149,9 @@
     // Archived content
     "mcp/azure-pricing-mcp/.archive/**",
 
+    // pytest cache (auto-generated, not hand-authored)
+    "mcp/azure-pricing-mcp/.pytest_cache/**",
+
     // Presenter/demo content and planning docs (intentionally less strict)
     "docs/audit-checklists/**",
     "docs/presenter/**",

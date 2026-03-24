@@ -1,7 +1,6 @@
 ---
 description: "Kick off a new Azure infrastructure project through the full multi-step workflow with the Conductor agent."
 agent: "01-Conductor"
-model: "Claude Opus 4.6"
 argument-hint: "Describe the Azure infrastructure project you want to build end-to-end"
 ---
 

@@ -1,7 +1,6 @@
 ---
 description: "Perform a WAF assessment and generate cost estimates based on completed requirements."
 agent: "03-Architect"
-model: "Claude Opus 4.6"
 ---
 
 # Step 2 — Architecture Assessment

@@ -28,12 +28,7 @@ After saving step artifact(s), update the README:
 
 ## Placeholder Syntax
 
-All templates use single-brace `{placeholder-name}` syntax:
-
-- Lowercase, hyphen-separated: `{project-name}`, `{monthly-cost}`
-- No Mustache/Handlebars `{{double-braces}}`
-
----
+All templates use single-brace `{placeholder-name}` syntax (lowercase, hyphen-separated). No Mustache `{{double-braces}}`.
 
 > _See SKILL.md for full content._
 

@@ -6,12 +6,12 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Step 1: Route
 
-| User wants | Action |
-|------------|--------|
-| Build new (empty project) | Step 2A (scaffold) |
-| Add new SDK service to existing repo | Step 2B (scaffold alongside) |
-| Deploy existing SDK app to Azure | Step 2C (add infra to existing SDK app) |
-| Add SDK to existing app code | [Integrate SDK](references/existing-project-integration.md) |
+| User wants                           | Action                                                      |
+| ------------------------------------ | ----------------------------------------------------------- |
+| Build new (empty project)            | Step 2A (scaffold)                                          |
+| Add new SDK service to existing repo | Step 2B (scaffold alongside)                                |
+| Deploy existing SDK app to Azure     | Step 2C (add infra to existing SDK app)                     |
+| Add SDK to existing app code         | [Integrate SDK](references/existing-project-integration.md) |
 
 > _See SKILL.md for full content._
 
@@ -33,9 +33,7 @@ User already has a working Copilot SDK app and needs Azure infra. See [deploy ex
 
 Three model paths (layers on top of 2A/2B):
 
-| Path | Config |
-|------|--------|
-| **GitHub default** | No `model` param — SDK picks default |
+| Path                | Config                                             |
+| ------------------- | -------------------------------------------------- |
+| **GitHub default**  | No `model` param — SDK picks default               |
 | **GitHub specific** | `model: "<name>"` — use `listModels()` to discover |
-
-> _See SKILL.md for full content._

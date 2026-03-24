@@ -1,7 +1,7 @@
 ---
 name: bicep-lint-subagent
 description: Bicep syntax validation subagent. Runs bicep lint and bicep build to validate template syntax and catch errors before deployment. Returns structured PASS/FAIL with diagnostics.
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

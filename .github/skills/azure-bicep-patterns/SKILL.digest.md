@@ -6,12 +6,12 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Quick Reference
 
-| Pattern                  | When to Use                                      | Reference                                                          |
-| ------------------------ | ------------------------------------------------ | ------------------------------------------------------------------ |
-| Hub-Spoke Networking     | Multi-workload environments with shared services | [hub-spoke-pattern](references/hub-spoke-pattern.md)               |
-| Private Endpoint Wiring  | Any PaaS service requiring private connectivity  | [private-endpoint-pattern](references/private-endpoint-pattern.md) |
-| Diagnostic Settings      | Every deployed resource (mandatory)              | [common-patterns](references/common-patterns.md)                   |
-| Conditional Deployment   | Optional resources controlled by parameters      | [common-patterns](references/common-patterns.md)                   |
+| Pattern                 | When to Use                                      | Reference                                                          |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| Hub-Spoke Networking    | Multi-workload environments with shared services | [hub-spoke-pattern](references/hub-spoke-pattern.md)               |
+| Private Endpoint Wiring | Any PaaS service requiring private connectivity  | [private-endpoint-pattern](references/private-endpoint-pattern.md) |
+| Diagnostic Settings     | Every deployed resource (mandatory)              | [common-patterns](references/common-patterns.md)                   |
+| Conditional Deployment  | Optional resources controlled by parameters      | [common-patterns](references/common-patterns.md)                   |
 
 > _See SKILL.md for full content._
 
@@ -23,17 +23,14 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 param name string
 param location string
 param tags object
-
-> _See SKILL.md for full content._
+```
 
 ## Key Rules Summary
 
-- **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only; NSGs per subnet
-- **Private Endpoints**: Always wire PE + DNS Zone Group + DNS Zone; see group ID table in reference
+- **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only
+- **Private Endpoints**: PE + DNS Zone Group + DNS Zone; see group ID table
 - **Diagnostics**: `categoryGroup: 'allLogs'` + `AllMetrics`; pass workspace **name** not ID
-- **Conditional**: `bool` params with defaults; guard outputs with ternary
-- **Identity**: `guid()` for idempotent role names; `principalType: 'ServicePrincipal'`; scope narrowly
-- **What-If**: Run before every deploy; watch for unexpected deletes and SKU downgrades
+- **Identity**: `guid()` for idempotent role names; scope narrowly
 
 > _See SKILL.md for full content._
 
