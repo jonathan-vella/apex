@@ -20,7 +20,7 @@ sidebar:
 
 | ⬅️ Previous | 📑 Index            | Next ➡️                                                        |
 | ----------- | ------------------- | -------------------------------------------------------------- |
-| —           | [README](README.md) | [02-architecture-assessment.md](02-architecture-assessment.md) |
+| —           | [Demo Index](../) | [Architecture Assessment](../02-architecture/) |
 
 ## 🎯 Project Overview
 
@@ -358,13 +358,13 @@ flowchart LR
 
 ---
 
-_Requirements captured using [plan-requirements.prompt.md](../../.github/prompts/plan-requirements.prompt.md) template_
+_Requirements captured using the [requirements planning prompt](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-requirements.prompt.md) template_
 
 ---
 
 <div align="center">
 
-| ⬅️ — | 🏠 [Project Index](README.md) | ➡️ [02-architecture-assessment.md](02-architecture-assessment.md) |
+| ⬅️ — | 🏠 [Demo Index](../) | ➡️ [Architecture Assessment](../02-architecture/) |
 | ---- | ----------------------------- | ----------------------------------------------------------------- |
 
 </div>

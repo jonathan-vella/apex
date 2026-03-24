@@ -36,7 +36,7 @@ when deploying to Azure in Step 6.
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 is the most common choice. Free alternatives include [Rancher Desktop](https://rancherdesktop.io/),
 [Colima](https://github.com/abiosoft/colima) (macOS), and [Podman](https://podman.io/) (Linux/macOS).
-See [Dev Container Setup](dev-containers.md) for detailed installation options.
+See [Dev Container Setup](../dev-containers/) for detailed installation options.
 :::
 
 ## Step 1: Create Your Repository from the Template
@@ -72,7 +72,7 @@ code my-infraops-project
 A [dev container](https://containers.dev/) is a pre-configured development environment
 that runs inside a Docker container. It ensures every contributor has identical tools,
 extensions, and settings — no manual setup required. See the
-[Dev Container Setup](dev-containers.md) page for details.
+[Dev Container Setup](../dev-containers/) page for details.
 :::
 
 1. Press `F1` (or `Ctrl+Shift+P`)
@@ -237,13 +237,13 @@ infra/terraform/my-webapp/
 
 | Goal                            | Resource                                                                           |
 | ------------------------------- | ---------------------------------------------------------------------------------- |
-| Understand the full workflow    | [workflow.md](../concepts/workflow.md)                                             |
+| Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                             |
 | Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
-| Try a complete workflow         | [Prompt Guide](../guides/prompt-guide/index.mdx)                                   |
+| Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                   |
 | Generate architecture diagrams  | Use `azure-diagrams` skill                                                         |
 | Create documentation            | Use `azure-artifacts` skill                                                        |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
-| Troubleshoot issues             | [troubleshooting.md](../guides/troubleshooting.md)                                 |
+| Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                 |
 | Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops) |
 
 ## Quick Reference

@@ -18,7 +18,7 @@ sidebar:
 
 | ⬅️ Previous                              | 📑 Index            | Next ➡️                                            |
 | ---------------------------------------- | ------------------- | -------------------------------------------------- |
-| [01-requirements.md](01-requirements.md) | [README](README.md) | [03-des-cost-estimate.md](03-des-cost-estimate.md) |
+| [Requirements](../01-requirements/) | [Demo Index](../) | [Design Cost Estimate](../03-design/#cost-estimate) |
 
 ## ✅ Requirements Validation
 
@@ -240,7 +240,7 @@ flowchart TB
 **Peak Season (3× autoscale)**: ~$256/month (App Service S1 × 3 instances + variable meters)
 
 > [!NOTE]
-> Peak estimate covers compute scaling only. Variable meters (SQL DTU bursting, Log Analytics ingestion spikes, Storage transactions) may add $10-30/month during sustained peaks. See `03-des-cost-estimate.md` for p50/p90 cost bands.
+> Peak estimate covers compute scaling only. Variable meters (SQL DTU bursting, Log Analytics ingestion spikes, Storage transactions) may add $10-30/month during sustained peaks. See the [Design cost estimate](../03-design/#cost-estimate) for p50/p90 cost bands.
 
 **Budget Status**: $203.97 of ~$1,000 budget = **20% utilization** — well within budget with significant headroom.
 
@@ -447,7 +447,7 @@ _Assessment performed using Azure Well-Architected Framework. Pricing data from 
 
 <div align="center">
 
-| ⬅️ [01-requirements.md](01-requirements.md) | 🏠 [Project Index](README.md) | ➡️ [03-des-cost-estimate.md](03-des-cost-estimate.md) |
+| ⬅️ [Requirements](../01-requirements/) | 🏠 [Demo Index](../) | ➡️ [Design Cost Estimate](../03-design/#cost-estimate) |
 | ------------------------------------------- | ----------------------------- | ----------------------------------------------------- |
 
 </div>

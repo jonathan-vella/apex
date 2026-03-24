@@ -282,10 +282,10 @@ npm run validate:skill-affinity
 
 :::tip[Further Reading]
 
-- [Core Concepts](four-pillars.md) — the four knowledge layers (agents, skills, instructions, registries)
-- [Skills & Instructions](skills-and-instructions.md) — progressive skill loading and glob-based enforcement
-- [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, circuit breakers
-- [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
-- [Validation & Linting](../../reference/validation-reference.md) — all validation scripts and hooks
+- [Core Concepts](../four-pillars/) — the four knowledge layers (agents, skills, instructions, registries)
+- [Skills & Instructions](../skills-and-instructions/) — progressive skill loading and glob-based enforcement
+- [Workflow Engine & Quality](../workflow-engine/) — DAG model, approval gates, circuit breakers
+- [MCP Integration](../mcp-integration/) — MCP servers and their tool catalogs
+- [Validation & Linting](../../../reference/validation-reference/) — all validation scripts and hooks
 
   :::

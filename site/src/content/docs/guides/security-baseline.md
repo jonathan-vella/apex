@@ -65,6 +65,6 @@ regex cannot detect.
 
 ## Further Reading
 
-- [Validation Reference](../reference/validation-reference.md) — full list of validators
-- [Cost Governance](cost-governance.md) — budget and cost monitoring rules
-- [Workflow](../concepts/workflow.md) — where security checks fit in the agent pipeline
+- [Validation Reference](../../reference/validation-reference/) — full list of validators
+- [Cost Governance](../cost-governance/) — budget and cost monitoring rules
+- [Workflow](../../concepts/workflow/) — where security checks fit in the agent pipeline

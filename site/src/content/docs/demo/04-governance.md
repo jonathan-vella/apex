@@ -19,7 +19,7 @@ sidebar:
 
 | ⬅️ Previous                                                                    | 📑 Index            | Next ➡️                                                |
 | ------------------------------------------------------------------------------ | ------------------- | ------------------------------------------------------ |
-| [03-des-adr-0001](03-des-adr-0001-cost-optimized-n-tier-azure-architecture.md) | [README](README.md) | [04-implementation-plan.md](04-implementation-plan.md) |
+| [Architecture Decision Record](../03-design/#architecture-decision-record) | [Demo Index](../) | [Implementation Plan](../05-plan/) |
 
 ---
 
@@ -270,7 +270,7 @@ flowchart TD
 
 <div align="center">
 
-| ⬅️ [Previous Step](03-des-adr-0001-cost-optimized-n-tier-azure-architecture.md) | 🏠 [Project Index](README.md) | ➡️ [04-implementation-plan.md](04-implementation-plan.md) |
+| ⬅️ [Architecture Decision Record](../03-design/#architecture-decision-record) | 🏠 [Demo Index](../) | ➡️ [Implementation Plan](../05-plan/) |
 | ------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------- |
 
 </div>

@@ -9,7 +9,7 @@ sidebar:
 
 ![Architecture Diagram](/azure-agentic-infraops/demo/03-des-diagram.svg)
 
-Source: [03-des-diagram.drawio](/azure-agentic-infraops/demo/03-des-diagram.drawio)
+Source: [Draw.io source file](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/03-des-diagram.drawio)
 
 ## Cost Distribution
 
@@ -123,7 +123,7 @@ Step 4 before implementation.
 
 <div align="center">
 
-| ⬅️ [02-architecture-assessment.md](./02-architecture-assessment.md) | 🏠 [README](./README.md) | ➡️ [04-implementation-plan.md](./04-implementation-plan.md) |
+| ⬅️ [Architecture Assessment](../02-architecture/) | 🏠 [Demo Index](../) | ➡️ [Governance Constraints](../04-governance/) |
 | ------------------------------------------------------------------- | ------------------------ | ----------------------------------------------------------- |
 
 </div>
@@ -146,13 +146,13 @@ Step 4 before implementation.
 
 | ⬅️ Previous                                                    | 📑 Index            | Next ➡️                                                      |
 | -------------------------------------------------------------- | ------------------- | ------------------------------------------------------------ |
-| [02-architecture-assessment.md](02-architecture-assessment.md) | [README](README.md) | [04-governance-constraints.md](04-governance-constraints.md) |
+| [Architecture Assessment](../02-architecture/) | [Demo Index](../) | [Governance Constraints](../04-governance/) |
 
 **Generated**: 2026-03-11
 **Region**: swedencentral
 **Environment**: Production + Development
 **MCP Tools Used**: azure_bulk_estimate, azure_cost_estimate, azure_price_search
-**Architecture Reference**: [02-architecture-assessment.md](02-architecture-assessment.md)
+**Architecture Reference**: [Architecture Assessment](../02-architecture/)
 
 ## 💵 Cost At-a-Glance
 
@@ -390,7 +390,7 @@ _"If you need X, expect to pay Y more"_
 
 <div align="center">
 
-| ⬅️ [02-architecture-assessment.md](02-architecture-assessment.md) | 🏠 [Project Index](README.md) | ➡️ [04-governance-constraints.md](04-governance-constraints.md) |
+| ⬅️ [Architecture Assessment](../02-architecture/) | 🏠 [Demo Index](../) | ➡️ [Governance Constraints](../04-governance/) |
 | ----------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
 
 </div>
