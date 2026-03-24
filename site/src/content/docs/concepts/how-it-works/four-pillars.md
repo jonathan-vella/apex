@@ -139,8 +139,5 @@ This project integrates five MCP servers:
 - [Skills & Instructions](skills-and-instructions.md) — progressive loading, glob-based enforcement
 - [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, validators
 - [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
   :::

@@ -15,7 +15,7 @@ Frequently asked questions about Agentic InfraOps.
 Create your own repository from the
 [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 — click **"Use this template"** on GitHub, clone your new repo, and open it in the dev
-container. See the [Quickstart](quickstart.md) for the step-by-step guide.
+container. See the [Quickstart](../getting-started/quickstart.md) for the step-by-step guide.
 :::
 
     This upstream repository (`azure-agentic-infraops`) is the source project. The Accelerator
@@ -114,13 +114,13 @@ To create a new agent:
     [Agent and Skill Workflow](workflow.md) for how agents fit into the system.
 
 :::note[What's the difference between agents and skills?]
-| Aspect          | Agents                                   | Skills                   |
+| Aspect | Agents | Skills |
 | --------------- | ---------------------------------------- | ------------------------ |
-| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit    |
-| **Interaction** | Conversational with handoffs             | Task-focused             |
-| **State**       | Session context                          | Stateless                |
-| **Output**      | Multiple artifacts                       | Specific outputs         |
-| **When to use** | Core workflow steps                      | Specialized capabilities |
+| **Invocation** | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit |
+| **Interaction** | Conversational with handoffs | Task-focused |
+| **State** | Session context | Stateless |
+| **Output** | Multiple artifacts | Specific outputs |
+| **When to use** | Core workflow steps | Specialized capabilities |
 :::
 
     Agents are the actors in the multi-step workflow. Skills are reusable knowledge modules
@@ -135,7 +135,7 @@ The Conductor supports session resume via the `session-resume` skill. To resume:
     3. The Conductor reads `00-session-state.json` and existing artifacts to determine
        which steps are complete, then continues from the next pending step.
 
-    See the [Quickstart](quickstart.md) for the full getting-started flow.
+    See the [Quickstart](../getting-started/quickstart.md) for the full getting-started flow.
 
 :::note[Is there a guided hands-on exercise?]
 Yes — the [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/) is a
@@ -234,28 +234,22 @@ Add this to your **VS Code User Settings** (not workspace settings):
     }
     ```
 
-    See [Troubleshooting](troubleshooting.md#2-conductorsubagent-invocation-not-working-vs-code-1109)
+    See [Troubleshooting](../guides/troubleshooting.md#2-conductorsubagent-invocation-not-working-vs-code-1109)
     for detailed steps.
 
 :::note[Where do I report bugs or request features?]
-<<<<<<< HEAD
 
 - **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
 - **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
 - **Feature requests**: Open a GitHub issue with the `enhancement` label
 
-=======
-- **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
-- **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
-- **Feature requests**: Open a GitHub issue with the `enhancement` label
->>>>>>> origin/main
 :::
 
 :::note[What happens if an agent produces bad output?]
 Use specific follow-up prompts to correct the issue. For example:
-*"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."*
+_"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."_
 If the error persists, start a fresh chat session — context accumulation can degrade
-output quality. The [Troubleshooting](troubleshooting.md) guide covers common failure
+output quality. The [Troubleshooting](../guides/troubleshooting.md) guide covers common failure
 modes and recovery steps.
 :::
 
@@ -269,9 +263,9 @@ Governance discovery (Step 3.5) uses Azure REST API, not MCP.
 :::caution[Step 6 (Deploy) requires Azure credentials]
 If you attempt deployment without an active Azure subscription and `az login`,
 the deploy agent will fail with an authentication error.
-See [Troubleshooting](troubleshooting.md) for recovery steps.
+See [Troubleshooting](../guides/troubleshooting.md) for recovery steps.
 :::
 
 ---
 
-**See also:** [Troubleshooting](troubleshooting.md) · [Prompt Guide](prompt-guide/index.md) · [Glossary](GLOSSARY.md)
+**See also:** [Troubleshooting](../guides/troubleshooting.md) · [Prompt Guide](../guides/prompt-guide/index.mdx) · [Glossary](glossary.md)

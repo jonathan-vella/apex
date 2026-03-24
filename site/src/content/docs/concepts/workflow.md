@@ -256,11 +256,7 @@ Create visual and textual design documentation.
 
 ```text
 Trigger: "Create an architecture diagram for {project}"
-<<<<<<< HEAD
 Output: agent-output/{project}/03-des-diagram.drawio, 03-des-adr-*.md
-=======
-Output: agent-output/{project}/03-des-diagram.py, 03-des-adr-*.md
->>>>>>> origin/main
 ```
 
 **Diagram types**: Azure architecture, business flows, ERD, timelines
@@ -447,24 +443,15 @@ of adversarial review passes at Steps 1, 2, 4, and 5.
 Reviews target AI-generated creative decisions (architecture, plan, code)
 — not machine-discovered data (governance) or Azure tool output (what-if).
 
-<<<<<<< HEAD
 | Complexity | Step 1 (Req) | Step 2 (Arch)     | Step 4 (Plan) | Step 5 (Code) |
 | ---------- | ------------ | ----------------- | ------------- | ------------- |
 | simple     | 1×           | 1× + 1 cost       | 1×            | 1×            |
 | standard   | 1×           | 2× (→3×) + 1 cost | 2×            | 2× (→3×)      |
 | complex    | 1×           | 3× + 1 cost       | 2×            | 3×            |
-=======
-| Complexity | Step 1 (Req) | Step 2 (Arch) | Step 4 (Plan) | Step 5 (Code) |
-| ---------- | ------------ | ------------- | ------------- | ------------- |
-| simple     | 1×           | 1×            | 1×            | 1×            |
-| standard   | 1×           | 2× (→3×)      | 2×            | 2× (→3×)      |
-| complex    | 1×           | 3×            | 2×            | 3×            |
->>>>>>> origin/main
 
 > **Conditional passes**: "(→3×)" means pass 3 only runs if pass 2
 > returned ≥1 `must_fix`. Plan reviews are capped at 2 passes because
 > the cost-feasibility lens was already applied at Step 2.
-<<<<<<< HEAD
 > "+ 1 cost" is a dedicated cost-estimate challenger pass that always
 > runs in parallel with architecture pass 1 (independent artifact).
 >
@@ -472,12 +459,6 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 > As-Built (7). Deploy previews
 > are validated by Azure tooling; the human approves at each gate.
 > Governance (3.5) now has 1 comprehensive challenger pass.
-=======
->
-> **Steps without review**: Design (3), Governance (3.5), Deploy (6),
-> As-Built (7). Governance is machine-discovered; deploy previews
-> are validated by Azure tooling; the human approves at each gate.
->>>>>>> origin/main
 
 ## Agents vs Skills
 
@@ -528,22 +509,13 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 | -------------- | --------- | ----------------------------------------------------------- |
 | Requirements   | `01-`     | `01-requirements.md`                                        |
 | Architecture   | `02-`     | `02-architecture-assessment.md`                             |
-<<<<<<< HEAD
 | Design         | `03-des-` | `03-des-diagram.drawio`, `03-des-adr-0001-*.md`             |
 | Planning       | `04-`     | `04-implementation-plan.md`, `04-governance-constraints.md` |
 | Implementation | `05-`     | `05-implementation-reference.md`                            |
 | Deployment     | `06-`     | `06-deployment-summary.md`                                  |
 | As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.drawio`             |
-=======
-| Design         | `03-des-` | `03-des-diagram.py`, `03-des-adr-0001-*.md`                 |
-| Planning       | `04-`     | `04-implementation-plan.md`, `04-governance-constraints.md` |
-| Implementation | `05-`     | `05-implementation-reference.md`                            |
-| Deployment     | `06-`     | `06-deployment-summary.md`                                  |
-| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.py`                 |
->>>>>>> origin/main
 | Diagnostics    | `08-`     | `08-resource-health-report.md`                              |
 
 ## Next Steps
 
-- [Prompt Guide](prompt-guide/index.md) — ready-to-use prompts for every agent and skill
-- [Quickstart](quickstart.md) — 10-minute getting started walkthrough
+- [Quickstart](../getting-started/quickstart.md) — 10-minute getting started walkthrough

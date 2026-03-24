@@ -237,13 +237,13 @@ infra/terraform/my-webapp/
 
 | Goal                            | Resource                                                                           |
 | ------------------------------- | ---------------------------------------------------------------------------------- |
-| Understand the full workflow    | [workflow.md](workflow.md)                                                         |
+| Understand the full workflow    | [workflow.md](../concepts/workflow.md)                                             |
 | Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
-| Try a complete workflow         | [Prompt Guide](prompt-guide/index.md)                                              |
+| Try a complete workflow         | [Prompt Guide](../guides/prompt-guide/index.mdx)                                   |
 | Generate architecture diagrams  | Use `azure-diagrams` skill                                                         |
 | Create documentation            | Use `azure-artifacts` skill                                                        |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
-| Troubleshoot issues             | [troubleshooting.md](troubleshooting.md)                                           |
+| Troubleshoot issues             | [troubleshooting.md](../guides/troubleshooting.md)                                 |
 | Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops) |
 
 ## Quick Reference

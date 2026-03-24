@@ -284,7 +284,7 @@ Azure Pricing (cost estimation), Terraform Registry (module lookup), and Microso
 Learn (official documentation search and code sample discovery).
 
 📁 **See**: [mcp/azure-pricing-mcp/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp),
-[MCP Integration](how-it-works/mcp-integration.md)
+[MCP Integration](../concepts/how-it-works/mcp-integration.md)
 
 ### MJS (ECMAScript Module)
 
@@ -351,7 +351,7 @@ An autonomous, self-correcting E2E evaluation workflow based on the
 human gates, with built-in self-correction, challenger reviews, and benchmark scoring.
 Supports both Bicep and Terraform IaC tracks.
 
-📁 **See**: [E2E Testing documentation](e2e-testing.md)
+📁 **See**: [E2E Testing documentation](../guides/e2e-testing.md)
 
 ## S
 
@@ -515,7 +515,7 @@ runs between Design and IaC Plan. Steps 1–3 and 7 are shared; steps 4–6 dive
 (`terraform-planner` → `terraform-codegen` → `terraform-deploy`). Each step produces
 artifacts in `agent-output/`.
 
-📁 **See**: [Workflow Guide](workflow.md)
+📁 **See**: [Workflow Guide](../concepts/workflow.md)
 
 ## Quick Reference Table
 
@@ -568,6 +568,6 @@ artifacts in `agent-output/`.
 
 ---
 
-**See also:** [FAQ](faq.md) · [How It Works](how-it-works/index.md) · [Troubleshooting](troubleshooting.md)
+**See also:** [FAQ](faq.md) · [How It Works](../concepts/how-it-works/index.mdx) · [Troubleshooting](../guides/troubleshooting.md)
 
 _Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._

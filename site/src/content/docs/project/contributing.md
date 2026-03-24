@@ -9,7 +9,7 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](docs/workflow.md)
+- [Development Workflow Guide](../concepts/workflow.md)
 
 ## 🎯 What We're Looking For
 
@@ -41,8 +41,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](docs/workflow.md)
-- Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
+- Workflow details: [Development Workflow Guide](../concepts/workflow.md)
+- Agent workflow details: [Agent Workflow Reference](../concepts/workflow.md)
 
 #### Branch Naming Convention
 
@@ -183,7 +183,7 @@ git checkout -b docs/update-workflow-guide
 
 For the full local-to-PR flow, see:
 
-- [Development Workflow Guide](docs/workflow.md)
+- [Development Workflow Guide](../concepts/workflow.md)
 
 ### 4. Commit & Push
 
@@ -270,10 +270,7 @@ doesn't follow the format, you'll see a helpful error with examples.
 2. Click "New Pull Request"
 3. Fill out the PR template
 4. Link related issues
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📝 Pull Request Checklist
 
 Before submitting:
@@ -286,10 +283,7 @@ Before submitting:
 - [ ] Terraform configs validate (`terraform validate` + `terraform fmt -check`) if applicable
 - [ ] No hardcoded secrets or subscription IDs
 - [ ] Links work correctly
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 🤝 Community Standards
 
 ### Code of Conduct
@@ -303,10 +297,7 @@ Before submitting:
 
 - **Questions**: GitHub Discussions
 - **Issues**: GitHub Issues
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📄 License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.

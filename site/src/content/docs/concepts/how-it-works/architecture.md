@@ -74,7 +74,7 @@ frontmatter (`model:` field) for the latest selections.
 
 **Subagent Integration Matrix**: The full mapping of which subagents are invoked by
 which parent agents is externalised to the
-[subagent-integration reference](../../.github/skills/workflow-engine/references/subagent-integration.md)
+[subagent-integration reference](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/subagent-integration.md)
 to keep the Conductor body under the 350-line limit.
 
 ## Dual IaC Tracks
@@ -117,8 +117,5 @@ flowchart TD
 - [Agent Architecture](agents.md) — top-level agents, subagents, Challenger pattern
 - [Workflow Engine & Quality](workflow-engine.md) — DAG model, session state, circuit breakers
 - [MCP Integration](mcp-integration.md) — MCP servers and tool catalogs
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
   :::
