@@ -285,7 +285,7 @@ default_github = {
 default_drawio = {
     "type": "stdio",
     "command": "deno",
-    "args": ["run", "--allow-net", "--allow-read", "--allow-env",
+    "args": ["run", "--allow-net", "--allow-read", "--allow-write", "--allow-env",
              "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"],
 }
 

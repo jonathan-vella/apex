@@ -25,7 +25,7 @@
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
 Review column = adversarial passes by challenger subagents, complexity-dependent
-(simple: 6, standard: 7–11, complex: 11). Conditional early exits reduce actual passes.
+Complexity-dependent; conditional early exits reduce actual passes.
 Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 
 ## Skills (Auto-Invoked by Agents)

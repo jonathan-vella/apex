@@ -36,9 +36,12 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends xvfb
-          wget -q "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/drawio-amd64-${DRAWIO_VERSION}.deb" -O /tmp/drawio.deb
-          sudo apt-get install -y --no-install-recommends /tmp/drawio.deb
-          rm /tmp/drawio.deb
+          DEB_FILE="drawio-amd64-${DRAWIO_VERSION}.deb"
+          wget -q "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/${DEB_FILE}" -O "/tmp/${DEB_FILE}"
+          wget -q "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/${DEB_FILE}.sha256" -O "/tmp/${DEB_FILE}.sha256"
+          (cd /tmp && sha256sum -c "${DEB_FILE}.sha256")
+          sudo apt-get install -y --no-install-recommends "/tmp/${DEB_FILE}"
+          rm "/tmp/${DEB_FILE}" "/tmp/${DEB_FILE}.sha256"
 
       - name: Export all .drawio files to SVG
         run: |

@@ -227,7 +227,7 @@ All outputs go to `agent-output/{project}/`.
 Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
 The Conductor agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
-(simple: 6, standard: 7–11, complex: 11). Conditional early exits reduce actual passes.
+Complexity-dependent. Conditional early exits reduce actual passes.
 Reviews target AI-generated creative decisions (architecture, governance, plan, code) not
 tool output (what-if/plan previews).
 

@@ -12,7 +12,7 @@
 | Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts    | Run doc-gardening after structural changes |
 | CI / Validation | A-    | 34 validators; lint:md 115 errors (mostly demo content + test prompts) | Accept demo/test lint as known debt        |
 | Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)       | Quarterly audit via AGENTS.md checklist    |
-| Backlog         | A-    | 3 active debt items; 20 resolved (incl. #14 conductor body)            | Triage registry model drift + demo lint    |
+| Backlog         | A-    | Limited active debt items; multiple resolved (incl. #14 conductor body) | Triage registry model drift + demo lint    |
 
 ## Grading Scale
 

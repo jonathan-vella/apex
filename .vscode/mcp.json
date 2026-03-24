@@ -33,7 +33,7 @@
     },
     "drawio": {
       "type": "stdio",
-      "command": "/home/vscode/.deno/bin/deno",
+      "command": "deno",
       "args": [
         "run",
         "--allow-net",

@@ -102,7 +102,7 @@ The `askQuestions` tool presents an inline form the user fills out in one shot.
 
 If discovery fails, STOP. Do not proceed with incomplete policy data.
 
-1. **Delegate** to `governance-discovery-subagent` via `#runSubagent` — verifies Azure
+1. **Delegate** to `governance-discovery-subagent` using the `agent` tool via `#tool:agent` — verifies Azure
    connectivity, queries ALL effective policy assignments via REST API (including management
    group-inherited), classifies effects. Pass the user's scope choice to constrain the query.
 2. **Review result** — Status must be COMPLETE (if PARTIAL or FAILED, STOP and present error)
@@ -121,14 +121,14 @@ If discovery fails, STOP. Do not proceed with incomplete policy data.
 
 Run a single comprehensive adversarial review on the governance artifacts.
 
-1. Delegate to `challenger-review-subagent` via `#runSubagent`:
+1. Delegate to `challenger-review-subagent` using the `agent` tool via `#tool:agent`:
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
    - `project_name` = `{project}`
    - `artifact_type` = `governance`
    - `review_focus` = `comprehensive`
    - `pass_number` = `1`
    - `prior_findings` = `null`
-2. Write returned JSON to `agent-output/{project}/challenge-findings-governance.json`
+2. Write returned JSON to `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
 3. If any `must_fix` findings: fix the governance artifacts and re-run Phase 2.5
 4. Include challenger findings summary in the Gate 2.5 presentation below
 
