@@ -68,6 +68,17 @@ Use container cells for resource hierarchy · Apply layout rules above.
 
 **DON'T:** Use Python `diagrams` library for architecture diagrams (use draw.io) ·
 Use `labelWidth` below 160 · Place icons less than 260px apart ·
-Use subnets narrower than 500px · Skip quality gate verification.
+Use subnets narrower than 500px · Skip quality gate verification ·
+Read MCP content.json through `read_file` — always use terminal extraction.
+
+## Saving .drawio Files (CRITICAL)
+
+`finish-diagram` / `export-diagram` return large results to a content.json file.
+**MANDATORY**: Use `run_in_terminal` to extract, **NEVER** `read_file`:
+
+```bash
+python3 -c "import sys,json,pathlib; pathlib.Path(sys.argv[2]).write_text(json.load(open(sys.argv[1]))['data']['xml'])" '<content-json-path>' 'agent-output/{project}/{filename}.drawio'
+head -c 100 'agent-output/{project}/{filename}.drawio'  # must start with <mxfile
+```
 
 > _See SKILL.md for full content._

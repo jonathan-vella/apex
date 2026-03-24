@@ -8,6 +8,7 @@
 Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Never use heredoc execution.
 
 **Architecture Diagram Contract**:
+
 ### Required outputs
 
 **Professional Output Standards**:
@@ -26,10 +27,15 @@ Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 WAF and cost charts use `matplotlib` (never Mermaid). See `references/waf-cost-charts.md` for full implementations.
 
 **Generation Workflow**:
+
 1. **Gather Context** — Read Bicep/Terraform templates or architecture assessment
 
 **Guardrails**:
 **DO:** Create files in `agent-output/{project}/` with step-prefixed names ·
+
+**Saving .drawio (CRITICAL)**: After `finish-diagram`/`export-diagram`, extract XML via terminal:
+`python3 -c "import sys,json,pathlib; pathlib.Path(sys.argv[2]).write_text(json.load(open(sys.argv[1]))['data']['xml'])" '<content.json>' '<output>.drawio'`
+**NEVER** read content.json through `read_file`.
 
 **Scope Exclusions**:
 Does NOT: generate Bicep/Terraform code · create workload docs ·

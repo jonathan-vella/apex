@@ -1,6 +1,6 @@
 ---
 name: 04-Design
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
@@ -8,52 +8,12 @@ tools:
   [
     vscode/memory,
     vscode/runCommand,
-    read/terminalSelection,
-    read/terminalLastCommand,
-    read/getNotebookSummary,
-    read/problems,
-    read/readFile,
-    read/viewImage,
-    read/readNotebookCellOutput,
-    agent/runSubagent,
-    edit/createDirectory,
-    edit/createFile,
-    edit/createJupyterNotebook,
-    edit/editFiles,
-    edit/editNotebook,
-    edit/rename,
-    search/changes,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/searchResults,
-    search/textSearch,
-    search/usages,
-    drawio/add-cells,
-    drawio/add-cells-to-group,
-    drawio/clear-diagram,
-    drawio/create-groups,
-    drawio/create-layer,
-    drawio/delete-cell-by-id,
-    drawio/edit-cells,
-    drawio/edit-edges,
-    drawio/export-diagram,
-    drawio/finish-diagram,
-    drawio/get-diagram-stats,
-    drawio/get-shape-categories,
-    drawio/get-shapes-in-category,
-    drawio/get-style-presets,
-    drawio/import-diagram,
-    drawio/list-group-children,
-    drawio/list-layers,
-    drawio/list-paged-model,
-    drawio/move-cell-to-layer,
-    drawio/remove-cell-from-group,
-    drawio/search-shapes,
-    drawio/set-active-layer,
-    drawio/set-cell-shape,
-    drawio/suggest-group-sizing,
-    drawio/validate-group-containment,
+    execute/runInTerminal,
+    read,
+    agent,
+    edit,
+    search,
+    "drawio/*",
     todo,
   ]
 handoffs:
@@ -108,8 +68,12 @@ Before doing any work, read these skills:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
-3. Read `.github/skills/azure-diagrams/SKILL.md` — diagram generation (draw.io default + Python charts)
+3. Read `.github/skills/azure-diagrams/SKILL.digest.md` — diagram generation (draw.io default + Python charts)
 4. Read `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
+
+If a diagram task requires detail not covered by the digest (e.g., Python chart templates,
+swim-lane layouts, or edge-label rules), load `azure-diagrams/SKILL.md` on demand for that
+section only — do NOT load it at startup.
 
 ## DO / DON'T
 
@@ -151,18 +115,54 @@ If missing, STOP and request handoff to Architect agent.
 - **State writes**: Update `00-session-state.json` after each phase. On completion, set
   `steps.3.status = "complete"` and list all `03-des-*` artifacts.
 
+## Context Management
+
+### Turn-Count Circuit Breaker
+
+If you have completed **25 tool calls** within a single diagram generation phase without
+producing the final `.drawio` file, STOP and:
+
+1. Save any partial diagram state via MCP `save-to-file`
+2. Summarize progress and remaining work in a short message to the user
+3. Request a fresh turn to continue — this resets accumulated tool-result context
+
+This prevents runaway context accumulation that causes >200s response times.
+
+### Context Checkpoint After Each Diagram
+
+After completing each diagram (finishing `save-to-file`), **immediately summarize**
+the MCP tool results into a one-paragraph status note before proceeding to the next
+artifact. Do NOT carry raw MCP XML/JSON payloads into subsequent turns.
+
+Pattern:
+
+```
+Diagram complete: {filename}.drawio saved ({N} resources, quality {score}/10).
+Proceeding to {next artifact}.
+```
+
+### Minimize Explore Subagent Calls
+
+Before delegating to the Explore subagent, check whether the needed information is
+already available from files read earlier in this session (e.g., `02-architecture-assessment.md`,
+`01-requirements.md`). Only invoke Explore for files not yet loaded in context.
+
 ## Workflow
 
 ### Diagram Generation (Draw.io via MCP — Default)
+
+For projects requiring **multiple diagrams** (e.g., Step 4 dependency + runtime diagrams),
+generate each diagram as a separate phase with a context checkpoint between them.
+Do NOT carry MCP results from one diagram into the next.
 
 1. Read `02-architecture-assessment.md` for resource list, boundaries, and flows
 2. Read `01-requirements.md` for business-critical paths and actor context
 3. Use MCP `search-shapes` to find Azure icons (one batch call with all service names)
 4. Use MCP `add-cells` (transactional mode), `create-groups`, `add-cells-to-group` to build diagram
 5. Call MCP `finish-diagram` to resolve placeholders to full SVG
-6. Call MCP `export-diagram` with `compress: true`
-7. Save `.drawio` file — extract XML from content.json via terminal (never read compressed XML through LLM)
-8. Validate quality gate score (>=9/10); regenerate once if below threshold
+6. Call MCP `validate-diagram` — check quality score (>= 9/10); if below, adjust and retry (max 2 attempts)
+7. Call MCP `save-to-file` — save `.drawio` directly to disk (no terminal extraction needed)
+8. **Context checkpoint** — summarize diagram result, discard raw MCP payloads before next artifact
 
 ### ADR Generation
 

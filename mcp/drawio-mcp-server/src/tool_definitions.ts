@@ -74,30 +74,41 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      edges: z.array(z.object({
-        cell_id: z
-          .string()
-          .describe(
-            "Identifier (`id` attribute) of the edge cell to update. The ID must reference an edge.",
-          ),
-        text: z.string().optional().describe("Replace the edge's label text."),
-        source_id: z
-          .string()
-          .optional()
-          .describe("Reassign the edge's source terminal to a different cell ID."),
-        target_id: z
-          .string()
-          .optional()
-          .describe("Reassign the edge's target terminal to a different cell ID."),
-        style: z
-          .string()
-          .optional()
-          .describe(
-            "Replace the edge's style string (semi-colon separated `key=value` pairs).",
-          ),
-      })).describe(
-        "Array of edge updates. Example: [{cell_id: 'cell-3', text: 'HTTPS'}, {cell_id: 'cell-4', style: 'dashed=1;'}]",
-      ),
+      edges: z
+        .array(
+          z.object({
+            cell_id: z
+              .string()
+              .describe(
+                "Identifier (`id` attribute) of the edge cell to update. The ID must reference an edge.",
+              ),
+            text: z
+              .string()
+              .optional()
+              .describe("Replace the edge's label text."),
+            source_id: z
+              .string()
+              .optional()
+              .describe(
+                "Reassign the edge's source terminal to a different cell ID.",
+              ),
+            target_id: z
+              .string()
+              .optional()
+              .describe(
+                "Reassign the edge's target terminal to a different cell ID.",
+              ),
+            style: z
+              .string()
+              .optional()
+              .describe(
+                "Replace the edge's style string (semi-colon separated `key=value` pairs).",
+              ),
+          }),
+        )
+        .describe(
+          "Array of edge updates. Example: [{cell_id: 'cell-3', text: 'HTTPS'}, {cell_id: 'cell-4', style: 'dashed=1;'}]",
+        ),
     },
   },
 
@@ -112,30 +123,73 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      cells: z.array(z.object({
-        type: z.enum(["vertex", "edge"]).describe("Cell type: 'vertex' for shapes, 'edge' for connections"),
-        x: z.number().optional().describe("X position (vertices only)"),
-        y: z.number().optional().describe("Y position (vertices only)"),
-        width: z.number().optional().describe("Width (vertices only, ignored when shape_name is set)"),
-        height: z.number().optional().describe("Height (vertices only, ignored when shape_name is set)"),
-        text: z.string().optional().describe(
-          "Text label for the cell. For shaped vertices (shape_name set): provide a descriptive label like 'Web', 'API', 'Azure Monitor'. Omit this parameter to use the shape's display name automatically. NEVER pass an empty string.",
+      cells: z
+        .array(
+          z.object({
+            type: z
+              .enum(["vertex", "edge"])
+              .describe(
+                "Cell type: 'vertex' for shapes, 'edge' for connections",
+              ),
+            x: z.number().optional().describe("X position (vertices only)"),
+            y: z.number().optional().describe("Y position (vertices only)"),
+            width: z
+              .number()
+              .optional()
+              .describe(
+                "Width (vertices only, ignored when shape_name is set)",
+              ),
+            height: z
+              .number()
+              .optional()
+              .describe(
+                "Height (vertices only, ignored when shape_name is set)",
+              ),
+            text: z
+              .string()
+              .optional()
+              .describe(
+                "Text label for the cell. For shaped vertices (shape_name set): provide a descriptive label like 'Web', 'API', 'Azure Monitor'. Omit this parameter to use the shape's display name automatically. NEVER pass an empty string.",
+              ),
+            style: z
+              .string()
+              .optional()
+              .describe(
+                "Draw.io style string (ignored when shape_name is set). For edges: do NOT set entryX/entryY/exitX/exitY anchor points — the server calculates these automatically.",
+              ),
+            shape_name: z
+              .string()
+              .optional()
+              .describe(
+                "Shape library name (e.g. 'Front Doors', 'Container Apps'). When set, the server resolves the full icon style and dimensions automatically — do NOT also set style, width, or height.",
+              ),
+            source_id: z
+              .string()
+              .optional()
+              .describe(
+                "Source cell ID for edges (can use temp_id from same batch)",
+              ),
+            target_id: z
+              .string()
+              .optional()
+              .describe(
+                "Target cell ID for edges (can use temp_id from same batch)",
+              ),
+            temp_id: z
+              .string()
+              .optional()
+              .describe("Temporary ID to reference this cell within the batch"),
+          }),
+        )
+        .describe(
+          "Array of cells to create. Gather ALL cells you need and submit them in ONE call. Example: [{type:'vertex', x:100, y:100, shape_name:'Front Doors', temp_id:'node1'}, {type:'edge', source_id:'node1', target_id:'node2'}]",
         ),
-        style: z.string().optional().describe(
-          "Draw.io style string (ignored when shape_name is set). For edges: do NOT set entryX/entryY/exitX/exitY anchor points — the server calculates these automatically.",
+      dry_run: z
+        .boolean()
+        .optional()
+        .describe(
+          "If true, validates the batch without persisting changes. Use to check for errors before committing.",
         ),
-        shape_name: z.string().optional().describe(
-          "Shape library name (e.g. 'Front Doors', 'Container Apps'). When set, the server resolves the full icon style and dimensions automatically — do NOT also set style, width, or height.",
-        ),
-        source_id: z.string().optional().describe("Source cell ID for edges (can use temp_id from same batch)"),
-        target_id: z.string().optional().describe("Target cell ID for edges (can use temp_id from same batch)"),
-        temp_id: z.string().optional().describe("Temporary ID to reference this cell within the batch"),
-      })).describe(
-        "Array of cells to create. Gather ALL cells you need and submit them in ONE call. Example: [{type:'vertex', x:100, y:100, shape_name:'Front Doors', temp_id:'node1'}, {type:'edge', source_id:'node1', target_id:'node2'}]",
-      ),
-      dry_run: z.boolean().optional().describe(
-        "If true, validates the batch without persisting changes. Use to check for errors before committing.",
-      ),
     },
   },
   {
@@ -147,17 +201,21 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      cells: z.array(z.object({
-        cell_id: z.string().describe("ID of the cell to update"),
-        text: z.string().optional().describe("New text label"),
-        x: z.number().optional().describe("New X position"),
-        y: z.number().optional().describe("New Y position"),
-        width: z.number().optional().describe("New width"),
-        height: z.number().optional().describe("New height"),
-        style: z.string().optional().describe("New style string"),
-      })).describe(
-        "Array of cell updates. Example: [{cell_id: 'cell-1', x: 200, y: 150}, {cell_id: 'cell-2', text: 'Updated'}]",
-      ),
+      cells: z
+        .array(
+          z.object({
+            cell_id: z.string().describe("ID of the cell to update"),
+            text: z.string().optional().describe("New text label"),
+            x: z.number().optional().describe("New X position"),
+            y: z.number().optional().describe("New Y position"),
+            width: z.number().optional().describe("New width"),
+            height: z.number().optional().describe("New height"),
+            style: z.string().optional().describe("New style string"),
+          }),
+        )
+        .describe(
+          "Array of cell updates. Example: [{cell_id: 'cell-1', x: 200, y: 150}, {cell_id: 'cell-2', text: 'Updated'}]",
+        ),
     },
   },
 
@@ -166,13 +224,15 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "GET_SHAPE_CATEGORIES",
     name: "get-shape-categories",
-    description: "Get available shape categories (General, Flowchart, Azure icons). For discovering specific shapes, prefer search-shapes.",
+    description:
+      "Get available shape categories (General, Flowchart, Azure icons). For discovering specific shapes, prefer search-shapes.",
     hasArgs: false,
   },
   {
     key: "GET_SHAPES_IN_CATEGORY",
     name: "get-shapes-in-category",
-    description: "List all shapes in a category. Returns shape names and styles for use with add-cells.",
+    description:
+      "List all shapes in a category. Returns shape names and styles for use with add-cells.",
     hasArgs: true,
     inputSchema: {
       category_id: z
@@ -211,16 +271,25 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
       "Search for any shape — basic shapes (rectangle, circle, diamond, start, end, process, cylinder, etc.) and 700+ Azure icons. This is the primary way to discover shapes for use with add-cells. Call this tool once with all shape names in the queries array — include cross-cutting services (Monitor, Entra ID, Key Vault, Azure Policy, Defender for Cloud, Container Registry) in the SAME call.",
     hasArgs: true,
     inputSchema: {
-      queries: z.array(z.string()).describe(
-        "Array of ALL search terms — main flow AND cross-cutting services. Gather every shape you need and pass them all here in a SINGLE call. Example: ['front door', 'container apps', 'app service', 'key vault', 'monitor', 'entra id', 'azure policy', 'container registry']",
-      ),
-      limit: z.number().min(1).max(50).optional().default(10).describe("Maximum results to return per query (1-50)"),
+      queries: z
+        .array(z.string())
+        .describe(
+          "Array of ALL search terms — main flow AND cross-cutting services. Gather every shape you need and pass them all here in a SINGLE call. Example: ['front door', 'container apps', 'app service', 'key vault', 'monitor', 'entra id', 'azure policy', 'container registry']",
+        ),
+      limit: z
+        .number()
+        .min(1)
+        .max(50)
+        .optional()
+        .default(10)
+        .describe("Maximum results to return per query (1-50)"),
     },
   },
   {
     key: "GET_STYLE_PRESETS",
     name: "get-style-presets",
-    description: "Get style presets (Azure colors, flowchart shapes, edges) for consistent styling.",
+    description:
+      "Get style presets (Azure colors, flowchart shapes, edges) for consistent styling.",
     hasArgs: false,
   },
 
@@ -229,7 +298,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "LIST_PAGED_MODEL",
     name: "list-paged-model",
-    description: "Get a paginated list of cells in the diagram. Returns layer context alongside results. Use this to inspect diagram structure or find cells by type.",
+    description:
+      "Get a paginated list of cells in the diagram. Returns layer context alongside results. Use this to inspect diagram structure or find cells by type.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
@@ -258,7 +328,9 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
             ),
         })
         .optional()
-        .describe("Optional filter criteria to apply to cells before pagination")
+        .describe(
+          "Optional filter criteria to apply to cells before pagination",
+        )
         .default({}),
     },
   },
@@ -279,7 +351,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "LIST_LAYERS",
     name: "list-layers",
-    description: "List all layers in the diagram with IDs and names. Also returns the active layer ID.",
+    description:
+      "List all layers in the diagram with IDs and names. Also returns the active layer ID.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
@@ -301,7 +374,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "CREATE_LAYER",
     name: "create-layer",
-    description: "Create a new layer in the diagram. Layers organize cells into separate visual planes that can be shown or hidden.",
+    description:
+      "Create a new layer in the diagram. Layers organize cells into separate visual planes that can be shown or hidden.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
@@ -312,7 +386,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "MOVE_CELL_TO_LAYER",
     name: "move-cell-to-layer",
-    description: "Move a cell to a different layer. Updates the cell's parent reference and returns the updated cell.",
+    description:
+      "Move a cell to a different layer. Updates the cell's parent reference and returns the updated cell.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
@@ -335,19 +410,51 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      groups: z.array(z.object({
-        x: z.number().optional().describe("X-axis position of the group").default(0),
-        y: z.number().optional().describe("Y-axis position of the group").default(0),
-        width: z.number().optional().describe("Width of the group container").default(400),
-        height: z.number().optional().describe("Height of the group container").default(300),
-        text: z.string().optional().default("").describe("Label text for the group. Leave empty if using a separate text cell above the group."),
-        style: z.string().optional().describe("Draw.io style string for the group container"),
-        temp_id: z.string().optional().describe(
-          "Temporary ID for referencing this group later (e.g., in add-cells-to-group)",
+      groups: z
+        .array(
+          z.object({
+            x: z
+              .number()
+              .optional()
+              .describe("X-axis position of the group")
+              .default(0),
+            y: z
+              .number()
+              .optional()
+              .describe("Y-axis position of the group")
+              .default(0),
+            width: z
+              .number()
+              .optional()
+              .describe("Width of the group container")
+              .default(400),
+            height: z
+              .number()
+              .optional()
+              .describe("Height of the group container")
+              .default(300),
+            text: z
+              .string()
+              .optional()
+              .default("")
+              .describe(
+                "Label text for the group. Leave empty if using a separate text cell above the group.",
+              ),
+            style: z
+              .string()
+              .optional()
+              .describe("Draw.io style string for the group container"),
+            temp_id: z
+              .string()
+              .optional()
+              .describe(
+                "Temporary ID for referencing this group later (e.g., in add-cells-to-group)",
+              ),
+          }),
+        )
+        .describe(
+          "Array of groups to create. Example: [{text: '', width: 600, height: 400, temp_id: 'vnet'}, {text: '', width: 300, height: 200, temp_id: 'subnet'}]",
         ),
-      })).describe(
-        "Array of groups to create. Example: [{text: '', width: 600, height: 400, temp_id: 'vnet'}, {text: '', width: 300, height: 200, temp_id: 'subnet'}]",
-      ),
     },
   },
   {
@@ -359,18 +466,23 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      assignments: z.array(z.object({
-        cell_id: z.string().describe("ID of the cell to add to a group"),
-        group_id: z.string().describe("ID of the group/container cell"),
-      })).describe(
-        "Array of cell-to-group assignments. Example: [{cell_id: 'cell-5', group_id: 'cell-2'}, {cell_id: 'cell-6', group_id: 'cell-3'}]",
-      ),
+      assignments: z
+        .array(
+          z.object({
+            cell_id: z.string().describe("ID of the cell to add to a group"),
+            group_id: z.string().describe("ID of the group/container cell"),
+          }),
+        )
+        .describe(
+          "Array of cell-to-group assignments. Example: [{cell_id: 'cell-5', group_id: 'cell-2'}, {cell_id: 'cell-6', group_id: 'cell-3'}]",
+        ),
     },
   },
   {
     key: "REMOVE_CELL_FROM_GROUP",
     name: "remove-cell-from-group",
-    description: "Remove a cell from its group, returning it to the active layer. Prefer transactional: true for multi-step workflows; finalize with finish-diagram.",
+    description:
+      "Remove a cell from its group, returning it to the active layer. Prefer transactional: true for multi-step workflows; finalize with finish-diagram.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
@@ -381,7 +493,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "LIST_GROUP_CHILDREN",
     name: "list-group-children",
-    description: "List all cells that are children of a group/container. Prefer transactional: true for multi-step workflows; finalize with finish-diagram.",
+    description:
+      "List all cells that are children of a group/container. Prefer transactional: true for multi-step workflows; finalize with finish-diagram.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
@@ -392,28 +505,71 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   {
     key: "VALIDATE_GROUP_CONTAINMENT",
     name: "validate-group-containment",
-    description: "Validate that all child cells of a group are visually inside the group's boundary. Returns out-of-bounds warnings and guidance for fixing placement.",
+    description:
+      "Validate that all child cells of a group are visually inside the group's boundary. Returns out-of-bounds warnings and guidance for fixing placement.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      group_id: z.string().describe("ID of the group/container cell to validate"),
+      group_id: z
+        .string()
+        .describe("ID of the group/container cell to validate"),
     },
   },
   {
     key: "SUGGEST_GROUP_SIZING",
     name: "suggest-group-sizing",
-    description: "Suggest group/container width and height based on vertically stacked children, spacing, and padding. Use before create-groups to avoid overflow.",
+    description:
+      "Suggest group/container width and height based on vertically stacked children, spacing, and padding. Use before create-groups to avoid overflow.",
     hasArgs: true,
     inputSchema: {
-      child_count: z.number().int().min(1).describe("Number of children that will be placed in the group"),
-      child_width: z.number().positive().optional().default(48).describe("Typical child width in pixels"),
-      child_height: z.number().positive().optional().default(48).describe("Typical child height in pixels"),
-      vertical_spacing: z.number().min(0).optional().default(40).describe("Vertical spacing between stacked children in pixels"),
-      horizontal_padding: z.number().min(0).optional().default(40).describe("Left/right padding inside the group in pixels"),
-      vertical_padding: z.number().min(0).optional().default(40).describe("Top/bottom padding inside the group in pixels"),
-      min_width: z.number().positive().optional().default(180).describe("Minimum recommended group width"),
-      min_height: z.number().positive().optional().default(120).describe("Minimum recommended group height"),
+      child_count: z
+        .number()
+        .int()
+        .min(1)
+        .describe("Number of children that will be placed in the group"),
+      child_width: z
+        .number()
+        .positive()
+        .optional()
+        .default(48)
+        .describe("Typical child width in pixels"),
+      child_height: z
+        .number()
+        .positive()
+        .optional()
+        .default(48)
+        .describe("Typical child height in pixels"),
+      vertical_spacing: z
+        .number()
+        .min(0)
+        .optional()
+        .default(40)
+        .describe("Vertical spacing between stacked children in pixels"),
+      horizontal_padding: z
+        .number()
+        .min(0)
+        .optional()
+        .default(40)
+        .describe("Left/right padding inside the group in pixels"),
+      vertical_padding: z
+        .number()
+        .min(0)
+        .optional()
+        .default(40)
+        .describe("Top/bottom padding inside the group in pixels"),
+      min_width: z
+        .number()
+        .positive()
+        .optional()
+        .default(180)
+        .describe("Minimum recommended group width"),
+      min_height: z
+        .number()
+        .positive()
+        .optional()
+        .default(120)
+        .describe("Minimum recommended group height"),
     },
   },
 
@@ -439,12 +595,20 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
-      compress: z.boolean().optional().default(true).describe(
-        "When true, deflate-compress and base64-encode the diagram content inside the <diagram> element (Draw.io native format). Defaults to true for efficient output.",
-      ),
-      background: z.string().optional().default("#FFFFFF").describe(
-        'Background color for the diagram (e.g. "#FFFFFF" for white). Use "none" for a transparent background. Defaults to "#FFFFFF" (white).',
-      ),
+      compress: z
+        .boolean()
+        .optional()
+        .default(true)
+        .describe(
+          "When true, deflate-compress and base64-encode the diagram content inside the <diagram> element (Draw.io native format). Defaults to true for efficient output.",
+        ),
+      background: z
+        .string()
+        .optional()
+        .default("#FFFFFF")
+        .describe(
+          'Background color for the diagram (e.g. "#FFFFFF" for white). Use "none" for a transparent background. Defaults to "#FFFFFF" (white).',
+        ),
     },
   },
   {
@@ -456,22 +620,76 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
-      compress: z.boolean().optional().default(false).describe(
-        "When true, deflate-compress and base64-encode the diagram content inside the <diagram> element (Draw.io native format). Reduces output size by 60-80%. Defaults to false (plain XML).",
-      ),
-      background: z.string().optional().default("#FFFFFF").describe(
-        'Background color for the diagram (e.g. "#FFFFFF" for white). Use "none" for a transparent background. Defaults to "#FFFFFF" (white).',
-      ),
+      compress: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe(
+          "When true, deflate-compress and base64-encode the diagram content inside the <diagram> element (Draw.io native format). Reduces output size by 60-80%. Defaults to false (plain XML).",
+        ),
+      background: z
+        .string()
+        .optional()
+        .default("#FFFFFF")
+        .describe(
+          'Background color for the diagram (e.g. "#FFFFFF" for white). Use "none" for a transparent background. Defaults to "#FFFFFF" (white).',
+        ),
     },
   },
   {
     key: "CLEAR_DIAGRAM",
     name: "clear-diagram",
-    description: "Clear all cells and layers, resetting the diagram to its initial empty state. Prefer transactional: true for multi-step workflows; finalize with finish-diagram.",
+    description:
+      "Clear all cells and layers, resetting the diagram to its initial empty state. Prefer transactional: true for multi-step workflows; finalize with finish-diagram.",
     hasArgs: true,
     inputSchema: {
       diagram_xml: diagramXmlSchema,
       transactional: transactionalSchema,
+    },
+  },
+
+  // ─── File I/O Tools ──────────────────────────────────────────
+
+  {
+    key: "SAVE_TO_FILE",
+    name: "save-to-file",
+    description:
+      "Save diagram XML to a .drawio file on disk. Automatically decompresses compressed XML (deflate+base64+urlencode). Eliminates the need for terminal commands to extract XML from MCP responses. File paths must be relative to the workspace and under agent-output/ or site/public/.",
+    hasArgs: true,
+    inputSchema: {
+      diagram_xml: z
+        .string()
+        .describe(
+          "Full Draw.io XML to save. Can be compressed (from finish-diagram) or uncompressed.",
+        ),
+      file_path: z
+        .string()
+        .describe(
+          "Relative file path under the workspace (e.g., 'agent-output/my-project/03-des-diagram.drawio'). Must be under agent-output/ or site/public/.",
+        ),
+    },
+  },
+
+  // ─── Quality Assurance Tools ─────────────────────────────────
+
+  {
+    key: "VALIDATE_DIAGRAM",
+    name: "validate-diagram",
+    description:
+      "Check diagram quality: label overlaps, minimum icon spacing, edge-label collisions, empty labels, and orphaned edges. Returns a score (0-10) with violation details and suggestions. Use after finish-diagram and before save-to-file to catch layout issues.",
+    hasArgs: true,
+    inputSchema: {
+      diagram_xml: z
+        .string()
+        .describe(
+          "Full Draw.io XML to validate. Should be uncompressed (post finish-diagram resolution).",
+        ),
+      min_spacing: z
+        .number()
+        .optional()
+        .describe(
+          "Minimum center-to-center distance (px) between vertices in the same parent. Default: 100.",
+        ),
     },
   },
 ];

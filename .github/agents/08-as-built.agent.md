@@ -14,10 +14,8 @@ tools:
     edit,
     search,
     web,
-    microsoft-learn/microsoft_code_sample_search,
-    microsoft-learn/microsoft_docs_fetch,
-    microsoft-learn/microsoft_docs_search,
     azure-mcp/search,
+    "microsoft-learn/*",
     "drawio/*",
     todo,
   ]
@@ -212,6 +210,16 @@ Follow the MANDATORY layout rules from the azure-diagrams skill:
 - Icons at least 260px apart horizontally
 - Subnets min 500px wide, VNet min 600px, RG min 800px
 - SVG export is optional — users can right-click the `.drawio` file in VS Code → Export → SVG
+
+**Saving the .drawio file:** After `finish-diagram`, call MCP `save-to-file`
+to write the diagram directly to disk — no terminal extraction needed:
+
+```json
+{
+  "diagram_xml": "<xml from finish-diagram>",
+  "file_path": "agent-output/{project}/07-ab-diagram.drawio"
+}
+```
 
 ### Phase 4: Finalize
 
