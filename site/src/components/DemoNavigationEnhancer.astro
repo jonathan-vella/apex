@@ -1,0 +1,268 @@
+---
+import { demoSteps } from "../data/demoSteps.mjs";
+---
+
+<script define:vars={{ demoSteps }}>
+  const normalizePath = (value) => {
+    if (!value) {
+      return "/";
+    }
+
+    return value.endsWith("/") ? value.slice(0, -1) || "/" : value;
+  };
+
+  const escapeHtml = (value) =>
+    String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+  const buildJourneyStep = (step, currentStep) => {
+    const isCurrent = step.id === currentStep.id;
+    const className = isCurrent
+      ? "demo-journey__step is-current"
+      : "demo-journey__step";
+
+    const pillContent =
+      step.id === "overview"
+        ? `<span class="demo-journey__label">${escapeHtml(step.shortTitle)}</span>`
+        : `
+          <span class="demo-journey__chip">${escapeHtml(step.chipLabel)}</span>
+          <span class="demo-journey__label">${escapeHtml(step.shortTitle)}</span>
+        `;
+
+    return `
+      <a class="${className}" href="${escapeHtml(step.href)}" ${
+        isCurrent ? 'aria-current="page"' : ""
+      }>
+        ${pillContent}
+      </a>
+    `;
+  };
+
+  const buildFooterCard = (label, step, modifier) => {
+    if (!step) {
+      const boundaryLabel =
+        label === "Previous" ? "Start of walkthrough" : "End of walkthrough";
+
+      return `<span class="demo-pager__card is-disabled ${modifier}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(boundaryLabel)}</strong></span>`;
+    }
+
+    const title = step.stepLabel === "Overview" ? "Overview" : step.shortTitle;
+
+    return `
+      <a class="demo-pager__card ${modifier}" href="${escapeHtml(step.href)}">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(title)}</strong>
+      </a>
+    `;
+  };
+
+  const buildSectionsMarkup = (step) => {
+    if (!step.sections?.length) {
+      return "";
+    }
+
+    return `
+      <div class="demo-step-hero__sections">
+        <span>Includes</span>
+        <ul>
+          ${step.sections.map((section) => `<li>${escapeHtml(section)}</li>`).join("")}
+        </ul>
+      </div>
+    `;
+  };
+
+  const initDemoPage = () => {
+    const currentPath = normalizePath(window.location.pathname);
+    const currentStep = demoSteps.find(
+      (step) => normalizePath(step.href) === currentPath,
+    );
+
+    if (!currentStep) {
+      document.documentElement.removeAttribute("data-demo-page");
+      document.documentElement.removeAttribute("data-demo-route");
+      return;
+    }
+
+    document.documentElement.dataset.demoPage = "true";
+    document.documentElement.dataset.demoRoute = currentStep.id;
+
+    const content = document.querySelector(".main-pane .sl-markdown-content");
+
+    if (!content || content.dataset.demoEnhanced === "true") {
+      return;
+    }
+
+    content.dataset.demoEnhanced = "true";
+
+    const overviewStep = demoSteps[0];
+    const currentIndex = demoSteps.findIndex((step) => step.id === currentStep.id);
+    const previousStep = currentIndex > 0 ? demoSteps[currentIndex - 1] : undefined;
+    const nextStep =
+      currentIndex >= 0 && currentIndex < demoSteps.length - 1
+        ? demoSteps[currentIndex + 1]
+        : undefined;
+
+    const isHashList = (node) =>
+      node?.tagName === "UL" &&
+      node.querySelectorAll("a").length > 0 &&
+      Array.from(node.querySelectorAll("a")).every((link) =>
+        link.getAttribute("href")?.startsWith("#"),
+      );
+
+    const isLegacyNavTable = (node) => {
+      if (!node) {
+        return false;
+      }
+
+      const text = node.textContent || "";
+      return (
+        /README\.md|Project Index/.test(text) &&
+        node.matches("table, div[align='center']")
+      );
+    };
+
+    const removeLegacyIntro = () => {
+      if (currentStep.id === "overview") {
+        return;
+      }
+
+      const firstElement = content.firstElementChild;
+      if (isHashList(firstElement)) {
+        firstElement.remove();
+      }
+
+      const leadingCandidates = Array.from(content.children).slice(0, 6);
+      for (const candidate of leadingCandidates) {
+        if (isLegacyNavTable(candidate)) {
+          candidate.remove();
+        }
+      }
+
+      const trailingCandidates = Array.from(content.children).reverse();
+      for (const candidate of trailingCandidates) {
+        if (isLegacyNavTable(candidate)) {
+          candidate.remove();
+          break;
+        }
+      }
+    };
+
+    const neutralizeArtifactRefs = (root) => {
+      const links = root.querySelectorAll("a[href]");
+
+      for (const link of links) {
+        const href = link.getAttribute("href") || "";
+        const isSourceReference =
+          /\.mdx?(#.*)?$/.test(href) ||
+          href.startsWith("../../infra/") ||
+          href.startsWith("../../.github/") ||
+          (href.startsWith("./") && /\.mdx?(#.*)?$/.test(href));
+
+        if (!isSourceReference) {
+          continue;
+        }
+
+        link.dataset.demoSourceRef = "true";
+        link.dataset.originalHref = href;
+        link.removeAttribute("href");
+        link.setAttribute("aria-disabled", "true");
+        link.setAttribute("tabindex", "-1");
+        link.setAttribute(
+          "title",
+          "Source artifact reference preserved for traceability",
+        );
+      }
+    };
+
+    const buildHeaderMarkup = () => `
+      <section class="demo-step-shell not-content" data-demo-shell>
+        <div class="demo-journey">
+          <div class="demo-journey__meta">
+            <div>
+              <span class="demo-journey__eyebrow">Demo walkthrough</span>
+              <p class="demo-journey__summary">Follow the workflow in order or jump back to the overview for the full scenario context.</p>
+            </div>
+            <a class="demo-journey__overview" href="${escapeHtml(overviewStep.href)}">Back to overview</a>
+          </div>
+          <nav class="demo-journey__track" aria-label="Demo journey progress">
+            ${demoSteps.map((step) => buildJourneyStep(step, currentStep)).join("")}
+          </nav>
+        </div>
+
+        ${
+          currentStep.id === "overview"
+            ? ""
+            : `
+          <div class="demo-step-hero">
+            <p class="demo-step-hero__eyebrow">${escapeHtml(currentStep.stepLabel)}</p>
+            <div class="demo-step-hero__copy">
+              <h2>${escapeHtml(currentStep.shortTitle)}</h2>
+              <p>${escapeHtml(currentStep.summary)}</p>
+            </div>
+            <div class="demo-step-hero__facts">
+              <div>
+                <span>Agent</span>
+                <strong>${escapeHtml(currentStep.agent)}</strong>
+              </div>
+              <div>
+                <span>Output</span>
+                <strong>${escapeHtml(currentStep.artifact)}</strong>
+              </div>
+              <div>
+                <span>What to look for</span>
+                <strong>${escapeHtml(currentStep.focus)}</strong>
+              </div>
+            </div>
+            ${buildSectionsMarkup(currentStep)}
+            <p class="demo-step-hero__note">
+              Generated artifact preserved below. The framing and navigation are editorial;
+              the artifact body remains intact.
+            </p>
+          </div>
+        `
+        }
+      </section>
+    `;
+
+    const buildFooterMarkup = () => `
+      <section class="demo-pager not-content" aria-label="Walkthrough navigation">
+        ${buildFooterCard("Previous", previousStep, "is-previous")}
+        ${buildFooterCard("Overview", overviewStep, "is-overview")}
+        ${buildFooterCard("Next", nextStep, "is-next")}
+      </section>
+    `;
+
+    removeLegacyIntro();
+
+    if (currentStep.id !== "overview") {
+      const artifactWrapper = document.createElement("div");
+      artifactWrapper.className = "demo-artifact-flow";
+      const fragment = document.createDocumentFragment();
+
+      while (content.firstChild) {
+        fragment.appendChild(content.firstChild);
+      }
+
+      artifactWrapper.appendChild(fragment);
+      neutralizeArtifactRefs(artifactWrapper);
+      content.appendChild(artifactWrapper);
+    }
+
+    content.insertAdjacentHTML("afterbegin", buildHeaderMarkup());
+
+    if (currentStep.id !== "overview") {
+      content.insertAdjacentHTML("beforeend", buildFooterMarkup());
+    }
+  };
+
+  if (!window.__demoEnhancerBound) {
+    document.addEventListener("astro:page-load", initDemoPage);
+    window.__demoEnhancerBound = true;
+  }
+
+  initDemoPage();
+</script>

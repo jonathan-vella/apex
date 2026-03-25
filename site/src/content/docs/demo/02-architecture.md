@@ -1,6 +1,6 @@
 ---
-title: "Step 2 — Architecture"
-description: "Well-Architected Framework assessment and SKU recommendations"
+title: "Step 2 — Solution Architecture"
+description: "Solution architecture assessment with WAF validation and SKU recommendations"
 sidebar:
   order: 2
 ---

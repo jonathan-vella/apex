@@ -1,6 +1,6 @@
 ---
-title: "Step 4 — Implementation Plan"
-description: "Module-by-module implementation plan with dependency ordering"
+title: "Step 4 — Infra-as-Code Plan"
+description: "Module-by-module infrastructure plan with dependency ordering"
 sidebar:
   order: 5
 tableOfContents:
@@ -59,27 +59,27 @@ See [04-governance-constraints.md](04-governance-constraints.md) for full detail
 
 ### Production Environment
 
-| #   | Resource                | Type                                       | AVM Module                                         | Version            | SKU / Tier                          |
-| --- | ----------------------- | ------------------------------------------ | -------------------------------------------------- | ------------------ | ----------------------------------- | --------------------------- |
-| 1   | Resource Group          | `Microsoft.Resources/resourceGroups`       | N/A (subscription-level)                           | —                  | —                                   |
-| 2   | Virtual Network         | `Microsoft.Network/virtualNetworks`        | `br/public:avm/res/network/virtual-network`        | `0.7.2`            | Standard (3 subnets)                |
-| 3   | Log Analytics Workspace | `Microsoft.OperationalInsights/workspaces` | `br/public:avm/res/operational-insights/workspace` | `0.15.0`           | Pay-per-GB                          |
-| 4   | Application Insights    | `Microsoft.Insights/components`            | `br/public:avm/res/insights/component`             | `0.7.1`            | Workspace-based                     |
-| 5   | Key Vault               | `Microsoft.KeyVault/vaults`                | `br/public:avm/res/key-vault/vault`                | `0.13.3`           | Standard                            |
-| 6   | Azure SQL Server        | `Microsoft.Sql/servers`                    | `br/public:avm/res/sql/server`                     | `0.21.1`           | —                                   |
-| 7   | Azure SQL Database      | `Microsoft.Sql/servers/databases`          | (via SQL Server module)                            | —                  | S0 (10 DTU)                         |
-| 8   | Storage Account         | `Microsoft.Storage/storageAccounts`        | `br/public:avm/res/storage/storage-account`        | `0.32.0`           | Standard LRS                        |
-| 9   | Private DNS Zone (SQL)  | `Microsoft.Network/privateDnsZones`        | `br/public:avm/res/network/private-dns-zone`       | `0.8.1`            | `privatelink.database.windows.net`  |
-| 10  | Private DNS Zone (Blob) | `Microsoft.Network/privateDnsZones`        | `br/public:avm/res/network/private-dns-zone`       | `0.8.1`            | `privatelink.blob.core.windows.net` |
-| 11  | Private Endpoint (SQL)  | `Microsoft.Network/privateEndpoints`       | `br/public:avm/res/network/private-endpoint`       | `0.12.0`           | —                                   |
-| 12  | Private Endpoint (Blob) | `Microsoft.Network/privateEndpoints`       | `br/public:avm/res/network/private-endpoint`       | `0.12.0`           | —                                   |
-| 13  | App Service Plan        | `Microsoft.Web/serverfarms`                | `br/public:avm/res/web/serverfarm`                 | `0.7.0`            | S1 Linux (2 instances)              |
-| 14  | App Service             | `Microsoft.Web/sites`                      | `br/public:avm/res/web/site`                       | `0.22.0`           | S1 (on plan)                        |
-| 15  | 15                      | Budget Alert (Aggregate)                   | `Microsoft.Consumption/budgets`                    | Raw Bicep resource | —                                   | €1,000/month (subscription) |
-| 16  | Budget Alert (Prod)     | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —                  | €800/month (RG-scoped)              |
-| 17  | Budget Alert (Dev)      | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —                  | €200/month (RG-scoped)              |
-| 18  | Private DNS Zone (KV)   | `Microsoft.Network/privateDnsZones`        | `br/public:avm/res/network/private-dns-zone`       | `0.8.1`            | `privatelink.vaultcore.azure.net`   |
-| 19  | Private Endpoint (KV)   | `Microsoft.Network/privateEndpoints`       | `br/public:avm/res/network/private-endpoint`       | `0.12.0`           | —                                   |
+| #   | Resource                 | Type                                       | AVM Module                                         | Version  | SKU / Tier                          |
+| --- | ------------------------ | ------------------------------------------ | -------------------------------------------------- | -------- | ----------------------------------- |
+| 1   | Resource Group           | `Microsoft.Resources/resourceGroups`       | N/A (subscription-level)                           | —        | —                                   |
+| 2   | Virtual Network          | `Microsoft.Network/virtualNetworks`        | `br/public:avm/res/network/virtual-network`        | `0.7.2`  | Standard (3 subnets)                |
+| 3   | Log Analytics Workspace  | `Microsoft.OperationalInsights/workspaces` | `br/public:avm/res/operational-insights/workspace` | `0.15.0` | Pay-per-GB                          |
+| 4   | Application Insights     | `Microsoft.Insights/components`            | `br/public:avm/res/insights/component`             | `0.7.1`  | Workspace-based                     |
+| 5   | Key Vault                | `Microsoft.KeyVault/vaults`                | `br/public:avm/res/key-vault/vault`                | `0.13.3` | Standard                            |
+| 6   | Azure SQL Server         | `Microsoft.Sql/servers`                    | `br/public:avm/res/sql/server`                     | `0.21.1` | —                                   |
+| 7   | Azure SQL Database       | `Microsoft.Sql/servers/databases`          | (via SQL Server module)                            | —        | S0 (10 DTU)                         |
+| 8   | Storage Account          | `Microsoft.Storage/storageAccounts`        | `br/public:avm/res/storage/storage-account`        | `0.32.0` | Standard LRS                        |
+| 9   | Private DNS Zone (SQL)   | `Microsoft.Network/privateDnsZones`        | `br/public:avm/res/network/private-dns-zone`       | `0.8.1`  | `privatelink.database.windows.net`  |
+| 10  | Private DNS Zone (Blob)  | `Microsoft.Network/privateDnsZones`        | `br/public:avm/res/network/private-dns-zone`       | `0.8.1`  | `privatelink.blob.core.windows.net` |
+| 11  | Private Endpoint (SQL)   | `Microsoft.Network/privateEndpoints`       | `br/public:avm/res/network/private-endpoint`       | `0.12.0` | —                                   |
+| 12  | Private Endpoint (Blob)  | `Microsoft.Network/privateEndpoints`       | `br/public:avm/res/network/private-endpoint`       | `0.12.0` | —                                   |
+| 13  | App Service Plan         | `Microsoft.Web/serverfarms`                | `br/public:avm/res/web/serverfarm`                 | `0.7.0`  | S1 Linux (2 instances)              |
+| 14  | App Service              | `Microsoft.Web/sites`                      | `br/public:avm/res/web/site`                       | `0.22.0` | S1 (on plan)                        |
+| 15  | Budget Alert (Aggregate) | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —        | €1,000/month (subscription)         |
+| 16  | Budget Alert (Prod)      | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —        | €800/month (RG-scoped)              |
+| 17  | Budget Alert (Dev)       | `Microsoft.Consumption/budgets`            | Raw Bicep resource                                 | —        | €200/month (RG-scoped)              |
+| 18  | Private DNS Zone (KV)    | `Microsoft.Network/privateDnsZones`        | `br/public:avm/res/network/private-dns-zone`       | `0.8.1`  | `privatelink.vaultcore.azure.net`   |
+| 19  | Private Endpoint (KV)    | `Microsoft.Network/privateEndpoints`       | `br/public:avm/res/network/private-endpoint`       | `0.12.0` | —                                   |
 
 ### Dev Environment Overrides
 

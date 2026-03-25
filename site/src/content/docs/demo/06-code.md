@@ -1,6 +1,6 @@
 ---
-title: "Step 5 — Code"
-description: "Bicep code generation results and implementation reference"
+title: "Step 5 — Infra-as-Code Gen"
+description: "Bicep infrastructure code generation results and implementation reference"
 sidebar:
   order: 6
 ---
