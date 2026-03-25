@@ -15,7 +15,8 @@
       "installTools": false
     },
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts"
+      "version": "lts",
+      "pnpmVersion": "none"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "latest"
@@ -24,22 +25,23 @@
       "tflint": "0.61.0",
       "installTFsec": false
     },
-    "ghcr.io/devcontainers/features/go:1": {},
-    "ghcr.io/azure/azure-dev/azd:latest": {
+    "ghcr.io/devcontainers/features/go:1": {
       "version": "1.23.8"
-    }
+    },
+    "ghcr.io/azure/azure-dev/azd:latest": {},
+    "ghcr.io/devcontainers-community/features/deno:latest": {}
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
   // Lifecycle: onCreateCommand runs first (system packages + uv), then postCreateCommand (tools), then postStartCommand (updates)
-  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh; curl -fsSL https://deno.land/install.sh | sh",
+  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh && (npx lefthook install 2>/dev/null || true)",
 
   // Environment variables for Python optimization
   "containerEnv": {
     "DENO_INSTALL": "/home/vscode/.deno",
-    "PATH": "/home/vscode/.deno/bin:${containerEnv:PATH}",
+    "DENO_DIR": "/home/vscode/.deno/cache",
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
@@ -47,6 +49,7 @@
   },
 
   "remoteEnv": {
+    "PATH": "/home/vscode/.deno/bin:${containerEnv:PATH}",
     "AZURE_DEFAULTS_LOCATION": "swedencentral",
     // Pass GH_TOKEN from host → container. gh CLI uses it automatically, no `gh auth login` needed.
     // Each user sets this once in VS Code User Settings (Ctrl+,):
