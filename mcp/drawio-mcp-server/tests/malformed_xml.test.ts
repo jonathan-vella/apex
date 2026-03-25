@@ -44,7 +44,11 @@ describe("DiagramModel — malformed XML handling", () => {
 
     it("should reject XML with mxfile tag but no content", () => {
       const result = model.importXml("<mxfile></mxfile>");
-      assertEquals("error" in result, false, "Empty mxfile should import without error");
+      assertEquals(
+        "error" in result,
+        false,
+        "Empty mxfile should import without error",
+      );
     });
 
     it("should reject invalid compressed diagram data", () => {
