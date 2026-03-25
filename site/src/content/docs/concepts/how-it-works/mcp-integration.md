@@ -125,7 +125,7 @@ keeps diagrams reviewable and easy to refine after generation.
 It is primarily used by the **Design** agent (Step 3), the planning agents
 that emit architecture views, and the `azure-diagrams` skill.
 
-## :octicons-mark-github-16: GitHub MCP Server
+## :simple-github: GitHub MCP Server
 
 | Property  | Value                                         |
 | --------- | --------------------------------------------- |
