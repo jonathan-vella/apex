@@ -25,8 +25,9 @@ import { PLACEHOLDER_MARKER, stripImageFromStyle } from "./placeholder.ts";
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "",
-  isArray: (name: string) => name === "diagram" || name === "mxCell" || name === "UserObject",
-  processEntities: true,
+  isArray: (name: string) =>
+    name === "diagram" || name === "mxCell" || name === "UserObject",
+  processEntities: false,
 });
 
 /** Cell ID for the server watermark. Stripped on import and re-generated on every export. */
@@ -148,7 +149,10 @@ export class DiagramModel {
     this.vertexEdgeIndex.set(vertexId, edgeIds);
   }
 
-  private removeEdgeReference(vertexId: string | undefined, edgeId: string): void {
+  private removeEdgeReference(
+    vertexId: string | undefined,
+    edgeId: string,
+  ): void {
     if (!vertexId) return;
     const edgeIds = this.vertexEdgeIndex.get(vertexId);
     if (!edgeIds) return;
@@ -192,7 +196,10 @@ export class DiagramModel {
       return null;
     }
 
-    const [first, second] = edge.sourceId < edge.targetId ? [edge.sourceId, edge.targetId] : [edge.targetId, edge.sourceId];
+    const [first, second] =
+      edge.sourceId < edge.targetId
+        ? [edge.sourceId, edge.targetId]
+        : [edge.targetId, edge.sourceId];
     const parent = edge.parent ?? "";
 
     return `${parent}|${first}|${second}|${normalizedLabel}`;
@@ -203,7 +210,10 @@ export class DiagramModel {
       return null;
     }
 
-    const [first, second] = edge.sourceId < edge.targetId ? [edge.sourceId, edge.targetId] : [edge.targetId, edge.sourceId];
+    const [first, second] =
+      edge.sourceId < edge.targetId
+        ? [edge.sourceId, edge.targetId]
+        : [edge.targetId, edge.sourceId];
     const parent = edge.parent ?? "";
 
     return `${parent}|${first}|${second}`;
@@ -219,11 +229,16 @@ export class DiagramModel {
     return direction * step * 14;
   }
 
-  private renderEdgeGeometryXml(waypoints: Point[], labelOffsetY: number): string {
+  private renderEdgeGeometryXml(
+    waypoints: Point[],
+    labelOffsetY: number,
+  ): string {
     const yAttr = labelOffsetY !== 0 ? ` y="${labelOffsetY}"` : "";
 
     if (waypoints.length > 0) {
-      const pointsXml = waypoints.map((point) => `<mxPoint x="${point.x}" y="${point.y}"/>`).join("");
+      const pointsXml = waypoints
+        .map((point) => `<mxPoint x="${point.x}" y="${point.y}"/>`)
+        .join("");
       return `<mxGeometry relative="1"${yAttr} as="geometry"><Array as="points">${pointsXml}</Array></mxGeometry>`;
     }
 
@@ -279,7 +294,11 @@ export class DiagramModel {
     if (parentId) {
       const parentCell = cellMap.get(parentId);
       if (parentCell?.type === "vertex" && parentCell.isGroup) {
-        const parentBounds = this.getAbsoluteBoundsFromMap(parentCell.id, cellMap, cache);
+        const parentBounds = this.getAbsoluteBoundsFromMap(
+          parentCell.id,
+          cellMap,
+          cache,
+        );
         if (parentBounds) {
           x += parentBounds.x;
           y += parentBounds.y;
@@ -325,7 +344,10 @@ export class DiagramModel {
     return { x: bounds.x, y: bounds.y };
   }
 
-  private getGroupContainmentWarning(cellId: string, groupId: string): GroupContainmentWarning | null {
+  private getGroupContainmentWarning(
+    cellId: string,
+    groupId: string,
+  ): GroupContainmentWarning | null {
     const cellBounds = this.getAbsoluteBounds(cellId);
     const groupBounds = this.getAbsoluteBounds(groupId);
 
@@ -338,7 +360,8 @@ export class DiagramModel {
     const groupRight = groupBounds.x + groupBounds.width;
     const groupBottom = groupBounds.y + groupBounds.height;
 
-    const outside = cellBounds.x < groupBounds.x ||
+    const outside =
+      cellBounds.x < groupBounds.x ||
       cellBounds.y < groupBounds.y ||
       cellRight > groupRight ||
       cellBottom > groupBottom;
@@ -351,10 +374,12 @@ export class DiagramModel {
       code: "OUTSIDE_GROUP_BOUNDS",
       cell_id: cellId,
       group_id: groupId,
-      message: `Cell '${cellId}' is partially or fully outside group '${groupId}'. ` +
+      message:
+        `Cell '${cellId}' is partially or fully outside group '${groupId}'. ` +
         `Child bounds=(x:${Math.round(cellBounds.x)}, y:${Math.round(cellBounds.y)}, w:${Math.round(cellBounds.width)}, h:${Math.round(cellBounds.height)}), ` +
         `group bounds=(x:${Math.round(groupBounds.x)}, y:${Math.round(groupBounds.y)}, w:${Math.round(groupBounds.width)}, h:${Math.round(groupBounds.height)}).`,
-      suggestion: "Increase group width/height or move the child so it fits within the group's visible boundary with padding.",
+      suggestion:
+        "Increase group width/height or move the child so it fits within the group's visible boundary with padding.",
     };
   }
 
@@ -378,17 +403,31 @@ export class DiagramModel {
   }
 
   private pointInsideRect(point: Point, rect: Rect): boolean {
-    return point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height;
+    return (
+      point.x >= rect.x &&
+      point.x <= rect.x + rect.width &&
+      point.y >= rect.y &&
+      point.y <= rect.y + rect.height
+    );
   }
 
-  private lineSegmentsIntersect(p1: Point, p2: Point, q1: Point, q2: Point): boolean {
+  private lineSegmentsIntersect(
+    p1: Point,
+    p2: Point,
+    q1: Point,
+    q2: Point,
+  ): boolean {
     const orientation = (a: Point, b: Point, c: Point): number => {
       return (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
     };
 
     const onSegment = (a: Point, b: Point, c: Point): boolean => {
-      return b.x <= Math.max(a.x, c.x) && b.x >= Math.min(a.x, c.x) && b.y <= Math.max(a.y, c.y) &&
-        b.y >= Math.min(a.y, c.y);
+      return (
+        b.x <= Math.max(a.x, c.x) &&
+        b.x >= Math.min(a.x, c.x) &&
+        b.y <= Math.max(a.y, c.y) &&
+        b.y >= Math.min(a.y, c.y)
+      );
     };
 
     const o1 = orientation(p1, p2, q1);
@@ -396,7 +435,10 @@ export class DiagramModel {
     const o3 = orientation(q1, q2, p1);
     const o4 = orientation(q1, q2, p2);
 
-    if ((o1 > 0 && o2 < 0 || o1 < 0 && o2 > 0) && (o3 > 0 && o4 < 0 || o3 < 0 && o4 > 0)) {
+    if (
+      ((o1 > 0 && o2 < 0) || (o1 < 0 && o2 > 0)) &&
+      ((o3 > 0 && o4 < 0) || (o3 < 0 && o4 > 0))
+    ) {
       return true;
     }
 
@@ -418,10 +460,12 @@ export class DiagramModel {
     const bottomLeft = { x: rect.x, y: rect.y + rect.height };
     const bottomRight = { x: rect.x + rect.width, y: rect.y + rect.height };
 
-    return this.lineSegmentsIntersect(start, end, topLeft, topRight) ||
+    return (
+      this.lineSegmentsIntersect(start, end, topLeft, topRight) ||
       this.lineSegmentsIntersect(start, end, topRight, bottomRight) ||
       this.lineSegmentsIntersect(start, end, bottomRight, bottomLeft) ||
-      this.lineSegmentsIntersect(start, end, bottomLeft, topLeft);
+      this.lineSegmentsIntersect(start, end, bottomLeft, topLeft)
+    );
   }
 
   private getGroupAvoidanceWaypoints(
@@ -433,28 +477,48 @@ export class DiagramModel {
       return [];
     }
 
-    const sourceCenter = precomputedCenters?.get(edge.sourceId) ?? this.getCellCenter(edge.sourceId);
-    const targetCenter = precomputedCenters?.get(edge.targetId) ?? this.getCellCenter(edge.targetId);
+    const sourceCenter =
+      precomputedCenters?.get(edge.sourceId) ??
+      this.getCellCenter(edge.sourceId);
+    const targetCenter =
+      precomputedCenters?.get(edge.targetId) ??
+      this.getCellCenter(edge.targetId);
     if (!sourceCenter || !targetCenter) {
       return [];
     }
 
-    const groups = precomputedGroupBounds ?? Array.from(this.cells.values())
-      .filter((cell) => cell.type === "vertex" && cell.isGroup)
-      .map((group) => ({
-        id: group.id,
-        bounds: this.getAbsoluteBounds(group.id),
-      }))
-      .filter((entry): entry is { id: string; bounds: Rect } => entry.bounds !== null);
+    const groups =
+      precomputedGroupBounds ??
+      Array.from(this.cells.values())
+        .filter((cell) => cell.type === "vertex" && cell.isGroup)
+        .map((group) => ({
+          id: group.id,
+          bounds: this.getAbsoluteBounds(group.id),
+        }))
+        .filter(
+          (entry): entry is { id: string; bounds: Rect } =>
+            entry.bounds !== null,
+        );
 
     const intersectingGroup = groups.find((group) => {
-      if (this.isCellInsideGroup(edge.sourceId!, group.id) || this.isCellInsideGroup(edge.targetId!, group.id)) {
+      if (
+        this.isCellInsideGroup(edge.sourceId!, group.id) ||
+        this.isCellInsideGroup(edge.targetId!, group.id)
+      ) {
         return false;
       }
 
-      return this.segmentIntersectsRect(sourceCenter, targetCenter, group.bounds) ||
-        this.pointInsideRect({ x: sourceCenter.x, y: targetCenter.y }, group.bounds) ||
-        this.pointInsideRect({ x: targetCenter.x, y: sourceCenter.y }, group.bounds);
+      return (
+        this.segmentIntersectsRect(sourceCenter, targetCenter, group.bounds) ||
+        this.pointInsideRect(
+          { x: sourceCenter.x, y: targetCenter.y },
+          group.bounds,
+        ) ||
+        this.pointInsideRect(
+          { x: targetCenter.x, y: sourceCenter.y },
+          group.bounds,
+        )
+      );
     });
 
     if (!intersectingGroup) {
@@ -468,15 +532,31 @@ export class DiagramModel {
     const targetBounds = this.getAbsoluteBounds(edge.targetId);
 
     // Determine spatial relation of each node to the group
-    const sourceLeft = sourceBounds ? sourceBounds.x + sourceBounds.width < bounds.x : sourceCenter.x < bounds.x;
-    const sourceRight = sourceBounds ? sourceBounds.x > bounds.x + bounds.width : sourceCenter.x > bounds.x + bounds.width;
-    const sourceAbove = sourceBounds ? sourceBounds.y + sourceBounds.height < bounds.y : sourceCenter.y < bounds.y;
-    const sourceBelow = sourceBounds ? sourceBounds.y > bounds.y + bounds.height : sourceCenter.y > bounds.y + bounds.height;
+    const sourceLeft = sourceBounds
+      ? sourceBounds.x + sourceBounds.width < bounds.x
+      : sourceCenter.x < bounds.x;
+    const sourceRight = sourceBounds
+      ? sourceBounds.x > bounds.x + bounds.width
+      : sourceCenter.x > bounds.x + bounds.width;
+    const sourceAbove = sourceBounds
+      ? sourceBounds.y + sourceBounds.height < bounds.y
+      : sourceCenter.y < bounds.y;
+    const sourceBelow = sourceBounds
+      ? sourceBounds.y > bounds.y + bounds.height
+      : sourceCenter.y > bounds.y + bounds.height;
 
-    const targetLeft = targetBounds ? targetBounds.x + targetBounds.width < bounds.x : targetCenter.x < bounds.x;
-    const targetRight = targetBounds ? targetBounds.x > bounds.x + bounds.width : targetCenter.x > bounds.x + bounds.width;
-    const targetAbove = targetBounds ? targetBounds.y + targetBounds.height < bounds.y : targetCenter.y < bounds.y;
-    const targetBelow = targetBounds ? targetBounds.y > bounds.y + bounds.height : targetCenter.y > bounds.y + bounds.height;
+    const targetLeft = targetBounds
+      ? targetBounds.x + targetBounds.width < bounds.x
+      : targetCenter.x < bounds.x;
+    const targetRight = targetBounds
+      ? targetBounds.x > bounds.x + bounds.width
+      : targetCenter.x > bounds.x + bounds.width;
+    const targetAbove = targetBounds
+      ? targetBounds.y + targetBounds.height < bounds.y
+      : targetCenter.y < bounds.y;
+    const targetBelow = targetBounds
+      ? targetBounds.y > bounds.y + bounds.height
+      : targetCenter.y > bounds.y + bounds.height;
 
     const sourceHSide = sourceLeft || sourceRight;
     const sourceVSide = sourceAbove || sourceBelow;
@@ -488,7 +568,9 @@ export class DiagramModel {
       // Source is left/right of group → vertical channel (channelX) in the gap
       if (sourceLeft || sourceRight) {
         if (sourceLeft) {
-          const edgeRight = sourceBounds ? sourceBounds.x + sourceBounds.width : sourceCenter.x;
+          const edgeRight = sourceBounds
+            ? sourceBounds.x + sourceBounds.width
+            : sourceCenter.x;
           const channelX = edgeRight + (bounds.x - edgeRight) / 2;
           return [
             { x: channelX, y: sourceCenter.y },
@@ -506,7 +588,9 @@ export class DiagramModel {
       }
       // Source is above/below group → horizontal channel (channelY) in the gap
       if (sourceAbove) {
-        const edgeBottom = sourceBounds ? sourceBounds.y + sourceBounds.height : sourceCenter.y;
+        const edgeBottom = sourceBounds
+          ? sourceBounds.y + sourceBounds.height
+          : sourceCenter.y;
         const channelY = edgeBottom + (bounds.y - edgeBottom) / 2;
         return [
           { x: sourceCenter.x, y: channelY },
@@ -526,8 +610,12 @@ export class DiagramModel {
     // Default: horizontal route above or below the group
     const routeAboveY = bounds.y - margin;
     const routeBelowY = bounds.y + bounds.height + margin;
-    const aboveCost = Math.abs(sourceCenter.y - routeAboveY) + Math.abs(targetCenter.y - routeAboveY);
-    const belowCost = Math.abs(sourceCenter.y - routeBelowY) + Math.abs(targetCenter.y - routeBelowY);
+    const aboveCost =
+      Math.abs(sourceCenter.y - routeAboveY) +
+      Math.abs(targetCenter.y - routeAboveY);
+    const belowCost =
+      Math.abs(sourceCenter.y - routeBelowY) +
+      Math.abs(targetCenter.y - routeBelowY);
     const routeY = aboveCost <= belowCost ? routeAboveY : routeBelowY;
 
     return [
@@ -544,16 +632,26 @@ export class DiagramModel {
     return Math.round(Math.max(0.05, Math.min(0.95, value)) * 100) / 100;
   }
 
-  private withSymmetricEdgeAnchors(edge: Cell, precomputedCenters?: Map<string, Point>): string {
+  private withSymmetricEdgeAnchors(
+    edge: Cell,
+    precomputedCenters?: Map<string, Point>,
+  ): string {
     const baseStyle = edge.style ?? "";
-    const hasExplicitAnchors = this.hasStyleKey(baseStyle, "exitX") || this.hasStyleKey(baseStyle, "exitY") ||
-      this.hasStyleKey(baseStyle, "entryX") || this.hasStyleKey(baseStyle, "entryY");
+    const hasExplicitAnchors =
+      this.hasStyleKey(baseStyle, "exitX") ||
+      this.hasStyleKey(baseStyle, "exitY") ||
+      this.hasStyleKey(baseStyle, "entryX") ||
+      this.hasStyleKey(baseStyle, "entryY");
     if (hasExplicitAnchors || !edge.sourceId || !edge.targetId) {
       return baseStyle;
     }
 
-    const sourceCenter = precomputedCenters?.get(edge.sourceId) ?? this.getCellCenter(edge.sourceId);
-    const targetCenter = precomputedCenters?.get(edge.targetId) ?? this.getCellCenter(edge.targetId);
+    const sourceCenter =
+      precomputedCenters?.get(edge.sourceId) ??
+      this.getCellCenter(edge.sourceId);
+    const targetCenter =
+      precomputedCenters?.get(edge.targetId) ??
+      this.getCellCenter(edge.targetId);
     if (!sourceCenter || !targetCenter) {
       return baseStyle;
     }
@@ -566,7 +664,10 @@ export class DiagramModel {
     const dx = targetCenter.x - sourceCenter.x;
     const dy = targetCenter.y - sourceCenter.y;
 
-    const styleWithTerminator = baseStyle.endsWith(";") || baseStyle.length === 0 ? baseStyle : `${baseStyle};`;
+    const styleWithTerminator =
+      baseStyle.endsWith(";") || baseStyle.length === 0
+        ? baseStyle
+        : `${baseStyle};`;
 
     if (Math.abs(dx) >= Math.abs(dy)) {
       let exitY = 0.5;
@@ -579,21 +680,33 @@ export class DiagramModel {
         if (sourceBounds && targetBounds) {
           if (sourceIsGroup && targetIsGroup) {
             const midY = (sourceCenter.y + targetCenter.y) / 2;
-            if (sourceBounds.height > 0) exitY = this.clampAnchor((midY - sourceBounds.y) / sourceBounds.height);
-            if (targetBounds.height > 0) entryY = this.clampAnchor((midY - targetBounds.y) / targetBounds.height);
+            if (sourceBounds.height > 0)
+              exitY = this.clampAnchor(
+                (midY - sourceBounds.y) / sourceBounds.height,
+              );
+            if (targetBounds.height > 0)
+              entryY = this.clampAnchor(
+                (midY - targetBounds.y) / targetBounds.height,
+              );
           } else if (targetIsGroup) {
             if (targetBounds.height > 0) {
-              entryY = this.clampAnchor((sourceCenter.y - targetBounds.y) / targetBounds.height);
+              entryY = this.clampAnchor(
+                (sourceCenter.y - targetBounds.y) / targetBounds.height,
+              );
             }
           } else {
             if (sourceBounds.height > 0) {
-              exitY = this.clampAnchor((targetCenter.y - sourceBounds.y) / sourceBounds.height);
+              exitY = this.clampAnchor(
+                (targetCenter.y - sourceBounds.y) / sourceBounds.height,
+              );
             }
           }
         }
       }
 
-      return dx >= 0 ? `${styleWithTerminator}exitX=1;exitY=${exitY};entryX=0;entryY=${entryY};` : `${styleWithTerminator}exitX=0;exitY=${exitY};entryX=1;entryY=${entryY};`;
+      return dx >= 0
+        ? `${styleWithTerminator}exitX=1;exitY=${exitY};entryX=0;entryY=${entryY};`
+        : `${styleWithTerminator}exitX=0;exitY=${exitY};entryX=1;entryY=${entryY};`;
     }
 
     let exitX = 0.5;
@@ -606,17 +719,31 @@ export class DiagramModel {
       if (sourceBounds && targetBounds) {
         if (sourceIsGroup && targetIsGroup) {
           const midX = (sourceCenter.x + targetCenter.x) / 2;
-          if (sourceBounds.width > 0) exitX = this.clampAnchor((midX - sourceBounds.x) / sourceBounds.width);
-          if (targetBounds.width > 0) entryX = this.clampAnchor((midX - targetBounds.x) / targetBounds.width);
+          if (sourceBounds.width > 0)
+            exitX = this.clampAnchor(
+              (midX - sourceBounds.x) / sourceBounds.width,
+            );
+          if (targetBounds.width > 0)
+            entryX = this.clampAnchor(
+              (midX - targetBounds.x) / targetBounds.width,
+            );
         } else if (targetIsGroup) {
-          if (targetBounds.width > 0) entryX = this.clampAnchor((sourceCenter.x - targetBounds.x) / targetBounds.width);
+          if (targetBounds.width > 0)
+            entryX = this.clampAnchor(
+              (sourceCenter.x - targetBounds.x) / targetBounds.width,
+            );
         } else {
-          if (sourceBounds.width > 0) exitX = this.clampAnchor((targetCenter.x - sourceBounds.x) / sourceBounds.width);
+          if (sourceBounds.width > 0)
+            exitX = this.clampAnchor(
+              (targetCenter.x - sourceBounds.x) / sourceBounds.width,
+            );
         }
       }
     }
 
-    return dy >= 0 ? `${styleWithTerminator}exitX=${exitX};exitY=1;entryX=${entryX};entryY=0;` : `${styleWithTerminator}exitX=${exitX};exitY=0;entryX=${entryX};entryY=1;`;
+    return dy >= 0
+      ? `${styleWithTerminator}exitX=${exitX};exitY=1;entryX=${entryX};entryY=0;`
+      : `${styleWithTerminator}exitX=${exitX};exitY=0;entryX=${entryX};entryY=1;`;
   }
 
   private rebuildEdgeIndex(): void {
@@ -643,7 +770,9 @@ export class DiagramModel {
       y: params.y ?? 100,
       width: Math.max(1, params.width ?? 200),
       height: Math.max(1, params.height ?? 100),
-      style: params.style ?? "whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      style:
+        params.style ??
+        "whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
       parent: this.activeLayerId,
     };
     this.cells.set(id, cell);
@@ -684,7 +813,9 @@ export class DiagramModel {
       id,
       type: "edge",
       value: params.text ?? "",
-      style: params.style ?? "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;",
+      style:
+        params.style ??
+        "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;",
       sourceId: params.sourceId,
       targetId: params.targetId,
       parent: this.activeLayerId,
@@ -722,14 +853,17 @@ export class DiagramModel {
     return { deleted: true, cascadedEdgeIds };
   }
 
-  editCell(cellId: string, params: {
-    text?: string;
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    style?: string;
-  }): Cell | { error: StructuredError } {
+  editCell(
+    cellId: string,
+    params: {
+      text?: string;
+      x?: number;
+      y?: number;
+      width?: number;
+      height?: number;
+      style?: string;
+    },
+  ): Cell | { error: StructuredError } {
     const cell = this.cells.get(cellId);
     if (!cell) {
       return {
@@ -763,12 +897,15 @@ export class DiagramModel {
     return cell;
   }
 
-  editEdge(cellId: string, params: {
-    text?: string;
-    sourceId?: string;
-    targetId?: string;
-    style?: string;
-  }): Cell | { error: StructuredError } {
+  editEdge(
+    cellId: string,
+    params: {
+      text?: string;
+      sourceId?: string;
+      targetId?: string;
+      style?: string;
+    },
+  ): Cell | { error: StructuredError } {
     const cell = this.cells.get(cellId);
     if (!cell) {
       return {
@@ -875,7 +1012,10 @@ export class DiagramModel {
     return this.layers.find((l) => l.id === this.activeLayerId)!;
   }
 
-  moveCellToLayer(cellId: string, targetLayerId: string): Cell | { error: StructuredError } {
+  moveCellToLayer(
+    cellId: string,
+    targetLayerId: string,
+  ): Cell | { error: StructuredError } {
     const cell = this.cells.get(cellId);
     if (!cell) {
       return {
@@ -924,7 +1064,8 @@ export class DiagramModel {
       y: params.y ?? 0,
       width: params.width ?? 400,
       height: params.height ?? 300,
-      style: params.style ??
+      style:
+        params.style ??
         "rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;container=1;collapsible=0;verticalAlign=bottom;align=center;verticalLabelPosition=top;labelPosition=center;",
       parent: this.activeLayerId,
       isGroup: true,
@@ -958,7 +1099,10 @@ export class DiagramModel {
   /**
    * Add a cell to a group. The child cell's parent is set to the group.
    */
-  addCellToGroup(cellId: string, groupId: string): Cell | { error: StructuredError } {
+  addCellToGroup(
+    cellId: string,
+    groupId: string,
+  ): Cell | { error: StructuredError } {
     const cell = this.cells.get(cellId);
     if (!cell) {
       return {
@@ -1004,7 +1148,9 @@ export class DiagramModel {
 
     const previousParentId = cell.parent;
     // deno-coverage-ignore
-    const previousParentGroup = previousParentId ? this.cells.get(previousParentId) : undefined;
+    const previousParentGroup = previousParentId
+      ? this.cells.get(previousParentId)
+      : undefined;
 
     // Preserve visual position while changing parent coordinate space.
     // Draw.io child coordinates are relative to the parent (group), so we convert
@@ -1019,7 +1165,9 @@ export class DiagramModel {
     }
 
     if (previousParentGroup?.isGroup && previousParentGroup.children) {
-      previousParentGroup.children = previousParentGroup.children.filter((id) => id !== cellId);
+      previousParentGroup.children = previousParentGroup.children.filter(
+        (id) => id !== cellId,
+      );
     }
 
     cell.parent = groupId;
@@ -1038,20 +1186,23 @@ export class DiagramModel {
    */
   batchAddCellsToGroup(
     assignments: Array<{ cellId: string; groupId: string }>,
-  ): Array<
-    {
-      success: boolean;
-      cell?: Cell;
-      error?: StructuredError;
-      cellId: string;
-      groupId: string;
-      warnings?: GroupContainmentWarning[];
-    }
-  > {
+  ): Array<{
+    success: boolean;
+    cell?: Cell;
+    error?: StructuredError;
+    cellId: string;
+    groupId: string;
+    warnings?: GroupContainmentWarning[];
+  }> {
     const results = assignments.map((a) => {
       const result = this.addCellToGroup(a.cellId, a.groupId);
       if ("error" in result) {
-        return { success: false, error: result.error, cellId: a.cellId, groupId: a.groupId } as const;
+        return {
+          success: false,
+          error: result.error,
+          cellId: a.cellId,
+          groupId: a.groupId,
+        } as const;
       }
 
       return {
@@ -1101,7 +1252,10 @@ export class DiagramModel {
     if (children.length === 0) return;
 
     // Calculate total height needed for vertical stack
-    const totalChildHeight = children.reduce((sum, c) => sum + (c.height ?? 48), 0);
+    const totalChildHeight = children.reduce(
+      (sum, c) => sum + (c.height ?? 48),
+      0,
+    );
     const totalSpacing = (children.length - 1) * SPACING;
     const requiredHeight = totalChildHeight + totalSpacing + PADDING * 2;
     const maxChildWidth = Math.max(...children.map((c) => c.width ?? 48));
@@ -1179,13 +1333,15 @@ export class DiagramModel {
   /**
    * Validate whether all children are visually inside the given group bounds.
    */
-  validateGroupContainment(groupId: string): {
-    group: Cell;
-    totalChildren: number;
-    inBoundsChildren: number;
-    outOfBoundsChildren: number;
-    warnings: GroupContainmentWarning[];
-  } | { error: StructuredError } {
+  validateGroupContainment(groupId: string):
+    | {
+        group: Cell;
+        totalChildren: number;
+        inBoundsChildren: number;
+        outOfBoundsChildren: number;
+        warnings: GroupContainmentWarning[];
+      }
+    | { error: StructuredError } {
     const group = this.cells.get(groupId);
     if (!group) {
       return {
@@ -1252,8 +1408,8 @@ export class DiagramModel {
         },
       };
     }
-    return group.children!
-      .map((id) => this.cells.get(id))
+    return group
+      .children!.map((id) => this.cells.get(id))
       .filter((c): c is Cell => c !== undefined);
   }
 
@@ -1265,7 +1421,11 @@ export class DiagramModel {
    * present, all cells and layers are merged into a single flat model.
    * Returns the number of source pages, merged cells, and merged layers.
    */
-  importXml(xml: string): { pages: number; cells: number; layers: number } | { error: StructuredError } {
+  importXml(
+    xml: string,
+  ):
+    | { pages: number; cells: number; layers: number }
+    | { error: StructuredError } {
     // Basic validation
     if (!xml || !xml.trim()) {
       return {
@@ -1288,7 +1448,8 @@ export class DiagramModel {
         error: {
           code: "INVALID_XML",
           message: "XML does not appear to be a Draw.io file",
-          suggestion: "Provide XML that contains <mxfile> or <mxGraphModel> elements",
+          suggestion:
+            "Provide XML that contains <mxfile> or <mxGraphModel> elements",
         },
       };
     }
@@ -1299,7 +1460,10 @@ export class DiagramModel {
     let diagramElements: Array<Record<string, unknown>> = [];
 
     const mxfile = parsed.mxfile as Record<string, unknown> | undefined;
-    const requestedActiveLayerId = typeof mxfile?.activeLayerId === "string" ? mxfile.activeLayerId : undefined;
+    const requestedActiveLayerId =
+      typeof mxfile?.activeLayerId === "string"
+        ? mxfile.activeLayerId
+        : undefined;
     if (mxfile?.diagram) {
       diagramElements = mxfile.diagram as Array<Record<string, unknown>>;
     } else if (parsed.mxGraphModel) {
@@ -1327,14 +1491,19 @@ export class DiagramModel {
       if (!diag.mxGraphModel && typeof diag["#text"] === "string") {
         try {
           const decompressedXml = DiagramModel.decompressXml(diag["#text"]);
-          const innerParsed = xmlParser.parse(decompressedXml) as Record<string, unknown>;
+          const innerParsed = xmlParser.parse(decompressedXml) as Record<
+            string,
+            unknown
+          >;
           diag = { ...diag, mxGraphModel: innerParsed.mxGraphModel };
         } catch {
           return {
             error: {
               code: "DECOMPRESS_FAILED",
-              message: "Failed to decompress diagram content — the data is not valid base64+deflate",
-              suggestion: "Provide uncompressed diagram XML, or ensure the compressed content is valid Draw.io deflate+base64 format",
+              message:
+                "Failed to decompress diagram content — the data is not valid base64+deflate",
+              suggestion:
+                "Provide uncompressed diagram XML, or ensure the compressed content is valid Draw.io deflate+base64 format",
             },
           };
         }
@@ -1360,7 +1529,10 @@ export class DiagramModel {
       }
     }
 
-    if (requestedActiveLayerId && this.layers.some((l) => l.id === requestedActiveLayerId)) {
+    if (
+      requestedActiveLayerId &&
+      this.layers.some((l) => l.id === requestedActiveLayerId)
+    ) {
       this.activeLayerId = requestedActiveLayerId;
     }
 
@@ -1397,15 +1569,19 @@ export class DiagramModel {
   /**
    * Parse mxGraphModel content from a parsed XML object and extract cells and layers.
    */
-  private parseMxGraphContent(
-    diagramObj: Record<string, unknown>,
-  ): { cells: Map<string, Cell>; layers: Layer[]; nextId: number } {
+  private parseMxGraphContent(diagramObj: Record<string, unknown>): {
+    cells: Map<string, Cell>;
+    layers: Layer[];
+    nextId: number;
+  } {
     const cells = new Map<string, Cell>();
     const layers: Layer[] = [{ id: "1", name: "Default Layer" }];
     let maxId = 1;
 
     // Navigate to root element: diagramObj.mxGraphModel.root
-    const mxGraphModel = diagramObj.mxGraphModel as Record<string, unknown> | undefined;
+    const mxGraphModel = diagramObj.mxGraphModel as
+      | Record<string, unknown>
+      | undefined;
     const root = mxGraphModel?.root as Record<string, unknown> | undefined;
     if (!root) {
       return { cells, layers, nextId: maxId + 1 };
@@ -1418,21 +1594,35 @@ export class DiagramModel {
     const mxCells = (root.mxCell ?? []) as Array<Record<string, unknown>>;
     for (const cell of mxCells) {
       rawElements.push(
-        this.extractCellAttrs(cell, cell.mxGeometry as Record<string, unknown> | undefined),
+        this.extractCellAttrs(
+          cell,
+          cell.mxGeometry as Record<string, unknown> | undefined,
+        ),
       );
     }
 
     // Process UserObject elements
-    const userObjects = (root.UserObject ?? []) as Array<Record<string, unknown>>;
+    const userObjects = (root.UserObject ?? []) as Array<
+      Record<string, unknown>
+    >;
     for (const uo of userObjects) {
       // Geometry may live on the nested mxCell child
       let geometry: Record<string, unknown> | undefined;
-      const innerCells = uo.mxCell as Array<Record<string, unknown>> | undefined;
+      const innerCells = uo.mxCell as
+        | Array<Record<string, unknown>>
+        | undefined;
       if (innerCells && innerCells.length > 0) {
         const innerCell = innerCells[0];
         geometry = innerCell.mxGeometry as Record<string, unknown> | undefined;
         // Merge inner mxCell attributes that weren't set on the UserObject itself
-        for (const key of ["style", "vertex", "edge", "parent", "source", "target"]) {
+        for (const key of [
+          "style",
+          "vertex",
+          "edge",
+          "parent",
+          "source",
+          "target",
+        ]) {
           if (innerCell[key] !== undefined && uo[key] === undefined) {
             uo[key] = innerCell[key];
           }
@@ -1479,7 +1669,8 @@ export class DiagramModel {
       }
 
       // Determine if it's a group/container
-      const isGroup = elem.style.includes("container=1") || /swimlane/i.test(elem.style);
+      const isGroup =
+        elem.style.includes("container=1") || /swimlane/i.test(elem.style);
 
       if (elem.isEdge) {
         const cell: Cell = {
@@ -1534,17 +1725,29 @@ export class DiagramModel {
    *   during batch diagram creation. Real SVG is restored only at finish-diagram time.
    *   Defaults to `false` (full production XML with all image data).
    */
-  toXml(options?: { compress?: boolean; transactional?: boolean; watermark?: boolean; background?: string }): string {
+  toXml(options?: {
+    compress?: boolean;
+    transactional?: boolean;
+    watermark?: boolean;
+    background?: string;
+  }): string {
     const compress = options?.compress ?? false;
     const transactional = options?.transactional ?? false;
     const watermark = options?.watermark ?? false;
     const background = options?.background ?? "#FFFFFF";
 
-    const backgroundAttr = background === "none" ? "" : ` background="${this.escapeXml(background)}"`;
-    const pageXml = this.renderPageXml(this.cells, this.layers, { transactional, watermark });
-    const graphModelXml =
-      `<mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0"${backgroundAttr}><root><mxCell id="0"/><mxCell id="1" parent="0"/>${pageXml}</root></mxGraphModel>`;
-    const diagramContent = compress ? DiagramModel.compressXml(graphModelXml) : graphModelXml;
+    const backgroundAttr =
+      background === "none"
+        ? ""
+        : ` background="${this.escapeXml(background)}"`;
+    const pageXml = this.renderPageXml(this.cells, this.layers, {
+      transactional,
+      watermark,
+    });
+    const graphModelXml = `<mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0"${backgroundAttr}><root><mxCell id="0"/><mxCell id="1" parent="0"/>${pageXml}</root></mxGraphModel>`;
+    const diagramContent = compress
+      ? DiagramModel.compressXml(graphModelXml)
+      : graphModelXml;
 
     return `<mxfile host="drawio-mcp-server" activeLayerId="${this.escapeXml(this.activeLayerId)}"><diagram id="page-1" name="Page-1">${diagramContent}</diagram></mxfile>`;
   }
@@ -1582,11 +1785,18 @@ export class DiagramModel {
    * Render cells and layers for a single page.
    * @param options.transactional - If true, strip SVG image data from styles (for placeholders)
    */
-  private renderPageXml(cells: Map<string, Cell>, layers: Layer[], options?: { transactional?: boolean; watermark?: boolean }): string {
+  private renderPageXml(
+    cells: Map<string, Cell>,
+    layers: Layer[],
+    options?: { transactional?: boolean; watermark?: boolean },
+  ): string {
     // Emit custom layer cells (skip the default layer id="1" which is always present)
     const layerCellsXml = layers
       .filter((l) => l.id !== "1")
-      .map((l) => `<mxCell id="${this.escapeXml(l.id)}" value="${this.escapeXml(l.name)}" style="" parent="0"/>`)
+      .map(
+        (l) =>
+          `<mxCell id="${this.escapeXml(l.id)}" value="${this.escapeXml(l.name)}" style="" parent="0"/>`,
+      )
       .join("");
 
     const absoluteBoundsCache = new Map<string, Rect | null>();
@@ -1598,7 +1808,11 @@ export class DiagramModel {
         continue;
       }
 
-      const bounds = this.getAbsoluteBoundsFromMap(cell.id, cells, absoluteBoundsCache);
+      const bounds = this.getAbsoluteBoundsFromMap(
+        cell.id,
+        cells,
+        absoluteBoundsCache,
+      );
       // deno-coverage-ignore
       if (!bounds) {
         // deno-coverage-ignore
@@ -1623,10 +1837,17 @@ export class DiagramModel {
       .map((cell) => {
         if (cell.type === "vertex") {
           const groupAttrs = cell.isGroup ? ' connectable="0"' : "";
-          let containerStyle = cell.isGroup && cell.style && !cell.style.includes("container=1") ? cell.style + "container=1;" : cell.style;
+          let containerStyle =
+            cell.isGroup && cell.style && !cell.style.includes("container=1")
+              ? cell.style + "container=1;"
+              : cell.style;
 
           // In transactional mode, strip SVG image data and mark as placeholder
-          if (options?.transactional && containerStyle && containerStyle.includes("image=")) {
+          if (
+            options?.transactional &&
+            containerStyle &&
+            containerStyle.includes("image=")
+          ) {
             containerStyle = stripImageFromStyle(containerStyle);
             if (!containerStyle.includes(PLACEHOLDER_MARKER)) {
               // deno-coverage-ignore
@@ -1634,12 +1855,12 @@ export class DiagramModel {
             }
           }
 
-          return `<mxCell id="${this.escapeXml(cell.id)}" value="${this.escapeXml(cell.value)}" style="${this.escapeXml(containerStyle!)}" vertex="1"${groupAttrs} parent="${cell
-            .parent!}"><mxGeometry x="${cell.x!}" y="${cell.y!}" width="${cell
-            .width!}" height="${cell.height!}" as="geometry"/></mxCell>`;
+          return `<mxCell id="${this.escapeXml(cell.id)}" value="${this.escapeXml(cell.value)}" style="${this.escapeXml(containerStyle!)}" vertex="1"${groupAttrs} parent="${cell.parent!}"><mxGeometry x="${cell.x!}" y="${cell.y!}" width="${cell.width!}" height="${cell.height!}" as="geometry"/></mxCell>`;
         } else {
           const flattenedLabelKey = this.getFlattenedEdgeLabelKey(cell);
-          const shouldHideDuplicateLabel = !!flattenedLabelKey && emittedFlattenedEdgeLabelKeys.has(flattenedLabelKey);
+          const shouldHideDuplicateLabel =
+            !!flattenedLabelKey &&
+            emittedFlattenedEdgeLabelKeys.has(flattenedLabelKey);
           if (flattenedLabelKey && !shouldHideDuplicateLabel) {
             emittedFlattenedEdgeLabelKeys.add(flattenedLabelKey);
           }
@@ -1648,18 +1869,31 @@ export class DiagramModel {
           const flattenedRouteKey = this.getFlattenedEdgeRouteKey(cell);
           let labelOffsetY = 0;
           if (flattenedRouteKey && edgeValue.trim().length > 0) {
-            const labelIndexOnRoute = emittedLabelCountByRoute.get(flattenedRouteKey) ?? 0;
+            const labelIndexOnRoute =
+              emittedLabelCountByRoute.get(flattenedRouteKey) ?? 0;
             labelOffsetY = this.getAlternatingLabelOffset(labelIndexOnRoute);
-            emittedLabelCountByRoute.set(flattenedRouteKey, labelIndexOnRoute + 1);
+            emittedLabelCountByRoute.set(
+              flattenedRouteKey,
+              labelIndexOnRoute + 1,
+            );
           }
 
-          const edgeStyle = this.withSymmetricEdgeAnchors(cell, precomputedCenters);
-          const waypoints = this.getGroupAvoidanceWaypoints(cell, precomputedCenters, precomputedGroupBounds);
-          const geometryXml = this.renderEdgeGeometryXml(waypoints, labelOffsetY);
+          const edgeStyle = this.withSymmetricEdgeAnchors(
+            cell,
+            precomputedCenters,
+          );
+          const waypoints = this.getGroupAvoidanceWaypoints(
+            cell,
+            precomputedCenters,
+            precomputedGroupBounds,
+          );
+          const geometryXml = this.renderEdgeGeometryXml(
+            waypoints,
+            labelOffsetY,
+          );
           const sourceAttr = cell.sourceId ? ` source="${cell.sourceId}"` : "";
           const targetAttr = cell.targetId ? ` target="${cell.targetId}"` : "";
-          return `<mxCell id="${this.escapeXml(cell.id)}" value="${this.escapeXml(edgeValue)}" style="${this.escapeXml(edgeStyle)}" edge="1" parent="${cell
-            .parent!}"${sourceAttr}${targetAttr}>${geometryXml}</mxCell>`;
+          return `<mxCell id="${this.escapeXml(cell.id)}" value="${this.escapeXml(edgeValue)}" style="${this.escapeXml(edgeStyle)}" edge="1" parent="${cell.parent!}"${sourceAttr}${targetAttr}>${geometryXml}</mxCell>`;
         }
       })
       .join("");
@@ -1682,8 +1916,7 @@ export class DiagramModel {
     const now = new Date();
     const date = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
 
-    return WATERMARK_TEMPLATE
-      .replace("{{VERSION}}", denoConfig.version)
+    return WATERMARK_TEMPLATE.replace("{{VERSION}}", denoConfig.version)
       .replace("{{DATE}}", date)
       .replace("{{X}}", String(x))
       .replace("{{Y}}", String(y))
@@ -1819,7 +2052,12 @@ export class DiagramModel {
       tempId?: string;
     }>,
     options?: { dryRun?: boolean },
-  ): Array<{ success: boolean; cell?: Cell; error?: StructuredError; tempId?: string }> {
+  ): Array<{
+    success: boolean;
+    cell?: Cell;
+    error?: StructuredError;
+    tempId?: string;
+  }> {
     // Pre-validate entire batch
     const validationErrors = this.validateBatchCells(items);
     if (validationErrors.length > 0) {
@@ -1847,7 +2085,12 @@ export class DiagramModel {
     }
 
     // Execute batch operations
-    const results: Array<{ success: boolean; cell?: Cell; error?: StructuredError; tempId?: string }> = [];
+    const results: Array<{
+      success: boolean;
+      cell?: Cell;
+      error?: StructuredError;
+      tempId?: string;
+    }> = [];
     const tempIdMap = new Map<string, string>();
 
     for (const item of items) {
@@ -1865,7 +2108,9 @@ export class DiagramModel {
             y: item.y ?? 100,
             width: Math.max(1, item.width ?? 200),
             height: Math.max(1, item.height ?? 100),
-            style: item.style ?? "whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+            style:
+              item.style ??
+              "whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;",
             parent: this.activeLayerId,
           };
           this.cells.set(cell.id, cell);
@@ -1918,7 +2163,11 @@ export class DiagramModel {
       tempId?: string;
     }>,
   ): Array<{ success: boolean; error: StructuredError; tempId?: string }> {
-    const errors: Array<{ success: boolean; error: StructuredError; tempId?: string }> = [];
+    const errors: Array<{
+      success: boolean;
+      error: StructuredError;
+      tempId?: string;
+    }> = [];
     const createdTempIds = new Set<string>();
 
     for (let i = 0; i < items.length; i++) {
@@ -1926,7 +2175,10 @@ export class DiagramModel {
 
       if (item.type === "edge") {
         // Validate source exists (check temp IDs from earlier items and existing cells)
-        const sourceExists = !!(item.sourceId && (createdTempIds.has(item.sourceId) || this.cells.has(item.sourceId)));
+        const sourceExists = !!(
+          item.sourceId &&
+          (createdTempIds.has(item.sourceId) || this.cells.has(item.sourceId))
+        );
         if (!sourceExists) {
           errors.push({
             success: false,
@@ -1935,13 +2187,17 @@ export class DiagramModel {
               code: "INVALID_SOURCE",
               message: `Edge at index ${i}: source cell '${item.sourceId}' not found`,
               index: i,
-              suggestion: "Ensure source_id references an existing cell or a temp_id defined earlier in the batch",
+              suggestion:
+                "Ensure source_id references an existing cell or a temp_id defined earlier in the batch",
             },
           });
         }
 
         // Validate target exists
-        const targetExists = !!(item.targetId && (createdTempIds.has(item.targetId) || this.cells.has(item.targetId)));
+        const targetExists = !!(
+          item.targetId &&
+          (createdTempIds.has(item.targetId) || this.cells.has(item.targetId))
+        );
         if (!targetExists) {
           errors.push({
             success: false,
@@ -1950,7 +2206,8 @@ export class DiagramModel {
               code: "INVALID_TARGET",
               message: `Edge at index ${i}: target cell '${item.targetId}' not found`,
               index: i,
-              suggestion: "Ensure target_id references an existing cell or a temp_id defined earlier in the batch",
+              suggestion:
+                "Ensure target_id references an existing cell or a temp_id defined earlier in the batch",
             },
           });
         }
@@ -1976,7 +2233,12 @@ export class DiagramModel {
       target_id?: string;
       style?: string;
     }>,
-  ): Array<{ success: boolean; cell?: Cell; error?: StructuredError; cell_id: string }> {
+  ): Array<{
+    success: boolean;
+    cell?: Cell;
+    error?: StructuredError;
+    cell_id: string;
+  }> {
     return updates.map((update) => {
       const result = this.editEdge(update.cell_id, {
         text: update.text,
@@ -2040,7 +2302,11 @@ export class DiagramModel {
     const targetCell = this.cells.get(edge.targetId);
     if (targetCell && targetCell.parent) {
       const parentCell = this.cells.get(targetCell.parent);
-      if (parentCell && parentCell.isGroup && !this.isCellInsideGroup(edge.sourceId, parentCell.id)) {
+      if (
+        parentCell &&
+        parentCell.isGroup &&
+        !this.isCellInsideGroup(edge.sourceId, parentCell.id)
+      ) {
         warnings.push(
           `Edge from outside group '${parentCell.value || parentCell.id}' targets child ` +
             `'${targetCell.value || edge.targetId}' directly. Target the group cell '${parentCell.id}' instead — ` +
@@ -2065,7 +2331,12 @@ export class DiagramModel {
       height?: number;
       style?: string;
     }>,
-  ): Array<{ success: boolean; cell?: Cell; error?: StructuredError; cell_id: string }> {
+  ): Array<{
+    success: boolean;
+    cell?: Cell;
+    error?: StructuredError;
+    cell_id: string;
+  }> {
     return updates.map((update) => {
       const result = this.editCell(update.cell_id, {
         text: update.text,

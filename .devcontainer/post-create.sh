@@ -201,17 +201,8 @@ fi
 
 step_start "📐" "Setting up Draw.io MCP Server..."
 
-# Install Deno if not present (feature removed from devcontainers registry)
-if ! command -v deno &> /dev/null; then
-    curl -fsSL https://deno.land/install.sh | sh > /dev/null 2>&1 || true
-    export DENO_INSTALL="${HOME}/.deno"
-    export PATH="${DENO_INSTALL}/bin:${PATH}"
-    # Persist PATH for interactive shells
-    grep -q 'DENO_INSTALL' "${HOME}/.bashrc" 2>/dev/null || {
-        echo 'export DENO_INSTALL="${HOME}/.deno"' >> "${HOME}/.bashrc"
-        echo 'export PATH="${DENO_INSTALL}/bin:${PATH}"' >> "${HOME}/.bashrc"
-    }
-fi
+# Deno CLI is installed by onCreateCommand in devcontainer.json and PATH is set
+# via containerEnv. No curl install needed here — just verify and cache deps.
 
 DRAWIO_MCP_DIR="${PWD}/mcp/drawio-mcp-server"
 if [ -d "$DRAWIO_MCP_DIR" ]; then
@@ -226,7 +217,7 @@ if [ -d "$DRAWIO_MCP_DIR" ]; then
             step_warn "Draw.io MCP server cached but type check inconclusive"
         fi
     else
-        step_warn "Deno not found — Draw.io MCP Server not installed"
+        step_fail "Deno not found — check onCreateCommand in devcontainer.json"
     fi
 else
     step_fail "Draw.io MCP directory not found at $DRAWIO_MCP_DIR"

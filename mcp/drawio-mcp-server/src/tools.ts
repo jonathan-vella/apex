@@ -96,9 +96,15 @@ function resolveShape(shapeName: string): ResolvedShape | undefined {
   // Distinguish "cached as not-found" from "not yet cached"
   if (resolveShapeCache.has(cacheKey)) return undefined;
 
-  // Evict cache if it has grown too large (prevents unbounded memory growth)
+  // LRU-style eviction: drop oldest 25% when cache is full
   if (resolveShapeCache.size >= maxResolveCacheSize) {
-    resolveShapeCache.clear();
+    const evictCount = Math.ceil(maxResolveCacheSize * 0.25);
+    const iter = resolveShapeCache.keys();
+    for (let i = 0; i < evictCount; i++) {
+      const next = iter.next();
+      if (next.done) break;
+      resolveShapeCache.delete(next.value);
+    }
   }
 
   // 0. Check alias registry first — maps common names to canonical library names
@@ -159,6 +165,7 @@ function resolveShape(shapeName: string): ResolvedShape | undefined {
   return undefined;
 }
 
+// deno-lint-ignore no-explicit-any
 function successResult(data: any): CallToolResult {
   const result: InternalSuccessResult = {
     content: [{ type: "text", text: JSON.stringify({ success: true, data }) }],
@@ -182,6 +189,9 @@ type StatefulArgs = {
   transactional?: boolean;
 };
 
+/** Maximum allowed size for a single diagram_xml parameter (5 MB). */
+const MAX_DIAGRAM_XML_SIZE = 5 * 1024 * 1024;
+
 function withDiagramState<T extends StatefulArgs>(
   args: T | undefined,
   operation: (diagram: DiagramModel) => CallToolResult,
@@ -190,6 +200,18 @@ function withDiagramState<T extends StatefulArgs>(
   const normalizedArgs: StatefulArgs = args ?? {};
   const diagram = new DiagramModel();
   const transactional = normalizedArgs.transactional ?? false;
+
+  if (
+    normalizedArgs.diagram_xml &&
+    normalizedArgs.diagram_xml.length > MAX_DIAGRAM_XML_SIZE
+  ) {
+    return errorResult({
+      code: "DIAGRAM_TOO_LARGE",
+      message: `diagram_xml exceeds ${MAX_DIAGRAM_XML_SIZE / 1024 / 1024} MB limit (${(normalizedArgs.diagram_xml.length / 1024 / 1024).toFixed(1)} MB received)`,
+      suggestion:
+        "Split the diagram into smaller parts or reduce embedded image data",
+    });
+  }
 
   if (normalizedArgs.diagram_xml) {
     const importResult = diagram.importXml(normalizedArgs.diagram_xml);
@@ -245,6 +267,7 @@ function withDiagramState<T extends StatefulArgs>(
 }
 
 export interface ToolLogger {
+  // deno-lint-ignore no-explicit-any
   debug: (...args: any[]) => void;
 }
 
@@ -1483,6 +1506,7 @@ export function createHandlers(logger?: ToolLogger) {
         }
 
         const successCount = results.reduce(
+          // deno-lint-ignore no-explicit-any
           (n, r: any) => n + (r.success ? 1 : 0),
           0,
         );

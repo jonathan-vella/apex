@@ -10,6 +10,7 @@ import { DEV_SAVED_PATH } from "./utils.ts";
  * Minimal logger interface for tool handler logging.
  */
 export interface ToolLogger {
+  // deno-lint-ignore no-explicit-any
   debug: (...args: any[]) => void;
 }
 
@@ -18,7 +19,11 @@ export interface ToolLogger {
  * Handlers may be synchronous or asynchronous — the factory `await`s
  * the result regardless, which is safe for both.
  */
-export type ToolHandlerMap = Record<string, (args: any) => CallToolResult | Promise<CallToolResult>>;
+// deno-lint-ignore no-explicit-any
+export type ToolHandlerMap = Record<
+  string,
+  (args: any) => CallToolResult | Promise<CallToolResult>
+>;
 
 /**
  * Creates a factory function that produces MCP tool handlers with logging.
@@ -42,10 +47,22 @@ export function timestamp(): string {
   return new Date().toISOString();
 }
 
-export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLogger) {
-  function createToolHandler(toolName: string, hasArgs: true): (args: any, extra: any) => Promise<any>;
-  function createToolHandler(toolName: string, hasArgs?: false): (extra: any) => Promise<any>;
+export function createToolHandlerFactory(
+  handlerMap: ToolHandlerMap,
+  log: ToolLogger,
+) {
+  // deno-lint-ignore no-explicit-any
+  function createToolHandler(
+    toolName: string,
+    hasArgs: true,
+  ): (args: any, extra: any) => Promise<any>;
+  // deno-lint-ignore no-explicit-any
+  function createToolHandler(
+    toolName: string,
+    hasArgs?: false,
+  ): (extra: any) => Promise<any>;
   function createToolHandler(toolName: string, hasArgs = false) {
+    // deno-lint-ignore no-explicit-any
     return async (...params: any[]) => {
       const extra = hasArgs ? params[1] : params[0];
       const args = hasArgs ? params[0] : {};
@@ -72,18 +89,20 @@ export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLo
             `${timestamp()}: ${reqTag}${sesTag} ${prefix} uncaught error in ${durationStr}: ${errorMessage}`,
           );
           return {
-            content: [{
-              type: "text" as const,
-              text: JSON.stringify({
-                success: false,
-                error: {
-                  code: "INTERNAL_ERROR",
-                  message: errorMessage,
-                  suggestion:
-                    "This is an unexpected server error. Do not retry with the same parameters — the error is deterministic. Report the issue at https://github.com/simonkurtz-MSFT/drawio-mcp-server/issues",
-                },
-              }),
-            }],
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: {
+                    code: "INTERNAL_ERROR",
+                    message: errorMessage,
+                    suggestion:
+                      "This is an unexpected server error. Do not retry with the same parameters — the error is deterministic. Report the issue at https://github.com/simonkurtz-MSFT/drawio-mcp-server/issues",
+                  },
+                }),
+              },
+            ],
             isError: true,
           };
         }
@@ -91,7 +110,8 @@ export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLo
         const isError = result.isError ?? false;
         // Measure payload from the already-serialized text content to avoid re-serializing
         const textContent = result.content?.[0];
-        const payloadLength = textContent && "text" in textContent ? textContent.text.length : 0;
+        const payloadLength =
+          textContent && "text" in textContent ? textContent.text.length : 0;
 
         // Log placeholder resolution count when present (e.g. finish-diagram)
         if (textContent && "text" in textContent) {
@@ -102,7 +122,9 @@ export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLo
                 `${timestamp()}: ${reqTag}${sesTag} ${prefix} resolved ${data.resolved_count} ${data.resolved_count === 1 ? "placeholder" : "placeholders"}`,
               );
             }
-          } catch { /* not JSON — skip */ }
+          } catch {
+            /* not JSON — skip */
+          }
         }
 
         // Log dev-mode diagram save with the standard formatted prefix
@@ -121,7 +143,8 @@ export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLo
         if (isError && textContent && "text" in textContent) {
           try {
             const data = JSON.parse(textContent.text);
-            const errorMsg = data.error?.message || data.error || "Unknown error";
+            const errorMsg =
+              data.error?.message || data.error || "Unknown error";
             log.debug(
               `${timestamp()}: ${reqTag}${sesTag} ${prefix} error in ${durationStr}, ${sizeStr}: ${errorMsg}`,
             );
@@ -140,7 +163,12 @@ export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLo
       }
       log.debug(`${timestamp()}: ${reqTag}${sesTag} ${prefix} not found`);
       return {
-        content: [{ type: "text" as const, text: JSON.stringify({ error: `Tool ${toolName} not available` }) }],
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify({ error: `Tool ${toolName} not available` }),
+          },
+        ],
         isError: true,
       };
     };

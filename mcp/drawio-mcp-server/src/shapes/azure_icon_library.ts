@@ -54,7 +54,9 @@ export interface AzureIconLibrary {
 function parseLibraryXml(xmlContent: string): AzureIconShape[] {
   try {
     // Extract JSON array from mxlibrary XML
-    const match = xmlContent.match(/<mxlibrary\s*>\s*\[(.*)\]\s*<\/mxlibrary>/s);
+    const match = xmlContent.match(
+      /<mxlibrary\s*>\s*\[(.*)\]\s*<\/mxlibrary>/s,
+    );
     if (!match) {
       log.warn("No mxlibrary found in XML");
       return [];
@@ -76,14 +78,16 @@ function parseLibraryXml(xmlContent: string): AzureIconShape[] {
 
       // Sanitize title - remove null bytes and extra whitespace
       const rawTitle = (item.title || `shape-${index}`).trim();
-      const title = rawTitle.replace(/[^\x20-\x7E]/g, "").trim() || `shape-${index}`;
+      const title =
+        rawTitle.replace(/[^\x20-\x7E]/g, "").trim() || `shape-${index}`;
 
       // Generate a safe ID from the title
-      const id = title
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "") || `shape-${index}`;
+      const id =
+        title
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || `shape-${index}`;
 
       return {
         id,
@@ -95,7 +99,12 @@ function parseLibraryXml(xmlContent: string): AzureIconShape[] {
       };
     });
   } catch (error) {
-    log.error("Error parsing library XML:", error);
+    const snippet = xmlContent.slice(0, 200);
+    log.error(
+      `Failed to parse Azure icon library XML (${xmlContent.length} chars). ` +
+        `First 200 chars: ${snippet}`,
+      error instanceof Error ? error.message : String(error),
+    );
     return [];
   }
 }
@@ -128,10 +137,11 @@ const CATEGORY_KEYWORDS: Readonly<Record<string, RegExp>> = {
     /^(cognitive|bot|openai|azure openai|machine learning|text|speech|vision|anomaly|ai |ai$|language|qna|translator|immersive|form recognizer|personalizer|content moderator|content safety|bonsai|azure applied ai|azure experimentation|azure object understanding|metrics advisor|serverless search|genomic|computer vision|custom vision|face api)/i,
   Analytics:
     /^(synapse|azure synapse|databricks|azure databricks|data factory|data factories|stream analytics|event hub|analysis service|data lake|data catalog|azure data catalog|data share|data virtualization|power bi|hd insight|hdi aks|time series|azure data explorer|endpoint analytics|internet analyzer)/i,
-  "Blockchain": /^(blockchain|consortium|azure blockchain)/i,
+  Blockchain: /^(blockchain|consortium|azure blockchain)/i,
   Compute:
     /^(virtual machine|vm |vm$|batch|cloud service|availability set|host group|host pool|hosts$|compute fleet|spot vm|auto scale|automanaged|capacity reservation|image|os image|disk|ssd|proximity placement|restore point|scale set|azure compute galler|community image|bare metal|modular data center|avs vm|server farm|shared image)/i,
-  Containers: /^(container|aks|kubernetes|registry|docker|azure red hat openshift|azure spring|worker container)/i,
+  Containers:
+    /^(container|aks|kubernetes|registry|docker|azure red hat openshift|azure spring|worker container)/i,
   Databases:
     /^(sql|azure sql|mysql|mariadb|postgresql|cosmos|azure cosmos|cache|redis|azure managed redis|database|azure database|elastic pool|elastic job|managed instance|managed database|instance pool|oracle|production ready|virtual cluster|dedicated hsm)/i,
   "Developer Tools":
@@ -140,7 +150,7 @@ const CATEGORY_KEYWORDS: Readonly<Record<string, RegExp>> = {
     /^(azure devops|devops|devtest|pipeline|repo|artifact|backlog|branch|build|bug|commit|code$|code |test base|lab account|lab service|cloudtest|managed devops|microsoft dev box|azure deployment environment|azure dev tunnel|tfs vc|workspace gateway|workspaces$|load test)/i,
   General:
     /^(resource|subscription|management group|management portal|all resource|tag|template|quickstart|help|learn|marketplace|advisor|dashboard|portal|launch|recent|download|free service|information|guide|gear|toolbox|powershell|azure a$|azure workbook|workbook|location|search$|search |preview|feature|user setting|user privacy|user subscription|tenant|offer|plan$|plans$|region management|azure cloud shell|azure token|azure sustainability|azure consumption|azure lighthouse|my customer|education|ebook|heart|power$|power |power up|solutions|sonic dash|troubleshoot|versions|workflow|service catalog|service group|abs member|030777508|ceres|breeze|fiji|mindaro|aquila|planetary|process explorer|input output|cubes|counter|controls|browser|dev console|error$|globe|folder|file$|files$|ftp|module|log streaming|alerts$|metrics$|frd qa|journey hub|azurite|promethus)/i,
-  "Health": /^(fhir|azure api for fhir|medtech|genomic account)/i,
+  Health: /^(fhir|azure api for fhir|medtech|genomic account)/i,
   "Hybrid + Multicloud":
     /^(azure stack|stack hci|hybrid|arc |arc$|machinesazurearc|azure arc|landing zone|mission landing|azure hybrid|azure vmware|scvmm|wac$|wac |azure edge hardware|edge action|edge management)/i,
   Identity:
@@ -148,23 +158,26 @@ const CATEGORY_KEYWORDS: Readonly<Record<string, RegExp>> = {
   Integration:
     /^(service bus|azure service bus|logic app|api management|api connection|api center|api proxy|event grid|integration|relay|notification hub|sendgrid|signalr|biz talk|collaborative|data collection|system topic|partner namespace|partner registration|partner topic|open supply chain|business process|engage center|azure communication|azure programmable)/i,
   "Intune + Endpoint Management": /^(intune|client app|software update)/i,
-  IoT:
-    /^(iot|device provisioning|device update|digital twin|azure sphere|connected vehicle|industrial iot|azure iot|rtos|connected cache|defender (cm|dcs|distribut|engineering|external|freezer|hmi|historian|industrial|marquee|meter|plc|pneumatic|programable|rtu|relay|robot|sensor|slot|web guiding)|device compliance|device configuration|device enrollment|device security|devices$)/i,
+  IoT: /^(iot|device provisioning|device update|digital twin|azure sphere|connected vehicle|industrial iot|azure iot|rtos|connected cache|defender (cm|dcs|distribut|engineering|external|freezer|hmi|historian|industrial|marquee|meter|plc|pneumatic|programable|rtu|relay|robot|sensor|slot|web guiding)|device compliance|device configuration|device enrollment|device security|devices$)/i,
   "Management + Governance":
     /^(monitor|azure monitor|log analytics|automation|policy|backup|recovery|cost|blueprint|compliance|app compliance|diagnostic|activity log|change analysis|service health|update|maintenance|azure chaos|azure backup|resource guard|resource mover|resource graph|managed desktop|managed application|operation log|azure support|savings|scheduler|reservation|reserved|azure quota|purview|azure purview|governance|azure managed grafana|targets management|toolchain|workload orchestration|osconfig|icm|infrastructure backup|application insight|applens|azure load testing)/i,
   Media: /^(media|video|azure media|azure video)/i,
-  Migration: /^(azure migrate|migration|import export|storsimple|azure storage mover|ssis lift)/i,
+  Migration:
+    /^(azure migrate|migration|import export|storsimple|azure storage mover|ssis lift)/i,
   "Mixed Reality": /^(spatial anchor|remote rendering|mesh application)/i,
   Mobile: /^(mobile|app center)/i,
   Networking:
     /^(virtual network|load balancer|application gateway|vpn|firewall|azure firewall|dns|front door|cdn|traffic|network|bastion|expressroute|express route|local network|nat$|nat |ip address|ip group|ip prefix|public ip|private endpoint|private link|peering|route|subnet|ddos|virtual wan|virtual router|web application firewall|custom ip|outbound|atm multistack|azure network function|service endpoint polic)/i,
-  "Operator": /^(azure operator|azure orbital)/i,
+  Operator: /^(azure operator|azure orbital)/i,
   "Power Platform": /^(power platform)/i,
-  "SAP on Azure": /^(azure center for sap|central service instance|virtual instance for sap|azure monitors? for sap)/i,
+  "SAP on Azure":
+    /^(azure center for sap|central service instance|virtual instance for sap|azure monitors? for sap)/i,
   Security:
     /^(security|key vault|keys$|ssh key|sentinel|azure sentinel|defender(?! (cm|dcs|distribut|engineering|external|freezer|hmi|historian|industrial|marquee|meter|plc|pneumatic|programable|rtu|relay|robot|sensor|slot|web guiding))|microsoft defender|confidential|detonation|customer lockbox|azure information protection|azure(?: )?attestation|extended.?security|application security)/i,
-  Storage: /^(storage|blob|file share|managed file|azure fileshare|azure netapp|data box|azure databox|disk pool|elastic san|edge storage|azure hcp cache|table$|capacity$)/i,
-  "Virtual Desktop": /^(azure virtual desktop|virtual visits|virtual enclaves|application group)/i,
+  Storage:
+    /^(storage|blob|file share|managed file|azure fileshare|azure netapp|data box|azure databox|disk pool|elastic san|edge storage|azure hcp cache|table$|capacity$)/i,
+  "Virtual Desktop":
+    /^(azure virtual desktop|virtual visits|virtual enclaves|application group)/i,
   Web: /^(web |app service|static app|function app|app space|web app|web job|web slot|web test|website|universal print|windows10|windows notification)/i,
   "Maps + Spatial": /^(azure maps)/i,
   "Azure HPC": /^(azure hpc)/i,
@@ -176,7 +189,9 @@ const CATEGORY_KEYWORDS: Readonly<Record<string, RegExp>> = {
  * (e.g., "00030-icon-service-Machine-Learning-Studio-(Classic)-Web-Services"),
  * so we strip that prefix and normalize hyphens before applying regex rules.
  */
-function categorizeShapes(shapes: AzureIconShape[]): Map<string, AzureIconShape[]> {
+function categorizeShapes(
+  shapes: AzureIconShape[],
+): Map<string, AzureIconShape[]> {
   const categories = new Map<string, AzureIconShape[]>();
 
   shapes.forEach((shape) => {
@@ -217,11 +232,31 @@ export function loadAzureIconLibrary(libraryPath?: string): AzureIconLibrary {
   // Try multiple possible paths to locate the icon library
   const possiblePaths = [
     // ESM __dirname based path (from src/shapes/)
-    join(__dirname, "..", "..", "assets", "azure-public-service-icons", "000 all azure public service icons.xml"),
+    join(
+      __dirname,
+      "..",
+      "..",
+      "assets",
+      "azure-public-service-icons",
+      "000 all azure public service icons.xml",
+    ),
     // From build/ directory
-    join(__dirname, "..", "..", "..", "assets", "azure-public-service-icons", "000 all azure public service icons.xml"),
+    join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "assets",
+      "azure-public-service-icons",
+      "000 all azure public service icons.xml",
+    ),
     // From project root (cwd)
-    join(Deno.cwd(), "assets", "azure-public-service-icons", "000 all azure public service icons.xml"),
+    join(
+      Deno.cwd(),
+      "assets",
+      "azure-public-service-icons",
+      "000 all azure public service icons.xml",
+    ),
   ];
 
   const filePath = libraryPath || possiblePaths.find((p) => fileExistsSync(p));
@@ -293,246 +328,334 @@ export function loadAzureIconLibrary(libraryPath?: string): AzureIconLibrary {
  * resolution), while `searchAzureIcons` injects **all** targets at the
  * top of the results list.
  */
-export const AZURE_SHAPE_ALIASES: ReadonlyMap<string, readonly string[]> = new Map([
-  // ── App Service / Web Apps ─────────────────────────────────────────────
-  // "App Service" fuzzy-matches Plans/Certs/Domains before the main icon
-  ["app service", ["10035-icon-service-app-services"]],
-  ["app services", ["10035-icon-service-app-services"]],
-  ["azure app service", ["10035-icon-service-app-services"]],
-  ["azure app services", ["10035-icon-service-app-services"]],
+export const AZURE_SHAPE_ALIASES: ReadonlyMap<string, readonly string[]> =
+  new Map([
+    // ── App Service / Web Apps ─────────────────────────────────────────────
+    // "App Service" fuzzy-matches Plans/Certs/Domains before the main icon
+    ["app service", ["10035-icon-service-app-services"]],
+    ["app services", ["10035-icon-service-app-services"]],
+    ["azure app service", ["10035-icon-service-app-services"]],
+    ["azure app services", ["10035-icon-service-app-services"]],
 
-  // ── Static Web Apps ────────────────────────────────────────────────────
-  // Icon is named "Static-Apps", not "Static-Web-Apps"
-  ["static web app", ["01007-icon-service-static-apps"]],
-  ["static web apps", ["01007-icon-service-static-apps"]],
-  ["azure static web app", ["01007-icon-service-static-apps"]],
-  ["azure static web apps", ["01007-icon-service-static-apps"]],
-  ["swa", ["01007-icon-service-static-apps"]],
+    // ── Static Web Apps ────────────────────────────────────────────────────
+    // Icon is named "Static-Apps", not "Static-Web-Apps"
+    ["static web app", ["01007-icon-service-static-apps"]],
+    ["static web apps", ["01007-icon-service-static-apps"]],
+    ["azure static web app", ["01007-icon-service-static-apps"]],
+    ["azure static web apps", ["01007-icon-service-static-apps"]],
+    ["swa", ["01007-icon-service-static-apps"]],
 
-  // ── Functions ──────────────────────────────────────────────────────────
-  // "Azure Functions" fuzzy-matches Network Function Manager
-  ["azure functions", ["10029-icon-service-function-apps"]],
-  ["function app", ["10029-icon-service-function-apps"]],
-  ["function apps", ["10029-icon-service-function-apps"]],
-  ["azure function app", ["10029-icon-service-function-apps"]],
-  ["azure function apps", ["10029-icon-service-function-apps"]],
+    // ── Functions ──────────────────────────────────────────────────────────
+    // "Azure Functions" fuzzy-matches Network Function Manager
+    ["azure functions", ["10029-icon-service-function-apps"]],
+    ["function app", ["10029-icon-service-function-apps"]],
+    ["function apps", ["10029-icon-service-function-apps"]],
+    ["azure function app", ["10029-icon-service-function-apps"]],
+    ["azure function apps", ["10029-icon-service-function-apps"]],
 
-  // ── Container Apps ─────────────────────────────────────────────────────
-  ["container apps", ["02989-icon-service-container-apps-environments", "02884-icon-service-worker-container-app"]],
-  ["azure container apps", [
-    "02989-icon-service-container-apps-environments",
-    "02884-icon-service-worker-container-app",
-  ]],
-  ["container app", ["02989-icon-service-container-apps-environments", "02884-icon-service-worker-container-app"]],
-  ["azure container app", [
-    "02989-icon-service-container-apps-environments",
-    "02884-icon-service-worker-container-app",
-  ]],
-  ["aca", ["02989-icon-service-container-apps-environments", "02884-icon-service-worker-container-app"]],
+    // ── Container Apps ─────────────────────────────────────────────────────
+    [
+      "container apps",
+      [
+        "02989-icon-service-container-apps-environments",
+        "02884-icon-service-worker-container-app",
+      ],
+    ],
+    [
+      "azure container apps",
+      [
+        "02989-icon-service-container-apps-environments",
+        "02884-icon-service-worker-container-app",
+      ],
+    ],
+    [
+      "container app",
+      [
+        "02989-icon-service-container-apps-environments",
+        "02884-icon-service-worker-container-app",
+      ],
+    ],
+    [
+      "azure container app",
+      [
+        "02989-icon-service-container-apps-environments",
+        "02884-icon-service-worker-container-app",
+      ],
+    ],
+    [
+      "aca",
+      [
+        "02989-icon-service-container-apps-environments",
+        "02884-icon-service-worker-container-app",
+      ],
+    ],
 
-  // ── Container Registry ─────────────────────────────────────────────────
-  // Icon is titled "Container-Registries" (plural); singular/abbreviation miss
-  ["container registry", ["10105-icon-service-container-registries"]],
-  ["container registries", ["10105-icon-service-container-registries"]],
-  ["acr", ["10105-icon-service-container-registries"]],
-  ["azure container registry", ["10105-icon-service-container-registries"]],
-  ["azure container registries", ["10105-icon-service-container-registries"]],
+    // ── Container Registry ─────────────────────────────────────────────────
+    // Icon is titled "Container-Registries" (plural); singular/abbreviation miss
+    ["container registry", ["10105-icon-service-container-registries"]],
+    ["container registries", ["10105-icon-service-container-registries"]],
+    ["acr", ["10105-icon-service-container-registries"]],
+    ["azure container registry", ["10105-icon-service-container-registries"]],
+    ["azure container registries", ["10105-icon-service-container-registries"]],
 
-  // ── Kubernetes / AKS ───────────────────────────────────────────────────
-  // "AKS" fuzzy-matches AKS Automatic; shorthand should resolve to the main icon
-  ["aks", ["10023-icon-service-kubernetes-services"]],
-  ["azure kubernetes service", ["10023-icon-service-kubernetes-services"]],
-  ["azure kubernetes services", ["10023-icon-service-kubernetes-services"]],
-  ["k8s", ["10023-icon-service-kubernetes-services"]],
+    // ── Kubernetes / AKS ───────────────────────────────────────────────────
+    // "AKS" fuzzy-matches AKS Automatic; shorthand should resolve to the main icon
+    ["aks", ["10023-icon-service-kubernetes-services"]],
+    ["azure kubernetes service", ["10023-icon-service-kubernetes-services"]],
+    ["azure kubernetes services", ["10023-icon-service-kubernetes-services"]],
+    ["k8s", ["10023-icon-service-kubernetes-services"]],
 
-  // ── Virtual Machines ───────────────────────────────────────────────────
-  // "VM" fuzzy-matches Automanaged VM; shorthand should resolve to main icon
-  ["vm", ["10021-icon-service-virtual-machine"]],
-  ["virtual machines", ["10021-icon-service-virtual-machine"]],
-  ["azure vm", ["10021-icon-service-virtual-machine"]],
+    // ── Virtual Machines ───────────────────────────────────────────────────
+    // "VM" fuzzy-matches Automanaged VM; shorthand should resolve to main icon
+    ["vm", ["10021-icon-service-virtual-machine"]],
+    ["virtual machines", ["10021-icon-service-virtual-machine"]],
+    ["azure vm", ["10021-icon-service-virtual-machine"]],
 
-  // ── Virtual Networks ───────────────────────────────────────────────────
-  // "VNet" does not fuzzy-match Virtual Networks at all
-  ["vnet", ["10061-icon-service-virtual-networks"]],
-  ["virtual network", ["10061-icon-service-virtual-networks"]],
-  ["virtual networks", ["10061-icon-service-virtual-networks"]],
-  ["azure virtual network", ["10061-icon-service-virtual-networks"]],
-  ["azure vnet", ["10061-icon-service-virtual-networks"]],
+    // ── Virtual Networks ───────────────────────────────────────────────────
+    // "VNet" does not fuzzy-match Virtual Networks at all
+    ["vnet", ["10061-icon-service-virtual-networks"]],
+    ["virtual network", ["10061-icon-service-virtual-networks"]],
+    ["virtual networks", ["10061-icon-service-virtual-networks"]],
+    ["azure virtual network", ["10061-icon-service-virtual-networks"]],
+    ["azure vnet", ["10061-icon-service-virtual-networks"]],
 
-  // ── Network Security Groups ────────────────────────────────────────────
-  // "NSG" fuzzy-matches HD Insight instead of Network Security Groups
-  ["nsg", ["10067-icon-service-network-security-groups"]],
-  ["network security group", ["10067-icon-service-network-security-groups"]],
-  ["network security groups", ["10067-icon-service-network-security-groups"]],
+    // ── Network Security Groups ────────────────────────────────────────────
+    // "NSG" fuzzy-matches HD Insight instead of Network Security Groups
+    ["nsg", ["10067-icon-service-network-security-groups"]],
+    ["network security group", ["10067-icon-service-network-security-groups"]],
+    ["network security groups", ["10067-icon-service-network-security-groups"]],
 
-  // ── Blob Storage ───────────────────────────────────────────────────────
-  // No "Blob Storage" icon; closest is Blob Block + Storage Accounts
-  ["blob storage", ["10780-icon-service-blob-block", "10086-icon-service-storage-accounts"]],
-  ["azure blob storage", ["10780-icon-service-blob-block", "10086-icon-service-storage-accounts"]],
-  ["blob", ["10780-icon-service-blob-block"]],
+    // ── Blob Storage ───────────────────────────────────────────────────────
+    // No "Blob Storage" icon; closest is Blob Block + Storage Accounts
+    [
+      "blob storage",
+      ["10780-icon-service-blob-block", "10086-icon-service-storage-accounts"],
+    ],
+    [
+      "azure blob storage",
+      ["10780-icon-service-blob-block", "10086-icon-service-storage-accounts"],
+    ],
+    ["blob", ["10780-icon-service-blob-block"]],
 
-  // ── Storage ────────────────────────────────────────────────────────────
-  ["storage account", ["10086-icon-service-storage-accounts"]],
-  ["storage accounts", ["10086-icon-service-storage-accounts"]],
+    // ── Storage ────────────────────────────────────────────────────────────
+    ["storage account", ["10086-icon-service-storage-accounts"]],
+    ["storage accounts", ["10086-icon-service-storage-accounts"]],
 
-  // ── Redis / Cache ──────────────────────────────────────────────────────
-  // Icons are "Cache-Redis" and "Azure-Managed-Redis"; common names don't match
-  ["redis cache", ["10137-icon-service-cache-redis"]],
-  ["redis", ["10137-icon-service-cache-redis", "03675-icon-service-azure-managed-redis"]],
-  ["azure cache for redis", ["10137-icon-service-cache-redis"]],
-  ["azure redis", ["10137-icon-service-cache-redis", "03675-icon-service-azure-managed-redis"]],
+    // ── Redis / Cache ──────────────────────────────────────────────────────
+    // Icons are "Cache-Redis" and "Azure-Managed-Redis"; common names don't match
+    ["redis cache", ["10137-icon-service-cache-redis"]],
+    [
+      "redis",
+      [
+        "10137-icon-service-cache-redis",
+        "03675-icon-service-azure-managed-redis",
+      ],
+    ],
+    ["azure cache for redis", ["10137-icon-service-cache-redis"]],
+    [
+      "azure redis",
+      [
+        "10137-icon-service-cache-redis",
+        "03675-icon-service-azure-managed-redis",
+      ],
+    ],
 
-  // ── Azure Firewall ─────────────────────────────────────────────────────
-  // "Azure Firewall" fuzzy-matches Manager/Policy, not the main Firewalls icon
-  ["azure firewall", ["10084-icon-service-firewalls"]],
-  ["firewall", ["10084-icon-service-firewalls"]],
+    // ── Azure Firewall ─────────────────────────────────────────────────────
+    // "Azure Firewall" fuzzy-matches Manager/Policy, not the main Firewalls icon
+    ["azure firewall", ["10084-icon-service-firewalls"]],
+    ["firewall", ["10084-icon-service-firewalls"]],
 
-  // ── DNS ────────────────────────────────────────────────────────────────
-  // "Azure DNS" fuzzy-matches Dev Tunnels; "Private DNS" returns Private Endpoints
-  ["azure dns", ["10064-icon-service-dns-zones"]],
-  ["dns", ["10064-icon-service-dns-zones"]],
-  ["private dns", ["02882-icon-service-dns-private-resolver", "10064-icon-service-dns-zones"]],
-  ["private dns zone", ["02882-icon-service-dns-private-resolver"]],
+    // ── DNS ────────────────────────────────────────────────────────────────
+    // "Azure DNS" fuzzy-matches Dev Tunnels; "Private DNS" returns Private Endpoints
+    ["azure dns", ["10064-icon-service-dns-zones"]],
+    ["dns", ["10064-icon-service-dns-zones"]],
+    [
+      "private dns",
+      [
+        "02882-icon-service-dns-private-resolver",
+        "10064-icon-service-dns-zones",
+      ],
+    ],
+    ["private dns zone", ["02882-icon-service-dns-private-resolver"]],
 
-  // ── SQL Database ───────────────────────────────────────────────────────
-  // "Azure SQL Database" fuzzy-matches Stretch Databases instead of SQL Database
-  ["azure sql database", ["10130-icon-service-sql-database"]],
-  ["azure sql", ["02390-icon-service-azure-sql", "10130-icon-service-sql-database"]],
-  ["sql database", ["10130-icon-service-sql-database"]],
-  ["azure sql db", ["10130-icon-service-sql-database"]],
-  ["sql db", ["10130-icon-service-sql-database"]],
+    // ── SQL Database ───────────────────────────────────────────────────────
+    // "Azure SQL Database" fuzzy-matches Stretch Databases instead of SQL Database
+    ["azure sql database", ["10130-icon-service-sql-database"]],
+    [
+      "azure sql",
+      ["02390-icon-service-azure-sql", "10130-icon-service-sql-database"],
+    ],
+    ["sql database", ["10130-icon-service-sql-database"]],
+    ["azure sql db", ["10130-icon-service-sql-database"]],
+    ["sql db", ["10130-icon-service-sql-database"]],
 
-  // ── Managed Identity ───────────────────────────────────────────────────
-  ["managed identity", ["10227-icon-service-entra-managed-identities"]],
-  ["managed identities", ["10227-icon-service-entra-managed-identities"]],
-  ["user assigned managed identity", ["10227-icon-service-entra-managed-identities"]],
-  ["user assigned managed identities", ["10227-icon-service-entra-managed-identities"]],
-  ["system assigned managed identity", ["10227-icon-service-entra-managed-identities"]],
-  ["system assigned managed identities", ["10227-icon-service-entra-managed-identities"]],
-  ["uami", ["10227-icon-service-entra-managed-identities"]],
-  ["sami", ["10227-icon-service-entra-managed-identities"]],
+    // ── Managed Identity ───────────────────────────────────────────────────
+    ["managed identity", ["10227-icon-service-entra-managed-identities"]],
+    ["managed identities", ["10227-icon-service-entra-managed-identities"]],
+    [
+      "user assigned managed identity",
+      ["10227-icon-service-entra-managed-identities"],
+    ],
+    [
+      "user assigned managed identities",
+      ["10227-icon-service-entra-managed-identities"],
+    ],
+    [
+      "system assigned managed identity",
+      ["10227-icon-service-entra-managed-identities"],
+    ],
+    [
+      "system assigned managed identities",
+      ["10227-icon-service-entra-managed-identities"],
+    ],
+    ["uami", ["10227-icon-service-entra-managed-identities"]],
+    ["sami", ["10227-icon-service-entra-managed-identities"]],
 
-  // ── Application Insights ───────────────────────────────────────────────
-  // "App Insights" doesn't fuzzy-match — only full name does
-  ["app insights", ["00012-icon-service-application-insights"]],
+    // ── Application Insights ───────────────────────────────────────────────
+    // "App Insights" doesn't fuzzy-match — only full name does
+    ["app insights", ["00012-icon-service-application-insights"]],
 
-  // ── Entra ID ───────────────────────────────────────────────────────────
-  ["entra", ["10231-icon-service-entra-id-protection"]],
-  ["microsoft entra", ["10231-icon-service-entra-id-protection"]],
-  ["entra id", ["10231-icon-service-entra-id-protection"]],
-  ["microsoft entra id", ["10231-icon-service-entra-id-protection"]],
-  ["azure ad", ["10231-icon-service-entra-id-protection"]],
-  ["azure active directory", ["10231-icon-service-entra-id-protection"]],
-  ["aad", ["10231-icon-service-entra-id-protection"]],
+    // ── Entra ID ───────────────────────────────────────────────────────────
+    ["entra", ["10231-icon-service-entra-id-protection"]],
+    ["microsoft entra", ["10231-icon-service-entra-id-protection"]],
+    ["entra id", ["10231-icon-service-entra-id-protection"]],
+    ["microsoft entra id", ["10231-icon-service-entra-id-protection"]],
+    ["azure ad", ["10231-icon-service-entra-id-protection"]],
+    ["azure active directory", ["10231-icon-service-entra-id-protection"]],
+    ["aad", ["10231-icon-service-entra-id-protection"]],
 
-  // ── Azure Monitor ──────────────────────────────────────────────────────
-  ["azure monitor", ["02488-icon-service-azure-monitor-dashboard"]],
-  // ── Azure Policy ───────────────────────────────────────────────────
-  // Icon title is just "Policy"; common name "Azure Policy" misses exact match
-  ["azure policy", ["10316-icon-service-policy"]],
-  // ── Front Doors / CDN ──────────────────────────────────────────────────
-  ["front doors", ["10073-icon-service-front-door-and-cdn-profiles"]],
-  ["front door", ["10073-icon-service-front-door-and-cdn-profiles"]],
-  ["azure front door", ["10073-icon-service-front-door-and-cdn-profiles"]],
-  ["azure front doors", ["10073-icon-service-front-door-and-cdn-profiles"]],
-  ["afd", ["10073-icon-service-front-door-and-cdn-profiles"]],
+    // ── Azure Monitor ──────────────────────────────────────────────────────
+    ["azure monitor", ["02488-icon-service-azure-monitor-dashboard"]],
+    // ── Azure Policy ───────────────────────────────────────────────────
+    // Icon title is just "Policy"; common name "Azure Policy" misses exact match
+    ["azure policy", ["10316-icon-service-policy"]],
+    // ── Front Doors / CDN ──────────────────────────────────────────────────
+    ["front doors", ["10073-icon-service-front-door-and-cdn-profiles"]],
+    ["front door", ["10073-icon-service-front-door-and-cdn-profiles"]],
+    ["azure front door", ["10073-icon-service-front-door-and-cdn-profiles"]],
+    ["azure front doors", ["10073-icon-service-front-door-and-cdn-profiles"]],
+    ["afd", ["10073-icon-service-front-door-and-cdn-profiles"]],
 
-  // ── Cosmos DB ──────────────────────────────────────────────────────────
-  ["cosmos db", ["10121-icon-service-azure-cosmos-db"]],
-  ["cosmosdb", ["10121-icon-service-azure-cosmos-db"]],
+    // ── Cosmos DB ──────────────────────────────────────────────────────────
+    ["cosmos db", ["10121-icon-service-azure-cosmos-db"]],
+    ["cosmosdb", ["10121-icon-service-azure-cosmos-db"]],
 
-  // ── Key Vault ──────────────────────────────────────────────────────────
-  ["key vault", ["10245-icon-service-key-vaults"]],
-  ["key vaults", ["10245-icon-service-key-vaults"]],
-  ["azure key vault", ["10245-icon-service-key-vaults"]],
-  ["azure key vaults", ["10245-icon-service-key-vaults"]],
+    // ── Key Vault ──────────────────────────────────────────────────────────
+    ["key vault", ["10245-icon-service-key-vaults"]],
+    ["key vaults", ["10245-icon-service-key-vaults"]],
+    ["azure key vault", ["10245-icon-service-key-vaults"]],
+    ["azure key vaults", ["10245-icon-service-key-vaults"]],
 
-  // ── Service Bus ────────────────────────────────────────────────────────
-  ["service bus", ["10836-icon-service-azure-service-bus"]],
-  ["azure service bus", ["10836-icon-service-azure-service-bus"]],
+    // ── Service Bus ────────────────────────────────────────────────────────
+    ["service bus", ["10836-icon-service-azure-service-bus"]],
+    ["azure service bus", ["10836-icon-service-azure-service-bus"]],
 
-  // ── API Management ─────────────────────────────────────────────────────
-  ["api management", ["10042-icon-service-api-management-services"]],
-  ["apim", ["10042-icon-service-api-management-services"]],
-  ["api mgmt", ["10042-icon-service-api-management-services"]],
+    // ── API Management ─────────────────────────────────────────────────────
+    ["api management", ["10042-icon-service-api-management-services"]],
+    ["apim", ["10042-icon-service-api-management-services"]],
+    ["api mgmt", ["10042-icon-service-api-management-services"]],
 
-  // ── Application Gateway ────────────────────────────────────────────────
-  ["app gateway", ["10076-icon-service-application-gateways"]],
-  ["application gateway", ["10076-icon-service-application-gateways"]],
-  ["agw", ["10076-icon-service-application-gateways"]],
+    // ── Application Gateway ────────────────────────────────────────────────
+    ["app gateway", ["10076-icon-service-application-gateways"]],
+    ["application gateway", ["10076-icon-service-application-gateways"]],
+    ["agw", ["10076-icon-service-application-gateways"]],
 
-  // ── Load Balancer ──────────────────────────────────────────────────────
-  ["load balancer", ["10062-icon-service-load-balancers"]],
-  ["azure load balancer", ["10062-icon-service-load-balancers"]],
+    // ── Load Balancer ──────────────────────────────────────────────────────
+    ["load balancer", ["10062-icon-service-load-balancers"]],
+    ["azure load balancer", ["10062-icon-service-load-balancers"]],
 
-  // ── Log Analytics ──────────────────────────────────────────────────────
-  ["log analytics", ["00009-icon-service-log-analytics-workspaces"]],
-  ["log analytics workspace", ["00009-icon-service-log-analytics-workspaces"]],
-  ["log analytics workspaces", ["00009-icon-service-log-analytics-workspaces"]],
-  ["law", ["00009-icon-service-log-analytics-workspaces"]],
+    // ── Log Analytics ──────────────────────────────────────────────────────
+    ["log analytics", ["00009-icon-service-log-analytics-workspaces"]],
+    [
+      "log analytics workspace",
+      ["00009-icon-service-log-analytics-workspaces"],
+    ],
+    [
+      "log analytics workspaces",
+      ["00009-icon-service-log-analytics-workspaces"],
+    ],
+    ["law", ["00009-icon-service-log-analytics-workspaces"]],
 
-  // ── Bastion ────────────────────────────────────────────────────────────
-  ["bastion", ["02422-icon-service-bastions"]],
-  ["azure bastion", ["02422-icon-service-bastions"]],
+    // ── Bastion ────────────────────────────────────────────────────────────
+    ["bastion", ["02422-icon-service-bastions"]],
+    ["azure bastion", ["02422-icon-service-bastions"]],
 
-  // ── ExpressRoute ───────────────────────────────────────────────────────
-  ["expressroute", ["10079-icon-service-expressroute-circuits"]],
-  ["express route", ["10079-icon-service-expressroute-circuits"]],
+    // ── ExpressRoute ───────────────────────────────────────────────────────
+    ["expressroute", ["10079-icon-service-expressroute-circuits"]],
+    ["express route", ["10079-icon-service-expressroute-circuits"]],
 
-  // ── NAT Gateway ────────────────────────────────────────────────────────
-  // Icon is titled "NAT"; "NAT Gateway" fuzzy-matches On-Premises Data Gateways
-  ["nat gateway", ["10310-icon-service-nat"]],
-  ["nat gateways", ["10310-icon-service-nat"]],
-  ["azure nat gateway", ["10310-icon-service-nat"]],
+    // ── NAT Gateway ────────────────────────────────────────────────────────
+    // Icon is titled "NAT"; "NAT Gateway" fuzzy-matches On-Premises Data Gateways
+    ["nat gateway", ["10310-icon-service-nat"]],
+    ["nat gateways", ["10310-icon-service-nat"]],
+    ["azure nat gateway", ["10310-icon-service-nat"]],
 
-  // ── Web Application Firewall (WAF) ────────────────────────────────────
-  // "WAF" fuzzy-matches Power Platform instead of WAF Policies
-  ["waf", ["10362-icon-service-web-application-firewall-policies-waf"]],
-  ["web application firewall", ["10362-icon-service-web-application-firewall-policies-waf"]],
-  ["azure waf", ["10362-icon-service-web-application-firewall-policies-waf"]],
+    // ── Web Application Firewall (WAF) ────────────────────────────────────
+    // "WAF" fuzzy-matches Power Platform instead of WAF Policies
+    ["waf", ["10362-icon-service-web-application-firewall-policies-waf"]],
+    [
+      "web application firewall",
+      ["10362-icon-service-web-application-firewall-policies-waf"],
+    ],
+    ["azure waf", ["10362-icon-service-web-application-firewall-policies-waf"]],
 
-  // ── Data Factory ───────────────────────────────────────────────────────
-  // Singular "Data Factory" doesn't match the plural-titled "Data-Factories"
-  ["data factory", ["10126-icon-service-data-factories"]],
-  ["data factories", ["10126-icon-service-data-factories"]],
-  ["adf", ["10126-icon-service-data-factories"]],
-  ["azure data factory", ["10126-icon-service-data-factories"]],
+    // ── Data Factory ───────────────────────────────────────────────────────
+    // Singular "Data Factory" doesn't match the plural-titled "Data-Factories"
+    ["data factory", ["10126-icon-service-data-factories"]],
+    ["data factories", ["10126-icon-service-data-factories"]],
+    ["adf", ["10126-icon-service-data-factories"]],
+    ["azure data factory", ["10126-icon-service-data-factories"]],
 
-  // ── Microsoft Defender for Cloud ───────────────────────────────────────
-  ["defender for cloud", ["10241-icon-service-microsoft-defender-for-cloud"]],
-  ["microsoft defender for cloud", ["10241-icon-service-microsoft-defender-for-cloud"]],
-  ["azure defender", ["10241-icon-service-microsoft-defender-for-cloud"]],
+    // ── Microsoft Defender for Cloud ───────────────────────────────────────
+    ["defender for cloud", ["10241-icon-service-microsoft-defender-for-cloud"]],
+    [
+      "microsoft defender for cloud",
+      ["10241-icon-service-microsoft-defender-for-cloud"],
+    ],
+    ["azure defender", ["10241-icon-service-microsoft-defender-for-cloud"]],
 
-  // ── Private Endpoints ──────────────────────────────────────────────────
-  ["private endpoint", ["02579-icon-service-private-endpoints"]],
-  ["private endpoints", ["02579-icon-service-private-endpoints"]],
-  ["azure private endpoint", ["02579-icon-service-private-endpoints"]],
+    // ── Private Endpoints ──────────────────────────────────────────────────
+    ["private endpoint", ["02579-icon-service-private-endpoints"]],
+    ["private endpoints", ["02579-icon-service-private-endpoints"]],
+    ["azure private endpoint", ["02579-icon-service-private-endpoints"]],
 
-  // ── Virtual Network Gateway / VPN Gateway ──────────────────────────────
-  // "VPN Gateway" returns no fuzzy match; icon is titled "Virtual-Network-Gateways"
-  ["vpn gateway", ["10063-icon-service-virtual-network-gateways"]],
-  ["vpn gateways", ["10063-icon-service-virtual-network-gateways"]],
-  ["virtual network gateway", ["10063-icon-service-virtual-network-gateways"]],
-  ["virtual network gateways", ["10063-icon-service-virtual-network-gateways"]],
-  ["vnet gateway", ["10063-icon-service-virtual-network-gateways"]],
+    // ── Virtual Network Gateway / VPN Gateway ──────────────────────────────
+    // "VPN Gateway" returns no fuzzy match; icon is titled "Virtual-Network-Gateways"
+    ["vpn gateway", ["10063-icon-service-virtual-network-gateways"]],
+    ["vpn gateways", ["10063-icon-service-virtual-network-gateways"]],
+    [
+      "virtual network gateway",
+      ["10063-icon-service-virtual-network-gateways"],
+    ],
+    [
+      "virtual network gateways",
+      ["10063-icon-service-virtual-network-gateways"],
+    ],
+    ["vnet gateway", ["10063-icon-service-virtual-network-gateways"]],
 
-  // ── Azure Managed Grafana ──────────────────────────────────────────────
-  ["grafana", ["02905-icon-service-azure-managed-grafana"]],
-  ["managed grafana", ["02905-icon-service-azure-managed-grafana"]],
-  ["azure managed grafana", ["02905-icon-service-azure-managed-grafana"]],
-  ["azure grafana", ["02905-icon-service-azure-managed-grafana"]],
+    // ── Azure Managed Grafana ──────────────────────────────────────────────
+    ["grafana", ["02905-icon-service-azure-managed-grafana"]],
+    ["managed grafana", ["02905-icon-service-azure-managed-grafana"]],
+    ["azure managed grafana", ["02905-icon-service-azure-managed-grafana"]],
+    ["azure grafana", ["02905-icon-service-azure-managed-grafana"]],
 
-  // ── Recovery Services / Azure Backup ───────────────────────────────────
-  ["azure backup", ["00017-icon-service-recovery-services-vaults"]],
-  ["backup", ["00017-icon-service-recovery-services-vaults"]],
-  ["recovery services vault", ["00017-icon-service-recovery-services-vaults"]],
-  ["recovery services vaults", ["00017-icon-service-recovery-services-vaults"]],
+    // ── Recovery Services / Azure Backup ───────────────────────────────────
+    ["azure backup", ["00017-icon-service-recovery-services-vaults"]],
+    ["backup", ["00017-icon-service-recovery-services-vaults"]],
+    [
+      "recovery services vault",
+      ["00017-icon-service-recovery-services-vaults"],
+    ],
+    [
+      "recovery services vaults",
+      ["00017-icon-service-recovery-services-vaults"],
+    ],
 
-  // ── Application Insights (full name forms) ─────────────────────────────
-  // Extends existing "app insights" alias with additional name forms
-  ["application insights", ["00012-icon-service-application-insights"]],
-  ["azure application insights", ["00012-icon-service-application-insights"]],
-]);
+    // ── Application Insights (full name forms) ─────────────────────────────
+    // Extends existing "app insights" alias with additional name forms
+    ["application insights", ["00012-icon-service-application-insights"]],
+    ["azure application insights", ["00012-icon-service-application-insights"]],
+  ]);
 
 /**
  * Resolve an alias to its **primary** (first) target icon ID.
@@ -556,7 +679,9 @@ export function resolveAzureAlias(query: string): string | undefined {
  * Returns `undefined` when the query is not an alias.
  * Used by `searchAzureIcons` to inject every aliased shape into results.
  */
-export function resolveAllAzureAliases(query: string): readonly string[] | undefined {
+export function resolveAllAzureAliases(
+  query: string,
+): readonly string[] | undefined {
   const lower = query.toLowerCase();
   const result = AZURE_SHAPE_ALIASES.get(lower);
   if (result) return result;
@@ -690,13 +815,14 @@ function getSearchIndex(): FuzzySearch<SearchableShape> {
       searchId: normalizeForSearch(shape.id),
     }));
 
-    cachedSearchIndex = new FuzzySearch(searchableShapes, [
-      "searchTitle",
-      "searchId",
-    ], {
-      caseSensitive: false,
-      sort: true,
-    });
+    cachedSearchIndex = new FuzzySearch(
+      searchableShapes,
+      ["searchTitle", "searchId"],
+      {
+        caseSensitive: false,
+        sort: true,
+      },
+    );
   }
 
   return cachedSearchIndex;
@@ -740,8 +866,8 @@ export function searchAzureIcons(
   const library = getAzureIconLibrary();
   const aliasShapes: AzureIconShape[] = aliasTargets
     ? aliasTargets
-      .map((t) => library.indexByTitle.get(t))
-      .filter((s): s is AzureIconShape => s !== undefined)
+        .map((t) => library.indexByTitle.get(t))
+        .filter((s): s is AzureIconShape => s !== undefined)
     : [];
 
   const searcher = getSearchIndex();
@@ -757,7 +883,7 @@ export function searchAzureIcons(
     // Exact matches on title get boost
     const titleMatch = searchTitle === normalizedQuery ? 1.0 : 0;
     const idMatch = searchId === normalizedQuery ? 0.95 : 0;
-    const positionDecay = 1 - index / results.length * 0.2; // Up to 20% decay
+    const positionDecay = 1 - (index / results.length) * 0.2; // Up to 20% decay
     const score = Math.max(titleMatch, idMatch) || 0.5 + 0.3 * positionDecay;
 
     return {
@@ -773,7 +899,10 @@ export function searchAzureIcons(
   if (aliasShapes.length > 0) {
     const aliasIds = new Set(aliasShapes.map((s) => s.id));
     const filtered = searchResults.filter((r) => !aliasIds.has(r.id));
-    const aliasResults: SearchResult[] = aliasShapes.map((s) => ({ ...s, score: 1.0 }));
+    const aliasResults: SearchResult[] = aliasShapes.map((s) => ({
+      ...s,
+      score: 1.0,
+    }));
     finalResults = [...aliasResults, ...filtered].slice(0, maxCacheResults);
   } else {
     finalResults = searchResults.sort((a, b) => b.score - a.score);

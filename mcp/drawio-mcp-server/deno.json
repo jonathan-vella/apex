@@ -53,7 +53,7 @@
   "lint": {
     "rules": {
       "tags": ["recommended"],
-      "exclude": ["require-await", "no-explicit-any"]
+      "exclude": ["require-await"]
     }
   },
   "fmt": {
@@ -65,9 +65,5 @@
   "test": {
     "include": ["tests/"]
   },
-  "exclude": [
-    "build/",
-    "coverage/",
-    "node_modules/"
-  ]
+  "exclude": ["build/", "coverage/", "node_modules/"]
 }
