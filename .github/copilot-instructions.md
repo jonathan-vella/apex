@@ -30,27 +30,27 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 
 ## Skills (Auto-Invoked by Agents)
 
-| Skill                      | Purpose                                                             |
-| -------------------------- | ------------------------------------------------------------------- |
-| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing           |
-| `azure-artifacts`          | Template H2 structures, styling, generation rules                   |
-| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                |
-| `azure-diagnostics`        | KQL templates, health checks, remediation playbooks                 |
-| `azure-diagrams`           | Architecture diagrams (draw.io default + Python charts), SVG export |
-| `azure-adr`                | Architecture Decision Records                                       |
-| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                          |
-| `git-commit`               | Commit message conventions                                          |
-| `docs-writer`              | Documentation generation                                            |
-| `make-skill-template`      | Scaffold new Agent Skills from templates                            |
-| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)   |
-| `terraform-test`           | Terraform testing framework (.tftest.hcl, mocks, assertions)        |
-| `terraform-search-import`  | Azure resource discovery and bulk Terraform import                  |
-| `session-resume`           | Session state tracking, resume protocol, context budgets            |
-| `workflow-engine`          | DAG workflow graph, complexity routing, step definitions            |
-| `context-shredding`        | Runtime context compression tiers for large artifacts               |
-| `microsoft-docs`           | Official Microsoft documentation search and retrieval               |
-| `microsoft-code-reference` | Azure SDK/API verification and code sample lookup                   |
-| `microsoft-skill-creator`  | Generate custom agent skills for Microsoft technologies             |
+| Skill                      | Purpose                                                           |
+| -------------------------- | ----------------------------------------------------------------- |
+| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing         |
+| `azure-artifacts`          | Template H2 structures, styling, generation rules                 |
+| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
+| `azure-diagnostics`        | KQL templates, health checks, remediation playbooks               |
+| `azure-diagrams`           | Architecture diagrams (draw.io default + Python charts)           |
+| `azure-adr`                | Architecture Decision Records                                     |
+| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                        |
+| `git-commit`               | Commit message conventions                                        |
+| `docs-writer`              | Documentation generation                                          |
+| `make-skill-template`      | Scaffold new Agent Skills from templates                          |
+| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls) |
+| `terraform-test`           | Terraform testing framework (.tftest.hcl, mocks, assertions)      |
+| `terraform-search-import`  | Azure resource discovery and bulk Terraform import                |
+| `session-resume`           | Session state tracking, resume protocol, context budgets          |
+| `workflow-engine`          | DAG workflow graph, complexity routing, step definitions          |
+| `context-shredding`        | Runtime context compression tiers for large artifacts             |
+| `microsoft-docs`           | Official Microsoft documentation search and retrieval             |
+| `microsoft-code-reference` | Azure SDK/API verification and code sample lookup                 |
+| `microsoft-skill-creator`  | Generate custom agent skills for Microsoft technologies           |
 
 Agents read skills via: **"Read `.github/skills/{name}/SKILL.digest.md`"** in their body.
 At >60% context, agents load `SKILL.digest.md` (compact); at >80% they load

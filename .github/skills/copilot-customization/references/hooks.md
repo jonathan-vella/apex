@@ -1,4 +1,5 @@
 <!-- ref:hooks-v1 -->
+
 # Hooks Reference (Preview)
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/hooks
@@ -31,11 +32,14 @@ These aspects are unlikely to change significantly:
 
 Each hook lives in its own folder under `.github/hooks/` (one `hooks.json` + one script per folder):
 
-| Folder                      | Event          | Script                        | Purpose                                                       |
-| --------------------------- | -------------- | ----------------------------- | ------------------------------------------------------------- |
-| `block-dangerous-commands/` | `PreToolUse`   | `block-dangerous-commands.sh` | Block `rm -rf`, `git push --force`, `terraform destroy`, etc. |
-| `post-edit-format/`         | `PostToolUse`  | `post-edit-format.sh`         | Auto-run `markdownlint` on `.md` and `terraform fmt` on `.tf` |
-| `session-start-audit/`      | `SessionStart` | `session-start-audit.sh`      | Log agent sessions to `~/.copilot-audit/sessions.jsonl`       |
+| Folder                 | Event                                               | Script                      | Purpose                                                       |
+| ---------------------- | --------------------------------------------------- | --------------------------- | ------------------------------------------------------------- |
+| `tool-guardian/`       | `preToolUse`                                        | `guard-tool.sh`             | Block dangerous commands + hook self-modification protection  |
+| `secrets-scanner/`     | `sessionEnd`                                        | `scan-secrets.sh`           | Scan modified files for leaked secrets and credentials        |
+| `session-logger/`      | `sessionStart`, `sessionEnd`, `userPromptSubmitted` | `log-session-start.sh` etc. | Log session lifecycle and inject project context              |
+| `governance-audit/`    | `sessionStart`, `sessionEnd`, `userPromptSubmitted` | `audit-prompt.sh` etc.      | Scan prompts for threat signals with governance levels        |
+| `post-edit-format/`    | `PostToolUse`                                       | `post-edit-format.sh`       | Auto-run `markdownlint` on `.md` and `terraform fmt` on `.tf` |
+| `subagent-validation/` | `SubagentStop`                                      | `subagent-validation.sh`    | Validate subagent output quality (advisory)                   |
 
 Hook folder paths are registered in `.vscode/settings.json` via `chat.hookFilesLocations`.
 

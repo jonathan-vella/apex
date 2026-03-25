@@ -1,6 +1,6 @@
 ---
 name: azure-diagrams
-description: "Azure architecture diagrams (editable .drawio with official icons + SVG export) and WAF/cost charts (Python matplotlib). Draw.io is the default for architecture diagrams. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams, WAF radar charts, cost pie charts. DO NOT USE FOR: Bicep/Terraform code, ADR writing, troubleshooting, cost calculations."
+description: "Azure architecture diagrams (editable .drawio with official icons) and WAF/cost charts (Python matplotlib). Draw.io is the default for architecture diagrams. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams, WAF radar charts, cost pie charts. DO NOT USE FOR: Bicep/Terraform code, ADR writing, troubleshooting, cost calculations."
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Requires drawio-mcp-server (Deno) configured in .vscode/mcp.json. Python diagrams library for charts.
 license: MIT
 metadata:
@@ -16,7 +16,7 @@ and WAF/cost charts (Python matplotlib).
 
 ## Routing Guide
 
-- **Architecture diagrams** → Draw.io XML (`.drawio` + `.drawio.svg`) — this is the DEFAULT
+- **Architecture diagrams** → Draw.io XML (`.drawio`) — this is the DEFAULT
 - **WAF bar charts, cost donuts, cost projections, compliance gaps** → Python matplotlib (`.py` + `.png`)
 - **Swimlane / ERD / timeline** → Python graphviz (`.py` + `.png`)
 
@@ -30,17 +30,11 @@ and WAF/cost charts (Python matplotlib).
 
 ### Required outputs
 
-| Step | Draw.io files                                                                               | Python chart files (if applicable)                                   |
-| ---- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| 3    | `03-des-diagram.drawio` + `.drawio.svg`                                                     | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
-| 4    | `04-dependency-diagram.drawio` + `.drawio.svg`, `04-runtime-diagram.drawio` + `.drawio.svg` | —                                                                    |
-| 7    | `07-ab-diagram.drawio` + `.drawio.svg`                                                      | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
-
-### SVG export
-
-After generating `.drawio`, optionally export to SVG for doc embedding via
-VS Code (right-click → Export) or `scripts/drawio/drawio-export.sh`.
-Embed: `![Architecture](03-des-diagram.drawio.svg)`
+| Step | Draw.io files                                               | Python chart files (if applicable)                                   |
+| ---- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| 3    | `03-des-diagram.drawio`                                     | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 4    | `04-dependency-diagram.drawio`, `04-runtime-diagram.drawio` | —                                                                    |
+| 7    | `07-ab-diagram.drawio`                                      | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
 
 ### Output format
 
@@ -106,11 +100,11 @@ See `references/drawio-common-patterns.md` (draw.io), `references/common-pattern
 
 ## Workflow Integration
 
-| Step | Draw.io files                           | Python chart files                                                   |
-| ---- | --------------------------------------- | -------------------------------------------------------------------- |
-| 2    | —                                       | `02-waf-scores.py/.png`                                              |
-| 3    | `03-des-diagram.drawio` + `.drawio.svg` | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
-| 7    | `07-ab-diagram.drawio` + `.drawio.svg`  | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
+| Step | Draw.io files           | Python chart files                                                   |
+| ---- | ----------------------- | -------------------------------------------------------------------- |
+| 2    | —                       | `02-waf-scores.py/.png`                                              |
+| 3    | `03-des-diagram.drawio` | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 7    | `07-ab-diagram.drawio`  | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
 
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 

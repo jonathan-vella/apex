@@ -8,13 +8,15 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "docs/**"
+      - "site/src/content/docs/**"
       - ".markdown-link-check.json"
+      - ".markdown-link-check-site.json"
   push:
     branches: [main]
     paths:
-      - "docs/**"
+      - "site/src/content/docs/**"
       - ".markdown-link-check.json"
+      - ".markdown-link-check-site.json"
   schedule:
     # Run weekly on Monday at 08:00 UTC (staggered: deprecation 06:00, maintenance 07:00, links 08:00)
     - cron: "0 8 * * 1"

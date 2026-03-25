@@ -242,11 +242,13 @@ the `compact_for_parent` carry-forward between passes is the part that reliably 
 The project uses 3 Copilot hooks (`.github/hooks/`) that intercept agent actions
 at runtime:
 
-| Hook                       | Trigger        | Purpose                                                              |
-| -------------------------- | -------------- | -------------------------------------------------------------------- |
-| `block-dangerous-commands` | `PreToolUse`   | Blocks destructive terminal commands (`rm -rf`, `git push --force`)  |
-| `post-edit-format`         | `PostToolUse`  | Auto-formats files after agent edits (whitespace, trailing newlines) |
-| `session-start-audit`      | `SessionStart` | Audits session context at startup (environment, auth status)         |
+| Hook               | Trigger               | Purpose                                                              |
+| ------------------ | --------------------- | -------------------------------------------------------------------- |
+| `tool-guardian`    | `preToolUse`          | Blocks dangerous commands (destructive ops, force pushes, DB drops)  |
+| `secrets-scanner`  | `sessionEnd`          | Scans modified files for leaked secrets and credentials              |
+| `session-logger`   | `sessionStart`        | Logs session lifecycle and injects project context                   |
+| `governance-audit` | `userPromptSubmitted` | Scans prompts for threat signals with governance levels              |
+| `post-edit-format` | `PostToolUse`         | Auto-formats files after agent edits (whitespace, trailing newlines) |
 
 Hooks are defined in `hooks.json` files with type (`command`), path to shell script,
 and timeout. They run automatically — agents do not invoke them explicitly.

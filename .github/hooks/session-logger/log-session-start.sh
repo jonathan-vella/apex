@@ -1,34 +1,38 @@
-#!/usr/bin/env bash
-# session-start-audit.sh
-# SessionStart hook: logs new agent sessions and injects project context.
-# Receives JSON input via stdin; outputs JSON to stdout.
-# Docs: https://code.visualstudio.com/docs/copilot/customization/hooks
+#!/bin/bash
+# Session Logger: Log session start event with project context injection
+# Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/session-logger
+# Merged with project context injection from session-start-audit
+
 set -euo pipefail
 
+# Skip if logging disabled
+if [[ "${SKIP_LOGGING:-}" == "true" ]]; then
+  exit 0
+fi
+
+# Read input from Copilot
 INPUT=$(cat)
 
-# ── Audit logging ──
-LOG_DIR="${HOME}/.copilot-audit"
+# Create logs directory if it doesn't exist
+LOG_DIR="logs/copilot"
 mkdir -p "$LOG_DIR"
 
-SESSION_INFO=$(echo "$INPUT" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-print(json.dumps({
-    'timestamp': data.get('timestamp', 'unknown'),
-    'sessionId': data.get('sessionId', 'unknown'),
-    'cwd': data.get('cwd', 'unknown'),
-    'source': data.get('source', 'unknown')
-}))
-" 2>/dev/null || echo '{"timestamp":"unknown","sessionId":"unknown","cwd":"unknown","source":"unknown"}')
+# Extract timestamp and session info
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+CWD=$(pwd)
 
-LOG_FILE="${LOG_DIR}/sessions.jsonl"
-echo "$SESSION_INFO" >> "$LOG_FILE"
+# Log session start (use jq for proper JSON encoding)
+if command -v jq &>/dev/null; then
+  jq -Rn --arg timestamp "$TIMESTAMP" --arg cwd "$CWD" \
+    '{"timestamp":$timestamp,"event":"sessionStart","cwd":$cwd}' >> "$LOG_DIR/session.log"
+else
+  echo "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"sessionStart\",\"cwd\":\"$CWD\"}" >> "$LOG_DIR/session.log"
+fi
 
 # ── Project context injection ──
 CONTEXT_PARTS=()
 
-# Last completed workflow step from session state (pick most recently modified if multiple exist)
+# Last completed workflow step from session state
 SESSION_STATE=$(find agent-output -maxdepth 2 -name '00-session-state.json' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2- || true)
 if [[ -n "$SESSION_STATE" && -f "$SESSION_STATE" ]]; then
   STEP_INFO=$(python3 -c "
@@ -67,7 +71,7 @@ CONTEXT_PARTS+=("Branch: ${BRANCH}")
 # Build system message
 CONTEXT_MSG=$(IFS=" | "; echo "Session context: ${CONTEXT_PARTS[*]}")
 
-# Use Python json.dumps for safe JSON output (prevents injection via subscription names)
+# Output JSON safely (prevents injection via subscription names)
 python3 -c "
 import json, sys
 msg = sys.argv[1]

@@ -26,7 +26,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` with deterministic layout and quality score >= 9/10."
+    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` with deterministic layout and quality score >= 9/10."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -199,7 +199,6 @@ Execute each `.py` file and verify the PNGs exist before continuing.
 Use the azure-diagrams skill to generate:
 
 - `agent-output/{project}/07-ab-diagram.drawio` — Editable draw.io architecture diagram
-- `agent-output/{project}/07-ab-diagram.drawio.svg` — SVG export (optional, via VS Code draw.io extension)
 
 The diagram MUST reflect actual deployed resources (not just planned ones).
 Follow the MANDATORY layout rules from the azure-diagrams skill:
@@ -207,7 +206,6 @@ Follow the MANDATORY layout rules from the azure-diagrams skill:
 - `labelWidth=160` on all icon cells, labels max 2 lines
 - Icons at least 260px apart horizontally
 - Subnets min 500px wide, VNet min 600px, RG min 800px
-- SVG export is optional — users can right-click the `.drawio` file in VS Code → Export → SVG
 
 **Saving the .drawio file:** After `finish-diagram`, call MCP `save-to-file`
 to write the diagram directly to disk — no terminal extraction needed:
@@ -250,7 +248,6 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 | Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
 | Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
 | As-Built Diagram (draw.io) | `agent-output/{project}/07-ab-diagram.drawio`        |
-| As-Built Diagram (SVG)     | `agent-output/{project}/07-ab-diagram.drawio.svg`    |
 | Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.png` |
 | Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.png`   |
 | Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |

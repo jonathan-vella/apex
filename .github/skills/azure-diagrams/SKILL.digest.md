@@ -6,7 +6,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Routing Guide
 
-- **Architecture diagrams** → Draw.io XML (`.drawio` + `.drawio.svg`) — this is the DEFAULT
+- **Architecture diagrams** → Draw.io XML (`.drawio`) — this is the DEFAULT
 - **WAF bar charts, cost donuts, cost projections, compliance gaps** → Python matplotlib (`.py` + `.png`)
 - **Swimlane / ERD / timeline** → Python graphviz (`.py` + `.png`)
 
@@ -20,10 +20,10 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ### Required outputs
 
-| Step | Draw.io files                                                                               | Python chart files (if applicable)                                   |
-| ---- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| 3    | `03-des-diagram.drawio` + `.drawio.svg`                                                     | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
-| 4    | `04-dependency-diagram.drawio` + `.drawio.svg`, `04-runtime-diagram.drawio` + `.drawio.svg` | —                                                                    |
+| Step | Draw.io files                                               | Python chart files (if applicable)                                   |
+| ---- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| 3    | `03-des-diagram.drawio`                                     | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 4    | `04-dependency-diagram.drawio`, `04-runtime-diagram.drawio` | —                                                                    |
 
 > _See SKILL.md for full content._
 
@@ -82,11 +82,11 @@ See `references/drawio-common-patterns.md` (draw.io), `references/common-pattern
 
 ## Workflow Integration
 
-| Step | Draw.io files                           | Python chart files                                                   |
-| ---- | --------------------------------------- | -------------------------------------------------------------------- |
-| 2    | —                                       | `02-waf-scores.py/.png`                                              |
-| 3    | `03-des-diagram.drawio` + `.drawio.svg` | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
-| 7    | `07-ab-diagram.drawio` + `.drawio.svg`  | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
+| Step | Draw.io files           | Python chart files                                                   |
+| ---- | ----------------------- | -------------------------------------------------------------------- |
+| 2    | —                       | `02-waf-scores.py/.png`                                              |
+| 3    | `03-des-diagram.drawio` | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 7    | `07-ab-diagram.drawio`  | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
 
 > _See SKILL.md for full content._
 

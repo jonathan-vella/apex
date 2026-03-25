@@ -8,7 +8,7 @@
     "lint:md": "markdownlint-cli2",
     "lint:md:fix": "markdownlint-cli2 --fix",
     "lint:links": "find . -name '*.md' ! -path './node_modules/*' ! -path './infra/*' ! -path './site/node_modules/*' ! -path './site/dist/*' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
-    "lint:links:docs": "find site/src/content/docs \\( -name '*.md' -o -name '*.mdx' \\) ! -path '*/demo/*' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
+    "lint:links:docs": "find site/src/content/docs \\( -name '*.md' -o -name '*.mdx' \\) ! -path '*/demo/*' | xargs -I {} markdown-link-check {} --config .markdown-link-check-site.json",
     "docs:dev": "cd site && npm run dev",
     "docs:build": "cd site && npm run build",
     "docs:preview": "cd site && npm run preview",

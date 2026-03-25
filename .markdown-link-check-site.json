@@ -1,0 +1,80 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^mailto:"
+    },
+    {
+      "pattern": "^#"
+    },
+    {
+      "pattern": "^https?://localhost"
+    },
+    {
+      "pattern": "example\\.com"
+    },
+    {
+      "pattern": "contoso\\.com"
+    },
+    {
+      "pattern": "your-.*\\.azure"
+    },
+    {
+      "pattern": "placeholder"
+    },
+    {
+      "pattern": "aka\\.ms"
+    },
+    {
+      "pattern": "^https://www\\.gartner\\.com"
+    },
+    {
+      "pattern": "^https://www\\.mckinsey\\.com"
+    },
+    {
+      "pattern": "^https://hbr\\.org"
+    },
+    {
+      "pattern": "^https://sloanreview\\.mit\\.edu"
+    },
+    {
+      "pattern": "^https://trust\\.github\\.com"
+    },
+    {
+      "pattern": "^https://azure\\.microsoft\\.com"
+    },
+    {
+      "pattern": "^https://openai\\.com"
+    },
+    {
+      "pattern": "^https://code\\.visualstudio\\.com"
+    },
+    {
+      "pattern": "\\.(jpg|jpeg|png|gif|svg|webp)(\\?.*)?$"
+    },
+    {
+      "pattern": "^/azure-agentic-infraops/"
+    },
+    {
+      "pattern": "^\\.{0,2}/|^[a-zA-Z0-9_-]+/"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "./"
+    }
+  ],
+  "httpHeaders": [
+    {
+      "urls": ["https://github.com"],
+      "headers": {
+        "Accept": "text/html"
+      }
+    }
+  ],
+  "aliveStatusCodes": [200, 206, 301, 302],
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "5s",
+  "timeout": "15s"
+}

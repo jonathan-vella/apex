@@ -37,13 +37,14 @@ sequenceDiagram
 
 ## Hook Inventory
 
-| Hook Directory              | Event        | Purpose                                                          | Timeout |
-| :-------------------------- | :----------- | :--------------------------------------------------------------- | ------: |
-| `block-dangerous-commands/` | PreToolUse   | Block dangerous terminal commands and hook self-modification     |     10s |
-| `post-edit-format/`         | PostToolUse  | Auto-format `.md`, `.bicep`, `.tf`, `.js` files after edits      |     30s |
-| `session-start-audit/`      | SessionStart | Log session, inject project context (step, subscription, branch) |      5s |
-| `subagent-validation/`      | SubagentStop | Validate subagent output quality (advisory)                      |     15s |
-| `session-report/`           | Stop         | Generate lightweight session summary                             |    180s |
+| Hook Directory         | Event(s)                                      | Purpose                                                                                                | Timeout |
+| :--------------------- | :-------------------------------------------- | :----------------------------------------------------------------------------------------------------- | ------: |
+| `tool-guardian/`       | preToolUse                                    | Block dangerous commands (destructive ops, force pushes, DB drops) + hook self-modification protection |     10s |
+| `secrets-scanner/`     | sessionEnd                                    | Scan modified files for leaked secrets, credentials, and sensitive data                                |     30s |
+| `session-logger/`      | sessionStart, sessionEnd, userPromptSubmitted | Log session lifecycle and inject project context (step, subscription, branch)                          |      5s |
+| `governance-audit/`    | sessionStart, sessionEnd, userPromptSubmitted | Scan prompts for threat signals; audit trail with governance levels                                    |     10s |
+| `post-edit-format/`    | PostToolUse                                   | Auto-format `.md`, `.bicep`, `.tf`, `.js` files after edits                                            |     30s |
+| `subagent-validation/` | SubagentStop                                  | Validate subagent output quality (advisory)                                                            |     15s |
 
 ## Configuration
 
@@ -52,11 +53,12 @@ Hooks are registered in `.vscode/settings.json`:
 ```json
 {
   "chat.hookFilesLocations": {
-    ".github/hooks/block-dangerous-commands": true,
+    ".github/hooks/tool-guardian": true,
+    ".github/hooks/secrets-scanner": true,
+    ".github/hooks/session-logger": true,
+    ".github/hooks/governance-audit": true,
     ".github/hooks/post-edit-format": true,
-    ".github/hooks/session-start-audit": true,
-    ".github/hooks/subagent-validation": true,
-    ".github/hooks/session-report": true
+    ".github/hooks/subagent-validation": true
   },
   "chat.useCustomAgentHooks": true
 }
@@ -81,26 +83,16 @@ Use agent-scoped hooks only for agent-specific logic not covered by global hooks
 
 ## Safety Considerations
 
-### Infinite Loop Prevention
-
-The Stop hook (`session-report.sh`) checks `stop_hook_active` from stdin JSON. If `true`,
-it returns immediately without processing — preventing infinite re-invocation.
-
 ### Self-Modification Protection
 
-The PreToolUse hook blocks file-edit tools (`replace_string_in_file`, `create_file`, etc.)
+The tool-guardian hook blocks file-edit tools (`replace_string_in_file`, `create_file`, etc.)
 from modifying files under `.github/hooks/`. Path resolution uses `realpath` to handle
 symlinks and traversal attacks (`../`).
 
 ### Timeout Enforcement
 
-Each hook specifies a timeout (5-180s). If a hook exceeds its timeout, VS Code terminates
+Each hook specifies a timeout (5-30s). If a hook exceeds its timeout, VS Code terminates
 it and continues the agent session.
-
-### SessionId Sanitization
-
-The Stop hook sanitizes `sessionId` input to prevent path traversal — only alphanumeric
-characters, hyphens, and underscores are preserved.
 
 ## Hook Directory Structure
 
@@ -245,8 +237,8 @@ If a hook exceeds its timeout, VS Code kills the process and continues. Check fo
 Test a hook locally by piping mock JSON:
 
 ```bash
-echo '{"tool_name":"run_in_terminal","tool_input":{"command":"ls"}}' | \
-  bash .github/hooks/block-dangerous-commands/block-dangerous-commands.sh
+echo '{"toolName":"run_in_terminal","toolInput":"ls"}' | \
+  bash .github/hooks/tool-guardian/guard-tool.sh
 ```
 
 ## Relationship to Git Hooks
