@@ -12,38 +12,48 @@ describe("DiagramModel — malformed XML handling", () => {
   describe("importXml rejects invalid input", () => {
     it("should reject empty string", () => {
       const result = model.importXml("");
-      assert("error" in result);
-      assertEquals(result.error.code, "EMPTY_XML");
+      assertEquals("error" in result, true);
+      if ("error" in result) {
+        assertEquals(result.error.code, "EMPTY_XML");
+      }
     });
 
     it("should reject whitespace-only string", () => {
       const result = model.importXml("   \n\t  ");
-      assert("error" in result);
-      assertEquals(result.error.code, "EMPTY_XML");
+      assertEquals("error" in result, true);
+      if ("error" in result) {
+        assertEquals(result.error.code, "EMPTY_XML");
+      }
     });
 
     it("should reject non-drawio XML", () => {
       const result = model.importXml("<html><body>Hello</body></html>");
-      assert("error" in result);
-      assertEquals(result.error.code, "INVALID_XML");
+      assertEquals("error" in result, true);
+      if ("error" in result) {
+        assertEquals(result.error.code, "INVALID_XML");
+      }
     });
 
     it("should reject plain text", () => {
       const result = model.importXml("this is not XML at all");
-      assert("error" in result);
-      assertEquals(result.error.code, "INVALID_XML");
+      assertEquals("error" in result, true);
+      if ("error" in result) {
+        assertEquals(result.error.code, "INVALID_XML");
+      }
     });
 
     it("should reject XML with mxfile tag but no content", () => {
       const result = model.importXml("<mxfile></mxfile>");
-      assert(!("error" in result), "Empty mxfile should import without error");
+      assertEquals("error" in result, false, "Empty mxfile should import without error");
     });
 
     it("should reject invalid compressed diagram data", () => {
       const xml = `<mxfile><diagram id="d1" name="Page-1">not-valid-base64-deflate-data!!!</diagram></mxfile>`;
       const result = model.importXml(xml);
-      assert("error" in result);
-      assertEquals(result.error.code, "DECOMPRESS_FAILED");
+      assertEquals("error" in result, true);
+      if ("error" in result) {
+        assertEquals(result.error.code, "DECOMPRESS_FAILED");
+      }
     });
   });
 
