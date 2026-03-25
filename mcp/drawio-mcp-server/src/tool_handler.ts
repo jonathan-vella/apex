@@ -10,6 +10,7 @@ import { DEV_SAVED_PATH } from "./utils.ts";
  * Minimal logger interface for tool handler logging.
  */
 export interface ToolLogger {
+  // deno-lint-ignore no-explicit-any
   debug: (...args: any[]) => void;
 }
 
@@ -18,6 +19,7 @@ export interface ToolLogger {
  * Handlers may be synchronous or asynchronous — the factory `await`s
  * the result regardless, which is safe for both.
  */
+// deno-lint-ignore no-explicit-any
 export type ToolHandlerMap = Record<string, (args: any) => CallToolResult | Promise<CallToolResult>>;
 
 /**
@@ -43,9 +45,12 @@ export function timestamp(): string {
 }
 
 export function createToolHandlerFactory(handlerMap: ToolHandlerMap, log: ToolLogger) {
+  // deno-lint-ignore no-explicit-any
   function createToolHandler(toolName: string, hasArgs: true): (args: any, extra: any) => Promise<any>;
+  // deno-lint-ignore no-explicit-any
   function createToolHandler(toolName: string, hasArgs?: false): (extra: any) => Promise<any>;
   function createToolHandler(toolName: string, hasArgs = false) {
+    // deno-lint-ignore no-explicit-any
     return async (...params: any[]) => {
       const extra = hasArgs ? params[1] : params[0];
       const args = hasArgs ? params[0] : {};

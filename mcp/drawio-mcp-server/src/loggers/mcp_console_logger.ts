@@ -1,3 +1,4 @@
+// deno-lint-ignore no-explicit-any
 export type Logger = {
   error: (message?: any, ...data: any[]) => void;
   warn: (message?: any, ...data: any[]) => void;
@@ -9,6 +10,7 @@ function timestamp(): string {
   return new Date().toISOString();
 }
 
+// deno-lint-ignore no-explicit-any
 function write(level: string, message?: any, ...data: any[]): void {
   const line = `${timestamp()}: ${level.padEnd(10)}: ${message}`;
   data.length > 0 ? console.error(line, ...data) : console.error(line);

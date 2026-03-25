@@ -26,7 +26,7 @@ const xmlParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "",
   isArray: (name: string) => name === "diagram" || name === "mxCell" || name === "UserObject",
-  processEntities: true,
+  processEntities: false,
 });
 
 /** Cell ID for the server watermark. Stripped on import and re-generated on every export. */

@@ -95,7 +95,12 @@ function parseLibraryXml(xmlContent: string): AzureIconShape[] {
       };
     });
   } catch (error) {
-    log.error("Error parsing library XML:", error);
+    const snippet = xmlContent.slice(0, 200);
+    log.error(
+      `Failed to parse Azure icon library XML (${xmlContent.length} chars). ` +
+      `First 200 chars: ${snippet}`,
+      error instanceof Error ? error.message : String(error),
+    );
     return [];
   }
 }
