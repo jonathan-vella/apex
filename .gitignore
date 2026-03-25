@@ -18,6 +18,10 @@ Copilot-Processing.md
 !.vscode/extensions.json
 !.vscode/mcp.json
 !.vscode/settings.json
+
+# Root .mcp.json is deprecated — Azure MCP is provided by the
+# ms-azuretools.vscode-azure-mcp-server extension. Use .vscode/mcp.json
+# for MCP server configuration.
 *.code-workspace
 
 # OS
