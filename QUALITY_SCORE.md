@@ -3,16 +3,16 @@
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 > Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
 
-| Domain          | Grade | Status                                                                  | Next Action                                 |
-| --------------- | ----- | ----------------------------------------------------------------------- | ------------------------------------------- |
-| Agents          | A     | 17 primary + 11 subagents; conductor 337 lines (under 400)              | Fix 3 model-mismatch warnings in registry   |
-| Skills          | A     | 43 GA skills; 46 with references/; 474 ref files                        | Monitor via `lint:skills-format`            |
-| Instructions    | A     | 28 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`               |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed  |
-| Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts     | Run doc-gardening after structural changes  |
-| CI / Validation | A     | 34 validators; lint:md 2 errors (pre-existing Fabric icon ref blanks)   | Fix Fabric reference blanks when convenient |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)        | Quarterly audit via AGENTS.md checklist     |
-| Backlog         | A     | 2 active items (registry drift + Fabric ref blanks); demo lint resolved | Triage registry model drift                 |
+| Domain          | Grade | Status                                                                   | Next Action                                 |
+| --------------- | ----- | ------------------------------------------------------------------------ | ------------------------------------------- |
+| Agents          | A     | Primary and subagent catalog aligned; conductor size remains in bounds   | Fix model-mismatch warnings in registry     |
+| Skills          | A     | Skill catalog and reference digests are in good shape                    | Monitor via `lint:skills-format`            |
+| Instructions    | A     | Instruction set uses narrow globs and valid references                   | Monitor via `lint:glob-audit`               |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)    | Expand Terraform E2E templates when needed  |
+| Documentation   | A     | Docs are fresh, with no stale files and descriptive count language       | Run doc-gardening after structural changes  |
+| CI / Validation | A     | Validation suite is active; lint:md still reports Fabric icon ref blanks | Fix Fabric reference blanks when convenient |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)         | Quarterly audit via AGENTS.md checklist     |
+| Backlog         | A     | Registry drift and Fabric ref blanks remain active; demo lint resolved   | Triage registry model drift                 |
 
 ## Grading Scale
 

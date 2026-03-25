@@ -51,8 +51,8 @@
 *.dylib binary
 
 # Excalidraw diagram files
-*.excalidraw binary
-*.excalidrawlib binary
+*.excalidraw text eol=lf
+*.excalidrawlib text eol=lf
 *.excalidraw.svg binary
 
 # GitHub specific files
