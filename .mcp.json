@@ -1,9 +1,0 @@
-{
-  "servers": {
-    "azure-mcp-plugin": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@azure/mcp@latest", "server", "start"]
-    }
-  }
-}

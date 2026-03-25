@@ -31,6 +31,20 @@
     "editor.rulers": [120],
     "editor.wordWrap": "wordWrapColumn"
   },
+  "[bicep]": {
+    "editor.tabSize": 2
+  },
+  "[terraform]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "hashicorp.terraform"
+  },
+  "[powershell]": {
+    "editor.tabSize": 4
+  },
+  "[python]": {
+    "editor.tabSize": 4
+  },
   "python.terminal.useEnvFile": true,
   "azureTerraform.checkTerraformCmd": false
 }
