@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - "agent-output/**/*.excalidraw"
+      - "assets/**/*.excalidraw"
       - "site/public/**/*.excalidraw"
   workflow_dispatch:
 
@@ -32,10 +33,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "22"
+          cache: npm
 
-      - name: Install Excalidraw export dependencies
-        run: npm install @excalidraw/excalidraw @excalidraw/utils
+      - name: Install Node.js dependencies
+        run: npm ci
 
       - name: Export all .excalidraw files to SVG
         run: |
@@ -77,6 +79,7 @@ jobs:
           async function main() {
             const files = [
               ...findFiles('agent-output', '.excalidraw'),
+              ...findFiles('assets', '.excalidraw'),
               ...findFiles('site/public', '.excalidraw'),
             ];
             let exported = 0, failed = 0;
@@ -94,7 +97,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add '*.excalidraw.svg'
+          for dir in agent-output assets site/public; do
+            if [ -d "$dir" ]; then
+              git add "$dir"
+            fi
+          done
           if git diff --cached --quiet; then
             echo "No SVG changes to commit"
           else

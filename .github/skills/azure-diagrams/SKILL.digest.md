@@ -48,8 +48,8 @@ See `references/abstraction-rules.md` for full rules.
 ## Layout Best Practices
 
 - **Flow**: Left-to-right or top-to-bottom. Group data resources inside VNet rectangle.
-- **Labels**: `fontSize: 16`, max 2-line labels. All text uses `fontFamily: 5` (Excalifont).
-  Space icons ≥260px apart. Max 2-line labels. Never `labelWidth` < 160.
+- **Labels**: Use the `13-16` size range, keep labels to at most 2 lines, and use `fontFamily: 5`.
+- **Spacing**: Icons ≥200px apart horizontally, ≥150px vertically, and ≥50px from container edges.
 - **Containers**: VNet min 250×250px, Canvas 1600×1000px.
 - **Spacing**: Icons min 50px from edges, 120px vertical between stacked icons.
 

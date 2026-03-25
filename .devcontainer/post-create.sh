@@ -285,7 +285,6 @@ printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --ve
 printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
-printf "        %-15s %s\n" "Deno:" "$(deno --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "excalidraw ext:" "$(code --list-extensions 2>/dev/null | grep -q pomdtr.excalidraw-editor && echo '✅ pomdtr.excalidraw-editor' || echo 'pomdtr.excalidraw-editor (via devcontainer extensions)')"
 
