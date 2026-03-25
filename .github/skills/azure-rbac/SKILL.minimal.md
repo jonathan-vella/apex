@@ -1,5 +1,5 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
-# Skill (Minimal)
+# Azure RBAC (Minimal)
 
-Read `SKILL.md` or `SKILL.digest.md` for full content.
+Need `Microsoft.Authorization/roleAssignments/write`. Read `SKILL.md` for details.

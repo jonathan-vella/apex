@@ -217,7 +217,8 @@ az consumption budget show \
 - **Reusable budget patterns** are available in the IaC pattern skills:
   - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`
   - Terraform: `.github/skills/terraform-patterns/references/budget-pattern.md`
-- [MCP Integration](how-it-works/mcp-integration.md)
+- [MCP Integration](../../concepts/how-it-works/mcp-integration/)
   — Azure Pricing MCP server and tool catalog
-- [Workflow](workflow.md) — how cost estimation fits into the agent workflow
+- [Workflow](../../concepts/workflow/) — how cost estimation fits into the agent workflow
+
   :::

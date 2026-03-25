@@ -3,7 +3,7 @@
 # Skill (Minimal)
 
 **Overview**:
-Microsoft Entra ID (formerly Azure Active Directory) is Microsoft's cloud-based identity and access management service.
+Microsoft Entra ID (formerly Azure AD) is Microsoft's cloud-based identity and access management service.
 
 **Core Workflow**:
 ### Step 1: Register the Application
@@ -15,6 +15,7 @@ Microsoft Entra ID (formerly Azure Active Directory) is Microsoft's cloud-based 
 ### Azure CLI Commands
 
 **Security Best Practices**:
+Never hardcode secrets · Rotate secrets regularly · Use certificates over secrets in production ·
 
 **SDK Quick References**:
 
@@ -23,6 +24,5 @@ Microsoft Entra ID (formerly Azure Active Directory) is Microsoft's cloud-based 
 **External Resources**:
 
 **Reference Index**:
-Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

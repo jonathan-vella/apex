@@ -19,27 +19,15 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Canonical Example — Module Composition
 
-Wire AVM child modules by passing outputs as inputs; never hardcode IDs:
-
-```hcl
-module "resource_group" {
-  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version = "~> 0.1"
-  name     = "rg-${var.project}-${var.environment}"
-  location = var.location
-
-> _See SKILL.md for full content._
+Wire AVM child modules by passing outputs as inputs; never hardcode IDs.
+See `references/common-patterns.md` for full examples.
 
 ## Key Rules
 
-- **AVM-first**: Use `Azure/avm-res-*` registry modules over raw `azurerm_*` resources
-- **Hub-spoke**: Spokes peer to hub only; never spoke-to-spoke
-- **Private endpoints**: Three resources per service — PE, DNS zone, VNet link
-- **Diagnostics**: Every resource MUST have a diagnostic setting → Log Analytics
-- **Conditional**: Use `for_each` (keyed) over `count` (indexed) for named resources
-- **Identity**: SystemAssigned managed identity + RBAC; avoid keys/connection strings
-- **Provider pin**: `~> 4.0` (allows 4.x patches, blocks 5.0)
-- **Telemetry**: Set `enable_telemetry = false` in restricted-network environments
+- **AVM-first**: Use `Azure/avm-res-*` registry modules over raw `azurerm_*`
+- **Hub-spoke**: Spokes peer to hub only; **Private endpoints**: PE + DNS zone + VNet link
+- **Diagnostics**: Every resource → Log Analytics; **Identity**: SystemAssigned + RBAC
+- **Provider pin**: `~> 4.0`; **Conditional**: `for_each` over `count`
 
 > _See SKILL.md for full content._
 

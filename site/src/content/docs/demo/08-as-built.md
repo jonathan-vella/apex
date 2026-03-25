@@ -47,7 +47,7 @@ The As-Built agent generates a complete documentation package after successful d
 
 | ⬅️ Previous                                            | 📑 Index            | Next ➡️                                              |
 | ------------------------------------------------------ | ------------------- | ---------------------------------------------------- |
-| [07-documentation-index.md](07-documentation-index.md) | [README](README.md) | [07-operations-runbook.md](07-operations-runbook.md) |
+| [Design Document](#design-document) | [Demo Index](../) | [Operations Runbook](#operations-runbook) |
 
 **Version**: 1.0
 **Date**: 2026-03-11
@@ -116,7 +116,7 @@ Cloud-based farm-to-table ordering platform connecting farms, restaurants, and c
 
 ![System Context Diagram - nordic-fresh-foods](/azure-agentic-infraops/demo/07-ab-diagram.png)
 
-Source: [07-ab-diagram.py](./07-ab-diagram.py)
+Source: [As-built architecture Draw.io source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/07-ab-diagram.drawio)
 
 ### 2.2 Resource Summary
 
@@ -253,8 +253,8 @@ Monitoring stack:
 
 | Architecture                        | Link                                                             |
 | ----------------------------------- | ---------------------------------------------------------------- |
-| Design-time architecture assessment | [02-architecture-assessment.md](./02-architecture-assessment.md) |
-| Deployment outcomes                 | [06-deployment-summary.md](./06-deployment-summary.md)           |
+| Design-time architecture assessment | [Architecture Assessment](../02-architecture/) |
+| Deployment outcomes                 | [Deployment Summary](../07-deploy/)            |
 
 ---
 
@@ -280,7 +280,7 @@ _Design document generated from deployed infrastructure artifacts._
 
 <div align="center">
 
-| ⬅️ [07-documentation-index.md](07-documentation-index.md) | 🏠 [Project Index](README.md) | ➡️ [07-operations-runbook.md](07-operations-runbook.md) |
+| ⬅️ [Design Document](#design-document) | 🏠 [Demo Index](../) | ➡️ [Operations Runbook](#operations-runbook) |
 | --------------------------------------------------------- | ----------------------------- | ------------------------------------------------------- |
 
 </div>
@@ -302,7 +302,7 @@ _Design document generated from deployed infrastructure artifacts._
 
 | ⬅️ Previous                                    | 📑 Index            | Next ➡️                                              |
 | ---------------------------------------------- | ------------------- | ---------------------------------------------------- |
-| [07-design-document.md](07-design-document.md) | [README](README.md) | [07-resource-inventory.md](07-resource-inventory.md) |
+| [Design Document](#design-document) | [Demo Index](../) | [Resource Inventory](#resource-inventory) |
 
 **Version**: 1.0
 **Date**: 2026-03-11
@@ -487,7 +487,7 @@ _Operations runbook generated from infrastructure artifacts._
 
 <div align="center">
 
-| ⬅️ [07-design-document.md](07-design-document.md) | 🏠 [Project Index](README.md) | ➡️ [07-resource-inventory.md](07-resource-inventory.md) |
+| ⬅️ [Design Document](#design-document) | 🏠 [Demo Index](../) | ➡️ [Resource Inventory](#resource-inventory) |
 | ------------------------------------------------- | ----------------------------- | ------------------------------------------------------- |
 
 </div>
@@ -514,7 +514,7 @@ _Operations runbook generated from infrastructure artifacts._
 
 | ⬅️ Previous                                          | 📑 Index            | Next ➡️                                            |
 | ---------------------------------------------------- | ------------------- | -------------------------------------------------- |
-| [07-resource-inventory.md](07-resource-inventory.md) | [README](README.md) | [07-compliance-matrix.md](07-compliance-matrix.md) |
+| [Resource Inventory](#resource-inventory) | [Demo Index](../) | [Compliance Matrix](#compliance-matrix) |
 
 </div>
 
@@ -733,7 +733,7 @@ _Backup and DR plan generated from infrastructure artifacts._
 
 <div align="center">
 
-| ⬅️ [07-resource-inventory.md](07-resource-inventory.md) | 🏠 [Project Index](README.md) | ➡️ [07-compliance-matrix.md](07-compliance-matrix.md) |
+| ⬅️ [Resource Inventory](#resource-inventory) | 🏠 [Demo Index](../) | ➡️ [Compliance Matrix](#compliance-matrix) |
 | ------------------------------------------------------- | ----------------------------- | ----------------------------------------------------- |
 
 </div>
@@ -757,7 +757,7 @@ _Backup and DR plan generated from infrastructure artifacts._
 
 | ⬅️ Previous                                  | 📑 Index            | Next ➡️                                          |
 | -------------------------------------------- | ------------------- | ------------------------------------------------ |
-| [07-backup-dr-plan.md](07-backup-dr-plan.md) | [README](README.md) | [07-ab-cost-estimate.md](07-ab-cost-estimate.md) |
+| [Backup & DR Plan](#backup--dr-plan) | [Demo Index](../) | [Cost Estimate](#cost-estimate) |
 
 </div>
 
@@ -931,7 +931,7 @@ _Compliance matrix generated from infrastructure artifacts._
 
 <div align="center">
 
-| ⬅️ [07-backup-dr-plan.md](07-backup-dr-plan.md) | 🏠 [Project Index](README.md) | ➡️ [07-ab-cost-estimate.md](07-ab-cost-estimate.md) |
+| ⬅️ [Backup & DR Plan](#backup--dr-plan) | 🏠 [Demo Index](../) | ➡️ [Cost Estimate](#cost-estimate) |
 | ----------------------------------------------- | ----------------------------- | --------------------------------------------------- |
 
 </div>
@@ -950,7 +950,7 @@ _Compliance matrix generated from infrastructure artifacts._
 
 | ⬅️ Previous                                          | 📑 Index            | Next ➡️                                      |
 | ---------------------------------------------------- | ------------------- | -------------------------------------------- |
-| [07-operations-runbook.md](07-operations-runbook.md) | [README](README.md) | [07-backup-dr-plan.md](07-backup-dr-plan.md) |
+| [Operations Runbook](#operations-runbook) | [Demo Index](../) | [Backup & DR Plan](#backup--dr-plan) |
 
 </div>
 
@@ -1073,7 +1073,7 @@ _Resource inventory generated from deployed resources and Bicep templates._
 
 <div align="center">
 
-| ⬅️ [07-operations-runbook.md](07-operations-runbook.md) | 🏠 [Project Index](README.md) | ➡️ [07-backup-dr-plan.md](07-backup-dr-plan.md) |
+| ⬅️ [Operations Runbook](#operations-runbook) | 🏠 [Demo Index](../) | ➡️ [Backup & DR Plan](#backup--dr-plan) |
 | ------------------------------------------------------- | ----------------------------- | ----------------------------------------------- |
 
 </div>
@@ -1100,7 +1100,7 @@ _Resource inventory generated from deployed resources and Bicep templates._
 
 | ⬅️ Previous                                        | 📑 Index            | Next ➡️ |
 | -------------------------------------------------- | ------------------- | ------- |
-| [07-compliance-matrix.md](07-compliance-matrix.md) | [README](README.md) | —       |
+| [Compliance Matrix](#compliance-matrix) | [Demo Index](../) | — |
 
 </div>
 
@@ -1109,7 +1109,7 @@ _Resource inventory generated from deployed resources and Bicep templates._
 **Region**: swedencentral
 **Environment**: Production
 **MCP Tools Used**: `azure_bulk_estimate`, `azure_cost_estimate`, `azure_price_search`, `azure_sku_discovery` (via subagent)
-**IaC Reference**: [infra/bicep/nordic-fresh-foods/](../../infra/bicep/nordic-fresh-foods/)
+**IaC Reference**: [Bicep templates repository folder](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods)
 
 ### 💵 Cost At-a-Glance
 
@@ -1283,7 +1283,7 @@ _"If you need X, expect to pay Y more"_
 
 <div align="center">
 
-| ⬅️ [07-compliance-matrix.md](07-compliance-matrix.md) | 🏠 [Project Index](README.md) | ➡️ — |
+| ⬅️ [Compliance Matrix](#compliance-matrix) | 🏠 [Demo Index](../) | ➡️ — |
 | ----------------------------------------------------- | ----------------------------- | ---- |
 
 </div>

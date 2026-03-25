@@ -36,6 +36,7 @@ const REQUIRED_EXTENSIONS = [
 // Keep this list explicit and minimal to avoid silent drift.
 const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
   "github.vscode-github-actions",
+  "hediet.vscode-drawio",
   "mechatroner.rainbow-csv",
   "ms-azuretools.azure-dev",
   "ms-azuretools.vscode-azurecontainerapps",

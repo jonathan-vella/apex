@@ -15,7 +15,7 @@ Frequently asked questions about Agentic InfraOps.
 Create your own repository from the
 [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 — click **"Use this template"** on GitHub, clone your new repo, and open it in the dev
-container. See the [Quickstart](quickstart.md) for the step-by-step guide.
+container. See the [Quickstart](../../getting-started/quickstart/) for the step-by-step guide.
 :::
 
     This upstream repository (`azure-agentic-infraops`) is the source project. The Accelerator
@@ -28,7 +28,7 @@ follow Azure Verified Modules standards and include security baselines, but you
 should always review generated code before deploying to production environments.
 :::
 
-    See the [Changelog](CHANGELOG.md) for release history and maturity indicators.
+    See the [Changelog](../project/changelog/) for release history and maturity indicators.
 
 :::note[What AI models does this require?]
 The project is built for **GitHub Copilot** in VS Code. Agents specify their
@@ -77,7 +77,7 @@ and organizational standards:
     The Requirements agent (Step 1) captures your `iac_tool` preference, and the
     Conductor routes all subsequent steps to the correct track automatically.
 
-    See [How It Works](how-it-works/index.md) for a deeper comparison.
+    See [How It Works](../concepts/how-it-works/) for a deeper comparison.
 
 :::note[Can I switch IaC tracks mid-workflow?]
 Not directly. The `iac_tool` field in `01-requirements.md` determines the track for
@@ -110,21 +110,21 @@ To create a new agent:
     3. Write the agent body with instructions
     4. Reload VS Code — the agent appears in the `Ctrl+Shift+A` picker
 
-    See [Contributing](CONTRIBUTING.md) for contribution guidelines and the
-    [Agent and Skill Workflow](workflow.md) for how agents fit into the system.
+    See [Contributing](../project/contributing/) for contribution guidelines and the
+    [Agent and Skill Workflow](../concepts/workflow/) for how agents fit into the system.
 
 :::note[What's the difference between agents and skills?]
-| Aspect          | Agents                                   | Skills                   |
+| Aspect | Agents | Skills |
 | --------------- | ---------------------------------------- | ------------------------ |
-| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit    |
-| **Interaction** | Conversational with handoffs             | Task-focused             |
-| **State**       | Session context                          | Stateless                |
-| **Output**      | Multiple artifacts                       | Specific outputs         |
-| **When to use** | Core workflow steps                      | Specialized capabilities |
+| **Invocation** | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit |
+| **Interaction** | Conversational with handoffs | Task-focused |
+| **State** | Session context | Stateless |
+| **Output** | Multiple artifacts | Specific outputs |
+| **When to use** | Core workflow steps | Specialized capabilities |
 :::
 
     Agents are the actors in the multi-step workflow. Skills are reusable knowledge modules
-    that agents load on demand. See the [Workflow](workflow.md) page for details.
+    that agents load on demand. See the [Workflow](../concepts/workflow/) page for details.
 
 :::note[How do I resume a failed or interrupted workflow?]
 The Conductor supports session resume via the `session-resume` skill. To resume:
@@ -135,7 +135,7 @@ The Conductor supports session resume via the `session-resume` skill. To resume:
     3. The Conductor reads `00-session-state.json` and existing artifacts to determine
        which steps are complete, then continues from the next pending step.
 
-    See the [Quickstart](quickstart.md) for the full getting-started flow.
+    See the [Quickstart](../../getting-started/quickstart/) for the full getting-started flow.
 
 :::note[Is there a guided hands-on exercise?]
 Yes — the [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/) is a
@@ -234,20 +234,22 @@ Add this to your **VS Code User Settings** (not workspace settings):
     }
     ```
 
-    See [Troubleshooting](troubleshooting.md#2-conductorsubagent-invocation-not-working-vs-code-1109)
+    See [Troubleshooting](../../guides/troubleshooting/#2-conductorsubagent-invocation-not-working-vs-code-1109)
     for detailed steps.
 
 :::note[Where do I report bugs or request features?]
+
 - **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
 - **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
 - **Feature requests**: Open a GitHub issue with the `enhancement` label
+
 :::
 
 :::note[What happens if an agent produces bad output?]
 Use specific follow-up prompts to correct the issue. For example:
-*"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."*
+_"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."_
 If the error persists, start a fresh chat session — context accumulation can degrade
-output quality. The [Troubleshooting](troubleshooting.md) guide covers common failure
+output quality. The [Troubleshooting](../../guides/troubleshooting/) guide covers common failure
 modes and recovery steps.
 :::
 
@@ -261,9 +263,9 @@ Governance discovery (Step 3.5) uses Azure REST API, not MCP.
 :::caution[Step 6 (Deploy) requires Azure credentials]
 If you attempt deployment without an active Azure subscription and `az login`,
 the deploy agent will fail with an authentication error.
-See [Troubleshooting](troubleshooting.md) for recovery steps.
+See [Troubleshooting](../../guides/troubleshooting/) for recovery steps.
 :::
 
 ---
 
-**See also:** [Troubleshooting](troubleshooting.md) · [Prompt Guide](prompt-guide/index.md) · [Glossary](GLOSSARY.md)
+**See also:** [Troubleshooting](../../guides/troubleshooting/) · [Prompt Guide](../../guides/prompt-guide/) · [Glossary](../glossary/)

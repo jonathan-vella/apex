@@ -129,14 +129,15 @@ This project integrates five MCP servers:
 | **Terraform MCP**   | Provider/module registry lookups   | stdio (Go)         |
 | **Microsoft Learn** | Official docs search, code samples | HTTP               |
 
-[MCP Integration details →](mcp-integration.md)
+[MCP Integration details →](../mcp-integration/)
 
 ---
 
 :::tip[Further Reading]
 
-- [Agent Architecture](agents.md) — top-level agents, subagents, the Challenger pattern
-- [Skills & Instructions](skills-and-instructions.md) — progressive loading, glob-based enforcement
-- [Workflow Engine & Quality](workflow-engine.md) — DAG model, approval gates, validators
-- [MCP Integration](mcp-integration.md) — MCP servers and their tool catalogs
+- [Agent Architecture](../agents/) — top-level agents, subagents, the Challenger pattern
+- [Skills & Instructions](../skills-and-instructions/) — progressive loading, glob-based enforcement
+- [Workflow Engine & Quality](../workflow-engine/) — DAG model, approval gates, validators
+- [MCP Integration](../mcp-integration/) — MCP servers and their tool catalogs
+
   :::

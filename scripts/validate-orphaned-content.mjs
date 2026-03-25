@@ -19,6 +19,31 @@ import {
 import { Reporter } from "./_lib/reporter.mjs";
 import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
 
+// Skills intentionally kept without direct agent references.
+// These are invoked dynamically by VS Code Copilot via skill descriptions
+// or used as general-purpose skills available to any conversation.
+const KNOWN_UNLINKED_SKILLS = new Set([
+  "appinsights-instrumentation",
+  "azure-ai",
+  "azure-aigateway",
+  "azure-cloud-migrate",
+  "azure-compliance",
+  "azure-compute",
+  "azure-cost-optimization",
+  "azure-hosted-copilot-sdk",
+  "azure-kusto",
+  "azure-messaging",
+  "azure-quotas",
+  "azure-rbac",
+  "azure-resource-lookup",
+  "azure-resource-visualizer",
+  "azure-storage",
+  "copilot-customization",
+  "count-registry",
+  "entra-app-registration",
+  "microsoft-foundry",
+]);
+
 const r = new Reporter("Orphaned Content Validator");
 r.header();
 
@@ -69,7 +94,11 @@ for (const [skill] of skills) {
     searchContent.includes(`\`${skill}\``);
 
   if (!isReferenced) {
-    r.warn(`${skill}/`, "not referenced by any agent or instruction");
+    if (KNOWN_UNLINKED_SKILLS.has(skill)) {
+      // Intentionally unlinked — skip warning
+    } else {
+      r.warn(`${skill}/`, "not referenced by any agent or instruction");
+    }
   }
 }
 

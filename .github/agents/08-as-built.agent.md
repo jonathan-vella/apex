@@ -1,61 +1,23 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4 (copilot)"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
 tools:
   [
-    vscode/extensions,
-    vscode/getProjectSetupInfo,
-    vscode/installExtension,
-    vscode/newWorkspace,
-    browser,
-    vscode/runCommand,
-    vscode/askQuestions,
-    vscode/vscodeAPI,
-    execute/getTerminalOutput,
-    execute/awaitTerminal,
-    execute/killTerminal,
-    execute/createAndRunTask,
-    execute/runTests,
-    execute/runInTerminal,
-    execute/runNotebookCell,
-    execute/testFailure,
-    read/terminalSelection,
-    read/terminalLastCommand,
-    read/getNotebookSummary,
-    read/problems,
-    read/readFile,
-    read/readNotebookCellOutput,
+    vscode,
+    execute,
+    read,
     agent,
-    edit/createDirectory,
-    edit/createFile,
-    edit/createJupyterNotebook,
-    edit/editFiles,
-    edit/editNotebook,
+    browser,
+    edit,
     search,
-    search/changes,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/searchResults,
-    search/textSearch,
-    search/usages,
     web,
-    web/fetch,
-    web/githubRepo,
-    "azure-mcp/*",
+    azure-mcp/search,
     "microsoft-learn/*",
+    "drawio/*",
     todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
-    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:
   - label: "▶ Generate All Documentation"
@@ -64,7 +26,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill contract to generate a non-Mermaid as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.py` + `07-ab-diagram.png` with deterministic layout and quality score >= 9/10."
+    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` with deterministic layout and quality score >= 9/10."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -78,18 +40,16 @@ handoffs:
 
 # As-Built Agent
 
-<!-- Recommended reasoning_effort: medium -->
+## Context Awareness
 
-<context_awareness>
-This is a large agent definition (~405 lines). At >60% context, load SKILL.digest.md variants.
+**This is a large agent definition (~405 lines).** At >60% context, load SKILL.digest.md variants.
 At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
-</context_awareness>
 
-<scope_fencing>
-This agent generates as-built documentation only: design document, operations runbook, cost estimate,
+## Scope
+
+**This agent generates as-built documentation only**: design document, operations runbook, cost estimate,
 compliance matrix, backup/DR plan, resource inventory, and documentation index.
 Do not modify deployed infrastructure, change IaC templates, or skip prior artifact review.
-</scope_fencing>
 
 ## Read Skills First
 
@@ -238,10 +198,26 @@ Execute each `.py` file and verify the PNGs exist before continuing.
 
 Use the azure-diagrams skill to generate:
 
-- `agent-output/{project}/07-ab-diagram.py` — Python diagram source
-- `agent-output/{project}/07-ab-diagram.png` — Rendered diagram
+- `agent-output/{project}/07-ab-diagram.drawio` — Editable draw.io architecture diagram
+- `agent-output/{project}/07-ab-diagram.drawio.svg` — SVG export (optional, via VS Code draw.io extension)
 
 The diagram MUST reflect actual deployed resources (not just planned ones).
+Follow the MANDATORY layout rules from the azure-diagrams skill:
+
+- `labelWidth=160` on all icon cells, labels max 2 lines
+- Icons at least 260px apart horizontally
+- Subnets min 500px wide, VNet min 600px, RG min 800px
+- SVG export is optional — users can right-click the `.drawio` file in VS Code → Export → SVG
+
+**Saving the .drawio file:** After `finish-diagram`, call MCP `save-to-file`
+to write the diagram directly to disk — no terminal extraction needed:
+
+```json
+{
+  "diagram_xml": "<xml from finish-diagram>",
+  "file_path": "agent-output/{project}/07-ab-diagram.drawio"
+}
+```
 
 ### Phase 4: Finalize
 
@@ -264,44 +240,48 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                      | Location                                             |
-| ------------------------- | ---------------------------------------------------- |
-| Resource Inventory        | `agent-output/{project}/07-resource-inventory.md`    |
-| Design Document           | `agent-output/{project}/07-design-document.md`       |
-| Cost Estimate (As-Built)  | `agent-output/{project}/07-ab-cost-estimate.md`      |
-| Compliance Matrix         | `agent-output/{project}/07-compliance-matrix.md`     |
-| Backup & DR Plan          | `agent-output/{project}/07-backup-dr-plan.md`        |
-| Operations Runbook        | `agent-output/{project}/07-operations-runbook.md`    |
-| Documentation Index       | `agent-output/{project}/07-documentation-index.md`   |
-| As-Built Diagram (Python) | `agent-output/{project}/07-ab-diagram.py`            |
-| As-Built Diagram (Image)  | `agent-output/{project}/07-ab-diagram.png`           |
-| Cost Distribution Chart   | `agent-output/{project}/07-ab-cost-distribution.png` |
-| Cost Projection Chart     | `agent-output/{project}/07-ab-cost-projection.png`   |
-| Design vs As-Built Chart  | `agent-output/{project}/07-ab-cost-comparison.png`   |
-| Compliance Gaps Chart     | `agent-output/{project}/07-ab-compliance-gaps.png`   |
+| File                       | Location                                             |
+| -------------------------- | ---------------------------------------------------- |
+| Resource Inventory         | `agent-output/{project}/07-resource-inventory.md`    |
+| Design Document            | `agent-output/{project}/07-design-document.md`       |
+| Cost Estimate (As-Built)   | `agent-output/{project}/07-ab-cost-estimate.md`      |
+| Compliance Matrix          | `agent-output/{project}/07-compliance-matrix.md`     |
+| Backup & DR Plan           | `agent-output/{project}/07-backup-dr-plan.md`        |
+| Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
+| Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
+| As-Built Diagram (draw.io) | `agent-output/{project}/07-ab-diagram.drawio`        |
+| As-Built Diagram (SVG)     | `agent-output/{project}/07-ab-diagram.drawio.svg`    |
+| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.png` |
+| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.png`   |
+| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |
+| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
-<output_contract>
-Expected output in `agent-output/{project}/`:
+## Expected Output
 
-- `07-resource-inventory.md` — Deployed resources with IDs and config
-- `07-design-document.md` — Architecture decisions and rationale
-- `07-ab-cost-estimate.md` — As-built costs (prices from cost-estimate-subagent only)
-- `07-compliance-matrix.md` — Security and compliance controls mapping
-- `07-backup-dr-plan.md` — Backup, DR, and business continuity
-- `07-operations-runbook.md` — Day-2 ops, monitoring, troubleshooting
-- `07-documentation-index.md` — Index of all project artifacts
-- `07-ab-diagram.py` + `07-ab-diagram.png` — As-built architecture diagram
-  Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
-  </output_contract>
+```text
+agent-output/{project}/
+├── 07-resource-inventory.md      # Deployed resources with IDs and config
+├── 07-design-document.md         # Architecture decisions and rationale
+├── 07-ab-cost-estimate.md        # As-built costs (prices from cost-estimate-subagent only)
+├── 07-compliance-matrix.md       # Security and compliance controls mapping
+├── 07-backup-dr-plan.md          # Backup, DR, and business continuity
+├── 07-operations-runbook.md      # Day-2 ops, monitoring, troubleshooting
+├── 07-documentation-index.md     # Index of all project artifacts
+├── 07-ab-diagram.drawio          # As-built architecture diagram (draw.io)
+└── 07-ab-diagram.drawio.svg      # SVG export
+```
 
-<user_updates_spec>
+Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
+
+## User Updates
+
 After completing each major phase, provide a brief status update in chat:
 
 - What was just completed (phase name, key results)
 - What comes next (next phase name)
 - Any blockers or decisions needed
-  This keeps the user informed during multi-phase operations.
-  </user_updates_spec>
+
+This keeps the user informed during multi-phase operations.
 
 ## Boundaries
 

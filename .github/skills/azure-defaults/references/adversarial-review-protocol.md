@@ -7,6 +7,16 @@ all agents. Each agent specifies its own `artifact_path`,
 `artifact_type`, pass count, and review focus — this reference
 defines the shared mechanics.
 
+## Multi-Model Convention
+
+Agent `agents:` arrays list multiple challenger subagents (e.g.,
+`challenger-review-subagent`, `challenger-review-codex-subagent`,
+`challenger-review-batch-subagent`). This does **not** mean multiple
+sequential passes. The 3 subagents represent **parallel multi-model
+execution options for a single pass** — the selection rules in
+`challenger-selection-rules.md` determine which subagent model runs
+each pass based on the lens type and complexity tier.
+
 ## 3-Pass Rotating Lenses
 
 Used for critical artifacts (architecture, implementation plan, code).
@@ -67,11 +77,11 @@ the Conductor validates. If missing from old sessions, default to `"standard"`.
 
 ## Review Matrix (Complexity-Based Pass Counts)
 
-| Complexity | Step 1 (Req)     | Step 2 (Arch)                    | Step 4 (Plan)                              | Step 5 (Code)                    |
-| ---------- | ---------------- | -------------------------------- | ------------------------------------------ | -------------------------------- |
-| simple     | 1× comprehensive | 1× comprehensive                 | 1× comprehensive                           | 1× comprehensive                 |
-| standard   | 1× comprehensive | 2× rotating (pass 3 conditional) | 2× rotating (security + architecture only) | 2× rotating (pass 3 conditional) |
-| complex    | 1× comprehensive | 3× rotating                      | 2× rotating (security + architecture only) | 3× rotating                      |
+| Complexity | Step 1 (Req)     | Step 2 (Arch)                             | Step 4 (Plan)                              | Step 5 (Code)                    |
+| ---------- | ---------------- | ----------------------------------------- | ------------------------------------------ | -------------------------------- |
+| simple     | 1× comprehensive | 1× comprehensive + 1 cost                 | 1× comprehensive                           | 1× comprehensive                 |
+| standard   | 1× comprehensive | 2× rotating (pass 3 conditional) + 1 cost | 2× rotating (security + architecture only) | 2× rotating (pass 3 conditional) |
+| complex    | 1× comprehensive | 3× rotating + 1 cost                      | 2× rotating (security + architecture only) | 3× rotating                      |
 
 > **Steps without adversarial review**: Step 3 (Design), Step 3.5 (Governance),
 > Step 6 (Deploy), Step 7 (As-Built). Governance is machine-discovered data;

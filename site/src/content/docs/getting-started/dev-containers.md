@@ -102,7 +102,7 @@ code .
 :::note[Use the template repository]
 Do not clone this upstream project directly. Create your own repo from the
 [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
-first. See the [Quickstart](quickstart.md) for the full setup flow.
+first. See the [Quickstart](../quickstart/) for the full setup flow.
 :::
 
 Press `F1` → **Dev Containers: Reopen in Container**

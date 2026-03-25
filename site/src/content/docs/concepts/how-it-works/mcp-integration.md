@@ -272,9 +272,10 @@ To add a new MCP server:
 
 :::tip[Further Reading]
 
-- [System Architecture](architecture.md) — the Conductor pattern and model selection
-- [Core Concepts](four-pillars.md) — high-level overview of tools and MCP
-- [Agent Architecture](agents.md) — which agents use which MCP servers
-- [Workflow Engine & Quality](workflow-engine.md) — circuit breakers and validation systems
-- [Validation & Linting](../validation-reference.md) — MCP config validation and all scripts
+- [System Architecture](../architecture/) — the Conductor pattern and model selection
+- [Core Concepts](../four-pillars/) — high-level overview of tools and MCP
+- [Agent Architecture](../agents/) — which agents use which MCP servers
+- [Workflow Engine & Quality](../workflow-engine/) — circuit breakers and validation systems
+- [Validation & Linting](../../../reference/validation-reference/) — MCP config validation and all scripts
+
   :::

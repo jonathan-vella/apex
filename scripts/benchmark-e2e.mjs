@@ -65,8 +65,8 @@ const EXPECTED_ARTIFACTS = {
   "02-waf-scores.png": { required: false, step: 2 },
   // Step 3 — Design
   "03-des-cost-estimate.md": { required: false, step: 3 },
-  "03-des-diagram.py": { required: false, step: 3 },
-  "03-des-diagram.png": { required: false, step: 3 },
+  "03-des-diagram.drawio": { required: false, step: 3 },
+  "03-des-diagram.drawio.svg": { required: false, step: 3 },
   "03-des-cost-distribution.py": { required: false, step: 3 },
   "03-des-cost-distribution.png": { required: false, step: 3 },
   "03-des-cost-projection.py": { required: false, step: 3 },
@@ -95,8 +95,8 @@ const EXPECTED_ARTIFACTS = {
   "07-compliance-matrix.md": { required: false, step: 7 },
   "07-ab-cost-estimate.md": { required: false, step: 7 },
   // Step 7 — As-Built diagrams & charts
-  "07-ab-diagram.py": { required: false, step: 7 },
-  "07-ab-diagram.png": { required: false, step: 7 },
+  "07-ab-diagram.drawio": { required: false, step: 7 },
+  "07-ab-diagram.drawio.svg": { required: false, step: 7 },
   "07-ab-cost-distribution.py": { required: false, step: 7 },
   "07-ab-cost-distribution.png": { required: false, step: 7 },
   "07-ab-cost-projection.py": { required: false, step: 7 },

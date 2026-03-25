@@ -11,20 +11,20 @@ agent-output/
 │   ├── README.md                        # Auto-generated project index
 │   ├── 01-requirements.md               # Step 1: Requirements from @requirements
 │   ├── 02-architecture-assessment.md    # Step 2: WAF assessment
-│   ├── 03-des-diagram.py                # Step 3: Design diagram source
-│   ├── 03-des-diagram.png               # Step 3: Design diagram image
+│   ├── 03-des-diagram.drawio            # Step 3: Design diagram (draw.io)
+│   ├── 03-des-diagram.drawio.svg        # Step 3: Design diagram SVG export
 │   ├── 03-des-cost-estimate.md          # Step 3: Design cost estimate
 │   ├── 03-des-adr-001-{title}.md        # Step 3: Design ADR(s)
 │   ├── 04-implementation-plan.md        # Step 4: Infrastructure plan
-│   ├── 04-dependency-diagram.py          # Step 4: Dependency diagram source
-│   ├── 04-dependency-diagram.png         # Step 4: Dependency diagram image
-│   ├── 04-runtime-diagram.py             # Step 4: Runtime diagram source
-│   ├── 04-runtime-diagram.png            # Step 4: Runtime diagram image
+│   ├── 04-dependency-diagram.drawio      # Step 4: Dependency diagram (draw.io)
+│   ├── 04-dependency-diagram.drawio.svg  # Step 4: Dependency diagram SVG
+│   ├── 04-runtime-diagram.drawio         # Step 4: Runtime diagram (draw.io)
+│   ├── 04-runtime-diagram.drawio.svg     # Step 4: Runtime diagram SVG
 │   ├── 04-governance-constraints.md     # Step 4: Azure Policy constraints
 │   ├── 05-implementation-reference.md   # Step 5: Link to Bicep code
 │   ├── 06-deployment-summary.md         # Step 6: Deployment summary
-│   ├── 07-ab-diagram.py                 # Step 7: As-built diagram source
-│   ├── 07-ab-diagram.png                # Step 7: As-built diagram image
+│   ├── 07-ab-diagram.drawio             # Step 7: As-built diagram (draw.io)
+│   ├── 07-ab-diagram.drawio.svg         # Step 7: As-built diagram SVG
 │   ├── 07-ab-adr-001-{title}.md         # Step 7: As-built ADR(s)
 │   ├── 07-documentation-index.md        # Step 7: Documentation master index
 │   ├── 07-design-document.md            # Step 7: Comprehensive design document

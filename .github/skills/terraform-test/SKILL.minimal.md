@@ -9,17 +9,17 @@
 
 **Test File Components**:
 
-**Canonical Example — Azure Resource Group Test**:
-```hcl
+**Canonical Example**:
+See `references/test-examples.md` for a complete Azure Resource Group test
 
 **Key Syntax Rules**:
 ### Run Block Attributes
 
 **Mock Providers (TF 1.7+)**:
-Simulate Azure provider without API calls — ideal for unit tests:
+Simulate Azure provider without API calls — ideal for unit tests.
 
 **Common Test Patterns**:
-### Conditional Resources
+See `references/test-examples.md` for: conditional resources, tag validation,
 
 **Running Tests**:
 ```bash
@@ -29,7 +29,5 @@ Simulate Azure provider without API calls — ideal for unit tests:
 
 **Terraform MCP Integration**:
 Use `mcp_terraform_search_providers` to validate that resource types used in
-
-**Reference Index**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

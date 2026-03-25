@@ -2,40 +2,42 @@
 
 # Azure Architecture Diagrams Skill (Minimal)
 
-**Prerequisites**: `pip install diagrams matplotlib pillow`
+**Routing Guide**:
 
-**Execution Method**:
-Save `.py` source in `agent-output/{project}/`, then run to produce `.png`. Never use heredoc execution.
+**Prerequisites**:
 
-**Architecture Diagram Contract**:
+**Architecture Diagram Contract (Draw.io — Default)**:
+
 ### Required outputs
 
-**Professional Output Standards**:
-Critical settings for clean output — use `labelloc="t"` to keep labels inside clusters:
+**Naming Conventions**:
+Cell IDs: `{resource-type}-{number}` (e.g., `vm-1`). Container IDs: `{scope}-{name}` (e.g., `rg-prod`).
 
-**Azure Service Categories**:
-13 categories: Compute, Networking, Database, Storage, Integration, Security,
+**Azure Design Tokens**:
+Azure Blue `#0078D4` (borders, edges) · VNet fill `#F0F8FF` · Warning `#FF8C00` ·
+
+**Diagram Abstraction Rules (MANDATORY)**:
+Show primary data flow clearly; omit implementation noise (PEs, ASPs, NSGs, RG boundaries).
+
+**Layout Best Practices**:
+Space icons ≥260px apart. Max 2-line labels. Never `labelWidth` < 160.
+
+**Icon Discovery (MCP-Only)**:
+Use `search-shapes` to find Azure icon shape names. Do NOT manually embed
+
+**MCP Tool Integration**:
+Key MCP tools: `search-shapes` (icon discovery), `add-cells` (batch build),
+
+**Python Charts (WAF / Cost / Compliance)**:
+WAF/cost charts use Python `matplotlib` (never Mermaid).
 
 **Common Architecture Patterns**:
-Ready-to-use patterns: 3-Tier Web App, Microservices (AKS),
+See `references/drawio-common-patterns.md` (draw.io), `references/common-patterns.md` (Python),
 
 **Workflow Integration**:
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 
 **Data Visualization Charts**:
-WAF and cost charts use `matplotlib` (never Mermaid). See `references/waf-cost-charts.md` for full implementations.
-
-**Generation Workflow**:
-1. **Gather Context** — Read Bicep/Terraform templates or architecture assessment
-
-**Guardrails**:
-**DO:** Create files in `agent-output/{project}/` with step-prefixed names ·
-
-**Scope Exclusions**:
-Does NOT: generate Bicep/Terraform code · create workload docs ·
-
-**Scripts**:
-
-**Reference Index**:
+WAF and cost charts use `matplotlib` (never Mermaid).
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

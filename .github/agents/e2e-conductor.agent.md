@@ -1,6 +1,6 @@
 ---
 name: E2E Conductor
-description: "Autonomous E2E evaluation conductor for the RALPH-style workflow loop. Runs all 7 steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Conductor."
+description: "Autonomous E2E evaluation conductor for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Conductor."
 model: ["Claude Opus 4.6"]
 user-invocable: false
 agents:
@@ -232,7 +232,7 @@ After each step, record to `08-benchmark-report.md`:
 
 ## Completion Criteria
 
-- **E2E_COMPLETE**: All 7 steps complete, `npm run validate:all` passes, benchmark > 60/100
+- **E2E_COMPLETE**: All steps complete, `npm run validate:all` passes, benchmark > 60/100
 - **E2E_PARTIAL**: Steps 1-5 complete, Steps 6-7 skipped/blocked, OR Step 3 skipped (optional)
 - **E2E_BLOCKED**: Any mandatory step fails after 5 iterations
 - **SESSION_SPLIT_NEEDED**: Context > 60%, state saved, user re-invokes prompt

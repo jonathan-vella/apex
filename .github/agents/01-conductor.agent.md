@@ -59,7 +59,7 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate non-Mermaid architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Python diagrams outputs (`03-des-diagram.py` + `.png`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 3.5."
+    prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be draw.io outputs (`03-des-diagram.drawio` + `.drawio.svg`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 3.5."
     send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance

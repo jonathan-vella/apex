@@ -209,7 +209,9 @@ Run these after manual edits to the state file to ensure consistency.
 ---
 
 :::tip[Further Reading]
-- [Workflow](workflow.md) — the multi-step agent workflow and approval gates
-- [Troubleshooting](troubleshooting.md) — common agent issues and solutions
-- [Validation & Linting](validation-reference.md) — all validation scripts
+
+- [Workflow](../../concepts/workflow/) — the multi-step agent workflow and approval gates
+- [Troubleshooting](../troubleshooting/) — common agent issues and solutions
+- [Validation & Linting](../../reference/validation-reference/) — all validation scripts
+
 :::

@@ -1,7 +1,6 @@
 ---
 description: "Run an adversarial review against any agent-output artifact to find gaps and weaknesses."
 agent: "10-Challenger"
-model: "GPT-5.4"
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 ---
 

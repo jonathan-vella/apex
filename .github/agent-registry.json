@@ -50,7 +50,7 @@
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": ["azure-diagrams", "azure-adr", "session-resume"],
       "invokable": true,
       "step": 3
@@ -162,7 +162,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [
         "azure-defaults",
         "azure-artifacts",
@@ -247,37 +247,37 @@
     },
     "bicep-lint-subagent": {
       "agent": ".github/agents/_subagents/bicep-lint-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": false
     },
     "bicep-review-subagent": {
       "agent": ".github/agents/_subagents/bicep-review-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": ["azure-bicep-patterns"],
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": false
     },
     "terraform-lint-subagent": {
       "agent": ".github/agents/_subagents/terraform-lint-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": false
     },
     "terraform-review-subagent": {
       "agent": ".github/agents/_subagents/terraform-review-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": ["terraform-patterns", "terraform-test"],
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": false
     }

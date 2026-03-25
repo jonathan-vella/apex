@@ -18,6 +18,11 @@ skill-name/
 ├── references/             # Documentation loaded into context as needed
 ├── sample_codes/           # Working code examples
 └── assets/                 # Files used in output (templates, etc.)
+```
+
+### Key Principles
+
+- **Frontmatter is critical**: `name` and `description` determine when the skill triggers — be clear and comprehensive
 
 > _See SKILL.md for full content._
 
@@ -35,6 +40,11 @@ If the Learn MCP server is not available, use the `mslearn` CLI via Bash instead
 
 ```bash
 # Run directly (no install needed)
+npx @microsoft/learn-cli search "semantic kernel overview"
+
+# Or install globally, then run
+npm install -g @microsoft/learn-cli
+mslearn search "semantic kernel overview"
 
 > _See SKILL.md for full content._
 
@@ -52,75 +62,22 @@ microsoft_docs_search(query="{technology} concepts architecture")
 microsoft_docs_search(query="{technology} getting started tutorial")
 ```
 
+**Phase 2 — Core Content:**
+
+```text
+microsoft_docs_fetch(url="...")  # Fetch pages from Phase 1
+microsoft_code_sample_search(query="{technology}", language="{lang}")
+
 > _See SKILL.md for full content._
 
 ## Common Investigation Patterns
 
-### For SDKs/Libraries
-
-```text
-"{name} overview" → purpose, architecture
-"{name} getting started quickstart" → setup steps
-"{name} API reference" → core classes/methods
-"{name} samples examples" → code patterns
-"{name} best practices performance" → optimization
-```
-
-### For Azure Services
-
-> _See SKILL.md for full content._
-
-## Example: Creating a "Semantic Kernel" Skill
-
-### Investigation
-
-```text
-microsoft_docs_search(query="semantic kernel overview")
-microsoft_docs_search(query="semantic kernel plugins functions")
-microsoft_code_sample_search(query="semantic kernel", language="csharp")
-microsoft_docs_fetch(url="https://learn.microsoft.com/semantic-kernel/overview/")
-```
-
-### Generated Skill
-
-```text
-
-> _See SKILL.md for full content._
-
-## Key Concepts
-
-- **Kernel**: Central orchestrator managing AI services and plugins
-- **Plugins**: Collections of functions the AI can call
-- **Planner**: Sequences plugin functions to achieve goals
-- **Memory**: Vector store integration for RAG patterns
-
-## Quick Start
-
-See [getting-started/hello-kernel.cs](sample_codes/getting-started/hello-kernel.cs)
-
-## Learn More
-
-| Topic              | How to Find                                                                |
-| ------------------ | -------------------------------------------------------------------------- |
-| Plugin development | `microsoft_docs_search(query="semantic kernel plugins custom functions")`  |
-| Planners           | `microsoft_docs_search(query="semantic kernel planner")`                   |
-| Memory             | `microsoft_docs_fetch(url="https://learn.microsoft.com/.../agent-memory")` |
-
-## CLI Alternative
-
-If the Learn MCP server is not available, use the `mslearn` CLI instead:
-
-| MCP Tool                                                      | CLI Command                                |
-| ------------------------------------------------------------- | ------------------------------------------ |
-| `microsoft_docs_search(query: "...")`                         | `mslearn search "..."`                     |
-| `microsoft_code_sample_search(query: "...", language: "...")` | `mslearn code-search "..." --language ...` |
-| `microsoft_docs_fetch(url: "...")`                            | `mslearn fetch "..."`                      |
-
-Run directly with `npx @microsoft/learn-cli <command>` or install globally with `npm install -g @microsoft/learn-cli`.
-```
+See `references/investigation-patterns.md` for SDK/Library, Azure Service, and
+Framework/Platform search query templates, plus a complete Semantic Kernel example.
 
 ## Reference Index
 
-| File                                                           | Purpose                                                                                   |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [references/skill-templates.md](references/skill-templates.md) | Ready-to-use templates for SDK/Library, Azure Service, Framework, and API/Protocol skills |
+| File                                                                         | Purpose                                                                                   |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [references/skill-templates.md](references/skill-templates.md)               | Ready-to-use templates for SDK/Library, Azure Service, Framework, and API/Protocol skills |
+| [references/investigation-patterns.md](references/investigation-patterns.md) | Investigation query patterns and complete Semantic Kernel example                         |

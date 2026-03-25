@@ -12,20 +12,7 @@ Skills are modular packages that extend agent capabilities with specialized
 ### Step 1: Investigate the Topic
 
 **Common Investigation Patterns**:
-### For SDKs/Libraries
-
-**Example: Creating a "Semantic Kernel" Skill**:
-### Investigation
-
-**Key Concepts**:
-
-**Quick Start**:
-See [getting-started/hello-kernel.cs](sample_codes/getting-started/hello-kernel.cs)
-
-**Learn More**:
-
-**CLI Alternative**:
-If the Learn MCP server is not available, use the `mslearn` CLI instead:
+See `references/investigation-patterns.md` for SDK/Library, Azure Service, and
 
 **Reference Index**:
 

@@ -6,6 +6,7 @@ description: "Common issues and solutions"
 <img src="/azure-agentic-infraops/images/hero-troubleshooting.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Diagnostic tools and troubleshooting"/>
+
 # Troubleshooting Guide
 
 > Common issues and solutions for Agentic InfraOps
@@ -13,9 +14,11 @@ description: "Common issues and solutions"
 ## Agent Codenames Quick Reference
 
 :::note[Related guides]
-- [Session Debugging](session-debugging.md) — session resume failures, stale locks, state recovery
-- [Cost Governance](cost-governance.md) — budget alert setup and post-deployment validation
-- [Validation & Linting](validation-reference.md) — all validation scripts and CI workflows
+
+- [Session Debugging](../session-debugging/) — session resume failures, stale locks, state recovery
+- [Cost Governance](../cost-governance/) — budget alert setup and post-deployment validation
+- [Validation & Linting](../../reference/validation-reference/) — all validation scripts and CI workflows
+
 :::
 
 | Agent              | Codename      | Common Issues                    |
@@ -135,7 +138,7 @@ Responses are instant, no terminal commands execute, no files are created.
 5. **If the session was interrupted** (no new output, truncated response):
    - Check `agent-output/{project}/00-session-state.json` for the last completed step
    - Restart the Conductor with: _"Resume the workflow from step X"_
-   - See [Workflow Engine](how-it-works/workflow-engine.md) for session state details
+   - See [Workflow Engine](../../concepts/how-it-works/workflow-engine/) for session state details
 
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
 for experimental features. User settings take precedence.
@@ -515,7 +518,7 @@ az deployment group list -g {resource-group} --output table
 
 ## Getting Help
 
-1. **Check prompt guide**: [Prompt Guide](prompt-guide/index.md) has usage examples
+1. **Check prompt guide**: [Prompt Guide](../prompt-guide/) has usage examples
 2. **Read agent definitions**: `.github/agents/*.agent.md`
 3. **Check skill files**: `.github/skills/*/SKILL.md`
 4. **Review templates**: `.github/skills/azure-artifacts/templates/`

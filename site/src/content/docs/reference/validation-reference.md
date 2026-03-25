@@ -190,7 +190,8 @@ npm run lint:python:fix            # Fix Python lint issues
 
 :::tip[Further Reading]
 
-- [Contributing](CONTRIBUTING.md) — branch naming and commit conventions
-- [Agent Hooks](hooks.md) — VS Code agent hooks (lifecycle automation)
-- [E2E Testing](e2e-testing.md) — Ralph Loop evaluation framework
+- [Contributing](../../project/contributing/) — branch naming and commit conventions
+- [Agent Hooks](../../guides/hooks/) — VS Code agent hooks (lifecycle automation)
+- [E2E Testing](../../guides/e2e-testing/) — Ralph Loop evaluation framework
+
   :::
