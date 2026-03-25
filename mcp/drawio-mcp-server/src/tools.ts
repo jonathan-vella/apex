@@ -201,11 +201,15 @@ function withDiagramState<T extends StatefulArgs>(
   const diagram = new DiagramModel();
   const transactional = normalizedArgs.transactional ?? false;
 
-  if (normalizedArgs.diagram_xml && normalizedArgs.diagram_xml.length > MAX_DIAGRAM_XML_SIZE) {
+  if (
+    normalizedArgs.diagram_xml &&
+    normalizedArgs.diagram_xml.length > MAX_DIAGRAM_XML_SIZE
+  ) {
     return errorResult({
       code: "DIAGRAM_TOO_LARGE",
       message: `diagram_xml exceeds ${MAX_DIAGRAM_XML_SIZE / 1024 / 1024} MB limit (${(normalizedArgs.diagram_xml.length / 1024 / 1024).toFixed(1)} MB received)`,
-      suggestion: "Split the diagram into smaller parts or reduce embedded image data",
+      suggestion:
+        "Split the diagram into smaller parts or reduce embedded image data",
     });
   }
 

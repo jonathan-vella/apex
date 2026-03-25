@@ -65,9 +65,5 @@
   "test": {
     "include": ["tests/"]
   },
-  "exclude": [
-    "build/",
-    "coverage/",
-    "node_modules/"
-  ]
+  "exclude": ["build/", "coverage/", "node_modules/"]
 }

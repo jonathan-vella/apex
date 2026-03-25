@@ -51,34 +51,49 @@ describe("DiagramModel — malformed XML handling", () => {
     it("should handle mxGraphModel without mxfile wrapper", () => {
       const xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel>`;
       const result = model.importXml(xml);
-      assert(!("error" in result), "Bare mxGraphModel should import successfully");
+      assert(
+        !("error" in result),
+        "Bare mxGraphModel should import successfully",
+      );
     });
 
     it("should handle CDATA-wrapped XML", () => {
       const inner = `<mxfile><diagram id="d1" name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>`;
       const xml = `<![CDATA[${inner}]]>`;
       const result = model.importXml(xml);
-      assert(!("error" in result), "CDATA-wrapped XML should import successfully");
+      assert(
+        !("error" in result),
+        "CDATA-wrapped XML should import successfully",
+      );
     });
 
     it("should handle XML with cells referencing non-existent parents", () => {
       const xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="99" value="orphan" parent="nonexistent" vertex="1"><mxGeometry x="0" y="0" width="100" height="40" as="geometry"/></mxCell></root></mxGraphModel>`;
       // Should not throw — may silently skip or assign to default layer
       const result = model.importXml(xml);
-      assert(!("error" in result), "Non-existent parent should not crash import");
+      assert(
+        !("error" in result),
+        "Non-existent parent should not crash import",
+      );
     });
 
     it("should handle XML with duplicate cell IDs", () => {
       const xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="dup" value="first" parent="1" vertex="1"><mxGeometry x="0" y="0" width="100" height="40" as="geometry"/></mxCell><mxCell id="dup" value="second" parent="1" vertex="1"><mxGeometry x="100" y="0" width="100" height="40" as="geometry"/></mxCell></root></mxGraphModel>`;
       // Should not throw — last-write-wins or first-write-wins, but no crash
       const result = model.importXml(xml);
-      assert(!("error" in result), "Duplicate cell IDs should not crash import");
+      assert(
+        !("error" in result),
+        "Duplicate cell IDs should not crash import",
+      );
     });
 
     it("should handle XML with cells but no geometry", () => {
       const xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="c1" value="no-geom" parent="1" vertex="1"/></root></mxGraphModel>`;
       const result = model.importXml(xml);
-      assert(!("error" in result), "Cell without geometry should not crash import");
+      assert(
+        !("error" in result),
+        "Cell without geometry should not crash import",
+      );
     });
 
     it("should handle very deeply nested group structure", () => {
@@ -90,7 +105,10 @@ describe("DiagramModel — malformed XML handling", () => {
       }
       const xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>${innerXml}</root></mxGraphModel>`;
       const result = model.importXml(xml);
-      assert(!("error" in result), "Deeply nested groups should not crash import");
+      assert(
+        !("error" in result),
+        "Deeply nested groups should not crash import",
+      );
     });
   });
 
@@ -102,7 +120,10 @@ describe("DiagramModel — malformed XML handling", () => {
       if (!("error" in result)) {
         // If import succeeds, the entity should NOT have been expanded
         const outputXml = model.toXml();
-        assert(!outputXml.includes("INJECTED"), "Entity expansion should be disabled (XXE protection)");
+        assert(
+          !outputXml.includes("INJECTED"),
+          "Entity expansion should be disabled (XXE protection)",
+        );
       }
       // If import fails, that's also acceptable — rejecting DTDs is safe
     });
