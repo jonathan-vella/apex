@@ -141,8 +141,8 @@ const DIAGRAM_ARTIFACT_EXPECTATIONS = {
   ],
   "07-design-document.md": [
     {
-      image: "./03-des-diagram.drawio.svg",
-      source: "./03-des-diagram.drawio",
+      image: "./03-des-diagram.excalidraw.svg",
+      source: "./03-des-diagram.excalidraw",
     },
     {
       image: "./03-des-network-diagram.png",

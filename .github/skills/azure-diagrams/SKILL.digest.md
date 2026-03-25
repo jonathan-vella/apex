@@ -6,36 +6,37 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Routing Guide
 
-- **Architecture diagrams** → Draw.io XML (`.drawio`) — this is the DEFAULT
+- **Architecture diagrams** → Excalidraw JSON (`.excalidraw`) — this is the DEFAULT
 - **WAF bar charts, cost donuts, cost projections, compliance gaps** → Python matplotlib (`.py` + `.png`)
 - **Swimlane / ERD / timeline** → Python graphviz (`.py` + `.png`)
 
 ## Prerequisites
 
-- drawio-mcp-server configured in `.vscode/mcp.json` (at `mcp/drawio-mcp-server/`)
-- Azure icon libraries: `npm run build:drawio-icons` (pre-built in `assets/drawio-libraries/`)
+- Excalidraw MCP configured in `.vscode/mcp.json` (remote: `https://mcp.excalidraw.com/mcp`)
+- Azure icon library: `assets/excalidraw-libraries/azure-icons.excalidrawlib`
+- Icon reference: `assets/excalidraw-libraries/azure-icons/reference.md`
 - For Python charts: `pip install diagrams matplotlib pillow && apt-get install -y graphviz`
 
-## Architecture Diagram Contract (Draw.io — Default)
+## Architecture Diagram Contract (Excalidraw — Default)
 
 ### Required outputs
 
-| Step | Draw.io files                                               | Python chart files (if applicable)                                   |
-| ---- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
-| 3    | `03-des-diagram.drawio`                                     | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
-| 4    | `04-dependency-diagram.drawio`, `04-runtime-diagram.drawio` | —                                                                    |
+| Step | Excalidraw files                                                    | Python chart files (if applicable)                                   |
+| ---- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 3    | `03-des-diagram.excalidraw`                                         | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 4    | `04-dependency-diagram.excalidraw`, `04-runtime-diagram.excalidraw` | —                                                                    |
 
 > _See SKILL.md for full content._
 
 ## Naming Conventions
 
-Cell IDs: `{resource-type}-{number}` (e.g., `vm-1`). Container IDs: `{scope}-{name}` (e.g., `rg-prod`).
-Edge IDs: `e-{source}-to-{target}`. Labels: actual resource names from architecture.
+Element IDs: `{resource-type}-{number}` (e.g., `vm-1`). Group IDs: `{scope}-{name}` (e.g., `rg-prod`).
+Arrow IDs: `e-{source}-to-{target}`. Labels: actual resource names from architecture.
 
 ## Azure Design Tokens
 
-Azure Blue `#0078D4` (borders, edges) · VNet fill `#F0F8FF` · Warning `#FF8C00` ·
-Security `#C00000` · Font: Arial · Icon: 48×48 · DPI: 150.
+Azure Blue `#0078D4` (borders, arrows) · VNet fill `#e7f5ff` · Warning `#FF8C00` ·
+Security `#C00000` · Font: Excalifont (`fontFamily: 5`) · Icon: 48×48.
 
 ## Diagram Abstraction Rules (MANDATORY)
 
@@ -46,8 +47,8 @@ See `references/abstraction-rules.md` for full rules.
 
 ## Layout Best Practices
 
-- **Flow**: Left-to-right or top-to-bottom. Group data resources inside VNet container.
-- **Labels**: `labelWidth=160;overflow=width;html=1;fontSize=9` on all icon cells.
+- **Flow**: Left-to-right or top-to-bottom. Group data resources inside VNet rectangle.
+- **Labels**: `fontSize: 16`, max 2-line labels. All text uses `fontFamily: 5` (Excalifont).
   Space icons ≥260px apart. Max 2-line labels. Never `labelWidth` < 160.
 - **Containers**: VNet min 250×250px, Canvas 1600×1000px.
 - **Spacing**: Icons min 50px from edges, 120px vertical between stacked icons.
@@ -77,16 +78,16 @@ See `references/waf-cost-charts.md` for full chart implementations.
 
 ## Common Architecture Patterns
 
-See `references/drawio-common-patterns.md` (draw.io), `references/common-patterns.md` (Python),
+See `references/excalidraw-common-patterns.md` (Excalidraw), `references/common-patterns.md` (Python),
 `references/iac-to-diagram.md` (Bicep/Terraform to diagram).
 
 ## Workflow Integration
 
-| Step | Draw.io files           | Python chart files                                                   |
-| ---- | ----------------------- | -------------------------------------------------------------------- |
-| 2    | —                       | `02-waf-scores.py/.png`                                              |
-| 3    | `03-des-diagram.drawio` | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
-| 7    | `07-ab-diagram.drawio`  | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
+| Step | Excalidraw files            | Python chart files                                                   |
+| ---- | --------------------------- | -------------------------------------------------------------------- |
+| 2    | —                           | `02-waf-scores.py/.png`                                              |
+| 3    | `03-des-diagram.excalidraw` | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 7    | `07-ab-diagram.excalidraw`  | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
 
 > _See SKILL.md for full content._
 

@@ -1,7 +1,7 @@
 ---
 description: "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report."
 agent: agent
-tools: vscode, read, agent, search, web, 'microsoft-learn/*', todo
+tools: vscode, execute, read, agent, edit, search, web, azure-mcp/search, 'microsoft-learn/*', todo
 argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works only')"
 ---
 

@@ -159,9 +159,9 @@ DAG in `workflow-graph.json`.
 ### Design Agent
 
 Step 3 agent that generates architecture diagrams and Architecture Decision Records (ADRs).
-Optional step in the workflow. Uses `azure-diagrams` skill (draw.io default + Python charts) and `azure-adr` skill.
+Optional step in the workflow. Uses `azure-diagrams` skill (Excalidraw default + Python charts) and `azure-adr` skill.
 
-📁 **Output**: `agent-output/{project}/03-des-*.{drawio,drawio.svg,py,png,md}`
+📁 **Output**: `agent-output/{project}/03-des-*.{excalidraw,py,png,md}`
 
 ### Dev Container
 

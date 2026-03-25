@@ -1,0 +1,50 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "b7797e40-0e70-5013-80f0-b0d6ae362dcb",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "transparent",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 0,
+      "version": 1,
+      "versionNonce": 0,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1774464638815,
+      "link": null,
+      "locked": false,
+      "status": "saved",
+      "fileId": "b7797e40-0e70-5013-80f0-b0d6ae362dcb"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {
+    "b7797e40-0e70-5013-80f0-b0d6ae362dcb": {
+      "mimeType": "image/svg+xml",
+      "id": "b7797e40-0e70-5013-80f0-b0d6ae362dcb",
+      "dataURL": "data:image/svg+xml;base64,PHN2ZyBpZD0iYmIzN2VlMTEtMWQ3OC00MmRjLTllNjgtMWVmNmY2OTNjMTRiIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImEyNTQ2YzNkLTA2ZjItNGQ4MS1iM2ZhLWI1YjYyZDlmNmY4OSIgeDE9IjkiIHkxPSIxNyIgeDI9IjkiIHkyPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDA3OGQ0IiAvPjxzdG9wIG9mZnNldD0iMC4xNiIgc3RvcC1jb2xvcj0iIzEzODBkYSIgLz48c3RvcCBvZmZzZXQ9IjAuNTMiIHN0b3AtY29sb3I9IiMzYzkxZTUiIC8+PHN0b3Agb2Zmc2V0PSIwLjgyIiBzdG9wLWNvbG9yPSIjNTU5Y2VjIiAvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzVlYTBlZiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48dGl0bGU+SWNvbi1pbnR1bmUtMzMxPC90aXRsZT48cGF0aCBkPSJNNi42LDEyLjJoNC44VjE3SDYuNlpNMSw1LjhINS44VjFIMS42N0EuNjcuNjcsMCwwLDAsMSwxLjY3Wk0xLjY3LDE3SDUuOFYxMi4ySDF2NC4xM0EuNjcuNjcsMCwwLDAsMS42NywxN1pNMSwxMS40SDUuOFY2LjZIMVpNMTIuMiwxN2g0LjEzYS42Ny42NywwLDAsMCwuNjctLjY3VjEyLjJIMTIuMlpNNi42LDExLjRoNC44VjYuNkg2LjZabTUuNiwwSDE3VjYuNkgxMi4yWk0xMi4yLDFWNS44SDE3VjEuNjdBLjY3LjY3LDAsMCwwLDE2LjMzLDFaTTYuNiw1LjhoNC44VjFINi42WiIgZmlsbD0idXJsKCNhMjU0NmMzZC0wNmYyLTRkODEtYjNmYS1iNWI2MmQ5ZjZmODkpIiAvPjwvc3ZnPg==",
+      "created": 1774464638815,
+      "lastRetrieved": 1774464638815
+    }
+  }
+}

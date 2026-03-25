@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(diagrams): add Excalidraw-native Azure icon libraries, reference docs, icon conversion tooling,
+  and Excalidraw validation/export automation for architecture artifacts.
+- feat(ci): add Excalidraw SVG export and Azure icon update workflows, plus devcontainer/editor
+  support for Excalidraw-based diagram authoring.
 - feat(skills): add `workflow-engine` skill with machine-readable DAG (`workflow-graph.json`)
   for graph-based step routing in the Conductor, replacing hardcoded step logic.
 - feat(skills): add `context-shredding` skill with 3-tier runtime compression
@@ -87,6 +91,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- refactor(diagrams): switch the default architecture diagram workflow from Draw.io to Excalidraw
+  across skills, prompts, agent instructions, VS Code MCP configuration, templates, and docs.
+- refactor(docs): update demo content and documentation to publish `.excalidraw` artifacts instead
+  of `.drawio` files.
 - refactor(conductor): replace hardcoded step table with graph-based routing via
   `workflow-graph.json` and agent registry lookups.
 - refactor(conductor): add circuit breaker principle — halt on `blocked` step status.
@@ -126,6 +134,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor(docs,scripts): update D3 explorer and reformat digest generator.
 - docs: replace 105 hard-coded entity counts across 45+ files with descriptive language;
   resolve '7-step' vs '8-step' workflow conflict (all refs now say 'multi-step').
+
+### Removed
+
+- chore(diagrams): remove the Draw.io MCP server, Draw.io icon libraries, Draw.io export scripts,
+  and Draw.io demo assets in favor of the Excalidraw pipeline.
 
 ### Fixed
 

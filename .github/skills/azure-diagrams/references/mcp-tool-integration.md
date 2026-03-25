@@ -1,90 +1,77 @@
 <!-- ref:mcp-tool-integration-v1 -->
 
-# MCP Tool Integration (Draw.io)
+# MCP Tool Integration (Excalidraw)
 
-The drawio-mcp-server provides rich diagram tools. Key tools:
+The Excalidraw MCP server at `https://mcp.excalidraw.com/mcp` provides interactive
+diagram creation with streaming and camera control.
 
-| Category        | Tools                                                                                        |
-| --------------- | -------------------------------------------------------------------------------------------- |
-| Shape discovery | `search-shapes`, `get-shape-categories`, `get-shapes-in-category`, `get-style-presets`       |
-| Diagram build   | `add-cells` (batch), `edit-cells`, `edit-edges`, `set-cell-shape`, `delete-cell-by-id`       |
-| Containers      | `create-groups`, `add-cells-to-group`, `list-group-children`                                 |
-| Inspection      | `list-paged-model`, `get-diagram-stats`, `export-diagram`, `import-diagram`, `clear-diagram` |
-| Pages/layers    | `create-page`, `list-pages`, `create-layer`, `set-active-layer`                              |
-| Finish          | `finish-diagram` (resolves placeholders to full SVG)                                         |
-| File I/O        | `save-to-file` (write .drawio to disk — no terminal needed)                                  |
-| Quality         | `validate-diagram` (check overlaps, spacing, orphaned edges → score 0-10)                    |
+## MCP Server Configuration
 
-## MCP-First Diagram Workflow
-
-1. **Read architecture** — Extract resource list and data flow from `02-architecture-assessment.md`
-2. **Plan layout** — Identify main flow (Users→Identity→Compute→VNet→Data), cross-cutting services, and external APIs
-3. `search-shapes` — Find ALL icons in ONE call (main flow + cross-cutting)
-4. `create-groups` — Create VNet container (and External APIs box if needed)
-5. `add-cells` (batch, `transactional: true`) — Add all vertices
-   (title, icons, labels, footer) then edges for primary flow only
-6. `add-cells-to-group` — Place data services inside VNet
-7. `finish-diagram` (`compress: true`) — Resolve placeholders
-8. `validate-diagram` — Check quality score (>= 9/10);
-   if below, adjust and retry (max 2 attempts, then accept)
-9. `save-to-file` — Save `.drawio` directly to disk.
-   No terminal extraction needed.
-
-## Transactional Mode (50+ shapes)
-
-For complex diagrams, pass `transactional: true` on each tool call to use lightweight
-placeholder SVGs (~2-5KB per call instead of 200KB+). Call `finish-diagram` at the
-end to resolve all placeholders to production-ready SVG XML.
-
-## Example: add-cells with Azure icons
+Configured in `.vscode/mcp.json`:
 
 ```json
 {
-  "cells": [
-    {
-      "type": "vertex",
-      "temp_id": "web",
-      "x": 100,
-      "y": 100,
-      "width": 64,
-      "height": 64,
-      "text": "Web App",
-      "shape_name": "App Services"
-    },
-    {
-      "type": "vertex",
-      "temp_id": "sql",
-      "x": 300,
-      "y": 100,
-      "width": 64,
-      "height": 64,
-      "text": "SQL Database",
-      "shape_name": "SQL Database"
-    },
-    {
-      "type": "edge",
-      "source_id": "web",
-      "target_id": "sql",
-      "text": "SQL:1433"
-    }
-  ]
+  "excalidraw": {
+    "type": "http",
+    "url": "https://mcp.excalidraw.com/mcp"
+  }
 }
 ```
 
-## Saving .drawio Files (via MCP `save-to-file`)
+## Workflow (MCP Available)
 
-After `finish-diagram`, call `save-to-file` to write the diagram
-directly to disk. The tool auto-decompresses compressed XML.
+1. Gather context (resources, flows, boundaries)
+2. Use Excalidraw MCP to create interactive diagram
+3. Export as `.excalidraw` JSON and save to disk
+4. CI auto-generates `.excalidraw.svg`
 
-```json
-{
-  "diagram_xml": "<xml from finish-diagram response>",
-  "file_path": "agent-output/{project}/03-des-diagram.drawio"
-}
+## Workflow (MCP Fallback — Direct JSON)
+
+If the remote MCP is unavailable (network issues, service down):
+
+1. Gather context (resources, flows, boundaries)
+2. Look up icons in `assets/excalidraw-libraries/azure-icons/reference.md`
+3. Create base `.excalidraw` JSON file with the standard schema
+4. Add icons using Python script: `scripts/add-icon-to-diagram.py`
+5. Add arrows using Python script: `scripts/add-arrow.py`
+6. Save `.excalidraw` file to disk
+7. CI auto-generates `.excalidraw.svg`
+
+## Python Script Reference
+
+### Add Icon
+
+```bash
+python scripts/add-icon-to-diagram.py <diagram.excalidraw> <icon-name> <x> <y> [--label "Text"]
 ```
 
-Response: `{ success: true, path: "...", size_bytes: 41000 }`
+- `icon-name`: Must match a filename in `assets/excalidraw-libraries/azure-icons/icons/` (without `.json`)
+- `x`, `y`: Position coordinates in pixels
+- `--label`: Optional text label below the icon
 
-**NEVER** use `read_file` on MCP content.json responses — the
-compressed data pollutes the LLM context window. Use `save-to-file`
-instead, which handles decompression server-side.
+### Add Arrow
+
+```bash
+python scripts/add-arrow.py <diagram.excalidraw> <from-x> <from-y> <to-x> <to-y> [--label "Text"] [--style solid|dashed]
+```
+
+## Quality Gate
+
+After generating a diagram, verify:
+
+- Quality score >= 9/10
+- No overlapping elements
+- All labels readable at 100% zoom
+- Correct Azure icons used
+- Clear data flow direction
+- Cross-cutting services at bottom with NO edges
+
+If quality < 9/10, adjust layout and regenerate (max 2 attempts).
+
+## Saving Files
+
+Save `.excalidraw` files directly to the output path using file creation tools.
+The CI workflow `excalidraw-svg-export.yml` will automatically generate
+`.excalidraw.svg` files for documentation embedding.
+
+**NEVER** use `read_file` on large MCP response payloads — summarize and discard.

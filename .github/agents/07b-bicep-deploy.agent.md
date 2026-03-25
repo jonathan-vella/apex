@@ -53,7 +53,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill to generate a draw.io as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` + `07-ab-diagram.drawio.svg` with deterministic layout and quality score >= 9/10. Follow MANDATORY layout rules from the skill."
+    prompt: "Use the azure-diagrams skill to generate an Excalidraw as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` with deterministic layout and quality score >= 9/10. Follow MANDATORY layout rules from the skill."
     send: true
   - label: "↩ Fix Deployment Issues"
     agent: 06b-Bicep CodeGen

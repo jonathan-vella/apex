@@ -47,5 +47,10 @@
     "editor.tabSize": 4
   },
   "python.terminal.useEnvFile": true,
-  "azureTerraform.checkTerraformCmd": false
+  "azureTerraform.checkTerraformCmd": false,
+  "workbench.editorAssociations": {
+    "*.excalidraw": "editor.excalidraw",
+    "*.excalidraw.svg": "editor.excalidraw",
+    "*.excalidraw.png": "editor.excalidraw"
+  }
 }

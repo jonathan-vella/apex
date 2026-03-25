@@ -3,16 +3,16 @@
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 > Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
 
-| Domain          | Grade | Status                                                                  | Next Action                                |
-| --------------- | ----- | ----------------------------------------------------------------------- | ------------------------------------------ |
-| Agents          | A     | 17 primary + 11 subagents; conductor 337 lines (under 400)              | Fix 3 model-mismatch warnings in registry  |
-| Skills          | A     | 43 GA skills; 46 with references/; 508 ref files                        | Monitor via `lint:skills-format`           |
-| Instructions    | A     | 28 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`              |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed |
-| Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts     | Run doc-gardening after structural changes |
-| CI / Validation | A-    | 34 validators; lint:md 115 errors (mostly demo content + test prompts)  | Accept demo/test lint as known debt        |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)        | Quarterly audit via AGENTS.md checklist    |
-| Backlog         | A-    | Limited active debt items; multiple resolved (incl. #14 conductor body) | Triage registry model drift + demo lint    |
+| Domain          | Grade | Status                                                                  | Next Action                                 |
+| --------------- | ----- | ----------------------------------------------------------------------- | ------------------------------------------- |
+| Agents          | A     | 17 primary + 11 subagents; conductor 337 lines (under 400)              | Fix 3 model-mismatch warnings in registry   |
+| Skills          | A     | 43 GA skills; 46 with references/; 474 ref files                        | Monitor via `lint:skills-format`            |
+| Instructions    | A     | 28 instruction files; narrow globs enforced; all refs valid             | Monitor via `lint:glob-audit`               |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed  |
+| Documentation   | A     | All docs updated within 11 days; no stale files; descriptive counts     | Run doc-gardening after structural changes  |
+| CI / Validation | A     | 34 validators; lint:md 2 errors (pre-existing Fabric icon ref blanks)   | Fix Fabric reference blanks when convenient |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)        | Quarterly audit via AGENTS.md checklist     |
+| Backlog         | A     | 2 active items (registry drift + Fabric ref blanks); demo lint resolved | Triage registry model drift                 |
 
 ## Grading Scale
 
@@ -90,6 +90,11 @@
 | 2026-03-23 | CI / Validation | SKILL.md lint errors resolved (debt #17); demo content now the primary lint debt                  |
 | 2026-03-23 | Backlog         | Debt #14 resolved (conductor 337 lines); #17 resolved (no SKILL.md lint errors)                   |
 | 2026-03-23 | Backlog         | New debt #18 (registry model drift, 3 agents), #19 (demo content lint, 96 errors)                 |
+| 2026-03-25 | Skills          | Ref files 508 → 474 (orphan cleanup); new enterprise-reference-example added to azure-diagrams    |
+| 2026-03-25 | Skills          | azure-diagrams skill: cross-step visual continuity section + curated reference example added      |
+| 2026-03-25 | CI / Validation | Grade A- → A: lint:md dropped from 115 errors to 2 (Fabric icon ref blanks only)                  |
+| 2026-03-25 | Backlog         | Debt #19 resolved (demo lint excluded or fixed); grade A- → A                                     |
+| 2026-03-25 | Backlog         | New debt #20: Fabric icon reference.md has 2 blank-line lint errors (MD012)                       |
 
 ## How to Update
 

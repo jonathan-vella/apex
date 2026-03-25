@@ -47,7 +47,7 @@ handoffs:
     send: true
   - label: "▶ Generate Architecture Diagram"
     agent: 04-Design
-    prompt: "Use the azure-diagrams skill to generate a draw.io architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` + `03-des-diagram.drawio.svg` with quality score >= 9/10. Follow MANDATORY layout rules from the skill."
+    prompt: "Use the azure-diagrams skill to generate an Excalidraw architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.excalidraw` with quality score >= 9/10. Follow MANDATORY layout rules from the skill."
     send: true
   - label: "▶ Create ADR from Assessment"
     agent: 04-Design
@@ -55,7 +55,7 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use draw.io (default) and save `agent-output/{project}/03-des-diagram.drawio` + `.drawio.svg`; ADRs remain `03-des-*.md`."
+    prompt: "Generate architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use Excalidraw (default) and save `agent-output/{project}/03-des-diagram.excalidraw`; ADRs remain `03-des-*.md`."
     send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance

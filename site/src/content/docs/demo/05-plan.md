@@ -22,8 +22,8 @@ tableOfContents:
 - [🔒 Approval Gate](#-approval-gate)
 - [References](#references)
 
-| ⬅️ Previous                                                  | 📑 Index            | Next ➡️                                                                  |
-| ------------------------------------------------------------ | ------------------- | ------------------------------------------------------------------------ |
+| ⬅️ Previous                                 | 📑 Index          | Next ➡️                                                                                                              |
+| ------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
 | [Governance Constraints](../04-governance/) | [Demo Index](../) | [Bicep templates](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods) |
 
 ---
@@ -634,7 +634,7 @@ config:
 
 ![Dependency Diagram](/azure-agentic-infraops/demo/04-dependency-diagram.svg)
 
-Source: [Dependency diagram Draw.io source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/04-dependency-diagram.drawio)
+Source: [Dependency diagram Excalidraw source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/04-dependency-diagram.excalidraw)
 
 ```text
 Resource Group
@@ -656,7 +656,7 @@ Resource Group
 └── Budget Alert
 ```
 
-The editable source for this diagram is the Draw.io file linked above.
+The editable source for this diagram is the Excalidraw file linked above.
 
 ---
 
@@ -664,7 +664,7 @@ The editable source for this diagram is the Draw.io file linked above.
 
 ![Runtime Flow Diagram](/azure-agentic-infraops/demo/04-runtime-diagram.svg)
 
-Source: [Runtime flow Draw.io source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/04-runtime-diagram.drawio)
+Source: [Runtime flow Excalidraw source](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/site/src/content/docs/demo/04-runtime-diagram.excalidraw)
 
 ```text
 User Request
@@ -686,7 +686,7 @@ Log Analytics ◄── Diagnostic Settings (all resources)
 Budget Alert ──→ Email notification (CTO)
 ```
 
-The editable source for this diagram is the Draw.io file linked above.
+The editable source for this diagram is the Excalidraw file linked above.
 
 ---
 
@@ -840,13 +840,13 @@ The editable source for this diagram is the Draw.io file linked above.
 | CAF Naming Conventions     | [Microsoft Learn](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) |
 | Private Endpoint Reference | [Microsoft Learn](https://learn.microsoft.com/azure/private-link/private-endpoint-overview)                              |
 | Bicep Best Practices       | [Microsoft Learn](https://learn.microsoft.com/azure/azure-resource-manager/bicep/best-practices)                         |
-| Governance Constraints     | [Governance Constraints](../04-governance/)                                                                   |
+| Governance Constraints     | [Governance Constraints](../04-governance/)                                                                              |
 
 ---
 
 <div align="center">
 
 | ⬅️ [Governance Constraints](../04-governance/) | 🏠 [Demo Index](../) | ➡️ [Bicep templates](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods) |
-| --------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------ |
+| ---------------------------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 
 </div>

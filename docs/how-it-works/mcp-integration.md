@@ -6,18 +6,20 @@ toc_depth: 3
 
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
-This project integrates five MCP servers, each providing specialised capabilities that
-agents invoke at runtime. Four are declared in `.vscode/mcp.json`; the fifth (Azure MCP)
-runs as a VS Code extension. An additional `astro-docs` server is declared in `mcp.json`
+This project integrates six core MCP servers, each providing specialised capabilities that
+agents invoke at runtime: Azure MCP, Azure Pricing MCP, Excalidraw MCP, GitHub MCP,
+MS Learn MCP, and Terraform MCP. Five are declared in `.vscode/mcp.json`; the sixth
+(Azure MCP) runs as a VS Code extension. An additional `astro-docs` server is declared in
+`.vscode/mcp.json`
 for documentation site development but is not part of the core agent toolchain.
 
 ## :material-lan: MCP Architecture
 
-Four of the five core MCP servers are declared in `.vscode/mcp.json` and start automatically
-when VS Code invokes them. The fifth — the Azure MCP Server — runs as a VS Code extension
-(`ms-azuretools.vscode-azure-mcp-server`) and uses `az login` credentials. Agents never call cloud APIs directly — they
-call MCP tools, which handle authentication, caching, pagination, retries,
-and response formatting.
+Five of the six core MCP servers are declared in `.vscode/mcp.json` and start automatically
+when VS Code invokes them. The sixth, the Azure MCP Server, runs as a VS Code extension
+(`ms-azuretools.vscode-azure-mcp-server`) and uses `az login` credentials. Agents never
+call cloud APIs directly; they call MCP tools, which handle authentication, caching,
+pagination, retries, and response formatting.
 
 ```mermaid
 %%{
@@ -42,31 +44,19 @@ flowchart LR
     classDef agent fill:#ffffff,stroke:#8b5cf6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
     classDef mcp fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
 
-    A["Agent"]:::agent --> M1["GitHub MCP"]:::mcp
-    A --> M2["MS Learn MCP"]:::mcp
-    A --> M3["Azure MCP"]:::mcp
-    A --> M4["Pricing MCP"]:::mcp
-    A --> M5["Terraform MCP"]:::mcp
-    M1 --> G["GitHub API"]
-    M2 --> L["learn.microsoft.com"]
-    M3 --> AZ["Azure Resource Manager"]
-    M4 --> P["Azure Retail Prices API"]
-    M5 --> T["Terraform Registry"]
+  A["Agent"]:::agent --> M1["Azure MCP"]:::mcp
+  A --> M2["Azure Pricing MCP"]:::mcp
+  A --> M3["Excalidraw MCP"]:::mcp
+  A --> M4["GitHub MCP"]:::mcp
+  A --> M5["MS Learn MCP"]:::mcp
+  A --> M6["Terraform MCP"]:::mcp
+  M1 --> AZ["Azure Resource Manager"]
+  M2 --> P["Azure Retail Prices API"]
+  M3 --> E["Excalidraw Service"]
+  M4 --> G["GitHub API"]
+  M5 --> L["learn.microsoft.com"]
+  M6 --> T["Terraform Registry"]
 ```
-
-## :octicons-mark-github-16: GitHub MCP Server
-
-| Property  | Value                                         |
-| --------- | --------------------------------------------- |
-| Transport | HTTP                                          |
-| Endpoint  | `https://api.githubcopilot.com/mcp/`          |
-| Auth      | Automatic via GitHub Copilot token            |
-| Purpose   | Issues, PRs, repos, code search, file content |
-
-The GitHub MCP server is the primary interface for repository operations.
-Agents use it to create issues, open pull requests, search code, read file
-contents, manage branches, and automate the Smart PR Flow lifecycle. It is
-scoped as a default server — every agent has access.
 
 ## :material-microsoft-azure: Azure MCP Server
 
@@ -87,8 +77,8 @@ against live Azure environments using the authenticated user's credentials.
 Agents use it across the entire workflow — from governance discovery
 (querying Azure Policy assignments) through deployment (validating
 resource state) to as-built documentation (inventorying deployed resources).
-It is scoped as a **default server** alongside GitHub,
-meaning virtually every agent has access.
+It is scoped as a **default server** alongside GitHub, meaning virtually every
+agent has access.
 
 Installation follows the [Azure MCP Server README](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md#installation)
 and is pre-configured in the dev container via the
@@ -139,7 +129,38 @@ codes for consistent agent error handling.
 Primarily scoped to the **Architect** agent (Step 2), the
 **cost-estimate-subagent**, and the **As-Built** agent (Step 7).
 
-## :material-book-open-variant: Microsoft Learn MCP Server
+## :material-pencil-ruler: Excalidraw MCP Server
+
+| Property  | Value                            |
+| --------- | -------------------------------- |
+| Transport | HTTP                             |
+| Endpoint  | `https://mcp.excalidraw.com/mcp` |
+| Auth      | None                             |
+| Purpose   | Editable architecture diagrams   |
+
+The Excalidraw MCP server lets agents create and update editable diagrams for
+architecture and workflow artifacts. It is the backbone for `.excalidraw`
+outputs used by the Design step and by implementation-planning diagrams, which
+keeps diagrams reviewable and easy to refine after generation.
+
+It is primarily used by the **Design** agent (Step 3), the planning agents
+that emit architecture views, and the `azure-diagrams` skill.
+
+## :octicons-mark-github-16: GitHub MCP Server
+
+| Property  | Value                                         |
+| --------- | --------------------------------------------- |
+| Transport | HTTP                                          |
+| Endpoint  | `https://api.githubcopilot.com/mcp/`          |
+| Auth      | Automatic via GitHub Copilot token            |
+| Purpose   | Issues, PRs, repos, code search, file content |
+
+The GitHub MCP server is the primary interface for repository operations.
+Agents use it to create issues, open pull requests, search code, read file
+contents, manage branches, and automate the Smart PR Flow lifecycle. It is
+scoped as a default server, so every agent has access.
+
+## :material-book-open-variant: MS Learn MCP Server
 
 | Property  | Value                                                     |
 | --------- | --------------------------------------------------------- |
@@ -148,7 +169,7 @@ Primarily scoped to the **Architect** agent (Step 2), the
 | Auth      | None (public API)                                         |
 | Purpose   | Search and fetch official Microsoft documentation         |
 
-The Microsoft Learn MCP server provides agents with access to official
+The MS Learn MCP server provides agents with access to official
 Microsoft and Azure documentation. Agents use it to look up service
 configurations, verify best practices, and ground architecture decisions
 in authoritative sources.
@@ -164,7 +185,24 @@ documentation for each Azure service, **Bicep Planner** (Step 4b) looks
 up AVM module documentation, and the `copilot-customization` skill
 caches fetched pages for offline reference.
 
-## :material-terraform: Terraform Registry MCP Server
+Three skills also package this server for repeated use:
+
+| Skill                      | Purpose                                                        |
+| -------------------------- | -------------------------------------------------------------- |
+| `microsoft-docs`           | Search and fetch documentation — concepts, guides, limits      |
+| `microsoft-code-reference` | Verify SDK methods, find code samples, catch hallucinated APIs |
+| `microsoft-skill-creator`  | Generate new agent skills for Microsoft technologies           |
+
+The `maxTokenBudget=4000` parameter prevents oversized responses from consuming
+excessive context window space.
+
+!!! tip "CLI fallback"
+
+If the Learn MCP server is unavailable, agents can use the `mslearn` CLI:
+`npx @microsoft/learn-cli search "azure functions timeout"`. The related
+skills include CLI fallback guidance.
+
+## :material-terraform: Terraform MCP Server
 
 | Property  | Value                                     |
 | --------- | ----------------------------------------- |
@@ -181,49 +219,6 @@ and retrieve module details before generating Terraform configurations.
 Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
 CodeGen** (Step 5t), **terraform-lint-subagent**, and
 **terraform-review-subagent**.
-
-## :material-book-open-page-variant: Microsoft Learn MCP Server
-
-| Property  | Value                                                          |
-| --------- | -------------------------------------------------------------- |
-| Transport | HTTP                                                           |
-| Endpoint  | `https://learn.microsoft.com/api/mcp?maxTokenBudget=4000`      |
-| Auth      | None                                                           |
-| Purpose   | Official Microsoft documentation search, code sample discovery |
-
-The Microsoft Learn MCP server provides agents with direct access to official
-Microsoft documentation on learn.microsoft.com. Agents use it to verify Azure
-service configurations, look up SDK methods, find working code samples, and
-ground their outputs in current, authoritative documentation rather than
-potentially outdated training data.
-
-Three skills leverage this server:
-
-| Skill                      | Purpose                                                        |
-| -------------------------- | -------------------------------------------------------------- |
-| `microsoft-docs`           | Search and fetch documentation — concepts, guides, limits      |
-| `microsoft-code-reference` | Verify SDK methods, find code samples, catch hallucinated APIs |
-| `microsoft-skill-creator`  | Generate new agent skills for Microsoft technologies           |
-
-| Tool                           | Purpose                                  |
-| ------------------------------ | ---------------------------------------- |
-| `microsoft_docs_search`        | Search learn.microsoft.com documentation |
-| `microsoft_docs_fetch`         | Fetch full page content from a docs URL  |
-| `microsoft_code_sample_search` | Find official Microsoft code samples     |
-
-The `maxTokenBudget=4000` parameter prevents oversized responses from consuming
-excessive context window space.
-
-Scoped as a **secondary** skill to most workflow agents — it is loaded on demand
-when agents need to verify facts, not on every invocation. Code-generating agents
-(Steps 4–5 planners, codegen, and Diagnose) also get `microsoft-code-reference`
-for SDK/API verification.
-
-!!! tip "CLI Fallback"
-
-    If the Learn MCP server is unavailable, agents can use the `mslearn` CLI:
-    `npx @microsoft/learn-cli search "azure functions timeout"`. All three
-    skills include CLI fallback tables.
 
 ## :material-file-tree-outline: File Map
 
@@ -269,8 +264,9 @@ handling, and adding custom MCP servers.
 
 ### Verifying MCP Servers
 
-All MCP servers are configured in `.vscode/mcp.json` and start
-automatically when VS Code invokes them. To verify they are working:
+Five of the six core MCP servers are configured in `.vscode/mcp.json` and
+start automatically when VS Code invokes them. Azure MCP is installed as a
+VS Code extension. To verify they are working:
 
 1. Open any agent chat (e.g. the Conductor)
 2. The agent's tool list should include MCP tools
@@ -282,13 +278,14 @@ VS Code Extensions panel.
 
 ### Authentication Flows
 
-| Server                | Auth Method                                | Setup                           |
-| --------------------- | ------------------------------------------ | ------------------------------- |
-| GitHub MCP            | Automatic via Copilot token                | No setup needed                 |
-| Microsoft Learn MCP   | None (public API)                          | No setup needed                 |
-| Azure Pricing MCP     | None for pricing; Azure CLI for Spot tools | `az login` for Spot VM features |
-| Terraform MCP         | None                                       | No setup needed                 |
-| Azure MCP (extension) | Azure CLI or managed identity              | Run `az login` before using     |
+| Server            | Auth Method                                | Setup                           |
+| ----------------- | ------------------------------------------ | ------------------------------- |
+| Azure MCP         | Azure CLI or managed identity              | Run `az login` before using     |
+| Azure Pricing MCP | None for pricing; Azure CLI for Spot tools | `az login` for Spot VM features |
+| Excalidraw MCP    | None                                       | No setup needed                 |
+| GitHub MCP        | Automatic via Copilot token                | No setup needed                 |
+| MS Learn MCP      | None (public API)                          | No setup needed                 |
+| Terraform MCP     | None                                       | No setup needed                 |
 
 ### Error Handling
 

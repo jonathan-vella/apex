@@ -201,9 +201,6 @@
     ".github/skills/entra-app-registration/**",
     ".github/skills/microsoft-foundry/**",
 
-    // Draw.io MCP server (external Deno/TypeScript project with its own conventions)
-    "mcp/drawio-mcp-server/**",
-
     // E2E test input documents (long-form RFQ/RFP prose, not production docs)
     "tests/e2e-inputs/**",
 

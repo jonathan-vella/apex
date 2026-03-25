@@ -202,11 +202,10 @@ After completing the workflow:
 agent-output/my-webapp/
 ├── 01-requirements.md          # Captured requirements (includes iac_tool)
 ├── 02-architecture-assessment.md  # WAF analysis
+├── 03-des-diagram.excalidraw   # Optional Step 3 architecture diagram
 ├── 04-implementation-plan.md   # Phased plan
-├── 04-dependency-diagram.py     # Step 4 dependency diagram source
-├── 04-dependency-diagram.png    # Step 4 dependency diagram image
-├── 04-runtime-diagram.py        # Step 4 runtime diagram source
-├── 04-runtime-diagram.png       # Step 4 runtime diagram image
+├── 04-dependency-diagram.excalidraw  # Step 4 dependency diagram
+├── 04-runtime-diagram.excalidraw     # Step 4 runtime diagram
 ├── 04-governance-constraints.md   # Policy discovery
 ├── 05-implementation-reference.md # Module inventory
 ├── 06-deployment-summary.md    # Deployed resources
@@ -237,13 +236,13 @@ infra/terraform/my-webapp/
 
 | Goal                            | Resource                                                                           |
 | ------------------------------- | ---------------------------------------------------------------------------------- |
-| Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                             |
+| Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                            |
 | Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
-| Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                   |
+| Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                         |
 | Generate architecture diagrams  | Use `azure-diagrams` skill                                                         |
 | Create documentation            | Use `azure-artifacts` skill                                                        |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
-| Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                 |
+| Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                |
 | Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops) |
 
 ## Quick Reference

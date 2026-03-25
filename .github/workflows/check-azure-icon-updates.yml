@@ -1,0 +1,118 @@
+# Check for Azure Icon Updates
+# Monthly check for new Azure Public Service Icons releases.
+# Fetches the Microsoft icons page, parses the latest update entry,
+# compares against the local manifest, and opens a GitHub Issue if
+# a new version is detected.
+# Does NOT auto-download (requires manual license agreement).
+
+name: check-azure-icon-updates
+
+on:
+  schedule:
+    - cron: "0 9 1 * *" # 1st of each month, 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-icons:
+    name: Check for Azure icon updates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: assets/excalidraw-libraries/azure-icons/manifest.json
+
+      - name: Check for updates
+        id: check
+        run: |
+          set -euo pipefail
+
+          MANIFEST="assets/excalidraw-libraries/azure-icons/manifest.json"
+
+          # Read current manifest version
+          if [ -f "$MANIFEST" ]; then
+            CURRENT_VERSION=$(jq -r '.sourceVersion // "unknown"' "$MANIFEST")
+            LAST_CHECKED=$(jq -r '.lastChecked // "unknown"' "$MANIFEST")
+          else
+            CURRENT_VERSION="unknown"
+            LAST_CHECKED="unknown"
+          fi
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "Last checked: $LAST_CHECKED"
+
+          # Fetch the Microsoft icons page and extract the first update entry
+          PAGE_CONTENT=$(curl -sL "https://learn.microsoft.com/en-us/azure/architecture/icons/" || echo "")
+
+          if [ -z "$PAGE_CONTENT" ]; then
+            echo "::warning::Failed to fetch Microsoft icons page"
+            echo "has_update=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Extract the first row of the Icon Updates table (latest update)
+          LATEST_UPDATE=$(echo "$PAGE_CONTENT" | grep -oP '(?<=<td>)(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}' | head -1 || echo "")
+          LATEST_DESCRIPTION=$(echo "$PAGE_CONTENT" | grep -oP '(?<=<td>)Added \d+ new icons[^<]*' | head -1 || echo "")
+
+          if [ -z "$LATEST_UPDATE" ]; then
+            echo "::notice::Could not parse update date from icons page"
+            echo "has_update=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Latest update on page: $LATEST_UPDATE"
+
+          # Compare with current version
+          if echo "$CURRENT_VERSION" | grep -qi "$(echo "$LATEST_UPDATE" | tr ' ' '-')"; then
+            echo "Icons are up to date"
+            echo "has_update=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New icon version detected: $LATEST_UPDATE"
+            echo "has_update=true" >> "$GITHUB_OUTPUT"
+            echo "update_date=$LATEST_UPDATE" >> "$GITHUB_OUTPUT"
+            echo "update_description=$LATEST_DESCRIPTION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create issue for update
+        if: steps.check.outputs.has_update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPDATE_DATE: ${{ steps.check.outputs.update_date }}
+          UPDATE_DESC: ${{ steps.check.outputs.update_description }}
+        run: |
+          MONTH_YEAR=$(date +"%B %Y")
+          TITLE="chore: Azure icon library update available — ${UPDATE_DATE}"
+
+          # Check if issue already exists
+          EXISTING=$(gh issue list --search "\"${TITLE}\"" --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "Issue #${EXISTING} already exists, skipping"
+            exit 0
+          fi
+
+          BODY="## Azure Icon Library Update Available
+
+          **Latest update**: ${UPDATE_DATE}
+          **Description**: ${UPDATE_DESC}
+
+          ### Action Required
+
+          1. Visit https://learn.microsoft.com/en-us/azure/architecture/icons/
+          2. Accept the license terms and download the ZIP
+          3. Place the ZIP in the repo root
+          4. Run: \`python scripts/convert-azure-icons-to-excalidraw.py <zip-filename>\`
+          5. Commit the updated \`assets/excalidraw-libraries/\` directory
+          6. Delete the ZIP file
+
+          ### Reference
+          - [Microsoft Azure Architecture Icons](https://learn.microsoft.com/en-us/azure/architecture/icons/)
+          - Current version in manifest: check \`assets/excalidraw-libraries/azure-icons/manifest.json\`"
+
+          gh issue create \
+            --title "$TITLE" \
+            --body "$BODY" \
+            --label "chore,icons"

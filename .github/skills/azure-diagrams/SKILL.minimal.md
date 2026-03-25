@@ -4,35 +4,42 @@
 
 **Routing Guide**:
 
+- Architecture diagrams → Excalidraw JSON (`.excalidraw`) — DEFAULT
+- WAF/cost/compliance charts → Python matplotlib (`.py` + `.png`)
+
 **Prerequisites**:
 
-**Architecture Diagram Contract (Draw.io — Default)**:
+- Excalidraw MCP at `https://mcp.excalidraw.com/mcp`
+- Icon library: `assets/excalidraw-libraries/azure-icons.excalidrawlib`
+
+**Architecture Diagram Contract (Excalidraw — Default)**:
 
 ### Required outputs
 
 **Naming Conventions**:
-Cell IDs: `{resource-type}-{number}` (e.g., `vm-1`). Container IDs: `{scope}-{name}` (e.g., `rg-prod`).
+Element IDs: `{resource-type}-{number}` (e.g., `vm-1`). Group IDs: `{scope}-{name}` (e.g., `rg-prod`).
 
 **Azure Design Tokens**:
-Azure Blue `#0078D4` (borders, edges) · VNet fill `#F0F8FF` · Warning `#FF8C00` ·
+Azure Blue `#0078D4` (borders, arrows) · VNet fill `#e7f5ff` · Warning `#FF8C00` ·
 
 **Diagram Abstraction Rules (MANDATORY)**:
 Show primary data flow clearly; omit implementation noise (PEs, ASPs, NSGs, RG boundaries).
 
 **Layout Best Practices**:
-Space icons ≥260px apart. Max 2-line labels. Never `labelWidth` < 160.
+Space icons ≥200px apart. Max 2-line labels. All text `fontFamily: 5` (Excalifont).
 
-**Icon Discovery (MCP-Only)**:
-Use `search-shapes` to find Azure icon shape names. Do NOT manually embed
+**Icon Discovery**:
+Look up icons in `assets/excalidraw-libraries/azure-icons/reference.md`.
+Use `scripts/add-icon-to-diagram.py` for programmatic placement.
 
 **MCP Tool Integration**:
-Key MCP tools: `search-shapes` (icon discovery), `add-cells` (batch build),
+Remote Excalidraw MCP. Fallback: generate JSON directly + Python scripts.
 
 **Python Charts (WAF / Cost / Compliance)**:
 WAF/cost charts use Python `matplotlib` (never Mermaid).
 
 **Common Architecture Patterns**:
-See `references/drawio-common-patterns.md` (draw.io), `references/common-patterns.md` (Python),
+See `references/excalidraw-common-patterns.md` (Excalidraw), `references/common-patterns.md` (Python).
 
 **Workflow Integration**:
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).

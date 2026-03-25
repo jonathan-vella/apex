@@ -125,8 +125,7 @@ _Generated with [azure-diagrams](../../.github/skills/azure-diagrams/SKILL.md) s
 | [01-requirements.md](./01-requirements.md)                       | Project requirements with NFRs    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [02-architecture-assessment.md](./02-architecture-assessment.md) | WAF assessment with pillar scores | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [03-des-cost-estimate.md](./03-des-cost-estimate.md)             | Azure pricing estimate            | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [03-des-diagram.drawio](./03-des-diagram.drawio)                 | Architecture diagram (draw.io)    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [03-des-diagram.drawio.svg](./03-des-diagram.drawio.svg)         | Architecture diagram SVG export   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [03-des-diagram.excalidraw](./03-des-diagram.excalidraw)         | Architecture diagram (Excalidraw) | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 
 </details>
 

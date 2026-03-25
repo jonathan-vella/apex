@@ -16,7 +16,7 @@ tools:
     web,
     azure-mcp/search,
     "microsoft-learn/*",
-    "drawio/*",
+    "excalidraw/*",
     todo,
   ]
 handoffs:
@@ -26,7 +26,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.drawio` with deterministic layout and quality score >= 9/10."
+    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` in the enterprise Azure reference-architecture style with layered boundary shells, color-coded responsibility zones, larger service tiles, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, actual deployed resource names when they improve traceability, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT pack tiles with SKU, tier, node count, policy version, or other low-value operational text that belongs in the resource inventory or runbook. Avoid sparse canvas usage, tangled connectors, over-compression, placeholder groups, and low-contrast micro-text."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -76,6 +76,14 @@ Before doing any work, read these skills:
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
 - Generate the as-built architecture diagram using azure-diagrams skill
+- Preserve the shared enterprise reference-architecture visual language so Step 7 diagrams visually align with Step 3 outputs
+- Prefer fewer, larger service tiles over many small cards so deployed names remain readable
+- Keep the as-built diagram architecture-focused: show actual deployed names when useful,
+  but keep SKU, tier, node count, and low-value operational detail in Step 7 docs rather than on the tiles
+- Keep ingress and perimeter services visually anchored to the zone they serve;
+  do not leave isolated important services floating between the title and the main zones
+- Keep peer services in the same support band identical in width, height, and
+  baseline alignment so the as-built row reads as one intentional support layer
 - Match H2 headings from azure-artifacts templates exactly
 - Include attribution headers from template files
 - Update `agent-output/{project}/README.md` — mark Step 7 complete
@@ -89,6 +97,14 @@ Before doing any work, read these skills:
 - Using planned values when actual deployed values are available
 - Generating documentation for resources that failed deployment
 - Using H2 headings that differ from the templates
+- Letting the as-built diagram sprawl across unused canvas or devolve into low-level wire tracing
+- Shrinking service boxes or labels until actual deployed names become hard to read
+- Packing tiles with inventory-style configuration detail that belongs in
+  `07-resource-inventory.md` instead of the diagram
+- Letting same-row support cards drift in size or vertical alignment, which makes
+  the support band look improvised instead of deliberate
+- Leaving small free-floating flow labels or awkward detour routes that make the
+  deployed diagram feel unfinished or improvised
 - **Hardcoding prices** — ALL prices in `07-ab-cost-estimate.md` MUST originate from
   `cost-estimate-subagent` responses
 - **Calling Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
@@ -198,24 +214,27 @@ Execute each `.py` file and verify the PNGs exist before continuing.
 
 Use the azure-diagrams skill to generate:
 
-- `agent-output/{project}/07-ab-diagram.drawio` — Editable draw.io architecture diagram
+- `agent-output/{project}/07-ab-diagram.excalidraw` — Editable Excalidraw architecture diagram
 
 The diagram MUST reflect actual deployed resources (not just planned ones).
 Follow the MANDATORY layout rules from the azure-diagrams skill:
 
-- `labelWidth=160` on all icon cells, labels max 2 lines
-- Icons at least 260px apart horizontally
-- Subnets min 500px wide, VNet min 600px, RG min 800px
+- All text uses `fontFamily: 5` (Excalifont), `fontSize: 16`
+- Icons at least 200px apart horizontally, 150px vertically
+- VNet containers min 300×300px
+- Outer shell, zone grouping, and grouped dependency boxes must remain visually
+  consistent with the Step 3 design diagram
+- Use a compact legend only when connector color or stroke style carries meaning
+- Keep labels and deployed names readable at 100% zoom by increasing tile size
+  before reducing font size
+- Remove non-essential edge labels and low-value supporting groups that weaken hierarchy
+- Prefer service names and deployed resource names over SKU, tier, policy, or
+  count annotations unless a difference is architecturally significant
+- Keep the support band readable and clearly separated from the footer
+- Route partner-share and external-integration lines with the simplest orthogonal path available
 
-**Saving the .drawio file:** After `finish-diagram`, call MCP `save-to-file`
-to write the diagram directly to disk — no terminal extraction needed:
-
-```json
-{
-  "diagram_xml": "<xml from finish-diagram>",
-  "file_path": "agent-output/{project}/07-ab-diagram.drawio"
-}
-```
+Save the `.excalidraw` JSON file directly to disk.
+CI will auto-generate `.excalidraw.svg` via the `excalidraw-svg-export` workflow.
 
 ### Phase 4: Finalize
 
@@ -238,20 +257,20 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                       | Location                                             |
-| -------------------------- | ---------------------------------------------------- |
-| Resource Inventory         | `agent-output/{project}/07-resource-inventory.md`    |
-| Design Document            | `agent-output/{project}/07-design-document.md`       |
-| Cost Estimate (As-Built)   | `agent-output/{project}/07-ab-cost-estimate.md`      |
-| Compliance Matrix          | `agent-output/{project}/07-compliance-matrix.md`     |
-| Backup & DR Plan           | `agent-output/{project}/07-backup-dr-plan.md`        |
-| Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
-| Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
-| As-Built Diagram (draw.io) | `agent-output/{project}/07-ab-diagram.drawio`        |
-| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.png` |
-| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.png`   |
-| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |
-| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.png`   |
+| File                          | Location                                             |
+| ----------------------------- | ---------------------------------------------------- |
+| Resource Inventory            | `agent-output/{project}/07-resource-inventory.md`    |
+| Design Document               | `agent-output/{project}/07-design-document.md`       |
+| Cost Estimate (As-Built)      | `agent-output/{project}/07-ab-cost-estimate.md`      |
+| Compliance Matrix             | `agent-output/{project}/07-compliance-matrix.md`     |
+| Backup & DR Plan              | `agent-output/{project}/07-backup-dr-plan.md`        |
+| Operations Runbook            | `agent-output/{project}/07-operations-runbook.md`    |
+| Documentation Index           | `agent-output/{project}/07-documentation-index.md`   |
+| As-Built Diagram (Excalidraw) | `agent-output/{project}/07-ab-diagram.excalidraw`    |
+| Cost Distribution Chart       | `agent-output/{project}/07-ab-cost-distribution.png` |
+| Cost Projection Chart         | `agent-output/{project}/07-ab-cost-projection.png`   |
+| Design vs As-Built Chart      | `agent-output/{project}/07-ab-cost-comparison.png`   |
+| Compliance Gaps Chart         | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
 ## Expected Output
 
@@ -264,8 +283,7 @@ agent-output/{project}/
 ├── 07-backup-dr-plan.md          # Backup, DR, and business continuity
 ├── 07-operations-runbook.md      # Day-2 ops, monitoring, troubleshooting
 ├── 07-documentation-index.md     # Index of all project artifacts
-├── 07-ab-diagram.drawio          # As-built architecture diagram (draw.io)
-└── 07-ab-diagram.drawio.svg      # SVG export
+└── 07-ab-diagram.excalidraw      # As-built architecture diagram (Excalidraw)
 ```
 
 Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.

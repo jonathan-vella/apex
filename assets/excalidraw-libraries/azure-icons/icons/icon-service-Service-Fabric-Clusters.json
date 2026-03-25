@@ -1,0 +1,50 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "def0ac87-c21e-5762-a195-ac502dfb637d",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "transparent",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 0,
+      "version": 1,
+      "versionNonce": 0,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1774464638740,
+      "link": null,
+      "locked": false,
+      "status": "saved",
+      "fileId": "def0ac87-c21e-5762-a195-ac502dfb637d"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {
+    "def0ac87-c21e-5762-a195-ac502dfb637d": {
+      "mimeType": "image/svg+xml",
+      "id": "def0ac87-c21e-5762-a195-ac502dfb637d",
+      "dataURL": "data:image/svg+xml;base64,PHN2ZyBpZD0iZTg4N2IxOWQtOGZkZC00OGZlLWE2N2UtZjg2ZDIwY2NhNDM0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImExMTZkOGQ2LTZmMmQtNGVkNy1iMGJmLWUzYjRmMDUzYmIzOSIgeDE9IjI1MjUuNTciIHkxPSItNDEyLjAyNiIgeDI9IjI1MjUuNTQ0IiB5Mj0iLTQwMi4xMzYiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMC41LCAwLjAwMSwgMC4wMDEsIC0wLjUsIC0xMjU3LjE3MSwgLTE5MS45MTcpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZWY3MTAwIiAvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZhYTIxZCIgLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iYmE4MGIwZTAtNzAxMi00ZjI3LWIwOGYtOWVhNjQ3ODRhY2UzIiB4MT0iMTIuNzkiIHkxPSIxNy4zOCIgeDI9IjEyLjc5IiB5Mj0iMTIuNDQiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMSwgMCwgMCwgMSwgMCwgMCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNlZjcxMDAiIC8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmFhMjFkIiAvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJhOTQ2NTg3Zi1jNTExLTQ3YjctOTE0YS0wYTczNGY4ZDY0ZDciIHgxPSIxNS4zIiB5MT0iOS45OCIgeDI9IjE1LjMiIHkyPSI1LjA0IiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDEsIDAsIDAsIDEsIDAsIDApIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZWY3MTAwIiAvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZhYTIxZCIgLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZjJkZTMwZWUtMDdjMy00ZTEwLWFjMzAtZTU4MWMyZThjZTUwIiB4MT0iMi43IiB5MT0iOS45OCIgeDI9IjIuNyIgeTI9IjUuMDQiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMSwgMCwgMCwgMSwgMCwgMCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNlZjcxMDAiIC8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmFhMjFkIiAvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJmZGRiZjI0My0yYjJkLTRlNTAtYjI2My05MjRkODVhMWI4N2MiIHgxPSI5IiB5MT0iNS41NiIgeDI9IjkiIHkyPSIwLjYyIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDEsIDAsIDAsIDEsIDAsIDApIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZWY3MTAwIiAvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZhYTIxZCIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJNMTYsNy4yLDEwLjI0LDMuMDloMEw5LDIuMThIOWwtMS4yMi45aDBMMiw3LjJIMkw0LjI1LDE0aDBsLjQ3LDEuNDRoOC42TDEzLjc3LDE0aDBMMTYsNy4yNWgwWk01Ljc2LDE0bC0yLTYuMjJMOSw0bDUuMjgsMy43OS0yLDYuMjJaIiBmaWxsPSIjZTI3OTA4IiAvPjxjaXJjbGUgY3g9IjUuMDciIGN5PSIxNC45MSIgcj0iMi40NyIgZmlsbD0idXJsKCNhMTE2ZDhkNi02ZjJkLTRlZDctYjBiZi1lM2I0ZjA1M2JiMzkpIiAvPjxjaXJjbGUgY3g9IjEyLjc5IiBjeT0iMTQuOTEiIHI9IjIuNDciIGZpbGw9InVybCgjYmE4MGIwZTAtNzAxMi00ZjI3LWIwOGYtOWVhNjQ3ODRhY2UzKSIgLz48Y2lyY2xlIGN4PSIxNS4zIiBjeT0iNy41MSIgcj0iMi40NyIgZmlsbD0idXJsKCNhOTQ2NTg3Zi1jNTExLTQ3YjctOTE0YS0wYTczNGY4ZDY0ZDcpIiAvPjxjaXJjbGUgY3g9IjIuNyIgY3k9IjcuNTEiIHI9IjIuNDciIGZpbGw9InVybCgjZjJkZTMwZWUtMDdjMy00ZTEwLWFjMzAtZTU4MWMyZThjZTUwKSIgLz48Y2lyY2xlIGN4PSI5IiBjeT0iMy4wOSIgcj0iMi40NyIgZmlsbD0idXJsKCNmZGRiZjI0My0yYjJkLTRlNTAtYjI2My05MjRkODVhMWI4N2MpIiAvPjwvc3ZnPg==",
+      "created": 1774464638740,
+      "lastRetrieved": 1774464638740
+    }
+  }
+}

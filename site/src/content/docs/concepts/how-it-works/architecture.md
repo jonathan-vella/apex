@@ -14,7 +14,7 @@ between critical phases:
 | :-: | :--: | ----------------- | ----------------- | ------------------------------------ | ---------- |
 | 🔒  |  1   | 📜 Requirements   | 02-Requirements   | `01-requirements.md`                 | 1 pass     |
 | 🔒  |  2   | 🏛️ Architecture   | 03-Architect      | `02-architecture-assessment.md`      | 3+1 passes |
-|     |  3   | 🎨 Design _(opt)_ | 04-Design         | `03-des-*.{py,png,md}`               | —          |
+|     |  3   | 🎨 Design _(opt)_ | 04-Design         | `03-des-*.{excalidraw,py,png,md}`    | —          |
 | 🔒  | 3.5  | 🛡️ Governance     | 04g-Governance    | `04-governance-constraints.md`       | —          |
 | 🔒  |  4   | 📐 IaC Plan       | 05b / 05t Planner | `04-implementation-plan.md`          | 1+3 passes |
 |  ✔  |  5   | ⚒️ IaC Code       | 06b / 06t CodeGen | `infra/bicep/` or `infra/terraform/` | 3 passes   |

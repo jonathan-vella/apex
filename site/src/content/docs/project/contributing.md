@@ -129,7 +129,7 @@ Branch naming and scope are enforced at three levels:
 - Use clear, concise language
 - Include code examples
 - Document prerequisites
-- Use Mermaid for diagrams
+- Use Mermaid for explanatory diagrams in Markdown; use Excalidraw for architecture artifacts
 
 ### Markdown Linting
 

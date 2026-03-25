@@ -34,25 +34,25 @@ See `.github/count-manifest.json` for canonical counts.
 
 ### Primary Agents
 
-| Agent              | File                             | Model      | Step | Artifacts                       |
-| ------------------ | -------------------------------- | ---------- | ---- | ------------------------------- |
-| InfraOps Conductor | `01-conductor.agent.md`          | Opus 4.6   | All  | Orchestration                   |
-| Conductor (Fast)   | `01-conductor-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
-| Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`            |
-| Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md` |
-| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{py,png,md}`          |
-| Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`  |
-| Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`     |
-| Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
-| Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
-| Terraform Plan     | `05t-terraform-planner.agent.md` | Opus 4.6   | 4t   | `04-implementation-plan.md`     |
-| Terraform Code     | `06t-terraform-codegen.agent.md` | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/` |
-| Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
-| As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
-| Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports              |
-| Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings              |
-| Context Optimizer  | `11-context-optimizer.agent.md`  | Sonnet 4.5 | —    | Optimization reports            |
-| E2E Conductor      | `e2e-conductor.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
+| Agent              | File                             | Model      | Step | Artifacts                         |
+| ------------------ | -------------------------------- | ---------- | ---- | --------------------------------- |
+| InfraOps Conductor | `01-conductor.agent.md`          | Opus 4.6   | All  | Orchestration                     |
+| Conductor (Fast)   | `01-conductor-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration           |
+| Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`              |
+| Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md`   |
+| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{excalidraw,py,png,md}` |
+| Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`    |
+| Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`       |
+| Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`           |
+| Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`        |
+| Terraform Plan     | `05t-terraform-planner.agent.md` | Opus 4.6   | 4t   | `04-implementation-plan.md`       |
+| Terraform Code     | `06t-terraform-codegen.agent.md` | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/`   |
+| Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`        |
+| As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite           |
+| Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports                |
+| Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings                |
+| Context Optimizer  | `11-context-optimizer.agent.md`  | Sonnet 4.5 | —    | Optimization reports              |
+| E2E Conductor      | `e2e-conductor.agent.md`         | Opus 4.6   | All  | E2E evaluation loop               |
 
 ### Validation Subagents (in `_subagents/`)
 
@@ -198,7 +198,7 @@ Step 1          Step 2            Step 3         Step 4
 Requirements → Architecture →  Design       → Planning
 (01-*.md)     (02-*.md)       (03-des-*)     (04-*.md)
                                   │
-                                  ├─ Diagrams (03-des-diagram.drawio/.drawio.svg)
+                                  ├─ Diagrams (03-des-diagram.excalidraw)
                                   ├─ ADRs (03-des-adr-*.md)
                                   └─ Cost Estimate (03-des-cost-estimate.md)
 

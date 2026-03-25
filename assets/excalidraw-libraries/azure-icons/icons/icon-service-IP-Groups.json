@@ -1,0 +1,50 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "ea5c1ee4-d0ff-5079-b2d7-dec794cf0a3f",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "transparent",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 0,
+      "version": 1,
+      "versionNonce": 0,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1774464638854,
+      "link": null,
+      "locked": false,
+      "status": "saved",
+      "fileId": "ea5c1ee4-d0ff-5079-b2d7-dec794cf0a3f"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {
+    "ea5c1ee4-d0ff-5079-b2d7-dec794cf0a3f": {
+      "mimeType": "image/svg+xml",
+      "id": "ea5c1ee4-d0ff-5079-b2d7-dec794cf0a3f",
+      "dataURL": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImY3MzkyOTdkLTFkZmYtNDg3OC04ZTY5LWJlNjg2MDE2M2U3MSIgeDE9IjEyLjcyNiIgeTE9IjIxOTkuMjQ0IiB4Mj0iMTIuNzI2IiB5Mj0iMjE5My42MDUiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMjE4My42NDIpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMzJiZWRkIiAvPjxzdG9wIG9mZnNldD0iMC4xOCIgc3RvcC1jb2xvcj0iIzMyY2FlYSIgLz48c3RvcCBvZmZzZXQ9IjAuNDEiIHN0b3AtY29sb3I9IiMzMmQyZjIiIC8+PHN0b3Agb2Zmc2V0PSIwLjc4IiBzdG9wLWNvbG9yPSIjMzJkNGY1IiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIGlkPSJhYWE3MTAyYS01NzllLTQwNzQtOWRmYi0yYzE4OTM1MzVhYzIiPjxnPjxwYXRoIGQ9Ik0uNSw0LjQyOWg5LjU0OFY5Ljc1NmEuMzIxLjMyMSwwLDAsMS0uMzIxLjMyMUguODIxQS4zMjEuMzIxLDAsMCwxLC41LDkuNzU2aDBaIiBmaWxsPSIjODNiOWY5IiAvPjxwYXRoIGQ9Ik0uODIxLDIuMzg5SDkuNzI3YS4zMjEuMzIxLDAsMCwxLC4zMjEuMzIxaDBWNC40MjlILjVWMi43MUEuMzIxLjMyMSwwLDAsMSwuODIxLDIuMzg5WiIgZmlsbD0iIzFmNTZhMyIgLz48cmVjdCB4PSIxLjc4NCIgeT0iMy4wMDMiIHdpZHRoPSI2Ljk3OSIgaGVpZ2h0PSIwLjgyMiIgcng9IjAuMTYxIiBmaWxsPSIjZjJmMmYyIiAvPjxwYXRoIGQ9Ik00LjIyMSw3LjE4N2g5LjU1OHY1LjMyNmEuMzIxLjMyMSwwLDAsMS0uMzIxLjMyMUg0LjU0MmEuMzIxLjMyMSwwLDAsMS0uMzIxLS4zMjFoMFoiIGZpbGw9IiM4M2I5ZjkiIC8+PHBhdGggZD0iTTQuNTQyLDUuMTU2aDguOTA2YS4zMjEuMzIxLDAsMCwxLC4zMjEuMzIxaDB2MS43MUg0LjIzMVY1LjQ3N0EuMzIxLjMyMSwwLDAsMSw0LjU0Miw1LjE1NloiIGZpbGw9IiMxZjU2YTMiIC8+PHJlY3QgeD0iNS41MDYiIHk9IjUuNzciIHdpZHRoPSI2Ljk3OSIgaGVpZ2h0PSIwLjgyMiIgcng9IjAuMTYxIiBmaWxsPSIjZjJmMmYyIiAvPjxnPjxwYXRoIGQ9Ik03Ljk1Miw5Ljk2M0gxNy41VjE1LjI5YS4zMjEuMzIxLDAsMCwxLS4zMjEuMzIxSDguMjczYS4zMjEuMzIxLDAsMCwxLS4zMjEtLjMyMWgwWiIgZmlsbD0idXJsKCNmNzM5Mjk3ZC0xZGZmLTQ4NzgtOGU2OS1iZTY4NjAxNjNlNzEpIiAvPjxwYXRoIGQ9Ik04LjI3Myw3LjkyM2g4LjkwNmEuMzIxLjMyMSwwLDAsMSwuMzIxLjMyMVY5Ljk2M0g3Ljk1MlY4LjI0NEEuMzIxLjMyMSwwLDAsMSw4LjI3Myw3LjkyM1oiIGZpbGw9IiMwMDc4ZDQiIC8+PGc+PGNpcmNsZSBjeD0iMTQuODc0IiBjeT0iMTIuNDM4IiByPSIwLjc3NCIgZmlsbD0iIzAwNzhkNCIgLz48Y2lyY2xlIGN4PSIxMi43NTkiIGN5PSIxMi40MzgiIHI9IjAuNzc0IiBmaWxsPSIjMDA3OGQ0IiAvPjxjaXJjbGUgY3g9IjEwLjU3NyIgY3k9IjEyLjQzOCIgcj0iMC43NzQiIGZpbGw9IiMwMDc4ZDQiIC8+PC9nPjxyZWN0IHg9IjkuMjM2IiB5PSI4LjUzNyIgd2lkdGg9IjYuOTc5IiBoZWlnaHQ9IjAuODIyIiByeD0iMC4xNjEiIGZpbGw9IiNmMmYyZjIiIC8+PC9nPjwvZz48L2c+PC9zdmc+",
+      "created": 1774464638854,
+      "lastRetrieved": 1774464638854
+    }
+  }
+}

@@ -50,6 +50,11 @@
 *.so binary
 *.dylib binary
 
+# Excalidraw diagram files
+*.excalidraw binary
+*.excalidrawlib binary
+*.excalidraw.svg binary
+
 # GitHub specific files
 .gitattributes text eol=lf
 .gitignore text eol=lf

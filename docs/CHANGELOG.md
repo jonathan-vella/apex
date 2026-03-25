@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(diagrams): add Excalidraw-native Azure icon libraries, reference docs, icon conversion tooling,
+  and Excalidraw validation/export automation for architecture artifacts.
+- feat(ci): add Excalidraw SVG export and Azure icon update workflows, plus devcontainer/editor
+  support for Excalidraw-based diagram authoring.
 - feat(export): add `scripts/export-agent-output-html.py` and the
   `npm run export:agent-output-html` command to render each `agent-output/{project}/`
 - feat(skills): merge `azure-diagrams-drawio` into `azure-diagrams` as unified skill (v5.0).
@@ -22,12 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- refactor(diagrams): switch the default architecture diagram workflow from Draw.io to Excalidraw
+  across skills, prompts, agent instructions, VS Code MCP configuration, templates, and docs.
+- refactor(docs): update demo content and documentation to publish `.excalidraw` artifacts instead
+  of `.drawio` files.
 - refactor(agents): update 04-Design and 08-As-Built agents to use unified `azure-diagrams` skill.
 - refactor(config): remove `azure-diagrams-drawio` from agent-registry.json, skill-affinity.json, and copilot-instructions.md.
 - refactor(scripts): update `generate-component-mapping.py` and `generate-quick-reference.py` output paths.
 
 ### Removed
 
+- chore(diagrams): remove the Draw.io MCP server, Draw.io icon libraries, Draw.io export scripts,
+  and Draw.io demo assets in favor of the Excalidraw pipeline.
 - chore(skills): delete `.github/skills/azure-diagrams-drawio/` directory (merged into `azure-diagrams`).
 
 ### Added
@@ -879,7 +889,7 @@ This project uses [Semantic Versioning](https://semver.org/):
 
 ## Links
 
-- [VERSION.md](VERSION.md) - Detailed version history
+- [VERSION.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/VERSION.md) - Detailed version history
 - [GitHub Releases](https://github.com/jonathan-vella/azure-agentic-infraops/releases)
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

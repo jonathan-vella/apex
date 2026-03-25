@@ -1,0 +1,103 @@
+# Excalidraw SVG Export Workflow
+# Automatically exports .excalidraw files to .excalidraw.svg when they change.
+# Uses @excalidraw/utils for headless rendering.
+# Commits generated SVGs back to the branch.
+
+name: excalidraw-svg-export
+
+on:
+  push:
+    paths:
+      - "agent-output/**/*.excalidraw"
+      - "site/public/**/*.excalidraw"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  export-svg:
+    name: Export Excalidraw SVGs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Install Excalidraw export dependencies
+        run: npm install @excalidraw/excalidraw @excalidraw/utils
+
+      - name: Export all .excalidraw files to SVG
+        run: |
+          EXPORTED=0
+          FAILED=0
+
+          # Create inline export script
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const { exportToSvg } = require('@excalidraw/utils');
+
+          async function exportFile(filePath) {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const data = JSON.parse(content);
+            const svg = await exportToSvg({
+              elements: data.elements || [],
+              appState: data.appState || {},
+              files: data.files || {},
+            });
+            const svgPath = filePath + '.svg';
+            fs.writeFileSync(svgPath, svg.outerHTML || svg.toString());
+            console.log('Exported: ' + filePath + ' → ' + svgPath);
+            return true;
+          }
+
+          function findFiles(dir, ext) {
+            const results = [];
+            if (!fs.existsSync(dir)) return results;
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) results.push(...findFiles(full, ext));
+              else if (entry.name.endsWith(ext) && !entry.name.endsWith('.svg')) results.push(full);
+            }
+            return results;
+          }
+
+          async function main() {
+            const files = [
+              ...findFiles('agent-output', '.excalidraw'),
+              ...findFiles('site/public', '.excalidraw'),
+            ];
+            let exported = 0, failed = 0;
+            for (const f of files) {
+              try { await exportFile(f); exported++; }
+              catch (e) { console.error('Failed: ' + f + ' — ' + e.message); failed++; }
+            }
+            console.log('Exported: ' + exported + ' | Failed: ' + failed);
+            if (exported === 0 && failed > 0) process.exit(1);
+          }
+          main();
+          " || echo "::warning::Some exports failed"
+
+      - name: Commit and push SVGs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add '*.excalidraw.svg'
+          if git diff --cached --quiet; then
+            echo "No SVG changes to commit"
+          else
+            git commit -m "ci: auto-export .excalidraw.svg files [skip ci]"
+            git push
+          fi

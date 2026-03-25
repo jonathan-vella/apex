@@ -36,7 +36,7 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 | `azure-artifacts`          | Template H2 structures, styling, generation rules                 |
 | `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)              |
 | `azure-diagnostics`        | KQL templates, health checks, remediation playbooks               |
-| `azure-diagrams`           | Architecture diagrams (draw.io default + Python charts)           |
+| `azure-diagrams`           | Architecture diagrams (Excalidraw default + Python charts)        |
 | `azure-adr`                | Architecture Decision Records                                     |
 | `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                        |
 | `git-commit`               | Commit message conventions                                        |

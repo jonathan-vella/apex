@@ -35,9 +35,8 @@ const REQUIRED_EXTENSIONS = [
 // Extensions intentionally installed only in devcontainer.json.
 // Keep this list explicit and minimal to avoid silent drift.
 const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
-  "denoland.vscode-deno",
   "github.vscode-github-actions",
-  "hediet.vscode-drawio",
+  "pomdtr.excalidraw-editor",
   "mechatroner.rainbow-csv",
   "ms-azuretools.azure-dev",
   "ms-azuretools.vscode-azurecontainerapps",

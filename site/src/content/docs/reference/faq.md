@@ -94,7 +94,8 @@ No. Agentic InfraOps requires:
 :::
 
     - **GitHub Copilot** — cloud-hosted AI service
-    - **MCP servers** — Azure Pricing, GitHub, Terraform, and Microsoft Learn MCP servers
+    - **MCP servers** — Azure MCP, Azure Pricing MCP, Excalidraw MCP, GitHub MCP,
+      MS Learn MCP, and Terraform MCP servers
       provide real-time data to agents
 
     The dev container itself runs locally, but agent conversations and MCP tool calls

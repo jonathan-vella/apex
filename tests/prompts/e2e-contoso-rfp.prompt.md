@@ -138,7 +138,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
    Read `02-architecture-assessment.md` for context. Do NOT use askQuestions.
    This is a complex Contoso Service Hub: AKS, PostgreSQL, Redis, APIM, WAF/CDN, CIAM,
    storage, monitoring, Key Vault, VMs. Generate:
-   - `03-des-diagram.drawio` (architecture diagram)
+   - `03-des-diagram.excalidraw` (architecture diagram)
    - `03-des-adr-001-container-platform.md` (AKS vs Container Apps decision)
    - `03-des-adr-002-caching-tier.md` (Redis tier decision)
      Save all to `agent-output/contoso-service-hub-run-1/`."\_

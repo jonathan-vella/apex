@@ -119,15 +119,16 @@ and the VS Code runtime. Tools give agents real-time access to external systems:
   `agent-output/{project}/`. The next agent reads those files as input — there is no
   direct message passing between agents.
 
-This project integrates five MCP servers:
+This project integrates six core MCP servers:
 
-| Server              | Purpose                            | Transport          |
-| ------------------- | ---------------------------------- | ------------------ |
-| **GitHub MCP**      | Issues, PRs, code search, branches | HTTP (Copilot API) |
-| **Azure MCP**       | RBAC-aware Azure Resource Manager  | VS Code extension  |
-| **Azure Pricing**   | Cost estimation (13 tools)         | stdio (Python)     |
-| **Terraform MCP**   | Provider/module registry lookups   | stdio (Go)         |
-| **Microsoft Learn** | Official docs search, code samples | HTTP               |
+| Server             | Purpose                            | Transport          |
+| ------------------ | ---------------------------------- | ------------------ |
+| **Azure MCP**      | RBAC-aware Azure Resource Manager  | VS Code extension  |
+| **Azure Pricing**  | Cost estimation (13 tools)         | stdio (Python)     |
+| **Excalidraw MCP** | Editable architecture diagrams     | HTTP               |
+| **GitHub MCP**     | Issues, PRs, code search, branches | HTTP (Copilot API) |
+| **MS Learn MCP**   | Official docs search, code samples | HTTP               |
+| **Terraform MCP**  | Provider/module registry lookups   | stdio (Go)         |
 
 [MCP Integration details →](../mcp-integration/)
 

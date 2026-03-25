@@ -18,9 +18,9 @@ Generate visual architecture diagrams and formal ADRs based on the approved arch
 1. Read `agent-output/{project}/00-session-state.json` to confirm Step 2 is complete.
 2. Read `agent-output/{project}/02-architecture-assessment.md` for the approved architecture.
 3. Read `agent-output/{project}/01-requirements.md` for context.
-4. Read `.github/skills/azure-diagrams/SKILL.md` for diagram generation conventions (draw.io default + Python charts).
+4. Read `.github/skills/azure-diagrams/SKILL.md` for diagram generation conventions (Excalidraw default + Python charts).
 5. Read `.github/skills/azure-adr/SKILL.md` for ADR format and structure.
-6. Generate architecture diagram: `agent-output/{project}/03-des-diagram.drawio` and export SVG.
+6. Generate architecture diagram: `agent-output/{project}/03-des-diagram.excalidraw`.
 7. Generate cost distribution chart: `agent-output/{project}/03-des-cost-distribution.py`.
 8. Generate ADRs for key architecture decisions: `agent-output/{project}/03-des-adr-*.md`.
 9. Update `agent-output/{project}/00-session-state.json`: mark Step 3 `complete` or `skipped`.
@@ -28,7 +28,7 @@ Generate visual architecture diagrams and formal ADRs based on the approved arch
 ## Constraints
 
 - This step is optional. If user says "skip", mark Step 3 as `skipped` and proceed.
-- Diagrams must use draw.io format by default (already installed via MCP).
+- Diagrams must use Excalidraw format by default.
 - Python `diagrams` library is for charts only (WAF/cost).
 - ADRs must follow the template from the `azure-adr` skill.
 - No challenger review is required for this step.

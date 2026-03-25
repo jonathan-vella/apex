@@ -1,0 +1,50 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "fc06ca67-50ed-5216-8bac-9285c1aabde7",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "transparent",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 0,
+      "version": 1,
+      "versionNonce": 0,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1774464638827,
+      "link": null,
+      "locked": false,
+      "status": "saved",
+      "fileId": "fc06ca67-50ed-5216-8bac-9285c1aabde7"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {
+    "fc06ca67-50ed-5216-8bac-9285c1aabde7": {
+      "mimeType": "image/svg+xml",
+      "id": "fc06ca67-50ed-5216-8bac-9285c1aabde7",
+      "dataURL": "data:image/svg+xml;base64,PHN2ZyBpZD0iYjhhNWRlYjAtMjU3ZC00MDI5LTllZDAtYTAyNTE4ZTlhNTE5IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48dGl0bGU+SWNvbi1pb3QtMTg0PC90aXRsZT48cGF0aCBkPSJNOSwwLDEuMTUsNC40OXYzTDQuMiw5LjM0VjcuNTRMMi42LDYuNjJWNS4zOEw5LDEuNjhsNi40LDMuNzF2Ny4xOEw5LDE2LjI3LDEuMTUsMTEuNzh2MS42OEw5LDE4bDcuODUtNC40OXYtOVoiIGZpbGw9IiNhM2EzYTMiIC8+PHBvbHlnb24gcG9pbnRzPSI5IDAgOSAwIDEuMTUgNC40OSAyLjYgNS4zOCA5IDEuNjggOSAxLjY4IDE1LjQgNS4zOCAxNi44NSA0LjQ5IDkgMCIgZmlsbD0iIzk0OTQ5NCIgLz48cG9seWdvbiBwb2ludHM9IjEzLjI1IDYuNTQgMTMuMjUgMTEuNDYgOSAxMy45MyA5IDkuMDEgMTMuMjUgNi41NCIgZmlsbD0iIzMyYmVkZCIgLz48cG9seWdvbiBwb2ludHM9IjEzLjI1IDYuNTQgOSA5LjAxIDQuNzUgNi41NCA5IDQuMDcgMTMuMjUgNi41NCIgZmlsbD0iIzljZWJmZiIgLz48cG9seWdvbiBwb2ludHM9IjkgOS4wMSA5IDEzLjkzIDQuNzUgMTEuNDYgNC43NSA2LjU0IDkgOS4wMSIgZmlsbD0iIzUwZTZmZiIgLz48cG9seWdvbiBwb2ludHM9IjQuNzUgMTEuNDYgOSA5LjAxIDkgMTMuOTMgNC43NSAxMS40NiIgZmlsbD0iIzljZWJmZiIgLz48cG9seWdvbiBwb2ludHM9IjEzLjI1IDExLjQ2IDkgOS4wMSA5IDEzLjkzIDEzLjI1IDExLjQ2IiBmaWxsPSIjNTBlNmZmIiAvPjwvc3ZnPg==",
+      "created": 1774464638827,
+      "lastRetrieved": 1774464638827
+    }
+  }
+}

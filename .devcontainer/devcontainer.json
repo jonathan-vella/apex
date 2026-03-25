@@ -28,8 +28,7 @@
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.23.8"
     },
-    "ghcr.io/azure/azure-dev/azd:latest": {},
-    "ghcr.io/devcontainers-community/features/deno:latest": {}
+    "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
@@ -40,8 +39,6 @@
 
   // Environment variables for Python optimization
   "containerEnv": {
-    "DENO_INSTALL": "/home/vscode/.deno",
-    "DENO_DIR": "/home/vscode/.deno/cache",
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
@@ -49,7 +46,7 @@
   },
 
   "remoteEnv": {
-    "PATH": "/home/vscode/.deno/bin:${containerEnv:PATH}",
+    "PATH": "${containerEnv:PATH}",
     "AZURE_DEFAULTS_LOCATION": "swedencentral",
     // Pass GH_TOKEN from host → container. gh CLI uses it automatically, no `gh auth login` needed.
     // Each user sets this once in VS Code User Settings (Ctrl+,):
@@ -88,8 +85,7 @@
         "mutantdino.resourcemonitor",
         "HashiCorp.terraform",
         "ms-azuretools.vscode-azureterraform",
-        "hediet.vscode-drawio",
-        "denoland.vscode-deno"
+        "pomdtr.excalidraw-editor"
       ],
       "settings": {
         "chat.customAgentInSubagent.enabled": true,
@@ -145,7 +141,7 @@
         },
         "markdownlint.run": "onSave",
         "deno.enable": false,
-        "deno.enablePaths": ["mcp/drawio-mcp-server"],
+        "deno.enablePaths": [],
         "deno.lint": true,
         "deno.unstable": []
       }

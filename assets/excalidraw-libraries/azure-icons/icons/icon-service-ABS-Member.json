@@ -1,0 +1,50 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "fdc2f977-8a9c-515d-8fe6-fd31aa4d7585",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "transparent",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 0,
+      "version": 1,
+      "versionNonce": 0,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1774464638724,
+      "link": null,
+      "locked": false,
+      "status": "saved",
+      "fileId": "fdc2f977-8a9c-515d-8fe6-fd31aa4d7585"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {
+    "fdc2f977-8a9c-515d-8fe6-fd31aa4d7585": {
+      "mimeType": "image/svg+xml",
+      "id": "fdc2f977-8a9c-515d-8fe6-fd31aa4d7585",
+      "dataURL": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImViYWE2NjZmLWQzNGItNDdjNi05ZGQ4LTk1NWNjZTY0MmRkOSIgeDE9IjE0LjQxNSIgeTE9IjEzLjU1NSIgeDI9IjExLjg2NyIgeTI9IjkuMDk2IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwLjEwMSIgc3RvcC1jb2xvcj0iIzc3M2FkYyIgLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0MDM0NTciIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRpdGxlPkljb24tNDk0LUFCUy1NZW1iZXI8L3RpdGxlPjxnIGlkPSJmZWRmN2FmMi1iNWNmLTQ1YzYtOTFmNi04ZmJhOWUxYjYxNWEiPjxnPjxwb2x5Z29uIHBvaW50cz0iMTYuMjk5IDQuNzI2IDE2LjI5OSAxMy4yNzQgOSAxNy41IDkgOS4wNDggMTYuMjk5IDQuNzI2IiBmaWxsPSIjNzczYWRjIiAvPjxwYXRoIGQ9Ik0xMy4wNzQsOS4xQzE0LjEzMSw4LjUyLDE0LjksOSwxNC45LDEwLjE1M2E0LjE4OSw0LjE4OSwwLDAsMS0xLjgyNSwzLjE2OWMtMS4wNTYuNTc2LTEuODI1LjEtMS44MjUtMS4wNTZBMy45MzMsMy45MzMsMCwwLDEsMTMuMDc0LDkuMVoiIGZpbGw9InVybCgjZWJhYTY2NmYtZDM0Yi00N2M2LTlkZDgtOTU1Y2NlNjQyZGQ5KSIgLz48cG9seWdvbiBwb2ludHM9IjE2LjI5OSA0LjcyNiA5IDkuMDQ4IDEuNzAxIDQuNzI2IDkgMC41IDE2LjI5OSA0LjcyNiIgZmlsbD0iI2I3OTZmOSIgLz48cG9seWdvbiBwb2ludHM9IjkgOS4wNDggOSAxNy41IDEuNzAxIDEzLjI3NCAxLjcwMSA0LjcyNiA5IDkuMDQ4IiBmaWxsPSIjYTY3YWY0IiAvPjwvZz48L2c+PC9zdmc+",
+      "created": 1774464638724,
+      "lastRetrieved": 1774464638724
+    }
+  }
+}

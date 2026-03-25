@@ -1,0 +1,50 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "6d5848d7-7611-51e3-b430-9c048e252524",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 48,
+      "height": 48,
+      "angle": 0,
+      "strokeColor": "transparent",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a0",
+      "roundness": null,
+      "seed": 0,
+      "version": 1,
+      "versionNonce": 0,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1774464638879,
+      "link": null,
+      "locked": false,
+      "status": "saved",
+      "fileId": "6d5848d7-7611-51e3-b430-9c048e252524"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {
+    "6d5848d7-7611-51e3-b430-9c048e252524": {
+      "mimeType": "image/svg+xml",
+      "id": "6d5848d7-7611-51e3-b430-9c048e252524",
+      "dataURL": "data:image/svg+xml;base64,PHN2ZyBpZD0idXVpZC1hM2JkNmQzOS1hOGYyLTRhZjItOTNmMS03ZGIzYjRiNDExYmIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiPjxwYXRoIGQ9Ik05LDBDNC4wMywwLDAsNC4wMjksMCw5czQuMDMsOSw5LDksOS00LjAzLDktOVMxMy45NywwLDksMFpNOC45OTksMTYuODQ1Yy0xLjQxNCwwLTIuNTYtLjk0NS0yLjU2LTIuMTFoNS4xMjFjMCwxLjE2NS0xLjE0NywyLjExLTIuNTYxLDIuMTFaTTEzLjIyOSwxNC4wMzZINC43N3YtMS41MzRoOC40NTl2MS41MzRaTTEzLjE5OSwxMS43MTJoMHYuMDAySDQuNzkzYy0uMDI4LS4wMzItLjA1Ny0uMDY0LS4wODQtLjA5Ny0uODY2LTEuMDUyLTEuMDctMS42MDEtMS4yNjgtMi4xNi0uMDAzLS4wMTksMS4wNS4yMTUsMS43OTcuMzgzLDAsMCwuMzg0LjA4OS45NDYuMTkxLS41NC0uNjMyLS44Ni0xLjQzNi0uODYtMi4yNTgsMC0xLjgwNCwxLjM4NC0zLjM4MS44ODUtNC42NTUuNDg2LjA0LDEuMDA2LDEuMDI2LDEuMDQxLDIuNTY3LjUxNy0uNzEzLjczMy0yLjAxNy43MzMtMi44MTYsMC0uODI4LjU0Ni0xLjc4OSwxLjA5MS0xLjgyMi0uNDg2LjgwMS4xMjYsMS40ODguNjcsMy4xOTIuMjA1LjY0LjE3OCwxLjcxNy4zMzYsMi40LjA1Mi0xLjQxOS4yOTYtMy40ODksMS4xOTYtNC4yMDQtLjM5Ny45LjA1OSwyLjAyNy4zNzEsMi41NjguNTAzLjg3My44MDgsMS41MzUuODA4LDIuNzg3LDAsLjgzOS0uMzEsMS42MjktLjgzMywyLjI0Ny41OTUtLjExMSwxLjAwNS0uMjEyLDEuMDA1LS4yMTJsMS45My0uMzc3cy0uMjgsMS4xNTMtMS4zNTgsMi4yNjRaIiBmaWxsPSIjZTY1MjJjIiAvPjwvc3ZnPg==",
+      "created": 1774464638879,
+      "lastRetrieved": 1774464638879
+    }
+  }
+}

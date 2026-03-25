@@ -1,4 +1,5 @@
 <!-- ref:conductor-handoff-guide-v1 -->
+
 # Conductor Handoff Guide
 
 Gate templates, delegation rules, and handoff presentation rules
@@ -77,8 +78,8 @@ Blockers: {N} Deny policies | Warnings: {N} Audit policies
 ```text
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
-Dependency Diagram: agent-output/{project}/04-dependency-diagram.py/.png
-Runtime Diagram: agent-output/{project}/04-runtime-diagram.py/.png
+Dependency Diagram: agent-output/{project}/04-dependency-diagram.excalidraw
+Runtime Diagram: agent-output/{project}/04-runtime-diagram.excalidraw
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
