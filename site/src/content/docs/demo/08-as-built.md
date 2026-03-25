@@ -1,5 +1,5 @@
 ---
-title: "Step 7 — As-Built Documentation"
+title: "Step 7 — As-Built Docs"
 description: "Complete post-deployment documentation suite"
 sidebar:
   order: 8

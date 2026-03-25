@@ -909,3 +909,581 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ══════════════════════════════════════════════
+   Demo walkthrough
+   ══════════════════════════════════════════════ */
+
+html[data-demo-page="true"] .sl-markdown-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+html[data-demo-page="true"] .sl-markdown-content > * {
+  min-width: 0;
+}
+
+.demo-step-shell {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 0.5rem;
+}
+
+.demo-journey {
+  position: sticky;
+  top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height, 0px) + 0.75rem);
+  z-index: 2;
+  display: grid;
+  gap: 0.9rem;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 1px solid rgba(124, 135, 160, 0.18);
+  border-radius: 1.2rem;
+  background:
+    linear-gradient(180deg, rgba(18, 23, 33, 0.96), rgba(12, 16, 24, 0.96)),
+    rgba(12, 16, 24, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+.demo-journey__meta {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.demo-journey__meta > div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.demo-journey__eyebrow,
+.demo-step-hero__eyebrow,
+.demo-step-card__step,
+.demo-proof-card span,
+.demo-pager__card span,
+.demo-step-hero__facts span {
+  color: #b9cee5;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.demo-journey__overview {
+  justify-self: start;
+  color: #d8e9fb;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.demo-journey__summary {
+  margin: 0;
+  max-width: 42rem;
+  color: #aebfd1;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.demo-journey__overview:hover {
+  color: #ffffff;
+}
+
+.demo-journey__track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  padding-bottom: 0;
+  scrollbar-width: thin;
+}
+
+.demo-journey__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: fit-content;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid rgba(124, 135, 160, 0.15);
+  border-radius: 999px;
+  color: #d8e9fb;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.demo-journey__step:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 232, 255, 0.32);
+  background: rgba(94, 197, 255, 0.08);
+}
+
+.demo-journey__step.is-current {
+  border-color: rgba(108, 184, 247, 0.56);
+  background: linear-gradient(
+    160deg,
+    rgba(94, 197, 255, 0.18),
+    rgba(33, 150, 243, 0.12)
+  );
+}
+
+.demo-journey__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f0f6fc;
+  font-weight: 700;
+}
+
+.demo-journey__label {
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.demo-step-hero {
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem 1.4rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(124, 135, 160, 0.16);
+  background: linear-gradient(
+    180deg,
+    rgba(20, 25, 35, 0.9),
+    rgba(13, 17, 24, 0.94)
+  );
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.demo-step-hero__copy h2 {
+  margin: 0;
+  color: #f0f6fc;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+}
+
+.demo-step-hero__copy p,
+.demo-step-card p,
+.demo-proof-card strong,
+.demo-overview-hero__lede {
+  margin: 0;
+  color: #c3d1df;
+}
+
+.demo-step-hero__copy p {
+  margin-top: 0.75rem;
+  max-width: 44rem;
+  line-height: 1.65;
+}
+
+.demo-step-hero__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.demo-step-hero__facts div,
+.demo-proof-card,
+.demo-pager__card,
+.demo-step-card {
+  border: 1px solid rgba(124, 135, 160, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.demo-step-hero__facts div {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+}
+
+.demo-step-hero__facts strong,
+.demo-pager__card strong,
+.demo-proof-card strong,
+.demo-step-card__meta dd {
+  color: #eff7ff;
+  font-weight: 600;
+}
+
+.demo-step-hero__sections,
+.demo-step-card__sections {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.demo-step-hero__sections span,
+.demo-step-card__sections span {
+  color: #b9cee5;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.demo-step-hero__sections ul,
+.demo-step-card__sections ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.demo-step-hero__sections li,
+.demo-step-card__sections li {
+  padding: 0.42rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 135, 160, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d9e8f6;
+  font-size: 0.86rem;
+}
+
+.demo-step-hero__note {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-radius: 0.95rem;
+  color: #d9e8f6;
+  background: rgba(0, 120, 212, 0.12);
+  border: 1px solid rgba(0, 120, 212, 0.22);
+}
+
+.demo-artifact-flow {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.demo-artifact-flow > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.demo-artifact-flow pre {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+html[data-demo-page="true"]:not([data-demo-route="code"])
+  .demo-artifact-flow
+  pre:not(.mermaid) {
+  white-space: pre-wrap;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.demo-artifact-flow pre.mermaid {
+  width: 100%;
+  max-width: 100%;
+}
+
+.demo-artifact-flow pre.mermaid svg {
+  display: block;
+  width: max-content !important;
+  max-width: none !important;
+  min-width: 100%;
+  height: auto;
+}
+
+.demo-artifact-flow a[data-demo-source-ref="true"] {
+  color: #a8bacd;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(168, 186, 205, 0.45);
+  pointer-events: none;
+  cursor: default;
+}
+
+.demo-pager {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.demo-pager__card {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  color: #d8e9fb;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.demo-pager__card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 232, 255, 0.3);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+}
+
+.demo-pager__card.is-disabled {
+  opacity: 0.45;
+}
+
+.demo-overview-hero__layout,
+.demo-overview-story__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+  gap: 1.25rem;
+}
+
+.demo-proof-grid,
+.demo-step-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.demo-proof-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.demo-proof-card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.05rem;
+  border-radius: 1rem;
+}
+
+.demo-proof-card strong {
+  font-size: 1.15rem;
+}
+
+.demo-overview-actions {
+  margin-top: 1.25rem;
+}
+
+.demo-overview-story__visual {
+  padding: 0.4rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(124, 135, 160, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.demo-overview-story__visual img {
+  display: block;
+  width: 100%;
+  border-radius: 0.95rem;
+}
+
+.demo-step-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.demo-step-card {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.2rem;
+  border-radius: 1.1rem;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.demo-step-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(124, 232, 255, 0.28);
+  box-shadow: 0 22px 36px rgba(0, 0, 0, 0.2);
+}
+
+.demo-step-card__head,
+.demo-step-card__meta {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.demo-step-card__agent,
+.demo-step-card__cta,
+.demo-step-card__meta dt {
+  color: #dce8f4;
+  font-size: 0.88rem;
+}
+
+.demo-step-card h3 {
+  margin: 0;
+  color: #f0f6fc;
+  font-size: 1.35rem;
+}
+
+.demo-step-card__meta {
+  margin: 0;
+}
+
+.demo-step-card__meta div {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.demo-step-card__meta dt {
+  margin: 0;
+}
+
+.demo-step-card__meta dd {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.demo-step-card__cta {
+  font-weight: 700;
+}
+
+.demo-overview-trust__columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+:root[data-theme="light"] .demo-journey,
+:root[data-theme="light"] .demo-step-hero,
+:root[data-theme="light"] .demo-proof-card,
+:root[data-theme="light"] .demo-pager__card,
+:root[data-theme="light"] .demo-step-card,
+:root[data-theme="light"] .demo-step-hero__facts div,
+:root[data-theme="light"] .demo-overview-story__visual {
+  border-color: rgba(85, 102, 122, 0.18);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(241, 245, 249, 0.96)
+    ),
+    rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+}
+
+:root[data-theme="light"] .demo-journey__step {
+  border-color: rgba(85, 102, 122, 0.18);
+  color: #163047;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+:root[data-theme="light"] .demo-journey__step.is-current {
+  border-color: rgba(0, 120, 212, 0.36);
+  background: linear-gradient(
+    160deg,
+    rgba(191, 219, 254, 0.8),
+    rgba(224, 242, 254, 0.84)
+  );
+}
+
+:root[data-theme="light"] .demo-journey__chip {
+  background: rgba(0, 120, 212, 0.12);
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .demo-journey__overview,
+:root[data-theme="light"] .demo-journey__summary,
+:root[data-theme="light"] .demo-step-card__agent,
+:root[data-theme="light"] .demo-step-card__cta,
+:root[data-theme="light"] .demo-step-card__meta dt,
+:root[data-theme="light"] .demo-step-card__sections span,
+:root[data-theme="light"] .demo-step-hero__sections span,
+:root[data-theme="light"] .demo-step-hero__eyebrow,
+:root[data-theme="light"] .demo-journey__eyebrow,
+:root[data-theme="light"] .demo-proof-card span,
+:root[data-theme="light"] .demo-pager__card span,
+:root[data-theme="light"] .demo-step-hero__facts span,
+:root[data-theme="light"] .demo-step-card__step {
+  color: #32536b;
+}
+
+:root[data-theme="light"] .demo-step-hero__copy h2,
+:root[data-theme="light"] .demo-step-hero__facts strong,
+:root[data-theme="light"] .demo-pager__card strong,
+:root[data-theme="light"] .demo-proof-card strong,
+:root[data-theme="light"] .demo-step-card h3,
+:root[data-theme="light"] .demo-step-card__meta dd {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .demo-step-hero__copy p,
+:root[data-theme="light"] .demo-step-card p,
+:root[data-theme="light"] .demo-overview-hero__lede {
+  color: #475569;
+}
+
+:root[data-theme="light"] .demo-step-hero__sections li,
+:root[data-theme="light"] .demo-step-card__sections li {
+  border-color: rgba(85, 102, 122, 0.18);
+  background: rgba(255, 255, 255, 0.82);
+  color: #163047;
+}
+
+:root[data-theme="light"] .demo-step-hero__note {
+  color: #0f3d61;
+  background: rgba(191, 219, 254, 0.65);
+  border-color: rgba(0, 120, 212, 0.2);
+}
+
+:root[data-theme="light"] .demo-artifact-flow a[data-demo-source-ref="true"] {
+  color: #64748b;
+  border-bottom-color: rgba(100, 116, 139, 0.4);
+}
+
+@media (max-width: 72rem) {
+  .demo-step-hero__facts,
+  .demo-pager,
+  .demo-proof-grid,
+  .demo-step-grid,
+  .demo-overview-hero__layout,
+  .demo-overview-story__grid,
+  .demo-overview-trust__columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 50rem) {
+  .demo-journey {
+    top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height, 0px) + 0.5rem);
+    padding: 0.9rem;
+  }
+
+  .demo-journey__track {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+  }
+
+  .demo-step-hero,
+  .demo-pager__card,
+  .demo-step-card,
+  .demo-proof-card {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-journey,
+  .demo-journey__step,
+  .demo-pager__card,
+  .demo-step-card,
+  .landing-hero__actions a {
+    transition: none;
+  }
+
+  .demo-journey__step:hover,
+  .demo-pager__card:hover,
+  .demo-step-card:hover,
+  .landing-hero__actions a:hover {
+    transform: none;
+  }
+}

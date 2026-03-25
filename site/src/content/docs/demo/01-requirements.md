@@ -1,6 +1,6 @@
 ---
-title: "Step 1 — Requirements"
-description: "Business and technical requirements captured by the Requirements agent"
+title: "Step 1 — Discovery"
+description: "Business and technical discovery captured by the Requirements agent"
 sidebar:
   order: 1
 ---

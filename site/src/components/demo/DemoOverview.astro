@@ -1,0 +1,164 @@
+---
+import { SITE_BASE } from "../../data/siteConfig.mjs";
+import { demoStats, demoSteps } from "../../data/demoSteps.mjs";
+
+const journeySteps = demoSteps.filter((step) => step.id !== "overview");
+const firstStep = journeySteps[0];
+const reviewStep = journeySteps[journeySteps.length - 1];
+---
+
+<section class="scenario-frame demo-overview-hero not-content">
+  <div class="scenario-frame__head">
+    <div class="section-label">Live Demo</div>
+    <h2>Follow a real Azure workload from brief to validated delivery</h2>
+    <p>
+      Nordic Fresh Foods uses the full Agentic InfraOps workflow: requirements,
+      architecture, governance, planning, code generation, deployment, and
+      as-built documentation.
+    </p>
+  </div>
+
+  <div class="scenario-frame__body">
+    <div class="demo-overview-hero__layout">
+      <div class="demo-overview-hero__copy">
+        <p class="demo-overview-hero__lede">
+          This walkthrough is designed for existing users who want to understand
+          what the system produces, how each step connects, and where the human
+          review moments sit.
+        </p>
+        <p>
+          The artifact bodies below remain generated output. The refreshed demo
+          chrome only improves orientation, readability, and navigation.
+        </p>
+
+        <div class="landing-hero__actions demo-overview-actions">
+          <a class="sl-link-button primary not-content" href={firstStep.href}>
+            Start the walkthrough
+          </a>
+          <a class="sl-link-button minimal not-content" href={reviewStep.href}>
+            Inspect the challenge passes
+          </a>
+        </div>
+      </div>
+
+      <div class="demo-proof-grid" aria-label="Demo proof points">
+        {demoStats.map((stat) => (
+          <div class="demo-proof-card">
+            <span>{stat.label}</span>
+            <strong>{stat.value}</strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scenario-frame demo-overview-story not-content">
+  <div class="scenario-frame__head">
+    <div class="section-label">Scenario</div>
+    <h2>Nordic Fresh Foods needs a production-ready Azure platform fast</h2>
+    <p>
+      The company is preparing for peak season and needs secure ordering,
+      operations visibility, and a credible path to scale without blowing the
+      MVP budget.
+    </p>
+  </div>
+
+  <div class="scenario-frame__body demo-overview-story__grid">
+    <div class="demo-overview-story__visual">
+      <img
+        src={`${SITE_BASE}/demo/03-des-diagram.png`}
+        alt="Architecture overview for the Nordic Fresh Foods demo workload"
+      />
+    </div>
+
+    <div class="scenario-panel demo-overview-story__panel">
+      <div class="scenario-panel__label">Why this demo matters</div>
+      <ul class="scenario-checklist">
+        <li>Shows the full agent handoff chain instead of a single isolated artifact.</li>
+        <li>Preserves the real generated output, including review and validation traces.</li>
+        <li>Demonstrates how policy discovery and adversarial review affect the result.</li>
+        <li>Lets readers jump directly to the step that answers their current question.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="scenario-frame demo-overview-steps not-content">
+  <div class="scenario-frame__head">
+    <div class="section-label">Walkthrough</div>
+    <h2>Pick a step or read the journey in order</h2>
+    <p>
+      Each card explains what the step produces and why it matters so you can
+      skim the journey before opening a dense artifact.
+    </p>
+  </div>
+
+  <div class="scenario-frame__body">
+    <div class="demo-step-grid">
+      {journeySteps.map((step) => (
+        <a class="demo-step-card" href={step.href}>
+          <div class="demo-step-card__head">
+            <span class="demo-step-card__step">{step.stepLabel}</span>
+            <span class="demo-step-card__agent">{step.agent}</span>
+          </div>
+          <h3>{step.shortTitle}</h3>
+          <p>{step.summary}</p>
+          <dl class="demo-step-card__meta">
+            <div>
+              <dt>Output</dt>
+              <dd>{step.artifact}</dd>
+            </div>
+            <div>
+              <dt>Focus</dt>
+              <dd>{step.focus}</dd>
+            </div>
+          </dl>
+          {step.sections && (
+            <div class="demo-step-card__sections">
+              <span>Includes</span>
+              <ul>
+                {step.sections.map((section) => (
+                  <li>{section}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <span class="demo-step-card__cta">Open step</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="scenario-frame demo-overview-trust not-content">
+  <div class="scenario-frame__head">
+    <div class="section-label">Trust Signal</div>
+    <h2>The walkthrough is polished, but the artifacts are still real</h2>
+    <p>
+      The refreshed demo intentionally separates editorial framing from generated
+      content. You get a clearer product experience without losing auditability.
+    </p>
+  </div>
+
+  <div class="scenario-frame__body">
+    <div class="scenario-frame__columns demo-overview-trust__columns">
+      <div class="scenario-panel">
+        <div class="scenario-panel__label">What changed</div>
+        <p>
+          Navigation, layout, scanability, and mobile behavior. The walkthrough
+          now guides readers through the sequence instead of leaving them inside
+          raw markdown snapshots.
+        </p>
+      </div>
+      <div class="scenario-panel">
+        <div class="scenario-panel__label">What stayed intact</div>
+        <p>
+          The artifact bodies, the validation trail, and the adversarial review
+          evidence. The chrome is editorial; the underlying outputs remain the
+          same generated material.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -3,11 +3,13 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
 import rehypeMermaid from "rehype-mermaid-lite";
+import { demoSidebarItems } from "./src/data/demoSteps.mjs";
+import { SITE_BASE } from "./src/data/siteConfig.mjs";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://jonathan-vella.github.io",
-  base: "/azure-agentic-infraops",
+  base: SITE_BASE,
   trailingSlash: "always",
   markdown: {
     rehypePlugins: [rehypeMermaid],
@@ -198,18 +200,7 @@ export default defineConfig({
           label: "Demo: Nordic Fresh Foods",
           collapsed: true,
           badge: { text: "New", variant: "tip" },
-          items: [
-            { label: "Overview", slug: "demo" },
-            { label: "Step 1 — Requirements", slug: "demo/01-requirements" },
-            { label: "Step 2 — Architecture", slug: "demo/02-architecture" },
-            { label: "Step 3 — Design", slug: "demo/03-design" },
-            { label: "Step 3.5 — Governance", slug: "demo/04-governance" },
-            { label: "Step 4 — Plan", slug: "demo/05-plan" },
-            { label: "Step 5 — Code", slug: "demo/06-code" },
-            { label: "Step 6 — Deploy", slug: "demo/07-deploy" },
-            { label: "Step 7 — As-Built", slug: "demo/08-as-built" },
-            { label: "Reviews", slug: "demo/09-reviews" },
-          ],
+          items: demoSidebarItems,
         },
       ],
     }),

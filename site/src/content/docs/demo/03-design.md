@@ -1,6 +1,6 @@
 ---
-title: "Step 3 — Design"
-description: "Architecture Decision Records, cost estimates, and design diagrams"
+title: "Step 3 — Design Artifacts"
+description: "Architecture decision records, cost estimates, and design diagrams"
 sidebar:
   order: 3
 ---
