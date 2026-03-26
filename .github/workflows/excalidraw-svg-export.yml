@@ -11,6 +11,7 @@ on:
       - "agent-output/**/*.excalidraw"
       - "assets/**/*.excalidraw"
       - "site/public/**/*.excalidraw"
+      - ".github/skills/azure-diagrams/references/**/*.excalidraw"
   workflow_dispatch:
 
 permissions:
@@ -40,64 +41,13 @@ jobs:
         run: npm ci
 
       - name: Export all .excalidraw files to SVG
-        run: |
-          EXPORTED=0
-          FAILED=0
-
-          # Create inline export script
-          node -e "
-          const fs = require('fs');
-          const path = require('path');
-          const { exportToSvg } = require('@excalidraw/utils');
-
-          async function exportFile(filePath) {
-            const content = fs.readFileSync(filePath, 'utf-8');
-            const data = JSON.parse(content);
-            const svg = await exportToSvg({
-              elements: data.elements || [],
-              appState: data.appState || {},
-              files: data.files || {},
-            });
-            const svgPath = filePath + '.svg';
-            fs.writeFileSync(svgPath, svg.outerHTML || svg.toString());
-            console.log('Exported: ' + filePath + ' → ' + svgPath);
-            return true;
-          }
-
-          function findFiles(dir, ext) {
-            const results = [];
-            if (!fs.existsSync(dir)) return results;
-            const entries = fs.readdirSync(dir, { withFileTypes: true });
-            for (const entry of entries) {
-              const full = path.join(dir, entry.name);
-              if (entry.isDirectory()) results.push(...findFiles(full, ext));
-              else if (entry.name.endsWith(ext) && !entry.name.endsWith('.svg')) results.push(full);
-            }
-            return results;
-          }
-
-          async function main() {
-            const files = [
-              ...findFiles('agent-output', '.excalidraw'),
-              ...findFiles('assets', '.excalidraw'),
-              ...findFiles('site/public', '.excalidraw'),
-            ];
-            let exported = 0, failed = 0;
-            for (const f of files) {
-              try { await exportFile(f); exported++; }
-              catch (e) { console.error('Failed: ' + f + ' — ' + e.message); failed++; }
-            }
-            console.log('Exported: ' + exported + ' | Failed: ' + failed);
-            if (exported === 0 && failed > 0) process.exit(1);
-          }
-          main();
-          " || echo "::warning::Some exports failed"
+        run: node scripts/export-excalidraw-svg.mjs
 
       - name: Commit and push SVGs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for dir in agent-output assets site/public; do
+          for dir in agent-output assets site/public .github/skills/azure-diagrams/references; do
             if [ -d "$dir" ]; then
               git add "$dir"
             fi

@@ -46,6 +46,19 @@ and WAF/cost charts (Python matplotlib).
 or excalidraw.com, version-controlled in git. CI auto-generates `.excalidraw.svg`
 for embedding in documentation.
 
+## Mandatory Icon Embedding
+
+Every Step 3, Step 4, and Step 7 architecture deliverable MUST embed official
+Azure or Fabric icons directly in the `.excalidraw` JSON.
+
+- A box-only diagram is invalid, even if labels are otherwise correct.
+- Deliverables MUST contain `image` elements for service tiles that represent
+  Azure or Fabric services.
+- Deliverables MUST contain a non-empty top-level `files` map with payloads for
+  every embedded icon.
+- Validate before handoff: if `elements` has no `image` entries or `files` is
+  empty, the diagram is not complete.
+
 ### Quality gate (/10)
 
 Readable at 100% zoom · No label overlap · Minimal line crossing ·
@@ -53,7 +66,8 @@ Clear tier grouping · Correct icons · Security boundary visible ·
 No stray icon/vector elements outside their intended boxes ·
 Service labels centered and visually consistent · Footer unobtrusive ·
 Canvas usage dense enough to avoid architectural sprawl ·
-No micro-text, compressed cards, or placeholder regions.
+No micro-text, compressed cards, or placeholder regions ·
+No box-only Azure service tiles.
 If < 9/10, regenerate from a clean base instead of patching the broken layout.
 
 ## Naming Conventions
@@ -213,6 +227,8 @@ For programmatic icon placement, use the Python scripts:
 - `scripts/add-arrow.py <diagram> <from-x> <from-y> <to-x> <to-y> [--label "Text"]`
 
 Icons are loaded from `assets/excalidraw-libraries/azure-icons/icons/` (individual JSON files).
+After icon placement, confirm the target diagram contains embedded `image`
+elements and a non-empty top-level `files` map before considering it complete.
 
 ## MCP Tool Integration
 
@@ -222,6 +238,9 @@ diagram creation. Use it for visual diagram building when available.
 **MCP Fallback**: If the remote MCP is unavailable, generate `.excalidraw` JSON
 directly using the Excalidraw schema and Python scripts for icon placement.
 The schema reference is at `references/excalidraw-schema.md`.
+
+Whether using MCP or direct JSON, the final deliverable must still embed icon
+payloads in the saved file. External or implied icons do not satisfy the output contract.
 
 See `references/mcp-tool-integration.md` for MCP tool details and workflow.
 

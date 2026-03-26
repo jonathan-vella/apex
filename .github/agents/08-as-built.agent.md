@@ -26,7 +26,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` in the enterprise Azure reference-architecture style with layered boundary shells, color-coded responsibility zones, larger service tiles, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, actual deployed resource names when they improve traceability, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT pack tiles with SKU, tier, node count, policy version, or other low-value operational text that belongs in the resource inventory or runbook. Avoid sparse canvas usage, tangled connectors, over-compression, placeholder groups, and low-contrast micro-text."
+    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` in the enterprise Azure reference-architecture style with layered boundary shells, color-coded responsibility zones, larger service tiles, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, actual deployed resource names when they improve traceability, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT pack tiles with SKU, tier, node count, policy version, or other low-value operational text that belongs in the resource inventory or runbook. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled connectors, over-compression, placeholder groups, and low-contrast micro-text."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -76,6 +76,7 @@ Before doing any work, read these skills:
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
 - Generate the as-built architecture diagram using azure-diagrams skill
+- Embed official Azure/Fabric icons as Excalidraw `image` elements in the as-built diagram
 - Preserve the shared enterprise reference-architecture visual language so Step 7 diagrams visually align with Step 3 outputs
 - Prefer fewer, larger service tiles over many small cards so deployed names remain readable
 - Keep the as-built diagram architecture-focused: show actual deployed names when useful,
@@ -232,6 +233,8 @@ Follow the MANDATORY layout rules from the azure-diagrams skill:
   count annotations unless a difference is architecturally significant
 - Keep the support band readable and clearly separated from the footer
 - Route partner-share and external-integration lines with the simplest orthogonal path available
+- Save embedded Azure/Fabric icon payloads in the top-level `files` map and verify
+  the diagram contains `image` elements before finalizing
 
 Save the `.excalidraw` JSON file directly to disk.
 CI will auto-generate `.excalidraw.svg` via the `excalidraw-svg-export` workflow.
@@ -310,6 +313,7 @@ This keeps the user informed during multi-phase operations.
 - [ ] Deployed resource state queried (not just planned state)
 - [ ] All 7 documentation files generated with correct H2 headings
 - [ ] As-built diagram reflects actual deployed resources
+- [ ] As-built diagram contains embedded `image` elements and a non-empty `files` map
 - [ ] Cost estimate uses `cost-estimate-subagent` prices — no hardcoded dollar figures
 - [ ] Planned vs as-built cost delta documented
 - [ ] Compliance matrix maps controls to actual resource configurations

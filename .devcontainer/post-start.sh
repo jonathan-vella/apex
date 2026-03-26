@@ -55,9 +55,10 @@ else
 fi
 
 # ─── Python tools via uv ─────────────────────────────────────────────────────
-if command -v uv &>/dev/null; then
+UV_BIN=$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")
+if [ -x "$UV_BIN" ]; then
     printf "    python packages      "
-    uv pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>&1 \
+    "$UV_BIN" pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>&1 \
         && printf "✅ updated\n" \
         || printf "⚠️  update failed (continuing)\n"
 else

@@ -20,6 +20,8 @@ import { extractH2Sections } from "./_lib/h2-parser.mjs";
 const AUTO_GEN_HEADER =
   "<!-- digest:auto-generated from SKILL.md — do not edit manually -->";
 
+const PRIORITY_HEADINGS = new Set(["Mandatory Icon Embedding"]);
+
 function extractTitle(content) {
   const match = content.match(/^# (.+)$/m);
   return match ? match[1].trim() : "Skill";
@@ -35,6 +37,16 @@ function trimSection(section, maxLines) {
   return trimmed;
 }
 
+function prioritizeSections(sections) {
+  const prioritized = sections.filter((section) =>
+    PRIORITY_HEADINGS.has(section.heading),
+  );
+  const remaining = sections.filter(
+    (section) => !PRIORITY_HEADINGS.has(section.heading),
+  );
+  return [...prioritized, ...remaining];
+}
+
 function generateDigest(skillDir) {
   const sourcePath = path.join(skillDir, "SKILL.md");
   if (!fs.existsSync(sourcePath)) return null;
@@ -43,7 +55,7 @@ function generateDigest(skillDir) {
   const sourceLines = content.split("\n").length;
   const targetLines = Math.floor(sourceLines * 0.55);
   const title = extractTitle(content);
-  const sections = extractH2Sections(content);
+  const sections = prioritizeSections(extractH2Sections(content));
 
   const digestLines = [AUTO_GEN_HEADER, "", `# ${title} (Digest)`, ""];
   digestLines.push(
@@ -78,7 +90,7 @@ function generateMinimal(skillDir, digestContent) {
 
   const content = fs.readFileSync(path.join(skillDir, "SKILL.md"), "utf-8");
   const title = extractTitle(content);
-  const sections = extractH2Sections(content);
+  const sections = prioritizeSections(extractH2Sections(content));
 
   const digestLineCount = digestContent.split("\n").length;
   const targetLines = Math.floor(digestLineCount * 0.45);
