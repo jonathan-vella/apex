@@ -18,11 +18,11 @@ const stepDefinitions = [
   },
   {
     id: "requirements",
-    label: "Step 1 — Discovery",
-    slug: "demo/01-requirements",
+    label: "Step 1 — Requirements Discovery",
+    slug: "demo/01-requirements-discovery",
     stepLabel: "Step 1",
     chipLabel: "1",
-    shortTitle: "Discovery",
+    shortTitle: "Requirements Discovery",
     agent: "Requirements Agent",
     artifact: "Business and technical requirements",
     summary:
@@ -30,6 +30,21 @@ const stepDefinitions = [
     focus:
       "Read this step to understand what the platform must deliver before architecture and governance narrow the solution space.",
     sections: ["Business context", "Success criteria", "Constraints"],
+    items: [
+      { label: "Overview", slug: "demo/01-requirements-discovery" },
+      {
+        label: "Functional Requirements",
+        slug: "demo/01-requirements-discovery/functional",
+      },
+      {
+        label: "Compliance & Security",
+        slug: "demo/01-requirements-discovery/compliance-security",
+      },
+      {
+        label: "Budget & Scaling",
+        slug: "demo/01-requirements-discovery/budget-scaling",
+      },
+    ],
   },
   {
     id: "architecture",
@@ -169,10 +184,22 @@ export const demoStats = [
   { label: "Primary region", value: "Sweden Central" },
 ];
 
-export const demoSidebarItems = demoSteps.map(({ label, slug }) => ({
-  label,
-  slug,
-}));
+export const demoSidebarItems = demoSteps.map(({ label, slug, items }) => {
+  if (items) {
+    return {
+      label,
+      collapsed: false,
+      items: items.map((item) => ({
+        label: item.label,
+        slug: item.slug,
+      })),
+    };
+  }
+  return {
+    label,
+    slug,
+  };
+});
 
 export function getDemoStepById(id) {
   return demoSteps.find((step) => step.id === id);
