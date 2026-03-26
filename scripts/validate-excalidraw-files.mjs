@@ -11,7 +11,14 @@ import fs from "node:fs";
 import path from "node:path";
 
 // Directories to scan for .excalidraw files
-const SCAN_DIRS = ["agent-output", "assets"];
+const SCAN_DIRS = [
+  "agent-output",
+  "assets",
+  ".github/skills/azure-diagrams/references",
+];
+
+const ICON_REQUIRED_PATTERN =
+  /(?:^|\/)(03-des-diagram|04-dependency-diagram|04-runtime-diagram|07-ab-diagram|showcase-[^/]+)\.excalidraw$/;
 
 let errors = 0;
 let warnings = 0;
@@ -93,6 +100,11 @@ function validateExcalidrawFile(filePath) {
     warnings++;
   }
 
+  const files = data.files && typeof data.files === "object" ? data.files : {};
+  const imageElements = data.elements.filter(
+    (element) => element.type === "image",
+  );
+
   // Check for unique element IDs
   const ids = new Set();
   let duplicates = 0;
@@ -139,9 +151,51 @@ function validateExcalidrawFile(filePath) {
     }
   }
 
+  if (imageElements.length > 0 && Object.keys(files).length === 0) {
+    console.error(
+      `❌ ${filePath}: Contains image elements but top-level "files" is empty`,
+    );
+    errors++;
+  }
+
+  let missingFileRefs = 0;
+  for (const imageElement of imageElements) {
+    if (!imageElement.fileId || !files[imageElement.fileId]) {
+      missingFileRefs++;
+    }
+  }
+
+  if (missingFileRefs > 0) {
+    console.error(
+      `❌ ${filePath}: ${missingFileRefs} image element(s) reference missing file payloads`,
+    );
+    errors++;
+  }
+
+  const normalizedPath = filePath.replaceAll("\\", "/");
+  if (
+    ICON_REQUIRED_PATTERN.test(normalizedPath) &&
+    imageElements.length === 0
+  ) {
+    console.error(
+      `❌ ${filePath}: Architecture deliverable is missing embedded Azure/Fabric icons`,
+    );
+    errors++;
+  }
+
+  if (
+    ICON_REQUIRED_PATTERN.test(normalizedPath) &&
+    Object.keys(files).length === 0
+  ) {
+    console.error(
+      `❌ ${filePath}: Architecture deliverable must include a non-empty top-level "files" map`,
+    );
+    errors++;
+  }
+
   filesChecked++;
   console.log(
-    `✅ ${filePath}: Valid (${data.elements.length} elements, ${ids.size} unique IDs)`,
+    `✅ ${filePath}: Valid (${data.elements.length} elements, ${ids.size} unique IDs, ${imageElements.length} images)`,
   );
 }
 

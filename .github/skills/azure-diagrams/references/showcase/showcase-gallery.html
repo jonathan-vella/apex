@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Azure Diagram Showcase</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #10203a;
+        --muted: #51627d;
+        --panel: #ffffff;
+        --line: #d7e4f5;
+        --bg-a: #edf6ff;
+        --bg-b: #fff8ef;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Aptos", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(0, 120, 212, 0.12),
+            transparent 32%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(245, 158, 11, 0.12),
+            transparent 28%
+          ),
+          linear-gradient(180deg, var(--bg-a), var(--bg-b));
+      }
+
+      main {
+        width: min(1520px, calc(100vw - 48px));
+        margin: 0 auto;
+        padding: 40px 0 64px;
+      }
+
+      header {
+        margin-bottom: 28px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(32px, 4vw, 54px);
+        line-height: 1;
+      }
+
+      p {
+        margin: 0;
+        max-width: 860px;
+        font-size: 18px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 24px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 20px;
+        box-shadow: 0 20px 60px rgba(16, 32, 58, 0.08);
+      }
+
+      .card h2 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+
+      .card p {
+        margin-bottom: 18px;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        border: 1px solid #dde7f4;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Azure Diagram Showcase</h1>
+        <p>
+          Curated Excalidraw-based architecture references with embedded Azure
+          icons. Open this page directly in VS Code or a browser to review the
+          rendered showcase set without taking screenshots.
+        </p>
+      </header>
+      <section class="grid">
+        <article class="card">
+          <h2>Enterprise Azure AI Platform</h2>
+          <p>Secure retrieval-augmented AI reference architecture.</p>
+          <img
+            src="./showcase-enterprise-ai-platform.excalidraw.svg"
+            alt="Enterprise Azure AI Platform diagram"
+          />
+        </article>
+        <article class="card">
+          <h2>Global Digital Commerce on Azure</h2>
+          <p>Storefront, ordering, payments, and fulfillment architecture.</p>
+          <img
+            src="./showcase-global-commerce.excalidraw.svg"
+            alt="Global Digital Commerce on Azure diagram"
+          />
+        </article>
+        <article class="card">
+          <h2>Industrial IoT Operations Mesh</h2>
+          <p>
+            Plant telemetry, digital twins, and response workflow architecture.
+          </p>
+          <img
+            src="./showcase-industrial-iot-operations.excalidraw.svg"
+            alt="Industrial IoT Operations Mesh diagram"
+          />
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

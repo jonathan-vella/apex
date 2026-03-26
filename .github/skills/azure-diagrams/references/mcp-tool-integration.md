@@ -63,6 +63,7 @@ After generating a diagram, verify:
 - No overlapping elements
 - All labels readable at 100% zoom
 - Correct Azure icons used
+- Diagram contains embedded `image` elements and a non-empty top-level `files` map
 - Clear data flow direction
 - Cross-cutting services at bottom with NO edges
 

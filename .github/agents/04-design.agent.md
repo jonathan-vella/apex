@@ -20,7 +20,7 @@ tools:
 handoffs:
   - label: "▶ Generate Diagram"
     agent: 04-Design
-    prompt: "Generate an Azure architecture diagram using the azure-diagrams skill (Excalidraw default). Produce `agent-output/{project}/03-des-diagram.excalidraw` as a conceptual enterprise Azure reference-architecture diagram with layered boundary shells, color-coded responsibility zones, larger service tiles, centered service labels, correct Azure/Fabric icon usage, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, bottom-right footer treatment, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT place SKU, tier, node count, version, policy revision, or other low-value operational text inside the diagram unless the architecture cannot be understood without it. Avoid sparse canvas usage, tangled line work, over-compression, placeholder groups, and low-contrast micro-text."
+    prompt: "Generate an Azure architecture diagram using the azure-diagrams skill (Excalidraw default). Produce `agent-output/{project}/03-des-diagram.excalidraw` as a conceptual enterprise Azure reference-architecture diagram with layered boundary shells, color-coded responsibility zones, larger service tiles, centered service labels, correct Azure/Fabric icon usage, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, bottom-right footer treatment, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT place SKU, tier, node count, version, policy revision, or other low-value operational text inside the diagram unless the architecture cannot be understood without it. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled line work, over-compression, placeholder groups, and low-contrast micro-text."
     send: false
   - label: "▶ Generate ADR"
     agent: 04-Design
@@ -97,6 +97,7 @@ section only — do NOT load it at startup.
 - Save ADRs to `agent-output/{project}/03-des-adr-NNNN-{title}.md`
 - Save cost estimates to `agent-output/{project}/03-des-cost-estimate.md`
 - Include all Azure resources from the architecture in diagrams
+- Embed official Azure/Fabric icons as Excalidraw `image` elements for service tiles
 - Use Fabric icons for Fabric-native services when the architecture includes Microsoft Fabric
 - Keep the canvas structured and intentional, with enough internal spacing that
   the diagram reads as a designed architecture artifact rather than a compressed sketch
@@ -200,26 +201,28 @@ generate each diagram as a separate phase with a context checkpoint between them
    then place services and supporting groups
 7. Place icons inside their target boxes, normalizing imported vector icon
    bounds before placement
-8. Route arrows from box edges with explicit bend points where needed;
+8. Verify the saved diagram contains embedded `image` elements and a non-empty
+   top-level `files` map before considering the deliverable complete
+9. Route arrows from box edges with explicit bend points where needed;
    avoid crossing labels/icons
-9. Add a compact legend only when connector color or stroke style carries meaning
+10. Add a compact legend only when connector color or stroke style carries meaning
    and remove it entirely when the flow is self-evident
-10. Use larger boxes and label sizes first, then reduce content density rather than
+11. Use larger boxes and label sizes first, then reduce content density rather than
     shrinking text to force everything into one row
-11. Strip non-essential operational detail from tiles and subtitles
+12. Strip non-essential operational detail from tiles and subtitles
     (for example SKU, tier, node count, version, or policy revision) unless the
     architecture depends on that distinction
-12. Anchor ingress and perimeter services to their related zone or flow rather
+13. Anchor ingress and perimeter services to their related zone or flow rather
     than letting them float above or between major regions
-13. Center service labels, standardize label sizing, and place the footer at the
+14. Center service labels, standardize label sizing, and place the footer at the
     bottom-right in smaller text with clear separation from the supporting band
-14. Remove non-essential connector labels, placeholder regions, and secondary flow lines
+15. Remove non-essential connector labels, placeholder regions, and secondary flow lines
     that do not help a reader understand the architecture
-15. Route partner-share and integration lines with the simplest orthogonal path available;
+16. Route partner-share and integration lines with the simplest orthogonal path available;
     avoid loops or decorative detours
-16. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
-17. Save `.excalidraw` file to disk. CI will auto-generate `.excalidraw.svg`
-18. **Context checkpoint** — summarize diagram result before next artifact
+17. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
+18. Save `.excalidraw` file to disk. CI will auto-generate `.excalidraw.svg`
+19. **Context checkpoint** — summarize diagram result before next artifact
 
 ### ADR Generation
 
@@ -267,6 +270,7 @@ Validation: `npm run lint:artifact-templates` must pass for all output files.
 - [ ] Architecture assessment read before generating artifacts
 - [ ] Diagram includes all required resources/flows and passes quality gate (>=9/10)
 - [ ] Fabric-native services use Fabric icons when applicable; Azure services use Azure icons
+- [ ] Diagram contains embedded `image` elements and a non-empty top-level `files` map
 - [ ] Layout follows the enterprise reference style: outer shell, nested zones,
       grouped dependencies, compact legend when needed
 - [ ] Diagram remains readable at 100% zoom with no micro-text or cramped labels
