@@ -5,7 +5,6 @@ sidebar:
   order: 1
 ---
 
-
 :::tip[Editorial Context]
 This is **Step 1: Requirements Discovery**, where the agent acts as a technical business analyst. 
 It establishes the hard guardrails (budget, SLA, compliance) that downstream agents must respect. 
@@ -85,17 +84,13 @@ flowchart LR
 
 ---
 
-
 import { Steps, Tabs, TabItem, Card, CardGrid, Icon, Badge } from '@astrojs/starlight/components';
 import { Aside } from '@astrojs/starlight/components';
-
 
 import { Steps, Tabs, TabItem, Card, CardGrid, Icon, Badge } from '@astrojs/starlight/components';
 import { Aside } from '@astrojs/starlight/components';
 
 ## References
-
-
 
 
 

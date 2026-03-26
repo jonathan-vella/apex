@@ -5,7 +5,7 @@ compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible t
 license: MIT
 metadata:
   author: azure-agentic-infraops
-  version: "6.0"
+  version: "6.1"
   repository: https://github.com/excalidraw/excalidraw
 ---
 
@@ -51,13 +51,42 @@ for embedding in documentation.
 Every Step 3, Step 4, and Step 7 architecture deliverable MUST embed official
 Azure or Fabric icons directly in the `.excalidraw` JSON.
 
+This is an execution requirement, not a prompt suggestion. If the saved file
+still has box-only service tiles, the skill failed and the diagram is not ready
+for handoff.
+
 - A box-only diagram is invalid, even if labels are otherwise correct.
 - Deliverables MUST contain `image` elements for service tiles that represent
   Azure or Fabric services.
 - Deliverables MUST contain a non-empty top-level `files` map with payloads for
   every embedded icon.
+- If a single service tile groups multiple Azure or Fabric services, embed
+  multiple official icons inside that tile.
 - Validate before handoff: if `elements` has no `image` entries or `files` is
   empty, the diagram is not complete.
+
+## Required Icon Workflow
+
+Follow this loop every time the skill generates or repairs an Excalidraw
+architecture diagram:
+
+1. Build the outer shell, zones, and service tiles first.
+2. Resolve every Azure or Fabric tile to an official icon from the bundled
+  library before treating the diagram as complete.
+3. Embed icons directly into the saved `.excalidraw` file using
+  `scripts/add-icon-to-diagram.py` or direct JSON generation. Referencing the
+  library without saving `image` elements and file payloads is not enough.
+4. Reposition labels after icon placement so text sits below the icon area and
+  remains readable at 100% zoom.
+5. Run structural validation before export:
+
+- `rg -q '"type": "image"' <diagram>`
+- `rg -q '"files": {}' <diagram>` must return non-zero
+
+1. Export the SVG and visually inspect the rendered output before handoff.
+
+If the diagram misses icons after export, fix the saved `.excalidraw` source and
+re-export. Do not hand off a box-only fallback.
 
 ### Quality gate (/10)
 
@@ -337,6 +366,7 @@ Omit PEs/ASPs/NSGs · Include diagram title · Apply design tokens ·
 Use `fontFamily: 5` (Excalifont) for all text ·
 Use Fabric vector icons for Fabric services when available ·
 Center service labels ·
+Embed official Azure/Fabric icon payloads into the saved file, not just the prompt ·
 Build the visual hierarchy with outer shells and nested zones first ·
 Keep footer small at bottom-right ·
 Increase tile size before decreasing font size ·
@@ -352,6 +382,7 @@ Draw edges to cross-cutting services ·
 Show PEs, ASPs, NSGs, or RG boundaries · Create separate boxes per external API ·
 Skip quality gate · Use Mermaid for charts · Leave arrows crossing labels/icons ·
 Use Azure substitute icons for Fabric-native services when a Fabric icon exists ·
+Claim icon support is handled when the saved `.excalidraw` still has no `image` elements ·
 Spread the architecture across a mostly empty canvas ·
 Compress the layout until labels, legend text, or footer text become hard to read ·
 Leave half-empty grouped dependency regions in the final output ·

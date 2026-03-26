@@ -4,6 +4,21 @@ description: "Challenger agent findings across all workflow steps"
 sidebar:
   order: 9
 ---
+:::tip[Editorial Context]
+This is **Step 9: Review**, where the Challenger agent scrutinizes output for architecture, governance, and planning.
+:::
+
+<CardGrid>
+  <Card title="Architecture Review" icon="magnifier">
+    [Read Architecture Review](./architecture/)
+  </Card>
+  <Card title="Governance Review" icon="document">
+    [Read Governance Review](./governance/)
+  </Card>
+  <Card title="Plan Review" icon="seti:terraform">
+    [Read Plan Review](./plan/)
+  </Card>
+</CardGrid>
 
 :::caution[Adversarial Review]
 The Challenger agent runs rotating-lens reviews at each workflow step — checking for security gaps, governance violations, WAF blind spots, and cost issues. Findings below are actual agent output.
@@ -27,7 +42,6 @@ The Challenger agent runs rotating-lens reviews at each workflow step — checki
 | deployment | comprehensive | 4 must-fix, 0 should-fix |
 
 ## Detailed Findings
-
 ### requirements
 
 - **[must_fix]** Azure AD B2C is an invalid default for a 2026 greenfield build
@@ -103,3 +117,4 @@ No findings.
 - **[should_fix]** App Service still lacks automated SQL data-plane bootstrap
 - **[should_fix]** Subscription Activity Log routing is outside what-if and appears miswired
 - **[should_fix]** Cost governance is incomplete and too loose for the documented spend profile
+

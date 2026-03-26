@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- fix(validation): scan `site/public/demo/*.excalidraw` in `lint:excalidraw`
+  and fail when required demo diagrams are saved without embedded image payloads;
+  include the check in CI aggregate validation.
 - refactor(diagrams): switch the default architecture diagram workflow from Draw.io to Excalidraw
   across skills, prompts, agent instructions, VS Code MCP configuration, templates, and docs.
 - refactor(docs): update demo content and documentation to publish `.excalidraw` artifacts instead
