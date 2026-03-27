@@ -37,7 +37,9 @@ python scripts/convert-azure-icons-to-drawio.py <path-to-zip>
 ## Usage in Diagrams
 
 Icons are referenced in draw.io via the `image` style property with a
-`data:image/svg+xml;base64,...` data URI. Each icon snippet in `icons/`
+`data:image/svg+xml;base64,...` data URI. The simonkurtz-MSFT Draw.io MCP
+server includes its own 700+ icon library; these local libraries are for
+the VS Code Draw.io extension and manual diagram editing. Each icon snippet in `icons/`
 contains a complete `.drawio` XML file with a single image cell that
 agents can copy into their diagrams.
 

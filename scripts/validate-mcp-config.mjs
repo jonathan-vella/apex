@@ -39,5 +39,27 @@ for (const name of requiredServers) {
   }
 }
 
+// Validate drawio MCP server configuration
+r.tick();
+if (!mcpConfig?.servers?.drawio) {
+  r.error("Missing required MCP server: servers.drawio");
+} else {
+  const drawio = mcpConfig.servers.drawio;
+  if (drawio.type !== "stdio") {
+    r.error(`drawio server must use type: "stdio", got "${drawio.type}"`);
+  } else if (drawio.command !== "deno") {
+    r.error(`drawio command must be "deno", got "${drawio.command}"`);
+  } else if (
+    !drawio.args ||
+    !drawio.args.some((a) => a.includes("drawio-mcp-server"))
+  ) {
+    r.error(
+      "drawio args must include the drawio-mcp-server path (mcp/drawio-mcp-server)",
+    );
+  } else {
+    r.ok("MCP config includes valid drawio server (Deno stdio)");
+  }
+}
+
 r.summary();
 r.exitOnError("MCP config valid", "MCP config validation failed");

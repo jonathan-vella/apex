@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(drawio): replace jgraph `@drawio/mcp@1.1.1` with simonkurtz-MSFT `drawio-mcp-server` v3.0.1
+  (Deno-based, 700+ Azure icons, batch operations, transactional mode, group/layer/page management).
+  Adds Deno devcontainer feature, clones server in post-create, updates MCP config for Deno stdio.
+- feat(drawio): rewrite drawio skill, instructions, and agent workflows for MCP-driven diagram creation.
+  Removes two-phase icon injection workflow and `scripts/add-icon-to-drawio.py`.
+
+### Removed
+
+- chore(drawio): delete `scripts/add-icon-to-drawio.py` — MCP server handles all icon embedding natively.
+- chore(drawio): remove `open_drawio_xml/csv/mermaid` tool references (old jgraph preview-only server).
+
 - feat(diagrams): add Excalidraw-native Azure icon libraries, reference docs, icon conversion tooling,
   and Excalidraw validation/export automation for architecture artifacts.
 - feat(ci): add Excalidraw SVG export and Azure icon update workflows, plus devcontainer/editor

@@ -203,7 +203,7 @@ infra/
   terraform/{project}/ # Terraform configurations (main.tf + modules/)
 assets/
   excalidraw-libraries/  # Excalidraw Azure/Fabric icon libraries
-  drawio-libraries/      # Draw.io Azure icon libraries (mxlibrary XML + mxfile.xsd)
+  drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)
 scripts/               # Validation and maintenance scripts (Node.js)

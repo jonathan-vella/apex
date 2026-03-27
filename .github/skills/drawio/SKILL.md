@@ -1,182 +1,192 @@
 ---
 name: drawio
-description: "Draw.io architecture diagrams for Azure with local icon libraries, XSD validation, and MCP integration. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams, Draw.io XML generation. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), Excalidraw diagrams (use excalidraw)."
-compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses Draw.io MCP Tool Server configured in .vscode/mcp.json.
+description: "Draw.io architecture diagrams for Azure via simonkurtz-MSFT MCP server — 700+ Azure icons, batch creation, transactional mode. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), Excalidraw diagrams (use excalidraw)."
+compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
   author: azure-agentic-infraops
-  version: "1.0"
+  version: "2.0"
 ---
 
 # Draw.io Architecture Diagrams
 
-Generate Azure architecture diagrams in `.drawio` (mxfile XML) format with
-embedded Azure icons, XSD-validated structure, and MCP preview integration.
+Generate Azure architecture diagrams in `.drawio` format using the
+simonkurtz-MSFT Draw.io MCP server. The server has 700+ built-in Azure icons,
+fuzzy shape search, batch operations, group/layer/page management, and
+transactional mode for efficient multi-step workflows.
+
+**Authoritative reference**: The MCP server's own `src/instructions.md` (519 lines) is the
+canonical guide for tool parameters, layout rules, and workflow patterns.
+It is **automatically sent to the MCP client at startup** via the server's
+`instructions` field — agents receive it in context without needing to read it.
+This skill provides project-specific conventions that complement (not duplicate) it.
 
 ## Prerequisites
 
-- **Draw.io MCP Tool Server**: `@drawio/mcp` configured in `.vscode/mcp.json`
-- **Azure icon libraries**: `assets/drawio-libraries/azure-icons/` (local, offline)
+- **Draw.io MCP server**: `simonkurtz-MSFT/drawio-mcp-server` (Deno, stdio) configured in `.vscode/mcp.json`
+- **Deno runtime**: Installed via devcontainer feature `ghcr.io/devcontainers-community/features/deno`
 - **VS Code extension** (optional): `hediet.vscode-drawio` for in-editor preview
-- **Icon reference**: `assets/drawio-libraries/azure-icons/reference.md`
 
-## File Structure — Critical Rules
+## MCP Tool Overview
 
-A valid `.drawio` file is XML with this hierarchy:
+### Shape Discovery
 
-```xml
-<mxfile>
-  <diagram id="page-1" name="Page-1">
-    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1"
-                  tooltips="1" connect="1" arrows="1" fold="1"
-                  page="1" pageScale="1" pageWidth="850" pageHeight="1100"
-                  math="0" shadow="0">
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <!-- All diagram elements go here with parent="1" -->
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
-```
+| Tool                     | Purpose                                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------------------- |
+| `search-shapes`          | Fuzzy search for shapes including 700+ Azure icons. Pass ALL queries in the `queries` array. |
+| `get-shape-categories`   | List all shape categories (General, Flowchart, Azure categories).                            |
+| `get-shapes-in-category` | List all shapes in a category by `category_id`.                                              |
+| `get-style-presets`      | Get built-in style presets (Azure colors, flowchart shapes, edge styles).                    |
 
-### Mandatory Rules
+### Diagram Modification
 
-1. **Structural cells**: `<mxCell id="0"/>` (root) and `<mxCell id="1" parent="0"/>` (default layer) are always required
-2. **Uncompressed XML**: Never use `compressed="true"` — AI must generate plain XML
-3. **Unique IDs**: All cell IDs must be unique within the diagram
-4. **vertex/edge exclusive**: Shapes use `vertex="1"`, connectors use `edge="1"` — never both
-5. **Parent references**: Every cell (except id="0") must have a valid `parent`
-6. **Coordinates**: Origin (0,0) is top-left; x increases right, y increases down
-7. **Style strings**: Semicolon-separated `key=value;` pairs, case-sensitive, booleans are `0`/`1`
-8. **HTML escaping**: HTML in `value` attributes must use `&lt;`, `&gt;`, `&amp;`, `&quot;`
+| Tool                | Purpose                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `add-cells`         | Add vertices and/or edges. Use `shape_name` for icon resolution, `temp_id` for within-batch references. |
+| `edit-cells`        | Update vertex cell properties (position, size, text, style).                                            |
+| `edit-edges`        | Update edge properties (text, source, target, style).                                                   |
+| `set-cell-shape`    | Apply library shape styles to existing cells.                                                           |
+| `delete-cell-by-id` | Remove a cell by ID. Cascade-deletes connected edges for vertices.                                      |
 
-## Style String Format
+### Diagram Inspection
+
+| Tool                | Purpose                                                       |
+| ------------------- | ------------------------------------------------------------- |
+| `list-paged-model`  | Paginated view of all cells with filtering by type.           |
+| `get-diagram-stats` | Statistics about cell counts, bounds, and layer distribution. |
+| `export-diagram`    | Export the diagram as Draw.io XML. Use `compress: true`.      |
+| `import-diagram`    | Import a Draw.io XML string, replacing the current diagram.   |
+| `clear-diagram`     | Clear all cells and reset the diagram.                        |
+| `finish-diagram`    | Resolve placeholders to real SVGs (transactional mode).       |
+
+### Group / Container Management
+
+| Tool                         | Purpose                                                           |
+| ---------------------------- | ----------------------------------------------------------------- |
+| `create-groups`              | Create group/container cells for VNets, subnets, resource groups. |
+| `add-cells-to-group`         | Assign cells to groups. Server auto-converts coordinates.         |
+| `remove-cell-from-group`     | Remove a cell from its group, returning it to the active layer.   |
+| `list-group-children`        | List all cells contained in a group.                              |
+| `validate-group-containment` | Detect children that exceed group bounds.                         |
+| `suggest-group-sizing`       | Calculate recommended group dimensions.                           |
+
+### Layer & Page Management
+
+| Tool                                                                             | Purpose        |
+| -------------------------------------------------------------------------------- | -------------- |
+| `list-layers` / `create-layer` / `set-active-layer` / `move-cell-to-layer`       | Manage layers. |
+| `create-page` / `list-pages` / `set-active-page` / `rename-page` / `delete-page` | Manage pages.  |
+
+## Icon Handling
+
+Icons are resolved automatically by the MCP server from its built-in library
+(700+ Azure icons from `assets/azure-public-service-icons/`).
+
+- Use `shape_name` in `add-cells` to specify Azure icons (e.g., `shape_name: "Front Doors"`)
+- **Do NOT specify `width`, `height`, or `style`** when using `shape_name` —
+  the server auto-applies correct dimensions and styling
+- Use `search-shapes` with a `queries` array to find icon names by fuzzy match
+- Azure icons use their official service names, often plural (e.g., "Key Vaults", "Container Apps", "App Services")
+- Every shaped vertex **MUST** have a `text` label or omit `text` entirely — **never** pass `text: ""`
+- Output format is **embedded base64 SVG** in the style attribute
+
+## Diagram Creation Workflows
+
+### Workflow A: Non-Transactional (small diagrams)
+
+For simple diagrams or single operations. Each tool call returns full XML with
+complete SVG image data.
 
 ```text
-key1=value1;key2=value2;key3=value3;
+search-shapes → add-cells → export-diagram(compress: true) → save .drawio
 ```
 
-- Shape names can appear as bare tokens: `ellipse;whiteSpace=wrap;html=1;`
-- Colors use `#RRGGBB` hex, `none`, or `default`
-- No spaces around `=` or `;`
-- Trailing `;` is conventional
+### Workflow B: Transactional (recommended for multi-step)
 
-### Essential Style Properties
+For any multi-step diagram. Intermediate responses use lightweight placeholders
+(~2KB instead of ~200KB). Real SVGs are resolved once at the end via `finish-diagram`.
 
-| Property        | Values                             | Purpose                                   |
-| --------------- | ---------------------------------- | ----------------------------------------- |
-| `fillColor`     | `#RRGGBB`, `none`                  | Shape fill                                |
-| `strokeColor`   | `#RRGGBB`, `none`                  | Border color                              |
-| `strokeWidth`   | number                             | Border width (px)                         |
-| `dashed`        | `0`, `1`                           | Dashed stroke                             |
-| `rounded`       | `0`, `1`                           | Round corners                             |
-| `html`          | `0`, `1`                           | Enable HTML labels                        |
-| `whiteSpace`    | `wrap`                             | Text wrapping                             |
-| `fontSize`      | number                             | Font size (px)                            |
-| `fontStyle`     | bitmask                            | 0=normal, 1=bold, 2=italic, 3=bold+italic |
-| `align`         | `left`, `center`, `right`          | Horizontal text align                     |
-| `verticalAlign` | `top`, `middle`, `bottom`          | Vertical text align                       |
-| `shape`         | see Shape Types                    | Shape type                                |
-| `edgeStyle`     | `orthogonalEdgeStyle`, etc.        | Edge routing                              |
-| `endArrow`      | `classic`, `block`, `open`, `none` | Arrow marker                              |
-| `container`     | `0`, `1`                           | Cell is a container                       |
-| `startSize`     | number                             | Swimlane header height                    |
-| `image`         | URL or data URI                    | Image source                              |
-
-## Azure Icon Embedding — MANDATORY
-
-**Every Step 3, 4, and 7 architecture diagram MUST embed official Azure icons.**
-
-### Icon Discovery Protocol
-
-1. Read `assets/drawio-libraries/azure-icons/reference.md` for icon name → filename
-2. Load the icon snippet from `assets/drawio-libraries/azure-icons/icons/{filename}.xml`
-3. Extract the `mxCell` element and embed in target diagram
-4. Adjust `x`, `y` coordinates and update the cell `id` to be unique
-
-### Icon Cell Pattern
-
-```xml
-<mxCell id="vm-1" value="Virtual Machine"
-  style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;
-  imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2Zy..."
-  vertex="1" parent="1">
-  <mxGeometry x="200" y="100" width="48" height="48" as="geometry"/>
-</mxCell>
+```text
+search-shapes
+→ create-groups(transactional: true)
+→ add-cells(transactional: true)
+→ add-cells-to-group(transactional: true)
+→ edit-cells(transactional: true)     [if needed]
+→ finish-diagram(compress: true)       [resolves all placeholders]
+→ save .drawio via terminal command
 ```
 
-- Default icon size: 48×48 (use 64×64 for primary/hero resources)
-- Label position: below the icon (`verticalLabelPosition=bottom`)
-- No fill/stroke on icon cells — the SVG provides the visual
+**CRITICAL**: When using transactional mode, you **MUST** call `finish-diagram`
+at the end. Without it, the diagram contains placeholder shapes instead of real icons.
 
-### Icon Catalog
+### Saving `.drawio` Files
 
-Full catalog: `assets/drawio-libraries/azure-icons/reference.md`
+When `export-diagram` or `finish-diagram` returns XML in a JSON response, use a
+terminal command to extract and save — do NOT read the XML back through the LLM:
 
-If icon library files have not been generated yet (the `icons/` directory
-is empty), run `python scripts/convert-azure-icons-to-drawio.py <path-to-zip>`
-first. As a fallback, use draw.io built-in Azure stencils:
-`shape=mxgraph.azure.<category>.<icon_name>` (e.g., `shape=mxgraph.azure.storage_blob`).
-
-## Azure Layout Conventions
-
-### Resource Groups as Swimlanes
-
-```xml
-<mxCell id="rg-1" value="rg-project-prod"
-  style="swimlane;startSize=25;fillColor=#F5F5F5;strokeColor=#666666;
-  fontStyle=1;html=1;rounded=1;dashed=1;"
-  vertex="1" parent="1">
-  <mxGeometry x="50" y="50" width="600" height="400" as="geometry"/>
-</mxCell>
-<!-- Children use parent="rg-1" with coordinates relative to the group -->
+```bash
+cat '<temp-content-json-path>' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['xml'], end='')" > '<output-path>.drawio'
 ```
 
-### Virtual Networks as Nested Containers
+## Batch-Only Workflow (CRITICAL)
 
-```xml
-<mxCell id="vnet-1" value="vnet-project-prod (10.0.0.0/16)"
-  style="swimlane;startSize=25;fillColor=#E7F5FF;strokeColor=#0078D4;
-  fontStyle=1;html=1;rounded=1;"
-  vertex="1" parent="rg-1">
-  <mxGeometry x="20" y="40" width="560" height="340" as="geometry"/>
-</mxCell>
-```
+**Every tool that accepts an array MUST be called exactly ONCE with ALL items.**
+Never call a tool repeatedly for individual items.
 
-### Subnets as Inner Groups
+1. **`search-shapes`** — ONE call with ALL queries in the `queries` array (main flow + cross-cutting)
+2. **`create-groups`** — ONE call with ALL groups. Set `text: ""` for groups; create separate text vertex above.
+3. **`add-cells`** — ONE call with ALL vertices AND edges. Vertices before edges.
+   Use `temp_id` for cross-refs, `shape_name` for icons.
+4. **`add-cells-to-group`** — ONE call with ALL assignments. Server auto-converts absolute → group-relative coords.
+5. **`edit-cells`/`edit-edges`** — ONE call if adjustments needed.
+6. **`finish-diagram`** (transactional) or **`export-diagram`** (default) — with `compress: true`.
 
-```xml
-<mxCell id="snet-app" value="snet-app (10.0.1.0/24)"
-  style="swimlane;startSize=20;fillColor=#E6F5E6;strokeColor=#82B366;
-  html=1;rounded=1;fontSize=11;"
-  vertex="1" parent="vnet-1">
-  <mxGeometry x="10" y="35" width="260" height="150" as="geometry"/>
-</mxCell>
-```
+After group assignments, call `validate-group-containment` to detect any children that exceed group bounds.
 
-### Edge Conventions
+## Layout Conventions
 
-| Flow type                | Style                                                                                                     |
-| ------------------------ | --------------------------------------------------------------------------------------------------------- |
-| Data flow (primary)      | `edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#0078D4;endArrow=classic;html=1;`                    |
-| Monitoring / diagnostics | `edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#666666;endArrow=classic;html=1;`           |
-| Authentication           | `edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#0078D4;endArrow=classic;html=1;`           |
-| Bidirectional            | `edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#0078D4;startArrow=classic;endArrow=classic;html=1;` |
+### General Rules
+
+- **Primary flow**: left-to-right. Each stage occupies a column.
+- **Parallel services**: stacked vertically within their column, never side-by-side.
+- **Spacing**: 120px horizontal between columns, 80px vertical between rows, 40px around each cell.
+- **Page**: US Letter 850×1100px. Content within 40px margins (usable: 770×1020).
+- **No overlapping**: Components must not overlap each other.
+
+### Groups
+
+- Create groups for VNets, subnets, Container Apps Environments, resource groups.
+- Set `text: ""` for groups — create a separate bold text vertex above the group instead.
+- Use `suggest-group-sizing` to calculate dimensions based on child count.
+
+### Edges
+
+- **Orthogonal only**: Use `edgeStyle=orthogonalEdgeStyle` (the default).
+- **NO anchor points**: Never set `entryX`, `entryY`, `exitX`, `exitY` — server auto-calculates.
+- **Side exits preferred**: edges exit/enter through left or right sides.
+- **One edge per source into a group**: target the group cell, not children inside.
+- **No edges to cross-cutting services**: their presence is implied.
+
+### Cross-Cutting & Supporting Services
+
+Place Azure Monitor, Entra ID, Key Vault, Azure Policy, Defender for Cloud,
+Container Registry, DNS Zones, Application Insights, Log Analytics at the
+**bottom** of the diagram, 120px below the main flow. No edges to them.
+Space 100px apart (center-to-center). Wrap into multiple rows at page width.
 
 ### Color Palette (Azure-Aligned)
 
-| Color              | Hex       | Use                               |
-| ------------------ | --------- | --------------------------------- |
-| Azure Blue         | `#0078D4` | Primary strokes, data flow edges  |
-| VNet fill          | `#E7F5FF` | Virtual network backgrounds       |
-| Subnet fill (app)  | `#E6F5E6` | Application tier subnets          |
-| Subnet fill (data) | `#FFF2CC` | Data tier subnets                 |
-| Security zone      | `#F8CECC` | Security boundaries, WAF zones    |
-| Light gray         | `#F5F5F5` | Resource group backgrounds        |
-| Monitoring         | `#E1D5E7` | Monitoring/governance containers  |
-| Dark gray          | `#666666` | Secondary strokes, dashed borders |
+| Color              | Hex       | Use                              |
+| ------------------ | --------- | -------------------------------- |
+| Azure Blue         | `#0078D4` | Primary strokes, data flow edges |
+| VNet fill          | `#E7F5FF` | Virtual network backgrounds      |
+| Subnet fill (app)  | `#E6F5E6` | Application tier subnets         |
+| Subnet fill (data) | `#FFF2CC` | Data tier subnets                |
+| Security zone      | `#F8CECC` | Security boundaries, WAF zones   |
+| Light gray         | `#F5F5F5` | Resource group backgrounds       |
+| Monitoring         | `#E1D5E7` | Monitoring/governance containers |
+
+Call `get-style-presets` once to retrieve Azure color presets and apply consistently.
 
 ## Output File Conventions
 
@@ -189,53 +199,36 @@ first. As a fallback, use draw.io built-in Azure stencils:
 
 All outputs go to `agent-output/{project}/`.
 
-## Validation Checklist
+## Validation
 
-Before delivering any `.drawio` file, verify:
+After generating a `.drawio` file, run:
 
-1. **Valid XML**: Well-formed with proper escaping
-2. **Root element**: `<mxfile>` contains ≥1 `<diagram>`
-3. **Diagram IDs**: Each `<diagram>` has a unique `id`
-4. **Structural cells**: `<mxCell id="0"/>` and `<mxCell id="1" parent="0"/>` present
-5. **Unique IDs**: All cell IDs unique within the diagram
-6. **Parent refs**: Every cell has a valid `parent` referencing an existing cell
-7. **Type flags**: Each content cell has `vertex="1"` OR `edge="1"` (not both)
-8. **Edge refs**: Edge `source`/`target` reference existing vertex IDs
-9. **Geometry**: Vertices have `mxGeometry` with x, y, width, height; edges have `relative="1"`
-10. **Style format**: Style strings use valid `key=value;` format
-11. **Perimeter match**: Non-rectangular shapes have matching `perimeter=` value
-12. **HTML escaping**: HTML in `value` attributes properly XML-escaped
-13. **Coordinates**: No negative dimensions; x right, y down
-14. **Group hierarchy**: Children coordinates relative to parent container
-
-## MCP Integration
-
-Use the Draw.io MCP Tool Server to preview generated diagrams:
-
-```text
-Use open_drawio_xml to preview the diagram in the browser.
+```bash
+node scripts/validate-drawio-files.mjs agent-output/{project}/<diagram>.drawio
 ```
 
-The MCP server compresses the XML and opens it in draw.io's web editor
-for interactive viewing and editing.
+The validator checks 14 points: valid XML, mxfile root, unique IDs, structural
+cells, parent refs, vertex/edge flags, edge source/target, geometry, style format,
+perimeter match, HTML escaping, coordinates, group hierarchy, and Azure icon presence.
 
 ## Quality Gate
 
 A diagram passes quality review when it scores ≥9/10 on:
 
-1. Readable at 100% zoom — all labels visible without zooming
-2. No label overlap — text does not obscure other elements
-3. Minimal edge crossing — edges routed to minimize intersections
+1. Readable at 100% zoom — all labels visible
+2. No label overlap
+3. Minimal edge crossing
 4. Clear tier grouping — resources grouped by function/subnet/RG
-5. Correct Azure icons — every Azure service has its official icon embedded
-6. Security boundaries visible — WAF, NSG, Private Endpoint zones shown
+5. Correct Azure icons — every Azure service has its official icon
+6. Security boundaries visible
 7. No stray elements — no floating unconnected shapes
-8. Service labels centered — text centered below/inside icons
-9. Footer unobtrusive — metadata/legend does not dominate
-10. Dense canvas usage — no excessive whitespace, compact layout
+8. Service labels centered
+9. Footer unobtrusive
+10. Dense canvas usage — compact, no excessive whitespace
 
 ## Reference Materials
 
 For detailed style properties: Read `.github/skills/drawio/references/style-reference.md`
-For Azure-specific patterns: Read `.github/skills/drawio/references/azure-patterns.md`
+For Azure-specific MCP tool patterns: Read `.github/skills/drawio/references/azure-patterns.md`
 For full validation details: Read `.github/skills/drawio/references/validation-checklist.md`
+Quality target samples: `tmp/azure-architecture-example.drawio`, `tmp/03-des-diagram.svg`

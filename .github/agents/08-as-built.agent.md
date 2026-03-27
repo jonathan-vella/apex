@@ -16,7 +16,7 @@ tools:
     web,
     azure-mcp/search,
     "microsoft-learn/*",
-    "excalidraw/*",
+    "drawio/*",
     todo,
   ]
 handoffs:
@@ -24,9 +24,13 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts in `agent-output/{project}/` and query deployed resources."
     send: true
-  - label: "▶ Generate As-Built Diagram"
+  - label: "▶ Generate As-Built Diagram (Excalidraw)"
     agent: 08-As-Built
     prompt: "Use the excalidraw skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` in the enterprise Azure reference-architecture style with layered boundary shells, color-coded responsibility zones, larger service tiles, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, actual deployed resource names when they improve traceability, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT pack tiles with SKU, tier, node count, policy version, or other low-value operational text that belongs in the resource inventory or runbook. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled connectors, over-compression, placeholder groups, and low-contrast micro-text."
+    send: true
+  - label: "▶ Generate As-Built Diagram (Draw.io)"
+    agent: 08-As-Built
+    prompt: "Generate an as-built architecture diagram using the drawio skill and MCP tools. Use transactional mode: (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices (shape_name for icons, temp_id for refs) and ALL edges in one call, transactional: true. Use actual deployed resource names where they improve traceability. (4) `add-cells-to-group` for all assignments in one call. (5) `finish-diagram` with compress: true. (6) Save to `agent-output/{project}/07-ab-diagram.drawio` via terminal command. The diagram should document the deployed infrastructure with quality score >= 9/10."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -58,9 +62,10 @@ Before doing any work, read these skills:
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
 3. Read `.github/skills/excalidraw/SKILL.md` — diagram generation contract
-4. Read `.github/skills/python-diagrams/SKILL.md` — WAF/cost chart generation
-5. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
-6. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
+4. Read `.github/skills/drawio/SKILL.md` — Draw.io diagram generation (when user requests draw.io)
+5. Read `.github/skills/python-diagrams/SKILL.md` — WAF/cost chart generation
+6. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
+7. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
    - `07-ab-cost-estimate.template.md`
@@ -76,7 +81,10 @@ Before doing any work, read these skills:
 - Read ALL prior artifacts (01-06) before generating any documentation
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
-- Generate the as-built architecture diagram using excalidraw skill
+- Generate the as-built architecture diagram using excalidraw skill (default) or drawio skill (when requested)
+- When generating Draw.io diagrams, use the MCP server tools with transactional mode and batch-only calls
+- For Draw.io: use `shape_name` in `add-cells` for Azure icons — never specify width/height/style for shaped vertices
+- For Draw.io: save exported diagrams via terminal command, not LLM read-back
 - Embed official Azure/Fabric icons as Excalidraw `image` elements in the as-built diagram
 - Preserve the shared enterprise reference-architecture visual language so Step 7 diagrams visually align with Step 3 outputs
 - Prefer fewer, larger service tiles over many small cards so deployed names remain readable
@@ -110,6 +118,23 @@ Before doing any work, read these skills:
 - **Hardcoding prices** — ALL prices in `07-ab-cost-estimate.md` MUST originate from
   `cost-estimate-subagent` responses
 - **Calling Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
+
+## Draw.io MCP-Driven Diagram Workflow
+
+When generating a `.drawio` as-built diagram, use the Draw.io MCP server tools.
+The server auto-sends detailed layout rules, batch workflow, and conventions
+via its `instructions` field — follow those for spacing, grid alignment,
+edge routing, group sizing, and cross-cutting service placement.
+
+1. **Search shapes** — Call `search-shapes` ONCE with ALL Azure service names.
+2. **Create groups** — Call `create-groups` ONCE (VNets, subnets, RGs). Set `text: ""`.
+3. **Add cells** — Call `add-cells` ONCE with ALL vertices + edges
+   (`transactional: true`, `shape_name` for icons, `temp_id` for refs).
+   Use actual deployed resource names.
+4. **Assign to groups** — Call `add-cells-to-group` ONCE. Call `validate-group-containment` after.
+5. **Finish** — Call `finish-diagram` with `compress: true`.
+6. **Save** — Extract XML via terminal and write to `agent-output/{project}/07-ab-diagram.drawio`.
+7. **Validate** — Run `node scripts/validate-drawio-files.mjs`.
 
 ## Prerequisites Check
 

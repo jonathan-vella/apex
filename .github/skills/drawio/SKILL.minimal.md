@@ -3,18 +3,18 @@
 ---
 
 name: drawio
-description: "Minimal Draw.io reference. Load at >80% context."
+description: "Minimal Draw.io reference via simonkurtz-MSFT MCP server. Load at >80% context."
 metadata:
 tier: minimal
-version: "1.0"
+version: "2.0"
 
 ---
 
 # Draw.io — Minimal
 
-## Icon Reference
+## MCP Server Tools
 
-`assets/drawio-libraries/azure-icons/reference.md` → icon name → `icons/{name}.xml`
+`search-shapes` → `create-groups` → `add-cells` (shape_name for icons) → `add-cells-to-group` → `finish-diagram`
 
 ## Output Files
 
@@ -24,19 +24,34 @@ version: "1.0"
 
 ## 5 Critical Rules
 
-1. Always include `<mxCell id="0"/>` and `<mxCell id="1" parent="0"/>`
-2. Use `vertex="1"` for shapes, `edge="1"` for edges (exclusive)
-3. All cell IDs unique; style = `key=value;` semicolon-separated
-4. Azure architecture diagrams (Steps 3/4/7) MUST embed official icons
-5. Use `open_drawio_xml` MCP tool to preview
+1. Use `shape_name` in `add-cells` for Azure icons — do NOT specify width/height/style
+2. Each batch tool called exactly ONCE with ALL items
+3. Use transactional mode (`transactional: true`) for multi-step, then `finish-diagram`
+4. Cross-cutting services at bottom, NO edges to them
+5. Edges: orthogonal only, NO anchor points (entryX/exitX etc.)
 
-## Azure Icon Cell
+## Add Cells Example
 
-```xml
-<mxCell id="ID" value="Label"
-  style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;
-  imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,..."
-  vertex="1" parent="1">
-  <mxGeometry x="X" y="Y" width="48" height="48" as="geometry"/>
-</mxCell>
+```json
+{
+  "cells": [
+    {
+      "type": "vertex",
+      "shape_name": "Front Doors",
+      "x": 200,
+      "y": 100,
+      "text": "Front Door",
+      "temp_id": "fd"
+    },
+    {
+      "type": "vertex",
+      "shape_name": "App Services",
+      "x": 400,
+      "y": 100,
+      "text": "Web App",
+      "temp_id": "web"
+    },
+    { "type": "edge", "source_id": "fd", "target_id": "web", "text": "HTTPS" }
+  ]
+}
 ```

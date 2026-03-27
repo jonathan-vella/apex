@@ -1,0 +1,49 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Shell scripts should always use LF line endings
+*.sh text eol=lf
+
+# PowerShell scripts should use CRLF on Windows
+*.ps1 text eol=crlf
+
+# Jupyter notebooks should use LF
+*.ipynb text eol=lf
+
+# Python files should use LF
+*.py text eol=lf
+
+# Bicep files should use LF
+*.bicep text eol=lf
+
+# JSON files should use LF
+*.json text eol=lf
+
+# YAML files should use LF
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Markdown files should use LF
+*.md text eol=lf
+
+# Python files should use LF
+*.py text eol=lf
+
+# Windows batch files should use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell script files must be executable
+.devcontainer/post-start-setup.sh export-ignore diff=sh
+setup/*.sh export-ignore diff=sh
+tests/python/*.sh export-ignore diff=sh
+start.sh export-ignore diff=sh
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+*.ico binary
+*.pdn binary

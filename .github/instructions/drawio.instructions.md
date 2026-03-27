@@ -31,12 +31,17 @@ applyTo: "**/*.drawio"
 
 For Steps 3, 4, and 7 architecture deliverables:
 
-- **MUST** embed official Azure icons from `assets/drawio-libraries/azure-icons/`
-- Use `shape=image;image=data:image/svg+xml;base64,...` for icon cells
-- Icon reference: `assets/drawio-libraries/azure-icons/reference.md`
-- Resource groups → swimlane containers with `fillColor=#F5F5F5`
-- VNets → swimlane containers with `fillColor=#E7F5FF;strokeColor=#0078D4`
-- Use `edgeStyle=orthogonalEdgeStyle;rounded=1;` for connections
+- **MUST** embed official Azure icons — the MCP server resolves them automatically via `shape_name`
+- Use `drawio/add-cells` with `shape_name` for Azure icons (e.g., `shape_name: "Front Doors"`)
+- When using `shape_name`, do NOT specify `width`, `height`, or `style` — server auto-applies
+- Use `drawio/search-shapes` with `queries` array to find icon names (ONE call with ALL queries)
+- Use `drawio/create-groups` for VNets, subnets, resource groups — set `text: ""`, add separate label vertex above
+- Edges: orthogonal only, NEVER set `entryX/entryY/exitX/exitY` — server auto-calculates anchors
+- Cross-cutting services at bottom (120px below main flow) — NO edges to them
+- For multi-step diagrams, use transactional mode (`transactional: true` on all calls), then `finish-diagram`
+- Use `compress: true` on `export-diagram`/`finish-diagram` for smaller payloads
+- Save exported `.drawio` via terminal command (extract from JSON), NOT by reading XML through the LLM
+- Each batch tool (search-shapes, create-groups, add-cells, add-cells-to-group) called exactly ONCE with ALL items
 
 ## Validation
 

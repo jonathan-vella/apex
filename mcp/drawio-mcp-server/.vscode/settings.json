@@ -1,0 +1,14 @@
+{
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.unstable": [],
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false
+  },
+  "editor.renderWhitespace": "trailing",
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "terminal.integrated.defaultProfile.windows": "PowerShell"
+}

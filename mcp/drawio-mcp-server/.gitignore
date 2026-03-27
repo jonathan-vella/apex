@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+
+# Test coverage
+coverage/
+coverage_lcov.txt
+coverage_detail.txt
+
+# Logs
+*.log
+.pnpm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.ai
+
+# OS files
+*.tgz
+
+# Draw.io files (possibly created during testing or development)
+*.drawio
+
+# DEV MODE ONLY — Auto-saved diagrams from export-diagram/finish-diagram
+diagrams/

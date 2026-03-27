@@ -324,6 +324,28 @@ async function validateDrawioFile(filePath) {
           style.includes("shape=mxgraph.azure.")
         ) {
           totalImages++;
+
+          // Validate base64 payload integrity (catch silent corruption)
+          const b64Match = style.match(
+            /image=data:image\/svg\+xml;base64,([A-Za-z0-9+/=\s]+)/,
+          );
+          if (b64Match) {
+            const payload = b64Match[1];
+            // Check for whitespace inside the base64 string (corruption indicator)
+            if (/\s/.test(payload)) {
+              console.error(
+                `❌ ${filePath}: Cell id="${id}" has corrupted base64 icon payload (contains whitespace)`,
+              );
+              errors++;
+            }
+            // Check minimum viable SVG payload length (a real Azure icon is >200 chars)
+            if (payload.replace(/[=\s]/g, "").length < 100) {
+              console.warn(
+                `⚠️  ${filePath}: Cell id="${id}" has suspiciously short base64 icon payload (${payload.length} chars)`,
+              );
+              warnings++;
+            }
+          }
         }
 
         // Check 11: Perimeter match for non-rectangular shapes

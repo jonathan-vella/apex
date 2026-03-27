@@ -3,85 +3,65 @@
 ---
 
 name: drawio
-description: "Compact reference for Draw.io Azure architecture diagrams. Load at >60% context."
+description: "Compact reference for Draw.io Azure architecture diagrams via simonkurtz-MSFT MCP server. Load at >60% context."
 metadata:
 tier: digest
-version: "1.0"
+version: "2.0"
 
 ---
 
 # Draw.io Diagrams — Digest
 
-## Mandatory Icon Embedding
+## MCP Server (simonkurtz-MSFT)
 
-**Every Step 3, 4, 7 diagram MUST embed official Azure icons.**
+700+ built-in Azure icons, batch operations, transactional mode.
+The server's `src/instructions.md` is the authoritative reference.
 
-### Icon Workflow
+## Icon Handling
 
-1. Read `assets/drawio-libraries/azure-icons/reference.md` for icon name → filename
-2. Load snippet from `assets/drawio-libraries/azure-icons/icons/{filename}.xml`
-3. Copy `mxCell` into diagram, update `id` to be unique, adjust `x`/`y`
+- Use `shape_name` in `add-cells` (e.g., `shape_name: "Front Doors"`)
+- Do NOT specify `width`, `height`, or `style` for shaped vertices — server auto-applies
+- Use `search-shapes` with `queries` array to find icon names
+- Every shaped vertex MUST have a `text` label or omit `text` entirely (never `text: ""`)
 
-### Icon Cell Pattern
+## Batch-Only Workflow (CRITICAL)
 
-```xml
-<mxCell id="UNIQUE-ID" value="Service Name"
-  style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;
-  imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,..."
-  vertex="1" parent="1">
-  <mxGeometry x="X" y="Y" width="48" height="48" as="geometry"/>
-</mxCell>
-```
+Each tool called exactly ONCE with ALL items:
 
-## File Structure Skeleton
+1. `search-shapes` — ONE call, ALL queries
+2. `create-groups` — ONE call, ALL groups (`text: ""`, label vertex above)
+3. `add-cells` — ONE call, ALL vertices + edges (vertices first, `shape_name`, `temp_id`)
+4. `add-cells-to-group` — ONE call, ALL assignments
+5. `edit-cells`/`edit-edges` — ONE call if needed
+6. `finish-diagram` (transactional) or `export-diagram` — with `compress: true`
 
-```xml
-<mxfile>
-  <diagram id="page-1" name="Page-1">
-    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1"
-                  tooltips="1" connect="1" arrows="1" fold="1"
-                  page="1" pageScale="1" pageWidth="850" pageHeight="1100"
-                  math="0" shadow="0">
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <!-- Diagram elements here -->
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
-```
+Save via terminal command, NOT LLM read-back.
 
-## Critical Rules
+## Transactional Mode (Recommended)
 
-1. `<mxCell id="0"/>` and `<mxCell id="1" parent="0"/>` always required
-2. Uncompressed XML only — no `compressed="true"`
-3. All IDs unique; `vertex="1"` for shapes, `edge="1"` for connectors (exclusive)
-4. Style strings: `key=value;` format, booleans `0`/`1`, colors `#RRGGBB`
-5. HTML in `value` must be XML-escaped: `&lt;` `&gt;` `&amp;` `&quot;`
-6. Coordinates: origin top-left, x→right, y→down, no negative dimensions
-7. Children coordinates relative to parent container
+Pass `transactional: true` on all tool calls for multi-step diagrams.
+Intermediate responses use lightweight placeholders (~2KB).
+**MUST** call `finish-diagram` at end to resolve to real SVGs.
 
-## Style Quick Reference
+## Layout Rules
 
-| Property               | Purpose       | Example               |
-| ---------------------- | ------------- | --------------------- |
-| `fillColor`            | Shape fill    | `#E7F5FF`             |
-| `strokeColor`          | Border        | `#0078D4`             |
-| `dashed`               | Dashed line   | `1`                   |
-| `rounded`              | Round corners | `1`                   |
-| `edgeStyle`            | Edge routing  | `orthogonalEdgeStyle` |
-| `endArrow`             | Arrow marker  | `classic`             |
-| `container`/`swimlane` | Grouping      | `1` / bare token      |
-| `startSize`            | Header height | `25`                  |
+- Primary flow: left-to-right, columns for stages
+- Cross-cutting services at bottom (120px below main flow, NO edges)
+- Page: US Letter 850×1100px, 40px margins
+- Groups: `text: ""`, separate bold text vertex above
+- Edges: orthogonal only, NO anchor points (entryX/exitX etc.)
+- Spacing: 120px horizontal, 80px vertical, 40px around cells
 
-## Azure Layout
+## Color Palette
 
-- **Resource groups**: `swimlane;startSize=25;fillColor=#F5F5F5;strokeColor=#666666;dashed=1;`
-- **VNets**: `swimlane;startSize=25;fillColor=#E7F5FF;strokeColor=#0078D4;`
-- **Subnets**: `swimlane;startSize=20;fillColor=#E6F5E6;strokeColor=#82B366;`
-- **Data flow**: `edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#0078D4;endArrow=classic;`
-- **Monitoring**: `edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#666666;endArrow=classic;`
+- Azure Blue `#0078D4` — strokes, data flow
+- VNet `#E7F5FF` — network backgrounds
+- App subnet `#E6F5E6` — green
+- Data subnet `#FFF2CC` — yellow
+- Security `#F8CECC` — red
+- Resource group `#F5F5F5` — gray
+
+Call `get-style-presets` once for full Azure presets.
 
 ## Output Files
 
@@ -93,16 +73,10 @@ version: "1.0"
 
 All in `agent-output/{project}/`.
 
-## Validation (14-Point)
+## Validation
 
-1. Valid XML 2. `<mxfile>` root 3. Unique diagram IDs 4. Structural cells (id=0, id=1)
-2. Unique cell IDs 6. Valid parent refs 7. vertex/edge exclusive 8. Edge source/target valid
-3. Geometry present 10. Style format correct 11. Perimeter matches shape 12. HTML escaped
-4. No negative dimensions 14. Group coords relative to parent
-
-## MCP Preview
-
-Use `open_drawio_xml` tool to preview diagrams in the draw.io web editor.
+Run `node scripts/validate-drawio-files.mjs` — 14-point checklist.
+After group assignments: `validate-group-containment`.
 
 ## Quality Gate (≥9/10)
 

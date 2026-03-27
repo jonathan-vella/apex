@@ -30,8 +30,15 @@
     },
     "drawio": {
       "type": "stdio",
-      "command": "npx",
-      "args": ["@drawio/mcp@1.1.1"]
+      "command": "deno",
+      "args": [
+        "run",
+        "--allow-net",
+        "--allow-read",
+        "--allow-env",
+        "--allow-write",
+        "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"
+      ]
     }
   }
 }
