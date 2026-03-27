@@ -356,7 +356,7 @@ Overload the diagram with low-level wiring or unexplained line colors.
 Does NOT: generate Bicep/Terraform · create workload docs · deploy resources ·
 create ADRs · perform WAF assessments · render Mermaid diagrams · generate
 WAF/cost/compliance charts (use `python-diagrams` skill) · generate Draw.io
-diagrams (use `drawio` skill — planned).
+diagrams (use `drawio` skill).
 
 ## Scripts
 

@@ -41,7 +41,7 @@ Use the appropriate diagram skill for each output type:
 - **Architecture diagrams** → `excalidraw` skill (`.excalidraw` + `.excalidraw.svg`)
 - **WAF/cost/compliance charts** → `python-diagrams` skill (`.py` + `.png`)
 - **Inline markdown diagrams** → `mermaid` skill (fenced code blocks)
-- **Draw.io diagrams** → `drawio` skill _(planned)_ (`.drawio`)
+- **Draw.io diagrams** → `drawio` skill (`.drawio`)
 
 ## Template-First Approach
 

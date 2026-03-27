@@ -59,12 +59,12 @@ Security `#C00000` · Font: Excalifont (`fontFamily: 5`) · Icon: 48×48.
 
 ## Excalidraw Color Palette
 
-| Purpose             | Color       | Hex       |
-| ------------------- | ----------- | --------- |
-| Primary elements    | Light Blue  | `#a5d8ff` |
-| VNet / containers   | Pale Blue   | `#e7f5ff` |
-| Security boundary   | Red         | `#ffc9c9` |
-| Important / Central | Yellow      | `#ffd43b` |
+| Purpose             | Color      | Hex       |
+| ------------------- | ---------- | --------- |
+| Primary elements    | Light Blue | `#a5d8ff` |
+| VNet / containers   | Pale Blue  | `#e7f5ff` |
+| Security boundary   | Red        | `#ffc9c9` |
+| Important / Central | Yellow     | `#ffd43b` |
 
 > _See SKILL.md for full content._
 
@@ -203,4 +203,4 @@ Use Fabric vector icons for Fabric services when available ·
 Does NOT: generate Bicep/Terraform · create workload docs · deploy resources ·
 create ADRs · perform WAF assessments · render Mermaid diagrams · generate
 WAF/cost/compliance charts (use `python-diagrams` skill) · generate Draw.io
-diagrams (use `drawio` skill — planned).
+diagrams (use `drawio` skill).

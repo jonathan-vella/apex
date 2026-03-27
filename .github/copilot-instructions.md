@@ -40,7 +40,7 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 | `python-diagrams`          | Python charts (WAF/cost/compliance) and diagrams library patterns |
 | `mermaid`                  | Inline Mermaid diagrams for markdown documentation                |
 | `azure-diagrams`           | Routing skill — delegates to excalidraw, python-diagrams, mermaid |
-| `drawio`                   | Draw.io diagrams _(planned)_                                      |
+| `drawio`                   | Draw.io diagrams with Azure icon libraries and XSD validation     |
 | `azure-adr`                | Architecture Decision Records                                     |
 | `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                        |
 | `git-commit`               | Commit message conventions                                        |

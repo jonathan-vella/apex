@@ -25,7 +25,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | `excalidraw`      | Excalidraw architecture diagrams with Azure/Fabric icons | "create diagram", "architecture diagram"  |
 | `python-diagrams` | WAF/cost/compliance charts and Python diagrams           | "WAF chart", "cost chart", "create chart" |
 | `mermaid`         | Inline Mermaid diagrams for markdown                     | "mermaid diagram", "flowchart"            |
-| `drawio`          | Draw.io diagrams _(planned)_                             | "draw.io diagram"                         |
+| `drawio`          | Draw.io diagrams with Azure icon libraries               | "draw.io diagram"                         |
 | `azure-adr`       | Create Architecture Decision Records with WAF mapping    | "create ADR", "document decision"         |
 
 ### Category 3: Workflow & Tool Integration

@@ -15,19 +15,19 @@ Do NOT load this skill's references directly — load the target skill instead.
 
 ## Routing Table
 
-| Diagram type                                   | Target skill         | Output format     |
-| ---------------------------------------------- | -------------------- | ----------------- |
-| Architecture diagrams (default)                | `excalidraw`         | `.excalidraw`     |
-| Dependency / runtime diagrams                  | `excalidraw`         | `.excalidraw`     |
-| As-built diagrams                              | `excalidraw`         | `.excalidraw`     |
-| WAF bar charts                                 | `python-diagrams`    | `.py` + `.png`    |
-| Cost donut / projection charts                 | `python-diagrams`    | `.py` + `.png`    |
-| Compliance gap charts                          | `python-diagrams`    | `.py` + `.png`    |
-| Python architecture diagrams (diagrams lib)    | `python-diagrams`    | `.py` + `.png`    |
-| Swimlane / ERD / timeline / wireframe          | `python-diagrams`    | `.py` + `.png`    |
-| Inline markdown diagrams (flowchart, sequence) | `mermaid`            | fenced code block |
-| Azure resource visualization                   | `mermaid`            | fenced code block |
-| Draw.io diagrams                               | `drawio` _(planned)_ | `.drawio`         |
+| Diagram type                                   | Target skill      | Output format     |
+| ---------------------------------------------- | ----------------- | ----------------- |
+| Architecture diagrams (default)                | `excalidraw`      | `.excalidraw`     |
+| Dependency / runtime diagrams                  | `excalidraw`      | `.excalidraw`     |
+| As-built diagrams                              | `excalidraw`      | `.excalidraw`     |
+| WAF bar charts                                 | `python-diagrams` | `.py` + `.png`    |
+| Cost donut / projection charts                 | `python-diagrams` | `.py` + `.png`    |
+| Compliance gap charts                          | `python-diagrams` | `.py` + `.png`    |
+| Python architecture diagrams (diagrams lib)    | `python-diagrams` | `.py` + `.png`    |
+| Swimlane / ERD / timeline / wireframe          | `python-diagrams` | `.py` + `.png`    |
+| Inline markdown diagrams (flowchart, sequence) | `mermaid`         | fenced code block |
+| Azure resource visualization                   | `mermaid`         | fenced code block |
+| Draw.io diagrams                               | `drawio`          | `.drawio`         |
 
 ## How to Use
 

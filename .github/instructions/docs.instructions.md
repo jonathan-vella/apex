@@ -80,7 +80,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `excalidraw`           | Document Creation   | Excalidraw architecture diagrams            |
 | `python-diagrams`      | Document Creation   | WAF/cost/compliance charts (matplotlib)     |
 | `mermaid`              | Document Creation   | Inline Mermaid diagrams for markdown        |
-| `drawio`               | Document Creation   | Draw.io diagrams _(planned)_                |
+| `drawio`               | Document Creation   | Draw.io diagrams with Azure icon libraries  |
 | `azure-diagnostics`    | Troubleshooting     | KQL templates, health checks, remediation   |
 | `context-optimizer`    | Agent Optimization  | Context window audit, token waste reduction |
 | `docs-writer`          | Documentation       | Repo-aware docs maintenance                 |
