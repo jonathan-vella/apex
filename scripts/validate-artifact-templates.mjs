@@ -131,12 +131,12 @@ const COST_ESTIMATE_ARTIFACTS = [
 const DIAGRAM_ARTIFACT_EXPECTATIONS = {
   "04-implementation-plan.md": [
     {
-      image: "./04-dependency-diagram.png",
-      source: "./04-dependency-diagram.py",
+      image: "./04-dependency-diagram.excalidraw.svg",
+      source: "./04-dependency-diagram.excalidraw",
     },
     {
-      image: "./04-runtime-diagram.png",
-      source: "./04-runtime-diagram.py",
+      image: "./04-runtime-diagram.excalidraw.svg",
+      source: "./04-runtime-diagram.excalidraw",
     },
   ],
   "07-design-document.md": [

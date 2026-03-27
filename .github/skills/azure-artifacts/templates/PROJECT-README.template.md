@@ -99,7 +99,7 @@ When generating a project README, agents MUST:
 
 ![Architecture Diagram](./{diagram-filename})
 
-_Generated with [azure-diagrams](../../.github/skills/azure-diagrams/SKILL.md) skill_
+_Generated with [excalidraw](../../.github/skills/excalidraw/SKILL.md) skill_
 
 </div>
 <!-- End diagram block -->
@@ -132,16 +132,14 @@ _Generated with [azure-diagrams](../../.github/skills/azure-diagrams/SKILL.md) s
 <details>
 <summary><strong>📁 Step 4-6: Planning, Implementation & Deployment</strong></summary>
 
-| File                                                               | Description                      |                                Status                                 | Created        |
-| ------------------------------------------------------------------ | -------------------------------- | :-------------------------------------------------------------------: | -------------- |
-| [04-governance-constraints.md](./04-governance-constraints.md)     | Azure Policy constraints         | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-implementation-plan.md](./04-implementation-plan.md)           | Bicep implementation plan        | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-dependency-diagram.py](./04-dependency-diagram.py)             | Step 4 dependency diagram source | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-dependency-diagram.png](./04-dependency-diagram.png)           | Step 4 dependency diagram image  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-runtime-diagram.py](./04-runtime-diagram.py)                   | Step 4 runtime diagram source    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-runtime-diagram.png](./04-runtime-diagram.png)                 | Step 4 runtime diagram image     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [05-implementation-reference.md](./05-implementation-reference.md) | Link to Bicep code               | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [06-deployment-summary.md](./06-deployment-summary.md)             | Deployment results               | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| File                                                                   | Description               |                                Status                                 | Created        |
+| ---------------------------------------------------------------------- | ------------------------- | :-------------------------------------------------------------------: | -------------- |
+| [04-governance-constraints.md](./04-governance-constraints.md)         | Azure Policy constraints  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [04-implementation-plan.md](./04-implementation-plan.md)               | Bicep implementation plan | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [04-dependency-diagram.excalidraw](./04-dependency-diagram.excalidraw) | Step 4 dependency diagram | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [04-runtime-diagram.excalidraw](./04-runtime-diagram.excalidraw)       | Step 4 runtime diagram    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [05-implementation-reference.md](./05-implementation-reference.md)     | Link to Bicep code        | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [06-deployment-summary.md](./06-deployment-summary.md)                 | Deployment results        | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 
 </details>
 

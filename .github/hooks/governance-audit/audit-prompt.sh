@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Governance Audit: Scan user prompts for threat signals before agent processing
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/governance-audit
 #

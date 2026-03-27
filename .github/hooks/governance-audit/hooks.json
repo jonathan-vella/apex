@@ -1,32 +1,24 @@
 {
-  "version": 1,
   "hooks": {
-    "sessionStart": [
+    "SessionStart": [
       {
         "type": "command",
-        "bash": ".github/hooks/governance-audit/audit-session-start.sh",
-        "cwd": ".",
-        "timeoutSec": 5
+        "command": ".github/hooks/governance-audit/audit-session-start.sh",
+        "timeout": 5
       }
     ],
-    "sessionEnd": [
+    "Stop": [
       {
         "type": "command",
-        "bash": ".github/hooks/governance-audit/audit-session-end.sh",
-        "cwd": ".",
-        "timeoutSec": 5
+        "command": ".github/hooks/governance-audit/audit-session-end.sh",
+        "timeout": 5
       }
     ],
-    "userPromptSubmitted": [
+    "UserPromptSubmit": [
       {
         "type": "command",
-        "bash": ".github/hooks/governance-audit/audit-prompt.sh",
-        "cwd": ".",
-        "env": {
-          "GOVERNANCE_LEVEL": "standard",
-          "BLOCK_ON_THREAT": "false"
-        },
-        "timeoutSec": 10
+        "command": ".github/hooks/governance-audit/audit-prompt.sh",
+        "timeout": 10
       }
     ]
   }

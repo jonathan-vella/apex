@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Tool Guardian Hook
 # Blocks dangerous tool operations (destructive file ops, force pushes, DB drops,
 # etc.) before the Copilot coding agent executes them.

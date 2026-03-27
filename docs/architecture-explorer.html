@@ -475,6 +475,9 @@
         "azure-defaults",
         "azure-deploy",
         "azure-diagnostics",
+        "excalidraw",
+        "python-diagrams",
+        "mermaid",
         "azure-diagrams",
         "azure-hosted-copilot-sdk",
         "azure-kusto",
@@ -541,13 +544,14 @@
           primary: ["azure-defaults", "azure-artifacts", "session-resume"],
           secondary: [
             "context-shredding",
-            "azure-diagrams",
+            "excalidraw",
+            "python-diagrams",
             "azure-prepare",
             "azure-cost-optimization",
           ],
         },
         "04-Design": {
-          primary: ["azure-diagrams", "azure-adr"],
+          primary: ["excalidraw", "python-diagrams", "azure-adr"],
           secondary: ["azure-artifacts", "session-resume"],
         },
         "04g-Governance": {
@@ -613,7 +617,8 @@
           primary: [
             "azure-defaults",
             "azure-artifacts",
-            "azure-diagrams",
+            "excalidraw",
+            "python-diagrams",
             "session-resume",
           ],
           secondary: ["context-shredding", "azure-cost-optimization"],
@@ -907,8 +912,13 @@
 
       // ─── COMPUTE DEGREE FOR SIZING ───────────────────────────────────────
       const degreeMap = {};
-      nodes.forEach(n => { degreeMap[n.id] = 0; });
-      links.forEach(l => { degreeMap[l.source] = (degreeMap[l.source] || 0) + 1; degreeMap[l.target] = (degreeMap[l.target] || 0) + 1; });
+      nodes.forEach((n) => {
+        degreeMap[n.id] = 0;
+      });
+      links.forEach((l) => {
+        degreeMap[l.source] = (degreeMap[l.source] || 0) + 1;
+        degreeMap[l.target] = (degreeMap[l.target] || 0) + 1;
+      });
 
       // ─── CONVERT TO CYTOSCAPE ELEMENTS ───────────────────────────────────
       const elements = [];
@@ -1183,21 +1193,25 @@
       // ─── VIEW FILTERS ────────────────────────────────────────────────────
       // Agents that participate in the linear workflow DAG
       const workflowAgentIds = new Set();
-      workflowFlow.forEach(([s, t]) => { workflowAgentIds.add(s); workflowAgentIds.add(t); });
+      workflowFlow.forEach(([s, t]) => {
+        workflowAgentIds.add(s);
+        workflowAgentIds.add(t);
+      });
       // Include subagents connected to workflow agents
       const workflowSubagentIds = new Set();
-      links.forEach(l => {
-        if (l.type === 'delegates' && workflowAgentIds.has(l.source)) workflowSubagentIds.add(l.target);
+      links.forEach((l) => {
+        if (l.type === "delegates" && workflowAgentIds.has(l.source))
+          workflowSubagentIds.add(l.target);
       });
 
       const viewFilters = {
         all: () => true,
         workflow: (n) => {
           const id = n.id();
-          const cat = n.data('category');
-          if (cat === 'gate') return true;
-          if (cat === 'agent') return workflowAgentIds.has(id);
-          if (cat === 'subagent') return workflowSubagentIds.has(id);
+          const cat = n.data("category");
+          if (cat === "gate") return true;
+          if (cat === "agent") return workflowAgentIds.has(id);
+          if (cat === "subagent") return workflowSubagentIds.has(id);
           return false;
         },
         skills: (n) =>
@@ -1318,10 +1332,12 @@
         });
 
         // Pin Conductor at center for All view (mind-map hub)
-        const conductor = cy.getElementById('agent:01-Conductor');
-        const pinConductor = view === 'all' && conductor.length && conductor.visible();
+        const conductor = cy.getElementById("agent:01-Conductor");
+        const pinConductor =
+          view === "all" && conductor.length && conductor.visible();
         if (pinConductor) {
-          const w = cy.width(), h = cy.height();
+          const w = cy.width(),
+            h = cy.height();
           conductor.position({ x: w / 2, y: h / 2 });
           conductor.lock();
         }
@@ -1330,15 +1346,15 @@
         const layout = cy.elements(":visible").layout(layoutOpts);
         layout.run();
         // Force fit after layout completes for proper centering
-        layout.on('layoutstop', () => {
+        layout.on("layoutstop", () => {
           if (pinConductor) conductor.unlock();
-          cy.fit(cy.elements(':visible'), 60);
+          cy.fit(cy.elements(":visible"), 60);
         });
         document.getElementById("layout-hint").textContent = layoutLabels[view];
 
         // In workflow view, show all labels (fewer nodes)
-        if (view === 'workflow') {
-          cy.nodes(':visible').addClass('show-label');
+        if (view === "workflow") {
+          cy.nodes(":visible").addClass("show-label");
         }
 
         // Sync filter buttons
@@ -1398,28 +1414,40 @@
 
         cy.batch(() => {
           // Hide everything not in neighborhood
-          cy.elements().removeClass('dimmed highlighted selected-node focus-center focus-neighbor focus-edge show-label');
-          cy.elements().addClass('dimmed');
-          focusEles.removeClass('dimmed');
-          n.addClass('focus-center');
-          neighborhood.nodes().addClass('focus-neighbor');
-          n.connectedEdges().filter(e => {
-            const other = e.source().id() === n.id() ? e.target() : e.source();
-            return neighborhood.nodes().contains(other);
-          }).removeClass('dimmed').addClass('focus-edge');
+          cy.elements().removeClass(
+            "dimmed highlighted selected-node focus-center focus-neighbor focus-edge show-label",
+          );
+          cy.elements().addClass("dimmed");
+          focusEles.removeClass("dimmed");
+          n.addClass("focus-center");
+          neighborhood.nodes().addClass("focus-neighbor");
+          n.connectedEdges()
+            .filter((e) => {
+              const other =
+                e.source().id() === n.id() ? e.target() : e.source();
+              return neighborhood.nodes().contains(other);
+            })
+            .removeClass("dimmed")
+            .addClass("focus-edge");
         });
 
         // Run concentric layout on just the focused neighborhood
-        focusEles.layout({
-          name: 'concentric',
-          concentric: function(ele) { return ele.id() === n.id() ? 2 : 1; },
-          levelWidth: function() { return 1; },
-          animate: true,
-          animationDuration: 400,
-          fit: true,
-          padding: 80,
-          minNodeSpacing: 40,
-        }).run();
+        focusEles
+          .layout({
+            name: "concentric",
+            concentric: function (ele) {
+              return ele.id() === n.id() ? 2 : 1;
+            },
+            levelWidth: function () {
+              return 1;
+            },
+            animate: true,
+            animationDuration: 400,
+            fit: true,
+            padding: 80,
+            minNodeSpacing: 40,
+          })
+          .run();
 
         showDetailPanel(n);
       }
@@ -1429,7 +1457,9 @@
         isFocusMode = false;
         selectedNodeId = null;
         cy.batch(() => {
-          cy.elements().removeClass('dimmed highlighted selected-node focus-center focus-neighbor focus-edge');
+          cy.elements().removeClass(
+            "dimmed highlighted selected-node focus-center focus-neighbor focus-edge",
+          );
         });
         // Re-run the current view layout to restore positions
         applyView(currentView);
@@ -1638,11 +1668,13 @@
         const zoom = cy.zoom();
         cy.batch(() => {
           if (zoom > 0.7) {
-            cy.nodes().addClass('show-label');
+            cy.nodes().addClass("show-label");
           } else {
             // Only show labels on high-degree nodes when zoomed out
-            cy.nodes().removeClass('show-label');
-            cy.nodes().filter(n => (n.data('degree') || 0) >= 8).addClass('show-label');
+            cy.nodes().removeClass("show-label");
+            cy.nodes()
+              .filter((n) => (n.data("degree") || 0) >= 8)
+              .addClass("show-label");
           }
         });
       }

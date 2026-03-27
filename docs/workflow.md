@@ -151,7 +151,7 @@ graph TB
     end
 
     subgraph "Step 3: Design Artifacts"
-        DIAG["azure-diagrams<br/>🎨 Skill"]
+        DIAG["excalidraw<br/>🎨 Skill"]
         ADR["azure-adr<br/>📝 Skill"]
     end
 
@@ -330,11 +330,11 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `azure-diagrams` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
+**Handoff**: Suggests `excalidraw` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
-**Skills**: `azure-diagrams`, `azure-adr`
+**Skills**: `excalidraw`, `python-diagrams`, `azure-adr`
 
 Create visual and textual design documentation.
 
@@ -577,7 +577,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 **Automatic**: Skills activate based on prompt keywords:
 
 ```text
-"Create an architecture diagram" → azure-diagrams skill
+"Create an architecture diagram" → excalidraw skill
 "Document the decision to use AKS" → azure-adr skill
 ```
 

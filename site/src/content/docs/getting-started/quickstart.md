@@ -239,7 +239,7 @@ infra/terraform/my-webapp/
 | Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                            |
 | Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
 | Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                         |
-| Generate architecture diagrams  | Use `azure-diagrams` skill                                                         |
+| Generate architecture diagrams  | Use `excalidraw` skill (or `python-diagrams` for charts)                           |
 | Create documentation            | Use `azure-artifacts` skill                                                        |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
 | Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                |
@@ -263,12 +263,12 @@ Ctrl+Shift+A → Select agent → Type prompt → Approve
 
 Skills activate automatically based on your prompt:
 
-- "Create an architecture diagram" → `azure-diagrams`
+- "Create an architecture diagram" → `excalidraw`
 - "Generate an ADR" → `azure-adr`
 - "Create workload documentation" → `azure-artifacts`
 
 Or invoke explicitly:
 
 ```text
-Use the azure-diagrams skill to create a diagram for my-webapp
+Use the excalidraw skill to create a diagram for my-webapp
 ```

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Session Logger: Log session start event with project context injection
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/session-logger
 # Merged with project context injection from session-start-audit

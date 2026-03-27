@@ -1,7 +1,7 @@
 ---
 name: 04-Design
 model: ["GPT-5.4"]
-description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
+description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses excalidraw skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
 tools:
@@ -20,7 +20,7 @@ tools:
 handoffs:
   - label: "▶ Generate Diagram"
     agent: 04-Design
-    prompt: "Generate an Azure architecture diagram using the azure-diagrams skill (Excalidraw default). Produce `agent-output/{project}/03-des-diagram.excalidraw` as a conceptual enterprise Azure reference-architecture diagram with layered boundary shells, color-coded responsibility zones, larger service tiles, centered service labels, correct Azure/Fabric icon usage, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, bottom-right footer treatment, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT place SKU, tier, node count, version, policy revision, or other low-value operational text inside the diagram unless the architecture cannot be understood without it. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled line work, over-compression, placeholder groups, and low-contrast micro-text."
+    prompt: "Generate an Azure architecture diagram using the excalidraw skill (Excalidraw default). Produce `agent-output/{project}/03-des-diagram.excalidraw` as a conceptual enterprise Azure reference-architecture diagram with layered boundary shells, color-coded responsibility zones, larger service tiles, centered service labels, correct Azure/Fabric icon usage, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, bottom-right footer treatment, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT place SKU, tier, node count, version, policy revision, or other low-value operational text inside the diagram unless the architecture cannot be understood without it. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled line work, over-compression, placeholder groups, and low-contrast micro-text."
     send: false
   - label: "▶ Generate ADR"
     agent: 04-Design
@@ -67,11 +67,11 @@ Before doing any work, read these skills:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
-3. Read `.github/skills/azure-diagrams/SKILL.digest.md` — diagram generation (Excalidraw default + Python charts)
+3. Read `.github/skills/excalidraw/SKILL.digest.md` — diagram generation (Excalidraw default)
 4. Read `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
 
 If a diagram task requires detail not covered by the digest (e.g., Python chart templates,
-swim-lane layouts, or edge-label rules), load `azure-diagrams/SKILL.md` on demand for that
+swim-lane layouts, or edge-label rules), load `excalidraw/SKILL.md` on demand for that
 section only — do NOT load it at startup.
 
 ## DO / DON'T
@@ -79,12 +79,13 @@ section only — do NOT load it at startup.
 **Do:**
 
 - Read `02-architecture-assessment.md` before generating any design artifact
-- Use the `azure-diagrams` skill for all diagram generation (Excalidraw default for architecture, Python for charts)
+- Use the `excalidraw` skill for all architecture diagram generation
+- Use the `python-diagrams` skill for WAF/cost/compliance charts
 - Use the `azure-adr` skill for Architecture Decision Records
 - Always generate Excalidraw (`.excalidraw`) for architecture diagrams
 - Save diagrams to `agent-output/{project}/03-des-diagram.excalidraw`
 - Regenerate poor diagrams from a clean base layout instead of incrementally patching a broken file
-- Prefer the enterprise reference-architecture visual style from `azure-diagrams`:
+- Prefer the enterprise reference-architecture visual style from `excalidraw`:
   strong outer shell, nested zones, compact legend, and disciplined orthogonal connectors
 - Prefer fewer, larger service tiles over many small cards so the result stays readable
   at normal viewing size
@@ -206,7 +207,7 @@ generate each diagram as a separate phase with a context checkpoint between them
 9. Route arrows from box edges with explicit bend points where needed;
    avoid crossing labels/icons
 10. Add a compact legend only when connector color or stroke style carries meaning
-   and remove it entirely when the flow is self-evident
+    and remove it entirely when the flow is self-evident
 11. Use larger boxes and label sizes first, then reduce content density rather than
     shrinking text to force everything into one row
 12. Strip non-essential operational detail from tiles and subtitles

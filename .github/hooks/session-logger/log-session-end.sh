@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Session Logger: Log session end event
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/session-logger
 

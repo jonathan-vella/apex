@@ -36,7 +36,12 @@ Specify language after backticks. Never bare fences.
 
 ## Diagram Embeds
 
-Prefer PNG/SVG from Python `diagrams` over Mermaid. Mermaid only when required.
+Use the appropriate diagram skill for each output type:
+
+- **Architecture diagrams** → `excalidraw` skill (`.excalidraw` + `.excalidraw.svg`)
+- **WAF/cost/compliance charts** → `python-diagrams` skill (`.py` + `.png`)
+- **Inline markdown diagrams** → `mermaid` skill (fenced code blocks)
+- **Draw.io diagrams** → `drawio` skill _(planned)_ (`.drawio`)
 
 ## Template-First Approach
 

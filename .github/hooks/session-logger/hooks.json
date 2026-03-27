@@ -1,31 +1,24 @@
 {
-  "version": 1,
   "hooks": {
-    "sessionStart": [
+    "SessionStart": [
       {
         "type": "command",
-        "bash": ".github/hooks/session-logger/log-session-start.sh",
-        "cwd": ".",
-        "timeoutSec": 5
+        "command": ".github/hooks/session-logger/log-session-start.sh",
+        "timeout": 5
       }
     ],
-    "sessionEnd": [
+    "Stop": [
       {
         "type": "command",
-        "bash": ".github/hooks/session-logger/log-session-end.sh",
-        "cwd": ".",
-        "timeoutSec": 5
+        "command": ".github/hooks/session-logger/log-session-end.sh",
+        "timeout": 5
       }
     ],
-    "userPromptSubmitted": [
+    "UserPromptSubmit": [
       {
         "type": "command",
-        "bash": ".github/hooks/session-logger/log-prompt.sh",
-        "cwd": ".",
-        "env": {
-          "LOG_LEVEL": "INFO"
-        },
-        "timeoutSec": 5
+        "command": ".github/hooks/session-logger/log-prompt.sh",
+        "timeout": 5
       }
     ]
   }

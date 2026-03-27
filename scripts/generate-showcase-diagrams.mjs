@@ -5,7 +5,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 
 const SHOWCASE_DIR = path.resolve(
-  ".github/skills/azure-diagrams/references/showcase",
+  ".github/skills/excalidraw/references/showcase",
 );
 const ICON_DIR = path.resolve("assets/excalidraw-libraries/azure-icons/icons");
 

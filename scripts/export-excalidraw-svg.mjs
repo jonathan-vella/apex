@@ -8,7 +8,7 @@ const DEFAULT_DIRS = [
   "agent-output",
   "assets",
   "site/public",
-  ".github/skills/azure-diagrams/references",
+  ".github/skills/excalidraw/references",
 ];
 
 function findFiles(dir) {

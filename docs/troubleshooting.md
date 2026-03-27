@@ -158,13 +158,13 @@ for experimental features. User settings take precedence.
 Use explicit skill invocation:
 
 ```text
-"Use the azure-diagrams skill to create a diagram"
+"Use the excalidraw skill to create a diagram"
 ```
 
 Check skill triggers in `SKILL.md`:
 
 ```bash
-cat .github/skills/azure-diagrams/SKILL.md | head -30
+cat .github/skills/excalidraw/SKILL.md | head -30
 ```
 
 ### 4. Deployment Fails with Azure Policy Error

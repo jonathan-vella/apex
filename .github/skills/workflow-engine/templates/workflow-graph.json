@@ -92,8 +92,8 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": [
         "04-implementation-plan.md",
-        "04-dependency-diagram.py",
-        "04-runtime-diagram.py"
+        "04-dependency-diagram.excalidraw",
+        "04-runtime-diagram.excalidraw"
       ],
       "gate": "approval",
       "challenger": {
@@ -119,8 +119,8 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": [
         "04-implementation-plan.md",
-        "04-dependency-diagram.py",
-        "04-runtime-diagram.py"
+        "04-dependency-diagram.excalidraw",
+        "04-runtime-diagram.excalidraw"
       ],
       "gate": "approval",
       "challenger": {

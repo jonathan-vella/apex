@@ -175,7 +175,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
    `agent-output/contoso-service-hub-run-1/04-governance-constraints.json`.
    Do NOT use askQuestions — all decisions are in the architecture assessment.
    This is an automated E2E run for a complex Contoso Service Hub.
-   Save `04-implementation-plan.md`, `04-dependency-diagram.py`, and `04-runtime-diagram.py`
+   Save `04-implementation-plan.md`, `04-dependency-diagram.excalidraw`, and `04-runtime-diagram.excalidraw`
    to `agent-output/contoso-service-hub-run-1/`.
    Key requirements:
    - AVM-first module selection for all resources

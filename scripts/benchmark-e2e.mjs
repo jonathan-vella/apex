@@ -77,10 +77,8 @@ const EXPECTED_ARTIFACTS = {
   // Step 4 — IaC Plan
   "04-implementation-plan.md": { required: true, step: 4 },
   "04-preflight-check.md": { required: false, step: 4 },
-  "04-dependency-diagram.py": { required: true, step: 4 },
-  "04-dependency-diagram.png": { required: false, step: 4 },
-  "04-runtime-diagram.py": { required: true, step: 4 },
-  "04-runtime-diagram.png": { required: false, step: 4 },
+  "04-dependency-diagram.excalidraw": { required: true, step: 4 },
+  "04-runtime-diagram.excalidraw": { required: true, step: 4 },
   // Step 5 — IaC Code (reference doc)
   "05-implementation-reference.md": { required: false, step: 5 },
   // Step 6 — Deploy

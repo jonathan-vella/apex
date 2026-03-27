@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Governance Audit: Log session start with governance context
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/governance-audit
 

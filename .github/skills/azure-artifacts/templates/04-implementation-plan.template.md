@@ -158,9 +158,9 @@ _(Repeat for each phase)_
 
 ## 🔗 Dependency Graph
 
-![Module Dependency Graph](./04-dependency-diagram.png)
+![Module Dependency Graph](./04-dependency-diagram.excalidraw.svg)
 
-Source: [04-dependency-diagram.py](./04-dependency-diagram.py)
+Source: [04-dependency-diagram.excalidraw](./04-dependency-diagram.excalidraw)
 
 > Map each node label to an Implementation Task heading in the task table below.
 
@@ -168,9 +168,9 @@ Source: [04-dependency-diagram.py](./04-dependency-diagram.py)
 
 ## 🔄 Runtime Flow Diagram
 
-![Runtime Flow Diagram](./04-runtime-diagram.png)
+![Runtime Flow Diagram](./04-runtime-diagram.excalidraw.svg)
 
-Source: [04-runtime-diagram.py](./04-runtime-diagram.py)
+Source: [04-runtime-diagram.excalidraw](./04-runtime-diagram.excalidraw)
 
 > Keep this runtime view focused on request/auth/secret/event/telemetry paths only.
 

@@ -99,11 +99,11 @@ Always specify language after opening backticks:
 
 These agents were removed and converted to skills. Never reference them:
 
-| Removed Agent      | Replacement Skill       |
-| ------------------ | ----------------------- |
-| `diagram.agent.md` | `azure-diagrams` skill  |
-| `adr.agent.md`     | `azure-adr` skill       |
-| `docs.agent.md`    | `azure-artifacts` skill |
+| Removed Agent      | Replacement Skill                       |
+| ------------------ | --------------------------------------- |
+| `diagram.agent.md` | `excalidraw` or `python-diagrams` skill |
+| `adr.agent.md`     | `azure-adr` skill                       |
+| `docs.agent.md`    | `azure-artifacts` skill                 |
 
 Also avoid references to removed paths:
 

@@ -144,7 +144,7 @@ outputs used by the Design step and by implementation-planning diagrams, which
 keeps diagrams reviewable and easy to refine after generation.
 
 It is primarily used by the **Design** agent (Step 3), the planning agents
-that emit architecture views, and the `azure-diagrams` skill.
+that emit architecture views, and the `excalidraw` skill.
 
 ## :octicons-mark-github-16: GitHub MCP Server
 

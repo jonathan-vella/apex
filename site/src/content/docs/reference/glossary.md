@@ -128,11 +128,8 @@ and PowerShell (`pwsh`).
 
 ### Content Tabs
 
-A MkDocs Material feature that renders tabbed content blocks using `=== "Tab Name"` syntax.
-Used in this documentation to show Bicep and Terraform examples side-by-side without
-duplicating page structure.
-
-🔗 **External**: [MkDocs Material Content Tabs](https://squidfunk.github.io/mkdocs-material/reference/content-tabs/)
+A documentation feature that renders tabbed content blocks, showing Bicep and
+Terraform examples side-by-side without duplicating page structure.
 
 ### Context Shredding
 
@@ -163,7 +160,8 @@ DAG in `workflow-graph.json`.
 ### Design Agent
 
 Step 3 agent that generates architecture diagrams and Architecture Decision Records (ADRs).
-Optional step in the workflow. Uses `azure-diagrams` and `azure-adr` skills.
+Optional step in the workflow. Uses `excalidraw` and `python-diagrams` skills
+(architecture diagrams and charts) and `azure-adr` skill.
 
 📁 **Output**: `agent-output/{project}/03-des-*.{excalidraw,py,png,md}`
 
@@ -500,7 +498,7 @@ WSL 2 installation.
 
 A human-readable data serialisation format used for configuration files. In this project,
 YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
-(`.instructions.md`), MkDocs configuration (`mkdocs.yml`), and GitHub Actions workflows.
+(`.instructions.md`), Astro configuration (`astro.config.mjs`), and GitHub Actions workflows.
 
 🔗 **External**: [YAML Specification](https://yaml.org/)
 

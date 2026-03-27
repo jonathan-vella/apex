@@ -26,7 +26,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` in the enterprise Azure reference-architecture style with layered boundary shells, color-coded responsibility zones, larger service tiles, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, actual deployed resource names when they improve traceability, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT pack tiles with SKU, tier, node count, policy version, or other low-value operational text that belongs in the resource inventory or runbook. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled connectors, over-compression, placeholder groups, and low-contrast micro-text."
+    prompt: "Use the excalidraw skill to generate an as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` in the enterprise Azure reference-architecture style with layered boundary shells, color-coded responsibility zones, larger service tiles, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, actual deployed resource names when they improve traceability, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT pack tiles with SKU, tier, node count, policy version, or other low-value operational text that belongs in the resource inventory or runbook. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled connectors, over-compression, placeholder groups, and low-contrast micro-text."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -57,9 +57,10 @@ Before doing any work, read these skills:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
-3. Read `.github/skills/azure-diagrams/SKILL.md` — diagram generation contract
-4. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
-5. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
+3. Read `.github/skills/excalidraw/SKILL.md` — diagram generation contract
+4. Read `.github/skills/python-diagrams/SKILL.md` — WAF/cost chart generation
+5. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
+6. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
    - `07-ab-cost-estimate.template.md`
@@ -75,7 +76,7 @@ Before doing any work, read these skills:
 - Read ALL prior artifacts (01-06) before generating any documentation
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
-- Generate the as-built architecture diagram using azure-diagrams skill
+- Generate the as-built architecture diagram using excalidraw skill
 - Embed official Azure/Fabric icons as Excalidraw `image` elements in the as-built diagram
 - Preserve the shared enterprise reference-architecture visual language so Step 7 diagrams visually align with Step 3 outputs
 - Prefer fewer, larger service tiles over many small cards so deployed names remain readable
@@ -201,7 +202,7 @@ Delegate pricing to `cost-estimate-subagent`:
 
 ### Phase 3: As-Built Charts
 
-Read `.github/skills/azure-diagrams/references/waf-cost-charts.md` and generate
+Read `.github/skills/python-diagrams/references/waf-cost-charts.md` and generate
 three cost charts using as-built figures:
 
 - `agent-output/{project}/07-ab-cost-distribution.py` + `07-ab-cost-distribution.png`
@@ -213,12 +214,12 @@ Execute each `.py` file and verify the PNGs exist before continuing.
 
 ### Phase 4: As-Built Diagram
 
-Use the azure-diagrams skill to generate:
+Use the excalidraw skill to generate:
 
 - `agent-output/{project}/07-ab-diagram.excalidraw` — Editable Excalidraw architecture diagram
 
 The diagram MUST reflect actual deployed resources (not just planned ones).
-Follow the MANDATORY layout rules from the azure-diagrams skill:
+Follow the MANDATORY layout rules from the excalidraw skill:
 
 - All text uses `fontFamily: 5` (Excalifont), `fontSize: 16`
 - Icons at least 200px apart horizontally, 150px vertically

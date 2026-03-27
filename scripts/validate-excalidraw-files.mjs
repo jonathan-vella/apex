@@ -15,7 +15,7 @@ import path from "node:path";
 const SCAN_DIRS = [
   "agent-output",
   "assets",
-  ".github/skills/azure-diagrams/references",
+  ".github/skills/excalidraw/references",
   "site/public/demo",
 ];
 

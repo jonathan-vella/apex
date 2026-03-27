@@ -11,7 +11,7 @@ on:
       - "agent-output/**/*.excalidraw"
       - "assets/**/*.excalidraw"
       - "site/public/**/*.excalidraw"
-      - ".github/skills/azure-diagrams/references/**/*.excalidraw"
+      - ".github/skills/excalidraw/references/**/*.excalidraw"
   workflow_dispatch:
 
 permissions:
@@ -47,7 +47,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for dir in agent-output assets site/public .github/skills/azure-diagrams/references; do
+          for dir in agent-output assets site/public .github/skills/excalidraw/references; do
             if [ -d "$dir" ]; then
               git add "$dir"
             fi
