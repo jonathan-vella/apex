@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Intune-Trends">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Intune-Trends" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOCAxOCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiMwMDc4ZDQ7fS5jbHMtMntmaWxsOnVybCgjbGluZWFyLWdyYWRpZW50KTt9PC9zdHlsZT48bGluZWFyR3JhZGllbnQgaWQ9ImxpbmVhci1ncmFkaWVudCIgeDE9IjkuMDQiIHkxPSI5LjU0IiB4Mj0iOS4wNCIgeTI9IjEuNSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzVlOTYyNCIgLz48c3RvcCBvZmZzZXQ9IjAuMjYiIHN0b3AtY29sb3I9IiM3MGE4MjgiIC8+PHN0b3Agb2Zmc2V0PSIwLjc5IiBzdG9wLWNvbG9yPSIjOWZkNzMyIiAvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2I0ZWMzNiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48dGl0bGU+SWNvbjQwOF9JbnR1bmVfVHJlbmRzPC90aXRsZT48ZyBpZD0iTGF5ZXJfMSI+PGcgaWQ9Ikljb240MDhfSW50dW5lX1RyZW5kcyI+PHJlY3QgY2xhc3M9ImNscy0xIiB4PSI2LjE5IiB5PSI5LjE4IiB3aWR0aD0iMi4xNyIgaGVpZ2h0PSI3LjMyIiByeD0iMC4yNCIgLz48cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjkuNjQiIHk9IjExLjM4IiB3aWR0aD0iMi4xNyIgaGVpZ2h0PSI1LjEyIiByeD0iMC4yNCIgLz48cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjEzLjA5IiB5PSI3LjA1IiB3aWR0aD0iMi4xNyIgaGVpZ2h0PSI5LjQ1IiByeD0iMC4yNCIgLz48cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjIuNzQiIHk9IjExLjM4IiB3aWR0aD0iMi4xNyIgaGVpZ2h0PSI1LjEyIiByeD0iMC4yNCIgLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0xNSw1LjU4LDE0LDQuNTJsLS41LS41TDEwLDcuNTNhLjE2LjE2LDAsMCwxLS4yNCwwTDcuNjQsNS40NWwtNCw0YS4xNi4xNiwwLDAsMS0uMjQsMEwyLjg3LDlhLjE4LjE4LDAsMCwxLDAtLjI1TDcuNTIsNC4xMWEuMTYuMTYsMCwwLDEsLjI0LDBMOS44NCw2LjE4bDIuODktMi44OS0uNS0uNS0xLjA1LTFhLjE0LjE0LDAsMCwxLC4wOS0uMjRoMy44NWEuMTQuMTQsMCwwLDEsLjE0LjE0VjUuNDhBLjE0LjE0LDAsMCwxLDE1LDUuNThaIiAvPjwvZz48L2c+PC9zdmc+" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

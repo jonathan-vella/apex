@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Business-Process-Tracking">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Business-Process-Tracking" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0idXVpZC0wYzMxYjc1Yy03MDQzLTRmYTYtYWM2MC0yZDZhZGJjMDczMmMiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiPjxwYXRoIGQ9Ik0xNC42MDksMTEuMjk3bC01LjYwOSwxLjc4MS01LjYwOS0xLjc4MWMtLjM0LS4xMDgtLjY5MS4xMzMtLjY5MS40NzR2My44NjljMCwuMjE1LjE0NS40MDYuMzU5LjQ3NGw1Ljk0MSwxLjg4Niw1Ljk0MS0xLjg4NmMuMjE0LS4wNjguMzU5LS4yNTkuMzU5LS40NzR2LTMuODY5YzAtLjM0MS0uMzUxLS41ODItLjY5MS0uNDc0WiIgZmlsbD0iIzc2ZDI2MyIgLz48cGF0aCBkPSJNMTUuMyw5LjY0MXYtMy44NjljMC0uMzQxLS4zNTEtLjU4Mi0uNjkxLS40NzRsLTUuNjA5LDEuNzgxLTUuNjA5LTEuNzgxYy0uMzQtLjEwOC0uNjkxLjEzMy0uNjkxLjQ3NHYzLjg2OWMwLC4yMTUuMTQ1LjQwNi4zNTkuNDc0bDUuOTQxLDEuODg2LDUuOTQxLTEuODg2Yy4yMTQtLjA2OC4zNTktLjI1OS4zNTktLjQ3NFoiIGZpbGw9IiMzOTlhOTEiIC8+PHBhdGggZD0iTTIuNywzLjY0Vi41YzAtLjI3Ni4yMzUtLjUuNTI1LS41aDExLjU1Yy4yOSwwLC41MjUuMjI0LjUyNS41djMuMTRjMCwuMjE1LS4xNDUuNDA2LS4zNTkuNDc0bC01Ljk0MSwxLjg4Ni01Ljk0MS0xLjg4NmMtLjIxNC0uMDY4LS4zNTktLjI1OS0uMzU5LS40NzRaIiBmaWxsPSIjMjI1YjYyIiAvPjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-On-Premises-Data-Gateways">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-On-Premises-Data-Gateways" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYjc5ZWViMzktMDlmMS00YzU0LWJkMjEtMTMwODE1ZWQyMDU3IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImExN2RlYjY2LWQwMzUtNDUyNC1hOTI2LTJlMmU5MGFlMjM4NSIgeDE9IjkiIHkxPSIxMy4xNCIgeDI9IjkiIHkyPSIwLjM5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDA3OGQ0IiAvPjxzdG9wIG9mZnNldD0iMC44MiIgc3RvcC1jb2xvcj0iIzVlYTBlZiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48dGl0bGU+SWNvbi1uZXR3b3JraW5nLTcwPC90aXRsZT48cGF0aCBkPSJNMTgsOS4xNWE0LjA1LDQuMDUsMCwwLDAtMy41MS0zLjg5QTUuMSw1LjEsMCwwLDAsOS4yNC4zOWE1LjIzLDUuMjMsMCwwLDAtNSwzLjRBNC44NCw0Ljg0LDAsMCwwLDAsOC40NGE0Ljg5LDQuODksMCwwLDAsNS4wNyw0LjcsMy4xNywzLjE3LDAsMCwwLC40NCwwaDguMjFhLjc4Ljc4LDAsMCwwLC4yMiwwQTQuMDksNC4wOSwwLDAsMCwxOCw5LjE1WiIgZmlsbD0idXJsKCNhMTdkZWI2Ni1kMDM1LTQ1MjQtYTkyNi0yZTJlOTBhZTIzODUpIiAvPjxwYXRoIGQ9Ik05LjQ3LDguMzJhNC43NCw0Ljc0LDAsMSwwLTQuNzMsNC44Mkg5LjQ3VjguMzJaIiBmaWxsPSIjNTBlNmZmIiAvPjxwYXRoIGQ9Ik0xMS44LDE1LjM0LDkuNTUsMTcuNThhLjEuMSwwLDAsMS0uMTYsMEw3LjE1LDE1LjM0YS4xMi4xMiwwLDAsMSwuMDgtLjJIOC41NUEuMTEuMTEsMCwwLDAsOC42NiwxNXYtMi45QS4xMS4xMSwwLDAsMSw4Ljc4LDEyaDEuMzlhLjExLjExLDAsMCwxLC4xMS4xMVYxNWEuMTEuMTEsMCwwLDAsLjEyLjExaDEuMzJBLjEyLjEyLDAsMCwxLDExLjgsMTUuMzRaIiBmaWxsPSIjMDA3OGQ0IiAvPjxwYXRoIGQ9Ik03LjE1LDkuODIsOS4zNiw3LjYxYS4xNy4xNywwLDAsMSwuMjMsMEwxMS44LDkuODJhLjExLjExLDAsMCwxLS4wOC4xOUgxMC40YS4xMi4xMiwwLDAsMC0uMTIuMTJ2M0g4LjY2di0zQS4xMi4xMiwwLDAsMCw4LjU1LDEwSDcuMjNBLjExLjExLDAsMCwxLDcuMTUsOS44MloiIGZpbGw9IiNmZmYiIC8+PC9zdmc+" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

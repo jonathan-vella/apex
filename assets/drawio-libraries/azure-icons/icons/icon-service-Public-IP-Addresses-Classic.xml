@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Public-IP-Addresses-(Classic)">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Public-IP-Addresses-(Classic)" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYWQ4M2JiOTMtMzlhMS00YTBhLWJiM2YtMmE3YjdkYmFmNGZiIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImE3M2I3OWI4LWM0MzQtNGNmMy04MTlhLTNjMmYyMTI2YzI2NCIgeDE9IjkiIHkxPSIxNS43IiB4Mj0iOSIgeTI9IjUuNjYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzMmJlZGQiIC8+PHN0b3Agb2Zmc2V0PSIwLjE4IiBzdG9wLWNvbG9yPSIjMzJjYWVhIiAvPjxzdG9wIG9mZnNldD0iMC40MSIgc3RvcC1jb2xvcj0iIzMyZDJmMiIgLz48c3RvcCBvZmZzZXQ9IjAuNzgiIHN0b3AtY29sb3I9IiMzMmQ0ZjUiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRpdGxlPkljb24tbmV0d29ya2luZy02ODwvdGl0bGU+PHBhdGggZD0iTS41LDUuNjZoMTdhMCwwLDAsMCwxLDAsMHY5LjQ4YS41Ny41NywwLDAsMS0uNTcuNTdIMS4wN2EuNTcuNTcsMCwwLDEtLjU3LS41N1Y1LjY2QTAsMCwwLDAsMSwuNSw1LjY2WiIgZmlsbD0idXJsKCNhNzNiNzliOC1jNDM0LTRjZjMtODE5YS0zYzJmMjEyNmMyNjQpIiAvPjxwYXRoIGQ9Ik0xLjA3LDJIMTYuOTNhLjU3LjU3LDAsMCwxLC41Ny41N1Y1LjY2YTAsMCwwLDAsMSwwLDBILjVhMCwwLDAsMCwxLDAsMFYyLjZBLjU3LjU3LDAsMCwxLDEuMDcsMloiIGZpbGw9IiMwMDc4ZDQiIC8+PGNpcmNsZSBjeD0iMTIuODIiIGN5PSIxMC4wNiIgcj0iMS4zOCIgZmlsbD0iI2YyZjJmMiIgLz48Y2lyY2xlIGN4PSI5LjA2IiBjeT0iMTAuMDYiIHI9IjEuMzgiIGZpbGw9IiNmMmYyZjIiIC8+PGNpcmNsZSBjeD0iNS4xOCIgY3k9IjEwLjA2IiByPSIxLjM4IiBmaWxsPSIjZjJmMmYyIiAvPjxyZWN0IHg9IjIuNzkiIHk9IjMuMTIiIHdpZHRoPSIxMi40MyIgaGVpZ2h0PSIxLjQ2IiByeD0iMC4yOCIgZmlsbD0iI2YyZjJmMiIgLz48L3N2Zz4=" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

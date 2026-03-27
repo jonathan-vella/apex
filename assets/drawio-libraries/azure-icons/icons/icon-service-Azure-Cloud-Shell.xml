@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Azure-Cloud-Shell">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Azure-Cloud-Shell" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImJhODhlYTkxLTNiM2EtNGRhMC05Yjk3LTlhMTBlYmFhM2U1MCIgeDE9IjEyLjgwNSIgeTE9IjE1LjIzNyIgeDI9IjEyLjgwNSIgeTI9IjcuOTYyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMDA3OGQ0IiAvPjxzdG9wIG9mZnNldD0iLjE1NiIgc3RvcC1jb2xvcj0iIzEzODBkYSIgLz48c3RvcCBvZmZzZXQ9Ii41MjgiIHN0b3AtY29sb3I9IiMzYzkxZTUiIC8+PHN0b3Agb2Zmc2V0PSIuODIyIiBzdG9wLWNvbG9yPSIjNTU5Y2VjIiAvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzVlYTBlZiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJNMTUuNiA1LjdILjA2N1YyLjk5YS4yMjYuMjI2IDAgMCAxIC4yMjYtLjIyNkgxNS4zN2EuMjI3LjIyNyAwIDAgMSAuMjI3LjIyNnoiIGZpbGw9IiM5NDk0OTQiIC8+PHBhdGggZD0iTS4wNjMgNS43aDE1LjUzYTAgMCAwIDAgMSAwIDB2OS4yNTRhLjIzMS4yMzEgMCAwIDEtLjIzMS4yMzFILjI5NGEuMjMxLjIzMSAwIDAgMS0uMjMxLS4yMzFWNS43YTAgMCAwIDAgMSAwIDB6IiBmaWxsPSIjYmZiZmJmIiAvPjxwYXRoIGZpbGw9IiMwMDViYTEiIGQ9Ik0xLjEzNSA2LjVoMTMuMzd2Ny41N0gxLjEzNXoiIC8+PGcgZmlsbD0iI2ZmZiI+PHJlY3QgeD0iNC41NzYiIHk9IjEwLjczOCIgd2lkdGg9IjIuODM3IiBoZWlnaHQ9Ii41MjciIHJ4PSIuMjYzIiAvPjxwYXRoIGQ9Ik0yLjY3NSAxMS4yMTVMNC4zNSA5LjU0YS4xNjkuMTY5IDAgMCAwIDAtLjI0M2wtMS43LTEuNjMzYS4xNy4xNyAwIDAgMC0uMjQ0LjAxTDIuMjggNy44YS4xNy4xNyAwIDAgMCAuMDEuMjM2TDMuNjIzIDkuM2EuMTcxLjE3MSAwIDAgMSAwIC4yNDJsLTEuMyAxLjMzM2EuMTcxLjE3MSAwIDAgMCAwIC4yMzlsLjEuMWEuMTcuMTcgMCAwIDAgLjI1Mi4wMDF6IiAvPjwvZz48cGF0aCBkPSJNMTcuOTM3IDEyLjk1OGEyLjMgMi4zIDAgMCAwLTItMi4yMTYgMi45MDYgMi45MDYgMCAwIDAtMi45OTQtMi43OEEyLjk4MiAyLjk4MiAwIDAgMCAxMC4wOTIgOS45YTIuNzUyIDIuNzUyIDAgMCAwLTIuNDIgMi42NDggMi43OTMgMi43OTMgMCAwIDAgMi44OSAyLjY4NGwuMjU1LS4wMUgxNS41YS40NjUuNDY1IDAgMCAwIC4xMjQtLjAxOSAyLjMzMyAyLjMzMyAwIDAgMCAyLjMxMy0yLjI0NHoiIGZpbGw9InVybCgjYmE4OGVhOTEtM2IzYS00ZGEwLTliOTctOWExMGViYWEzZTUwKSIgLz48L3N2Zz4=" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

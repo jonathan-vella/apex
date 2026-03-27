@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Launch-Portal">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Launch-Portal" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImFkMmRhMDA1LWI2NjYtNDA4NC1iOWVkLTg2NzIyNDY2OTRiNSIgeDE9IjguNjY4IiB5MT0iLTIuMzg2IiB4Mj0iMTUuMjQzIiB5Mj0iMTUuNDYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM2YmI5ZjIiIC8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWI5M2ViIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjx0aXRsZT5Nc1BvcnRhbEZ4LmJhc2UuaW1hZ2VzLTY2PC90aXRsZT48ZyBpZD0iZjhkMjFkMmEtZTk5ZS00ZDU0LWEyNzQtOWNhNDlkZDkzM2JiIj48Zz48cGF0aCBkPSJNMTcuNjI2LDYuNzkxVi43MTlBLjIxOC4yMTgsMCwwLDAsMTcuNDA4LjVIMTEuMzM2YS4yMTguMjE4LDAsMCwwLS4xNTUuMzczbDEuNjczLDEuNjczLjExMS4xMTFhLjIxOS4yMTksMCwwLDEsMCwuMzA5TDUuNjQ0LDEwLjI4N2EuMjE3LjIxNywwLDAsMCwwLC4zMDlMNy41MywxMi40ODNhLjIxOS4yMTksMCwwLDAsLjMwOSwwTDE1LjE2LDUuMTYyYS4yMTguMjE4LDAsMCwxLC4zMSwwbC4xMTEuMTExLDEuNjcyLDEuNjcyQS4yMTguMjE4LDAsMCwwLDE3LjYyNiw2Ljc5MVoiIGZpbGw9InVybCgjYWQyZGEwMDUtYjY2Ni00MDg0LWI5ZWQtODY3MjI0NjY5NGI1KSIgLz48cGF0aCBkPSJNMTMuMTY3LDEwLjkxOXY0LjQ0NGEuNTExLjUxMSwwLDAsMS0uNTExLjUxMUgyLjUxQS41MS41MSwwLDAsMSwyLDE1LjM2M1Y1Ljc4NWEuNTEuNTEsMCwwLDEsLjUxLS41MTFINy41OTRhLjI4LjI4LDAsMCwwLC4yOC0uMjhWMy45MjhhLjI4LjI4LDAsMCwwLS4yOC0uMjhILjg4NGEuNTEuNTEsMCwwLDAtLjUxLjUxMXYxMi44M2EuNTEuNTEsMCwwLDAsLjUxLjUxMWgxMy40YS41MTEuNTExLDAsMCwwLC41MTEtLjUxMXYtNi4wN2EuMjguMjgsMCwwLDAtLjI4LS4yOEgxMy40NDdBLjI4LjI4LDAsMCwwLDEzLjE2NywxMC45MTlaIiBmaWxsPSIjYjNiM2IzIiAvPjwvZz48L2c+PC9zdmc+" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
