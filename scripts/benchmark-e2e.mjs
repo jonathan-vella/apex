@@ -65,7 +65,7 @@ const EXPECTED_ARTIFACTS = {
   "02-waf-scores.png": { required: false, step: 2 },
   // Step 3 — Design
   "03-des-cost-estimate.md": { required: false, step: 3 },
-  "03-des-diagram.excalidraw": { required: false, step: 3 },
+  "03-des-diagram.drawio": { required: false, step: 3 },
   "03-des-cost-distribution.py": { required: false, step: 3 },
   "03-des-cost-distribution.png": { required: false, step: 3 },
   "03-des-cost-projection.py": { required: false, step: 3 },
@@ -77,10 +77,8 @@ const EXPECTED_ARTIFACTS = {
   // Step 4 — IaC Plan
   "04-implementation-plan.md": { required: true, step: 4 },
   "04-preflight-check.md": { required: false, step: 4 },
-  "04-dependency-diagram.py": { required: true, step: 4 },
-  "04-dependency-diagram.png": { required: false, step: 4 },
-  "04-runtime-diagram.py": { required: true, step: 4 },
-  "04-runtime-diagram.png": { required: false, step: 4 },
+  "04-dependency-diagram.drawio": { required: true, step: 4 },
+  "04-runtime-diagram.drawio": { required: true, step: 4 },
   // Step 5 — IaC Code (reference doc)
   "05-implementation-reference.md": { required: false, step: 5 },
   // Step 6 — Deploy
@@ -94,7 +92,7 @@ const EXPECTED_ARTIFACTS = {
   "07-compliance-matrix.md": { required: false, step: 7 },
   "07-ab-cost-estimate.md": { required: false, step: 7 },
   // Step 7 — As-Built diagrams & charts
-  "07-ab-diagram.excalidraw": { required: false, step: 7 },
+  "07-ab-diagram.drawio": { required: false, step: 7 },
   "07-ab-cost-distribution.py": { required: false, step: 7 },
   "07-ab-cost-distribution.png": { required: false, step: 7 },
   "07-ab-cost-projection.py": { required: false, step: 7 },

@@ -17,7 +17,9 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-diagnostics",
-        "azure-diagrams"
+        "excalidraw",
+        "python-diagrams",
+        "mermaid"
       ]
     },
     "01-Conductor (Fast Path)": {
@@ -35,7 +37,10 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-diagnostics",
-        "azure-diagrams"
+        "excalidraw",
+        "drawio",
+        "python-diagrams",
+        "mermaid"
       ]
     },
     "02-Requirements": {
@@ -45,19 +50,33 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-diagnostics",
-        "azure-diagrams",
+        "excalidraw",
+        "drawio",
+        "python-diagrams",
+        "mermaid",
         "iac-common"
       ]
     },
     "03-Architect": {
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
-      "secondary": ["context-shredding", "azure-diagrams", "microsoft-docs"],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "secondary": [
+        "context-shredding",
+        "drawio",
+        "python-diagrams",
+        "microsoft-docs"
+      ],
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "mermaid"
+      ]
     },
     "04-Design": {
       "primary": ["azure-adr"],
       "secondary": [
-        "azure-diagrams",
+        "drawio",
+        "python-diagrams",
         "azure-artifacts",
         "session-resume",
         "microsoft-docs"
@@ -66,7 +85,8 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-diagnostics"
+        "azure-diagnostics",
+        "mermaid"
       ]
     },
     "04g-Governance": {
@@ -76,7 +96,10 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-diagnostics",
-        "azure-diagrams",
+        "excalidraw",
+        "drawio",
+        "python-diagrams",
+        "mermaid",
         "iac-common"
       ]
     },
@@ -90,7 +113,12 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["terraform-patterns", "azure-diagnostics", "iac-common"]
+      "never": [
+        "terraform-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "drawio"
+      ]
     },
     "05t-Terraform Planner": {
       "primary": ["terraform-patterns"],
@@ -102,7 +130,12 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["azure-bicep-patterns", "azure-diagnostics", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "drawio"
+      ]
     },
     "06b-Bicep CodeGen": {
       "primary": ["azure-bicep-patterns"],
@@ -114,7 +147,12 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["terraform-patterns", "azure-diagnostics", "iac-common"]
+      "never": [
+        "terraform-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "drawio"
+      ]
     },
     "06t-Terraform CodeGen": {
       "primary": ["terraform-patterns"],
@@ -126,12 +164,24 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": ["azure-bicep-patterns", "azure-diagnostics", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "azure-diagnostics",
+        "iac-common",
+        "drawio"
+      ]
     },
     "07b-Bicep Deploy": {
       "primary": ["azure-defaults", "azure-artifacts", "iac-common"],
       "secondary": ["session-resume", "github-operations"],
-      "never": ["terraform-patterns", "azure-bicep-patterns", "azure-diagrams"]
+      "never": [
+        "terraform-patterns",
+        "azure-bicep-patterns",
+        "excalidraw",
+        "drawio",
+        "python-diagrams",
+        "mermaid"
+      ]
     },
     "07t-Terraform Deploy": {
       "primary": [
@@ -141,10 +191,16 @@
         "terraform-patterns"
       ],
       "secondary": ["session-resume", "github-operations"],
-      "never": ["azure-bicep-patterns", "azure-diagrams"]
+      "never": [
+        "azure-bicep-patterns",
+        "excalidraw",
+        "drawio",
+        "python-diagrams",
+        "mermaid"
+      ]
     },
     "08-As-Built": {
-      "primary": ["azure-diagrams"],
+      "primary": ["drawio", "python-diagrams"],
       "secondary": [
         "azure-defaults",
         "azure-artifacts",
@@ -156,7 +212,8 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "iac-common",
-        "azure-diagnostics"
+        "azure-diagnostics",
+        "mermaid"
       ]
     },
     "09-Diagnose": {
@@ -170,13 +227,21 @@
         "azure-bicep-patterns",
         "terraform-patterns",
         "azure-artifacts",
-        "azure-diagrams"
+        "excalidraw",
+        "drawio",
+        "python-diagrams",
+        "mermaid"
       ]
     },
     "10-Challenger": {
       "primary": [],
       "secondary": ["golden-principles"],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
+      "never": [
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "iac-common",
+        "drawio"
+      ]
     },
     "11-Context Optimizer": {
       "primary": ["context-optimizer"],
@@ -185,7 +250,8 @@
         "azure-defaults",
         "azure-bicep-patterns",
         "terraform-patterns",
-        "iac-common"
+        "iac-common",
+        "drawio"
       ]
     }
   },

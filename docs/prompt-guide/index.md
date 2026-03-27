@@ -70,19 +70,22 @@ infrastructure.
 
 ### Skills
 
-| Skill                  | Purpose                                              |
-| ---------------------- | ---------------------------------------------------- |
-| `azure-defaults`       | Regions, tags, naming, AVM, security, governance     |
-| `azure-artifacts`      | H2 template structures for agent output files        |
-| `azure-diagrams`       | Python architecture diagram generation               |
-| `azure-adr`            | Architecture Decision Records                        |
-| `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics) |
-| `terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)  |
-| `azure-diagnostics`    | KQL templates, health checks, remediation playbooks  |
-| `github-operations`    | Branch naming, conventional commits, PRs, CLI        |
-| `github-operations`    | GitHub issues, PRs, CLI, Actions, releases           |
-| `docs-writer`          | Documentation generation and maintenance             |
-| `make-skill-template`  | Scaffold new skills from a template                  |
+| Skill                  | Purpose                                                                            |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| `azure-defaults`       | Regions, tags, naming, AVM, security, governance                                   |
+| `azure-artifacts`      | H2 template structures for agent output files                                      |
+| `drawio`               | Draw.io architecture diagrams via MCP server (700+ Azure icons, batch creation)    |
+| `excalidraw`           | Hand-drawn whiteboarding, brainstorming, wireframes                                |
+| `python-diagrams`      | WAF/cost/compliance charts (matplotlib)                                            |
+| `mermaid`              | Inline Mermaid diagrams for markdown                                               |
+| `azure-adr`            | Architecture Decision Records                                                      |
+| `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                               |
+| `terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)                                |
+| `azure-diagnostics`    | KQL templates, health checks, remediation playbooks                                |
+| `github-operations`    | Branch naming, conventional commits, PRs, CLI                                      |
+| `github-operations`    | GitHub issues, PRs, CLI, Actions, releases                                         |
+| `docs-writer`          | Documentation generation and maintenance                                           |
+| `make-skill-template`  | Scaffold new skills from a template                                                |
 
 ### Subagents
 

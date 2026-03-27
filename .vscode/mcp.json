@@ -31,9 +31,17 @@
       "type": "http",
       "url": "https://mcp.docs.astro.build/mcp"
     },
-    "excalidraw": {
-      "type": "http",
-      "url": "https://mcp.excalidraw.com/mcp"
+    "drawio": {
+      "type": "stdio",
+      "command": "deno",
+      "args": [
+        "run",
+        "--allow-net",
+        "--allow-read",
+        "--allow-env",
+        "--allow-write",
+        "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"
+      ]
     }
   }
 }

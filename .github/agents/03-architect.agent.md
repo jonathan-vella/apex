@@ -47,7 +47,7 @@ handoffs:
     send: true
   - label: "▶ Generate Architecture Diagram"
     agent: 04-Design
-    prompt: "Use the azure-diagrams skill to generate an Excalidraw architecture diagram for the assessed design. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.excalidraw` with quality score >= 9/10. Follow MANDATORY layout rules from the skill."
+    prompt: "Use the drawio skill and MCP tools to generate an Azure architecture diagram for the assessed design. Use transactional mode. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill."
     send: true
   - label: "▶ Create ADR from Assessment"
     agent: 04-Design
@@ -55,7 +55,7 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use Excalidraw (default) and save `agent-output/{project}/03-des-diagram.excalidraw`; ADRs remain `03-des-*.md`."
+    prompt: "Generate architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use Draw.io (default) and save `agent-output/{project}/03-des-diagram.drawio`; ADRs remain `03-des-*.md`."
     send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
@@ -159,7 +159,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Score ALL 5 WAF pillars (1-10) with confidence level (High/Medium/Low)
 - ✅ Delegate ALL pricing to `cost-estimate-subagent` — do NOT call pricing MCP tools directly
 - ✅ Generate `03-des-cost-estimate.md` for EVERY assessment
-- ✅ **Generate WAF + cost charts** — run `.py` scripts per `azure-diagrams` skill → `references/waf-cost-charts.md`
+- ✅ **Generate WAF + cost charts** — run `.py` scripts per `python-diagrams` skill → `references/waf-cost-charts.md`
 - ✅ Include Service Maturity Assessment table in every WAF assessment
 - ✅ Ask clarifying questions when critical requirements are missing
 - ✅ Wait for user approval before handoff to bicep-plan
@@ -234,7 +234,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
 7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
 8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
-10. **Generate charts** — Read `.github/skills/azure-diagrams/references/waf-cost-charts.md`
+10. **Generate charts** — Read `.github/skills/python-diagrams/references/waf-cost-charts.md`
     and produce three matplotlib PNGs in `agent-output/{project}/`:
     - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF
       pillar, WAF brand colours

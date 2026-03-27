@@ -61,11 +61,11 @@ All hooks are defined in `lefthook.yml` at the repository root.
 
 ### Post-Commit Hooks
 
-| Hook              | Purpose                                                                     |
-| ----------------- | --------------------------------------------------------------------------- |
-| `version-sync`    | Check version consistency across `VERSION.md`, `package.json`, `mkdocs.yml` |
-| `deprecated-refs` | Detect deprecated references in changed markdown                            |
-| `json-syntax`     | Validate JSON syntax of changed `.json` files                               |
+| Hook              | Purpose                                                          |
+| ----------------- | ---------------------------------------------------------------- |
+| `version-sync`    | Check version consistency across `VERSION.md` and `package.json` |
+| `deprecated-refs` | Detect deprecated references in changed markdown                 |
+| `json-syntax`     | Validate JSON syntax of changed `.json` files                    |
 
 ## Validation Scripts
 
@@ -87,13 +87,14 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 ### Artifact and Template Validators
 
-| npm Command               | Script                            | Purpose                                     |
-| ------------------------- | --------------------------------- | ------------------------------------------- |
-| `lint:artifact-templates` | `validate-artifact-templates.mjs` | H2 heading strictness for agent outputs     |
-| `lint:h2-sync`            | `validate-h2-sync.mjs`            | H2 heading consistency across three sources |
-| `fix:artifact-h2`         | `fix-artifact-h2.mjs`             | Auto-fix artifact H2 headings               |
-| `e2e:validate`            | `validate-e2e-step.mjs`           | E2E pipeline structural validation          |
-| `e2e:benchmark`           | `benchmark-e2e.mjs`               | 8-dimension benchmark scoring               |
+| npm Command               | Script                            | Purpose                                                                                                 |
+| ------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `lint:artifact-templates` | `validate-artifact-templates.mjs` | H2 heading strictness for agent outputs                                                                 |
+| `lint:h2-sync`            | `validate-h2-sync.mjs`            | H2 heading consistency across three sources                                                             |
+| `fix:artifact-h2`         | `fix-artifact-h2.mjs`             | Auto-fix artifact H2 headings                                                                           |
+| `lint:excalidraw`         | `validate-excalidraw-files.mjs`   | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset               |
+| `e2e:validate`            | `validate-e2e-step.mjs`           | E2E pipeline structural validation                                                                      |
+| `e2e:benchmark`           | `benchmark-e2e.mjs`               | 8-dimension benchmark scoring                                                                           |
 
 ### Governance and Compliance Validators
 
@@ -162,7 +163,7 @@ All workflows are in `.github/workflows/`.
 | Agent Validation          | `agent-validation.yml`          | Changes to agents/skills/instructions | Agent frontmatter, skills format, VS Code config             |
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                          | Branch naming convention and scope validation                |
 | Link Check                | `link-check.yml`                | Docs changes                          | URL validity in documentation                                |
-| Docs                      | `docs.yml`                      | Docs changes                          | Build and deploy MkDocs site                                 |
+| Docs                      | `docs.yml`                      | Docs changes                          | Build and deploy Astro Starlight site                        |
 | Docs Freshness            | `docs-freshness.yml`            | Scheduled                             | Documentation staleness detection                            |
 | E2E Validation            | `e2e-validation.yml`            | Agent output changes                  | E2E pipeline structural validation                           |
 | Policy Compliance         | `policy-compliance-check.yml`   | IaC changes                           | Azure Policy compliance checks                               |

@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-API-Proxy">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-API-Proxy" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImZmN2ExYTlmLWUxYTctNDcxYS1iNzZlLTFkMmVhNDNhOGQxMSIgeDE9IjguOTI0IiB5MT0iNzg1LjE0NSIgeDI9IjguOTI0IiB5Mj0iNzc5LjE4NiIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxLCAwLCAwLCAtMSwgMCwgNzkxLjUxNikiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzN2MyYjEiIC8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjU4Mjc3IiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjYuNTMxIiB5PSI2LjYxNSIgd2lkdGg9IjQuNzg4IiBoZWlnaHQ9IjQuNzg4IiByeD0iMi4zNjQiIGZpbGw9InVybCgjZmY3YTFhOWYtZTFhNy00NzFhLWI3NmUtMWQyZWE0M2E4ZDExKSIgLz48cGF0aCBkPSJNOCwxMi42OTNhMy43NzMsMy43NzMsMCwwLDEtLjAxNS03LjM4Ny42NDkuNjQ5LDAsMSwwLS4yNjYtMS4yN0E1LjA5MSw1LjA5MSwwLDAsMCwzLjczLDguMzU5SDIuNTc0YTEuMzUxLDEuMzUxLDAsMCwwLTEuMTg3LS43SDEuMzUzQTEuMzUzLDEuMzUzLDAsMCwwLDAsOS4wMDd2LjAzNGExLjM1MywxLjM1MywwLDAsMCwxLjM1MywxLjM1M2guMDM0YTEuMzUxLDEuMzUxLDAsMCwwLDEuMi0uNzM3SDMuNzMzYTUuMDg3LDUuMDg3LDAsMCwwLDQuMDA1LDQuMzA4QS42NDkuNjQ5LDAsMCwwLDgsMTIuNjkzWiIgZmlsbD0iIzNjZDRjMiIgLz48cGF0aCBkPSJNMTYuNjQ3LDcuNjU0aC0uMDM0YTEuMzUxLDEuMzUxLDAsMCwwLTEuMTg3LjcwNUgxNC4yN2E1LjA5MSw1LjA5MSwwLDAsMC0zLjk4Ny00LjMyMy42NDkuNjQ5LDAsMCwwLS4yNjYsMS4yN0EzLjc3MywzLjc3MywwLDAsMSwxMCwxMi42OTNhLjY0OS42NDksMCwwLDAsLjI2LDEuMjcyLDUuMDg3LDUuMDg3LDAsMCwwLDQtNC4zMDhIMTUuNDFhMS4zNTEsMS4zNTEsMCwwLDAsMS4yLjczN2guMDM0QTEuMzUzLDEuMzUzLDAsMCwwLDE4LDkuMDQxVjkuMDA3QTEuMzUzLDEuMzUzLDAsMCwwLDE2LjY0Nyw3LjY1NFoiIGZpbGw9IiMzY2Q0YzIiIC8+4oCLCjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

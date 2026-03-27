@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-External-Identities">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-External-Identities" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYTExMjM1ZGQtZGQwNC00OGM3LTkxMGYtMWNlMTRhZDY4YTg4IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48Zz48cGF0aCBkPSJNMTYuODE0LDEzLjAyNmEuNy43LDAsMCwxLS43LjcwOUgxMS4yOGEuNy43LDAsMCwxLS43MDktLjdWNS4wODFhLjcuNywwLDAsMSwuNy0uNzA5aDQuODFhLjcuNywwLDAsMSwuNzEuNjk0djcuOTZaIiBmaWxsPSIjNTliNGQ5IiAvPjxwYXRoIGQ9Ik0xMS43MDYsNS43OWgxLjdWNy43NzdoLTEuN1ptMi4yNywwaDEuN1Y3Ljc3N2gtMS43Wm0tMi4yNywzLjEyMmgxLjdWMTAuOWgtMS43Wm0yLjI3LDBoMS43VjEwLjloLTEuN1oiIGZpbGw9IiNmZmYiIC8+PHBhdGggZD0iTTcuNDI5LDEzLjAyNmEuNy43LDAsMCwxLS43LjcwOUgxLjlhLjcuNywwLDAsMS0uNzEtLjY5NFY1LjA4MWEuNy43LDAsMCwxLC43LS43MDlINi42OTFhLjcuNywwLDAsMSwuNzEuNjk0di4wMTUiIGZpbGw9IiMwMDcyYzYiIC8+PHBhdGggZD0iTTIuMzIxLDUuNzloMS43VjcuNzc3aC0xLjdabTIuMjcsMGgxLjdWNy43NzdoLTEuN1pNMi4zMjEsOC45MTJoMS43VjEwLjloLTEuN1ptMi4yNywwaDEuN1YxMC45aC0xLjdaIiBmaWxsPSIjNTliNGQ5IiAvPjxwYXRoIGQ9Ik05LjE0MywxNy41YTMuNTE5LDMuNTE5LDAsMCwwLDMuNDkzLTMuMTg1SDExLjU4OWEyLjQ1NiwyLjQ1NiwwLDAsMS0yLjQyOCwyLjE1NCwyLjM2LDIuMzYsMCwwLDEtMS44OTUtLjk0MUw4LjQxOSwxNC4zSDUuNXYzLjExbDEuMDU0LTEuMTIyQTMuMzY4LDMuMzY4LDAsMCwwLDkuMTQzLDE3LjVaTTguOTg5LDEuNTMxYTIuMzU1LDIuMzU1LDAsMCwxLDEuODkzLjk0M0w5LjczLDMuN2gyLjkyNFYuNTg5TDExLjYsMS43MUEzLjM3MiwzLjM3MiwwLDAsMCw5LjAwNi41LDMuNTE3LDMuNTE3LDAsMCwwLDUuNTEzLDMuN0g2LjU1OEEyLjQ1NiwyLjQ1NiwwLDAsMSw4Ljk4OSwxLjUzMVoiIGZpbGw9IiNmZjhjMDAiIC8+PC9nPjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

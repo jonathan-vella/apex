@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Diagnostics-Settings">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Diagnostics-Settings" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYjQ4YzUwODktYjkyNi00ZTVjLWFmZGQtYzhkMzdmZWU3MDVlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImVmNzFjYThiLWUwYzMtNDJhMy1iMTc0LTI4ZTcyMTlmZjIyMSIgeDE9IjguMTUiIHkxPSIxNy40OSIgeDI9IjguMTUiIHkyPSIyLjA5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNWU5NjI0IiAvPjxzdG9wIG9mZnNldD0iMC4zMSIgc3RvcC1jb2xvcj0iIzY5YTgyOCIgLz48c3RvcCBvZmZzZXQ9IjAuOTMiIHN0b3AtY29sb3I9IiM4NmQ2MzMiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHBhdGggZD0iTTE1LjIuNUgzLjU5YS41Ny41NywwLDAsMC0uNDQuMkwxLjkzLDIuMTEsMTUuMzEsMTUuNjdsLTIsMS44M2gxYS43MS43MSwwLDAsMCwuNDYtLjE3bDEuMTctMS4wN2EuNTkuNTksMCwwLDAsLjE5LS40M1YxLjMzQS44MS44MSwwLDAsMCwxNS4yLjVaIiBmaWxsPSIjNWU5NjI0IiAvPjxwYXRoIGQ9Ik0yLjkxLDIuMWwuNzQtLjg0QS41LjUsMCwwLDEsNCwxLjA4SDE0Ljg4YS41Mi41MiwwLDAsMSwuNTIuNTJWMTUuMzhhLjUyLjUyLDAsMCwxLS4xNy4zOGwtMS4xNSwxLjA2IiBmaWxsPSIjZmZmIiAvPjxwYXRoIGQ9Ik0xNCwyLjA5SDJhLjA2LjA2LDAsMCwwLS4wNS4wNnYxNWEuMzguMzgsMCwwLDAsLjM4LjM4SDE0YS4zOC4zOCwwLDAsMCwuMzgtLjM4VjIuNDhBLjM4LjM4LDAsMCwwLDE0LDIuMDlaIiBmaWxsPSJ1cmwoI2VmNzFjYThiLWUwYzMtNDJhMy1iMTc0LTI4ZTcyMTlmZjIyMSkiIC8+PHBhdGggZD0iTTEyLjUsNy44MmEuMzcuMzcsMCwwLDAtLjM3LS4zOUgxMC4yOGEuMTYuMTYsMCwwLDAtLjE1LjA5TDkuMzYsOC45LDguMSw2LjM1LDYuOTMsMTBsLTEtMi42TDQuNjEsOS44NGEuMTguMTgsMCwwLDEtLjE1LjFoLS42YS4zNy4zNywwLDAsMC0uMzcuMzNoMGEuMzcuMzcsMCwwLDAsLjM3LjQxaDFhLjE4LjE4LDAsMCwwLC4xNi0uMUw1LjgsOS4xMWwxLjIxLDNMOC4yNCw4LjI1bDEuMDgsMi4xOSwxLjIxLTIuMTdhLjE2LjE2LDAsMCwxLC4xNS0uMDloMS40NWEuMzcuMzcsMCwwLDAsLjM3LS4zNloiIGZpbGw9IiNmZmYiIC8+PC9zdmc+" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

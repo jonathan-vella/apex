@@ -18,11 +18,11 @@ const stepDefinitions = [
   },
   {
     id: "requirements",
-    label: "Step 1 — Discovery",
-    slug: "demo/01-requirements",
+    label: "Step 1 — Requirements Discovery",
+    slug: "demo/01-requirements-discovery",
     stepLabel: "Step 1",
     chipLabel: "1",
-    shortTitle: "Discovery",
+    shortTitle: "Requirements Discovery",
     agent: "Requirements Agent",
     artifact: "Business and technical requirements",
     summary:
@@ -30,11 +30,34 @@ const stepDefinitions = [
     focus:
       "Read this step to understand what the platform must deliver before architecture and governance narrow the solution space.",
     sections: ["Business context", "Success criteria", "Constraints"],
+    items: [
+      { label: "Overview", slug: "demo/01-requirements-discovery" },
+      {
+        label: "Functional Requirements",
+        slug: "demo/01-requirements-discovery/functional",
+      },
+      {
+        label: "Compliance & Security",
+        slug: "demo/01-requirements-discovery/compliance-security",
+      },
+      {
+        label: "Budget & Scaling",
+        slug: "demo/01-requirements-discovery/budget-scaling",
+      },
+    ],
   },
   {
     id: "architecture",
     label: "Step 2 — Solution Architecture",
     slug: "demo/02-architecture",
+    items: [
+      { label: "Overview", slug: "demo/02-architecture" },
+      { label: "WAF Assessment", slug: "demo/02-architecture/waf-assessment" },
+      {
+        label: "SKU Sizing & Pricing",
+        slug: "demo/02-architecture/sizing-pricing",
+      },
+    ],
     stepLabel: "Step 2",
     chipLabel: "2",
     shortTitle: "Solution Architecture",
@@ -50,6 +73,11 @@ const stepDefinitions = [
     id: "design",
     label: "Step 3 — Design Artifacts",
     slug: "demo/03-design",
+    items: [
+      { label: "Overview", slug: "demo/03-design" },
+      { label: "Architecture Decision Records", slug: "demo/03-design/adrs" },
+      { label: "Cost Estimates", slug: "demo/03-design/cost" },
+    ],
     stepLabel: "Step 3",
     chipLabel: "3",
     shortTitle: "Design Artifacts",
@@ -69,6 +97,14 @@ const stepDefinitions = [
     id: "governance",
     label: "Step 3.5 — Governance",
     slug: "demo/04-governance",
+    items: [
+      { label: "Overview", slug: "demo/04-governance" },
+      {
+        label: "Tagging & Deployment Validation",
+        slug: "demo/04-governance/tags",
+      },
+      { label: "Security Constraints", slug: "demo/04-governance/security" },
+    ],
     stepLabel: "Step 3.5",
     chipLabel: "3.5",
     shortTitle: "Governance",
@@ -84,6 +120,11 @@ const stepDefinitions = [
     id: "plan",
     label: "Step 4 — Infra-as-Code Plan",
     slug: "demo/05-plan",
+    items: [
+      { label: "Overview", slug: "demo/05-plan" },
+      { label: "Azure Verified Modules (AVM)", slug: "demo/05-plan/modules" },
+      { label: "Implementation Phases", slug: "demo/05-plan/phases" },
+    ],
     stepLabel: "Step 4",
     chipLabel: "4",
     shortTitle: "Infra-as-Code Plan",
@@ -99,6 +140,11 @@ const stepDefinitions = [
     id: "code",
     label: "Step 5 — Infra-as-Code Gen",
     slug: "demo/06-code",
+    items: [
+      { label: "Overview", slug: "demo/06-code" },
+      { label: "Generated Artifacts", slug: "demo/06-code/artifacts" },
+      { label: "Validation Summary", slug: "demo/06-code/validation" },
+    ],
     stepLabel: "Step 5",
     chipLabel: "5",
     shortTitle: "Infra-as-Code Gen",
@@ -114,6 +160,11 @@ const stepDefinitions = [
     id: "deploy",
     label: "Step 6 — Deployment",
     slug: "demo/07-deploy",
+    items: [
+      { label: "Overview", slug: "demo/07-deploy" },
+      { label: "Deployment Phases", slug: "demo/07-deploy/phases" },
+      { label: "Resource Outputs", slug: "demo/07-deploy/outputs" },
+    ],
     stepLabel: "Step 6",
     chipLabel: "6",
     shortTitle: "Deployment",
@@ -129,6 +180,14 @@ const stepDefinitions = [
     id: "as-built",
     label: "Step 7 — As-Built Docs",
     slug: "demo/08-as-built",
+    items: [
+      { label: "Overview", slug: "demo/08-as-built" },
+      { label: "Operations Runbook", slug: "demo/08-as-built/runbook" },
+      {
+        label: "Compliance Matrix",
+        slug: "demo/08-as-built/compliance-matrix",
+      },
+    ],
     stepLabel: "Step 7",
     chipLabel: "7",
     shortTitle: "As-Built Docs",
@@ -144,6 +203,12 @@ const stepDefinitions = [
     id: "reviews",
     label: "Reviews",
     slug: "demo/09-reviews",
+    items: [
+      { label: "Overview", slug: "demo/09-reviews" },
+      { label: "Architecture Review", slug: "demo/09-reviews/architecture" },
+      { label: "Governance Review", slug: "demo/09-reviews/governance" },
+      { label: "IaC Plan Review", slug: "demo/09-reviews/plan" },
+    ],
     stepLabel: "Reviews",
     chipLabel: "R",
     shortTitle: "Adversarial reviews",
@@ -169,10 +234,22 @@ export const demoStats = [
   { label: "Primary region", value: "Sweden Central" },
 ];
 
-export const demoSidebarItems = demoSteps.map(({ label, slug }) => ({
-  label,
-  slug,
-}));
+export const demoSidebarItems = demoSteps.map(({ label, slug, items }) => {
+  if (items) {
+    return {
+      label,
+      collapsed: true,
+      items: items.map((item) => ({
+        label: item.label,
+        slug: item.slug,
+      })),
+    };
+  }
+  return {
+    label,
+    slug,
+  };
+});
 
 export function getDemoStepById(id) {
   return demoSteps.find((step) => step.id === id);

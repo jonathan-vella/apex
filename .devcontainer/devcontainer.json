@@ -28,6 +28,9 @@
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.23.8"
     },
+    "ghcr.io/devcontainers-community/features/deno": {
+      "version": "latest"
+    },
     "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
@@ -85,7 +88,8 @@
         "mutantdino.resourcemonitor",
         "HashiCorp.terraform",
         "ms-azuretools.vscode-azureterraform",
-        "pomdtr.excalidraw-editor"
+        "hediet.vscode-drawio",
+        "denoland.vscode-deno"
       ],
       "settings": {
         "chat.customAgentInSubagent.enabled": true,
@@ -141,7 +145,7 @@
         },
         "markdownlint.run": "onSave",
         "deno.enable": false,
-        "deno.enablePaths": [],
+        "deno.enablePaths": ["${workspaceFolder}/mcp/drawio-mcp-server"],
         "deno.lint": true,
         "deno.unstable": []
       }

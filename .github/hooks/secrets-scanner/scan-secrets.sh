@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Secrets Scanner Hook
 # Scans files modified during a Copilot coding agent session for accidentally
 # leaked secrets, credentials, and sensitive data before they are committed.

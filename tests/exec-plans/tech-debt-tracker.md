@@ -11,7 +11,7 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | ID  | Domain | Description                                                                                     | Priority | Owner | Milestone  |
 | --- | ------ | ----------------------------------------------------------------------------------------------- | -------- | ----- | ---------- |
 | 18  | Agents | Agent registry model mismatches: governance, diagnose, governance-discovery-subagent (3 agents) | Low      | —     | Phase-next |
-| 20  | CI/CD  | Fabric icon reference.md has 2 blank-line lint errors (MD012)                                   | Low      | —     | Phase-next |
+| 21  | CI/CD  | drawio-mcp-server vendored content has 91 lint:md errors (MD013 line length, MD040)             | Low      | —     | Phase-next |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
@@ -37,6 +37,7 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 14  | Agents         | `01-conductor.agent.md` body 363 lines (>350 limit)                                                    | 2026-03-23 | Conductor now 337 lines; well under 400-line limit                               |
 | 17  | Skills         | Pre-existing lint errors (MD013/MD040) in Azure skills plugin SKILL.md files                           | 2026-03-23 | No SKILL.md files appear in lint:md output; errors shifted to demo content       |
 | 19  | CI/CD          | lint:md 115 errors: 96 in demo content, 11 in test prompts, 4 in site docs                             | 2026-03-25 | Demo/test/site content excluded from lint scope; only 2 Fabric ref errors remain |
+| 20  | CI/CD          | Fabric icon reference.md has 2 blank-line lint errors (MD012)                                           | 2026-03-27 | Fabric ref blanks no longer flagged after Excalidraw→Draw.io migration cleanup   |
 | —   | All            | Tracker created — no resolved items at inception                                                       | 2026-02-26 | Initial seeding from audit                                                       |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

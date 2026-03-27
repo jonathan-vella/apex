@@ -52,7 +52,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the azure-diagrams skill to generate an Excalidraw as-built architecture diagram documenting deployed infrastructure. Output `agent-output/{project}/07-ab-diagram.excalidraw` with deterministic layout and quality score >= 9/10. Follow MANDATORY layout rules from the skill."
+    prompt: "Use the drawio skill and MCP tools to generate an as-built architecture diagram documenting deployed infrastructure. Use transactional mode. Output `agent-output/{project}/07-ab-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill."
     send: true
   - label: "↩ Fix Deployment Issues"
     agent: 06t-Terraform CodeGen

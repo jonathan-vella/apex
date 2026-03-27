@@ -1,15 +1,10 @@
 {
-  "version": 1,
   "hooks": {
-    "preToolUse": [
+    "PreToolUse": [
       {
         "type": "command",
-        "bash": ".github/hooks/tool-guardian/guard-tool.sh",
-        "cwd": ".",
-        "env": {
-          "GUARD_MODE": "block"
-        },
-        "timeoutSec": 10
+        "command": ".github/hooks/tool-guardian/guard-tool.sh",
+        "timeout": 10
       }
     ]
   }

@@ -19,7 +19,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ADRs are saved to the project's agent-output folder:
 
-```text
+````text
 agent-output/{project}/
 ├── 03-des-adr-0001-{short-title}.md    # Design phase ADRs
 └── 07-ab-adr-0001-{short-title}.md     # As-built phase ADRs
@@ -71,7 +71,7 @@ Consider WAF implications and cost trade-offs.
 ## What This Skill Does NOT Do
 
 - ❌ Generate Bicep or Terraform code
-- ❌ Create architecture diagrams (use `azure-diagrams` skill)
+- ❌ Create architecture diagrams (use `drawio` skill)
 - ❌ Deploy resources (use `deploy` agent)
 - ❌ Create implementation plans (use `bicep-plan` agent)
 
@@ -85,3 +85,4 @@ This skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).
 | Step 7 (As-Built) | `07-ab-adr-`  | Accepted       | Document implemented decisions  |
 
 > _See SKILL.md for full content._
+````

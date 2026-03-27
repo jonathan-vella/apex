@@ -115,7 +115,7 @@
 
 ![6-Month Cost Projection](./03-des-cost-projection.png)
 
-> Generate `03-des-cost-projection.png` using the pattern in `azure-diagrams` skill →
+> Generate `03-des-cost-projection.png` using the pattern in `python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 3 – Monthly Cost Projection**.
 > Replace placeholder costs and months with actual projected values before running.
 

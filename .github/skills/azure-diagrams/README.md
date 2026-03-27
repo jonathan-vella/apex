@@ -1,69 +1,17 @@
-# Azure Diagrams Skill
+# Azure Diagrams — Routing Skill
 
-A comprehensive technical diagramming toolkit for **solutions architects**, **presales engineers**,
-and **developers**. Generate professional diagrams for proposals, documentation, and architecture
-reviews using Python's `diagrams` library.
+> **Status**: Router only (v8.0). All implementation content has moved to specialized skills.
 
-> **Library**: [mingrammer/diagrams](https://github.com/mingrammer/diagrams)  
-> **License**: MIT
+This skill routes diagram requests to the appropriate specialized skill:
 
-## 🎯 Output Format
+| Diagram type                   | Target skill                             |
+| ------------------------------ | ---------------------------------------- |
+| Architecture diagrams          | [`drawio`](../drawio/)                   |
+| WAF / cost / compliance charts | [`python-diagrams`](../python-diagrams/) |
+| Inline markdown diagrams       | [`mermaid`](../mermaid/)                 |
+| Hand-drawn whiteboarding       | [`excalidraw`](../excalidraw/)           |
 
-This skill generates **PNG images** via Python code:
-
-| Format         | File Extension | Tool             | Use Case                             |
-| -------------- | -------------- | ---------------- | ------------------------------------ |
-| **Python PNG** | `.py` + `.png` | diagrams library | Programmatic, version-controlled, CI |
-| **SVG**        | `.svg`         | diagrams library | Web documentation (optional)         |
-
-## What You Can Create
-
-| Diagram Type                  | Use Case                              |
-| ----------------------------- | ------------------------------------- |
-| **Azure Architecture**        | Solution designs, infrastructure docs |
-| **Business Process Flows**    | Workflows, approvals, swimlanes       |
-| **Entity Relationship (ERD)** | Database schemas, data models         |
-| **Timeline / Gantt**          | Project roadmaps, migration plans     |
-| **UI Wireframes**             | Dashboard mockups, screen layouts     |
-| **Sequence Diagrams**         | Auth flows, API interactions          |
-| **Network Topology**          | Hub-spoke, VNets, hybrid cloud        |
-
-## Prerequisites
-
-```bash
-# Core requirements
-pip install diagrams matplotlib pillow
-
-# Graphviz (required for PNG generation)
-apt-get install graphviz  # Ubuntu/Debian
-# or: brew install graphviz  # macOS
-# or: choco install graphviz  # Windows
-```
-
-## Contents
-
-```text
-azure-diagrams/
-├── SKILL.md                              # Main skill instructions
-├── README.md                             # This file
-├── references/
-│   ├── azure-components.md               # 700+ Azure components
-│   ├── common-patterns.md                # Architecture patterns
-│   ├── business-process-flows.md         # Workflow & swimlane patterns
-│   ├── entity-relationship-diagrams.md   # ERD patterns
-│   ├── timeline-gantt-diagrams.md        # Timeline patterns
-│   ├── ui-wireframe-diagrams.md          # Wireframe patterns
-│   ├── iac-to-diagram.md                 # Generate from Bicep/Terraform
-│   ├── preventing-overlaps.md            # Layout troubleshooting
-│   └── quick-reference.md                # Copy-paste snippets
-├── scripts/
-│   ├── generate_diagram.py               # Interactive generator
-│   ├── multi_diagram_generator.py        # Multi-type generator
-│   ├── ascii_to_diagram.py               # ASCII to diagram converter
-│   └── verify_installation.py            # Check prerequisites
-└── templates/
-    └── (Python diagram templates)
-```
+See [SKILL.md](SKILL.md) for the full routing table.
 
 ## Example Prompts
 

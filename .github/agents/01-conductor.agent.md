@@ -59,7 +59,7 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Excalidraw outputs (`03-des-diagram.excalidraw`) with deterministic layout and quality score >= 9/10. This step is optional - you can skip to Step 3.5."
+    prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Draw.io outputs (`03-des-diagram.drawio`) with quality score >= 9/10. This step is optional - you can skip to Step 3.5."
     send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
@@ -67,7 +67,7 @@ handoffs:
     send: true
   - label: "Step 4: Implementation Plan"
     agent: 05b-Bicep Planner
-    prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
+    prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`."
     send: true
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen
@@ -91,7 +91,7 @@ handoffs:
     send: false
   - label: "Step 4: IaC Plan (Terraform)"
     agent: 05t-Terraform Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`."
+    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`."
     send: true
   - label: "Step 5: Generate Terraform"
     agent: 06t-Terraform CodeGen
@@ -281,23 +281,23 @@ Conductor with the project name — no special resume prompt needed.
 
 ## Artifact Tracking
 
-| Step | Artifact                            | Check                                    |
-| ---- | ----------------------------------- | ---------------------------------------- |
-| —    | `README.md`                         | Exists? (required)                       |
-| —    | `00-handoff.md`                     | Updated at every gate? (human companion) |
-| —    | `00-session-state.json`             | Updated at every gate? (machine state)   |
-| 1    | `01-requirements.md`                | Exists?                                  |
-| 2    | `02-architecture-assessment.md`     | Exists?                                  |
-| 3    | `03-des-*.md`, `03-des-*.py`        | Optional                                 |
-| 3.5  | `04-governance-constraints.md`      | Governance discovered and reviewed?      |
-| 3.5  | `04-governance-constraints.json`    | Machine-readable policy data?            |
-| 4    | `04-implementation-plan.md`         | Exists?                                  |
-| 4    | `04-dependency-diagram.py` / `.png` | Generated?                               |
-| 4    | `04-runtime-diagram.py` / `.png`    | Generated?                               |
-| 5    | `infra/bicep/{project}/`            | Templates valid? (Bicep path)            |
-| 5    | `infra/terraform/{project}/`        | Configuration valid? (Terraform path)    |
-| 6    | `06-deployment-summary.md`          | Deployed?                                |
-| 7    | `07-*.md`                           | Docs generated?                          |
+| Step | Artifact                           | Check                                    |
+| ---- | ---------------------------------- | ---------------------------------------- |
+| —    | `README.md`                        | Exists? (required)                       |
+| —    | `00-handoff.md`                    | Updated at every gate? (human companion) |
+| —    | `00-session-state.json`            | Updated at every gate? (machine state)   |
+| 1    | `01-requirements.md`               | Exists?                                  |
+| 2    | `02-architecture-assessment.md`    | Exists?                                  |
+| 3    | `03-des-*.md`, `03-des-*.py`       | Optional                                 |
+| 3.5  | `04-governance-constraints.md`     | Governance discovered and reviewed?      |
+| 3.5  | `04-governance-constraints.json`   | Machine-readable policy data?            |
+| 4    | `04-implementation-plan.md`        | Exists?                                  |
+| 4    | `04-dependency-diagram.drawio` | Generated?                               |
+| 4    | `04-runtime-diagram.drawio`    | Generated?                               |
+| 5    | `infra/bicep/{project}/`           | Templates valid? (Bicep path)            |
+| 5    | `infra/terraform/{project}/`       | Configuration valid? (Terraform path)    |
+| 6    | `06-deployment-summary.md`         | Deployed?                                |
+| 7    | `07-*.md`                          | Docs generated?                          |
 
 ## Model Selection
 

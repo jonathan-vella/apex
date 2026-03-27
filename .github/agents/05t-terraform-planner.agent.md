@@ -73,7 +73,7 @@ constraints to identify Deny-policy blockers before designing the module structu
 <output_contract>
 Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
 specs, module inventory, deployment phases, dependency order. H2 structure from template.
-Diagrams: 04-dependency-diagram.py/.png and 04-runtime-diagram.py/.png.
+Diagrams: 04-dependency-diagram.drawio and 04-runtime-diagram.drawio.
 Session state: update 00-session-state.json after each phase with sub_step checkpoint.
 </output_contract>
 
@@ -106,7 +106,7 @@ Always specify Azure Storage Account backend only.
 | always use `azurePropertyPath` (not `bicepPropertyPath`) in plan      | Plan `terraform { cloud { } }` or `TFE_TOKEN` usage                   |
 | Define tasks as YAML specs (resource, module, dependencies, config)   | Plan backends other than Azure Storage Account                        |
 | Generate `04-implementation-plan.md`                                  | Proceed to terraform-code without explicit user approval              |
-| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram`  | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only     |
+| Auto-generate `04-dependency-diagram.drawio` + `04-runtime-diagram.drawio`  | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only     |
 | Ask user for deployment strategy (phased vs single) — MANDATORY GATE  | Generate governance from best-practice assumptions                    |
 | Use `askQuestions` in Phase 5 to present findings and gather approval | Re-run governance discovery (already done in Step 3.5)                |
 | Match H2 headings from azure-artifacts templates exactly              | Use archived tool names (`moduleSearch` etc.) — use `terraform/*` MCP |
@@ -215,7 +215,7 @@ Context usage reaches ~80% by the end of the deployment strategy gate.
 
 Generate YAML-structured resource specs per resource. Include:
 resource inventory, module structure, dependencies, deployment phases,
-diagrams (`04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png`),
+diagrams (`04-dependency-diagram.drawio` + `04-runtime-diagram.drawio`),
 naming table, security matrix, backend config template, estimated time.
 
 > **Important**: The plan must include an Azure Budget resource (`azurerm_consumption_budget_resource_group`)
@@ -284,8 +284,8 @@ detailed findings are already visible in chat above):
 | File                | Location                                               |
 | ------------------- | ------------------------------------------------------ |
 | Implementation Plan | `agent-output/{project}/04-implementation-plan.md`     |
-| Dependency Diagram  | `agent-output/{project}/04-dependency-diagram.py/.png` |
-| Runtime Diagram     | `agent-output/{project}/04-runtime-diagram.py/.png`    |
+| Dependency Diagram  | `agent-output/{project}/04-dependency-diagram.drawio` |
+| Runtime Diagram     | `agent-output/{project}/04-runtime-diagram.drawio`    |
 
 > **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
 > not by this agent. They are consumed as prerequisites.

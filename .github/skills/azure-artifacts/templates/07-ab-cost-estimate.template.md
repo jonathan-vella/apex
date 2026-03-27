@@ -69,7 +69,7 @@
 
 ![Design vs As-Built Cost Comparison](./07-ab-cost-comparison.png)
 
-> Generate `07-ab-cost-comparison.png` using the pattern in `azure-diagrams` skill →
+> Generate `07-ab-cost-comparison.png` using the pattern in `python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 4 – Design vs As-Built Cost Comparison**.
 > Replace placeholder costs with actual design estimate and as-built actuals.
 
@@ -124,7 +124,7 @@
 
 ![6-Month Cost Projection](./07-ab-cost-projection.png)
 
-> Generate `07-ab-cost-projection.png` using the pattern in `azure-diagrams` skill →
+> Generate `07-ab-cost-projection.png` using the pattern in `python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 3 – Monthly Cost Projection**.
 > Replace placeholder costs and months with actual as-built projected values.
 

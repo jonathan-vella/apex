@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="unqualified">
+
+  <!--
+    draw.io mxFile XML Schema
+    Version: 1.0
+
+    This schema describes the structure of draw.io / .drawio files.
+    It is intended for use by AI systems to validate generated diagram files.
+
+    Notes:
+    - Style strings (e.g. "rounded=1;whiteSpace=wrap;html=1;") are typed as
+      xs:string. The style syntax is documented separately in
+      drawio-style-reference.md.
+    - mxCell is intentionally generic: vertex/edge/connectable determine the role.
+    - The first two mxCell elements in root are structural: id="0" (root container)
+      and id="1" (default layer). All diagram elements must reference these.
+    - IDs must be unique within a diagram. Any string is valid, but typically
+      short alphanumeric strings or numeric IDs are used.
+    - For compressed diagrams, the diagram element contains Base64-encoded,
+      deflate-compressed XML instead of an mxGraphModel child element.
+    - mxGeometry child elements (mxPoint, Array, mxRectangle) may appear in
+      any order. The schema uses xs:choice to reflect this flexibility.
+
+    Companion document: drawio-style-reference.md
+  -->
+
+  <!-- ================================================================== -->
+  <!-- Root: mxfile                                                        -->
+  <!-- ================================================================== -->
+  <xs:element name="mxfile" type="mxfileType" />
+
+  <xs:complexType name="mxfileType">
+    <xs:annotation>
+      <xs:documentation>
+        Root element of a draw.io file. Contains one or more diagram pages.
+        A minimal valid file has one diagram with at least the two structural
+        mxCell elements (id="0" and id="1").
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="diagram" type="diagramType" maxOccurs="unbounded" />
+    </xs:sequence>
+    <!-- Identifies the application that created/modified the file -->
+    <xs:attribute name="host" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Host application identifier (e.g. "app.diagrams.net", "Electron").</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- ISO 8601 timestamp of last modification -->
+    <xs:attribute name="modified" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>ISO 8601 timestamp of last modification (e.g. "2024-01-15T10:30:00.000Z").</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- User agent string of the creating application -->
+    <xs:attribute name="agent" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>User agent or tool identifier that created the file.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- draw.io application version -->
+    <xs:attribute name="version" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>draw.io application version (e.g. "24.7.6").</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- Entity tag for caching/sync -->
+    <xs:attribute name="etag" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Entity tag for caching and synchronization.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- Storage type: "device", "google", "dropbox", "onedrive", "github", "gitlab", "browser" -->
+    <xs:attribute name="type" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Storage backend type. Common values: "device", "google", "dropbox", "onedrive", "github", "gitlab", "browser".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- Whether diagram content is compressed -->
+    <xs:attribute name="compressed" type="booleanString" default="false">
+      <xs:annotation>
+        <xs:documentation>If "true", diagram content is deflate-compressed and Base64-encoded. For AI generation, always use "false" (uncompressed XML).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- Number of pages (informational, not enforced) -->
+    <xs:attribute name="pages" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Number of diagram pages. Informational only; the actual count is determined by the number of diagram child elements.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- diagram: One page/tab in the diagram                               -->
+  <!-- ================================================================== -->
+  <xs:complexType name="diagramType">
+    <xs:annotation>
+      <xs:documentation>
+        Represents a single page/tab in the diagram. Each diagram has a unique
+        id and an optional display name. Contains either an mxGraphModel element
+        (uncompressed) or Base64-encoded compressed text content.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <!-- Uncompressed: mxGraphModel as child element -->
+      <xs:element name="mxGraphModel" type="mxGraphModelType" />
+    </xs:choice>
+    <!-- Unique identifier for this page (omitted in some older files) -->
+    <xs:attribute name="id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Unique identifier for this diagram page. Must be unique within the file.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- Display name shown in the page tab -->
+    <xs:attribute name="name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Display name shown in the page tab. Defaults to "Page-N" if omitted.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- mxGraphModel: Canvas configuration and cells                       -->
+  <!-- ================================================================== -->
+  <xs:complexType name="mxGraphModelType">
+    <xs:annotation>
+      <xs:documentation>
+        The graph model containing all cells (shapes, edges, layers) and
+        canvas configuration. The dx/dy attributes control the scroll offset,
+        while pageWidth/pageHeight define the page dimensions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="root" type="rootType" />
+    </xs:sequence>
+
+    <!-- Canvas scroll offset (pixels) -->
+    <xs:attribute name="dx" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Horizontal scroll offset in pixels. Typical default: 0 or based on content.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dy" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Vertical scroll offset in pixels.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Page dimensions -->
+    <xs:attribute name="pageWidth" type="xs:positiveInteger" default="850">
+      <xs:annotation>
+        <xs:documentation>Page width in pixels. Common values: 850 (letter), 1169 (A4 landscape), 827 (A4 portrait).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pageHeight" type="xs:positiveInteger" default="1100">
+      <xs:annotation>
+        <xs:documentation>Page height in pixels. Common values: 1100 (letter), 827 (A4 landscape), 1169 (A4 portrait).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pageScale" type="xs:double" default="1">
+      <xs:annotation>
+        <xs:documentation>Page scale factor. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Grid -->
+    <xs:attribute name="grid" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Show grid. 1=visible, 0=hidden. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="gridSize" type="xs:positiveInteger" default="10">
+      <xs:annotation>
+        <xs:documentation>Grid cell size in pixels. Default: 10.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Display options -->
+    <xs:attribute name="guides" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Enable alignment guides. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tooltips" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Show tooltips on hover. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="connect" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Enable connection handles. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="arrows" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Show directional arrows on edges. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="fold" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Enable collapse/expand of containers. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="page" type="booleanInt" default="1">
+      <xs:annotation>
+        <xs:documentation>Show page boundaries. Default: 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="math" type="booleanInt" default="0">
+      <xs:annotation>
+        <xs:documentation>Enable MathJax/LaTeX rendering in labels. Default: 0.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="shadow" type="booleanInt" default="0">
+      <xs:annotation>
+        <xs:documentation>Global shadow for all shapes. Default: 0. Can be overridden per cell via style.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Background -->
+    <xs:attribute name="background" type="colorType">
+      <xs:annotation>
+        <xs:documentation>Canvas background color as hex (e.g. "#FFFFFF") or "none" for transparent.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="backgroundImage" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>JSON object for background image: {"src":"url","width":w,"height":h}.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Color adaptation for light/dark mode -->
+    <xs:attribute name="adaptiveColors" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Controls color adaptation for light/dark mode. Values: "auto", "simple", "none", "default".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- root: Container for all mxCell elements                            -->
+  <!-- ================================================================== -->
+  <xs:complexType name="rootType">
+    <xs:annotation>
+      <xs:documentation>
+        Container for all cells in the diagram. Must contain at least two
+        structural mxCell elements:
+        1. Root container: id="0", no parent attribute
+        2. Default layer: id="1", parent="0"
+
+        All visible diagram elements (shapes, edges) must have parent="1"
+        (or the id of another layer/group).
+
+        Additional layers can be added as mxCell elements with parent="0".
+        Elements can be wrapped in UserObject/object for custom metadata.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="mxCell" type="mxCellType" />
+        <xs:element name="UserObject" type="UserObjectType" />
+        <xs:element name="object" type="UserObjectType" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- mxCell: Universal element for vertices, edges, and layers          -->
+  <!-- ================================================================== -->
+  <xs:complexType name="mxCellType">
+    <xs:annotation>
+      <xs:documentation>
+        Universal cell element representing a vertex (shape), edge (connector),
+        or layer/group. The role is determined by the vertex/edge attributes.
+
+        Cell roles:
+        - Root container: id="0", no parent, no vertex/edge
+        - Layer: parent="0", no vertex/edge (value = layer name)
+        - Vertex (shape): vertex="1", parent = layer or group id
+        - Edge (connector): edge="1", parent = layer or group id,
+          source/target = connected vertex ids
+        - Group/container: vertex="1" with child cells referencing it as parent
+
+        Style string format: semicolon-separated key=value pairs.
+        Shape name can appear as first token without key (e.g. "ellipse;...").
+        Example: "rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;"
+        See drawio-style-reference.md for complete style documentation.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="mxGeometry" type="mxGeometryType" minOccurs="0" />
+    </xs:sequence>
+
+    <!--
+      Identification: required for top-level mxCell elements, but optional
+      when mxCell is nested inside a UserObject/object (the parent element
+      carries the id in that case).
+    -->
+    <xs:attribute name="id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Unique cell identifier within the diagram. Required for top-level mxCell, optional when nested in UserObject/object. Must be unique across all cells in the diagram.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="parent" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>ID of the parent cell. "0" for layers, "1" (or a layer/group id) for diagram elements. Omitted only for the root container (id="0").</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Content -->
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Cell label text. Can contain plain text or HTML (when style includes html=1). HTML labels support basic formatting: b, i, u, br, p, div, table, hr, font, span with inline styles.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Style string: semicolon-separated key=value pairs defining visual appearance.
+          Format: "[shapeName;]key1=value1;key2=value2;..."
+          Example vertex: "rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;"
+          Example edge: "edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;"
+          See drawio-style-reference.md for all properties and values.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Type flags (determine the cell's role) -->
+    <xs:attribute name="vertex" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>Set to "1" for shape/vertex cells. Mutually exclusive with edge="1".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="edge" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>Set to "1" for connector/edge cells. Mutually exclusive with vertex="1". Should have source and/or target attributes.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="connectable" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>Whether the cell can be connected to. Default: "1" for vertices, "0" for edges. Set to "0" to prevent connections.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Edge connections (only when edge="1") -->
+    <xs:attribute name="source" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>ID of the source vertex for edges. Must reference a valid vertex id in the same diagram.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>ID of the target vertex for edges. Must reference a valid vertex id in the same diagram.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Container state -->
+    <xs:attribute name="collapsed" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>Whether the container/group is collapsed. Only meaningful for container cells.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>Whether the cell is visible. "0" = hidden, "1" = visible. Default: "1".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- UserObject / object: Wrapper for custom attributes                 -->
+  <!-- ================================================================== -->
+  <xs:complexType name="UserObjectType">
+    <xs:annotation>
+      <xs:documentation>
+        Wrapper element for cells with custom metadata attributes.
+        The UserObject/object carries the id and any custom key-value
+        attributes, while the nested mxCell contains the visual definition.
+
+        Use "object" or "UserObject" interchangeably (both are supported).
+        The "label" attribute replaces mxCell's "value" for the display text.
+
+        Custom attributes appear in the "Edit Data" dialog in draw.io and
+        can be used for data-driven diagrams, linking, and metadata.
+
+        Example:
+        &lt;UserObject id="3" label="Server" ip="192.168.1.1" status="active"&gt;
+          &lt;mxCell style="..." vertex="1" parent="1"&gt;
+            &lt;mxGeometry x="100" y="100" width="120" height="60" as="geometry"/&gt;
+          &lt;/mxCell&gt;
+        &lt;/UserObject&gt;
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="mxCell" type="mxCellType" />
+    </xs:sequence>
+
+    <!-- Standard attributes -->
+    <xs:attribute name="id" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Unique identifier (same role as mxCell id). The nested mxCell should NOT have its own id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Display label text (replaces mxCell value). Supports HTML when style includes html=1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="link" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Hyperlink URL. Opens when the cell is clicked in the viewer.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tags" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Space-separated tags for filtering/categorization.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tooltip" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Tooltip text displayed on hover.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="placeholders" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>Enable placeholder substitution in labels. When "1", %attribute% in the label is replaced with attribute values.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!--
+      UserObject allows arbitrary additional attributes for custom metadata.
+      XSD supports this via anyAttribute:
+    -->
+    <xs:anyAttribute processContents="lax" />
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- mxGeometry: Position, size, and control points                     -->
+  <!-- ================================================================== -->
+  <xs:complexType name="mxGeometryType">
+    <xs:annotation>
+      <xs:documentation>
+        Defines the geometry (position, size, control points) for a cell.
+
+        For vertices:
+        - x, y: absolute position of top-left corner (relative to parent)
+        - width, height: size in pixels
+
+        For edges:
+        - When relative="1": x is position along edge (0.0=start, 1.0=end,
+          -1.0=before start), y is perpendicular offset in pixels
+        - Contains optional mxPoint children for source/target points
+        - Contains optional Array element with waypoints
+
+        For edge labels (edge cells with relative="1"):
+        - x: position along edge (-1 to 1, where 0 = center)
+        - y: perpendicular offset in pixels
+        - mxPoint with as="offset" for additional pixel offset
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <!-- Source/target points for edges, offset points for labels -->
+      <xs:element name="mxPoint" type="mxPointType" />
+      <!-- Waypoints for edges -->
+      <xs:element name="Array" type="ArrayType" />
+      <!-- Alternate bounds for collapsible containers (swimlanes) -->
+      <xs:element name="mxRectangle" type="mxRectangleType" />
+    </xs:choice>
+
+    <!-- Position (for vertices: absolute, for edges with relative=1: relative) -->
+    <xs:attribute name="x" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>
+          For vertices: x-coordinate of top-left corner (pixels, relative to parent).
+          For edges with relative="1": position along edge (-1.0 to 1.0, where 0 = center).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="y" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>
+          For vertices: y-coordinate of top-left corner (pixels, relative to parent).
+          For edges with relative="1": perpendicular offset in pixels.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Size (primarily for vertices) -->
+    <xs:attribute name="width" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Width in pixels. Required for vertices. Typical values: 80-200.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="height" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Height in pixels. Required for vertices. Typical values: 40-120.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!--
+      relative="1" for edges: coordinates are relative along the edge path.
+      Used for label positioning on edges.
+    -->
+    <xs:attribute name="relative" type="booleanInt">
+      <xs:annotation>
+        <xs:documentation>
+          When "1", x/y are relative coordinates (not absolute pixels).
+          Required for edge geometry. x ranges from -1.0 to 1.0 (position along edge),
+          y is perpendicular pixel offset.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <!-- Type marker (always "geometry") -->
+    <xs:attribute name="as" type="xs:string" fixed="geometry">
+      <xs:annotation>
+        <xs:documentation>Always "geometry". Identifies this element as the cell's geometry property.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- mxPoint: A single point (source/target/offset)                     -->
+  <!-- ================================================================== -->
+  <xs:complexType name="mxPointType">
+    <xs:annotation>
+      <xs:documentation>
+        A 2D point used for edge endpoints or label offsets.
+
+        The "as" attribute determines the role:
+        - "sourcePoint": starting point of an unconnected edge
+        - "targetPoint": ending point of an unconnected edge
+        - "offset": pixel offset for label positioning
+        - (no as): waypoint within an Array element
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="x" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>X coordinate in pixels.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="y" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Y coordinate in pixels.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <!-- as="sourcePoint" | "targetPoint" | "offset" -->
+    <xs:attribute name="as" type="mxPointAsType">
+      <xs:annotation>
+        <xs:documentation>Point role: "sourcePoint", "targetPoint", or "offset".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- Array: List of points (waypoints for edges)                        -->
+  <!-- ================================================================== -->
+  <xs:complexType name="ArrayType">
+    <xs:annotation>
+      <xs:documentation>
+        Array of mxPoint elements representing intermediate waypoints
+        for edge routing. Points are in absolute coordinates and define
+        the path the edge follows between source and target.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="mxPoint" type="mxPointType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <!-- as="points" for waypoints -->
+    <xs:attribute name="as" type="xs:string" fixed="points">
+      <xs:annotation>
+        <xs:documentation>Always "points". Identifies this array as the edge's waypoint list.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- mxRectangle: Alternate bounds for collapsible containers           -->
+  <!-- ================================================================== -->
+  <xs:complexType name="mxRectangleType">
+    <xs:annotation>
+      <xs:documentation>
+        Stores alternate bounds for collapsible containers (swimlanes).
+        When a container is collapsed/expanded, the geometry swaps between
+        the normal bounds and these alternate bounds. Always appears with
+        as="alternateBounds" inside mxGeometry.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="x" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>X coordinate of the alternate bounds.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="y" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Y coordinate of the alternate bounds.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="width" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Width of the alternate bounds.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="height" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>Height of the alternate bounds.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="as" type="xs:string" fixed="alternateBounds">
+      <xs:annotation>
+        <xs:documentation>Always "alternateBounds". Identifies this as the cell's alternate geometry.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================== -->
+  <!-- Helper types                                                       -->
+  <!-- ================================================================== -->
+
+  <!-- draw.io uses "0"/"1" instead of true/false for most boolean values -->
+  <xs:simpleType name="booleanInt">
+    <xs:annotation>
+      <xs:documentation>Boolean as integer: "0" = false, "1" = true. This is the standard boolean format in draw.io.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="0" />
+      <xs:enumeration value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Some attributes use "true"/"false" as strings -->
+  <xs:simpleType name="booleanString">
+    <xs:annotation>
+      <xs:documentation>Boolean as string: "true" or "false". Used only for mxfile-level attributes like "compressed".</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true" />
+      <xs:enumeration value="false" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Color type: hex color, "none", or "default" -->
+  <xs:simpleType name="colorType">
+    <xs:annotation>
+      <xs:documentation>
+        Color value. Accepted formats:
+        - Hex with hash: "#RRGGBB" (e.g. "#FF0000") or "#RRGGBBAA" (with alpha)
+        - "none" for transparent/no color
+        - "default" to use the current theme's default color
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?|none|default)" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Valid values for mxPoint "as" attribute -->
+  <xs:simpleType name="mxPointAsType">
+    <xs:annotation>
+      <xs:documentation>Valid roles for mxPoint: sourcePoint, targetPoint, or offset.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sourcePoint" />
+      <xs:enumeration value="targetPoint" />
+      <xs:enumeration value="offset" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

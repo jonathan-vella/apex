@@ -99,7 +99,7 @@ the architecture assessment above as a formal ADR.
 ## What This Skill Does NOT Do
 
 - ❌ Generate Bicep or Terraform code
-- ❌ Create architecture diagrams (use `azure-diagrams` skill)
+- ❌ Create architecture diagrams (use `drawio` skill)
 - ❌ Deploy resources (use `deploy` agent)
 - ❌ Create implementation plans (use `bicep-plan` agent)
 

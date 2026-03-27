@@ -7,7 +7,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
+import {
+  getAgents,
+  getSkills,
+  getInstructions,
+} from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = process.cwd();
@@ -55,7 +59,8 @@ const DEPRECATED_PATTERNS = [
   // Removed agent file references
   {
     pattern: /\.github\/agents\/diagram\.agent\.md/gi,
-    message: "Reference to removed diagram.agent.md (use azure-diagrams skill)",
+    message:
+      "Reference to removed diagram.agent.md (use drawio or python-diagrams skill)",
     severity: "error",
   },
   {
@@ -119,7 +124,8 @@ const DEPRECATED_PATTERNS = [
   // Agent mentions that should be skills (in prose, not agent definitions)
   {
     pattern: /@diagram\s+agent/gi,
-    message: "Reference to @diagram agent (removed - use azure-diagrams skill)",
+    message:
+      "Reference to @diagram agent (removed - use drawio or python-diagrams skill)",
     severity: "warn",
   },
   {
@@ -205,7 +211,10 @@ function scanDirectory(dirPath) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
       scanDirectory(fullPath);
-    } else if (entry.isFile() && SCAN_EXTENSIONS.has(path.extname(entry.name))) {
+    } else if (
+      entry.isFile() &&
+      SCAN_EXTENSIONS.has(path.extname(entry.name))
+    ) {
       const content = fs.readFileSync(fullPath, "utf8");
       scanFile(fullPath, content);
     }
@@ -220,7 +229,8 @@ function main() {
     scanFile(agent.path, agent.content);
   }
   for (const [, skill] of getSkills()) {
-    if (skill.content) scanFile(path.join(skill.dir, "SKILL.md"), skill.content);
+    if (skill.content)
+      scanFile(path.join(skill.dir, "SKILL.md"), skill.content);
   }
   for (const [, instr] of getInstructions()) {
     scanFile(instr.path, instr.content);

@@ -87,7 +87,7 @@ flowchart TB
 
 ![WAF Pillar Scores](./02-waf-scores.png)
 
-> Generate `02-waf-scores.png` using the pattern in `azure-diagrams` skill →
+> Generate `02-waf-scores.png` using the pattern in `python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 1 – WAF Pillar Scores**.
 > Replace placeholder scores with the actual pillar values before running.
 

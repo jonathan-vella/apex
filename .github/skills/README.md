@@ -20,18 +20,21 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ### Category 2: Document Creation
 
-| Skill            | Description                                           | Triggers                                 |
-| ---------------- | ----------------------------------------------------- | ---------------------------------------- |
-| `azure-diagrams` | Generate Azure architecture diagrams (PNG via Python) | "create diagram", "architecture diagram" |
-| `azure-adr`      | Create Architecture Decision Records with WAF mapping | "create ADR", "document decision"        |
+| Skill             | Description                                              | Triggers                                  |
+| ----------------- | -------------------------------------------------------- | ----------------------------------------- |
+| `excalidraw`      | Hand-drawn whiteboarding, brainstorming, wireframes      | "whiteboard", "brainstorm", "sketch"      |
+| `python-diagrams` | WAF/cost/compliance charts and Python diagrams           | "WAF chart", "cost chart", "create chart" |
+| `mermaid`         | Inline Mermaid diagrams for markdown                     | "mermaid diagram", "flowchart"            |
+| `drawio`          | Draw.io diagrams with Azure icon libraries               | "draw.io diagram"                         |
+| `azure-adr`       | Create Architecture Decision Records with WAF mapping    | "create ADR", "document decision"         |
 
 ### Category 3: Workflow & Tool Integration
 
-| Skill                 | Description                                | Triggers                                  |
-| --------------------- | ------------------------------------------ | ----------------------------------------- |
-| `github-operations`   | Branch naming, commits, PRs, CLI, Actions  | "commit", "create PR", "gh command"       |
-| `docs-writer`         | Repo-aware documentation maintenance       | "update docs", "check staleness"          |
-| `make-skill-template` | Create new skills from template            | "create skill", "new skill"               |
+| Skill                 | Description                               | Triggers                            |
+| --------------------- | ----------------------------------------- | ----------------------------------- |
+| `github-operations`   | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command" |
+| `docs-writer`         | Repo-aware documentation maintenance      | "update docs", "check staleness"    |
+| `make-skill-template` | Create new skills from template           | "create skill", "new skill"         |
 
 ## Usage
 
@@ -41,7 +44,7 @@ Skills activate when your prompt matches their trigger keywords:
 
 ```text
 "Create an architecture diagram for the ecommerce project"
-→ azure-diagrams skill activates
+→ drawio skill activates
 ```
 
 ### Explicit Invocation
@@ -58,7 +61,7 @@ Agents can invoke skills through self-referencing handoffs:
 
 ```text
 Architect agent → "▶ Generate Architecture Diagram" button
-→ Uses azure-diagrams skill
+→ Uses drawio skill
 ```
 
 ## Skill vs Agent

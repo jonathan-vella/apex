@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Machine-Learning">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Machine-Learning" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYmM0NmZlMjAtZjM2Yy00OWYyLWIzNGUtYjUxODViOWE1ZTdkIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImUxYmNmZDBmLTY4YjUtNGY2Ni05NTAxLWU2YTcyNDVhMThlNyIgeDE9IjEuMSIgeTE9IjE2OSIgeDI9IjExLjEyIiB5Mj0iMTY5IiBncmFkaWVudFRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTE2MCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM1MGM3ZTgiIC8+PHN0b3Agb2Zmc2V0PSIwLjI1IiBzdG9wLWNvbG9yPSIjNGNjM2U0IiAvPjxzdG9wIG9mZnNldD0iMC41MSIgc3RvcC1jb2xvcj0iIzQxYjZkYSIgLz48c3RvcCBvZmZzZXQ9IjAuNzciIHN0b3AtY29sb3I9IiMyZmEyYzgiIC8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTk4OWIyIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjx0aXRsZT5JY29uLTE2NkFydGJvYXJkIDE8L3RpdGxlPjxwYXRoIGlkPSJiYzg5Mjg5MS05ODlkLTRjNDMtODBkMy1kMmI0NTQ2YTk3NGYiIGQ9Ik0xNS44LDE3LjVIMi4yTDEuMSwxMy40SDE2LjlaIiBmaWxsPSIjMTk4YWIzIiAvPjxwb2x5Z29uIHBvaW50cz0iNi45IDAuNSA2LjkgNi45IDEuMSAxMy40IDIuMiAxNy41IDExLjEgNi45IDExLjEgMC41IDYuOSAwLjUiIGZpbGw9InVybCgjZTFiY2ZkMGYtNjhiNS00ZjY2LTk1MDEtZTZhNzI0NWExOGU3KSIgLz48cGF0aCBpZD0iZTZiZTAxZDYtMzQ1ZC00ZGY0LWJiZGItMTUxYWE4ZWRhYTFmIiBkPSJNMTUuOCwxNy41LDkuNiwxMS4xbDIuNi0zLDQuNyw1LjNaIiBmaWxsPSIjMzJiZWRkIiAvPjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

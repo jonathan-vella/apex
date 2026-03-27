@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Import-Export-Jobs">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Import-Export-Jobs" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYjk4YTk3ZGMtNTVlNy00MTgxLWE1ZjQtNTYxZmQ4NTM5ZGM5IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImFiM2YwNDgyLWIyODYtNDEyOC1hNDJiLWY2ZmZhMmM2Y2JiOCIgeDE9IjkiIHkxPSIxNy40IiB4Mj0iOSIgeTI9IjAuNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwNzhkNCIgLz48c3RvcCBvZmZzZXQ9IjAuODIiIHN0b3AtY29sb3I9IiM1ZWEwZWYiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHRpdGxlPkljb24tc3RvcmFnZS0xMDA8L3RpdGxlPjxnPjxwYXRoIGQ9Ik0xNCw0LjhBNC42MSw0LjYxLDAsMCwwLDkuMjIuNCw0LjczLDQuNzMsMCwwLDAsNC43LDMuNDgsNC4zNiw0LjM2LDAsMCwwLC44Nyw3LjY3YTQuNDMsNC40MywwLDAsMCw0LjU4LDQuMjVsLjQsMEg4LjM4djIuNjNhLjEzLjEzLDAsMCwxLS4xMy4xM0g2Ljc4YS4xMy4xMywwLDAsMC0uMDkuMjJsMi40NywyLjQ3YS4xOS4xOSwwLDAsMCwuMjYsMGwyLjQ3LTIuNDdhLjEzLjEzLDAsMCwwLS4wOS0uMjJIMTAuMzJhLjEyLjEyLDAsMCwxLS4xMi0uMTNWMTEuOWgzLjA2YS42NC42NCwwLDAsMCwuMiwwLDMuNjksMy42OSwwLDAsMCwzLjY3LTMuNTZBMy42NSwzLjY1LDAsMCwwLDE0LDQuOFoiIGZpbGw9InVybCgjYWIzZjA0ODItYjI4Ni00MTI4LWE0MmItZjZmZmEyYzZjYmI4KSIgLz48cGF0aCBkPSJNNC44Nyw4LjE4LDcuMzQsNS43MmEuMTcuMTcsMCwwLDEsLjI2LDBsMi40NywyLjQ2QS4xMy4xMywwLDAsMSwxMCw4LjRIOC41MWEuMTMuMTMsMCwwLDAtLjEzLjEzVjExLjlINi41N1Y4LjUzYS4xMy4xMywwLDAsMC0uMTMtLjEzSDVBLjEzLjEzLDAsMCwxLDQuODcsOC4xOFoiIGZpbGw9IiNmZmYiIC8+PC9nPjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

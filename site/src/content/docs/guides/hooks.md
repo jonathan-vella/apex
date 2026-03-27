@@ -41,13 +41,14 @@ sequenceDiagram
 
 ## Hook Inventory
 
-| Hook Directory              | Event        | Purpose                                                          | Timeout |
-| :-------------------------- | :----------- | :--------------------------------------------------------------- | ------: |
-| `block-dangerous-commands/` | PreToolUse   | Block dangerous terminal commands and hook self-modification     |     10s |
-| `post-edit-format/`         | PostToolUse  | Auto-format `.md`, `.bicep`, `.tf`, `.js` files after edits      |     30s |
-| `session-start-audit/`      | SessionStart | Log session, inject project context (step, subscription, branch) |      5s |
-| `subagent-validation/`      | SubagentStop | Validate subagent output quality (advisory)                      |     15s |
-| `session-report/`           | Stop         | Generate lightweight session summary                             |    180s |
+| Hook Directory         | Event(s)                             | Purpose                                               | Timeout |
+| :--------------------- | :----------------------------------- | :---------------------------------------------------- | ------: |
+| `governance-audit/`    | SessionStart, Stop, UserPromptSubmit | Audit session lifecycle and prompt governance         |   5–10s |
+| `post-edit-format/`    | PostToolUse                          | Auto-format `.md`, `.bicep`, `.tf`, `.js` after edits |     30s |
+| `secrets-scanner/`     | Stop                                 | Scan for leaked secrets at session end                |     30s |
+| `session-logger/`      | SessionStart, Stop, UserPromptSubmit | Log session start/end and prompt activity             |      5s |
+| `subagent-validation/` | SubagentStop                         | Validate subagent output quality (advisory)           |     15s |
+| `tool-guardian/`       | PreToolUse                           | Block dangerous terminal commands                     |     10s |
 
 ## Configuration
 
@@ -56,11 +57,12 @@ Hooks are registered in `.vscode/settings.json`:
 ```json
 {
   "chat.hookFilesLocations": {
-    ".github/hooks/block-dangerous-commands": true,
+    ".github/hooks/governance-audit": true,
     ".github/hooks/post-edit-format": true,
-    ".github/hooks/session-start-audit": true,
+    ".github/hooks/secrets-scanner": true,
+    ".github/hooks/session-logger": true,
     ".github/hooks/subagent-validation": true,
-    ".github/hooks/session-report": true
+    ".github/hooks/tool-guardian": true
   },
   "chat.useCustomAgentHooks": true
 }

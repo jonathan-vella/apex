@@ -41,6 +41,8 @@
       "skills": [
         "azure-defaults",
         "azure-artifacts",
+        "drawio",
+        "python-diagrams",
         "context-shredding",
         "session-resume",
         "microsoft-docs"
@@ -51,7 +53,13 @@
     "design": {
       "agent": ".github/agents/04-design.agent.md",
       "model": "GPT-5.4",
-      "skills": ["azure-diagrams", "azure-adr", "session-resume"],
+      "skills": [
+        "drawio",
+        "python-diagrams",
+        "azure-adr",
+        "azure-artifacts",
+        "session-resume"
+      ],
       "invokable": true,
       "step": 3
     },
@@ -166,7 +174,8 @@
       "skills": [
         "azure-defaults",
         "azure-artifacts",
-        "azure-diagrams",
+        "drawio",
+        "python-diagrams",
         "azure-cost-optimization",
         "context-shredding",
         "session-resume",

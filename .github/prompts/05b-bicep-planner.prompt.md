@@ -30,8 +30,8 @@ Create a comprehensive, machine-readable Bicep implementation plan based on the 
 7. Generate governance constraints: `agent-output/{project}/04-governance-constraints.md`
    and `agent-output/{project}/04-governance-constraints.json`.
 8. Design module structure, parameter flow, and deployment phases.
-9. Generate dependency diagram: `agent-output/{project}/04-dependency-diagram.py`.
-10. Generate runtime diagram: `agent-output/{project}/04-runtime-diagram.py`.
+9. Generate dependency diagram: `agent-output/{project}/04-dependency-diagram.drawio`.
+10. Generate runtime diagram: `agent-output/{project}/04-runtime-diagram.drawio`.
 11. Save the plan to `agent-output/{project}/04-implementation-plan.md`.
 12. Run adversarial review passes per complexity matrix in session state.
 13. Apply all `must_fix` findings and re-validate.

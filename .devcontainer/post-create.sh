@@ -247,9 +247,10 @@ default_github = {
     "url": "https://api.githubcopilot.com/mcp/",
 }
 
-default_excalidraw = {
-    "type": "http",
-    "url": "https://mcp.excalidraw.com/mcp",
+default_drawio = {
+    "type": "stdio",
+    "command": "deno",
+    "args": ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-write", "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"],
 }
 
 data = {"servers": {}}
@@ -267,7 +268,7 @@ if config_path.exists():
 servers = data.setdefault("servers", {})
 servers.setdefault("azure-pricing", default_azure_pricing)
 servers.setdefault("github", default_github)
-servers.setdefault("excalidraw", default_excalidraw)
+servers.setdefault("drawio", default_drawio)
 config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 PY
 
@@ -285,8 +286,8 @@ printf "        %-15s %s\n" "markdownlint:" "$(cd /tmp && markdownlint-cli2 --ve
 printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "Deno:" "$(deno --version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
-printf "        %-15s %s\n" "excalidraw ext:" "$(code --list-extensions 2>/dev/null | grep -q pomdtr.excalidraw-editor && echo '✅ pomdtr.excalidraw-editor' || echo 'pomdtr.excalidraw-editor (via devcontainer extensions)')"
 
 step_done "All verifications complete"
 

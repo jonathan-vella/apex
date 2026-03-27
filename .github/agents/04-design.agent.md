@@ -1,7 +1,7 @@
 ---
 name: 04-Design
-model: ["GPT-5.4"]
-description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses azure-diagrams skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
+model: ["GPT-5.4 (copilot)"]
+description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses drawio skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
 tools:
@@ -14,13 +14,13 @@ tools:
     edit,
     search,
     azure-mcp/search,
-    "excalidraw/*",
+    "drawio/*",
     todo,
   ]
 handoffs:
-  - label: "▶ Generate Diagram"
+  - label: "▶ Generate Diagram (Draw.io)"
     agent: 04-Design
-    prompt: "Generate an Azure architecture diagram using the azure-diagrams skill (Excalidraw default). Produce `agent-output/{project}/03-des-diagram.excalidraw` as a conceptual enterprise Azure reference-architecture diagram with layered boundary shells, color-coded responsibility zones, larger service tiles, centered service labels, correct Azure/Fabric icon usage, grouped dependencies only when they are meaningful, orthogonal edge-anchored arrows, bottom-right footer treatment, and quality score >= 9/10. Prioritize readability at 100% zoom, generous internal spacing, a clear visual hierarchy, and only a few essential edge labels. Do NOT place SKU, tier, node count, version, policy revision, or other low-value operational text inside the diagram unless the architecture cannot be understood without it. A box-only diagram is invalid: embed official Azure/Fabric image elements and save a non-empty top-level `files` map. Avoid sparse canvas usage, tangled line work, over-compression, placeholder groups, and low-contrast micro-text."
+    prompt: "Generate an Azure architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. (4) Extract cell IDs from the response via terminal command (do NOT read the full JSON through the LLM). (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node scripts/validate-drawio-files.mjs`. The diagram should be a conceptual enterprise Azure reference-architecture diagram with left-to-right flow, cross-cutting services at bottom (no edges to them), orthogonal edges, and quality score >= 9/10. Prioritize readability at 100% zoom."
     send: false
   - label: "▶ Generate ADR"
     agent: 04-Design
@@ -48,7 +48,7 @@ handoffs:
     send: false
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
-    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.excalidraw`. Ready for governance discovery or IaC planning."
+    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.drawio`. Ready for governance discovery or IaC planning."
     send: false
 ---
 
@@ -67,25 +67,28 @@ Before doing any work, read these skills:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `03-des-cost-estimate.md`
-3. Read `.github/skills/azure-diagrams/SKILL.digest.md` — diagram generation (Excalidraw default + Python charts)
+3. Read `.github/skills/drawio/SKILL.md` — Draw.io diagram generation (default for architecture)
 4. Read `.github/skills/azure-adr/SKILL.md` — ADR format and conventions
 
-If a diagram task requires detail not covered by the digest (e.g., Python chart templates,
-swim-lane layouts, or edge-label rules), load `azure-diagrams/SKILL.md` on demand for that
-section only — do NOT load it at startup.
+If a diagram task requires detail not covered by the skill (e.g., Python chart templates,
+swim-lane layouts, or edge-label rules), load additional references on demand —
+do NOT load them at startup.
 
 ## DO / DON'T
 
 **Do:**
 
 - Read `02-architecture-assessment.md` before generating any design artifact
-- Use the `azure-diagrams` skill for all diagram generation (Excalidraw default for architecture, Python for charts)
+- Use the `drawio` skill for all architecture diagram generation
+- Use the `python-diagrams` skill for WAF/cost/compliance charts
 - Use the `azure-adr` skill for Architecture Decision Records
-- Always generate Excalidraw (`.excalidraw`) for architecture diagrams
-- Save diagrams to `agent-output/{project}/03-des-diagram.excalidraw`
+- Use Draw.io MCP tools with transactional mode and batch-only calls
+- Use `shape_name` in `add-cells` for Azure icons — never specify width/height/style for shaped vertices
+- Save exported diagrams via terminal command, not LLM read-back
+- Save diagrams to `agent-output/{project}/03-des-diagram.drawio`
 - Regenerate poor diagrams from a clean base layout instead of incrementally patching a broken file
-- Prefer the enterprise reference-architecture visual style from `azure-diagrams`:
-  strong outer shell, nested zones, compact legend, and disciplined orthogonal connectors
+- Prefer the enterprise reference-architecture visual style:
+  left-to-right flow, cross-cutting services at bottom (no edges), orthogonal routing
 - Prefer fewer, larger service tiles over many small cards so the result stays readable
   at normal viewing size
 - Keep Step 3 diagrams conceptual: service names and major boundaries matter;
@@ -97,7 +100,6 @@ section only — do NOT load it at startup.
 - Save ADRs to `agent-output/{project}/03-des-adr-NNNN-{title}.md`
 - Save cost estimates to `agent-output/{project}/03-des-cost-estimate.md`
 - Include all Azure resources from the architecture in diagrams
-- Embed official Azure/Fabric icons as Excalidraw `image` elements for service tiles
 - Use Fabric icons for Fabric-native services when the architecture includes Microsoft Fabric
 - Keep the canvas structured and intentional, with enough internal spacing that
   the diagram reads as a designed architecture artifact rather than a compressed sketch
@@ -130,7 +132,65 @@ section only — do NOT load it at startup.
 - Letting peer support cards in the same band drift to different widths or heights,
   which weakens the visual rhythm and makes the band look unfinished
 - Routing external partner or data-sharing lines with looping or awkward detours
-  when a single orthogonal path would communicate the intent more clearly
+
+## Draw.io MCP-Driven Diagram Workflow
+
+When generating a `.drawio` diagram, use the Draw.io MCP server tools.
+The server auto-sends detailed layout rules, batch workflow, and conventions
+via its `instructions` field — follow those for spacing, grid alignment,
+edge routing, group sizing, and cross-cutting service placement.
+
+**CRITICAL: The MCP server is NOT stateful between calls.** You MUST pass
+`diagram_xml` from each tool response to the next tool call. Save the XML
+to a temp file between steps via terminal command to avoid inflating context.
+
+1. **Search shapes** — Call `search-shapes` ONCE with ALL Azure service names
+   in the `queries` array (main flow + cross-cutting services).
+
+2. **Create groups** — Call `create-groups` ONCE with ALL container cells
+   (VNets, subnets, resource groups, Fabric zone). Set `text: ""` for groups;
+   create a separate bold text vertex above each group with the label.
+   Note the group cell IDs from the response (e.g., `cell-2` through `cell-6`).
+
+3. **Add cells** — Call `add-cells` ONCE with ALL vertices AND edges in one
+   `cells` array. **Pass `diagram_xml` from step 2** so group IDs are visible.
+   Set `transactional: true` for multi-step diagrams:
+   - Use `shape_name` for Azure icons (e.g., `"Front Doors"`, `"Key Vaults"`)
+   - Do NOT specify `width`, `height`, or `style` for shaped vertices
+   - Use `temp_id` on vertices for edge cross-references
+   - List vertices before edges in the array
+   - Target edges at specific vertices (not groups) when possible
+   - Cross-cutting services at bottom (120px below main flow, no edges)
+
+4. **Extract cell IDs** — Use a terminal command to extract only the
+   `tempId → cell.id` mapping from the large JSON response. Do NOT read
+   the full JSON back through the LLM:
+
+   ```bash
+   python3 -c "import json; d=json.load(open('<json-path>')); \
+     [print(r.get('tempId',''), '->', r['cell']['id']) \
+      for r in d['data']['results'] if r and r.get('success') and r.get('tempId')]"
+   ```
+
+   Also save `diagram_xml` from the response to a temp file for the next step.
+
+5. **Assign to groups** — Call `add-cells-to-group` ONCE with ALL assignments.
+   **Pass `diagram_xml` from step 3** (the full XML with both groups and cells).
+   Use the actual cell IDs from step 4 (placeholder IDs differ between batches).
+   Server auto-converts coordinates.
+
+6. **Finish** — Call `finish-diagram` with `compress: true`, **passing
+   `diagram_xml` from step 5**. This resolves placeholders to real SVGs.
+
+7. **Save + strip anchors** — Use the helper script (handles decompression,
+   `mxGraphModel` embedding, AND edge anchor/waypoint stripping):
+
+   ```bash
+   python3 scripts/save-drawio.py '<json-path>' 'agent-output/{project}/03-des-diagram.drawio'
+   ```
+
+8. **Validate** — Run `node scripts/validate-drawio-files.mjs` to confirm.
+
 - Leaving service labels left-aligned or inconsistent across peer boxes
 - Leaving stray vector/icon elements outside the intended diagram layout
 - Skipping the attribution header on output files
@@ -157,7 +217,7 @@ If missing, STOP and request handoff to Architect agent.
 ### Turn-Count Circuit Breaker
 
 If you have completed **25 tool calls** within a single diagram generation phase without
-producing the final `.excalidraw` file, STOP and:
+producing the final `.drawio` file, STOP and:
 
 1. Save any partial diagram state
 2. Summarize progress and remaining work in a short message to the user
@@ -174,7 +234,7 @@ artifact. Do NOT carry raw MCP XML/JSON payloads into subsequent turns.
 Pattern:
 
 ```text
-Diagram complete: {filename}.excalidraw saved ({N} resources, quality {score}/10).
+Diagram complete: {filename}.drawio saved ({N} resources, quality {score}/10).
 Proceeding to {next artifact}.
 ```
 
@@ -186,43 +246,28 @@ already available from files read earlier in this session (e.g., `02-architectur
 
 ## Workflow
 
-### Diagram Generation (Excalidraw — Default)
+### Diagram Generation (Draw.io — Default)
 
 For projects requiring **multiple diagrams** (e.g., Step 4 dependency + runtime diagrams),
 generate each diagram as a separate phase with a context checkpoint between them.
 
 1. Read `02-architecture-assessment.md` for resource list, boundaries, and flows
 2. Read `01-requirements.md` for business-critical paths and actor context
-3. Look up Azure icons in `assets/excalidraw-libraries/azure-icons/reference.md`
-4. Look up Fabric icons in `assets/excalidraw-libraries/fabric-icons/reference.md` when Fabric services are present
-5. Create Excalidraw JSON from a clean base layout
+3. Use Draw.io MCP `search-shapes` to find all needed Azure service icons
+4. Use `create-groups` for VNets/subnets/RGs (text: '' for groups, separate label vertex above)
+5. Use `add-cells` with ALL vertices AND edges in one call (transactional: true)
    (not by incrementally repairing a broken geometry)
-6. Start with the outer responsibility shells, then add nested zones and only
-   then place services and supporting groups
-7. Place icons inside their target boxes, normalizing imported vector icon
-   bounds before placement
-8. Verify the saved diagram contains embedded `image` elements and a non-empty
-   top-level `files` map before considering the deliverable complete
-9. Route arrows from box edges with explicit bend points where needed;
-   avoid crossing labels/icons
-10. Add a compact legend only when connector color or stroke style carries meaning
-   and remove it entirely when the flow is self-evident
-11. Use larger boxes and label sizes first, then reduce content density rather than
-    shrinking text to force everything into one row
-12. Strip non-essential operational detail from tiles and subtitles
-    (for example SKU, tier, node count, version, or policy revision) unless the
-    architecture depends on that distinction
-13. Anchor ingress and perimeter services to their related zone or flow rather
-    than letting them float above or between major regions
-14. Center service labels, standardize label sizing, and place the footer at the
-    bottom-right in smaller text with clear separation from the supporting band
-15. Remove non-essential connector labels, placeholder regions, and secondary flow lines
-    that do not help a reader understand the architecture
-16. Route partner-share and integration lines with the simplest orthogonal path available;
-    avoid loops or decorative detours
-17. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
-18. Save `.excalidraw` file to disk. CI will auto-generate `.excalidraw.svg`
-19. **Context checkpoint** — summarize diagram result before next artifact
+6. Extract cell IDs via terminal command (do NOT read full JSON through LLM)
+7. Use `add-cells-to-group` for all group assignments in one call
+8. Call `finish-diagram` with compress: true
+9. Save via `python3 scripts/save-drawio.py <json-path> <output.drawio>`
+10. Validate via `node scripts/validate-drawio-files.mjs`
+11. Left-to-right flow, cross-cutting services at bottom (no edges to them)
+12. Orthogonal edges, generous spacing (120px H, 80px V minimum)
+13. Groups with text: '' and separate bold label vertex above
+14. Keep Step 3 diagrams conceptual: service names and major boundaries matter
+15. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
+16. **Context checkpoint** — summarize diagram result before next artifact
 
 ### ADR Generation
 
@@ -242,7 +287,7 @@ generate each diagram as a separate phase with a context checkpoint between them
 
 | File                        | Purpose                                  |
 | --------------------------- | ---------------------------------------- |
-| `03-des-diagram.excalidraw` | Editable Excalidraw architecture diagram |
+| `03-des-diagram.drawio` | Editable Draw.io architecture diagram |
 | `03-des-adr-NNNN-*.md`      | Architecture Decision Records            |
 | `03-des-cost-estimate.md`   | Cost estimate (via Architect handoff)    |
 
@@ -252,7 +297,7 @@ Include attribution: `> Generated by design agent | {YYYY-MM-DD}`
 
 ```text
 agent-output/{project}/
-├── 03-des-diagram.excalidraw      # Architecture diagram (Excalidraw)
+├── 03-des-diagram.drawio      # Architecture diagram (Draw.io)
 ├── 03-des-adr-NNNN-{slug}.md      # Architecture Decision Records (1+ files)
 └── 03-des-cost-estimate.md        # Cost estimate (via Architect handoff)
 ```

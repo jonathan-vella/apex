@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Governance Audit: Log session end with summary statistics
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/governance-audit
 

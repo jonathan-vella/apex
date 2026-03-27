@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Validate .excalidraw files for well-formed JSON structure.
- * Checks: valid JSON, correct top-level schema, non-empty elements, unique IDs.
+ * Checks: valid JSON, correct top-level schema, non-empty elements,
+ * unique IDs, and required embedded image payloads for demo architecture files.
  *
  * @example
  * node scripts/validate-excalidraw-files.mjs
@@ -14,7 +15,8 @@ import path from "node:path";
 const SCAN_DIRS = [
   "agent-output",
   "assets",
-  ".github/skills/azure-diagrams/references",
+  ".github/skills/excalidraw/references",
+  "site/public/demo",
 ];
 
 const ICON_REQUIRED_PATTERN =

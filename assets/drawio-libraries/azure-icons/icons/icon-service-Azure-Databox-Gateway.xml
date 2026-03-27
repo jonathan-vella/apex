@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-Azure-Databox-Gateway">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-Azure-Databox-Gateway" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImE2YTI2YjFlLWNlZGUtNDhkZi1iY2Y2LTNhMzAwYmM1ZGIxYiIgeDE9IjkiIHkxPSIxNS4zNDIiIHgyPSI5IiB5Mj0iMi42NTgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMDc4ZDQiIC8+PHN0b3Agb2Zmc2V0PSIwLjgxNyIgc3RvcC1jb2xvcj0iIzVlYTBlZiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBpZD0iZjZjN2I4MTItZWUzNi00NGRkLTgyM2UtOWFhZjM4MmE1YzczIj48Zz48Zz48cGF0aCBkPSJNMTcuOTQ3LDExLjM2OWE0LjAxOSw0LjAxOSwwLDAsMC0zLjQ4OS0zLjg2NCw1LjA2OCw1LjA2OCwwLDAsMC01LjIyLTQuODQ3QTUuMiw1LjIsMCwwLDAsNC4yNyw2LjA0Niw0LjgsNC44LDAsMCwwLC4wNTMsMTAuNjYyYTQuODY5LDQuODY5LDAsMCwwLDUuMDM4LDQuNjhjLjE1LDAsLjMtLjAwOC40NDQtLjAySDEzLjdhLjguOCwwLDAsMCwuMjE1LS4wMzJBNC4wNjgsNC4wNjgsMCwwLDAsMTcuOTQ3LDExLjM2OVoiIGZpbGw9InVybCgjYTZhMjZiMWUtY2VkZS00OGRmLWJjZjYtM2EzMDBiYzVkYjFiKSIgLz48cGF0aCBkPSJNOS40NjgsMTAuNTQ1YTQuNzA4LDQuNzA4LDAsMSwwLTQuNzA3LDQuOGMuMDUzLDAsLjEsMCwuMTU3LDBIOS40N1YxMC41NDVaIiBmaWxsPSIjNTBlNmZmIiAvPjwvZz48cGF0aCBkPSJNMS4zMjUsMTEuNzQ3LDMuMTA3LDEzLjIyYS4xNjkuMTY5LDAsMCwwLC4yNzctLjEzdi0uNjQxSDcuNjM3di0xaC02LjJBLjE2OC4xNjgsMCwwLDAsMS4zMjUsMTEuNzQ3WiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC43NSIgLz48cGF0aCBkPSJNNy45NiwxMC4yNTUsNi4xNCw4Ljc3OGEuMTY5LjE2OSwwLDAsMC0uMjc2LjEzdi42NDZIMi4wMXYxSDcuODUzQS4xNjguMTY4LDAsMCwwLDcuOTYsMTAuMjU1WiIgZmlsbD0iI2ZmZiIgLz48L2c+PC9nPjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

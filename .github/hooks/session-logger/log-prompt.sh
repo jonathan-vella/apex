@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Session Logger: Log user prompt submission
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/session-logger
 

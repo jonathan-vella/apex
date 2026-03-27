@@ -138,7 +138,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
    Read `02-architecture-assessment.md` for context. Do NOT use askQuestions.
    This is a complex Contoso Service Hub: AKS, PostgreSQL, Redis, APIM, WAF/CDN, CIAM,
    storage, monitoring, Key Vault, VMs. Generate:
-   - `03-des-diagram.excalidraw` (architecture diagram)
+   - `03-des-diagram.drawio` (architecture diagram)
    - `03-des-adr-001-container-platform.md` (AKS vs Container Apps decision)
    - `03-des-adr-002-caching-tier.md` (Redis tier decision)
      Save all to `agent-output/contoso-service-hub-run-1/`."\_
@@ -175,7 +175,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
    `agent-output/contoso-service-hub-run-1/04-governance-constraints.json`.
    Do NOT use askQuestions — all decisions are in the architecture assessment.
    This is an automated E2E run for a complex Contoso Service Hub.
-   Save `04-implementation-plan.md`, `04-dependency-diagram.py`, and `04-runtime-diagram.py`
+   Save `04-implementation-plan.md`, `04-dependency-diagram.drawio`, and `04-runtime-diagram.drawio`
    to `agent-output/contoso-service-hub-run-1/`.
    Key requirements:
    - AVM-first module selection for all resources

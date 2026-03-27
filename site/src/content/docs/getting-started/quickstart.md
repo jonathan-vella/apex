@@ -202,10 +202,10 @@ After completing the workflow:
 agent-output/my-webapp/
 ├── 01-requirements.md          # Captured requirements (includes iac_tool)
 ├── 02-architecture-assessment.md  # WAF analysis
-├── 03-des-diagram.excalidraw   # Optional Step 3 architecture diagram
+├── 03-des-diagram.drawio         # Optional Step 3 architecture diagram
 ├── 04-implementation-plan.md   # Phased plan
-├── 04-dependency-diagram.excalidraw  # Step 4 dependency diagram
-├── 04-runtime-diagram.excalidraw     # Step 4 runtime diagram
+├── 04-dependency-diagram.drawio    # Step 4 dependency diagram
+├── 04-runtime-diagram.drawio       # Step 4 runtime diagram
 ├── 04-governance-constraints.md   # Policy discovery
 ├── 05-implementation-reference.md # Module inventory
 ├── 06-deployment-summary.md    # Deployed resources
@@ -239,7 +239,7 @@ infra/terraform/my-webapp/
 | Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                            |
 | Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
 | Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                         |
-| Generate architecture diagrams  | Use `azure-diagrams` skill                                                         |
+| Generate architecture diagrams  | Use `drawio` skill (or `python-diagrams` for charts)                               |
 | Create documentation            | Use `azure-artifacts` skill                                                        |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
 | Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                |
@@ -263,12 +263,12 @@ Ctrl+Shift+A → Select agent → Type prompt → Approve
 
 Skills activate automatically based on your prompt:
 
-- "Create an architecture diagram" → `azure-diagrams`
+- "Create an architecture diagram" → `drawio`
 - "Generate an ADR" → `azure-adr`
 - "Create workload documentation" → `azure-artifacts`
 
 Or invoke explicitly:
 
 ```text
-Use the azure-diagrams skill to create a diagram for my-webapp
+Use the drawio skill to create a diagram for my-webapp
 ```

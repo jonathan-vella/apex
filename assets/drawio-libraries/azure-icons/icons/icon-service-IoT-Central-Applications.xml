@@ -1,0 +1,13 @@
+<mxfile>
+  <diagram id="icon" name="icon-service-IoT-Central-Applications">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="icon-service-IoT-Central-Applications" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,PHN2ZyBpZD0iYjhhNWRlYjAtMjU3ZC00MDI5LTllZDAtYTAyNTE4ZTlhNTE5IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48dGl0bGU+SWNvbi1pb3QtMTg0PC90aXRsZT48cGF0aCBkPSJNOSwwLDEuMTUsNC40OXYzTDQuMiw5LjM0VjcuNTRMMi42LDYuNjJWNS4zOEw5LDEuNjhsNi40LDMuNzF2Ny4xOEw5LDE2LjI3LDEuMTUsMTEuNzh2MS42OEw5LDE4bDcuODUtNC40OXYtOVoiIGZpbGw9IiNhM2EzYTMiIC8+PHBvbHlnb24gcG9pbnRzPSI5IDAgOSAwIDEuMTUgNC40OSAyLjYgNS4zOCA5IDEuNjggOSAxLjY4IDE1LjQgNS4zOCAxNi44NSA0LjQ5IDkgMCIgZmlsbD0iIzk0OTQ5NCIgLz48cG9seWdvbiBwb2ludHM9IjEzLjI1IDYuNTQgMTMuMjUgMTEuNDYgOSAxMy45MyA5IDkuMDEgMTMuMjUgNi41NCIgZmlsbD0iIzMyYmVkZCIgLz48cG9seWdvbiBwb2ludHM9IjEzLjI1IDYuNTQgOSA5LjAxIDQuNzUgNi41NCA5IDQuMDcgMTMuMjUgNi41NCIgZmlsbD0iIzljZWJmZiIgLz48cG9seWdvbiBwb2ludHM9IjkgOS4wMSA5IDEzLjkzIDQuNzUgMTEuNDYgNC43NSA2LjU0IDkgOS4wMSIgZmlsbD0iIzUwZTZmZiIgLz48cG9seWdvbiBwb2ludHM9IjQuNzUgMTEuNDYgOSA5LjAxIDkgMTMuOTMgNC43NSAxMS40NiIgZmlsbD0iIzljZWJmZiIgLz48cG9seWdvbiBwb2ludHM9IjEzLjI1IDExLjQ2IDkgOS4wMSA5IDEzLjkzIDEzLjI1IDExLjQ2IiBmaWxsPSIjNTBlNmZmIiAvPjwvc3ZnPg==" vertex="1" parent="1">
+          <mxGeometry width="48" height="48" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

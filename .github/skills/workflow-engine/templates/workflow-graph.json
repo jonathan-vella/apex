@@ -58,7 +58,7 @@
       "name": "Design (optional)",
       "agent": "04-Design",
       "requires": ["gate-2"],
-      "produces": ["03-des-diagram.excalidraw", "03-des-adr-*.md"],
+      "produces": ["03-des-diagram.drawio", "03-des-adr-*.md"],
       "gate": null,
       "optional": true,
       "challenger": null
@@ -92,8 +92,8 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": [
         "04-implementation-plan.md",
-        "04-dependency-diagram.py",
-        "04-runtime-diagram.py"
+        "04-dependency-diagram.drawio",
+        "04-runtime-diagram.drawio"
       ],
       "gate": "approval",
       "challenger": {
@@ -119,8 +119,8 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": [
         "04-implementation-plan.md",
-        "04-dependency-diagram.py",
-        "04-runtime-diagram.py"
+        "04-dependency-diagram.drawio",
+        "04-runtime-diagram.drawio"
       ],
       "gate": "approval",
       "challenger": {

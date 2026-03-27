@@ -18,13 +18,21 @@ every task.
 @workspace What are the default required tags from azure-defaults?
 ```
 
-### azure-diagrams
+### drawio
 
-Generates Python architecture diagrams using the `diagrams` library.
+Generates Draw.io architecture diagrams with 700+ Azure icons via MCP server.
 
 ```text
 Generate an architecture diagram for the infrastructure in
-infra/bicep/my-project/ using the azure-diagrams skill.
+infra/bicep/my-project/ using the drawio skill.
+```
+
+### python-diagrams
+
+Generates WAF/cost/compliance charts using Python matplotlib.
+
+```text
+Generate a WAF pillar bar chart for the architecture assessment.
 ```
 
 ### azure-bicep-patterns

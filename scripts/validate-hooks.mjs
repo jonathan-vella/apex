@@ -32,6 +32,8 @@ const VALID_EVENTS = new Set([
   "PreToolUse",
   "PostToolUse",
   "SessionStart",
+  "UserPromptSubmit",
+  "PreCompact",
   "SubagentStart",
   "SubagentStop",
   "Stop",

@@ -7,7 +7,7 @@ toc_depth: 3
 The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
 This project integrates six core MCP servers, each providing specialised capabilities that
-agents invoke at runtime: Azure MCP, Azure Pricing MCP, Excalidraw MCP, GitHub MCP,
+agents invoke at runtime: Azure MCP, Azure Pricing MCP, Draw.io MCP, GitHub MCP,
 MS Learn MCP, and Terraform MCP. Five are declared in `.vscode/mcp.json`; the sixth
 (Azure MCP) runs as a VS Code extension. An additional `astro-docs` server is declared in
 `.vscode/mcp.json`
@@ -46,13 +46,13 @@ flowchart LR
 
   A["Agent"]:::agent --> M1["Azure MCP"]:::mcp
   A --> M2["Azure Pricing MCP"]:::mcp
-  A --> M3["Excalidraw MCP"]:::mcp
+  A --> M3["Draw.io MCP"]:::mcp
   A --> M4["GitHub MCP"]:::mcp
   A --> M5["MS Learn MCP"]:::mcp
   A --> M6["Terraform MCP"]:::mcp
   M1 --> AZ["Azure Resource Manager"]
   M2 --> P["Azure Retail Prices API"]
-  M3 --> E["Excalidraw Service"]
+  M3 --> D["Draw.io MCP Server"]
   M4 --> G["GitHub API"]
   M5 --> L["learn.microsoft.com"]
   M6 --> T["Terraform Registry"]
@@ -129,22 +129,28 @@ codes for consistent agent error handling.
 Primarily scoped to the **Architect** agent (Step 2), the
 **cost-estimate-subagent**, and the **As-Built** agent (Step 7).
 
-## :material-pencil-ruler: Excalidraw MCP Server
+## :material-pencil-ruler: Draw.io MCP Server
 
-| Property  | Value                            |
-| --------- | -------------------------------- |
-| Transport | HTTP                             |
-| Endpoint  | `https://mcp.excalidraw.com/mcp` |
-| Auth      | None                             |
-| Purpose   | Editable architecture diagrams   |
+| Property  | Value                                                    |
+| --------- | -------------------------------------------------------- |
+| Transport | stdio                                                    |
+| Command   | Deno (`mcp/drawio-mcp-server/src/index.ts`)              |
+| Auth      | None                                                     |
+| Icons     | 700+ built-in Azure service icons                        |
+| Source    | `mcp/drawio-mcp-server/` (simonkurtz-MSFT fork, in-repo) |
+| Purpose   | Azure architecture diagrams via batch MCP tools          |
 
-The Excalidraw MCP server lets agents create and update editable diagrams for
-architecture and workflow artifacts. It is the backbone for `.excalidraw`
-outputs used by the Design step and by implementation-planning diagrams, which
-keeps diagrams reviewable and easy to refine after generation.
+The Draw.io MCP server provides agents with batch diagram creation tools
+for generating Azure architecture diagrams as `.drawio` files. It includes
+700+ built-in Azure service icons resolved via `shape_name`, supports
+transactional mode for multi-step diagram builds, and handles group
+containment, edge routing, and placeholder resolution automatically.
+
+Key tools: `search-shapes`, `create-groups`, `add-cells`,
+`add-cells-to-group`, `finish-diagram`, `export-diagram`.
 
 It is primarily used by the **Design** agent (Step 3), the planning agents
-that emit architecture views, and the `azure-diagrams` skill.
+that emit architecture views, and the `drawio` skill.
 
 ## :octicons-mark-github-16: GitHub MCP Server
 
@@ -282,7 +288,7 @@ VS Code Extensions panel.
 | ----------------- | ------------------------------------------ | ------------------------------- |
 | Azure MCP         | Azure CLI or managed identity              | Run `az login` before using     |
 | Azure Pricing MCP | None for pricing; Azure CLI for Spot tools | `az login` for Spot VM features |
-| Excalidraw MCP    | None                                       | No setup needed                 |
+| Draw.io MCP       | None                                       | No setup needed                 |
 | GitHub MCP        | Automatic via Copilot token                | No setup needed                 |
 | MS Learn MCP      | None (public API)                          | No setup needed                 |
 | Terraform MCP     | None                                       | No setup needed                 |

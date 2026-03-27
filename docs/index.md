@@ -172,7 +172,7 @@ sequenceDiagram
 | **Agents**      | Specialized top-level agents and subagents                    |
 | **Skills**      | Reusable domain knowledge modules                             |
 | **IaC Tracks**  | Bicep and Terraform (dual-track)                              |
-| **MCP Servers** | Azure, Azure Pricing, Excalidraw, GitHub, MS Learn, Terraform |
+| **MCP Servers** | Azure, Azure Pricing, Draw.io, GitHub, MS Learn, Terraform |
 | **Workflow**    | Multi-step with mandatory approval gates                      |
 
 ## :material-star-outline: Highlights
