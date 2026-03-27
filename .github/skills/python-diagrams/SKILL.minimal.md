@@ -26,6 +26,6 @@ Critical settings for clean output — use `labelloc="t"` to keep labels inside 
 **DO:** Set `show=False` · Use `direction="TB"` · Group in `Cluster` blocks ·
 
 **Scope Exclusions**:
-Does NOT: generate Excalidraw architecture diagrams · produce Mermaid diagrams ·
+Does NOT: generate Excalidraw/Draw.io architecture diagrams · produce Mermaid diagrams ·
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

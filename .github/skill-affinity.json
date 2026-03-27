@@ -61,7 +61,6 @@
       "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
       "secondary": [
         "context-shredding",
-        "excalidraw",
         "drawio",
         "python-diagrams",
         "microsoft-docs"
@@ -76,7 +75,6 @@
     "04-Design": {
       "primary": ["azure-adr"],
       "secondary": [
-        "excalidraw",
         "drawio",
         "python-diagrams",
         "azure-artifacts",
@@ -202,9 +200,8 @@
       ]
     },
     "08-As-Built": {
-      "primary": ["excalidraw", "python-diagrams"],
+      "primary": ["drawio", "python-diagrams"],
       "secondary": [
-        "drawio",
         "azure-defaults",
         "azure-artifacts",
         "session-resume",

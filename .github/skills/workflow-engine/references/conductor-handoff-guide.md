@@ -78,8 +78,8 @@ Blockers: {N} Deny policies | Warnings: {N} Audit policies
 ```text
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
-Dependency Diagram: agent-output/{project}/04-dependency-diagram.excalidraw
-Runtime Diagram: agent-output/{project}/04-runtime-diagram.excalidraw
+Dependency Diagram: agent-output/{project}/04-dependency-diagram.drawio
+Runtime Diagram: agent-output/{project}/04-runtime-diagram.drawio
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.

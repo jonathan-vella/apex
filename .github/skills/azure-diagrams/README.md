@@ -1,15 +1,15 @@
 # Azure Diagrams — Routing Skill
 
-> **Status**: Router only (v7.0). All implementation content has moved to specialized skills.
+> **Status**: Router only (v8.0). All implementation content has moved to specialized skills.
 
 This skill routes diagram requests to the appropriate specialized skill:
 
 | Diagram type                   | Target skill                             |
 | ------------------------------ | ---------------------------------------- |
-| Architecture diagrams          | [`excalidraw`](../excalidraw/)           |
+| Architecture diagrams          | [`drawio`](../drawio/)                   |
 | WAF / cost / compliance charts | [`python-diagrams`](../python-diagrams/) |
 | Inline markdown diagrams       | [`mermaid`](../mermaid/)                 |
-| Draw.io diagrams               | [`drawio`](../drawio/)                   |
+| Hand-drawn whiteboarding       | [`excalidraw`](../excalidraw/)           |
 
 See [SKILL.md](SKILL.md) for the full routing table.
 

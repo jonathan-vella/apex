@@ -1,3 +1,5 @@
+<!-- ref:azure-patterns-v1 -->
+
 # Azure Draw.io MCP Patterns
 
 Reusable MCP tool call patterns for common Azure architectures.

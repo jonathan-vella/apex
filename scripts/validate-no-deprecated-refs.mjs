@@ -60,7 +60,7 @@ const DEPRECATED_PATTERNS = [
   {
     pattern: /\.github\/agents\/diagram\.agent\.md/gi,
     message:
-      "Reference to removed diagram.agent.md (use excalidraw or python-diagrams skill)",
+      "Reference to removed diagram.agent.md (use drawio or python-diagrams skill)",
     severity: "error",
   },
   {
@@ -125,7 +125,7 @@ const DEPRECATED_PATTERNS = [
   {
     pattern: /@diagram\s+agent/gi,
     message:
-      "Reference to @diagram agent (removed - use excalidraw or python-diagrams skill)",
+      "Reference to @diagram agent (removed - use drawio or python-diagrams skill)",
     severity: "warn",
   },
   {

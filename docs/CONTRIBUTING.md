@@ -8,7 +8,7 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](docs/workflow.md)
+- [Development Workflow Guide](workflow.md)
 
 ## 🎯 What We're Looking For
 
@@ -20,7 +20,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Additional validation checks
 
 2. **Documentation**
-   - Workflow improvements (`docs/workflow.md`)
+   - Workflow improvements (`workflow.md`)
    - Better examples and use cases
    - Troubleshooting guides
 
@@ -42,8 +42,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](docs/workflow.md)
-- Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
+- Workflow details: [Development Workflow Guide](workflow.md)
+- Agent workflow details: [Agent Workflow Reference](workflow.md)
 
 #### Branch Naming Convention
 
@@ -130,7 +130,7 @@ Branch naming and scope are enforced at three levels:
 - Use clear, concise language
 - Include code examples
 - Document prerequisites
-- Use Mermaid for explanatory diagrams in Markdown; use Excalidraw for architecture artifacts
+- Use Mermaid for explanatory diagrams in Markdown; use Draw.io for architecture artifacts
 
 ### Markdown Linting
 

@@ -17,7 +17,7 @@
 | 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                    | 1×–3× + 1 cost | Approval   |
 | 3    | Design (opt)                                                               | `03-des-*.{py,png,md}` diagrams and ADRs                                                           | —              | —          |
 | 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                               | 1×             | Approval   |
-| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.excalidraw` + `04-runtime-diagram.excalidraw` | 1×–2×          | Approval   |
+| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.drawio` + `04-runtime-diagram.drawio` | 1×–2×          | Approval   |
 | 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                           | 1×–3×          | Validation |
 | 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                         | —              | Approval   |
 | 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                      | —              | —          |
@@ -36,11 +36,11 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 | `azure-artifacts`          | Template H2 structures, styling, generation rules                                                      |
 | `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                                                   |
 | `azure-diagnostics`        | KQL templates, health checks, remediation playbooks                                                    |
-| `excalidraw`               | Excalidraw architecture diagrams with Azure/Fabric icon embedding                                      |
+| `excalidraw`               | Hand-drawn whiteboarding, brainstorming, wireframes, informal sketches                                 |
 | `python-diagrams`          | Python charts (WAF/cost/compliance) and diagrams library patterns                                      |
 | `mermaid`                  | Inline Mermaid diagrams for markdown documentation                                                     |
-| `azure-diagrams`           | Routing skill — delegates to excalidraw, python-diagrams, mermaid                                      |
-| `drawio`                   | Draw.io diagrams via simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode) |
+| `azure-diagrams`           | Routing skill — delegates to drawio, python-diagrams, mermaid                                          |
+| `drawio`                   | Azure architecture diagrams via MCP server (700+ Azure icons, batch creation, transactional mode)      |
 | `azure-adr`                | Architecture Decision Records                                                                          |
 | `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                                                             |
 | `git-commit`               | Commit message conventions                                                                             |

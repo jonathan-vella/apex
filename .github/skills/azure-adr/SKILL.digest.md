@@ -71,7 +71,7 @@ Consider WAF implications and cost trade-offs.
 ## What This Skill Does NOT Do
 
 - ❌ Generate Bicep or Terraform code
-- ❌ Create architecture diagrams (use `excalidraw` skill)
+- ❌ Create architecture diagrams (use `drawio` skill)
 - ❌ Deploy resources (use `deploy` agent)
 - ❌ Create implementation plans (use `bicep-plan` agent)
 

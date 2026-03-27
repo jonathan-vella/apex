@@ -18,13 +18,13 @@ every task.
 @workspace What are the default required tags from azure-defaults?
 ```
 
-### excalidraw
+### drawio
 
-Generates Excalidraw architecture diagrams with embedded Azure and Fabric icons.
+Generates Draw.io architecture diagrams with 700+ Azure icons via MCP server.
 
 ```text
 Generate an architecture diagram for the infrastructure in
-infra/bicep/my-project/ using the excalidraw skill.
+infra/bicep/my-project/ using the drawio skill.
 ```
 
 ### python-diagrams

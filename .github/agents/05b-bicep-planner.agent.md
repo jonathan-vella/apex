@@ -71,7 +71,7 @@ constraints to identify Deny-policy blockers before designing the module structu
 <output_contract>
 Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
 specs, module inventory, deployment phases, dependency order. H2 structure from template.
-Diagrams: 04-dependency-diagram.excalidraw and 04-runtime-diagram.excalidraw.
+Diagrams: 04-dependency-diagram.drawio and 04-runtime-diagram.drawio.
 Session state: update 00-session-state.json after each phase with sub_step checkpoint.
 </output_contract>
 
@@ -108,7 +108,7 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 | Include governance constraints in the plan                                           | Add H2 headings not in the template                          |
 | Define tasks as YAML-structured specs                                                | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning |
 | Generate `04-implementation-plan.md`                                                 | Generate governance from best-practice assumptions           |
-| Auto-generate `04-dependency-diagram.excalidraw` and `04-runtime-diagram.excalidraw` | Re-run governance discovery (already done in Step 3.5)       |
+| Auto-generate `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio` | Re-run governance discovery (already done in Step 3.5)       |
 | Match H2 headings from azure-artifacts skill exactly                                 |                                                              |
 | Update `agent-output/{project}/README.md` — mark Step 4 complete                     |                                                              |
 | Ask user for deployment strategy — **MANDATORY GATE**                                |                                                              |
@@ -219,8 +219,8 @@ Context usage reaches ~80% by the end of the deployment strategy gate.
 Generate structured plan with YAML specs per resource (resource, module, SKU, dependencies, config, tags, naming).
 
 Include: resource inventory, module structure (`main.bicep` + `modules/`), tasks in dependency order,
-deployment phases (from Phase 3.5 choice), diagram artifacts (`04-dependency-diagram.excalidraw`,
-`04-runtime-diagram.excalidraw`), naming conventions table, security config matrix, estimated time.
+deployment phases (from Phase 3.5 choice), diagram artifacts (`04-dependency-diagram.drawio`,
+`04-runtime-diagram.drawio`), naming conventions table, security config matrix, estimated time.
 
 > **Important**: The plan must include an Azure Budget resource (`Microsoft.Consumption/budgets`)
 > with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
@@ -280,8 +280,8 @@ detailed findings are already visible in chat above):
 | File                | Location                                                  | Template                   |
 | ------------------- | --------------------------------------------------------- | -------------------------- |
 | Implementation Plan | `agent-output/{project}/04-implementation-plan.md`        | From azure-artifacts skill |
-| Dependency Diagram  | `agent-output/{project}/04-dependency-diagram.excalidraw` | Excalidraw                 |
-| Runtime Diagram     | `agent-output/{project}/04-runtime-diagram.excalidraw`    | Excalidraw                 |
+| Dependency Diagram  | `agent-output/{project}/04-dependency-diagram.drawio` | Draw.io                    |
+| Runtime Diagram     | `agent-output/{project}/04-runtime-diagram.drawio`    | Draw.io                    |
 
 > **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
 > not by this agent. They are consumed as prerequisites.
@@ -306,8 +306,8 @@ Include attribution header from the template file (do not hardcode).
 - [ ] Security configuration includes managed identity where applicable
 - [ ] Approval gate presented before handoff
 - [ ] 04-implementation-plan and governance artifacts saved to `agent-output/{project}/`
-- [ ] `04-dependency-diagram.excalidraw` generated and referenced in plan
-- [ ] `04-runtime-diagram.excalidraw` generated and referenced in plan
+- [ ] `04-dependency-diagram.drawio` generated and referenced in plan
+- [ ] `04-runtime-diagram.drawio` generated and referenced in plan
 
 <example title="Dependency ordering for phased deployment">
 Input: App Service, SQL Database, Key Vault, VNet, Private Endpoints. Strategy: phased.

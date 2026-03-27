@@ -92,11 +92,11 @@ development efforts.
 
 ### 2.1 Architecture Diagram
 
-![System Context Diagram - {project-name}](./03-des-diagram.excalidraw.svg)
+![System Context Diagram - {project-name}](./03-des-diagram.drawio.svg)
 
-Source: [03-des-diagram.excalidraw](./03-des-diagram.excalidraw)
+Source: [03-des-diagram.drawio](./03-des-diagram.drawio)
 
-> Replace with actual generated Excalidraw architecture diagram for the project.
+> Replace with actual generated Draw.io architecture diagram for the project.
 
 ### 2.2 Resource Summary
 

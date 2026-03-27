@@ -61,7 +61,7 @@ and routing to the next step. At approval gates, the Conductor writes a
 | 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults                 |
 | 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts                |
 | 03-Architect             | WAF assessment and cost estimation    | azure-defaults                                 |
-| 04-Design                | Diagrams and ADRs                     | excalidraw, python-diagrams, azure-adr         |
+| 04-Design                | Diagrams and ADRs                     | drawio, python-diagrams, azure-adr             |
 | 04g-Governance           | Policy discovery and compliance       | azure-defaults                                 |
 | 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns                           |
 | 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns                             |
@@ -69,7 +69,7 @@ and routing to the next step. At approval gates, the Conductor writes a
 | 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns                             |
 | 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common                     |
 | 07t-Terraform Deploy     | Terraform deployment execution        | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built              | Post-deployment documentation         | azure-artifacts, excalidraw, python-diagrams   |
+| 08-As-Built              | Post-deployment documentation         | azure-artifacts, drawio, python-diagrams       |
 | 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics                              |
 | 10-Challenger            | Standalone adversarial review         | —                                              |
 | 11-Context Optimizer     | Context window audit and optimisation | context-optimizer                              |

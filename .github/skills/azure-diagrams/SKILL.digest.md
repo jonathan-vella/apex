@@ -8,9 +8,9 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 | Diagram type                                   | Target skill         | Output format     |
 | ---------------------------------------------- | -------------------- | ----------------- |
-| Architecture diagrams (default)                | `excalidraw`         | `.excalidraw`     |
-| Dependency / runtime diagrams                  | `excalidraw`         | `.excalidraw`     |
-| As-built diagrams                              | `excalidraw`         | `.excalidraw`     |
+| Architecture diagrams (default)                | `drawio`             | `.drawio`         |
+| Dependency / runtime diagrams                  | `drawio`             | `.drawio`         |
+| As-built diagrams                              | `drawio`             | `.drawio`         |
 | WAF bar charts                                 | `python-diagrams`    | `.py` + `.png`    |
 
 > _See SKILL.md for full content._

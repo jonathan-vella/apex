@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────
 # Stage 1 — Compile a fully self-contained native binary
 # ──────────────────────────────────────────────────────────────
-ARG DENO_VERSION=2.6.10
+ARG DENO_VERSION=latest
 FROM denoland/deno:${DENO_VERSION} AS builder
 
 WORKDIR /app

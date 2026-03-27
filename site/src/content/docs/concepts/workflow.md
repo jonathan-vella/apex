@@ -153,10 +153,10 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | ---- | ------------------ | ------------- | ------------------------------------ | ------------------------------------------------------- |
 | 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                    |
 | 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                         |
-| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{excalidraw,py,png,md}`                       |
+| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{drawio,py,png,md}`                           |
 | 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                    |
-| 4b   | `bicep-plan`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.excalidraw` |
-| 4t   | `terraform-plan`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.excalidraw` |
+| 4b   | `bicep-plan`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.drawio`     |
+| 4t   | `terraform-plan`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.drawio`     |
 | 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                                |
 | 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation   | `infra/terraform/{project}/`                            |
 | 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                     | `06-deployment-summary.md`                              |
@@ -246,17 +246,17 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `excalidraw` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
+**Handoff**: Suggests `drawio` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
-**Skills**: `excalidraw`, `python-diagrams`, `azure-adr`
+**Skills**: `drawio`, `python-diagrams`, `azure-adr`
 
 Create visual and textual design documentation.
 
 ```text
 Trigger: "Create an architecture diagram for {project}"
-Output: agent-output/{project}/03-des-diagram.excalidraw, 03-des-adr-*.md
+Output: agent-output/{project}/03-des-diagram.drawio, 03-des-adr-*.md
 ```
 
 **Diagram types**: Azure architecture, business flows, ERD, timelines
@@ -315,7 +315,7 @@ fails, the planner stops and requests governance refresh.
 - Governance constraints integration from Step 3.5
 - AVM module selection (Bicep: `br/public:avm/res/`, Terraform: AVM-TF registry)
 - Resource dependency mapping
-- Auto-generated Step 4 diagrams (`04-dependency-diagram.excalidraw` and `04-runtime-diagram.excalidraw`)
+- Auto-generated Step 4 diagrams (`04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`)
 - Naming convention validation (CAF)
 - Phased implementation approach
 
@@ -493,7 +493,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 **Automatic**: Skills activate based on prompt keywords:
 
 ```text
-"Create an architecture diagram" → excalidraw skill
+"Create an architecture diagram" → drawio skill
 "Document the decision to use AKS" → azure-adr skill
 ```
 
@@ -509,11 +509,11 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 | -------------- | --------- | ----------------------------------------------------------- |
 | Requirements   | `01-`     | `01-requirements.md`                                        |
 | Architecture   | `02-`     | `02-architecture-assessment.md`                             |
-| Design         | `03-des-` | `03-des-diagram.excalidraw`, `03-des-adr-0001-*.md`         |
+| Design         | `03-des-` | `03-des-diagram.drawio`, `03-des-adr-0001-*.md`             |
 | Planning       | `04-`     | `04-implementation-plan.md`, `04-governance-constraints.md` |
 | Implementation | `05-`     | `05-implementation-reference.md`                            |
 | Deployment     | `06-`     | `06-deployment-summary.md`                                  |
-| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.excalidraw`         |
+| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.drawio`             |
 | Diagnostics    | `08-`     | `08-resource-health-report.md`                              |
 
 ## Next Steps

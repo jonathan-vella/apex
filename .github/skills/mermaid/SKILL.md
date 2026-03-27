@@ -1,6 +1,6 @@
 ---
 name: mermaid
-description: "Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, and architecture visualizations. USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams, Azure resource visualization. DO NOT USE FOR: architecture diagrams with Azure icons (use excalidraw), WAF/cost charts (use python-diagrams), Draw.io diagrams (use drawio)."
+description: "Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, and architecture visualizations. USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams, Azure resource visualization. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams), Draw.io diagrams (use drawio)."
 compatibility: Works with VS Code Copilot, Claude Code, and any tool that renders Mermaid in markdown.
 license: MIT
 metadata:
@@ -13,7 +13,7 @@ metadata:
 Skill for generating Mermaid diagrams embedded in markdown fences. Mermaid is used
 for inline documentation diagrams — flowcharts, sequences, state machines, ER
 diagrams, and Gantt charts. For architecture diagrams with Azure service icons,
-use the `excalidraw` skill instead.
+use the `drawio` skill instead.
 
 ## When to Use Mermaid
 
@@ -165,12 +165,12 @@ for grouping · Use descriptive connection labels · Validate syntax before
 committing.
 
 **DON'T:** Use Mermaid for WAF/cost charts (use `python-diagrams`) · Use Mermaid
-for primary architecture diagrams with Azure icons (use `excalidraw`) · Omit
+for primary architecture diagrams with Azure icons (use `drawio`) · Omit
 theme directives · Create overly complex diagrams that don't render well ·
 Use inline Mermaid for diagrams that need icon embedding.
 
 ## Scope Exclusions
 
-Does NOT: generate Excalidraw architecture diagrams · produce Python charts ·
+Does NOT: generate Draw.io architecture diagrams · produce Python charts ·
 generate Bicep/Terraform · create ADRs · deploy resources · embed Azure service
-icons (use `excalidraw` skill).
+icons (use `drawio` skill).

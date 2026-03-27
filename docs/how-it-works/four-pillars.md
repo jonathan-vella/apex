@@ -126,7 +126,7 @@ This project integrates six core MCP servers:
 | ------------------ | ---------------------------------- | ------------------ |
 | **Azure MCP**      | RBAC-aware Azure Resource Manager  | VS Code extension  |
 | **Azure Pricing**  | Cost estimation (13 tools)         | stdio (Python)     |
-| **Excalidraw MCP** | Editable architecture diagrams     | HTTP               |
+| **Draw.io MCP**    | Editable architecture diagrams     | stdio (Deno)       |
 | **GitHub MCP**     | Issues, PRs, code search, branches | HTTP (Copilot API) |
 | **MS Learn MCP**   | Official docs search, code samples | HTTP               |
 | **Terraform MCP**  | Provider/module registry lookups   | stdio (Go)         |

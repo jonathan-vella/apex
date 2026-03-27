@@ -23,6 +23,6 @@ In this project, Mermaid is rendered client-side by `rehype-mermaid-lite`.
 **DO:** Use fenced code blocks with `mermaid` language tag · Include theme
 
 **Scope Exclusions**:
-Does NOT: generate Excalidraw architecture diagrams · produce Python charts ·
+Does NOT: generate Draw.io architecture diagrams · produce Python charts ·
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

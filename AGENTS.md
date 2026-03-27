@@ -202,7 +202,7 @@ infra/
   bicep/{project}/     # Bicep templates (main.bicep + modules/)
   terraform/{project}/ # Terraform configurations (main.tf + modules/)
 assets/
-  excalidraw-libraries/  # Excalidraw Azure/Fabric icon libraries
+  excalidraw-libraries/  # Excalidraw libraries (whiteboarding only)
   drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)

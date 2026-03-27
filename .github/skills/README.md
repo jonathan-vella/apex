@@ -22,7 +22,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 | Skill             | Description                                              | Triggers                                  |
 | ----------------- | -------------------------------------------------------- | ----------------------------------------- |
-| `excalidraw`      | Excalidraw architecture diagrams with Azure/Fabric icons | "create diagram", "architecture diagram"  |
+| `excalidraw`      | Hand-drawn whiteboarding, brainstorming, wireframes      | "whiteboard", "brainstorm", "sketch"      |
 | `python-diagrams` | WAF/cost/compliance charts and Python diagrams           | "WAF chart", "cost chart", "create chart" |
 | `mermaid`         | Inline Mermaid diagrams for markdown                     | "mermaid diagram", "flowchart"            |
 | `drawio`          | Draw.io diagrams with Azure icon libraries               | "draw.io diagram"                         |
@@ -44,7 +44,7 @@ Skills activate when your prompt matches their trigger keywords:
 
 ```text
 "Create an architecture diagram for the ecommerce project"
-→ excalidraw skill activates
+→ drawio skill activates
 ```
 
 ### Explicit Invocation
@@ -61,7 +61,7 @@ Agents can invoke skills through self-referencing handoffs:
 
 ```text
 Architect agent → "▶ Generate Architecture Diagram" button
-→ Uses excalidraw skill
+→ Uses drawio skill
 ```
 
 ## Skill vs Agent

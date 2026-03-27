@@ -17,7 +17,7 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 | WAF bar charts                         | matplotlib | `.py` + `.png` |
 | Cost donut / projection charts         | matplotlib | `.py` + `.png` |
 | Compliance gap charts                  | matplotlib | `.py` + `.png` |
-| Architecture diagrams (non-Excalidraw) | diagrams   | `.py` + `.png` |
+| Architecture diagrams (non-Draw.io)    | diagrams   | `.py` + `.png` |
 
 > _See SKILL.md for full content._
 

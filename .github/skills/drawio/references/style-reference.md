@@ -1,3 +1,5 @@
+<!-- ref:style-reference-v1 -->
+
 # Draw.io Style Properties Reference
 
 Condensed reference for AI-generated draw.io files.

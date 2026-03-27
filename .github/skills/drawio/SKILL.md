@@ -121,12 +121,19 @@ at the end. Without it, the diagram contains placeholder shapes instead of real 
 
 ### Saving `.drawio` Files
 
-When `export-diagram` or `finish-diagram` returns XML in a JSON response, use a
-terminal command to extract and save — do NOT read the XML back through the LLM:
+When `finish-diagram` or `export-diagram` returns XML in a JSON response, use
+the helper script to decompress, strip edge anchors, and save in one step:
 
 ```bash
-cat '<temp-content-json-path>' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['xml'], end='')" > '<output-path>.drawio'
+python3 scripts/save-drawio.py '<temp-content-json-path>' '<output-path>.drawio'
+node scripts/validate-drawio-files.mjs '<output-path>.drawio'
 ```
+
+The script handles: compressed content decompression, `mxGraphModel` embedding
+(repo validator format), edge anchor/waypoint stripping, and directory creation.
+
+**Do NOT** read the large MCP JSON response back through the LLM — extract
+data via terminal commands to avoid inflating the context window.
 
 ## Batch-Only Workflow (CRITICAL)
 
@@ -142,6 +149,19 @@ Never call a tool repeatedly for individual items.
 6. **`finish-diagram`** (transactional) or **`export-diagram`** (default) — with `compress: true`.
 
 After group assignments, call `validate-group-containment` to detect any children that exceed group bounds.
+
+### Token Efficiency
+
+- **The MCP server is NOT stateful** between tool calls. You MUST pass
+  `diagram_xml` from the previous call's response on every subsequent call.
+  Save the XML to a temp file between steps and read it back rather than
+  inflating the LLM context with the full XML in every turn.
+- **Do NOT read back large MCP responses through the LLM**. When a tool result
+  is written to a temp file, extract only the data you need via a terminal
+  command (e.g., cell IDs) rather than reading the entire JSON into context.
+- **Target 8–10 model turns** for a complete diagram. Pre-compute the full
+  layout (all vertices, edges, groups, assignments) before making any MCP
+  calls, then execute the batch workflow in sequence.
 
 ## Layout Conventions
 
@@ -162,10 +182,22 @@ After group assignments, call `validate-group-containment` to detect any childre
 ### Edges
 
 - **Orthogonal only**: Use `edgeStyle=orthogonalEdgeStyle` (the default).
-- **NO anchor points**: Never set `entryX`, `entryY`, `exitX`, `exitY` — server auto-calculates.
+- **NO anchor points**: Never set `entryX`, `entryY`, `exitX`, `exitY` in your edge style.
+- **NO waypoints**: Do not add `<Array as="points">` or `<mxPoint>` elements.
 - **Side exits preferred**: edges exit/enter through left or right sides.
 - **One edge per source into a group**: target the group cell, not children inside.
 - **No edges to cross-cutting services**: their presence is implied.
+- **Fan-out staggering**: When multiple edges leave the same source, keep them
+  minimal. Consider merging semantically similar paths (e.g., "Partner Data Export"
+  instead of Storage → Data Share → Partners as 3 separate edges).
+
+> **CRITICAL — Post-Processing Required**: The MCP server's auto-router injects
+> `exitX/exitY/entryX/entryY` anchor points and `<Array>` waypoints into every
+> edge it creates. These computed routes are poor for fan-out patterns and cause
+> edges to pile up in horizontal corridors. After `finish-diagram`, the agent
+> **MUST** run `scripts/save-drawio.py` which strips these injected anchors and
+> waypoints, letting Draw.io's client-side renderer calculate clean orthogonal
+> paths when the file is opened.
 
 ### Cross-Cutting & Supporting Services
 
@@ -204,12 +236,15 @@ All outputs go to `agent-output/{project}/`.
 After generating a `.drawio` file, run:
 
 ```bash
+python3 scripts/save-drawio.py '<mcp-response.json>' 'agent-output/{project}/<diagram>.drawio'
 node scripts/validate-drawio-files.mjs agent-output/{project}/<diagram>.drawio
 ```
 
-The validator checks 14 points: valid XML, mxfile root, unique IDs, structural
-cells, parent refs, vertex/edge flags, edge source/target, geometry, style format,
-perimeter match, HTML escaping, coordinates, group hierarchy, and Azure icon presence.
+The `save-drawio.py` script decompresses, embeds `mxGraphModel`, and strips
+edge anchors/waypoints in one step. The validator checks 14 points: valid XML,
+mxfile root, unique IDs, structural cells, parent refs, vertex/edge flags,
+edge source/target, geometry, style format, perimeter match, HTML escaping,
+coordinates, group hierarchy, and Azure icon presence.
 
 ## Quality Gate
 
@@ -226,9 +261,14 @@ A diagram passes quality review when it scores ≥9/10 on:
 9. Footer unobtrusive
 10. Dense canvas usage — compact, no excessive whitespace
 
-## Reference Materials
+## Reference Index
 
-For detailed style properties: Read `.github/skills/drawio/references/style-reference.md`
-For Azure-specific MCP tool patterns: Read `.github/skills/drawio/references/azure-patterns.md`
-For full validation details: Read `.github/skills/drawio/references/validation-checklist.md`
+| File | Purpose |
+| --- | --- |
+| `references/style-reference.md` | Draw.io style properties for AI-generated files |
+| `references/azure-patterns.md` | Reusable MCP tool call patterns for Azure architectures |
+| `references/validation-checklist.md` | Validation rules for AI-generated `.drawio` files |
+| `references/abstraction-rules.md` | Diagram abstraction and data-flow clarity rules |
+| `references/iac-to-diagram.md` | Generate diagrams from Bicep/Terraform/ARM templates |
+
 Quality target samples: `tmp/azure-architecture-example.drawio`, `tmp/03-des-diagram.svg`

@@ -41,7 +41,6 @@
       "skills": [
         "azure-defaults",
         "azure-artifacts",
-        "excalidraw",
         "drawio",
         "python-diagrams",
         "context-shredding",
@@ -55,7 +54,6 @@
       "agent": ".github/agents/04-design.agent.md",
       "model": "GPT-5.4",
       "skills": [
-        "excalidraw",
         "drawio",
         "python-diagrams",
         "azure-adr",
@@ -176,7 +174,6 @@
       "skills": [
         "azure-defaults",
         "azure-artifacts",
-        "excalidraw",
         "drawio",
         "python-diagrams",
         "azure-cost-optimization",

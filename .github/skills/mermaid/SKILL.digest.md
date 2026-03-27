@@ -91,7 +91,7 @@ for grouping · Use descriptive connection labels · Validate syntax before
 committing.
 
 **DON'T:** Use Mermaid for WAF/cost charts (use `python-diagrams`) · Use Mermaid
-for primary architecture diagrams with Azure icons (use `excalidraw`) · Omit
+for primary architecture diagrams with Azure icons (use `drawio`) · Omit
 theme directives · Create overly complex diagrams that don't render well ·
 Use inline Mermaid for diagrams that need icon embedding.
 

@@ -3,16 +3,16 @@
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 > Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
 
-| Domain          | Grade | Status                                                                   | Next Action                                 |
-| --------------- | ----- | ------------------------------------------------------------------------ | ------------------------------------------- |
-| Agents          | A     | Primary and subagent catalog aligned; conductor size remains in bounds   | Fix model-mismatch warnings in registry     |
-| Skills          | A     | Skill catalog and reference digests are in good shape                    | Monitor via `lint:skills-format`            |
-| Instructions    | A     | Instruction set uses narrow globs and valid references                   | Monitor via `lint:glob-audit`               |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)    | Expand Terraform E2E templates when needed  |
-| Documentation   | A     | Docs are fresh, with no stale files and descriptive count language       | Run doc-gardening after structural changes  |
-| CI / Validation | A     | Validation suite is active; lint:md still reports Fabric icon ref blanks | Fix Fabric reference blanks when convenient |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)         | Quarterly audit via AGENTS.md checklist     |
-| Backlog         | A     | Registry drift and Fabric ref blanks remain active; demo lint resolved   | Triage registry model drift                 |
+| Domain          | Grade | Status                                                                       | Next Action                                    |
+| --------------- | ----- | ---------------------------------------------------------------------------- | ---------------------------------------------- |
+| Agents          | A     | Primary and subagent catalog aligned; conductor size within bounds           | Fix model-mismatch warnings in registry        |
+| Skills          | A     | Skill catalog clean; reference canary markers and Reference Index complete   | Monitor via `lint:skills-format`               |
+| Instructions    | A     | Instruction set uses narrow globs and valid references; 0 orphaned refs      | Monitor via `lint:glob-audit`                  |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)        | Expand Terraform E2E templates when needed     |
+| Documentation   | A     | Docs fresh; no stale files; Excalidraw→Draw.io migration docs complete       | Run doc-gardening after structural changes     |
+| CI / Validation | A     | Core repo lint clean; 91 errors in vendored drawio-mcp-server (third-party)  | Exclude drawio-mcp-server from lint or fix     |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)             | Quarterly audit via AGENTS.md checklist        |
+| Backlog         | A     | Registry model drift (3 agents) + drawio-mcp-server lint remain active       | Triage registry model drift                    |
 
 ## Grading Scale
 
@@ -95,6 +95,13 @@
 | 2026-03-25 | CI / Validation | Grade A- → A: lint:md dropped from 115 errors to 2 (Fabric icon ref blanks only)                  |
 | 2026-03-25 | Backlog         | Debt #19 resolved (demo lint excluded or fixed); grade A- → A                                     |
 | 2026-03-25 | Backlog         | New debt #20: Fabric icon reference.md has 2 blank-line lint errors (MD012)                       |
+| 2026-03-27 | Skills          | Drawio SKILL.md: Reference Index section added; 3 canary markers added; ref files 473 total       |
+| 2026-03-27 | Skills          | Excalidraw references cleaned: 2 orphaned files removed (migrated to drawio); 1 ref remaining     |
+| 2026-03-27 | Agents          | 08-as-built.agent.md: ordered list numbering fixed (MD029)                                        |
+| 2026-03-27 | CI / Validation | Core repo lint clean (0 errors); 91 lint errors in vendored `mcp/drawio-mcp-server/` only        |
+| 2026-03-27 | CI / Validation | Freshness check: 0 issues (was 5); all canary markers and Reference Index sections present        |
+| 2026-03-27 | Instructions    | All instruction checks pass: 65 checks, 0 errors, 0 warnings                                     |
+| 2026-03-27 | Backlog         | Debt #20 resolved (Fabric ref blanks no longer flagged); drawio-mcp-server lint added as #21       |
 
 ## How to Update
 

@@ -89,7 +89,7 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 | `lint:artifact-templates` | `validate-artifact-templates.mjs` | H2 heading strictness for agent outputs                                                                 |
 | `lint:h2-sync`            | `validate-h2-sync.mjs`            | H2 heading consistency across three sources                                                             |
 | `fix:artifact-h2`         | `fix-artifact-h2.mjs`             | Auto-fix artifact H2 headings                                                                           |
-| `lint:excalidraw`         | `validate-excalidraw-files.mjs`   | Validate `.excalidraw` structure and require embedded image payloads for demo architecture deliverables |
+| `lint:excalidraw`         | `validate-excalidraw-files.mjs`   | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset               |
 | `e2e:validate`            | `validate-e2e-step.mjs`           | E2E pipeline structural validation                                                                      |
 | `e2e:benchmark`           | `benchmark-e2e.mjs`               | 8-dimension benchmark scoring                                                                           |
 

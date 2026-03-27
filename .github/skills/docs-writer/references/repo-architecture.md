@@ -40,7 +40,7 @@ See `.github/count-manifest.json` for canonical counts.
 | Conductor (Fast)   | `01-conductor-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration           |
 | Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`              |
 | Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md`   |
-| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{excalidraw,py,png,md}` |
+| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`     |
 | Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`    |
 | Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`       |
 | Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`           |
@@ -99,10 +99,10 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `azure-defaults`              | `azure-defaults/`              | Azure Conventions   | "azure defaults", "naming"                   |
 | `azure-deploy`                | `azure-deploy/`                | Deployment          | "azd up", "deploy", "go live"                |
 | `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"        |
-| `excalidraw`                  | `excalidraw/`                  | Document Creation   | "create diagram"                             |
+| `excalidraw`                  | `excalidraw/`                  | Whiteboarding       | "whiteboard", "brainstorm", "sketch"         |
 | `python-diagrams`             | `python-diagrams/`             | Document Creation   | "create chart", "WAF chart"                  |
 | `mermaid`                     | `mermaid/`                     | Document Creation   | "mermaid diagram", "flowchart"               |
-| `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to excalidraw/python-diagrams/mermaid |
+| `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to drawio/python-diagrams/mermaid     |
 | `azure-hosted-copilot-sdk`    | `azure-hosted-copilot-sdk/`    | SDK                 | "copilot SDK", "copilot app"                 |
 | `azure-kusto`                 | `azure-kusto/`                 | Data & Analytics    | "KQL queries", "Azure Data Explorer"         |
 | `azure-messaging`             | `azure-messaging/`             | Messaging           | "event hub", "service bus"                   |
@@ -201,7 +201,7 @@ Step 1          Step 2            Step 3         Step 4
 Requirements → Architecture →  Design       → Planning
 (01-*.md)     (02-*.md)       (03-des-*)     (04-*.md)
                                   │
-                                  ├─ Diagrams (03-des-diagram.excalidraw)
+                                  ├─ Diagrams (03-des-diagram.drawio)
                                   ├─ ADRs (03-des-adr-*.md)
                                   └─ Cost Estimate (03-des-cost-estimate.md)
 
@@ -267,7 +267,7 @@ These skills are explicitly referenced in agent body text via mandatory
 | ------------------- | ------------------------------------------------------ |
 | `azure-defaults`    | all primary agents                                     |
 | `azure-artifacts`   | requirements, architect, bicep-plan, deploy, conductor |
-| `excalidraw`        | design, architect, as-built agents                     |
+| `drawio`            | design, architect, as-built agents                     |
 | `python-diagrams`   | architect, as-built agents                             |
 | `azure-adr`         | design agent                                           |
 | `github-operations` | conductor, bicep-plan agents                           |

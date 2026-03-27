@@ -1,11 +1,11 @@
 ---
 name: azure-diagrams
-description: "ROUTING SKILL — delegates to specialized diagram skills. USE FOR: any diagram request when the caller does not know which tool to use. Routes to excalidraw, python-diagrams, mermaid, or drawio based on diagram type."
+description: "ROUTING SKILL — delegates to specialized diagram skills. USE FOR: any diagram request when the caller does not know which tool to use. Routes to drawio, python-diagrams, or mermaid based on diagram type."
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool.
 license: MIT
 metadata:
   author: azure-agentic-infraops
-  version: "7.0"
+  version: "8.0"
 ---
 
 # Azure Diagrams — Routing Skill
@@ -17,9 +17,9 @@ Do NOT load this skill's references directly — load the target skill instead.
 
 | Diagram type                                   | Target skill      | Output format     |
 | ---------------------------------------------- | ----------------- | ----------------- |
-| Architecture diagrams (default)                | `excalidraw`      | `.excalidraw`     |
-| Dependency / runtime diagrams                  | `excalidraw`      | `.excalidraw`     |
-| As-built diagrams                              | `excalidraw`      | `.excalidraw`     |
+| Architecture diagrams (default)                | `drawio`          | `.drawio`         |
+| Dependency / runtime diagrams                  | `drawio`          | `.drawio`         |
+| As-built diagrams                              | `drawio`          | `.drawio`         |
 | WAF bar charts                                 | `python-diagrams` | `.py` + `.png`    |
 | Cost donut / projection charts                 | `python-diagrams` | `.py` + `.png`    |
 | Compliance gap charts                          | `python-diagrams` | `.py` + `.png`    |
@@ -27,7 +27,7 @@ Do NOT load this skill's references directly — load the target skill instead.
 | Swimlane / ERD / timeline / wireframe          | `python-diagrams` | `.py` + `.png`    |
 | Inline markdown diagrams (flowchart, sequence) | `mermaid`         | fenced code block |
 | Azure resource visualization                   | `mermaid`         | fenced code block |
-| Draw.io diagrams                               | `drawio`          | `.drawio`         |
+| Hand-drawn whiteboarding / brainstorming       | `excalidraw`      | `.excalidraw`     |
 
 ## How to Use
 

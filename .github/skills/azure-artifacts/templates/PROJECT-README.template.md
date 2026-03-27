@@ -99,7 +99,7 @@ When generating a project README, agents MUST:
 
 ![Architecture Diagram](./{diagram-filename})
 
-_Generated with [excalidraw](../../.github/skills/excalidraw/SKILL.md) skill_
+_Generated with [drawio](../../.github/skills/drawio/SKILL.md) skill_
 
 </div>
 <!-- End diagram block -->
@@ -125,7 +125,7 @@ _Generated with [excalidraw](../../.github/skills/excalidraw/SKILL.md) skill_
 | [01-requirements.md](./01-requirements.md)                       | Project requirements with NFRs    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [02-architecture-assessment.md](./02-architecture-assessment.md) | WAF assessment with pillar scores | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [03-des-cost-estimate.md](./03-des-cost-estimate.md)             | Azure pricing estimate            | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [03-des-diagram.excalidraw](./03-des-diagram.excalidraw)         | Architecture diagram (Excalidraw) | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [03-des-diagram.drawio](./03-des-diagram.drawio)         | Architecture diagram (Draw.io) | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 
 </details>
 
@@ -136,8 +136,8 @@ _Generated with [excalidraw](../../.github/skills/excalidraw/SKILL.md) skill_
 | ---------------------------------------------------------------------- | ------------------------- | :-------------------------------------------------------------------: | -------------- |
 | [04-governance-constraints.md](./04-governance-constraints.md)         | Azure Policy constraints  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [04-implementation-plan.md](./04-implementation-plan.md)               | Bicep implementation plan | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-dependency-diagram.excalidraw](./04-dependency-diagram.excalidraw) | Step 4 dependency diagram | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
-| [04-runtime-diagram.excalidraw](./04-runtime-diagram.excalidraw)       | Step 4 runtime diagram    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [04-dependency-diagram.drawio](./04-dependency-diagram.drawio) | Step 4 dependency diagram | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
+| [04-runtime-diagram.drawio](./04-runtime-diagram.drawio)       | Step 4 runtime diagram    | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [05-implementation-reference.md](./05-implementation-reference.md)     | Link to Bicep code        | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 | [06-deployment-summary.md](./06-deployment-summary.md)                 | Deployment results        | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | {created-date} |
 

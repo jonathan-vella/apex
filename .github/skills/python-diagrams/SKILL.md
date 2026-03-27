@@ -1,6 +1,6 @@
 ---
 name: python-diagrams
-description: "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Excalidraw architecture diagrams (use excalidraw), inline Mermaid (use mermaid), Draw.io diagrams (use drawio)."
+description: "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid), Excalidraw whiteboarding (use excalidraw)."
 compatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.
 license: MIT
 metadata:
@@ -27,7 +27,7 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 | WAF bar charts                         | matplotlib | `.py` + `.png` |
 | Cost donut / projection charts         | matplotlib | `.py` + `.png` |
 | Compliance gap charts                  | matplotlib | `.py` + `.png` |
-| Architecture diagrams (non-Excalidraw) | diagrams   | `.py` + `.png` |
+| Architecture diagrams (non-Draw.io)    | diagrams   | `.py` + `.png` |
 | Swimlane / business process            | graphviz   | `.py` + `.png` |
 | Entity-relationship diagrams           | graphviz   | `.py` + `.png` |
 | Timeline / Gantt charts                | matplotlib | `.py` + `.png` |
@@ -105,12 +105,12 @@ Set explicit `filename` · Use DPI ≥150 · Apply design tokens consistently ·
 Generate WAF scores PNG when WAF scores are assigned.
 
 **DON'T:** Use Mermaid for charts (use matplotlib) · Use Python `diagrams` for
-primary architecture diagrams (use Excalidraw skill) · Let `show=True` open
+primary architecture diagrams (use Draw.io skill) · Let `show=True` open
 a viewer · Omit `filename` (produces non-deterministic output names).
 
 ## Scope Exclusions
 
-Does NOT: generate Excalidraw architecture diagrams · produce Mermaid diagrams ·
+Does NOT: generate Draw.io architecture diagrams · produce Mermaid diagrams ·
 generate Bicep/Terraform · create ADRs · deploy resources.
 
 ## Scripts

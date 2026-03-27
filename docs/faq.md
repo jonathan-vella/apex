@@ -91,7 +91,7 @@ Frequently asked questions about Agentic InfraOps.
     No. Agentic InfraOps requires:
 
     - **GitHub Copilot** — cloud-hosted AI service
-        - **MCP servers** — Azure MCP, Azure Pricing MCP, Excalidraw MCP, GitHub MCP,
+        - **MCP servers** — Azure MCP, Azure Pricing MCP, Draw.io MCP, GitHub MCP,
             MS Learn MCP, and Terraform MCP servers
       provide real-time data to agents
 

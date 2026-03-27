@@ -74,10 +74,10 @@ infrastructure.
 | ---------------------- | ---------------------------------------------------------------------------------- |
 | `azure-defaults`       | Regions, tags, naming, AVM, security, governance                                   |
 | `azure-artifacts`      | H2 template structures for agent output files                                      |
-| `excalidraw`           | Excalidraw architecture diagrams with Azure icons                                  |
+| `drawio`               | Draw.io architecture diagrams via MCP server (700+ Azure icons, batch creation)    |
+| `excalidraw`           | Hand-drawn whiteboarding, brainstorming, wireframes                                |
 | `python-diagrams`      | WAF/cost/compliance charts (matplotlib)                                            |
 | `mermaid`              | Inline Mermaid diagrams for markdown                                               |
-| `drawio`               | Draw.io diagrams via simonkurtz-MSFT MCP server (700+ Azure icons, batch creation) |
 | `azure-adr`            | Architecture Decision Records                                                      |
 | `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                               |
 | `terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)                                |

@@ -71,7 +71,7 @@ concurrency:
 | `docs.yml`                      | Astro Starlight site deployment to Pages         | Push to main (site/)            |
 | `weekly-maintenance.yml`        | AVM version audit + docs freshness checks        | Weekly (Mon 07:00) + manual     |
 | `azure-deprecation-tracker.yml` | Azure deprecation monitoring                     | Weekly (Mon 06:00) + manual     |
-| `excalidraw-svg-export.yml`     | Auto-export .excalidraw → .excalidraw.svg        | Push changing .excalidraw files |
+| `excalidraw-svg-export.yml`     | REMOVED — Draw.io is now the default diagram tool    | —                              |
 
 ## Validation Scripts
 

@@ -77,7 +77,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `azure-artifacts`      | Artifact Generation | Template H2s, styling, generation rules     |
 | `azure-bicep-patterns` | IaC Patterns        | Reusable Bicep infrastructure patterns      |
 | `azure-defaults`       | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags    |
-| `excalidraw`           | Document Creation   | Excalidraw architecture diagrams            |
+| `drawio`               | Document Creation   | Draw.io architecture diagrams               |
 | `python-diagrams`      | Document Creation   | WAF/cost/compliance charts (matplotlib)     |
 | `mermaid`              | Document Creation   | Inline Mermaid diagrams for markdown        |
 | `drawio`               | Document Creation   | Draw.io diagrams with Azure icon libraries  |
@@ -93,7 +93,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 Do NOT reference these removed agents/skills:
 
-- `diagram.agent.md` → Use `excalidraw` or `python-diagrams` skill
+- `diagram.agent.md` → Use `drawio` or `python-diagrams` skill
 - `adr.agent.md` → Use `azure-adr` skill
 - `docs.agent.md` → Use `azure-artifacts` skill or `as-built` agent
 - `azure-workload-docs` skill → Use `azure-artifacts` skill

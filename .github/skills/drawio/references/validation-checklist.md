@@ -1,3 +1,5 @@
+<!-- ref:validation-checklist-v1 -->
+
 # Draw.io Validation Checklist
 
 Detailed validation rules for AI-generated `.drawio` files.
