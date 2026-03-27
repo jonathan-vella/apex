@@ -68,7 +68,7 @@ run_check "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt" "tf-fmt" &
 run_check "Terraform validate" "$TF_COUNT" "npm run validate:terraform" "tf-validate" &
 run_check "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run lint:artifact-templates" "artifacts" &
 run_check "Agent frontmatter" "$AGENT_COUNT" "npm run lint:agent-frontmatter" "agents" &
-run_check "Instruction frontmatter" "$INSTRUCTION_COUNT" "npm run lint:instruction-frontmatter" "instructions" &
+run_check "Instruction checks" "$INSTRUCTION_COUNT" "npm run validate:instruction-checks" "instructions" &
 run_check "Skills format" "$SKILL_COUNT" "npm run lint:skills-format" "skills" &
 run_check "JSON syntax" "$JSON_COUNT" "npm run lint:json" "json" &
 run_check "Python lint" "$PY_COUNT" "npm run lint:python" "python" &
