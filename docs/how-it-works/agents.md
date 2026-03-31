@@ -55,23 +55,23 @@ and routing to the next step. At approval gates, the Conductor writes a
 
 ## :material-account-supervisor-outline: Top-Level Agents
 
-| Agent                    | Role                                  | Primary Skills                                 |
-| ------------------------ | ------------------------------------- | ---------------------------------------------- |
-| 01-Conductor             | Master orchestrator                   | workflow-engine, session-resume                |
-| 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults                 |
-| 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts                |
-| 03-Architect             | WAF assessment and cost estimation    | azure-defaults                                 |
-| 04-Design                | Diagrams and ADRs                     | drawio, python-diagrams, azure-adr             |
-| 04g-Governance           | Policy discovery and compliance       | azure-defaults                                 |
+| Agent                    | Role                                            | Primary Skills                                 |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------------- |
+| 01-Conductor             | Master orchestrator                             | workflow-engine, session-resume                |
+| 01-Conductor (Fast Path) | Simplified path for ≤3 resources                | session-resume, azure-defaults                 |
+| 02-Requirements          | Captures project requirements                   | azure-defaults, azure-artifacts                |
+| 03-Architect             | WAF assessment and cost estimation              | azure-defaults                                 |
+| 04-Design                | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
+| 04g-Governance           | Policy discovery and compliance                 | azure-defaults                                 |
 | 05-IaC Planner           | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
-| 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns                           |
-| 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns                             |
-| 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common                     |
-| 07t-Terraform Deploy     | Terraform deployment execution        | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built              | Post-deployment documentation         | azure-artifacts, drawio, python-diagrams       |
-| 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics                              |
-| 10-Challenger            | Standalone adversarial review         | —                                              |
-| 11-Context Optimizer     | Context window audit and optimisation | context-optimizer                              |
+| 06b-Bicep CodeGen        | Bicep template generation                       | azure-bicep-patterns                           |
+| 06t-Terraform CodeGen    | Terraform configuration generation              | terraform-patterns                             |
+| 07b-Bicep Deploy         | Bicep deployment execution                      | azure-validate, iac-common                     |
+| 07t-Terraform Deploy     | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
+| 08-As-Built              | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
+| 09-Diagnose              | Azure resource troubleshooting                  | azure-diagnostics                              |
+| 10-Challenger            | Standalone adversarial review                   | —                                              |
+| 11-Context Optimizer     | Context window audit and optimisation           | context-optimizer                              |
 
 !!! note "Internal Agent"
 
@@ -84,15 +84,15 @@ and routing to the next step. At approval gates, the Conductor writes a
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
 
-| Subagent                         | Purpose                                | Invoked By          |
-| -------------------------------- | -------------------------------------- | ------------------- |
-| challenger-review-subagent       | Adversarial review of artifacts        | Steps 1, 2, 4, 5, 6 |
-| cost-estimate-subagent           | Azure Pricing MCP queries              | Steps 2, 7          |
-| governance-discovery-subagent    | Azure Policy discovery via REST API    | Step 4              |
-| bicep-validate-subagent          | Lint + AVM/security code review        | Step 5 (Bicep)      |
-| bicep-whatif-subagent            | `az deployment what-if` preview        | Step 6 (Bicep)      |
-| terraform-validate-subagent      | Lint + AVM-TF/security code review     | Step 5 (Terraform)  |
-| terraform-plan-subagent          | `terraform plan` preview               | Step 6 (Terraform)  |
+| Subagent                      | Purpose                             | Invoked By          |
+| ----------------------------- | ----------------------------------- | ------------------- |
+| challenger-review-subagent    | Adversarial review of artifacts     | Steps 1, 2, 4, 5, 6 |
+| cost-estimate-subagent        | Azure Pricing MCP queries           | Steps 2, 7          |
+| governance-discovery-subagent | Azure Policy discovery via REST API | Step 4              |
+| bicep-validate-subagent       | Lint + AVM/security code review     | Step 5 (Bicep)      |
+| bicep-whatif-subagent         | `az deployment what-if` preview     | Step 6 (Bicep)      |
+| terraform-validate-subagent   | Lint + AVM-TF/security code review  | Step 5 (Terraform)  |
+| iac-planner-subagent       | `terraform plan` preview            | Step 6 (Terraform)  |
 
 ## :material-sword-cross: The Challenger Pattern
 

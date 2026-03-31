@@ -43,3 +43,4 @@ any deployment. It defines:
 - **Anomaly patterns**: detection thresholds for repetitive failures
 - **Stopping rule**: 3 consecutive same-type failures → halt + escalate
 - **Escalation protocol**: write to session state, notify user, wait for guidance
+```

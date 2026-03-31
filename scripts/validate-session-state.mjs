@@ -47,7 +47,7 @@ const EXPECTED_STEP_NAMES = {
   1: "Requirements",
   2: "Architecture",
   3: "Design",
-  3.5: "Governance",
+  "3_5": "Governance",
   4: "IaC Plan",
   5: "IaC Code",
   6: "Deploy",
@@ -100,7 +100,11 @@ function validateStateFile(filePath, isTemplate) {
     }
   }
 
-  if (state.schema_version !== "1.0" && state.schema_version !== "2.0" && state.schema_version !== "3.0") {
+  if (
+    state.schema_version !== "1.0" &&
+    state.schema_version !== "2.0" &&
+    state.schema_version !== "3.0"
+  ) {
     error(label, `Unsupported schema_version: ${state.schema_version}`);
   }
 
@@ -128,8 +132,14 @@ function validateStateFile(filePath, isTemplate) {
     warn(label, "v3.0 schema should not have lock object — consider migrating");
   }
 
-  if (state.stale_threshold_ms !== undefined && state.schema_version === "3.0") {
-    warn(label, "v3.0 schema should not have stale_threshold_ms — consider migrating");
+  if (
+    state.stale_threshold_ms !== undefined &&
+    state.schema_version === "3.0"
+  ) {
+    warn(
+      label,
+      "v3.0 schema should not have stale_threshold_ms — consider migrating",
+    );
   }
 
   if (state.decisions) {
@@ -159,7 +169,7 @@ function validateStateFile(filePath, isTemplate) {
       const validStepKeys = [
         "step_1",
         "step_2",
-        "step_3.5",
+        "step_3_5",
         "step_4",
         "step_5",
         "step_6",

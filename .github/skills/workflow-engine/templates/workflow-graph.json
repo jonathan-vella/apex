@@ -66,8 +66,8 @@
       "optional": true,
       "challenger": null
     },
-    "step-3.5": {
-      "id": "step-3.5",
+    "step-3_5": {
+      "id": "step-3_5",
       "type": "agent-step",
       "name": "Governance",
       "agent": "04g-Governance",
@@ -79,11 +79,11 @@
       "gate": "approval",
       "challenger": null
     },
-    "gate-2.5": {
-      "id": "gate-2.5",
+    "gate-2_5": {
+      "id": "gate-2_5",
       "type": "gate",
       "name": "Governance Approval",
-      "requires": ["step-3.5"],
+      "requires": ["step-3_5"],
       "gate": "approval"
     },
     "step-4": {
@@ -91,11 +91,13 @@
       "type": "agent-step",
       "name": "IaC Plan",
       "agent": "05-IaC Planner",
-      "requires": ["gate-2.5"],
+      "requires": ["gate-2_5"],
       "produces": [
         "04-implementation-plan.md",
-        "04-dependency-diagram.drawio",
-        "04-runtime-diagram.drawio"
+        "04-dependency-diagram.py",
+        "04-dependency-diagram.png",
+        "04-runtime-diagram.py",
+        "04-runtime-diagram.png"
       ],
       "gate": "approval",
       "challenger": {
@@ -249,11 +251,11 @@
     { "from": "gate-1", "to": "step-2", "condition": "on_complete" },
     { "from": "step-2", "to": "gate-2", "condition": "on_complete" },
     { "from": "gate-2", "to": "step-3", "condition": "on_complete" },
-    { "from": "gate-2", "to": "step-3.5", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-3.5", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-3.5", "condition": "on_skip" },
-    { "from": "step-3.5", "to": "gate-2.5", "condition": "on_complete" },
-    { "from": "gate-2.5", "to": "step-4", "condition": "on_complete" },
+    { "from": "gate-2", "to": "step-3_5", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-3_5", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-3_5", "condition": "on_skip" },
+    { "from": "step-3_5", "to": "gate-2_5", "condition": "on_complete" },
+    { "from": "gate-2_5", "to": "step-4", "condition": "on_complete" },
     { "from": "step-4", "to": "gate-3", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5b", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5t", "condition": "on_complete" },

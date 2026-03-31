@@ -213,7 +213,7 @@ Three forecast-based contact notifications at:
 
 ### Implementation Notes
 
-- Planner agents (05b/05t) MUST include budget resources in every implementation plan
+- IaC Planner (05) MUST include budget resources in every implementation plan
 - CodeGen agents (06b/06t) MUST generate the budget module/resource
 - Challenger reviews MUST verify cost monitoring exists
 

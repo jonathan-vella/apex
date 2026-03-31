@@ -101,7 +101,7 @@ flowchart TB
 
 ## 🚀 Implementation Handoff
 
-### Ready for bicep-plan
+### Ready for iac-planner
 
 The architecture is approved for implementation with the following key parameters:
 
@@ -178,11 +178,11 @@ The architecture is approved for implementation with the following key parameter
 >
 > **Confidence Level**: Medium-High
 >
-> - [ ] **Approved** — proceed to bicep-plan
+> - [ ] **Approved** — proceed to iac-planner
 > - Approver:
 > - Date:
 >
-> Reply **"approve"** to proceed to bicep-plan, or provide feedback for revisions.
+> Reply **"approve"** to proceed to iac-planner, or provide feedback for revisions.
 
 ---
 

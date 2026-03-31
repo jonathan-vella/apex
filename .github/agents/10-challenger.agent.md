@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4 (copilot)"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 tools:
@@ -19,10 +19,7 @@ tools:
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
   ]
-agents:
-  [
-    "challenger-review-subagent",
-  ]
+agents: ["challenger-review-subagent"]
 handoffs:
   - label: "↩ Return to Conductor"
     agent: 01-Conductor
@@ -34,11 +31,11 @@ handoffs:
 
 <!-- Recommended reasoning_effort: high -->
 
-<subagent_budget>
+## Subagent Budget
+
 This agent orchestrates 1 subagent: challenger-review-subagent (unified, supports single-lens and batch modes).
 For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
-</subagent_budget>
 
 You are a delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke challenger subagents directly.
@@ -103,12 +100,12 @@ Invoke `challenger-review-subagent` with:
    Show totals: `N must-fix, N should-fix, N suggestion`.
    Reference the JSON file path for machine-readable details.
 
-<output_contract>
+## Output Contract
+
 Expected output: JSON written to `agent-output/{project}/challenge-findings-{artifact_type}.json`
 Format: See challenger-review-subagent output format specification.
 Fields: challenged_artifact, artifact_type, review_focus, risk_level, must_fix_count, should_fix_count, issues[].
 Presentation: Render findings as markdown table in chat (ID, Severity, Title, WAF Pillar, Recommendation).
-</output_contract>
 
 **Input Fallback**: If the artifact path does not match any known filename pattern in the workflow table,
 set `artifact_type` to `"comprehensive"` and `review_focus` to `"comprehensive"`. Log a warning

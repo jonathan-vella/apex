@@ -149,35 +149,35 @@ Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
 
 Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
-| Step | Agent              | Codename      | Role                                 | Artifact                                                |
-| ---- | ------------------ | ------------- | ------------------------------------ | ------------------------------------------------------- |
-| 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                    |
-| 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                         |
-| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{drawio,py,png,md}`                           |
-| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                    |
-| 4b   | `bicep-plan`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.drawio`     |
-| 4t   | `terraform-plan`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.drawio`     |
-| 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                                |
-| 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation   | `infra/terraform/{project}/`                            |
-| 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                     | `06-deployment-summary.md`                              |
-| 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                 | `06-deployment-summary.md`                              |
-| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite  | `07-*.md`                                               |
+| Step | Agent              | Codename      | Role                                 | Artifact                                            |
+| ---- | ------------------ | ------------- | ------------------------------------ | --------------------------------------------------- |
+| 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                |
+| 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                     |
+| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{drawio,py,png,md}`                       |
+| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                |
+| 4b   | `iac-planner`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.drawio` |
+| 4t   | `iac-planner`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.drawio` |
+| 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                            |
+| 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation   | `infra/terraform/{project}/`                        |
+| 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                     | `06-deployment-summary.md`                          |
+| 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                 | `06-deployment-summary.md`                          |
+| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite  | `07-*.md`                                           |
 
 ### Validation Subagents
 
 **Bicep track:**
 
-| Subagent                  | Purpose                                                   | Invoked By                   |
-| ------------------------- | --------------------------------------------------------- | ---------------------------- |
-| `bicep-validate-subagent` | Lint + code review (AVM, security, naming)                | `bicep-code`                 |
-| `bicep-whatif-subagent`   | Deployment preview (`az deployment what-if`)              | `bicep-code`, `bicep-deploy` |
+| Subagent                  | Purpose                                      | Invoked By                   |
+| ------------------------- | -------------------------------------------- | ---------------------------- |
+| `bicep-validate-subagent` | Lint + code review (AVM, security, naming)   | `bicep-code`                 |
+| `bicep-whatif-subagent`   | Deployment preview (`az deployment what-if`) | `bicep-code`, `bicep-deploy` |
 
 **Terraform track:**
 
-| Subagent                      | Purpose                                                     | Invoked By       |
-| ----------------------------- | ----------------------------------------------------------- | ---------------- |
-| `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming)               | `terraform-code` |
-| `terraform-plan-subagent`     | Deployment preview (`terraform plan`)                       | `terraform-code` |
+| Subagent                      | Purpose                                       | Invoked By       |
+| ----------------------------- | --------------------------------------------- | ---------------- |
+| `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming) | `terraform-code` |
+| `iac-planner-subagent`     | Deployment preview (`terraform plan`)         | `terraform-code` |
 
 ### Standalone Agents
 
@@ -244,7 +244,7 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `drawio` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
+**Handoff**: Suggests `drawio` skill or IaC planning agent (`iac-planner` / `iac-planner`).
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
@@ -284,7 +284,7 @@ The user must approve governance constraints before proceeding to planning.
 
 ### Step 4: Planning (📐 Strategist)
 
-**Agent**: `bicep-plan` (Bicep track) or `terraform-plan` (Terraform track)
+**Agent**: `iac-planner` (Bicep track) or `iac-planner` (Terraform track)
 
 Create detailed implementation plan using governance constraints as input.
 The planner validates governance completeness before proceeding: the
@@ -295,14 +295,14 @@ fails, the planner stops and requests governance refresh.
 === "Bicep"
 
     ```text
-    Invoke: Ctrl+Shift+A → bicep-plan
+    Invoke: Ctrl+Shift+A → iac-planner
     Output: agent-output/{project}/04-implementation-plan.md
     ```
 
 === "Terraform"
 
     ```text
-    Invoke: Ctrl+Shift+A → terraform-plan
+    Invoke: Ctrl+Shift+A → iac-planner
     Output: agent-output/{project}/04-implementation-plan.md
     ```
 
@@ -353,10 +353,10 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 
 **Preflight Validation** (via track-specific subagents):
 
-| Bicep Subagent            | Terraform Subagent            | Validation                            |
-| ------------------------- | ----------------------------- | ------------------------------------- |
-| `bicep-validate-subagent` | `terraform-validate-subagent` | Lint + code review                    |
-| `bicep-whatif-subagent`   | `terraform-plan-subagent`     | Deployment preview                    |
+| Bicep Subagent            | Terraform Subagent            | Validation         |
+| ------------------------- | ----------------------------- | ------------------ |
+| `bicep-validate-subagent` | `terraform-validate-subagent` | Lint + code review |
+| `bicep-whatif-subagent`   | `iac-planner-subagent`     | Deployment preview |
 
 :::note[Approval Gate]
 The user must approve preflight validation results before deployment.

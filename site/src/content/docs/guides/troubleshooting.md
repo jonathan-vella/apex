@@ -26,8 +26,8 @@ description: "Common issues and solutions"
 | InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |
 | requirements       | 📜 Scribe     | Not appearing in list            |
 | architect          | 🏛️ Oracle     | MCP pricing not connecting       |
-| bicep-planner      | 📐 Strategist | Governance discovery failing     |
-| terraform-planner  | 📐 Strategist | Governance discovery failing     |
+| iac-planner      | 📐 Strategist | Governance discovery failing     |
+| iac-planner  | 📐 Strategist | Governance discovery failing     |
 | bicep-codegen      | ⚒️ Forge      | Validation subagents not running |
 | terraform-codegen  | ⚒️ Forge      | Provider version mismatches      |
 | bicep-deploy       | 🚀 Envoy      | Azure auth issues                |
@@ -173,10 +173,10 @@ cat .github/skills/drawio/SKILL.md | head -30
 
 **Common policies**:
 
-| Error             | Cause                     | Solution                                                                                |
-| ----------------- | ------------------------- | --------------------------------------------------------------------------------------- |
-| "Azure AD only"   | SQL Server needs AAD auth | Set `azureADOnlyAuthentication: true`                                                   |
-| "Zone redundancy" | Wrong SKU tier            | Use P1v4+ for App Service                                                               |
+| Error             | Cause                     | Solution                                                                         |
+| ----------------- | ------------------------- | -------------------------------------------------------------------------------- |
+| "Azure AD only"   | SQL Server needs AAD auth | Set `azureADOnlyAuthentication: true`                                            |
+| "Zone redundancy" | Wrong SKU tier            | Use P1v4+ for App Service                                                        |
 | "Missing tags"    | Required tags absent      | Add baseline tags (see `iac-best-practices.instructions.md`) + governance extras |
 
 **Run preflight check**:

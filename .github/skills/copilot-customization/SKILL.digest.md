@@ -65,3 +65,4 @@ These instruction files auto-load for matching files. This skill references but 
 | `agent-skills.instructions.md`         | `**/.github/skills/**/SKILL.md` | Skill frontmatter, body limits           |
 
 > _See SKILL.md for full content._
+```

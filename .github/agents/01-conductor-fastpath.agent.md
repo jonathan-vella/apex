@@ -129,9 +129,10 @@ This is the key optimization — Plan and Code are combined.
 Review pass counts follow the `simple` row of the review matrix in
 `azure-defaults/references/adversarial-review-protocol.md`.
 
-1. **Present the IaC Planner handoff** (05b or 05t based on `iac_tool`)
-   — the Planner uses `askQuestions` for the Deployment Strategy Gate,
-   so it must run as a direct handoff, not via `#runSubagent`.
+1. **Present the IaC Planner handoff** (`05-IaC Planner`) — the Planner
+   routes internally based on `decisions.iac_tool` in session state and
+   uses `askQuestions` for the Deployment Strategy Gate, so it must run
+   as a direct handoff, not via `#runSubagent`.
    - **Governance pre-check (required)**: Before skipping full governance
      discovery, run this validation:
      1. Validate auth: `az account show --query id -o tsv` — if this fails (exit code non-zero),

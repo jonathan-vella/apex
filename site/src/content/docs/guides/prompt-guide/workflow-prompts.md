@@ -97,7 +97,7 @@ Include monthly and yearly totals for each resource.
 
 ## Step 4: Planning — 📐 Strategist
 
-Select the **Bicep Planner** or **Terraform Planner** agent depending on your
+Select the **IaC Planner** or **IaC Planner** agent depending on your
 IaC tool preference. Both discover governance constraints and create a
 machine-readable implementation plan.
 

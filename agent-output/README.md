@@ -80,7 +80,7 @@ working on that project should create it from the template and backfill complete
 - [ ] Step 1: Requirements (@requirements)
 - [ ] Step 2: Architecture (architect)
 - [ ] Step 3: Design Artifacts (diagram, adr)
-- [ ] Step 4: Planning (bicep-plan)
+- [ ] Step 4: Planning (iac-planner)
 - [ ] Step 5: Implementation (bicep-code)
 - [ ] Step 6: Deploy
 - [ ] Step 7: As-Built Artifacts (diagrams, ADRs, workload docs)

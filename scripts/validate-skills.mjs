@@ -262,9 +262,7 @@ function runAffinityValidation() {
   if (affinity.agents) {
     for (const [key, entry] of Object.entries(affinity.agents)) {
       if (!agentNames.has(key)) {
-        r.warn(
-          `Agent "${key}" in affinity config not found in agent files`,
-        );
+        r.warn(`Agent "${key}" in affinity config not found in agent files`);
       }
       validateEntry(key, entry, false);
       entryCount++;
@@ -274,9 +272,7 @@ function runAffinityValidation() {
   if (affinity.subagents) {
     for (const [key, entry] of Object.entries(affinity.subagents)) {
       if (!agentNames.has(key)) {
-        r.warn(
-          `Subagent "${key}" in affinity config not found in agent files`,
-        );
+        r.warn(`Subagent "${key}" in affinity config not found in agent files`);
       }
       validateEntry(key, entry, true);
       entryCount++;

@@ -4,11 +4,11 @@
 
 ## Schema Versions
 
-| Version | Description                                                             |
-| ------- | ----------------------------------------------------------------------- |
-| `1.0`   | Original schema — status tracking, decisions, sub-step checkpoints      |
-| `2.0`   | Added `lock` object, per-step `claim` (removed in v3.0)                 |
-| `3.0`   | Simplified — removed lock/claim (serial execution only)                 |
+| Version | Description                                                        |
+| ------- | ------------------------------------------------------------------ |
+| `1.0`   | Original schema — status tracking, decisions, sub-step checkpoints |
+| `2.0`   | Added `lock` object, per-step `claim` (removed in v3.0)            |
+| `3.0`   | Simplified — removed lock/claim (serial execution only)            |
 
 > **Migration**: v1.0 and v2.0 files are auto-migrated to v3.0 on first read.
 > Lock/claim fields are stripped during migration.
@@ -150,12 +150,15 @@
   }
 }
 ```
+
         "retry_count": 0,
         "event_log": []
       }
     }
-  }
+
 }
+}
+
 ```
 
 ## Field Definitions
@@ -195,3 +198,4 @@
 | `review_audit.step_N.skipped`         | array          | Pass numbers that were skipped (e.g. `[2, 3]`)                                                                                    |
 | `review_audit.step_N.skip_reasons`    | array          | Reasons for each skip (e.g. `["pass 1: 0 must_fix, 1 should_fix"]`)                                                               |
 | `review_audit.step_N.models_used`     | array          | Models used per pass (e.g. `["GPT-5.4", "GPT-5.3-Codex"]`)                                                                        |
+```

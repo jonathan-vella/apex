@@ -1,11 +1,11 @@
 {
   "$schema": "agent-registry-v1",
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
-  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/never), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan'), affinity uses display names (e.g. '05-IaC Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
+  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/now), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan'), affinity uses display names (e.g. '05-IaC Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
   "agents": {
     "conductor": {
       "agent": ".github/agents/01-conductor.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "GPT-5.4",
       "skills": [
         "golden-principles",
         "session-resume",
@@ -185,7 +185,7 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": true,
       "step": null
@@ -199,7 +199,7 @@
     },
     "e2e-conductor": {
       "agent": ".github/agents/e2e-conductor.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "GPT-5.4",
       "skills": [
         "session-resume",
         "workflow-engine",

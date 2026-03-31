@@ -122,14 +122,14 @@ and the VS Code runtime. Tools give agents real-time access to external systems:
 
 This project integrates six core MCP servers:
 
-| Server             | Purpose                            | Transport          |
-| ------------------ | ---------------------------------- | ------------------ |
-| **Azure MCP**      | RBAC-aware Azure Resource Manager  | VS Code extension  |
-| **Azure Pricing**  | Cost estimation (13 tools)         | stdio (Python)     |
-| **Draw.io MCP**    | Editable architecture diagrams     | stdio (Deno)       |
-| **GitHub MCP**     | Issues, PRs, code search, branches | HTTP (Copilot API) |
-| **MS Learn MCP**   | Official docs search, code samples | HTTP               |
-| **Terraform MCP**  | Provider/module registry lookups   | stdio (Go)         |
+| Server            | Purpose                            | Transport          |
+| ----------------- | ---------------------------------- | ------------------ |
+| **Azure MCP**     | RBAC-aware Azure Resource Manager  | VS Code extension  |
+| **Azure Pricing** | Cost estimation (13 tools)         | stdio (Python)     |
+| **Draw.io MCP**   | Editable architecture diagrams     | stdio (Deno)       |
+| **GitHub MCP**    | Issues, PRs, code search, branches | HTTP (Copilot API) |
+| **MS Learn MCP**  | Official docs search, code samples | HTTP               |
+| **Terraform MCP** | Provider/module registry lookups   | stdio (Go)         |
 
 [:octicons-arrow-right-24: MCP Integration details](mcp-integration.md)
 

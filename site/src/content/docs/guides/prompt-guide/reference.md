@@ -210,7 +210,7 @@ configs against AVM-TF standards, CAF naming conventions, security baselines,
 and governance compliance. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION
 result.
 
-### terraform-plan-subagent
+### iac-planner-subagent
 
 Runs `terraform plan` to preview infrastructure changes. Classifies resources
 into create/update/destroy/replace, highlights destructive operations,
@@ -241,7 +241,7 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 
 1. Open the requirements document (`01-requirements.md`)
 2. Open the architecture assessment (`02-architecture-assessment.md`)
-3. Then ask the Bicep Planner agent to create the implementation plan
+3. Then ask the IaC Planner agent to create the implementation plan
 
 ### Chaining Agents
 
@@ -253,7 +253,7 @@ control over each step.
 
 1. Run **Requirements** → review and approve `01-requirements.md`
 2. Run **Architect** → review WAF scores and cost estimate
-3. Run **Bicep Planner** → review governance constraints and plan
+3. Run **IaC Planner** → review governance constraints and plan
 4. Run **Bicep CodeGen** → review generated templates
 5. Run **Bicep Deploy** → review what-if before approving deployment
 6. Run **As-Built** → generate post-deployment documentation
@@ -262,7 +262,7 @@ control over each step.
 
 1. Run **Requirements** → review and approve `01-requirements.md`
 2. Run **Architect** → review WAF scores and cost estimate
-3. Run **Terraform Planner** → review governance constraints and plan
+3. Run **IaC Planner** → review governance constraints and plan
 4. Run **Terraform CodeGen** → review generated configs
 5. Run **Terraform Deploy** → review plan output before applying
 6. Run **As-Built** → generate post-deployment documentation

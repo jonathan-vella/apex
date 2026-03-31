@@ -1,7 +1,7 @@
 ---
 name: 01-Conductor
 description: Master orchestrator for the multi-step Azure infrastructure workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["Claude Opus 4.6"]
+model: ["GPT-5.4 (copilot)"]
 argument-hint: Describe the Azure infrastructure project you want to build end-to-end
 user-invocable: true
 agents:
@@ -109,26 +109,26 @@ handoffs:
 
 Master orchestrator for the multi-step Azure infrastructure development workflow.
 
-<context_awareness>
+## Context Awareness
+
 Before loading large skill files, check if SKILL.digest.md or SKILL.minimal.md variants exist.
 If context approaches 80%, switch to compressed variants per the context-shredding skill.
 At gates, write 00-handoff.md to preserve state for potential session breaks.
-</context_awareness>
 
-<subagent_budget>
+## Subagent Budget
+
 Invoke no more than 3 subagents sequentially before checkpointing progress with the user.
 This preserves context and prevents runaway delegation. If a step requires more than 3
 subagent calls, checkpoint after the third and confirm with the user before continuing.
-</subagent_budget>
 
-<output_contract>
+## Output Contract
+
 Session state: agent-output/{project}/00-session-state.json — update at every gate with
 current_step, step status, decisions, and artifact inventory.
 Handoff: agent-output/{project}/00-handoff.md — overwrite at every gate (under 60 lines,
 paths only, never embed artifact content).
 Gate format: structured text block with artifact paths, challenger findings summary,
 and next-step guidance (see gate templates below).
-</output_contract>
 
 **HARD RULE — ONE-SHOT PROJECT SETUP**
 
@@ -299,23 +299,23 @@ Conductor with the project name — no special resume prompt needed.
 
 ## Artifact Tracking
 
-| Step | Artifact                           | Check                                    |
-| ---- | ---------------------------------- | ---------------------------------------- |
-| —    | `README.md`                        | Exists? (required)                       |
-| —    | `00-handoff.md`                    | Updated at every gate? (human companion) |
-| —    | `00-session-state.json`            | Updated at every gate? (machine state)   |
-| 1    | `01-requirements.md`               | Exists?                                  |
-| 2    | `02-architecture-assessment.md`    | Exists?                                  |
-| 3    | `03-des-*.md`, `03-des-*.py`       | Optional                                 |
-| 3.5  | `04-governance-constraints.md`     | Governance discovered and reviewed?      |
-| 3.5  | `04-governance-constraints.json`   | Machine-readable policy data?            |
-| 4    | `04-implementation-plan.md`        | Exists?                                  |
-| 4    | `04-dependency-diagram.drawio` | Generated?                               |
-| 4    | `04-runtime-diagram.drawio`    | Generated?                               |
-| 5    | `infra/bicep/{project}/`           | Templates valid? (Bicep path)            |
-| 5    | `infra/terraform/{project}/`       | Configuration valid? (Terraform path)    |
-| 6    | `06-deployment-summary.md`         | Deployed?                                |
-| 7    | `07-*.md`                          | Docs generated?                          |
+| Step | Artifact                         | Check                                    |
+| ---- | -------------------------------- | ---------------------------------------- |
+| —    | `README.md`                      | Exists? (required)                       |
+| —    | `00-handoff.md`                  | Updated at every gate? (human companion) |
+| —    | `00-session-state.json`          | Updated at every gate? (machine state)   |
+| 1    | `01-requirements.md`             | Exists?                                  |
+| 2    | `02-architecture-assessment.md`  | Exists?                                  |
+| 3    | `03-des-*.md`, `03-des-*.py`     | Optional                                 |
+| 3.5  | `04-governance-constraints.md`   | Governance discovered and reviewed?      |
+| 3.5  | `04-governance-constraints.json` | Machine-readable policy data?            |
+| 4    | `04-implementation-plan.md`      | Exists?                                  |
+| 4    | `04-dependency-diagram.drawio`   | Generated?                               |
+| 4    | `04-runtime-diagram.drawio`      | Generated?                               |
+| 5    | `infra/bicep/{project}/`         | Templates valid? (Bicep path)            |
+| 5    | `infra/terraform/{project}/`     | Configuration valid? (Terraform path)    |
+| 6    | `06-deployment-summary.md`       | Deployed?                                |
+| 7    | `07-*.md`                        | Docs generated?                          |
 
 ## Model Selection
 

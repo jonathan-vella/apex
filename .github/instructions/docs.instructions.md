@@ -44,10 +44,9 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `requirements`       | Gather infrastructure requirements           |
 | `architect`          | WAF assessment and architecture design       |
 | `design`             | Architecture diagrams and ADRs               |
-| `bicep-planner`      | Bicep implementation planning and governance |
+| `iac-planner`        | Unified IaC implementation planning          |
 | `bicep-codegen`      | Bicep template generation                    |
 | `bicep-deploy`       | Bicep Azure deployment execution             |
-| `terraform-planner`  | Terraform implementation planning            |
 | `terraform-codegen`  | Terraform config generation                  |
 | `terraform-deploy`   | Terraform Azure deployment execution         |
 | `as-built`           | Step 7 workload documentation suite          |
@@ -60,7 +59,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | Subagent                        | Parent           | Purpose                             |
 | ------------------------------- | ---------------- | ----------------------------------- |
 | `cost-estimate-subagent`        | Architect        | Azure Pricing MCP queries           |
-| `governance-discovery-subagent` | IaC Planners     | Azure Policy REST API discovery     |
+| `governance-discovery-subagent` | IaC Planner      | Azure Policy REST API discovery     |
 | `challenger-review-subagent`    | Conductor/Plans  | Adversarial artifact review         |
 | `bicep-validate-subagent`       | Bicep Code       | Lint + AVM/security code review     |
 | `bicep-whatif-subagent`         | Bicep Deploy     | Deployment preview                  |

@@ -146,8 +146,8 @@ flowchart TD
 
     Shared["Steps 1-3\n(Shared)"]
     Decision{"iac_tool?"}
-    Bicep["Steps 4-6\nBicep Track\n(05b → 06b → 07b)"]:::track
-    Terraform["Steps 4-6\nTerraform Track\n(05t → 06t → 07t)"]:::track
+    Bicep["Steps 4-6\nBicep Track\n(05 → 06b → 07b)"]:::track
+    Terraform["Steps 4-6\nTerraform Track\n(05 → 06t → 07t)"]:::track
     AsBuilt["Step 7\nAs-Built Docs\n(Shared)"]:::endNode
 
     Shared --> Decision

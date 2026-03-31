@@ -73,39 +73,39 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 ### Architecture and Registry Validators
 
-| npm Command                   | Script                            | Purpose                                           |
-| ----------------------------- | --------------------------------- | ------------------------------------------------- |
-| `validate:agents`             | `validate-agents.mjs`             | Agent frontmatter, body size, model alignment     |
-| `validate:skills`             | `validate-skills.mjs`             | Skill format, affinity, references, stale refs    |
-| `validate:skill-checks`       | `validate-skill-checks.mjs`       | Skill size (≤500 lines) and references            |
-| `validate:instruction-checks` | `validate-instruction-checks.mjs` | Instruction frontmatter and applyTo patterns      |
-| `validate:agent-registry`     | `validate-agent-registry.mjs`     | Agent registry consistency                        |
-| `validate:workflow-graph`     | `validate-workflow-graph.mjs`     | DAG integrity (no orphans, no cycles)             |
+| npm Command                   | Script                            | Purpose                                        |
+| ----------------------------- | --------------------------------- | ---------------------------------------------- |
+| `validate:agents`             | `validate-agents.mjs`             | Agent frontmatter, body size, model alignment  |
+| `validate:skills`             | `validate-skills.mjs`             | Skill format, affinity, references, stale refs |
+| `validate:skill-checks`       | `validate-skill-checks.mjs`       | Skill size (≤500 lines) and references         |
+| `validate:instruction-checks` | `validate-instruction-checks.mjs` | Instruction frontmatter and applyTo patterns   |
+| `validate:agent-registry`     | `validate-agent-registry.mjs`     | Agent registry consistency                     |
+| `validate:workflow-graph`     | `validate-workflow-graph.mjs`     | DAG integrity (no orphans, no cycles)          |
 
 ### Artifact and Template Validators
 
-| npm Command               | Script                            | Purpose                                                                                                 |
-| ------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `validate:artifacts`      | `validate-artifacts.mjs`          | H2 sync, template compliance, and auto-fix (with `--fix`)                                               |
-| `lint:excalidraw`         | `validate-excalidraw-files.mjs`   | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset               |
-| `e2e:validate`            | `validate-e2e-step.mjs`           | E2E pipeline structural validation                                                                      |
-| `e2e:benchmark`           | `benchmark-e2e.mjs`               | 8-dimension benchmark scoring                                                                           |
+| npm Command          | Script                          | Purpose                                                                                   |
+| -------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
+| `validate:artifacts` | `validate-artifacts.mjs`        | H2 sync, template compliance, and auto-fix (with `--fix`)                                 |
+| `lint:excalidraw`    | `validate-excalidraw-files.mjs` | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset |
+| `e2e:validate`       | `validate-e2e-step.mjs`         | E2E pipeline structural validation                                                        |
+| `e2e:benchmark`      | `benchmark-e2e.mjs`             | 8-dimension benchmark scoring                                                             |
 
 ### Governance and Compliance Validators
 
-| npm Command                      | Script                                   | Purpose                                                      |
-| -------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `lint:governance-refs`           | `validate-governance-refs.mjs`           | Governance guardrails integrity                              |
-| `validate:no-hardcoded-counts`   | `validate-no-hardcoded-counts.mjs`       | Prevent hardcoded entity counts                              |
-| `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`        | Block deprecated API/pattern references                      |
-| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs`     | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
+| npm Command                      | Script                               | Purpose                                                      |
+| -------------------------------- | ------------------------------------ | ------------------------------------------------------------ |
+| `lint:governance-refs`           | `validate-governance-refs.mjs`       | Governance guardrails integrity                              |
+| `validate:no-hardcoded-counts`   | `validate-no-hardcoded-counts.mjs`   | Prevent hardcoded entity counts                              |
+| `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`    | Block deprecated API/pattern references                      |
+| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs` | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
 
 ### Session and State Validators
 
-| npm Command              | Script                       | Purpose                                |
-| ------------------------ | ---------------------------- | -------------------------------------- |
-| `validate:session-state` | `validate-session-state.mjs` | Session state JSON schema compliance   |
-| `validate:session-lock`  | `validate-session-lock.mjs`  | Deprecated lock/claim field detection  |
+| npm Command              | Script                       | Purpose                               |
+| ------------------------ | ---------------------------- | ------------------------------------- |
+| `validate:session-state` | `validate-session-state.mjs` | Session state JSON schema compliance  |
+| `validate:session-lock`  | `validate-session-lock.mjs`  | Deprecated lock/claim field detection |
 
 ### Quality and Cross-Reference Validators
 

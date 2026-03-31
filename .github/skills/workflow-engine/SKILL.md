@@ -49,8 +49,8 @@ The workflow is a Directed Acyclic Graph (DAG) with:
 
 Edges from Step 3 → Step 4 are conditional on `decisions.iac_tool`:
 
-- `iac_tool: "Bicep"` → routes to `step-4b` (Bicep Planner)
-- `iac_tool: "Terraform"` → routes to `step-4t` (Terraform Planner)
+- `iac_tool: "Bicep"` → routes to `step-4b` (IaC Planner)
+- `iac_tool: "Terraform"` → routes to `step-4t` (IaC Planner)
 
 This pattern repeats for Steps 5 and 6.
 

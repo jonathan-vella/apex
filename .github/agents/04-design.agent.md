@@ -54,6 +54,8 @@ handoffs:
 
 # Design Agent
 
+<!-- Recommended reasoning_effort: high -->
+
 ## Scope
 
 **This agent generates design artifacts only**: architecture diagrams, ADRs, and cost estimate handoffs.

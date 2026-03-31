@@ -173,7 +173,7 @@ Each agent has a thematic codename for easy reference in documentation and promp
 | 2    | `architect`                           | 🏛️ Oracle     | WAF assessment              |
 | 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional)    |
 | 3.5  | `governance`                          | 🛡️ Warden     | Policy discovery/compliance |
-| 4    | `bicep-planner` / `terraform-planner` | 📐 Strategist | Implementation plan         |
+| 4    | `iac-planner` / `iac-planner` | 📐 Strategist | Implementation plan         |
 | 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates               |
 | 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment            |
 | 7    | `as-built`                            | 📚 Chronicler | Documentation suite         |

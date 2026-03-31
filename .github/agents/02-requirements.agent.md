@@ -5,10 +5,7 @@ description: Researches and captures Azure infrastructure project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
 user-invocable: true
-agents:
-  [
-    "challenger-review-subagent",
-  ]
+agents: ["challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -58,7 +55,7 @@ handoffs:
 ---
 
 <!-- ONE-SHOT GATE — the model must complete ALL phases in a single turn -->
-<!-- Recommended reasoning_effort: medium -->
+<!-- Recommended reasoning_effort: high -->
 
 <output_contract>
 Primary artifact: agent-output/{project}/01-requirements.md — H2 structure must match

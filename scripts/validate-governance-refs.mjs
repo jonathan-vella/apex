@@ -8,7 +8,7 @@
  * Checks:
  * 1. Bicep Code Generator references 04-governance-constraints
  * 2. bicep-validate-subagent has Governance Compliance checklist
- * 3. Bicep Planner references JSON output schema completeness
+ * 3. IaC Planner references JSON output schema completeness
  * 4. iac-best-practices.instructions.md exists with correct applyTo
  *
  * @example

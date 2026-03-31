@@ -194,7 +194,7 @@ The context-shredding system defines three compression tiers for artifact loadin
   exist on disk for key skills, generated and validated by scripts
   (`generate-skill-digests.mjs`, `validate-skill-digests.mjs`).
 - **Hardcoded compaction checkpoints** — agents like the Architect (Phase 2.5)
-  and Terraform Planner (Phase 3.6) have fixed points in their bodies where they
+  and IaC Planner (Phase 3.6) have fixed points in their bodies where they
   write a summary and switch to minimal skill loading. These are positional, not
   dynamic.
 - **`compact_for_parent` carry-forward** — the challenger subagent's JSON output

@@ -113,11 +113,7 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": [
-        "azure-diagnostics",
-        "iac-common",
-        "drawio"
-      ]
+      "never": ["azure-diagnostics", "iac-common", "drawio"]
     },
     "06b-Bicep CodeGen": {
       "primary": ["azure-bicep-patterns"],

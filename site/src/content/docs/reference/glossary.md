@@ -410,7 +410,7 @@ A specialized validation agent invoked by other agents for specific tasks (lint,
 review). Seven exist: `challenger-review-subagent`, `cost-estimate-subagent`,
 `governance-discovery-subagent`, `bicep-validate-subagent`,
 `bicep-whatif-subagent`, `terraform-validate-subagent`,
-`terraform-plan-subagent`.
+`iac-planner-subagent`.
 
 📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
 
@@ -509,8 +509,8 @@ YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
 The core Agentic InfraOps workflow: `requirements` → `architect` → Design Artifacts →
 Governance → IaC Plan → IaC Code → Deploy → Documentation. Step 3.5 (Governance)
 runs between Design and IaC Plan. Steps 1–3 and 7 are shared; steps 4–6 diverge into
-**Bicep track** (`bicep-planner` → `bicep-codegen` → `bicep-deploy`) or **Terraform track**
-(`terraform-planner` → `terraform-codegen` → `terraform-deploy`). Each step produces
+**Bicep track** (`iac-planner` → `bicep-codegen` → `bicep-deploy`) or **Terraform track**
+(`iac-planner` → `terraform-codegen` → `terraform-deploy`). Each step produces
 artifacts in `agent-output/`.
 
 📁 **See**: [Workflow Guide](../../concepts/workflow/)

@@ -39,6 +39,7 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 | ---- | -------------------------------------------------------------------- |
 | 2    | `02-waf-scores.py/.png`                                              |
 | 3    | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |
+| 4    | `04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png`        |
 | 7    | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |
 
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).

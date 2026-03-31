@@ -3,11 +3,7 @@ name: 06b-Bicep CodeGen
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
 model: ["Claude Sonnet 4.6"]
 user-invocable: true
-agents:
-  [
-    "bicep-validate-subagent",
-    "challenger-review-subagent",
-  ]
+agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode,

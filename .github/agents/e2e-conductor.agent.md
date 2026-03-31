@@ -1,7 +1,7 @@
 ---
 name: E2E Conductor
 description: "Autonomous E2E evaluation conductor for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Conductor."
-model: ["Claude Opus 4.6"]
+model: ["GPT-5.4 (copilot)"]
 user-invocable: false
 agents:
   [
@@ -49,11 +49,11 @@ Autonomous conductor for the RALPH-style E2E workflow evaluation loop.
 Runs all 7 InfraOps steps without human gates, validates every artifact,
 and produces a scored benchmark report with lessons learned.
 
-<context_awareness>
+## Context Awareness
+
 Track approximate context usage per step. If context approaches 60% capacity
 (many large subagent returns), save state to `00-session-state.json` and
 `00-handoff.md`, then output SESSION_SPLIT_NEEDED with the next step number.
-</context_awareness>
 
 ## Core Differences from Production Conductor
 

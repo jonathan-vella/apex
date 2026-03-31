@@ -187,7 +187,7 @@ in authoritative sources.
 | `microsoft_code_sample_search` | Search for code examples in Microsoft docs |
 
 Used across the workflow — the **Architect** agent (Step 2) searches
-documentation for each Azure service, **Bicep Planner** (Step 4b) looks
+documentation for each Azure service, **IaC Planner** (Step 4) looks
 up AVM module documentation, and the `copilot-customization` skill
 caches fetched pages for offline reference.
 
@@ -222,7 +222,7 @@ IaC track. Agents use it to discover the latest provider and module
 versions, look up provider capabilities (resources, data sources, functions),
 and retrieve module details before generating Terraform configurations.
 
-Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
+Scoped exclusively to the **IaC Planner** (Step 4), **Terraform
 CodeGen** (Step 5t) and **terraform-validate-subagent**.
 
 ## :material-file-tree-outline: File Map

@@ -1,248 +1,11 @@
-#!/usr/bin/env node
-/**
- * Artifact Validators (consolidated)
- *
- * Combines three artifact validation checks into one script:
- * 1. H2 heading sync across sources (was validate-h2-sync.mjs)
- * 2. Artifact template compliance (was validate-artifact-templates.mjs)
- * 3. Artifact H2 auto-fix (was fix-artifact-h2.mjs, activated with --fix)
- *
- * @example
- * node scripts/validate-artifacts.mjs          # Run all validations
- * node scripts/validate-artifacts.mjs --fix <file>  # Auto-fix artifact H2 headings
- */
-
 import fs from "node:fs";
 import path from "node:path";
 import { ARTIFACT_HEADINGS } from "./_lib/artifact-headings.mjs";
 
-// ============================================================================
-// Shared utilities
-// ============================================================================
-
-function readText(relPath) {
-  const absPath = path.resolve(process.cwd(), relPath);
-  return fs.readFileSync(absPath, "utf8");
-}
-
-function exists(relPath) {
-  return fs.existsSync(path.resolve(process.cwd(), relPath));
-}
-
-function extractH2Headings(text) {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trimEnd())
-    .filter((line) => line.startsWith("## "));
-}
-
-// ============================================================================
-// Part 1: H2 Heading Sync Validator (was validate-h2-sync.mjs)
-// ============================================================================
-
-const SKILL_PATH = ".github/skills/azure-artifacts/SKILL.md";
-const SKILL_REFS_DIR = ".github/skills/azure-artifacts/references";
-const H2_REF_PATH = ".github/instructions/azure-artifacts.instructions.md";
-const VALIDATOR_PATH = "scripts/_lib/artifact-headings.mjs";
-
-const ARTIFACT_NAMES = [
-  "01-requirements.md",
-  "02-architecture-assessment.md",
-  "03-des-cost-estimate.md",
-  "04-governance-constraints.md",
-  "04-implementation-plan.md",
-  "04-preflight-check.md",
-  "05-implementation-reference.md",
-  "06-deployment-summary.md",
-  "07-ab-cost-estimate.md",
-  "07-backup-dr-plan.md",
-  "07-compliance-matrix.md",
-  "07-design-document.md",
-  "07-documentation-index.md",
-  "07-operations-runbook.md",
-  "07-resource-inventory.md",
-];
-
-function parseMarkdownH2Blocks(text) {
-  const result = new Map();
-  const sectionRegex =
-    /###\s+([\w.-]+\.md)(?:\s+[^\n]*)?\n+```(?:markdown|text)?\n([\s\S]*?)```/g;
-  let match;
-
-  while ((match = sectionRegex.exec(text)) !== null) {
-    const artifactName = match[1];
-    const blockContent = match[2];
-
-    const headings = blockContent
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.startsWith("## "))
-      .map((h) => h.replace(/\s*<!--.*?-->\s*$/, "").trim());
-
-    if (headings.length > 0) {
-      result.set(artifactName, headings);
-    }
-  }
-
-  return result;
-}
-
-function parseValidatorHeadings(text) {
-  const result = new Map();
-
-  const blockMatch = text.match(
-    /(?:const|export const) ARTIFACT_HEADINGS\s*=\s*\{([\s\S]*?)\n\};/,
-  );
-  if (!blockMatch) return result;
-
-  const block = blockMatch[1];
-  const entryRegex = /"([^"]+\.md)":\s*\[([\s\S]*?)\]/g;
-  let match;
-
-  while ((match = entryRegex.exec(block)) !== null) {
-    const artifactName = match[1];
-    const arrayContent = match[2];
-
-    const headingRegex = /"(## [^"]+)"/g;
-    const headings = [];
-    let hMatch;
-
-    while ((hMatch = headingRegex.exec(arrayContent)) !== null) {
-      headings.push(hMatch[1]);
-    }
-
-    if (headings.length > 0) {
-      result.set(artifactName, headings);
-    }
-  }
-
-  return result;
-}
-
-function stripReferences(headings) {
-  return headings.filter((h) => h !== "## References");
-}
-
-function runH2Sync() {
-  console.log("═══ Part 1: H2 Heading Sync ═══\n");
-
-  let syncErrors = 0;
-
-  const missing = [];
-  if (!exists(SKILL_PATH)) missing.push(SKILL_PATH);
-  if (!exists(VALIDATOR_PATH)) missing.push(VALIDATOR_PATH);
-  if (missing.length > 0) {
-    for (const f of missing) {
-      console.log(`::error::Missing source file: ${f}`);
-    }
-    return 1;
-  }
-
-  const h2RefExists = exists(H2_REF_PATH);
-  if (!h2RefExists) {
-    console.log(
-      `  ⚠️  ${H2_REF_PATH} not found — skipping instruction-file comparison`,
-    );
-  }
-
-  const skillHeadings = parseMarkdownH2Blocks(readText(SKILL_PATH));
-
-  if (fs.existsSync(SKILL_REFS_DIR)) {
-    const refFiles = fs
-      .readdirSync(SKILL_REFS_DIR)
-      .filter((f) => f.endsWith(".md"));
-    for (const refFile of refFiles) {
-      const refPath = path.join(SKILL_REFS_DIR, refFile);
-      const refHeadings = parseMarkdownH2Blocks(readText(refPath));
-      for (const [key, value] of refHeadings) {
-        if (!skillHeadings.has(key)) {
-          skillHeadings.set(key, value);
-        }
-      }
-    }
-  }
-
-  const h2RefHeadings = h2RefExists
-    ? parseMarkdownH2Blocks(readText(H2_REF_PATH))
-    : new Map();
-  const validatorHeadings = parseValidatorHeadings(readText(VALIDATOR_PATH));
-
-  console.log(
-    `Sources: SKILL.md + references/ (${skillHeadings.size}), H2-reference (${h2RefHeadings.size}${h2RefExists ? "" : " — skipped"}), Validator (${validatorHeadings.size})\n`,
-  );
-
-  function compareHeadings(artifactName, sourceA, sourceB, nameA, nameB) {
-    const a = stripReferences(sourceA);
-    const b = stripReferences(sourceB);
-
-    if (a.length !== b.length) {
-      console.log(
-        `::error::${artifactName}: ${nameA} has ${a.length} headings, ${nameB} has ${b.length}`,
-      );
-      const inANotB = a.filter((h) => !b.includes(h));
-      const inBNotA = b.filter((h) => !a.includes(h));
-      if (inANotB.length > 0) {
-        console.log(`  In ${nameA} but not ${nameB}: ${inANotB.join(", ")}`);
-      }
-      if (inBNotA.length > 0) {
-        console.log(`  In ${nameB} but not ${nameA}: ${inBNotA.join(", ")}`);
-      }
-      syncErrors++;
-      return;
-    }
-
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) {
-        console.log(
-          `::error::${artifactName}: heading mismatch at position ${i + 1} — ${nameA}="${a[i]}" vs ${nameB}="${b[i]}"`,
-        );
-        syncErrors++;
-        return;
-      }
-    }
-  }
-
-  for (const artifactName of ARTIFACT_NAMES) {
-    const skill = skillHeadings.get(artifactName);
-    const h2Ref = h2RefHeadings.get(artifactName);
-    const validator = validatorHeadings.get(artifactName);
-
-    if (!skill) {
-      console.log(
-        `::error file=${SKILL_PATH}::${artifactName}: missing from SKILL.md + references/`,
-      );
-      syncErrors++;
-      continue;
-    }
-    if (!validator) {
-      console.log(
-        `::error file=${VALIDATOR_PATH}::${artifactName}: missing from ARTIFACT_HEADINGS`,
-      );
-      syncErrors++;
-      continue;
-    }
-
-    if (h2Ref) {
-      compareHeadings(artifactName, skill, h2Ref, "SKILL.md", "H2-reference");
-    }
-    compareHeadings(artifactName, skill, validator, "SKILL.md", "Validator");
-  }
-
-  if (syncErrors > 0) {
-    console.log(`\n❌ ${syncErrors} sync error(s) found`);
-    return 1;
-  }
-  console.log(
-    `✅ All ${ARTIFACT_NAMES.length} artifact types in sync across sources\n`,
-  );
-  return 0;
-}
-
-// ============================================================================
-// Part 2: Artifact Template Compliance (was validate-artifact-templates.mjs)
-// ============================================================================
-
+// Per-artifact strictness configuration
+// "standard" = fail on issues, "relaxed" = warn on issues
 const ARTIFACT_STRICTNESS = {
+  // Core artifacts - standard strictness (established templates)
   "01-requirements.md": "standard",
   "02-architecture-assessment.md": "standard",
   "04-implementation-plan.md": "standard",
@@ -250,6 +13,7 @@ const ARTIFACT_STRICTNESS = {
   "04-preflight-check.md": "standard",
   "05-implementation-reference.md": "standard",
   "06-deployment-summary.md": "standard",
+  // Wave 2 artifacts - ratcheted to standard after v3.9.0 restructuring
   "07-design-document.md": "standard",
   "07-operations-runbook.md": "standard",
   "07-resource-inventory.md": "standard",
@@ -261,6 +25,7 @@ const ARTIFACT_STRICTNESS = {
   "README.md": "relaxed",
 };
 
+// Optional sections that can appear after the anchor (last invariant H2)
 const OPTIONAL_ALLOWED = {
   "01-requirements.md": ["## References"],
   "02-architecture-assessment.md": ["## References"],
@@ -297,17 +62,32 @@ const OPTIONAL_ALLOWED = {
 const TITLE_DRIFT = "Artifact Template Drift";
 const TITLE_MISSING = "Missing Template or Agent";
 
+// Global strictness override (env var) - if not set, use per-artifact config
 const GLOBAL_STRICTNESS = process.env.STRICTNESS;
 
+// Core artifacts validated by agents/skills
+// The azure-artifacts skill intentionally embeds template H2 structures
+// (consolidates all 16 templates for agent convenience). Skip it from
+// agent-link and embedded-skeleton checks.
 const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
 
+// Dual-agent situation for IaC artifacts:
+// Both Bicep (06b-bicep-codegen) and Terraform (06t-terraform-codegen)
+// produce 05-implementation-reference.md with identical H2 structure (IaC-neutral).
+// Both agents also produce 04-implementation-plan.md and 04-governance-constraints.md.
+// validateAgentLinks() passes for both because both reference the azure-artifacts skill.
+// The AGENTS map below uses the Bicep agent as the canonical reference; the Terraform
+// agent is checked separately via the governance validator (validate-governance-refs.mjs).
 const AGENTS = {
   "01-requirements.md": ".github/agents/02-requirements.agent.md",
   "02-architecture-assessment.md": ".github/agents/03-architect.agent.md",
+  // 05-iac-planner (unified) produces these:
   "04-implementation-plan.md": ".github/agents/05-iac-planner.agent.md",
   "04-governance-constraints.md": ".github/agents/05-iac-planner.agent.md",
   "04-preflight-check.md": ".github/agents/06b-bicep-codegen.agent.md",
   "06-deployment-summary.md": ".github/agents/07b-bicep-deploy.agent.md",
+  // Both 06b-bicep-codegen (Bicep) and 06t-terraform-codegen (Terraform)
+  // produce 05-implementation-reference.md. The H2 heading is IaC-neutral.
   "05-implementation-reference.md": ".github/agents/06b-bicep-codegen.agent.md",
   "07-design-document.md": ".github/skills/azure-artifacts/SKILL.md",
   "07-operations-runbook.md": ".github/skills/azure-artifacts/SKILL.md",
@@ -402,6 +182,22 @@ function error(message, { title = TITLE_DRIFT, filePath, line } = {}) {
   hasHardFailure = true;
 }
 
+function readText(relPath) {
+  const absPath = path.resolve(process.cwd(), relPath);
+  return fs.readFileSync(absPath, "utf8");
+}
+
+function exists(relPath) {
+  return fs.existsSync(path.resolve(process.cwd(), relPath));
+}
+
+function extractH2Headings(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter((line) => line.startsWith("## "));
+}
+
 function extractFencedBlocks(text) {
   const lines = text.split(/\r?\n/);
   const blocks = [];
@@ -462,6 +258,7 @@ function validateDiagramArtifactReferences(
 ) {
   const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
 
+  // Accept both "./filename.ext" and "filename.ext" — cosmetic difference only
   function refPresent(ref) {
     return text.includes(ref) || text.includes(ref.replace(/^\.\//, ""));
   }
@@ -511,6 +308,11 @@ function validateDiagramArtifactFiles(filePath, artifactName, reportFn = warn) {
   }
 }
 
+/**
+ * Validates standard visual components that all templates define:
+ * badge row, collapsible TOC, attribution header, and navigation table.
+ * PROJECT-README uses a different layout — skip component checks for it.
+ */
 function validateStandardComponents(filePath, text, reportFn = warn) {
   const basename = path.basename(filePath);
   if (basename === "README.md" || basename === "PROJECT-README.template.md") {
@@ -546,6 +348,7 @@ function validateStandardComponents(filePath, text, reportFn = warn) {
   }
 }
 
+// Artifacts that should contain at least one Mermaid diagram (Phase 3)
 const MERMAID_REQUIRED_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
@@ -559,6 +362,10 @@ const MERMAID_REQUIRED_TEMPLATES = [
   "07-resource-inventory.md",
 ];
 
+/**
+ * Validates that templates requiring Mermaid diagrams contain at least one
+ * fenced mermaid block. Advisory for agent-output (warn), enforced for templates (error).
+ */
 function validateMermaidPresence(filePath, text, reportFn = warn) {
   if (!/```mermaid/.test(text)) {
     reportFn(`${filePath} should contain at least one Mermaid diagram block.`, {
@@ -568,6 +375,7 @@ function validateMermaidPresence(filePath, text, reportFn = warn) {
   }
 }
 
+// Artifacts that should contain traffic-light status indicators (Phase 3)
 const TRAFFIC_LIGHT_TEMPLATES = [
   "02-architecture-assessment.md",
   "04-governance-constraints.md",
@@ -578,6 +386,10 @@ const TRAFFIC_LIGHT_TEMPLATES = [
   "07-design-document.md",
 ];
 
+/**
+ * Validates that templates requiring traffic-light indicators contain
+ * the expected status emoji set (✅/⚠️/❌).
+ */
 function validateTrafficLight(filePath, text, reportFn = warn) {
   const hasGreen = text.includes("✅");
   const hasYellow = text.includes("⚠️");
@@ -594,6 +406,7 @@ function validateTrafficLight(filePath, text, reportFn = warn) {
   }
 }
 
+// Artifacts that should contain collapsible <details> blocks (Phase 3)
 const COLLAPSIBLE_TEMPLATES = [
   "01-requirements.md",
   "02-architecture-assessment.md",
@@ -608,6 +421,9 @@ const COLLAPSIBLE_TEMPLATES = [
   "07-operations-runbook.md",
 ];
 
+/**
+ * Validates that templates requiring collapsible sections contain <details> blocks.
+ */
 function validateCollapsibleBlocks(filePath, text, reportFn = warn) {
   if (!text.includes("<details>")) {
     reportFn(`${filePath} should contain collapsible <details> blocks.`, {
@@ -633,17 +449,19 @@ function validateTemplate(artifactName) {
   const required = ARTIFACT_HEADINGS[artifactName];
   const coreFound = h2.filter((h) => required.includes(h));
 
+  // Check all required headings are present
   if (coreFound.length !== required.length) {
     const missing = required.filter((r) => !coreFound.includes(r));
     error(
       `Template ${templatePath} is missing required H2 headings: ${missing.join(
         ", ",
-      )}. Fix: Copy exact headings from the artifact template or run 'npm run fix:artifacts -- <file> --apply'.`,
+      )}. Fix: Copy exact headings from the artifact template or run 'npm run fix:artifact-h2'.`,
       { filePath: templatePath, line: 1 },
     );
     return;
   }
 
+  // Check order of required headings
   for (let i = 0; i < required.length; i += 1) {
     if (coreFound[i] !== required[i]) {
       error(
@@ -656,8 +474,11 @@ function validateTemplate(artifactName) {
     }
   }
 
+  // Check for extra headings (warn only)
   const allowed = [...required, ...(OPTIONAL_ALLOWED[artifactName] || [])];
   const extraH2 = h2.filter((h) => !allowed.includes(h));
+  // PROJECT-README has meta-headings (Template Instructions, Required Structure)
+  // that are expected in the template but not in generated output
   const META_HEADINGS = ["## Template Instructions", "## Required Structure"];
   const trueExtras = extraH2.filter((h) => !META_HEADINGS.includes(h));
   if (trueExtras.length > 0) {
@@ -669,12 +490,14 @@ function validateTemplate(artifactName) {
     );
   }
 
+  // Cost-estimate templates require cost distribution table or chart image
   if (COST_ESTIMATE_ARTIFACTS.includes(artifactName)) {
     validateCostDistribution(templatePath, text);
   }
 
   validateDiagramArtifactReferences(templatePath, artifactName, text, error);
 
+  // Phase 3 visual element checks (error for templates)
   if (MERMAID_REQUIRED_TEMPLATES.includes(artifactName)) {
     validateMermaidPresence(templatePath, text, error);
   }
@@ -685,13 +508,14 @@ function validateTemplate(artifactName) {
     validateCollapsibleBlocks(templatePath, text, error);
   }
 
+  // Validate standard visual components (badges, TOC, attribution, nav)
   validateStandardComponents(templatePath, text);
 }
 
 function validateAgentLinks() {
   for (const [artifactName, agentPath] of Object.entries(AGENTS)) {
-    if (!agentPath) continue;
-    if (agentPath === CONSOLIDATED_SKILL) continue;
+    if (!agentPath) continue; // Skip if no agent (e.g., Plan or manual)
+    if (agentPath === CONSOLIDATED_SKILL) continue; // H2s embedded by design
 
     if (!exists(agentPath)) {
       error(`Missing agent file: ${agentPath}`, {
@@ -705,6 +529,7 @@ function validateAgentLinks() {
     const agentText = readText(agentPath);
     const templatePath = TEMPLATES[artifactName];
 
+    // Check that agent links to template directly OR via azure-artifacts skill
     const relativeTemplatePath = path.relative(
       path.dirname(agentPath),
       templatePath,
@@ -727,14 +552,16 @@ function validateAgentLinks() {
 function validateNoEmbeddedSkeletons() {
   for (const [artifactName, agentPath] of Object.entries(AGENTS)) {
     if (!agentPath || !exists(agentPath)) continue;
-    if (agentPath === CONSOLIDATED_SKILL) continue;
+    if (agentPath === CONSOLIDATED_SKILL) continue; // H2s embedded by design
 
     const text = readText(agentPath);
     const required = ARTIFACT_HEADINGS[artifactName];
 
+    // Check for embedded skeleton indicators
     const blocks = extractFencedBlocks(text);
 
     for (const block of blocks) {
+      // Look for multiple required headings appearing in a fenced block
       const foundInBlock = required.filter((h) => block.includes(h));
       if (foundInBlock.length >= 3) {
         error(
@@ -759,6 +586,7 @@ function validateStandardsReference() {
 
   const text = readText(STANDARD_DOC);
 
+  // Check that standards reference template-first approach
   if (!text.includes("template") && !text.includes(".template.md")) {
     warn(
       `Standards file ${STANDARD_DOC} should reference template-first approach`,
@@ -767,7 +595,129 @@ function validateStandardsReference() {
   }
 }
 
+function validateArtifactCompliance(relPath) {
+  const basename = path.basename(relPath);
+
+  // Check if this is a recognized artifact type
+  const artifactType = Object.keys(ARTIFACT_HEADINGS).find((key) =>
+    basename.endsWith(key),
+  );
+
+  if (!artifactType) {
+    return; // Not a recognized artifact, skip
+  }
+
+  // Agent-output artifacts use per-artifact strictness from ARTIFACT_STRICTNESS.
+  // Override with STRICTNESS=relaxed env var during migration periods.
+  const strictness =
+    GLOBAL_STRICTNESS || ARTIFACT_STRICTNESS[artifactType] || "standard";
+
+  if (!exists(relPath)) {
+    return; // File doesn't exist, skip
+  }
+
+  const text = readText(relPath);
+  const h2 = extractH2Headings(text);
+  const required = ARTIFACT_HEADINGS[artifactType];
+  const anchor = required[required.length - 1]; // Last required heading
+  const optionals = OPTIONAL_ALLOWED[artifactType] || [];
+
+  // Find positions
+  const corePositions = required.map((heading) => h2.indexOf(heading));
+  const anchorPos = h2.indexOf(anchor);
+
+  const reportFn = strictness === "standard" ? error : warn;
+
+  // Check all required headings are present
+  const missing = required.filter((h) => !h2.includes(h));
+  if (missing.length > 0) {
+    reportFn(
+      `Artifact ${relPath} is missing required H2 headings: ${missing.join(
+        ", ",
+      )}. Fix: Copy exact headings from the template or run 'npm run fix:artifact-h2 ${relPath} --apply'.`,
+      { filePath: relPath, line: 1 },
+    );
+  }
+
+  // Check order of required headings (only those present)
+  const presentRequired = required.filter((h) => h2.includes(h));
+  for (let i = 0; i < presentRequired.length - 1; i += 1) {
+    const currentPos = h2.indexOf(presentRequired[i]);
+    const nextPos = h2.indexOf(presentRequired[i + 1]);
+    if (currentPos > nextPos) {
+      reportFn(
+        `Artifact ${relPath} has required headings out of order: '${
+          presentRequired[i]
+        }' should come before '${presentRequired[i + 1]}'. Fix: Reorder headings to match: ${required.join(" \u2192 ")}.`,
+        { filePath: relPath, line: 1 },
+      );
+      break;
+    }
+  }
+
+  // Check optional headings placement (should be after anchor)
+  if (anchorPos !== -1) {
+    for (const optional of optionals) {
+      const optPos = h2.indexOf(optional);
+      if (optPos !== -1 && optPos < anchorPos) {
+        warn(
+          `Artifact ${relPath} has optional heading '${optional}' before anchor '${anchor}' (consider moving it).`,
+          { filePath: relPath, line: 1 },
+        );
+      }
+    }
+  }
+
+  // Check for unrecognized headings (warn only in relaxed mode)
+  const recognized = [...required, ...optionals];
+  const extras = h2.filter((h) => !recognized.includes(h));
+  if (extras.length > 0 && strictness === "standard") {
+    warn(
+      `Artifact ${relPath} contains extra H2 headings: ${extras.join(", ")}`,
+      { filePath: relPath, line: 1 },
+    );
+  }
+
+  // Special validation for governance constraints: check discovery source content
+  if (artifactType === "04-governance-constraints.md") {
+    validateGovernanceDiscovery(relPath, text, reportFn);
+  }
+
+  // Cost-estimate artifacts require cost distribution table or chart image
+  // (warn-only for existing agent-output artifacts during transition)
+  if (COST_ESTIMATE_ARTIFACTS.includes(artifactType)) {
+    validateCostDistribution(relPath, text, warn);
+  }
+
+  // Step 4 diagrams are mandatory outputs and enforced by artifact strictness.
+  if (artifactType === "04-implementation-plan.md") {
+    validateDiagramArtifactReferences(relPath, artifactType, text, reportFn);
+    validateDiagramArtifactFiles(relPath, artifactType, reportFn);
+  }
+
+  // Validate standard visual components (badges, TOC, attribution, nav)
+  // Warn-only for agent-output to avoid blocking pre-existing artifacts
+  validateStandardComponents(relPath, text, warn);
+
+  // Phase 3 visual element checks (warn for agent-output)
+  if (MERMAID_REQUIRED_TEMPLATES.includes(artifactType)) {
+    validateMermaidPresence(relPath, text, warn);
+  }
+  if (TRAFFIC_LIGHT_TEMPLATES.includes(artifactType)) {
+    validateTrafficLight(relPath, text, warn);
+  }
+  if (COLLAPSIBLE_TEMPLATES.includes(artifactType)) {
+    validateCollapsibleBlocks(relPath, text, warn);
+  }
+}
+
+/**
+ * Validates that governance constraints were discovered from Azure Resource Graph,
+ * not assumed from best practices. This prevents deployment failures due to
+ * undiscovered Azure Policy requirements.
+ */
 function validateGovernanceDiscovery(relPath, text, reportFn = error) {
+  // Check for Discovery Source section content (not just heading)
   const discoverySourceMatch = text.match(
     /## (?:🔍\s*)?Discovery Source[\s\S]*?(?=##|$)/,
   );
@@ -781,10 +731,16 @@ function validateGovernanceDiscovery(relPath, text, reportFn = error) {
 
   const discoveryContent = discoverySourceMatch[0];
 
+  // Check for evidence of actual ARG query (not placeholders)
   const hasQueryResults =
     /\d+\s*(policies|tags|constraints)\s*discovered/i.test(discoveryContent);
   const hasTimestamp = /\d{4}-\d{2}-\d{2}|T\d{2}:\d{2}/i.test(discoveryContent);
+  const hasSubscription =
+    /Subscription.*?[a-f0-9-]{36}|Subscription.*?[A-Za-z]/i.test(
+      discoveryContent,
+    );
 
+  // Check for placeholder values that indicate assumption-based constraints
   const hasPlaceholders = /\{X\}|\{subscription|UNVERIFIED/i.test(
     discoveryContent,
   );
@@ -801,102 +757,6 @@ function validateGovernanceDiscovery(relPath, text, reportFn = error) {
       `Governance constraints ${relPath} may not have been discovered from Azure Resource Graph (no query results or timestamps found)`,
       { filePath: relPath, line: 1, title: "Governance Discovery Unverified" },
     );
-  }
-}
-
-function validateArtifactCompliance(relPath) {
-  const basename = path.basename(relPath);
-
-  const artifactType = Object.keys(ARTIFACT_HEADINGS).find((key) =>
-    basename.endsWith(key),
-  );
-
-  if (!artifactType) return;
-
-  const strictness =
-    GLOBAL_STRICTNESS || ARTIFACT_STRICTNESS[artifactType] || "standard";
-
-  if (!exists(relPath)) return;
-
-  const text = readText(relPath);
-  const h2 = extractH2Headings(text);
-  const required = ARTIFACT_HEADINGS[artifactType];
-  const anchor = required[required.length - 1];
-  const optionals = OPTIONAL_ALLOWED[artifactType] || [];
-
-  const anchorPos = h2.indexOf(anchor);
-
-  const reportFn = strictness === "standard" ? error : warn;
-
-  const missing = required.filter((h) => !h2.includes(h));
-  if (missing.length > 0) {
-    reportFn(
-      `Artifact ${relPath} is missing required H2 headings: ${missing.join(
-        ", ",
-      )}. Fix: Copy exact headings from the template or run 'npm run fix:artifacts -- ${relPath} --apply'.`,
-      { filePath: relPath, line: 1 },
-    );
-  }
-
-  const presentRequired = required.filter((h) => h2.includes(h));
-  for (let i = 0; i < presentRequired.length - 1; i += 1) {
-    const currentPos = h2.indexOf(presentRequired[i]);
-    const nextPos = h2.indexOf(presentRequired[i + 1]);
-    if (currentPos > nextPos) {
-      reportFn(
-        `Artifact ${relPath} has required headings out of order: '${
-          presentRequired[i]
-        }' should come before '${presentRequired[i + 1]}'. Fix: Reorder headings to match: ${required.join(" → ")}.`,
-        { filePath: relPath, line: 1 },
-      );
-      break;
-    }
-  }
-
-  if (anchorPos !== -1) {
-    for (const optional of optionals) {
-      const optPos = h2.indexOf(optional);
-      if (optPos !== -1 && optPos < anchorPos) {
-        warn(
-          `Artifact ${relPath} has optional heading '${optional}' before anchor '${anchor}' (consider moving it).`,
-          { filePath: relPath, line: 1 },
-        );
-      }
-    }
-  }
-
-  const recognized = [...required, ...optionals];
-  const extras = h2.filter((h) => !recognized.includes(h));
-  if (extras.length > 0 && strictness === "standard") {
-    warn(
-      `Artifact ${relPath} contains extra H2 headings: ${extras.join(", ")}`,
-      { filePath: relPath, line: 1 },
-    );
-  }
-
-  if (artifactType === "04-governance-constraints.md") {
-    validateGovernanceDiscovery(relPath, text, reportFn);
-  }
-
-  if (COST_ESTIMATE_ARTIFACTS.includes(artifactType)) {
-    validateCostDistribution(relPath, text, warn);
-  }
-
-  if (artifactType === "04-implementation-plan.md") {
-    validateDiagramArtifactReferences(relPath, artifactType, text, reportFn);
-    validateDiagramArtifactFiles(relPath, artifactType, reportFn);
-  }
-
-  validateStandardComponents(relPath, text, warn);
-
-  if (MERMAID_REQUIRED_TEMPLATES.includes(artifactType)) {
-    validateMermaidPresence(relPath, text, warn);
-  }
-  if (TRAFFIC_LIGHT_TEMPLATES.includes(artifactType)) {
-    validateTrafficLight(relPath, text, warn);
-  }
-  if (COLLAPSIBLE_TEMPLATES.includes(artifactType)) {
-    validateCollapsibleBlocks(relPath, text, warn);
   }
 }
 
@@ -928,305 +788,57 @@ function findArtifacts() {
     });
 }
 
-function runTemplateValidation() {
-  console.log("═══ Part 2: Artifact Template Compliance ═══\n");
-
+function main() {
   const modeDesc = GLOBAL_STRICTNESS
     ? `global: ${GLOBAL_STRICTNESS}`
     : "per-artifact";
-  console.log(`Strictness: ${modeDesc}\n`);
+  console.log(`🔍 Artifact Template Validator (strictness: ${modeDesc})\n`);
 
+  // Step 1: Validate templates exist and have correct structure
   console.log("Step 1: Validating templates...");
   for (const artifactName of Object.keys(ARTIFACT_HEADINGS)) {
     validateTemplate(artifactName);
   }
 
+  // Step 2: Validate agent links to templates
   console.log("Step 2: Validating agent links...");
   validateAgentLinks();
 
+  // Step 3: Validate no embedded skeletons in agents
   console.log("Step 3: Checking for embedded skeletons...");
   validateNoEmbeddedSkeletons();
 
-  console.log("Step 4: Checking standards reference...");
+  // Step 4: Validate standards documentation
+  console.log("Step 4: Validating standards documentation...");
   validateStandardsReference();
 
-  console.log("Step 5: Validating agent-output artifacts...");
+  // Step 5: Validate actual artifacts in agent-output/
+  console.log("Step 5: Validating artifacts in agent-output/...");
   const artifacts = findArtifacts();
-  console.log(`  Found ${artifacts.length} artifact(s) in agent-output/\n`);
-  for (const artifact of artifacts) {
-    validateArtifactCompliance(artifact);
-  }
 
-  console.log(`\n${"=".repeat(50)}`);
-  if (hasHardFailure) {
-    console.log("❌ Artifact template validation FAILED");
-    return 1;
-  }
-  if (hasWarning) {
-    console.log("⚠️  Artifact validation passed with warnings");
-    return 0;
-  }
-  console.log("✅ All artifact template checks passed");
-  return 0;
-}
-
-// ============================================================================
-// Part 3: Artifact H2 Auto-Fix (was fix-artifact-h2.mjs, --fix mode)
-// ============================================================================
-
-const EMOJI_RE = /[\p{Extended_Pictographic}\u{FE0E}\u{FE0F}]+\s*/gu;
-function normalizeH2(heading) {
-  return heading
-    .replace(EMOJI_RE, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-const CANONICAL_MAP = Object.fromEntries(
-  Object.entries(ARTIFACT_HEADINGS).map(([artifact, headings]) => [
-    artifact,
-    new Map(headings.map((h) => [normalizeH2(h), h])),
-  ]),
-);
-
-function resolveCanonical(artifactType, plainHeading) {
-  const map = CANONICAL_MAP[artifactType];
-  if (!map) return plainHeading;
-  return map.get(normalizeH2(plainHeading)) || plainHeading;
-}
-
-const HEADING_FIXES = {
-  "## Outputs": "## Outputs (Expected)",
-  "## Output": "## Outputs (Expected)",
-  "## Expected Outputs": "## Outputs (Expected)",
-  "## Deployment Outputs": "## Outputs (Expected)",
-  "## Post-Deployment Configuration": "## Post-Deployment Tasks",
-  "## Deployment Summary": "## Preflight Validation",
-  "## Project Summary": "## 3. Project Summary",
-  "## Document Package Contents": "## 1. Document Package Contents",
-  "## Source Artifacts": "## 2. Source Artifacts",
-  "## Related Resources": "## 4. Related Resources",
-  "## Quick Links": "## 5. Quick Links",
-  "## Resource Details": "## Resource Listing",
-  "## Resources": "## Resource Listing",
-  "## Introduction": "## 1. Introduction",
-  "## 2. Architecture Overview": "## 2. Azure Architecture Overview",
-  "## 3. Network Architecture": "## 3. Networking",
-  "## 4. Storage Architecture": "## 4. Storage",
-  "## 5. Compute Architecture": "## 5. Compute",
-  "## 6. Security Architecture": "## 6. Identity & Access",
-  "## 7. Compliance & Governance": "## 7. Security & Compliance",
-  "## 8. Operations & Monitoring": "## 8. Backup & Disaster Recovery",
-  "## 9. Cost Management": "## 9. Management & Monitoring",
-  "## 10. Deployment & CI/CD": "## 10. Appendix",
-  "## 3. Common Operational Procedures": "## 3. Common Procedures",
-  "## 6. Contact Information": "## 6. Change Log",
-  "## 3. Disaster Recovery Architecture": "## 3. Disaster Recovery Procedures",
-  "## 4. Recovery Procedures": "## 4. Testing Schedule",
-  "## 5. Failover Procedures": "## 5. Communication Plan",
-  "## 6. Testing & Validation": "## 6. Roles and Responsibilities",
-  "## 8. Roles & Responsibilities": "## 8. Recovery Runbooks",
-  "## 9. Dependencies & External Services": "## 9. Appendix",
-  "## 9. Improvement Roadmap": "## 9. Appendix",
-  "## Overview": "## IaC Templates Location",
-  "## Resource Mapping": "## Resources Created",
-};
-
-function headingMatch(actual, required) {
-  return actual === required || normalizeH2(actual) === normalizeH2(required);
-}
-
-function getArtifactType(filePath) {
-  const basename = path.basename(filePath);
-  if (ARTIFACT_HEADINGS[basename]) return basename;
-  for (const key of Object.keys(ARTIFACT_HEADINGS)) {
-    if (basename.endsWith(key)) return key;
-  }
-  return null;
-}
-
-function extractH2HeadingsFromContent(content) {
-  return content.match(/^## .+$/gm) || [];
-}
-
-function analyzeArtifact(filePath) {
-  const artifactType = getArtifactType(filePath);
-  if (!artifactType) {
-    return { error: `Unknown artifact type: ${path.basename(filePath)}` };
-  }
-
-  const content = fs.readFileSync(filePath, "utf-8");
-  const actualH2s = extractH2HeadingsFromContent(content);
-  const requiredH2s = ARTIFACT_HEADINGS[artifactType];
-
-  const missing = requiredH2s.filter(
-    (h) => !actualH2s.some((a) => headingMatch(a, h)),
-  );
-  const extra = actualH2s.filter(
-    (h) =>
-      !requiredH2s.some((r) => headingMatch(h, r)) &&
-      normalizeH2(h) !== "## References",
-  );
-
-  const fixable = [];
-  for (const actual of extra) {
-    const normalized = normalizeH2(actual);
-    const fixTarget = HEADING_FIXES[actual] || HEADING_FIXES[normalized];
-    if (fixTarget) {
-      fixable.push({
-        from: actual,
-        to: resolveCanonical(artifactType, fixTarget),
-      });
-    }
-  }
-
-  return {
-    artifactType,
-    filePath,
-    actualH2s,
-    requiredH2s,
-    missing,
-    extra,
-    fixable,
-    isCompliant: missing.length === 0,
-  };
-}
-
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function applyFixes(filePath, analysis) {
-  if (analysis.fixable.length === 0) {
-    console.log("  No auto-fixable issues found.");
-    return false;
-  }
-
-  let content = fs.readFileSync(filePath, "utf-8");
-  let modified = false;
-
-  for (const fix of analysis.fixable) {
-    const regex = new RegExp(`^${escapeRegex(fix.from)}$`, "gm");
-    if (content.match(regex)) {
-      content = content.replace(regex, fix.to);
-      console.log(`  ✓ Fixed: "${fix.from}" → "${fix.to}"`);
-      modified = true;
-    }
-  }
-
-  if (modified) {
-    fs.writeFileSync(filePath, content);
-    console.log(`  ✓ File updated: ${filePath}`);
-  }
-
-  return modified;
-}
-
-function runFixMode(filePaths) {
-  console.log(`\n🔧 Artifact H2 Auto-Fixer\n`);
-
-  const applyMode = filePaths.includes("--apply");
-  const actualFiles = filePaths.filter((a) => !a.startsWith("--"));
-
-  if (actualFiles.length === 0) {
-    console.log(`
-Usage:
-  npm run fix:artifacts -- <artifact-path> [--apply]
-
-Options:
-  --apply    Actually modify files (without this, only shows what would change)
-`);
-    process.exit(0);
-  }
-
-  let totalIssues = 0;
-  let fixedCount = 0;
-
-  for (const filePath of actualFiles) {
-    if (!fs.existsSync(filePath)) {
-      console.log(`⚠ File not found: ${filePath}`);
-      continue;
-    }
-
-    const analysis = analyzeArtifact(filePath);
-
-    if (analysis.error) {
-      console.log(`⏭ Skipping: ${analysis.error}`);
-      continue;
-    }
-
-    console.log(`📄 ${path.basename(filePath)} (${analysis.artifactType})`);
-
-    if (analysis.isCompliant && analysis.extra.length === 0) {
-      console.log(`  ✅ Compliant`);
-      continue;
-    }
-
-    if (analysis.missing.length > 0) {
-      console.log(`  ❌ Missing H2 headings:`);
-      for (const h of analysis.missing) {
-        console.log(`     - ${h}`);
-      }
-      totalIssues += analysis.missing.length;
-    }
-
-    if (analysis.extra.length > 0) {
-      console.log(`  ⚠ Extra H2 headings (not in template):`);
-      for (const h of analysis.extra) {
-        const fix = analysis.fixable.find((f) => f.from === h);
-        const fixHint = fix ? ` → "${fix.to}"` : "";
-        console.log(`     - ${h}${fixHint}`);
-      }
-      totalIssues += analysis.extra.length;
-    }
-
-    if (applyMode && analysis.fixable.length > 0) {
-      const fixed = applyFixes(filePath, analysis);
-      if (fixed) fixedCount++;
-    }
-
-    console.log("");
-  }
-
-  console.log("---");
-  if (totalIssues === 0) {
-    console.log("✅ All artifacts are compliant!");
-  } else if (applyMode) {
-    console.log(
-      `Fixed ${fixedCount} file(s). ${totalIssues - fixedCount} issue(s) require manual fix.`,
-    );
+  if (artifacts.length === 0) {
+    warn("No artifacts found in agent-output/ (expected for new workflow).");
   } else {
-    console.log(
-      `Found ${totalIssues} issue(s). Run with --apply to auto-fix where possible.`,
-    );
-  }
-}
-
-// ============================================================================
-// Main entry point
-// ============================================================================
-
-function main() {
-  const args = process.argv.slice(2);
-
-  // --fix mode: run the auto-fixer
-  if (args.includes("--fix")) {
-    const fixArgs = args.filter((a) => a !== "--fix");
-    runFixMode(fixArgs);
-    process.exit(0);
+    console.log(`   Found ${artifacts.length} artifacts to validate`);
+    for (const artifact of artifacts) {
+      validateArtifactCompliance(artifact);
+    }
   }
 
-  // Default: run all validations
-  console.log("🔍 Artifact Validators (consolidated)\n");
-
-  const syncResult = runH2Sync();
-  const templateResult = runTemplateValidation();
-
-  const exitCode = Math.max(syncResult, templateResult);
-
-  if (exitCode > 0) {
+  // Report results
+  console.log("\n" + "=".repeat(60));
+  if (hasHardFailure) {
+    console.log("❌ Validation FAILED - hard failures detected");
     process.exit(1);
+  } else if (hasWarning) {
+    console.log("⚠️  Validation passed with warnings");
+  } else {
+    console.log("✅ Validation passed - no issues detected");
   }
 }
 
-main();
+import { fileURLToPath } from "node:url";
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

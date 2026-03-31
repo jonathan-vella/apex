@@ -49,11 +49,11 @@ NODES = [
     (8.5, 6.8, "Design", "Step 3", "design", False),            # 3
     (11.5, 6.8, "Governance", "Step 3.5", "gov", True),         # 4
     # Bicep track
-    (4.5, 4.8, "Bicep Planner", "Step 4b", "plan", True),      # 5
+    (4.5, 4.8, "IaC Planner", "Step 4", "plan", True),      # 5
     (4.5, 3.2, "Bicep CodeGen", "Step 5b", "code", False),      # 6
     (4.5, 1.6, "Bicep Deploy", "Step 6b", "deploy", True),      # 7
     # Terraform track
-    (11.5, 4.8, "TF Planner", "Step 4t", "plan", True),         # 8
+    (11.5, 4.8, "TF Planner", "Step 4", "plan", True),         # 8
     (11.5, 3.2, "TF CodeGen", "Step 5t", "code", False),        # 9
     (11.5, 1.6, "TF Deploy", "Step 6t", "deploy", True),        # 10
     # Converge

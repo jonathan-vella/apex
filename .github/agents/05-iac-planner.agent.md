@@ -25,6 +25,7 @@ tools:
     "terraform/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
+    "ms-python.python/*",
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
@@ -76,7 +77,7 @@ Deny-policy blockers before designing the module structure.
 <output_contract>
 Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
 specs, module inventory, deployment phases, dependency order. H2 structure from template.
-Diagrams: 04-dependency-diagram.drawio and 04-runtime-diagram.drawio.
+Diagrams: 04-dependency-diagram.py/.png and 04-runtime-diagram.py/.png (Python diagrams library).
 Session state: update 00-session-state.json after each phase with sub_step checkpoint.
 </output_contract>
 
@@ -104,7 +105,8 @@ Always specify Azure Storage Account backend only.
 1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, AVM, governance, naming
 2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
 3. **Read** artifact template files: `azure-artifacts/templates/04-implementation-plan.template.md` + `04-governance-constraints.template.md`
-4. **IaC-specific skill** (read on-demand during Phase 2):
+4. **Read** `.github/skills/python-diagrams/SKILL.digest.md` — diagram conventions, design tokens, Azure component imports
+5. **IaC-specific skill** (read on-demand during Phase 2):
    - Bicep → `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
    - Terraform → `.github/skills/terraform-patterns/SKILL.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
 
@@ -118,7 +120,7 @@ Always specify Azure Storage Account backend only.
 | Use AVM defaults for SKUs; deprecation research only for overrides    | Hardcode SKUs without AVM verification                                |
 | Define tasks as YAML specs (resource, module, dependencies, config)   | Proceed to code generation without explicit user approval             |
 | Generate `04-implementation-plan.md`                                  | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only    |
-| Auto-generate `04-dependency-diagram.drawio` + `04-runtime-diagram.drawio` | Generate governance from best-practice assumptions            |
+| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Generate governance from best-practice assumptions            |
 | Match H2 headings from azure-artifacts templates exactly              | Re-run governance discovery (already done in Step 3.5)                |
 | Ask user for deployment strategy — **MANDATORY GATE**                 | Add H2 headings not in the template                                   |
 | Use `askQuestions` in Phase 5 to present findings and gather approval |                                                                       |
@@ -246,7 +248,7 @@ dependencies, config, tags, naming).
 
 Include: resource inventory, module structure, tasks in dependency order,
 deployment phases (from Phase 3.5 choice), diagram artifacts
-(`04-dependency-diagram.drawio`, `04-runtime-diagram.drawio`),
+(`04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png` using Python `diagrams` library),
 naming conventions table, security config matrix, estimated time.
 
 **Bicep-specific**: Module structure is `main.bicep` + `modules/`.
@@ -304,11 +306,13 @@ Then use `askQuestions` to gather the decision:
 
 ## Output Files
 
-| File                | Location                                               |
-| ------------------- | ------------------------------------------------------ |
-| Implementation Plan | `agent-output/{project}/04-implementation-plan.md`     |
-| Dependency Diagram  | `agent-output/{project}/04-dependency-diagram.drawio`  |
-| Runtime Diagram     | `agent-output/{project}/04-runtime-diagram.drawio`     |
+| File                      | Location                                                  |
+| ------------------------- | --------------------------------------------------------- |
+| Implementation Plan       | `agent-output/{project}/04-implementation-plan.md`        |
+| Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py`         |
+| Dependency Diagram Image  | `agent-output/{project}/04-dependency-diagram.png`        |
+| Runtime Diagram Source    | `agent-output/{project}/04-runtime-diagram.py`            |
+| Runtime Diagram Image     | `agent-output/{project}/04-runtime-diagram.png`           |
 
 > **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
 > not by this agent. They are consumed as prerequisites.
@@ -321,7 +325,7 @@ Include attribution header from the template file (do not hardcode).
 
 ## Boundaries
 
-- **Always**: Read governance constraints, verify AVM modules, ask deployment strategy, generate diagrams
+- **Always**: Read governance constraints, verify AVM modules, ask deployment strategy, generate Python diagrams
 - **Ask first**: Non-standard phase groupings, deviation from architecture assessment
 - **Never**: Write IaC code, re-run governance discovery, assume deployment strategy
 - **Terraform-specific never**: Plan HCP/cloud backends, use `terraform -target`

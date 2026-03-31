@@ -20,6 +20,7 @@ By default, all steps use a **1-pass comprehensive review**. Multi-pass rotating
 lens reviews are **opt-in** — recommended for complex projects but not required.
 
 At each gate, the Conductor checks `decisions.complexity`:
+
 - **simple/standard**: Present single-pass result directly
 - **complex**: Ask: "Run additional adversarial review? (recommended for complex projects)"
 
@@ -88,11 +89,11 @@ the Conductor validates. If missing from old sessions, default to `"standard"`.
 
 **Default**: All steps use 1-pass comprehensive review. Multi-pass is opt-in.
 
-| Complexity | Step 1 (Req)     | Step 2 (Arch)                                        | Step 4 (Plan)                                         | Step 5 (Code)                               |
-| ---------- | ---------------- | ---------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------- |
-| simple     | 1× comprehensive | 1× comprehensive + 1 cost                            | skip (opt-in: 1× comprehensive)                      | skip (opt-in: 1× comprehensive)             |
-| standard   | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 2× rotating)     | skip (opt-in: 2× rotating)                           | skip (opt-in: 2× rotating)                  |
-| complex    | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 3× rotating)     | ask user (opt-in: 2× rotating)                       | ask user (opt-in: 3× rotating)              |
+| Complexity | Step 1 (Req)     | Step 2 (Arch)                                   | Step 4 (Plan)                   | Step 5 (Code)                   |
+| ---------- | ---------------- | ----------------------------------------------- | ------------------------------- | ------------------------------- |
+| simple     | 1× comprehensive | 1× comprehensive + 1 cost                       | skip (opt-in: 1× comprehensive) | skip (opt-in: 1× comprehensive) |
+| standard   | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 2× rotating) | skip (opt-in: 2× rotating)      | skip (opt-in: 2× rotating)      |
+| complex    | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 3× rotating) | ask user (opt-in: 2× rotating)  | ask user (opt-in: 3× rotating)  |
 
 > **Opt-in prompt**: At Steps 4 and 5 for complex projects, the Conductor asks:
 > "Run additional adversarial review? (recommended for complex projects)"
@@ -121,11 +122,11 @@ Write each result to
 
 Use the right model for each review lens:
 
-| Pass                   | Lens                                | Subagent                     | Model   | Rationale                                                                                    |
-| ---------------------- | ----------------------------------- | ---------------------------- | ------- | -------------------------------------------------------------------------------------------- |
-| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | GPT-5.4 | Deep logical reasoning for policy cross-reference, finding inconsistencies                   |
-| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | GPT-5.4 | WAF/failure mode analysis. Structured checklist-driven.                                      |
-| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | GPT-5.4 | Quantitative SKU analysis. Matches cost-estimate-subagent model.                             |
+| Pass                   | Lens                                | Subagent                     | Model   | Rationale                                                                  |
+| ---------------------- | ----------------------------------- | ---------------------------- | ------- | -------------------------------------------------------------------------- |
+| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | GPT-5.4 | Deep logical reasoning for policy cross-reference, finding inconsistencies |
+| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | GPT-5.4 | WAF/failure mode analysis. Structured checklist-driven.                    |
+| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | GPT-5.4 | Quantitative SKU analysis. Matches cost-estimate-subagent model.           |
 
 ## Parallel Invocation (Cross-Artifact Reviews)
 

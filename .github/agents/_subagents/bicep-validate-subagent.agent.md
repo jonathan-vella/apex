@@ -104,10 +104,10 @@ Recommendation: {specific next action}
 
 ## Lint Result Interpretation
 
-| Condition              | Lint Status | Action                    |
-| ---------------------- | ----------- | ------------------------- |
-| No errors, no warnings | PASS        | Proceed to review         |
-| Warnings only          | PASS        | Proceed (note warnings)   |
+| Condition              | Lint Status | Action                     |
+| ---------------------- | ----------- | -------------------------- |
+| No errors, no warnings | PASS        | Proceed to review          |
+| Warnings only          | PASS        | Proceed (note warnings)    |
 | Any errors             | FAIL        | Skip review, return FAILED |
 | Build fails            | FAIL        | Skip review, return FAILED |
 
@@ -138,11 +138,11 @@ and passed to modules. Refer to **iac-common** skill for the pattern.
 ### 5. Code Quality
 
 | Check               | Severity | Details                                |
-| -------------------- | -------- | -------------------------------------- |
-| Decorators present   | MEDIUM   | `@description()` on parameters         |
-| Module organization  | LOW      | Logical module structure               |
-| No hardcoded values  | HIGH     | Use parameters for configurable values |
-| Output definitions   | MEDIUM   | Expose necessary outputs               |
+| ------------------- | -------- | -------------------------------------- |
+| Decorators present  | MEDIUM   | `@description()` on parameters         |
+| Module organization | LOW      | Logical module structure               |
+| No hardcoded values | HIGH     | Use parameters for configurable values |
+| Output definitions  | MEDIUM   | Expose necessary outputs               |
 
 ### 6. Governance Compliance
 

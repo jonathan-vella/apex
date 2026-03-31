@@ -105,15 +105,15 @@ Recommendation: {specific next action}
 
 ## Lint Result Interpretation
 
-| Condition                         | Lint Status | Action                        |
-| --------------------------------- | ----------- | ----------------------------- |
-| No errors, no warnings            | PASS        | Proceed to review             |
-| Warnings only                     | PASS        | Proceed (note warnings)       |
-| Format issues only (`fmt -check`) | FAIL        | Skip review, return FAILED    |
-| `terraform validate` errors       | FAIL        | Skip review, return FAILED    |
-| tfsec HIGH/CRITICAL findings      | FAIL        | Skip review, return FAILED    |
-| tfsec MEDIUM/LOW findings         | PASS        | Proceed (note findings)       |
-| tfsec not installed               | PASS        | Format + validate passed      |
+| Condition                         | Lint Status | Action                     |
+| --------------------------------- | ----------- | -------------------------- |
+| No errors, no warnings            | PASS        | Proceed to review          |
+| Warnings only                     | PASS        | Proceed (note warnings)    |
+| Format issues only (`fmt -check`) | FAIL        | Skip review, return FAILED |
+| `terraform validate` errors       | FAIL        | Skip review, return FAILED |
+| tfsec HIGH/CRITICAL findings      | FAIL        | Skip review, return FAILED |
+| tfsec MEDIUM/LOW findings         | PASS        | Proceed (note findings)    |
+| tfsec not installed               | PASS        | Format + validate passed   |
 
 ## Review Areas
 

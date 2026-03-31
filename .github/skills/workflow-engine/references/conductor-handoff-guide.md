@@ -11,10 +11,10 @@ for the InfraOps Conductor agent.
 
 Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing Steps 4-6:
 
-| `iac_tool` value  | Step 4 Agent            | Step 5 Agent            | Step 6 Agent           |
-| ----------------- | ----------------------- | ----------------------- | ---------------------- |
-| `Bicep` (default) | `05-IaC Planner`        | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
-| `Terraform`       | `05-IaC Planner`        | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
+| `iac_tool` value  | Step 4 Agent     | Step 5 Agent            | Step 6 Agent           |
+| ----------------- | ---------------- | ----------------------- | ---------------------- |
+| `Bicep` (default) | `05-IaC Planner` | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
+| `Terraform`       | `05-IaC Planner` | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). This is the ONLY scenario
@@ -27,6 +27,7 @@ If missing (old sessions), default to `"standard"`.
 
 When dispatching Steps 2, 4, 5, and 6, the Conductor defaults to **1-pass comprehensive review**.
 Multi-pass adversarial review is **opt-in** — at each gate, check `decisions.complexity`:
+
 - **simple/standard**: Present single-pass result directly. Do not prompt for additional review.
 - **complex**: Ask the user: _"Run additional adversarial review? (recommended for complex projects)"_
   If the user opts in, use the full complexity matrix from `adversarial-review-protocol.md`.
