@@ -8,11 +8,10 @@ agents:
   [
     "02-Requirements",
     "03-Architect",
-    "05b-Bicep Planner",
+    "05-IaC Planner",
     "06b-Bicep CodeGen",
     "07b-Bicep Deploy",
     "08-As-Built",
-    "05t-Terraform Planner",
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
     "challenger-review-subagent",
@@ -52,7 +51,7 @@ handoffs:
     prompt: "Create a streamlined WAF assessment with cost estimates for a simple project. Input: `agent-output/{project}/01-requirements.md`. Output: `02-architecture-assessment.md` and `03-des-cost-estimate.md`. 1-pass review (standard default)."
     send: true
   - label: "Step 3: IaC Plan + Code"
-    agent: 05b-Bicep Planner
+    agent: 05-IaC Planner
     prompt: "Create and execute a combined plan+code step for a simple project. Input: `agent-output/{project}/02-architecture-assessment.md`. Single deployment phase, 1-pass review."
     send: true
   - label: "Step 4: Deploy"

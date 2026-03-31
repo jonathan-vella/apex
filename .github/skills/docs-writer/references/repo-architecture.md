@@ -57,17 +57,13 @@ See `.github/count-manifest.json` for canonical counts.
 
 | Subagent                         | File                                        | Purpose                      |
 | -------------------------------- | ------------------------------------------- | ---------------------------- |
+| bicep-validate-subagent          | `bicep-validate-subagent.agent.md`          | Lint + code review           |
+| bicep-whatif-subagent            | `bicep-whatif-subagent.agent.md`            | Deployment preview           |
+| challenger-review-subagent       | `challenger-review-subagent.agent.md`       | Adversarial artifact review  |
 | cost-estimate-subagent           | `cost-estimate-subagent.agent.md`           | Azure Pricing MCP queries    |
 | governance-discovery-subagent    | `governance-discovery-subagent.agent.md`    | Azure Policy discovery       |
-| challenger-review-subagent       | `challenger-review-subagent.agent.md`       | Adversarial artifact review  |
-| challenger-review-batch-subagent | `challenger-review-batch-subagent.agent.md` | Batch multi-lens review      |
-| challenger-review-codex-subagent | `challenger-review-codex-subagent.agent.md` | Fast checklist-driven review |
-| bicep-lint-subagent              | `bicep-lint-subagent.agent.md`              | Syntax validation            |
-| bicep-whatif-subagent            | `bicep-whatif-subagent.agent.md`            | Deployment preview           |
-| bicep-review-subagent            | `bicep-review-subagent.agent.md`            | AVM code review              |
-| terraform-lint-subagent          | `terraform-lint-subagent.agent.md`          | Syntax validation            |
-| terraform-review-subagent        | `terraform-review-subagent.agent.md`        | AVM-TF code review           |
 | terraform-plan-subagent          | `terraform-plan-subagent.agent.md`          | Deployment preview           |
+| terraform-validate-subagent      | `terraform-validate-subagent.agent.md`      | Lint + code review           |
 
 ### Shared Knowledge (via Skills)
 

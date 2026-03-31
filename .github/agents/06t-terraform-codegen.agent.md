@@ -50,7 +50,7 @@ handoffs:
     prompt: "Deploy the validated Terraform configuration in `infra/terraform/{project}/` to Azure. Configuration passed lint and review subagents; see `agent-output/{project}/05-implementation-reference.md` for validation status. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run terraform plan first."
     send: true
   - label: "↩ Return to Step 4"
-    agent: 05t-Terraform Planner
+    agent: 05-IaC Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
   - label: "↩ Return to Conductor"

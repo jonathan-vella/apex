@@ -99,40 +99,30 @@ Only one track is active for a given project.
 
 ### Session State and Resume
 
-The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
+The `00-session-state.json` file (schema v3.0) provides atomic state tracking:
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "project": "my-project",
   "current_step": 2, // (1)!
-  "lock": {
-    "owner_id": "copilot-session-abc123", // (2)!
-    "heartbeat": "2026-03-04T10:15:00Z",
-    "attempt_token": "550e8400-e29b-41d4-a716-446655440000" // (3)!
-  },
+  "updated": "2026-03-04T10:15:00Z", // (2)!
   "steps": {
     "2": {
       "status": "in_progress",
       "sub_step": "phase_2_waf",
-      "claim": {
-        "owner_id": "copilot-session-abc123",
-        "heartbeat": "2026-03-04T10:15:00Z",
-        "attempt_token": "550e8400-e29b-41d4-a716-446655440000",
-        "retry_count": 0,
-        "event_log": []
-      }
+      "artifacts": ["agent-output/my-project/02-architecture-assessment.md"]
     }
   }
 }
 ```
 
 1. :material-counter: Tracks which step is active — the Conductor uses this for resume
-2. :material-lock: Claim-based locking prevents concurrent sessions from corrupting state
-3. :material-fingerprint: Unique token per attempt — stale heartbeats are auto-recovered
+2. :material-clock-outline: Timestamp of the last state write — used for staleness detection
 
-The claim model prevents concurrent sessions from corrupting state. Stale heartbeats
-(older than `stale_threshold_ms`, default 5 minutes) are automatically recovered.
+VS Code Copilot executes agents serially, so the v3.0 schema removed the lock/claim
+protocol previously in v2.0. The atomic write protocol (`.tmp` → rename → `.bak`)
+prevents corruption during agent crashes.
 
 ### Session Break Protocol
 

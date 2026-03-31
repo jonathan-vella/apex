@@ -29,12 +29,8 @@ handoffs:
     agent: 04g-Governance
     prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json."
     send: true
-  - label: "Step 4: Bicep Plan"
-    agent: 05b-Bicep Planner
-    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`."
-    send: true
-  - label: "Step 4: Terraform Plan"
-    agent: 05t-Terraform Planner
+  - label: "Step 4: IaC Plan"
+    agent: 05-IaC Planner
     prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`."
     send: true
   - label: "↩ Return to Conductor"

@@ -45,11 +45,10 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "project": "my-project",
   "current_step": 2,
   "updated": "2026-03-02T10:15:00Z",
-  "lock": { "owner_id": null, "heartbeat": null, "attempt_token": null },
 
 > _See SKILL.md for full content._
 
@@ -58,6 +57,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | Reference         | File                              | Content                                                                                       |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
 | Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Conductor integration, portability |
-| State File Schema | `references/state-file-schema.md` | Full JSON template (v2.0), lock/claim field definitions, all step definitions                 |
+| State File Schema | `references/state-file-schema.md` | Full JSON template (v3.0), field definitions, all step definitions                            |
 | Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
 ````

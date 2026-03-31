@@ -418,15 +418,11 @@
       // Subagents
       const subagents = [
         "challenger-review",
-        "challenger-review-codex",
-        "challenger-review-batch",
         "cost-estimate",
         "governance-discovery",
-        "bicep-lint",
-        "bicep-review",
+        "bicep-validate",
         "bicep-whatif",
-        "terraform-lint",
-        "terraform-review",
+        "terraform-validate",
         "terraform-plan",
       ];
       subagents.forEach((s) => addNode(`subagent:${s}`, s, "subagent"));
@@ -435,21 +431,17 @@
       const delegations = {
         "01-Conductor": [
           "challenger-review",
-          "challenger-review-codex",
-          "challenger-review-batch",
           "cost-estimate",
           "governance-discovery",
         ],
         "05-IaC Planner": ["governance-discovery"],
-        "06b-Bicep CodeGen": ["bicep-lint", "bicep-review"],
-        "06t-Terraform CodeGen": ["terraform-lint", "terraform-review"],
+        "06b-Bicep CodeGen": ["bicep-validate"],
+        "06t-Terraform CodeGen": ["terraform-validate"],
         "07b-Bicep Deploy": ["bicep-whatif"],
         "07t-Terraform Deploy": ["terraform-plan"],
         "03-Architect": ["cost-estimate"],
         "10-Challenger": [
           "challenger-review",
-          "challenger-review-codex",
-          "challenger-review-batch",
         ],
       };
       for (const [agent, subs] of Object.entries(delegations)) {
