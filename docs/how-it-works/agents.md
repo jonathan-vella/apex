@@ -63,8 +63,7 @@ and routing to the next step. At approval gates, the Conductor writes a
 | 03-Architect             | WAF assessment and cost estimation    | azure-defaults                                 |
 | 04-Design                | Diagrams and ADRs                     | drawio, python-diagrams, azure-adr             |
 | 04g-Governance           | Policy discovery and compliance       | azure-defaults                                 |
-| 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns                           |
-| 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns                             |
+| 05-IaC Planner           | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
 | 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns                           |
 | 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns                             |
 | 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common                     |

@@ -86,42 +86,12 @@
       "requires": ["step-3.5"],
       "gate": "approval"
     },
-    "step-4b": {
-      "id": "step-4b",
+    "step-4": {
+      "id": "step-4",
       "type": "agent-step",
-      "name": "Bicep Plan",
-      "agent": "05b-Bicep Planner",
+      "name": "IaC Plan",
+      "agent": "05-IaC Planner",
       "requires": ["gate-2.5"],
-      "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
-      "produces": [
-        "04-implementation-plan.md",
-        "04-dependency-diagram.drawio",
-        "04-runtime-diagram.drawio"
-      ],
-      "gate": "approval",
-      "challenger": {
-        "default_passes": 0,
-        "opt_in": true,
-        "complexity_matrix": {
-          "simple": { "passes": 1, "lenses": ["comprehensive"] },
-          "standard": {
-            "passes": 2,
-            "lenses": ["security-governance", "architecture-reliability"]
-          },
-          "complex": {
-            "passes": 2,
-            "lenses": ["security-governance", "architecture-reliability"]
-          }
-        }
-      }
-    },
-    "step-4t": {
-      "id": "step-4t",
-      "type": "agent-step",
-      "name": "Terraform Plan",
-      "agent": "05t-Terraform Planner",
-      "requires": ["gate-2.5"],
-      "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": [
         "04-implementation-plan.md",
         "04-dependency-diagram.drawio",
@@ -148,8 +118,7 @@
       "id": "gate-3",
       "type": "gate",
       "name": "Plan Approval",
-      "requires": ["step-4b", "step-4t"],
-      "requires_mode": "any",
+      "requires": ["step-4"],
       "gate": "approval"
     },
     "step-5b": {
@@ -284,10 +253,8 @@
     { "from": "step-3", "to": "step-3.5", "condition": "on_complete" },
     { "from": "step-3", "to": "step-3.5", "condition": "on_skip" },
     { "from": "step-3.5", "to": "gate-2.5", "condition": "on_complete" },
-    { "from": "gate-2.5", "to": "step-4b", "condition": "on_complete" },
-    { "from": "gate-2.5", "to": "step-4t", "condition": "on_complete" },
-    { "from": "step-4b", "to": "gate-3", "condition": "on_complete" },
-    { "from": "step-4t", "to": "gate-3", "condition": "on_complete" },
+    { "from": "gate-2.5", "to": "step-4", "condition": "on_complete" },
+    { "from": "step-4", "to": "gate-3", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5b", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5t", "condition": "on_complete" },
     { "from": "step-5b", "to": "gate-4", "condition": "on_complete" },

@@ -8,8 +8,7 @@ agents:
     "03-Architect",
     "04-Design",
     "04g-Governance",
-    "05b-Bicep Planner",
-    "05t-Terraform Planner",
+    "05-IaC Planner",
     "06b-Bicep CodeGen",
     "06t-Terraform CodeGen",
     "07b-Bicep Deploy",
@@ -77,7 +76,7 @@ to determine which IaC track to use. Route accordingly:
 
 | Aspect         | Bicep Track                                    | Terraform Track                                      |
 | -------------- | ---------------------------------------------- | ---------------------------------------------------- |
-| Planner        | `@05b-Bicep Planner`                           | `@05t-Terraform Planner`                             |
+| Planner        | `@05-IaC Planner` (Bicep mode)                 | `@05-IaC Planner` (Terraform mode)                   |
 | CodeGen        | `@06b-Bicep CodeGen`                           | `@06t-Terraform CodeGen`                             |
 | Deploy         | `@07b-Bicep Deploy` / `@bicep-whatif-subagent` | `@07t-Terraform Deploy` / `@terraform-plan-subagent` |
 | Code Review    | `@bicep-validate-subagent`                     | `@terraform-validate-subagent`                       |

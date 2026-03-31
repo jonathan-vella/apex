@@ -227,7 +227,7 @@ docs/                  # User-facing documentation
 | Post | Lessons      | `09-lessons-learned.json/.md`                            | —                       |
 
 All outputs go to `agent-output/{project}/`.
-Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
+Unified planner (05-IaC Planner) feeds into dual IaC tracks: Bicep (06b/07b) and Terraform (06t/07t).
 The Conductor agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
 Complexity-dependent. Conditional early exits reduce actual passes.

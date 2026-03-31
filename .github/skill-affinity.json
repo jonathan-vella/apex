@@ -103,8 +103,8 @@
         "iac-common"
       ]
     },
-    "05b-Bicep Planner": {
-      "primary": ["azure-bicep-patterns"],
+    "05-IaC Planner": {
+      "primary": ["azure-bicep-patterns", "terraform-patterns"],
       "secondary": [
         "azure-defaults",
         "azure-artifacts",
@@ -114,24 +114,6 @@
         "microsoft-code-reference"
       ],
       "never": [
-        "terraform-patterns",
-        "azure-diagnostics",
-        "iac-common",
-        "drawio"
-      ]
-    },
-    "05t-Terraform Planner": {
-      "primary": ["terraform-patterns"],
-      "secondary": [
-        "azure-defaults",
-        "azure-artifacts",
-        "session-resume",
-        "context-shredding",
-        "microsoft-docs",
-        "microsoft-code-reference"
-      ],
-      "never": [
-        "azure-bicep-patterns",
         "azure-diagnostics",
         "iac-common",
         "drawio"

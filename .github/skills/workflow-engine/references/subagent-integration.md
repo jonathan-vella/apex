@@ -54,7 +54,7 @@ Steps that use `askQuestions` must be delegated via **handoff buttons**
 | 1    | 02-Requirements | Phases 1-4 (mandatory)   | **Handoff only**  |
 | 2    | 03-Architect    | If NFRs/budget missing   | `#runSubagent` OK |
 | 3    | 04-Design       | No                       | `#runSubagent` OK |
-| 4    | 05b/05t Planner | Deployment Strategy Gate | **Handoff only**  |
+| 4    | 05-IaC Planner  | Deployment Strategy Gate | **Handoff only**  |
 | 5    | 06b/06t CodeGen | No                       | `#runSubagent` OK |
 | 6    | 07b/07t Deploy  | No                       | `#runSubagent` OK |
 | 7    | 08-As-Built     | No                       | `#runSubagent` OK |

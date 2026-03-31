@@ -13,8 +13,8 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 
 | `iac_tool` value  | Step 4 Agent            | Step 5 Agent            | Step 6 Agent           |
 | ----------------- | ----------------------- | ----------------------- | ---------------------- |
-| `Bicep` (default) | `05b-Bicep Planner`     | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
-| `Terraform`       | `05t-Terraform Planner` | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
+| `Bicep` (default) | `05-IaC Planner`        | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
+| `Terraform`       | `05-IaC Planner`        | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). This is the ONLY scenario

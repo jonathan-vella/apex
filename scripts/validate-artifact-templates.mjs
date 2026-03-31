@@ -81,9 +81,9 @@ const CONSOLIDATED_SKILL = ".github/skills/azure-artifacts/SKILL.md";
 const AGENTS = {
   "01-requirements.md": ".github/agents/02-requirements.agent.md",
   "02-architecture-assessment.md": ".github/agents/03-architect.agent.md",
-  // Both 05b-bicep-planner (Bicep) and 05t-terraform-planner (Terraform) produce these:
-  "04-implementation-plan.md": ".github/agents/05b-bicep-planner.agent.md",
-  "04-governance-constraints.md": ".github/agents/05b-bicep-planner.agent.md",
+  // 05-iac-planner (unified) produces these:
+  "04-implementation-plan.md": ".github/agents/05-iac-planner.agent.md",
+  "04-governance-constraints.md": ".github/agents/05-iac-planner.agent.md",
   "04-preflight-check.md": ".github/agents/06b-bicep-codegen.agent.md",
   "06-deployment-summary.md": ".github/agents/07b-bicep-deploy.agent.md",
   // Both 06b-bicep-codegen (Bicep) and 06t-terraform-codegen (Terraform)

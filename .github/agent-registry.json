@@ -76,32 +76,19 @@
       "step": 3.5
     },
     "iac-plan": {
-      "bicep": {
-        "agent": ".github/agents/05b-bicep-planner.agent.md",
-        "model": "Claude Opus 4.6",
-        "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "azure-bicep-patterns",
-          "session-resume",
-          "microsoft-docs",
-          "microsoft-code-reference"
-        ]
-      },
-      "terraform": {
-        "agent": ".github/agents/05t-terraform-planner.agent.md",
-        "model": "Claude Opus 4.6",
-        "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "terraform-patterns",
-          "terraform-test",
-          "terraform-search-import",
-          "session-resume",
-          "microsoft-docs",
-          "microsoft-code-reference"
-        ]
-      },
+      "agent": ".github/agents/05-iac-planner.agent.md",
+      "model": "Claude Opus 4.6",
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts",
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "terraform-test",
+        "terraform-search-import",
+        "session-resume",
+        "microsoft-docs",
+        "microsoft-code-reference"
+      ],
       "invokable": true,
       "step": 4
     },

@@ -136,7 +136,7 @@
     },
     "4": {
       "name": "IaC Plan",
-      "agent": "05b-Bicep Planner | 05t-Terraform Planner",
+      "agent": "05-IaC Planner",
       "status": "pending",
       "sub_step": null,
       "started": null,

@@ -103,9 +103,9 @@ check(
 );
 check("Checks SKU restrictions", fileContains(reviewPath, "SKU restriction"));
 
-// 3. Bicep Planner consumes governance JSON as prerequisite
-console.log("\n📄 05b-bicep-planner.agent.md");
-const plannerPath = ".github/agents/05b-bicep-planner.agent.md";
+// 3. IaC Planner consumes governance JSON as prerequisite
+console.log("\n📄 05-iac-planner.agent.md");
+const plannerPath = ".github/agents/05-iac-planner.agent.md";
 check(
   "References governance constraints as prerequisite",
   fileContains(plannerPath, "04-governance-constraints"),
@@ -162,22 +162,22 @@ check(
   fileContains(govDiscPath, "## Downstream Enforcement"),
 );
 
-// 6. Terraform Planner uses azurePropertyPath (not bicepPropertyPath)
-console.log("\n📄 05t-terraform-planner.agent.md");
-const tfPlannerPath = ".github/agents/05t-terraform-planner.agent.md";
+// 6. IaC Planner uses azurePropertyPath (not bicepPropertyPath) for Terraform
+console.log("\n📄 05-iac-planner.agent.md (Terraform property mapping)");
+const iacPlannerPath = ".github/agents/05-iac-planner.agent.md";
 check(
   "Uses azurePropertyPath (not bicepPropertyPath) for property mapping",
-  fileContains(tfPlannerPath, "azurePropertyPath") &&
-    fileContains(tfPlannerPath, "always use `azurePropertyPath`"),
+  fileContains(iacPlannerPath, "azurePropertyPath") &&
+    fileContains(iacPlannerPath, "always use `azurePropertyPath`"),
 );
 check(
   "Governance constraints are a prerequisite",
-  fileContains(tfPlannerPath, "REQUIRED") &&
-    fileContains(tfPlannerPath, "04-governance-constraints"),
+  fileContains(iacPlannerPath, "REQUIRED") &&
+    fileContains(iacPlannerPath, "04-governance-constraints"),
 );
 check(
   "References 04-governance-constraints.json",
-  fileContains(tfPlannerPath, "04-governance-constraints.json"),
+  fileContains(iacPlannerPath, "04-governance-constraints.json"),
 );
 
 // 7. Terraform Code Generator governance compliance

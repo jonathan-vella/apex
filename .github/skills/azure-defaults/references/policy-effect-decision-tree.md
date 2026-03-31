@@ -5,7 +5,7 @@
 Use this table when translating Azure Policy discovery results into
 IaC planning actions and code generation requirements.
 
-## Planner Action (Steps 4/05b/05t)
+## Planner Action (Step 4 / 05-IaC Planner)
 
 | Effect              | Action                                     |
 | ------------------- | ------------------------------------------ |

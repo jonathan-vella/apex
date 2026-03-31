@@ -10,12 +10,12 @@ agents:
     "03-Architect",
     "04-Design",
     "04g-Governance",
-    "05b-Bicep Planner",
+    "05-IaC Planner",
     "06b-Bicep CodeGen",
     "07b-Bicep Deploy",
     "08-As-Built",
     "09-Diagnose",
-    "05t-Terraform Planner",
+    "05-IaC Planner",
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
   ]
@@ -66,8 +66,8 @@ handoffs:
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API (including management-group inherited policies), produce 04-governance-constraints.md/.json, and run adversarial review. Input: `02-architecture-assessment.md` resource list. Output: governance constraint artifacts for IaC planning."
     send: true
   - label: "Step 4: Implementation Plan"
-    agent: 05b-Bicep Planner
-    prompt: "Create a detailed Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`."
+    agent: 05-IaC Planner
+    prompt: "Create a detailed implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`. The IaC tool is set in session state decisions.iac_tool."
     send: true
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen
@@ -90,8 +90,8 @@ handoffs:
     prompt: "Troubleshoot issues with the current workflow or Azure resources."
     send: false
   - label: "Step 4: IaC Plan (Terraform)"
-    agent: 05t-Terraform Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`."
+    agent: 05-IaC Planner
+    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`. The IaC tool is Terraform — set decisions.iac_tool accordingly."
     send: true
   - label: "Step 5: Generate Terraform"
     agent: 06t-Terraform CodeGen

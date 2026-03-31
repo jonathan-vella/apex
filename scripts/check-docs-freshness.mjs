@@ -199,7 +199,7 @@ async function checkAgentTable(docsReadme) {
   );
   if (!agentSection) return;
   const section = agentSection[1];
-  // Match agent names from table rows like: | `05b-bicep-planner` |
+  // Match agent names from table rows like: | `05-iac-planner` |
   const agentNames = [...section.matchAll(/^\|\s*`([\w][\w-]*)`\s*\|/gm)].map(
     (m) => m[1],
   );

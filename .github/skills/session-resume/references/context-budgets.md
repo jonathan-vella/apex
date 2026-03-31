@@ -54,7 +54,7 @@ the agent writes the checkpoint to `steps.{N}.sub_step` in the JSON state.
 | `phase_3_adr`      | ADR(s) drafted                 |
 | `phase_4_artifact` | All design artifacts saved     |
 
-### Step 4: IaC Plan (05b/05t Planner)
+### Step 4: IaC Plan (05-IaC Planner)
 
 | Checkpoint           | After completing...                     |
 | -------------------- | --------------------------------------- |

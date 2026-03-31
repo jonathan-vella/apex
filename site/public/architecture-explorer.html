@@ -361,8 +361,7 @@
         "03-Architect": { model: "Claude Opus 4.6", step: 2 },
         "04-Design": { model: "GPT-5.4", step: 3 },
         "04g-Governance": { model: "GPT-5.4", step: 3.5 },
-        "05b-Bicep Planner": { model: "Claude Opus 4.6", step: 4 },
-        "05t-Terraform Planner": { model: "Claude Opus 4.6", step: 4 },
+        "05-IaC Planner": { model: "Claude Opus 4.6", step: 4 },
         "06b-Bicep CodeGen": { model: "GPT-5.4", step: 5 },
         "06t-Terraform CodeGen": { model: "GPT-5.4", step: 5 },
         "07b-Bicep Deploy": { model: "GPT-5.4", step: 6 },
@@ -404,8 +403,7 @@
           "cost-estimate",
           "governance-discovery",
         ],
-        "05b-Bicep Planner": ["governance-discovery"],
-        "05t-Terraform Planner": ["governance-discovery"],
+        "05-IaC Planner": ["governance-discovery"],
         "06b-Bicep CodeGen": ["bicep-lint", "bicep-review"],
         "06t-Terraform CodeGen": ["terraform-lint", "terraform-review"],
         "07b-Bicep Deploy": ["bicep-whatif"],
@@ -520,19 +518,11 @@
           primary: ["azure-defaults", "azure-artifacts", "session-resume"],
           secondary: [],
         },
-        "05b-Bicep Planner": {
+        "05-IaC Planner": {
           primary: [
             "azure-defaults",
             "azure-artifacts",
             "azure-bicep-patterns",
-            "session-resume",
-          ],
-          secondary: ["context-shredding"],
-        },
-        "05t-Terraform Planner": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
             "terraform-patterns",
             "session-resume",
           ],
@@ -642,11 +632,11 @@
         "agent-skills": ["skill:azure-defaults", "skill:azure-artifacts"],
         "bicep-code-best-practices": [
           "agent:06b-Bicep CodeGen",
-          "agent:05b-Bicep Planner",
+          "agent:05-IaC Planner",
         ],
         "terraform-code-best-practices": [
           "agent:06t-Terraform CodeGen",
-          "agent:05t-Terraform Planner",
+          "agent:05-IaC Planner",
         ],
         markdown: ["skill:docs-writer", "skill:azure-artifacts"],
         "no-heredoc": ["agent:01-Conductor", "agent:06b-Bicep CodeGen"],
@@ -671,8 +661,7 @@
         "03-architect",
         "04-design",
         "04g-governance",
-        "05b-bicep-planner",
-        "05t-terraform-planner",
+        "05-iac-planner",
         "06b-bicep-codegen",
         "06t-terraform-codegen",
         "07b-bicep-deploy",
@@ -694,8 +683,7 @@
         "03-architect": "03-Architect",
         "04-design": "04-Design",
         "04g-governance": "04g-Governance",
-        "05b-bicep-planner": "05b-Bicep Planner",
-        "05t-terraform-planner": "05t-Terraform Planner",
+        "05-iac-planner": "05-IaC Planner",
         "06b-bicep-codegen": "06b-Bicep CodeGen",
         "06t-terraform-codegen": "06t-Terraform CodeGen",
         "07b-bicep-deploy": "07b-Bicep Deploy",
@@ -817,7 +805,7 @@
       addLink("mcp:github", "agent:07t-Terraform Deploy", "connects");
       addLink("mcp:azure-pricing", "agent:03-Architect", "connects");
       addLink("mcp:azure-pricing", "subagent:cost-estimate", "connects");
-      addLink("mcp:terraform", "agent:05t-Terraform Planner", "connects");
+      addLink("mcp:terraform", "agent:05-IaC Planner", "connects");
       addLink("mcp:terraform", "agent:06t-Terraform CodeGen", "connects");
 
       // Workflow gates
@@ -847,10 +835,8 @@
         ["gate:gate-2", "agent:04-Design"],
         ["gate:gate-2", "agent:04g-Governance"],
         ["agent:04g-Governance", "gate:gate-2.5"],
-        ["gate:gate-2.5", "agent:05b-Bicep Planner"],
-        ["gate:gate-2.5", "agent:05t-Terraform Planner"],
-        ["agent:05b-Bicep Planner", "gate:gate-3"],
-        ["agent:05t-Terraform Planner", "gate:gate-3"],
+        ["gate:gate-2.5", "agent:05-IaC Planner"],
+        ["agent:05-IaC Planner", "gate:gate-3"],
         ["gate:gate-3", "agent:06b-Bicep CodeGen"],
         ["gate:gate-3", "agent:06t-Terraform CodeGen"],
         ["agent:06b-Bicep CodeGen", "gate:gate-4"],
@@ -869,10 +855,9 @@
         "03-Architect",
         "04-Design",
         "04g-Governance",
-        "05b-Bicep Planner",
+        "05-IaC Planner",
         "06b-Bicep CodeGen",
         "07b-Bicep Deploy",
-        "05t-Terraform Planner",
         "06t-Terraform CodeGen",
         "07t-Terraform Deploy",
         "08-As-Built",

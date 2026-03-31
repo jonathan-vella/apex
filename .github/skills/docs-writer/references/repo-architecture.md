@@ -42,10 +42,9 @@ See `.github/count-manifest.json` for canonical counts.
 | Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md`   |
 | Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`     |
 | Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`    |
-| Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`       |
+| IaC Plan         | `05-iac-planner.agent.md`        | Opus 4.6   | 4    | `04-implementation-plan.md`       |
 | Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`           |
 | Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`        |
-| Terraform Plan     | `05t-terraform-planner.agent.md` | Opus 4.6   | 4t   | `04-implementation-plan.md`       |
 | Terraform Code     | `06t-terraform-codegen.agent.md` | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/`   |
 | Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`        |
 | As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite           |

@@ -77,7 +77,17 @@ const DEPRECATED_PATTERNS = [
   // Renamed agent files (b/t suffix convention)
   {
     pattern: /05-bicep-planner\.agent\.md/gi,
-    message: "Renamed to 05b-bicep-planner.agent.md",
+    message: "Renamed to 05-iac-planner.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /05b-bicep-planner\.agent\.md/gi,
+    message: "Consolidated to 05-iac-planner.agent.md",
+    severity: "error",
+  },
+  {
+    pattern: /05t-terraform-planner\.agent\.md/gi,
+    message: "Consolidated to 05-iac-planner.agent.md",
     severity: "error",
   },
   {
@@ -92,7 +102,7 @@ const DEPRECATED_PATTERNS = [
   },
   {
     pattern: /11-terraform-planner\.agent\.md/gi,
-    message: "Renamed to 05t-terraform-planner.agent.md",
+    message: "Renamed to 05-iac-planner.agent.md",
     severity: "error",
   },
   {

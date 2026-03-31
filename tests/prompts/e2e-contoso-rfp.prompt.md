@@ -33,8 +33,8 @@ generates ALL artifacts from scratch — nothing is pre-seeded.
 - **Session state**: `agent-output/contoso-service-hub-run-1/00-session-state.json`
 
 > **IaC Tool Routing**: The IaC tool field above controls which agents and validators are invoked.
-> If `Bicep`: invoke `@05b-Bicep Planner`, `@06b-Bicep CodeGen`, `@07b-Bicep Deploy`; validate with `bicep build`/`bicep lint`; code dir = `infra/bicep/{project}/`.
-> If `Terraform`: invoke `@05t-Terraform Planner`, `@06t-Terraform CodeGen`, `@07t-Terraform Deploy`; validate with `terraform validate`/`terraform fmt -check`; code dir = `infra/terraform/{project}/`.
+> If `Bicep`: invoke `@05-IaC Planner`, `@06b-Bicep CodeGen`, `@07b-Bicep Deploy`; validate with `bicep build`/`bicep lint`; code dir = `infra/bicep/{project}/`.
+> If `Terraform`: invoke `@05-IaC Planner`, `@06t-Terraform CodeGen`, `@07t-Terraform Deploy`; validate with `terraform validate`/`terraform fmt -check`; code dir = `infra/terraform/{project}/`.
 
 ## RALPH Loop Protocol
 
@@ -169,7 +169,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
 ### PHASE D: IaC Plan Generation (Step 4)
 
 1. Update session state: Step 4 → `in_progress`
-2. Invoke `@05b-Bicep Planner` subagent:
+2. Invoke `@05-IaC Planner` subagent:
    \_"Create a comprehensive Bicep implementation plan based on
    `agent-output/contoso-service-hub-run-1/02-architecture-assessment.md` and
    `agent-output/contoso-service-hub-run-1/04-governance-constraints.json`.
