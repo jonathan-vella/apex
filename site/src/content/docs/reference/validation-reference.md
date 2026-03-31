@@ -111,7 +111,7 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 | npm Command              | Script                       | Purpose                                |
 | ------------------------ | ---------------------------- | -------------------------------------- |
 | `validate:session-state` | `validate-session-state.mjs` | Session state JSON schema compliance   |
-| `validate:session-lock`  | `validate-session-lock.mjs`  | Distributed lock/claim model integrity |
+| `validate:session-lock`  | `validate-session-lock.mjs`  | Deprecated lock/claim field detection  |
 
 ### Quality and Cross-Reference Validators
 

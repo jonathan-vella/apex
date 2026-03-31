@@ -146,9 +146,9 @@ dashboard. Key concepts adopted from Bosun:
 
 **Distributed shared state with claim-based locking.** Bosun's `shared-state-manager.mjs`
 implements heartbeat-based liveness detection and claim tokens to prevent concurrent agents
-from double-writing the same task. This project's session state schema v2.0 directly
-adapts this pattern with `lock.owner_id`, `lock.heartbeat`, `lock.attempt_token`, and
-per-step `claim` objects.
+from double-writing the same task. This project originally adapted this pattern in schema
+v2.0 but simplified to serial-only state tracking in v3.0 (VS Code Copilot executes agents
+serially, making concurrent locking unnecessary).
 
 **Workflow engine as a DAG.** Bosun's `workflow-engine.mjs` and `workflow-nodes.mjs`
 define workflow execution as a directed acyclic graph with typed nodes, conditional edges,
@@ -264,7 +264,7 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
 | Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
 | Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent                       |
-| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model                      |
+| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Serial execution (v3.0 — lock/claim removed)                  |
 | Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |
 | Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Conductor                            |
 | Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules                             |
