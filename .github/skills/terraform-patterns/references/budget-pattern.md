@@ -2,7 +2,7 @@
 
 # Budget & Cost Monitoring Pattern (Terraform)
 
-MANDATORY per `iac-cost-repeatability.instructions.md`. Every deployment
+MANDATORY per `iac-best-practices.instructions.md`. Every deployment
 MUST include budget tracking with forecast alerts and anomaly detection.
 
 ## Budget Resource

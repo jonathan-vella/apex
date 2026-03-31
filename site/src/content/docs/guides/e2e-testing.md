@@ -118,7 +118,7 @@ Per-step attempt tracking in `agent-output/{project}/08-iteration-log.json`.
 Cross-agent decisions are captured in the `decision_log` array inside `00-session-state.json`.
 Each entry records what was decided, why, what was rejected, and which agent made the call.
 The benchmark scores `decision_log` presence as part of session state integrity.
-See `.github/instructions/decision-logging.instructions.md` for the entry schema.
+See `.github/instructions/agent-authoring.instructions.md` for the entry schema.
 
 ## Test Projects
 

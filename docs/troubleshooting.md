@@ -177,7 +177,7 @@ cat .github/skills/drawio/SKILL.md | head -30
 | ----------------- | ------------------------- | --------------------------------------------------------------------------------------- |
 | "Azure AD only"   | SQL Server needs AAD auth | Set `azureADOnlyAuthentication: true`                                                   |
 | "Zone redundancy" | Wrong SKU tier            | Use P1v4+ for App Service                                                               |
-| "Missing tags"    | Required tags absent      | Add baseline tags (see `bicep-code-best-practices.instructions.md`) + governance extras |
+| "Missing tags"    | Required tags absent      | Add baseline tags (see `iac-best-practices.instructions.md`) + governance extras |
 
 **Run preflight check**:
 

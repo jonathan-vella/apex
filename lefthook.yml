@@ -97,7 +97,7 @@ pre-commit:
         ❌ Agent frontmatter validation failed!
 
         🔧 Check YAML syntax in agent definitions
-        📚 Reference: .github/instructions/agent-definitions.instructions.md
+        📚 Reference: .github/instructions/agent-authoring.instructions.md
 
     model-alignment:
       glob: "**/*.agent.md,**/*.prompt.md"
@@ -113,7 +113,7 @@ pre-commit:
         ❌ Model-prompt alignment check failed!
 
         🔧 Fix prompt model mismatches or stale handoff overrides
-        📚 Reference: .github/instructions/model-prompt-alignment.instructions.md
+        📚 Reference: .github/instructions/agent-authoring.instructions.md
 
     agent-checks:
       glob: "**/*.agent.md"

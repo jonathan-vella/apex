@@ -9,7 +9,7 @@
  * 1. Bicep Code Generator references 04-governance-constraints
  * 2. bicep-validate-subagent has Governance Compliance checklist
  * 3. Bicep Planner references JSON output schema completeness
- * 4. iac-policy-compliance.instructions.md exists with correct applyTo
+ * 4. iac-best-practices.instructions.md exists with correct applyTo
  *
  * @example
  * node scripts/validate-governance-refs.mjs
@@ -64,8 +64,8 @@ check(
   fileContains(codeGenPath, "Phase 1.5"),
 );
 check(
-  "References iac-policy-compliance.instructions.md",
-  fileContains(codeGenPath, "iac-policy-compliance.instructions.md"),
+  "References iac-best-practices.instructions.md",
+  fileContains(codeGenPath, "iac-best-practices.instructions.md"),
 );
 check(
   "DO list includes governance constraint parsing",
@@ -116,10 +116,10 @@ check(
     fileContains(plannerPath, "policy-effect-decision-tree"),
 );
 
-// 4. iac-policy-compliance.instructions.md exists and is valid
-console.log("\n📄 iac-policy-compliance.instructions.md");
+// 4. iac-best-practices.instructions.md exists and is valid
+console.log("\n📄 iac-best-practices.instructions.md");
 const policyInstrPath =
-  ".github/instructions/iac-policy-compliance.instructions.md";
+  ".github/instructions/iac-best-practices.instructions.md";
 check("File exists", fileExists(policyInstrPath));
 check(
   "Has correct applyTo scope including *.bicep",
@@ -211,9 +211,9 @@ check(
 );
 
 // 9. iac-policy-compliance also covers Terraform (merged file)
-console.log("\n📄 iac-policy-compliance.instructions.md (Terraform section)");
+console.log("\n📄 iac-best-practices.instructions.md (Terraform section)");
 const tfPolicyInstrPath =
-  ".github/instructions/iac-policy-compliance.instructions.md";
+  ".github/instructions/iac-best-practices.instructions.md";
 check("File exists", fileExists(tfPolicyInstrPath));
 check(
   "Has correct applyTo scope including *.tf",

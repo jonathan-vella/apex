@@ -85,8 +85,8 @@ Recommendation from VS Code docs:
 
 | File                                        | Glob                         | Purpose                             |
 | ------------------------------------------- | ---------------------------- | ----------------------------------- |
-| `agent-definitions.instructions.md`         | `**/*.agent.md`              | Agent frontmatter standards         |
-| `bicep-code-best-practices.instructions.md` | `**/*.bicep`                 | Bicep IaC best practices            |
+| `agent-authoring.instructions.md`           | `**/*.agent.md, **/*.prompt.md` | Agent authoring standards        |
+| `iac-best-practices.instructions.md`        | `**/*.bicep, **/*.tf, **/04-implementation-plan.md` | IaC best practices |
 | `python.instructions.md`                    | `**/*.py`                    | Python conventions                  |
 | `markdown.instructions.md`                  | `**/*.md`                    | Markdown formatting                 |
 | `no-heredoc.instructions.md`                | `**`                         | Prevent terminal heredoc corruption |

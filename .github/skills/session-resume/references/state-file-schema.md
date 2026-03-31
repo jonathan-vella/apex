@@ -171,7 +171,7 @@
 | `current_step`                        | integer        | Step number currently in progress (1-7)                                                                                           |
 | `decisions`                           | object         | Key project decisions (accumulated across steps)                                                                                  |
 | `decisions.complexity`                | string         | `"simple"`, `"standard"`, `"complex"`, or `""` — set by Requirements agent, defaults to `"standard"` if missing (backward compat) |
-| `decision_log`                        | array          | Sequential log of cross-agent decisions with rationale — see `decision-logging.instructions.md` for entry schema                  |
+| `decision_log`                        | array          | Sequential log of cross-agent decisions with rationale — see `agent-authoring.instructions.md` for entry schema                  |
 | `decision_log[].id`                   | string         | Sequential ID (`D001`, `D002`, …) — matches pattern `^D\d+$`                                                                      |
 | `decision_log[].step`                 | number         | Workflow step where the decision was made (1–7)                                                                                   |
 | `decision_log[].agent`                | string         | Agent that made the decision                                                                                                      |

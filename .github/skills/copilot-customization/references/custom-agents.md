@@ -168,7 +168,7 @@ See `.github/agents/` for the full roster and `.github/count-manifest.json` for 
 ## Enforcement Rules
 
 For THIS REPO's conventions on writing agent files, see:
-`.github/instructions/agent-definitions.instructions.md` (auto-loaded for `**/*.agent.md`).
+`.github/instructions/agent-authoring.instructions.md` (auto-loaded for `**/*.agent.md`).
 
 ## Verify Freshness
 

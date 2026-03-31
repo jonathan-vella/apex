@@ -7,7 +7,7 @@ compatibility: Requires Azure CLI with Bicep extension
 # Azure Bicep Patterns Skill
 
 Reusable infrastructure patterns for Azure Bicep templates. Complements
-`bicep-code-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
+`iac-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
 
 ---
 

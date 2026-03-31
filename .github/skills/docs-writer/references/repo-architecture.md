@@ -164,27 +164,23 @@ See `.github/count-manifest.json` for canonical counts.
 
 | Instruction                                     | Applies To (glob)                                               |
 | ----------------------------------------------- | --------------------------------------------------------------- |
-| `agent-definitions.instructions.md`             | `**/*.agent.md`                                                 |
+| `agent-authoring.instructions.md`               | `**/*.agent.md, **/*.prompt.md`                                 |
 | `agent-research-first.instructions.md`          | `**/*.agent.md`                                                 |
 | `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                                 |
 | `astro.instructions.md`                         | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
 | `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                                       |
-| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                                    |
+| `iac-best-practices.instructions.md`            | `**/*.bicep, **/*.tf, **/04-implementation-plan.md`             |
 | `code-quality.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`               |
 | `context-optimization.instructions.md`          | `.github/agents/**/*.agent.md, .github/skills/**/SKILL.md`      |
-| `decision-logging.instructions.md`              | `**/*.agent.md`                                                 |
 | `docs.instructions.md`                          | `site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx` |
 | `docs-trigger.instructions.md`                  | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`                  |
 | `github-actions.instructions.md`                | `.github/workflows/*.yml`                                       |
 | `governance-discovery.instructions.md`          | `**/04-governance-*.md`                                         |
-| `iac-cost-repeatability.instructions.md`        | `**/*.bicep, **/*.tf, **/04-implementation-plan.md`             |
-| `iac-policy-compliance.instructions.md`         | `**/*.bicep, **/*.tf`                                           |
 | `instructions.instructions.md`                  | `**/*.instructions.md`                                          |
 | `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                             |
 | `json.instructions.md`                          | `**/*.{json,jsonc}`                                             |
 | `lesson-collection.instructions.md`             | `**/*conductor*.agent.md`                                       |
 | `markdown.instructions.md`                      | `**/*.md`                                                       |
-| `model-prompt-alignment.instructions.md`        | `**/*.agent.md, **/*.prompt.md`                                 |
 | `no-hardcoded-counts.instructions.md`           | `**/*.md, **/*.json, **/*.mjs`                                  |
 | `no-heredoc.instructions.md`                    | `**`                                                            |
 | `powershell.instructions.md`                    | `**/*.ps1, **/*.psm1`                                           |

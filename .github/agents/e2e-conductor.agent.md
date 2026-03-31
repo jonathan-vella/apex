@@ -119,7 +119,7 @@ Update session state after every step completion:
 - Update `current_step` to next step number
 - Update `updated` timestamp
 - Append any significant decisions to `decision_log` array
-  (see `decision-logging.instructions.md` for entry schema:
+  (see `agent-authoring.instructions.md` for entry schema:
   id, step, agent, title, choice, rationale, alternatives, impact)
 
 ## Pre-Validation Gate (After Every Subagent Return)

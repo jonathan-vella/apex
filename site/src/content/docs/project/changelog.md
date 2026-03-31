@@ -122,7 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `azure-quotas`, `context-optimizer`, `github-operations`, `azure-adr`,
   `azure-kusto`, `make-skill-template`.
 - refactor(agents,scripts,instructions): consolidate instructions (#255) — merge
-  bicep/terraform policy compliance into `iac-policy-compliance.instructions.md`,
+  bicep/terraform policy compliance into `iac-best-practices.instructions.md`,
   merge code-commenting + code-review into `code-quality.instructions.md`, move
   workload-documentation and cost-estimate to skill references.
 - refactor(scripts): merge 6 validators into 3: agent-body-size + agent-language →
@@ -173,10 +173,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `copilot-customization`, `entra-app-registration`, `microsoft-foundry`.
 - feat(skills): add SKILL.digest.md and SKILL.minimal.md variants for all new skills.
 - feat(agents): implement cross-agent decision logging (#250) — add `decision_log[]` field
-  to session state schema, `decision-logging.instructions.md`, and propagate to 6 agents
+  to session state schema, `agent-authoring.instructions.md`, and propagate to 6 agents
   (Requirements, Architect, Bicep/Terraform Planners, Bicep/Terraform CodeGen) plus
   challenger-review-subagent.
-- feat(instructions): add `model-prompt-alignment.instructions.md` — auto-applies to
+- feat(instructions): add `agent-authoring.instructions.md` — auto-applies to
   `*.agent.md` and `*.prompt.md` with model-specific prompt engineering patterns for
   Claude (selective XML blocks, reasoning_effort, language calibration) and GPT
   (structured markdown, tool-call-first phrasing), plus cross-model rules for handoff
@@ -329,7 +329,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 ### Added
 
-- docs(agents): document model selection guidance in `agent-definitions.instructions.md`.
+- docs(agents): document model selection guidance in `agent-authoring.instructions.md`.
 
 ### Changed
 

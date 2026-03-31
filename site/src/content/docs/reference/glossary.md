@@ -421,7 +421,7 @@ review). Seven exist: `challenger-review-subagent`, `cost-estimate-subagent`,
 Key-value pairs applied to Azure resources for organization, cost tracking, and policy enforcement.
 Baseline tags: Environment, ManagedBy, Project, Owner.
 Governance constraints may require additional tags.
-See `bicep-code-best-practices.instructions.md` or `terraform-code-best-practices.instructions.md`
+See `iac-best-practices.instructions.md` or `terraform-code-best-practices.instructions.md`
 for the canonical tag rule.
 
 ### Terraform

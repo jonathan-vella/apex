@@ -51,7 +51,7 @@ a matching file is opened or edited.
 
 **How they work**: Each instruction file has YAML frontmatter with a `description` and
 an `applyTo` glob pattern. When an agent works with a file matching the pattern, the
-instruction is automatically loaded. For example, `bicep-code-best-practices.instructions.md`
+instruction is automatically loaded. For example, `iac-best-practices.instructions.md`
 applies to `**/*.bicep` and enforces AVM-first patterns, security baselines, and unique
 suffix conventions.
 

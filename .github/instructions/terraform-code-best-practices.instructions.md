@@ -94,7 +94,7 @@ terraform plan -out=plan.tfplan
 
 ## Cross-References
 
-- **Policy**: `iac-policy-compliance.instructions.md`
+- **Policy**: `iac-best-practices.instructions.md`
 - **Governance**: `governance-discovery.instructions.md`
 - **Patterns**: `terraform-patterns/SKILL.md` | **Defaults**: `azure-defaults/SKILL.md`
 - **HCL examples**: `terraform-patterns/references/tf-best-practices-examples.md`

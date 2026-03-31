@@ -221,7 +221,7 @@ handoffs:
 Required frontmatter fields: `name`, `description`, `model`, `tools`.
 Optional: `handoffs`, `user-invocable` (defaults to `true` for top-level).
 
-See `.github/instructions/agent-definitions.instructions.md` for the
+See `.github/instructions/agent-authoring.instructions.md` for the
 complete frontmatter specification.
 
 ### Step 3: Write the Agent Body
