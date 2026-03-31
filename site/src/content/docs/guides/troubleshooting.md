@@ -333,7 +333,7 @@ azd auth login \
 
 ```bash
 # See validation rules
-cat scripts/validate-artifact-templates.mjs | grep -A20 "ARTIFACT_HEADINGS"
+cat scripts/_lib/artifact-headings.mjs | grep -A20 "ARTIFACT_HEADINGS"
 ```
 
 **Fix order issues**: Compare with template:
