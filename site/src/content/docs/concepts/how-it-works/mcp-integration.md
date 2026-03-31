@@ -202,8 +202,7 @@ versions, look up provider capabilities (resources, data sources, functions),
 and retrieve module details before generating Terraform configurations.
 
 Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
-CodeGen** (Step 5t), **terraform-lint-subagent**, and
-**terraform-review-subagent**.
+CodeGen** (Step 5t) and **terraform-validate-subagent**.
 
 ## Operations and Setup
 

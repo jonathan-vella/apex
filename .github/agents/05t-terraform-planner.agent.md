@@ -6,8 +6,6 @@ user-invocable: true
 agents:
   [
     "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
   ]
 tools:
   [
@@ -240,7 +238,7 @@ Invoke challenger subagents on `04-implementation-plan.md`
 Save to `challenge-findings-implementation-plan-pass{N}.json`.
 **Model routing**: Pass 1 (security-governance) →
 `challenger-review-subagent` (GPT-5.4).
-Pass 2 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+Pass 2 → `challenger-review-subagent` with `review_focus = "architecture-reliability"`.
 
 > **Conditional pass**: Follow the conditional pass rules from `adversarial-review-protocol.md` —
 > skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`.
@@ -291,7 +289,7 @@ detailed findings are already visible in chat above):
 > not by this agent. They are consumed as prerequisites.
 
 **`04-governance-constraints.json` is consumed** by Terraform CodeGen (Phase 1.5) and
-`terraform-review-subagent`. Each `Deny` policy MUST include `azurePropertyPath` +
+`terraform-validate-subagent`. Each `Deny` policy MUST include `azurePropertyPath` +
 `requiredValue` to be machine-actionable.
 
 ## Validation Checklist

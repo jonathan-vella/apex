@@ -6,8 +6,6 @@ user-invocable: true
 agents:
   [
     "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
   ]
 tools:
   [
@@ -243,7 +241,7 @@ Follow the conditional pass rules from `adversarial-review-protocol.md` —
 skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`.
 **Model routing**: Pass 1 (security-governance) →
 `challenger-review-subagent` (GPT-5.4).
-Pass 2 → `challenger-review-codex-subagent` (GPT-5.3-Codex).
+Pass 2 → `challenger-review-subagent` with `review_focus = "architecture-reliability"`.
 
 Write results to `agent-output/{project}/challenge-findings-plan-pass{N}.json`.
 

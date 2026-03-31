@@ -406,9 +406,9 @@ workflow automation, and troubleshooting categories.
 ### Subagent
 
 A specialized validation agent invoked by other agents for specific tasks (lint, what-if/plan,
-review). Nine exist: `challenger-review-subagent`, `cost-estimate-subagent`,
-`governance-discovery-subagent`, `bicep-lint-subagent`, `bicep-review-subagent`,
-`bicep-whatif-subagent`, `terraform-lint-subagent`, `terraform-review-subagent`,
+review). Seven exist: `challenger-review-subagent`, `cost-estimate-subagent`,
+`governance-discovery-subagent`, `bicep-validate-subagent`,
+`bicep-whatif-subagent`, `terraform-validate-subagent`,
 `terraform-plan-subagent`.
 
 📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
@@ -437,7 +437,7 @@ Provider pin: `~> 4.0` (AzureRM). Backend: Azure Storage Account.
 ### TFLint
 
 A pluggable Terraform linter that enforces best practices, naming conventions, and
-resource-specific rules. Used by the `terraform-lint-subagent` during Step 5 validation.
+resource-specific rules. Used by the `terraform-validate-subagent` during Step 5 validation.
 
 🔗 **External**: [TFLint](https://github.com/terraform-linters/tflint)
 

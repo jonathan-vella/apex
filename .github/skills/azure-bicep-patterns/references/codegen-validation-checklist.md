@@ -38,5 +38,5 @@ Verify ALL items before marking Step 5 complete.
 
 ## Review Gates
 
-- [ ] `bicep-lint-subagent` PASS + `bicep-review-subagent` APPROVED
+- [ ] `bicep-validate-subagent` PASS + APPROVED
 - [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)

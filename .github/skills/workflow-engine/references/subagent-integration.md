@@ -21,11 +21,9 @@ Subagents are wired into their parent agents automatically:
 | `cost-estimate-subagent`        | As-Built           | Step 7 — as-built pricing for deployed SKUs            | —      |
 | `governance-discovery-subagent` | Bicep Plan         | Step 4 — policy discovery gate                         | —      |
 | `governance-discovery-subagent` | Terraform Planner  | Step 4† — policy discovery gate                        | —      |
-| `bicep-lint-subagent`           | Bicep Code         | Step 5 Phase 4 — syntax check                          | —      |
-| `bicep-review-subagent`         | Bicep Code         | Step 5 Phase 4 — code review                           | —      |
+| `bicep-validate-subagent`       | Bicep Code         | Step 5 Phase 4 — lint + code review                    | —      |
 | `bicep-whatif-subagent`         | Deploy             | Step 6 — deployment preview                            | —      |
-| `terraform-lint-subagent`       | Terraform Code Gen | Step 5† — syntax + format check                        | —      |
-| `terraform-review-subagent`     | Terraform Code Gen | Step 5† — AVM-TF + security review                     | —      |
+| `terraform-validate-subagent`   | Terraform Code Gen | Step 5† — lint + AVM-TF/security review                | —      |
 | `terraform-plan-subagent`       | Terraform Deploy   | Step 6† — deployment preview                           | —      |
 
 † Terraform path only.

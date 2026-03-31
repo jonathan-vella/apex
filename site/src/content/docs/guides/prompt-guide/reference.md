@@ -191,16 +191,11 @@ Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen
 You do not invoke them directly, but understanding their output helps you
 interpret validation results.
 
-### bicep-lint-subagent
+### bicep-validate-subagent
 
-Runs `bicep lint` and `bicep build` to validate template syntax. Returns a
-structured PASS/FAIL result with error counts and details.
-
-### bicep-review-subagent
-
-Reviews Bicep templates against AVM standards, naming conventions, security
-baselines, and best practices. Returns an APPROVED, NEEDS_REVISION, or FAILED
-verdict with actionable feedback.
+Runs `bicep lint` and `bicep build` to validate template syntax, then reviews
+templates against AVM standards, naming conventions, security baselines, and
+best practices. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION result.
 
 ### bicep-whatif-subagent
 
@@ -208,16 +203,12 @@ Runs `az deployment group what-if` to preview deployment changes. Analyzes
 policy violations, resource changes, and cost impact. Returns a structured
 change summary.
 
-### terraform-lint-subagent
+### terraform-validate-subagent
 
-Runs `terraform fmt -check`, `terraform validate`, and TFLint to validate
-configuration syntax. Returns a structured PASS/FAIL result with diagnostics.
-
-### terraform-review-subagent
-
-Reviews Terraform configs against AVM-TF standards, CAF naming conventions,
-security baselines, and governance compliance. Returns APPROVED, NEEDS_REVISION,
-or FAILED verdict with actionable feedback.
+Runs `terraform fmt -check`, `terraform validate`, and TFLint, then reviews
+configs against AVM-TF standards, CAF naming conventions, security baselines,
+and governance compliance. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION
+result.
 
 ### terraform-plan-subagent
 

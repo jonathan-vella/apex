@@ -62,11 +62,9 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | `cost-estimate-subagent`        | Architect        | Azure Pricing MCP queries           |
 | `governance-discovery-subagent` | IaC Planners     | Azure Policy REST API discovery     |
 | `challenger-review-subagent`    | Conductor/Plans  | Adversarial artifact review         |
-| `bicep-lint-subagent`           | Bicep Code       | Syntax validation                   |
-| `bicep-review-subagent`         | Bicep Code       | AVM/security code review            |
+| `bicep-validate-subagent`       | Bicep Code       | Lint + AVM/security code review     |
 | `bicep-whatif-subagent`         | Bicep Deploy     | Deployment preview                  |
-| `terraform-lint-subagent`       | Terraform Code   | Syntax validation (validate/fmt)    |
-| `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
+| `terraform-validate-subagent`   | Terraform Code   | Lint + AVM-TF/security code review  |
 | `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
 ### Skills (see count-manifest.json for current counts)

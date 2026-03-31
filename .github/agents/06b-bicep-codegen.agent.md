@@ -5,11 +5,8 @@ model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents:
   [
-    "bicep-lint-subagent",
-    "bicep-review-subagent",
+    "bicep-validate-subagent",
     "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
   ]
 tools:
   [
@@ -82,10 +79,9 @@ Do not modify architecture decisions — hand back to the Planner if the plan ne
 </scope_fencing>
 
 <subagent_budget>
-This agent orchestrates 4+ subagents: bicep-lint-subagent, bicep-review-subagent, challenger-review-subagent, challenger-review-batch-subagent.
-Invoke lint + review subagents in parallel (independent checkers on the same code).
-Use challenger subagents only for adversarial review after validation passes.
-For simple validation re-runs after fixes, invoke lint-subagent alone rather than the full suite.
+This agent orchestrates 2 subagents: bicep-validate-subagent (lint+review), challenger-review-subagent.
+Invoke bicep-validate-subagent for combined lint and code review.
+Use challenger-review-subagent only for adversarial review after validation passes.
 </subagent_budget>
 
 ## Read Skills First
@@ -241,8 +237,7 @@ Also generate `infra/bicep/{project}/deploy.ps1` (legacy fallback) with:
 Invoke both validation subagents in parallel via simultaneous `#runSubagent` calls
 (independent checkers — syntax vs standards — on the same code):
 
-1. `bicep-lint-subagent` (path: `infra/bicep/{project}/main.bicep`) — expect PASS
-2. `bicep-review-subagent` (path: `infra/bicep/{project}/`) — expect APPROVED
+1. `bicep-validate-subagent` (path: `infra/bicep/{project}/main.bicep`) — expect APPROVED (runs lint then review)
 
 Await both results. Both must pass before Phase 4.5.
 

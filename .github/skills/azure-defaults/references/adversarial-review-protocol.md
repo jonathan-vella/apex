@@ -9,13 +9,10 @@ defines the shared mechanics.
 
 ## Multi-Model Convention
 
-Agent `agents:` arrays list multiple challenger subagents (e.g.,
-`challenger-review-subagent`, `challenger-review-codex-subagent`,
-`challenger-review-batch-subagent`). This does **not** mean multiple
-sequential passes. The 3 subagents represent **parallel multi-model
-execution options for a single pass** — the selection rules in
-`challenger-selection-rules.md` determine which subagent model runs
-each pass based on the lens type and complexity tier.
+Agent `agents:` arrays list the `challenger-review-subagent`.
+All review passes use the same subagent — the selection rules in
+`challenger-selection-rules.md` determine which pass runs
+based on the lens type and complexity tier.
 
 ## 3-Pass Rotating Lenses
 
@@ -106,11 +103,11 @@ Write each result to
 
 Use the right model for each review lens:
 
-| Pass                   | Lens                                | Subagent                           | Model         | Rationale                                                                                    |
-| ---------------------- | ----------------------------------- | ---------------------------------- | ------------- | -------------------------------------------------------------------------------------------- |
-| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent`       | GPT-5.4       | Deep logical reasoning for policy cross-reference, finding inconsistencies                   |
-| Pass 2                 | architecture-reliability            | `challenger-review-codex-subagent` | GPT-5.3-Codex | WAF/failure mode analysis is structured and checklist-driven. Fast execution.                |
-| Pass 3                 | cost-feasibility                    | `challenger-review-codex-subagent` | GPT-5.3-Codex | Quantitative SKU analysis. Structured output strength. Matches cost-estimate-subagent model. |
+| Pass                   | Lens                                | Subagent                     | Model   | Rationale                                                                                    |
+| ---------------------- | ----------------------------------- | ---------------------------- | ------- | -------------------------------------------------------------------------------------------- |
+| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | GPT-5.4 | Deep logical reasoning for policy cross-reference, finding inconsistencies                   |
+| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | GPT-5.4 | WAF/failure mode analysis. Structured checklist-driven.                                      |
+| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | GPT-5.4 | Quantitative SKU analysis. Matches cost-estimate-subagent model.                             |
 
 ## Parallel Invocation (Cross-Artifact Reviews)
 
@@ -140,7 +137,7 @@ when they target different artifacts AND both use `prior_findings = null`.
 When `decisions.complexity == "complex"` AND pass 1 returns ≥1 `must_fix`
 (guaranteeing all 3 passes), **batch passes 2+3** into a single subagent call:
 
-1. Invoke `challenger-review-batch-subagent` with:
+1. Invoke `challenger-review-subagent` with:
    - `batch_lenses`: `[{pass 2: architecture-reliability}, {pass 3: cost-feasibility}]`
    - `prior_findings`: compact string from pass 1
 2. The batch subagent runs lenses internally in sequence (pass 3 sees pass 2 findings)

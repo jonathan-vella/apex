@@ -7,7 +7,7 @@
  *
  * Checks:
  * 1. Bicep Code Generator references 04-governance-constraints
- * 2. bicep-review-subagent has Governance Compliance checklist
+ * 2. bicep-validate-subagent has Governance Compliance checklist
  * 3. Bicep Planner references JSON output schema completeness
  * 4. iac-policy-compliance.instructions.md exists with correct applyTo
  *
@@ -82,9 +82,9 @@ check(
   fileContains(codeGenPath, "Skip governance compliance mapping"),
 );
 
-// 2. bicep-review-subagent has Governance Compliance section
-console.log("\n📄 bicep-review-subagent.agent.md");
-const reviewPath = ".github/agents/_subagents/bicep-review-subagent.agent.md";
+// 2. bicep-validate-subagent has Governance Compliance section
+console.log("\n📄 bicep-validate-subagent.agent.md");
+const reviewPath = ".github/agents/_subagents/bicep-validate-subagent.agent.md";
 check(
   "Has Governance Compliance section",
   fileContains(reviewPath, "### 7. Governance Compliance"),
@@ -198,9 +198,9 @@ check(
 );
 
 // 8. Terraform review subagent has governance compliance section
-console.log("\n📄 terraform-review-subagent.agent.md");
+console.log("\n📄 terraform-validate-subagent.agent.md");
 const tfReviewPath =
-  ".github/agents/_subagents/terraform-review-subagent.agent.md";
+  ".github/agents/_subagents/terraform-validate-subagent.agent.md";
 check(
   "Has Governance Compliance section",
   fileContains(tfReviewPath, "### 7. Governance Compliance"),

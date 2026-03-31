@@ -91,11 +91,9 @@ infrastructure.
 
 | Subagent                        | Called By         | Purpose                                         |
 | ------------------------------- | ----------------- | ----------------------------------------------- |
-| `bicep-lint-subagent`           | Bicep CodeGen     | Runs `bicep lint` and `bicep build` validation  |
-| `bicep-review-subagent`         | Bicep CodeGen     | Reviews templates against AVM standards         |
+| `bicep-validate-subagent`       | Bicep CodeGen     | Lint + AVM/security code review                 |
 | `bicep-whatif-subagent`         | Bicep Deploy      | Runs `az deployment group what-if` preview      |
-| `terraform-lint-subagent`       | Terraform CodeGen | Runs `terraform fmt`, `validate`, and TFLint    |
-| `terraform-review-subagent`     | Terraform CodeGen | Reviews configs against AVM-TF standards        |
+| `terraform-validate-subagent`   | Terraform CodeGen | Lint + AVM-TF/security code review              |
 | `terraform-plan-subagent`       | Terraform Deploy  | Runs `terraform plan` change preview            |
 | `cost-estimate-subagent`        | Architect         | Queries Azure Pricing MCP for real-time pricing |
 | `governance-discovery-subagent` | IaC Planners      | Discovers Azure Policy constraints via REST API |

@@ -166,13 +166,11 @@ graph TB
 
     subgraph "Step 5: Implementation"
         BCODE["bicep-code<br/>⚒️ Forge"]
-        BLINT["bicep-lint-subagent"]
+        BVAL["bicep-validate-subagent"]
         BWHATIF["bicep-whatif-subagent"]
-        BREVIEW["bicep-review-subagent"]
         TCODE["terraform-code<br/>⚒️ Forge"]
-        TLINT["terraform-lint-subagent"]
+        TVAL["terraform-validate-subagent"]
         TPLANSA["terraform-plan-subagent"]
-        TREVIEW["terraform-review-subagent"]
     end
 
     subgraph "Step 6: Deployment"
@@ -193,12 +191,10 @@ graph TB
     COND -->|"Terraform track"| TPLAN
     COND -->|"Bicep track"| BCODE
     COND -->|"Terraform track"| TCODE
-    BCODE -->|"validates"| BLINT
+    BCODE -->|"validates"| BVAL
     BCODE -->|"validates"| BWHATIF
-    BCODE -->|"validates"| BREVIEW
-    TCODE -->|"validates"| TLINT
+    TCODE -->|"validates"| TVAL
     TCODE -->|"validates"| TPLANSA
-    TCODE -->|"validates"| TREVIEW
     COND -->|"Bicep track"| BDEP
     COND -->|"Terraform track"| TDEP
     COND -->|"invokes"| DOCS
@@ -251,19 +247,17 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 **Bicep track:**
 
-| Subagent                | Purpose                                         | Invoked By                   |
-| ----------------------- | ----------------------------------------------- | ---------------------------- |
-| `bicep-lint-subagent`   | Syntax validation (`bicep lint`, `bicep build`) | `bicep-code`                 |
-| `bicep-whatif-subagent` | Deployment preview (`az deployment what-if`)    | `bicep-code`, `bicep-deploy` |
-| `bicep-review-subagent` | Code review (AVM, security, naming)             | `bicep-code`                 |
+| Subagent                  | Purpose                                                   | Invoked By                   |
+| ------------------------- | --------------------------------------------------------- | ---------------------------- |
+| `bicep-validate-subagent` | Lint + code review (AVM, security, naming)                | `bicep-code`                 |
+| `bicep-whatif-subagent`   | Deployment preview (`az deployment what-if`)              | `bicep-code`, `bicep-deploy` |
 
 **Terraform track:**
 
-| Subagent                    | Purpose                                         | Invoked By       |
-| --------------------------- | ----------------------------------------------- | ---------------- |
-| `terraform-lint-subagent`   | Syntax validation (`terraform validate`, `fmt`) | `terraform-code` |
-| `terraform-plan-subagent`   | Deployment preview (`terraform plan`)           | `terraform-code` |
-| `terraform-review-subagent` | Code review (AVM-TF, security, naming)          | `terraform-code` |
+| Subagent                      | Purpose                                                     | Invoked By       |
+| ----------------------------- | ----------------------------------------------------------- | ---------------- |
+| `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming)               | `terraform-code` |
+| `terraform-plan-subagent`     | Deployment preview (`terraform plan`)                       | `terraform-code` |
 
 ### Standalone Agents
 
@@ -439,11 +433,10 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 
 **Preflight Validation** (via track-specific subagents):
 
-| Bicep Subagent          | Terraform Subagent          | Validation                    |
-| ----------------------- | --------------------------- | ----------------------------- |
-| `bicep-lint-subagent`   | `terraform-lint-subagent`   | Syntax check, linting rules   |
-| `bicep-whatif-subagent` | `terraform-plan-subagent`   | Deployment preview            |
-| `bicep-review-subagent` | `terraform-review-subagent` | AVM compliance, security scan |
+| Bicep Subagent            | Terraform Subagent            | Validation                            |
+| ------------------------- | ----------------------------- | ------------------------------------- |
+| `bicep-validate-subagent` | `terraform-validate-subagent` | Lint + code review                    |
+| `bicep-whatif-subagent`   | `terraform-plan-subagent`     | Deployment preview                    |
 
 !!! info "Approval Gate"
 

@@ -230,18 +230,6 @@
       "skills": [],
       "invokable": false
     },
-    "challenger-review-codex-subagent": {
-      "agent": ".github/agents/_subagents/challenger-review-codex-subagent.agent.md",
-      "model": "GPT-5.3-Codex",
-      "skills": [],
-      "invokable": false
-    },
-    "challenger-review-batch-subagent": {
-      "agent": ".github/agents/_subagents/challenger-review-batch-subagent.agent.md",
-      "model": "GPT-5.3-Codex",
-      "skills": [],
-      "invokable": false
-    },
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "model": "GPT-5.3-Codex",
@@ -254,14 +242,8 @@
       "skills": ["azure-defaults"],
       "invokable": false
     },
-    "bicep-lint-subagent": {
-      "agent": ".github/agents/_subagents/bicep-lint-subagent.agent.md",
-      "model": "GPT-5.4",
-      "skills": [],
-      "invokable": false
-    },
-    "bicep-review-subagent": {
-      "agent": ".github/agents/_subagents/bicep-review-subagent.agent.md",
+    "bicep-validate-subagent": {
+      "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
       "model": "GPT-5.4",
       "skills": ["azure-bicep-patterns"],
       "invokable": false
@@ -272,14 +254,8 @@
       "skills": [],
       "invokable": false
     },
-    "terraform-lint-subagent": {
-      "agent": ".github/agents/_subagents/terraform-lint-subagent.agent.md",
-      "model": "GPT-5.4",
-      "skills": [],
-      "invokable": false
-    },
-    "terraform-review-subagent": {
-      "agent": ".github/agents/_subagents/terraform-review-subagent.agent.md",
+    "terraform-validate-subagent": {
+      "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
       "model": "GPT-5.4",
       "skills": ["terraform-patterns", "terraform-test"],
       "invokable": false

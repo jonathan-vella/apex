@@ -8,8 +8,6 @@ user-invocable: true
 agents:
   [
     "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
   ]
 tools:
   [

@@ -16,11 +16,9 @@ agents:
     "07t-Terraform Deploy",
     "08-As-Built",
     "challenger-review-subagent",
-    "bicep-lint-subagent",
-    "bicep-review-subagent",
+    "bicep-validate-subagent",
     "bicep-whatif-subagent",
-    "terraform-lint-subagent",
-    "terraform-review-subagent",
+    "terraform-validate-subagent",
     "terraform-plan-subagent",
   ]
 tools:
@@ -82,8 +80,8 @@ to determine which IaC track to use. Route accordingly:
 | Planner        | `@05b-Bicep Planner`                           | `@05t-Terraform Planner`                             |
 | CodeGen        | `@06b-Bicep CodeGen`                           | `@06t-Terraform CodeGen`                             |
 | Deploy         | `@07b-Bicep Deploy` / `@bicep-whatif-subagent` | `@07t-Terraform Deploy` / `@terraform-plan-subagent` |
-| Code Review    | `@bicep-review-subagent`                       | `@terraform-review-subagent`                         |
-| Lint           | `@bicep-lint-subagent`                         | `@terraform-lint-subagent`                           |
+| Code Review    | `@bicep-validate-subagent`                     | `@terraform-validate-subagent`                       |
+| Lint           | (included in validate subagent)                | (included in validate subagent)                      |
 | Code Dir       | `infra/bicep/{project}/`                       | `infra/terraform/{project}/`                         |
 | Entry File     | `main.bicep`                                   | `main.tf`                                            |
 | Build/Validate | `bicep build` + `bicep lint`                   | `terraform validate` + `terraform fmt -check`        |

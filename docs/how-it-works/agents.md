@@ -88,15 +88,11 @@ specific tasks:
 | Subagent                         | Purpose                                | Invoked By          |
 | -------------------------------- | -------------------------------------- | ------------------- |
 | challenger-review-subagent       | Adversarial review of artifacts        | Steps 1, 2, 4, 5, 6 |
-| challenger-review-batch-subagent | Batch multi-lens adversarial review    | Steps 2, 4, 5       |
-| challenger-review-codex-subagent | Fast adversarial review (Codex model)  | Steps 2, 4          |
 | cost-estimate-subagent           | Azure Pricing MCP queries              | Steps 2, 7          |
 | governance-discovery-subagent    | Azure Policy discovery via REST API    | Step 4              |
-| bicep-lint-subagent              | `bicep build` + `bicep lint`           | Step 5 (Bicep)      |
-| bicep-review-subagent            | Code review against AVM standards      | Step 5 (Bicep)      |
+| bicep-validate-subagent          | Lint + AVM/security code review        | Step 5 (Bicep)      |
 | bicep-whatif-subagent            | `az deployment what-if` preview        | Step 6 (Bicep)      |
-| terraform-lint-subagent          | `terraform fmt` + `terraform validate` | Step 5 (Terraform)  |
-| terraform-review-subagent        | Code review against AVM-TF standards   | Step 5 (Terraform)  |
+| terraform-validate-subagent      | Lint + AVM-TF/security code review     | Step 5 (Terraform)  |
 | terraform-plan-subagent          | `terraform plan` preview               | Step 6 (Terraform)  |
 
 ## :material-sword-cross: The Challenger Pattern
@@ -112,9 +108,8 @@ It operates with rotating lenses:
 !!! info "Challenger Selection Rules"
 
     Pass 1 (security-governance) always uses `challenger-review-subagent` (GPT-5.4).
-    Passes 2-3 use `challenger-review-codex-subagent` (GPT-5.3-Codex) for
-    architecture-reliability and cost-feasibility lenses. For complex projects,
-    `challenger-review-batch-subagent` combines passes 2+3 in one invocation.
+    Passes 2-3 also use `challenger-review-subagent` for
+    architecture-reliability and cost-feasibility lenses.
     See `.github/skills/azure-defaults/references/challenger-selection-rules.md`
     for the full routing table and conditional skip rules.
 

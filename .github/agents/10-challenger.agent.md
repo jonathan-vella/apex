@@ -22,8 +22,6 @@ tools:
 agents:
   [
     "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
   ]
 handoffs:
   - label: "↩ Return to Conductor"
@@ -37,11 +35,9 @@ handoffs:
 <!-- Recommended reasoning_effort: high -->
 
 <subagent_budget>
-This agent orchestrates 3 subagents: challenger-review-subagent, challenger-review-codex-subagent, challenger-review-batch-subagent.
-Use subagents for their specialized review capabilities. For simple single-pass reviews,
-invoke challenger-review-subagent directly.
-For multi-pass reviews, use challenger-review-batch-subagent to run remaining lenses in one invocation.
-Do not invoke all three subagents when a single pass suffices.
+This agent orchestrates 1 subagent: challenger-review-subagent (unified, supports single-lens and batch modes).
+For simple single-pass reviews, invoke with review_focus + pass_number.
+For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 </subagent_budget>
 
 You are a delegation wrapper for standalone adversarial reviews.
@@ -86,12 +82,11 @@ Invoke `challenger-review-subagent` with:
 
 **Pass 1** → Invoke `challenger-review-subagent` with `review_focus = "security-governance"`, `pass_number = 1`
 
-**Passes 2–3** → Invoke `challenger-review-batch-subagent` with:
+**Passes 2–3** → Invoke `challenger-review-subagent` in batch mode with:
 
-- `lenses`: remaining lenses from the rotation (e.g., `["architecture-reliability"]` for 2-pass,
-  `["architecture-reliability", "cost-feasibility"]` for 3-pass)
-- `pass_start` = `2`
-- `prior_findings` = findings JSON from pass 1
+- `batch_lenses`: remaining lenses from the rotation (e.g., `[{"review_focus": "architecture-reliability", "pass_number": 2}]` for 2-pass,
+  `[{"review_focus": "architecture-reliability", "pass_number": 2}, {"review_focus": "cost-feasibility", "pass_number": 3}]` for 3-pass)
+- `prior_findings` = compact_for_parent from pass 1
 
 ### Lens Rotation Table
 

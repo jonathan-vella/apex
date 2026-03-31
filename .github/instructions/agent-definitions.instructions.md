@@ -162,16 +162,12 @@ expensive or specialized work from their parent agent's context window.
 
 | Subagent                           | Parent Agent                | Purpose                                                 |
 | ---------------------------------- | --------------------------- | ------------------------------------------------------- |
-| `challenger-review-subagent`       | All workflow agents         | Adversarial review pass 1 / comprehensive (GPT-5.4)     |
-| `challenger-review-codex-subagent` | All workflow agents         | Adversarial review passes 2-3 (GPT-5.3-Codex)           |
-| `challenger-review-batch-subagent` | All workflow agents         | Batched passes 2+3 for complex projects (GPT-5.3-Codex) |
+| `challenger-review-subagent`       | All workflow agents         | Adversarial review (comprehensive + rotating lenses)    |
 | `cost-estimate-subagent`           | Architect                   | Pricing MCP queries                                     |
 | `governance-discovery-subagent`    | Bicep Plan / Terraform Plan | Azure Policy REST API discovery                         |
-| `bicep-lint-subagent`              | Bicep Code                  | `bicep build` + `bicep lint`                            |
-| `bicep-review-subagent`            | Bicep Code                  | AVM/security/naming code review                         |
+| `bicep-validate-subagent`          | Bicep Code                  | Lint + AVM/security code review                         |
 | `bicep-whatif-subagent`            | Bicep Deploy                | `az deployment group what-if`                           |
-| `terraform-lint-subagent`          | Terraform Code              | `terraform fmt` + `terraform validate`                  |
-| `terraform-review-subagent`        | Terraform Code              | AVM-TF/security/naming code review                      |
+| `terraform-validate-subagent`      | Terraform Code              | Lint + AVM-TF/security code review                      |
 | `terraform-plan-subagent`          | Terraform Deploy            | `terraform plan` change preview                         |
 
 Subagent definition rules:

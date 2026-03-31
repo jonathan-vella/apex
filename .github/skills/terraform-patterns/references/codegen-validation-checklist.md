@@ -27,5 +27,5 @@ Verify ALL items before marking Step 5 complete.
 
 ## Review Gates
 
-- [ ] `terraform-lint-subagent` PASS + `terraform-review-subagent` APPROVED
+- [ ] `terraform-validate-subagent` PASS + APPROVED
 - [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)

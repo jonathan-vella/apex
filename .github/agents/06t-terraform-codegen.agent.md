@@ -5,11 +5,8 @@ model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents:
   [
-    "terraform-lint-subagent",
-    "terraform-review-subagent",
+    "terraform-validate-subagent",
     "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
   ]
 tools:
   [
@@ -84,10 +81,9 @@ Do not modify architecture decisions — hand back to the Planner if the plan ne
 </scope_fencing>
 
 <subagent_budget>
-This agent orchestrates 4+ subagents: terraform-lint-subagent, terraform-review-subagent, challenger-review-subagent, challenger-review-batch-subagent.
-Invoke lint + review subagents in parallel (independent checkers on the same code).
-Use challenger subagents only for adversarial review after validation passes.
-For simple validation re-runs after fixes, invoke lint-subagent alone rather than the full suite.
+This agent orchestrates 2 subagents: terraform-validate-subagent (lint+review), challenger-review-subagent.
+Invoke terraform-validate-subagent for combined lint and code review.
+Use challenger-review-subagent only for adversarial review after validation passes.
 </subagent_budget>
 
 **HCP GUARDRAIL**: Never write `terraform { cloud { } }` blocks or reference `TFE_TOKEN`.
@@ -239,8 +235,7 @@ Generate `deploy.sh` + `deploy.ps1`. Read
 Invoke both validation subagents in parallel via simultaneous `#runSubagent` calls
 (independent checkers — syntax/fmt vs standards — on the same code):
 
-1. `terraform-lint-subagent` (path: `infra/terraform/{project}/`) — expect PASS
-2. `terraform-review-subagent` (same path) — expect APPROVED
+1. `terraform-validate-subagent` (path: `infra/terraform/{project}/`) — expect APPROVED (runs lint then review)
 
 Await both results. Both must pass before Phase 4.5.
 
