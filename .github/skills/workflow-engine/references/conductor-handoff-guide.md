@@ -25,8 +25,12 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 After Step 1 (Requirements), read `decisions.complexity` from `00-session-state.json`.
 If missing (old sessions), default to `"standard"`.
 
-When dispatching Steps 2, 4, 5, and 6, the step agents use `decisions.complexity` to determine
-adversarial review pass count per the review matrix in `adversarial-review-protocol.md`.
+When dispatching Steps 2, 4, 5, and 6, the Conductor defaults to **1-pass comprehensive review**.
+Multi-pass adversarial review is **opt-in** — at each gate, check `decisions.complexity`:
+- **simple/standard**: Present single-pass result directly. Do not prompt for additional review.
+- **complex**: Ask the user: _"Run additional adversarial review? (recommended for complex projects)"_
+  If the user opts in, use the full complexity matrix from `adversarial-review-protocol.md`.
+  If declined, proceed with the single-pass result.
 
 **Runtime validation**: If `complexity_matrix` key in `workflow-graph.json` does not contain an
 entry for the current complexity value, STOP with error and ask user to classify the project.
@@ -174,7 +178,8 @@ producing low-quality artifacts with fabricated defaults.
 ### Subagent Integration
 
 For the full subagent matrix, read `.github/skills/workflow-engine/references/subagent-integration.md`.
-Key points: Challenger runs 3-pass reviews at Steps 2, 4, 5; cost-estimate-subagent handles pricing
+Key points: Challenger runs 1-pass comprehensive review by default at Steps 1, 2, 4, 5, 6;
+multi-pass rotating lens reviews are opt-in for complex projects; cost-estimate-subagent handles pricing
 at Steps 2 and 7; governance-discovery-subagent runs at Step 3.5 (Governance agent).
 
 **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from

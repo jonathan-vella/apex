@@ -11,21 +11,21 @@
 
 ## Multi-Step Workflow
 
-| Step | Agent                                                                      | Output                                                                                             | Review         | Gate       |
-| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------- | ---------- |
-| 1    | Requirements                                                               | `01-requirements.md`                                                                               | 1×             | Approval   |
-| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                    | 1×–3× + 1 cost | Approval   |
-| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}` diagrams and ADRs                                                           | —              | —          |
-| 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                               | 1×             | Approval   |
-| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.drawio` + `04-runtime-diagram.drawio` | 1×–2×          | Approval   |
-| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                           | 1×–3×          | Validation |
-| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                         | —              | Approval   |
-| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                      | —              | —          |
-| Post | Lessons (Conductor)                                                        | `09-lessons-learned.json/.md`                                                                      | —              | —          |
+| Step | Agent                                                                      | Output                                                                                             | Review                  | Gate       |
+| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------- | ---------- |
+| 1    | Requirements                                                               | `01-requirements.md`                                                                               | 1×                      | Approval   |
+| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                    | 1× + 1 cost (opt-in: multi-pass) | Approval   |
+| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}` diagrams and ADRs                                                           | —                       | —          |
+| 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                               | 1×                      | Approval   |
+| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.drawio` + `04-runtime-diagram.drawio` | opt-in (default: skip)  | Approval   |
+| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                           | opt-in (default: skip)  | Validation |
+| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                         | —                       | Approval   |
+| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                      | —                       | —          |
+| Post | Lessons (Conductor)                                                        | `09-lessons-learned.json/.md`                                                                      | —                       | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
-Review column = adversarial passes by challenger subagents, complexity-dependent
-Complexity-dependent; conditional early exits reduce actual passes.
+Review column = adversarial passes by challenger subagents; 1-pass default, multi-pass opt-in
+Single-pass comprehensive review is the default; multi-pass rotating lens is opt-in for complex projects.
 Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 
 ## Skills (Auto-Invoked by Agents)

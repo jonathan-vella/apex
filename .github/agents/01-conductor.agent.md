@@ -187,6 +187,24 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 6. **Session Breaks**: Recommend a fresh chat session at Gates 2 and 3 to prevent context
    exhaustion (see [Session Break Protocol](#session-break-protocol))
 
+## Review Protocol: Single-Pass Default
+
+All steps default to **1-pass comprehensive adversarial review**. Multi-pass rotating
+lens reviews are **opt-in**, recommended only for complex projects.
+
+At each approval gate:
+
+1. Run a single comprehensive challenger pass
+2. Check `decisions.complexity` from `00-session-state.json`
+3. **simple/standard**: Present the single-pass result directly — no additional review
+4. **complex**: Ask the user via `askQuestions`:
+   _"Run additional adversarial review? (recommended for complex projects)"_
+   Options: "Yes — run full multi-pass review" / "No — proceed with single-pass result"
+5. If user opts in, run the full complexity matrix from `adversarial-review-protocol.md`
+
+Steps 4 and 5 (Plan and Code) skip challenger review entirely by default (`default_passes: 0`
+in `workflow-graph.json`). For complex projects, the Conductor asks whether to enable it.
+
 ## DO / DON'T
 
 | DO                                                                   | DON'T                                                             |

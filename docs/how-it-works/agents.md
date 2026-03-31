@@ -108,23 +108,24 @@ It operates with rotating lenses:
 !!! info "Challenger Selection Rules"
 
     Pass 1 (security-governance) always uses `challenger-review-subagent` (GPT-5.4).
-    Passes 2-3 also use `challenger-review-subagent` for
+    Additional passes also use `challenger-review-subagent` for
     architecture-reliability and cost-feasibility lenses.
     See `.github/skills/azure-defaults/references/challenger-selection-rules.md`
     for the full routing table and conditional skip rules.
 
-- **1-pass review** (comprehensive): A single review covering all dimensions. Used for
-  requirements (Step 1) and deploy (Step 6).
-- **3-pass review** (rotating lenses): Three separate reviews, each focused on a specific
-  dimension (security, reliability, cost). Used for architecture (Step 2), planning (Step 4),
-  and code (Step 5).
+- **1-pass review** (comprehensive): A single review covering all dimensions. This is the
+  **default for all steps**. Used for requirements (Step 1), architecture (Step 2), deploy (Step 6),
+  and optionally for planning (Step 4) and code (Step 5).
+- **Multi-pass review** (rotating lenses, opt-in): Multiple separate reviews, each focused on a
+  specific dimension (security, reliability, cost). Available for architecture (Step 2),
+  planning (Step 4), and code (Step 5) when explicitly requested. Recommended for complex projects.
 
 Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Only
 `must_fix` findings block workflow progression.
 
-**Conditional Pass 3**: Pass 3 of the 3-pass rotating lens review is now conditional —
-it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero `must_fix`
-items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
+**Conditional passes (when multi-pass is opted in)**: Pass 3 of the rotating lens review is
+conditional — it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero
+`must_fix` items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
 
 **Context Shredding for Challenger Inputs**: The challenger is instructed to apply
 context compression tiers when loading predecessor artefacts for review:

@@ -49,7 +49,7 @@ handoffs:
     send: true
   - label: "Step 2: Architecture (Streamlined)"
     agent: 03-Architect
-    prompt: "Create a streamlined WAF assessment with cost estimates for a simple project. Input: `agent-output/{project}/01-requirements.md`. Output: `02-architecture-assessment.md` and `03-des-cost-estimate.md`. 1-pass review (not 3-pass)."
+    prompt: "Create a streamlined WAF assessment with cost estimates for a simple project. Input: `agent-output/{project}/01-requirements.md`. Output: `02-architecture-assessment.md` and `03-des-cost-estimate.md`. 1-pass review (standard default)."
     send: true
   - label: "Step 3: IaC Plan + Code"
     agent: 05b-Bicep Planner
@@ -120,7 +120,7 @@ If missing or not `simple`, STOP with error before proceeding.
 Delegate to `03-Architect` agent. For simple projects per the review
 matrix in `azure-defaults/references/adversarial-review-protocol.md`:
 
-- 1-pass comprehensive review (not 3-pass rotating)
+- 1-pass comprehensive review (standard default)
 - Skip detailed cost comparison (single-tier is sufficient)
 - WAF assessment is still mandatory
 
@@ -157,7 +157,7 @@ Review pass counts follow the `simple` row of the review matrix in
      projects only because: single deployment phase, ≤3 resources, 1-pass
      review at Code stage catches plan errors. If plan quality degrades,
      re-introduce the gate.
-   - 1-pass comprehensive adversarial review (not 3-pass)
+   - 1-pass comprehensive adversarial review (standard default)
    - Standard validation (lint + review subagents)
 
 ### Step 4: Deploy (same as standard)

@@ -28,6 +28,9 @@
       "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md"],
       "gate": "approval",
       "challenger": {
+        "default_passes": 1,
+        "default_lenses": ["comprehensive"],
+        "opt_in_multi_pass": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -97,6 +100,8 @@
       ],
       "gate": "approval",
       "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -124,6 +129,8 @@
       ],
       "gate": "approval",
       "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -155,6 +162,8 @@
       "produces": ["infra/bicep/{project}/"],
       "gate": "validation",
       "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -182,6 +191,8 @@
       "produces": ["infra/terraform/{project}/"],
       "gate": "validation",
       "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {

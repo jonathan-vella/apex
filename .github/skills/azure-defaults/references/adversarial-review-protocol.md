@@ -14,9 +14,21 @@ All review passes use the same subagent — the selection rules in
 `challenger-selection-rules.md` determine which pass runs
 based on the lens type and complexity tier.
 
-## 3-Pass Rotating Lenses
+## Review Default: Single-Pass Comprehensive
 
-Used for critical artifacts (architecture, implementation plan, code).
+By default, all steps use a **1-pass comprehensive review**. Multi-pass rotating
+lens reviews are **opt-in** — recommended for complex projects but not required.
+
+At each gate, the Conductor checks `decisions.complexity`:
+- **simple/standard**: Present single-pass result directly
+- **complex**: Ask: "Run additional adversarial review? (recommended for complex projects)"
+
+If the user opts in, the full complexity matrix applies (see below).
+
+## Multi-Pass Rotating Lenses (Opt-In)
+
+Available for critical artifacts (architecture, implementation plan, code)
+when explicitly requested or when the Conductor recommends it for complex projects.
 
 | Pass | `review_focus`             | Lens Description                                            |
 | ---- | -------------------------- | ----------------------------------------------------------- |
@@ -74,11 +86,17 @@ the Conductor validates. If missing from old sessions, default to `"standard"`.
 
 ## Review Matrix (Complexity-Based Pass Counts)
 
-| Complexity | Step 1 (Req)     | Step 2 (Arch)                             | Step 4 (Plan)                              | Step 5 (Code)                    |
-| ---------- | ---------------- | ----------------------------------------- | ------------------------------------------ | -------------------------------- |
-| simple     | 1× comprehensive | 1× comprehensive + 1 cost                 | 1× comprehensive                           | 1× comprehensive                 |
-| standard   | 1× comprehensive | 2× rotating (pass 3 conditional) + 1 cost | 2× rotating (security + architecture only) | 2× rotating (pass 3 conditional) |
-| complex    | 1× comprehensive | 3× rotating + 1 cost                      | 2× rotating (security + architecture only) | 3× rotating                      |
+**Default**: All steps use 1-pass comprehensive review. Multi-pass is opt-in.
+
+| Complexity | Step 1 (Req)     | Step 2 (Arch)                                        | Step 4 (Plan)                                         | Step 5 (Code)                               |
+| ---------- | ---------------- | ---------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| simple     | 1× comprehensive | 1× comprehensive + 1 cost                            | skip (opt-in: 1× comprehensive)                      | skip (opt-in: 1× comprehensive)             |
+| standard   | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 2× rotating)     | skip (opt-in: 2× rotating)                           | skip (opt-in: 2× rotating)                  |
+| complex    | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 3× rotating)     | ask user (opt-in: 2× rotating)                       | ask user (opt-in: 3× rotating)              |
+
+> **Opt-in prompt**: At Steps 4 and 5 for complex projects, the Conductor asks:
+> "Run additional adversarial review? (recommended for complex projects)"
+> For simple/standard projects, challenger review at Steps 4 and 5 is skipped by default.
 
 > **Steps without adversarial review**: Step 3 (Design), Step 3.5 (Governance),
 > Step 6 (Deploy), Step 7 (As-Built). Governance is machine-discovered data;
