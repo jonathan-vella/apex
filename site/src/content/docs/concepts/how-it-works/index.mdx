@@ -36,7 +36,7 @@ are enforced as first-class concerns across all generated infrastructure.
 <CardGrid>
   <LinkCard
     title="System Architecture"
-    description="The multi-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform)."
+    description="The multi-step workflow, Orchestrator pattern, and dual IaC tracks (Bicep & Terraform)."
     href="architecture/"
   />
   <LinkCard
@@ -225,7 +225,7 @@ propagation across agent steps.
 **Deterministic stop conditions.** Ralph exits when all user stories have
 `passes: true`. This project's workflow engine defines explicit gate
 conditions: each step transition requires either human approval or automated
-validation pass, and the Conductor agent tracks completion state in the
+validation pass, and the Orchestrator agent tracks completion state in the
 session state file.
 
 ### How This Project Synthesises All Three
@@ -249,10 +249,10 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
 | Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
 | Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
-| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent                       |
+| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Orchestrator agent                       |
 | Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Serial execution (v3.0 — lock/claim removed)                  |
 | Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |
-| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Conductor                            |
+| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Orchestrator                            |
 | Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules                             |
 | Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time                        |
 | Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews                         |

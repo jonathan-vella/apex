@@ -72,7 +72,7 @@ flowchart TD
    mv 00-session-state.json 00-session-state.json.corrupt
    ```
 
-   The Conductor creates a fresh v3.0 state file on the next run.
+   The Orchestrator creates a fresh v3.0 state file on the next run.
    All steps reset to `pending`.
 
 :::tip[Prevention]
@@ -82,7 +82,7 @@ keep `.bak` of previous version) to prevent corruption during agent crashes.
 
 ### Missing Steps
 
-**Symptoms:** Conductor skips a step or reports it as already complete
+**Symptoms:** Orchestrator skips a step or reports it as already complete
 when it was never run.
 
 **Fix:**
@@ -107,7 +107,7 @@ when it was never run.
 structure.
 
 The v3.0 schema removed the `lock` and `claim` fields (previously in v2.0).
-If you encounter a v1.0 or v2.0 state file, the Conductor will attempt to
+If you encounter a v1.0 or v2.0 state file, the Orchestrator will attempt to
 migrate it automatically. If it fails, create a fresh state file.
 
 ## Decision Logging
@@ -126,7 +126,7 @@ during the workflow:
 ```
 
 Write decisions at the moment they are made (Step 1 for `iac_tool`,
-Step 2 for architecture choices). The Conductor and downstream agents
+Step 2 for architecture choices). The Orchestrator and downstream agents
 read these to route workflow steps correctly.
 
 The `decision_log` array provides an append-only audit trail:

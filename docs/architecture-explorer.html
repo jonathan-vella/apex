@@ -392,8 +392,8 @@
 
       // Agents
       const agents = {
-        "01-Conductor": { model: "Claude Opus 4.6", step: null },
-        "01-Conductor-FastPath": { model: "Claude Sonnet 4.6", step: null },
+        "01-Orchestrator": { model: "Claude Opus 4.6", step: null },
+        "01-Orchestrator-FastPath": { model: "Claude Sonnet 4.6", step: null },
         "02-Requirements": { model: "Claude Opus 4.6", step: 1 },
         "03-Architect": { model: "Claude Opus 4.6", step: 2 },
         "04-Design": { model: "GPT-5.4", step: 3 },
@@ -433,7 +433,7 @@
 
       // Delegation links
       const delegations = {
-        "01-Conductor": [
+        "01-Orchestrator": [
           "challenger-review",
           "challenger-review-codex",
           "challenger-review-batch",
@@ -507,7 +507,7 @@
 
       // Skill affinity links
       const affinity = {
-        "01-Conductor": {
+        "01-Orchestrator": {
           primary: [
             "golden-principles",
             "session-resume",
@@ -521,7 +521,7 @@
             "azure-prepare",
           ],
         },
-        "01-Conductor-FastPath": {
+        "01-Orchestrator-FastPath": {
           primary: [
             "golden-principles",
             "session-resume",
@@ -663,7 +663,7 @@
       // Instruction enforcement links
       const instrTargets = {
         "agent-definitions": [
-          "agent:01-Conductor",
+          "agent:01-Orchestrator",
           "agent:02-Requirements",
           "agent:03-Architect",
         ],
@@ -677,9 +677,9 @@
           "agent:05-IaC Planner",
         ],
         markdown: ["skill:docs-writer", "skill:azure-artifacts"],
-        "no-heredoc": ["agent:01-Conductor", "agent:06b-Bicep CodeGen"],
+        "no-heredoc": ["agent:01-Orchestrator", "agent:06b-Bicep CodeGen"],
         "no-hardcoded-counts": ["skill:count-registry", "skill:docs-writer"],
-        "model-prompt-alignment": ["agent:01-Conductor", "agent:03-Architect"],
+        "model-prompt-alignment": ["agent:01-Orchestrator", "agent:03-Architect"],
         "decision-logging": ["agent:02-Requirements", "agent:03-Architect"],
         "iac-policy-compliance": [
           "agent:06b-Bicep CodeGen",
@@ -694,7 +694,7 @@
 
       // Prompts
       const prompts = [
-        "01-conductor",
+        "01-orchestrator",
         "02-requirements",
         "03-architect",
         "04-design",
@@ -716,7 +716,7 @@
 
       // Prompt trigger links
       const promptAgent = {
-        "01-conductor": "01-Conductor",
+        "01-orchestrator": "01-Orchestrator",
         "02-requirements": "02-Requirements",
         "03-architect": "03-Architect",
         "04-design": "04-Design",
@@ -729,7 +729,7 @@
         "08-as-built": "08-As-Built",
         "challenger-review": "10-Challenger",
         "diagnose-resource": "09-Diagnose",
-        "resume-workflow": "01-Conductor",
+        "resume-workflow": "01-Orchestrator",
         "context-audit": "11-Context Optimizer",
       };
       for (const [p, a] of Object.entries(promptAgent)) {
@@ -837,7 +837,7 @@
       ["github", "azure-pricing", "terraform"].forEach((m) =>
         addNode(`mcp:${m}`, m, "mcp"),
       );
-      addLink("mcp:github", "agent:01-Conductor", "connects");
+      addLink("mcp:github", "agent:01-Orchestrator", "connects");
       addLink("mcp:github", "agent:07b-Bicep Deploy", "connects");
       addLink("mcp:github", "agent:07t-Terraform Deploy", "connects");
       addLink("mcp:azure-pricing", "agent:03-Architect", "connects");
@@ -880,7 +880,7 @@
       ];
       workflowFlow.forEach(([s, t]) => addLink(s, t, "workflow-edge"));
 
-      // Conductor handoffs
+      // Orchestrator handoffs
       [
         "02-Requirements",
         "03-Architect",
@@ -893,7 +893,7 @@
         "07t-Terraform Deploy",
         "08-As-Built",
         "09-Diagnose",
-      ].forEach((a) => addLink("agent:01-Conductor", `agent:${a}`, "handoff"));
+      ].forEach((a) => addLink("agent:01-Orchestrator", `agent:${a}`, "handoff"));
 
       // ─── COMPUTE DEGREE FOR SIZING ───────────────────────────────────────
       const degreeMap = {};
@@ -1316,15 +1316,15 @@
           });
         });
 
-        // Pin Conductor at center for All view (mind-map hub)
-        const conductor = cy.getElementById("agent:01-Conductor");
-        const pinConductor =
-          view === "all" && conductor.length && conductor.visible();
-        if (pinConductor) {
+        // Pin Orchestrator at center for All view (mind-map hub)
+        const orchestrator = cy.getElementById("agent:01-Orchestrator");
+        const pinOrchestrator =
+          view === "all" && orchestrator.length && orchestrator.visible();
+        if (pinOrchestrator) {
           const w = cy.width(),
             h = cy.height();
-          conductor.position({ x: w / 2, y: h / 2 });
-          conductor.lock();
+          orchestrator.position({ x: w / 2, y: h / 2 });
+          orchestrator.lock();
         }
 
         const layoutOpts = { ...viewLayouts[view], fit: true };
@@ -1332,7 +1332,7 @@
         layout.run();
         // Force fit after layout completes for proper centering
         layout.on("layoutstop", () => {
-          if (pinConductor) conductor.unlock();
+          if (pinOrchestrator) orchestrator.unlock();
           cy.fit(cy.elements(":visible"), 60);
         });
         document.getElementById("layout-hint").textContent = layoutLabels[view];

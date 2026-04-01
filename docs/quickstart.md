@@ -104,7 +104,7 @@ az --version && bicep --version && terraform --version && pwsh --version # (1)!
 
 !!! warning "Required"
 
-    The Conductor pattern requires this setting.
+    The Orchestrator pattern requires this setting.
 
 Add this to your **VS Code User Settings** (`Ctrl+,` → Settings JSON):
 
@@ -126,14 +126,14 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-## :material-play-circle-outline: Step 6: Start the Conductor
+## :material-play-circle-outline: Step 6: Start the Orchestrator
 
-### Option A: InfraOps Conductor (Recommended)
+### Option A: Orchestrator (Recommended)
 
-The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete multi-step workflow:
+The Orchestrator (🧠 Orchestrator), also known as the Coordinator, orchestrates the complete multi-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
-2. Select **InfraOps Conductor** from the agent dropdown
+2. Select **Orchestrator** from the agent dropdown
 3. Describe your project:
 
 ```text
@@ -146,7 +146,7 @@ Create a simple web app in Azure with:
 - Project name: my-webapp
 ```
 
-The Conductor guides you through all steps with approval gates.
+The Orchestrator guides you through all steps with approval gates.
 
 ### Option B: Direct Agent Invocation
 
@@ -162,7 +162,7 @@ The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection
 in Step 1. During requirements gathering, the Requirements agent asks which IaC tool
 you prefer — this choice determines which planning, code generation, and deployment
-agents the Conductor invokes.
+agents the Orchestrator invokes.
 
 Each agent has a thematic codename for easy reference in documentation and prompts.
 
@@ -177,7 +177,7 @@ Each agent has a thematic codename for easy reference in documentation and promp
 | 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment            |
 | 7    | `as-built`                            | 📚 Chronicler | Documentation suite         |
 
-**Approval Gates**: The Conductor pauses at key points:
+**Approval Gates**: The Orchestrator pauses at key points:
 
 - ⛔ **Gate 1**: After requirements (Step 1) — confirm requirements
 - ⛔ **Gate 2**: After architecture (Step 2) — approve WAF assessment
@@ -189,7 +189,7 @@ Each agent has a thematic codename for easy reference in documentation and promp
 !!! tip "If a gate rejects your proposal"
 
     If the Challenger or an approval gate produces `must_fix` findings, return to the
-    previous step, update your approach based on the feedback, and re-run. The Conductor
+    previous step, update your approach based on the feedback, and re-run. The Orchestrator
     will re-execute the step and re-trigger the gate. Use the artifact files in
     `agent-output/{project}/` to understand what was flagged.
 
@@ -246,10 +246,10 @@ infra/terraform/my-webapp/
 
 ## :material-lightning-bolt: Quick Reference
 
-### Conductor (Orchestrated Workflow)
+### Orchestrator (Orchestrated Workflow)
 
 ```text
-Ctrl+Shift+I → InfraOps Conductor → Describe project → Follow gates
+Ctrl+Shift+I → Orchestrator → Describe project → Follow gates
 ```
 
 ### Direct Agent Invocation
@@ -278,8 +278,8 @@ Use the drawio skill to create a diagram for my-webapp
 
 You're ready to build. Here's where to go from here:
 
-- **Run a full project** — Select the **InfraOps Conductor** in Copilot Chat and
-  describe your Azure infrastructure needs. The Conductor guides you through every step
+- **Run a full project** — Select the **Orchestrator** in Copilot Chat and
+  describe your Azure infrastructure needs. The Orchestrator guides you through every step
   with approval gates.
 - **Understand the workflow** — Read [System Architecture](how-it-works/architecture.md)
   for how agents, skills, and approval gates work together.

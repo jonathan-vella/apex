@@ -22,7 +22,7 @@ skills, templates, or predecessor artifacts):
 
 ## Direct Invocation Detection
 
-When an agent is invoked directly (not via Conductor), it must also check
+When an agent is invoked directly (not via Orchestrator), it must also check
 whether PRIOR steps are complete:
 
 ```text
@@ -30,7 +30,7 @@ whether PRIOR steps are complete:
 2. For each step < my_step:
    ├─ "complete" or "skipped" → OK
    └─ "pending" or "in_progress" → WARN user that prerequisites may be incomplete.
-      Offer to: (a) proceed anyway, (b) hand off to the Conductor.
+      Offer to: (a) proceed anyway, (b) hand off to the Orchestrator.
 ```
 
 ## State Write Protocol
@@ -69,9 +69,9 @@ After completing Phase 2 (WAF assessment) in the Architect agent:
 }
 ```
 
-## Conductor Integration
+## Orchestrator Integration
 
-The Conductor agent has additional responsibilities:
+The Orchestrator agent has additional responsibilities:
 
 1. **Project init**: Create `00-session-state.json` from template alongside
    the project directory. Set `project`, `branch`, initial `current_step: 1`.

@@ -355,8 +355,8 @@
 
       // Agents
       const agents = {
-        "01-Conductor": { model: "Claude Opus 4.6", step: null },
-        "01-Conductor-FastPath": { model: "Claude Sonnet 4.6", step: null },
+        "01-Orchestrator": { model: "Claude Opus 4.6", step: null },
+        "01-Orchestrator-FastPath": { model: "Claude Sonnet 4.6", step: null },
         "02-Requirements": { model: "Claude Opus 4.6", step: 1 },
         "03-Architect": { model: "Claude Opus 4.6", step: 2 },
         "04-Design": { model: "GPT-5.4", step: 3 },
@@ -396,7 +396,7 @@
 
       // Delegation links
       const delegations = {
-        "01-Conductor": [
+        "01-Orchestrator": [
           "challenger-review",
           "challenger-review-codex",
           "challenger-review-batch",
@@ -469,7 +469,7 @@
 
       // Skill affinity links
       const affinity = {
-        "01-Conductor": {
+        "01-Orchestrator": {
           primary: [
             "golden-principles",
             "session-resume",
@@ -483,7 +483,7 @@
             "azure-prepare",
           ],
         },
-        "01-Conductor-FastPath": {
+        "01-Orchestrator-FastPath": {
           primary: [
             "golden-principles",
             "session-resume",
@@ -625,7 +625,7 @@
       // Instruction → target type enforcement links
       const instrTargets = {
         "agent-definitions": [
-          "agent:01-Conductor",
+          "agent:01-Orchestrator",
           "agent:02-Requirements",
           "agent:03-Architect",
         ],
@@ -639,9 +639,9 @@
           "agent:05-IaC Planner",
         ],
         markdown: ["skill:docs-writer", "skill:azure-artifacts"],
-        "no-heredoc": ["agent:01-Conductor", "agent:06b-Bicep CodeGen"],
+        "no-heredoc": ["agent:01-Orchestrator", "agent:06b-Bicep CodeGen"],
         "no-hardcoded-counts": ["skill:count-registry", "skill:docs-writer"],
-        "model-prompt-alignment": ["agent:01-Conductor", "agent:03-Architect"],
+        "model-prompt-alignment": ["agent:01-Orchestrator", "agent:03-Architect"],
         "decision-logging": ["agent:02-Requirements", "agent:03-Architect"],
         "iac-policy-compliance": [
           "agent:06b-Bicep CodeGen",
@@ -656,7 +656,7 @@
 
       // Prompts
       const prompts = [
-        "01-conductor",
+        "01-orchestrator",
         "02-requirements",
         "03-architect",
         "04-design",
@@ -678,7 +678,7 @@
 
       // Prompt → Agent links
       const promptAgent = {
-        "01-conductor": "01-Conductor",
+        "01-orchestrator": "01-Orchestrator",
         "02-requirements": "02-Requirements",
         "03-architect": "03-Architect",
         "04-design": "04-Design",
@@ -691,7 +691,7 @@
         "08-as-built": "08-As-Built",
         "challenger-review": "10-Challenger",
         "diagnose-resource": "09-Diagnose",
-        "resume-workflow": "01-Conductor",
+        "resume-workflow": "01-Orchestrator",
         "context-audit": "11-Context Optimizer",
       };
       for (const [p, a] of Object.entries(promptAgent)) {
@@ -800,7 +800,7 @@
         addNode(`mcp:${m}`, m, "mcp"),
       );
       // MCP → Agent usage
-      addLink("mcp:github", "agent:01-Conductor", "connects");
+      addLink("mcp:github", "agent:01-Orchestrator", "connects");
       addLink("mcp:github", "agent:07b-Bicep Deploy", "connects");
       addLink("mcp:github", "agent:07t-Terraform Deploy", "connects");
       addLink("mcp:azure-pricing", "agent:03-Architect", "connects");
@@ -849,7 +849,7 @@
       ];
       workflowFlow.forEach(([s, t]) => addLink(s, t, "workflow-edge"));
 
-      // Handoff from conductor
+      // Handoff from orchestrator
       [
         "02-Requirements",
         "03-Architect",
@@ -862,7 +862,7 @@
         "07t-Terraform Deploy",
         "08-As-Built",
         "09-Diagnose",
-      ].forEach((a) => addLink("agent:01-Conductor", `agent:${a}`, "handoff"));
+      ].forEach((a) => addLink("agent:01-Orchestrator", `agent:${a}`, "handoff"));
 
       // ─── VIEW PRESETS ────────────────────────────────────────────────────────────
       const views = {

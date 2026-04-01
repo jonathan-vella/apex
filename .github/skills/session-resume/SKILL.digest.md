@@ -8,7 +8,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 - Starting / resuming any agent step
 - Completing a sub-step checkpoint or finishing a step
-- Conductor gate transitions
+- Orchestrator gate transitions
 - Recovering after a chat crash or thread switch
 
 ## Quick Reference
@@ -57,7 +57,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 | Reference         | File                              | Content                                                                                       |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
-| Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Conductor integration, portability |
+| Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Orchestrator integration, portability |
 | State File Schema | `references/state-file-schema.md` | Full JSON template (v2.0), lock/claim field definitions, all step definitions                 |
 | Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
 ````

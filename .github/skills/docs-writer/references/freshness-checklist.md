@@ -152,7 +152,7 @@ When reporting audit results, use this format:
 | #   | File                 | Line | Issue                                   | Fix            |
 | --- | -------------------- | ---- | --------------------------------------- | -------------- |
 | 1   | docs/README.md       | 42   | Agent count says 6, actual is 8         | Update heading |
-| 2   | docs.instructions.md | 34   | Missing `design` and `conductor` agents | Add table rows |
+| 2   | docs.instructions.md | 34   | Missing `design` and `orchestrator` agents | Add table rows |
 ```
 
 ## Known Issues
@@ -164,7 +164,7 @@ resolved (Tasks A–D). Fixes included:
 
 - Version headers migrated to `[Current Version](../VERSION.md)` links
 - Agent counts corrected to 8, skill counts to 8
-- Conductor model corrected to Claude Opus 4.6, approval gates to 5
+- Orchestrator model corrected to Claude Opus 4.6, approval gates to 5
 - MCP path fixed, broken link removed
 - Glossary cross-references fixed, keyboard shortcut corrected, new terms added
 - Scenarios directory removed; replaced by docs/prompt-guide/

@@ -22,42 +22,42 @@ code. The system supports **dual IaC tracks** — Bicep and Terraform — sharin
 architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,
 code generation, and deployment (steps 4-6) before converging again for documentation (step 7).
 
-The **InfraOps Conductor** (🎼 Maestro, also referred to as the Coordinator)
+The **Orchestrator** (🧠 Orchestrator, also referred to as the Coordinator)
 orchestrates the complete workflow, routing to
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
 while enforcing mandatory approval gates.
 
 !!! tip "Quick Start"
 
-    Press ++ctrl+shift+i++ to open Copilot Chat, select **InfraOps Conductor**, and
-    describe your project. The Conductor handles all steps with approval gates.
+    Press ++ctrl+shift+i++ to open Copilot Chat, select **Orchestrator**, and
+    describe your project. The Orchestrator handles all steps with approval gates.
 
 ### Formalized Workflow Engine
 
 A machine-readable DAG (Directed Acyclic Graph) in
 `.github/skills/workflow-engine/templates/workflow-graph.json` encodes the workflow.
-The Conductor reads this graph instead of relying on hardcoded step logic:
+The Orchestrator reads this graph instead of relying on hardcoded step logic:
 
 - **Nodes**: agent-step, gate, subagent-fan-out, validation
 - **Edges**: dependency links with conditions (`on_complete`, `on_skip`, `on_fail`)
 - **IaC routing**: conditional edges route to Bicep or Terraform agents based on `decisions.iac_tool`
 - **Fan-out**: Step 7 substeps (cost estimate, runbook, etc.) can execute in parallel
 
-The Conductor resolves agent paths and models via `.github/agent-registry.json`.
+The Orchestrator resolves agent paths and models via `.github/agent-registry.json`.
 
 ### Fast-Path Variant
 
 For **simple projects** (≤3 resources, single environment, no custom policies), the
-**01-Conductor (Fast Path)** combines Plan and Code into a single step with 1-pass review.
+**01-Orchestrator (Fast Path)** combines Plan and Code into a single step with 1-pass review.
 Before skipping governance discovery, it validates the subscription has no Deny-effect
-policies via Azure CLI. If Deny policies are found, it falls back to the full Conductor
+policies via Azure CLI. If Deny policies are found, it falls back to the full Orchestrator
 automatically.
 
 ## :material-robot-outline: Agent Architecture
 
-### The Conductor Pattern
+### The Orchestrator Pattern
 
-The Conductor (also called Coordinator) orchestrates the entire workflow by delegating
+The Orchestrator (also called Coordinator) orchestrates the entire workflow by delegating
 to specialised agents step by step, enforcing approval gates, and maintaining session state.
 The following diagram shows the end-to-end flow:
 
@@ -65,7 +65,7 @@ The following diagram shows the end-to-end flow:
 sequenceDiagram
     autonumber
     participant U as 👤 User
-    participant C as 🎼 Conductor Agent
+    participant C as 🧠 Orchestrator Agent
     participant Agents as 🤖 Agents
     participant X as ⚔️ Challenger Agent
 
@@ -131,14 +131,14 @@ sequenceDiagram
 
 ### Agent Delegation Graph
 
-The detailed delegation graph below shows how the Conductor routes to each
+The detailed delegation graph below shows how the Orchestrator routes to each
 specialised agent and how subagents are invoked for validation:
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TB
     subgraph "Orchestrator"
-        COND["InfraOps Conductor<br/>🎼 Maestro"]
+        COND["Orchestrator<br/>🧠 Orchestrator"]
     end
 
     subgraph "Step 1: Requirements"
@@ -223,7 +223,7 @@ graph TB
 
 | Agent                  | Codename   | Role                                        | Model                |
 | ---------------------- | ---------- | ------------------------------------------- | -------------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for multi-step workflow | Claude Opus (latest) |
+| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | Claude Opus (latest) |
 
 ### Core Agents (by Workflow Step)
 
@@ -268,7 +268,7 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 ## :material-shield-lock-outline: Approval Gates
 
-The Conductor enforces mandatory pause points for human oversight:
+The Orchestrator enforces mandatory pause points for human oversight:
 
 !!! warning "Never Skip Gates"
 
@@ -506,7 +506,7 @@ Output: agent-output/{project}/07-*.md
 ## :material-scale-balance: Complexity Classification
 
 The Requirements agent classifies project complexity based on scope.
-The Conductor validates the classification. Complexity drives the number
+The Orchestrator validates the classification. Complexity drives the number
 of adversarial review passes at Steps 1, 2, 4, and 5.
 
 | Tier         | Criteria                                                                     |
@@ -541,7 +541,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 
 | Aspect          | Agents                                   | Skills                   |
 | --------------- | ---------------------------------------- | ------------------------ |
-| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit    |
+| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Orchestrator | Automatic or explicit    |
 | **Interaction** | Conversational with handoffs             | Task-focused             |
 | **State**       | Session context                          | Stateless                |
 | **Output**      | Multiple artifacts                       | Specific outputs         |
@@ -549,10 +549,10 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 
 ## Quick Reference
 
-### Using the Conductor (Recommended)
+### Using the Orchestrator (Recommended)
 
 ```text
-1. Ctrl+Shift+I → Select "InfraOps Conductor"
+1. Ctrl+Shift+I → Select "Orchestrator"
 2. Describe your infrastructure project
 3. Follow guided workflow through all steps with approval gates
 ```

@@ -59,8 +59,8 @@ handoffs:
     agent: 02-Requirements
     prompt: "Returning to requirements for refinement. Review `agent-output/{project}/01-requirements.md` — architecture assessment identified gaps that need addressing."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 2 (Architecture). Artifacts at `agent-output/{project}/02-architecture-assessment.md` and `agent-output/{project}/03-des-cost-estimate.md`. Advise on next steps."
     send: false
 ---

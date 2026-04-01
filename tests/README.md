@@ -129,4 +129,4 @@ See `.github/workflows/e2e-validation.yml` for the full CI configuration.
 
 - E2E runs **never deploy real Azure resources** — dry-run only
 - Max iteration limits prevent infinite loops
-- The E2E Conductor is separate from the production `01-Conductor` agent
+- The E2E Orchestrator is separate from the production `01-Orchestrator` agent

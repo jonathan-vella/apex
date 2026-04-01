@@ -71,7 +71,7 @@ Open VS Code Chat and use one of the prompt files:
 2. **Complex project (RFP-driven)**: Open `.github/prompts/e2e-contoso-rfp.prompt.md`
 3. **Post-loop analysis**: Open `.github/prompts/e2e-analyze-lessons.prompt.md`
 
-The E2E Conductor agent (`.github/agents/e2e-conductor.agent.md`) orchestrates
+The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`) orchestrates
 the loop with conditional IaC routing based on session state.
 
 ## Benchmark Scoring Dimensions

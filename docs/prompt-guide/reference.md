@@ -247,7 +247,7 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 ### Chaining Agents
 
 You can chain agents manually by using handoff buttons in the chat, or run
-the Conductor for automatic orchestration. Manual chaining gives you more
+the Orchestrator for automatic orchestration. Manual chaining gives you more
 control over each step.
 
 **Bicep track**:

@@ -228,7 +228,7 @@ docs/                  # User-facing documentation
 
 All outputs go to `agent-output/{project}/`.
 Unified planner (05-IaC Planner) feeds into dual IaC tracks: Bicep (06b/07b) and Terraform (06t/07t).
-The Conductor agent orchestrates the full workflow with human approval gates.
+The Orchestrator agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
 Complexity-dependent. Conditional early exits reduce actual passes.
 Reviews target AI-generated creative decisions (architecture, governance, plan, code) not

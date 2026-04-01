@@ -26,7 +26,7 @@ Used to record "why" decisions were made for future reference.
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes top-level agents (including two Conductor
+Invoked via `Ctrl+Shift+A`. This project includes top-level agents (including two Orchestrator
 variants, a Governance agent, and a Context Optimizer) plus subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
@@ -106,7 +106,7 @@ closest to users. Azure CDN / Azure Front Door accelerate static asset delivery.
 Adversarial review agent that challenges requirements, architecture assessments, and
 implementation plans. Finds untested assumptions, governance gaps, WAF blind spots,
 and architectural weaknesses. Returns structured JSON findings with severity ratings.
-Auto-invoked by the Conductor after Steps 1, 2, and 4.
+Auto-invoked by the Orchestrator after Steps 1, 2, and 4.
 
 📁 **See**: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md)
 
@@ -115,9 +115,9 @@ Auto-invoked by the Conductor after Steps 1, 2, and 4.
 The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Shift+I`. Supports
 custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
-### Conductor
+### Orchestrator
 
-See [InfraOps Conductor](#infraops-conductor).
+See [Orchestrator](#infraops-conductor).
 
 ### CLI (Command-Line Interface)
 
@@ -192,23 +192,23 @@ state integrity, and timing performance. Composite score 0–100 with letter gra
 
 📁 **Output**: `agent-output/{project}/08-benchmark-report.md`, `08-benchmark-scores.json`
 
-### E2E Conductor
+### E2E Orchestrator
 
 Orchestration agent that drives the Ralph Loop. Executes all InfraOps steps without human
 gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
 Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
 
-📁 **See**: [.github/agents/e2e-conductor.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-conductor.agent.md)
+📁 **See**: [.github/agents/e2e-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md)
 
 ## F
 
 ### Fast Path
 
-An experimental conductor variant (`01-Conductor (Fast Path)`) optimized for simple Azure
+An experimental orchestrator variant (`01-Orchestrator (Fast Path)`) optimized for simple Azure
 projects with 3 or fewer resources, single environment, and no custom policies. Combines
 the Plan and Code steps with a single-pass review for faster delivery.
 
-📁 **See**: [.github/agents/01-conductor-fastpath.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-conductor-fastpath.agent.md)
+📁 **See**: [.github/agents/01-orchestrator-fastpath.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md)
 
 ## G
 
@@ -238,13 +238,13 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
 ## I
 
-### InfraOps Conductor
+### Orchestrator
 
 The master orchestrator agent that coordinates all steps of the infrastructure workflow with
-mandatory human approval gates. Implements the Conductor pattern from VS Code 1.109's agent
+mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
 orchestration features.
 
-📁 **See**: [.github/agents/01-conductor.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-conductor.agent.md)
+📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md)
 
 ### IaC (Infrastructure as Code)
 

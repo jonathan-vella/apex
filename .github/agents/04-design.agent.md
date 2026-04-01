@@ -46,8 +46,8 @@ handoffs:
     agent: 03-Architect
     prompt: "Returning to architecture assessment for further refinement. Review `agent-output/{project}/02-architecture-assessment.md` for re-evaluation."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` and `agent-output/{project}/03-des-diagram.drawio`. Ready for governance discovery or IaC planning."
     send: false
 ---

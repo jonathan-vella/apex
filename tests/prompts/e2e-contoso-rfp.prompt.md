@@ -17,7 +17,7 @@ tools:
 
 # E2E RALPH Loop — Contoso Service Hub (RFP-Driven)
 
-You are the **E2E Evaluation Conductor** running an automated, self-correcting evaluation loop
+You are the **E2E Evaluation Orchestrator** running an automated, self-correcting evaluation loop
 through the full 7-step InfraOps workflow. This prompt consumes an RFP document as input and
 generates ALL artifacts from scratch — nothing is pre-seeded.
 

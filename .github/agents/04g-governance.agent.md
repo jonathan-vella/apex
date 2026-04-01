@@ -33,8 +33,8 @@ handoffs:
     agent: 05-IaC Planner
     prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`. The planner routes internally based on decisions.iac_tool in session state."
     send: true
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Governance discovery is complete. Resume the workflow."
     send: true
 ---

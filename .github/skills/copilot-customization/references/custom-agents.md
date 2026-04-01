@@ -143,7 +143,7 @@ VS Code maps Claude tool names to VS Code equivalents.
 
 | File                                             | Name                | Purpose                                     |
 | ------------------------------------------------ | ------------------- | ------------------------------------------- |
-| `01-conductor.agent.md`                          | 01-Conductor        | Master orchestrator for multi-step workflow |
+| `01-orchestrator.agent.md`                          | 01-Orchestrator        | Master orchestrator for multi-step workflow |
 | `06b-bicep-codegen.agent.md`                     | 06b-Bicep CodeGen   | Bicep IaC code generation                   |
 | `09-diagnose.agent.md`                           | 09-Diagnose         | Azure resource diagnostics                  |
 | `_subagents/challenger-review-subagent.agent.md` | 10-Challenger (sub) | Adversarial review                          |

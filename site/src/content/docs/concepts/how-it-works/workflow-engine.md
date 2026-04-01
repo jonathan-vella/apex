@@ -55,7 +55,7 @@ edge has a condition (`on_complete`, `on_skip`, `on_fail`). Conditional routing 
 nodes is governed by the `decisions.iac_tool` field.
 
 :::note[Read-only workflow graph]
-The workflow DAG is auto-loaded by the Conductor. Users do not edit
+The workflow DAG is auto-loaded by the Orchestrator. Users do not edit
 `workflow-graph.json` directly. To customise the workflow, modify agent
 definitions or skills instead.
 :::
@@ -105,15 +105,15 @@ concurrent agent execution does not occur. Atomic writes (`.tmp` → rename
 
 ### Session Break Protocol
 
-At Gates 2 and 3, the Conductor recommends starting a fresh VS Code Copilot Chat
+At Gates 2 and 3, the Orchestrator recommends starting a fresh VS Code Copilot Chat
 session. Long-running sessions (3+ hours) experience forced context summarisations
 that lose critical decision context. The Session Break Protocol:
 
-1. Conductor writes current state to `00-session-state.json`
-2. Conductor writes `00-handoff.md` with human-readable summary
-3. Conductor prints a "SESSION BREAK RECOMMENDED" message
-4. User starts a new chat, invokes Conductor again
-5. Conductor reads `00-session-state.json`, finds the next pending step, and resumes
+1. Orchestrator writes current state to `00-session-state.json`
+2. Orchestrator writes `00-handoff.md` with human-readable summary
+3. Orchestrator prints a "SESSION BREAK RECOMMENDED" message
+4. User starts a new chat, invokes Orchestrator again
+5. Orchestrator reads `00-session-state.json`, finds the next pending step, and resumes
 
 This was driven by real-world observation: the nordic-fresh-foods end-to-end test
 experienced 5 forced context summarisations in a single 3h39m session.
@@ -245,7 +245,7 @@ and timeout. They run automatically — agents do not invoke them explicitly.
 
 :::tip[Further Reading]
 
-- [System Architecture](../architecture/) — the multi-step workflow, Conductor pattern, dual IaC tracks
+- [System Architecture](../architecture/) — the multi-step workflow, Orchestrator pattern, dual IaC tracks
 - [Core Concepts](../four-pillars/) — agents, skills, instructions, and configuration registries
 - [Agent Architecture](../agents/) — handoffs, the Challenger pattern, context shredding
 - [MCP Integration](../mcp-integration/) — MCP servers and how agents invoke tools

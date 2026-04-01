@@ -49,8 +49,8 @@ handoffs:
     agent: 05-IaC Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 5 (Terraform Code). Terraform configurations generated and validated at `infra/terraform/{project}/`. Implementation reference at `agent-output/{project}/05-implementation-reference.md`. Ready for deployment."
     send: false
 ---

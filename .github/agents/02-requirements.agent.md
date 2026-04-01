@@ -48,8 +48,8 @@ handoffs:
     prompt: "#createFile the requirements plan as is into an untitled file (`untitled:plan-${camelCaseName}.prompt.md` without frontmatter) for further refinement."
     send: true
     showContinueOn: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 1 (Requirements). Artifacts at `agent-output/{project}/01-requirements.md`. Advise on next steps."
     send: false
 ---
@@ -133,7 +133,7 @@ some answers, still ask the remaining questions. Pre-fill known answers as
 If the user already provided some of these in their initial prompt, mark those
 as `recommended` options but still present the full question set for confirmation.
 
-**If the parent (Conductor) already confirmed a project name** in the handoff
+**If the parent (Orchestrator) already confirmed a project name** in the handoff
 prompt, pre-fill it as `recommended` and let the user confirm. Do NOT re-ask
 from scratch.
 
@@ -182,7 +182,7 @@ Monthly budget (4 options + freeform), Data sensitivity (`multiSelect: true`, 6 
 Use `askQuestions` — 1 question: IaC tool (Bicep recommended, Terraform).
 Include `iac_tool` in the output document as: `iac_tool: Bicep    # or Terraform`
 
-**If the parent (Conductor) already passed an IaC tool preference** in the handoff
+**If the parent (Orchestrator) already passed an IaC tool preference** in the handoff
 prompt, skip this question and use the provided value. Only ask if no preference was given.
 
 Use Company Size Heuristics from azure-defaults skill to set `recommended: true`

@@ -24,8 +24,8 @@ tools:
     todo,
   ]
 handoffs:
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Completed context optimization audit. Report saved. Advise on next steps."
     send: false
 ---

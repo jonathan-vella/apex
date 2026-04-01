@@ -36,8 +36,8 @@ See `.github/count-manifest.json` for canonical counts.
 
 | Agent              | File                             | Model      | Step | Artifacts                       |
 | ------------------ | -------------------------------- | ---------- | ---- | ------------------------------- |
-| InfraOps Conductor | `01-conductor.agent.md`          | Opus 4.6   | All  | Orchestration                   |
-| Conductor (Fast)   | `01-conductor-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
+| Orchestrator | `01-orchestrator.agent.md`          | Opus 4.6   | All  | Orchestration                   |
+| Orchestrator (Fast)   | `01-orchestrator-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
 | Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`            |
 | Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md` |
 | Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`   |
@@ -51,7 +51,7 @@ See `.github/count-manifest.json` for canonical counts.
 | Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports              |
 | Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings              |
 | Context Optimizer  | `11-context-optimizer.agent.md`  | Sonnet 4.5 | —    | Optimization reports            |
-| E2E Conductor      | `e2e-conductor.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
+| E2E Orchestrator      | `e2e-orchestrator.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
 
 ### Validation Subagents (in `_subagents/`)
 
@@ -179,7 +179,7 @@ See `.github/count-manifest.json` for canonical counts.
 | `instructions.instructions.md`                  | `**/*.instructions.md`                                          |
 | `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                             |
 | `json.instructions.md`                          | `**/*.{json,jsonc}`                                             |
-| `lesson-collection.instructions.md`             | `**/*conductor*.agent.md`                                       |
+| `lesson-collection.instructions.md`             | `**/*orchestrator*.agent.md`                                       |
 | `markdown.instructions.md`                      | `**/*.md`                                                       |
 | `no-hardcoded-counts.instructions.md`           | `**/*.md, **/*.json, **/*.mjs`                                  |
 | `no-heredoc.instructions.md`                    | `**`                                                            |
@@ -261,11 +261,11 @@ These skills are explicitly referenced in agent body text via mandatory
 | Skill               | Referenced By                                          |
 | ------------------- | ------------------------------------------------------ |
 | `azure-defaults`    | all primary agents                                     |
-| `azure-artifacts`   | requirements, architect, iac-planner, deploy, conductor |
+| `azure-artifacts`   | requirements, architect, iac-planner, deploy, orchestrator |
 | `drawio`            | design, architect, as-built agents                     |
 | `python-diagrams`   | architect, as-built agents                             |
 | `azure-adr`         | design agent                                           |
-| `github-operations` | conductor, iac-planner agents                           |
+| `github-operations` | orchestrator, iac-planner agents                           |
 
 ### General-Purpose Skills
 

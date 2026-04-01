@@ -24,7 +24,7 @@ Key entry points:
 sequenceDiagram
   autonumber
   participant U as User
-  participant C as Conductor
+  participant O as Orchestrator
   participant R as Requirements
   participant X as Challenger
   participant A as Architect

@@ -154,7 +154,7 @@ Codenames use consistent emoji in `docs/README.md`:
 
 | Codename   | Emoji | Agent              |
 | ---------- | ----- | ------------------ |
-| Maestro    | 🎼    | InfraOps Conductor |
+| Orchestrator | 🧠 | Orchestrator |
 | Scribe     | 📜    | Requirements       |
 | Oracle     | 🏛️    | Architect          |
 | Artisan    | 🎨    | Design             |

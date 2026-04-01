@@ -16,7 +16,7 @@ emoji_map = {
     "### How This Project Synthesises Both": "### ⚖️ How This Project Synthesises Both",
     "## System Architecture Overview": "## 📐 System Architecture Overview",
     "### The Multi-Step Workflow": "### 🔄 The Multi-Step Workflow",
-    "### The Conductor Pattern": "### 🎼 The Conductor Pattern",
+    "### The Orchestrator Pattern": "### 🎼 The Orchestrator Pattern",
     "### Dual IaC Tracks": "### 🛤️ Dual IaC Tracks",
     "## The Four Pillars": "## 🏛️ The Four Pillars",
     "### 1. Agents": "### 🤖 1. Agents",

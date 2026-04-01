@@ -1,6 +1,6 @@
 ---
-name: 01-Conductor (Fast Path)
-description: "Experimental fast-path conductor for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Conductor agent."
+name: 01-Orchestrator (Fast Path)
+description: "Experimental fast-path orchestrator for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Orchestrator agent."
 model: ["Claude Sonnet 4.6"]
 argument-hint: Describe a simple Azure infrastructure project (≤3 resources)
 user-invocable: true
@@ -39,7 +39,7 @@ tools:
   ]
 handoffs:
   - label: "▶ Start Simple Project"
-    agent: 01-Conductor (Fast Path)
+    agent: 01-Orchestrator (Fast Path)
     prompt: "Begin the fast-path workflow for a simple Azure project."
     send: false
   - label: "Step 1: Gather Requirements"
@@ -62,13 +62,13 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate streamlined documentation for a simple project. Only: design document, operations runbook, resource inventory. Input: all prior artifacts in `agent-output/{project}/`."
     send: true
-  - label: "↩ Switch to Full Conductor"
-    agent: 01-Conductor
-    prompt: "This project is too complex for fast-path. Switching to the full multi-step conductor workflow."
+  - label: "↩ Switch to Full Orchestrator"
+    agent: 01-Orchestrator
+    prompt: "This project is too complex for fast-path. Switching to the full multi-step orchestrator workflow."
     send: false
 ---
 
-# Fast-Path Conductor (Experimental)
+# Fast-Path Orchestrator (Experimental)
 
 <!-- Recommended reasoning_effort: medium -->
 
@@ -79,10 +79,10 @@ Before loading skill files, check if SKILL.digest.md variants exist.
 Fast-path projects are small — prefer digest variants to preserve context for the combined Plan+Code step.
 </context_awareness>
 
-**COMPLEXITY GATE**: This conductor is ONLY for `simple` projects
+**COMPLEXITY GATE**: This orchestrator is ONLY for `simple` projects
 (≤3 resources, no custom policies, single environment).
 If the project is `standard` or `complex`, hand off to the main
-`01-Conductor` immediately.
+`01-Orchestrator` immediately.
 
 ## MANDATORY: Read Skills First
 
@@ -108,7 +108,7 @@ The Requirements agent writes `decisions.complexity = "simple"` to
 `00-session-state.json`.
 
 **GATE**: If complexity is NOT `simple`, STOP and hand off to
-main `01-Conductor`.
+main `01-Orchestrator`.
 
 **Post-gate validation**: After Requirements completes, verify
 `decisions.complexity == "simple"` in `00-session-state.json`.
@@ -136,18 +136,18 @@ Review pass counts follow the `simple` row of the review matrix in
    - **Governance pre-check (required)**: Before skipping full governance
      discovery, run this validation:
      1. Validate auth: `az account show --query id -o tsv` — if this fails (exit code non-zero),
-        STOP and hand off to main `01-Conductor`
+        STOP and hand off to main `01-Orchestrator`
      2. Run governance check (single command):
         `az policy assignment list --scope "/subscriptions/$SUB_ID"`
         with `--query "[?parameters.effect.value=='Deny']..."` `--only-show-errors -o json`
-     3. If exit code is non-zero: STOP. CLI failed — cannot validate assumption. Hand off to main `01-Conductor`
-     4. If output is not a valid JSON array: STOP. Malformed response — hand off to main `01-Conductor`
+     3. If exit code is non-zero: STOP. CLI failed — cannot validate assumption. Hand off to main `01-Orchestrator`
+     4. If output is not a valid JSON array: STOP. Malformed response — hand off to main `01-Orchestrator`
      5. If the array contains ANY Deny-effect policies: STOP. Update
         `00-session-state.json`: set `decisions.complexity` to null, add
         `decision_log` entry: "Fast-path fallback — complexity reset due to
-        Deny policies." Hand off to main `01-Conductor` with message:
+        Deny policies." Hand off to main `01-Orchestrator` with message:
         "Subscription has active Deny policies — fast-path governance bypass
-        is not safe. Switching to full conductor with governance discovery."
+        is not safe. Switching to full orchestrator with governance discovery."
      6. If the array is empty or contains only Audit/Modify policies:
         proceed without full governance discovery (documented exception).
    - Single deployment phase (no phased deployment needed)
@@ -184,5 +184,5 @@ Delegate to `08-As-Built` agent. For simple projects:
 ## Promotion Path
 
 After validation on 3+ simple projects, this approach can be merged
-into the main `01-Conductor` as a conditional path based on the
+into the main `01-Orchestrator` as a conditional path based on the
 `complexity` field in `01-requirements.md`.

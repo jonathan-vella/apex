@@ -54,7 +54,7 @@ GitHub Actions CI.
 | Prefix          | Scope                                                        | Example                         |
 | --------------- | ------------------------------------------------------------ | ------------------------------- |
 | `docs/`         | Documentation (`docs/`, `site/`, `README.md`)                | `docs/update-workflow-guide`    |
-| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-conductor`      |
+| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`      |
 | `skills/`       | Skill files (`.github/skills/`, `skill-affinity.json`)       | `skills/add-tf-patterns`        |
 | `infra/`        | Infrastructure code (`infra/bicep/`, `infra/terraform/`)     | `infra/add-private-endpoints`   |
 | `scripts/`      | Validation scripts (`scripts/`, `package.json`)              | `scripts/fix-h2-sync`           |

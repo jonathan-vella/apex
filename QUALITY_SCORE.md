@@ -5,7 +5,7 @@
 
 | Domain          | Grade | Status                                                                       | Next Action                                    |
 | --------------- | ----- | ---------------------------------------------------------------------------- | ---------------------------------------------- |
-| Agents          | A     | Primary and subagent catalog aligned; conductor size within bounds           | Fix model-mismatch warnings in registry        |
+| Agents          | A     | Primary and subagent catalog aligned; orchestrator size within bounds           | Fix model-mismatch warnings in registry        |
 | Skills          | A     | Skill catalog clean; reference canary markers and Reference Index complete   | Monitor via `lint:skills-format`               |
 | Instructions    | A     | Instruction set uses narrow globs and valid references; 0 orphaned refs      | Monitor via `lint:glob-audit`                  |
 | Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)        | Expand Terraform E2E templates when needed     |
@@ -56,10 +56,10 @@
 | 2026-03-11 | Skills          | 3 microsoft-\* skills removed (PR chore/remove-microsoft-learn-mcp); count 20 → 18                |
 | 2026-03-11 | Skills          | Docs updated: 14 skills split with references/ (was 10); 69 on-demand reference files (was 60)    |
 | 2026-03-11 | Agents          | Count updated: 16 primary (+1: 04g-governance), 11 subagents (+2 challenger reviewers)            |
-| 2026-03-11 | Agents          | Grade A → A-: 01-conductor.agent.md is 354 lines (>350 limit); validate:agent-body-size failing   |
+| 2026-03-11 | Agents          | Grade A → A-: 01-orchestrator.agent.md is 354 lines (>350 limit); validate:agent-body-size failing   |
 | 2026-03-11 | CI / Validation | Grade A+ → A: validate:agent-body-size has 1 error (conductor body 354 lines)                     |
 | 2026-03-11 | Backlog         | Debt #10 updated: 7 agents now have frontmatter array warning (was 5)                             |
-| 2026-03-11 | Backlog         | New debt #14: 01-conductor.agent.md body 354 lines exceeds 350-line limit                         |
+| 2026-03-11 | Backlog         | New debt #14: 01-orchestrator.agent.md body 354 lines exceeds 350-line limit                         |
 | 2026-03-15 | All             | Comprehensive validation: count-manifest.json created as single source of truth for entity counts |
 | 2026-03-15 | CI / Validation | New validator: `validate:no-hardcoded-counts` — detects hard-coded entity counts in prose         |
 | 2026-03-15 | Skills          | New skill: `count-registry` — provides canonical count phrasing for agents; 39 total skills       |
@@ -79,11 +79,11 @@
 | 2026-03-15 | CI / Validation | Validator count 35 → 46; lint:md failing on 3 SKILL.minimal.md files                              |
 | 2026-03-15 | CI / Validation | Grade A → A-: markdown lint errors in microsoft-foundry, terraform-patterns, workflow-engine      |
 | 2026-03-15 | Documentation   | Grade A- → A: all docs updated within 15 days; no stale files                                     |
-| 2026-03-15 | Agents          | Conductor body 354 → 363 lines; 2 codegen agents have absolute-language warnings                  |
+| 2026-03-15 | Agents          | Orchestrator body 354 → 363 lines; 2 codegen agents have absolute-language warnings                  |
 | 2026-03-15 | Backlog         | Debt #11 resolved (glob audit now clean); debt #15 added (markdown lint); #10 updated (8 agents)  |
 | 2026-03-15 | All             | Stale ref fixed: CHANGELOG.md `azure-troubleshooting` → `azure-diagnostics`                       |
 | 2026-03-23 | All             | Doc-gardening run: all checks pass; no stale files; freshness report clean                        |
-| 2026-03-23 | Agents          | Conductor body 363 → 337 lines; debt #14 resolved; 3 registry model-mismatch warnings found       |
+| 2026-03-23 | Agents          | Orchestrator body 363 → 337 lines; debt #14 resolved; 3 registry model-mismatch warnings found       |
 | 2026-03-23 | Skills          | Skills count 40 → 43; ref files 834 → 508; 19 orphaned skills (plugin architecture, by design)    |
 | 2026-03-23 | Instructions    | Instruction count 25 → 28 (3 new); all applyTo globs have matching files                          |
 | 2026-03-23 | CI / Validation | Grade A → A-: 34 validators; lint:md 115 errors in demo (96) + tests (11) + 4 site docs           |

@@ -2,7 +2,7 @@
   "$schema": "skill-affinity-v1",
   "description": "Maps each agent to skills with affinity weights: primary (always load), secondary (on demand), never (skip)",
   "agents": {
-    "01-Conductor": {
+    "01-Orchestrator": {
       "primary": ["workflow-engine"],
       "secondary": [
         "golden-principles",
@@ -22,7 +22,7 @@
         "mermaid"
       ]
     },
-    "01-Conductor (Fast Path)": {
+    "01-Orchestrator (Fast Path)": {
       "primary": [],
       "secondary": [
         "golden-principles",

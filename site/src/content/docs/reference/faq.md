@@ -33,7 +33,7 @@ should always review generated code before deploying to production environments.
 :::note[What AI models does this require?]
 The project is built for **GitHub Copilot** in VS Code. Agents specify their
 preferred model in their frontmatter — most use the latest Claude Opus or
-GPT Codex models. The Conductor and review-heavy agents perform best with
+GPT Codex models. The Orchestrator and review-heavy agents perform best with
 the latest Claude Opus model.
 :::
 
@@ -51,10 +51,10 @@ The generated templates are valid and ready to deploy.
     permissions to create resources. Step 2 (Architecture) optionally uses the Azure
     Pricing MCP server, which queries public pricing APIs and does not require a subscription.
 
-:::note[When should I use the Fast-Path Conductor?]
-Use the **01-Conductor (Fast Path)** for simple projects with ≤3 resources, a single
+:::note[When should I use the Fast-Path Orchestrator?]
+Use the **01-Orchestrator (Fast Path)** for simple projects with ≤3 resources, a single
 environment, and no custom Azure policies. It combines Plan and Code into one step
-with a 1-pass review. For anything more complex, use the standard 01-Conductor.
+with a 1-pass review. For anything more complex, use the standard 01-Orchestrator.
 :::
 
 ---
@@ -75,7 +75,7 @@ and organizational standards:
     | **CI/CD**          | `az deployment group create`             | `terraform plan` + `terraform apply`       |
 
     The Requirements agent (Step 1) captures your `iac_tool` preference, and the
-    Conductor routes all subsequent steps to the correct track automatically.
+    Orchestrator routes all subsequent steps to the correct track automatically.
 
     See [How It Works](../concepts/how-it-works/) for a deeper comparison.
 
@@ -117,7 +117,7 @@ To create a new agent:
 :::note[What's the difference between agents and skills?]
 | Aspect | Agents | Skills |
 | --------------- | ---------------------------------------- | ------------------------ |
-| **Invocation** | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit |
+| **Invocation** | Manual (`Ctrl+Shift+A`) or via Orchestrator | Automatic or explicit |
 | **Interaction** | Conversational with handoffs | Task-focused |
 | **State** | Session context | Stateless |
 | **Output** | Multiple artifacts | Specific outputs |
@@ -128,12 +128,12 @@ To create a new agent:
     that agents load on demand. See the [Workflow](../concepts/workflow/) page for details.
 
 :::note[How do I resume a failed or interrupted workflow?]
-The Conductor supports session resume via the `session-resume` skill. To resume:
+The Orchestrator supports session resume via the `session-resume` skill. To resume:
 :::
 
-    1. Open Copilot Chat and select **InfraOps Conductor**
+    1. Open Copilot Chat and select **Orchestrator**
     2. Say: *"Resume the workflow from where we left off. Check agent-output/{project}/ for existing artifacts."*
-    3. The Conductor reads `00-session-state.json` and existing artifacts to determine
+    3. The Orchestrator reads `00-session-state.json` and existing artifacts to determine
        which steps are complete, then continues from the next pending step.
 
     See the [Quickstart](../../getting-started/quickstart/) for the full getting-started flow.
@@ -224,7 +224,7 @@ instructions, and the dev container are all shared across projects in the same r
 
 ## Troubleshooting
 
-:::note[The Conductor doesn't delegate to other agents — what's wrong?]
+:::note[The Orchestrator doesn't delegate to other agents — what's wrong?]
 The most common cause is the subagent orchestration setting not being enabled.
 Add this to your **VS Code User Settings** (not workspace settings):
 :::
@@ -235,7 +235,7 @@ Add this to your **VS Code User Settings** (not workspace settings):
     }
     ```
 
-    See [Troubleshooting](../../guides/troubleshooting/#2-conductorsubagent-invocation-not-working-vs-code-1109)
+    See [Troubleshooting](../../guides/troubleshooting/#2-orchestratorsubagent-invocation-not-working-vs-code-1109)
     for detailed steps.
 
 :::note[Where do I report bugs or request features?]

@@ -10,7 +10,7 @@ Capture Azure infrastructure requirements for a new or existing project.
 
 ## Prerequisites
 
-- `agent-output/{project}/00-session-state.json` should exist (created by Conductor)
+- `agent-output/{project}/00-session-state.json` should exist (created by Orchestrator)
 - If running standalone, the agent will create session state from template
 
 ## Variables

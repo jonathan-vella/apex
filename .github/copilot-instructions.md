@@ -6,8 +6,8 @@
 ## Quick Start
 
 1. Enable subagents: `"github.copilot.chat": { "customAgentInSubagent": { "enabled": true } }`
-2. Open Chat (`Ctrl+Shift+I`) → Select **InfraOps Conductor** → Describe your project
-3. The Conductor guides you through all steps with approval gates
+2. Open Chat (`Ctrl+Shift+I`) → Select **Orchestrator** → Describe your project
+3. The Orchestrator guides you through all steps with approval gates
 
 ## Multi-Step Workflow
 
@@ -21,7 +21,7 @@
 | 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                   | opt-in (default: skip)           | Validation |
 | 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                 | —                                | Approval   |
 | 7    | As-Built                                                                   | `07-*.md` documentation suite                                                              | —                                | —          |
-| Post | Lessons (Conductor)                                                        | `09-lessons-learned.json/.md`                                                              | —                                | —          |
+| Post | Lessons (Orchestrator)                                                        | `09-lessons-learned.json/.md`                                                              | —                                | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
 Review column = adversarial passes by challenger subagents; 1-pass default, multi-pass opt-in

@@ -54,7 +54,7 @@ infrastructure.
 
 | Agent                  | Codename      | Step | Purpose                                        |
 | ---------------------- | ------------- | ---- | ---------------------------------------------- |
-| **InfraOps Conductor** | 🎼 Maestro    | All  | Orchestrates the full multi-step workflow      |
+| **Orchestrator** | 🧠 Orchestrator    | All  | Orchestrates the full multi-step workflow      |
 | **Requirements**       | 📜 Scribe     | 1    | Captures business and technical requirements   |
 | **Architect**          | 🏛️ Oracle     | 2    | WAF assessment, cost estimates, SKU comparison |
 | **Design**             | 🎨 Artisan    | 3    | Architecture diagrams and ADRs (optional step) |
@@ -108,7 +108,7 @@ to see available prompts.
 
 | Prompt File             | Agent              | Step | Purpose                               |
 | ----------------------- | ------------------ | ---- | ------------------------------------- |
-| `01-conductor`          | InfraOps Conductor | All  | End-to-end multi-step orchestration   |
+| `01-orchestrator`          | Orchestrator | All  | End-to-end multi-step orchestration   |
 | `02-requirements`       | Requirements       | 1    | Business-first requirements discovery |
 | `03-architect`          | Architect          | 2    | WAF assessment with cost estimates    |
 | `04-design`             | Design             | 3    | Python architecture diagrams and ADRs |

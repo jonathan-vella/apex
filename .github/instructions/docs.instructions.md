@@ -40,7 +40,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 | Agent                | Purpose                                      |
 | -------------------- | -------------------------------------------- |
-| `infraops-conductor` | Master orchestrator with approval gates      |
+| `orchestrator` | Master orchestrator with approval gates      |
 | `requirements`       | Gather infrastructure requirements           |
 | `architect`          | WAF assessment and architecture design       |
 | `design`             | Architecture diagrams and ADRs               |
@@ -60,7 +60,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | ------------------------------- | ---------------- | ----------------------------------- |
 | `cost-estimate-subagent`        | Architect        | Azure Pricing MCP queries           |
 | `governance-discovery-subagent` | IaC Planner      | Azure Policy REST API discovery     |
-| `challenger-review-subagent`    | Conductor/Plans  | Adversarial artifact review         |
+| `challenger-review-subagent`    | Orchestrator/Plans  | Adversarial artifact review         |
 | `bicep-validate-subagent`       | Bicep Code       | Lint + AVM/security code review     |
 | `bicep-whatif-subagent`         | Bicep Deploy     | Deployment preview                  |
 | `terraform-validate-subagent`   | Terraform Code   | Lint + AVM-TF/security code review  |
@@ -95,7 +95,7 @@ Do NOT reference these removed agents/skills:
 - `docs.agent.md` → Use `azure-artifacts` skill or `as-built` agent
 - `azure-workload-docs` skill → Use `azure-artifacts` skill
 - `azure-deployment-preflight` skill → Merged into deploy agent
-- `orchestration-helper` skill → Deleted (absorbed into conductor)
+- `orchestration-helper` skill → Deleted (absorbed into orchestrator)
 - `github-issues` / `github-pull-requests` skills → Use `github-operations`
 - `gh-cli` skill → Merged into `github-operations`
 - `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills

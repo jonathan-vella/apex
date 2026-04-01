@@ -19,7 +19,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 sequenceDiagram
     autonumber
     participant U as 👤 User
-    participant C as 🎼 Conductor Agent
+    participant C as 🧠 Orchestrator Agent
     participant Agents as 🤖 Agents
     participant X as ⚔️ Challenger Agent
 

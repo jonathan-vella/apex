@@ -29,7 +29,7 @@ const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const RECOMMENDED_FIELDS = ["agents", "model"];
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 
-const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-conductor.agent.md"]);
+const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-orchestrator.agent.md"]);
 
 function runFrontmatterValidation() {
   const r = new Reporter("Agent Frontmatter Validator");

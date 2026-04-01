@@ -424,7 +424,7 @@ function scoreTimingPerformance() {
     return {
       score: 0,
       details:
-        "No iteration log data — conductor failed to populate 08-iteration-log.json",
+        "No iteration log data — orchestrator failed to populate 08-iteration-log.json",
       grade: "F",
     };
   }

@@ -3,8 +3,8 @@
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
   "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/now), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan'), affinity uses display names (e.g. '05-IaC Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
   "agents": {
-    "conductor": {
-      "agent": ".github/agents/01-conductor.agent.md",
+    "orchestrator": {
+      "agent": ".github/agents/01-orchestrator.agent.md",
       "model": "GPT-5.4",
       "skills": [
         "golden-principles",
@@ -16,8 +16,8 @@
       "invokable": true,
       "step": null
     },
-    "conductor-fast-path": {
-      "agent": ".github/agents/01-conductor-fastpath.agent.md",
+    "orchestrator-fast-path": {
+      "agent": ".github/agents/01-orchestrator-fastpath.agent.md",
       "model": "Claude Sonnet 4.6",
       "skills": [
         "golden-principles",
@@ -197,8 +197,8 @@
       "invokable": true,
       "step": null
     },
-    "e2e-conductor": {
-      "agent": ".github/agents/e2e-conductor.agent.md",
+    "e2e-orchestrator": {
+      "agent": ".github/agents/e2e-orchestrator.agent.md",
       "model": "GPT-5.4",
       "skills": [
         "session-resume",

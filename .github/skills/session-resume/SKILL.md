@@ -1,7 +1,7 @@
 ---
 name: session-resume
 description: "Session state tracking and resume protocol for the multi-step agent workflow. USE FOR: resume session, persist progress, checkpoint recovery, session-state.json schema. DO NOT USE FOR: Azure infrastructure, code generation, architecture design, troubleshooting."
-compatibility: All agents (01-Conductor through 08-As-Built)
+compatibility: All agents (01-Orchestrator through 08-As-Built)
 ---
 
 # Session Resume Skill
@@ -13,7 +13,7 @@ checkpoint after any interruption — mid-step, cross-step, or direct invocation
 
 - Starting / resuming any agent step
 - Completing a sub-step checkpoint or finishing a step
-- Conductor gate transitions
+- Orchestrator gate transitions
 - Recovering after a chat crash or thread switch
 
 ## Quick Reference
@@ -91,7 +91,7 @@ All agents MUST enforce schema version at read time:
 
 | Reference         | File                              | Content                                                                                       |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
-| Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Conductor integration, portability |
+| Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Orchestrator integration, portability |
 | State File Schema | `references/state-file-schema.md` | Full JSON template (v3.0), field definitions, all step definitions                            |
 | Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
 

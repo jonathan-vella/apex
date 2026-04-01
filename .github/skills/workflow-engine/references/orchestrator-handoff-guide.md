@@ -1,9 +1,9 @@
-<!-- ref:conductor-handoff-guide-v1 -->
+<!-- ref:orchestrator-handoff-guide-v1 -->
 
-# Conductor Handoff Guide
+# Orchestrator Handoff Guide
 
 Gate templates, delegation rules, and handoff presentation rules
-for the InfraOps Conductor agent.
+for the Orchestrator agent.
 
 ## Approval Gates
 
@@ -18,14 +18,14 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). This is the ONLY scenario
-> where the Conductor asks about IaC tool. In normal flow, Requirements Phase 2 captures it.
+> where the Orchestrator asks about IaC tool. In normal flow, Requirements Phase 2 captures it.
 
 ### Complexity Routing
 
 After Step 1 (Requirements), read `decisions.complexity` from `00-session-state.json`.
 If missing (old sessions), default to `"standard"`.
 
-When dispatching Steps 2, 4, 5, and 6, the Conductor defaults to **1-pass comprehensive review**.
+When dispatching Steps 2, 4, 5, and 6, the Orchestrator defaults to **1-pass comprehensive review**.
 Multi-pass adversarial review is **opt-in** — at each gate, check `decisions.complexity`:
 
 - **simple/standard**: Present single-pass result directly. Do not prompt for additional review.
@@ -62,7 +62,7 @@ Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ✅ Next: Governance Discovery (Step 3.5) or Design Artifacts (Step 3, optional)
 💡 SESSION BREAK RECOMMENDED: Context is growing. Consider opening a fresh chat
-   and running @01-Conductor with the project name to resume from Step 3.5.
+   and running @01-Orchestrator with the project name to resume from Step 3.5.
 ❓ Review WAF assessment and confirm to proceed (same session or fresh chat)
 ```
 
@@ -88,7 +88,7 @@ Runtime Diagram: agent-output/{project}/04-runtime-diagram.drawio
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
-   Run @01-Conductor with the project name — context restores from 00-session-state.json.
+   Run @01-Orchestrator with the project name — context restores from 00-session-state.json.
 ❓ Review plan and confirm to proceed (same session or fresh chat)
 ```
 

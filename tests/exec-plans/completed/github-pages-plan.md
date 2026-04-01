@@ -469,7 +469,7 @@ Choose type by context: `tip`, `warning`, `info`, `example`, `note`.
 Before:
 
 ```markdown
-> **⚠️ REQUIRED**: The Conductor pattern requires this setting.
+> **⚠️ REQUIRED**: The Orchestrator pattern requires this setting.
 ```
 
 After:
@@ -477,7 +477,7 @@ After:
 ```markdown
 !!! warning "Required"
 
-    The Conductor pattern requires this setting.
+    The Orchestrator pattern requires this setting.
 ```
 
 **4. Use content tabs for Bicep/Terraform dual-track content**

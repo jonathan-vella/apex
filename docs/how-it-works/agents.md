@@ -26,7 +26,7 @@ handoffs:
 2. **Read** `.github/skills/azure-artifacts/SKILL.md`
 ```
 
-1. :material-brain: Model selection — the Conductor can override this based on task complexity
+1. :material-brain: Model selection — the Orchestrator can override this based on task complexity
 2. :material-tools: Tool allowlist — agents only access tools they need
 3. :material-swap-horizontal: Handoff target — the next agent in the workflow
 4. :material-book-open-variant: Skills are loaded on demand to preserve context budget
@@ -48,17 +48,17 @@ allowlist that restricts which tools it can call. Common tool categories:
 ### Handoffs
 
 Agents do not communicate directly. Instead, each agent produces **artifact files**
-in `agent-output/{project}/` that the next agent reads as input. The Conductor
+in `agent-output/{project}/` that the next agent reads as input. The Orchestrator
 orchestrates this by delegating to one agent at a time, collecting its output,
-and routing to the next step. At approval gates, the Conductor writes a
+and routing to the next step. At approval gates, the Orchestrator writes a
 `00-handoff.md` summary document that enables session resume.
 
 ## :material-account-supervisor-outline: Top-Level Agents
 
 | Agent                    | Role                                            | Primary Skills                                 |
 | ------------------------ | ----------------------------------------------- | ---------------------------------------------- |
-| 01-Conductor             | Master orchestrator                             | workflow-engine, session-resume                |
-| 01-Conductor (Fast Path) | Simplified path for ≤3 resources                | session-resume, azure-defaults                 |
+| 01-Orchestrator             | Master orchestrator                             | workflow-engine, session-resume                |
+| 01-Orchestrator (Fast Path) | Simplified path for ≤3 resources                | session-resume, azure-defaults                 |
 | 02-Requirements          | Captures project requirements                   | azure-defaults, azure-artifacts                |
 | 03-Architect             | WAF assessment and cost estimation              | azure-defaults                                 |
 | 04-Design                | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
@@ -75,7 +75,7 @@ and routing to the next step. At approval gates, the Conductor writes a
 
 !!! note "Internal Agent"
 
-    The **E2E Conductor** (`e2e-conductor.agent.md`) is an internal testing agent used
+    The **E2E Orchestrator** (`e2e-orchestrator.agent.md`) is an internal testing agent used
     for autonomous Ralph Loop evaluation runs. It is not user-invocable and does not
     appear in the workflow table above.
 
@@ -160,7 +160,7 @@ and is enforced by the output schema.
 
 ## :material-swap-horizontal: Handoffs and Delegation
 
-Agents communicate through artefact files, not direct message passing. The Conductor
+Agents communicate through artefact files, not direct message passing. The Orchestrator
 delegates to a step agent, which produces output files in `agent-output/{project}/`.
 The next agent reads those files as input. This design:
 
@@ -169,7 +169,7 @@ The next agent reads those files as input. This design:
 - Allows human review at every gate (artefacts are human-readable markdown)
 - Supports parallel development of different steps
 
-**Phase Handoff Document**: At each approval gate, the Conductor writes a
+**Phase Handoff Document**: At each approval gate, the Orchestrator writes a
 `00-handoff.md` file containing a summary of what was completed, key decisions
 made, what comes next, and (at Gates 2 and 3) a session break recommendation.
 This enables resume from any gate without needing to re-read all prior artefacts.

@@ -52,8 +52,8 @@ handoffs:
     agent: 03-Architect
     prompt: "Completed a resource health assessment that identified architectural issues requiring WAF evaluation. Please review the findings in `agent-output/{project}/08-resource-health-report.md` and provide architectural recommendations."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Diagnostics. Report at `agent-output/{project}/08-resource-health-report.md`. Advise on next steps."
     send: false
 ---

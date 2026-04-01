@@ -23,7 +23,7 @@ description: "Common issues and solutions"
 
 | Agent              | Codename      | Common Issues                    |
 | ------------------ | ------------- | -------------------------------- |
-| InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |
+| Orchestrator | 🧠 Orchestrator    | Subagent invocation not working  |
 | requirements       | 📜 Scribe     | Not appearing in list            |
 | architect          | 🏛️ Oracle     | MCP pricing not connecting       |
 | iac-planner      | 📐 Strategist | Governance discovery failing     |
@@ -98,7 +98,7 @@ Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 
 ### 2. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
 
-**Symptom**: The InfraOps Conductor (🎼 Maestro) doesn't delegate to specialized agents.
+**Symptom**: The Orchestrator (🧠 Orchestrator) doesn't delegate to specialized agents.
 Responses are instant, no terminal commands execute, no files are created.
 
 **Root Cause**: The `chat.customAgentInSubagent.enabled` setting is not enabled in
@@ -137,7 +137,7 @@ Responses are instant, no terminal commands execute, no files are created.
 
 5. **If the session was interrupted** (no new output, truncated response):
    - Check `agent-output/{project}/00-session-state.json` for the last completed step
-   - Restart the Conductor with: _"Resume the workflow from step X"_
+   - Restart the Orchestrator with: _"Resume the workflow from step X"_
    - See [Workflow Engine](../../concepts/how-it-works/workflow-engine/) for session state details
 
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
@@ -532,9 +532,9 @@ Ctrl+Shift+A → diagnose
 "My bicep-code agent isn't generating valid templates"
 ```
 
-Or start the InfraOps Conductor (🎼 Maestro) for a guided workflow:
+Or start the Orchestrator (🧠 Orchestrator) for a guided workflow:
 
 ```text
-Ctrl+Shift+I → InfraOps Conductor
+Ctrl+Shift+I → Orchestrator
 "Help me troubleshoot my Azure deployment"
 ```

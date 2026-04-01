@@ -32,8 +32,8 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate only the as-built cost estimate (`agent-output/{project}/07-ab-cost-estimate.md`). Query deployed resources for actual SKUs, then delegate pricing to cost-estimate-subagent. Use subagent-returned prices verbatim."
     send: true
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 7 (As-Built Documentation). Complete documentation suite generated at `agent-output/{project}/07-*.md` including design document, operations runbook, cost estimate, compliance matrix, and resource inventory. Workflow is complete."
     send: false
 ---

@@ -29,7 +29,7 @@ tools:
 
 # Terraform Validate Subagent
 
-You are a **VALIDATION SUBAGENT** called by a parent CONDUCTOR agent.
+You are a **VALIDATION SUBAGENT** called by a parent ORCHESTRATOR agent.
 
 **Your specialty**: Terraform configuration syntax validation, linting, AND code review
 against AVM-TF standards and best practices — in a single sequential workflow.

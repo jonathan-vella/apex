@@ -1,6 +1,6 @@
 ---
-name: E2E Conductor
-description: "Autonomous E2E evaluation conductor for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Conductor."
+name: E2E Orchestrator
+description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Orchestrator."
 model: ["GPT-5.4 (copilot)"]
 user-invocable: false
 agents:
@@ -41,11 +41,11 @@ tools:
   ]
 ---
 
-# E2E Evaluation Conductor
+# E2E Evaluation Orchestrator
 
 <!-- Recommended reasoning_effort: high -->
 
-Autonomous conductor for the RALPH-style E2E workflow evaluation loop.
+Autonomous orchestrator for the RALPH-style E2E workflow evaluation loop.
 Runs all 7 InfraOps steps without human gates, validates every artifact,
 and produces a scored benchmark report with lessons learned.
 
@@ -55,9 +55,9 @@ Track approximate context usage per step. If context approaches 60% capacity
 (many large subagent returns), save state to `00-session-state.json` and
 `00-handoff.md`, then output SESSION_SPLIT_NEEDED with the next step number.
 
-## Core Differences from Production Conductor
+## Core Differences from Production Orchestrator
 
-| Aspect              | Production (01-Conductor)      | E2E Conductor (this agent)         |
+| Aspect              | Production (01-Orchestrator)      | E2E Orchestrator (this agent)         |
 | ------------------- | ------------------------------ | ---------------------------------- |
 | Human gates         | Required at every gate         | Auto-approve after validation      |
 | askQuestions        | Used for Steps 1 and 4         | Never — all inputs pre-seeded      |

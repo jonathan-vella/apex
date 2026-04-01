@@ -215,7 +215,7 @@ Five of the six core MCP servers are configured in `.vscode/mcp.json` and
 start automatically when VS Code invokes them. Azure MCP is installed as a
 VS Code extension. To verify they are working:
 
-1. Open any agent chat (e.g. the Conductor)
+1. Open any agent chat (e.g. the Orchestrator)
 2. The agent's tool list should include MCP tools
 3. Run `npm run lint:mcp-config` to validate the configuration file
 
@@ -271,7 +271,7 @@ To add a new MCP server:
 
 :::tip[Further Reading]
 
-- [System Architecture](../architecture/) — the Conductor pattern and model selection
+- [System Architecture](../architecture/) — the Orchestrator pattern and model selection
 - [Core Concepts](../four-pillars/) — high-level overview of tools and MCP
 - [Agent Architecture](../agents/) — which agents use which MCP servers
 - [Workflow Engine & Quality](../workflow-engine/) — circuit breakers and validation systems

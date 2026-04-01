@@ -105,7 +105,7 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 - **GPT-5.4 agents** (design, governance, as-built, and selected subagents) prioritize
   strong general reasoning for diagrams, governance synthesis, documentation generation,
   and structured reviews
-- **Claude Sonnet 4.6 agents** (conductor fast path, codegen, deploy, challenger wrapper)
+- **Claude Sonnet 4.6 agents** (orchestrator fast path, codegen, deploy, challenger wrapper)
   balance speed with strong execution quality for implementation and orchestration
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput validation or preview tasks
 
@@ -150,7 +150,7 @@ the multi-step workflow:
 | 5t   | Terraform Code       | `06t-terraform-codegen.agent.md` |
 | 6t   | Terraform Deploy     | `07t-terraform-deploy.agent.md`  |
 | 7    | As-Built             | `08-as-built.agent.md`           |
-| —    | InfraOps Conductor   | `01-conductor.agent.md`          |
+| —    | Orchestrator   | `01-orchestrator.agent.md`          |
 | —    | Diagnose             | `09-diagnose.agent.md`           |
 | —    | Challenger (wrapper) | `10-challenger.agent.md`         |
 

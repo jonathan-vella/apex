@@ -94,7 +94,7 @@ template structures. Those are delegated to skills.
 The `.github/copilot-instructions.md` file is VS Code Copilot's orchestration layer.
 It provides:
 
-- **Quick start**: How to enable subagents and invoke the Conductor
+- **Quick start**: How to enable subagents and invoke the Orchestrator
 - **Multi-step workflow table**: Quick reference for which agent handles which step
 - **Skills catalog**: Table mapping skill names to their purposes
 - **Chat triggers**: Rules for handling `gh` commands via GitHub operations

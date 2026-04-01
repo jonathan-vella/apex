@@ -106,11 +106,11 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 - **Opus-first agents** (requirements, architect, iac-plan, diagnose,
   context-optimizer) require deeper reasoning for architecture decisions,
   WAF assessments, planning accuracy, and complex analysis
-- **GPT-5.4 agents** (conductor, design, governance, as-built, challenger wrapper,
-  e2e-conductor, and selected subagents) prioritize
+- **GPT-5.4 agents** (orchestrator, design, governance, as-built, challenger wrapper,
+  e2e-orchestrator, and selected subagents) prioritize
   strong general reasoning for orchestration, diagrams, governance synthesis,
   documentation generation, and structured reviews
-- **Claude Sonnet 4.6 agents** (conductor fast path, codegen, deploy) balance
+- **Claude Sonnet 4.6 agents** (orchestrator fast path, codegen, deploy) balance
   speed with strong execution quality for implementation
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput validation or preview tasks
 
@@ -118,8 +118,8 @@ Current model assignments:
 
 | Agent / Group          | Model                   | Rationale                |
 | ---------------------- | ----------------------- | ------------------------ |
-| Conductor              | GPT-5.4                 | Orchestration            |
-| Conductor (Fast Path)  | Claude Sonnet 4.6       | Streamlined orchestration|
+| Orchestrator              | GPT-5.4                 | Orchestration            |
+| Orchestrator (Fast Path)  | Claude Sonnet 4.6       | Streamlined orchestration|
 | Requirements           | Claude Opus 4.6         | Deep understanding       |
 | Architect              | Claude Opus 4.6         | WAF analysis + cost      |
 | Design                 | GPT-5.4                 | Diagram generation       |
@@ -158,7 +158,7 @@ the multi-step workflow:
 | 5t   | Terraform Code       | `06t-terraform-codegen.agent.md` |
 | 6t   | Terraform Deploy     | `07t-terraform-deploy.agent.md`  |
 | 7    | As-Built             | `08-as-built.agent.md`           |
-| —    | InfraOps Conductor   | `01-conductor.agent.md`          |
+| —    | Orchestrator   | `01-orchestrator.agent.md`          |
 | —    | Diagnose             | `09-diagnose.agent.md`           |
 | —    | Challenger (wrapper) | `10-challenger.agent.md`         |
 

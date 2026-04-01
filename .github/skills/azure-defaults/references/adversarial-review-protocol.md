@@ -19,7 +19,7 @@ based on the lens type and complexity tier.
 By default, all steps use a **1-pass comprehensive review**. Multi-pass rotating
 lens reviews are **opt-in** — recommended for complex projects but not required.
 
-At each gate, the Conductor checks `decisions.complexity`:
+At each gate, the Orchestrator checks `decisions.complexity`:
 
 - **simple/standard**: Present single-pass result directly
 - **complex**: Ask: "Run additional adversarial review? (recommended for complex projects)"
@@ -29,7 +29,7 @@ If the user opts in, the full complexity matrix applies (see below).
 ## Multi-Pass Rotating Lenses (Opt-In)
 
 Available for critical artifacts (architecture, implementation plan, code)
-when explicitly requested or when the Conductor recommends it for complex projects.
+when explicitly requested or when the Orchestrator recommends it for complex projects.
 
 | Pass | `review_focus`             | Lens Description                                            |
 | ---- | -------------------------- | ----------------------------------------------------------- |
@@ -77,7 +77,7 @@ Challengers MUST apply strict severity definitions:
 ## Complexity Classification Criteria
 
 Read `decisions.complexity` from `00-session-state.json`. The Requirements agent classifies;
-the Conductor validates. If missing from old sessions, default to `"standard"`.
+the Orchestrator validates. If missing from old sessions, default to `"standard"`.
 
 | Tier         | Criteria                                                                             |
 | ------------ | ------------------------------------------------------------------------------------ |
@@ -95,7 +95,7 @@ the Conductor validates. If missing from old sessions, default to `"standard"`.
 | standard   | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 2× rotating) | skip (opt-in: 2× rotating)      | skip (opt-in: 2× rotating)      |
 | complex    | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 3× rotating) | ask user (opt-in: 2× rotating)  | ask user (opt-in: 3× rotating)  |
 
-> **Opt-in prompt**: At Steps 4 and 5 for complex projects, the Conductor asks:
+> **Opt-in prompt**: At Steps 4 and 5 for complex projects, the Orchestrator asks:
 > "Run additional adversarial review? (recommended for complex projects)"
 > For simple/standard projects, challenger review at Steps 4 and 5 is skipped by default.
 
