@@ -391,7 +391,7 @@ Material bundles Mermaid support, search, and all markdown extensions.
 
 ## 10. Link Remediation
 
-Several docs reference `.github/` internal paths (e.g., `../.github/agents/01-conductor.agent.md`).
+Several docs reference `.github/` internal paths (e.g., `../.github/agents/01-orchestrator.agent.md`).
 
 | Current Pattern                        | Fix                                                                                                         |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |

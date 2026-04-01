@@ -96,7 +96,7 @@ head -20 .github/agents/requirements.agent.md
 
 Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 
-### 2. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
+### 2. Orchestrator/Subagent Invocation Not Working (VS Code 1.109+)
 
 **Symptom**: The Orchestrator (🧠 Orchestrator) doesn't delegate to specialized agents.
 Responses are instant, no terminal commands execute, no files are created.

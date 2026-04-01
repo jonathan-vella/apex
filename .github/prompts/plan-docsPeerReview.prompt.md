@@ -64,7 +64,7 @@ dynamic inventory and produces a structured findings list.
 
 **Reviewer A** (data accuracy and structural correctness):
 
-> You are a QA triage engineer reviewing Azure infrastructure documentation.
+> You are a QA triage engineer reviewing Azure platform engineering documentation.
 > Your signal-to-noise ratio must be > 3:1 — omit findings an average developer
 > wouldn't care about.
 >

@@ -180,7 +180,7 @@ sequenceDiagram
 See the [Changelog](CHANGELOG.md) for the full release history.
 
 - **v0.10.0** — Workflow Engine DAG, Context Shredding, Circuit Breaker pattern, session lock model
-- **v0.9.0** — Dual IaC Track (Bicep + Terraform), Challenger Agent, expanded skills, Fast Path Conductor
+- **v0.9.0** — Dual IaC Track (Bicep + Terraform), Challenger Agent, expanded skills, Fast Path Orchestrator
 
 ---
 

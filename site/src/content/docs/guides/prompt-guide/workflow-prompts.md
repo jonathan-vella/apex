@@ -6,7 +6,7 @@ description: "Step-by-step workflow prompt templates"
 The Agentic PlatformOps workflow follows a multi-step pipeline (including Step 3.5 Governance).
 Use the **Orchestrator** to run all steps end-to-end, or invoke individual agents directly.
 
-## End-to-End (Conductor)
+## End-to-End (Orchestrator)
 
 Select the **Orchestrator** agent in Copilot Chat, then describe your project:
 
