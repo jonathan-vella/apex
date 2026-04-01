@@ -288,6 +288,13 @@ post-commit:
         node scripts/validate-no-deprecated-refs.mjs
       fail_text: "❌ Deprecated references check failed"
 
+    terminology:
+      glob: "*.{md,mdx,json,mjs,py,yml,yaml,sh,toml,astro,css,html,txt,svg}"
+      run: |
+        echo "🔍 Checking terminology blocklist..."
+        node scripts/validate-terminology.mjs
+      fail_text: "❌ Terminology check failed"
+
     json-syntax:
       glob: "*.json"
       run: |

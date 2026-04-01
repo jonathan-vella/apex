@@ -118,7 +118,7 @@ custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
 ### Orchestrator
 
-See [Orchestrator](#infraops-conductor).
+See [Orchestrator](#orchestrator).
 
 ### CLI (Command-Line Interface)
 
