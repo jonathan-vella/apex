@@ -10,7 +10,7 @@ toc_depth: 2
 
 # :material-wrench-outline: Troubleshooting Guide
 
-> Common issues and solutions for Agentic InfraOps
+> Common issues and solutions for Agentic PlatformOps
 
 ## :material-account-card-outline: Agent Codenames Quick Reference
 

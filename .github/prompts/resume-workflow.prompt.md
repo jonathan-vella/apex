@@ -6,7 +6,7 @@ model: "Claude Opus 4.6"
 
 # Resume Workflow
 
-Resume the multi-step Azure infrastructure workflow from the last checkpoint.
+Resume the multi-step Azure platform engineering workflow from the last checkpoint.
 
 ## Prerequisites
 

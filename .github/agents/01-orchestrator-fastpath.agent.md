@@ -2,7 +2,7 @@
 name: 01-Orchestrator (Fast Path)
 description: "Experimental fast-path orchestrator for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Orchestrator agent."
 model: ["Claude Sonnet 4.6"]
-argument-hint: Describe a simple Azure infrastructure project (≤3 resources)
+argument-hint: Describe a simple Azure platform engineering project (≤3 resources)
 user-invocable: true
 agents:
   [
@@ -72,7 +72,7 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
-Streamlined orchestrator for **simple** Azure infrastructure projects.
+Streamlined orchestrator for **simple** Azure platform engineering projects.
 
 <context_awareness>
 Before loading skill files, check if SKILL.digest.md variants exist.

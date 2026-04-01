@@ -10,7 +10,7 @@ body:
         ## 🏗️ Infrastructure Request
 
         Use this template to request new Azure infrastructure or changes to existing infrastructure.
-        This will be reviewed and implemented using the Agentic InfraOps workflow.
+        This will be reviewed and implemented using the Agentic PlatformOps workflow.
 
         **Workflow:** `@requirements` → `@architect` → `@iac-planner` → `@bicep-code`
 

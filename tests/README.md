@@ -1,6 +1,6 @@
 # Tests
 
-End-to-end testing for the Agentic InfraOps pipeline using the
+End-to-end testing for the Agentic PlatformOps pipeline using the
 [RALPH Loop](https://ghuntley.com/ralph/) pattern.
 
 ## Directory Structure

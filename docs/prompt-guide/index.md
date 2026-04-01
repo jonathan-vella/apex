@@ -10,10 +10,10 @@ toc_depth: 2
 
 # :material-console: Prompt Guide
 
-Best-practices prompt examples for all Agentic InfraOps agents and skills.
+Best-practices prompt examples for all Agentic PlatformOps agents and skills.
 
 This guide provides ready-to-use prompt examples for every agent and skill in the
-Agentic InfraOps project. It is written for **end users** — those who interact with
+Agentic PlatformOps project. It is written for **end users** — those who interact with
 the agents through VS Code Copilot Chat to design, build, and deploy Azure
 infrastructure.
 

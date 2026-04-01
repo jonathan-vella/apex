@@ -2,7 +2,7 @@
 
 # InfraOps Preflight Validation
 
-Additional preflight checks specific to the Agentic InfraOps workflow.
+Additional preflight checks specific to the Agentic PlatformOps workflow.
 These augment the plugin's standard azure-validate checks.
 
 ## Azure CLI Authentication

@@ -1,6 +1,6 @@
 # :material-frequently-asked-questions: FAQ
 
-Frequently asked questions about Agentic InfraOps.
+Frequently asked questions about Agentic PlatformOps.
 
 **Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) · [Glossary](GLOSSARY.md) <!-- markdownlint-disable-line MD013 -->
 
@@ -20,7 +20,7 @@ Frequently asked questions about Agentic InfraOps.
 
 ??? question "Is this project production-ready?"
 
-    Agentic InfraOps is currently at **v0.10.0** (pre-1.0). It is suitable for
+    Agentic PlatformOps is currently at **v0.10.0** (pre-1.0). It is suitable for
     development, testing, and proof-of-concept deployments. The generated IaC templates
     follow Azure Verified Modules standards and include security baselines, but you
     should always review generated code before deploying to production environments.
@@ -88,7 +88,7 @@ Frequently asked questions about Agentic InfraOps.
 
 ??? question "Can I use this offline?"
 
-    No. Agentic InfraOps requires:
+    No. Agentic PlatformOps requires:
 
     - **GitHub Copilot** — cloud-hosted AI service
         - **MCP servers** — Azure MCP, Azure Pricing MCP, Draw.io MCP, GitHub MCP,

@@ -39,3 +39,7 @@ WebApp
 FunctionApp
 KeyVault
 APIM
+PlatformOps
+Orchestrator
+PlatformOps
+Orchestrator

@@ -4,7 +4,7 @@ toc_depth: 2
 
 # :material-book-alphabet: Glossary
 
-Quick reference for terms used throughout Agentic InfraOps documentation.
+Quick reference for terms used throughout Agentic PlatformOps documentation.
 
 ## A
 
@@ -31,7 +31,7 @@ variants, a Governance agent, and a Context Optimizer) plus subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
-### Agentic InfraOps
+### Agentic PlatformOps
 
 The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
 Azure infrastructure. Combines GitHub Copilot with custom agents and reusable skills.
@@ -194,7 +194,7 @@ state integrity, and timing performance. Composite score 0–100 with letter gra
 
 ### E2E Orchestrator
 
-Orchestration agent that drives the Ralph Loop. Executes all InfraOps steps without human
+Orchestration agent that drives the Ralph Loop. Executes all PlatformOps steps without human
 gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
 Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
 
@@ -334,7 +334,7 @@ The governance-discovery-subagent queries Azure Policy assignments via REST API.
 ### ROI (Return on Investment)
 
 A financial metric measuring the gain or loss from an investment relative to its cost.
-Used in presenter materials to quantify the value of Agentic InfraOps.
+Used in presenter materials to quantify the value of Agentic PlatformOps.
 
 ### RPC (Remote Procedure Call)
 
@@ -344,7 +344,7 @@ JSON-RPC, a lightweight RPC protocol encoded in JSON.
 ### Ralph Loop
 
 An autonomous, self-correcting E2E evaluation workflow based on the
-[RALPH pattern](https://ghuntley.com/ralph/). Runs all InfraOps pipeline steps without
+[RALPH pattern](https://ghuntley.com/ralph/). Runs all PlatformOps pipeline steps without
 human gates, with built-in self-correction, challenger reviews, and benchmark scoring.
 Supports both Bicep and Terraform IaC tracks.
 
@@ -392,7 +392,7 @@ Required for supply chain security. S06 SBOM Generator scenario demonstrates SBO
 ### SI Partner (System Integrator Partner)
 
 Microsoft partner organization that implements Azure solutions for customers. Primary audience
-for Agentic InfraOps methodology.
+for Agentic PlatformOps methodology.
 
 ### Skill (Copilot)
 
@@ -505,7 +505,7 @@ YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
 
 ### Multi-Step Agentic Workflow
 
-The core Agentic InfraOps workflow: `requirements` → `architect` → Design Artifacts →
+The core Agentic PlatformOps workflow: `requirements` → `architect` → Design Artifacts →
 Governance → IaC Plan → IaC Code → Deploy → Documentation. Step 3.5 (Governance)
 runs between Design and IaC Plan. Steps 1–3 and 7 are shared; steps 4–6 diverge into
 **Bicep track** (`iac-planner` → `bicep-codegen` → `bicep-deploy`) or **Terraform track**

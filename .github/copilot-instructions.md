@@ -1,4 +1,4 @@
-# Agentic InfraOps - Copilot Instructions
+# Agentic PlatformOps - Copilot Instructions
 
 > VS Code Copilot-specific orchestration instructions.
 > For general project conventions, build commands, and code style, see the root `AGENTS.md`.

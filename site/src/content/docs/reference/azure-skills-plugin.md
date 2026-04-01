@@ -3,7 +3,7 @@ title: "Migration Guide: Azure Skills Plugin (Issue #240)"
 description: "Migration guide for the Azure Skills Plugin"
 ---
 
-This guide covers the integration of the Azure Skills Plugin into Agentic InfraOps.
+This guide covers the integration of the Azure Skills Plugin into Agentic PlatformOps.
 
 ## Skill Renames
 

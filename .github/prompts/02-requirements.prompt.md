@@ -1,12 +1,12 @@
 ---
-description: "Gather Azure infrastructure requirements through structured discovery phases and produce 01-requirements.md."
+description: "Gather Azure project requirements through structured discovery phases and produce 01-requirements.md."
 agent: "02-Requirements"
 argument-hint: "Describe the Azure workload or project you want to gather requirements for"
 ---
 
 # Step 1 — Gather Requirements
 
-Capture Azure infrastructure requirements for a new or existing project.
+Capture Azure project requirements for a new or existing project.
 
 ## Prerequisites
 

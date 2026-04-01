@@ -5,17 +5,17 @@ toc_depth: 2
 <div align="center">
   <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop"
     width="100%" height="300" style="object-fit: cover; border-radius: 10px;"
-    alt="Agentic InfraOps Banner"/>
+    alt="Agentic PlatformOps Banner"/>
 </div>
 
-# :material-cog-outline: How Agentic InfraOps Works
+# :material-cog-outline: How Agentic PlatformOps Works
 
-> A comprehensive guide to the multi-agent orchestration system for Azure infrastructure development.
+> A comprehensive guide to the multi-agent orchestration system for Azure platform engineering.
 
 ## :material-text-box-outline: Executive Summary
 
-Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
-through a structured multi-step workflow to transform Azure infrastructure requirements into deployed,
+Agentic PlatformOps is a multi-agent orchestration system where specialised AI agents collaborate
+through a structured multi-step workflow to transform Azure project requirements into deployed,
 production-grade Infrastructure as Code. The system coordinates specialized agents and
 subagents through mandatory human approval gates, producing Bicep or Terraform templates
 that conform to Azure Well-Architected Framework principles, Azure Verified Modules standards,

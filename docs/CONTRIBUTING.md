@@ -1,8 +1,8 @@
 <a id="top"></a>
 
-# Contributing to Agentic InfraOps
+# Contributing to Agentic PlatformOps
 
-Thank you for your interest in contributing! Agentic InfraOps revolutionizes how IT Pros build
+Thank you for your interest in contributing! Agentic PlatformOps revolutionizes how IT Pros build
 Azure environments through coordinated AI agents.
 
 This file is the quick contributor entrypoint.
@@ -155,7 +155,7 @@ npm run lint:md:fix
 
 ### 1. Fork & Clone
 
-> **Note:** For **using** Agentic InfraOps, create your own repo from the
+> **Note:** For **using** Agentic PlatformOps, create your own repo from the
 > [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 > instead. The instructions below are for contributing back to this upstream project.
 
@@ -315,6 +315,6 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
-**Thank you for helping improve the Azure infrastructure workflow!** 🚀
+**Thank you for helping improve the Azure platform engineering workflow!** 🚀
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

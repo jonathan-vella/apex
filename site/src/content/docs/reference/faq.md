@@ -3,7 +3,7 @@ title: "FAQ"
 description: "Frequently asked questions"
 ---
 
-Frequently asked questions about Agentic InfraOps.
+Frequently asked questions about Agentic PlatformOps.
 
 **Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) <!-- markdownlint-disable-line MD013 -->
 
@@ -22,7 +22,7 @@ container. See the [Quickstart](../../getting-started/quickstart/) for the step-
     template is the recommended starting point for new users.
 
 :::note[Is this project production-ready?]
-Agentic InfraOps is currently at **v0.10.0** (pre-1.0). It is suitable for
+Agentic PlatformOps is currently at **v0.10.0** (pre-1.0). It is suitable for
 development, testing, and proof-of-concept deployments. The generated IaC templates
 follow Azure Verified Modules standards and include security baselines, but you
 should always review generated code before deploying to production environments.
@@ -90,7 +90,7 @@ Step 4 (Planning). Steps 1-3 are shared and do not need to be repeated.
 ## Usage
 
 :::note[Can I use this offline?]
-No. Agentic InfraOps requires:
+No. Agentic PlatformOps requires:
 :::
 
     - **GitHub Copilot** — cloud-hosted AI service

@@ -1,8 +1,8 @@
 ---
 name: 01-Orchestrator
-description: Master orchestrator for the multi-step Azure infrastructure workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
+description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
 model: ["GPT-5.4 (copilot)"]
-argument-hint: Describe the Azure infrastructure project you want to build end-to-end
+argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
   [
@@ -39,7 +39,7 @@ tools:
 handoffs:
   - label: "▶ Start New Project"
     agent: 01-Orchestrator
-    prompt: "Begin the multi-step workflow for a new Azure infrastructure project. Start by gathering requirements."
+    prompt: "Begin the multi-step workflow for a new Azure platform engineering project. Start by gathering requirements."
     send: false
   - label: "▶ Resume Workflow"
     agent: 01-Orchestrator
@@ -107,7 +107,7 @@ handoffs:
 
 <!-- Recommended reasoning_effort: high -->
 
-Master orchestrator for the multi-step Azure infrastructure development workflow.
+Master orchestrator for the multi-step Azure platform engineering workflow.
 
 ## Context Awareness
 

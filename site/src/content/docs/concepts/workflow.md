@@ -9,12 +9,12 @@ description: "Multi-step workflow from requirements to deployment"
 
 # Agent and Skill Workflow
 
-The multi-step infrastructure development workflow.
+The multi-step platform engineering workflow.
 
 ## Overview
 
-Agentic InfraOps uses a multi-agent orchestration system where specialized AI agents coordinate
-through artifact handoffs to transform Azure infrastructure requirements into deployed infrastructure
+Agentic PlatformOps uses a multi-agent orchestration system where specialized AI agents coordinate
+through artifact handoffs to transform Azure project requirements into deployed infrastructure
 code. The system supports **dual IaC tracks** — Bicep and Terraform — sharing common requirements,
 architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,
 code generation, and deployment (steps 4-6) before converging again for documentation (step 7).
@@ -151,7 +151,7 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 | Step | Agent              | Codename      | Role                                 | Artifact                                            |
 | ---- | ------------------ | ------------- | ------------------------------------ | --------------------------------------------------- |
-| 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                |
+| 1    | `requirements`     | 📜 Scribe     | Captures project requirements | `01-requirements.md`                                |
 | 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                     |
 | 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{drawio,py,png,md}`                       |
 | 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                |
@@ -210,7 +210,7 @@ infrastructure that violates governance policies or security baselines.
 
 **Agent**: `requirements`
 
-Gather infrastructure requirements through interactive conversation.
+Gather project requirements through interactive conversation.
 
 ```text
 Invoke: Ctrl+Shift+A → requirements
@@ -473,7 +473,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 
 ```text
 1. Ctrl+Shift+I → Select "Orchestrator"
-2. Describe your infrastructure project
+2. Describe your platform engineering project
 3. Follow guided workflow through all steps with approval gates
 ```
 

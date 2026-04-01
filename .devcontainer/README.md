@@ -1,8 +1,8 @@
-# Development Container for Agentic InfraOps
+# Development Container for Agentic PlatformOps
 
 > **[Version](../VERSION.md)**
 
-This devcontainer provides a **complete, pre-configured development environment** for Agentic InfraOps.
+This devcontainer provides a **complete, pre-configured development environment** for Agentic PlatformOps.
 It includes all required tools, extensions, and configurations to build Azure infrastructure with AI agents.
 
 **Base Image:** `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`

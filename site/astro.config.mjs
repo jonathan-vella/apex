@@ -16,7 +16,7 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "Agentic InfraOps",
+      title: "Agentic PlatformOps",
       description:
         "Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC",
       favicon: "/images/favicon.svg",

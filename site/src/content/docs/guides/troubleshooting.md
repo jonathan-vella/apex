@@ -9,7 +9,7 @@ description: "Common issues and solutions"
 
 # Troubleshooting Guide
 
-> Common issues and solutions for Agentic InfraOps
+> Common issues and solutions for Agentic PlatformOps
 
 ## Agent Codenames Quick Reference
 

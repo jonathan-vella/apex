@@ -107,7 +107,7 @@ working on that project should create it from the template and backfill complete
 | [static-webapp](./static-webapp/)           | Azure Static Web App with Functions backend | Complete example with compliance matrix              |
 
 > **Note**: These are curated showcase projects demonstrating the full workflow.
-> Create your own project folder when starting a new infrastructure project.
+> Create your own project folder when starting a new platform engineering project.
 
 ## Legacy Demo Outputs
 

@@ -42,7 +42,7 @@ step_fail() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " 🚀 Agentic InfraOps — Dev Container Setup"
+echo " 🚀 Agentic PlatformOps — Dev Container Setup"
 echo "    $TOTAL_STEPS steps · $(date '+%H:%M:%S')"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 

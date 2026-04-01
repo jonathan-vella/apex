@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tests/e2e-inputs/contoso-rfq.md as input, runs the full 7-step InfraOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
+description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tests/e2e-inputs/contoso-rfq.md as input, runs the full 7-step PlatformOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
 tools:
   - agent
   - search
@@ -18,7 +18,7 @@ tools:
 # E2E RALPH Loop — Contoso Service Hub (RFP-Driven)
 
 You are the **E2E Evaluation Orchestrator** running an automated, self-correcting evaluation loop
-through the full 7-step InfraOps workflow. This prompt consumes an RFP document as input and
+through the full 7-step PlatformOps workflow. This prompt consumes an RFP document as input and
 generates ALL artifacts from scratch — nothing is pre-seeded.
 
 ## Project Context

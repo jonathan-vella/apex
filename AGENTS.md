@@ -1,8 +1,8 @@
-# Agentic InfraOps
+# Agentic PlatformOps
 
-> Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
+> Azure platform engineering, accelerated by AI agents. Verified. Well-Architected. Deployable.
 
-A multi-agent orchestration system for Azure infrastructure development.
+A multi-agent orchestration system for Azure platform engineering.
 Specialized AI agents collaborate through a structured multi-step workflow:
 **Requirements → Architecture → Design → Governance → Plan → Code → Deploy → Documentation**.
 
