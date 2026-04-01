@@ -137,6 +137,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor(docs,scripts): update D3 explorer and reformat digest generator.
 - docs: replace 105 hard-coded entity counts across 45+ files with descriptive language;
   resolve '7-step' vs '8-step' workflow conflict (all refs now say 'multi-step').
+- refactor(workflow): consolidate `05b-Bicep Planner` and `05t-Terraform Planner` into unified
+  `05-IaC Planner` agent. Update all agent handoffs to reference the unified planner.
+- refactor(workflow): switch IaC Planner diagram outputs from `.drawio` to `python-diagrams`
+  (`.py`/`.png`). Update `workflow-graph.json` and artifact validators accordingly.
+- refactor(workflow): normalize session state keys from dotted (`step_3.5`) to underscore
+  (`step_3_5`) convention — fixes `parseInt` issues in JavaScript validators.
+- refactor(agents): convert XML blocks to markdown sections in GPT-5.4 agents for better
+  model compatibility. Fix model-body alignment in `agent-registry.json`.
+- refactor(agents): update `reasoning_effort` annotations on Requirements, Design, and As-Built agents.
+- refactor(branding): rename product from "Agentic InfraOps" → "Agentic PlatformOps" across
+  ~75 files. Reframe scope language from "infrastructure development" to "platform engineering"
+  throughout docs, site, agents, prompts, skills, and configuration files.
+  Tagline updated to: "Azure platform engineering, accelerated by AI agents."
+- refactor(agents): rename "InfraOps Conductor" agent → "Orchestrator" across ~104 files.
+  Rename files: `01-conductor.agent.md` → `01-orchestrator.agent.md`,
+  `01-conductor-fastpath.agent.md` → `01-orchestrator-fastpath.agent.md`,
+  `e2e-conductor.agent.md` → `e2e-orchestrator.agent.md`,
+  `01-conductor.prompt.md` → `01-orchestrator.prompt.md`,
+  `conductor-handoff-guide.md` → `orchestrator-handoff-guide.md`.
+  Update emoji codename 🎼 Maestro → 🧠 Orchestrator.
+  Update all 13 agent handoff buttons (`agent: 01-Conductor` → `agent: 01-Orchestrator`),
+  4 subagent descriptions, agent-registry keys, skill-affinity keys, instruction globs,
+  14 skill reference files, architecture-explorer HTML/JS, and Excalidraw/SVG assets.
 
 ### Removed
 
