@@ -80,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - feat(skills): add `workflow-engine` skill with machine-readable DAG (`workflow-graph.json`)
-  for graph-based step routing in the Conductor, replacing hardcoded step logic.
+  for graph-based step routing in the Orchestrator, replacing hardcoded step logic.
 - feat(skills): add `context-shredding` skill with 3-tier runtime compression
   (`full`/`summarized`/`minimal`) and per-artifact compression templates.
 - feat(session-resume): upgrade session state schema from v1.0 → v2.0 with atomic claim-based
@@ -116,22 +116,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   entity counts across all markdown, JSON, and script files.
 - feat(scripts): add `validate-no-hardcoded-counts.mjs` validator.
 - feat(agents): add RALPH-style E2E autonomous workflow conductor
-  (`e2e-conductor.agent.md`) with pre-validation after every subagent return,
+  (`e2e-orchestrator.agent.md`) with pre-validation after every subagent return,
   auto-challenge (1 pass per step), self-correction, benchmark collection, and
   lesson capture — no human gates.
 - feat(e2e): add Terraform support to Ralph Loop E2E testing — prompt parameterization
-  with IaC tool routing, e2e-conductor dual-track (Bicep + Terraform subagents),
+  with IaC tool routing, e2e-orchestrator dual-track (Bicep + Terraform subagents),
   Terraform validators in `validate-e2e-step.mjs` (`terraform validate`, `terraform fmt -check`),
   and Terraform scoring in `benchmark-e2e.mjs` (`scoreCodeQuality()` with AVM-TF detection).
 - feat(e2e): add `e2e:validate` and `e2e:benchmark` npm scripts for E2E testing.
-- feat(e2e): register `e2e-conductor` in `agent-registry.json`.
+- feat(e2e): register `e2e-orchestrator` in `agent-registry.json`.
 - feat(e2e): add `e2e-validation.yml` CI workflow (manual dispatch + weekly schedule)
   with benchmark report upload. Add structural E2E validation step to `lint.yml`.
 - feat(e2e): add configurable benchmark threshold via `E2E_PASS_THRESHOLD` env var.
 - feat(e2e): add multi-project benchmark comparison (`--compare` flag) with auto-discovery.
 - docs(e2e): add dedicated E2E testing documentation (`docs/e2e-testing.md`) with
   IaC track matrix, benchmark dimensions, and troubleshooting guide.
-- docs(e2e): add Ralph Loop, E2E Benchmark, E2E Conductor to glossary.
+- docs(e2e): add Ralph Loop, E2E Benchmark, E2E Orchestrator to glossary.
 - docs(e2e): add E2E testing guidance to `AGENTS.md` and `CONTRIBUTING.md`.
 - feat(e2e): add E2E evaluation scripts: `benchmark-e2e.mjs` (8-dimension scoring engine
   with complexity-normalized baselines) and `validate-e2e-step.mjs` (per-step validator
@@ -241,7 +241,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - refactor(agents): align 8 Claude Opus/Sonnet agent definitions with Anthropic prompting
   best practices — add selective XML blocks (`investigate_before_answering` to 5 agents,
-  `output_contract` to 5, `context_awareness` to 3, `subagent_budget` to Conductor,
+  `output_contract` to 5, `context_awareness` to 3, `subagent_budget` to Orchestrator,
   `scope_fencing` to 3, `empty_result_recovery` to Diagnose + 2 subagents), add
   `reasoning_effort` comments to 8 agents, add few-shot examples to Conductor/Architect/Planners.
 - refactor(agents): align 6 Claude Sonnet 4.6/GPT-5.3-Codex agent definitions with OpenAI prompting
@@ -276,7 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     planner prompts to reference both `.md` and `.json` artifacts, remove `05t-Terraform
 Planner` from 03-Architect agents list, remove 5 redundant model overrides across
     04-Design/04g-Governance/07b-Deploy.
-- fix(agents): remove 12 stale handoff model overrides from Conductor (9), Architect (2),
+- fix(agents): remove 12 stale handoff model overrides from Orchestrator (9), Architect (2),
   and Requirements/Diagnose/Planners (3) — overrides were either redundant (matching target
   model) or pointing to wrong models after prior refactoring.
 - fix(hooks): fix VS Code hook scripts — correct API field names (`toolName`→`tool_name`,
@@ -306,7 +306,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 
 - feat(terraform): add end-to-end Terraform IaC workflow with Planner (`05t`), Code Generator
   (`06t`), Deploy (`07t`), and supporting lint/review/plan subagents.
-- feat(agents): add IaC-track selection in Requirements and Terraform routing in Conductor.
+- feat(agents): add IaC-track selection in Requirements and Terraform routing in Orchestrator.
 - feat(quality): add Terraform quality gates, CI checks, and IaC-neutral artifact template support.
 - feat(instructions): add Terraform best-practices and policy-compliance instruction coverage.
 - feat(skills): add `terraform-patterns` skill for AVM-TF composition and common pitfalls.
@@ -319,7 +319,7 @@ Planner` from 03-Architect agents list, remove 5 redundant model overrides acros
 - feat(scripts): add 5 CI enforcement validators for context-optimization guardrails
   (`lint:agent-body-size`, `lint:glob-audit`, `lint:skill-size`, `lint:skill-references`,
   `lint:orphaned-content`); validator count 15 → 22.
-- feat(agents): add fast-path `01-Conductor (Fast Path)` agent for simple 1–3 resource projects
+- feat(agents): add fast-path `01-Orchestrator (Fast Path)` agent for simple 1–3 resource projects
   with combined Plan+Code step and single challenger pass.
 - feat(ci): add weekly doc-freshness cron workflow and quarterly context audit checklist in
   `AGENTS.md`.

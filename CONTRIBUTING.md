@@ -315,6 +315,6 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
 
-**Thank you for helping improve the Azure infrastructure workflow!** 🚀
+**Thank you for helping improve the Azure platform engineering workflow!** 🚀
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
