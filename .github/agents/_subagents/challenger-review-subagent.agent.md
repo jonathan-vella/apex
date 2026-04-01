@@ -2,6 +2,7 @@
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports single-pass and multi-pass rotating-lens reviews. Handles batch execution (multiple lenses per invocation) for complex projects."
 model: ["GPT-5.4"]
+disable-model-invocation: false
 # Model rationale: GPT-5.4 for pass 1 (security-governance) and comprehensive reviews.
 # For passes 2-3 (architecture-reliability, cost-feasibility), parent agents may request
 # GPT-5.3-Codex via model routing — checklist-driven analysis suits structured output models.

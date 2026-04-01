@@ -21,4 +21,4 @@ Create a comprehensive, machine-readable implementation plan based on the approv
 
 Read `agent-output/{project}/02-architecture-assessment.md` and `agent-output/{project}/04-governance-constraints.json`.
 
-Generate the implementation plan in `agent-output/{project}/04-implementation-plan.md`, the dependency diagram in `agent-output/{project}/04-dependency-diagram.drawio`, and the runtime diagram in `agent-output/{project}/04-runtime-diagram.drawio`.
+Generate the implementation plan in `agent-output/{project}/04-implementation-plan.md`, the dependency diagram in `agent-output/{project}/04-dependency-diagram.py` (with `04-dependency-diagram.png` output), and the runtime diagram in `agent-output/{project}/04-runtime-diagram.py` (with `04-runtime-diagram.png` output).

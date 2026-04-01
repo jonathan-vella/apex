@@ -3,6 +3,27 @@
   "$comment": "Terminology blocklist for validate-terminology.mjs — prevents stale brand/agent names from creeping back in after renames",
   "rules": [
     {
+      "id": "coordinator-alias",
+      "pattern": "also known as the Coordinator",
+      "replacement": "(remove alias — use Orchestrator only)",
+      "severity": "error",
+      "reason": "Coordinator is a deprecated alias for Orchestrator"
+    },
+    {
+      "id": "coordinator-alias-2",
+      "pattern": "also called Coordinator",
+      "replacement": "(remove alias — use Orchestrator only)",
+      "severity": "error",
+      "reason": "Coordinator is a deprecated alias for Orchestrator"
+    },
+    {
+      "id": "coordinator-alias-3",
+      "pattern": "also referred to as the Coordinator",
+      "replacement": "(remove alias — use Orchestrator only)",
+      "severity": "error",
+      "reason": "Coordinator is a deprecated alias for Orchestrator"
+    },
+    {
       "id": "product-name",
       "pattern": "Agentic InfraOps",
       "replacement": "Agentic PlatformOps",
@@ -114,8 +135,23 @@
     "InfraOps / SRE"
   ],
   "fileExtensions": [
-    ".md", ".mdx", ".json", ".jsonc", ".mjs", ".js", ".ts",
-    ".py", ".yml", ".yaml", ".sh", ".toml", ".astro", ".css",
-    ".html", ".ini", ".txt", ".svg"
+    ".md",
+    ".mdx",
+    ".json",
+    ".jsonc",
+    ".mjs",
+    ".js",
+    ".ts",
+    ".py",
+    ".yml",
+    ".yaml",
+    ".sh",
+    ".toml",
+    ".astro",
+    ".css",
+    ".html",
+    ".ini",
+    ".txt",
+    ".svg"
   ]
 }

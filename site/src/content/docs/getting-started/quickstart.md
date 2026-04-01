@@ -86,7 +86,7 @@ The Dev Container installs all tools automatically:
 - PowerShell 7
 - Python 3 + diagrams library
 - Go (Terraform MCP server)
-- 26 VS Code extensions
+- Comprehensive set of VS Code extensions
 
 ## Step 4: Verify Setup
 
@@ -131,7 +131,7 @@ take precedence for experimental features like subagent invocation.
 
 ### Option A: Orchestrator (Recommended)
 
-The Orchestrator (🧠 Orchestrator), also known as the Coordinator, orchestrates the complete multi-step workflow:
+The Orchestrator (🧠 Orchestrator) orchestrates the complete multi-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
 2. Select **Orchestrator** from the agent dropdown
@@ -173,7 +173,7 @@ Each agent has a thematic codename for easy reference in documentation and promp
 | 2    | `architect`                           | 🏛️ Oracle     | WAF assessment              |
 | 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional)    |
 | 3.5  | `governance`                          | 🛡️ Warden     | Policy discovery/compliance |
-| 4    | `iac-planner` / `iac-planner` | 📐 Strategist | Implementation plan         |
+| 4    | `iac-planner`                         | 📐 Strategist | Implementation plan         |
 | 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates               |
 | 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment            |
 | 7    | `as-built`                            | 📚 Chronicler | Documentation suite         |
@@ -204,8 +204,8 @@ agent-output/my-webapp/
 ├── 02-architecture-assessment.md  # WAF analysis
 ├── 03-des-diagram.drawio         # Optional Step 3 architecture diagram
 ├── 04-implementation-plan.md   # Phased plan
-├── 04-dependency-diagram.drawio    # Step 4 dependency diagram
-├── 04-runtime-diagram.drawio       # Step 4 runtime diagram
+├── 04-dependency-diagram.py        # Step 4 dependency diagram
+├── 04-runtime-diagram.py           # Step 4 runtime diagram
 ├── 04-governance-constraints.md   # Policy discovery
 ├── 05-implementation-reference.md # Module inventory
 ├── 06-deployment-summary.md    # Deployed resources

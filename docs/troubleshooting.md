@@ -20,19 +20,18 @@ toc_depth: 2
     - [Cost Governance](cost-governance.md) — budget alert setup and post-deployment validation
     - [Validation & Linting](validation-reference.md) — all validation scripts and CI workflows
 
-| Agent              | Codename      | Common Issues                    |
-| ------------------ | ------------- | -------------------------------- |
-| Orchestrator | 🧠 Orchestrator    | Subagent invocation not working  |
-| requirements       | 📜 Scribe     | Not appearing in list            |
-| architect          | 🏛️ Oracle     | MCP pricing not connecting       |
-| iac-planner      | 📐 Strategist | Governance discovery failing     |
-| iac-planner  | 📐 Strategist | Governance discovery failing     |
-| bicep-codegen      | ⚒️ Forge      | Validation subagents not running |
-| terraform-codegen  | ⚒️ Forge      | Provider version mismatches      |
-| bicep-deploy       | 🚀 Envoy      | Azure auth issues                |
-| terraform-deploy   | 🚀 Envoy      | State lock / init failures       |
-| challenger         | ⚔️ Challenger | —                                |
-| diagnose           | 🔍 Sentinel   | —                                |
+| Agent             | Codename        | Common Issues                    |
+| ----------------- | --------------- | -------------------------------- |
+| Orchestrator      | 🧠 Orchestrator | Subagent invocation not working  |
+| requirements      | 📜 Scribe       | Not appearing in list            |
+| architect         | 🏛️ Oracle       | MCP pricing not connecting       |
+| iac-planner       | 📐 Strategist   | Governance discovery failing     |
+| bicep-codegen     | ⚒️ Forge        | Validation subagents not running |
+| terraform-codegen | ⚒️ Forge        | Provider version mismatches      |
+| bicep-deploy      | 🚀 Envoy        | Azure auth issues                |
+| terraform-deploy  | 🚀 Envoy        | State lock / init failures       |
+| challenger        | ⚔️ Challenger   | —                                |
+| diagnose          | 🔍 Sentinel     | —                                |
 
 ## :material-sitemap-outline: Quick Decision Tree
 

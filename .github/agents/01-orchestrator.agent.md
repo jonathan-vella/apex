@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["GPT-5.4 (copilot)"]
+model: ["GPT-5.4"]
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
@@ -15,7 +15,6 @@ agents:
     "07b-Bicep Deploy",
     "08-As-Built",
     "09-Diagnose",
-    "05-IaC Planner",
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
   ]
@@ -67,7 +66,7 @@ handoffs:
     send: true
   - label: "Step 4: Implementation Plan"
     agent: 05-IaC Planner
-    prompt: "Create a detailed implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`. The IaC tool is set in session state decisions.iac_tool."
+    prompt: "Create a detailed implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`. The IaC tool is set in session state decisions.iac_tool."
     send: true
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen
@@ -91,7 +90,7 @@ handoffs:
     send: false
   - label: "Step 4: IaC Plan (Terraform)"
     agent: 05-IaC Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`. The IaC tool is Terraform — set decisions.iac_tool accordingly."
+    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`. The IaC tool is Terraform — set decisions.iac_tool accordingly."
     send: true
   - label: "Step 5: Generate Terraform"
     agent: 06t-Terraform CodeGen
@@ -310,8 +309,8 @@ Orchestrator with the project name — no special resume prompt needed.
 | 3.5  | `04-governance-constraints.md`   | Governance discovered and reviewed?      |
 | 3.5  | `04-governance-constraints.json` | Machine-readable policy data?            |
 | 4    | `04-implementation-plan.md`      | Exists?                                  |
-| 4    | `04-dependency-diagram.drawio`   | Generated?                               |
-| 4    | `04-runtime-diagram.drawio`      | Generated?                               |
+| 4    | `04-dependency-diagram.py`       | Generated?                               |
+| 4    | `04-runtime-diagram.py`          | Generated?                               |
 | 5    | `infra/bicep/{project}/`         | Templates valid? (Bicep path)            |
 | 5    | `infra/terraform/{project}/`     | Configuration valid? (Terraform path)    |
 | 6    | `06-deployment-summary.md`       | Deployed?                                |

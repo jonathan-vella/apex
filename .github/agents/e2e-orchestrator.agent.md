@@ -1,7 +1,7 @@
 ---
 name: E2E Orchestrator
 description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Orchestrator."
-model: ["GPT-5.4 (copilot)"]
+model: ["GPT-5.4"]
 user-invocable: false
 agents:
   [
@@ -57,7 +57,7 @@ Track approximate context usage per step. If context approaches 60% capacity
 
 ## Core Differences from Production Orchestrator
 
-| Aspect              | Production (01-Orchestrator)      | E2E Orchestrator (this agent)         |
+| Aspect              | Production (01-Orchestrator)   | E2E Orchestrator (this agent)      |
 | ------------------- | ------------------------------ | ---------------------------------- |
 | Human gates         | Required at every gate         | Auto-approve after validation      |
 | askQuestions        | Used for Steps 1 and 4         | Never — all inputs pre-seeded      |

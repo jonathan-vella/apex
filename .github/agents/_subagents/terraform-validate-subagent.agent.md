@@ -150,7 +150,7 @@ Refer to **iac-common** skill for the pattern.
 | Outputs defined            | MEDIUM   | Expose resource IDs and endpoints as `output`                    |
 | `terraform fmt` clean      | LOW      | No format drift                                                  |
 
-### 6. Governance Compliance
+### 7. Governance Compliance
 
 Read `04-governance-constraints.json` from `agent-output/{project}/` and translate
 `azurePropertyPath` entries to Terraform attributes.

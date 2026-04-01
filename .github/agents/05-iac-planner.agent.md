@@ -3,10 +3,7 @@ name: 05-IaC Planner
 description: Expert Azure Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), and designs complete infrastructure solutions with architecture diagrams. Routes to the appropriate IaC track based on decisions.iac_tool in session state.
 model: ["Claude Opus 4.6"]
 user-invocable: true
-agents:
-  [
-    "challenger-review-subagent",
-  ]
+agents: ["challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -112,21 +109,21 @@ Always specify Azure Storage Account backend only.
 
 ## DO / DON'T
 
-| DO                                                                    | DON'T                                                                 |
-| --------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Verify Azure connectivity (`az account show`) FIRST                   | Write ANY IaC code — this agent plans only                            |
-| Read `04-governance-constraints.md/.json` — prerequisite input        | Skip reading governance constraints                                   |
+| DO                                                                                                         | DON'T                                                                 |
+| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Verify Azure connectivity (`az account show`) FIRST                                                        | Write ANY IaC code — this agent plans only                            |
+| Read `04-governance-constraints.md/.json` — prerequisite input                                             | Skip reading governance constraints                                   |
 | Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) | Generate plan before asking deployment strategy (Phase 3.5 mandatory) |
-| Use AVM defaults for SKUs; deprecation research only for overrides    | Hardcode SKUs without AVM verification                                |
-| Define tasks as YAML specs (resource, module, dependencies, config)   | Proceed to code generation without explicit user approval             |
-| Generate `04-implementation-plan.md`                                  | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only    |
-| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | Generate governance from best-practice assumptions            |
-| Match H2 headings from azure-artifacts templates exactly              | Re-run governance discovery (already done in Step 3.5)                |
-| Ask user for deployment strategy — **MANDATORY GATE**                 | Add H2 headings not in the template                                   |
-| Use `askQuestions` in Phase 5 to present findings and gather approval |                                                                       |
-| **Terraform only**: use `azurePropertyPath` (not `bicepPropertyPath`) | **Terraform only**: Plan HCP/cloud backends                           |
-| **Terraform only**: use `terraform/get_module_details` for variables  | **Terraform only**: Use archived tool names (`moduleSearch` etc.)      |
-| Update `agent-output/{project}/README.md` — mark Step 4 complete     |                                                                       |
+| Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                |
+| Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval             |
+| Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only     |
+| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png`                               | Generate governance from best-practice assumptions                    |
+| Match H2 headings from azure-artifacts templates exactly                                                   | Re-run governance discovery (already done in Step 3.5)                |
+| Ask user for deployment strategy — **MANDATORY GATE**                                                      | Add H2 headings not in the template                                   |
+| Use `askQuestions` in Phase 5 to present findings and gather approval                                      |                                                                       |
+| **Terraform only**: use `azurePropertyPath` (not `bicepPropertyPath`)                                      | **Terraform only**: Plan HCP/cloud backends                           |
+| **Terraform only**: use `terraform/get_module_details` for variables                                       | **Terraform only**: Use archived tool names (`moduleSearch` etc.)     |
+| Update `agent-output/{project}/README.md` — mark Step 4 complete                                           |                                                                       |
 
 ## Prerequisites Check
 
@@ -306,20 +303,21 @@ Then use `askQuestions` to gather the decision:
 
 ## Output Files
 
-| File                      | Location                                                  |
-| ------------------------- | --------------------------------------------------------- |
-| Implementation Plan       | `agent-output/{project}/04-implementation-plan.md`        |
-| Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py`         |
-| Dependency Diagram Image  | `agent-output/{project}/04-dependency-diagram.png`        |
-| Runtime Diagram Source    | `agent-output/{project}/04-runtime-diagram.py`            |
-| Runtime Diagram Image     | `agent-output/{project}/04-runtime-diagram.png`           |
+| File                      | Location                                           |
+| ------------------------- | -------------------------------------------------- |
+| Implementation Plan       | `agent-output/{project}/04-implementation-plan.md` |
+| Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py`  |
+| Dependency Diagram Image  | `agent-output/{project}/04-dependency-diagram.png` |
+| Runtime Diagram Source    | `agent-output/{project}/04-runtime-diagram.py`     |
+| Runtime Diagram Image     | `agent-output/{project}/04-runtime-diagram.png`    |
 
 > **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
 > not by this agent. They are consumed as prerequisites.
 
 **`04-governance-constraints.json` is consumed** by CodeGen agents (Phase 1.5) and
 validation subagents. Each `Deny` policy MUST include `azurePropertyPath` +
-`requiredValue` to be machine-actionable.
+`requiredValue` to be machine-actionable. For Terraform targets,
+always use `azurePropertyPath` (not `bicepPropertyPath`) for property mapping.
 
 Include attribution header from the template file (do not hardcode).
 

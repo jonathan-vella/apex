@@ -144,7 +144,7 @@ and passed to modules. Refer to **iac-common** skill for the pattern.
 | No hardcoded values | HIGH     | Use parameters for configurable values |
 | Output definitions  | MEDIUM   | Expose necessary outputs               |
 
-### 6. Governance Compliance
+### 7. Governance Compliance
 
 Read `04-governance-constraints.md` from `agent-output/{project}/`.
 Follow the governance review procedure in **iac-common** skill.

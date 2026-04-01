@@ -17,7 +17,6 @@ tools:
     "azure-mcp/*",
     "microsoft-learn/*",
     "bicep/*",
-    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,

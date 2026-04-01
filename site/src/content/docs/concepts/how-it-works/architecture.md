@@ -34,7 +34,7 @@ between critical phases:
   alt="Orchestra performance representing the Orchestrator pattern"
 />
 
-The Orchestrator (agent `01-Orchestrator`, also known as the Coordinator) is the master orchestrator. It does not
+The Orchestrator (agent `01-Orchestrator`) is the master orchestrator. It does not
 generate infrastructure code or documentation itself. Instead, it:
 
 1. Reads the workflow DAG from `workflow-graph.json`
@@ -67,7 +67,7 @@ frontmatter (`model:` field) for the latest selections.
 
 | Tier           | Model         | Used By                                          |
 | -------------- | ------------- | ------------------------------------------------ |
-| Primary        | Claude Opus   | Orchestrator, all workflow step agents              |
+| Primary        | Claude Opus   | Orchestrator, all workflow step agents           |
 | Review         | Claude Sonnet | Challenger reviews, code reviews (A/B validated) |
 | Heavy API Work | GPT Codex     | Governance discovery (batch REST API calls)      |
 | Utility        | GPT-4o-mini   | Session state updates, lightweight tasks         |

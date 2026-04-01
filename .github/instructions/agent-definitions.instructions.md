@@ -111,19 +111,21 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
 Current model assignments:
 
-| Agent / Group          | Model                   | Rationale                |
-| ---------------------- | ----------------------- | ------------------------ |
-| Requirements           | Claude Opus 4.6         | Deep understanding       |
-| Architect              | Claude Opus 4.6         | WAF analysis + cost      |
-| Design                 | GPT-5.4                 | Diagram generation       |
-| Governance             | GPT-5.4                 | Governance discovery     |
-| Bicep / Terraform Plan | Claude Opus 4.6         | Planning accuracy        |
-| Bicep / Terraform Code | Claude Sonnet 4.6       | Code generation          |
-| Deploy                 | Claude Sonnet 4.6       | Deployment execution     |
-| As-Built               | GPT-5.4                 | Documentation generation |
-| Diagnose               | Claude Opus 4.6         | Complex troubleshooting  |
-| Challenger wrapper     | Claude Sonnet 4.6       | Review orchestration     |
-| Subagents              | GPT-5.4 / GPT-5.3-Codex | Fast isolated validation |
+| Agent / Group            | Model                   | Rationale                 |
+| ------------------------ | ----------------------- | ------------------------- |
+| Orchestrator             | GPT-5.4                 | Multi-step coordination   |
+| Orchestrator (Fast Path) | Claude Sonnet 4.6       | Streamlined orchestration |
+| Requirements             | Claude Opus 4.6         | Deep understanding        |
+| Architect                | Claude Opus 4.6         | WAF analysis + cost       |
+| Design                   | GPT-5.4                 | Diagram generation        |
+| Governance               | GPT-5.4                 | Governance discovery      |
+| Bicep / Terraform Plan   | Claude Opus 4.6         | Planning accuracy         |
+| Bicep / Terraform Code   | Claude Sonnet 4.6       | Code generation           |
+| Deploy                   | Claude Sonnet 4.6       | Deployment execution      |
+| As-Built                 | GPT-5.4                 | Documentation generation  |
+| Diagnose                 | Claude Opus 4.6         | Complex troubleshooting   |
+| Challenger wrapper       | Claude Sonnet 4.6       | Review orchestration      |
+| Subagents                | GPT-5.4 / GPT-5.3-Codex | Fast isolated validation  |
 
 **Rules:**
 
@@ -150,7 +152,7 @@ the multi-step workflow:
 | 5t   | Terraform Code       | `06t-terraform-codegen.agent.md` |
 | 6t   | Terraform Deploy     | `07t-terraform-deploy.agent.md`  |
 | 7    | As-Built             | `08-as-built.agent.md`           |
-| —    | Orchestrator   | `01-orchestrator.agent.md`          |
+| —    | Orchestrator         | `01-orchestrator.agent.md`       |
 | —    | Diagnose             | `09-diagnose.agent.md`           |
 | —    | Challenger (wrapper) | `10-challenger.agent.md`         |
 
@@ -159,15 +161,15 @@ the multi-step workflow:
 Subagents live in `.github/agents/_subagents/` and are `user-invocable: false`. They isolate
 expensive or specialized work from their parent agent's context window.
 
-| Subagent                        | Parent Agent                | Purpose                                              |
-| ------------------------------- | --------------------------- | ---------------------------------------------------- |
-| `challenger-review-subagent`    | All workflow agents         | Adversarial review (comprehensive + rotating lenses) |
-| `cost-estimate-subagent`        | Architect                   | Pricing MCP queries                                  |
-| `governance-discovery-subagent` | IaC Planner                 | Azure Policy REST API discovery                      |
-| `bicep-validate-subagent`       | Bicep Code                  | Lint + AVM/security code review                      |
-| `bicep-whatif-subagent`         | Bicep Deploy                | `az deployment group what-if`                        |
-| `terraform-validate-subagent`   | Terraform Code              | Lint + AVM-TF/security code review                   |
-| `terraform-plan-subagent`       | Terraform Deploy            | `terraform plan` change preview                      |
+| Subagent                        | Parent Agent        | Purpose                                              |
+| ------------------------------- | ------------------- | ---------------------------------------------------- |
+| `challenger-review-subagent`    | All workflow agents | Adversarial review (comprehensive + rotating lenses) |
+| `cost-estimate-subagent`        | Architect           | Pricing MCP queries                                  |
+| `governance-discovery-subagent` | IaC Planner         | Azure Policy REST API discovery                      |
+| `bicep-validate-subagent`       | Bicep Code          | Lint + AVM/security code review                      |
+| `bicep-whatif-subagent`         | Bicep Deploy        | `az deployment group what-if`                        |
+| `terraform-validate-subagent`   | Terraform Code      | Lint + AVM-TF/security code review                   |
+| `terraform-plan-subagent`       | Terraform Deploy    | `terraform plan` change preview                      |
 
 Subagent definition rules:
 

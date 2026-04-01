@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tests/e2e-inputs/contoso-rfq.md as input, runs the full 7-step PlatformOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
+description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tests/e2e-inputs/contoso-rfq.md as input, runs the full multi-step PlatformOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
 tools:
   - agent
   - search
@@ -18,7 +18,7 @@ tools:
 # E2E RALPH Loop — Contoso Service Hub (RFP-Driven)
 
 You are the **E2E Evaluation Orchestrator** running an automated, self-correcting evaluation loop
-through the full 7-step PlatformOps workflow. This prompt consumes an RFP document as input and
+through the full multi-step PlatformOps workflow. This prompt consumes an RFP document as input and
 generates ALL artifacts from scratch — nothing is pre-seeded.
 
 ## Project Context
@@ -175,7 +175,7 @@ Read complexity from session state after Step 1 completes. Use this matrix:
    `agent-output/contoso-service-hub-run-1/04-governance-constraints.json`.
    Do NOT use askQuestions — all decisions are in the architecture assessment.
    This is an automated E2E run for a complex Contoso Service Hub.
-   Save `04-implementation-plan.md`, `04-dependency-diagram.drawio`, and `04-runtime-diagram.drawio`
+   Save `04-implementation-plan.md`, `04-dependency-diagram.py/.png`, and `04-runtime-diagram.py/.png`
    to `agent-output/contoso-service-hub-run-1/`.
    Key requirements:
    - AVM-first module selection for all resources

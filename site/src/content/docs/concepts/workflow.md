@@ -19,7 +19,7 @@ code. The system supports **dual IaC tracks** — Bicep and Terraform — sharin
 architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,
 code generation, and deployment (steps 4-6) before converging again for documentation (step 7).
 
-The **Orchestrator** (🧠 Orchestrator, also referred to as the Coordinator)
+The **Orchestrator** (🧠 Orchestrator)
 orchestrates the complete workflow, routing to
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
 while enforcing mandatory approval gates.
@@ -54,7 +54,7 @@ automatically.
 
 ### The Orchestrator Pattern
 
-The Orchestrator (also called Coordinator) orchestrates the entire workflow by delegating
+The Orchestrator orchestrates the entire workflow by delegating
 to specialised agents step by step, enforcing approval gates, and maintaining session state.
 The following diagram shows the end-to-end flow:
 
@@ -141,27 +141,27 @@ Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
 
 ### Primary Orchestrator
 
-| Agent                  | Codename   | Role                                        | Model                |
-| ---------------------- | ---------- | ------------------------------------------- | -------------------- |
+| Agent            | Codename        | Role                                        | Model                |
+| ---------------- | --------------- | ------------------------------------------- | -------------------- |
 | **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | Claude Opus (latest) |
 
 ### Core Agents (by Workflow Step)
 
 Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
-| Step | Agent              | Codename      | Role                                 | Artifact                                            |
-| ---- | ------------------ | ------------- | ------------------------------------ | --------------------------------------------------- |
-| 1    | `requirements`     | 📜 Scribe     | Captures project requirements | `01-requirements.md`                                |
-| 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                     |
-| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{drawio,py,png,md}`                       |
-| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                |
-| 4b   | `iac-planner`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.drawio` |
-| 4t   | `iac-planner`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.drawio` |
-| 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                            |
-| 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation   | `infra/terraform/{project}/`                        |
-| 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                     | `06-deployment-summary.md`                          |
-| 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                 | `06-deployment-summary.md`                          |
-| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite  | `07-*.md`                                           |
+| Step | Agent              | Codename      | Role                                | Artifact                                             |
+| ---- | ------------------ | ------------- | ----------------------------------- | ---------------------------------------------------- |
+| 1    | `requirements`     | 📜 Scribe     | Captures project requirements       | `01-requirements.md`                                 |
+| 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions | `02-architecture-assessment.md`                      |
+| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                   | `03-des-*.{drawio,py,png,md}`                        |
+| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance     | `04-governance-constraints.md/.json`                 |
+| 4b   | `iac-planner`      | 📐 Strategist | Bicep implementation planning       | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
+| 4t   | `iac-planner`      | 📐 Strategist | Terraform implementation planning   | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
+| 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation           | `infra/bicep/{project}/`                             |
+| 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation  | `infra/terraform/{project}/`                         |
+| 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                    | `06-deployment-summary.md`                           |
+| 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                | `06-deployment-summary.md`                           |
+| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite | `07-*.md`                                            |
 
 ### Validation Subagents
 
@@ -177,7 +177,7 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | Subagent                      | Purpose                                       | Invoked By       |
 | ----------------------------- | --------------------------------------------- | ---------------- |
 | `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming) | `terraform-code` |
-| `iac-planner-subagent`     | Deployment preview (`terraform plan`)         | `terraform-code` |
+| `iac-planner-subagent`        | Deployment preview (`terraform plan`)         | `terraform-code` |
 
 ### Standalone Agents
 
@@ -244,7 +244,7 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `drawio` skill or IaC planning agent (`iac-planner` / `iac-planner`).
+**Handoff**: Suggests `drawio` skill or IaC planning agent (`iac-planner`).
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
@@ -284,7 +284,7 @@ The user must approve governance constraints before proceeding to planning.
 
 ### Step 4: Planning (📐 Strategist)
 
-**Agent**: `iac-planner` (Bicep track) or `iac-planner` (Terraform track)
+**Agent**: `iac-planner`
 
 Create detailed implementation plan using governance constraints as input.
 The planner validates governance completeness before proceeding: the
@@ -313,7 +313,7 @@ fails, the planner stops and requests governance refresh.
 - Governance constraints integration from Step 3.5
 - AVM module selection (Bicep: `br/public:avm/res/`, Terraform: AVM-TF registry)
 - Resource dependency mapping
-- Auto-generated Step 4 diagrams (`04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`)
+- Auto-generated Step 4 diagrams (`04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`)
 - Naming convention validation (CAF)
 - Phased implementation approach
 
@@ -356,7 +356,7 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 | Bicep Subagent            | Terraform Subagent            | Validation         |
 | ------------------------- | ----------------------------- | ------------------ |
 | `bicep-validate-subagent` | `terraform-validate-subagent` | Lint + code review |
-| `bicep-whatif-subagent`   | `iac-planner-subagent`     | Deployment preview |
+| `bicep-whatif-subagent`   | `iac-planner-subagent`        | Deployment preview |
 
 :::note[Approval Gate]
 The user must approve preflight validation results before deployment.
@@ -459,13 +459,13 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 
 ## Agents vs Skills
 
-| Aspect          | Agents                                   | Skills                   |
-| --------------- | ---------------------------------------- | ------------------------ |
+| Aspect          | Agents                                      | Skills                   |
+| --------------- | ------------------------------------------- | ------------------------ |
 | **Invocation**  | Manual (`Ctrl+Shift+A`) or via Orchestrator | Automatic or explicit    |
-| **Interaction** | Conversational with handoffs             | Task-focused             |
-| **State**       | Session context                          | Stateless                |
-| **Output**      | Multiple artifacts                       | Specific outputs         |
-| **When to use** | Core workflow steps                      | Specialized capabilities |
+| **Interaction** | Conversational with handoffs                | Task-focused             |
+| **State**       | Session context                             | Stateless                |
+| **Output**      | Multiple artifacts                          | Specific outputs         |
+| **When to use** | Core workflow steps                         | Specialized capabilities |
 
 ## Quick Reference
 

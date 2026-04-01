@@ -48,11 +48,10 @@ npm run lint:md                          # Markdown linting
 npm run lint:json                        # JSON/JSONC validation
 npm run lint:agent-frontmatter           # Agent definition frontmatter
 npm run lint:skills-format               # Skill file format
-npm run lint:instruction-frontmatter     # Instruction file format
+npm run validate:instruction-checks      # Instruction file format and reference validation
 npm run lint:artifact-templates          # Artifact template compliance
 npm run lint:h2-sync                     # H2 heading sync between templates and artifacts
 npm run lint:governance-refs             # Governance reference validation
-npm run validate:instruction-refs        # Instruction reference validation
 npm run validate:session-state           # Session state JSON schema validation
 npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation

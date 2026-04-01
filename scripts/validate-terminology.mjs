@@ -33,19 +33,13 @@ const r = new Reporter("Terminology Validator");
 
 function loadBlocklist() {
   if (!fs.existsSync(BLOCKLIST_PATH)) {
-    r.error(
-      ".github/terminology-blocklist.json",
-      "Blocklist config not found"
-    );
+    r.error(".github/terminology-blocklist.json", "Blocklist config not found");
     return null;
   }
   try {
     return JSON.parse(fs.readFileSync(BLOCKLIST_PATH, "utf-8"));
   } catch (e) {
-    r.error(
-      ".github/terminology-blocklist.json",
-      `Invalid JSON: ${e.message}`
-    );
+    r.error(".github/terminology-blocklist.json", `Invalid JSON: ${e.message}`);
     return null;
   }
 }
@@ -54,9 +48,7 @@ function loadBlocklist() {
 
 function collectFiles(extensions, excludePatterns) {
   const results = [];
-  const excludeNormalized = excludePatterns.map((p) =>
-    p.replace(/\\/g, "/")
-  );
+  const excludeNormalized = excludePatterns.map((p) => p.replace(/\\/g, "/"));
 
   function walk(dir) {
     let entries;
@@ -71,9 +63,7 @@ function collectFiles(extensions, excludePatterns) {
 
       // Skip excluded directories/files
       if (
-        excludeNormalized.some(
-          (ex) => relPath === ex || relPath.startsWith(ex)
-        )
+        excludeNormalized.some((ex) => relPath === ex || relPath.startsWith(ex))
       ) {
         continue;
       }
@@ -125,13 +115,9 @@ function scanFile(filePath, relPath, rules, excludeLinePatterns) {
     }
 
     for (const rule of rules) {
-      const regex = rule.isRegex
-        ? new RegExp(rule.pattern, "gi")
-        : null;
+      const regex = rule.isRegex ? new RegExp(rule.pattern, "gi") : null;
 
-      const found = regex
-        ? regex.test(line)
-        : line.includes(rule.pattern);
+      const found = regex ? regex.test(line) : line.includes(rule.pattern);
 
       if (found) {
         violations.push({
@@ -163,11 +149,13 @@ if (!config) {
 
 const files = collectFiles(
   config.fileExtensions || [".md"],
-  config.excludePatterns || []
+  config.excludePatterns || [],
 );
 
 if (VERBOSE) {
-  console.log(`  Scanning ${files.length} files against ${config.rules.length} rules...\n`);
+  console.log(
+    `  Scanning ${files.length} files against ${config.rules.length} rules...\n`,
+  );
 }
 
 const allViolations = [];
@@ -178,7 +166,7 @@ for (const { fullPath, relPath } of files) {
     fullPath,
     relPath,
     config.rules,
-    config.excludeLinePatterns || []
+    config.excludeLinePatterns || [],
   );
   allViolations.push(...violations);
 }
@@ -187,7 +175,7 @@ for (const { fullPath, relPath } of files) {
 
 if (allViolations.length === 0) {
   console.log(
-    `  ✅ No deprecated terminology found (${files.length} files, ${config.rules.length} rules)\n`
+    `  ✅ No deprecated terminology found (${files.length} files, ${config.rules.length} rules)\n`,
   );
 } else {
   // Group by file for readability
