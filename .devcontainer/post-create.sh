@@ -181,17 +181,30 @@ else
 fi
 
 # ─── Step 8: Terraform MCP Server binary ────────────────────────────────────
+# Uses clone+build instead of go install because the module's go.mod contains
+# replace directives, which go install rejects for non-main modules.
 
-step_start "🏗️ " "Installing Terraform MCP Server binary (go install)..."
+step_start "🏗️ " "Installing Terraform MCP Server binary (clone & build)..."
 if command -v go &> /dev/null; then
-    if go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest 2>&1 | tail -2; then
-        if command -v /go/bin/terraform-mcp-server &> /dev/null; then
-            step_done "terraform-mcp-server installed at /go/bin/"
+    TF_MCP_TMP=$(mktemp -d)
+    if git clone --depth=1 --quiet https://github.com/hashicorp/terraform-mcp-server.git "$TF_MCP_TMP" 2>&1; then
+        pushd "$TF_MCP_TMP" > /dev/null
+        if go build -o /go/bin/terraform-mcp-server ./cmd/terraform-mcp-server/ 2>&1 | tail -2; then
+            popd > /dev/null
+            rm -rf "$TF_MCP_TMP"
+            if command -v terraform-mcp-server &>/dev/null || [ -x /go/bin/terraform-mcp-server ]; then
+                step_done "terraform-mcp-server built and installed at /go/bin/"
+            else
+                step_warn "build ran but binary not found at expected path"
+            fi
         else
-            step_warn "go install ran but binary not found at expected path"
+            popd > /dev/null
+            rm -rf "$TF_MCP_TMP"
+            step_warn "go build failed — MCP server unavailable until fixed"
         fi
     else
-        step_warn "go install failed — MCP server unavailable until fixed"
+        rm -rf "$TF_MCP_TMP"
+        step_warn "git clone failed — check network access to github.com"
     fi
 else
     step_warn "Go not found — Terraform MCP Server not installed"
