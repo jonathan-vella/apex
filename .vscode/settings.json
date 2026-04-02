@@ -48,6 +48,10 @@
   },
   "python.terminal.useEnvFile": true,
   "azureTerraform.checkTerraformCmd": false,
+  "deno.enable": false,
+  "deno.enablePaths": ["${workspaceFolder}/mcp/drawio-mcp-server"],
+  "deno.lint": true,
+  "deno.unstable": [],
   "workbench.editorAssociations": {
     "*.excalidraw": "editor.excalidraw",
     "*.excalidraw.svg": "editor.excalidraw",

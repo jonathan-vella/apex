@@ -1,0 +1,46 @@
+# azure.yaml — Contoso Service Hub Run-2
+# Azure Developer CLI (azd) project manifest (infrastructure-only; no application services).
+# Run from this directory: azd up
+# Reference: https://learn.microsoft.com/azure/developer/azure-developer-cli/azd-reference
+
+name: contoso-service-hub-run-2
+
+metadata:
+  template: contoso-service-hub-run-2@0.1.0
+
+infra:
+  provider: bicep
+  path: .
+  module: main
+
+hooks:
+  preprovision:
+    shell: sh
+    run: |
+      echo "======================================================"
+      echo " Contoso Service Hub Run-2 — Pre-provision checks"
+      echo "======================================================"
+      echo " Region   : swedencentral (EU Data Boundary LIVE-001)"
+      echo " IaC      : Bicep (AVM-first)"
+      echo " Identity : User-Assigned Managed Identity"
+      echo "======================================================"
+      az account show --query "name" -o tsv || { echo "ERROR: Not logged in. Run 'az login'."; exit 1; }
+    continueOnError: false
+    interactive: false
+
+  postprovision:
+    shell: sh
+    run: |
+      echo "======================================================"
+      echo " Contoso Service Hub Run-2 — Post-provision complete"
+      echo "======================================================"
+      echo " Subscription : ${AZURE_SUBSCRIPTION_ID}"
+      echo " Location     : ${AZURE_LOCATION}"
+      echo " Review the Azure Portal for deployed resource details."
+      echo "======================================================"
+    continueOnError: true
+    interactive: false
+
+# This project is infrastructure-only.
+# Application services (APIs, frontends) are deployed separately via CI/CD pipelines
+# that consume azd environment output values for resource connectivity.

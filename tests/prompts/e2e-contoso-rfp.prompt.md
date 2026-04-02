@@ -1,5 +1,6 @@
 ---
-agent: agent
+agent: E2E Orchestrator
+model: GPT-5.4 (copilot)
 description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tests/e2e-inputs/contoso-rfq.md as input, runs the full multi-step PlatformOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
 tools:
   - agent

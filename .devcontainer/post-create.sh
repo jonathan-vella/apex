@@ -211,14 +211,15 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 10: Azure CLI defaults ────────────────────────────────────
+# ─── Step 10: Azure CLI extension install behavior ──────────────────────────
 
-step_start "☁️ " "Configuring Azure CLI..."
-if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then
+step_start "☁️ " "Configuring Azure CLI extension install behavior..."
+if az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors 2>/dev/null \
+    && az config set extension.dynamic_install_allow_preview=false --only-show-errors 2>/dev/null; then
     az config set auto-upgrade.enable=no --only-show-errors 2>/dev/null || true
-    step_done "Default location: swedencentral"
+    step_done "Azure CLI stable extensions auto-install without prompt"
 else
-    step_warn "Azure CLI config skipped (not authenticated)"
+    step_warn "Azure CLI config update failed"
 fi
 
 # ─── Step 11: MCP config & final verification ─────────────────────────────

@@ -1,8 +1,8 @@
 ---
 name: E2E Orchestrator
+model: GPT-5.4
 description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Orchestrator."
-model: ["GPT-5.4"]
-user-invocable: false
+user-invocable: true
 agents:
   [
     "03-Architect",

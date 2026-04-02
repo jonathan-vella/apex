@@ -1,0 +1,378 @@
+[
+  {
+    "displayName": "Allow only EU locations for planned resources",
+    "policyDefinitionId": "template://governance/allowed-eu-locations",
+    "effect": "Deny",
+    "scope": "management-group-or-subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Data Residency",
+    "affectedResourceTypes": [
+      "Microsoft.ContainerService/managedClusters",
+      "Microsoft.DBforPostgreSQL/flexibleServers",
+      "Microsoft.Cache/redisEnterprise",
+      "Microsoft.Storage/storageAccounts",
+      "Microsoft.ApiManagement/service",
+      "Microsoft.Network/applicationGateways",
+      "Microsoft.KeyVault/vaults",
+      "Microsoft.Compute/virtualMachines",
+      "Microsoft.Network/virtualNetworks"
+    ],
+    "bicepPropertyPath": "genericResource::location",
+    "azurePropertyPath": "genericResource.location",
+    "requiredValue": "swedencentral|westeurope|germanywestcentral|northeurope",
+    "notes": "Use only approved EU regions. Front Door is intentionally excluded from this compliant baseline."
+  },
+  {
+    "displayName": "Require mandatory governance tags",
+    "policyDefinitionId": "template://governance/required-tags",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Tagging",
+    "affectedResourceTypes": [
+      "Microsoft.Resources/resourceGroups",
+      "Microsoft.ContainerService/managedClusters",
+      "Microsoft.DBforPostgreSQL/flexibleServers",
+      "Microsoft.Cache/redisEnterprise",
+      "Microsoft.Storage/storageAccounts",
+      "Microsoft.ApiManagement/service",
+      "Microsoft.Network/applicationGateways",
+      "Microsoft.KeyVault/vaults",
+      "Microsoft.Compute/virtualMachines"
+    ],
+    "bicepPropertyPath": "genericResource::tags",
+    "azurePropertyPath": "genericResource.tags",
+    "requiredValue": "Environment|ManagedBy|Project|Owner present",
+    "notes": "All resources must carry Environment, ManagedBy, Project, and Owner tags."
+  },
+  {
+    "displayName": "Inherit required tags from resource group",
+    "policyDefinitionId": "template://governance/inherit-tags-from-rg",
+    "effect": "Modify",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Tagging",
+    "affectedResourceTypes": [
+      "Microsoft.ContainerService/managedClusters",
+      "Microsoft.DBforPostgreSQL/flexibleServers",
+      "Microsoft.Cache/redisEnterprise",
+      "Microsoft.Storage/storageAccounts",
+      "Microsoft.ApiManagement/service",
+      "Microsoft.Network/applicationGateways",
+      "Microsoft.KeyVault/vaults",
+      "Microsoft.Compute/virtualMachines"
+    ],
+    "bicepPropertyPath": "genericResource::tags",
+    "azurePropertyPath": "genericResource.tags",
+    "requiredValue": "Inherit required tags from RG",
+    "notes": "Template assumption for modify-style tag inheritance."
+  },
+  {
+    "displayName": "Enforce HTTPS only on Storage accounts",
+    "policyDefinitionId": "template://governance/storage-https-only",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Storage",
+    "affectedResourceTypes": [
+      "Microsoft.Storage/storageAccounts"
+    ],
+    "bicepPropertyPath": "storageAccounts::properties.supportsHttpsTrafficOnly",
+    "azurePropertyPath": "storageAccount.properties.supportsHttpsTrafficOnly",
+    "requiredValue": "true"
+  },
+  {
+    "displayName": "Enforce TLS 1.2 on Storage accounts",
+    "policyDefinitionId": "template://governance/storage-min-tls-12",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Storage",
+    "affectedResourceTypes": [
+      "Microsoft.Storage/storageAccounts"
+    ],
+    "bicepPropertyPath": "storageAccounts::properties.minimumTlsVersion",
+    "azurePropertyPath": "storageAccount.properties.minimumTlsVersion",
+    "requiredValue": "TLS1_2"
+  },
+  {
+    "displayName": "Disable public blob access on Storage accounts",
+    "policyDefinitionId": "template://governance/storage-no-public-blob",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Storage",
+    "affectedResourceTypes": [
+      "Microsoft.Storage/storageAccounts"
+    ],
+    "bicepPropertyPath": "storageAccounts::properties.allowBlobPublicAccess",
+    "azurePropertyPath": "storageAccount.properties.allowBlobPublicAccess",
+    "requiredValue": "false"
+  },
+  {
+    "displayName": "Disable public network access on Storage accounts",
+    "policyDefinitionId": "template://governance/storage-private-endpoints-only",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Storage",
+    "affectedResourceTypes": [
+      "Microsoft.Storage/storageAccounts"
+    ],
+    "bicepPropertyPath": "storageAccounts::properties.publicNetworkAccess",
+    "azurePropertyPath": "storageAccount.properties.publicNetworkAccess",
+    "requiredValue": "Disabled"
+  },
+  {
+    "displayName": "Require Key Vault purge protection",
+    "policyDefinitionId": "template://governance/keyvault-purge-protection",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Key Vault",
+    "affectedResourceTypes": [
+      "Microsoft.KeyVault/vaults"
+    ],
+    "bicepPropertyPath": "vaults::properties.enablePurgeProtection",
+    "azurePropertyPath": "keyVault.properties.enablePurgeProtection",
+    "requiredValue": "true"
+  },
+  {
+    "displayName": "Require Key Vault soft delete retention of at least 90 days",
+    "policyDefinitionId": "template://governance/keyvault-soft-delete-retention",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Key Vault",
+    "affectedResourceTypes": [
+      "Microsoft.KeyVault/vaults"
+    ],
+    "bicepPropertyPath": "vaults::properties.softDeleteRetentionInDays",
+    "azurePropertyPath": "keyVault.properties.softDeleteRetentionInDays",
+    "requiredValue": "90"
+  },
+  {
+    "displayName": "Disable public network access on Key Vault",
+    "policyDefinitionId": "template://governance/keyvault-private-only",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Key Vault",
+    "affectedResourceTypes": [
+      "Microsoft.KeyVault/vaults"
+    ],
+    "bicepPropertyPath": "vaults::properties.publicNetworkAccess",
+    "azurePropertyPath": "keyVault.properties.publicNetworkAccess",
+    "requiredValue": "Disabled"
+  },
+  {
+    "displayName": "Disable public network access on PostgreSQL Flexible Server",
+    "policyDefinitionId": "template://governance/postgresql-private-only",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "PostgreSQL",
+    "affectedResourceTypes": [
+      "Microsoft.DBforPostgreSQL/flexibleServers"
+    ],
+    "bicepPropertyPath": "flexibleServers::properties.network.publicNetworkAccess",
+    "azurePropertyPath": "postgresqlFlexibleServer.properties.network.publicNetworkAccess",
+    "requiredValue": "Disabled"
+  },
+  {
+    "displayName": "Require Microsoft Entra-only authentication on PostgreSQL Flexible Server",
+    "policyDefinitionId": "template://governance/postgresql-entra-only-auth",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "PostgreSQL",
+    "affectedResourceTypes": [
+      "Microsoft.DBforPostgreSQL/flexibleServers"
+    ],
+    "bicepPropertyPath": "flexibleServers::properties.authConfig.passwordAuth",
+    "azurePropertyPath": "postgresqlFlexibleServer.properties.authConfig.passwordAuth",
+    "requiredValue": "Disabled",
+    "notes": "Bootstrap a Microsoft Entra administrator and avoid password-based application connectivity."
+  },
+  {
+    "displayName": "Enforce TLS 1.2 on PostgreSQL Flexible Server",
+    "policyDefinitionId": "template://governance/postgresql-min-tls-12",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "PostgreSQL",
+    "affectedResourceTypes": [
+      "Microsoft.DBforPostgreSQL/flexibleServers"
+    ],
+    "bicepPropertyPath": "flexibleServers::properties.minimalTlsVersion",
+    "azurePropertyPath": "postgresqlFlexibleServer.properties.minimalTlsVersion",
+    "requiredValue": "TLS1_2"
+  },
+  {
+    "displayName": "Disable public network access on Azure Managed Redis",
+    "policyDefinitionId": "template://governance/redis-private-only",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Redis",
+    "affectedResourceTypes": [
+      "Microsoft.Cache/redisEnterprise"
+    ],
+    "bicepPropertyPath": "redisEnterprise::properties.publicNetworkAccess",
+    "azurePropertyPath": "redisEnterprise.properties.publicNetworkAccess",
+    "requiredValue": "Disabled"
+  },
+  {
+    "displayName": "Enforce TLS 1.2 on Azure Managed Redis",
+    "policyDefinitionId": "template://governance/redis-min-tls-12",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Redis",
+    "affectedResourceTypes": [
+      "Microsoft.Cache/redisEnterprise"
+    ],
+    "bicepPropertyPath": "redisEnterprise::properties.minimumTlsVersion",
+    "azurePropertyPath": "redisEnterprise.properties.minimumTlsVersion",
+    "requiredValue": "1.2"
+  },
+  {
+    "displayName": "Restrict AKS API server exposure",
+    "policyDefinitionId": "template://governance/aks-authorized-ip-ranges-or-private",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "AKS",
+    "affectedResourceTypes": [
+      "Microsoft.ContainerService/managedClusters"
+    ],
+    "bicepPropertyPath": "managedClusters::properties.apiServerAccessProfile.authorizedIPRanges",
+    "azurePropertyPath": "managedCluster.properties.apiServerAccessProfile.authorizedIPRanges",
+    "requiredValue": "Corp egress CIDRs only or private cluster"
+  },
+  {
+    "displayName": "Enable Azure Policy add-on on AKS",
+    "policyDefinitionId": "template://governance/aks-azure-policy-addon",
+    "effect": "DeployIfNotExists",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "AKS",
+    "affectedResourceTypes": [
+      "Microsoft.ContainerService/managedClusters"
+    ],
+    "bicepPropertyPath": "managedClusters::properties.addonProfiles.azurepolicy.enabled",
+    "azurePropertyPath": "managedCluster.properties.addonProfiles.azurepolicy.enabled",
+    "requiredValue": "true"
+  },
+  {
+    "displayName": "Require AKS network policy",
+    "policyDefinitionId": "template://governance/aks-network-policy",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "AKS",
+    "affectedResourceTypes": [
+      "Microsoft.ContainerService/managedClusters"
+    ],
+    "bicepPropertyPath": "managedClusters::properties.networkProfile.networkPolicy",
+    "azurePropertyPath": "managedCluster.properties.networkProfile.networkPolicy",
+    "requiredValue": "azure|calico"
+  },
+  {
+    "displayName": "Enforce encryption at rest for VM managed disks",
+    "policyDefinitionId": "template://governance/vm-disk-encryption",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Compute",
+    "affectedResourceTypes": [
+      "Microsoft.Compute/disks",
+      "Microsoft.Compute/virtualMachines"
+    ],
+    "bicepPropertyPath": "managedDisks::properties.encryption.type",
+    "azurePropertyPath": "managedDisk.properties.encryption.type",
+    "requiredValue": "EncryptionAtRestWithPlatformKey or EncryptionAtRestWithCustomerKey"
+  },
+  {
+    "displayName": "Require Application Gateway WAF v2 in prevention mode for public ingress",
+    "policyDefinitionId": "template://governance/appgw-waf-prevention",
+    "effect": "Deny",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Ingress",
+    "affectedResourceTypes": [
+      "Microsoft.Network/applicationGateways"
+    ],
+    "bicepPropertyPath": "applicationGateways::properties.webApplicationFirewallConfiguration",
+    "azurePropertyPath": "applicationGateway.properties.webApplicationFirewallConfiguration",
+    "requiredValue": "Enabled;Prevention"
+  },
+  {
+    "displayName": "Require managed identity for service-to-service authentication",
+    "policyDefinitionId": "template://governance/managed-identity-required",
+    "effect": "Audit",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Identity",
+    "affectedResourceTypes": [
+      "Microsoft.ContainerService/managedClusters",
+      "Microsoft.ApiManagement/service",
+      "Microsoft.Compute/virtualMachines"
+    ],
+    "bicepPropertyPath": "genericResource::identity.type",
+    "azurePropertyPath": "genericResource.identity.type",
+    "requiredValue": "SystemAssigned or UserAssigned",
+    "notes": "Use managed identity or workload identity. Avoid shared keys and connection strings in application configuration."
+  },
+  {
+    "displayName": "Harden API Management gateway protocols and backend authentication",
+    "policyDefinitionId": "template://governance/apim-tls-and-managed-identity",
+    "effect": "Audit",
+    "scope": "subscription-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "API Management",
+    "affectedResourceTypes": [
+      "Microsoft.ApiManagement/service"
+    ],
+    "bicepPropertyPath": "service::properties.customProperties",
+    "azurePropertyPath": "apiManagementService.properties.customProperties",
+    "requiredValue": "TLS1.2AndStrongCiphersOnly;ManagedIdentityToBackends",
+    "notes": "Template expectation for APIM hardening and backend authentication strategy."
+  },
+  {
+    "displayName": "Restrict Entra External ID MFA to EU-sovereign methods",
+    "policyDefinitionId": "template://governance/entra-external-id-sovereign-mfa",
+    "effect": "ManualControl",
+    "scope": "tenant-template",
+    "sourceType": "template",
+    "sourceConfidence": "unverified",
+    "category": "Entra External ID",
+    "affectedResourceTypes": [
+      "Microsoft.Entra/externalIdentities"
+    ],
+    "requiredValue": "FIDO2|Passkey|TOTP only unless approved exception exists",
+    "notes": "Manual governance control for EU sovereignty. SMS/PSTN and push-based MFA require explicit review."
+  }
+]

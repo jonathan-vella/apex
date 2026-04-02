@@ -182,6 +182,19 @@ gh auth status
 az --version && bicep --version && pwsh --version
 ```
 
+:::note[Azure CLI extension prompts are pre-configured away]
+The devcontainer sets Azure CLI config during `post-create.sh` so extension-backed commands can
+install stable extensions automatically without prompting:
+
+```bash
+az config set extension.use_dynamic_install=yes_without_prompt
+az config set extension.dynamic_install_allow_preview=false
+```
+
+This avoids the common warning about dynamic extension installation. Preview extensions remain
+manual unless you explicitly change that setting.
+:::
+
 ## Alternative Docker Options
 
 :::tip[Choose your Docker runtime before installing]

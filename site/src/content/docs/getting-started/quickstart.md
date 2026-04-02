@@ -24,19 +24,27 @@ An Azure subscription is optional for learning the workflow — you only need it
 when deploying to Azure in Step 6.
 :::
 
-| Requirement            | How to Get                                                  |
-| ---------------------- | ----------------------------------------------------------- |
-| GitHub account         | [Sign up](https://github.com/signup)                        |
-| GitHub Copilot license | [Get Copilot](https://github.com/features/copilot)          |
-| VS Code                | [Download](https://code.visualstudio.com/)                  |
-| Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
-| Azure subscription     | Optional for learning                                       |
+| Requirement             | How to Get                                                  |
+| ----------------------- | ----------------------------------------------------------- |
+| GitHub account          | [Sign up](https://github.com/signup)                        |
+| GitHub Copilot license  | [Get Copilot](https://github.com/features/copilot)          |
+| GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`        |
+| VS Code                 | [Download](https://code.visualstudio.com/)                  |
+| Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/) |
+| Azure subscription      | Optional for learning                                       |
 
 :::note[Docker is required]
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 is the most common choice. Free alternatives include [Rancher Desktop](https://rancherdesktop.io/),
 [Colima](https://github.com/abiosoft/colima) (macOS), and [Podman](https://podman.io/) (Linux/macOS).
 See [Dev Container Setup](../dev-containers/) for detailed installation options.
+:::
+
+:::caution[Configure `GH_TOKEN` before you open the container]
+GitHub operations inside the devcontainer depend on a fine-grained Personal Access Token exposed as
+`GH_TOKEN` through **VS Code User Settings**. Shell exports inside the container are not reliable and
+do not survive rebuilds. The full setup is documented on [Dev Container Setup](../dev-containers/),
+but the minimum working configuration is included below so you do not miss it.
 :::
 
 ## Step 1: Create Your Repository from the Template
@@ -88,20 +96,56 @@ The Dev Container installs all tools automatically:
 - Go (Terraform MCP server)
 - Comprehensive set of VS Code extensions
 
-## Step 4: Verify Setup
+## Step 4: Configure `GH_TOKEN` for the Dev Container
+
+This step is easy to miss, but it is required for reliable GitHub CLI and repository operations in
+the devcontainer.
+
+:::caution[Use VS Code User Settings, not `export GH_TOKEN=...`]
+Set `GH_TOKEN` in **VS Code User Settings** so the devcontainer can forward it automatically.
+Adding it in `.bashrc`, `.profile`, or an in-container shell session does not persist reliably.
+:::
+
+1. Create a **fine-grained** GitHub Personal Access Token
+2. Grant at least these permissions:
+
+| Permission    | Level      |
+| ------------- | ---------- |
+| Contents      | Read/Write |
+| Metadata      | Read       |
+| Pull requests | Read/Write |
+| Issues        | Read/Write |
+| Workflows     | Read/Write |
+
+1. Open **VS Code User Settings (JSON)**
+2. Add this entry and replace the placeholder token value:
+
+```jsonc
+"terminal.integrated.env.linux": { "GH_TOKEN": "github_pat_your_token_here" }
+```
+
+1. Rebuild the devcontainer: `F1` → `Dev Containers: Rebuild Container`
+2. Run `gh auth status` inside the container and confirm it shows a logged-in token-based
+   session
+
+See [Dev Container Setup](../dev-containers/) for the full explanation, screenshots, and token
+rotation guidance.
+
+## Step 5: Verify Setup
 
 :::tip[Verify all tools installed correctly]
-Run this command to confirm the dev container has all required CLIs:
+Run these commands to confirm the dev container has all required CLIs and GitHub authentication:
 :::
 
 ```bash
+gh auth status
 az --version && bicep --version && terraform --version && pwsh --version # (1)!
 ```
 
-1. All four CLIs should print version numbers. If any fail, reopen
-   the dev container.
+1. `gh auth status` should show a token-backed login, and all four CLIs should print
+   version numbers. If any fail, rebuild or reopen the dev container.
 
-## Step 5: Enable Subagent Orchestration
+## Step 6: Enable Subagent Orchestration
 
 :::caution[Required]
 The Orchestrator pattern requires this setting.
@@ -127,7 +171,7 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-## Step 6: Start the Orchestrator
+## Step 7: Start the Orchestrator
 
 ### Option A: Orchestrator (Recommended)
 
@@ -157,7 +201,7 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-## Step 7: Follow the Workflow
+## Step 8: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection
