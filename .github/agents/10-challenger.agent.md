@@ -33,7 +33,7 @@ handoffs:
 
 ## Subagent Budget
 
-This agent orchestrates 1 subagent: challenger-review-subagent (unified, supports single-lens and batch modes).
+This agent orchestrates 1 subagent — `challenger-review-subagent` (unified, supports single-lens and batch modes).
 For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
