@@ -6,7 +6,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## When to Use
 
-- Conductor determining the next step after a gate
+- Orchestrator determining the next step after a gate
 - Resuming a workflow from `00-session-state.json`
 - Validating that all steps have proper dependencies and outputs
 - Understanding fan-out (parallel sub-steps) and conditional routing
@@ -29,7 +29,7 @@ The workflow is a Directed Acyclic Graph (DAG) with:
 The full machine-readable DAG is in:
 `templates/workflow-graph.json`
 
-### Reading the Graph (Conductor Protocol)
+### Reading the Graph (Orchestrator Protocol)
 
 ```text
 1. Load workflow-graph.json
@@ -42,5 +42,5 @@ The full machine-readable DAG is in:
 | Reference            | File                                    | Content                                             |
 | -------------------- | --------------------------------------- | --------------------------------------------------- |
 | Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for the multi-step workflow                |
-| Conductor Handoff    | `references/conductor-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
+| Orchestrator Handoff    | `references/orchestrator-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
 | Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |

@@ -211,8 +211,8 @@ az consumption budget show \
 
 :::tip[Further Reading]
 
-- The mandatory `iac-cost-repeatability` instruction
-  (`.github/instructions/iac-cost-repeatability.instructions.md`)
+- The mandatory `iac-best-practices` instruction
+  (`.github/instructions/iac-best-practices.instructions.md`)
   enforces these patterns automatically via glob matching
 - **Reusable budget patterns** are available in the IaC pattern skills:
   - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`

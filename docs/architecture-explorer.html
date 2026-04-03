@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agentic InfraOps — Architecture Explorer</title>
+    <title>APEX — Architecture Explorer</title>
     <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
     <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
     <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
@@ -242,7 +242,7 @@
   <body>
     <div id="app">
       <div id="sidebar">
-        <h1>Agentic InfraOps Explorer</h1>
+        <h1>APEX Explorer</h1>
         <div class="view-toggle">
           <button class="view-btn" data-view="all">All</button>
           <button class="view-btn active" data-view="workflow">Workflow</button>
@@ -392,14 +392,13 @@
 
       // Agents
       const agents = {
-        "01-Conductor": { model: "Claude Opus 4.6", step: null },
-        "01-Conductor-FastPath": { model: "Claude Sonnet 4.6", step: null },
+        "01-Orchestrator": { model: "Claude Opus 4.6", step: null },
+        "01-Orchestrator-FastPath": { model: "Claude Sonnet 4.6", step: null },
         "02-Requirements": { model: "Claude Opus 4.6", step: 1 },
         "03-Architect": { model: "Claude Opus 4.6", step: 2 },
         "04-Design": { model: "GPT-5.4", step: 3 },
         "04g-Governance": { model: "GPT-5.4", step: 3.5 },
-        "05b-Bicep Planner": { model: "Claude Opus 4.6", step: 4 },
-        "05t-Terraform Planner": { model: "Claude Opus 4.6", step: 4 },
+        "05-IaC Planner": { model: "Claude Opus 4.6", step: 4 },
         "06b-Bicep CodeGen": { model: "GPT-5.4", step: 5 },
         "06t-Terraform CodeGen": { model: "GPT-5.4", step: 5 },
         "07b-Bicep Deploy": { model: "GPT-5.4", step: 6 },
@@ -434,15 +433,14 @@
 
       // Delegation links
       const delegations = {
-        "01-Conductor": [
+        "01-Orchestrator": [
           "challenger-review",
           "challenger-review-codex",
           "challenger-review-batch",
           "cost-estimate",
           "governance-discovery",
         ],
-        "05b-Bicep Planner": ["governance-discovery"],
-        "05t-Terraform Planner": ["governance-discovery"],
+        "05-IaC Planner": ["governance-discovery"],
         "06b-Bicep CodeGen": ["bicep-lint", "bicep-review"],
         "06t-Terraform CodeGen": ["terraform-lint", "terraform-review"],
         "07b-Bicep Deploy": ["bicep-whatif"],
@@ -509,7 +507,7 @@
 
       // Skill affinity links
       const affinity = {
-        "01-Conductor": {
+        "01-Orchestrator": {
           primary: [
             "golden-principles",
             "session-resume",
@@ -523,7 +521,7 @@
             "azure-prepare",
           ],
         },
-        "01-Conductor-FastPath": {
+        "01-Orchestrator-FastPath": {
           primary: [
             "golden-principles",
             "session-resume",
@@ -558,19 +556,11 @@
           primary: ["azure-defaults", "azure-artifacts", "session-resume"],
           secondary: [],
         },
-        "05b-Bicep Planner": {
+        "05-IaC Planner": {
           primary: [
             "azure-defaults",
             "azure-artifacts",
             "azure-bicep-patterns",
-            "session-resume",
-          ],
-          secondary: ["context-shredding"],
-        },
-        "05t-Terraform Planner": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
             "terraform-patterns",
             "session-resume",
           ],
@@ -673,23 +663,23 @@
       // Instruction enforcement links
       const instrTargets = {
         "agent-definitions": [
-          "agent:01-Conductor",
+          "agent:01-Orchestrator",
           "agent:02-Requirements",
           "agent:03-Architect",
         ],
         "agent-skills": ["skill:azure-defaults", "skill:azure-artifacts"],
         "bicep-code-best-practices": [
           "agent:06b-Bicep CodeGen",
-          "agent:05b-Bicep Planner",
+          "agent:05-IaC Planner",
         ],
         "terraform-code-best-practices": [
           "agent:06t-Terraform CodeGen",
-          "agent:05t-Terraform Planner",
+          "agent:05-IaC Planner",
         ],
         markdown: ["skill:docs-writer", "skill:azure-artifacts"],
-        "no-heredoc": ["agent:01-Conductor", "agent:06b-Bicep CodeGen"],
+        "no-heredoc": ["agent:01-Orchestrator", "agent:06b-Bicep CodeGen"],
         "no-hardcoded-counts": ["skill:count-registry", "skill:docs-writer"],
-        "model-prompt-alignment": ["agent:01-Conductor", "agent:03-Architect"],
+        "model-prompt-alignment": ["agent:01-Orchestrator", "agent:03-Architect"],
         "decision-logging": ["agent:02-Requirements", "agent:03-Architect"],
         "iac-policy-compliance": [
           "agent:06b-Bicep CodeGen",
@@ -704,13 +694,12 @@
 
       // Prompts
       const prompts = [
-        "01-conductor",
+        "01-orchestrator",
         "02-requirements",
         "03-architect",
         "04-design",
         "04g-governance",
-        "05b-bicep-planner",
-        "05t-terraform-planner",
+        "05-iac-planner",
         "06b-bicep-codegen",
         "06t-terraform-codegen",
         "07b-bicep-deploy",
@@ -727,13 +716,12 @@
 
       // Prompt trigger links
       const promptAgent = {
-        "01-conductor": "01-Conductor",
+        "01-orchestrator": "01-Orchestrator",
         "02-requirements": "02-Requirements",
         "03-architect": "03-Architect",
         "04-design": "04-Design",
         "04g-governance": "04g-Governance",
-        "05b-bicep-planner": "05b-Bicep Planner",
-        "05t-terraform-planner": "05t-Terraform Planner",
+        "05-iac-planner": "05-IaC Planner",
         "06b-bicep-codegen": "06b-Bicep CodeGen",
         "06t-terraform-codegen": "06t-Terraform CodeGen",
         "07b-bicep-deploy": "07b-Bicep Deploy",
@@ -741,7 +729,7 @@
         "08-as-built": "08-As-Built",
         "challenger-review": "10-Challenger",
         "diagnose-resource": "09-Diagnose",
-        "resume-workflow": "01-Conductor",
+        "resume-workflow": "01-Orchestrator",
         "context-audit": "11-Context Optimizer",
       };
       for (const [p, a] of Object.entries(promptAgent)) {
@@ -849,12 +837,12 @@
       ["github", "azure-pricing", "terraform"].forEach((m) =>
         addNode(`mcp:${m}`, m, "mcp"),
       );
-      addLink("mcp:github", "agent:01-Conductor", "connects");
+      addLink("mcp:github", "agent:01-Orchestrator", "connects");
       addLink("mcp:github", "agent:07b-Bicep Deploy", "connects");
       addLink("mcp:github", "agent:07t-Terraform Deploy", "connects");
       addLink("mcp:azure-pricing", "agent:03-Architect", "connects");
       addLink("mcp:azure-pricing", "subagent:cost-estimate", "connects");
-      addLink("mcp:terraform", "agent:05t-Terraform Planner", "connects");
+      addLink("mcp:terraform", "agent:05-IaC Planner", "connects");
       addLink("mcp:terraform", "agent:06t-Terraform CodeGen", "connects");
 
       // Workflow gates
@@ -878,10 +866,8 @@
         ["gate:gate-2", "agent:04-Design"],
         ["gate:gate-2", "agent:04g-Governance"],
         ["agent:04g-Governance", "gate:gate-2.5"],
-        ["gate:gate-2.5", "agent:05b-Bicep Planner"],
-        ["gate:gate-2.5", "agent:05t-Terraform Planner"],
-        ["agent:05b-Bicep Planner", "gate:gate-3"],
-        ["agent:05t-Terraform Planner", "gate:gate-3"],
+        ["gate:gate-2.5", "agent:05-IaC Planner"],
+        ["agent:05-IaC Planner", "gate:gate-3"],
         ["gate:gate-3", "agent:06b-Bicep CodeGen"],
         ["gate:gate-3", "agent:06t-Terraform CodeGen"],
         ["agent:06b-Bicep CodeGen", "gate:gate-4"],
@@ -894,21 +880,20 @@
       ];
       workflowFlow.forEach(([s, t]) => addLink(s, t, "workflow-edge"));
 
-      // Conductor handoffs
+      // Orchestrator handoffs
       [
         "02-Requirements",
         "03-Architect",
         "04-Design",
         "04g-Governance",
-        "05b-Bicep Planner",
+        "05-IaC Planner",
         "06b-Bicep CodeGen",
         "07b-Bicep Deploy",
-        "05t-Terraform Planner",
         "06t-Terraform CodeGen",
         "07t-Terraform Deploy",
         "08-As-Built",
         "09-Diagnose",
-      ].forEach((a) => addLink("agent:01-Conductor", `agent:${a}`, "handoff"));
+      ].forEach((a) => addLink("agent:01-Orchestrator", `agent:${a}`, "handoff"));
 
       // ─── COMPUTE DEGREE FOR SIZING ───────────────────────────────────────
       const degreeMap = {};
@@ -1331,15 +1316,15 @@
           });
         });
 
-        // Pin Conductor at center for All view (mind-map hub)
-        const conductor = cy.getElementById("agent:01-Conductor");
-        const pinConductor =
-          view === "all" && conductor.length && conductor.visible();
-        if (pinConductor) {
+        // Pin Orchestrator at center for All view (mind-map hub)
+        const orchestrator = cy.getElementById("agent:01-Orchestrator");
+        const pinOrchestrator =
+          view === "all" && orchestrator.length && orchestrator.visible();
+        if (pinOrchestrator) {
           const w = cy.width(),
             h = cy.height();
-          conductor.position({ x: w / 2, y: h / 2 });
-          conductor.lock();
+          orchestrator.position({ x: w / 2, y: h / 2 });
+          orchestrator.lock();
         }
 
         const layoutOpts = { ...viewLayouts[view], fit: true };
@@ -1347,7 +1332,7 @@
         layout.run();
         // Force fit after layout completes for proper centering
         layout.on("layoutstop", () => {
-          if (pinConductor) conductor.unlock();
+          if (pinOrchestrator) orchestrator.unlock();
           cy.fit(cy.elements(":visible"), 60);
         });
         document.getElementById("layout-hint").textContent = layoutLabels[view];

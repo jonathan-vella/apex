@@ -16,9 +16,9 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "Agentic InfraOps",
+      title: "APEX",
       description:
-        "Azure infrastructure engineered by AI agents — from requirements to deploy-ready IaC",
+        "Agentic Platform Engineering eXperience for Azure — from requirements to deploy-ready IaC",
       favicon: "/images/favicon.svg",
       logo: {
         src: "./src/assets/images/logo.svg",

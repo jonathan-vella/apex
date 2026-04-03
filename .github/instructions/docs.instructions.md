@@ -40,14 +40,13 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 | Agent                | Purpose                                      |
 | -------------------- | -------------------------------------------- |
-| `infraops-conductor` | Master orchestrator with approval gates      |
+| `orchestrator` | Master orchestrator with approval gates      |
 | `requirements`       | Gather infrastructure requirements           |
 | `architect`          | WAF assessment and architecture design       |
 | `design`             | Architecture diagrams and ADRs               |
-| `bicep-planner`      | Bicep implementation planning and governance |
+| `iac-planner`        | Unified IaC implementation planning          |
 | `bicep-codegen`      | Bicep template generation                    |
 | `bicep-deploy`       | Bicep Azure deployment execution             |
-| `terraform-planner`  | Terraform implementation planning            |
 | `terraform-codegen`  | Terraform config generation                  |
 | `terraform-deploy`   | Terraform Azure deployment execution         |
 | `as-built`           | Step 7 workload documentation suite          |
@@ -60,13 +59,11 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 | Subagent                        | Parent           | Purpose                             |
 | ------------------------------- | ---------------- | ----------------------------------- |
 | `cost-estimate-subagent`        | Architect        | Azure Pricing MCP queries           |
-| `governance-discovery-subagent` | IaC Planners     | Azure Policy REST API discovery     |
-| `challenger-review-subagent`    | Conductor/Plans  | Adversarial artifact review         |
-| `bicep-lint-subagent`           | Bicep Code       | Syntax validation                   |
-| `bicep-review-subagent`         | Bicep Code       | AVM/security code review            |
+| `governance-discovery-subagent` | IaC Planner      | Azure Policy REST API discovery     |
+| `challenger-review-subagent`    | Orchestrator/Plans  | Adversarial artifact review         |
+| `bicep-validate-subagent`       | Bicep Code       | Lint + AVM/security code review     |
 | `bicep-whatif-subagent`         | Bicep Deploy     | Deployment preview                  |
-| `terraform-lint-subagent`       | Terraform Code   | Syntax validation (validate/fmt)    |
-| `terraform-review-subagent`     | Terraform Code   | AVM-TF code review                  |
+| `terraform-validate-subagent`   | Terraform Code   | Lint + AVM-TF/security code review  |
 | `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
 
 ### Skills (see count-manifest.json for current counts)
@@ -98,7 +95,7 @@ Do NOT reference these removed agents/skills:
 - `docs.agent.md` → Use `azure-artifacts` skill or `as-built` agent
 - `azure-workload-docs` skill → Use `azure-artifacts` skill
 - `azure-deployment-preflight` skill → Merged into deploy agent
-- `orchestration-helper` skill → Deleted (absorbed into conductor)
+- `orchestration-helper` skill → Deleted (absorbed into orchestrator)
 - `github-issues` / `github-pull-requests` skills → Use `github-operations`
 - `gh-cli` skill → Merged into `github-operations`
 - `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills

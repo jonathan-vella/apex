@@ -166,7 +166,7 @@ in authoritative sources.
 | `microsoft_code_sample_search` | Search for code examples in Microsoft docs |
 
 Used across the workflow — the **Architect** agent (Step 2) searches
-documentation for each Azure service, **Bicep Planner** (Step 4b) looks
+documentation for each Azure service, **IaC Planner** (Step 4) looks
 up AVM module documentation, and the `copilot-customization` skill
 caches fetched pages for offline reference.
 
@@ -201,9 +201,8 @@ IaC track. Agents use it to discover the latest provider and module
 versions, look up provider capabilities (resources, data sources, functions),
 and retrieve module details before generating Terraform configurations.
 
-Scoped exclusively to the **Terraform Planner** (Step 4t), **Terraform
-CodeGen** (Step 5t), **terraform-lint-subagent**, and
-**terraform-review-subagent**.
+Scoped exclusively to the **IaC Planner** (Step 4), **Terraform
+CodeGen** (Step 5t) and **terraform-validate-subagent**.
 
 ## Operations and Setup
 
@@ -216,7 +215,7 @@ Five of the six core MCP servers are configured in `.vscode/mcp.json` and
 start automatically when VS Code invokes them. Azure MCP is installed as a
 VS Code extension. To verify they are working:
 
-1. Open any agent chat (e.g. the Conductor)
+1. Open any agent chat (e.g. the Orchestrator)
 2. The agent's tool list should include MCP tools
 3. Run `npm run lint:mcp-config` to validate the configuration file
 
@@ -272,7 +271,7 @@ To add a new MCP server:
 
 :::tip[Further Reading]
 
-- [System Architecture](../architecture/) — the Conductor pattern and model selection
+- [System Architecture](../architecture/) — the Orchestrator pattern and model selection
 - [Core Concepts](../four-pillars/) — high-level overview of tools and MCP
 - [Agent Architecture](../agents/) — which agents use which MCP servers
 - [Workflow Engine & Quality](../workflow-engine/) — circuit breakers and validation systems

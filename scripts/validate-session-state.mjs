@@ -47,7 +47,7 @@ const EXPECTED_STEP_NAMES = {
   1: "Requirements",
   2: "Architecture",
   3: "Design",
-  3.5: "Governance",
+  "3_5": "Governance",
   4: "IaC Plan",
   5: "IaC Code",
   6: "Deploy",
@@ -100,7 +100,11 @@ function validateStateFile(filePath, isTemplate) {
     }
   }
 
-  if (state.schema_version !== "1.0" && state.schema_version !== "2.0") {
+  if (
+    state.schema_version !== "1.0" &&
+    state.schema_version !== "2.0" &&
+    state.schema_version !== "3.0"
+  ) {
     error(label, `Unsupported schema_version: ${state.schema_version}`);
   }
 
@@ -123,43 +127,19 @@ function validateStateFile(filePath, isTemplate) {
     error(label, "open_findings must be an array");
   }
 
-  // v2.0 lock field validation (optional, backwards-compatible)
-  if (state.lock !== undefined) {
-    if (typeof state.lock !== "object" || state.lock === null) {
-      error(label, "lock must be an object");
-    } else {
-      if (state.lock.heartbeat !== undefined && state.lock.heartbeat !== null) {
-        const d = new Date(state.lock.heartbeat);
-        if (isNaN(d.getTime())) {
-          error(
-            label,
-            `lock.heartbeat is not a valid ISO date: "${state.lock.heartbeat}"`,
-          );
-        }
-      }
-      if (
-        state.lock.attempt_token !== undefined &&
-        state.lock.attempt_token !== null
-      ) {
-        const uuidRe =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!uuidRe.test(state.lock.attempt_token)) {
-          error(
-            label,
-            `lock.attempt_token is not a valid UUID: "${state.lock.attempt_token}"`,
-          );
-        }
-      }
-    }
+  // v2.0 lock fields are deprecated in v3.0 — warn if still present
+  if (state.lock !== undefined && state.schema_version === "3.0") {
+    warn(label, "v3.0 schema should not have lock object — consider migrating");
   }
 
-  if (state.stale_threshold_ms !== undefined) {
-    if (
-      typeof state.stale_threshold_ms !== "number" ||
-      state.stale_threshold_ms <= 0
-    ) {
-      error(label, "stale_threshold_ms must be a positive number");
-    }
+  if (
+    state.stale_threshold_ms !== undefined &&
+    state.schema_version === "3.0"
+  ) {
+    warn(
+      label,
+      "v3.0 schema should not have stale_threshold_ms — consider migrating",
+    );
   }
 
   if (state.decisions) {
@@ -189,7 +169,7 @@ function validateStateFile(filePath, isTemplate) {
       const validStepKeys = [
         "step_1",
         "step_2",
-        "step_3.5",
+        "step_3_5",
         "step_4",
         "step_5",
         "step_6",

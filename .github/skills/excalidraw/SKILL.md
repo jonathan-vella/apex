@@ -4,7 +4,7 @@ description: "Excalidraw hand-drawn whiteboarding, brainstorming, wireframes, an
 compatibility: Works with VS Code Copilot and Excalidraw editor extension.
 license: MIT
 metadata:
-  author: azure-agentic-infraops
+  author: apex
   version: "2.0"
 ---
 
@@ -35,15 +35,15 @@ For Azure architecture diagrams, use the `drawio` skill instead.
 
 ## Style Tokens
 
-| Token           | Value       |
-| --------------- | ----------- |
-| Font            | Excalifont (fontFamily: 5) |
-| Background      | `#ffffff`   |
-| Stroke          | `#1e1e1e`   |
-| Hand-drawn      | `roughness: 1` |
+| Token      | Value                      |
+| ---------- | -------------------------- |
+| Font       | Excalifont (fontFamily: 5) |
+| Background | `#ffffff`                  |
+| Stroke     | `#1e1e1e`                  |
+| Hand-drawn | `roughness: 1`             |
 
 ## Reference Index
 
-| File | Purpose |
-| --- | --- |
+| File                            | Purpose                                          |
+| ------------------------------- | ------------------------------------------------ |
 | `references/quick-reference.md` | Copy-paste snippets for Excalidraw JSON patterns |

@@ -45,7 +45,7 @@ Structure the diagnostic report as:
 ## Diagnostic Report: {resource-name}
 
 **Assessment Date**: {date}
-**Assessed By**: InfraOps Diagnose Agent
+**Assessed By**: PlatformOps Diagnose Agent
 **Overall Health**: 🟢 Healthy | 🟡 Degraded | 🔴 Unhealthy
 
 ### Findings Summary

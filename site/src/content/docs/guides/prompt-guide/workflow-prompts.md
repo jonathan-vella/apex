@@ -3,12 +3,12 @@ title: "Workflow Prompts"
 description: "Step-by-step workflow prompt templates"
 ---
 
-The Agentic InfraOps workflow follows a multi-step pipeline (including Step 3.5 Governance).
-Use the **InfraOps Conductor** to run all steps end-to-end, or invoke individual agents directly.
+The APEX workflow follows a multi-step pipeline (including Step 3.5 Governance).
+Use the **Orchestrator** to run all steps end-to-end, or invoke individual agents directly.
 
-## End-to-End (Conductor)
+## End-to-End (Orchestrator)
 
-Select the **InfraOps Conductor** agent in Copilot Chat, then describe your project:
+Select the **Orchestrator** agent in Copilot Chat, then describe your project:
 
 :::tip[Best Results]
 Include business context, team size, compliance needs, and expected scale
@@ -21,7 +21,7 @@ The company is a mid-size healthcare provider (500 staff, 50k patients).
 We need HIPAA compliance and expect 10k daily active users.
 ```
 
-The Conductor delegates to each agent in sequence with approval gates between steps.
+The Orchestrator delegates to each agent in sequence with approval gates between steps.
 
 ```text
 Resume the workflow from where we left off. Check agent-output/patient-portal/
@@ -97,7 +97,7 @@ Include monthly and yearly totals for each resource.
 
 ## Step 4: Planning — 📐 Strategist
 
-Select the **Bicep Planner** or **Terraform Planner** agent depending on your
+Select the **IaC Planner** or **IaC Planner** agent depending on your
 IaC tool preference. Both discover governance constraints and create a
 machine-readable implementation plan.
 
@@ -200,9 +200,9 @@ backup/DR plan, and resource inventory.
 
 ## Standalone Agents
 
-### InfraOps Conductor — 🎼 Maestro
+### Orchestrator — 🧠 Orchestrator
 
-Use the Conductor for end-to-end projects where you want the full multi-step
+Use the Orchestrator for end-to-end projects where you want the full multi-step
 workflow with approval gates.
 
 ```text

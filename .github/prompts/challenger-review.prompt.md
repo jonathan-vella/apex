@@ -6,7 +6,7 @@ argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output
 
 # Adversarial Review
 
-Challenge an Azure infrastructure artifact for untested assumptions, governance gaps,
+Challenge an Azure platform engineering artifact for untested assumptions, governance gaps,
 WAF blind spots, and architectural weaknesses.
 
 ## Prerequisites

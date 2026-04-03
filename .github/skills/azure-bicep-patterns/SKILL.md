@@ -7,7 +7,7 @@ compatibility: Requires Azure CLI with Bicep extension
 # Azure Bicep Patterns Skill
 
 Reusable infrastructure patterns for Azure Bicep templates. Complements
-`bicep-code-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
+`iac-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
 
 ---
 
@@ -55,6 +55,8 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
 - **Budget**: 3 forecast thresholds (80%/100%/120%); amount and emails MUST be parameters
 - **What-If**: Run before every deploy; watch for unexpected deletes and SKU downgrades
 - **AVM**: Always pin versions; wrap modules to override defaults; verify outputs in README
+- **AVM Version Fallback**: When AVM version helpers are incomplete, query public MCR tag listings
+  (`mcr.microsoft.com/v2/bicep/{module}/tags/list`) to discover authoritative published versions
 
 ---
 

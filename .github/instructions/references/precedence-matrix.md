@@ -5,13 +5,13 @@ When multiple instruction files apply to the same file type (via overlapping
 
 ## Precedence Order (highest wins)
 
-1. **Azure Policy constraints** — `iac-policy-compliance.instructions.md`
+1. **Azure Policy constraints** — `iac-best-practices.instructions.md` (Policy Compliance section)
    - Azure Policy ALWAYS wins. If a governance Deny policy conflicts with
      any other instruction, the policy constraint takes precedence.
-2. **Domain-specific IaC instructions** — `bicep-code-best-practices.instructions.md`
+2. **Domain-specific IaC instructions** — `iac-best-practices.instructions.md`
    or `terraform-code-best-practices.instructions.md`
    - AVM-first, naming conventions, security baseline, file structure.
-3. **Cross-cutting IaC instructions** — `iac-cost-repeatability.instructions.md`
+3. **Cross-cutting IaC instructions** — `iac-best-practices.instructions.md` (Cost Monitoring section)
    - Budget resources, forecast alerts, parameterization rules.
 4. **General code quality** — `code-quality.instructions.md`
    - Comment style (WHY not WHAT), review priority tiers, security checklist.

@@ -91,7 +91,7 @@ These instruction files auto-load for matching files. This skill references but 
 
 | Instruction File                       | Glob                            | Enforces                                 |
 | -------------------------------------- | ------------------------------- | ---------------------------------------- |
-| `agent-definitions.instructions.md`    | `**/*.agent.md`                 | Agent frontmatter, naming, structure     |
+| `agent-authoring.instructions.md`      | `**/*.agent.md, **/*.prompt.md` | Agent authoring standards                |
 | `agent-skills.instructions.md`         | `**/.github/skills/**/SKILL.md` | Skill frontmatter, body limits           |
 | `instructions.instructions.md`         | `**/*.instructions.md`          | Instruction file format, `applyTo` rules |
 | `agent-research-first.instructions.md` | Agents, output, skills          | Research-before-implementation mandate   |

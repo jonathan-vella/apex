@@ -22,7 +22,7 @@ skills, templates, or predecessor artifacts):
 
 ## Direct Invocation Detection
 
-When an agent is invoked directly (not via Conductor), it must also check
+When an agent is invoked directly (not via Orchestrator), it must also check
 whether PRIOR steps are complete:
 
 ```text
@@ -30,7 +30,7 @@ whether PRIOR steps are complete:
 2. For each step < my_step:
    ├─ "complete" or "skipped" → OK
    └─ "pending" or "in_progress" → WARN user that prerequisites may be incomplete.
-      Offer to: (a) proceed anyway, (b) hand off to the Conductor.
+      Offer to: (a) proceed anyway, (b) hand off to the Orchestrator.
 ```
 
 ## State Write Protocol
@@ -69,9 +69,9 @@ After completing Phase 2 (WAF assessment) in the Architect agent:
 }
 ```
 
-## Conductor Integration
+## Orchestrator Integration
 
-The Conductor agent has additional responsibilities:
+The Orchestrator agent has additional responsibilities:
 
 1. **Project init**: Create `00-session-state.json` from template alongside
    the project directory. Set `project`, `branch`, initial `current_step: 1`.
@@ -90,28 +90,3 @@ This skill is designed for reuse across projects:
 - Resume protocol works with any numbered step workflow
 - Sub-step checkpoints are defined per agent, not per project
 - Template file can be copied to bootstrap new workflows
-
-## Stale-Lock Recovery (v2.0)
-
-When a session crashes or is abandoned, its lock becomes stale. Recovery:
-
-```text
-1. Read 00-session-state.json
-2. Check lock.heartbeat age against stale_threshold_ms (default: 300000ms / 5min)
-3. If stale:
-   a. Log recovery event to steps.{N}.claim.event_log
-   b. Clear lock.owner_id, lock.attempt_token, lock.heartbeat
-   c. Clear steps.{N}.claim fields for the abandoned step
-   d. Re-claim with new owner_id and attempt_token
-4. If NOT stale:
-   a. Another session is active — STOP
-   b. Inform user: "Another session owns step {N}. Wait or force-recover."
-```
-
-### Duplicate-Session Detection (Conductor)
-
-The Conductor agent should check the lock before delegating any step:
-
-1. Read `lock.owner_id` — if set and heartbeat is fresh, warn user
-2. Offer options: (a) wait for other session, (b) force-recover (clears lock)
-3. Force-recover logs the takeover event for audit

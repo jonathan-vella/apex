@@ -88,6 +88,55 @@ Header (after attribution):
 | {prev-file} | README.md | {next}  |
 ```
 
+Footer (end of document, before closing div):
+
+```markdown
+<div align="center">
+
+| ⬅️ [{prev-file}]({prev-file}) | 🏠 [Project Index](README.md) | ➡️ [{next-file}]({next-file}) |
+| ----------------------------- | ----------------------------- | ----------------------------- |
+
+</div>
+```
+
+## Metadata Block
+
+Place **after** the cross-navigation header and **before** the first H2 content section.
+Use consistent field labels across all artifacts.
+
+**Required fields** (all artifacts):
+
+```markdown
+**Generated**: {YYYY-MM-DD}
+**Region**: {primary-region}
+**Environment**: {Production|Staging|Development}
+```
+
+**Optional fields** (include when applicable):
+
+```markdown
+**Version**: {1.0}
+**Source**: {e.g., Implemented Bicep Templates}
+**MCP Tools Used**: {tool list}
+**Architecture Reference**: [{link}]({path})
+**IaC Reference**: [{link}]({path})
+```
+
+> [!IMPORTANT]
+> Use **bold labels** (not table format) for metadata. Position consistently
+> across all artifacts to aid scanning.
+
+## Status Badge States
+
+| State    | Color       | Badge Code                                                                                | When to Use                     |
+| -------- | ----------- | ----------------------------------------------------------------------------------------- | ------------------------------- |
+| Draft    | orange      | `![Status](https://img.shields.io/badge/Status-Draft-orange?style=for-the-badge)`         | Initial generation by agent     |
+| Complete | brightgreen | `![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=for-the-badge)` | Agent has finished generating   |
+| Approved | blue        | `![Status](https://img.shields.io/badge/Status-Approved-blue?style=for-the-badge)`        | User approved via approval gate |
+
+> Agents should set **Complete** when generation finishes. Templates default to **Draft**.
+> **Approved** is set only after explicit user approval at a workflow gate.
+
 ## References Section
 
 ```markdown

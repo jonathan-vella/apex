@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 tools:
@@ -19,15 +19,10 @@ tools:
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
   ]
-agents:
-  [
-    "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
-  ]
+agents: ["challenger-review-subagent"]
 handoffs:
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Plan challenge complete. Findings at `agent-output/{project}/challenge-findings-{artifact_type}.json`. Risk level and must_fix count are in the JSON summary. Present to user for review."
     send: false
 ---
@@ -36,13 +31,11 @@ handoffs:
 
 <!-- Recommended reasoning_effort: high -->
 
-<subagent_budget>
-This agent orchestrates 3 subagents: challenger-review-subagent, challenger-review-codex-subagent, challenger-review-batch-subagent.
-Use subagents for their specialized review capabilities. For simple single-pass reviews,
-invoke challenger-review-subagent directly.
-For multi-pass reviews, use challenger-review-batch-subagent to run remaining lenses in one invocation.
-Do not invoke all three subagents when a single pass suffices.
-</subagent_budget>
+## Subagent Budget
+
+This agent orchestrates 1 subagent — `challenger-review-subagent` (unified, supports single-lens and batch modes).
+For simple single-pass reviews, invoke with review_focus + pass_number.
+For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
 You are a delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke challenger subagents directly.
@@ -86,12 +79,13 @@ Invoke `challenger-review-subagent` with:
 
 **Pass 1** → Invoke `challenger-review-subagent` with `review_focus = "security-governance"`, `pass_number = 1`
 
-**Passes 2–3** → Invoke `challenger-review-batch-subagent` with:
+**Passes 2–3** → Invoke `challenger-review-subagent` in batch mode with:
 
-- `lenses`: remaining lenses from the rotation (e.g., `["architecture-reliability"]` for 2-pass,
-  `["architecture-reliability", "cost-feasibility"]` for 3-pass)
-- `pass_start` = `2`
-- `prior_findings` = findings JSON from pass 1
+- `batch_lenses`: remaining lenses from the rotation, e.g.:
+  - 2-pass: `[{"review_focus": "architecture-reliability", "pass_number": 2}]`
+  - 3-pass: `[{"review_focus": "architecture-reliability", "pass_number": 2},`
+    `{"review_focus": "cost-feasibility", "pass_number": 3}]`
+- `prior_findings` = compact_for_parent from pass 1
 
 ### Lens Rotation Table
 
@@ -108,12 +102,12 @@ Invoke `challenger-review-subagent` with:
    Show totals: `N must-fix, N should-fix, N suggestion`.
    Reference the JSON file path for machine-readable details.
 
-<output_contract>
+## Output Contract
+
 Expected output: JSON written to `agent-output/{project}/challenge-findings-{artifact_type}.json`
 Format: See challenger-review-subagent output format specification.
 Fields: challenged_artifact, artifact_type, review_focus, risk_level, must_fix_count, should_fix_count, issues[].
 Presentation: Render findings as markdown table in chat (ID, Severity, Title, WAF Pillar, Recommendation).
-</output_contract>
 
 **Input Fallback**: If the artifact path does not match any known filename pattern in the workflow table,
 set `artifact_type` to `"comprehensive"` and `review_focus` to `"comprehensive"`. Log a warning

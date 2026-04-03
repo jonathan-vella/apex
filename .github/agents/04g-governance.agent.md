@@ -29,16 +29,12 @@ handoffs:
     agent: 04g-Governance
     prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json."
     send: true
-  - label: "Step 4: Bicep Plan"
-    agent: 05b-Bicep Planner
-    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`."
+  - label: "Step 4: IaC Plan"
+    agent: 05-IaC Planner
+    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`. The planner routes internally based on decisions.iac_tool in session state."
     send: true
-  - label: "Step 4: Terraform Plan"
-    agent: 05t-Terraform Planner
-    prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`."
-    send: true
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Governance discovery is complete. Resume the workflow."
     send: true
 ---
@@ -47,13 +43,13 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
-<scope_fencing>
+## Scope Boundaries
+
 This agent discovers Azure Policy constraints and produces governance artifacts.
 Do not generate IaC code, skip discovery, or assume policy state from best practices.
-</scope_fencing>
 
 You are the **Governance Discovery Agent** — Step 3.5 of the multi-step Azure
-infrastructure workflow. You discover Azure Policy constraints, produce
+platform engineering workflow. You discover Azure Policy constraints, produce
 governance artifacts, and get them reviewed before handing off to IaC Planning.
 
 ## Read Skills First
@@ -76,10 +72,10 @@ If missing, STOP and request handoff to the appropriate prior agent.
 **Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
-- **My step**: 3.5
+- **My step**: 3_5
 - **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
-- **Resume**: If `steps.3.5.status` is `"in_progress"`, skip to the saved `sub_step`.
-- **State writes**: Update after each phase. On completion, set `steps.3.5.status = "complete"`.
+- **Resume**: If `steps["3_5"].status` is `"in_progress"`, skip to the saved `sub_step`.
+- **State writes**: Update after each phase. On completion, set `steps["3_5"].status = "complete"`.
 
 ## Core Workflow
 
@@ -110,6 +106,9 @@ If discovery fails, STOP. Do not proceed with incomplete policy data.
 ### Phase 2: Generate Artifacts
 
 1. Populate `04-governance-constraints.md` matching H2 template from azure-artifacts skill
+   - Replicate ALL structural elements from the template: badge row, collapsible TOC (`<details open>`),
+     cross-navigation table, attribution, Mermaid diagram (tag inheritance flowchart), and
+     traffic-light indicators (✅ / ⚠️ / ❌ — all three must appear in status columns)
 2. Populate `04-governance-constraints.json` with machine-readable policy data
    - Every Deny/Modify policy MUST include both `bicepPropertyPath` and `azurePropertyPath`
    - Normalize tag names — verify exact tag key names from live policy (no drift)
@@ -150,8 +149,8 @@ Then use `askQuestions` to gather the decision:
   2. **Refresh governance** — re-run discovery (if policies were recently changed)
   3. **Enter custom answer** — for manual overrides
 
-Update `00-session-state.json`: set `steps.3.5.status = "complete"`.
-Update `agent-output/{project}/README.md` — mark Step 3.5 complete.
+Update `00-session-state.json`: set `steps["3_5"].status = "complete"`.
+Update `agent-output/{project}/README.md` — mark Step 3_5 complete.
 
 ## Output Files
 
@@ -160,17 +159,17 @@ Update `agent-output/{project}/README.md` — mark Step 3.5 complete.
 | Governance Constraints | `agent-output/{project}/04-governance-constraints.md`   | From azure-artifacts skill   |
 | Governance JSON        | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data |
 
-<empty_result_recovery>
+## Empty Result Recovery
+
 If governance discovery returns 0 policy assignments, this is a valid result — not an error.
 Report "0 assignments found" with COMPLETE status. Do not retry or fabricate policies.
 If the REST API returns an error or partial data, report PARTIAL status and surface the error to the user.
-</empty_result_recovery>
 
-<default_follow_through_policy>
+## Auto-Proceed Rules
+
 When an approval gate is presented and the user approves, proceed immediately to the next phase.
 Do not re-confirm or ask additional questions after approval is given.
 If the user provides a custom response at an approval gate, interpret it as instructions and adapt.
-</default_follow_through_policy>
 
 ## Boundaries
 

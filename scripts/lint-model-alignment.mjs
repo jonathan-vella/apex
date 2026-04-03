@@ -215,8 +215,7 @@ function checkContextAwareness() {
 
 const INVESTIGATE_AGENTS = [
   "03-architect",
-  "05b-bicep-planner",
-  "05t-terraform-planner",
+  "05-iac-planner",
   "09-diagnose",
   "11-context-optimizer",
 ];

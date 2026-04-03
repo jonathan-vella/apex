@@ -7,7 +7,7 @@
 ## Workspace Root Structure
 
 ```text
-azure-agentic-infraops/
+azure-agentic-infraops/  (APEX)
 ├── .github/
 ││   ├── agents/              # Agent definitions + subagents
 ││   │   └── _subagents/      # Validation subagents (lint, what-if, review)
@@ -34,25 +34,24 @@ See `.github/count-manifest.json` for canonical counts.
 
 ### Primary Agents
 
-| Agent              | File                             | Model      | Step | Artifacts                         |
-| ------------------ | -------------------------------- | ---------- | ---- | --------------------------------- |
-| InfraOps Conductor | `01-conductor.agent.md`          | Opus 4.6   | All  | Orchestration                     |
-| Conductor (Fast)   | `01-conductor-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration           |
-| Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`              |
-| Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md`   |
-| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`     |
-| Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`    |
-| Bicep Plan         | `05b-bicep-planner.agent.md`     | Opus 4.6   | 4b   | `04-implementation-plan.md`       |
-| Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`           |
-| Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`        |
-| Terraform Plan     | `05t-terraform-planner.agent.md` | Opus 4.6   | 4t   | `04-implementation-plan.md`       |
-| Terraform Code     | `06t-terraform-codegen.agent.md` | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/`   |
-| Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`        |
-| As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite           |
-| Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports                |
-| Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings                |
-| Context Optimizer  | `11-context-optimizer.agent.md`  | Sonnet 4.5 | —    | Optimization reports              |
-| E2E Conductor      | `e2e-conductor.agent.md`         | Opus 4.6   | All  | E2E evaluation loop               |
+| Agent               | File                                | Model      | Step | Artifacts                       |
+| ------------------- | ----------------------------------- | ---------- | ---- | ------------------------------- |
+| Orchestrator        | `01-orchestrator.agent.md`          | Opus 4.6   | All  | Orchestration                   |
+| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
+| Requirements        | `02-requirements.agent.md`          | Opus 4.6   | 1    | `01-requirements.md`            |
+| Architect           | `03-architect.agent.md`             | Opus 4.6   | 2    | `02-architecture-assessment.md` |
+| Design              | `04-design.agent.md`                | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`   |
+| Governance          | `04g-governance.agent.md`           | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`  |
+| IaC Plan            | `05-iac-planner.agent.md`           | Opus 4.6   | 4    | `04-implementation-plan.md`     |
+| Bicep Code          | `06b-bicep-codegen.agent.md`        | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy        | `07b-bicep-deploy.agent.md`         | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
+| Terraform Code      | `06t-terraform-codegen.agent.md`    | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy    | `07t-terraform-deploy.agent.md`     | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
+| As-Built            | `08-as-built.agent.md`              | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
+| Diagnose            | `09-diagnose.agent.md`              | Sonnet 4.5 | —    | Diagnostic reports              |
+| Challenger          | `10-challenger.agent.md`            | Sonnet 4.5 | —    | Challenge findings              |
+| Context Optimizer   | `11-context-optimizer.agent.md`     | Sonnet 4.5 | —    | Optimization reports            |
+| E2E Orchestrator    | `e2e-orchestrator.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
 
 ### Validation Subagents (in `_subagents/`)
 
@@ -68,7 +67,7 @@ See `.github/count-manifest.json` for canonical counts.
 | bicep-review-subagent            | `bicep-review-subagent.agent.md`            | AVM code review              |
 | terraform-lint-subagent          | `terraform-lint-subagent.agent.md`          | Syntax validation            |
 | terraform-review-subagent        | `terraform-review-subagent.agent.md`        | AVM-TF code review           |
-| terraform-plan-subagent          | `terraform-plan-subagent.agent.md`          | Deployment preview           |
+| iac-planner-subagent             | `iac-planner-subagent.agent.md`             | Deployment preview           |
 
 ### Shared Knowledge (via Skills)
 
@@ -84,54 +83,54 @@ All shared context previously in `_shared/` is now consolidated into skills:
 See `.github/count-manifest.json` for canonical skill counts.
 Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 
-| Skill                         | Folder                         | Category            | Triggers                                     |
-| ----------------------------- | ------------------------------ | ------------------- | -------------------------------------------- |
-| `appinsights-instrumentation` | `appinsights-instrumentation/` | Observability       | "instrument app", "App Insights"             |
-| `azure-adr`                   | `azure-adr/`                   | Document Creation   | "create ADR", "document decision"            |
-| `azure-ai`                    | `azure-ai/`                    | AI Services         | "AI Search", "speech-to-text", "OCR"         |
-| `azure-aigateway`             | `azure-aigateway/`             | AI Governance       | "AI gateway", "semantic caching"             |
-| `azure-artifacts`             | `azure-artifacts/`             | Artifact Generation | "generate documentation"                     |
-| `azure-bicep-patterns`        | `azure-bicep-patterns/`        | IaC Patterns        | "bicep pattern", "hub-spoke"                 |
-| `azure-cloud-migrate`         | `azure-cloud-migrate/`         | Migration           | "migrate to Azure", "cross-cloud"            |
-| `azure-compliance`            | `azure-compliance/`            | Security            | "compliance scan", "security audit"          |
-| `azure-compute`               | `azure-compute/`               | Compute             | "recommend VM", "VM sizing"                  |
-| `azure-cost-optimization`     | `azure-cost-optimization/`     | Cost                | "optimize costs", "reduce spending"          |
-| `azure-defaults`              | `azure-defaults/`              | Azure Conventions   | "azure defaults", "naming"                   |
-| `azure-deploy`                | `azure-deploy/`                | Deployment          | "azd up", "deploy", "go live"                |
-| `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"        |
-| `excalidraw`                  | `excalidraw/`                  | Whiteboarding       | "whiteboard", "brainstorm", "sketch"         |
-| `python-diagrams`             | `python-diagrams/`             | Document Creation   | "create chart", "WAF chart"                  |
-| `mermaid`                     | `mermaid/`                     | Document Creation   | "mermaid diagram", "flowchart"               |
-| `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to drawio/python-diagrams/mermaid     |
-| `azure-hosted-copilot-sdk`    | `azure-hosted-copilot-sdk/`    | SDK                 | "copilot SDK", "copilot app"                 |
-| `azure-kusto`                 | `azure-kusto/`                 | Data & Analytics    | "KQL queries", "Azure Data Explorer"         |
-| `azure-messaging`             | `azure-messaging/`             | Messaging           | "event hub", "service bus"                   |
-| `azure-prepare`               | `azure-prepare/`               | Deployment          | "create app", "prepare Azure"                |
-| `azure-quotas`                | `azure-quotas/`                | Capacity            | "check quotas", "service limits"             |
-| `azure-rbac`                  | `azure-rbac/`                  | Identity            | "RBAC role", "least privilege"               |
-| `azure-resource-lookup`       | `azure-resource-lookup/`       | Discovery           | "list resources", "find VMs"                 |
-| `azure-resource-visualizer`   | `azure-resource-visualizer/`   | Visualization       | "visualize resources", "resource diagram"    |
-| `azure-storage`               | `azure-storage/`               | Storage             | "blob storage", "file shares"                |
-| `azure-validate`              | `azure-validate/`              | Validation          | "validate app", "preflight checks"           |
-| `context-optimizer`           | `context-optimizer/`           | Meta                | "context optimization", "token waste"        |
-| `context-shredding`           | `context-shredding/`           | Meta                | "compress context", "context budget"         |
-| `copilot-customization`       | `copilot-customization/`       | Meta                | "customization", "instructions", "agents"    |
-| `count-registry`              | `count-registry/`              | Meta                | "entity count", "how many agents"            |
-| `docs-writer`                 | `docs-writer/`                 | Documentation       | "update docs", "check staleness"             |
-| `entra-app-registration`      | `entra-app-registration/`      | Identity            | "app registration", "Entra ID"               |
-| `github-operations`           | `github-operations/`           | Workflow            | "commit", "create issue", "create PR"        |
-| `golden-principles`           | `golden-principles/`           | Meta                | "operating principles", "agent rules"        |
-| `iac-common`                  | `iac-common/`                  | IaC Patterns        | "deploy patterns", "circuit breaker"         |
-| `make-skill-template`         | `make-skill-template/`         | Meta                | "create skill"                               |
-| `microsoft-code-reference`    | `microsoft-code-reference/`    | SDK Reference       | "Azure SDK", "code sample"                   |
-| `microsoft-docs`              | `microsoft-docs/`              | Documentation       | "Azure docs", "quickstart"                   |
-| `microsoft-foundry`           | `microsoft-foundry/`           | AI Platform         | "Foundry agent", "deploy agent"              |
-| `microsoft-skill-creator`     | `microsoft-skill-creator/`     | Meta                | "create skill for Microsoft tech"            |
-| `session-resume`              | `session-resume/`              | Workflow            | "resume session", "checkpoint"               |
-| `terraform-patterns`          | `terraform-patterns/`          | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"         |
-| `terraform-search-import`     | `terraform-search-import/`     | IaC Import          | "import resources", "terraform import"       |
-| `terraform-test`              | `terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"              |
-| `workflow-engine`             | `workflow-engine/`             | Workflow            | "workflow DAG", "step routing"               |
+| Skill                         | Folder                         | Category            | Triggers                                  |
+| ----------------------------- | ------------------------------ | ------------------- | ----------------------------------------- |
+| `appinsights-instrumentation` | `appinsights-instrumentation/` | Observability       | "instrument app", "App Insights"          |
+| `azure-adr`                   | `azure-adr/`                   | Document Creation   | "create ADR", "document decision"         |
+| `azure-ai`                    | `azure-ai/`                    | AI Services         | "AI Search", "speech-to-text", "OCR"      |
+| `azure-aigateway`             | `azure-aigateway/`             | AI Governance       | "AI gateway", "semantic caching"          |
+| `azure-artifacts`             | `azure-artifacts/`             | Artifact Generation | "generate documentation"                  |
+| `azure-bicep-patterns`        | `azure-bicep-patterns/`        | IaC Patterns        | "bicep pattern", "hub-spoke"              |
+| `azure-cloud-migrate`         | `azure-cloud-migrate/`         | Migration           | "migrate to Azure", "cross-cloud"         |
+| `azure-compliance`            | `azure-compliance/`            | Security            | "compliance scan", "security audit"       |
+| `azure-compute`               | `azure-compute/`               | Compute             | "recommend VM", "VM sizing"               |
+| `azure-cost-optimization`     | `azure-cost-optimization/`     | Cost                | "optimize costs", "reduce spending"       |
+| `azure-defaults`              | `azure-defaults/`              | Azure Conventions   | "azure defaults", "naming"                |
+| `azure-deploy`                | `azure-deploy/`                | Deployment          | "azd up", "deploy", "go live"             |
+| `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
+| `excalidraw`                  | `excalidraw/`                  | Whiteboarding       | "whiteboard", "brainstorm", "sketch"      |
+| `python-diagrams`             | `python-diagrams/`             | Document Creation   | "create chart", "WAF chart"               |
+| `mermaid`                     | `mermaid/`                     | Document Creation   | "mermaid diagram", "flowchart"            |
+| `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to drawio/python-diagrams/mermaid  |
+| `azure-hosted-copilot-sdk`    | `azure-hosted-copilot-sdk/`    | SDK                 | "copilot SDK", "copilot app"              |
+| `azure-kusto`                 | `azure-kusto/`                 | Data & Analytics    | "KQL queries", "Azure Data Explorer"      |
+| `azure-messaging`             | `azure-messaging/`             | Messaging           | "event hub", "service bus"                |
+| `azure-prepare`               | `azure-prepare/`               | Deployment          | "create app", "prepare Azure"             |
+| `azure-quotas`                | `azure-quotas/`                | Capacity            | "check quotas", "service limits"          |
+| `azure-rbac`                  | `azure-rbac/`                  | Identity            | "RBAC role", "least privilege"            |
+| `azure-resource-lookup`       | `azure-resource-lookup/`       | Discovery           | "list resources", "find VMs"              |
+| `azure-resource-visualizer`   | `azure-resource-visualizer/`   | Visualization       | "visualize resources", "resource diagram" |
+| `azure-storage`               | `azure-storage/`               | Storage             | "blob storage", "file shares"             |
+| `azure-validate`              | `azure-validate/`              | Validation          | "validate app", "preflight checks"        |
+| `context-optimizer`           | `context-optimizer/`           | Meta                | "context optimization", "token waste"     |
+| `context-shredding`           | `context-shredding/`           | Meta                | "compress context", "context budget"      |
+| `copilot-customization`       | `copilot-customization/`       | Meta                | "customization", "instructions", "agents" |
+| `count-registry`              | `count-registry/`              | Meta                | "entity count", "how many agents"         |
+| `docs-writer`                 | `docs-writer/`                 | Documentation       | "update docs", "check staleness"          |
+| `entra-app-registration`      | `entra-app-registration/`      | Identity            | "app registration", "Entra ID"            |
+| `github-operations`           | `github-operations/`           | Workflow            | "commit", "create issue", "create PR"     |
+| `golden-principles`           | `golden-principles/`           | Meta                | "operating principles", "agent rules"     |
+| `iac-common`                  | `iac-common/`                  | IaC Patterns        | "deploy patterns", "circuit breaker"      |
+| `make-skill-template`         | `make-skill-template/`         | Meta                | "create skill"                            |
+| `microsoft-code-reference`    | `microsoft-code-reference/`    | SDK Reference       | "Azure SDK", "code sample"                |
+| `microsoft-docs`              | `microsoft-docs/`              | Documentation       | "Azure docs", "quickstart"                |
+| `microsoft-foundry`           | `microsoft-foundry/`           | AI Platform         | "Foundry agent", "deploy agent"           |
+| `microsoft-skill-creator`     | `microsoft-skill-creator/`     | Meta                | "create skill for Microsoft tech"         |
+| `session-resume`              | `session-resume/`              | Workflow            | "resume session", "checkpoint"            |
+| `terraform-patterns`          | `terraform-patterns/`          | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
+| `terraform-search-import`     | `terraform-search-import/`     | IaC Import          | "import resources", "terraform import"    |
+| `terraform-test`              | `terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"           |
+| `workflow-engine`             | `workflow-engine/`             | Workflow            | "workflow DAG", "step routing"            |
 
 ## Template Inventory
 
@@ -165,27 +164,23 @@ See `.github/count-manifest.json` for canonical counts.
 
 | Instruction                                     | Applies To (glob)                                               |
 | ----------------------------------------------- | --------------------------------------------------------------- |
-| `agent-definitions.instructions.md`             | `**/*.agent.md`                                                 |
+| `agent-authoring.instructions.md`               | `**/*.agent.md, **/*.prompt.md`                                 |
 | `agent-research-first.instructions.md`          | `**/*.agent.md`                                                 |
 | `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                                 |
 | `astro.instructions.md`                         | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
 | `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                                       |
-| `bicep-code-best-practices.instructions.md`     | `**/*.bicep`                                                    |
+| `iac-best-practices.instructions.md`            | `**/*.bicep, **/*.tf, **/04-implementation-plan.md`             |
 | `code-quality.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`               |
 | `context-optimization.instructions.md`          | `.github/agents/**/*.agent.md, .github/skills/**/SKILL.md`      |
-| `decision-logging.instructions.md`              | `**/*.agent.md`                                                 |
 | `docs.instructions.md`                          | `site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx` |
 | `docs-trigger.instructions.md`                  | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`                  |
 | `github-actions.instructions.md`                | `.github/workflows/*.yml`                                       |
 | `governance-discovery.instructions.md`          | `**/04-governance-*.md`                                         |
-| `iac-cost-repeatability.instructions.md`        | `**/*.bicep, **/*.tf, **/04-implementation-plan.md`             |
-| `iac-policy-compliance.instructions.md`         | `**/*.bicep, **/*.tf`                                           |
 | `instructions.instructions.md`                  | `**/*.instructions.md`                                          |
 | `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                             |
 | `json.instructions.md`                          | `**/*.{json,jsonc}`                                             |
-| `lesson-collection.instructions.md`             | `**/*conductor*.agent.md`                                       |
+| `lesson-collection.instructions.md`             | `**/*orchestrator*.agent.md`                                    |
 | `markdown.instructions.md`                      | `**/*.md`                                                       |
-| `model-prompt-alignment.instructions.md`        | `**/*.agent.md, **/*.prompt.md`                                 |
 | `no-hardcoded-counts.instructions.md`           | `**/*.md, **/*.json, **/*.mjs`                                  |
 | `no-heredoc.instructions.md`                    | `**`                                                            |
 | `powershell.instructions.md`                    | `**/*.ps1, **/*.psm1`                                           |
@@ -263,14 +258,14 @@ in the SKILL.md frontmatter — not through `tools:` arrays in agent definitions
 These skills are explicitly referenced in agent body text via mandatory
 "Read skills FIRST" instructions:
 
-| Skill               | Referenced By                                          |
-| ------------------- | ------------------------------------------------------ |
-| `azure-defaults`    | all primary agents                                     |
-| `azure-artifacts`   | requirements, architect, bicep-plan, deploy, conductor |
-| `drawio`            | design, architect, as-built agents                     |
-| `python-diagrams`   | architect, as-built agents                             |
-| `azure-adr`         | design agent                                           |
-| `github-operations` | conductor, bicep-plan agents                           |
+| Skill               | Referenced By                                              |
+| ------------------- | ---------------------------------------------------------- |
+| `azure-defaults`    | all primary agents                                         |
+| `azure-artifacts`   | requirements, architect, iac-planner, deploy, orchestrator |
+| `drawio`            | design, architect, as-built agents                         |
+| `python-diagrams`   | architect, as-built agents                                 |
+| `azure-adr`         | design agent                                               |
+| `github-operations` | orchestrator, iac-planner agents                           |
 
 ### General-Purpose Skills
 

@@ -9,17 +9,27 @@ defines the shared mechanics.
 
 ## Multi-Model Convention
 
-Agent `agents:` arrays list multiple challenger subagents (e.g.,
-`challenger-review-subagent`, `challenger-review-codex-subagent`,
-`challenger-review-batch-subagent`). This does **not** mean multiple
-sequential passes. The 3 subagents represent **parallel multi-model
-execution options for a single pass** — the selection rules in
-`challenger-selection-rules.md` determine which subagent model runs
-each pass based on the lens type and complexity tier.
+Agent `agents:` arrays list the `challenger-review-subagent`.
+All review passes use the same subagent — the selection rules in
+`challenger-selection-rules.md` determine which pass runs
+based on the lens type and complexity tier.
 
-## 3-Pass Rotating Lenses
+## Review Default: Single-Pass Comprehensive
 
-Used for critical artifacts (architecture, implementation plan, code).
+By default, all steps use a **1-pass comprehensive review**. Multi-pass rotating
+lens reviews are **opt-in** — recommended for complex projects but not required.
+
+At each gate, the Orchestrator checks `decisions.complexity`:
+
+- **simple/standard**: Present single-pass result directly
+- **complex**: Ask: "Run additional adversarial review? (recommended for complex projects)"
+
+If the user opts in, the full complexity matrix applies (see below).
+
+## Multi-Pass Rotating Lenses (Opt-In)
+
+Available for critical artifacts (architecture, implementation plan, code)
+when explicitly requested or when the Orchestrator recommends it for complex projects.
 
 | Pass | `review_focus`             | Lens Description                                            |
 | ---- | -------------------------- | ----------------------------------------------------------- |
@@ -67,7 +77,7 @@ Challengers MUST apply strict severity definitions:
 ## Complexity Classification Criteria
 
 Read `decisions.complexity` from `00-session-state.json`. The Requirements agent classifies;
-the Conductor validates. If missing from old sessions, default to `"standard"`.
+the Orchestrator validates. If missing from old sessions, default to `"standard"`.
 
 | Tier         | Criteria                                                                             |
 | ------------ | ------------------------------------------------------------------------------------ |
@@ -77,11 +87,17 @@ the Conductor validates. If missing from old sessions, default to `"standard"`.
 
 ## Review Matrix (Complexity-Based Pass Counts)
 
-| Complexity | Step 1 (Req)     | Step 2 (Arch)                             | Step 4 (Plan)                              | Step 5 (Code)                    |
-| ---------- | ---------------- | ----------------------------------------- | ------------------------------------------ | -------------------------------- |
-| simple     | 1× comprehensive | 1× comprehensive + 1 cost                 | 1× comprehensive                           | 1× comprehensive                 |
-| standard   | 1× comprehensive | 2× rotating (pass 3 conditional) + 1 cost | 2× rotating (security + architecture only) | 2× rotating (pass 3 conditional) |
-| complex    | 1× comprehensive | 3× rotating + 1 cost                      | 2× rotating (security + architecture only) | 3× rotating                      |
+**Default**: All steps use 1-pass comprehensive review. Multi-pass is opt-in.
+
+| Complexity | Step 1 (Req)     | Step 2 (Arch)                                   | Step 4 (Plan)                   | Step 5 (Code)                   |
+| ---------- | ---------------- | ----------------------------------------------- | ------------------------------- | ------------------------------- |
+| simple     | 1× comprehensive | 1× comprehensive + 1 cost                       | skip (opt-in: 1× comprehensive) | skip (opt-in: 1× comprehensive) |
+| standard   | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 2× rotating) | skip (opt-in: 2× rotating)      | skip (opt-in: 2× rotating)      |
+| complex    | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 3× rotating) | ask user (opt-in: 2× rotating)  | ask user (opt-in: 3× rotating)  |
+
+> **Opt-in prompt**: At Steps 4 and 5 for complex projects, the Orchestrator asks:
+> "Run additional adversarial review? (recommended for complex projects)"
+> For simple/standard projects, challenger review at Steps 4 and 5 is skipped by default.
 
 > **Steps without adversarial review**: Step 3 (Design), Step 3.5 (Governance),
 > Step 6 (Deploy), Step 7 (As-Built). Governance is machine-discovered data;
@@ -106,11 +122,11 @@ Write each result to
 
 Use the right model for each review lens:
 
-| Pass                   | Lens                                | Subagent                           | Model         | Rationale                                                                                    |
-| ---------------------- | ----------------------------------- | ---------------------------------- | ------------- | -------------------------------------------------------------------------------------------- |
-| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent`       | GPT-5.4       | Deep logical reasoning for policy cross-reference, finding inconsistencies                   |
-| Pass 2                 | architecture-reliability            | `challenger-review-codex-subagent` | GPT-5.3-Codex | WAF/failure mode analysis is structured and checklist-driven. Fast execution.                |
-| Pass 3                 | cost-feasibility                    | `challenger-review-codex-subagent` | GPT-5.3-Codex | Quantitative SKU analysis. Structured output strength. Matches cost-estimate-subagent model. |
+| Pass                   | Lens                                | Subagent                     | Model   | Rationale                                                                  |
+| ---------------------- | ----------------------------------- | ---------------------------- | ------- | -------------------------------------------------------------------------- |
+| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | GPT-5.4 | Deep logical reasoning for policy cross-reference, finding inconsistencies |
+| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | GPT-5.4 | WAF/failure mode analysis. Structured checklist-driven.                    |
+| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | GPT-5.4 | Quantitative SKU analysis. Matches cost-estimate-subagent model.           |
 
 ## Parallel Invocation (Cross-Artifact Reviews)
 
@@ -140,7 +156,7 @@ when they target different artifacts AND both use `prior_findings = null`.
 When `decisions.complexity == "complex"` AND pass 1 returns ≥1 `must_fix`
 (guaranteeing all 3 passes), **batch passes 2+3** into a single subagent call:
 
-1. Invoke `challenger-review-batch-subagent` with:
+1. Invoke `challenger-review-subagent` with:
    - `batch_lenses`: `[{pass 2: architecture-reliability}, {pass 3: cost-feasibility}]`
    - `prior_findings`: compact string from pass 1
 2. The batch subagent runs lenses internally in sequence (pass 3 sees pass 2 findings)

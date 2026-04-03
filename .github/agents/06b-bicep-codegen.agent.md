@@ -3,14 +3,7 @@ name: 06b-Bicep CodeGen
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
 model: ["Claude Sonnet 4.6"]
 user-invocable: true
-agents:
-  [
-    "bicep-lint-subagent",
-    "bicep-review-subagent",
-    "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
-  ]
+agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -24,7 +17,6 @@ tools:
     "azure-mcp/*",
     "microsoft-learn/*",
     "bicep/*",
-    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
@@ -51,11 +43,11 @@ handoffs:
     prompt: "Deploy the validated Bicep templates in `infra/bicep/{project}/` to Azure. Templates passed lint and review subagents; see `agent-output/{project}/05-implementation-reference.md` for validation status. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run what-if analysis first."
     send: true
   - label: "↩ Return to Step 4"
-    agent: 05b-Bicep Planner
+    agent: 05-IaC Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 5 (Bicep Code). Bicep templates generated and validated at `infra/bicep/{project}/`. Implementation reference at `agent-output/{project}/05-implementation-reference.md`. Ready for deployment."
     send: false
 ---
@@ -82,10 +74,9 @@ Do not modify architecture decisions — hand back to the Planner if the plan ne
 </scope_fencing>
 
 <subagent_budget>
-This agent orchestrates 4+ subagents: bicep-lint-subagent, bicep-review-subagent, challenger-review-subagent, challenger-review-batch-subagent.
-Invoke lint + review subagents in parallel (independent checkers on the same code).
-Use challenger subagents only for adversarial review after validation passes.
-For simple validation re-runs after fixes, invoke lint-subagent alone rather than the full suite.
+This agent orchestrates 2 subagents: bicep-validate-subagent (lint+review), challenger-review-subagent.
+Invoke bicep-validate-subagent for combined lint and code review.
+Use challenger-review-subagent only for adversarial review after validation passes.
 </subagent_budget>
 
 ## Read Skills First
@@ -96,29 +87,30 @@ Before doing any work, read these skills:
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, managed identity, module composition
-5. Read `.github/instructions/iac-policy-compliance.instructions.md` — governance mandate, dynamic tag list
+5. Read `.github/instructions/iac-best-practices.instructions.md` — governance mandate, dynamic tag list
 6. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
 
 ## DO / DON'T
 
-| DO                                                                                     | DON'T                                                                                    |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Run preflight check BEFORE writing any Bicep (Phase 1)                                 | Start coding before preflight check                                                      |
-| Use `askQuestions` to present blockers from Phase 1 + 1.5                              | Silently halt on blockers without telling the user why                                   |
-| Do not list blockers in chat text asking user to reply manually                        | List blockers in chat and wait for a reply (wastes a round-trip)                         |
-| Use AVM modules for EVERY resource that has one                                        | Write raw Bicep when AVM exists                                                          |
-| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules                      | Hardcode unique strings                                                                  |
-| Apply baseline tags + governance extras                                                | Use hardcoded tag lists ignoring governance                                              |
-| Parse `04-governance-constraints.json` — map each Deny policy to Bicep                 | Skip governance compliance mapping (HARD GATE)                                           |
-| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)                  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)                             |
-| PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`               | Allow password-only auth on any database (security baseline)                             |
-| APIM: check SKU compatibility matrix before VNet config (common-patterns.md)           | Use `virtualNetworkType` on Standard/Basic v2 (classic model only)                       |
-| Front Door: use separate `location` (global) and `resourceLocation` (region)           | Share a single location param for both profile and Private Link                          |
-| Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true | Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true |
-| Use `take()` for length-constrained resources (KV≤24, Storage≤24)                      | Put hyphens in Storage Account names                                                     |
-| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment                   | Deploy — that's the Deploy agent's job                                                   |
-| Run `bicep build` + `bicep lint` after generation                                      | Proceed without checking AVM parameter types (known issues exist)                        |
-| Save `05-implementation-reference.md` + update project README                          | Use phase parameter if plan specifies single deployment                                  |
+| DO                                                                                           | DON'T                                                                                    |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Run preflight check BEFORE writing any Bicep (Phase 1)                                       | Start coding before preflight check                                                      |
+| Use `askQuestions` to present blockers from Phase 1 + 1.5                                    | Silently halt on blockers without telling the user why                                   |
+| Do not list blockers in chat text asking user to reply manually                              | List blockers in chat and wait for a reply (wastes a round-trip)                         |
+| Use AVM modules for EVERY resource that has one                                              | Write raw Bicep when AVM exists                                                          |
+| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules                            | Hardcode unique strings                                                                  |
+| Apply baseline tags + governance extras                                                      | Use hardcoded tag lists ignoring governance                                              |
+| Parse `04-governance-constraints.json` — map each Deny policy to Bicep                       | Skip governance compliance mapping (HARD GATE)                                           |
+| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)                        | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)                             |
+| PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`                     | Allow password-only auth on any database (security baseline)                             |
+| APIM: check SKU compatibility matrix before VNet config (common-patterns.md)                 | Use `virtualNetworkType` on Standard/Basic v2 (classic model only)                       |
+| Front Door: use separate `location` (global) and `resourceLocation` (region)                 | Share a single location param for both profile and Private Link                          |
+| Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true       | Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true |
+| Use `take()` for length-constrained resources (KV≤24, Storage≤24)                            | Put hyphens in Storage Account names                                                     |
+| Use `resourceId(subscription().subscriptionId, ...)` for cross-RG refs at subscription scope | Use bare `resourceId(rgName, type, name)` from subscription-scope modules                |
+| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment                         | Deploy — that's the Deploy agent's job                                                   |
+| Run `bicep build` + `bicep lint` after generation                                            | Proceed without checking AVM parameter types (known issues exist)                        |
+| Save `05-implementation-reference.md` + update project README                                | Use phase parameter if plan specifies single deployment                                  |
 
 ## Prerequisites Check
 
@@ -241,8 +233,7 @@ Also generate `infra/bicep/{project}/deploy.ps1` (legacy fallback) with:
 Invoke both validation subagents in parallel via simultaneous `#runSubagent` calls
 (independent checkers — syntax vs standards — on the same code):
 
-1. `bicep-lint-subagent` (path: `infra/bicep/{project}/main.bicep`) — expect PASS
-2. `bicep-review-subagent` (path: `infra/bicep/{project}/`) — expect APPROVED
+1. `bicep-validate-subagent` (path: `infra/bicep/{project}/main.bicep`) — expect APPROVED (runs lint then review)
 
 Await both results. Both must pass before Phase 4.5.
 

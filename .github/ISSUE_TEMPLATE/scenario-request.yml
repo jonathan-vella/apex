@@ -1,5 +1,5 @@
 name: New Scenario Request
-description: Propose a new demo scenario for the Agentic InfraOps repository
+description: Propose a new demo scenario for the APEX repository
 title: "[Scenario]: "
 labels: ["scenario", "enhancement"]
 assignees: []
@@ -9,7 +9,7 @@ body:
       value: |
         ## 📋 New Scenario Request
 
-        Propose a new demo scenario that showcases Agentic InfraOps capabilities.
+        Propose a new demo scenario that showcases APEX capabilities.
         Good scenarios demonstrate real-world Azure infrastructure patterns that
         benefit from AI-assisted development.
 

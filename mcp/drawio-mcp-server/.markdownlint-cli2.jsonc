@@ -1,0 +1,12 @@
+{
+  // Local overrides for vendored drawio-mcp-server content.
+  // These files are third-party authored; suppress rules that conflict
+  // with the upstream formatting style while keeping structural checks.
+  "config": {
+    "MD013": false,
+    "MD033": false,
+    "MD034": false,
+    "MD040": false,
+    "MD041": false,
+  },
+}

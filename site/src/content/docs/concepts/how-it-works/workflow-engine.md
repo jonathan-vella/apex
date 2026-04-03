@@ -55,7 +55,7 @@ edge has a condition (`on_complete`, `on_skip`, `on_fail`). Conditional routing 
 nodes is governed by the `decisions.iac_tool` field.
 
 :::note[Read-only workflow graph]
-The workflow DAG is auto-loaded by the Conductor. Users do not edit
+The workflow DAG is auto-loaded by the Orchestrator. Users do not edit
 `workflow-graph.json` directly. To customise the workflow, modify agent
 definitions or skills instead.
 :::
@@ -80,52 +80,40 @@ Only one track is active for a given project.
 
 ### Session State and Resume
 
-The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
+The `00-session-state.json` file (schema v3.0) provides atomic state tracking:
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "project": "my-project",
-  "current_step": 2, // (1)!
-  "lock": {
-    "owner_id": "copilot-session-abc123", // (2)!
-    "heartbeat": "2026-03-04T10:15:00Z",
-    "attempt_token": "550e8400-e29b-41d4-a716-446655440000" // (3)!
-  },
+  "current_step": 2,
   "steps": {
     "2": {
       "status": "in_progress",
       "sub_step": "phase_2_waf",
-      "claim": {
-        "owner_id": "copilot-session-abc123",
-        "heartbeat": "2026-03-04T10:15:00Z",
-        "attempt_token": "550e8400-e29b-41d4-a716-446655440000",
-        "retry_count": 0,
-        "event_log": []
-      }
+      "started": "2026-03-04T10:05:00Z",
+      "artifacts": ["agent-output/my-project/02-architecture-assessment.md"]
     }
   }
 }
 ```
 
-1. Tracks which step is active — the Conductor uses this for resume
-2. Claim-based locking prevents concurrent sessions from corrupting state
-3. Unique token per attempt — stale heartbeats are auto-recovered
-
-The claim model prevents concurrent sessions from corrupting state. Stale heartbeats
-(older than `stale_threshold_ms`, default 5 minutes) are automatically recovered.
+VS Code Copilot executes agents serially — only one agent runs at a time.
+The v3.0 schema removed the lock/claim protocol (previously in v2.0) since
+concurrent agent execution does not occur. Atomic writes (`.tmp` → rename
+→ `.bak`) prevent file corruption.
 
 ### Session Break Protocol
 
-At Gates 2 and 3, the Conductor recommends starting a fresh VS Code Copilot Chat
+At Gates 2 and 3, the Orchestrator recommends starting a fresh VS Code Copilot Chat
 session. Long-running sessions (3+ hours) experience forced context summarisations
 that lose critical decision context. The Session Break Protocol:
 
-1. Conductor writes current state to `00-session-state.json`
-2. Conductor writes `00-handoff.md` with human-readable summary
-3. Conductor prints a "SESSION BREAK RECOMMENDED" message
-4. User starts a new chat, invokes Conductor again
-5. Conductor reads `00-session-state.json`, finds the next pending step, and resumes
+1. Orchestrator writes current state to `00-session-state.json`
+2. Orchestrator writes `00-handoff.md` with human-readable summary
+3. Orchestrator prints a "SESSION BREAK RECOMMENDED" message
+4. User starts a new chat, invokes Orchestrator again
+5. Orchestrator reads `00-session-state.json`, finds the next pending step, and resumes
 
 This was driven by real-world observation: the nordic-fresh-foods end-to-end test
 experienced 5 forced context summarisations in a single 3h39m session.
@@ -206,7 +194,7 @@ The context-shredding system defines three compression tiers for artifact loadin
   exist on disk for key skills, generated and validated by scripts
   (`generate-skill-digests.mjs`, `validate-skill-digests.mjs`).
 - **Hardcoded compaction checkpoints** — agents like the Architect (Phase 2.5)
-  and Terraform Planner (Phase 3.6) have fixed points in their bodies where they
+  and IaC Planner (Phase 3.6) have fixed points in their bodies where they
   write a summary and switch to minimal skill loading. These are positional, not
   dynamic.
 - **`compact_for_parent` carry-forward** — the challenger subagent's JSON output
@@ -257,7 +245,7 @@ and timeout. They run automatically — agents do not invoke them explicitly.
 
 :::tip[Further Reading]
 
-- [System Architecture](../architecture/) — the multi-step workflow, Conductor pattern, dual IaC tracks
+- [System Architecture](../architecture/) — the multi-step workflow, Orchestrator pattern, dual IaC tracks
 - [Core Concepts](../four-pillars/) — agents, skills, instructions, and configuration registries
 - [Agent Architecture](../agents/) — handoffs, the Challenger pattern, context shredding
 - [MCP Integration](../mcp-integration/) — MCP servers and how agents invoke tools

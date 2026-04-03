@@ -64,14 +64,14 @@ concurrency:
 
 ## Existing Workflows
 
-| Workflow                        | Purpose                                          | Trigger                         |
-| ------------------------------- | ------------------------------------------------ | ------------------------------- |
-| `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature       |
-| `link-check.yml`                | Broken link detection in docs/                   | Changes to docs/ + weekly       |
-| `docs.yml`                      | Astro Starlight site deployment to Pages         | Push to main (site/)            |
-| `weekly-maintenance.yml`        | AVM version audit + docs freshness checks        | Weekly (Mon 07:00) + manual     |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring                     | Weekly (Mon 06:00) + manual     |
-| `excalidraw-svg-export.yml`     | REMOVED — Draw.io is now the default diagram tool    | —                              |
+| Workflow                        | Purpose                                           | Trigger                     |
+| ------------------------------- | ------------------------------------------------- | --------------------------- |
+| `ci.yml`                        | Required PR check: lint + all Node.js validators  | PR + push to main/feature   |
+| `link-check.yml`                | Broken link detection in docs/                    | Changes to docs/ + weekly   |
+| `docs.yml`                      | Astro Starlight site deployment to Pages          | Push to main (site/)        |
+| `weekly-maintenance.yml`        | AVM version audit + docs freshness checks         | Weekly (Mon 07:00) + manual |
+| `azure-deprecation-tracker.yml` | Azure deprecation monitoring                      | Weekly (Mon 06:00) + manual |
+| `excalidraw-svg-export.yml`     | REMOVED — Draw.io is now the default diagram tool | —                           |
 
 ## Validation Scripts
 
@@ -79,9 +79,9 @@ Workflows run these project validators:
 
 | Script                            | Purpose                           |
 | --------------------------------- | --------------------------------- |
-| `validate-artifact-templates.mjs` | Artifact H2 heading compliance    |
-| `validate-agent-frontmatter.mjs`  | Agent YAML frontmatter validation |
-| `validate-skills-format.mjs`      | Skill format validation           |
+| `validate-artifacts.mjs`          | Artifact H2 heading compliance    |
+| `validate-agents.mjs`             | Agent YAML frontmatter validation |
+| `validate-skills.mjs`             | Skill format validation           |
 | `validate-no-deprecated-refs.mjs` | Deprecated reference detection    |
 | `validate-vscode-config.mjs`      | VS Code configuration validation  |
 | `check-docs-freshness.mjs`        | Documentation freshness checks    |

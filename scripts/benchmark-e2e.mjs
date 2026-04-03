@@ -77,8 +77,10 @@ const EXPECTED_ARTIFACTS = {
   // Step 4 — IaC Plan
   "04-implementation-plan.md": { required: true, step: 4 },
   "04-preflight-check.md": { required: false, step: 4 },
-  "04-dependency-diagram.drawio": { required: true, step: 4 },
-  "04-runtime-diagram.drawio": { required: true, step: 4 },
+  "04-dependency-diagram.drawio": { required: false, step: 4 },
+  "04-runtime-diagram.drawio": { required: false, step: 4 },
+  "04-dependency-diagram.py": { required: false, step: 4 },
+  "04-runtime-diagram.py": { required: false, step: 4 },
   // Step 5 — IaC Code (reference doc)
   "05-implementation-reference.md": { required: false, step: 5 },
   // Step 6 — Deploy
@@ -174,7 +176,37 @@ function scoreArtifactCompleteness() {
   let total = 0;
   const missing = [];
 
+  const alternativeGroups = [
+    {
+      required: true,
+      names: [
+        "04-dependency-diagram.drawio",
+        "04-runtime-diagram.drawio",
+        "04-dependency-diagram.py",
+        "04-runtime-diagram.py",
+      ],
+      satisfied: () => {
+        const hasDrawio =
+          fileExists(path.join(OUTPUT_DIR, "04-dependency-diagram.drawio")) &&
+          fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.drawio"));
+        const hasPython =
+          fileExists(path.join(OUTPUT_DIR, "04-dependency-diagram.py")) &&
+          fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.py"));
+        return hasDrawio || hasPython;
+      },
+      label: "step-4-diagrams",
+    },
+  ];
+
+  const handledAlternatives = new Set(
+    alternativeGroups.flatMap((group) => group.names),
+  );
+
   for (const [name, spec] of Object.entries(EXPECTED_ARTIFACTS)) {
+    if (handledAlternatives.has(name)) {
+      continue;
+    }
+
     total++;
     if (spec.glob) {
       const matches = globMatch(OUTPUT_DIR, name);
@@ -189,6 +221,15 @@ function scoreArtifactCompleteness() {
       } else if (spec.required) {
         missing.push(name);
       }
+    }
+  }
+
+  for (const group of alternativeGroups) {
+    total++;
+    if (group.satisfied()) {
+      found++;
+    } else if (group.required) {
+      missing.push(group.label);
     }
   }
 
@@ -424,7 +465,7 @@ function scoreTimingPerformance() {
     return {
       score: 0,
       details:
-        "No iteration log data — conductor failed to populate 08-iteration-log.json",
+        "No iteration log data — orchestrator failed to populate 08-iteration-log.json",
       grade: "F",
     };
   }

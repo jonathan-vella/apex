@@ -4,7 +4,7 @@ description: "Draw.io architecture diagrams for Azure via simonkurtz-MSFT MCP se
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
-  author: azure-agentic-infraops
+  author: apex
   version: "2.0"
 ---
 
@@ -263,12 +263,12 @@ A diagram passes quality review when it scores ≥9/10 on:
 
 ## Reference Index
 
-| File | Purpose |
-| --- | --- |
-| `references/style-reference.md` | Draw.io style properties for AI-generated files |
-| `references/azure-patterns.md` | Reusable MCP tool call patterns for Azure architectures |
-| `references/validation-checklist.md` | Validation rules for AI-generated `.drawio` files |
-| `references/abstraction-rules.md` | Diagram abstraction and data-flow clarity rules |
-| `references/iac-to-diagram.md` | Generate diagrams from Bicep/Terraform/ARM templates |
+| File                                 | Purpose                                                 |
+| ------------------------------------ | ------------------------------------------------------- |
+| `references/style-reference.md`      | Draw.io style properties for AI-generated files         |
+| `references/azure-patterns.md`       | Reusable MCP tool call patterns for Azure architectures |
+| `references/validation-checklist.md` | Validation rules for AI-generated `.drawio` files       |
+| `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
+| `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 
 Quality target samples: `tmp/azure-architecture-example.drawio`, `tmp/03-des-diagram.svg`

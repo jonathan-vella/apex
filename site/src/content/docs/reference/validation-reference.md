@@ -73,52 +73,45 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 ### Architecture and Registry Validators
 
-| npm Command                   | Script                            | Purpose                                           |
-| ----------------------------- | --------------------------------- | ------------------------------------------------- |
-| `lint:agent-frontmatter`      | `validate-agent-frontmatter.mjs`  | Agent definition frontmatter compliance           |
-| `lint:agent-checks`           | `lint-agent-checks.mjs`           | Agent body size (≤350 lines) and language density |
-| `lint:model-alignment`        | `lint-model-alignment.mjs`        | Model-specific prompt pattern compliance          |
-| `lint:skills-format`          | `validate-skills-format.mjs`      | Skill file format and frontmatter                 |
-| `validate:skill-checks`       | `validate-skill-checks.mjs`       | Skill size (≤500 lines) and references            |
-| `validate:instruction-checks` | `validate-instruction-checks.mjs` | Instruction frontmatter and applyTo patterns      |
-| `validate:agent-registry`     | `validate-agent-registry.mjs`     | Agent registry consistency                        |
-| `validate:skill-affinity`     | `validate-skill-affinity.mjs`     | Skill-to-agent affinity mappings                  |
-| `validate:workflow-graph`     | `validate-workflow-graph.mjs`     | DAG integrity (no orphans, no cycles)             |
+| npm Command                   | Script                            | Purpose                                        |
+| ----------------------------- | --------------------------------- | ---------------------------------------------- |
+| `validate:agents`             | `validate-agents.mjs`             | Agent frontmatter, body size, model alignment  |
+| `validate:skills`             | `validate-skills.mjs`             | Skill format, affinity, references, stale refs |
+| `validate:skill-checks`       | `validate-skill-checks.mjs`       | Skill size (≤500 lines) and references         |
+| `validate:instruction-checks` | `validate-instruction-checks.mjs` | Instruction frontmatter and applyTo patterns   |
+| `validate:agent-registry`     | `validate-agent-registry.mjs`     | Agent registry consistency                     |
+| `validate:workflow-graph`     | `validate-workflow-graph.mjs`     | DAG integrity (no orphans, no cycles)          |
 
 ### Artifact and Template Validators
 
-| npm Command               | Script                            | Purpose                                                                                                 |
-| ------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `lint:artifact-templates` | `validate-artifact-templates.mjs` | H2 heading strictness for agent outputs                                                                 |
-| `lint:h2-sync`            | `validate-h2-sync.mjs`            | H2 heading consistency across three sources                                                             |
-| `fix:artifact-h2`         | `fix-artifact-h2.mjs`             | Auto-fix artifact H2 headings                                                                           |
-| `lint:excalidraw`         | `validate-excalidraw-files.mjs`   | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset               |
-| `e2e:validate`            | `validate-e2e-step.mjs`           | E2E pipeline structural validation                                                                      |
-| `e2e:benchmark`           | `benchmark-e2e.mjs`               | 8-dimension benchmark scoring                                                                           |
+| npm Command          | Script                          | Purpose                                                                                   |
+| -------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
+| `validate:artifacts` | `validate-artifacts.mjs`        | H2 sync, template compliance, and auto-fix (with `--fix`)                                 |
+| `lint:excalidraw`    | `validate-excalidraw-files.mjs` | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset |
+| `e2e:validate`       | `validate-e2e-step.mjs`         | E2E pipeline structural validation                                                        |
+| `e2e:benchmark`      | `benchmark-e2e.mjs`             | 8-dimension benchmark scoring                                                             |
 
 ### Governance and Compliance Validators
 
-| npm Command                      | Script                                   | Purpose                                                      |
-| -------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `lint:governance-refs`           | `validate-governance-refs.mjs`           | Governance guardrails integrity                              |
-| `validate:no-hardcoded-counts`   | `validate-no-hardcoded-counts.mjs`       | Prevent hardcoded entity counts                              |
-| `validate:stale-refs`            | `validate-no-stale-skill-references.mjs` | Detect stale skill references                                |
-| `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`        | Block deprecated API/pattern references                      |
-| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs`     | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
+| npm Command                      | Script                               | Purpose                                                      |
+| -------------------------------- | ------------------------------------ | ------------------------------------------------------------ |
+| `lint:governance-refs`           | `validate-governance-refs.mjs`       | Governance guardrails integrity                              |
+| `validate:no-hardcoded-counts`   | `validate-no-hardcoded-counts.mjs`   | Prevent hardcoded entity counts                              |
+| `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`    | Block deprecated API/pattern references                      |
+| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs` | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
 
 ### Session and State Validators
 
-| npm Command              | Script                       | Purpose                                |
-| ------------------------ | ---------------------------- | -------------------------------------- |
-| `validate:session-state` | `validate-session-state.mjs` | Session state JSON schema compliance   |
-| `validate:session-lock`  | `validate-session-lock.mjs`  | Distributed lock/claim model integrity |
+| npm Command              | Script                       | Purpose                               |
+| ------------------------ | ---------------------------- | ------------------------------------- |
+| `validate:session-state` | `validate-session-state.mjs` | Session state JSON schema compliance  |
+| `validate:session-lock`  | `validate-session-lock.mjs`  | Deprecated lock/claim field detection |
 
 ### Quality and Cross-Reference Validators
 
 | npm Command             | Script                          | Purpose                            |
 | ----------------------- | ------------------------------- | ---------------------------------- |
 | `lint:glob-audit`       | `validate-glob-audit.mjs`       | Detect overly broad glob patterns  |
-| `lint:skill-references` | `validate-skill-references.mjs` | Validate skill cross-references    |
 | `lint:orphaned-content` | `validate-orphaned-content.mjs` | Detect unreferenced skills/content |
 | `validate:docs-sync`    | `validate-docs-sync.mjs`        | Documentation file sync checks     |
 | `lint:docs-freshness`   | `check-docs-freshness.mjs`      | Documentation staleness detection  |
@@ -151,7 +144,10 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 | `validate:all`       | Run all validators (parallel Node + external) |
 | `validate:_node`     | All Node.js validators in parallel            |
 | `validate:_external` | All external tool validators in parallel      |
-| `validate:agents`    | Agent frontmatter + skills format combined    |
+| `validate:agents`    | Agent frontmatter, body, model alignment      |
+| `validate:artifacts` | H2 sync, template compliance, auto-fix        |
+| `validate:skills`    | Skill format, affinity, references, stale     |
+| `audit:quarterly`    | Quarterly context audit checks                |
 
 ## CI Workflows
 
@@ -178,12 +174,12 @@ npm run validate:all
 
 # Run a specific category
 npm run lint:md                    # Markdown only
-npm run lint:agent-frontmatter     # Agent definitions only
+npm run validate:agents            # Agent definitions only
 npm run validate:session-state     # Session state only
 
 # Auto-fix where supported
 npm run lint:md:fix                # Fix markdown issues
-npm run fix:artifact-h2 <file> --apply  # Fix artifact H2 headings
+npm run fix:artifacts -- <file> --apply  # Fix artifact H2 headings
 npm run lint:python:fix            # Fix Python lint issues
 ```
 

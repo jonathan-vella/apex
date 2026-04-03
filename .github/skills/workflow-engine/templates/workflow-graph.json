@@ -28,6 +28,9 @@
       "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md"],
       "gate": "approval",
       "challenger": {
+        "default_passes": 1,
+        "default_lenses": ["comprehensive"],
+        "opt_in_multi_pass": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -63,8 +66,8 @@
       "optional": true,
       "challenger": null
     },
-    "step-3.5": {
-      "id": "step-3.5",
+    "step-3_5": {
+      "id": "step-3_5",
       "type": "agent-step",
       "name": "Governance",
       "agent": "04g-Governance",
@@ -76,54 +79,30 @@
       "gate": "approval",
       "challenger": null
     },
-    "gate-2.5": {
-      "id": "gate-2.5",
+    "gate-2_5": {
+      "id": "gate-2_5",
       "type": "gate",
       "name": "Governance Approval",
-      "requires": ["step-3.5"],
+      "requires": ["step-3_5"],
       "gate": "approval"
     },
-    "step-4b": {
-      "id": "step-4b",
+    "step-4": {
+      "id": "step-4",
       "type": "agent-step",
-      "name": "Bicep Plan",
-      "agent": "05b-Bicep Planner",
-      "requires": ["gate-2.5"],
-      "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
+      "name": "IaC Plan",
+      "agent": "05-IaC Planner",
+      "requires": ["gate-2_5"],
       "produces": [
         "04-implementation-plan.md",
-        "04-dependency-diagram.drawio",
-        "04-runtime-diagram.drawio"
+        "04-dependency-diagram.py",
+        "04-dependency-diagram.png",
+        "04-runtime-diagram.py",
+        "04-runtime-diagram.png"
       ],
       "gate": "approval",
       "challenger": {
-        "complexity_matrix": {
-          "simple": { "passes": 1, "lenses": ["comprehensive"] },
-          "standard": {
-            "passes": 2,
-            "lenses": ["security-governance", "architecture-reliability"]
-          },
-          "complex": {
-            "passes": 2,
-            "lenses": ["security-governance", "architecture-reliability"]
-          }
-        }
-      }
-    },
-    "step-4t": {
-      "id": "step-4t",
-      "type": "agent-step",
-      "name": "Terraform Plan",
-      "agent": "05t-Terraform Planner",
-      "requires": ["gate-2.5"],
-      "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
-      "produces": [
-        "04-implementation-plan.md",
-        "04-dependency-diagram.drawio",
-        "04-runtime-diagram.drawio"
-      ],
-      "gate": "approval",
-      "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -141,8 +120,7 @@
       "id": "gate-3",
       "type": "gate",
       "name": "Plan Approval",
-      "requires": ["step-4b", "step-4t"],
-      "requires_mode": "any",
+      "requires": ["step-4"],
       "gate": "approval"
     },
     "step-5b": {
@@ -155,6 +133,8 @@
       "produces": ["infra/bicep/{project}/"],
       "gate": "validation",
       "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -182,6 +162,8 @@
       "produces": ["infra/terraform/{project}/"],
       "gate": "validation",
       "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -269,14 +251,12 @@
     { "from": "gate-1", "to": "step-2", "condition": "on_complete" },
     { "from": "step-2", "to": "gate-2", "condition": "on_complete" },
     { "from": "gate-2", "to": "step-3", "condition": "on_complete" },
-    { "from": "gate-2", "to": "step-3.5", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-3.5", "condition": "on_complete" },
-    { "from": "step-3", "to": "step-3.5", "condition": "on_skip" },
-    { "from": "step-3.5", "to": "gate-2.5", "condition": "on_complete" },
-    { "from": "gate-2.5", "to": "step-4b", "condition": "on_complete" },
-    { "from": "gate-2.5", "to": "step-4t", "condition": "on_complete" },
-    { "from": "step-4b", "to": "gate-3", "condition": "on_complete" },
-    { "from": "step-4t", "to": "gate-3", "condition": "on_complete" },
+    { "from": "gate-2", "to": "step-3_5", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-3_5", "condition": "on_complete" },
+    { "from": "step-3", "to": "step-3_5", "condition": "on_skip" },
+    { "from": "step-3_5", "to": "gate-2_5", "condition": "on_complete" },
+    { "from": "gate-2_5", "to": "step-4", "condition": "on_complete" },
+    { "from": "step-4", "to": "gate-3", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5b", "condition": "on_complete" },
     { "from": "gate-3", "to": "step-5t", "condition": "on_complete" },
     { "from": "step-5b", "to": "gate-4", "condition": "on_complete" },

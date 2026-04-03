@@ -3,12 +3,12 @@ title: "E2E Testing with Ralph Loop"
 description: "End-to-end testing with the Ralph Loop pattern"
 ---
 
-End-to-end testing for the InfraOps pipeline using the autonomous
+End-to-end testing for the PlatformOps pipeline using the autonomous
 [RALPH Loop](https://ghuntley.com/ralph/) pattern.
 
 ## What Is Ralph Loop?
 
-Ralph Loop is a self-correcting E2E evaluation workflow that runs all InfraOps
+Ralph Loop is a self-correcting E2E evaluation workflow that runs all PlatformOps
 pipeline steps **without human gates**. It validates the entire agent pipeline
 autonomously — from requirements through deployment to documentation — with
 built-in self-correction, challenger reviews, and benchmark scoring.
@@ -68,11 +68,19 @@ npm run e2e:benchmark -- --compare
 Open VS Code Chat and use one of the prompt files:
 
 1. **Simple project (pre-seeded)**: Open `.github/prompts/e2e-ralph-loop.prompt.md`
-2. **Complex project (RFP-driven)**: Open `.github/prompts/e2e-contoso-rfp.prompt.md`
-3. **Post-loop analysis**: Open `.github/prompts/e2e-analyze-lessons.prompt.md`
+2. **Complex project (RFP-driven)**: Open `tests/prompts/e2e-contoso-rfp.prompt.md`
+3. **Post-loop analysis**: Open `tests/prompts/e2e-analyze-lessons.prompt.md`
 
-The E2E Conductor agent (`.github/agents/e2e-conductor.agent.md`) orchestrates
-the loop with conditional IaC routing based on session state.
+The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`)
+orchestrates the loop with conditional IaC routing based on session state. The
+Contoso prompt is intended to run the real workflow agents and tool paths,
+including Draw.io design output, pricing-backed architecture assessment, live
+governance discovery when authenticated, and dry-run deployment validation.
+
+Use six runs for a full benchmark — three per IaC track:
+
+**Bicep**: `contoso-service-hub-run-1`, `run-2`, `run-3`
+**Terraform**: `contoso-service-hub-tf-run-1`, `tf-run-2`, `tf-run-3`
 
 ## Benchmark Scoring Dimensions
 
@@ -118,7 +126,7 @@ Per-step attempt tracking in `agent-output/{project}/08-iteration-log.json`.
 Cross-agent decisions are captured in the `decision_log` array inside `00-session-state.json`.
 Each entry records what was decided, why, what was rejected, and which agent made the call.
 The benchmark scores `decision_log` presence as part of session state integrity.
-See `.github/instructions/decision-logging.instructions.md` for the entry schema.
+See `.github/instructions/agent-authoring.instructions.md` for the entry schema.
 
 ## Test Projects
 

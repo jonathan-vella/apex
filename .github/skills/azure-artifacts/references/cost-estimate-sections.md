@@ -223,24 +223,50 @@ Standardize the 3 most likely changes and their delta.
 
 ### 10. 💰 Savings Opportunities
 
-Always include a savings section.
-If already optimized, say so and list what is already applied.
+Always include a savings section. Use one of three states:
+
+**State 1 — Quantified**: When RI/SP pricing was queried via MCP tools, show actual dollar savings.
+**State 2 — Not Quantified**: When the pricing run focused on baseline consumption only, say so and list eligible strategies with prerequisites.
+**State 3 — Not Applicable**: When all services are consumption/serverless with no commitment discount eligibility.
+
+> [!CAUTION]
+> **Never show `$0.00` savings rows.** Zero-dollar rows imply the platform found no opportunities when the real state is "not evaluated." Use State 2 ("Not Quantified in This Run") instead.
 
 ```markdown
 ## 💰 Savings Opportunities
 
+<!-- STATE 1: Quantified -->
+
 > ### Total Potential Savings: $X/year
 >
-> | Commitment | Monthly Savings | Annual Savings |
-> | ---------- | --------------- | -------------- |
-> | 1-Year ... | $...            | $...           |
+> | Strategy | Commitment | Monthly Savings | Annual Savings | % Reduction |
+> | -------- | ---------- | --------------- | -------------- | ----------- |
+> | RI       | 1-year     | $...            | $...           | X%          |
+
+<!-- STATE 2: Not Quantified -->
+
+> ### Savings: Not Quantified in This Run
+>
+> This estimate covers baseline consumption pricing only.
+>
+> **Eligible strategies to evaluate**:
+>
+> | Strategy | Applicability | Prerequisites |
+> | -------- | ------------- | ------------- |
+> | RI       | ✅ / ❌       | {condition}   |
+
+<!-- STATE 3: Not Applicable -->
+
+> ### Savings: Not Applicable
+>
+> {Explain why — e.g., consumption-only pricing}
+```
 
 ### Additional Optimization Strategies
 
 | Strategy | Potential Savings | Effort | Notes |
 | -------- | ----------------- | ------ | ----- |
 | ...      | ...               | 🟢 Low | ...   |
-```
 
 ### 11. Detailed Cost Breakdown
 

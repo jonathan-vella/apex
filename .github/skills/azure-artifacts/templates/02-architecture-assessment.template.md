@@ -140,11 +140,14 @@ flowchart TB
 
 ### 💰 Cost Assessment ({score}/10)
 
-| Service             | SKU | Monthly Cost | Notes            |
-| ------------------- | --- | ------------ | ---------------- |
-| Service 1           |     |              |                  |
-| Service 2           |     |              |                  |
-| **Total Estimated** |     | **$X/mo**    | Status vs budget |
+| Metric           | Value                              |
+| ---------------- | ---------------------------------- |
+| Monthly Estimate | ~${X}/month                        |
+| Annual Estimate  | ~${X}/year                         |
+| Budget Status    | {✅ Within budget / ⚠️ Over by $X} |
+| Confidence       | {High / Medium / Low}              |
+
+> 📎 Full cost breakdown: [03-des-cost-estimate.md](03-des-cost-estimate.md)
 
 **Cost Optimization Applied:**
 
@@ -208,11 +211,19 @@ flowchart TB
 | Decision 1 |        |           |
 | Decision 2 |        |           |
 
+### Top Architecture Risks
+
+| Risk   | WAF Pillar               | Likelihood                  | Impact                      | Mitigation   |
+| ------ | ------------------------ | --------------------------- | --------------------------- | ------------ |
+| {risk} | {🔒 / 🔄 / ⚡ / 💰 / 🔧} | {🔴 High / 🟡 Med / 🟢 Low} | {🔴 High / 🟡 Med / 🟢 Low} | {mitigation} |
+
+> Limit to the top 5 architecture-level risks. Pillar-specific gaps remain in the WAF assessment above.
+
 ---
 
 ## 🚀 Implementation Handoff
 
-### Ready for bicep-plan
+### Ready for iac-planner
 
 The architecture is approved for implementation with the following key parameters:
 
@@ -261,11 +272,11 @@ The architecture is approved for implementation with the following key parameter
 >
 > **Confidence Level**: {High / Medium / Low}
 >
-> - [ ] **Approved** — proceed to bicep-plan
+> - [ ] **Approved** — proceed to iac-planner
 > - Approver: {name}
 > - Date: {date}
 >
-> Reply **"approve"** to proceed to bicep-plan, or provide feedback for revisions.
+> Reply **"approve"** to proceed to iac-planner, or provide feedback for revisions.
 
 ---
 

@@ -13,7 +13,7 @@ Verify ALL items before marking Step 5 complete.
 
 - [ ] AVM-TF modules used for all available resources
 - [ ] `project_name` is a required variable with no default value
-- [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
+- [ ] Zero hardcoded project-specific values (see `iac-best-practices.instructions.md`)
 
 ## Security Baseline
 
@@ -27,5 +27,5 @@ Verify ALL items before marking Step 5 complete.
 
 ## Review Gates
 
-- [ ] `terraform-lint-subagent` PASS + `terraform-review-subagent` APPROVED
+- [ ] `terraform-validate-subagent` PASS + APPROVED
 - [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)

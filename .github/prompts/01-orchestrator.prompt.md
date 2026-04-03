@@ -1,13 +1,13 @@
 ---
-description: "Kick off a new Azure infrastructure project through the full multi-step workflow with the Conductor agent."
-agent: "01-Conductor"
+description: "Kick off a new Azure platform engineering project through the full multi-step workflow with the Orchestrator agent."
+agent: "01-Orchestrator"
 model: "Claude Opus 4.6"
-argument-hint: "Describe the Azure infrastructure project you want to build end-to-end"
+argument-hint: "Describe the Azure platform engineering project you want to build end-to-end"
 ---
 
 # Kick Off New Project
 
-Start a new Azure infrastructure project using the multi-step agentic workflow.
+Start a new Azure platform engineering project using the multi-step agentic workflow.
 
 ## Prerequisites
 

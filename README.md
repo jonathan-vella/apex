@@ -1,16 +1,16 @@
-# Agentic InfraOps
+# APEX
 
 ![E2E Benchmark — Bicep](https://img.shields.io/badge/E2E_Bicep-88%2F100_Grade_B-green) ![E2E Benchmark — Terraform](https://img.shields.io/badge/E2E_Terraform-tested-blue)
 
-Azure infrastructure engineered by agents.
+Agentic Platform Engineering eXperience for Azure.
 
 This repository is the source project for a multi-agent workflow that turns Azure
-infrastructure requirements into deployable Bicep or Terraform with human approval
+platform engineering requirements into deployable Bicep or Terraform with human approval
 gates across the lifecycle.
 
 The full documentation for this repository lives here:
 
-- [Agentic InfraOps documentation](https://jonathan-vella.github.io/azure-agentic-infraops/)
+- [APEX documentation](https://jonathan-vella.github.io/azure-agentic-infraops/)
 
 Key entry points:
 
@@ -24,7 +24,7 @@ Key entry points:
 sequenceDiagram
   autonumber
   participant U as User
-  participant C as Conductor
+  participant O as Orchestrator
   participant R as Requirements
   participant X as Challenger
   participant A as Architect
@@ -61,7 +61,7 @@ sequenceDiagram
 
   C->>IaC: Create implementation plan + governance
   Note right of IaC: governance-discovery-subagent<br/>queries Azure Policy via REST API
-  Note right of IaC: Bicep planner or Terraform planner
+  Note right of IaC: Unified IaC Planner (05)<br/>routes based on decisions.iac_tool
   IaC-->>C: 04-plan.md + governance constraints
   C->>X: Challenge implementation plan
   X-->>C: challenge-findings.json

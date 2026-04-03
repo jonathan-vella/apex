@@ -1,35 +1,29 @@
-<!-- ref:state-file-schema-v2 -->
+<!-- ref:state-file-schema-v3 -->
 
 # State File Schema: `00-session-state.json`
 
 ## Schema Versions
 
-| Version | Description                                                             |
-| ------- | ----------------------------------------------------------------------- |
-| `1.0`   | Original schema — status tracking, decisions, sub-step checkpoints      |
-| `2.0`   | Adds `lock` object, per-step `claim`, `stale_threshold_ms`, `event_log` |
+| Version | Description                                                        |
+| ------- | ------------------------------------------------------------------ |
+| `1.0`   | Original schema — status tracking, decisions, sub-step checkpoints |
+| `2.0`   | Added `lock` object, per-step `claim` (removed in v3.0)            |
+| `3.0`   | Simplified — removed lock/claim (serial execution only)            |
 
-> **Backwards compatibility**: v1.0 files without `lock` still validate.
-> New files should use `"schema_version": "2.0"`.
+> **Migration**: v1.0 and v2.0 files are auto-migrated to v3.0 on first read.
+> Lock/claim fields are stripped during migration.
 
-## Full Template (v2.0)
+## Full Template (v3.0)
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "project": "{project-name}",
   "iac_tool": "Bicep | Terraform",
   "region": "swedencentral",
   "branch": "main",
   "updated": "2026-03-02T10:00:00Z",
   "current_step": 1,
-  "stale_threshold_ms": 300000,
-  "lock": {
-    "owner_id": null,
-    "heartbeat": null,
-    "attempt_token": null,
-    "acquired": null
-  },
   "decisions": {
     "region": "swedencentral",
     "compliance": "None",
@@ -91,14 +85,7 @@
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
-        "retry_count": 0,
-        "event_log": []
-      }
+      "context_files_used": []
     },
     "2": {
       "name": "Architecture",
@@ -108,14 +95,7 @@
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
-        "retry_count": 0,
-        "event_log": []
-      }
+      "context_files_used": []
     },
     "3": {
       "name": "Design",
@@ -125,31 +105,17 @@
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
-        "retry_count": 0,
-        "event_log": []
-      }
+      "context_files_used": []
     },
     "4": {
       "name": "IaC Plan",
-      "agent": "05b-Bicep Planner | 05t-Terraform Planner",
+      "agent": "05-IaC Planner",
       "status": "pending",
       "sub_step": null,
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
-        "retry_count": 0,
-        "event_log": []
-      }
+      "context_files_used": []
     },
     "5": {
       "name": "IaC Code",
@@ -159,14 +125,7 @@
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
-        "retry_count": 0,
-        "event_log": []
-      }
+      "context_files_used": []
     },
     "6": {
       "name": "Deploy",
@@ -176,14 +135,7 @@
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
-        "retry_count": 0,
-        "event_log": []
-      }
+      "context_files_used": []
     },
     "7": {
       "name": "As-Built",
@@ -193,39 +145,36 @@
       "started": null,
       "completed": null,
       "artifacts": [],
-      "context_files_used": [],
-      "claim": {
-        "owner_id": null,
-        "heartbeat": null,
-        "attempt_token": null,
+      "context_files_used": []
+    }
+  }
+}
+```
+
         "retry_count": 0,
         "event_log": []
       }
     }
-  }
+
 }
+}
+
 ```
 
 ## Field Definitions
 
 | Field                                 | Type           | Description                                                                                                                       |
 | ------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `schema_version`                      | string         | `"1.0"` or `"2.0"` — increment on breaking changes                                                                                |
+| `schema_version`                      | string         | `"3.0"` — increment on breaking changes                                                                                           |
 | `project`                             | string         | Project folder name (kebab-case)                                                                                                  |
 | `iac_tool`                            | string         | `"Bicep"` or `"Terraform"` — set after Step 1                                                                                     |
 | `region`                              | string         | Primary Azure region                                                                                                              |
 | `branch`                              | string         | Active Git branch                                                                                                                 |
 | `updated`                             | ISO string     | Last modification timestamp                                                                                                       |
 | `current_step`                        | integer        | Step number currently in progress (1-7)                                                                                           |
-| `stale_threshold_ms`                  | integer        | Milliseconds before a lock heartbeat is considered stale (v2.0)                                                                   |
-| `lock`                                | object         | Top-level workflow lock (v2.0)                                                                                                    |
-| `lock.owner_id`                       | string or null | Session ID holding the global lock                                                                                                |
-| `lock.heartbeat`                      | ISO or null    | Last heartbeat from the lock owner                                                                                                |
-| `lock.attempt_token`                  | UUID or null   | Optimistic concurrency token for the lock                                                                                         |
-| `lock.acquired`                       | ISO or null    | When the lock was first acquired                                                                                                  |
 | `decisions`                           | object         | Key project decisions (accumulated across steps)                                                                                  |
 | `decisions.complexity`                | string         | `"simple"`, `"standard"`, `"complex"`, or `""` — set by Requirements agent, defaults to `"standard"` if missing (backward compat) |
-| `decision_log`                        | array          | Sequential log of cross-agent decisions with rationale — see `decision-logging.instructions.md` for entry schema                  |
+| `decision_log`                        | array          | Sequential log of cross-agent decisions with rationale — see `agent-authoring.instructions.md` for entry schema                  |
 | `decision_log[].id`                   | string         | Sequential ID (`D001`, `D002`, …) — matches pattern `^D\d+$`                                                                      |
 | `decision_log[].step`                 | number         | Workflow step where the decision was made (1–7)                                                                                   |
 | `decision_log[].agent`                | string         | Agent that made the decision                                                                                                      |
@@ -239,12 +188,9 @@
 | `steps.N.status`                      | string         | `pending` / `in_progress` / `complete` / `skipped`                                                                                |
 | `steps.N.sub_step`                    | string or null | Current sub-step checkpoint identifier (e.g. `"phase_2_waf"`)                                                                     |
 | `steps.N.artifacts`                   | array          | File paths produced by this step                                                                                                  |
-| `steps.N.claim`                       | object         | Per-step claim lock (v2.0)                                                                                                        |
-| `steps.N.claim.owner_id`              | string or null | Session ID that claimed this step                                                                                                 |
-| `steps.N.claim.heartbeat`             | ISO or null    | Last heartbeat from the step claimant                                                                                             |
-| `steps.N.claim.attempt_token`         | UUID or null   | Optimistic concurrency token for the step claim                                                                                   |
-| `steps.N.claim.retry_count`           | integer        | Number of retries attempted for this step                                                                                         |
-| `steps.N.claim.event_log`             | array          | Audit trail of claim/release/recovery events                                                                                      |
+| `steps.N.started`                     | ISO or null    | When the step started                                                                                                             |
+| `steps.N.completed`                   | ISO or null    | When the step completed                                                                                                           |
+| `steps.N.context_files_used`          | array          | Files loaded during this step (for resume)                                                                                        |
 | `review_audit`                        | object         | Optional — adversarial review audit trail per step                                                                                |
 | `review_audit.step_N.complexity`      | string         | Complexity tier used for this step's review                                                                                       |
 | `review_audit.step_N.passes_planned`  | integer        | Number of passes planned based on complexity matrix                                                                               |
@@ -252,3 +198,4 @@
 | `review_audit.step_N.skipped`         | array          | Pass numbers that were skipped (e.g. `[2, 3]`)                                                                                    |
 | `review_audit.step_N.skip_reasons`    | array          | Reasons for each skip (e.g. `["pass 1: 0 must_fix, 1 should_fix"]`)                                                               |
 | `review_audit.step_N.models_used`     | array          | Models used per pass (e.g. `["GPT-5.4", "GPT-5.3-Codex"]`)                                                                        |
+```

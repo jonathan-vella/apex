@@ -25,7 +25,7 @@ Fixes #
 
 <!-- Which agent workflow was used to create these changes? -->
 
-- [ ] Multi-step workflow: `@requirements` → `architect` → `bicep-plan` → `bicep-code`
+- [ ] Multi-step workflow: `@requirements` → `architect` → `iac-planner` → `bicep-code`
 - [ ] Direct implementation (simple change)
 - [ ] Copilot Coding Agent (autonomous)
 - [ ] Manual implementation

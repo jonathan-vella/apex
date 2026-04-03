@@ -35,7 +35,7 @@ if ! echo "$BRANCH" | grep -qE "^($ALLOWED_PREFIXES)"; then
   echo ""
   echo "   Examples:"
   echo "     docs/update-workflow-guide"
-  echo "     agents/improve-conductor-handoff"
+  echo "     agents/improve-orchestrator-handoff"
   echo "     feat/azure-skills-integration"
   echo "     fix/session-state-schema"
   echo ""

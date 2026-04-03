@@ -3,7 +3,7 @@
 # Lesson Schema Reference
 
 Single source of truth for the `09-lessons-learned.json` structure.
-Both production and E2E conductors use this schema.
+Both production and E2E orchestrators use this schema.
 
 ## Root Object
 

@@ -120,7 +120,7 @@ function validateDevcontainer() {
     // Check if subagent setting is true
     if (settings["chat.customAgentInSubagent.enabled"] !== true) {
       errors.push(
-        "❌ chat.customAgentInSubagent.enabled must be true for Conductor orchestration",
+        "❌ chat.customAgentInSubagent.enabled must be true for Orchestrator",
       );
     }
 

@@ -48,6 +48,11 @@ npm run validate:all              # All validators together
 - [ ] Attribution header present with agent name and date
 - [ ] No placeholder text ("TBD", "Insert here", "TODO")
 - [ ] File saved to `agent-output/{project}/` with correct name
+- [ ] Collapsible TOC present (`<details open>` block after badge row)
+- [ ] Cross-navigation table present (⬅️ Previous / 📑 Index / Next ➡️)
+- [ ] Mermaid diagram included (if template contains one)
+- [ ] Traffic-light indicators used (✅ / ⚠️ / ❌ where template shows status columns)
+- [ ] Collapsible `<details>` blocks present (if template contains them)
 
 ---
 

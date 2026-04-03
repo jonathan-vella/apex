@@ -8,7 +8,7 @@ description: "Best practices for writing effective prompts"
 | ---------------------------- | ----------------------------------------------------------- |
 | **Inline suggestions** (Tab) | Completing code snippets, variable names, repetitive blocks |
 | **Copilot Chat**             | Questions, generating larger sections, debugging            |
-| **Agentic InfraOps Agents**  | Multi-step workflows, end-to-end projects                   |
+| **APEX Agents**  | Multi-step workflows, end-to-end projects                   |
 
 ## Break Down Complex Tasks
 

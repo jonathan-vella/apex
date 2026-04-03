@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Terminology blocklist for validate-terminology.mjs — prevents stale brand/agent names from creeping back in after renames",
+  "rules": [
+    {
+      "id": "coordinator-alias",
+      "pattern": "also known as the Coordinator",
+      "replacement": "(remove alias — use Orchestrator only)",
+      "severity": "error",
+      "reason": "Coordinator is a deprecated alias for Orchestrator"
+    },
+    {
+      "id": "coordinator-alias-2",
+      "pattern": "also called Coordinator",
+      "replacement": "(remove alias — use Orchestrator only)",
+      "severity": "error",
+      "reason": "Coordinator is a deprecated alias for Orchestrator"
+    },
+    {
+      "id": "coordinator-alias-3",
+      "pattern": "also referred to as the Coordinator",
+      "replacement": "(remove alias — use Orchestrator only)",
+      "severity": "error",
+      "reason": "Coordinator is a deprecated alias for Orchestrator"
+    },
+    {
+      "id": "product-name-infraops",
+      "pattern": "Agentic InfraOps",
+      "replacement": "APEX",
+      "severity": "error",
+      "reason": "Product renamed to APEX (2026-04-03)"
+    },
+    {
+      "id": "product-name-platformops",
+      "pattern": "Agentic PlatformOps",
+      "replacement": "APEX",
+      "severity": "error",
+      "reason": "Product renamed from Agentic PlatformOps to APEX (2026-04-03)"
+    },
+    {
+      "id": "conductor-display",
+      "pattern": "InfraOps Conductor",
+      "replacement": "Orchestrator",
+      "severity": "error",
+      "reason": "Agent renamed from InfraOps Conductor to Orchestrator (2026-04-01)"
+    },
+    {
+      "id": "conductor-agent-name",
+      "pattern": "01-Conductor",
+      "replacement": "01-Orchestrator",
+      "severity": "error",
+      "reason": "Agent file/reference renamed to 01-Orchestrator"
+    },
+    {
+      "id": "conductor-filename",
+      "pattern": "01-conductor\\.agent\\.md",
+      "replacement": "01-orchestrator.agent.md",
+      "severity": "error",
+      "isRegex": true,
+      "reason": "Agent file renamed to 01-orchestrator.agent.md"
+    },
+    {
+      "id": "conductor-fastpath-filename",
+      "pattern": "01-conductor-fastpath\\.agent\\.md",
+      "replacement": "01-orchestrator-fastpath.agent.md",
+      "severity": "error",
+      "isRegex": true,
+      "reason": "Agent file renamed to 01-orchestrator-fastpath.agent.md"
+    },
+    {
+      "id": "e2e-conductor-filename",
+      "pattern": "e2e-conductor\\.agent\\.md",
+      "replacement": "e2e-orchestrator.agent.md",
+      "severity": "error",
+      "isRegex": true,
+      "reason": "Agent file renamed to e2e-orchestrator.agent.md"
+    },
+    {
+      "id": "conductor-prompt-filename",
+      "pattern": "01-conductor\\.prompt\\.md",
+      "replacement": "01-orchestrator.prompt.md",
+      "severity": "error",
+      "isRegex": true,
+      "reason": "Prompt file renamed to 01-orchestrator.prompt.md"
+    },
+    {
+      "id": "maestro-emoji",
+      "pattern": "🎼 Maestro",
+      "replacement": "🧠 Orchestrator",
+      "severity": "error",
+      "reason": "Emoji codename changed from 🎼 Maestro to 🧠 Orchestrator"
+    },
+    {
+      "id": "maestro-emoji-bare",
+      "pattern": "🎼",
+      "replacement": "🧠",
+      "severity": "warning",
+      "reason": "Old conductor emoji — should be 🧠 for Orchestrator"
+    },
+    {
+      "id": "conductor-handoff-guide",
+      "pattern": "conductor-handoff-guide",
+      "replacement": "orchestrator-handoff-guide",
+      "severity": "error",
+      "reason": "Reference file renamed to orchestrator-handoff-guide.md"
+    },
+    {
+      "id": "infraops-conductor-slug",
+      "pattern": "infraops-conductor",
+      "replacement": "orchestrator",
+      "severity": "error",
+      "reason": "Slug renamed from infraops-conductor to orchestrator"
+    }
+  ],
+  "excludePatterns": [
+    "CHANGELOG.md",
+    "docs/CHANGELOG.md",
+    "site/src/content/docs/project/changelog.md",
+    "QUALITY_SCORE.md",
+    "package-lock.json",
+    "node_modules/",
+    ".git/",
+    "agent-output/_baselines/",
+    "tests/exec-plans/completed/",
+    ".github/terminology-blocklist.json"
+  ],
+  "excludeLinePatterns": [
+    "azure-agentic-infraops",
+    "infraops-ci-pass",
+    "infraops-needs-fix",
+    "infraops-reviewed",
+    "infraops-draft",
+    "infraops-ci-pending",
+    "infraops-preflight",
+    "infraops-kql-templates",
+    "infraops-health-checks",
+    "infraops-remediation-playbooks",
+    "my-infraops-project",
+    "microhack-agentic-infraops",
+    "agentic-infraops.PPTX",
+    "Vocab = InfraOps",
+    "InfraOps / SRE"
+  ],
+  "fileExtensions": [
+    ".md",
+    ".mdx",
+    ".json",
+    ".jsonc",
+    ".mjs",
+    ".js",
+    ".ts",
+    ".py",
+    ".yml",
+    ".yaml",
+    ".sh",
+    ".toml",
+    ".astro",
+    ".css",
+    ".html",
+    ".ini",
+    ".txt",
+    ".svg"
+  ]
+}

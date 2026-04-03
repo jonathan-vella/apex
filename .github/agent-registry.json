@@ -1,11 +1,11 @@
 {
   "$schema": "agent-registry-v1",
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
-  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/never), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan.bicep'), affinity uses display names (e.g. '05b-Bicep Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
+  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/now), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan'), affinity uses display names (e.g. '05-IaC Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
   "agents": {
-    "conductor": {
-      "agent": ".github/agents/01-conductor.agent.md",
-      "model": "Claude Opus 4.6",
+    "orchestrator": {
+      "agent": ".github/agents/01-orchestrator.agent.md",
+      "model": "GPT-5.4",
       "skills": [
         "golden-principles",
         "session-resume",
@@ -16,8 +16,8 @@
       "invokable": true,
       "step": null
     },
-    "conductor-fast-path": {
-      "agent": ".github/agents/01-conductor-fastpath.agent.md",
+    "orchestrator-fast-path": {
+      "agent": ".github/agents/01-orchestrator-fastpath.agent.md",
       "model": "Claude Sonnet 4.6",
       "skills": [
         "golden-principles",
@@ -76,32 +76,19 @@
       "step": 3.5
     },
     "iac-plan": {
-      "bicep": {
-        "agent": ".github/agents/05b-bicep-planner.agent.md",
-        "model": "Claude Opus 4.6",
-        "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "azure-bicep-patterns",
-          "session-resume",
-          "microsoft-docs",
-          "microsoft-code-reference"
-        ]
-      },
-      "terraform": {
-        "agent": ".github/agents/05t-terraform-planner.agent.md",
-        "model": "Claude Opus 4.6",
-        "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "terraform-patterns",
-          "terraform-test",
-          "terraform-search-import",
-          "session-resume",
-          "microsoft-docs",
-          "microsoft-code-reference"
-        ]
-      },
+      "agent": ".github/agents/05-iac-planner.agent.md",
+      "model": "Claude Opus 4.6",
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts",
+        "azure-bicep-patterns",
+        "terraform-patterns",
+        "terraform-test",
+        "terraform-search-import",
+        "session-resume",
+        "microsoft-docs",
+        "microsoft-code-reference"
+      ],
       "invokable": true,
       "step": 4
     },
@@ -198,7 +185,7 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": true,
       "step": null
@@ -210,9 +197,9 @@
       "invokable": true,
       "step": null
     },
-    "e2e-conductor": {
-      "agent": ".github/agents/e2e-conductor.agent.md",
-      "model": "Claude Opus 4.6",
+    "e2e-orchestrator": {
+      "agent": ".github/agents/e2e-orchestrator.agent.md",
+      "model": "GPT-5.4",
       "skills": [
         "session-resume",
         "workflow-engine",
@@ -230,18 +217,6 @@
       "skills": [],
       "invokable": false
     },
-    "challenger-review-codex-subagent": {
-      "agent": ".github/agents/_subagents/challenger-review-codex-subagent.agent.md",
-      "model": "GPT-5.3-Codex",
-      "skills": [],
-      "invokable": false
-    },
-    "challenger-review-batch-subagent": {
-      "agent": ".github/agents/_subagents/challenger-review-batch-subagent.agent.md",
-      "model": "GPT-5.3-Codex",
-      "skills": [],
-      "invokable": false
-    },
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "model": "GPT-5.3-Codex",
@@ -254,14 +229,8 @@
       "skills": ["azure-defaults"],
       "invokable": false
     },
-    "bicep-lint-subagent": {
-      "agent": ".github/agents/_subagents/bicep-lint-subagent.agent.md",
-      "model": "GPT-5.4",
-      "skills": [],
-      "invokable": false
-    },
-    "bicep-review-subagent": {
-      "agent": ".github/agents/_subagents/bicep-review-subagent.agent.md",
+    "bicep-validate-subagent": {
+      "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
       "model": "GPT-5.4",
       "skills": ["azure-bicep-patterns"],
       "invokable": false
@@ -272,14 +241,8 @@
       "skills": [],
       "invokable": false
     },
-    "terraform-lint-subagent": {
-      "agent": ".github/agents/_subagents/terraform-lint-subagent.agent.md",
-      "model": "GPT-5.4",
-      "skills": [],
-      "invokable": false
-    },
-    "terraform-review-subagent": {
-      "agent": ".github/agents/_subagents/terraform-review-subagent.agent.md",
+    "terraform-validate-subagent": {
+      "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
       "model": "GPT-5.4",
       "skills": ["terraform-patterns", "terraform-test"],
       "invokable": false

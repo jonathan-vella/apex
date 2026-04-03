@@ -9,7 +9,7 @@
 
 **Steps**:
 
-**InfraOps-Specific References**:
+**PlatformOps-Specific References**:
 
 **Reference Index**:
 Load these on demand — do NOT read all at once:

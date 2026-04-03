@@ -1,7 +1,7 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["GPT-5.4 (copilot)"]
+model: ["GPT-5.4"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
 tools:
@@ -32,13 +32,15 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate only the as-built cost estimate (`agent-output/{project}/07-ab-cost-estimate.md`). Query deployed resources for actual SKUs, then delegate pricing to cost-estimate-subagent. Use subagent-returned prices verbatim."
     send: true
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 7 (As-Built Documentation). Complete documentation suite generated at `agent-output/{project}/07-*.md` including design document, operations runbook, cost estimate, compliance matrix, and resource inventory. Workflow is complete."
     send: false
 ---
 
 # As-Built Agent
+
+<!-- Recommended reasoning_effort: high -->
 
 ## Context Awareness
 
@@ -272,20 +274,20 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                          | Location                                             |
-| ----------------------------- | ---------------------------------------------------- |
-| Resource Inventory            | `agent-output/{project}/07-resource-inventory.md`    |
-| Design Document               | `agent-output/{project}/07-design-document.md`       |
-| Cost Estimate (As-Built)      | `agent-output/{project}/07-ab-cost-estimate.md`      |
-| Compliance Matrix             | `agent-output/{project}/07-compliance-matrix.md`     |
-| Backup & DR Plan              | `agent-output/{project}/07-backup-dr-plan.md`        |
-| Operations Runbook            | `agent-output/{project}/07-operations-runbook.md`    |
-| Documentation Index           | `agent-output/{project}/07-documentation-index.md`   |
-| As-Built Diagram (Draw.io) | `agent-output/{project}/07-ab-diagram.drawio`    |
-| Cost Distribution Chart       | `agent-output/{project}/07-ab-cost-distribution.png` |
-| Cost Projection Chart         | `agent-output/{project}/07-ab-cost-projection.png`   |
-| Design vs As-Built Chart      | `agent-output/{project}/07-ab-cost-comparison.png`   |
-| Compliance Gaps Chart         | `agent-output/{project}/07-ab-compliance-gaps.png`   |
+| File                       | Location                                             |
+| -------------------------- | ---------------------------------------------------- |
+| Resource Inventory         | `agent-output/{project}/07-resource-inventory.md`    |
+| Design Document            | `agent-output/{project}/07-design-document.md`       |
+| Cost Estimate (As-Built)   | `agent-output/{project}/07-ab-cost-estimate.md`      |
+| Compliance Matrix          | `agent-output/{project}/07-compliance-matrix.md`     |
+| Backup & DR Plan           | `agent-output/{project}/07-backup-dr-plan.md`        |
+| Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
+| Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
+| As-Built Diagram (Draw.io) | `agent-output/{project}/07-ab-diagram.drawio`        |
+| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.png` |
+| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.png`   |
+| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |
+| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.png`   |
 
 ## Expected Output
 

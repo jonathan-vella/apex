@@ -191,16 +191,11 @@ Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen
 You do not invoke them directly, but understanding their output helps you
 interpret validation results.
 
-### bicep-lint-subagent
+### bicep-validate-subagent
 
-Runs `bicep lint` and `bicep build` to validate template syntax. Returns a
-structured PASS/FAIL result with error counts and details.
-
-### bicep-review-subagent
-
-Reviews Bicep templates against AVM standards, naming conventions, security
-baselines, and best practices. Returns an APPROVED, NEEDS_REVISION, or FAILED
-verdict with actionable feedback.
+Runs `bicep lint` and `bicep build` to validate template syntax, then reviews
+templates against AVM standards, naming conventions, security baselines, and
+best practices. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION result.
 
 ### bicep-whatif-subagent
 
@@ -208,18 +203,14 @@ Runs `az deployment group what-if` to preview deployment changes. Analyzes
 policy violations, resource changes, and cost impact. Returns a structured
 change summary.
 
-### terraform-lint-subagent
+### terraform-validate-subagent
 
-Runs `terraform fmt -check`, `terraform validate`, and TFLint to validate
-configuration syntax. Returns a structured PASS/FAIL result with diagnostics.
+Runs `terraform fmt -check`, `terraform validate`, and TFLint, then reviews
+configs against AVM-TF standards, CAF naming conventions, security baselines,
+and governance compliance. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION
+result.
 
-### terraform-review-subagent
-
-Reviews Terraform configs against AVM-TF standards, CAF naming conventions,
-security baselines, and governance compliance. Returns APPROVED, NEEDS_REVISION,
-or FAILED verdict with actionable feedback.
-
-### terraform-plan-subagent
+### iac-planner-subagent
 
 Runs `terraform plan` to preview infrastructure changes. Classifies resources
 into create/update/destroy/replace, highlights destructive operations,
@@ -250,19 +241,19 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 
 1. Open the requirements document (`01-requirements.md`)
 2. Open the architecture assessment (`02-architecture-assessment.md`)
-3. Then ask the Bicep Planner agent to create the implementation plan
+3. Then ask the IaC Planner agent to create the implementation plan
 
 ### Chaining Agents
 
 You can chain agents manually by using handoff buttons in the chat, or run
-the Conductor for automatic orchestration. Manual chaining gives you more
+the Orchestrator for automatic orchestration. Manual chaining gives you more
 control over each step.
 
 **Bicep track**:
 
 1. Run **Requirements** → review and approve `01-requirements.md`
 2. Run **Architect** → review WAF scores and cost estimate
-3. Run **Bicep Planner** → review governance constraints and plan
+3. Run **IaC Planner** → review governance constraints and plan
 4. Run **Bicep CodeGen** → review generated templates
 5. Run **Bicep Deploy** → review what-if before approving deployment
 6. Run **As-Built** → generate post-deployment documentation
@@ -271,7 +262,7 @@ control over each step.
 
 1. Run **Requirements** → review and approve `01-requirements.md`
 2. Run **Architect** → review WAF scores and cost estimate
-3. Run **Terraform Planner** → review governance constraints and plan
+3. Run **IaC Planner** → review governance constraints and plan
 4. Run **Terraform CodeGen** → review generated configs
 5. Run **Terraform Deploy** → review plan output before applying
 6. Run **As-Built** → generate post-deployment documentation
@@ -304,5 +295,5 @@ and suggest improvements for WAF alignment.
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
 - [Prompt Engineering for Copilot Chat](https://docs.github.com/en/copilot/using-github-copilot/copilot-chat/prompt-engineering-for-copilot-chat)
 - [VS Code Copilot Prompt Crafting](https://code.visualstudio.com/docs/copilot/prompt-crafting)
-- [Agentic InfraOps Quickstart](../../../getting-started/quickstart/)
+- [APEX Quickstart](../../../getting-started/quickstart/)
 - [Agent Workflow Reference](../../../concepts/workflow/)

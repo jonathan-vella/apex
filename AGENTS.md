@@ -1,8 +1,8 @@
-# Agentic InfraOps
+# APEX
 
-> Azure infrastructure engineered by agents. Verified. Well-Architected. Deployable.
+> Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.
 
-A multi-agent orchestration system for Azure infrastructure development.
+A multi-agent orchestration system for Azure platform engineering.
 Specialized AI agents collaborate through a structured multi-step workflow:
 **Requirements → Architecture → Design → Governance → Plan → Code → Deploy → Documentation**.
 
@@ -48,11 +48,10 @@ npm run lint:md                          # Markdown linting
 npm run lint:json                        # JSON/JSONC validation
 npm run lint:agent-frontmatter           # Agent definition frontmatter
 npm run lint:skills-format               # Skill file format
-npm run lint:instruction-frontmatter     # Instruction file format
+npm run validate:instruction-checks      # Instruction file format and reference validation
 npm run lint:artifact-templates          # Artifact template compliance
 npm run lint:h2-sync                     # H2 heading sync between templates and artifacts
 npm run lint:governance-refs             # Governance reference validation
-npm run validate:instruction-refs        # Instruction reference validation
 npm run validate:session-state           # Session state JSON schema validation
 npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation
@@ -214,21 +213,21 @@ docs/                  # User-facing documentation
 
 ### Agent Workflow
 
-| Step | Phase        | Output                                                   | Review         |
-| ---- | ------------ | -------------------------------------------------------- | -------------- |
-| 1    | Requirements | `01-requirements.md`                                     | 1×             |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1×–3× + 1 cost |
-| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —              |
-| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | 1×             |
-| 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | 1×–2×          |
-| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | 1×–3×          |
-| 6    | Deploy       | `06-deployment-summary.md`                               | —              |
-| 7    | As-Built     | `07-*.md` documentation suite                            | —              |
-| Post | Lessons      | `09-lessons-learned.json/.md`                            | —              |
+| Step | Phase        | Output                                                   | Review                           |
+| ---- | ------------ | -------------------------------------------------------- | -------------------------------- |
+| 1    | Requirements | `01-requirements.md`                                     | 1×                               |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1× + 1 cost (opt-in: multi-pass) |
+| 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | —                                |
+| 3.5  | Governance   | `04-governance-constraints.md/.json`                     | 1×                               |
+| 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | opt-in (default: skip)           |
+| 5    | IaC Code     | `infra/bicep/{project}/` or `infra/terraform/{project}/` | opt-in (default: skip)           |
+| 6    | Deploy       | `06-deployment-summary.md`                               | —                                |
+| 7    | As-Built     | `07-*.md` documentation suite                            | —                                |
+| Post | Lessons      | `09-lessons-learned.json/.md`                            | —                                |
 
 All outputs go to `agent-output/{project}/`.
-Dual IaC tracks: Bicep (agents 05b/06b/07b) and Terraform (agents 05t/06t/07t).
-The Conductor agent orchestrates the full workflow with human approval gates.
+Unified planner (05-IaC Planner) feeds into dual IaC tracks: Bicep (06b/07b) and Terraform (06t/07t).
+The Orchestrator agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
 Complexity-dependent. Conditional early exits reduce actual passes.
 Reviews target AI-generated creative decisions (architecture, governance, plan, code) not
