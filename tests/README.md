@@ -44,6 +44,13 @@ Open VS Code Chat (`Ctrl+Shift+I`) and use the E2E prompt:
 /tests/prompts/e2e-contoso-rfp.prompt.md
 ```
 
+This prompt is test-only and non-interactive:
+
+- It uses the RFP as the source of truth.
+- It pre-populates interactive answers with fixed test defaults.
+- It keeps production agents unchanged.
+- It handles interactive workflow stages inline during testing instead of waiting on `askQuestions`.
+
 This runs the full 7-step pipeline autonomously:
 
 1. **Requirements** — extracts from `tests/e2e-inputs/contoso-rfq.md`
@@ -55,6 +62,30 @@ This runs the full 7-step pipeline autonomously:
 7. **Deploy** — dry-run validation only (never deploys real resources)
 8. **As-Built** — documentation suite
 9. **Benchmark** — 8-dimension quality scoring
+
+### 2.1 Run three independent benchmark passes
+
+For statistically useful evaluation, run the same prompt at least three times with different project names:
+
+- `contoso-service-hub-run-1`
+- `contoso-service-hub-run-2`
+- `contoso-service-hub-run-3`
+
+For best throughput, open three chat sessions and launch the same prompt in parallel, one per project.
+
+After the runs complete:
+
+```bash
+node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 all
+node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-2 all
+node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-3 all
+
+node scripts/benchmark-e2e.mjs contoso-service-hub-run-1
+node scripts/benchmark-e2e.mjs contoso-service-hub-run-2
+node scripts/benchmark-e2e.mjs contoso-service-hub-run-3
+
+node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
+```
 
 ### 3. Analyze lessons from a run
 

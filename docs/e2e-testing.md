@@ -64,12 +64,24 @@ npm run e2e:benchmark -- --compare
 
 Open VS Code Chat and use one of the prompt files:
 
-1. **Simple project (pre-seeded)**: Open `.github/prompts/e2e-ralph-loop.prompt.md`
-2. **Complex project (RFP-driven)**: Open `.github/prompts/e2e-contoso-rfp.prompt.md`
-3. **Post-loop analysis**: Open `.github/prompts/e2e-analyze-lessons.prompt.md`
+1. **Complex project (RFP-driven)**: Open `tests/prompts/e2e-contoso-rfp.prompt.md`
+2. **Post-loop analysis**: Open `tests/prompts/e2e-analyze-lessons.prompt.md`
 
-The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`) orchestrates
-the loop with conditional IaC routing based on session state.
+The Contoso RFP prompt is test-only and non-interactive. It uses the RFP plus fixed test defaults
+to pre-populate answers for workflow stages that would normally require `askQuestions`, while leaving
+production agents unchanged.
+
+Use three distinct project names for repeatability and comparison:
+
+- `contoso-service-hub-run-1`
+- `contoso-service-hub-run-2`
+- `contoso-service-hub-run-3`
+
+For parallel throughput, run the same prompt in three chat sessions and then combine the results:
+
+```bash
+node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
+```
 
 ## Benchmark Scoring Dimensions
 
