@@ -68,11 +68,19 @@ npm run e2e:benchmark -- --compare
 Open VS Code Chat and use one of the prompt files:
 
 1. **Simple project (pre-seeded)**: Open `.github/prompts/e2e-ralph-loop.prompt.md`
-2. **Complex project (RFP-driven)**: Open `.github/prompts/e2e-contoso-rfp.prompt.md`
-3. **Post-loop analysis**: Open `.github/prompts/e2e-analyze-lessons.prompt.md`
+2. **Complex project (RFP-driven)**: Open `tests/prompts/e2e-contoso-rfp.prompt.md`
+3. **Post-loop analysis**: Open `tests/prompts/e2e-analyze-lessons.prompt.md`
 
-The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`) orchestrates
-the loop with conditional IaC routing based on session state.
+The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`)
+orchestrates the loop with conditional IaC routing based on session state. The
+Contoso prompt is intended to run the real workflow agents and tool paths,
+including Draw.io design output, pricing-backed architecture assessment, live
+governance discovery when authenticated, and dry-run deployment validation.
+
+Use six runs for a full benchmark — three per IaC track:
+
+**Bicep**: `contoso-service-hub-run-1`, `run-2`, `run-3`
+**Terraform**: `contoso-service-hub-tf-run-1`, `tf-run-2`, `tf-run-3`
 
 ## Benchmark Scoring Dimensions
 

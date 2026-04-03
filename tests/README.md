@@ -48,8 +48,9 @@ This prompt is test-only and non-interactive:
 
 - It uses the RFP as the source of truth.
 - It pre-populates interactive answers with fixed test defaults.
-- It keeps production agents unchanged.
-- It handles interactive workflow stages inline during testing instead of waiting on `askQuestions`.
+- It routes each workflow step through the real workflow agent when one exists.
+- It requires the real Draw.io, pricing, governance, and dry-run deployment
+  paths instead of substituting inline benchmark-only artifacts.
 
 This runs the full 7-step pipeline autonomously:
 
@@ -58,33 +59,54 @@ This runs the full 7-step pipeline autonomously:
 3. **Design** — ADRs + diagrams (optional, skippable)
 4. **Governance** — Azure Policy discovery
 5. **IaC Plan** — module selection + dependency ordering
-6. **IaC Code** — Bicep/Terraform generation (phased for complex projects)
+6. **IaC Code** — Bicep or Terraform generation (phased for complex projects)
 7. **Deploy** — dry-run validation only (never deploys real resources)
 8. **As-Built** — documentation suite
 9. **Benchmark** — 8-dimension quality scoring
 
-### 2.1 Run three independent benchmark passes
+### 2.1 Run six independent benchmark passes (3 Bicep + 3 Terraform)
 
-For statistically useful evaluation, run the same prompt at least three times with different project names:
+For statistically useful evaluation, run the prompt 6 times — 3 per IaC track:
 
-- `contoso-service-hub-run-1`
-- `contoso-service-hub-run-2`
-- `contoso-service-hub-run-3`
+**Bicep runs:**
 
-For best throughput, open three chat sessions and launch the same prompt in parallel, one per project.
+- `contoso-service-hub-run-1` (IaC tool: Bicep)
+- `contoso-service-hub-run-2` (IaC tool: Bicep)
+- `contoso-service-hub-run-3` (IaC tool: Bicep)
+
+**Terraform runs:**
+
+- `contoso-service-hub-tf-run-1` (IaC tool: Terraform)
+- `contoso-service-hub-tf-run-2` (IaC tool: Terraform)
+- `contoso-service-hub-tf-run-3` (IaC tool: Terraform)
+
+For best throughput, open separate chat sessions and launch them in parallel.
 
 After the runs complete:
 
 ```bash
+# Validate all runs
 node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 all
 node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-2 all
 node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-3 all
+node scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-1 all
+node scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-2 all
+node scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-3 all
 
+# Benchmark each run
 node scripts/benchmark-e2e.mjs contoso-service-hub-run-1
 node scripts/benchmark-e2e.mjs contoso-service-hub-run-2
 node scripts/benchmark-e2e.mjs contoso-service-hub-run-3
+node scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-1
+node scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-2
+node scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-3
 
+# Combine per track
 node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
+node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3
+
+# Cross-track comparison
+npm run e2e:benchmark -- --compare
 ```
 
 ### 3. Analyze lessons from a run
@@ -118,9 +140,12 @@ while step.status != "complete" AND iteration < max_iterations:
 
 ## Available Scenarios
 
-| Scenario            | Input                       | Complexity | IaC Track | Description                             |
-| ------------------- | --------------------------- | ---------- | --------- | --------------------------------------- |
-| Contoso Service Hub | `e2e-inputs/contoso-rfq.md` | Complex    | Bicep     | 15 Azure services, 3 environments, GDPR |
+| Scenario            | Input                       | Complexity | IaC Track          | Description                             |
+| ------------------- | --------------------------- | ---------- | ------------------ | --------------------------------------- |
+| Contoso Service Hub | `e2e-inputs/contoso-rfq.md` | Complex    | Bicep or Terraform | 15 Azure services, 3 environments, GDPR |
+
+The same prompt supports both IaC tracks via the `iac_tool` input variable.
+Pass `Bicep` (default) or `Terraform` when invoking the prompt.
 
 To add a new scenario, create an RFP/RFQ file in `e2e-inputs/` and a
 corresponding prompt in `prompts/`.

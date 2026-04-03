@@ -81,8 +81,10 @@ Invoke `challenger-review-subagent` with:
 
 **Passes 2–3** → Invoke `challenger-review-subagent` in batch mode with:
 
-- `batch_lenses`: remaining lenses from the rotation (e.g., `[{"review_focus": "architecture-reliability", "pass_number": 2}]` for 2-pass,
-  `[{"review_focus": "architecture-reliability", "pass_number": 2}, {"review_focus": "cost-feasibility", "pass_number": 3}]` for 3-pass)
+- `batch_lenses`: remaining lenses from the rotation, e.g.:
+  - 2-pass: `[{"review_focus": "architecture-reliability", "pass_number": 2}]`
+  - 3-pass: `[{"review_focus": "architecture-reliability", "pass_number": 2},`
+    `{"review_focus": "cost-feasibility", "pass_number": 3}]`
 - `prior_findings` = compact_for_parent from pass 1
 
 ### Lens Rotation Table

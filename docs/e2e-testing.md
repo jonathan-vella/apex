@@ -67,20 +67,35 @@ Open VS Code Chat and use one of the prompt files:
 1. **Complex project (RFP-driven)**: Open `tests/prompts/e2e-contoso-rfp.prompt.md`
 2. **Post-loop analysis**: Open `tests/prompts/e2e-analyze-lessons.prompt.md`
 
-The Contoso RFP prompt is test-only and non-interactive. It uses the RFP plus fixed test defaults
-to pre-populate answers for workflow stages that would normally require `askQuestions`, while leaving
-production agents unchanged.
+The Contoso RFP prompt is test-only and non-interactive, but it now drives the
+real workflow path. It uses the RFP plus fixed test defaults to pre-populate
+answers for workflow stages that would normally require `askQuestions`, while
+still routing through the actual workflow agents, Draw.io design flow,
+pricing-backed architecture flow, governance discovery, and dry-run deployment
+validation.
 
-Use three distinct project names for repeatability and comparison:
+Use six distinct project names for repeatability and comparison — three per
+IaC track:
+
+**Bicep runs:**
 
 - `contoso-service-hub-run-1`
 - `contoso-service-hub-run-2`
 - `contoso-service-hub-run-3`
 
-For parallel throughput, run the same prompt in three chat sessions and then combine the results:
+**Terraform runs:**
+
+- `contoso-service-hub-tf-run-1`
+- `contoso-service-hub-tf-run-2`
+- `contoso-service-hub-tf-run-3`
+
+For parallel throughput, run the prompt in separate chat sessions and then
+combine the results per track:
 
 ```bash
 node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
+node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3
+npm run e2e:benchmark -- --compare
 ```
 
 ## Benchmark Scoring Dimensions

@@ -1,10 +1,11 @@
 ---
 name: E2E Orchestrator
 model: GPT-5.4
-description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Runs all steps sequentially without human gates, with pre-validation, self-correction, challenger reviews, and benchmark collection. Does NOT replace the production 01-Orchestrator."
+description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes the real workflow agents end to end, with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace the production 01-Orchestrator."
 user-invocable: true
 agents:
   [
+    "02-Requirements",
     "03-Architect",
     "04-Design",
     "04g-Governance",
@@ -49,11 +50,37 @@ Autonomous orchestrator for the RALPH-style E2E workflow evaluation loop.
 Runs all 7 PlatformOps steps without human gates, validates every artifact,
 and produces a scored benchmark report with lessons learned.
 
+## Batch Execution (Multi-Run Mode)
+
+When the prompt specifies `mode: batch-6` (or a run matrix), execute all runs
+sequentially within a single invocation:
+
+1. **Initialize batch progress**: Create or read
+   `agent-output/e2e-batch-progress.json`. If resuming, skip runs already
+   marked complete/partial/blocked.
+2. **For each run in the matrix**:
+   a. Set `{project}` and `{iac_tool}` from the run entry
+   b. Execute the full RALPH loop (Steps 1–8) as a self-contained workflow
+   c. After Step 8 completes, update the run's status in
+   `e2e-batch-progress.json` (`E2E_COMPLETE`, `E2E_PARTIAL`, or
+   `E2E_BLOCKED`)
+   d. Emit `BATCH_RUN_COMPLETE: {project} — {status}` before starting the
+   next run
+3. **Track-level combine**: After the 3rd run in a track (Bicep or Terraform),
+   run the combine script automatically
+4. **Context guard**: After each run, assess remaining context capacity. If
+   context exceeds 60%, save all state and emit `SESSION_SPLIT_NEEDED` with
+   the next run number. The user re-invokes the prompt to continue.
+5. **Blocked runs don't block the batch**: If a run terminates as
+   `E2E_BLOCKED`, log the reason and move to the next run.
+6. **No user interaction between runs**: All run parameters are pre-seeded in
+   the run matrix. Never ask the user for input between runs.
+
 ## Context Awareness
 
 Track approximate context usage per step. If context approaches 60% capacity
 (many large subagent returns), save state to `00-session-state.json` and
-`00-handoff.md`, then output SESSION_SPLIT_NEEDED with the next step number.
+`00-handoff.md`, then output SESSION_SPLIT_NEEDED with the next step/run number.
 
 ## Core Differences from Production Orchestrator
 
@@ -68,6 +95,64 @@ Track approximate context usage per step. If context approaches 60% capacity
 | Lesson capture      | Not tracked                    | Structured JSON lessons            |
 | Max iterations      | Unlimited (human decides)      | 5 per step, 40 total               |
 | Deploy              | Real Azure deployment          | Dry-run only (what-if / plan)      |
+
+## Real-Run Enforcement
+
+- Treat E2E prompts as scenario drivers, not as permission to synthesize full
+  workflow steps inline.
+- If a real workflow agent exists for a step, delegate to that agent.
+- Step 1 must go through `02-Requirements` with auto-filled answers from the
+  prompt defaults.
+- Step 2 must go through `03-Architect` and produce a pricing-backed cost
+  estimate, not a hand-authored estimate.
+- Step 3 should use the Draw.io path via `04-Design` and output `.drawio`
+  artifacts when Draw.io tools are available.
+- Step 3.5 must go through `04g-Governance` with live policy discovery when
+  Azure authentication exists.
+- Step 4 must go through `05-IaC Planner`; inline plan generation is not an
+  acceptable shortcut.
+- Step 5 must go through the real codegen agent. If concrete modules cannot be
+  generated, mark the run partial or blocked instead of claiming completion with
+  benchmark-only scaffolds.
+- Step 6 must use the real dry-run deployment path. Do not fabricate `what-if`
+  or plan results.
+- The only acceptable inline file generation is orchestrator bookkeeping such as
+  session state, handoff, iteration log, benchmark report, and lessons.
+- If a delegated agent asks follow-up questions, answer from the prompt's fixed
+  defaults and continue rather than waiting for the user.
+
+## Subagent Runtime Fallback
+
+When running in a context where agent delegation (`@agent` / `agent` tool) is
+unavailable (e.g., invoked via `runSubagent` from a parent chat), the E2E
+Orchestrator must adapt instead of blocking:
+
+1. **Detect the limitation**: If the first agent delegation attempt fails or
+   the `agent` tool is not listed in available tools, switch to direct
+   execution mode for all subsequent steps.
+2. **Direct execution mode**: Execute each step inline by reading the
+   corresponding agent definition (`.github/agents/*.agent.md`) and its
+   referenced skills, then performing the work directly using available tools
+   (file read/write, terminal, MCP, search, web).
+3. **Maintain the same quality bar**: Read each step agent's skills before
+   executing. Apply the same artifact templates, naming conventions, and
+   validation gates as the real agents would.
+4. **MCP tools are still required**: Pricing estimates must still use the
+   Azure Pricing MCP. Draw.io diagrams must still use the Draw.io MCP when
+   available. Governance must still use live Azure Policy discovery when
+   authenticated.
+5. **Log the fallback**: Record `"execution_mode": "direct"` in
+   `00-session-state.json` and add a lesson noting that agent delegation was
+   unavailable.
+6. **Challenger reviews**: Follow the "Direct Execution Mode" subsection of
+   the Challenger Protocol below. You MUST read the challenger subagent
+   definition and adversarial checklists, then perform an inline review for
+   every mandatory step (1, 2, 4, 5). Update `review_audit` in session state
+   after each review — the post-review gate check blocks step transitions
+   when this is missing.
+
+This fallback ensures E2E runs can complete in any runtime environment while
+preserving artifact quality and validation rigor.
 
 ## IaC Tool Routing
 
@@ -139,19 +224,57 @@ On pre-validation failure:
 
 ## Challenger Protocol (MANDATORY — Zero-Skip Policy)
 
-After every step completes validation:
+After every step completes validation, run a challenger review. The protocol
+adapts to the execution mode but the outcome is identical:
+
+### Delegated Mode (agent tool available)
 
 1. Invoke `@challenger-review-subagent` with the step's primary artifact
 2. Use `comprehensive` lens for all steps (simple complexity = 1 pass)
 3. If `must_fix` count > 0: feed findings back to the step agent for self-correction
-4. **IMMEDIATELY** update `review_audit.step_{N}.passes_executed` in session state
 
-> **ENFORCEMENT**: Before moving to the next step, verify the current step's
-> `review_audit` entry shows `passes_executed >= 1`. If it shows 0, you skipped
-> the challenger review — go back and run it.
-> Steps 1, 2, 4, and 5 MUST have challenger reviews.
+### Direct Execution Mode (agent tool unavailable)
+
+When running in direct execution mode (e.g., via `runSubagent`), you MUST
+perform the challenger review inline. Do NOT skip it:
+
+1. **Read** `.github/agents/_subagents/challenger-review-subagent.agent.md` for
+   the adversarial workflow, severity levels, and review focus lenses
+2. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md`
+   for the per-category and per-artifact-type checklists
+3. **Read the step's primary artifact** end to end
+4. **Apply the `comprehensive` lens** — challenge assumptions, find missing
+   failure modes, verify governance compliance, check WAF alignment, and
+   identify hidden dependencies
+5. **Produce structured findings** with severity (`must_fix`, `should_fix`,
+   `suggestion`) and category for each finding
+6. If `must_fix` count > 0: re-execute the step with the findings as correction
+   context, then re-validate
+
+### Post-Review Gate (Both Modes — BLOCKING)
+
+After the review (delegated or inline), you MUST:
+
+1. **IMMEDIATELY** update `review_audit.step_{N}` in `00-session-state.json`:
+
+   ```json
+   {
+     "passes_executed": 1,
+     "lens": "comprehensive",
+     "must_fix": 0,
+     "should_fix": 2,
+     "suggestion": 1,
+     "execution_mode": "direct"
+   }
+   ```
+
+2. **GATE CHECK**: Before moving to the next step, read `00-session-state.json`
+   and verify `review_audit.step_{N}.passes_executed >= 1`. If it is 0 or
+   missing, STOP and run the challenger review before proceeding.
+
+> **ENFORCEMENT**: Steps 1, 2, 4, and 5 MUST have challenger reviews.
 > Steps 3.5 and 6 are strongly recommended but not blocking.
-> This is the #1 cause of low benchmark scores
+> Skipping challenger reviews is the #1 cause of low benchmark scores
 > (17/100 F in 2 of 4 E2E runs).
 
 ## Governance Validation Gate (MANDATORY)
@@ -229,10 +352,19 @@ After each step, record to `08-benchmark-report.md`:
 
 ## Completion Criteria
 
+### Per-Run Status
+
 - **E2E_COMPLETE**: All steps complete, `npm run validate:all` passes, benchmark > 60/100
 - **E2E_PARTIAL**: Steps 1-5 complete, Steps 6-7 skipped/blocked, OR Step 3 skipped (optional)
 - **E2E_BLOCKED**: Any mandatory step fails after 5 iterations
 - **SESSION_SPLIT_NEEDED**: Context > 60%, state saved, user re-invokes prompt
+
+### Batch Status (Multi-Run Mode)
+
+- **BATCH_COMPLETE**: All runs in the matrix finished (any mix of COMPLETE/PARTIAL/BLOCKED)
+- **BATCH_PARTIAL**: Some runs finished, batch was interrupted by context limits
+- **SESSION_SPLIT_NEEDED**: Context limit reached mid-batch, `e2e-batch-progress.json` updated
+  for resume
 
 ## DO / DON'T
 

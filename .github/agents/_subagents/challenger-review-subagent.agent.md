@@ -62,7 +62,8 @@ The parent agent provides:
 - `project_name`: Name of the project being challenged (required)
 - `artifact_type`: One of `requirements`, `architecture`, `implementation-plan`,
   `governance-constraints`, `iac-code`, `cost-estimate`, `deployment-preview` (required)
-- `review_focus`: One of `security-governance`, `architecture-reliability`, `cost-feasibility`, `comprehensive` (required for single-lens mode)
+- `review_focus`: One of `security-governance`, `architecture-reliability`,
+  `cost-feasibility`, `comprehensive` (required for single-lens mode)
 - `pass_number`: 1, 2, or 3 — which adversarial pass this is (required for single-lens mode)
 - `prior_findings`: JSON from previous passes, or null if this is pass 1 (optional)
 - `batch_lenses`: Array of lens objects to execute in order (required for batch mode, mutually exclusive with review_focus/pass_number):
