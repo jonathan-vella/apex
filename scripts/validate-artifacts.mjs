@@ -259,6 +259,7 @@ const ARTIFACT_STRICTNESS = {
   "03-des-cost-estimate.md": "standard",
   "07-ab-cost-estimate.md": "standard",
   "README.md": "relaxed",
+  "09-lessons-learned.md": "relaxed",
 };
 
 const OPTIONAL_ALLOWED = {
@@ -292,6 +293,7 @@ const OPTIONAL_ALLOWED = {
   "03-des-cost-estimate.md": ["## References"],
   "07-ab-cost-estimate.md": ["## References"],
   "README.md": [],
+  "09-lessons-learned.md": ["## References"],
 };
 
 const TITLE_DRIFT = "Artifact Template Drift";
@@ -318,6 +320,7 @@ const AGENTS = {
   "03-des-cost-estimate.md": ".github/agents/03-architect.agent.md",
   "07-ab-cost-estimate.md": ".github/skills/azure-artifacts/SKILL.md",
   "README.md": null,
+  "09-lessons-learned.md": null,
 };
 
 const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
@@ -339,6 +342,7 @@ const TEMPLATES = {
   "03-des-cost-estimate.md": `${TEMPLATE_DIR}/03-des-cost-estimate.template.md`,
   "07-ab-cost-estimate.md": `${TEMPLATE_DIR}/07-ab-cost-estimate.template.md`,
   "README.md": `${TEMPLATE_DIR}/PROJECT-README.template.md`,
+  "09-lessons-learned.md": `${TEMPLATE_DIR}/09-lessons-learned.template.md`,
 };
 
 const STANDARD_DOC = ".github/instructions/markdown.instructions.md";

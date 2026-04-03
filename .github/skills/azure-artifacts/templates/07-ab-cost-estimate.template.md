@@ -160,6 +160,10 @@ _"If you need X, expect to pay Y more"_
 
 ## 💰 Savings Opportunities
 
+<!-- Use ONE of the three states below. Delete the other two. -->
+
+<!-- STATE 1: Quantified — use when RI/SP pricing was queried -->
+
 > ### Total Potential Savings: ${X}/year
 >
 > | Strategy                | Commitment | Monthly Savings | Annual Savings | % Reduction |
@@ -169,6 +173,32 @@ _"If you need X, expect to pay Y more"_
 > | Savings Plan (SP)       | 1-year     | ${...}          | ${...}         | {X%}        |
 > | Right-sizing            | N/A        | ${...}          | ${...}         | {X%}        |
 > | Dev/Test Pricing        | N/A        | ${...}          | ${...}         | {X%}        |
+
+<!-- STATE 2: Not quantified — use when pricing run focused on baseline only -->
+
+> ### Savings: Not Quantified in This Run
+>
+> This estimate covers baseline consumption pricing only. Reservation and
+> commitment strategies should be evaluated once production workload patterns
+> and SKU selections are confirmed.
+>
+> **Eligible strategies to evaluate**:
+>
+> | Strategy                | Applicability | Prerequisites                              |
+> | ----------------------- | ------------- | ------------------------------------------ |
+> | Reserved Instances (RI) | {✅ / ❌}     | {Stable baseline compute identified}       |
+> | Savings Plan (SP)       | {✅ / ❌}     | {Committed compute spend confirmed}        |
+> | Spot / Low Priority     | {✅ / ❌}     | {Fault-tolerant workloads identified}      |
+> | Right-sizing            | {✅ / ❌}     | {Production utilization data available}    |
+> | Dev/Test Pricing        | {✅ / ❌}     | {Non-production environments use dev SKUs} |
+
+<!-- STATE 3: Not applicable — use for serverless/consumption-only designs -->
+
+> ### Savings: Not Applicable
+>
+> This design uses consumption-based pricing exclusively. Commitment
+> discounts do not apply to the selected service tiers.
+> {Explain why — e.g., "All services are serverless with per-execution billing."}
 
 ## 🧾 Detailed Cost Breakdown
 

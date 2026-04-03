@@ -68,3 +68,4 @@ npm run fix:artifact-h2 agent-output/{project}/{file}.md --apply  # auto-fix
 | 07-backup-dr           | `## 📋 Executive Summary`            | `## 📎 9. Appendix`                         |
 | 07-compliance          | `## 📋 Executive Summary`            | `## 📎 6. Appendix`                         |
 | 07-cost                | `## 💵 Cost At-a-Glance`             | `## 🧾 Detailed Cost Breakdown`             |
+| 09-lessons-learned     | `## 📋 Summary`                      | `## 📎 Appendix: Full Lesson Details`       |

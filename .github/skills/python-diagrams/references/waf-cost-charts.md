@@ -206,6 +206,7 @@ def generate_cost_projection_chart(
     costs: list[float],
     output_path: str = "03-des-cost-projection.png",
     budget_cap: float | None = None,
+    growth_assumption: str | None = None,
 ) -> None:
     """
     Render a bar + trend-line chart for 6-month cost projections.
@@ -213,6 +214,8 @@ def generate_cost_projection_chart(
     months: list of month labels, e.g. ["Jan", "Feb", ..., "Jun"]
     costs:  list of monthly costs in USD (same length as months)
     budget_cap: optional horizontal budget line in USD
+    growth_assumption: optional subtitle explaining growth basis,
+        e.g. "Based on 5% monthly user growth" or "Linear extrapolation"
     """
     fig, ax = plt.subplots(figsize=(10, 5))
     fig.patch.set_facecolor("#F8F9FA")
@@ -245,8 +248,15 @@ def generate_cost_projection_chart(
     ax.set_xticks(x)
     ax.set_xticklabels(months, fontsize=10, color="#333")
     ax.set_ylabel("Monthly Cost (USD)", fontsize=10, color="#555")
-    ax.set_title("6-Month Cost Projection", fontsize=13, fontweight="bold",
-                 color="#1A1A2E", pad=14)
+
+    # Title with optional growth assumption subtitle
+    title = "6-Month Cost Projection"
+    ax.set_title(title, fontsize=13, fontweight="bold",
+                 color="#1A1A2E", pad=14 if not growth_assumption else 22)
+    if growth_assumption:
+        ax.text(0.5, 1.02, growth_assumption, transform=ax.transAxes,
+                ha="center", fontsize=9, color="#888", style="italic")
+
     ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"${v:,.0f}"))
     ax.tick_params(axis="y", labelsize=9, colors="#666")
     ax.spines[["top", "right"]].set_visible(False)

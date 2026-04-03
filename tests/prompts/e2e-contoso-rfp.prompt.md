@@ -1,8 +1,8 @@
 ---
 name: e2e-contoso-rfp
 agent: E2E Orchestrator
-description: "Run a real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path. Executes all 6 runs autonomously (3 Bicep + 3 Terraform) in a single invocation for statistical benchmarking."
-argument-hint: "Optional: mode (default: batch-6). Use 'single' with project/iac_tool for one run."
+description: "Run a single real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path."
+argument-hint: "Specify project name and IaC tool (Bicep or Terraform)"
 ---
 
 # E2E RALPH Loop — Contoso Service Hub (Real-Run Mode)
@@ -17,121 +17,15 @@ inline.
 This prompt replaces the earlier inline-friendly behavior. Steps with real
 workflow agents must go through those agents.
 
-## Execution Mode
+## Run Configuration
 
-This prompt supports two modes:
-
-- **`batch-6`** (default): Execute all 6 runs autonomously in sequence — no
-  user intervention between runs. This is the RALPH loop benchmark protocol.
-- **`single`**: Execute one run with the specified `project` and `iac_tool`.
-
-Mode: `${input:mode:batch-6}`
-
-## Batch Execution Protocol (6 Runs — Autonomous)
-
-When `mode` is `batch-6`, execute all 6 runs in sequence within a single
-invocation. Each run is a complete RALPH loop (Steps 1–8). No user interaction
-between runs.
-
-### Run Matrix
-
-| Run | Project Name                   | IaC Tool  |
-| --- | ------------------------------ | --------- |
-| 1   | `contoso-service-hub-run-1`    | Bicep     |
-| 2   | `contoso-service-hub-run-2`    | Bicep     |
-| 3   | `contoso-service-hub-run-3`    | Bicep     |
-| 4   | `contoso-service-hub-tf-run-1` | Terraform |
-| 5   | `contoso-service-hub-tf-run-2` | Terraform |
-| 6   | `contoso-service-hub-tf-run-3` | Terraform |
-
-### Batch Execution Rules
-
-1. **Sequential execution**: Complete run N before starting run N+1. Each run
-   goes through all 8 steps (or terminates as PARTIAL/BLOCKED).
-2. **Independent state**: Each run has its own `agent-output/{project}/` and
-   `infra/{bicep|terraform}/{project}/` directories. Never share or reuse
-   artifacts across runs.
-3. **Context management**: After completing each run, save session state and
-   emit a `BATCH_RUN_COMPLETE` marker. If context exceeds 60%, emit
-   `SESSION_SPLIT_NEEDED` with the next run number so the user can re-invoke
-   the prompt to continue from that run.
-4. **Batch progress file**: Maintain `agent-output/e2e-batch-progress.json`
-   across all runs:
-
-   ```json
-   {
-     "batch_id": "contoso-rfp-batch-YYYYMMDD-HHMMSS",
-     "mode": "batch-6",
-     "total_runs": 6,
-     "completed_runs": 0,
-     "runs": [
-       {
-         "run": 1,
-         "project": "contoso-service-hub-run-1",
-         "iac_tool": "Bicep",
-         "status": "not-started"
-       },
-       {
-         "run": 2,
-         "project": "contoso-service-hub-run-2",
-         "iac_tool": "Bicep",
-         "status": "not-started"
-       },
-       {
-         "run": 3,
-         "project": "contoso-service-hub-run-3",
-         "iac_tool": "Bicep",
-         "status": "not-started"
-       },
-       {
-         "run": 4,
-         "project": "contoso-service-hub-tf-run-1",
-         "iac_tool": "Terraform",
-         "status": "not-started"
-       },
-       {
-         "run": 5,
-         "project": "contoso-service-hub-tf-run-2",
-         "iac_tool": "Terraform",
-         "status": "not-started"
-       },
-       {
-         "run": 6,
-         "project": "contoso-service-hub-tf-run-3",
-         "iac_tool": "Terraform",
-         "status": "not-started"
-       }
-     ]
-   }
-   ```
-
-5. **Track-level combine**: After run 3 completes, run:
-   `node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3`
-   After run 6 completes, run:
-   `node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3`
-6. **Final comparison**: After all 6 runs, run `npm run e2e:benchmark -- --compare`.
-7. **Resilience**: If a run terminates as `E2E_BLOCKED`, log the reason in
-   batch progress and continue to the next run. Do not abort the entire batch.
-8. **No re-prompting**: The orchestrator must NOT ask the user questions between
-   runs. All defaults are pre-seeded below.
-
-### Resuming a Split Batch
-
-If a previous batch was split due to context limits, read
-`agent-output/e2e-batch-progress.json` and resume from the first run with
-`status: "not-started"`. Skip runs already marked `E2E_COMPLETE`,
-`E2E_PARTIAL`, or `E2E_BLOCKED`.
-
-## Single Run Mode
-
-When `mode` is `single`, execute one run with the specified project and IaC tool:
+Execute one complete RALPH loop (Steps 1–8) with the specified project and
+IaC tool:
 
 - Project: `${input:project:contoso-service-hub-run-1}`
 - IaC tool: `${input:iac_tool:Bicep}`
 
-## Project Context (Per Run)
-
-For each run in the matrix (or the single run), apply these settings:
+## Project Context
 
 - RFP source: `tests/e2e-inputs/contoso-rfq.md`
 - Output directory: `agent-output/{project}/`
@@ -172,7 +66,7 @@ For each run in the matrix (or the single run), apply these settings:
 
 ## IaC Tool Routing
 
-The `iac_tool` for the current run controls which agents and
+The `iac_tool` input controls which agents and
 validators run for Steps 4-6. Steps 1-3.5 are IaC-agnostic.
 
 | Aspect         | Bicep                                        | Terraform                                          |
@@ -203,7 +97,7 @@ continue without waiting for the user:
 - Governance scope: full subscription when authenticated; offline-only fallback
   if Azure auth is unavailable
 - Deployment strategy: phased rollout `foundation -> data -> edge -> platform`
-- IaC track: as specified by the current run's `iac_tool` (Bicep or Terraform)
+- IaC track: as specified by `iac_tool` (Bicep or Terraform)
 - Design step: enabled
 - Diagram format: Draw.io is required when available
 - Benchmark mode: dry-run only, never deploy live Azure resources
@@ -288,12 +182,6 @@ continue without waiting for the user:
   from run-specific failures.
 - Run `node scripts/benchmark-e2e.mjs {project}`.
 - Generate both `09-lessons-learned.json` and `09-lessons-learned.md`.
-- Update `agent-output/e2e-batch-progress.json` with the run's final status.
-- After the 3rd Bicep run completes (run 3), automatically run:
-  `node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3`
-- After the 3rd Terraform run completes (run 6), automatically run:
-  `node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3`
-- After all 6 runs complete, run `npm run e2e:benchmark -- --compare`.
 
 ## Validation and Review Expectations
 
@@ -324,30 +212,10 @@ downstream agents.
 
 ## Completion
 
-### Single Run Completion
-
-When a single run finishes, output one of these statuses:
+When the run finishes, output one of these statuses:
 
 - `<promise>E2E_COMPLETE</promise>`
 - `<promise>E2E_PARTIAL</promise>`
 - `<promise>E2E_BLOCKED</promise>`
 
 Include detailed reasons when the status is partial or blocked.
-
-### Batch Completion
-
-After all 6 runs finish (or when context limits prevent continuing):
-
-1. Update `agent-output/e2e-batch-progress.json` with final status for each run
-2. Run `npm run e2e:benchmark -- --compare` for the cross-track comparison
-3. Output a summary table:
-
-   ```
-   | Run | Project | IaC | Status | Score | Key Issues |
-   ```
-
-4. Output one of:
-   - `<promise>BATCH_COMPLETE</promise>` — all 6 runs finished
-   - `<promise>BATCH_PARTIAL</promise>` — some runs finished, others blocked
-   - `<promise>SESSION_SPLIT_NEEDED</promise>` — context limit reached, resume
-     from `e2e-batch-progress.json` in a new session

@@ -1,4 +1,5 @@
 <!-- ref:cost-estimate-standards-v1 -->
+
 # Azure Cost Estimate Documentation Standards
 
 ## Document Purpose
@@ -63,6 +64,7 @@ Section templates and visual styling:
 | No "what changes cost" | Include the decision matrix                      |
 | No risk callouts       | Include cost risk indicators + watch item        |
 | No savings section     | Always include savings, even if optimized        |
+| `$0.00` savings rows   | Never show `$0.00` — use "Not Quantified" state  |
 | Stale prices           | Note query date; re-validate periodically        |
 | Missing change control | Include top 3 likely change requests + delta     |
 | Hidden trade-offs      | Add "What we are not paying for (yet)"           |
