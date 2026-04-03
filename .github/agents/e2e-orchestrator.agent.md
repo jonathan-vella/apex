@@ -47,7 +47,7 @@ tools:
 <!-- Recommended reasoning_effort: high -->
 
 Autonomous orchestrator for the RALPH-style E2E workflow evaluation loop.
-Runs all 7 PlatformOps steps without human gates, validates every artifact,
+Runs all 7 APEX steps without human gates, validates every artifact,
 and produces a scored benchmark report with lessons learned.
 
 ## Batch Execution (Multi-Run Mode)

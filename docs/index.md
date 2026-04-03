@@ -5,9 +5,10 @@
 ![Version](https://img.shields.io/badge/version-0.10.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Transform Azure project requirements into deploy-ready IaC code (Bicep or Terraform)
-using coordinated AI agents and reusable skills, aligned with the Azure Well-Architected
-Framework and Azure Verified Modules.
+Transform Azure platform engineering for IT Pros. Powered by GitHub Copilot
+and specialized AI agents, APEX converts requirements into architecture diagrams,
+governance-aligned designs, and deploy-ready Bicep or Terraform templates —
+with built-in pricing, compliance, and automation.
 
 **Who is this for?** DevOps engineers, platform engineers, and IT Pros who want to
 accelerate Azure platform engineering with AI-assisted workflows.

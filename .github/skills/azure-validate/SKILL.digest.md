@@ -28,7 +28,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 > _See SKILL.md for full content._
 
-## PlatformOps-Specific References
+## APEX-Specific References
 
 - [InfraOps Preflight Validation](references/infraops-preflight.md) — CLI auth checks, known issues, governance-to-code mapping, stop rules
   > If any validation failed, fix the issues and re-run azure-validate before proceeding.

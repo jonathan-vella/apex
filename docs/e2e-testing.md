@@ -1,11 +1,11 @@
 # E2E Testing with Ralph Loop
 
-End-to-end testing for the PlatformOps pipeline using the autonomous
+End-to-end testing for the APEX pipeline using the autonomous
 [RALPH Loop](https://ghuntley.com/ralph/) pattern.
 
 ## What Is Ralph Loop?
 
-Ralph Loop is a self-correcting E2E evaluation workflow that runs all PlatformOps
+Ralph Loop is a self-correcting E2E evaluation workflow that runs all APEX
 pipeline steps **without human gates**. It validates the entire agent pipeline
 autonomously — from requirements through deployment to documentation — with
 built-in self-correction, challenger reviews, and benchmark scoring.

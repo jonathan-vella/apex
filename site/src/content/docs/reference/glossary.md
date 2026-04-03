@@ -195,7 +195,7 @@ state integrity, and timing performance. Composite score 0–100 with letter gra
 
 ### E2E Orchestrator
 
-Orchestration agent that drives the Ralph Loop. Executes all PlatformOps steps without human
+Orchestration agent that drives the Ralph Loop. Executes all APEX steps without human
 gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
 Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
 
@@ -345,7 +345,7 @@ JSON-RPC, a lightweight RPC protocol encoded in JSON.
 ### Ralph Loop
 
 An autonomous, self-correcting E2E evaluation workflow based on the
-[RALPH pattern](https://ghuntley.com/ralph/). Runs all PlatformOps pipeline steps without
+[RALPH pattern](https://ghuntley.com/ralph/). Runs all APEX pipeline steps without
 human gates, with built-in self-correction, challenger reviews, and benchmark scoring.
 Supports both Bicep and Terraform IaC tracks.
 

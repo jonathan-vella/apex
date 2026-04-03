@@ -64,7 +64,7 @@ metadata:
 >
 > After ALL validations pass, you **MUST** invoke **azure-deploy** to execute the deployment. Do NOT attempt to run `azd up`, `azd deploy`, or any deployment commands directly. Let azure-deploy handle execution.
 
-## PlatformOps-Specific References
+## APEX-Specific References
 
 - [InfraOps Preflight Validation](references/infraops-preflight.md) — CLI auth checks, known issues, governance-to-code mapping, stop rules
   > If any validation failed, fix the issues and re-run azure-validate before proceeding.

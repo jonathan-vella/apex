@@ -45,7 +45,7 @@ Structure the diagnostic report as:
 ## Diagnostic Report: {resource-name}
 
 **Assessment Date**: {date}
-**Assessed By**: PlatformOps Diagnose Agent
+**Assessed By**: APEX Diagnose Agent
 **Overall Health**: 🟢 Healthy | 🟡 Degraded | 🔴 Unhealthy
 
 ### Findings Summary
