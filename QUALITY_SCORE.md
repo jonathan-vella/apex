@@ -3,16 +3,16 @@
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
 > Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
 
-| Domain          | Grade | Status                                                                       | Next Action                                     |
-| --------------- | ----- | ---------------------------------------------------------------------------- | ----------------------------------------------- |
-| Agents          | A-    | 16 primary + 7 subagents; e2e-orchestrator body 430 lines (>400 limit)       | Extract e2e-orchestrator sections to references |
-| Skills          | A     | 47 skills; all lint clean; references and canary markers present             | Monitor via `lint:skills-format`                |
-| Instructions    | A     | 26 instructions; 0 orphaned refs; all applyTo globs have matching files      | Monitor via `lint:glob-audit`                   |
-| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)        | Expand Terraform E2E templates when needed      |
-| Documentation   | A     | Docs fresh; no stale files; lint:md 0 errors; freshness report clean         | Run doc-gardening after structural changes      |
-| CI / Validation | A     | Core repo lint clean; drawio-mcp-server suppressed via local config          | Monitor via `lint:md`                           |
-| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)             | Quarterly audit via AGENTS.md checklist         |
-| Backlog         | A-    | 3 active items: e2e-orchestrator body, model drift, E2E lessons              | Triage e2e-orchestrator body extraction         |
+| Domain          | Grade | Status                                                                  | Next Action                                     |
+| --------------- | ----- | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| Agents          | A-    | 16 primary + 7 subagents; e2e-orchestrator body 430 lines (>400 limit)  | Extract e2e-orchestrator sections to references |
+| Skills          | A     | 47 skills; all lint clean; references and canary markers present        | Monitor via `lint:skills-format`                |
+| Instructions    | A     | 26 instructions; 0 orphaned refs; all applyTo globs have matching files | Monitor via `lint:glob-audit`                   |
+| Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed      |
+| Documentation   | A     | Docs fresh; no stale files; lint:md 0 errors; freshness report clean    | Run doc-gardening after structural changes      |
+| CI / Validation | A     | Core repo lint clean; drawio-mcp-server suppressed via local config     | Monitor via `lint:md`                           |
+| Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)        | Quarterly audit via AGENTS.md checklist         |
+| Backlog         | A-    | 3 active items: e2e-orchestrator body, model drift, E2E lessons         | Triage e2e-orchestrator body extraction         |
 
 ## Grading Scale
 

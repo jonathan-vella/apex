@@ -9,7 +9,7 @@ description: "Common issues and solutions"
 
 # Troubleshooting Guide
 
-> Common issues and solutions for Agentic PlatformOps
+> Common issues and solutions for APEX
 
 ## Agent Codenames Quick Reference
 

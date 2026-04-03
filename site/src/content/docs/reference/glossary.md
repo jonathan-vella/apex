@@ -1,11 +1,11 @@
 ---
 title: "Glossary"
-description: "Terms and definitions used in Agentic PlatformOps"
+description: "Terms and definitions used in APEX"
 tableOfContents:
   maxDepth: 2
 ---
 
-Quick reference for terms used throughout Agentic PlatformOps documentation.
+Quick reference for terms used throughout APEX documentation.
 
 ## A
 
@@ -32,7 +32,7 @@ variants, a Governance agent, and a Context Optimizer) plus subagents.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
-### Agentic PlatformOps
+### APEX
 
 The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
 Azure infrastructure. Combines GitHub Copilot with custom agents and reusable skills.
@@ -335,7 +335,7 @@ The governance-discovery-subagent queries Azure Policy assignments via REST API.
 ### ROI (Return on Investment)
 
 A financial metric measuring the gain or loss from an investment relative to its cost.
-Used in presenter materials to quantify the value of Agentic PlatformOps.
+Used in presenter materials to quantify the value of APEX.
 
 ### RPC (Remote Procedure Call)
 
@@ -393,7 +393,7 @@ Required for supply chain security. S06 SBOM Generator scenario demonstrates SBO
 ### SI Partner (System Integrator Partner)
 
 Microsoft partner organization that implements Azure solutions for customers. Primary audience
-for Agentic PlatformOps methodology.
+for APEX methodology.
 
 ### Skill (Copilot)
 
@@ -506,7 +506,7 @@ YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
 
 ### Multi-Step Agentic Workflow
 
-The core Agentic PlatformOps workflow: `requirements` → `architect` → Design Artifacts →
+The core APEX workflow: `requirements` → `architect` → Design Artifacts →
 Governance → IaC Plan → IaC Code → Deploy → Documentation. Step 3.5 (Governance)
 runs between Design and IaC Plan. Steps 1–3 and 7 are shared; steps 4–6 diverge into
 **Bicep track** (`iac-planner` → `bicep-codegen` → `bicep-deploy`) or **Terraform track**

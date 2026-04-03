@@ -1,8 +1,8 @@
-# Development Container for Agentic PlatformOps
+# Development Container for APEX
 
 > **[Version](../VERSION.md)**
 
-This devcontainer provides a **complete, pre-configured development environment** for Agentic PlatformOps.
+This devcontainer provides a **complete, pre-configured development environment** for APEX.
 It includes all required tools, extensions, and configurations to build Azure infrastructure with AI agents.
 
 **Base Image:** `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`

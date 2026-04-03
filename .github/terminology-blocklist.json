@@ -24,11 +24,18 @@
       "reason": "Coordinator is a deprecated alias for Orchestrator"
     },
     {
-      "id": "product-name",
+      "id": "product-name-infraops",
       "pattern": "Agentic InfraOps",
-      "replacement": "Agentic PlatformOps",
+      "replacement": "APEX",
       "severity": "error",
-      "reason": "Product renamed to Agentic PlatformOps (2026-04-01)"
+      "reason": "Product renamed to APEX (2026-04-03)"
+    },
+    {
+      "id": "product-name-platformops",
+      "pattern": "Agentic PlatformOps",
+      "replacement": "APEX",
+      "severity": "error",
+      "reason": "Product renamed from Agentic PlatformOps to APEX (2026-04-03)"
     },
     {
       "id": "conductor-display",

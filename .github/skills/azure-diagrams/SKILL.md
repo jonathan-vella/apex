@@ -4,7 +4,7 @@ description: "ROUTING SKILL — delegates to specialized diagram skills. USE FOR
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool.
 license: MIT
 metadata:
-  author: azure-agentic-infraops
+  author: apex
   version: "8.0"
 ---
 

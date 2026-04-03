@@ -7,7 +7,7 @@
 ## Workspace Root Structure
 
 ```text
-azure-agentic-infraops/
+azure-agentic-infraops/  (APEX)
 ├── .github/
 ││   ├── agents/              # Agent definitions + subagents
 ││   │   └── _subagents/      # Validation subagents (lint, what-if, review)
@@ -34,24 +34,24 @@ See `.github/count-manifest.json` for canonical counts.
 
 ### Primary Agents
 
-| Agent              | File                             | Model      | Step | Artifacts                       |
-| ------------------ | -------------------------------- | ---------- | ---- | ------------------------------- |
-| Orchestrator | `01-orchestrator.agent.md`          | Opus 4.6   | All  | Orchestration                   |
-| Orchestrator (Fast)   | `01-orchestrator-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
-| Requirements       | `02-requirements.agent.md`       | Opus 4.6   | 1    | `01-requirements.md`            |
-| Architect          | `03-architect.agent.md`          | Opus 4.6   | 2    | `02-architecture-assessment.md` |
-| Design             | `04-design.agent.md`             | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`   |
-| Governance         | `04g-governance.agent.md`        | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`  |
-| IaC Plan           | `05-iac-planner.agent.md`        | Opus 4.6   | 4    | `04-implementation-plan.md`     |
-| Bicep Code         | `06b-bicep-codegen.agent.md`     | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
-| Bicep Deploy       | `07b-bicep-deploy.agent.md`      | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
-| Terraform Code     | `06t-terraform-codegen.agent.md` | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/` |
-| Terraform Deploy   | `07t-terraform-deploy.agent.md`  | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
-| As-Built           | `08-as-built.agent.md`           | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
-| Diagnose           | `09-diagnose.agent.md`           | Sonnet 4.5 | —    | Diagnostic reports              |
-| Challenger         | `10-challenger.agent.md`         | Sonnet 4.5 | —    | Challenge findings              |
-| Context Optimizer  | `11-context-optimizer.agent.md`  | Sonnet 4.5 | —    | Optimization reports            |
-| E2E Orchestrator      | `e2e-orchestrator.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
+| Agent               | File                                | Model      | Step | Artifacts                       |
+| ------------------- | ----------------------------------- | ---------- | ---- | ------------------------------- |
+| Orchestrator        | `01-orchestrator.agent.md`          | Opus 4.6   | All  | Orchestration                   |
+| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | Opus 4.6   | All  | Fast-path orchestration         |
+| Requirements        | `02-requirements.agent.md`          | Opus 4.6   | 1    | `01-requirements.md`            |
+| Architect           | `03-architect.agent.md`             | Opus 4.6   | 2    | `02-architecture-assessment.md` |
+| Design              | `04-design.agent.md`                | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`   |
+| Governance          | `04g-governance.agent.md`           | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`  |
+| IaC Plan            | `05-iac-planner.agent.md`           | Opus 4.6   | 4    | `04-implementation-plan.md`     |
+| Bicep Code          | `06b-bicep-codegen.agent.md`        | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy        | `07b-bicep-deploy.agent.md`         | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
+| Terraform Code      | `06t-terraform-codegen.agent.md`    | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy    | `07t-terraform-deploy.agent.md`     | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
+| As-Built            | `08-as-built.agent.md`              | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
+| Diagnose            | `09-diagnose.agent.md`              | Sonnet 4.5 | —    | Diagnostic reports              |
+| Challenger          | `10-challenger.agent.md`            | Sonnet 4.5 | —    | Challenge findings              |
+| Context Optimizer   | `11-context-optimizer.agent.md`     | Sonnet 4.5 | —    | Optimization reports            |
+| E2E Orchestrator    | `e2e-orchestrator.agent.md`         | Opus 4.6   | All  | E2E evaluation loop             |
 
 ### Validation Subagents (in `_subagents/`)
 
@@ -67,7 +67,7 @@ See `.github/count-manifest.json` for canonical counts.
 | bicep-review-subagent            | `bicep-review-subagent.agent.md`            | AVM code review              |
 | terraform-lint-subagent          | `terraform-lint-subagent.agent.md`          | Syntax validation            |
 | terraform-review-subagent        | `terraform-review-subagent.agent.md`        | AVM-TF code review           |
-| iac-planner-subagent          | `iac-planner-subagent.agent.md`          | Deployment preview           |
+| iac-planner-subagent             | `iac-planner-subagent.agent.md`             | Deployment preview           |
 
 ### Shared Knowledge (via Skills)
 
@@ -179,7 +179,7 @@ See `.github/count-manifest.json` for canonical counts.
 | `instructions.instructions.md`                  | `**/*.instructions.md`                                          |
 | `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                             |
 | `json.instructions.md`                          | `**/*.{json,jsonc}`                                             |
-| `lesson-collection.instructions.md`             | `**/*orchestrator*.agent.md`                                       |
+| `lesson-collection.instructions.md`             | `**/*orchestrator*.agent.md`                                    |
 | `markdown.instructions.md`                      | `**/*.md`                                                       |
 | `no-hardcoded-counts.instructions.md`           | `**/*.md, **/*.json, **/*.mjs`                                  |
 | `no-heredoc.instructions.md`                    | `**`                                                            |
@@ -258,13 +258,13 @@ in the SKILL.md frontmatter — not through `tools:` arrays in agent definitions
 These skills are explicitly referenced in agent body text via mandatory
 "Read skills FIRST" instructions:
 
-| Skill               | Referenced By                                          |
-| ------------------- | ------------------------------------------------------ |
-| `azure-defaults`    | all primary agents                                     |
+| Skill               | Referenced By                                              |
+| ------------------- | ---------------------------------------------------------- |
+| `azure-defaults`    | all primary agents                                         |
 | `azure-artifacts`   | requirements, architect, iac-planner, deploy, orchestrator |
-| `drawio`            | design, architect, as-built agents                     |
-| `python-diagrams`   | architect, as-built agents                             |
-| `azure-adr`         | design agent                                           |
+| `drawio`            | design, architect, as-built agents                         |
+| `python-diagrams`   | architect, as-built agents                                 |
+| `azure-adr`         | design agent                                               |
 | `github-operations` | orchestrator, iac-planner agents                           |
 
 ### General-Purpose Skills

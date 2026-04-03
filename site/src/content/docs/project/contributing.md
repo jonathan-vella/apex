@@ -1,9 +1,9 @@
 ---
-title: "Contributing to Agentic PlatformOps"
-description: "How to contribute to Agentic PlatformOps"
+title: "Contributing to APEX"
+description: "How to contribute to APEX"
 ---
 
-Thank you for your interest in contributing! Agentic PlatformOps revolutionizes how IT Pros build
+Thank you for your interest in contributing! APEX revolutionizes how IT Pros build
 Azure environments through coordinated AI agents.
 
 This file is the quick contributor entrypoint.
@@ -152,7 +152,7 @@ npm run lint:md:fix
 
 ### 1. Fork & Clone
 
-> **Note:** For **using** Agentic PlatformOps, create your own repo from the
+> **Note:** For **using** APEX, create your own repo from the
 > [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 > instead. The instructions below are for contributing back to this upstream project.
 

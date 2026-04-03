@@ -1,6 +1,6 @@
-# Agentic PlatformOps
+# APEX
 
-> Azure platform engineering, accelerated by AI agents. Verified. Well-Architected. Deployable.
+> Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.
 
 A multi-agent orchestration system for Azure platform engineering.
 Specialized AI agents collaborate through a structured multi-step workflow:

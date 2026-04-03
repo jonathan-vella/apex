@@ -13,7 +13,7 @@ The multi-step platform engineering workflow.
 
 ## Overview
 
-Agentic PlatformOps uses a multi-agent orchestration system where specialized AI agents coordinate
+APEX uses a multi-agent orchestration system where specialized AI agents coordinate
 through artifact handoffs to transform Azure project requirements into deployed infrastructure
 code. The system supports **dual IaC tracks** — Bicep and Terraform — sharing common requirements,
 architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,

@@ -1,6 +1,6 @@
 ---
 title: "Quickstart"
-description: "Get started with Agentic PlatformOps in minutes"
+description: "Get started with APEX in minutes"
 ---
 
 <img src="/azure-agentic-infraops/images/hero-quickstart.jpg"

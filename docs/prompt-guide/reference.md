@@ -296,5 +296,5 @@ and suggest improvements for WAF alignment.
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
 - [Prompt Engineering for Copilot Chat](https://docs.github.com/en/copilot/using-github-copilot/copilot-chat/prompt-engineering-for-copilot-chat)
 - [VS Code Copilot Prompt Crafting](https://code.visualstudio.com/docs/copilot/prompt-crafting)
-- [Agentic PlatformOps Quickstart](../quickstart.md)
+- [APEX Quickstart](../quickstart.md)
 - [Agent Workflow Reference](../workflow.md)

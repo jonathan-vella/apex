@@ -1,8 +1,8 @@
 <a id="top"></a>
 
-# Contributing to Agentic PlatformOps
+# Contributing to APEX
 
-Thank you for your interest in contributing! Agentic PlatformOps revolutionizes how IT Pros build
+Thank you for your interest in contributing! APEX revolutionizes how IT Pros build
 Azure environments through coordinated AI agents.
 
 This file is the quick contributor entrypoint.
@@ -54,7 +54,7 @@ GitHub Actions CI.
 | Prefix          | Scope                                                        | Example                         |
 | --------------- | ------------------------------------------------------------ | ------------------------------- |
 | `docs/`         | Documentation (`docs/`, `site/`, `README.md`)                | `docs/update-workflow-guide`    |
-| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`      |
+| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`   |
 | `skills/`       | Skill files (`.github/skills/`, `skill-affinity.json`)       | `skills/add-tf-patterns`        |
 | `infra/`        | Infrastructure code (`infra/bicep/`, `infra/terraform/`)     | `infra/add-private-endpoints`   |
 | `scripts/`      | Validation scripts (`scripts/`, `package.json`)              | `scripts/fix-h2-sync`           |
@@ -155,7 +155,7 @@ npm run lint:md:fix
 
 ### 1. Fork & Clone
 
-> **Note:** For **using** Agentic PlatformOps, create your own repo from the
+> **Note:** For **using** APEX, create your own repo from the
 > [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 > instead. The instructions below are for contributing back to this upstream project.
 

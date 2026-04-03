@@ -1,6 +1,6 @@
 <!-- Landing page — source of truth is this file -->
 
-# Agentic PlatformOps
+# APEX
 
 ![Version](https://img.shields.io/badge/version-0.10.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -202,12 +202,12 @@ See the [Changelog](CHANGELOG.md) for the full release history.
 
   ***
 
-  See Agentic PlatformOps in action — full workflow walkthrough from requirements to deployment.
+  See APEX in action — full workflow walkthrough from requirements to deployment.
 
   <div class="video-wrapper">
     <iframe width="100%" height="315"
       src="https://www.youtube.com/embed/Hao3F52sZUc"
-      title="Agentic PlatformOps Demo" frameborder="0"
+      title="APEX Demo" frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen></iframe>
   </div>

@@ -1,7 +1,7 @@
 {
   "name": "azure-agentic-infraops",
   "version": "0.10.0",
-  "description": "Agentic PlatformOps - Azure platform engineering, accelerated by AI agents. Verified. Well-Architected. Deployable.",
+  "description": "APEX - Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.",
   "private": true,
   "scripts": {
     "prepare": "lefthook install",
@@ -58,6 +58,7 @@
     "e2e:combine": "node scripts/combine-e2e-runs.mjs",
     "export:agent-output-html": "python3 scripts/export-agent-output-html.py",
     "init": "node scripts/init-from-template.mjs",
+    "sync:workflows": "node scripts/sync-workflows.mjs",
     "validate:no-hardcoded-counts": "node scripts/validate-no-hardcoded-counts.mjs",
     "validate:hooks": "node scripts/validate-hooks.mjs",
     "validate:iac-security-baseline": "node scripts/validate-iac-security-baseline.mjs",

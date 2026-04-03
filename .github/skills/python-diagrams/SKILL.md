@@ -4,7 +4,7 @@ description: "Python diagram generation: WAF/cost/compliance charts (matplotlib)
 compatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.
 license: MIT
 metadata:
-  author: azure-agentic-infraops
+  author: apex
   version: "1.0"
 ---
 

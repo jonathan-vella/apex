@@ -1,8 +1,8 @@
-# Agentic PlatformOps
+# APEX
 
 ![E2E Benchmark — Bicep](https://img.shields.io/badge/E2E_Bicep-88%2F100_Grade_B-green) ![E2E Benchmark — Terraform](https://img.shields.io/badge/E2E_Terraform-tested-blue)
 
-Azure platform engineering, accelerated by AI agents.
+Agentic Platform Engineering eXperience for Azure.
 
 This repository is the source project for a multi-agent workflow that turns Azure
 platform engineering requirements into deployable Bicep or Terraform with human approval
@@ -10,7 +10,7 @@ gates across the lifecycle.
 
 The full documentation for this repository lives here:
 
-- [Agentic PlatformOps documentation](https://jonathan-vella.github.io/azure-agentic-infraops/)
+- [APEX documentation](https://jonathan-vella.github.io/azure-agentic-infraops/)
 
 Key entry points:
 

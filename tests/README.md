@@ -1,6 +1,6 @@
 # Tests
 
-End-to-end testing for the Agentic PlatformOps pipeline using the
+End-to-end testing for the APEX pipeline using the
 [RALPH Loop](https://ghuntley.com/ralph/) pattern.
 
 ## Directory Structure

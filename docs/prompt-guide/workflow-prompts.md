@@ -4,7 +4,7 @@ toc_depth: 2
 
 # :material-format-list-numbered: Workflow Prompts
 
-The Agentic PlatformOps workflow follows a multi-step pipeline (including Step 3.5 Governance).
+The APEX workflow follows a multi-step pipeline (including Step 3.5 Governance).
 Use the **Orchestrator** to run all steps end-to-end, or invoke individual agents directly.
 
 ## :material-play-circle: End-to-End (Orchestrator)

@@ -10,7 +10,7 @@ toc_depth: 2
 
 # :material-wrench-outline: Troubleshooting Guide
 
-> Common issues and solutions for Agentic PlatformOps
+> Common issues and solutions for APEX
 
 ## :material-account-card-outline: Agent Codenames Quick Reference
 

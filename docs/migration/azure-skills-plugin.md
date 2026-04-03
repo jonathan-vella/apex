@@ -1,6 +1,6 @@
 # Migration Guide: Azure Skills Plugin (Issue #240)
 
-This guide covers the integration of the Azure Skills Plugin into Agentic PlatformOps.
+This guide covers the integration of the Azure Skills Plugin into APEX.
 
 ## Skill Renames
 

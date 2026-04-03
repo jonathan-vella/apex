@@ -1,14 +1,14 @@
 <a id="top"></a>
 
-# Contributing to Agentic PlatformOps
+# Contributing to APEX
 
-Thank you for your interest in contributing! Agentic PlatformOps revolutionizes how IT Pros build
+Thank you for your interest in contributing! APEX revolutionizes how IT Pros build
 Azure environments through coordinated AI agents.
 
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](docs/workflow.md)
+- [Development Workflow Guide](workflow.md)
 
 ## 🎯 What We're Looking For
 
@@ -42,8 +42,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](docs/workflow.md)
-- Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
+- Workflow details: [Development Workflow Guide](workflow.md)
+- Agent workflow details: [Agent Workflow Reference](workflow.md)
 
 #### Branch Naming Convention
 
@@ -155,7 +155,7 @@ npm run lint:md:fix
 
 ### 1. Fork & Clone
 
-> **Note:** For **using** Agentic PlatformOps, create your own repo from the
+> **Note:** For **using** APEX, create your own repo from the
 > [Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
 > instead. The instructions below are for contributing back to this upstream project.
 
