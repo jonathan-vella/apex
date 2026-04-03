@@ -5,7 +5,7 @@ model: ["GPT-5.3-Codex"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [read, search, web, 'azure-pricing/*', 'azure-mcp/*']
+tools: [read, search, web, "azure-pricing/*", "azure-mcp/*"]
 ---
 
 # Cost Estimate Subagent
@@ -111,6 +111,10 @@ Cost Optimization Notes:
   {region comparison results if requested}
   {reserved instance savings if applicable}
   {tier downgrade options if applicable}
+
+Savings Status: {QUANTIFIED|NOT_QUANTIFIED|NOT_APPLICABLE}
+  Reason: {why savings were/were not quantified}
+  Eligible Strategies: [{list of applicable strategies with prerequisites}]
 
 Data Source: Azure Pricing MCP (queried {timestamp})
 Confidence: {High|Medium|Low}

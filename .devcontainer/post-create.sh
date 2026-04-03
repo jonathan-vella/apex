@@ -42,7 +42,7 @@ step_fail() {
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " 🚀 Agentic InfraOps — Dev Container Setup"
+echo " 🚀 APEX — Dev Container Setup"
 echo "    $TOTAL_STEPS steps · $(date '+%H:%M:%S')"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
@@ -181,17 +181,30 @@ else
 fi
 
 # ─── Step 8: Terraform MCP Server binary ────────────────────────────────────
+# Uses clone+build instead of go install because the module's go.mod contains
+# replace directives, which go install rejects for non-main modules.
 
-step_start "🏗️ " "Installing Terraform MCP Server binary (go install)..."
+step_start "🏗️ " "Installing Terraform MCP Server binary (clone & build)..."
 if command -v go &> /dev/null; then
-    if go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest 2>&1 | tail -2; then
-        if command -v /go/bin/terraform-mcp-server &> /dev/null; then
-            step_done "terraform-mcp-server installed at /go/bin/"
+    TF_MCP_TMP=$(mktemp -d)
+    if git clone --depth=1 --quiet https://github.com/hashicorp/terraform-mcp-server.git "$TF_MCP_TMP" 2>&1; then
+        pushd "$TF_MCP_TMP" > /dev/null
+        if go build -o /go/bin/terraform-mcp-server ./cmd/terraform-mcp-server/ 2>&1 | tail -2; then
+            popd > /dev/null
+            rm -rf "$TF_MCP_TMP"
+            if command -v terraform-mcp-server &>/dev/null || [ -x /go/bin/terraform-mcp-server ]; then
+                step_done "terraform-mcp-server built and installed at /go/bin/"
+            else
+                step_warn "build ran but binary not found at expected path"
+            fi
         else
-            step_warn "go install ran but binary not found at expected path"
+            popd > /dev/null
+            rm -rf "$TF_MCP_TMP"
+            step_warn "go build failed — MCP server unavailable until fixed"
         fi
     else
-        step_warn "go install failed — MCP server unavailable until fixed"
+        rm -rf "$TF_MCP_TMP"
+        step_warn "git clone failed — check network access to github.com"
     fi
 else
     step_warn "Go not found — Terraform MCP Server not installed"
@@ -211,14 +224,15 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 10: Azure CLI defaults ────────────────────────────────────
+# ─── Step 10: Azure CLI extension install behavior ──────────────────────────
 
-step_start "☁️ " "Configuring Azure CLI..."
-if az config set defaults.location=swedencentral --only-show-errors 2>/dev/null; then
+step_start "☁️ " "Configuring Azure CLI extension install behavior..."
+if az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors 2>/dev/null \
+    && az config set extension.dynamic_install_allow_preview=false --only-show-errors 2>/dev/null; then
     az config set auto-upgrade.enable=no --only-show-errors 2>/dev/null || true
-    step_done "Default location: swedencentral"
+    step_done "Azure CLI stable extensions auto-install without prompt"
 else
-    step_warn "Azure CLI config skipped (not authenticated)"
+    step_warn "Azure CLI config update failed"
 fi
 
 # ─── Step 11: MCP config & final verification ─────────────────────────────
@@ -287,7 +301,7 @@ printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ n
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "Deno:" "$(deno --version 2>/dev/null | head -n1 || echo '❌ not installed')"
-printf "        %-15s %s\n" "terraform-mcp:" "$(terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null || echo '❌ not installed')"
+printf "        %-15s %s\n" "terraform-mcp:" "$(( terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null ) | head -2 | tr '\n' ' ' || echo '❌ not installed')"
 
 step_done "All verifications complete"
 
@@ -311,5 +325,5 @@ echo ""
 echo " 📝 Next steps:"
 echo "    1. Authenticate: az login"
 echo "    2. Set subscription: az account set --subscription <id>"
-echo "    3. Open Chat (Ctrl+Shift+I) → Select InfraOps Conductor"
+echo "    3. Open Chat (Ctrl+Shift+I) → Select Orchestrator"
 echo ""

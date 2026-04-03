@@ -12,7 +12,7 @@ guidelines. In particular:
 
 - **PowerShell** (`powershell.instructions.md`): always include
   comment-based help (`.SYNOPSIS`, `.DESCRIPTION`, `.EXAMPLE`).
-- **Bicep** (`bicep-code-best-practices.instructions.md`): always use
+- **Bicep** (`iac-best-practices.instructions.md`): always use
   `@description` annotations on parameters, variables, and outputs.
 - **Shell** (`shell.instructions.md`): include a header comment
   explaining the script's purpose.

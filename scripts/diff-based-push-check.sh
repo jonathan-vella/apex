@@ -68,10 +68,10 @@ run_check() {
 run_check "Bicep lint" "$BICEP_COUNT" "shopt -s nullglob; for f in infra/bicep/*/main.bicep; do bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
 run_check "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt" "tf-fmt" &
 run_check "Terraform validate" "$TF_COUNT" "npm run validate:terraform" "tf-validate" &
-run_check "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run lint:artifact-templates" "artifacts" &
-run_check "Agent frontmatter" "$AGENT_COUNT" "npm run lint:agent-frontmatter" "agents" &
+run_check "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run validate:artifacts" "artifacts" &
+run_check "Agent validation" "$AGENT_COUNT" "npm run validate:agents" "agents" &
 run_check "Instruction checks" "$INSTRUCTION_COUNT" "npm run validate:instruction-checks" "instructions" &
-run_check "Skills format" "$SKILL_COUNT" "npm run lint:skills-format" "skills" &
+run_check "Skills validation" "$SKILL_COUNT" "npm run validate:skills" "skills" &
 run_check "JSON syntax" "$JSON_COUNT" "npm run lint:json" "json" &
 run_check "Python lint" "$PY_COUNT" "npm run lint:python" "python" &
 run_check "Draw.io files" "$DRAWIO_COUNT" "npm run lint:drawio" "drawio" &

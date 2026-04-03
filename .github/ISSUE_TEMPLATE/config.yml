@@ -6,6 +6,6 @@ contact_links:
   - name: 💬 GitHub Discussions
     url: https://github.com/jonathan-vella/azure-agentic-infraops/discussions
     about: Ask questions and share ideas in Discussions
-  - name: 🔧 Agentic InfraOps Workflow
+  - name: 🔧 APEX Workflow
     url: https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/docs/reference/workflow.md
     about: Learn about the multi-step agentic workflow

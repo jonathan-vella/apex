@@ -1,6 +1,6 @@
 ---
 title: "Quickstart"
-description: "Get started with Agentic InfraOps in minutes"
+description: "Get started with APEX in minutes"
 ---
 
 <img src="/azure-agentic-infraops/images/hero-quickstart.jpg"
@@ -24,19 +24,27 @@ An Azure subscription is optional for learning the workflow — you only need it
 when deploying to Azure in Step 6.
 :::
 
-| Requirement            | How to Get                                                  |
-| ---------------------- | ----------------------------------------------------------- |
-| GitHub account         | [Sign up](https://github.com/signup)                        |
-| GitHub Copilot license | [Get Copilot](https://github.com/features/copilot)          |
-| VS Code                | [Download](https://code.visualstudio.com/)                  |
-| Docker Desktop         | [Download](https://www.docker.com/products/docker-desktop/) |
-| Azure subscription     | Optional for learning                                       |
+| Requirement             | How to Get                                                  |
+| ----------------------- | ----------------------------------------------------------- |
+| GitHub account          | [Sign up](https://github.com/signup)                        |
+| GitHub Copilot license  | [Get Copilot](https://github.com/features/copilot)          |
+| GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`        |
+| VS Code                 | [Download](https://code.visualstudio.com/)                  |
+| Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/) |
+| Azure subscription      | Optional for learning                                       |
 
 :::note[Docker is required]
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 is the most common choice. Free alternatives include [Rancher Desktop](https://rancherdesktop.io/),
 [Colima](https://github.com/abiosoft/colima) (macOS), and [Podman](https://podman.io/) (Linux/macOS).
 See [Dev Container Setup](../dev-containers/) for detailed installation options.
+:::
+
+:::caution[Configure `GH_TOKEN` before you open the container]
+GitHub operations inside the devcontainer depend on a fine-grained Personal Access Token exposed as
+`GH_TOKEN` through **VS Code User Settings**. Shell exports inside the container are not reliable and
+do not survive rebuilds. The full setup is documented on [Dev Container Setup](../dev-containers/),
+but the minimum working configuration is included below so you do not miss it.
 :::
 
 ## Step 1: Create Your Repository from the Template
@@ -86,25 +94,61 @@ The Dev Container installs all tools automatically:
 - PowerShell 7
 - Python 3 + diagrams library
 - Go (Terraform MCP server)
-- 26 VS Code extensions
+- Comprehensive set of VS Code extensions
 
-## Step 4: Verify Setup
+## Step 4: Configure `GH_TOKEN` for the Dev Container
+
+This step is easy to miss, but it is required for reliable GitHub CLI and repository operations in
+the devcontainer.
+
+:::caution[Use VS Code User Settings, not `export GH_TOKEN=...`]
+Set `GH_TOKEN` in **VS Code User Settings** so the devcontainer can forward it automatically.
+Adding it in `.bashrc`, `.profile`, or an in-container shell session does not persist reliably.
+:::
+
+1. Create a **fine-grained** GitHub Personal Access Token
+2. Grant at least these permissions:
+
+| Permission    | Level      |
+| ------------- | ---------- |
+| Contents      | Read/Write |
+| Metadata      | Read       |
+| Pull requests | Read/Write |
+| Issues        | Read/Write |
+| Workflows     | Read/Write |
+
+1. Open **VS Code User Settings (JSON)**
+2. Add this entry and replace the placeholder token value:
+
+```jsonc
+"terminal.integrated.env.linux": { "GH_TOKEN": "github_pat_your_token_here" }
+```
+
+1. Rebuild the devcontainer: `F1` → `Dev Containers: Rebuild Container`
+2. Run `gh auth status` inside the container and confirm it shows a logged-in token-based
+   session
+
+See [Dev Container Setup](../dev-containers/) for the full explanation, screenshots, and token
+rotation guidance.
+
+## Step 5: Verify Setup
 
 :::tip[Verify all tools installed correctly]
-Run this command to confirm the dev container has all required CLIs:
+Run these commands to confirm the dev container has all required CLIs and GitHub authentication:
 :::
 
 ```bash
+gh auth status
 az --version && bicep --version && terraform --version && pwsh --version # (1)!
 ```
 
-1. All four CLIs should print version numbers. If any fail, reopen
-   the dev container.
+1. `gh auth status` should show a token-backed login, and all four CLIs should print
+   version numbers. If any fail, rebuild or reopen the dev container.
 
-## Step 5: Enable Subagent Orchestration
+## Step 6: Enable Subagent Orchestration
 
 :::caution[Required]
-The Conductor pattern requires this setting.
+The Orchestrator pattern requires this setting.
 :::
 
 Add this to your **VS Code User Settings** (`Ctrl+,` → Settings JSON):
@@ -127,14 +171,14 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-## Step 6: Start the Conductor
+## Step 7: Start the Orchestrator
 
-### Option A: InfraOps Conductor (Recommended)
+### Option A: Orchestrator (Recommended)
 
-The Conductor (🎼 Maestro), also known as the Coordinator, orchestrates the complete multi-step workflow:
+The Orchestrator (🧠 Orchestrator) orchestrates the complete multi-step workflow:
 
 1. Press `Ctrl+Shift+I` to open Copilot Chat
-2. Select **InfraOps Conductor** from the agent dropdown
+2. Select **Orchestrator** from the agent dropdown
 3. Describe your project:
 
 ```text
@@ -147,7 +191,7 @@ Create a simple web app in Azure with:
 - Project name: my-webapp
 ```
 
-The Conductor guides you through all steps with approval gates.
+The Orchestrator guides you through all steps with approval gates.
 
 ### Option B: Direct Agent Invocation
 
@@ -157,13 +201,13 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-## Step 7: Follow the Workflow
+## Step 8: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection
 in Step 1. During requirements gathering, the Requirements agent asks which IaC tool
 you prefer — this choice determines which planning, code generation, and deployment
-agents the Conductor invokes.
+agents the Orchestrator invokes.
 
 Each agent has a thematic codename for easy reference in documentation and prompts.
 
@@ -173,12 +217,12 @@ Each agent has a thematic codename for easy reference in documentation and promp
 | 2    | `architect`                           | 🏛️ Oracle     | WAF assessment              |
 | 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional)    |
 | 3.5  | `governance`                          | 🛡️ Warden     | Policy discovery/compliance |
-| 4    | `bicep-planner` / `terraform-planner` | 📐 Strategist | Implementation plan         |
+| 4    | `iac-planner`                         | 📐 Strategist | Implementation plan         |
 | 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates               |
 | 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment            |
 | 7    | `as-built`                            | 📚 Chronicler | Documentation suite         |
 
-**Approval Gates**: The Conductor pauses at key points:
+**Approval Gates**: The Orchestrator pauses at key points:
 
 - ⛔ **Gate 1**: After requirements (Step 1) — confirm requirements
 - ⛔ **Gate 2**: After architecture (Step 2) — approve WAF assessment
@@ -189,7 +233,7 @@ Each agent has a thematic codename for easy reference in documentation and promp
 
 :::tip[If a gate rejects your proposal]
 If the Challenger or an approval gate produces `must_fix` findings, return to the
-previous step, update your approach based on the feedback, and re-run. The Conductor
+previous step, update your approach based on the feedback, and re-run. The Orchestrator
 will re-execute the step and re-trigger the gate. Use the artifact files in
 `agent-output/{project}/` to understand what was flagged.
 :::
@@ -204,8 +248,8 @@ agent-output/my-webapp/
 ├── 02-architecture-assessment.md  # WAF analysis
 ├── 03-des-diagram.drawio         # Optional Step 3 architecture diagram
 ├── 04-implementation-plan.md   # Phased plan
-├── 04-dependency-diagram.drawio    # Step 4 dependency diagram
-├── 04-runtime-diagram.drawio       # Step 4 runtime diagram
+├── 04-dependency-diagram.py        # Step 4 dependency diagram
+├── 04-runtime-diagram.py           # Step 4 runtime diagram
 ├── 04-governance-constraints.md   # Policy discovery
 ├── 05-implementation-reference.md # Module inventory
 ├── 06-deployment-summary.md    # Deployed resources
@@ -247,10 +291,10 @@ infra/terraform/my-webapp/
 
 ## Quick Reference
 
-### Conductor (Orchestrated Workflow)
+### Orchestrator (Orchestrated Workflow)
 
 ```text
-Ctrl+Shift+I → InfraOps Conductor → Describe project → Follow gates
+Ctrl+Shift+I → Orchestrator → Describe project → Follow gates
 ```
 
 ### Direct Agent Invocation

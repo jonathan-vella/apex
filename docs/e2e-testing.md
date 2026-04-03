@@ -1,11 +1,11 @@
 # E2E Testing with Ralph Loop
 
-End-to-end testing for the InfraOps pipeline using the autonomous
+End-to-end testing for the PlatformOps pipeline using the autonomous
 [RALPH Loop](https://ghuntley.com/ralph/) pattern.
 
 ## What Is Ralph Loop?
 
-Ralph Loop is a self-correcting E2E evaluation workflow that runs all InfraOps
+Ralph Loop is a self-correcting E2E evaluation workflow that runs all PlatformOps
 pipeline steps **without human gates**. It validates the entire agent pipeline
 autonomously — from requirements through deployment to documentation — with
 built-in self-correction, challenger reviews, and benchmark scoring.
@@ -64,12 +64,39 @@ npm run e2e:benchmark -- --compare
 
 Open VS Code Chat and use one of the prompt files:
 
-1. **Simple project (pre-seeded)**: Open `.github/prompts/e2e-ralph-loop.prompt.md`
-2. **Complex project (RFP-driven)**: Open `.github/prompts/e2e-contoso-rfp.prompt.md`
-3. **Post-loop analysis**: Open `.github/prompts/e2e-analyze-lessons.prompt.md`
+1. **Complex project (RFP-driven)**: Open `tests/prompts/e2e-contoso-rfp.prompt.md`
+2. **Post-loop analysis**: Open `tests/prompts/e2e-analyze-lessons.prompt.md`
 
-The E2E Conductor agent (`.github/agents/e2e-conductor.agent.md`) orchestrates
-the loop with conditional IaC routing based on session state.
+The Contoso RFP prompt is test-only and non-interactive, but it now drives the
+real workflow path. It uses the RFP plus fixed test defaults to pre-populate
+answers for workflow stages that would normally require `askQuestions`, while
+still routing through the actual workflow agents, Draw.io design flow,
+pricing-backed architecture flow, governance discovery, and dry-run deployment
+validation.
+
+Use six distinct project names for repeatability and comparison — three per
+IaC track:
+
+**Bicep runs:**
+
+- `contoso-service-hub-run-1`
+- `contoso-service-hub-run-2`
+- `contoso-service-hub-run-3`
+
+**Terraform runs:**
+
+- `contoso-service-hub-tf-run-1`
+- `contoso-service-hub-tf-run-2`
+- `contoso-service-hub-tf-run-3`
+
+For parallel throughput, run the prompt in separate chat sessions and then
+combine the results per track:
+
+```bash
+node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
+node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3
+npm run e2e:benchmark -- --compare
+```
 
 ## Benchmark Scoring Dimensions
 
@@ -115,7 +142,7 @@ Per-step attempt tracking in `agent-output/{project}/08-iteration-log.json`.
 Cross-agent decisions are captured in the `decision_log` array inside `00-session-state.json`.
 Each entry records what was decided, why, what was rejected, and which agent made the call.
 The benchmark scores `decision_log` presence as part of session state integrity.
-See `.github/instructions/decision-logging.instructions.md` for the entry schema.
+See `.github/instructions/agent-authoring.instructions.md` for the entry schema.
 
 ## Test Projects
 

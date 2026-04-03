@@ -21,7 +21,7 @@ TEXT_MUTED = "#8b949e"
 ACCENT = "#0078d4"
 
 PAL = {
-    "conductor": "#8957E5",
+    "orchestrator": "#8957E5",
     "shared":    "#4ea8de",
     "arch":      "#f0a830",
     "design":    "#c084fc",
@@ -41,19 +41,19 @@ CW, CH = 2.0, 0.55  # card width / height
 # Node list: (x, y, label, step_label, color_key, has_gate)
 # ─────────────────────────────────────────────────────────────────────────
 NODES = [
-    # 0  Conductor
-    (8.0, 8.5, "Conductor", "", "conductor", False),
+    # 0  Orchestrator
+    (8.0, 8.5, "Orchestrator", "", "orchestrator", False),
     # Shared row
     (2.5, 6.8, "Requirements", "Step 1", "shared", True),      # 1
     (5.5, 6.8, "Architect", "Step 2", "arch", True),            # 2
     (8.5, 6.8, "Design", "Step 3", "design", False),            # 3
     (11.5, 6.8, "Governance", "Step 3.5", "gov", True),         # 4
     # Bicep track
-    (4.5, 4.8, "Bicep Planner", "Step 4b", "plan", True),      # 5
+    (4.5, 4.8, "IaC Planner", "Step 4", "plan", True),      # 5
     (4.5, 3.2, "Bicep CodeGen", "Step 5b", "code", False),      # 6
     (4.5, 1.6, "Bicep Deploy", "Step 6b", "deploy", True),      # 7
     # Terraform track
-    (11.5, 4.8, "TF Planner", "Step 4t", "plan", True),         # 8
+    (11.5, 4.8, "TF Planner", "Step 4", "plan", True),         # 8
     (11.5, 3.2, "TF CodeGen", "Step 5t", "code", False),        # 9
     (11.5, 1.6, "TF Deploy", "Step 6t", "deploy", True),        # 10
     # Converge
@@ -63,7 +63,7 @@ NODES = [
 ]
 
 EDGES = [
-    # Conductor -> shared steps
+    # Orchestrator -> shared steps
     (0, 1, False), (0, 2, False), (0, 3, False), (0, 4, False),
     # Shared chain
     (1, 2, False), (2, 3, False), (3, 4, False),

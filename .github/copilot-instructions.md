@@ -1,4 +1,4 @@
-# Agentic InfraOps - Copilot Instructions
+# APEX - Copilot Instructions
 
 > VS Code Copilot-specific orchestration instructions.
 > For general project conventions, build commands, and code style, see the root `AGENTS.md`.
@@ -6,57 +6,81 @@
 ## Quick Start
 
 1. Enable subagents: `"github.copilot.chat": { "customAgentInSubagent": { "enabled": true } }`
-2. Open Chat (`Ctrl+Shift+I`) → Select **InfraOps Conductor** → Describe your project
-3. The Conductor guides you through all steps with approval gates
+2. Open Chat (`Ctrl+Shift+I`) → Select **Orchestrator** → Describe your project
+3. The Orchestrator guides you through all steps with approval gates
 
 ## Multi-Step Workflow
 
-| Step | Agent                                                                      | Output                                                                                             | Review         | Gate       |
-| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------- | ---------- |
-| 1    | Requirements                                                               | `01-requirements.md`                                                                               | 1×             | Approval   |
-| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                                    | 1×–3× + 1 cost | Approval   |
-| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}` diagrams and ADRs                                                           | —              | —          |
-| 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                               | 1×             | Approval   |
-| 4    | IaC Plan (Bicep: `05b-Bicep Planner` / Terraform: `05t-Terraform Planner`) | `04-implementation-plan.md` + `04-dependency-diagram.drawio` + `04-runtime-diagram.drawio` | 1×–2×          | Approval   |
-| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                           | 1×–3×          | Validation |
-| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                         | —              | Approval   |
-| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                      | —              | —          |
-| Post | Lessons (Conductor)                                                        | `09-lessons-learned.json/.md`                                                                      | —              | —          |
+| Step | Agent                                                                      | Output                                                                                       | Review                           | Gate       |
+| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------- | ---------- |
+| 1    | Requirements                                                               | `01-requirements.md`                                                                         | 1×                               | Approval   |
+| 2    | Architect                                                                  | `02-architecture-assessment.md` + cost estimate                                              | 1× + 1 cost (opt-in: multi-pass) | Approval   |
+| 3    | Design (opt)                                                               | `03-des-*.{py,png,md}` diagrams and ADRs                                                     | —                                | —          |
+| 3.5  | Governance (`04g-Governance`)                                              | `04-governance-constraints.md/.json`                                                         | 1×                               | Approval   |
+| 4    | IaC Plan (`05-IaC Planner`)                                                | `04-implementation-plan.md` + `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png` | opt-in (default: skip)           | Approval   |
+| 5    | IaC Code (Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`) | `infra/bicep/{project}/` or `infra/terraform/{project}/`                                     | opt-in (default: skip)           | Validation |
+| 6    | Deploy (Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`)     | `06-deployment-summary.md`                                                                   | —                                | Approval   |
+| 7    | As-Built                                                                   | `07-*.md` documentation suite                                                                | —                                | —          |
+| Post | Lessons (Orchestrator)                                                     | `09-lessons-learned.json/.md`                                                                | —                                | —          |
 
 All outputs → `agent-output/{project}/`. Context flows via artifact files + handoffs.
-Review column = adversarial passes by challenger subagents, complexity-dependent
-Complexity-dependent; conditional early exits reduce actual passes.
+Review column = adversarial passes by challenger subagents; 1-pass default, multi-pass opt-in
+Single-pass comprehensive review is the default; multi-pass rotating lens is opt-in for complex projects.
 Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 
 ## Skills (Auto-Invoked by Agents)
 
-| Skill                      | Purpose                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `azure-defaults`           | Regions, tags, naming, AVM, security, governance, pricing                                              |
-| `azure-artifacts`          | Template H2 structures, styling, generation rules                                                      |
-| `azure-bicep-patterns`     | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                                                   |
-| `azure-diagnostics`        | KQL templates, health checks, remediation playbooks                                                    |
-| `excalidraw`               | Hand-drawn whiteboarding, brainstorming, wireframes, informal sketches                                 |
-| `python-diagrams`          | Python charts (WAF/cost/compliance) and diagrams library patterns                                      |
-| `mermaid`                  | Inline Mermaid diagrams for markdown documentation                                                     |
-| `azure-diagrams`           | Routing skill — delegates to drawio, python-diagrams, mermaid                                          |
-| `drawio`                   | Azure architecture diagrams via MCP server (700+ Azure icons, batch creation, transactional mode)      |
-| `azure-adr`                | Architecture Decision Records                                                                          |
-| `github-operations`        | GitHub issues, PRs, CLI, Actions, releases                                                             |
-| `git-commit`               | Commit message conventions                                                                             |
-| `docs-writer`              | Documentation generation                                                                               |
-| `make-skill-template`      | Scaffold new Agent Skills from templates                                                               |
-| `terraform-patterns`       | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)                                      |
-| `terraform-test`           | Terraform testing framework (.tftest.hcl, mocks, assertions)                                           |
-| `terraform-search-import`  | Azure resource discovery and bulk Terraform import                                                     |
-| `session-resume`           | Session state tracking, resume protocol, context budgets                                               |
-| `workflow-engine`          | DAG workflow graph, complexity routing, step definitions                                               |
-| `context-shredding`        | Runtime context compression tiers for large artifacts                                                  |
-| `microsoft-docs`           | Official Microsoft documentation search and retrieval                                                  |
-| `microsoft-code-reference` | Azure SDK/API verification and code sample lookup                                                      |
-| `microsoft-skill-creator`  | Generate custom agent skills for Microsoft technologies                                                |
+| Skill                         | Purpose                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- |
+| `appinsights-instrumentation` | Application Insights telemetry patterns, SDK setup, APM best practices                            |
+| `azure-adr`                   | Architecture Decision Records                                                                     |
+| `azure-ai`                    | Azure AI services (Search, Speech, OpenAI, Document Intelligence)                                 |
+| `azure-aigateway`             | Azure API Management as AI Gateway for models, MCP tools, agents                                  |
+| `azure-artifacts`             | Template H2 structures, styling, generation rules                                                 |
+| `azure-bicep-patterns`        | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                                              |
+| `azure-cloud-migrate`         | Cross-cloud migration assessment and code conversion to Azure                                     |
+| `azure-compliance`            | Compliance scanning, security auditing, Key Vault expiration monitoring                           |
+| `azure-compute`               | VM size recommendations, VMSS, configuration guidance                                             |
+| `azure-cost-optimization`     | Cost savings analysis, utilization metrics, optimization recommendations                          |
+| `azure-defaults`              | Regions, tags, naming, AVM, security, governance, pricing                                         |
+| `azure-deploy`                | Execute Azure deployments (azd up, terraform apply, az deployment)                                |
+| `azure-diagnostics`           | KQL templates, health checks, remediation playbooks                                               |
+| `azure-diagrams`              | Routing skill — delegates to drawio, python-diagrams, mermaid                                     |
+| `azure-hosted-copilot-sdk`    | Build and deploy GitHub Copilot SDK apps to Azure                                                 |
+| `azure-kusto`                 | KQL queries for Azure Data Explorer, log analytics, time series                                   |
+| `azure-messaging`             | Troubleshoot Azure Event Hubs and Service Bus SDK issues                                          |
+| `azure-prepare`               | Prepare Azure apps for deployment (infra, azure.yaml, Dockerfiles)                                |
+| `azure-quotas`                | Check and manage Azure quotas, usage, capacity validation                                         |
+| `azure-rbac`                  | Find least-privilege RBAC roles, generate assignment CLI/Bicep                                    |
+| `azure-resource-lookup`       | List, find, and show Azure resources across subscriptions                                         |
+| `azure-resource-visualizer`   | Analyze resource groups and generate Mermaid architecture diagrams                                |
+| `azure-storage`               | Blob, File, Queue, Table Storage and Data Lake guidance                                           |
+| `azure-validate`              | Pre-deployment validation for Azure readiness                                                     |
+| `context-optimizer`           | Audit agent context window usage, token profiling, redundancy detection                           |
+| `context-shredding`           | Runtime context compression tiers for large artifacts                                             |
+| `copilot-customization`       | VS Code Copilot customization (instructions, agents, skills, MCP)                                 |
+| `count-registry`              | Canonical entity counts from count-manifest.json                                                  |
+| `docs-writer`                 | Documentation generation                                                                          |
+| `drawio`                      | Azure architecture diagrams via MCP server (700+ Azure icons, batch creation, transactional mode) |
+| `entra-app-registration`      | Microsoft Entra ID app registration, OAuth 2.0, MSAL integration                                  |
+| `excalidraw`                  | Hand-drawn whiteboarding, brainstorming, wireframes, informal sketches                            |
+| `github-operations`           | GitHub issues, PRs, CLI, Actions, releases, commit conventions                                    |
+| `golden-principles`           | The 10 agent-first operating principles governing agent behavior                                  |
+| `iac-common`                  | Shared IaC deploy patterns, circuit breaker, known deploy issues                                  |
+| `make-skill-template`         | Scaffold new Agent Skills from templates                                                          |
+| `mermaid`                     | Inline Mermaid diagrams for markdown documentation                                                |
+| `microsoft-code-reference`    | Azure SDK/API verification and code sample lookup                                                 |
+| `microsoft-docs`              | Official Microsoft documentation search and retrieval                                             |
+| `microsoft-foundry`           | Deploy, evaluate, and manage Foundry agents end-to-end                                            |
+| `microsoft-skill-creator`     | Generate custom agent skills for Microsoft technologies                                           |
+| `python-diagrams`             | Python charts (WAF/cost/compliance) and diagrams library patterns                                 |
+| `session-resume`              | Session state tracking, resume protocol, context budgets                                          |
+| `terraform-patterns`          | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)                                 |
+| `terraform-search-import`     | Azure resource discovery and bulk Terraform import                                                |
+| `terraform-test`              | Terraform testing framework (.tftest.hcl, mocks, assertions)                                      |
+| `workflow-engine`             | DAG workflow graph, complexity routing, step definitions                                          |
 
-Agents read skills via: **"Read `.github/skills/{name}/SKILL.digest.md`"** in their body.
+Agents read skills via: **"Read `.github/skills/{name}/SKILL.md`"** in their body.
 At >60% context, agents load `SKILL.digest.md` (compact); at >80% they load
 `SKILL.minimal.md`. See the `context-shredding` skill for tier selection.
 

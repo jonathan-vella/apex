@@ -1,9 +1,9 @@
-<!-- ref:conductor-handoff-guide-v1 -->
+<!-- ref:orchestrator-handoff-guide-v1 -->
 
-# Conductor Handoff Guide
+# Orchestrator Handoff Guide
 
 Gate templates, delegation rules, and handoff presentation rules
-for the InfraOps Conductor agent.
+for the Orchestrator agent.
 
 ## Approval Gates
 
@@ -11,22 +11,27 @@ for the InfraOps Conductor agent.
 
 Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing Steps 4-6:
 
-| `iac_tool` value  | Step 4 Agent            | Step 5 Agent            | Step 6 Agent           |
-| ----------------- | ----------------------- | ----------------------- | ---------------------- |
-| `Bicep` (default) | `05b-Bicep Planner`     | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
-| `Terraform`       | `05t-Terraform Planner` | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
+| `iac_tool` value  | Step 4 Agent     | Step 5 Agent            | Step 6 Agent           |
+| ----------------- | ---------------- | ----------------------- | ---------------------- |
+| `Bicep` (default) | `05-IaC Planner` | `06b-Bicep CodeGen`     | `07b-Bicep Deploy`     |
+| `Terraform`       | `05-IaC Planner` | `06t-Terraform CodeGen` | `07t-Terraform Deploy` |
 
 > If `01-requirements.md` does not exist when the user enters at Step 4 directly, ask once:
 > "Should I use **Bicep** or **Terraform**?" (default: Bicep). This is the ONLY scenario
-> where the Conductor asks about IaC tool. In normal flow, Requirements Phase 2 captures it.
+> where the Orchestrator asks about IaC tool. In normal flow, Requirements Phase 2 captures it.
 
 ### Complexity Routing
 
 After Step 1 (Requirements), read `decisions.complexity` from `00-session-state.json`.
 If missing (old sessions), default to `"standard"`.
 
-When dispatching Steps 2, 4, 5, and 6, the step agents use `decisions.complexity` to determine
-adversarial review pass count per the review matrix in `adversarial-review-protocol.md`.
+When dispatching Steps 2, 4, 5, and 6, the Orchestrator defaults to **1-pass comprehensive review**.
+Multi-pass adversarial review is **opt-in** — at each gate, check `decisions.complexity`:
+
+- **simple/standard**: Present single-pass result directly. Do not prompt for additional review.
+- **complex**: Ask the user: _"Run additional adversarial review? (recommended for complex projects)"_
+  If the user opts in, use the full complexity matrix from `adversarial-review-protocol.md`.
+  If declined, proceed with the single-pass result.
 
 **Runtime validation**: If `complexity_matrix` key in `workflow-graph.json` does not contain an
 entry for the current complexity value, STOP with error and ask user to classify the project.
@@ -57,7 +62,7 @@ Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ✅ Next: Governance Discovery (Step 3.5) or Design Artifacts (Step 3, optional)
 💡 SESSION BREAK RECOMMENDED: Context is growing. Consider opening a fresh chat
-   and running @01-Conductor with the project name to resume from Step 3.5.
+   and running @01-Orchestrator with the project name to resume from Step 3.5.
 ❓ Review WAF assessment and confirm to proceed (same session or fresh chat)
 ```
 
@@ -83,7 +88,7 @@ Runtime Diagram: agent-output/{project}/04-runtime-diagram.drawio
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
-   Run @01-Conductor with the project name — context restores from 00-session-state.json.
+   Run @01-Orchestrator with the project name — context restores from 00-session-state.json.
 ❓ Review plan and confirm to proceed (same session or fresh chat)
 ```
 
@@ -174,7 +179,8 @@ producing low-quality artifacts with fabricated defaults.
 ### Subagent Integration
 
 For the full subagent matrix, read `.github/skills/workflow-engine/references/subagent-integration.md`.
-Key points: Challenger runs 3-pass reviews at Steps 2, 4, 5; cost-estimate-subagent handles pricing
+Key points: Challenger runs 1-pass comprehensive review by default at Steps 1, 2, 4, 5, 6;
+multi-pass rotating lens reviews are opt-in for complex projects; cost-estimate-subagent handles pricing
 at Steps 2 and 7; governance-discovery-subagent runs at Step 3.5 (Governance agent).
 
 **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from

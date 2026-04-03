@@ -1,4 +1,4 @@
-# Azure Agentic InfraOps - Core Python Dependencies
+# APEX - Core Python Dependencies
 # Install with: pip install -r requirements.txt
 # Note: graphviz system package required (apt-get install graphviz)
 #

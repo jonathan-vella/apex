@@ -51,7 +51,7 @@ a matching file is opened or edited.
 
 **How they work**: Each instruction file has YAML frontmatter with a `description` and
 an `applyTo` glob pattern. When an agent works with a file matching the pattern, the
-instruction is automatically loaded. For example, `bicep-code-best-practices.instructions.md`
+instruction is automatically loaded. For example, `iac-best-practices.instructions.md`
 applies to `**/*.bicep` and enforces AVM-first patterns, security baselines, and unique
 suffix conventions.
 
@@ -93,7 +93,7 @@ template structures. Those are delegated to skills.
 The `.github/copilot-instructions.md` file is VS Code Copilot's orchestration layer.
 It provides:
 
-- **Quick start**: How to enable subagents and invoke the Conductor
+- **Quick start**: How to enable subagents and invoke the Orchestrator
 - **Multi-step workflow table**: Quick reference for which agent handles which step
 - **Skills catalog**: Table mapping skill names to their purposes
 - **Chat triggers**: Rules for handling `gh` commands via GitHub operations
@@ -121,14 +121,14 @@ and the VS Code runtime. Tools give agents real-time access to external systems:
 
 This project integrates six core MCP servers:
 
-| Server             | Purpose                            | Transport          |
-| ------------------ | ---------------------------------- | ------------------ |
-| **Azure MCP**      | RBAC-aware Azure Resource Manager  | VS Code extension  |
-| **Azure Pricing**  | Cost estimation (13 tools)         | stdio (Python)     |
-| **Draw.io MCP**    | Editable architecture diagrams     | stdio (Deno)       |
-| **GitHub MCP**     | Issues, PRs, code search, branches | HTTP (Copilot API) |
-| **MS Learn MCP**   | Official docs search, code samples | HTTP               |
-| **Terraform MCP**  | Provider/module registry lookups   | stdio (Go)         |
+| Server            | Purpose                            | Transport          |
+| ----------------- | ---------------------------------- | ------------------ |
+| **Azure MCP**     | RBAC-aware Azure Resource Manager  | VS Code extension  |
+| **Azure Pricing** | Cost estimation (13 tools)         | stdio (Python)     |
+| **Draw.io MCP**   | Editable architecture diagrams     | stdio (Deno)       |
+| **GitHub MCP**    | Issues, PRs, code search, branches | HTTP (Copilot API) |
+| **MS Learn MCP**  | Official docs search, code samples | HTTP               |
+| **Terraform MCP** | Provider/module registry lookups   | stdio (Go)         |
 
 [MCP Integration details →](../mcp-integration/)
 

@@ -10,7 +10,7 @@ toc_depth: 2
 | ---------------------------- | ----------------------------------------------------------- |
 | **Inline suggestions** (Tab) | Completing code snippets, variable names, repetitive blocks |
 | **Copilot Chat**             | Questions, generating larger sections, debugging            |
-| **Agentic InfraOps Agents**  | Multi-step workflows, end-to-end projects                   |
+| **APEX Agents**  | Multi-step workflows, end-to-end projects                   |
 
 ## :material-puzzle-outline: Break Down Complex Tasks
 

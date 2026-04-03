@@ -159,4 +159,12 @@ export const ARTIFACT_HEADINGS = {
     "## 📄 Generated Artifacts",
     "## 🔗 Related Resources",
   ],
+  // Post-workflow artifacts (relaxed strictness)
+  "09-lessons-learned.md": [
+    "## 📋 Summary",
+    "## 📊 Lessons by Severity",
+    "## 🔍 Per-Step Findings",
+    "## 💡 Recommendations",
+    "## 📎 Appendix: Full Lesson Details",
+  ],
 };

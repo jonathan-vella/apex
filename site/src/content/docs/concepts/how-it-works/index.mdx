@@ -1,6 +1,6 @@
 ---
-title: "How Agentic InfraOps Works"
-description: "Overview of the Agentic InfraOps system"
+title: "How APEX Works"
+description: "Overview of the APEX system"
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
@@ -10,15 +10,15 @@ import { CardGrid, LinkCard } from "@astrojs/starlight/components";
   width="100%"
   height="300"
   style="object-fit: cover; border-radius: 10px;"
-  alt="Agentic InfraOps Banner"
+  alt="APEX Banner"
 />
 
-> A comprehensive guide to the multi-agent orchestration system for Azure infrastructure development.
+> A comprehensive guide to the multi-agent orchestration system for Azure platform engineering.
 
 ## Executive Summary
 
-Agentic InfraOps is a multi-agent orchestration system where specialised AI agents collaborate
-through a structured multi-step workflow to transform Azure infrastructure requirements into deployed,
+APEX is a multi-agent orchestration system where specialised AI agents collaborate
+through a structured multi-step workflow to transform Azure project requirements into deployed,
 production-grade Infrastructure as Code. The system coordinates specialized agents and
 subagents through mandatory human approval gates, producing Bicep or Terraform templates
 that conform to Azure Well-Architected Framework principles, Azure Verified Modules standards,
@@ -36,7 +36,7 @@ are enforced as first-class concerns across all generated infrastructure.
 <CardGrid>
   <LinkCard
     title="System Architecture"
-    description="The multi-step workflow, Conductor pattern, and dual IaC tracks (Bicep & Terraform)."
+    description="The multi-step workflow, Orchestrator pattern, and dual IaC tracks (Bicep & Terraform)."
     href="architecture/"
   />
   <LinkCard
@@ -132,9 +132,9 @@ Bosun's codebase is written as Node.js ESM modules. References like
 
 **Distributed shared state with claim-based locking.** Bosun's `shared-state-manager.mjs`
 implements heartbeat-based liveness detection and claim tokens to prevent concurrent agents
-from double-writing the same task. This project's session state schema v2.0 directly
-adapts this pattern with `lock.owner_id`, `lock.heartbeat`, `lock.attempt_token`, and
-per-step `claim` objects.
+from double-writing the same task. This project originally adapted this pattern in schema
+v2.0 but simplified to serial-only state tracking in v3.0 (VS Code Copilot executes agents
+serially, making concurrent locking unnecessary).
 
 **Workflow engine as a DAG.** Bosun's `workflow-engine.mjs` and `workflow-nodes.mjs`
 define workflow execution as a directed acyclic graph with typed nodes, conditional edges,
@@ -225,7 +225,7 @@ propagation across agent steps.
 **Deterministic stop conditions.** Ralph exits when all user stories have
 `passes: true`. This project's workflow engine defines explicit gate
 conditions: each step transition requires either human approval or automated
-validation pass, and the Conductor agent tracks completion state in the
+validation pass, and the Orchestrator agent tracks completion state in the
 session state file.
 
 ### How This Project Synthesises All Three
@@ -249,10 +249,10 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
 | Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
 | Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
-| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Conductor agent                       |
-| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Session state v2.0 with lock/claim model                      |
+| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Orchestrator agent                       |
+| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Serial execution (v3.0 — lock/claim removed)                  |
 | Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |
-| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Conductor                            |
+| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Orchestrator                            |
 | Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules                             |
 | Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time                        |
 | Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews                         |

@@ -2,7 +2,7 @@
   "$schema": "skill-affinity-v1",
   "description": "Maps each agent to skills with affinity weights: primary (always load), secondary (on demand), never (skip)",
   "agents": {
-    "01-Conductor": {
+    "01-Orchestrator": {
       "primary": ["workflow-engine"],
       "secondary": [
         "golden-principles",
@@ -22,7 +22,7 @@
         "mermaid"
       ]
     },
-    "01-Conductor (Fast Path)": {
+    "01-Orchestrator (Fast Path)": {
       "primary": [],
       "secondary": [
         "golden-principles",
@@ -103,8 +103,8 @@
         "iac-common"
       ]
     },
-    "05b-Bicep Planner": {
-      "primary": ["azure-bicep-patterns"],
+    "05-IaC Planner": {
+      "primary": ["azure-bicep-patterns", "terraform-patterns"],
       "secondary": [
         "azure-defaults",
         "azure-artifacts",
@@ -113,29 +113,7 @@
         "microsoft-docs",
         "microsoft-code-reference"
       ],
-      "never": [
-        "terraform-patterns",
-        "azure-diagnostics",
-        "iac-common",
-        "drawio"
-      ]
-    },
-    "05t-Terraform Planner": {
-      "primary": ["terraform-patterns"],
-      "secondary": [
-        "azure-defaults",
-        "azure-artifacts",
-        "session-resume",
-        "context-shredding",
-        "microsoft-docs",
-        "microsoft-code-reference"
-      ],
-      "never": [
-        "azure-bicep-patterns",
-        "azure-diagnostics",
-        "iac-common",
-        "drawio"
-      ]
+      "never": ["azure-diagnostics", "iac-common", "drawio"]
     },
     "06b-Bicep CodeGen": {
       "primary": ["azure-bicep-patterns"],
@@ -261,16 +239,6 @@
       "secondary": [],
       "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
     },
-    "challenger-review-codex-subagent": {
-      "primary": [],
-      "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
-    },
-    "challenger-review-batch-subagent": {
-      "primary": [],
-      "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
-    },
     "cost-estimate-subagent": {
       "primary": ["azure-defaults"],
       "secondary": [],
@@ -281,30 +249,20 @@
       "secondary": [],
       "never": ["azure-bicep-patterns", "terraform-patterns"]
     },
-    "bicep-lint-subagent": {
-      "primary": [],
-      "secondary": [],
-      "never": ["terraform-patterns", "azure-diagnostics"]
-    },
-    "bicep-review-subagent": {
+    "bicep-validate-subagent": {
       "primary": ["azure-bicep-patterns"],
       "secondary": ["azure-defaults"],
-      "never": ["terraform-patterns"]
+      "never": ["terraform-patterns", "azure-diagnostics"]
     },
     "bicep-whatif-subagent": {
       "primary": [],
       "secondary": [],
       "never": ["terraform-patterns", "azure-diagnostics"]
     },
-    "terraform-lint-subagent": {
-      "primary": [],
-      "secondary": [],
-      "never": ["azure-bicep-patterns", "azure-diagnostics"]
-    },
-    "terraform-review-subagent": {
+    "terraform-validate-subagent": {
       "primary": ["terraform-patterns"],
       "secondary": ["azure-defaults"],
-      "never": ["azure-bicep-patterns"]
+      "never": ["azure-bicep-patterns", "azure-diagnostics"]
     },
     "terraform-plan-subagent": {
       "primary": [],

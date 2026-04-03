@@ -61,5 +61,5 @@ to the Code Generator and review subagent:
 3. Both require `bicepPropertyPath`, `azurePropertyPath`, and
    `requiredValue` fields in the JSON for programmatic verification
 
-See `.github/instructions/iac-policy-compliance.instructions.md` for the
+See `.github/instructions/iac-best-practices.instructions.md` for the
 full enforcement mandate.

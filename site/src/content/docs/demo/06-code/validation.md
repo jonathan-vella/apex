@@ -6,12 +6,11 @@ sidebar:
 
 ## ✅ Validation Status
 
-| Check                   | Result      | Details                                                                                                      |
-| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
-| `bicep build`           | ✅          | 0 errors, ⚠️ 34 warnings (BCP318 conditional modules, BCP321 nullable MI outputs, no-hardcoded-env-urls DNS) |
-| `bicep lint`            | ✅          | 0 errors                                                                                                     |
-| `bicep-lint-subagent`   | ✅ PASS     | 0 errors, 34 warnings (all acceptable)                                                                       |
-| `bicep-review-subagent` | ✅ APPROVED | ❌ NEEDS_REVISION → all must_fix items resolved, re-validated                                                |
+| Check                     | Result             | Details                                                                                                      |
+| ------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `bicep build`             | ✅                 | 0 errors, ⚠️ 34 warnings (BCP318 conditional modules, BCP321 nullable MI outputs, no-hardcoded-env-urls DNS) |
+| `bicep lint`              | ✅                 | 0 errors                                                                                                     |
+| `bicep-validate-subagent` | ✅ PASS + APPROVED | 0 errors, 34 warnings (all acceptable); ❌ NEEDS_REVISION → all must_fix items resolved, re-validated        |
 
 ### Review Findings Applied
 

@@ -1,7 +1,7 @@
 [project]
 name = "azure-agentic-infraops"
-version = "0.9.0"
-description = "Agentic InfraOps - Azure infrastructure engineered by agents"
+version = "0.10.0"
+description = "APEX - Agentic Platform Engineering eXperience for Azure"
 requires-python = ">=3.10"
 
 [tool.ruff]

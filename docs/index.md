@@ -1,16 +1,16 @@
 <!-- Landing page — source of truth is this file -->
 
-# Agentic InfraOps
+# APEX
 
 ![Version](https://img.shields.io/badge/version-0.10.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Transform Azure infrastructure requirements into deploy-ready IaC code (Bicep or Terraform)
+Transform Azure project requirements into deploy-ready IaC code (Bicep or Terraform)
 using coordinated AI agents and reusable skills, aligned with the Azure Well-Architected
 Framework and Azure Verified Modules.
 
 **Who is this for?** DevOps engineers, platform engineers, and IT Pros who want to
-accelerate Azure infrastructure delivery with AI-assisted workflows.
+accelerate Azure platform engineering with AI-assisted workflows.
 
 [Get Started](quickstart.md){ .md-button .md-button--primary }
 [Use the Template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator){ .md-button }
@@ -19,7 +19,7 @@ accelerate Azure infrastructure delivery with AI-assisted workflows.
 sequenceDiagram
     autonumber
     participant U as 👤 User
-    participant C as 🎼 Conductor Agent
+    participant C as 🧠 Orchestrator Agent
     participant Agents as 🤖 Agents
     participant X as ⚔️ Challenger Agent
 
@@ -180,7 +180,7 @@ sequenceDiagram
 See the [Changelog](CHANGELOG.md) for the full release history.
 
 - **v0.10.0** — Workflow Engine DAG, Context Shredding, Circuit Breaker pattern, session lock model
-- **v0.9.0** — Dual IaC Track (Bicep + Terraform), Challenger Agent, expanded skills, Fast Path Conductor
+- **v0.9.0** — Dual IaC Track (Bicep + Terraform), Challenger Agent, expanded skills, Fast Path Orchestrator
 
 ---
 
@@ -202,12 +202,12 @@ See the [Changelog](CHANGELOG.md) for the full release history.
 
   ***
 
-  See Agentic InfraOps in action — full workflow walkthrough from requirements to deployment.
+  See APEX in action — full workflow walkthrough from requirements to deployment.
 
   <div class="video-wrapper">
     <iframe width="100%" height="315"
       src="https://www.youtube.com/embed/Hao3F52sZUc"
-      title="Agentic InfraOps Demo" frameborder="0"
+      title="APEX Demo" frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen></iframe>
   </div>

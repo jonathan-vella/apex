@@ -51,7 +51,7 @@ See `azure-artifacts.instructions.md` for the complete heading reference.
 1. Preserve H2 heading order (invariant sections)
 2. No embedded skeletons — link to templates
 3. Optional sections after last required H2
-4. Validated by `scripts/validate-artifact-templates.mjs`
+4. Validated by `scripts/validate-artifacts.mjs`
 
 Enforcement: Lefthook pre-commit + CI + `npm run fix:artifact-h2`.
 

@@ -4,7 +4,7 @@
 
 Extracted from [VS Code Custom Agents docs](https://code.visualstudio.com/docs/copilot/customization/custom-agents)
 (2026-03-09). Core rules and project-specific conventions live in
-`agent-definitions.instructions.md`.
+`agent-authoring.instructions.md`.
 
 ## Frontmatter Fields
 

@@ -38,6 +38,12 @@ Deep-dive content lives in `references/` — load on demand.
 | `Project`     | Yes      | Project identifier       |
 | `Owner`       | Yes      | Team or individual name  |
 
+> **Tag Casing Rule**: Use PascalCase exactly as shown above (`Environment`,
+> `ManagedBy`, `Project`, `Owner`). Never emit both `owner` and `Owner` or
+> `environment` and `Environment` in the same template — Azure Policy treats
+> case-variant tag keys as ambiguous evaluation paths
+> (`AmbiguousPolicyEvaluationPaths` error).
+
 ### Unique Suffix Pattern
 
 Generate ONCE, pass to ALL modules:

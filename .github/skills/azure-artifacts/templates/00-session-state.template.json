@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "3.0",
   "project": "{project-name}",
   "iac_tool": "",
   "region": "swedencentral",
@@ -33,7 +33,7 @@
       "skip_reasons": [],
       "models_used": []
     },
-    "step_3.5": {
+    "step_3_5": {
       "complexity": "",
       "passes_planned": 0,
       "passes_executed": 0,
@@ -97,7 +97,7 @@
       "artifacts": [],
       "context_files_used": []
     },
-    "3.5": {
+    "3_5": {
       "name": "Governance",
       "agent": "04g-Governance",
       "status": "pending",

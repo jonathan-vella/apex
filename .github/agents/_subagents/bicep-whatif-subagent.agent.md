@@ -30,7 +30,7 @@ tools:
 
 # Bicep What-If Subagent
 
-You are a **DEPLOYMENT PREVIEW SUBAGENT** called by a parent CONDUCTOR agent.
+You are a **DEPLOYMENT PREVIEW SUBAGENT** called by a parent ORCHESTRATOR agent.
 
 ## Empty Result Recovery
 

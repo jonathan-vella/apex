@@ -2,7 +2,7 @@
 
 # InfraOps Preflight Validation
 
-Additional preflight checks specific to the Agentic InfraOps workflow.
+Additional preflight checks specific to the APEX workflow.
 These augment the plugin's standard azure-validate checks.
 
 ## Azure CLI Authentication
@@ -52,7 +52,7 @@ When translating Azure Policy `Deny` constraints to IaC:
 2. For each `Deny` policy, extract `azurePropertyPath` + `requiredValue`
 3. Translate to IaC property:
    - **Bicep**: Drop leading resource-type segment from `azurePropertyPath`
-   - **Terraform**: Use translation table in `iac-policy-compliance.instructions.md`
+   - **Terraform**: Use translation table in `iac-best-practices.instructions.md`
 4. Governance-discovered tags always win over the 4 baseline defaults
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`

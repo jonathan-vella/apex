@@ -4,7 +4,7 @@ with open("docs/how-it-works.md", "r", encoding="utf-8") as f:
     lines = f.readlines()
 
 emoji_map = {
-    "# How Agentic InfraOps Works": "# 🚀 How Agentic InfraOps Works",
+    "# How APEX Works": "# 🚀 How APEX Works",
     "## Table of Contents": "## 📑 Table of Contents",
     "## Executive Summary": "## 📋 Executive Summary",
     "## Intellectual Foundations": "## 🧠 Intellectual Foundations",
@@ -13,7 +13,7 @@ emoji_map = {
     "### How This Project Synthesises Both": "### ⚖️ How This Project Synthesises Both",
     "## System Architecture Overview": "## 📐 System Architecture Overview",
     "### The Multi-Step Workflow": "### 🔄 The Multi-Step Workflow",
-    "### The Conductor Pattern": "### 🎼 The Conductor Pattern",
+    "### The Orchestrator Pattern": "### 🧠 The Orchestrator Pattern",
     "### Dual IaC Tracks": "### 🛤️ Dual IaC Tracks",
     "## The Four Pillars": "## 🏛️ The Four Pillars",
     "### 1. Agents": "### 🤖 1. Agents",
@@ -75,9 +75,9 @@ new_lines.append('\n<div align="right"><a href="#-table-of-contents"><b>⬆️ B
 
 # Add banner
 banner = '''<div align="center">
-  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" width="100%" height="300" style="object-fit: cover; border-radius: 10px;" alt="Agentic InfraOps Banner"/>
+  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" width="100%" height="300" style="object-fit: cover; border-radius: 10px;" alt="APEX Banner"/>
   <br/>
-  <h1>🚀 Agentic InfraOps</h1>
+  <h1>🚀 APEX</h1>
   <p><b>A multi-agent orchestration system for Azure infrastructure development</b></p>
 </div>\n\n<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">\n\n'''
 

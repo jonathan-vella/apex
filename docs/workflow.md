@@ -10,54 +10,54 @@ toc_depth: 2
 
 # :material-chart-timeline-variant: Agent and Skill Workflow
 
-The multi-step infrastructure development workflow — how agents execute each step
+The multi-step platform engineering workflow — how agents execute each step
 with artifact handoffs and approval gates. For the underlying DAG model and engine
 internals, see [Workflow Engine & Quality](how-it-works/workflow-engine.md).
 
 ## :material-eye-outline: Overview
 
-Agentic InfraOps uses a multi-agent orchestration system where specialized AI agents coordinate
-through artifact handoffs to transform Azure infrastructure requirements into deployed infrastructure
+APEX uses a multi-agent orchestration system where specialized AI agents coordinate
+through artifact handoffs to transform Azure project requirements into deployed infrastructure
 code. The system supports **dual IaC tracks** — Bicep and Terraform — sharing common requirements,
 architecture, design, and governance steps (1-3.5) then diverging into track-specific planning,
 code generation, and deployment (steps 4-6) before converging again for documentation (step 7).
 
-The **InfraOps Conductor** (🎼 Maestro, also referred to as the Coordinator)
+The **Orchestrator** (🧠 Orchestrator)
 orchestrates the complete workflow, routing to
 Bicep or Terraform agents based on the `iac_tool` field in `01-requirements.md`,
 while enforcing mandatory approval gates.
 
 !!! tip "Quick Start"
 
-    Press ++ctrl+shift+i++ to open Copilot Chat, select **InfraOps Conductor**, and
-    describe your project. The Conductor handles all steps with approval gates.
+    Press ++ctrl+shift+i++ to open Copilot Chat, select **Orchestrator**, and
+    describe your project. The Orchestrator handles all steps with approval gates.
 
 ### Formalized Workflow Engine
 
 A machine-readable DAG (Directed Acyclic Graph) in
 `.github/skills/workflow-engine/templates/workflow-graph.json` encodes the workflow.
-The Conductor reads this graph instead of relying on hardcoded step logic:
+The Orchestrator reads this graph instead of relying on hardcoded step logic:
 
 - **Nodes**: agent-step, gate, subagent-fan-out, validation
 - **Edges**: dependency links with conditions (`on_complete`, `on_skip`, `on_fail`)
 - **IaC routing**: conditional edges route to Bicep or Terraform agents based on `decisions.iac_tool`
 - **Fan-out**: Step 7 substeps (cost estimate, runbook, etc.) can execute in parallel
 
-The Conductor resolves agent paths and models via `.github/agent-registry.json`.
+The Orchestrator resolves agent paths and models via `.github/agent-registry.json`.
 
 ### Fast-Path Variant
 
 For **simple projects** (≤3 resources, single environment, no custom policies), the
-**01-Conductor (Fast Path)** combines Plan and Code into a single step with 1-pass review.
+**01-Orchestrator (Fast Path)** combines Plan and Code into a single step with 1-pass review.
 Before skipping governance discovery, it validates the subscription has no Deny-effect
-policies via Azure CLI. If Deny policies are found, it falls back to the full Conductor
+policies via Azure CLI. If Deny policies are found, it falls back to the full Orchestrator
 automatically.
 
 ## :material-robot-outline: Agent Architecture
 
-### The Conductor Pattern
+### The Orchestrator Pattern
 
-The Conductor (also called Coordinator) orchestrates the entire workflow by delegating
+The Orchestrator orchestrates the entire workflow by delegating
 to specialised agents step by step, enforcing approval gates, and maintaining session state.
 The following diagram shows the end-to-end flow:
 
@@ -65,7 +65,7 @@ The following diagram shows the end-to-end flow:
 sequenceDiagram
     autonumber
     participant U as 👤 User
-    participant C as 🎼 Conductor Agent
+    participant C as 🧠 Orchestrator Agent
     participant Agents as 🤖 Agents
     participant X as ⚔️ Challenger Agent
 
@@ -131,14 +131,14 @@ sequenceDiagram
 
 ### Agent Delegation Graph
 
-The detailed delegation graph below shows how the Conductor routes to each
+The detailed delegation graph below shows how the Orchestrator routes to each
 specialised agent and how subagents are invoked for validation:
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TB
     subgraph "Orchestrator"
-        COND["InfraOps Conductor<br/>🎼 Maestro"]
+        COND["Orchestrator<br/>🧠 Orchestrator"]
     end
 
     subgraph "Step 1: Requirements"
@@ -160,19 +160,17 @@ graph TB
     end
 
     subgraph "Step 4: Planning"
-        BPLAN["bicep-plan<br/>📐 Strategist"]
-        TPLAN["terraform-plan<br/>📐 Strategist"]
+        BPLAN["iac-planner<br/>📐 Strategist"]
+        TPLAN["iac-planner<br/>📐 Strategist"]
     end
 
     subgraph "Step 5: Implementation"
         BCODE["bicep-code<br/>⚒️ Forge"]
-        BLINT["bicep-lint-subagent"]
+        BVAL["bicep-validate-subagent"]
         BWHATIF["bicep-whatif-subagent"]
-        BREVIEW["bicep-review-subagent"]
         TCODE["terraform-code<br/>⚒️ Forge"]
-        TLINT["terraform-lint-subagent"]
-        TPLANSA["terraform-plan-subagent"]
-        TREVIEW["terraform-review-subagent"]
+        TVAL["terraform-validate-subagent"]
+        TPLANSA["iac-planner-subagent"]
     end
 
     subgraph "Step 6: Deployment"
@@ -193,12 +191,10 @@ graph TB
     COND -->|"Terraform track"| TPLAN
     COND -->|"Bicep track"| BCODE
     COND -->|"Terraform track"| TCODE
-    BCODE -->|"validates"| BLINT
+    BCODE -->|"validates"| BVAL
     BCODE -->|"validates"| BWHATIF
-    BCODE -->|"validates"| BREVIEW
-    TCODE -->|"validates"| TLINT
+    TCODE -->|"validates"| TVAL
     TCODE -->|"validates"| TPLANSA
-    TCODE -->|"validates"| TREVIEW
     COND -->|"Bicep track"| BDEP
     COND -->|"Terraform track"| TDEP
     COND -->|"invokes"| DOCS
@@ -225,45 +221,43 @@ graph TB
 
 ### Primary Orchestrator
 
-| Agent                  | Codename   | Role                                        | Model                |
-| ---------------------- | ---------- | ------------------------------------------- | -------------------- |
-| **InfraOps Conductor** | 🎼 Maestro | Master orchestrator for multi-step workflow | Claude Opus (latest) |
+| Agent            | Codename        | Role                                        | Model                |
+| ---------------- | --------------- | ------------------------------------------- | -------------------- |
+| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | Claude Opus (latest) |
 
 ### Core Agents (by Workflow Step)
 
 Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
-| Step | Agent              | Codename      | Role                                 | Artifact                                                |
-| ---- | ------------------ | ------------- | ------------------------------------ | ------------------------------------------------------- |
-| 1    | `requirements`     | 📜 Scribe     | Captures infrastructure requirements | `01-requirements.md`                                    |
-| 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions  | `02-architecture-assessment.md`                         |
-| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                    | `03-des-*.{drawio,py,png,md}`                           |
-| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance      | `04-governance-constraints.md/.json`                    |
-| 4b   | `bicep-plan`       | 📐 Strategist | Bicep implementation planning        | `04-implementation-plan.md` + `04-*-diagram.drawio`     |
-| 4t   | `terraform-plan`   | 📐 Strategist | Terraform implementation planning    | `04-implementation-plan.md` + `04-*-diagram.drawio`     |
-| 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation            | `infra/bicep/{project}/`                                |
-| 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation   | `infra/terraform/{project}/`                            |
-| 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                     | `06-deployment-summary.md`                              |
-| 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                 | `06-deployment-summary.md`                              |
-| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite  | `07-*.md`                                               |
+| Step | Agent              | Codename      | Role                                | Artifact                                             |
+| ---- | ------------------ | ------------- | ----------------------------------- | ---------------------------------------------------- |
+| 1    | `requirements`     | 📜 Scribe     | Captures project requirements       | `01-requirements.md`                                 |
+| 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions | `02-architecture-assessment.md`                      |
+| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                   | `03-des-*.{drawio,py,png,md}`                        |
+| 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance     | `04-governance-constraints.md/.json`                 |
+| 4b   | `iac-planner`      | 📐 Strategist | Bicep implementation planning       | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
+| 4t   | `iac-planner`      | 📐 Strategist | Terraform implementation planning   | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
+| 5b   | `bicep-code`       | ⚒️ Forge      | Bicep template generation           | `infra/bicep/{project}/`                             |
+| 5t   | `terraform-code`   | ⚒️ Forge      | Terraform configuration generation  | `infra/terraform/{project}/`                         |
+| 6b   | `bicep-deploy`     | 🚀 Envoy      | Bicep deployment                    | `06-deployment-summary.md`                           |
+| 6t   | `terraform-deploy` | 🚀 Envoy      | Terraform deployment                | `06-deployment-summary.md`                           |
+| 7    | `as-built`         | 📚 Chronicler | Post-deployment documentation suite | `07-*.md`                                            |
 
 ### Validation Subagents
 
 **Bicep track:**
 
-| Subagent                | Purpose                                         | Invoked By                   |
-| ----------------------- | ----------------------------------------------- | ---------------------------- |
-| `bicep-lint-subagent`   | Syntax validation (`bicep lint`, `bicep build`) | `bicep-code`                 |
-| `bicep-whatif-subagent` | Deployment preview (`az deployment what-if`)    | `bicep-code`, `bicep-deploy` |
-| `bicep-review-subagent` | Code review (AVM, security, naming)             | `bicep-code`                 |
+| Subagent                  | Purpose                                      | Invoked By                   |
+| ------------------------- | -------------------------------------------- | ---------------------------- |
+| `bicep-validate-subagent` | Lint + code review (AVM, security, naming)   | `bicep-code`                 |
+| `bicep-whatif-subagent`   | Deployment preview (`az deployment what-if`) | `bicep-code`, `bicep-deploy` |
 
 **Terraform track:**
 
-| Subagent                    | Purpose                                         | Invoked By       |
-| --------------------------- | ----------------------------------------------- | ---------------- |
-| `terraform-lint-subagent`   | Syntax validation (`terraform validate`, `fmt`) | `terraform-code` |
-| `terraform-plan-subagent`   | Deployment preview (`terraform plan`)           | `terraform-code` |
-| `terraform-review-subagent` | Code review (AVM-TF, security, naming)          | `terraform-code` |
+| Subagent                      | Purpose                                       | Invoked By       |
+| ----------------------------- | --------------------------------------------- | ---------------- |
+| `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming) | `terraform-code` |
+| `iac-planner-subagent`        | Deployment preview (`terraform plan`)         | `terraform-code` |
 
 ### Standalone Agents
 
@@ -274,7 +268,7 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 ## :material-shield-lock-outline: Approval Gates
 
-The Conductor enforces mandatory pause points for human oversight:
+The Orchestrator enforces mandatory pause points for human oversight:
 
 !!! warning "Never Skip Gates"
 
@@ -296,7 +290,7 @@ The Conductor enforces mandatory pause points for human oversight:
 
 **Agent**: `requirements`
 
-Gather infrastructure requirements through interactive conversation.
+Gather project requirements through interactive conversation.
 
 ```text
 Invoke: Ctrl+Shift+A → requirements
@@ -330,7 +324,7 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `drawio` skill or IaC planning agent (`bicep-plan` / `terraform-plan`).
+**Handoff**: Suggests `drawio` skill or IaC planning agent (`iac-planner`).
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
@@ -370,7 +364,7 @@ Output: agent-output/{project}/04-governance-constraints.md, 04-governance-const
 
 ### Step 4: Planning (📐 Strategist)
 
-**Agent**: `bicep-plan` (Bicep track) or `terraform-plan` (Terraform track)
+**Agent**: `iac-planner`
 
 Create detailed implementation plan using governance constraints as input.
 The planner validates governance completeness before proceeding: the
@@ -381,14 +375,14 @@ fails, the planner stops and requests governance refresh.
 === "Bicep"
 
     ```text
-    Invoke: Ctrl+Shift+A → bicep-plan
+    Invoke: Ctrl+Shift+A → iac-planner
     Output: agent-output/{project}/04-implementation-plan.md
     ```
 
 === "Terraform"
 
     ```text
-    Invoke: Ctrl+Shift+A → terraform-plan
+    Invoke: Ctrl+Shift+A → iac-planner
     Output: agent-output/{project}/04-implementation-plan.md
     ```
 
@@ -399,7 +393,7 @@ fails, the planner stops and requests governance refresh.
 - Governance constraints integration from Step 3.5
 - AVM module selection (Bicep: `br/public:avm/res/`, Terraform: AVM-TF registry)
 - Resource dependency mapping
-- Auto-generated Step 4 diagrams (`04-dependency-diagram.drawio` and `04-runtime-diagram.drawio`)
+- Auto-generated Step 4 diagrams (`04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`)
 - Naming convention validation (CAF)
 - Phased implementation approach
 
@@ -439,11 +433,10 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 
 **Preflight Validation** (via track-specific subagents):
 
-| Bicep Subagent          | Terraform Subagent          | Validation                    |
-| ----------------------- | --------------------------- | ----------------------------- |
-| `bicep-lint-subagent`   | `terraform-lint-subagent`   | Syntax check, linting rules   |
-| `bicep-whatif-subagent` | `terraform-plan-subagent`   | Deployment preview            |
-| `bicep-review-subagent` | `terraform-review-subagent` | AVM compliance, security scan |
+| Bicep Subagent            | Terraform Subagent            | Validation         |
+| ------------------------- | ----------------------------- | ------------------ |
+| `bicep-validate-subagent` | `terraform-validate-subagent` | Lint + code review |
+| `bicep-whatif-subagent`   | `iac-planner-subagent`        | Deployment preview |
 
 !!! info "Approval Gate"
 
@@ -513,7 +506,7 @@ Output: agent-output/{project}/07-*.md
 ## :material-scale-balance: Complexity Classification
 
 The Requirements agent classifies project complexity based on scope.
-The Conductor validates the classification. Complexity drives the number
+The Orchestrator validates the classification. Complexity drives the number
 of adversarial review passes at Steps 1, 2, 4, and 5.
 
 | Tier         | Criteria                                                                     |
@@ -546,21 +539,21 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 
 ## Agents vs Skills
 
-| Aspect          | Agents                                   | Skills                   |
-| --------------- | ---------------------------------------- | ------------------------ |
-| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Conductor | Automatic or explicit    |
-| **Interaction** | Conversational with handoffs             | Task-focused             |
-| **State**       | Session context                          | Stateless                |
-| **Output**      | Multiple artifacts                       | Specific outputs         |
-| **When to use** | Core workflow steps                      | Specialized capabilities |
+| Aspect          | Agents                                      | Skills                   |
+| --------------- | ------------------------------------------- | ------------------------ |
+| **Invocation**  | Manual (`Ctrl+Shift+A`) or via Orchestrator | Automatic or explicit    |
+| **Interaction** | Conversational with handoffs                | Task-focused             |
+| **State**       | Session context                             | Stateless                |
+| **Output**      | Multiple artifacts                          | Specific outputs         |
+| **When to use** | Core workflow steps                         | Specialized capabilities |
 
 ## Quick Reference
 
-### Using the Conductor (Recommended)
+### Using the Orchestrator (Recommended)
 
 ```text
-1. Ctrl+Shift+I → Select "InfraOps Conductor"
-2. Describe your infrastructure project
+1. Ctrl+Shift+I → Select "Orchestrator"
+2. Describe your platform engineering project
 3. Follow guided workflow through all steps with approval gates
 ```
 

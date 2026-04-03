@@ -179,6 +179,19 @@ gh auth status
 az --version && bicep --version && pwsh --version
 ```
 
+!!! info "Azure CLI extension prompts are pre-configured away"
+
+    The devcontainer sets Azure CLI config during `post-create.sh` so extension-backed commands can
+    install stable extensions automatically without prompting:
+
+    ```bash
+    az config set extension.use_dynamic_install=yes_without_prompt
+    az config set extension.dynamic_install_allow_preview=false
+    ```
+
+    This avoids the common warning about dynamic extension installation. Preview extensions remain
+    manual unless you explicitly change that setting.
+
 ## Alternative Docker Options
 
 !!! tip "Choose your Docker runtime before installing"
@@ -217,14 +230,14 @@ Configure VS Code: `"dev.containers.dockerPath": "podman"`
 
 The Dev Container includes:
 
-| Category               | Tools                                                     |
-| ---------------------- | --------------------------------------------------------- |
-| **Azure**              | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP       |
-| **Terraform**          | Terraform (latest), tfsec, HashiCorp Terraform MCP Server |
-| **PowerShell**         | PowerShell 7+, Az modules                                 |
-| **Python**             | Python 3.13+, diagrams library, graphviz                  |
-| **Node.js**            | Node LTS+, npm, markdownlint                              |
-| **VS Code Extensions** | 27+ extensions (Bicep, Terraform, Copilot, Azure, etc.)   |
+| Category               | Tools                                                                    |
+| ---------------------- | ------------------------------------------------------------------------ |
+| **Azure**              | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP                      |
+| **Terraform**          | Terraform (latest), tfsec, HashiCorp Terraform MCP Server                |
+| **PowerShell**         | PowerShell 7+, Az modules                                                |
+| **Python**             | Python 3.13+, diagrams library, graphviz                                 |
+| **Node.js**            | Node LTS+, npm, markdownlint                                             |
+| **VS Code Extensions** | Comprehensive set of extensions (Bicep, Terraform, Copilot, Azure, etc.) |
 
 > **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, `markdownlint-cli2`,
 > `checkov`, `ruff`, and `diagrams` are refreshed automatically on every container start via `post-start.sh`.

@@ -3,14 +3,7 @@ name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
 model: ["Claude Sonnet 4.6"]
 user-invocable: true
-agents:
-  [
-    "terraform-lint-subagent",
-    "terraform-review-subagent",
-    "challenger-review-subagent",
-    "challenger-review-codex-subagent",
-    "challenger-review-batch-subagent",
-  ]
+agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -53,11 +46,11 @@ handoffs:
     prompt: "Deploy the validated Terraform configuration in `infra/terraform/{project}/` to Azure. Configuration passed lint and review subagents; see `agent-output/{project}/05-implementation-reference.md` for validation status. Read `agent-output/{project}/04-implementation-plan.md` for deployment strategy and run terraform plan first."
     send: true
   - label: "↩ Return to Step 4"
-    agent: 05t-Terraform Planner
+    agent: 05-IaC Planner
     prompt: "Returning to implementation planning for revision. The plan in `agent-output/{project}/04-implementation-plan.md` needs adjustment based on implementation findings."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 5 (Terraform Code). Terraform configurations generated and validated at `infra/terraform/{project}/`. Implementation reference at `agent-output/{project}/05-implementation-reference.md`. Ready for deployment."
     send: false
 ---
@@ -84,10 +77,9 @@ Do not modify architecture decisions — hand back to the Planner if the plan ne
 </scope_fencing>
 
 <subagent_budget>
-This agent orchestrates 4+ subagents: terraform-lint-subagent, terraform-review-subagent, challenger-review-subagent, challenger-review-batch-subagent.
-Invoke lint + review subagents in parallel (independent checkers on the same code).
-Use challenger subagents only for adversarial review after validation passes.
-For simple validation re-runs after fixes, invoke lint-subagent alone rather than the full suite.
+This agent orchestrates 2 subagents: terraform-validate-subagent (lint+review), challenger-review-subagent.
+Invoke terraform-validate-subagent for combined lint and code review.
+Use challenger-review-subagent only for adversarial review after validation passes.
 </subagent_budget>
 
 **HCP GUARDRAIL**: Never write `terraform { cloud { } }` blocks or reference `TFE_TOKEN`.
@@ -102,7 +94,7 @@ Before doing any work, read these skills:
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/terraform-patterns/SKILL.md` — patterns, AVM Known Pitfalls, module composition
-5. Read `.github/instructions/iac-policy-compliance.instructions.md` — governance mandate, translation table
+5. Read `.github/instructions/iac-best-practices.instructions.md` — governance mandate, translation table
 6. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
 
 ## DO / DON'T
@@ -174,7 +166,7 @@ For EACH resource in `04-implementation-plan.md`:
 **HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
 
 1. Read `04-governance-constraints.json` — extract all `Deny` policies
-2. Translate `azurePropertyPath` → Terraform argument (use translation table in `iac-policy-compliance.instructions.md`)
+2. Translate `azurePropertyPath` → Terraform argument (use translation table in `iac-best-practices.instructions.md`)
 3. Build compliance map: resource type → TF argument → required value
 4. Merge governance tags with 4 baseline defaults (governance wins)
 5. Validate every planned resource can comply
@@ -239,8 +231,7 @@ Generate `deploy.sh` + `deploy.ps1`. Read
 Invoke both validation subagents in parallel via simultaneous `#runSubagent` calls
 (independent checkers — syntax/fmt vs standards — on the same code):
 
-1. `terraform-lint-subagent` (path: `infra/terraform/{project}/`) — expect PASS
-2. `terraform-review-subagent` (same path) — expect APPROVED
+1. `terraform-validate-subagent` (path: `infra/terraform/{project}/`) — expect APPROVED (runs lint then review)
 
 Await both results. Both must pass before Phase 4.5.
 

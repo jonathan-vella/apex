@@ -3,7 +3,7 @@
 # Circuit Breaker — Deploy Safety
 
 Anomaly detection and circuit breaker rules for deploy agents (07b, 07t)
-and the Conductor.
+and the Orchestrator.
 
 ## Failure Taxonomy
 

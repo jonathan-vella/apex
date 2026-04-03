@@ -1,11 +1,11 @@
 ---
-description: "Lesson collection and retrospective protocol for conductor agents. Captures process observations during workflow execution and generates lessons-learned artifacts at completion."
-applyTo: "**/*conductor*.agent.md"
+description: "Lesson collection and retrospective protocol for orchestrator agents. Captures process observations during workflow execution and generates lessons-learned artifacts at completion."
+applyTo: "**/*orchestrator*.agent.md"
 ---
 
 # Lesson Collection Protocol
 
-Conductors collect process observations during workflow execution and
+Orchestrators collect process observations during workflow execution and
 generate `09-lessons-learned.json` + `09-lessons-learned.md` as **workflow
 completion artifacts** (same pattern as `00-handoff.md` and `00-session-state.json`).
 
@@ -22,11 +22,11 @@ At workflow start (when creating `00-session-state.json`), also create:
 }
 ```
 
-Set `workflow_mode` to `"e2e"` for the E2E Conductor.
+Set `workflow_mode` to `"e2e"` for the E2E Orchestrator.
 
 ## When to Record a Lesson
 
-### Production Conductor Triggers
+### Production Orchestrator Triggers
 
 - Challenger review returns `must_fix` findings
 - User rejects an artifact and requests revision (log what was wrong)
@@ -34,7 +34,7 @@ Set `workflow_mode` to `"e2e"` for the E2E Conductor.
 - Deployment what-if reveals Azure Policy violations
 - User explicitly flags an issue or concern during approval
 
-### E2E Conductor Triggers (superset of production)
+### E2E Orchestrator Triggers (superset of production)
 
 All production triggers PLUS:
 

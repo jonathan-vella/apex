@@ -7,7 +7,7 @@ with open("docs/how-it-works.md", "r", encoding="utf-8") as f:
     lines = f.readlines()
 
 emoji_map = {
-    "# How Agentic InfraOps Works": "# 🚀 How Agentic InfraOps Works",
+    "# How APEX Works": "# 🚀 How APEX Works",
     "## Table of Contents": "## 📑 Table of Contents",
     "## Executive Summary": "## 📋 Executive Summary",
     "## Intellectual Foundations": "## 🧠 Intellectual Foundations",
@@ -16,7 +16,7 @@ emoji_map = {
     "### How This Project Synthesises Both": "### ⚖️ How This Project Synthesises Both",
     "## System Architecture Overview": "## 📐 System Architecture Overview",
     "### The Multi-Step Workflow": "### 🔄 The Multi-Step Workflow",
-    "### The Conductor Pattern": "### 🎼 The Conductor Pattern",
+    "### The Orchestrator Pattern": "### 🧠 The Orchestrator Pattern",
     "### Dual IaC Tracks": "### 🛤️ Dual IaC Tracks",
     "## The Four Pillars": "## 🏛️ The Four Pillars",
     "### 1. Agents": "### 🤖 1. Agents",
@@ -89,7 +89,7 @@ new_lines.append('\n<div align="right"><a href="#table-of-contents"><b>⬆️ Ba
 
 # Banner - simple image only, no text so we don't risk duplicating the H1
 banner = '''<div align="center">
-  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" width="100%" height="300" style="object-fit: cover; border-radius: 10px;" alt="Agentic InfraOps Banner"/>
+  <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" width="100%" height="300" style="object-fit: cover; border-radius: 10px;" alt="APEX Banner"/>
 </div>\n\n'''
 
 new_lines.insert(0, banner)

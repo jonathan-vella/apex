@@ -54,14 +54,14 @@ the agent writes the checkpoint to `steps.{N}.sub_step` in the JSON state.
 | `phase_3_adr`      | ADR(s) drafted                 |
 | `phase_4_artifact` | All design artifacts saved     |
 
-### Step 4: IaC Plan (05b/05t Planner)
+### Step 4: IaC Plan (05-IaC Planner)
 
 | Checkpoint           | After completing...                     |
 | -------------------- | --------------------------------------- |
 | `phase_1_governance` | Governance discovery complete           |
 | `phase_2_avm`        | AVM module verification done            |
 | `phase_3_plan`       | Implementation plan drafted             |
-| `phase_3.5_strategy` | Deployment strategy confirmed by user   |
+| `phase_3_5_strategy` | Deployment strategy confirmed by user   |
 | `phase_4_diagrams`   | Dependency + runtime diagrams generated |
 | `phase_5_challenger` | Challenger reviews complete             |
 | `phase_6_artifact`   | All plan artifacts saved                |

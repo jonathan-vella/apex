@@ -3,7 +3,7 @@ name: github-operations
 description: "Full contribution lifecycle: branch naming, conventional commits, GitHub issues, PRs, Actions, and releases. MCP-first with gh CLI fallback. USE FOR: commit, push, PR, branch, issue, release, GitHub operations. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions."
 license: MIT
 metadata:
-  author: azure-agentic-infraops
+  author: apex
   version: "3.0"
   category: github
 ---

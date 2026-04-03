@@ -39,3 +39,6 @@ WebApp
 FunctionApp
 KeyVault
 APIM
+APEX
+PlatformOps
+Orchestrator

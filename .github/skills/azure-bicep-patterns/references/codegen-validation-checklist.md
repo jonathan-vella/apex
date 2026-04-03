@@ -15,7 +15,7 @@ Verify ALL items before marking Step 5 complete.
 - [ ] `uniqueSuffix` generated once, passed to all modules
 - [ ] Length constraints respected (KV≤24, Storage≤24)
 - [ ] `projectName` is a required parameter with no default value
-- [ ] Zero hardcoded project-specific values (see `iac-cost-repeatability.instructions.md`)
+- [ ] Zero hardcoded project-specific values (see `iac-best-practices.instructions.md`)
 
 ## Security Baseline
 
@@ -30,6 +30,14 @@ Verify ALL items before marking Step 5 complete.
 - [ ] All `existing` resource references have explicit `dependsOn` to the creating module
 - [ ] AKS service CIDR does not overlap VNet/subnet CIDRs; node RG name ≤80 chars
 - [ ] PE modules create their own private DNS zones (not bare `resourceId()` to non-existent zones)
+- [ ] Subscription-scope entrypoints use `resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.Foo/bars', name)` for cross-RG references
+
+## Runtime Validation (Pre-Challenger)
+
+- [ ] Front Door child resources (endpoints, routes, origins) tested with `az deployment sub what-if`
+- [ ] Phased module conditions verified — each phase deploys independently without missing dependencies
+- [ ] Private connectivity prerequisites (PE, DNS zones) validated before dependent resources
+- [ ] Extension-resource diagnostics isolated in scope-aware helper modules (not inline at subscription scope)
 
 ## Deployment Artifacts
 
@@ -38,5 +46,5 @@ Verify ALL items before marking Step 5 complete.
 
 ## Review Gates
 
-- [ ] `bicep-lint-subagent` PASS + `bicep-review-subagent` APPROVED
+- [ ] `bicep-validate-subagent` PASS + APPROVED
 - [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)

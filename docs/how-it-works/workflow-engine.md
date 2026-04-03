@@ -75,7 +75,7 @@ nodes is governed by the `decisions.iac_tool` field.
 
 !!! info "Read-only workflow graph"
 
-    The workflow DAG is auto-loaded by the Conductor. Users do not edit
+    The workflow DAG is auto-loaded by the Orchestrator. Users do not edit
     `workflow-graph.json` directly. To customise the workflow, modify agent
     definitions or skills instead.
 
@@ -127,7 +127,7 @@ The `00-session-state.json` file (schema v2.0) provides atomic state tracking:
 }
 ```
 
-1. :material-counter: Tracks which step is active — the Conductor uses this for resume
+1. :material-counter: Tracks which step is active — the Orchestrator uses this for resume
 2. :material-lock: Claim-based locking prevents concurrent sessions from corrupting state
 3. :material-fingerprint: Unique token per attempt — stale heartbeats are auto-recovered
 
@@ -136,15 +136,15 @@ The claim model prevents concurrent sessions from corrupting state. Stale heartb
 
 ### Session Break Protocol
 
-At Gates 2 and 3, the Conductor recommends starting a fresh VS Code Copilot Chat
+At Gates 2 and 3, the Orchestrator recommends starting a fresh VS Code Copilot Chat
 session. Long-running sessions (3+ hours) experience forced context summarisations
 that lose critical decision context. The Session Break Protocol:
 
-1. Conductor writes current state to `00-session-state.json`
-2. Conductor writes `00-handoff.md` with human-readable summary
-3. Conductor prints a "SESSION BREAK RECOMMENDED" message
-4. User starts a new chat, invokes Conductor again
-5. Conductor reads `00-session-state.json`, finds the next pending step, and resumes
+1. Orchestrator writes current state to `00-session-state.json`
+2. Orchestrator writes `00-handoff.md` with human-readable summary
+3. Orchestrator prints a "SESSION BREAK RECOMMENDED" message
+4. User starts a new chat, invokes Orchestrator again
+5. Orchestrator reads `00-session-state.json`, finds the next pending step, and resumes
 
 This was driven by real-world observation: the nordic-fresh-foods end-to-end test
 experienced 5 forced context summarisations in a single 3h39m session.
@@ -226,7 +226,7 @@ The context-shredding system defines three compression tiers for artifact loadin
       exist on disk for key skills, generated and validated by scripts
       (`generate-skill-digests.mjs`, `validate-skill-digests.mjs`).
     - **Hardcoded compaction checkpoints** — agents like the Architect (Phase 2.5)
-      and Terraform Planner (Phase 3.6) have fixed points in their bodies where they
+      and IaC Planner (Phase 3.6) have fixed points in their bodies where they
       write a summary and switch to minimal skill loading. These are positional, not
       dynamic.
     - **`compact_for_parent` carry-forward** — the challenger subagent's JSON output
@@ -277,7 +277,7 @@ and timeout. They run automatically — agents do not invoke them explicitly.
 
 !!! tip "Further Reading"
 
-    - [System Architecture](architecture.md) — the multi-step workflow, Conductor pattern, dual IaC tracks
+    - [System Architecture](architecture.md) — the multi-step workflow, Orchestrator pattern, dual IaC tracks
     - [Core Concepts](four-pillars.md) — agents, skills, instructions, and configuration registries
     - [Agent Architecture](agents.md) — handoffs, the Challenger pattern, context shredding
     - [MCP Integration](mcp-integration.md) — MCP servers and how agents invoke tools

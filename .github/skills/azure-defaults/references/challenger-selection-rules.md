@@ -4,19 +4,18 @@
 
 Selection rules for adversarial review passes in CodeGen agents (06b/06t).
 
-> **Convention**: Agent `agents:` arrays list all 3 challenger subagent
-> variants. This represents **parallel multi-model execution options
-> for a single pass**, not 3 sequential passes. The routing table below
-> determines which model runs each pass.
+> **Convention**: Agent `agents:` arrays list the `challenger-review-subagent`.
+> All passes use the same subagent. The routing table below
+> determines which lens runs each pass.
 
 ## Pass Routing Table
 
-| Pass                 | Subagent                           | Model         | Lens                     | Condition                                                             |
-| -------------------- | ---------------------------------- | ------------- | ------------------------ | --------------------------------------------------------------------- |
-| 1                    | `challenger-review-subagent`       | GPT-5.4       | security-governance      | Always required for all complexities                                  |
-| 2                    | `challenger-review-codex-subagent` | GPT-5.3-Codex | architecture-reliability | Skip if pass 1 has 0 must_fix AND <2 should_fix                       |
-| 3                    | `challenger-review-codex-subagent` | GPT-5.3-Codex | cost-feasibility         | Skip if pass 2 has 0 must_fix                                         |
-| Batch (complex only) | `challenger-review-batch-subagent` | GPT-5.3-Codex | passes 2+3 combined      | Use instead of separate pass 2+3 for complex projects to save context |
+| Pass                 | Subagent                     | Model   | Lens                     | Condition                                                             |
+| -------------------- | ---------------------------- | ------- | ------------------------ | --------------------------------------------------------------------- |
+| 1                    | `challenger-review-subagent` | GPT-5.4 | security-governance      | Always required for all complexities                                  |
+| 2                    | `challenger-review-subagent` | GPT-5.4 | architecture-reliability | Skip if pass 1 has 0 must_fix AND <2 should_fix                       |
+| 3                    | `challenger-review-subagent` | GPT-5.4 | cost-feasibility         | Skip if pass 2 has 0 must_fix                                         |
+| Batch (complex only) | `challenger-review-subagent` | GPT-5.4 | passes 2+3 combined      | Use instead of separate pass 2+3 for complex projects to save context |
 
 ## Conditional Skip Rules
 

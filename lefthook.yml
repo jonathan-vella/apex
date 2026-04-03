@@ -41,7 +41,7 @@ pre-commit:
         STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifact-templates)' || true)
         if [ -n "$STAGED_SYNC" ]; then
           echo "🔄 Checking H2 heading sync across sources..."
-          npm run lint:h2-sync
+          npm run validate:artifacts
         else
           echo "ℹ️  No H2-source files to sync-check"
         fi
@@ -60,14 +60,14 @@ pre-commit:
           COUNT=$(echo "$STAGED_ARTIFACTS" | wc -l | tr -d ' ')
           echo "📋 Validating $COUNT artifact(s) against templates..."
           # Run full artifact validation - blocks on any H2 mismatch
-          if ! npm run lint:artifact-templates; then
+          if ! npm run validate:artifacts; then
             echo ""
             echo "❌ Artifact template validation failed!"
             echo ""
             echo "🔧 To fix:"
             echo "   1. Check .github/instructions/azure-artifacts.instructions.md"
             echo "   2. Use EXACT H2 headings from that file"
-            echo "   3. Run: npm run fix:artifact-h2 <file> --apply"
+            echo "   3. Run: npm run fix:artifacts -- <file> --apply"
             echo "   4. Re-stage and commit"
             echo ""
             exit 1
@@ -79,7 +79,7 @@ pre-commit:
         ❌ Artifact H2 structure validation failed!
 
         📚 Reference: .github/instructions/azure-artifacts.instructions.md
-        🔧 Auto-fix: npm run fix:artifact-h2 <file> --apply
+        🔧 Auto-fix: npm run fix:artifacts -- <file> --apply
 
     agent-frontmatter:
       glob: "**/*.agent.md"
@@ -89,7 +89,7 @@ pre-commit:
         if [ -n "$STAGED_AGENTS" ]; then
           COUNT=$(echo "$STAGED_AGENTS" | wc -l | tr -d ' ')
           echo "🤖 Validating $COUNT agent file(s)..."
-          npm run lint:agent-frontmatter
+          npm run validate:agents
         else
           echo "ℹ️  No agent files to validate"
         fi
@@ -97,7 +97,7 @@ pre-commit:
         ❌ Agent frontmatter validation failed!
 
         🔧 Check YAML syntax in agent definitions
-        📚 Reference: .github/instructions/agent-definitions.instructions.md
+        📚 Reference: .github/instructions/agent-authoring.instructions.md
 
     model-alignment:
       glob: "**/*.agent.md,**/*.prompt.md"
@@ -105,7 +105,7 @@ pre-commit:
         STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|prompt)\.md$' || true)
         if [ -n "$STAGED" ]; then
           echo "🔗 Checking model-prompt alignment..."
-          npm run lint:model-alignment
+          npm run validate:agents
         else
           echo "ℹ️  No agent/prompt files to check"
         fi
@@ -113,7 +113,7 @@ pre-commit:
         ❌ Model-prompt alignment check failed!
 
         🔧 Fix prompt model mismatches or stale handoff overrides
-        📚 Reference: .github/instructions/model-prompt-alignment.instructions.md
+        📚 Reference: .github/instructions/agent-authoring.instructions.md
 
     agent-checks:
       glob: "**/*.agent.md"
@@ -121,7 +121,7 @@ pre-commit:
         STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.agent\.md$' || true)
         if [ -n "$STAGED_AGENTS" ]; then
           echo "📝 Checking agent body size + language density..."
-          npm run lint:agent-checks
+          npm run validate:agents
         else
           echo "ℹ️  No agent files to check"
         fi
@@ -287,6 +287,13 @@ post-commit:
         echo "🔍 Checking for deprecated references..."
         node scripts/validate-no-deprecated-refs.mjs
       fail_text: "❌ Deprecated references check failed"
+
+    terminology:
+      glob: "*.{md,mdx,json,mjs,py,yml,yaml,sh,toml,astro,css,html,txt,svg}"
+      run: |
+        echo "🔍 Checking terminology blocklist..."
+        node scripts/validate-terminology.mjs
+      fail_text: "❌ Terminology check failed"
 
     json-syntax:
       glob: "*.json"

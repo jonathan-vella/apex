@@ -1,404 +1,359 @@
 ---
-agent: agent
-description: "RFP-driven RALPH loop for Contoso Service Hub. Consumes tests/e2e-inputs/contoso-rfq.md as input, runs the full 7-step InfraOps pipeline autonomously with complexity-aware challenger reviews, phased CodeGen, and AVM matrix pre-computation."
-tools:
-  - agent
-  - search
-  - edit/createFile
-  - edit/editFiles
-  - read/readFile
-  - search/listDirectory
-  - search/fileSearch
-  - search/textSearch
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - todo
+name: e2e-contoso-rfp
+agent: E2E Orchestrator
+description: "Run a single real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path."
+argument-hint: "Specify project name and IaC tool (Bicep or Terraform)"
 ---
 
-# E2E RALPH Loop — Contoso Service Hub (RFP-Driven)
+# E2E RALPH Loop — Contoso Service Hub (Real-Run Mode)
 
-You are the **E2E Evaluation Conductor** running an automated, self-correcting evaluation loop
-through the full 7-step InfraOps workflow. This prompt consumes an RFP document as input and
-generates ALL artifacts from scratch — nothing is pre-seeded.
+## Pre-Flight: Discover Existing Runs
+
+Before starting any workflow, scan for existing Contoso Service Hub runs.
+
+1. List all directories under `agent-output/` that match `contoso-service-hub-*`.
+2. For each match, read `00-session-state.json` (if it exists) and extract:
+   - `current_step` (last completed step)
+   - `status` (e.g., `in_progress`, `completed`, `blocked`)
+   - `iac_tool`
+3. Also check for matching IaC directories under `infra/bicep/` and
+   `infra/terraform/` that correspond to each discovered run.
+4. Present the findings to the user using the `askQuestions` tool with these
+   options:
+
+   | Option                    | When to show                                  | Description                                                                                                                                                      |
+   | ------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | **New loop**              | Always                                        | Start a fresh run with a new project name (auto-increment suffix, e.g., `run-2`)                                                                                 |
+   | **Continue `{run-name}`** | For each existing run that is not `completed` | Resume from the last completed step                                                                                                                              |
+   | **Delete `{run-name}`**   | For each existing run                         | Remove the `agent-output/{run-name}/` folder and its `infra/bicep/{run-name}/` or `infra/terraform/{run-name}/` directory. Ask for confirmation before deleting. |
+
+5. Wait for the user's selection before proceeding.
+6. If the user selects **New loop**, prompt for project name and IaC tool using
+   the `${input}` defaults below, then continue to the Mission section.
+7. If the user selects **Continue**, set the project name and IaC tool from the
+   existing session state and resume from the next incomplete step.
+8. If the user selects **Delete**, remove the selected directories after
+   confirmation, then re-run this pre-flight check (the user may want to
+   start a new loop or delete another run).
+
+If no existing runs are found, skip directly to the Mission section with a
+new loop.
+
+---
+
+## Mission
+
+Run the Contoso Service Hub benchmark as a real automated workflow, not as a
+simulation. Treat this prompt as scenario input and execution policy for the
+`E2E Orchestrator`, not as permission to synthesize missing workflow steps
+inline.
+
+This prompt replaces the earlier inline-friendly behavior. Steps with real
+workflow agents must go through those agents.
+
+## Run Configuration
+
+Execute one complete RALPH loop (Steps 1–8) with the specified project and
+IaC tool:
+
+- Project: `${input:project:contoso-service-hub-run-1}`
+- IaC tool: `${input:iac_tool:Bicep}`
 
 ## Project Context
 
-- **Project**: `contoso-service-hub-run-2` (update suffix for each run: -run-2, -run-3)
-- **Output directory**: `agent-output/contoso-service-hub-run-2/`
-- **IaC directory**: Bicep: `infra/bicep/contoso-service-hub-run-2/` | Terraform: `infra/terraform/contoso-service-hub-run-2/`
-- **IaC tool**: Bicep _(Change to `Terraform` and update agent refs below for Terraform track runs)_
-- **Complexity**: determined at runtime by Step 1 (expected: complex)
-- **RFP source**: `tests/e2e-inputs/contoso-rfq.md`
-- **Pre-seeded artifacts**: NONE — everything generated from RFP
-- **Session state**: `agent-output/contoso-service-hub-run-1/00-session-state.json`
+- RFP source: `tests/e2e-inputs/contoso-rfq.md`
+- Output directory: `agent-output/{project}/`
+- IaC directory (Bicep): `infra/bicep/{project}/`
+- IaC directory (Terraform): `infra/terraform/{project}/`
+- Benchmark mode: dry-run only
+- Target complexity: expected `complex`, but Step 1 must classify it
 
-> **IaC Tool Routing**: The IaC tool field above controls which agents and validators are invoked.
-> If `Bicep`: invoke `@05b-Bicep Planner`, `@06b-Bicep CodeGen`, `@07b-Bicep Deploy`; validate with `bicep build`/`bicep lint`; code dir = `infra/bicep/{project}/`.
-> If `Terraform`: invoke `@05t-Terraform Planner`, `@06t-Terraform CodeGen`, `@07t-Terraform Deploy`; validate with `terraform validate`/`terraform fmt -check`; code dir = `infra/terraform/{project}/`.
+## Real-Run Requirements
 
-## RALPH Loop Protocol
+- Use the actual workflow agents for every step that has one:
+  1. `02-Requirements`
+  2. `03-Architect`
+  3. `04-Design`
+  4. `04g-Governance`
+  5. `05-IaC Planner`
+  6. Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`
+  7. Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`
+  8. `08-As-Built`
+- **Run isolation is MANDATORY**: Do NOT read, copy, or adapt artifacts from
+  any other run directory (`agent-output/{other-project}/`,
+  `infra/bicep/{other-project}/`, `infra/terraform/{other-project}/`).
+  Each artifact must be generated from scratch using only the RFQ, prompt
+  defaults, and this run's own upstream artifacts. See the "Run Isolation"
+  section below for full rules and enforcement.
+- Use `challenger-review-subagent` for every required review pass. Challenger
+  reviews MUST be executed via the actual subagent (delegated or inline per the
+  Challenger Protocol in the E2E Orchestrator agent). Each review MUST produce
+  a persisted JSON artifact saved to
+  `agent-output/{project}/10-challenger-step{N}.json` (e.g.,
+  `10-challenger-step1.json`). The `review_audit` counters in session state
+  are necessary but NOT sufficient — the JSON file must exist.
+- Step 2 is invalid unless the architecture and cost estimate are backed by the
+  real pricing path used by `03-Architect`.
+- Step 3 must produce `03-des-diagram.drawio` through the Draw.io path when the
+  Draw.io tools are available.
+- Step 3.5 must use live Azure Policy discovery when Azure auth exists. Use an
+  offline governance artifact only when auth is unavailable.
+- Step 4 must use `05-IaC Planner`. Do not generate the implementation plan
+  inline just to bypass `askQuestions`.
+- Step 5 must aim for concrete modules. Scaffold-only output is not an
+  acceptable success path unless a blocker is explicitly documented.
+- Step 6 must use actual dry-run validation. Do not invent `what-if` or
+  `terraform plan` results.
+- Do not replace a failed agent invocation with inline artifact creation just to
+  keep the benchmark green.
+- The only files you may create inline without delegation are orchestrator-owned
+  bookkeeping files such as `00-session-state.json`, `00-handoff.md`,
+  `08-iteration-log.json`, `08-benchmark-report.md`,
+  `10-challenger-step{N}.json` (challenger review outputs), and lesson files.
 
-For each step, execute this mini-loop:
+## IaC Tool Routing
 
-```
-iteration = 0
-while step.status != "complete" AND iteration < max_step_iterations:
-    result = execute_step(step)
-    pre_validate(result)        # file exists, non-empty, expected H2s
-    if pre_validation_fails:
-        log_lesson("agent-behavior", severity="high")
-        iteration++; continue
-    validate_step(result)       # run npm validators + artifact checks
-    run_challenger(step, pass_count_from_complexity, lens_sequence)
-    if validation_fails OR must_fix > 0:
-        feed_findings_back()    # RALPH self-correction
-        iteration++
-    else:
-        auto_approve_gate(step)
-        advance_to_next_step()
-```
+The `iac_tool` input controls which agents and
+validators run for Steps 4-6. Steps 1-3.5 are IaC-agnostic.
 
-**Max iterations**: 5 per step (10 for Step 5 CodeGen), 60 total across all steps.
+| Aspect         | Bicep                                        | Terraform                                          |
+| -------------- | -------------------------------------------- | -------------------------------------------------- |
+| Planner        | `05-IaC Planner` (Bicep mode)                | `05-IaC Planner` (Terraform mode)                  |
+| CodeGen        | `06b-Bicep CodeGen`                          | `06t-Terraform CodeGen`                            |
+| Deploy         | `07b-Bicep Deploy` / `bicep-whatif-subagent` | `07t-Terraform Deploy` / `terraform-plan-subagent` |
+| Code Review    | `bicep-validate-subagent`                    | `terraform-validate-subagent`                      |
+| Code Dir       | `infra/bicep/{project}/`                     | `infra/terraform/{project}/`                       |
+| Entry File     | `main.bicep`                                 | `main.tf`                                          |
+| Build/Validate | `bicep build` + `bicep lint`                 | `terraform validate` + `terraform fmt -check`      |
+| AVM Pattern    | `br/public:avm`                              | `registry.terraform.io/Azure/avm-res-`             |
 
-## Complexity-Aware Review Matrix
+## Defaults for Interactive Agents
 
-Read complexity from session state after Step 1 completes. Use this matrix:
+When a delegated agent asks follow-up questions, answer from these defaults and
+continue without waiting for the user:
 
-| Step | Simple (1 pass) | Standard (2 pass)                              | Complex (3 pass)                                                  |
-| ---- | --------------- | ---------------------------------------------- | ----------------------------------------------------------------- |
-| 1    | comprehensive   | comprehensive                                  | comprehensive                                                     |
-| 2    | comprehensive   | security-governance → architecture-reliability | security-governance → architecture-reliability → cost-feasibility |
-| 3    | comprehensive   | comprehensive                                  | comprehensive                                                     |
-| 3.5  | comprehensive   | comprehensive                                  | comprehensive                                                     |
-| 4    | comprehensive   | security-governance                            | security-governance → architecture-reliability                    |
-| 5    | comprehensive   | security-governance → comprehensive            | security-governance → architecture-reliability → cost-feasibility |
-| 7    | comprehensive   | comprehensive                                  | comprehensive                                                     |
+- Company: Contoso, EU real estate and lifestyle digital services platform
+- Platform: Service Hub for bookings, payments, content, and engagement
+- Environments: `dev`, `staging`, `prod`
+- Region: `swedencentral` primary; `germanywestcentral` and `westeurope`
+  remain EU-approved alternatives
+- Compliance: GDPR, EU-only data residency, EU-only logs, backups, and metadata
+- Availability target: `99.9%`
+- User and volume baseline: 5,000 initial users; 50,000 transactions in 2026;
+  nearly 2,000,000 transactions in 2027
+- Governance scope: full subscription when authenticated; offline-only fallback
+  if Azure auth is unavailable
+- Deployment strategy: phased rollout `foundation -> data -> edge -> platform`
+- IaC track: as specified by `iac_tool` (Bicep or Terraform)
+- Design step: enabled
+- Diagram format: Draw.io is required when available
+- Benchmark mode: dry-run only, never deploy live Azure resources
+- Budget: no RFQ budget is provided, so estimate a planning range and keep the
+  final commercial ceiling open in `decision_log`
 
-## Execution Sequence
+## Step Execution Rules
 
-### PHASE A: RFP Intake + Requirements Generation (Step 1)
+### Step 1: Requirements
 
-1. Read `00-session-state.json` — confirm all steps are `pending`
-2. Update session state: Step 1 → `in_progress`
-3. Read `tests/e2e-inputs/contoso-rfq.md` fully — this is the Contoso Service Hub RFQ
-4. Invoke `@02-Requirements` subagent with this prompt:
-   \_"You are generating requirements from an RFP document. Read `tests/e2e-inputs/contoso-rfq.md` completely.
-   Do NOT use askQuestions — this is an automated E2E evaluation. Extract ALL requirements
-   from the RFP and generate `01-requirements.md` in `agent-output/contoso-service-hub-run-1/`
-   using the standard requirements template with these H2 headings: 🎯 Project Overview,
-   🚀 Functional Requirements, ⚡ Non-Functional Requirements, 🔒 Compliance & Security Requirements,
-   💰 Budget, 🔧 Operational Requirements, 🌍 Regional Preferences, 📊 Complexity Classification,
-   📋 Summary for Architecture Assessment, References.
-   Key extraction points from the RFP:
-   - Company: Contoso — EU real estate/lifestyle digital services (Section 2)
-   - Platform: Service Hub — bookings, payments, content, customer engagement (Section 3)
-   - 15 cloud services with volumetrics (Section 4.2, Table 2)
-   - 3 environments: Dev, Staging, Production (Section 4.4)
-   - EU-only data residency, GDPR mandatory (Section 4.3)
-   - 99.9% availability SLA target (Section 4.5)
-   - 5,000 initial users → growth; 50K txns 2026 → 2M txns 2027 (Section 4.5)
-   - The RFP does NOT specify a budget — estimate based on the 15 services and volumetrics
-   - IaC tool: Bicep
-   - Set complexity classification based on resource count, environments, and compliance scope
-     For any information gaps in the RFP, add them to an 'Open Questions' section at the end
-     and flag them as pending decisions in the session state decision*log.
-     Also update session state with the complexity classification once determined."*
-5. **Pre-validate**: `01-requirements.md` exists, non-empty, contains expected H2 headings
-6. Run `node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 1`
-7. Run 1-pass challenger via `@challenger-review-subagent` (comprehensive lens)
-8. Self-correct if needed (max 5 iterations)
-9. Read complexity from session state (or from the generated requirements)
-10. Update `review_audit` pass counts based on determined complexity
-11. Update session state: Step 1 → `complete`, auto-approve Gate 1
+- Invoke `02-Requirements`.
+- Feed it the RFQ plus the defaults above instead of waiting on questions.
+- Require `01-requirements.md` and an updated `00-session-state.json`.
+- The session state must include `decisions`, `decision_log`, `review_audit`,
+  and a complexity classification.
+- **Challenger review (MANDATORY)**: After `01-requirements.md` passes
+  pre-validation, invoke `challenger-review-subagent` with `comprehensive`
+  lens. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step1.json`. If `must_fix > 0`,
+  feed findings back to `02-Requirements` and re-validate. Update
+  `review_audit.step_1` in session state before proceeding to Step 2.
+  **Gate**: Do NOT proceed to Step 2 unless `10-challenger-step1.json`
+  exists in the output directory.
 
-### PHASE B: Architecture (Step 2)
+### Step 2: Architecture
 
-1. Update session state: Step 2 → `in_progress`
-2. Invoke `@03-Architect` subagent:
-   _"Create a WAF assessment with cost estimates based on
-   `agent-output/contoso-service-hub-run-1/01-requirements.md`.
-   Do NOT use askQuestions — all requirements are in the file. This is an automated E2E run.
-   Derive all NFRs, budget estimates, SLA targets, and compliance requirements from the
-   requirements document. If budget is estimated (not explicit), state the estimation methodology.
-   Save `02-architecture-assessment.md` and `03-des-cost-estimate.md` to
-   `agent-output/contoso-service-hub-run-1/`.
-   Key: This is a Contoso Service Hub with 15+ Azure services, 3 environments, GDPR compliance."_
-3. **Pre-validate**: `02-architecture-assessment.md` exists, non-empty, contains WAF H2s
-4. Run `node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 2`
-5. Run challenger reviews per complexity matrix (if complex: 3-pass rotating lenses)
-6. Self-correct if needed (max 5 iterations per pass)
-7. Record benchmark metrics (WAF scores, cost accuracy, timing)
-8. Update session state: Step 2 → `complete`, auto-approve Gate 2
+- Invoke `03-Architect`.
+- Require a real WAF assessment across all five pillars.
+- Require a real cost estimate from the pricing-backed architecture flow.
+- Require `02-architecture-assessment.md` and `03-des-cost-estimate.md`.
+- If the pricing path cannot be used, stop with `E2E_BLOCKED` and explain why.
+- **Challenger review (MANDATORY)**: After `02-architecture-assessment.md`
+  passes pre-validation, invoke `challenger-review-subagent` with
+  `comprehensive` lens. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step2.json`. If `must_fix > 0`,
+  feed findings back to `03-Architect` and re-validate. Update
+  `review_audit.step_2` in session state before proceeding to Step 3.
+  **Gate**: Do NOT proceed to Step 3 unless `10-challenger-step2.json`
+  exists in the output directory.
 
-### PHASE B.5: Design (Step 3)
+### Step 3: Design
 
-1. Update session state: Step 3 → `in_progress`
-2. Invoke `@04-Design` subagent:
-   \_"Generate architecture diagrams and ADRs for `agent-output/contoso-service-hub-run-1/`.
-   Read `02-architecture-assessment.md` for context. Do NOT use askQuestions.
-   This is a complex Contoso Service Hub: AKS, PostgreSQL, Redis, APIM, WAF/CDN, CIAM,
-   storage, monitoring, Key Vault, VMs. Generate:
-   - `03-des-diagram.drawio` (architecture diagram)
-   - `03-des-adr-001-container-platform.md` (AKS vs Container Apps decision)
-   - `03-des-adr-002-caching-tier.md` (Redis tier decision)
-     Save all to `agent-output/contoso-service-hub-run-1/`."\_
-3. **Pre-validate**: at least one `03-des-*.md` and one `03-des-*.py` file
-4. Run 1-pass challenger (comprehensive lens)
-5. Self-correct if needed (max 3 iterations)
-6. On failure after max: mark Step 3 as `skipped`, log lesson, continue
-7. Update session state: Step 3 → `complete` or `skipped`
+- Invoke `04-Design`.
+- Require `03-des-diagram.drawio`,
+  `03-des-adr-0001-container-platform.md`, and
+  `03-des-adr-0002-caching-tier.md`.
+- Do not prefer Python diagram fallbacks when Draw.io is available.
 
-### PHASE C: Governance (Step 3.5)
+### Step 3.5: Governance
 
-1. Update session state: Step 3.5 → `in_progress`
-2. Invoke `@04g-Governance` subagent:
-   _"Discover Azure Policy constraints for `agent-output/contoso-service-hub-run-1/`.
-   Do NOT use askQuestions — this is an automated E2E run.
-   Read `02-architecture-assessment.md` for the resource list. Produce
-   `04-governance-constraints.md` and `04-governance-constraints.json` in
-   `agent-output/contoso-service-hub-run-1/`.
-   If no Azure credentials available, produce a comprehensive template with
-   GDPR-relevant policies for: AKS, PostgreSQL, Redis, Storage, APIM, App Gateway/WAF,
-   Key Vault, VMs, networking. Include TLS 1.2, HTTPS-only, EU-only regions,
-   required tags, managed identity, public network access restrictions."_
-3. **Pre-validate**: both `.md` and `.json` files exist; JSON parseable
-4. Run 1-pass challenger (comprehensive lens)
-5. Self-correct if needed (max 3 iterations)
-6. Update session state: Step 3.5 → `complete`
+- Invoke `04g-Governance`.
+- Require live discovery when Azure auth exists.
+- Require `04-governance-constraints.md` and
+  `04-governance-constraints.json` with `discovery_status = COMPLETE`.
+- **Challenger review (MANDATORY)**: Invoke `challenger-review-subagent`
+  with `comprehensive` lens on `04-governance-constraints.md`. Save the
+  full challenger JSON output to
+  `agent-output/{project}/10-challenger-step3_5.json`. Update
+  `review_audit.step_3_5` in session state.
+  **Gate**: Do NOT proceed to Step 4 unless `10-challenger-step3_5.json`
+  exists in the output directory.
 
-### PHASE D: IaC Plan Generation (Step 4)
+### Step 4: IaC Plan
 
-1. Update session state: Step 4 → `in_progress`
-2. Invoke `@05b-Bicep Planner` subagent:
-   \_"Create a comprehensive Bicep implementation plan based on
-   `agent-output/contoso-service-hub-run-1/02-architecture-assessment.md` and
-   `agent-output/contoso-service-hub-run-1/04-governance-constraints.json`.
-   Do NOT use askQuestions — all decisions are in the architecture assessment.
-   This is an automated E2E run for a complex Contoso Service Hub.
-   Save `04-implementation-plan.md`, `04-dependency-diagram.drawio`, and `04-runtime-diagram.drawio`
-   to `agent-output/contoso-service-hub-run-1/`.
-   Key requirements:
-   - AVM-first module selection for all resources
-   - 3 environments (dev, staging, prod) with environment-specific sizing
-   - Phased deployment: foundation → data → edge → platform
-   - All governance constraints must be incorporated
-   - Budget estimate per environment
-   - CAF naming conventions with uniqueSuffix"\_
-3. **Pre-validate**: `04-implementation-plan.md` exists with expected H2s
-4. Run `node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 4`
-5. Run challenger reviews per complexity matrix (if complex: 2-pass)
-6. Self-correct if needed (max 5 iterations)
-7. Update session state: Step 4 → `complete`, auto-approve Gate 3
+- Invoke `05-IaC Planner`.
+- Require `04-implementation-plan.md`.
+- Require `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio` when
+  Draw.io is available.
+- Require `04-avm-matrix.json` with AVM paths and pinned versions, not just
+  module names.
+- **Challenger review (MANDATORY)**: After `04-implementation-plan.md` passes
+  pre-validation, invoke `challenger-review-subagent` with `comprehensive`
+  lens. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step4.json`. If `must_fix > 0`,
+  feed findings back to `05-IaC Planner` and re-validate. Update
+  `review_audit.step_4` in session state before proceeding to Step 5.
+  **Gate**: Do NOT proceed to Step 5 unless `10-challenger-step4.json`
+  exists in the output directory.
 
-### PHASE D.5: AVM Matrix Pre-computation (NEW)
+### Step 5: IaC Code
 
-Before CodeGen, generate a verified AVM module version matrix:
+- Bicep: invoke `06b-Bicep CodeGen`.
+- Terraform: invoke `06t-Terraform CodeGen`.
+- Bicep: require `main.bicep`, `main.bicepparam`, and concrete service modules
+  under `infra/bicep/{project}/modules/`.
+- Terraform: require `main.tf`, `variables.tf`, `outputs.tf`, and concrete
+  service modules under `infra/terraform/{project}/modules/`.
+- Run the track-appropriate validation after each major correction cycle:
+  - Bicep: `bicep build` and `bicep lint`
+  - Terraform: `terraform validate` and `terraform fmt -check`
+- If a module must remain partial, mark the run `E2E_PARTIAL` or
+  `E2E_BLOCKED`; do not treat a scaffold-only result as complete.
+- **Challenger review (MANDATORY)**: After IaC code passes build/validate,
+  invoke `challenger-review-subagent` with `comprehensive` lens on the
+  generated code directory. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step5.json`. If `must_fix > 0`,
+  feed findings back to the codegen agent and re-validate. Update
+  `review_audit.step_5` in session state before proceeding to Step 6.
+  **Gate**: Do NOT proceed to Step 6 unless `10-challenger-step5.json`
+  exists in the output directory.
 
-1. Read `04-implementation-plan.md` — extract all resources from the Resource Inventory table
-2. For each resource, look up the exact AVM module path and latest version
-3. Create `agent-output/contoso-service-hub-run-1/04-avm-matrix.json`:
-   ```json
-   {
-     "modules": [
-       {
-         "resource": "AKS Cluster",
-         "avm_path": "br/public:avm/res/container-service/managed-cluster",
-         "version": "0.x.x",
-         "key_params": [
-           "kubernetesVersion",
-           "agentPoolProfiles",
-           "networkProfile"
-         ]
-       }
-     ]
-   }
-   ```
-4. This matrix is passed to CodeGen as a lookup table to reduce hallucinated versions
+### Step 6: Deploy (Dry Run)
 
-### PHASE E: IaC Code — Phased Sub-Runs (Step 5)
+- Bicep: invoke `07b-Bicep Deploy`.
+- Terraform: invoke `07t-Terraform Deploy`.
+- Require final build/validate validation for the active track.
+- When Azure auth exists:
+  - Bicep: require `what-if` execution through the deploy path.
+  - Terraform: require `terraform plan` execution through the deploy path.
+- Require `06-deployment-summary.md` to reflect the real preview output.
+- **Challenger review (MANDATORY)**: Invoke `challenger-review-subagent`
+  with `comprehensive` lens on `06-deployment-summary.md`. Save the full
+  challenger JSON output to
+  `agent-output/{project}/10-challenger-step6.json`. Update
+  `review_audit.step_6` in session state.
 
-1. Update session state: Step 5 → `in_progress`
+### Step 7: As-Built
 
-**Sub-phase E1: Foundation** (monitoring, Key Vault, networking, budget) 2. Invoke `@06b-Bicep CodeGen` subagent:
-\_"Implement ONLY the foundation modules according to
-`agent-output/contoso-service-hub-run-1/04-implementation-plan.md`.
-Save to `infra/bicep/contoso-service-hub-run-1/`.
-Read governance constraints from `agent-output/contoso-service-hub-run-1/04-governance-constraints.json`.
-Read AVM versions from `agent-output/contoso-service-hub-run-1/04-avm-matrix.json`.
-Do NOT use askQuestions. Generate ONLY:
+- Invoke `08-As-Built`.
+- Require the full documentation suite based on the real outputs of Steps 1-6.
 
-- `main.bicep` (orchestrator with phase selector)
-- `main.bicepparam` (parameter file)
-- `modules/monitoring.bicep` (Log Analytics + App Insights)
-- `modules/keyvault.bicep` (Key Vault)
-- `modules/networking.bicep` (VNet, subnets, NSGs)
-- `modules/budget.bicep` (consumption budget)
-  Do NOT generate data, edge, or platform modules yet."\_
+### Step 8: Benchmark and Lessons
 
-1. Run `bicep build` + `bicep lint` on `main.bicep`
-2. Self-correct build errors (max 5 iterations)
+- Run `node scripts/validate-e2e-step.mjs --project={project} all`.
+- Run `npm run validate:all` and report unrelated baseline failures separately
+  from run-specific failures.
+- Run `node scripts/benchmark-e2e.mjs {project}`.
+- Generate both `09-lessons-learned.json` and `09-lessons-learned.md`.
 
-**Sub-phase E2: Data** (PostgreSQL, Redis, storage) 5. Invoke `@06b-Bicep CodeGen` with instruction to ADD data modules:
-\_"Add data-tier modules to the existing `infra/bicep/contoso-service-hub-run-1/`.
-Read the implementation plan and AVM matrix. Do NOT use askQuestions. Add ONLY:
+## Validation and Review Expectations
 
-- `modules/postgresql.bicep` (Flexible Server)
-- `modules/redis.bicep` (Azure Cache for Redis)
-- `modules/storage.bicep` (Storage Account — blob + file + managed disks)
-  Update `main.bicep` to reference the new modules."\_
+- Every step must pass pre-validation before full validation.
+- **Challenger reviews are MANDATORY for Steps 1, 2, 3.5, 4, 5, and 6.**
+  Do not advance past these steps without executing the challenger,
+  persisting the full JSON output to
+  `agent-output/{project}/10-challenger-step{N}.json`, and recording the
+  result in `review_audit`.
+- The orchestrator must verify BOTH conditions before transitioning:
+  1. `review_audit.step_{N}.passes_executed >= 1` in session state
+  2. The file `10-challenger-step{N}.json` exists in the output directory
+- If either condition is missing, STOP and run the challenger review.
+- `decision_log` must record how the RFQ gaps were resolved.
+- If Draw.io, pricing, governance discovery, or `what-if` are unavailable,
+  record that as a blocker or partial-result reason. Do not silently replace the
+  missing path with synthetic content.
 
-1. Run `bicep build` + `bicep lint`; self-correct (max 5 iterations)
+## RFQ Gaps to Resolve with Real Agent Decisions
 
-**Sub-phase E3: Edge** (WAF, CDN, APIM, CIAM) 7. Add edge modules:
-_"Add edge/security modules: `modules/waf.bicep` (Application Gateway + WAF),
-`modules/cdn.bicep` (Front Door or CDN), `modules/apim.bicep` (API Management),
-`modules/identity.bicep` (Entra External ID / B2C config).
-Update `main.bicep`."_ 8. Build + lint + self-correct (max 5 iterations)
+1. No explicit budget.
+2. 128 GB Redis tier selection.
+3. AKS versus Container Apps for the platform runtime.
 
-**Sub-phase E4: Platform** (AKS, VMs, compute) 9. Add platform modules:
-_"Add platform modules: `modules/aks.bicep` (AKS cluster with node pools),
-`modules/vm.bicep` (utility VMs for SDLC/monitoring).
-Update `main.bicep` to wire all modules together.
-Ensure all cross-module dependencies (managed identity roles, networking refs) are correct."_ 10. Build + lint + self-correct (max 5 iterations)
+Track these in `decision_log` as pending in Step 1 and resolved by the relevant
+downstream agents.
 
-**Final Assembly Validation** 11. Run `bicep build infra/bicep/contoso-service-hub-run-1/main.bicep` — must succeed 12. Run `bicep lint infra/bicep/contoso-service-hub-run-1/main.bicep` — must pass 13. Run challenger reviews per complexity matrix (if complex: 3-pass on final assembled template) 14. Update session state: Step 5 → `complete`, auto-approve Gate 4
+## Run Isolation (MANDATORY — Anti-Copy Enforcement)
 
-### PHASE F: Deploy (Step 6) — Dry Run
+Each E2E run MUST produce independently generated artifacts. The orchestrator
+MUST NOT read, copy, or adapt artifacts from any other run directory.
 
-1. Update session state: Step 6 → `in_progress`
-2. Dry-run validation only:
-   - Run `bicep build infra/bicep/contoso-service-hub-run-1/main.bicep` (final confirmation)
-   - If Azure credentials available: run `az deployment group what-if` via `@bicep-whatif-subagent`
-   - Otherwise: mark as `validated-not-deployed`
-3. Create `agent-output/contoso-service-hub-run-1/06-deployment-summary.md` using the standard
-   deployment summary template (H2s: ✅ Preflight Validation, 📋 Deployment Details,
-   🏗️ Deployed Resources, 📤 Outputs (Expected), 🚀 To Actually Deploy, 📝 Post-Deployment Tasks)
-4. Update session state: Step 6 → `complete`
+### Prohibited Actions
 
-### PHASE G: As-Built Documentation (Step 7)
+- **NEVER** read files from `agent-output/{other-project}/` directories
+- **NEVER** read files from `infra/bicep/{other-project}/` or
+  `infra/terraform/{other-project}/` directories
+- **NEVER** copy an artifact from a prior run and find-replace the project name
+- **NEVER** reuse `decision_log` entries or timestamps from another run
 
-1. Update session state: Step 7 → `in_progress`
-2. Invoke `@08-As-Built` subagent:
-   _"Generate the Step 7 documentation suite for `agent-output/contoso-service-hub-run-1/`.
-   Read all prior artifacts (01-06). Since this was a dry-run deployment, document the
-   validated infrastructure design. Do NOT use askQuestions. Produce:
-   `07-documentation-index.md`, `07-design-document.md`, `07-operations-runbook.md`,
-   `07-resource-inventory.md`, `07-backup-dr-plan.md`, `07-compliance-matrix.md`,
-   `07-ab-cost-estimate.md`."_
-3. **Pre-validate**: at least 5 `07-*.md` files exist and are non-empty
-4. Run 1-pass challenger (comprehensive lens)
-5. Self-correct if needed (max 3 iterations)
-6. Update session state: Step 7 → `complete`
+### Freshness Verification (Post-Step)
 
-### PHASE H: Benchmark, Lessons & Report
+After each step produces an artifact, the orchestrator MUST verify it was not
+copied from an existing run:
 
-1. Run `node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 all`
-2. Run `npm run validate:all` as the ultimate pass/fail
-3. Run `node scripts/benchmark-e2e.mjs contoso-service-hub-run-1` to generate benchmark scores
-4. Review `09-lessons-learned.json` — generate `09-lessons-learned.md` narrative
-5. Output final status:
-   - **`E2E_COMPLETE`**: All steps complete, validators pass, benchmark > 60/100
-   - **`E2E_PARTIAL`**: Steps 1-5 complete but 6-7 had issues
-   - **`E2E_BLOCKED`**: Mandatory step failed after max iterations
+1. List all other `contoso-service-hub-*` directories under `agent-output/`
+2. For each primary artifact produced, compare it against the matching file
+   (by name) in every other run directory
+3. If **byte-identical** matches are found: the artifact is INVALID —
+   delete it, log a `run-isolation-violation` lesson, and re-execute the step
+4. **Project-name-only diffs also count as copies** (e.g., only difference
+   is `run-1` → `run-2`)
 
-## Pre-Validation Checklist (Per Step)
+### Timestamp Coherence
 
-| Step | Expected Artifact(s)                               | Validation                                              |
-| ---- | -------------------------------------------------- | ------------------------------------------------------- |
-| 1    | `01-requirements.md`                               | H2s present, complexity classified                      |
-| 2    | `02-architecture-assessment.md`                    | WAF H2s, cost estimate present                          |
-| 3    | `03-des-*.md`, `03-des-*.py`                       | At least 1 ADR + 1 diagram                              |
-| 3.5  | `04-governance-constraints.md/.json`               | JSON parseable, policies listed                         |
-| 4    | `04-implementation-plan.md`                        | 📋 Overview, 📦 Resource Inventory, 🗂️ Module Structure |
-| D.5  | `04-avm-matrix.json`                               | JSON parseable, modules listed                          |
-| 5    | `infra/bicep/contoso-service-hub-run-1/main.bicep` | `bicep build` succeeds, `modules/` dir exists           |
-| 6    | `06-deployment-summary.md`                         | Template-compliant H2s                                  |
-| 7    | `07-*.md` (≥5 files)                               | Documentation suite present                             |
+- All `decision_log[].timestamp` values MUST fall between this run's start
+  time and the current wall-clock time
+- Reusing timestamps from a prior run (e.g., `10:50:34Z` from run-1 appearing
+  in run-2's decision log) is a violation
+- `08-iteration-log.json` entries MUST use actual elapsed durations, not
+  fabricated round numbers
 
-## Lesson Capture Rules
+### Violation Response
 
-Record a lesson to `09-lessons-learned.json` whenever:
-
-- A step needs >1 iteration (self-correction fired)
-- A validator fails on first pass
-- Pre-validation fails (agent returned garbage/empty)
-- A challenger finding reveals a gap
-- `bicep build` fails with hallucinated properties → `factual-accuracy` category
-- Context budget concern → `context-budget` category
-- Step exceeds timing threshold → `workflow-design` category
-- An RFP gap required autonomous resolution → `agent-behavior` category
-
-### Lesson Schema
-
-```json
-{
-  "id": "LL-NNN",
-  "step": 5,
-  "category": "agent-behavior|skill-gap|prompt-quality|validation-gap|workflow-design|context-budget|artifact-quality|factual-accuracy",
-  "severity": "critical|high|medium|low",
-  "title": "Short description",
-  "observation": "What happened",
-  "expected": "What should have happened",
-  "root_cause": "Why it happened",
-  "self_corrected": true,
-  "iterations_to_fix": 2,
-  "recommendation": "Actionable fix",
-  "applies_to": ["Agent or skill name"],
-  "applies_to_paths": [".github/agents/path-to-file.agent.md"],
-  "status": "new"
-}
-```
-
-## RFP Gap Tracking
-
-The Contoso RFP has 3 intentional gaps that agents MUST resolve autonomously:
-
-1. **No explicit budget** — agents must estimate from the 15 service volumetrics
-2. **128 GB Redis sizing** — agents must select the right Azure tier (Premium P4 vs Enterprise)
-3. **AKS vs Container Apps** — RFP says "Container Engine" + "Managed Kubernetes"
-
-Track resolution of these gaps:
-
-- In `01-requirements.md`: "Open Questions" section listing each gap
-- In `00-session-state.json`: `decision_log` entries with `status: "pending"` (Step 1)
-  then `status: "resolved"` once Architecture (Step 2) makes the decision
-
-## Context Budget Management
-
-This is a complex project. Context pressure will be high. If approaching limits:
-
-1. Save current state to `00-session-state.json`
-2. Write `00-handoff.md` with current progress
-3. Output: `SESSION_SPLIT_NEEDED — resume from Step {N} by re-invoking this prompt`
-4. Log a `context-budget` lesson
-
-## Multi-Run Support
-
-This prompt supports multiple independent runs via per-run namespacing:
-
-- **Run 1**: project = `contoso-service-hub-run-1`
-- **Run 2**: project = `contoso-service-hub-run-2`
-- **Run 3**: project = `contoso-service-hub-run-3`
-
-Each run has its own `agent-output/{project}/` and `infra/bicep/{project}/` directories.
-No archiving or reset needed — runs are naturally isolated.
-
-Update the Project Context section at the top of this prompt to change the run number.
+If >50% of a run's artifacts are byte-identical to an existing run, terminate
+the run immediately with `E2E_BLOCKED` and reason `run-isolation-violation`.
 
 ## Safety Rails
 
-- **Never deploy real Azure resources** — dry-run only (Phase F)
-- **Max 5 iterations per step** (10 for Step 5) — if exceeded, mark as blocked and log lesson
-- **Max 60 total iterations** — hard stop with `E2E_BLOCKED` if exceeded
-- **Do not modify production agents** — all autonomous behavior via prompt-level override
-- **Do not skip validation** — every step must pass pre-validation before full validation
+- Never deploy real Azure resources.
+- Maximum 5 iterations per step, or 10 for Step 5.
+- Maximum 60 total iterations.
+- Do not modify production agents as part of the run.
+- Do not skip validation to preserve benchmark scores.
 
 ## Completion
 
-When all phases are done, output:
+When the run finishes, output one of these statuses:
 
-```
-<promise>E2E_COMPLETE</promise>
-```
+- `<promise>E2E_COMPLETE</promise>`
+- `<promise>E2E_PARTIAL</promise>`
+- `<promise>E2E_BLOCKED</promise>`
 
-Or if partial/blocked, output the appropriate status with detailed reasons.
+Include detailed reasons when the status is partial or blocked.

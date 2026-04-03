@@ -66,7 +66,7 @@ const EXPECTED_H2S = {
     headings: [],
   },
   3: {
-    files: ["03-des-*.md", "03-des-*.py"],
+    files: ["03-des-*.md"],
     headings: [],
   },
   3.5: {
@@ -201,6 +201,46 @@ function preValidateStep(step) {
     if (matches.length < spec.minFiles) {
       findings.push(
         `Expected ≥${spec.minFiles} files matching ${spec.pattern}, found ${matches.length}`,
+      );
+    }
+  } else if (step === 3) {
+    const adrMatches = globFiles(OUTPUT_DIR, "03-des-*.md");
+    const hasDrawio = fileExists(
+      path.join(OUTPUT_DIR, "03-des-diagram.drawio"),
+    );
+    const hasLegacyPython = globFiles(OUTPUT_DIR, "03-des-*.py").length > 0;
+
+    if (adrMatches.length === 0) {
+      findings.push(`No files matching 03-des-*.md in ${OUTPUT_DIR}`);
+    }
+    if (!hasDrawio && !hasLegacyPython) {
+      findings.push(
+        `Missing design diagram artifact: expected 03-des-diagram.drawio or legacy 03-des-*.py in ${OUTPUT_DIR}`,
+      );
+    }
+  } else if (step === 4) {
+    const planPath = path.join(OUTPUT_DIR, spec.file);
+    if (!fileExists(planPath)) {
+      findings.push(`Missing or empty: ${planPath}`);
+    } else {
+      const h2Check = checkH2Headings(planPath, spec.headings);
+      if (!h2Check.pass) {
+        findings.push(
+          `Missing H2 headings in ${spec.file}: ${h2Check.missing.join(", ")}`,
+        );
+      }
+    }
+
+    const hasDrawio =
+      fileExists(path.join(OUTPUT_DIR, "04-dependency-diagram.drawio")) &&
+      fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.drawio"));
+    const hasLegacyPython =
+      fileExists(path.join(OUTPUT_DIR, "04-dependency-diagram.py")) &&
+      fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.py"));
+
+    if (!hasDrawio && !hasLegacyPython) {
+      findings.push(
+        "Missing Step 4 diagrams: expected Draw.io or legacy Python diagram source files",
       );
     }
   } else if (spec.files) {

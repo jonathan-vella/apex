@@ -4,7 +4,7 @@ description: "Mermaid diagram generation for inline markdown documentation: flow
 compatibility: Works with VS Code Copilot, Claude Code, and any tool that renders Mermaid in markdown.
 license: MIT
 metadata:
-  author: azure-agentic-infraops
+  author: apex
   version: "1.0"
 ---
 

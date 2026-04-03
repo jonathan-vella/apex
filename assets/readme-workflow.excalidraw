@@ -75,12 +75,12 @@
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
-      "text": "Agentic InfraOps Workflow",
+      "text": "Agentic PlatformOps Workflow",
       "fontSize": 28,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
-      "originalText": "Agentic InfraOps Workflow",
+      "originalText": "Agentic PlatformOps Workflow",
       "lineHeight": 1.25
     },
     {
@@ -144,12 +144,12 @@
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
-      "text": "Conductor Orchestration",
+      "text": "Orchestrator",
       "fontSize": 20,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
-      "originalText": "Conductor Orchestration",
+      "originalText": "Orchestrator",
       "lineHeight": 1.25
     },
     {
@@ -1105,12 +1105,12 @@
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
-      "text": "Requirements agent translates intent into 01-requirements.md.\nChallenger review returns challenge-findings.json.\nConductor presents both to the user before architecture starts.",
+      "text": "Requirements agent translates intent into 01-requirements.md.\nChallenger review returns challenge-findings.json.\nOrchestrator presents both to the user before architecture starts.",
       "fontSize": 17,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
-      "originalText": "Requirements agent translates intent into 01-requirements.md.\nChallenger review returns challenge-findings.json.\nConductor presents both to the user before architecture starts.",
+      "originalText": "Requirements agent translates intent into 01-requirements.md.\nChallenger review returns challenge-findings.json.\nOrchestrator presents both to the user before architecture starts.",
       "lineHeight": 1.25
     },
     {

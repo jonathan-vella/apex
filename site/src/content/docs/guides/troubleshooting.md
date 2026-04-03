@@ -9,7 +9,7 @@ description: "Common issues and solutions"
 
 # Troubleshooting Guide
 
-> Common issues and solutions for Agentic InfraOps
+> Common issues and solutions for APEX
 
 ## Agent Codenames Quick Reference
 
@@ -21,19 +21,18 @@ description: "Common issues and solutions"
 
 :::
 
-| Agent              | Codename      | Common Issues                    |
-| ------------------ | ------------- | -------------------------------- |
-| InfraOps Conductor | 🎼 Maestro    | Subagent invocation not working  |
-| requirements       | 📜 Scribe     | Not appearing in list            |
-| architect          | 🏛️ Oracle     | MCP pricing not connecting       |
-| bicep-planner      | 📐 Strategist | Governance discovery failing     |
-| terraform-planner  | 📐 Strategist | Governance discovery failing     |
-| bicep-codegen      | ⚒️ Forge      | Validation subagents not running |
-| terraform-codegen  | ⚒️ Forge      | Provider version mismatches      |
-| bicep-deploy       | 🚀 Envoy      | Azure auth issues                |
-| terraform-deploy   | 🚀 Envoy      | State lock / init failures       |
-| challenger         | ⚔️ Challenger | —                                |
-| diagnose           | 🔍 Sentinel   | —                                |
+| Agent             | Codename        | Common Issues                    |
+| ----------------- | --------------- | -------------------------------- |
+| Orchestrator      | 🧠 Orchestrator | Subagent invocation not working  |
+| requirements      | 📜 Scribe       | Not appearing in list            |
+| architect         | 🏛️ Oracle       | MCP pricing not connecting       |
+| iac-planner       | 📐 Strategist   | Governance discovery failing     |
+| bicep-codegen     | ⚒️ Forge        | Validation subagents not running |
+| terraform-codegen | ⚒️ Forge        | Provider version mismatches      |
+| bicep-deploy      | 🚀 Envoy        | Azure auth issues                |
+| terraform-deploy  | 🚀 Envoy        | State lock / init failures       |
+| challenger        | ⚔️ Challenger   | —                                |
+| diagnose          | 🔍 Sentinel     | —                                |
 
 ## Quick Decision Tree
 
@@ -96,9 +95,9 @@ head -20 .github/agents/requirements.agent.md
 
 Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 
-### 2. Conductor/Subagent Invocation Not Working (VS Code 1.109+)
+### 2. Orchestrator/Subagent Invocation Not Working (VS Code 1.109+)
 
-**Symptom**: The InfraOps Conductor (🎼 Maestro) doesn't delegate to specialized agents.
+**Symptom**: The Orchestrator (🧠 Orchestrator) doesn't delegate to specialized agents.
 Responses are instant, no terminal commands execute, no files are created.
 
 **Root Cause**: The `chat.customAgentInSubagent.enabled` setting is not enabled in
@@ -137,7 +136,7 @@ Responses are instant, no terminal commands execute, no files are created.
 
 5. **If the session was interrupted** (no new output, truncated response):
    - Check `agent-output/{project}/00-session-state.json` for the last completed step
-   - Restart the Conductor with: _"Resume the workflow from step X"_
+   - Restart the Orchestrator with: _"Resume the workflow from step X"_
    - See [Workflow Engine](../../concepts/how-it-works/workflow-engine/) for session state details
 
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
@@ -173,11 +172,11 @@ cat .github/skills/drawio/SKILL.md | head -30
 
 **Common policies**:
 
-| Error             | Cause                     | Solution                                                                                |
-| ----------------- | ------------------------- | --------------------------------------------------------------------------------------- |
-| "Azure AD only"   | SQL Server needs AAD auth | Set `azureADOnlyAuthentication: true`                                                   |
-| "Zone redundancy" | Wrong SKU tier            | Use P1v4+ for App Service                                                               |
-| "Missing tags"    | Required tags absent      | Add baseline tags (see `bicep-code-best-practices.instructions.md`) + governance extras |
+| Error             | Cause                     | Solution                                                                         |
+| ----------------- | ------------------------- | -------------------------------------------------------------------------------- |
+| "Azure AD only"   | SQL Server needs AAD auth | Set `azureADOnlyAuthentication: true`                                            |
+| "Zone redundancy" | Wrong SKU tier            | Use P1v4+ for App Service                                                        |
+| "Missing tags"    | Required tags absent      | Add baseline tags (see `iac-best-practices.instructions.md`) + governance extras |
 
 **Run preflight check**:
 
@@ -333,7 +332,7 @@ azd auth login \
 
 ```bash
 # See validation rules
-cat scripts/validate-artifact-templates.mjs | grep -A20 "ARTIFACT_HEADINGS"
+cat scripts/_lib/artifact-headings.mjs | grep -A20 "ARTIFACT_HEADINGS"
 ```
 
 **Fix order issues**: Compare with template:
@@ -532,9 +531,9 @@ Ctrl+Shift+A → diagnose
 "My bicep-code agent isn't generating valid templates"
 ```
 
-Or start the InfraOps Conductor (🎼 Maestro) for a guided workflow:
+Or start the Orchestrator (🧠 Orchestrator) for a guided workflow:
 
 ```text
-Ctrl+Shift+I → InfraOps Conductor
+Ctrl+Shift+I → Orchestrator
 "Help me troubleshoot my Azure deployment"
 ```

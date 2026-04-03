@@ -1,16 +1,16 @@
 ---
 name: workflow-engine
-description: "Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Conductor step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting."
+description: "Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting."
 ---
 
 # Workflow Engine Skill
 
-Provides a declarative, machine-readable workflow graph that the Conductor
+Provides a declarative, machine-readable workflow graph that the Orchestrator
 reads instead of relying on hardcoded step logic.
 
 ## When to Use
 
-- Conductor determining the next step after a gate
+- Orchestrator determining the next step after a gate
 - Resuming a workflow from `00-session-state.json`
 - Validating that all steps have proper dependencies and outputs
 - Understanding fan-out (parallel sub-steps) and conditional routing
@@ -49,8 +49,8 @@ The workflow is a Directed Acyclic Graph (DAG) with:
 
 Edges from Step 3 → Step 4 are conditional on `decisions.iac_tool`:
 
-- `iac_tool: "Bicep"` → routes to `step-4b` (Bicep Planner)
-- `iac_tool: "Terraform"` → routes to `step-4t` (Terraform Planner)
+- `iac_tool: "Bicep"` → routes to `step-4b` (IaC Planner)
+- `iac_tool: "Terraform"` → routes to `step-4t` (IaC Planner)
 
 This pattern repeats for Steps 5 and 6.
 
@@ -59,7 +59,7 @@ This pattern repeats for Steps 5 and 6.
 The full machine-readable DAG is in:
 `templates/workflow-graph.json`
 
-### Reading the Graph (Conductor Protocol)
+### Reading the Graph (Orchestrator Protocol)
 
 ```text
 1. Load workflow-graph.json
@@ -80,5 +80,5 @@ The full machine-readable DAG is in:
 | Reference            | File                                    | Content                                             |
 | -------------------- | --------------------------------------- | --------------------------------------------------- |
 | Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for the multi-step workflow                |
-| Conductor Handoff    | `references/conductor-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
+| Orchestrator Handoff    | `references/orchestrator-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
 | Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |

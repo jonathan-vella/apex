@@ -73,7 +73,7 @@ Consider WAF implications and cost trade-offs.
 - ❌ Generate Bicep or Terraform code
 - ❌ Create architecture diagrams (use `drawio` skill)
 - ❌ Deploy resources (use `deploy` agent)
-- ❌ Create implementation plans (use `bicep-plan` agent)
+- ❌ Create implementation plans (use `iac-planner` agent)
 
 ## Workflow Integration
 

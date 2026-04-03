@@ -26,7 +26,7 @@ handoffs:
 2. **Read** `.github/skills/azure-artifacts/SKILL.md`
 ```
 
-1. :material-brain: Model selection — the Conductor can override this based on task complexity
+1. :material-brain: Model selection — the Orchestrator can override this based on task complexity
 2. :material-tools: Tool allowlist — agents only access tools they need
 3. :material-swap-horizontal: Handoff target — the next agent in the workflow
 4. :material-book-open-variant: Skills are loaded on demand to preserve context budget
@@ -48,35 +48,34 @@ allowlist that restricts which tools it can call. Common tool categories:
 ### Handoffs
 
 Agents do not communicate directly. Instead, each agent produces **artifact files**
-in `agent-output/{project}/` that the next agent reads as input. The Conductor
+in `agent-output/{project}/` that the next agent reads as input. The Orchestrator
 orchestrates this by delegating to one agent at a time, collecting its output,
-and routing to the next step. At approval gates, the Conductor writes a
+and routing to the next step. At approval gates, the Orchestrator writes a
 `00-handoff.md` summary document that enables session resume.
 
 ## :material-account-supervisor-outline: Top-Level Agents
 
-| Agent                    | Role                                  | Primary Skills                                 |
-| ------------------------ | ------------------------------------- | ---------------------------------------------- |
-| 01-Conductor             | Master orchestrator                   | workflow-engine, session-resume                |
-| 01-Conductor (Fast Path) | Simplified path for ≤3 resources      | session-resume, azure-defaults                 |
-| 02-Requirements          | Captures project requirements         | azure-defaults, azure-artifacts                |
-| 03-Architect             | WAF assessment and cost estimation    | azure-defaults                                 |
-| 04-Design                | Diagrams and ADRs                     | drawio, python-diagrams, azure-adr             |
-| 04g-Governance           | Policy discovery and compliance       | azure-defaults                                 |
-| 05b-Bicep Planner        | Bicep implementation planning         | azure-bicep-patterns                           |
-| 05t-Terraform Planner    | Terraform implementation planning     | terraform-patterns                             |
-| 06b-Bicep CodeGen        | Bicep template generation             | azure-bicep-patterns                           |
-| 06t-Terraform CodeGen    | Terraform configuration generation    | terraform-patterns                             |
-| 07b-Bicep Deploy         | Bicep deployment execution            | azure-validate, iac-common                     |
-| 07t-Terraform Deploy     | Terraform deployment execution        | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built              | Post-deployment documentation         | azure-artifacts, drawio, python-diagrams       |
-| 09-Diagnose              | Azure resource troubleshooting        | azure-diagnostics                              |
-| 10-Challenger            | Standalone adversarial review         | —                                              |
-| 11-Context Optimizer     | Context window audit and optimisation | context-optimizer                              |
+| Agent                    | Role                                            | Primary Skills                                 |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------------- |
+| 01-Orchestrator             | Master orchestrator                             | workflow-engine, session-resume                |
+| 01-Orchestrator (Fast Path) | Simplified path for ≤3 resources                | session-resume, azure-defaults                 |
+| 02-Requirements          | Captures project requirements                   | azure-defaults, azure-artifacts                |
+| 03-Architect             | WAF assessment and cost estimation              | azure-defaults                                 |
+| 04-Design                | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
+| 04g-Governance           | Policy discovery and compliance                 | azure-defaults                                 |
+| 05-IaC Planner           | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
+| 06b-Bicep CodeGen        | Bicep template generation                       | azure-bicep-patterns                           |
+| 06t-Terraform CodeGen    | Terraform configuration generation              | terraform-patterns                             |
+| 07b-Bicep Deploy         | Bicep deployment execution                      | azure-validate, iac-common                     |
+| 07t-Terraform Deploy     | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
+| 08-As-Built              | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
+| 09-Diagnose              | Azure resource troubleshooting                  | azure-diagnostics                              |
+| 10-Challenger            | Standalone adversarial review                   | —                                              |
+| 11-Context Optimizer     | Context window audit and optimisation           | context-optimizer                              |
 
 !!! note "Internal Agent"
 
-    The **E2E Conductor** (`e2e-conductor.agent.md`) is an internal testing agent used
+    The **E2E Orchestrator** (`e2e-orchestrator.agent.md`) is an internal testing agent used
     for autonomous Ralph Loop evaluation runs. It is not user-invocable and does not
     appear in the workflow table above.
 
@@ -85,19 +84,15 @@ and routing to the next step. At approval gates, the Conductor writes a
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
 
-| Subagent                         | Purpose                                | Invoked By          |
-| -------------------------------- | -------------------------------------- | ------------------- |
-| challenger-review-subagent       | Adversarial review of artifacts        | Steps 1, 2, 4, 5, 6 |
-| challenger-review-batch-subagent | Batch multi-lens adversarial review    | Steps 2, 4, 5       |
-| challenger-review-codex-subagent | Fast adversarial review (Codex model)  | Steps 2, 4          |
-| cost-estimate-subagent           | Azure Pricing MCP queries              | Steps 2, 7          |
-| governance-discovery-subagent    | Azure Policy discovery via REST API    | Step 4              |
-| bicep-lint-subagent              | `bicep build` + `bicep lint`           | Step 5 (Bicep)      |
-| bicep-review-subagent            | Code review against AVM standards      | Step 5 (Bicep)      |
-| bicep-whatif-subagent            | `az deployment what-if` preview        | Step 6 (Bicep)      |
-| terraform-lint-subagent          | `terraform fmt` + `terraform validate` | Step 5 (Terraform)  |
-| terraform-review-subagent        | Code review against AVM-TF standards   | Step 5 (Terraform)  |
-| terraform-plan-subagent          | `terraform plan` preview               | Step 6 (Terraform)  |
+| Subagent                      | Purpose                             | Invoked By          |
+| ----------------------------- | ----------------------------------- | ------------------- |
+| challenger-review-subagent    | Adversarial review of artifacts     | Steps 1, 2, 4, 5, 6 |
+| cost-estimate-subagent        | Azure Pricing MCP queries           | Steps 2, 7          |
+| governance-discovery-subagent | Azure Policy discovery via REST API | Step 4              |
+| bicep-validate-subagent       | Lint + AVM/security code review     | Step 5 (Bicep)      |
+| bicep-whatif-subagent         | `az deployment what-if` preview     | Step 6 (Bicep)      |
+| terraform-validate-subagent   | Lint + AVM-TF/security code review  | Step 5 (Terraform)  |
+| iac-planner-subagent       | `terraform plan` preview            | Step 6 (Terraform)  |
 
 ## :material-sword-cross: The Challenger Pattern
 
@@ -112,24 +107,24 @@ It operates with rotating lenses:
 !!! info "Challenger Selection Rules"
 
     Pass 1 (security-governance) always uses `challenger-review-subagent` (GPT-5.4).
-    Passes 2-3 use `challenger-review-codex-subagent` (GPT-5.3-Codex) for
-    architecture-reliability and cost-feasibility lenses. For complex projects,
-    `challenger-review-batch-subagent` combines passes 2+3 in one invocation.
+    Additional passes also use `challenger-review-subagent` for
+    architecture-reliability and cost-feasibility lenses.
     See `.github/skills/azure-defaults/references/challenger-selection-rules.md`
     for the full routing table and conditional skip rules.
 
-- **1-pass review** (comprehensive): A single review covering all dimensions. Used for
-  requirements (Step 1) and deploy (Step 6).
-- **3-pass review** (rotating lenses): Three separate reviews, each focused on a specific
-  dimension (security, reliability, cost). Used for architecture (Step 2), planning (Step 4),
-  and code (Step 5).
+- **1-pass review** (comprehensive): A single review covering all dimensions. This is the
+  **default for all steps**. Used for requirements (Step 1), architecture (Step 2), deploy (Step 6),
+  and optionally for planning (Step 4) and code (Step 5).
+- **Multi-pass review** (rotating lenses, opt-in): Multiple separate reviews, each focused on a
+  specific dimension (security, reliability, cost). Available for architecture (Step 2),
+  planning (Step 4), and code (Step 5) when explicitly requested. Recommended for complex projects.
 
 Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Only
 `must_fix` findings block workflow progression.
 
-**Conditional Pass 3**: Pass 3 of the 3-pass rotating lens review is now conditional —
-it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero `must_fix`
-items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
+**Conditional passes (when multi-pass is opted in)**: Pass 3 of the rotating lens review is
+conditional — it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero
+`must_fix` items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
 
 **Context Shredding for Challenger Inputs**: The challenger is instructed to apply
 context compression tiers when loading predecessor artefacts for review:
@@ -165,7 +160,7 @@ and is enforced by the output schema.
 
 ## :material-swap-horizontal: Handoffs and Delegation
 
-Agents communicate through artefact files, not direct message passing. The Conductor
+Agents communicate through artefact files, not direct message passing. The Orchestrator
 delegates to a step agent, which produces output files in `agent-output/{project}/`.
 The next agent reads those files as input. This design:
 
@@ -174,7 +169,7 @@ The next agent reads those files as input. This design:
 - Allows human review at every gate (artefacts are human-readable markdown)
 - Supports parallel development of different steps
 
-**Phase Handoff Document**: At each approval gate, the Conductor writes a
+**Phase Handoff Document**: At each approval gate, the Orchestrator writes a
 `00-handoff.md` file containing a summary of what was completed, key decisions
 made, what comes next, and (at Gates 2 and 3) a session break recommendation.
 This enables resume from any gate without needing to re-read all prior artefacts.
@@ -226,7 +221,7 @@ handoffs:
 Required frontmatter fields: `name`, `description`, `model`, `tools`.
 Optional: `handoffs`, `user-invocable` (defaults to `true` for top-level).
 
-See `.github/instructions/agent-definitions.instructions.md` for the
+See `.github/instructions/agent-authoring.instructions.md` for the
 complete frontmatter specification.
 
 ### Step 3: Write the Agent Body

@@ -31,7 +31,7 @@ git checkout -b fix/session-state-bug
 
 # Domain-scoped (restricted to specific paths)
 git checkout -b docs/update-workflow-guide
-git checkout -b agents/improve-conductor
+git checkout -b agents/improve-orchestrator
 git checkout -b skills/add-terraform-patterns
 git checkout -b infra/add-private-endpoints
 ```

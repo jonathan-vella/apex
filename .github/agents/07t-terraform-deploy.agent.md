@@ -62,8 +62,8 @@ handoffs:
     agent: 03-Architect
     prompt: "Review the deployment results and validate WAF compliance of the deployed infrastructure. Assessment at `agent-output/{project}/02-architecture-assessment.md`."
     send: false
-  - label: "↩ Return to Conductor"
-    agent: 01-Conductor
+  - label: "↩ Return to Orchestrator"
+    agent: 01-Orchestrator
     prompt: "Returning from Step 6 (Terraform Deploy). Deployment completed; summary at `agent-output/{project}/06-deployment-summary.md`. Resources verified via Azure Resource Graph. Ready for as-built documentation."
     send: false
 ---

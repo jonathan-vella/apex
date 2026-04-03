@@ -1,8 +1,8 @@
-# Development Container for Agentic InfraOps
+# Development Container for APEX
 
 > **[Version](../VERSION.md)**
 
-This devcontainer provides a **complete, pre-configured development environment** for Agentic InfraOps.
+This devcontainer provides a **complete, pre-configured development environment** for APEX.
 It includes all required tools, extensions, and configurations to build Azure infrastructure with AI agents.
 
 **Base Image:** `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`
@@ -163,6 +163,21 @@ cd ../../infra/bicep/ && tree -L 2
 | ------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
 | `AZURE_DEFAULTS_LOCATION` | `swedencentral`        | Default Azure region (matches repo guidelines)                                      |
 | `GH_TOKEN`                | `${localEnv:GH_TOKEN}` | GitHub PAT set in VS Code User Settings; enables `gh` CLI without interactive login |
+
+### Azure CLI Extension Auto-Install
+
+The devcontainer configures Azure CLI during `post-create.sh` so extension-backed commands do not
+pause for interactive install prompts:
+
+```bash
+az config set extension.use_dynamic_install=yes_without_prompt
+az config set extension.dynamic_install_allow_preview=false
+```
+
+This removes warnings such as `Run 'az config set extension.use_dynamic_install=yes_without_prompt'`
+when Azure CLI needs an extension. Preview extensions remain opt-in; if you explicitly want Azure
+CLI to auto-install preview extensions too, change `extension.dynamic_install_allow_preview` to
+`true` in your own `~/.azure/config`.
 
 ### Azure Credentials Mount
 
