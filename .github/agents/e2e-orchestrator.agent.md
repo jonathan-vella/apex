@@ -82,6 +82,13 @@ Track approximate context usage per step. If context approaches 60% capacity
 (many large subagent returns), save state to `00-session-state.json` and
 `00-handoff.md`, then output SESSION_SPLIT_NEEDED with the next step/run number.
 
+## Run Isolation (MANDATORY — Anti-Copy Enforcement)
+
+**Read** `.github/skills/session-resume/references/e2e-run-isolation.md` for the
+full run isolation rules (prohibited/allowed reads, timestamp coherence, freshness
+verification). Key rule: each run's artifacts must be independently generated —
+never copy from other runs or `_baselines/`.
+
 ## Core Differences from Production Orchestrator
 
 | Aspect              | Production (01-Orchestrator)   | E2E Orchestrator (this agent)      |
@@ -105,6 +112,14 @@ Track approximate context usage per step. If context approaches 60% capacity
   prompt defaults.
 - Step 2 must go through `03-Architect` and produce a pricing-backed cost
   estimate, not a hand-authored estimate.
+  - When Azure Retail Prices API returns no rows for a service+region
+    combination (notably Azure Managed Redis in Sweden Central), fall back
+    to the first-party pricing page via the microsoft-learn MCP tools.
+    Document the fallback source in the cost estimate artifact.
+  - After Step 2 completes, verify that `decisions.budget` is populated in
+    `00-session-state.json`. If missing, log a lesson with
+    `category: "artifact-quality"` and `severity: "medium"` and populate
+    the budget from the cost estimate before proceeding.
 - Step 3 should use the Draw.io path via `04-Design` and output `.drawio`
   artifacts when Draw.io tools are available.
 - Step 3.5 must go through `04g-Governance` with live policy discovery when
@@ -118,6 +133,10 @@ Track approximate context usage per step. If context approaches 60% capacity
   or plan results.
 - The only acceptable inline file generation is orchestrator bookkeeping such as
   session state, handoff, iteration log, benchmark report, and lessons.
+- **Run isolation**: Never read, copy, or adapt artifacts from other runs
+  (`agent-output/{other-project}/`, `infra/{bicep|terraform}/{other-project}/`).
+  Each artifact must originate from the RFQ, prompt defaults, and this run's
+  own upstream outputs. See "Run Isolation" section above.
 - If a delegated agent asks follow-up questions, answer from the prompt's fixed
   defaults and continue rather than waiting for the user.
 
@@ -150,6 +169,11 @@ Orchestrator must adapt instead of blocking:
    every mandatory step (1, 2, 4, 5). Update `review_audit` in session state
    after each review — the post-review gate check blocks step transitions
    when this is missing.
+7. **Run isolation applies equally**: Direct execution mode does NOT grant
+   permission to read, copy, or adapt artifacts from other runs. Each
+   artifact must be generated from scratch using the RFQ input, prompt
+   defaults, and upstream artifacts from the current run only. See the
+   "Run Isolation" section above.
 
 This fallback ensures E2E runs can complete in any runtime environment while
 preserving artifact quality and validation rigor.
@@ -246,16 +270,25 @@ perform the challenger review inline. Do NOT skip it:
 4. **Apply the `comprehensive` lens** — challenge assumptions, find missing
    failure modes, verify governance compliance, check WAF alignment, and
    identify hidden dependencies
-5. **Produce structured findings** with severity (`must_fix`, `should_fix`,
-   `suggestion`) and category for each finding
-6. If `must_fix` count > 0: re-execute the step with the findings as correction
+5. **Produce structured findings** as valid JSON matching the challenger
+   subagent output contract: `challenged_artifact`, `artifact_type`,
+   `review_focus`, `pass_number`, `challenge_summary`, `compact_for_parent`,
+   `risk_level`, `must_fix_count`, `should_fix_count`, `suggestion_count`,
+   and `issues[]`
+6. **Save the full JSON output** to
+   `agent-output/{project}/10-challenger-step{N}.json` (e.g.,
+   `10-challenger-step1.json` for Step 1). This file is a mandatory
+   artifact — the review is not complete without it
+7. If `must_fix` count > 0: re-execute the step with the findings as correction
    context, then re-validate
 
 ### Post-Review Gate (Both Modes — BLOCKING)
 
 After the review (delegated or inline), you MUST:
 
-1. **IMMEDIATELY** update `review_audit.step_{N}` in `00-session-state.json`:
+1. **Save the challenger JSON** to
+   `agent-output/{project}/10-challenger-step{N}.json`
+2. **IMMEDIATELY** update `review_audit.step_{N}` in `00-session-state.json`:
 
    ```json
    {
@@ -268,12 +301,14 @@ After the review (delegated or inline), you MUST:
    }
    ```
 
-2. **GATE CHECK**: Before moving to the next step, read `00-session-state.json`
-   and verify `review_audit.step_{N}.passes_executed >= 1`. If it is 0 or
-   missing, STOP and run the challenger review before proceeding.
+3. **GATE CHECK**: Before moving to the next step, verify BOTH conditions:
+   - `review_audit.step_{N}.passes_executed >= 1` in `00-session-state.json`
+   - The file `agent-output/{project}/10-challenger-step{N}.json` exists
+     If either condition fails, STOP and run the challenger review before
+     proceeding.
 
-> **ENFORCEMENT**: Steps 1, 2, 4, and 5 MUST have challenger reviews.
-> Steps 3.5 and 6 are strongly recommended but not blocking.
+> **ENFORCEMENT**: Steps 1, 2, 3.5, 4, 5, and 6 MUST have challenger reviews.
+> Every review MUST produce a persisted `10-challenger-step{N}.json` file.
 > Skipping challenger reviews is the #1 cause of low benchmark scores
 > (17/100 F in 2 of 4 E2E runs).
 
@@ -368,16 +403,20 @@ After each step, record to `08-benchmark-report.md`:
 
 ## DO / DON'T
 
-| DO                                      | DON'T                                  |
-| --------------------------------------- | -------------------------------------- |
-| Pre-validate every subagent return      | Skip pre-validation                    |
-| Run challenger for every step (1 pass)  | Skip challenger for any step           |
-| Feed findings back for self-correction  | Ignore validation failures             |
-| Log lessons for every retry/failure     | Silently swallow errors                |
-| Update session state after every step   | Batch session state updates            |
-| Mark blocked steps with diagnostic info | Retry indefinitely past max iterations |
-| Use dry-run for deployment (Phase F)    | Deploy real Azure resources            |
-| Track timing for benchmark              | Skip benchmark collection              |
+| DO                                                 | DON'T                                            |
+| -------------------------------------------------- | ------------------------------------------------ |
+| Generate each artifact from scratch                | Copy artifacts from other runs                   |
+| Pre-validate every subagent return                 | Skip pre-validation                              |
+| Run challenger for every step (1 pass)             | Skip challenger for any step                     |
+| Save challenger JSON to 10-challenger-step{N}.json | Record only review_audit without persisting JSON |
+| Verify artifact freshness against other runs       | Reuse decision_log entries from prior runs       |
+| Feed findings back for self-correction             | Ignore validation failures                       |
+| Log lessons for every retry/failure                | Silently swallow errors                          |
+| Update session state after every step              | Batch session state updates                      |
+| Use timestamps from the current run's time window  | Reuse or fabricate timestamps                    |
+| Mark blocked steps with diagnostic info            | Retry indefinitely past max iterations           |
+| Use dry-run for deployment (Phase F)               | Deploy real Azure resources                      |
+| Track timing for benchmark                         | Skip benchmark collection                        |
 
 ## Execution Entry Point
 

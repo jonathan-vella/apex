@@ -106,6 +106,9 @@ If discovery fails, STOP. Do not proceed with incomplete policy data.
 ### Phase 2: Generate Artifacts
 
 1. Populate `04-governance-constraints.md` matching H2 template from azure-artifacts skill
+   - Replicate ALL structural elements from the template: badge row, collapsible TOC (`<details open>`),
+     cross-navigation table, attribution, Mermaid diagram (tag inheritance flowchart), and
+     traffic-light indicators (✅ / ⚠️ / ❌ — all three must appear in status columns)
 2. Populate `04-governance-constraints.json` with machine-readable policy data
    - Every Deny/Modify policy MUST include both `bicepPropertyPath` and `azurePropertyPath`
    - Normalize tag names — verify exact tag key names from live policy (no drift)

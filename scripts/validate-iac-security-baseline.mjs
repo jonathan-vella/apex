@@ -226,10 +226,41 @@ function scanFile(filePath, violations, warningPatterns = []) {
     }
   }
 
+  // Check for duplicate tag keys differing only by casing
+  checkTagCasingDuplicates(relPath, content);
+
   if (!fileHasViolation) {
     pass(`${relPath} — no security baseline violations`);
   }
   filesScanned++;
+}
+
+/**
+ * Detect tag keys that differ only by casing (e.g. both Environment and environment).
+ * Azure Policy treats case-variant tag keys as ambiguous evaluation paths.
+ */
+function checkTagCasingDuplicates(relPath, content) {
+  const tagKeyPattern =
+    /['"]?(Environment|ManagedBy|Project|Owner|environment|managedby|managedBy|project|owner)['"]?\s*[:=]/gi;
+  const found = [];
+  let match;
+  while ((match = tagKeyPattern.exec(content)) !== null) {
+    found.push(match[1]);
+  }
+  const seen = new Map();
+  for (const key of found) {
+    const lower = key.toLowerCase();
+    if (seen.has(lower) && seen.get(lower) !== key) {
+      fail(
+        relPath,
+        0,
+        `Tag casing conflict: both '${seen.get(lower)}' and '${key}' found — Azure Policy treats case-variant tag keys as ambiguous (AmbiguousPolicyEvaluationPaths). Use PascalCase only.`,
+      );
+    }
+    if (!seen.has(lower)) {
+      seen.set(lower, key);
+    }
+  }
 }
 
 /**

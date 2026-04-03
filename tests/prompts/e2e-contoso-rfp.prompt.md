@@ -1,11 +1,45 @@
 ---
 name: e2e-contoso-rfp
 agent: E2E Orchestrator
-description: "Run a real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path. Executes all 6 runs autonomously (3 Bicep + 3 Terraform) in a single invocation for statistical benchmarking."
-argument-hint: "Optional: mode (default: batch-6). Use 'single' with project/iac_tool for one run."
+description: "Run a single real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path."
+argument-hint: "Specify project name and IaC tool (Bicep or Terraform)"
 ---
 
 # E2E RALPH Loop — Contoso Service Hub (Real-Run Mode)
+
+## Pre-Flight: Discover Existing Runs
+
+Before starting any workflow, scan for existing Contoso Service Hub runs.
+
+1. List all directories under `agent-output/` that match `contoso-service-hub-*`.
+2. For each match, read `00-session-state.json` (if it exists) and extract:
+   - `current_step` (last completed step)
+   - `status` (e.g., `in_progress`, `completed`, `blocked`)
+   - `iac_tool`
+3. Also check for matching IaC directories under `infra/bicep/` and
+   `infra/terraform/` that correspond to each discovered run.
+4. Present the findings to the user using the `askQuestions` tool with these
+   options:
+
+   | Option                    | When to show                                  | Description                                                                                                                                                      |
+   | ------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | **New loop**              | Always                                        | Start a fresh run with a new project name (auto-increment suffix, e.g., `run-2`)                                                                                 |
+   | **Continue `{run-name}`** | For each existing run that is not `completed` | Resume from the last completed step                                                                                                                              |
+   | **Delete `{run-name}`**   | For each existing run                         | Remove the `agent-output/{run-name}/` folder and its `infra/bicep/{run-name}/` or `infra/terraform/{run-name}/` directory. Ask for confirmation before deleting. |
+
+5. Wait for the user's selection before proceeding.
+6. If the user selects **New loop**, prompt for project name and IaC tool using
+   the `${input}` defaults below, then continue to the Mission section.
+7. If the user selects **Continue**, set the project name and IaC tool from the
+   existing session state and resume from the next incomplete step.
+8. If the user selects **Delete**, remove the selected directories after
+   confirmation, then re-run this pre-flight check (the user may want to
+   start a new loop or delete another run).
+
+If no existing runs are found, skip directly to the Mission section with a
+new loop.
+
+---
 
 ## Mission
 
@@ -17,121 +51,15 @@ inline.
 This prompt replaces the earlier inline-friendly behavior. Steps with real
 workflow agents must go through those agents.
 
-## Execution Mode
+## Run Configuration
 
-This prompt supports two modes:
-
-- **`batch-6`** (default): Execute all 6 runs autonomously in sequence — no
-  user intervention between runs. This is the RALPH loop benchmark protocol.
-- **`single`**: Execute one run with the specified `project` and `iac_tool`.
-
-Mode: `${input:mode:batch-6}`
-
-## Batch Execution Protocol (6 Runs — Autonomous)
-
-When `mode` is `batch-6`, execute all 6 runs in sequence within a single
-invocation. Each run is a complete RALPH loop (Steps 1–8). No user interaction
-between runs.
-
-### Run Matrix
-
-| Run | Project Name                   | IaC Tool  |
-| --- | ------------------------------ | --------- |
-| 1   | `contoso-service-hub-run-1`    | Bicep     |
-| 2   | `contoso-service-hub-run-2`    | Bicep     |
-| 3   | `contoso-service-hub-run-3`    | Bicep     |
-| 4   | `contoso-service-hub-tf-run-1` | Terraform |
-| 5   | `contoso-service-hub-tf-run-2` | Terraform |
-| 6   | `contoso-service-hub-tf-run-3` | Terraform |
-
-### Batch Execution Rules
-
-1. **Sequential execution**: Complete run N before starting run N+1. Each run
-   goes through all 8 steps (or terminates as PARTIAL/BLOCKED).
-2. **Independent state**: Each run has its own `agent-output/{project}/` and
-   `infra/{bicep|terraform}/{project}/` directories. Never share or reuse
-   artifacts across runs.
-3. **Context management**: After completing each run, save session state and
-   emit a `BATCH_RUN_COMPLETE` marker. If context exceeds 60%, emit
-   `SESSION_SPLIT_NEEDED` with the next run number so the user can re-invoke
-   the prompt to continue from that run.
-4. **Batch progress file**: Maintain `agent-output/e2e-batch-progress.json`
-   across all runs:
-
-   ```json
-   {
-     "batch_id": "contoso-rfp-batch-YYYYMMDD-HHMMSS",
-     "mode": "batch-6",
-     "total_runs": 6,
-     "completed_runs": 0,
-     "runs": [
-       {
-         "run": 1,
-         "project": "contoso-service-hub-run-1",
-         "iac_tool": "Bicep",
-         "status": "not-started"
-       },
-       {
-         "run": 2,
-         "project": "contoso-service-hub-run-2",
-         "iac_tool": "Bicep",
-         "status": "not-started"
-       },
-       {
-         "run": 3,
-         "project": "contoso-service-hub-run-3",
-         "iac_tool": "Bicep",
-         "status": "not-started"
-       },
-       {
-         "run": 4,
-         "project": "contoso-service-hub-tf-run-1",
-         "iac_tool": "Terraform",
-         "status": "not-started"
-       },
-       {
-         "run": 5,
-         "project": "contoso-service-hub-tf-run-2",
-         "iac_tool": "Terraform",
-         "status": "not-started"
-       },
-       {
-         "run": 6,
-         "project": "contoso-service-hub-tf-run-3",
-         "iac_tool": "Terraform",
-         "status": "not-started"
-       }
-     ]
-   }
-   ```
-
-5. **Track-level combine**: After run 3 completes, run:
-   `node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3`
-   After run 6 completes, run:
-   `node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3`
-6. **Final comparison**: After all 6 runs, run `npm run e2e:benchmark -- --compare`.
-7. **Resilience**: If a run terminates as `E2E_BLOCKED`, log the reason in
-   batch progress and continue to the next run. Do not abort the entire batch.
-8. **No re-prompting**: The orchestrator must NOT ask the user questions between
-   runs. All defaults are pre-seeded below.
-
-### Resuming a Split Batch
-
-If a previous batch was split due to context limits, read
-`agent-output/e2e-batch-progress.json` and resume from the first run with
-`status: "not-started"`. Skip runs already marked `E2E_COMPLETE`,
-`E2E_PARTIAL`, or `E2E_BLOCKED`.
-
-## Single Run Mode
-
-When `mode` is `single`, execute one run with the specified project and IaC tool:
+Execute one complete RALPH loop (Steps 1–8) with the specified project and
+IaC tool:
 
 - Project: `${input:project:contoso-service-hub-run-1}`
 - IaC tool: `${input:iac_tool:Bicep}`
 
-## Project Context (Per Run)
-
-For each run in the matrix (or the single run), apply these settings:
+## Project Context
 
 - RFP source: `tests/e2e-inputs/contoso-rfq.md`
 - Output directory: `agent-output/{project}/`
@@ -151,7 +79,19 @@ For each run in the matrix (or the single run), apply these settings:
   6. Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`
   7. Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`
   8. `08-As-Built`
-- Use `challenger-review-subagent` for every required review pass.
+- **Run isolation is MANDATORY**: Do NOT read, copy, or adapt artifacts from
+  any other run directory (`agent-output/{other-project}/`,
+  `infra/bicep/{other-project}/`, `infra/terraform/{other-project}/`).
+  Each artifact must be generated from scratch using only the RFQ, prompt
+  defaults, and this run's own upstream artifacts. See the "Run Isolation"
+  section below for full rules and enforcement.
+- Use `challenger-review-subagent` for every required review pass. Challenger
+  reviews MUST be executed via the actual subagent (delegated or inline per the
+  Challenger Protocol in the E2E Orchestrator agent). Each review MUST produce
+  a persisted JSON artifact saved to
+  `agent-output/{project}/10-challenger-step{N}.json` (e.g.,
+  `10-challenger-step1.json`). The `review_audit` counters in session state
+  are necessary but NOT sufficient — the JSON file must exist.
 - Step 2 is invalid unless the architecture and cost estimate are backed by the
   real pricing path used by `03-Architect`.
 - Step 3 must produce `03-des-diagram.drawio` through the Draw.io path when the
@@ -168,11 +108,12 @@ For each run in the matrix (or the single run), apply these settings:
   keep the benchmark green.
 - The only files you may create inline without delegation are orchestrator-owned
   bookkeeping files such as `00-session-state.json`, `00-handoff.md`,
-  `08-iteration-log.json`, `08-benchmark-report.md`, and lesson files.
+  `08-iteration-log.json`, `08-benchmark-report.md`,
+  `10-challenger-step{N}.json` (challenger review outputs), and lesson files.
 
 ## IaC Tool Routing
 
-The `iac_tool` for the current run controls which agents and
+The `iac_tool` input controls which agents and
 validators run for Steps 4-6. Steps 1-3.5 are IaC-agnostic.
 
 | Aspect         | Bicep                                        | Terraform                                          |
@@ -203,7 +144,7 @@ continue without waiting for the user:
 - Governance scope: full subscription when authenticated; offline-only fallback
   if Azure auth is unavailable
 - Deployment strategy: phased rollout `foundation -> data -> edge -> platform`
-- IaC track: as specified by the current run's `iac_tool` (Bicep or Terraform)
+- IaC track: as specified by `iac_tool` (Bicep or Terraform)
 - Design step: enabled
 - Diagram format: Draw.io is required when available
 - Benchmark mode: dry-run only, never deploy live Azure resources
@@ -219,6 +160,14 @@ continue without waiting for the user:
 - Require `01-requirements.md` and an updated `00-session-state.json`.
 - The session state must include `decisions`, `decision_log`, `review_audit`,
   and a complexity classification.
+- **Challenger review (MANDATORY)**: After `01-requirements.md` passes
+  pre-validation, invoke `challenger-review-subagent` with `comprehensive`
+  lens. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step1.json`. If `must_fix > 0`,
+  feed findings back to `02-Requirements` and re-validate. Update
+  `review_audit.step_1` in session state before proceeding to Step 2.
+  **Gate**: Do NOT proceed to Step 2 unless `10-challenger-step1.json`
+  exists in the output directory.
 
 ### Step 2: Architecture
 
@@ -227,6 +176,14 @@ continue without waiting for the user:
 - Require a real cost estimate from the pricing-backed architecture flow.
 - Require `02-architecture-assessment.md` and `03-des-cost-estimate.md`.
 - If the pricing path cannot be used, stop with `E2E_BLOCKED` and explain why.
+- **Challenger review (MANDATORY)**: After `02-architecture-assessment.md`
+  passes pre-validation, invoke `challenger-review-subagent` with
+  `comprehensive` lens. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step2.json`. If `must_fix > 0`,
+  feed findings back to `03-Architect` and re-validate. Update
+  `review_audit.step_2` in session state before proceeding to Step 3.
+  **Gate**: Do NOT proceed to Step 3 unless `10-challenger-step2.json`
+  exists in the output directory.
 
 ### Step 3: Design
 
@@ -242,6 +199,13 @@ continue without waiting for the user:
 - Require live discovery when Azure auth exists.
 - Require `04-governance-constraints.md` and
   `04-governance-constraints.json` with `discovery_status = COMPLETE`.
+- **Challenger review (MANDATORY)**: Invoke `challenger-review-subagent`
+  with `comprehensive` lens on `04-governance-constraints.md`. Save the
+  full challenger JSON output to
+  `agent-output/{project}/10-challenger-step3_5.json`. Update
+  `review_audit.step_3_5` in session state.
+  **Gate**: Do NOT proceed to Step 4 unless `10-challenger-step3_5.json`
+  exists in the output directory.
 
 ### Step 4: IaC Plan
 
@@ -251,6 +215,14 @@ continue without waiting for the user:
   Draw.io is available.
 - Require `04-avm-matrix.json` with AVM paths and pinned versions, not just
   module names.
+- **Challenger review (MANDATORY)**: After `04-implementation-plan.md` passes
+  pre-validation, invoke `challenger-review-subagent` with `comprehensive`
+  lens. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step4.json`. If `must_fix > 0`,
+  feed findings back to `05-IaC Planner` and re-validate. Update
+  `review_audit.step_4` in session state before proceeding to Step 5.
+  **Gate**: Do NOT proceed to Step 5 unless `10-challenger-step4.json`
+  exists in the output directory.
 
 ### Step 5: IaC Code
 
@@ -265,6 +237,14 @@ continue without waiting for the user:
   - Terraform: `terraform validate` and `terraform fmt -check`
 - If a module must remain partial, mark the run `E2E_PARTIAL` or
   `E2E_BLOCKED`; do not treat a scaffold-only result as complete.
+- **Challenger review (MANDATORY)**: After IaC code passes build/validate,
+  invoke `challenger-review-subagent` with `comprehensive` lens on the
+  generated code directory. Save the full challenger JSON output to
+  `agent-output/{project}/10-challenger-step5.json`. If `must_fix > 0`,
+  feed findings back to the codegen agent and re-validate. Update
+  `review_audit.step_5` in session state before proceeding to Step 6.
+  **Gate**: Do NOT proceed to Step 6 unless `10-challenger-step5.json`
+  exists in the output directory.
 
 ### Step 6: Deploy (Dry Run)
 
@@ -275,6 +255,11 @@ continue without waiting for the user:
   - Bicep: require `what-if` execution through the deploy path.
   - Terraform: require `terraform plan` execution through the deploy path.
 - Require `06-deployment-summary.md` to reflect the real preview output.
+- **Challenger review (MANDATORY)**: Invoke `challenger-review-subagent`
+  with `comprehensive` lens on `06-deployment-summary.md`. Save the full
+  challenger JSON output to
+  `agent-output/{project}/10-challenger-step6.json`. Update
+  `review_audit.step_6` in session state.
 
 ### Step 7: As-Built
 
@@ -288,18 +273,19 @@ continue without waiting for the user:
   from run-specific failures.
 - Run `node scripts/benchmark-e2e.mjs {project}`.
 - Generate both `09-lessons-learned.json` and `09-lessons-learned.md`.
-- Update `agent-output/e2e-batch-progress.json` with the run's final status.
-- After the 3rd Bicep run completes (run 3), automatically run:
-  `node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3`
-- After the 3rd Terraform run completes (run 6), automatically run:
-  `node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3`
-- After all 6 runs complete, run `npm run e2e:benchmark -- --compare`.
 
 ## Validation and Review Expectations
 
 - Every step must pass pre-validation before full validation.
-- Every required challenger pass must execute and be reflected in
-  `review_audit`.
+- **Challenger reviews are MANDATORY for Steps 1, 2, 3.5, 4, 5, and 6.**
+  Do not advance past these steps without executing the challenger,
+  persisting the full JSON output to
+  `agent-output/{project}/10-challenger-step{N}.json`, and recording the
+  result in `review_audit`.
+- The orchestrator must verify BOTH conditions before transitioning:
+  1. `review_audit.step_{N}.passes_executed >= 1` in session state
+  2. The file `10-challenger-step{N}.json` exists in the output directory
+- If either condition is missing, STOP and run the challenger review.
 - `decision_log` must record how the RFQ gaps were resolved.
 - If Draw.io, pricing, governance discovery, or `what-if` are unavailable,
   record that as a blocker or partial-result reason. Do not silently replace the
@@ -314,6 +300,46 @@ continue without waiting for the user:
 Track these in `decision_log` as pending in Step 1 and resolved by the relevant
 downstream agents.
 
+## Run Isolation (MANDATORY — Anti-Copy Enforcement)
+
+Each E2E run MUST produce independently generated artifacts. The orchestrator
+MUST NOT read, copy, or adapt artifacts from any other run directory.
+
+### Prohibited Actions
+
+- **NEVER** read files from `agent-output/{other-project}/` directories
+- **NEVER** read files from `infra/bicep/{other-project}/` or
+  `infra/terraform/{other-project}/` directories
+- **NEVER** copy an artifact from a prior run and find-replace the project name
+- **NEVER** reuse `decision_log` entries or timestamps from another run
+
+### Freshness Verification (Post-Step)
+
+After each step produces an artifact, the orchestrator MUST verify it was not
+copied from an existing run:
+
+1. List all other `contoso-service-hub-*` directories under `agent-output/`
+2. For each primary artifact produced, compare it against the matching file
+   (by name) in every other run directory
+3. If **byte-identical** matches are found: the artifact is INVALID —
+   delete it, log a `run-isolation-violation` lesson, and re-execute the step
+4. **Project-name-only diffs also count as copies** (e.g., only difference
+   is `run-1` → `run-2`)
+
+### Timestamp Coherence
+
+- All `decision_log[].timestamp` values MUST fall between this run's start
+  time and the current wall-clock time
+- Reusing timestamps from a prior run (e.g., `10:50:34Z` from run-1 appearing
+  in run-2's decision log) is a violation
+- `08-iteration-log.json` entries MUST use actual elapsed durations, not
+  fabricated round numbers
+
+### Violation Response
+
+If >50% of a run's artifacts are byte-identical to an existing run, terminate
+the run immediately with `E2E_BLOCKED` and reason `run-isolation-violation`.
+
 ## Safety Rails
 
 - Never deploy real Azure resources.
@@ -324,30 +350,10 @@ downstream agents.
 
 ## Completion
 
-### Single Run Completion
-
-When a single run finishes, output one of these statuses:
+When the run finishes, output one of these statuses:
 
 - `<promise>E2E_COMPLETE</promise>`
 - `<promise>E2E_PARTIAL</promise>`
 - `<promise>E2E_BLOCKED</promise>`
 
 Include detailed reasons when the status is partial or blocked.
-
-### Batch Completion
-
-After all 6 runs finish (or when context limits prevent continuing):
-
-1. Update `agent-output/e2e-batch-progress.json` with final status for each run
-2. Run `npm run e2e:benchmark -- --compare` for the cross-track comparison
-3. Output a summary table:
-
-   ```
-   | Run | Project | IaC | Status | Score | Key Issues |
-   ```
-
-4. Output one of:
-   - `<promise>BATCH_COMPLETE</promise>` — all 6 runs finished
-   - `<promise>BATCH_PARTIAL</promise>` — some runs finished, others blocked
-   - `<promise>SESSION_SPLIT_NEEDED</promise>` — context limit reached, resume
-     from `e2e-batch-progress.json` in a new session

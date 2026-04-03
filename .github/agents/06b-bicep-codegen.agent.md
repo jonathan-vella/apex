@@ -92,24 +92,25 @@ Before doing any work, read these skills:
 
 ## DO / DON'T
 
-| DO                                                                                     | DON'T                                                                                    |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Run preflight check BEFORE writing any Bicep (Phase 1)                                 | Start coding before preflight check                                                      |
-| Use `askQuestions` to present blockers from Phase 1 + 1.5                              | Silently halt on blockers without telling the user why                                   |
-| Do not list blockers in chat text asking user to reply manually                        | List blockers in chat and wait for a reply (wastes a round-trip)                         |
-| Use AVM modules for EVERY resource that has one                                        | Write raw Bicep when AVM exists                                                          |
-| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules                      | Hardcode unique strings                                                                  |
-| Apply baseline tags + governance extras                                                | Use hardcoded tag lists ignoring governance                                              |
-| Parse `04-governance-constraints.json` — map each Deny policy to Bicep                 | Skip governance compliance mapping (HARD GATE)                                           |
-| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)                  | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)                             |
-| PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`               | Allow password-only auth on any database (security baseline)                             |
-| APIM: check SKU compatibility matrix before VNet config (common-patterns.md)           | Use `virtualNetworkType` on Standard/Basic v2 (classic model only)                       |
-| Front Door: use separate `location` (global) and `resourceLocation` (region)           | Share a single location param for both profile and Private Link                          |
-| Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true | Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true |
-| Use `take()` for length-constrained resources (KV≤24, Storage≤24)                      | Put hyphens in Storage Account names                                                     |
-| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment                   | Deploy — that's the Deploy agent's job                                                   |
-| Run `bicep build` + `bicep lint` after generation                                      | Proceed without checking AVM parameter types (known issues exist)                        |
-| Save `05-implementation-reference.md` + update project README                          | Use phase parameter if plan specifies single deployment                                  |
+| DO                                                                                           | DON'T                                                                                    |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Run preflight check BEFORE writing any Bicep (Phase 1)                                       | Start coding before preflight check                                                      |
+| Use `askQuestions` to present blockers from Phase 1 + 1.5                                    | Silently halt on blockers without telling the user why                                   |
+| Do not list blockers in chat text asking user to reply manually                              | List blockers in chat and wait for a reply (wastes a round-trip)                         |
+| Use AVM modules for EVERY resource that has one                                              | Write raw Bicep when AVM exists                                                          |
+| Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules                            | Hardcode unique strings                                                                  |
+| Apply baseline tags + governance extras                                                      | Use hardcoded tag lists ignoring governance                                              |
+| Parse `04-governance-constraints.json` — map each Deny policy to Bicep                       | Skip governance compliance mapping (HARD GATE)                                           |
+| Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)                        | Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)                             |
+| PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`                     | Allow password-only auth on any database (security baseline)                             |
+| APIM: check SKU compatibility matrix before VNet config (common-patterns.md)                 | Use `virtualNetworkType` on Standard/Basic v2 (classic model only)                       |
+| Front Door: use separate `location` (global) and `resourceLocation` (region)                 | Share a single location param for both profile and Private Link                          |
+| Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true       | Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true |
+| Use `take()` for length-constrained resources (KV≤24, Storage≤24)                            | Put hyphens in Storage Account names                                                     |
+| Use `resourceId(subscription().subscriptionId, ...)` for cross-RG refs at subscription scope | Use bare `resourceId(rgName, type, name)` from subscription-scope modules                |
+| Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment                         | Deploy — that's the Deploy agent's job                                                   |
+| Run `bicep build` + `bicep lint` after generation                                            | Proceed without checking AVM parameter types (known issues exist)                        |
+| Save `05-implementation-reference.md` + update project README                                | Use phase parameter if plan specifies single deployment                                  |
 
 ## Prerequisites Check
 

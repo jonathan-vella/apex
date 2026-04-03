@@ -133,6 +133,23 @@ conditions:properties.policyRule.if}" \
   -o json
 ```
 
+### Step 2.5: Expand Initiative (Policy Set) Members
+
+For each assignment where `policyDefinitionId` contains `/policySetDefinitions/`:
+
+```bash
+az rest --method GET \
+  --url "https://management.azure.com{policySetDefinitionId}?api-version=2021-06-01" \
+  --query "{members:properties.policyDefinitions[].{definitionId:policyDefinitionId, parameters:parameters}}" \
+  -o json
+```
+
+For each member with `Deny` or `DeployIfNotExists` effect, read the individual
+definition and extract `policyRule.then.details.existenceCondition`. Include
+these expanded constraints in the structured output under a new "Initiative
+Members" section. This prevents governance planning from missing real blockers
+hidden inside umbrella initiatives.
+
 ### Step 3: Count Validation
 
 Verify the REST API count matches Azure Portal (Policy > Assignments) total.

@@ -259,6 +259,7 @@ const ARTIFACT_STRICTNESS = {
   "03-des-cost-estimate.md": "standard",
   "07-ab-cost-estimate.md": "standard",
   "README.md": "relaxed",
+  "09-lessons-learned.md": "relaxed",
 };
 
 const OPTIONAL_ALLOWED = {
@@ -292,6 +293,7 @@ const OPTIONAL_ALLOWED = {
   "03-des-cost-estimate.md": ["## References"],
   "07-ab-cost-estimate.md": ["## References"],
   "README.md": [],
+  "09-lessons-learned.md": ["## References"],
 };
 
 const TITLE_DRIFT = "Artifact Template Drift";
@@ -318,6 +320,7 @@ const AGENTS = {
   "03-des-cost-estimate.md": ".github/agents/03-architect.agent.md",
   "07-ab-cost-estimate.md": ".github/skills/azure-artifacts/SKILL.md",
   "README.md": null,
+  "09-lessons-learned.md": null,
 };
 
 const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
@@ -339,6 +342,7 @@ const TEMPLATES = {
   "03-des-cost-estimate.md": `${TEMPLATE_DIR}/03-des-cost-estimate.template.md`,
   "07-ab-cost-estimate.md": `${TEMPLATE_DIR}/07-ab-cost-estimate.template.md`,
   "README.md": `${TEMPLATE_DIR}/PROJECT-README.template.md`,
+  "09-lessons-learned.md": `${TEMPLATE_DIR}/09-lessons-learned.template.md`,
 };
 
 const STANDARD_DOC = ".github/instructions/markdown.instructions.md";
@@ -804,6 +808,22 @@ function validateGovernanceDiscovery(relPath, text, reportFn = error) {
   }
 }
 
+/**
+ * Check for duplicate H1 headers — indicates a resumed artifact with
+ * appended duplicate body content that needs delete-and-recreate.
+ */
+function validateNoDuplicateH1(relPath) {
+  if (!exists(relPath)) return;
+  const text = readText(relPath);
+  const h1Matches = text.match(/^# .+$/gm) || [];
+  if (h1Matches.length > 1) {
+    error(
+      `Artifact ${relPath} has ${h1Matches.length} H1 headers — likely a resumed artifact with duplicate body. Fix: Delete and recreate the file.`,
+      { filePath: relPath, line: 1 },
+    );
+  }
+}
+
 function validateArtifactCompliance(relPath) {
   const basename = path.basename(relPath);
 
@@ -955,6 +975,13 @@ function runTemplateValidation() {
   console.log(`  Found ${artifacts.length} artifact(s) in agent-output/\n`);
   for (const artifact of artifacts) {
     validateArtifactCompliance(artifact);
+  }
+
+  console.log(
+    "Step 6: Checking for duplicate H1 headers (resume integrity)...",
+  );
+  for (const artifact of artifacts) {
+    validateNoDuplicateH1(artifact);
   }
 
   console.log(`\n${"=".repeat(50)}`);

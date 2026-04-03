@@ -22,16 +22,16 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 
 ## Routing Guide
 
-| Diagram type                           | Library    | Output         |
-| -------------------------------------- | ---------- | -------------- |
-| WAF bar charts                         | matplotlib | `.py` + `.png` |
-| Cost donut / projection charts         | matplotlib | `.py` + `.png` |
-| Compliance gap charts                  | matplotlib | `.py` + `.png` |
-| Architecture diagrams (non-Draw.io)    | diagrams   | `.py` + `.png` |
-| Swimlane / business process            | graphviz   | `.py` + `.png` |
-| Entity-relationship diagrams           | graphviz   | `.py` + `.png` |
-| Timeline / Gantt charts                | matplotlib | `.py` + `.png` |
-| UI wireframes                          | graphviz   | `.py` + `.png` |
+| Diagram type                        | Library    | Output         |
+| ----------------------------------- | ---------- | -------------- |
+| WAF bar charts                      | matplotlib | `.py` + `.png` |
+| Cost donut / projection charts      | matplotlib | `.py` + `.png` |
+| Compliance gap charts               | matplotlib | `.py` + `.png` |
+| Architecture diagrams (non-Draw.io) | diagrams   | `.py` + `.png` |
+| Swimlane / business process         | graphviz   | `.py` + `.png` |
+| Entity-relationship diagrams        | graphviz   | `.py` + `.png` |
+| Timeline / Gantt charts             | matplotlib | `.py` + `.png` |
+| UI wireframes                       | graphviz   | `.py` + `.png` |
 
 ## Required Outputs (Workflow Integration)
 
@@ -107,7 +107,11 @@ Generate WAF scores PNG when WAF scores are assigned.
 
 **DON'T:** Use Mermaid for charts (use matplotlib) · Use Python `diagrams` for
 primary architecture diagrams (use Draw.io skill) · Let `show=True` open
-a viewer · Omit `filename` (produces non-deterministic output names).
+a viewer · Omit `filename` (produces non-deterministic output names) ·
+Use grouped list-to-list edge operators (`[a, b] >> [c, d]`) — use explicit
+node-to-node edges instead (the `diagrams` library may reject grouped
+expressions with a `TypeError`) · Use emoji or Unicode glyphs in chart
+labels — keep labels ASCII-safe for portability across container fonts.
 
 ## Scope Exclusions
 

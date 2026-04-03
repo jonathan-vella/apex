@@ -30,6 +30,14 @@ Verify ALL items before marking Step 5 complete.
 - [ ] All `existing` resource references have explicit `dependsOn` to the creating module
 - [ ] AKS service CIDR does not overlap VNet/subnet CIDRs; node RG name ≤80 chars
 - [ ] PE modules create their own private DNS zones (not bare `resourceId()` to non-existent zones)
+- [ ] Subscription-scope entrypoints use `resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.Foo/bars', name)` for cross-RG references
+
+## Runtime Validation (Pre-Challenger)
+
+- [ ] Front Door child resources (endpoints, routes, origins) tested with `az deployment sub what-if`
+- [ ] Phased module conditions verified — each phase deploys independently without missing dependencies
+- [ ] Private connectivity prerequisites (PE, DNS zones) validated before dependent resources
+- [ ] Extension-resource diagnostics isolated in scope-aware helper modules (not inline at subscription scope)
 
 ## Deployment Artifacts
 

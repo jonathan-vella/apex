@@ -159,6 +159,10 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Wait for user approval before handoff to IaC Planner
 - ✅ Use `askQuestions` in approval gate to present findings and gather proceed/revise decision
 - ✅ Match H2 headings from azure-artifacts skill exactly
+- ✅ Include collapsible TOC (`<details open>` block), cross-navigation table, and badge row from the template
+- ✅ Include at least one Mermaid diagram (architecture overview from template or actual design)
+- ✅ Use all three traffic-light indicators (✅ / ⚠️ / ❌) in status columns — never omit ⚠️ or ❌
+- ✅ Include collapsible `<details>` blocks where the template uses them
 - ✅ Update `agent-output/{project}/README.md` — mark Step 2 complete, add your artifacts (see azure-artifacts skill)
 
 ### DON'T

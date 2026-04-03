@@ -162,6 +162,7 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 | Validate auth via `az account get-access-token` (not just `show`) | Proceed if what-if shows Delete ops without approval      |
 | Present what-if summary; wait for user approval                   | Proceed if `bicep build` fails                            |
 | Require explicit approval for Delete (`-`) operations             | Create/modify Bicep templates — hand back to Code agent   |
+| Generate `deploy.ps1` with `-SkipValidation` switch               | Re-run build+lint when Step 5 validation is current       |
 | Generate `06-deployment-summary.md` after deployment              |                                                           |
 | Verify resources via Azure Resource Graph post-deploy             |                                                           |
 | Scan what-if output for deprecation signals                       |                                                           |
@@ -211,6 +212,12 @@ bicep build infra/bicep/{project}/main.bicep
 ```
 
 If errors → STOP, report, hand off to Bicep Code agent.
+
+> **Skip-Validation shortcut**: When `00-session-state.json` confirms
+> `steps.5.status == "complete"` and the Bicep files have not changed since
+> Step 5, you may skip `bicep build` and `bicep lint` to avoid redundant
+> validation. The generated `deploy.ps1` should include a `-SkipValidation`
+> switch parameter for this purpose.
 
 ### Step 2.5: Scan for Unresolved Placeholders
 
@@ -374,13 +381,14 @@ Mark status as "Simulated".
 
 ## Known Issues
 
-| Issue                                     | Workaround                                                                                                                                                                              |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| What-if fails (RG doesn't exist)          | Create RG first: `az group create ...`                                                                                                                                                  |
-| deploy.ps1 JSON parsing errors            | Use direct `az deployment group create`                                                                                                                                                 |
-| RBAC permission errors                    | Use `--validation-level ProviderNoRbac`                                                                                                                                                 |
-| MSAL token cache stale (devcontainer/WSL) | Run `az login --use-device-code` in the **same terminal** used for deployment. `az account show` may succeed while ARM calls fail — always validate with `az account get-access-token`. |
-| Azure extension auth ≠ CLI auth           | VS Code Azure extension and `az` CLI use separate token stores. Being signed in via the extension does NOT authenticate CLI commands. Always validate CLI auth independently.           |
+| Issue                                     | Workaround                                                                                                                                                                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What-if fails (RG doesn't exist)          | Create RG first: `az group create ...`                                                                                                                                                                                                |
+| deploy.ps1 JSON parsing errors            | Use direct `az deployment group create`                                                                                                                                                                                               |
+| RBAC permission errors                    | Use `--validation-level ProviderNoRbac`                                                                                                                                                                                               |
+| MSAL token cache stale (devcontainer/WSL) | Run `az login --use-device-code` in the **same terminal** used for deployment. `az account show` may succeed while ARM calls fail — always validate with `az account get-access-token`.                                               |
+| Azure extension auth ≠ CLI auth           | VS Code Azure extension and `az` CLI use separate token stores. Being signed in via the extension does NOT authenticate CLI commands. Always validate CLI auth independently.                                                         |
+| What-if: unsupported AVM-managed RBAC     | AVM modules manage role-assignment resource IDs derived at deploy time, not preview time. What-if may report these as "unsupported" changes. Surface them explicitly in `06-deployment-summary.md` and verify after real deployments. |
 
 ## Output Files
 
