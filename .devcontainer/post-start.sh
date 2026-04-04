@@ -49,7 +49,7 @@ MCP_DIR="${WORKSPACE_FOLDER:-$PWD}/mcp/azure-pricing-mcp"
 if [ -f "$MCP_DIR/.venv/bin/pip" ]; then
     "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>/dev/null || true
     printf "    azure-pricing-mcp     "
-    "$MCP_DIR/.venv/bin/pip" install --quiet -e "$MCP_DIR" \
+    "$MCP_DIR/.venv/bin/pip" install --quiet -e "$MCP_DIR[azure]" \
         && printf "✅ updated\n" \
         || printf "⚠️  update failed (continuing)\n"
 fi

@@ -10,8 +10,14 @@ MAX_RESULTS_PER_REQUEST = 1000
 
 # Retry and rate limiting configuration
 MAX_RETRIES = 3
-RATE_LIMIT_RETRY_BASE_WAIT = 5  # seconds
+RATE_LIMIT_RETRY_BASE_WAIT = 0.5  # seconds (exponential backoff base)
 DEFAULT_CUSTOMER_DISCOUNT = 10.0  # percent
+
+# HTTP performance configuration
+HTTP_REQUEST_TIMEOUT = float(os.environ.get("AZURE_PRICING_HTTP_TIMEOUT", "30.0"))
+HTTP_POOL_SIZE = int(os.environ.get("AZURE_PRICING_HTTP_POOL_SIZE", "10"))
+HTTP_POOL_PER_HOST = int(os.environ.get("AZURE_PRICING_HTTP_POOL_PER_HOST", "5"))
+REQUEST_DEDUP_TTL = float(os.environ.get("AZURE_PRICING_DEDUP_TTL", "30.0"))
 
 # SSL verification configuration
 # Set to False if behind a corporate proxy with self-signed certificates

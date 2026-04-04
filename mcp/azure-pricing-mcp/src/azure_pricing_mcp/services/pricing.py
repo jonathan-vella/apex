@@ -1,10 +1,12 @@
 """Pricing service for Azure Pricing MCP Server."""
 
+import json
 import logging
+from datetime import datetime
 from typing import Any
 
 from ..client import AzurePricingClient
-from ..config import DEFAULT_CUSTOMER_DISCOUNT
+from ..config import DEFAULT_CUSTOMER_DISCOUNT, REQUEST_DEDUP_TTL
 from .retirement import RetirementService
 
 logger = logging.getLogger(__name__)
@@ -52,6 +54,30 @@ class PricingService:
     def __init__(self, client: AzurePricingClient, retirement_service: RetirementService) -> None:
         self._client = client
         self._retirement_service = retirement_service
+        self._request_cache: dict[str, tuple[dict[str, Any], datetime]] = {}
+
+    async def _fetch_prices_cached(
+        self,
+        filter_conditions: list[str] | None = None,
+        currency_code: str = "USD",
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """Fetch prices with request-level deduplication cache."""
+        cache_key = json.dumps({"f": filter_conditions, "c": currency_code, "l": limit}, sort_keys=True)
+        if cache_key in self._request_cache:
+            result, cached_time = self._request_cache[cache_key]
+            if (datetime.now() - cached_time).total_seconds() < REQUEST_DEDUP_TTL:
+                return result
+        result = await self._client.fetch_prices(filter_conditions, currency_code, limit)
+        self._request_cache[cache_key] = (result, datetime.now())
+        # Evict old entries
+        if len(self._request_cache) > 100:
+            cutoff = datetime.now()
+            self._request_cache = {
+                k: v for k, v in self._request_cache.items()
+                if (cutoff - v[1]).total_seconds() < REQUEST_DEDUP_TTL
+            }
+        return result
 
     async def search_prices(
         self,

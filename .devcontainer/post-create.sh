@@ -190,7 +190,7 @@ if [ -d "$MCP_DIR" ]; then
     "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>&1 | tail -1 || true
 
     cd "$MCP_DIR"
-    "$MCP_DIR/.venv/bin/pip" install --quiet -e . 2>&1 | tail -1 || true
+    "$MCP_DIR/.venv/bin/pip" install --quiet -e ".[azure]" 2>&1 | tail -1 || true
     cd - > /dev/null
 
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then

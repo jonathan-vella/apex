@@ -10,6 +10,7 @@ All methods require Azure authentication. If not authenticated, they return
 a friendly error message with instructions for how to authenticate.
 """
 
+import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -427,7 +428,7 @@ class OrphanedResourceScanner:
 
         subscription_ids = [s["id"] for s in subscriptions]
 
-        # Execute all orphaned resource queries
+        # Execute all orphaned resource queries in parallel
         queries = {
             "Unattached Disk": ORPHANED_DISKS_QUERY,
             "Orphaned Public IP": ORPHANED_PUBLIC_IPS_QUERY,
@@ -444,8 +445,17 @@ class OrphanedResourceScanner:
 
         all_orphaned: list[dict[str, Any]] = []
 
-        for resource_type_label, query in queries.items():
-            result = await self._execute_resource_graph_query(query, subscription_ids)
+        # Run all Resource Graph queries concurrently
+        query_items = list(queries.items())
+        results = await asyncio.gather(
+            *[self._execute_resource_graph_query(query, subscription_ids) for _, query in query_items],
+            return_exceptions=True,
+        )
+
+        for (resource_type_label, _), result in zip(query_items, results):
+            if isinstance(result, Exception):
+                logger.warning(f"Failed to query for {resource_type_label}: {result}")
+                continue
             if "error" in result:
                 logger.warning(f"Failed to query for {resource_type_label}: {result.get('message')}")
                 continue

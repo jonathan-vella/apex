@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import random
 import ssl
 from typing import Any
 
@@ -10,6 +11,9 @@ import aiohttp
 from .config import (
     AZURE_PRICING_BASE_URL,
     DEFAULT_API_VERSION,
+    HTTP_POOL_PER_HOST,
+    HTTP_POOL_SIZE,
+    HTTP_REQUEST_TIMEOUT,
     MAX_RESULTS_PER_REQUEST,
     MAX_RETRIES,
     RATE_LIMIT_RETRY_BASE_WAIT,
@@ -29,14 +33,19 @@ class AzurePricingClient:
 
     async def __aenter__(self) -> "AzurePricingClient":
         """Async context manager entry."""
-        connector = None
+        ssl_context = None
         if not SSL_VERIFY:
-            # Create SSL context that doesn't verify certificates
             ssl_context = ssl.create_default_context()
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
-            connector = aiohttp.TCPConnector(ssl=ssl_context)
             logger.warning("SSL verification is disabled. This is insecure and should only be used for debugging.")
+        connector = aiohttp.TCPConnector(
+            limit=HTTP_POOL_SIZE,
+            limit_per_host=HTTP_POOL_PER_HOST,
+            ttl_dns_cache=300,
+            force_close=False,
+            ssl=ssl_context,
+        )
         self.session = aiohttp.ClientSession(connector=connector)
         return self
 
@@ -71,12 +80,18 @@ class AzurePricingClient:
 
         for attempt in range(max_retries + 1):
             try:
-                async with self.session.get(request_url, params=params) as response:
+                async with self.session.get(
+                    request_url, params=params, timeout=aiohttp.ClientTimeout(total=HTTP_REQUEST_TIMEOUT)
+                ) as response:
                     if response.status == 429:  # Too Many Requests
                         if attempt < max_retries:
-                            wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (attempt + 1)
+                            retry_after = response.headers.get("Retry-After")
+                            if retry_after:
+                                wait_time = float(retry_after)
+                            else:
+                                wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (2 ** attempt) + random.uniform(0, 1)
                             logger.warning(
-                                f"Rate limited (429). Retrying in {wait_time} seconds... "
+                                f"Rate limited (429). Retrying in {wait_time:.1f}s "
                                 f"(attempt {attempt + 1}/{max_retries + 1})"
                             )
                             await asyncio.sleep(wait_time)
@@ -90,9 +105,9 @@ class AzurePricingClient:
 
             except aiohttp.ClientResponseError as e:
                 if e.status == 429 and attempt < max_retries:
-                    wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (attempt + 1)
+                    wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (2 ** attempt) + random.uniform(0, 1)
                     logger.warning(
-                        f"Rate limited (429). Retrying in {wait_time} seconds... "
+                        f"Rate limited (429). Retrying in {wait_time:.1f}s "
                         f"(attempt {attempt + 1}/{max_retries + 1})"
                     )
                     await asyncio.sleep(wait_time)

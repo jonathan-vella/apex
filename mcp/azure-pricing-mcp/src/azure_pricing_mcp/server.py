@@ -43,13 +43,16 @@ class AzurePricingServer:
         self._retirement_service = RetirementService(self._client)
         self._pricing_service = PricingService(self._client, self._retirement_service)
         self._sku_service = SKUService(self._pricing_service)
-        self._databricks_service = DatabricksService(self._client)
-        self._tool_handlers = ToolHandlers(
-            self._pricing_service,
-            self._sku_service,
-            databricks_service=self._databricks_service,
-        )
+        # Lazy-initialized services (created on first use)
+        self._databricks_service: DatabricksService | None = None
+        self._tool_handlers: ToolHandlers | None = None
         self._session_active = False
+
+    @property
+    def databricks_service(self) -> DatabricksService:
+        if self._databricks_service is None:
+            self._databricks_service = DatabricksService(self._client)
+        return self._databricks_service
 
     async def __aenter__(self) -> "AzurePricingServer":
         """Async context manager entry - initializes the HTTP session."""
@@ -90,7 +93,13 @@ class AzurePricingServer:
 
     @property
     def tool_handlers(self) -> ToolHandlers:
-        """Get the tool handlers instance."""
+        """Get the tool handlers instance (lazy-initialized)."""
+        if self._tool_handlers is None:
+            self._tool_handlers = ToolHandlers(
+                self._pricing_service,
+                self._sku_service,
+                databricks_service=self.databricks_service,
+            )
         return self._tool_handlers
 
 
