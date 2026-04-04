@@ -220,7 +220,7 @@ class PTUService:
                 # Pick the first provisioned throughput unit meter
                 item = items[0]
                 return {
-                    "price_per_ptu_hour": item.get("unitPrice", 0),
+                    "price_per_ptu_hour": item.get("retailPrice", item.get("unitPrice", 0)),
                     "meter_name": item.get("meterName", ""),
                     "sku_name": item.get("skuName", ""),
                     "region": item.get("armRegionName", region),

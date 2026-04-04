@@ -44,7 +44,7 @@ def verify_installation():
 
     try:
         result = subprocess.run(
-            [str(python_exe), "-c", "import azure_pricing_mcp; print('2.1.0')"],
+            [str(python_exe), "-c", "import azure_pricing_mcp; print(azure_pricing_mcp.__version__)"],
             capture_output=True,
             text=True,
             check=True,

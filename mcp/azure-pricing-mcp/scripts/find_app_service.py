@@ -5,8 +5,11 @@ Find the correct App Service name in Azure Pricing API
 
 import asyncio
 import sys
+from pathlib import Path
 
-sys.path.insert(0, r"c:\git\mcp\azure_pricing")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from azure_pricing_mcp.server import AzurePricingServer
 

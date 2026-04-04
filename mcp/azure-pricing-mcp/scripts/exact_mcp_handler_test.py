@@ -28,9 +28,9 @@ async def test_exact_handler():
     print()
 
     try:
-        async with AzurePricingServer:
+        async with AzurePricingServer() as server:
             if name == "azure_price_search":
-                result = await AzurePricingServer.search_azure_prices(**arguments)
+                result = await server.tool_handlers.handle_price_search(arguments)
 
                 print("Step 1: Got result from search_azure_prices")
                 print(f"Result type: {type(result)}")

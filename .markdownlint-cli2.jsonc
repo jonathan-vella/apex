@@ -152,6 +152,13 @@
     // Vendored MCP server (external fork — not hand-authored)
     "mcp/drawio-mcp-server/**",
 
+    // Upstream vendored files (not hand-authored)
+    "mcp/azure-pricing-mcp/CHANGELOG.md",
+    "mcp/azure-pricing-mcp/README.md",
+    "mcp/azure-pricing-mcp/CONTRIBUTING.md",
+    "mcp/azure-pricing-mcp/INSTALL.md",
+    "mcp/azure-pricing-mcp/docs/**",
+
     // pytest cache (auto-generated, not hand-authored)
     "mcp/azure-pricing-mcp/.pytest_cache/**",
 

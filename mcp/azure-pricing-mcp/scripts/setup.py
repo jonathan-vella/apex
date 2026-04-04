@@ -23,7 +23,7 @@ if requirements_file.exists():
 
 setup(
     name="azure-pricing-mcp",
-    version="2.1.0",
+    version="4.0.0",
     description="A Model Context Protocol server for querying Azure retail pricing information",
     long_description=long_description,
     long_description_content_type="text/markdown",
