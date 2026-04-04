@@ -431,6 +431,57 @@ def get_tool_definitions() -> list[Tool]:
                     "required": ["model", "deployment_type", "rpm", "avg_input_tokens", "avg_output_tokens"],
                 },
             ),
+            # Bulk cost estimation
+            Tool(
+                name="azure_bulk_estimate",
+                description=(
+                    "Estimate costs for multiple Azure resources in a single call. "
+                    "Returns per-resource and total monthly/yearly costs. "
+                    "Ideal for full-stack cost estimates. Supports service-name aliases, "
+                    "request deduplication, and concurrent pricing lookups."
+                ),
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "resources": {
+                            "type": "array",
+                            "description": (
+                                "List of resources to estimate. Each must have service_name, sku_name, region. "
+                                "Optional: quantity (default 1), hours_per_month (default 730)."
+                            ),
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "service_name": {"type": "string", "description": "Azure service name"},
+                                    "sku_name": {"type": "string", "description": "SKU name"},
+                                    "region": {"type": "string", "description": "Azure region"},
+                                    "quantity": {
+                                        "type": "number",
+                                        "description": "Number of instances (default: 1)",
+                                        "default": 1,
+                                    },
+                                    "hours_per_month": {
+                                        "type": "number",
+                                        "description": "Usage hours per month (default: 730)",
+                                        "default": 730,
+                                    },
+                                },
+                                "required": ["service_name", "sku_name", "region"],
+                            },
+                        },
+                        "currency_code": {
+                            "type": "string",
+                            "description": "Currency code (default: USD)",
+                            "default": "USD",
+                        },
+                        "discount_percentage": {
+                            "type": "number",
+                            "description": "Discount percentage to apply to all resources",
+                        },
+                    },
+                    "required": ["resources"],
+                },
+            ),
         ]
         + get_databricks_tool_definitions()
         + get_github_pricing_tool_definitions()

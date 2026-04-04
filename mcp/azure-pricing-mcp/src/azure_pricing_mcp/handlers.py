@@ -9,6 +9,7 @@ from .config import DEFAULT_CUSTOMER_DISCOUNT
 from .databricks.handlers import DatabricksHandlers
 from .formatters import (
     _get_discount_tip,
+    format_bulk_estimate_response,
     format_cost_estimate_response,
     format_customer_discount_response,
     format_discover_skus_response,
@@ -24,7 +25,7 @@ from .formatters import (
     format_spot_price_history_response,
 )
 from .github_pricing.handlers import GitHubPricingHandlers
-from .services import DatabricksService, PricingService, PTUService, SKUService, SpotService
+from .services import BulkEstimateService, DatabricksService, PricingService, PTUService, SKUService, SpotService
 from .services.orphaned import OrphanedResourcesService
 
 logger = logging.getLogger(__name__)
@@ -40,12 +41,14 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers):
         spot_service: SpotService | None = None,
         orphaned_service: OrphanedResourcesService | None = None,
         databricks_service: DatabricksService | None = None,
+        bulk_service: BulkEstimateService | None = None,
     ) -> None:
         self._pricing_service = pricing_service
         self._sku_service = sku_service
         self._spot_service = spot_service
         self._orphaned_service = orphaned_service
         self._databricks_service = databricks_service
+        self._bulk_service = bulk_service
         self._ptu_service: PTUService | None = None
         self._github_pricing_service = None
 
@@ -146,6 +149,14 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers):
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
 
         response_text = format_cost_estimate_response(result)
+        return [TextContent(type="text", text=response_text)]
+
+    async def handle_bulk_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
+        """Handle azure_bulk_estimate tool calls."""
+        if self._bulk_service is None:
+            self._bulk_service = BulkEstimateService(self._pricing_service)
+        result = await self._bulk_service.bulk_estimate(**arguments)
+        response_text = format_bulk_estimate_response(result)
         return [TextContent(type="text", text=response_text)]
 
     async def handle_discover_skus(self, arguments: dict[str, Any]) -> list[TextContent]:

@@ -150,6 +150,8 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
             return await handlers.handle_databricks_compare_workloads(arguments)
         elif name == "azure_ptu_sizing":
             return await handlers.handle_ptu_sizing(arguments)
+        elif name == "azure_bulk_estimate":
+            return await handlers.handle_bulk_estimate(arguments)
         elif name == "github_pricing":
             return await handlers.handle_github_pricing(arguments)
         elif name == "github_cost_estimate":

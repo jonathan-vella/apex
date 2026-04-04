@@ -807,3 +807,61 @@ def format_ptu_sizing_response(result: dict[str, Any]) -> str:
     )
 
     return "\n".join(lines)
+
+
+# =============================================================================
+# Bulk Cost Estimation
+# =============================================================================
+
+
+def format_bulk_estimate_response(result: dict[str, Any]) -> str:
+    """Format bulk cost estimate result as Markdown."""
+    if "error" in result:
+        return f"❌ **Error**: {result.get('message', result['error'])}"
+
+    lines = [
+        "# 📦 Bulk Cost Estimate",
+        "",
+        f"**Resources**: {result.get('resource_count', 0)} submitted, "
+        f"{result.get('unique_specs', 0)} unique, "
+        f"{result.get('successful', 0)} estimated, "
+        f"{result.get('failed', 0)} failed",
+        f"**Currency**: {result.get('currency', 'USD')}",
+        "",
+    ]
+
+    line_items = result.get("line_items", [])
+    if line_items:
+        lines.append("## Line Items")
+        lines.append("")
+        lines.append("| Service | SKU | Region | Qty | Monthly | Yearly |")
+        lines.append("|---------|-----|--------|----:|--------:|-------:|")
+        for item in line_items:
+            lines.append(
+                f"| {item.get('service_name', 'N/A')} "
+                f"| {item.get('sku_name', 'N/A')} "
+                f"| {item.get('region', 'N/A')} "
+                f"| {item.get('quantity', 1)} "
+                f"| ${item.get('monthly_cost', 0):,.2f} "
+                f"| ${item.get('yearly_cost', 0):,.2f} |"
+            )
+        lines.append("")
+
+    totals = result.get("totals", {})
+    lines.append("## Totals")
+    lines.append("")
+    lines.append(f"- **Monthly**: ${totals.get('monthly', 0):,.2f}")
+    lines.append(f"- **Yearly**: ${totals.get('yearly', 0):,.2f}")
+
+    errors = result.get("errors", [])
+    if errors:
+        lines.append("")
+        lines.append("## ⚠️ Failed Items")
+        for err in errors:
+            inp = err.get("input", {})
+            lines.append(
+                f"- {inp.get('service_name', 'Unknown')}/{inp.get('sku_name', 'Unknown')} "
+                f"in {inp.get('region', 'Unknown')}: {err.get('error', 'Unknown error')}"
+            )
+
+    return "\n".join(lines)

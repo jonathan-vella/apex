@@ -1,5 +1,6 @@
 """Services package for Azure Pricing MCP Server."""
 
+from .bulk import BulkEstimateService
 from .databricks import DatabricksService
 from .github_pricing import GitHubPricingService
 from .orphaned import OrphanedResourcesService
@@ -10,6 +11,7 @@ from .sku import SKUService
 from .spot import SpotService
 
 __all__ = [
+    "BulkEstimateService",
     "DatabricksService",
     "GitHubPricingService",
     "OrphanedResourcesService",
