@@ -91,10 +91,10 @@ class BulkEstimateService:
             sku_name = res.get("sku_name", "")
             region = res.get("region", "")
 
-            if not service_name or not sku_name or not region:
+            if not service_name or not sku_name:
                 return None, {
                     "indices": indices,
-                    "error": "Missing required field(s): service_name, sku_name, region",
+                    "error": "Missing required field(s): service_name, sku_name",
                     "input": res,
                 }
 
@@ -105,15 +105,16 @@ class BulkEstimateService:
             async with sem:
                 for attempt in range(1, BULK_ITEM_MAX_RETRIES + 1):
                     try:
-                        estimate = await self._pricing.estimate_costs(
-                            service_name=service_name,
-                            sku_name=sku_name,
-                            region=region,
-                            hours_per_month=hours_per_month,
-                            currency_code=currency_code,
-                            discount_percentage=discount_percentage,
-                            quantity=quantity,
-                        )
+                        estimate_kwargs: dict[str, Any] = {
+                            "service_name": service_name,
+                            "sku_name": sku_name,
+                            "hours_per_month": hours_per_month,
+                            "currency_code": currency_code,
+                            "discount_percentage": discount_percentage,
+                        }
+                        if region:
+                            estimate_kwargs["region"] = region
+                        estimate = await self._pricing.estimate_costs(**estimate_kwargs)
 
                         if "error" in estimate:
                             return None, {
@@ -122,8 +123,8 @@ class BulkEstimateService:
                                 "input": res,
                             }
 
-                        monthly = estimate["on_demand_pricing"]["monthly_cost"]
-                        yearly = estimate["on_demand_pricing"]["yearly_cost"]
+                        monthly = estimate["on_demand_pricing"]["monthly_cost"] * quantity
+                        yearly = estimate["on_demand_pricing"]["yearly_cost"] * quantity
 
                         return {
                             "indices": indices,

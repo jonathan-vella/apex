@@ -90,10 +90,10 @@ SERVICE_NAME_MAPPINGS: dict[str, str] = {
     "waf": "Azure Front Door Service",
     "web application firewall": "Azure Front Door Service",
     # Private networking
-    "private endpoint": "Azure Private Link",
-    "private link": "Azure Private Link",
-    "private endpoints": "Azure Private Link",
-    "pe": "Azure Private Link",
+    "private endpoint": "Virtual Network",
+    "private link": "Virtual Network",
+    "private endpoints": "Virtual Network",
+    "pe": "Virtual Network",
     # DNS
     "dns": "Azure DNS",
     "dns zone": "Azure DNS",

@@ -468,7 +468,7 @@ class PricingService:
         self,
         service_name: str,
         sku_name: str,
-        region: str,
+        region: str = "",
         hours_per_month: float = 730,
         currency_code: str = "USD",
         discount_percentage: float | None = None,
@@ -477,7 +477,7 @@ class PricingService:
         result = await self.search_prices(
             service_name=service_name,
             sku_name=sku_name,
-            region=region,
+            region=region or None,
             currency_code=currency_code,
             limit=5,
         )
