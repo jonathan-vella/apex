@@ -442,6 +442,9 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
       compress: z.boolean().optional().default(true).describe(
         "When true, deflate-compress and base64-encode the diagram content inside the <diagram> element (Draw.io native format). Defaults to true for efficient output.",
       ),
+      background: z.string().optional().default("#FFFFFF").describe(
+        'Background color for the diagram (e.g. "#FFFFFF" for white). Use "none" for a transparent background. Defaults to "#FFFFFF" (white).',
+      ),
     },
   },
   {
@@ -455,6 +458,9 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
       transactional: transactionalSchema,
       compress: z.boolean().optional().default(false).describe(
         "When true, deflate-compress and base64-encode the diagram content inside the <diagram> element (Draw.io native format). Reduces output size by 60-80%. Defaults to false (plain XML).",
+      ),
+      background: z.string().optional().default("#FFFFFF").describe(
+        'Background color for the diagram (e.g. "#FFFFFF" for white). Use "none" for a transparent background. Defaults to "#FFFFFF" (white).',
       ),
     },
   },

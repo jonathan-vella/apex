@@ -367,11 +367,12 @@ export function createHandlers(logger?: ToolLogger) {
       });
     },
 
-    "export-diagram": (args: { diagram_xml?: string; compress?: boolean }): CallToolResult => {
+    "export-diagram": (args: { diagram_xml?: string; compress?: boolean; background?: string }): CallToolResult => {
       let savedPath: string | null = null;
       const result = withDiagramState(args, (diagram) => {
         const compressed = args?.compress ?? false;
-        const xml = diagram.toXml({ compress: compressed, watermark: true });
+        const background = args?.background ?? "#FFFFFF";
+        const xml = diagram.toXml({ compress: compressed, watermark: true, background });
         const stats = diagram.getStats();
 
         // ⚠️ DEV MODE ONLY — Save diagram to local file if SAVE_DIAGRAMS=true
@@ -387,7 +388,7 @@ export function createHandlers(logger?: ToolLogger) {
       return result;
     },
 
-    "finish-diagram": (args: { diagram_xml?: string; compress?: boolean }): CallToolResult => {
+    "finish-diagram": (args: { diagram_xml?: string; compress?: boolean; background?: string }): CallToolResult => {
       // finish-diagram replaces placeholder cells (marked with placeholder=1) with real SVG icon data
       // and optionally compresses the final XML. It does NOT use withDiagramState because it
       // works directly with XML to resolve placeholders created during transactional operations.
@@ -400,6 +401,7 @@ export function createHandlers(logger?: ToolLogger) {
 
       try {
         const compress = args.compress ?? true;
+        const background = args.background ?? "#FFFFFF";
 
         // Find all placeholders in the XML
         const placeholders = findPlaceholdersInXml(args.diagram_xml);
@@ -411,7 +413,7 @@ export function createHandlers(logger?: ToolLogger) {
           if ("error" in importResult) {
             return errorResult(importResult.error);
           }
-          const xml = diagram.toXml({ compress, watermark: true });
+          const xml = diagram.toXml({ compress, watermark: true, background });
           const stats = diagram.getStats();
 
           // ⚠️ DEV MODE ONLY — Save diagram to local file if SAVE_DIAGRAMS=true
@@ -478,7 +480,7 @@ export function createHandlers(logger?: ToolLogger) {
 
         // Generate final XML with compression if requested
         // Note: We generate without transactional=true to get the real SVG images
-        const finalXml = diagram.toXml({ compress, watermark: true });
+        const finalXml = diagram.toXml({ compress, watermark: true, background });
         const stats = diagram.getStats();
 
         // ⚠️ DEV MODE ONLY — Save diagram to local file if SAVE_DIAGRAMS=true

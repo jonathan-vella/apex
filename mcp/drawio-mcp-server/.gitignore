@@ -32,3 +32,8 @@ coverage_detail.txt
 
 # DEV MODE ONLY — Auto-saved diagrams from export-diagram/finish-diagram
 diagrams/
+
+# Upstream-only build/publish artifacts (not needed when running via Deno)
+build-push.sh
+build-push.ps1
+docs/DOCKER_MULTI_ARCH.md

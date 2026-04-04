@@ -8,7 +8,7 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](workflow.md)
+- [Development Workflow Guide](docs/workflow.md)
 
 ## 🎯 What We're Looking For
 
@@ -42,8 +42,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](workflow.md)
-- Agent workflow details: [Agent Workflow Reference](workflow.md)
+- Workflow details: [Development Workflow Guide](docs/workflow.md)
+- Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
 
 #### Branch Naming Convention
 
@@ -54,7 +54,7 @@ GitHub Actions CI.
 | Prefix          | Scope                                                        | Example                         |
 | --------------- | ------------------------------------------------------------ | ------------------------------- |
 | `docs/`         | Documentation (`docs/`, `site/`, `README.md`)                | `docs/update-workflow-guide`    |
-| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`      |
+| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`   |
 | `skills/`       | Skill files (`.github/skills/`, `skill-affinity.json`)       | `skills/add-tf-patterns`        |
 | `infra/`        | Infrastructure code (`infra/bicep/`, `infra/terraform/`)     | `infra/add-private-endpoints`   |
 | `scripts/`      | Validation scripts (`scripts/`, `package.json`)              | `scripts/fix-h2-sync`           |

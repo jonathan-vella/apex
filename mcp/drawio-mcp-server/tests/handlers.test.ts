@@ -275,6 +275,27 @@ describe("tool handlers", () => {
       assert(parsed.data.xml.includes("Test"));
       assertEquals(parsed.data.compression, { enabled: false });
     });
+
+    it("should include white background by default", async () => {
+      await addVertex({ text: "Test" });
+      const result = await handlers["export-diagram"]({});
+      const parsed = parseResult(result);
+      assert(parsed.data.xml.includes('background="#FFFFFF"'));
+    });
+
+    it("should apply custom background color", async () => {
+      await addVertex({ text: "Test" });
+      const result = await handlers["export-diagram"]({ background: "#000000" });
+      const parsed = parseResult(result);
+      assert(parsed.data.xml.includes('background="#000000"'));
+    });
+
+    it("should omit background attribute when set to none", async () => {
+      await addVertex({ text: "Test" });
+      const result = await handlers["export-diagram"]({ background: "none" });
+      const parsed = parseResult(result);
+      assert(!parsed.data.xml.includes("background="));
+    });
   });
 
   describe("clear-diagram", () => {
@@ -933,6 +954,36 @@ describe("tool handlers", () => {
       const result = baseHandlers["finish-diagram"]({ diagram_xml: malformedXml });
       // Should hit either the resolution error or the catch path
       assertEquals(result.isError, true);
+    });
+
+    it("should include white background by default", async () => {
+      await addVertex({ text: "Normal" });
+      const exportResult = await handlers["export-diagram"]({ compress: false });
+      const xml = parseResult(exportResult).data.xml;
+
+      const result = baseHandlers["finish-diagram"]({ diagram_xml: xml, compress: false });
+      const parsed = parseResult(result);
+      assert(parsed.data.xml.includes('background="#FFFFFF"'));
+    });
+
+    it("should apply custom background color", async () => {
+      await addVertex({ text: "Normal" });
+      const exportResult = await handlers["export-diagram"]({ compress: false });
+      const xml = parseResult(exportResult).data.xml;
+
+      const result = baseHandlers["finish-diagram"]({ diagram_xml: xml, background: "#FF0000", compress: false });
+      const parsed = parseResult(result);
+      assert(parsed.data.xml.includes('background="#FF0000"'));
+    });
+
+    it("should omit background attribute when set to none", async () => {
+      await addVertex({ text: "Normal" });
+      const exportResult = await handlers["export-diagram"]({ compress: false });
+      const xml = parseResult(exportResult).data.xml;
+
+      const result = baseHandlers["finish-diagram"]({ diagram_xml: xml, background: "none", compress: false });
+      const parsed = parseResult(result);
+      assert(!parsed.data.xml.includes("background="));
     });
   });
 

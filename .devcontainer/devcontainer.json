@@ -45,7 +45,8 @@
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
-    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache"
+    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache",
+    "DENO_DIR": "/home/vscode/.cache/deno"
   },
 
   "remoteEnv": {

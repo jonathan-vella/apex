@@ -1,12 +1,28 @@
+# ──────────────────────────────────────────────────────────────
+# Config comes from .env (compose reads it automatically):
+#   REGISTRY, IMAGE_NAME, IMAGE_VERSION
+#
+# Publish multi-arch:  docker compose build --push
+# Run locally:         docker compose up
+# ──────────────────────────────────────────────────────────────
 services:
   drawio-mcp-server:
     build:
       context: .
       dockerfile: Dockerfile
+      # Multi-arch manifest list. Both base images (denoland/deno,
+      # distroless/cc) publish amd64 + arm64 variants, so no
+      # Dockerfile changes are needed — buildx picks the right one.
+      #
+      # `docker compose build --push` → builds both, pushes manifest list.
+      # `docker compose up`           → builds host arch only.
+      platforms:
+        - linux/amd64
+        - linux/arm64
       tags:
-        - ${REGISTRY}/drawio-mcp-server:latest
-        - ${REGISTRY}/drawio-mcp-server:${IMAGE_VERSION:-latest}
-    image: ${REGISTRY}/drawio-mcp-server:${IMAGE_VERSION:-latest}
+        - ${REGISTRY:?REGISTRY not set in .env}/${IMAGE_NAME:-drawio-mcp-server}:latest
+        - ${REGISTRY}/${IMAGE_NAME:-drawio-mcp-server}:${IMAGE_VERSION:-latest}
+    image: ${REGISTRY}/${IMAGE_NAME:-drawio-mcp-server}:${IMAGE_VERSION:-latest}
     ports:
       - "8080:8080"
     restart: unless-stopped
