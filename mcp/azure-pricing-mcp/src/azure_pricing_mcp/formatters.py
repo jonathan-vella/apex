@@ -4,6 +4,15 @@ import json
 from typing import Any
 
 from azure_pricing_mcp.config import DEFAULT_CUSTOMER_DISCOUNT
+from azure_pricing_mcp.databricks.formatters import (
+    format_databricks_compare_workloads_response as format_databricks_compare_workloads_response,
+)
+from azure_pricing_mcp.databricks.formatters import (
+    format_databricks_cost_estimate_response as format_databricks_cost_estimate_response,
+)
+from azure_pricing_mcp.databricks.formatters import (
+    format_databricks_dbu_pricing_response as format_databricks_dbu_pricing_response,
+)
 
 # Discount tip messages
 DISCOUNT_TIP_DEFAULT_USED = (
@@ -14,28 +23,6 @@ DISCOUNT_TIP_NO_DISCOUNT = (
     "💡 Want to see potential savings? Use the 'discount_percentage' parameter "
     "to apply your organization's negotiated discount rate."
 )
-
-# Keys excluded from compact JSON output
-_COMPACT_STRIP_KEYS = {"_discount_metadata", "sku_validation", "clarification", "retirement_warnings"}
-
-# Per-response-type field projections for compact output.
-# Only these fields survive in compact mode — everything else is stripped from list items.
-_COMPACT_ITEM_FIELDS = {"serviceName", "skuName", "armRegionName", "retailPrice", "unitOfMeasure", "type"}
-_COMPACT_RECOMMENDATION_FIELDS = {"region", "location", "retail_price", "spot_price", "savings_vs_most_expensive"}
-_COMPACT_LINE_ITEM_FIELDS = {"service_name", "sku_name", "region", "quantity", "monthly_cost", "yearly_cost"}
-_COMPACT_RI_ITEM_FIELDS = {"skuName", "armRegionName", "retailPrice", "unitOfMeasure", "reservationTerm"}
-_COMPACT_COMPARISON_FIELDS = {"sku", "region", "term", "savings_percentage", "ri_hourly", "od_hourly", "break_even_months", "annual_savings"}
-
-
-def _project_fields(items: list, allowed: set[str]) -> list:
-    """Project list-of-dict items to only the allowed field names.
-
-    Non-dict items are passed through unchanged.
-    """
-    return [
-        {k: v for k, v in item.items() if k in allowed} if isinstance(item, dict) else item
-        for item in items
-    ]
 
 
 def _get_discount_tip(result: dict[str, Any]) -> str:
@@ -233,11 +220,11 @@ def format_region_recommend_response(result: dict[str, Any]) -> str:
     if not recommendations:
         return "No region recommendations found for the specified criteria."
 
-    response_text = f"""🌍 Region Recommendations for {result['service_name']} - {result['sku_name']}
+    response_text = f"""🌍 Region Recommendations for {result["service_name"]} - {result["sku_name"]}
 
-Currency: {result['currency']}
-Total regions found: {result['total_regions_found']}
-Showing top: {result['showing_top']}
+Currency: {result["currency"]}
+Total regions found: {result["total_regions_found"]}
+Showing top: {result["showing_top"]}
 """
 
     if "discount_applied" in result:
@@ -247,9 +234,9 @@ Showing top: {result['showing_top']}
         summary = result["summary"]
         response_text += f"""
 📊 Summary:
-   🥇 Cheapest: {summary['cheapest_location']} ({summary['cheapest_region']}) - ${summary['cheapest_price']:.6f}
-   🥉 Most Expensive: {summary['most_expensive_location']} ({summary['most_expensive_region']}) - ${summary['most_expensive_price']:.6f}
-   💰 Max Savings: {summary['max_savings_percentage']:.1f}% by choosing the cheapest region
+   🥇 Cheapest: {summary["cheapest_location"]} ({summary["cheapest_region"]}) - ${summary["cheapest_price"]:.6f}
+   🥉 Most Expensive: {summary["most_expensive_location"]} ({summary["most_expensive_region"]}) - ${summary["most_expensive_price"]:.6f}
+   💰 Max Savings: {summary["max_savings_percentage"]:.1f}% by choosing the cheapest region
 """
 
     response_text += "\n📋 Ranked Recommendations (On-Demand Pricing):\n\n"
@@ -300,17 +287,12 @@ def format_cost_estimate_response(result: dict[str, Any]) -> str:
     if "error" in result:
         return f"Error: {result['error']}"
 
-    pricing_model = result.get("pricing_model", "per-hour")
-    quantity = result.get("quantity", 1)
-
     estimate_text = f"""
-Cost Estimate for {result['service_name']} - {result['sku_name']}
-Region: {result['region']}
-Product: {result['product_name']}
-Unit: {result['unit_of_measure']}
-Pricing Model: {pricing_model}
-Quantity: {quantity}
-Currency: {result['currency']}
+Cost Estimate for {result["service_name"]} - {result["sku_name"]}
+Region: {result["region"]}
+Product: {result["product_name"]}
+Unit: {result["unit_of_measure"]}
+Currency: {result["currency"]}
 """
 
     if "discount_applied" in result:
@@ -318,39 +300,39 @@ Currency: {result['currency']}
 
     estimate_text += f"""
 Usage Assumptions:
-- Hours per month: {result['usage_assumptions']['hours_per_month']}
-- Hours per day: {result['usage_assumptions']['hours_per_day']}
+- Hours per month: {result["usage_assumptions"]["hours_per_month"]}
+- Hours per day: {result["usage_assumptions"]["hours_per_day"]}
 
 On-Demand Pricing:
-- Unit Rate: ${result['on_demand_pricing']['unit_rate']}
-- Daily Cost: ${result['on_demand_pricing']['daily_cost']}
-- Monthly Cost: ${result['on_demand_pricing']['monthly_cost']}
-- Yearly Cost: ${result['on_demand_pricing']['yearly_cost']}
+- Hourly Rate: ${result["on_demand_pricing"]["hourly_rate"]}
+- Daily Cost: ${result["on_demand_pricing"]["daily_cost"]}
+- Monthly Cost: ${result["on_demand_pricing"]["monthly_cost"]}
+- Yearly Cost: ${result["on_demand_pricing"]["yearly_cost"]}
 """
 
-    if "discount_applied" in result and "original_unit_rate" in result["on_demand_pricing"]:
+    if "discount_applied" in result and "original_hourly_rate" in result["on_demand_pricing"]:
         estimate_text += f"""
 Original Pricing (before discount):
-- Unit Rate: ${result['on_demand_pricing']['original_unit_rate']}
-- Daily Cost: ${result['on_demand_pricing']['original_daily_cost']}
-- Monthly Cost: ${result['on_demand_pricing']['original_monthly_cost']}
-- Yearly Cost: ${result['on_demand_pricing']['original_yearly_cost']}
+- Hourly Rate: ${result["on_demand_pricing"]["original_hourly_rate"]}
+- Daily Cost: ${result["on_demand_pricing"]["original_daily_cost"]}
+- Monthly Cost: ${result["on_demand_pricing"]["original_monthly_cost"]}
+- Yearly Cost: ${result["on_demand_pricing"]["original_yearly_cost"]}
 """
 
     if result["savings_plans"]:
         estimate_text += "\nSavings Plans Available:\n"
         for plan in result["savings_plans"]:
             estimate_text += f"""
-{plan['term']} Term:
-- Unit Rate: ${plan['unit_rate']}
-- Monthly Cost: ${plan['monthly_cost']}
-- Yearly Cost: ${plan['yearly_cost']}
-- Savings: {plan['savings_percent']}% (${plan['annual_savings']} annually)
+{plan["term"]} Term:
+- Hourly Rate: ${plan["hourly_rate"]}
+- Monthly Cost: ${plan["monthly_cost"]}
+- Yearly Cost: ${plan["yearly_cost"]}
+- Savings: {plan["savings_percent"]}% (${plan["annual_savings"]} annually)
 """
-            if "original_unit_rate" in plan:
-                estimate_text += f"""- Original Unit Rate: ${plan['original_unit_rate']}
-- Original Monthly Cost: ${plan['original_monthly_cost']}
-- Original Yearly Cost: ${plan['original_yearly_cost']}
+            if "original_hourly_rate" in plan:
+                estimate_text += f"""- Original Hourly Rate: ${plan["original_hourly_rate"]}
+- Original Monthly Cost: ${plan["original_monthly_cost"]}
+- Original Yearly Cost: ${plan["original_yearly_cost"]}
 """
 
     return estimate_text
@@ -445,13 +427,13 @@ def format_customer_discount_response(result: dict[str, Any]) -> str:
     """Format the customer discount response for display."""
     return f"""Customer Discount Information
 
-Customer ID: {result['customer_id']}
-Discount Type: {result['discount_type']}
-Discount Percentage: {result['discount_percentage']}%
-Description: {result['description']}
-Applicable Services: {result['applicable_services']}
+Customer ID: {result["customer_id"]}
+Discount Type: {result["discount_type"]}
+Discount Percentage: {result["discount_percentage"]}%
+Description: {result["description"]}
+Applicable Services: {result["applicable_services"]}
 
-{result['note']}
+{result["note"]}
 """
 
 
@@ -484,65 +466,6 @@ def format_ri_pricing_response(result: dict[str, Any]) -> str:
         response_lines.append("No Reserved Instance pricing found for the given criteria.")
 
     return "\n".join(response_lines)
-
-
-def format_compact(result: dict[str, Any]) -> str:
-    """Return a minimal JSON representation with field projection.
-
-    Strips internal metadata and projects list items to only the fields
-    agents need for cost calculations. Achieves 3-5x token reduction
-    on responses with large Items arrays.
-    """
-    cleaned = {k: v for k, v in result.items() if k not in _COMPACT_STRIP_KEYS}
-
-    # Project list fields to essential-only columns
-    if "items" in cleaned and isinstance(cleaned["items"], list):
-        cleaned["items"] = _project_fields(cleaned["items"], _COMPACT_ITEM_FIELDS)
-    if "recommendations" in cleaned and isinstance(cleaned["recommendations"], list):
-        cleaned["recommendations"] = _project_fields(cleaned["recommendations"], _COMPACT_RECOMMENDATION_FIELDS)
-    if "line_items" in cleaned and isinstance(cleaned["line_items"], list):
-        cleaned["line_items"] = _project_fields(cleaned["line_items"], _COMPACT_LINE_ITEM_FIELDS)
-    if "ri_items" in cleaned and isinstance(cleaned["ri_items"], list):
-        cleaned["ri_items"] = _project_fields(cleaned["ri_items"], _COMPACT_RI_ITEM_FIELDS)
-    if "comparison" in cleaned and isinstance(cleaned["comparison"], list):
-        cleaned["comparison"] = _project_fields(cleaned["comparison"], _COMPACT_COMPARISON_FIELDS)
-
-    return json.dumps(cleaned, default=str)
-
-
-def format_bulk_estimate_response(result: dict[str, Any]) -> str:
-    """Format the bulk estimate response for display."""
-    lines: list[str] = [
-        f"### 📊 Bulk Cost Estimate ({result['currency']})\n",
-        f"Resources: {result['successful']}/{result['resource_count']} priced",
-    ]
-
-    if result["failed"] > 0:
-        lines.append(f"⚠️ {result['failed']} resource(s) could not be priced\n")
-
-    if result["line_items"]:
-        lines.append("")
-        lines.append("| # | Service | SKU | Region | Qty | Monthly | Yearly |")
-        lines.append("|---|---------|-----|--------|-----|---------|--------|")
-        for item in result["line_items"]:
-            item_nums = ", ".join(str(i + 1) for i in item.get("indices", [])) or "N/A"
-            lines.append(
-                f"| {item_nums} | {item['service_name']} | {item['sku_name']} "
-                f"| {item['region']} | {item['quantity']} "
-                f"| ${item['monthly_cost']:,.2f} | ${item['yearly_cost']:,.2f} |"
-            )
-
-        lines.append("")
-        lines.append(f"**Total Monthly: ${result['totals']['monthly']:,.2f}**")
-        lines.append(f"**Total Yearly: ${result['totals']['yearly']:,.2f}**")
-
-    if result["errors"]:
-        lines.append("\n#### Errors")
-        for err in result["errors"]:
-            err_nums = ", ".join(str(i + 1) for i in err.get("indices", [])) or "N/A"
-            lines.append(f"- Item(s) {err_nums}: {err['error']}")
-
-    return "\n".join(lines)
 
 
 # =============================================================================
@@ -645,9 +568,9 @@ def format_simulate_eviction_response(result: dict[str, Any]) -> str:
         return f"""### ✅ Eviction Simulation Triggered
 
 **Status:** Success
-**VM Resource ID:** `{result.get('vm_resource_id', 'N/A')}`
+**VM Resource ID:** `{result.get("vm_resource_id", "N/A")}`
 
-{result.get('note', '')}
+{result.get("note", "")}
 
 ⚠️ **What happens next:**
 1. The VM will receive a Scheduled Event notification
@@ -695,23 +618,250 @@ def _get_eviction_rate_emoji(rate: str) -> str:
     return "❓"
 
 
-def format_cache_stats_response(stats: dict[str, int]) -> str:
-    """Format cache hit/miss statistics for display."""
-    hits = stats.get("hits", 0)
-    misses = stats.get("misses", 0)
-    size = stats.get("size", 0)
-    total = hits + misses
-    hit_rate = (hits / total * 100) if total > 0 else 0.0
+# =============================================================================
+# Orphaned Resources Formatter
+# =============================================================================
+
+
+def format_orphaned_resources_response(result: dict[str, Any]) -> str:
+    """Format the orphaned resources scan response for display.
+
+    Groups resources by type and renders per-type summary sections
+    with a cost breakdown table.
+    """
+    # Handle authentication / API errors
+    if "error" in result:
+        return _format_spot_error(result)
+
+    subscriptions = result.get("subscriptions", [])
+    total_orphaned = result.get("total_orphaned", 0)
+    total_cost = result.get("total_estimated_cost", 0.0)
+    lookback = result.get("lookback_days", 60)
+    currency = result.get("currency", "USD")
+
+    if total_orphaned == 0:
+        return (
+            "### ✅ No Orphaned Resources Found\n\n"
+            f"Scanned {len(subscriptions)} subscription(s) — "
+            "no orphaned disks, public IPs, App Service Plans, SQL Elastic Pools, "
+            "Application Gateways, NAT Gateways, Load Balancers, Private DNS Zones, "
+            "Private Endpoints, Virtual Network Gateways, "
+            "or DDoS Protection Plans detected."
+        )
+
+    # Collect all orphaned resources across subscriptions
+    all_orphaned: list[dict[str, Any]] = []
+    for sub in subscriptions:
+        all_orphaned.extend(sub.get("orphaned_resources", []))
+
+    # Group by orphan type
+    by_type: dict[str, list[dict[str, Any]]] = {}
+    for resource in all_orphaned:
+        res_type = resource.get("orphan_type", "Unknown")
+        if res_type not in by_type:
+            by_type[res_type] = []
+        by_type[res_type].append(resource)
+
+    response_lines = [
+        "### 🔍 Orphaned Resource Report\n",
+        f"**Total orphaned resources:** {total_orphaned}",
+        f"**Estimated wasted cost ({lookback} days):** ${total_cost:,.2f} {currency}",
+        f"**Subscriptions scanned:** {len(subscriptions)}\n",
+    ]
+
+    # Per-type summary table
+    response_lines.append("#### Summary by Type\n")
+    response_lines.append("| Resource Type | Count | Est. Cost |")
+    response_lines.append("|---------------|-------|-----------|")
+    for rtype in sorted(by_type.keys()):
+        resources = by_type[rtype]
+        type_cost = sum(r.get("estimated_cost_usd") or 0.0 for r in resources)
+        response_lines.append(f"| {rtype} | {len(resources)} | ${type_cost:,.2f} |")
+    response_lines.append("")
+
+    # Detail per type
+    for rtype in sorted(by_type.keys()):
+        resources = by_type[rtype]
+        response_lines.append(f"#### {rtype} ({len(resources)})\n")
+        response_lines.append("| Name | Resource Group | Location | Cost |")
+        response_lines.append("|------|----------------|----------|------|")
+        for r in sorted(resources, key=lambda x: -(x.get("estimated_cost_usd") or 0.0)):
+            name = r.get("name", "N/A")
+            rg = r.get("resourceGroup", "N/A")
+            loc = r.get("location", "N/A")
+            cost = r.get("estimated_cost_usd")
+            cost_str = f"${cost:,.2f}" if cost is not None else "N/A"
+            response_lines.append(f"| {name} | {rg} | {loc} | {cost_str} |")
+        response_lines.append("")
+
+    response_lines.append(result.get("note", ""))
+    return "\n".join(response_lines)
+
+
+# =============================================================================
+# PTU Sizing + Cost Planner
+# =============================================================================
+
+
+def format_ptu_sizing_response(result: dict[str, Any]) -> str:
+    """Format PTU sizing estimation result as Markdown.
+
+    Args:
+        result: Result dict from PTUService.estimate_ptu_sizing().
+
+    Returns:
+        Formatted Markdown string.
+    """
+    if "error" in result:
+        lines = [f"❌ **PTU Sizing Error**: {result['error']}"]
+        if "supported_models" in result:
+            models = ", ".join(f"`{m}`" for m in result["supported_models"])
+            lines.append(f"\n**Supported models**: {models}")
+        if "supported_types" in result:
+            types = ", ".join(f"`{t}`" for t in result["supported_types"])
+            lines.append(f"\n**Supported deployment types**: {types}")
+        if "suggestion" in result:
+            lines.append(f"\n💡 {result['suggestion']}")
+        if "data_source" in result:
+            lines.append(f"\n📖 [Official PTU documentation]({result['data_source']})")
+        return "\n".join(lines)
+
+    # ── Header ──────────────────────────────────────────────────────────
+    lines = ["# ⚡ PTU Sizing Estimate\n"]
+
+    # ── Model & Deployment ──────────────────────────────────────────────
+    lines.append("## Model & Deployment")
+    lines.append(f"- **Model**: `{result['model']}`")
+    lines.append(f"- **Deployment type**: {result['deployment_label']}")
+    lines.append(f"- **Processing**: {result['deployment_description']}")
+    lines.append("")
+
+    # ── Workload Shape ──────────────────────────────────────────────────
+    wl = result["workload"]
+    lines.append("## Workload Shape (peak)")
+    lines.append(f"- **Requests/min (RPM)**: {wl['rpm']:,}")
+    lines.append(f"- **Avg input tokens/request**: {wl['avg_input_tokens']:,}")
+    lines.append(f"- **Avg output tokens/request**: {wl['avg_output_tokens']:,}")
+    if wl["cached_tokens_per_request"] > 0:
+        lines.append(f"- **Cached tokens/request**: {wl['cached_tokens_per_request']:,}")
+    lines.append("")
+
+    # ── Calculation Breakdown ───────────────────────────────────────────
+    calc = result["calculation"]
+    lines.append("## Calculation Breakdown")
+    lines.append(f"- **Output multiplier**: 1 output token = **{calc['output_multiplier']}** input tokens")
+    if result["workload"]["cached_tokens_per_request"] > 0:
+        lines.append(f"- **Effective input tokens** (after cache deduction): {calc['effective_input_tokens']:,}")
+    lines.append(f"- **Equivalent tokens/request**: {calc['eq_tokens_per_request']:,}")
+    lines.append(f"- **Equivalent TPM**: {calc['eq_tpm']:,}")
+    lines.append(f"- **Input TPM per PTU**: {calc['input_tpm_per_ptu']:,}")
+    lines.append(f"- **Raw PTU estimate**: {calc['raw_ptu']}")
+    lines.append("")
+
+    # ── Result ──────────────────────────────────────────────────────────
+    res = result["result"]
+    lines.append("## ✅ Recommended PTUs")
+    lines.append(f"### **{res['recommended_ptus']:,} PTUs**")
+    lines.append("")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append(f"| Raw (unrounded) | {res['raw_ptus']} |")
+    lines.append(f"| Rounded (deployed) | **{res['recommended_ptus']:,}** |")
+    lines.append(f"| Minimum deployment | {res['minimum_ptus']:,} |")
+    lines.append(f"| Scale increment | {res['scale_increment']:,} |")
+    lines.append(f"| Max per deployment | {res['max_ptus_per_deployment']:,} |")
+    lines.append("")
+
+    # ── Cost Estimate ───────────────────────────────────────────────────
+    if "cost" in result:
+        cost = result["cost"]
+        lines.append("## 💰 Cost Estimate")
+        if "hourly_cost" in cost:
+            lines.append("| Metric | Value |")
+            lines.append("|--------|-------|")
+            lines.append(f"| $/PTU/hour | {cost['currency']} {cost['price_per_ptu_hour']:.4f} |")
+            lines.append(
+                f"| Hourly cost ({cost['deployed_ptus']:,} PTUs) | {cost['currency']} {cost['hourly_cost']:,.2f} |"
+            )
+            lines.append(f"| Monthly cost (730h) | {cost['currency']} {cost['monthly_cost_730h']:,.2f} |")
+            lines.append(f"| Meter | {cost['meter_name']} |")
+            lines.append(f"| Region | {cost['region']} |")
+            lines.append("")
+            lines.append(f"💡 {cost['reservation_guidance']}")
+        else:
+            lines.append(f"⚠️ {cost.get('note', 'Pricing data unavailable.')}")
+            if "pricing_url" in cost:
+                lines.append(f"\n🔗 [Azure OpenAI Pricing]({cost['pricing_url']})")
+        lines.append("")
+
+    # ── Warnings ────────────────────────────────────────────────────────
+    if result.get("warnings"):
+        lines.append("## ⚠️ Important Notes")
+        for w in result["warnings"]:
+            lines.append(f"- {w}")
+        lines.append("")
+
+    # ── Footer ──────────────────────────────────────────────────────────
+    lines.append(
+        f"---\n📖 Data version: {result.get('data_version', 'N/A')} | " f"[Source]({result.get('data_source', '')})"
+    )
+
+    return "\n".join(lines)
+
+
+# =============================================================================
+# Bulk Cost Estimation
+# =============================================================================
+
+
+def format_bulk_estimate_response(result: dict[str, Any]) -> str:
+    """Format bulk cost estimate result as Markdown."""
+    if "error" in result:
+        return f"❌ **Error**: {result.get('message', result['error'])}"
 
     lines = [
-        "## 📊 Azure Pricing Cache Statistics",
+        "# 📦 Bulk Cost Estimate",
         "",
-        "| Metric | Value |",
-        "|--------|-------|",
-        f"| Cache Hits | {hits} |",
-        f"| Cache Misses | {misses} |",
-        f"| Total Lookups | {total} |",
-        f"| Hit Rate | {hit_rate:.1f}% |",
-        f"| Current Size | {size} entries |",
+        f"**Resources**: {result.get('resource_count', 0)} submitted, "
+        f"{result.get('unique_specs', 0)} unique, "
+        f"{result.get('successful', 0)} estimated, "
+        f"{result.get('failed', 0)} failed",
+        f"**Currency**: {result.get('currency', 'USD')}",
+        "",
     ]
+
+    line_items = result.get("line_items", [])
+    if line_items:
+        lines.append("## Line Items")
+        lines.append("")
+        lines.append("| Service | SKU | Region | Qty | Monthly | Yearly |")
+        lines.append("|---------|-----|--------|----:|--------:|-------:|")
+        for item in line_items:
+            lines.append(
+                f"| {item.get('service_name', 'N/A')} "
+                f"| {item.get('sku_name', 'N/A')} "
+                f"| {item.get('region', 'N/A')} "
+                f"| {item.get('quantity', 1)} "
+                f"| ${item.get('monthly_cost', 0):,.2f} "
+                f"| ${item.get('yearly_cost', 0):,.2f} |"
+            )
+        lines.append("")
+
+    totals = result.get("totals", {})
+    lines.append("## Totals")
+    lines.append("")
+    lines.append(f"- **Monthly**: ${totals.get('monthly', 0):,.2f}")
+    lines.append(f"- **Yearly**: ${totals.get('yearly', 0):,.2f}")
+
+    errors = result.get("errors", [])
+    if errors:
+        lines.append("")
+        lines.append("## ⚠️ Failed Items")
+        for err in errors:
+            inp = err.get("input", {})
+            lines.append(
+                f"- {inp.get('service_name', 'Unknown')}/{inp.get('sku_name', 'Unknown')} "
+                f"in {inp.get('region', 'Unknown')}: {err.get('error', 'Unknown error')}"
+            )
+
     return "\n".join(lines)

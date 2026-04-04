@@ -70,33 +70,39 @@ and is pre-configured in the dev container via the
 | Transport | stdio                                                 |
 | Command   | Python (`azure_pricing_mcp` module)                   |
 | Auth      | None for pricing; Azure credentials for Spot VM tools |
-| Tools     | 13 tools                                              |
+| Tools     | 19 tools                                              |
 | Source    | `mcp/azure-pricing-mcp/` (custom, built in-repo)      |
 
 This is a **custom MCP server built specifically for this project**. It
 queries the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
-and provides 13 tools for cost estimation:
+and provides 19 tools for cost estimation, SKU discovery, and FinOps:
 
-| Tool                     | Purpose                                      |
-| ------------------------ | -------------------------------------------- |
-| `azure_price_search`     | Search retail prices with filters            |
-| `azure_price_compare`    | Compare prices across regions/SKUs           |
-| `azure_cost_estimate`    | Estimate costs based on usage                |
-| `azure_discover_skus`    | List available SKUs for a service            |
-| `azure_sku_discovery`    | Intelligent SKU name matching                |
-| `azure_region_recommend` | Find cheapest regions                        |
-| `azure_ri_pricing`       | Reserved Instance pricing and savings        |
-| `azure_bulk_estimate`    | Multi-resource estimate in one call          |
-| `azure_cache_stats`      | API cache hit/miss statistics                |
-| `get_customer_discount`  | Customer discount percentage                 |
-| `spot_eviction_rates`    | Spot VM eviction rates (requires Azure auth) |
-| `spot_price_history`     | Spot VM price history (90 days)              |
-| `simulate_eviction`      | Simulate Spot VM eviction                    |
+| Tool                          | Purpose                                              |
+| ----------------------------- | ---------------------------------------------------- |
+| `azure_price_search`          | Search retail prices with filters                    |
+| `azure_price_compare`         | Compare prices across regions/SKUs                   |
+| `azure_cost_estimate`         | Estimate costs based on usage                        |
+| `azure_discover_skus`         | List available SKUs for a service                    |
+| `azure_sku_discovery`         | Intelligent SKU name matching                        |
+| `azure_region_recommend`      | Find cheapest regions                                |
+| `azure_ri_pricing`            | Reserved Instance pricing and savings                |
+| `azure_bulk_estimate`         | Multi-resource estimate in one call                  |
+| `get_customer_discount`       | Customer discount percentage                         |
+| `spot_eviction_rates`         | Spot VM eviction rates (requires Azure auth)         |
+| `spot_price_history`          | Spot VM price history (90 days)                      |
+| `simulate_eviction`           | Simulate Spot VM eviction                            |
+| `find_orphaned_resources`     | Detect unused Azure resources with cost analysis     |
+| `azure_ptu_sizing`            | Estimate PTUs for Azure OpenAI deployments           |
+| `databricks_dbu_pricing`      | Search Databricks DBU rates                          |
+| `databricks_cost_estimate`    | Estimate Databricks costs                            |
+| `databricks_compare_workloads`| Compare Databricks workload costs                    |
+| `github_pricing`              | GitHub pricing catalog (Plans, Copilot, Actions)     |
+| `github_cost_estimate`        | GitHub cost estimation                               |
 
-The server includes a 256-entry TTL cache (5-minute pricing, 24-hour
-retirement data, 1-hour spot data), ~95 user-friendly service name
-mappings (e.g. `"vm"` → `"Virtual Machines"`), and structured error
-codes for consistent agent error handling.
+The server includes user-friendly service name mappings
+(e.g., `"front door"` → `"Azure Front Door Service"`,
+`"private endpoint"` → `"Virtual Network"`), request deduplication,
+and connection pooling for optimal performance.
 
 :::note[Pricing accuracy]
 Cached prices may not reflect real-time promotional discounts, reserved instance

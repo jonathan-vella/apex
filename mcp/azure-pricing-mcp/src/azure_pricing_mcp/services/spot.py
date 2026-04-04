@@ -20,6 +20,7 @@ from ..config import (
     AZURE_COMPUTE_API_VERSION,
     AZURE_RESOURCE_GRAPH_API_VERSION,
     AZURE_RESOURCE_GRAPH_URL,
+    SPOT_CACHE_TTL,
 )
 
 logger = logging.getLogger(__name__)
@@ -148,6 +149,14 @@ class SpotService:
         if auth_error:
             return auth_error
 
+        # Check eviction cache with TTL
+        cache_key = f"eviction:{','.join(sorted(s.lower() for s in skus))}:{','.join(sorted(loc.lower() for loc in locations))}"
+        if self._eviction_cache and self._eviction_cache_time:
+            if (datetime.now() - self._eviction_cache_time) < SPOT_CACHE_TTL:
+                cached = self._eviction_cache.get(cache_key)
+                if cached is not None:
+                    return cached
+
         # Build the query
         sku_filter = ", ".join(f"'{sku.lower()}'" for sku in skus)
         location_filter = ", ".join(f"'{loc.lower()}'" for loc in locations)
@@ -171,13 +180,21 @@ SpotResources
 
         # Format the response
         data = result.get("data", [])
-        return {
+        response = {
             "eviction_rates": data,
             "count": len(data),
             "skus_queried": skus,
             "locations_queried": locations,
             "note": "Eviction rates are categorized as: 0-5%, 5-10%, 10-15%, 15-20%, 20%+",
         }
+
+        # Cache the result
+        if self._eviction_cache is None:
+            self._eviction_cache = {}
+        self._eviction_cache[cache_key] = response
+        self._eviction_cache_time = datetime.now()
+
+        return response
 
     async def get_price_history(
         self,

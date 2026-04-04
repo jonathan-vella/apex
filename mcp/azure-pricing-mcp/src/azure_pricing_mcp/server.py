@@ -18,9 +18,8 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from .client import AzurePricingClient
-from .error_codes import ErrorCode, error_response
 from .handlers import ToolHandlers
-from .services import BulkEstimateService, PricingService, RetirementService, SKUService
+from .services import DatabricksService, PricingService, RetirementService, SKUService
 from .tools import get_tool_definitions
 
 # Configure logging
@@ -44,13 +43,16 @@ class AzurePricingServer:
         self._retirement_service = RetirementService(self._client)
         self._pricing_service = PricingService(self._client, self._retirement_service)
         self._sku_service = SKUService(self._pricing_service)
-        self._bulk_service = BulkEstimateService(self._pricing_service)
-        self._tool_handlers = ToolHandlers(
-            self._pricing_service,
-            self._sku_service,
-            bulk_service=self._bulk_service,
-        )
+        # Lazy-initialized services (created on first use)
+        self._databricks_service: DatabricksService | None = None
+        self._tool_handlers: ToolHandlers | None = None
         self._session_active = False
+
+    @property
+    def databricks_service(self) -> DatabricksService:
+        if self._databricks_service is None:
+            self._databricks_service = DatabricksService(self._client)
+        return self._databricks_service
 
     async def __aenter__(self) -> "AzurePricingServer":
         """Async context manager entry - initializes the HTTP session."""
@@ -91,12 +93,14 @@ class AzurePricingServer:
 
     @property
     def tool_handlers(self) -> ToolHandlers:
-        """Get the tool handlers instance."""
+        """Get the tool handlers instance (lazy-initialized)."""
+        if self._tool_handlers is None:
+            self._tool_handlers = ToolHandlers(
+                self._pricing_service,
+                self._sku_service,
+                databricks_service=self.databricks_service,
+            )
         return self._tool_handlers
-
-    def get_cache_stats(self) -> dict[str, int]:
-        """Return cache hit/miss statistics from the HTTP client."""
-        return self._client.cache.stats
 
 
 def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) -> None:
@@ -110,10 +114,7 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
     async def handle_call_tool(name: str, arguments: dict[str, Any]) -> Any:
         """Handle tool calls - session must already be initialized."""
         if not pricing_server.is_active:
-            import json
-
-            err = error_response(ErrorCode.SESSION_NOT_ACTIVE, "Server session not initialized")
-            return [TextContent(type="text", text=json.dumps(err))]
+            return [TextContent(type="text", text="Error: Server session not initialized")]
 
         handlers = pricing_server.tool_handlers
 
@@ -133,21 +134,30 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
             return await handlers.handle_ri_pricing(arguments)
         elif name == "get_customer_discount":
             return await handlers.handle_customer_discount(arguments)
-        elif name == "azure_bulk_estimate":
-            return await handlers.handle_bulk_estimate(arguments)
         elif name == "spot_eviction_rates":
             return await handlers.handle_spot_eviction_rates(arguments)
         elif name == "spot_price_history":
             return await handlers.handle_spot_price_history(arguments)
         elif name == "simulate_eviction":
             return await handlers.handle_simulate_eviction(arguments)
-        elif name == "azure_cache_stats":
-            return await handlers.handle_cache_stats(arguments, pricing_server.get_cache_stats())
+        elif name == "find_orphaned_resources":
+            return await handlers.handle_find_orphaned_resources(arguments)
+        elif name == "databricks_dbu_pricing":
+            return await handlers.handle_databricks_dbu_pricing(arguments)
+        elif name == "databricks_cost_estimate":
+            return await handlers.handle_databricks_cost_estimate(arguments)
+        elif name == "databricks_compare_workloads":
+            return await handlers.handle_databricks_compare_workloads(arguments)
+        elif name == "azure_ptu_sizing":
+            return await handlers.handle_ptu_sizing(arguments)
+        elif name == "azure_bulk_estimate":
+            return await handlers.handle_bulk_estimate(arguments)
+        elif name == "github_pricing":
+            return await handlers.handle_github_pricing(arguments)
+        elif name == "github_cost_estimate":
+            return await handlers.handle_github_cost_estimate(arguments)
         else:
-            import json
-
-            err = error_response(ErrorCode.UNKNOWN_TOOL, f"Unknown tool: {name}", details={"tool": name})
-            return [TextContent(type="text", text=json.dumps(err))]
+            return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
 
 @overload

@@ -1,7 +1,7 @@
 # Azure Pricing MCP - Dependencies
-#
+# 
 # NOTE: This file is maintained for backward compatibility.
-# The single source of truth for dependencies is pyproject.toml.
+# The single source of truth for dependencies is pyproject.toml
 #
 # To install: pip install -e .  (uses pyproject.toml)
 # Or:         pip install -r requirements.txt  (uses this file)
@@ -10,12 +10,22 @@
 mcp>=1.0.0
 aiohttp>=3.9.0
 pydantic>=2.0.0
-cachetools>=5.3.0
 
 # HTTP server dependencies (for Docker)
 uvicorn>=0.27.0
 starlette>=0.36.0
 sse-starlette>=1.8.0
 
-# Azure authentication (for Spot VM tools)
+# Testing dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Azure authentication (for Spot VM tools and Orphaned Resources)
 azure-identity>=1.15.0
+azure-mgmt-compute>=30.0.0
+azure-mgmt-network>=30.0.0
+azure-mgmt-resource>=20.0.0
+azure-mgmt-subscription>=3.0.0
+azure-mgmt-web>=10.1.0
+azure-mgmt-resourcegraph>=8.0.1
+azure-mgmt-costmanagement>=4.0.1

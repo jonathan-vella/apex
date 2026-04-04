@@ -1,27 +1,15 @@
 """Pricing service for Azure Pricing MCP Server."""
 
+import json
 import logging
+from datetime import datetime
 from typing import Any
 
 from ..client import AzurePricingClient
-from ..config import DEFAULT_CUSTOMER_DISCOUNT
+from ..config import DEFAULT_CUSTOMER_DISCOUNT, REQUEST_DEDUP_TTL, SERVICE_NAME_MAPPINGS
 from .retirement import RetirementService
 
 logger = logging.getLogger(__name__)
-
-# SKU tier keywords that appear in productName but not skuName
-# Maps user-friendly terms to Azure API productName patterns
-TIER_KEYWORDS = {
-    "basic": "Basic",
-    "standard": "Standard",
-    "premium": "Premium",
-    "free": "Free",
-    "general purpose": "General Purpose",
-    "business critical": "Business Critical",
-    "hyperscale": "Hyperscale",
-    "serverless": "Serverless",
-    "consumption": "Consumption",
-}
 
 
 def normalize_sku_name(sku_name: str) -> tuple[list[str], str]:
@@ -60,23 +48,36 @@ def normalize_sku_name(sku_name: str) -> tuple[list[str], str]:
     return (search_terms, display_name)
 
 
-def is_tier_keyword(sku_name: str) -> str | None:
-    """Check if sku_name is a tier keyword that should search productName instead.
-
-    Returns the proper-cased tier name if it's a tier keyword, None otherwise.
-    """
-    if not sku_name:
-        return None
-    lower = sku_name.lower().strip()
-    return TIER_KEYWORDS.get(lower)
-
-
 class PricingService:
     """Service for Azure pricing operations."""
 
     def __init__(self, client: AzurePricingClient, retirement_service: RetirementService) -> None:
         self._client = client
         self._retirement_service = retirement_service
+        self._request_cache: dict[str, tuple[dict[str, Any], datetime]] = {}
+
+    async def _fetch_prices_cached(
+        self,
+        filter_conditions: list[str] | None = None,
+        currency_code: str = "USD",
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """Fetch prices with request-level deduplication cache."""
+        cache_key = json.dumps({"f": filter_conditions, "c": currency_code, "l": limit}, sort_keys=True)
+        if cache_key in self._request_cache:
+            result, cached_time = self._request_cache[cache_key]
+            if (datetime.now() - cached_time).total_seconds() < REQUEST_DEDUP_TTL:
+                return result
+        result = await self._client.fetch_prices(filter_conditions, currency_code, limit)
+        self._request_cache[cache_key] = (result, datetime.now())
+        # Evict old entries
+        if len(self._request_cache) > 100:
+            cutoff = datetime.now()
+            self._request_cache = {
+                k: v for k, v in self._request_cache.items()
+                if (cutoff - v[1]).total_seconds() < REQUEST_DEDUP_TTL
+            }
+        return result
 
     async def search_prices(
         self,
@@ -90,15 +91,11 @@ class PricingService:
         discount_percentage: float | None = None,
         validate_sku: bool = True,
     ) -> dict[str, Any]:
-        """Search Azure retail prices with various filters.
+        """Search Azure retail prices with various filters."""
+        # Resolve user-friendly names to official Azure service names
+        if service_name and service_name.lower() in SERVICE_NAME_MAPPINGS:
+            service_name = SERVICE_NAME_MAPPINGS[service_name.lower()]
 
-        SKU name handling:
-        - If sku_name is a tier keyword (Basic, Standard, Premium, etc.),
-          search BOTH productName AND skuName since Azure API is inconsistent:
-          - SQL Database: skuName='B', productName='SQL Database Single Basic'
-          - Service Bus: skuName='Basic', productName='Service Bus'
-        - Otherwise, search skuName as usual.
-        """
         filter_conditions = []
 
         if service_name:
@@ -107,21 +104,8 @@ class PricingService:
             filter_conditions.append(f"serviceFamily eq '{service_family}'")
         if region:
             filter_conditions.append(f"armRegionName eq '{region}'")
-
-        # Check if sku_name is a tier keyword that should search both productName and skuName
-        tier_keyword = is_tier_keyword(sku_name) if sku_name else None
-        if tier_keyword:
-            # Search both productName and skuName for tier keywords using OR
-            # This handles both patterns:
-            # - "contains(productName, 'Basic')" for SQL Database Single Basic
-            # - "contains(skuName, 'Basic')" for Service Bus Basic
-            filter_conditions.append(
-                f"(contains(productName, '{tier_keyword}') or contains(skuName, '{tier_keyword}'))"
-            )
-        elif sku_name:
-            # Search skuName for specific SKU names (e.g., "D2s_v3")
+        if sku_name:
             filter_conditions.append(f"contains(skuName, '{sku_name}')")
-
         if price_type:
             filter_conditions.append(f"priceType eq '{price_type}'")
 
@@ -484,22 +468,16 @@ class PricingService:
         self,
         service_name: str,
         sku_name: str,
-        region: str,
+        region: str = "",
         hours_per_month: float = 730,
         currency_code: str = "USD",
         discount_percentage: float | None = None,
-        quantity: float = 1,
     ) -> dict[str, Any]:
-        """Estimate monthly costs based on usage.
-
-        Handles non-hourly unit-of-measure values such as
-        '1 GB/Month', '10K Transactions', '1/Month', '1/Day', '1 GB'.
-        Falls back to hourly calculation when the unit is per-hour.
-        """
+        """Estimate monthly costs based on usage."""
         result = await self.search_prices(
             service_name=service_name,
             sku_name=sku_name,
-            region=region,
+            region=region or None,
             currency_code=currency_code,
             limit=5,
         )
@@ -513,35 +491,33 @@ class PricingService:
             }
 
         item = result["items"][0]
-        unit_price = item.get("retailPrice", 0)
-        original_unit_price = unit_price
-        unit_of_measure = item.get("unitOfMeasure", "1 Hour")
+        hourly_rate = item.get("retailPrice", 0)
+        original_hourly_rate = hourly_rate
 
         if discount_percentage is not None and discount_percentage > 0:
-            unit_price = unit_price * (1 - discount_percentage / 100)
+            hourly_rate = hourly_rate * (1 - discount_percentage / 100)
 
-        monthly_cost, daily_cost, yearly_cost, pricing_model = self._compute_monthly_cost(
-            unit_price, unit_of_measure, hours_per_month, quantity
-        )
+        monthly_cost = hourly_rate * hours_per_month
+        daily_cost = hourly_rate * 24
+        yearly_cost = monthly_cost * 12
 
         savings_plans = item.get("savingsPlan", [])
         savings_estimates = []
 
         for plan in savings_plans:
-            plan_unit = plan.get("retailPrice", 0)
-            original_plan_unit = plan_unit
+            plan_hourly = plan.get("retailPrice", 0)
+            original_plan_hourly = plan_hourly
 
             if discount_percentage is not None and discount_percentage > 0:
-                plan_unit = plan_unit * (1 - discount_percentage / 100)
+                plan_hourly = plan_hourly * (1 - discount_percentage / 100)
 
-            plan_monthly, _, plan_yearly, _ = self._compute_monthly_cost(
-                plan_unit, unit_of_measure, hours_per_month, quantity
-            )
-            savings_percent = ((monthly_cost - plan_monthly) / monthly_cost) * 100 if monthly_cost > 0 else 0
+            plan_monthly = plan_hourly * hours_per_month
+            plan_yearly = plan_monthly * 12
+            savings_percent = ((hourly_rate - plan_hourly) / hourly_rate) * 100 if hourly_rate > 0 else 0
 
             plan_data: dict[str, Any] = {
                 "term": plan.get("term"),
-                "unit_rate": round(plan_unit, 6),
+                "hourly_rate": round(plan_hourly, 6),
                 "monthly_cost": round(plan_monthly, 2),
                 "yearly_cost": round(plan_yearly, 2),
                 "savings_percent": round(savings_percent, 2),
@@ -549,12 +525,9 @@ class PricingService:
             }
 
             if discount_percentage is not None and discount_percentage > 0:
-                plan_data["original_unit_rate"] = original_plan_unit
-                orig_plan_monthly, _, _, _ = self._compute_monthly_cost(
-                    original_plan_unit, unit_of_measure, hours_per_month, quantity
-                )
-                plan_data["original_monthly_cost"] = round(orig_plan_monthly, 2)
-                plan_data["original_yearly_cost"] = round(orig_plan_monthly * 12, 2)
+                plan_data["original_hourly_rate"] = original_plan_hourly
+                plan_data["original_monthly_cost"] = round(original_plan_hourly * hours_per_month, 2)
+                plan_data["original_yearly_cost"] = round(original_plan_hourly * hours_per_month * 12, 2)
 
             savings_estimates.append(plan_data)
 
@@ -563,12 +536,10 @@ class PricingService:
             "sku_name": item.get("skuName"),
             "region": region,
             "product_name": item.get("productName"),
-            "unit_of_measure": unit_of_measure,
-            "pricing_model": pricing_model,
-            "quantity": quantity,
+            "unit_of_measure": item.get("unitOfMeasure"),
             "currency": currency_code,
             "on_demand_pricing": {
-                "unit_rate": round(unit_price, 6),
+                "hourly_rate": round(hourly_rate, 6),
                 "daily_cost": round(daily_cost, 2),
                 "monthly_cost": round(monthly_cost, 2),
                 "yearly_cost": round(yearly_cost, 2),
@@ -585,59 +556,16 @@ class PricingService:
                 "percentage": discount_percentage,
                 "note": "All prices shown are after discount",
             }
-            orig_monthly, orig_daily, orig_yearly, _ = self._compute_monthly_cost(
-                original_unit_price, unit_of_measure, hours_per_month, quantity
+            estimate_result["on_demand_pricing"]["original_hourly_rate"] = original_hourly_rate
+            estimate_result["on_demand_pricing"]["original_daily_cost"] = round(original_hourly_rate * 24, 2)
+            estimate_result["on_demand_pricing"]["original_monthly_cost"] = round(
+                original_hourly_rate * hours_per_month, 2
             )
-            estimate_result["on_demand_pricing"]["original_unit_rate"] = original_unit_price
-            estimate_result["on_demand_pricing"]["original_daily_cost"] = round(orig_daily, 2)
-            estimate_result["on_demand_pricing"]["original_monthly_cost"] = round(orig_monthly, 2)
-            estimate_result["on_demand_pricing"]["original_yearly_cost"] = round(orig_yearly, 2)
+            estimate_result["on_demand_pricing"]["original_yearly_cost"] = round(
+                original_hourly_rate * hours_per_month * 12, 2
+            )
 
         return estimate_result
-
-    @staticmethod
-    def _compute_monthly_cost(
-        unit_price: float,
-        unit_of_measure: str,
-        hours_per_month: float,
-        quantity: float,
-    ) -> tuple[float, float, float, str]:
-        """Derive monthly, daily, yearly cost from the API unit price.
-
-        Returns (monthly, daily, yearly, pricing_model).
-        """
-        uom = unit_of_measure.lower().strip()
-
-        if "hour" in uom:
-            hourly = unit_price * quantity
-            monthly = hourly * hours_per_month
-            return monthly, hourly * 24, monthly * 12, "per-hour"
-
-        if "gb/month" in uom:
-            monthly = unit_price * quantity
-            return monthly, monthly / 30.44, monthly * 12, "per-GB"
-
-        if "gb" in uom:
-            monthly = unit_price * quantity
-            return monthly, monthly / 30.44, monthly * 12, "per-GB"
-
-        if "/month" in uom:
-            monthly = unit_price * quantity
-            return monthly, monthly / 30.44, monthly * 12, "per-month"
-
-        if "/day" in uom:
-            daily = unit_price * quantity
-            monthly = daily * 30.44
-            return monthly, daily, monthly * 12, "per-day"
-
-        if "10k" in uom or "10,000" in uom:
-            monthly = unit_price * quantity
-            return monthly, monthly / 30.44, monthly * 12, "per-10K-transactions"
-
-        # Fallback: treat as hourly
-        hourly = unit_price * quantity
-        monthly = hourly * hours_per_month
-        return monthly, hourly * 24, monthly * 12, "per-hour"
 
     async def get_ri_pricing(
         self,

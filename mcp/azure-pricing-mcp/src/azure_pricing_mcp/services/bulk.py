@@ -6,7 +6,7 @@ and total monthly/yearly costs.
 
 Features:
 - Service-name alias resolution via SERVICE_NAME_MAPPINGS
-- Request deduplication (identical service/sku/region → sum quantities)
+- Request deduplication (identical service/sku/region -> sum quantities)
 - Concurrent dispatch with configurable semaphore
 - Per-item retry with exponential backoff
 """
@@ -16,7 +16,6 @@ import logging
 from typing import Any
 
 from ..config import SERVICE_NAME_MAPPINGS
-from ..error_codes import ErrorCode
 from .pricing import PricingService
 
 logger = logging.getLogger(__name__)
@@ -56,7 +55,7 @@ class BulkEstimateService:
         Optional keys:
             quantity (default 1), hours_per_month (default 730)
         """
-        # --- Phase A: resolve service aliases ---
+        # Phase A: resolve service aliases
         for res in resources:
             if "service_name" in res and res["service_name"]:
                 original = res["service_name"]
@@ -65,7 +64,7 @@ class BulkEstimateService:
                     res["_original_service_name"] = original
                     res["service_name"] = resolved
 
-        # --- Phase B: deduplicate identical specs, summing quantities ---
+        # Phase B: deduplicate identical specs, summing quantities
         deduped: dict[str, dict[str, Any]] = {}
         original_indices: dict[str, list[int]] = {}
         for idx, res in enumerate(resources):
@@ -81,23 +80,21 @@ class BulkEstimateService:
         deduped_list = list(deduped.values())
         index_map = list(original_indices.values())
 
-        # --- Phase C: concurrent dispatch with semaphore ---
+        # Phase C: concurrent dispatch with semaphore
         sem = asyncio.Semaphore(BULK_CONCURRENCY_LIMIT)
 
         async def _estimate_one(
             res: dict[str, Any],
             indices: list[int],
         ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
-            """Estimate a single resource with retry logic."""
             service_name = res.get("service_name", "")
             sku_name = res.get("sku_name", "")
             region = res.get("region", "")
 
-            if not service_name or not sku_name or not region:
+            if not service_name or not sku_name:
                 return None, {
                     "indices": indices,
-                    "code": ErrorCode.MISSING_REQUIRED_FIELD.value,
-                    "error": "Missing required field(s): service_name, sku_name, region",
+                    "error": "Missing required field(s): service_name, sku_name",
                     "input": res,
                 }
 
@@ -108,26 +105,26 @@ class BulkEstimateService:
             async with sem:
                 for attempt in range(1, BULK_ITEM_MAX_RETRIES + 1):
                     try:
-                        estimate = await self._pricing.estimate_costs(
-                            service_name=service_name,
-                            sku_name=sku_name,
-                            region=region,
-                            hours_per_month=hours_per_month,
-                            currency_code=currency_code,
-                            discount_percentage=discount_percentage,
-                            quantity=quantity,
-                        )
+                        estimate_kwargs: dict[str, Any] = {
+                            "service_name": service_name,
+                            "sku_name": sku_name,
+                            "hours_per_month": hours_per_month,
+                            "currency_code": currency_code,
+                            "discount_percentage": discount_percentage,
+                        }
+                        if region:
+                            estimate_kwargs["region"] = region
+                        estimate = await self._pricing.estimate_costs(**estimate_kwargs)
 
                         if "error" in estimate:
                             return None, {
                                 "indices": indices,
-                                "code": ErrorCode.BULK_ITEM_FAILED.value,
                                 "error": estimate.get("message", estimate.get("error", "Unknown error")),
                                 "input": res,
                             }
 
-                        monthly = estimate["on_demand_pricing"]["monthly_cost"]
-                        yearly = estimate["on_demand_pricing"]["yearly_cost"]
+                        monthly = estimate["on_demand_pricing"]["monthly_cost"] * quantity
+                        yearly = estimate["on_demand_pricing"]["yearly_cost"] * quantity
 
                         return {
                             "indices": indices,
@@ -158,7 +155,6 @@ class BulkEstimateService:
                 )
                 return None, {
                     "indices": indices,
-                    "code": ErrorCode.BULK_ITEM_FAILED.value,
                     "error": str(last_exc),
                     "input": res,
                 }
@@ -169,7 +165,7 @@ class BulkEstimateService:
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # --- Phase D: aggregate ---
+        # Phase D: aggregate
         line_items: list[dict[str, Any]] = []
         errors: list[dict[str, Any]] = []
         total_monthly = 0.0
@@ -177,11 +173,7 @@ class BulkEstimateService:
 
         for r in results:
             if isinstance(r, Exception):
-                errors.append({
-                    "indices": [],
-                    "code": ErrorCode.INTERNAL_ERROR.value,
-                    "error": str(r),
-                })
+                errors.append({"indices": [], "error": str(r)})
                 continue
             item, err = r
             if err:
