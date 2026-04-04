@@ -81,6 +81,53 @@ SERVICE_NAME_MAPPINGS: dict[str, str] = {
     "databricks": "Azure Databricks",
     "spark": "Azure Databricks",
     "dbu": "Azure Databricks",
+    # Networking & CDN
+    "front door": "Azure Front Door Service",
+    "frontdoor": "Azure Front Door Service",
+    "afd": "Azure Front Door Service",
+    "cdn": "Azure CDN",
+    "content delivery": "Azure CDN",
+    "waf": "Azure Front Door Service",
+    "web application firewall": "Azure Front Door Service",
+    # Private networking
+    "private endpoint": "Azure Private Link",
+    "private link": "Azure Private Link",
+    "private endpoints": "Azure Private Link",
+    "pe": "Azure Private Link",
+    # DNS
+    "dns": "Azure DNS",
+    "dns zone": "Azure DNS",
+    "private dns": "Azure DNS",
+    "private dns zone": "Azure DNS",
+    # Security & compliance
+    "defender": "Microsoft Defender for Cloud",
+    "defender for cloud": "Microsoft Defender for Cloud",
+    "security center": "Microsoft Defender for Cloud",
+    "sentinel": "Azure Sentinel",
+    "key vault": "Key Vault",
+    "keyvault": "Key Vault",
+    "kv": "Key Vault",
+    # Monitoring
+    "monitor": "Azure Monitor",
+    "log analytics": "Log Analytics",
+    "app insights": "Application Insights",
+    "application insights": "Application Insights",
+    # Containers
+    "container apps": "Azure Container Apps",
+    "aca": "Azure Container Apps",
+    "container registry": "Container Registry",
+    "acr": "Container Registry",
+    "container instances": "Container Instances",
+    "aci": "Container Instances",
+    # Data & messaging
+    "event hub": "Event Hubs",
+    "event hubs": "Event Hubs",
+    "service bus": "Service Bus",
+    "event grid": "Event Grid",
+    # Bandwidth
+    "bandwidth": "Bandwidth",
+    "data transfer": "Bandwidth",
+    "egress": "Bandwidth",
 }
 
 # VM series replacement recommendations

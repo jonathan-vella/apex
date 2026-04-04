@@ -10,7 +10,7 @@ a friendly error message with instructions for how to authenticate.
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 import aiohttp
@@ -150,7 +150,7 @@ class SpotService:
             return auth_error
 
         # Check eviction cache with TTL
-        cache_key = f"eviction:{','.join(sorted(s.lower() for s in skus))}:{','.join(sorted(l.lower() for l in locations))}"
+        cache_key = f"eviction:{','.join(sorted(s.lower() for s in skus))}:{','.join(sorted(loc.lower() for loc in locations))}"
         if self._eviction_cache and self._eviction_cache_time:
             if (datetime.now() - self._eviction_cache_time) < SPOT_CACHE_TTL:
                 cached = self._eviction_cache.get(cache_key)

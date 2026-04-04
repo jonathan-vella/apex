@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from ..client import AzurePricingClient
-from ..config import DEFAULT_CUSTOMER_DISCOUNT, REQUEST_DEDUP_TTL
+from ..config import DEFAULT_CUSTOMER_DISCOUNT, REQUEST_DEDUP_TTL, SERVICE_NAME_MAPPINGS
 from .retirement import RetirementService
 
 logger = logging.getLogger(__name__)
@@ -92,6 +92,10 @@ class PricingService:
         validate_sku: bool = True,
     ) -> dict[str, Any]:
         """Search Azure retail prices with various filters."""
+        # Resolve user-friendly names to official Azure service names
+        if service_name and service_name.lower() in SERVICE_NAME_MAPPINGS:
+            service_name = SERVICE_NAME_MAPPINGS[service_name.lower()]
+
         filter_conditions = []
 
         if service_name:

@@ -452,7 +452,7 @@ class OrphanedResourceScanner:
             return_exceptions=True,
         )
 
-        for (resource_type_label, _), result in zip(query_items, results):
+        for (resource_type_label, _), result in zip(query_items, results, strict=False):
             if isinstance(result, Exception):
                 logger.warning(f"Failed to query for {resource_type_label}: {result}")
                 continue
