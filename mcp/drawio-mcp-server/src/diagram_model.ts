@@ -1534,14 +1534,16 @@ export class DiagramModel {
    *   during batch diagram creation. Real SVG is restored only at finish-diagram time.
    *   Defaults to `false` (full production XML with all image data).
    */
-  toXml(options?: { compress?: boolean; transactional?: boolean; watermark?: boolean }): string {
+  toXml(options?: { compress?: boolean; transactional?: boolean; watermark?: boolean; background?: string }): string {
     const compress = options?.compress ?? false;
     const transactional = options?.transactional ?? false;
     const watermark = options?.watermark ?? false;
+    const background = options?.background ?? "#FFFFFF";
 
+    const backgroundAttr = background === "none" ? "" : ` background="${this.escapeXml(background)}"`;
     const pageXml = this.renderPageXml(this.cells, this.layers, { transactional, watermark });
     const graphModelXml =
-      `<mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>${pageXml}</root></mxGraphModel>`;
+      `<mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0"${backgroundAttr}><root><mxCell id="0"/><mxCell id="1" parent="0"/>${pageXml}</root></mxGraphModel>`;
     const diagramContent = compress ? DiagramModel.compressXml(graphModelXml) : graphModelXml;
 
     return `<mxfile host="drawio-mcp-server" activeLayerId="${this.escapeXml(this.activeLayerId)}"><diagram id="page-1" name="Page-1">${diagramContent}</diagram></mxfile>`;

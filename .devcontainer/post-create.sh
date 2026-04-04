@@ -3,7 +3,7 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=11
+TOTAL_STEPS=12
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0
@@ -94,10 +94,32 @@ else
     step_warn "k6 skipped: unsupported architecture $ARCH (supported: amd64, arm64)"
 fi
 
-# ─── Step 4: Directories & Git ───────────────────────────────────────────────
+# ─── Step 4: Deno upgrade ─────────────────────────────────────────────────────
+# The devcontainer feature caches the image layer, so "version: latest" may
+# lag behind. Explicitly upgrade to ensure we always have the latest release.
+
+step_start "🦕" "Upgrading Deno to latest..."
+if command -v deno &>/dev/null; then
+    if sudo deno upgrade 2>&1 | tail -1; then
+        step_done "deno $(deno --version 2>/dev/null | head -n1 | awk '{print $2}')"
+    else
+        step_warn "Deno upgrade failed — using feature-installed version"
+    fi
+    # Pre-cache drawio MCP server dependencies to eliminate first-start latency
+    DRAWIO_DIR="${PWD}/mcp/drawio-mcp-server"
+    if [ -f "$DRAWIO_DIR/deno.json" ]; then
+        deno install --entrypoint "$DRAWIO_DIR/src/index.ts" 2>/dev/null \
+            && printf "        ✅ drawio-mcp-server deps cached\n" \
+            || printf "        ⚠️  drawio dep cache skipped\n"
+    fi
+else
+    step_warn "Deno not found — rebuild container"
+fi
+
+# ─── Step 5: Directories & Git ───────────────────────────────────────────────
 
 step_start "🔐" "Configuring Git & directories..."
-mkdir -p "${HOME}/.cache" "${HOME}/.config/gh"
+mkdir -p "${HOME}/.cache" "${HOME}/.cache/deno" "${HOME}/.config/gh"
 sudo chown -R vscode:vscode "${HOME}/.cache" 2>/dev/null || true
 sudo chown -R vscode:vscode "${HOME}/.config/gh" 2>/dev/null || true
 chmod 755 "${HOME}/.cache" 2>/dev/null || true
@@ -106,7 +128,7 @@ git config --global --add safe.directory "${PWD}"
 git config --global core.autocrlf input
 step_done "Git configured, cache dirs created"
 
-# ─── Step 5: Python packages ─────────────────────────────────────────────────
+# ─── Step 6: Python packages ─────────────────────────────────────────────────
 
 step_start "🐍" "Installing Python packages..."
 export PATH="${HOME}/.local/bin:${PATH}"
@@ -127,7 +149,7 @@ else
     fi
 fi
 
-# ─── Step 6: PowerShell modules ──────────────────────────────────────────────
+# ─── Step 7: PowerShell modules ──────────────────────────────────────────────
 
 step_start "🔧" "Installing Azure PowerShell modules..."
 pwsh -NoProfile -Command "
@@ -155,7 +177,7 @@ pwsh -NoProfile -Command "
     \$jobs | Remove-Job -Force
 " && step_done "PowerShell modules installed" || step_warn "PowerShell module installation incomplete"
 
-# ─── Step 7: Azure Pricing MCP Server ────────────────────────────────────────
+# ─── Step 8: Azure Pricing MCP Server ────────────────────────────────────────
 
 step_start "💰" "Setting up Azure Pricing MCP Server..."
 MCP_DIR="${PWD}/mcp/azure-pricing-mcp"
@@ -180,7 +202,7 @@ else
     step_fail "MCP directory not found at $MCP_DIR"
 fi
 
-# ─── Step 8: Terraform MCP Server binary ────────────────────────────────────
+# ─── Step 9: Terraform MCP Server binary ────────────────────────────────────
 # Uses clone+build instead of go install because the module's go.mod contains
 # replace directives, which go install rejects for non-main modules.
 
@@ -210,7 +232,7 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
-# ─── Step 9: Python dependencies (authoritative) ────────────────────────────
+# ─── Step 10: Python dependencies (authoritative) ───────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
@@ -224,7 +246,7 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 10: Azure CLI extension install behavior ──────────────────────────
+# ─── Step 11: Azure CLI extension install behavior ─────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI extension install behavior..."
 if az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors 2>/dev/null \
@@ -235,7 +257,7 @@ else
     step_warn "Azure CLI config update failed"
 fi
 
-# ─── Step 11: MCP config & final verification ─────────────────────────────
+# ─── Step 12: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 
@@ -264,7 +286,7 @@ default_github = {
 default_drawio = {
     "type": "stdio",
     "command": "deno",
-    "args": ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-write", "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"],
+    "args": ["run", "-P", "--no-check", "--cached-only", "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"],
 }
 
 data = {"servers": {}}

@@ -29,6 +29,8 @@ This project would not exist in this manner if it weren't for the following repo
 - **Multiple Transports** — stdio (default) and streamable HTTP
 - **XML Export** — Standard Draw.io XML format compatible with Draw.io desktop and web
 
+For PNG/SVG/PDF conversion, use jgraph's Draw.io `skill-cli` workflow: `https://github.com/jgraph/drawio-mcp/blob/main/skill-cli/README.md`.
+
 ## Documentation
 
 - Transactional mode design: [docs/transactional_mode_design.md](docs/transactional_mode_design.md)

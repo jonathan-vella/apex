@@ -221,6 +221,24 @@ describe("DiagramModel", () => {
         }
       }
     });
+
+    it("should include white background by default", () => {
+      model.addRectangle({ text: "Test" });
+      const xml = model.toXml();
+      assert(xml.includes('background="#FFFFFF"'));
+    });
+
+    it("should include custom background color", () => {
+      model.addRectangle({ text: "Test" });
+      const xml = model.toXml({ background: "#000000" });
+      assert(xml.includes('background="#000000"'));
+    });
+
+    it("should omit background attribute when set to none", () => {
+      model.addRectangle({ text: "Test" });
+      const xml = model.toXml({ background: "none" });
+      assert(!xml.includes("background="));
+    });
   });
 
   describe("addRectangle", () => {
