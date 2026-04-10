@@ -11,7 +11,8 @@ Downloadable resources for presenting, sharing, and extending Agentic InfraOps.
 
 ### APEX — Agentic InfraOps
 
-The APEX deck is the definitive presentation for Agentic InfraOps. Use it to introduce the project, explain the multi-agent workflow, and demonstrate the end-to-end pipeline to stakeholders.
+The APEX deck is the definitive presentation for Agentic InfraOps. Use it to introduce the project,
+explain the multi-agent workflow, and demonstrate the end-to-end pipeline to stakeholders.
 
 <a
   href="/azure-agentic-infraops/downloads/apex.PPTX"
