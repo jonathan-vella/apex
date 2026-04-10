@@ -186,6 +186,7 @@ export default defineConfig({
               slug: "reference/architecture-explorer",
             },
             { label: "Glossary", slug: "reference/glossary" },
+            { label: "Resources & Downloads", slug: "reference/resources" },
           ],
         },
         {
