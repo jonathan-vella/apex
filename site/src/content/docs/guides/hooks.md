@@ -127,7 +127,7 @@ Each hook follows this pattern:
     "<EventName>": [
       {
         "type": "command",
-        "command": ".github/hooks/{name}/{name}.sh",
+        "command": "bash .github/hooks/{name}/{name}.sh",
         "timeout": 30
       }
     ]
@@ -146,7 +146,7 @@ All hook scripts must:
 2. Include `set -euo pipefail`
 3. Read JSON from stdin
 4. Write JSON to stdout (`{"continue": true}` or `{"hookSpecificOutput": {...}}`)
-5. Be executable (`chmod +x`)
+5. Be invoked through `bash` in `hooks.json` so execution does not depend on the file mode
 
 ## Validation
 
@@ -188,8 +188,6 @@ print(json.dumps({'continue': True, 'systemMessage': sys.argv[1]}))
 " "Your message" 2>/dev/null || echo '{"continue": true}'
 ```
 
-Then: `chmod +x .github/hooks/my-hook-name/my-hook-name.sh`
-
 ### 2. Create hooks.json
 
 ```json
@@ -198,7 +196,7 @@ Then: `chmod +x .github/hooks/my-hook-name/my-hook-name.sh`
     "PostToolUse": [
       {
         "type": "command",
-        "command": ".github/hooks/my-hook-name/my-hook-name.sh",
+        "command": "bash .github/hooks/my-hook-name/my-hook-name.sh",
         "timeout": 30
       }
     ]

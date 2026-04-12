@@ -4,19 +4,13 @@
  *
  * Validates .github/hooks/ configuration:
  * 1. Each hooks.json has valid schema (correct event names, timeout range)
- * 2. Referenced scripts exist and are executable
+ * 2. Referenced scripts exist and shell hooks are invoked through bash
  * 3. Scripts follow shell conventions (shebang, set -euo pipefail)
  * 4. .vscode/settings.json chat.hookFilesLocations includes all hook directories
  * 5. Agent-scoped hooks (if enabled) have valid YAML syntax
  */
 
-import {
-  readFileSync,
-  existsSync,
-  readdirSync,
-  accessSync,
-  constants,
-} from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseJsonc } from "./_lib/parse-jsonc.mjs";
@@ -57,6 +51,23 @@ function fail(msg) {
 function warn(msg) {
   console.warn(`  ⚠️  ${msg}`);
   warnings++;
+}
+
+function parseCommand(command) {
+  const normalized = command.trim();
+  const bashPrefix = "bash ";
+
+  if (normalized.startsWith(bashPrefix)) {
+    return {
+      scriptPath: normalized.slice(bashPrefix.length).trim(),
+      usesBash: true,
+    };
+  }
+
+  return {
+    scriptPath: normalized,
+    usesBash: false,
+  };
 }
 
 console.log("🔍 Validating agent hooks configuration...\n");
@@ -138,37 +149,41 @@ for (const dir of hookDirs) {
         continue;
       }
 
-      const scriptPath = resolve(REPO_ROOT, entry.command);
+      const { scriptPath: commandScriptPath, usesBash } = parseCommand(
+        entry.command,
+      );
+
+      if (commandScriptPath.endsWith(".sh") && !usesBash) {
+        fail(
+          `${dir}/hooks.json must invoke shell scripts via "bash <script>" to avoid execute-bit issues: ${entry.command}`,
+        );
+      } else if (commandScriptPath.endsWith(".sh") && usesBash) {
+        pass(`Shell script uses durable bash invocation`);
+      }
+
+      const scriptPath = resolve(REPO_ROOT, commandScriptPath);
       if (!existsSync(scriptPath)) {
-        fail(`${dir}/hooks.json references missing script: ${entry.command}`);
+        fail(`${dir}/hooks.json references missing script: ${commandScriptPath}`);
       } else {
-        pass(`Script exists: ${entry.command}`);
+        pass(`Script exists: ${commandScriptPath}`);
 
-        // 2g. Check execute permission
-        try {
-          accessSync(scriptPath, constants.X_OK);
-          pass(`Script is executable`);
-        } catch {
-          fail(`Script ${entry.command} is not executable (chmod +x needed)`);
-        }
-
-        // 2h. Check shebang and set -euo pipefail
+        // 2g. Check shebang and set -euo pipefail
         const scriptContent = readFileSync(scriptPath, "utf-8");
         const lines = scriptContent.split("\n");
         if (!lines[0]?.startsWith("#!/usr/bin/env bash")) {
-          fail(`Script ${entry.command} missing shebang (#!/usr/bin/env bash)`);
+          fail(`Script ${commandScriptPath} missing shebang (#!/usr/bin/env bash)`);
         } else {
           pass(`Script has correct shebang`);
         }
 
         if (!scriptContent.includes("set -euo pipefail")) {
-          fail(`Script ${entry.command} missing "set -euo pipefail"`);
+          fail(`Script ${commandScriptPath} missing "set -euo pipefail"`);
         } else {
           pass(`Script has set -euo pipefail`);
         }
       }
 
-      // 2i. Validate timeout
+      // 2h. Validate timeout
       if (entry.timeout !== undefined) {
         if (
           typeof entry.timeout !== "number" ||

@@ -20,8 +20,8 @@ function run_test() {
 
   TOTAL=$((TOTAL + 1))
 
-  if [[ ! -x "$hook_script" ]]; then
-    echo "  ❌ FAIL: $test_name — script not executable"
+  if [[ ! -f "$hook_script" ]]; then
+    echo "  ❌ FAIL: $test_name — script not found"
     FAILED=$((FAILED + 1))
     return
   fi
@@ -58,8 +58,8 @@ function run_test_exit_code() {
 
   TOTAL=$((TOTAL + 1))
 
-  if [[ ! -x "$hook_script" ]]; then
-    echo "  ❌ FAIL: $test_name — script not executable"
+  if [[ ! -f "$hook_script" ]]; then
+    echo "  ❌ FAIL: $test_name — script not found"
     FAILED=$((FAILED + 1))
     return
   fi

@@ -3,21 +3,21 @@
     "SessionStart": [
       {
         "type": "command",
-        "command": ".github/hooks/session-logger/log-session-start.sh",
+        "command": "bash .github/hooks/session-logger/log-session-start.sh",
         "timeout": 5
       }
     ],
     "Stop": [
       {
         "type": "command",
-        "command": ".github/hooks/session-logger/log-session-end.sh",
+        "command": "bash .github/hooks/session-logger/log-session-end.sh",
         "timeout": 5
       }
     ],
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": ".github/hooks/session-logger/log-prompt.sh",
+        "command": "bash .github/hooks/session-logger/log-prompt.sh",
         "timeout": 5
       }
     ]
