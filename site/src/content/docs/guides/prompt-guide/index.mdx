@@ -39,25 +39,32 @@ infrastructure.
   />
 </CardGrid>
 
+:::tip[Recommended reading order]
+Start with [Best Practices](best-practices/), then use
+[Workflow Prompts](workflow-prompts/) for the end-to-end flow, and keep
+[Skill & Subagent Reference](reference/) open when you need to interpret
+validation or preview output.
+:::
+
 ## Quick Reference
 
 ### Agents
 
-| Agent                  | Codename      | Step | Purpose                                        |
-| ---------------------- | ------------- | ---- | ---------------------------------------------- |
-| **Orchestrator** | 🧠 Orchestrator    | All  | Orchestrates the full multi-step workflow      |
-| **Requirements**       | 📜 Scribe     | 1    | Captures business and technical requirements   |
-| **Architect**          | 🏛️ Oracle     | 2    | WAF assessment, cost estimates, SKU comparison |
-| **Design**             | 🎨 Artisan    | 3    | Architecture diagrams and ADRs (optional step) |
-| **IaC Planner**      | 📐 Strategist | 4b   | Bicep implementation plan with governance      |
-| **IaC Planner**  | 📐 Strategist | 4t   | Terraform implementation plan with governance  |
-| **Bicep CodeGen**      | ⚒️ Forge      | 5b   | Generates production-ready Bicep templates     |
-| **Terraform CodeGen**  | ⚒️ Forge      | 5t   | Generates production-ready Terraform configs   |
-| **Bicep Deploy**       | 🚀 Envoy      | 6b   | What-if analysis and Bicep deployment          |
-| **Terraform Deploy**   | 🚀 Envoy      | 6t   | Terraform plan preview and apply               |
-| **As-Built**           | 📚 Chronicler | 7    | Generates post-deployment documentation        |
-| **Diagnose**           | 🔍 Sentinel   | —    | Resource health and troubleshooting            |
-| **Challenger**         | ⚔️ Challenger | —    | Reviews plans for gaps and weaknesses          |
+| Agent                 | Codename        | Step | Purpose                                            |
+| --------------------- | --------------- | ---- | -------------------------------------------------- |
+| **Orchestrator**      | 🧠 Orchestrator | All  | Orchestrates the full multi-step workflow          |
+| **Requirements**      | 📜 Scribe       | 1    | Captures business and technical requirements       |
+| **Architect**         | 🏛️ Oracle       | 2    | WAF assessment, cost estimates, SKU comparison     |
+| **Design**            | 🎨 Artisan      | 3    | Architecture diagrams and ADRs (optional step)     |
+| **Governance**        | 🛡️ Warden       | 3.5  | Discovers Azure Policy constraints                 |
+| **IaC Planner**       | 📐 Strategist   | 4    | Creates the Bicep or Terraform implementation plan |
+| **Bicep CodeGen**     | ⚒️ Forge        | 5b   | Generates production-ready Bicep templates         |
+| **Terraform CodeGen** | ⚒️ Forge        | 5t   | Generates production-ready Terraform configs       |
+| **Bicep Deploy**      | 🚀 Envoy        | 6b   | What-if analysis and Bicep deployment              |
+| **Terraform Deploy**  | 🚀 Envoy        | 6t   | Terraform plan preview and apply                   |
+| **As-Built**          | 📚 Chronicler   | 7    | Generates post-deployment documentation            |
+| **Diagnose**          | 🔍 Sentinel     | —    | Resource health and troubleshooting                |
+| **Challenger**        | ⚔️ Challenger   | —    | Reviews plans for gaps and weaknesses              |
 
 ### Skills
 
@@ -73,23 +80,20 @@ infrastructure.
 | `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                               |
 | `terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)                                |
 | `azure-diagnostics`    | KQL templates, health checks, remediation playbooks                                |
-| `github-operations`    | Branch naming, conventional commits, PRs, CLI                                      |
-| `github-operations`    | GitHub issues, PRs, CLI, Actions, releases                                         |
+| `github-operations`    | Branch naming, conventional commits, issues, PRs, CLI, Actions, and releases       |
 | `docs-writer`          | Documentation generation and maintenance                                           |
 | `make-skill-template`  | Scaffold new skills from a template                                                |
 
 ### Subagents
 
-| Subagent                        | Called By         | Purpose                                         |
-| ------------------------------- | ----------------- | ----------------------------------------------- |
-| `bicep-lint-subagent`           | Bicep CodeGen     | Runs `bicep lint` and `bicep build` validation  |
-| `bicep-review-subagent`         | Bicep CodeGen     | Reviews templates against AVM standards         |
-| `bicep-whatif-subagent`         | Bicep Deploy      | Runs `az deployment group what-if` preview      |
-| `terraform-lint-subagent`       | Terraform CodeGen | Runs `terraform fmt`, `validate`, and TFLint    |
-| `terraform-review-subagent`     | Terraform CodeGen | Reviews configs against AVM-TF standards        |
-| `iac-planner-subagent`       | Terraform Deploy  | Runs `terraform plan` change preview            |
-| `cost-estimate-subagent`        | Architect         | Queries Azure Pricing MCP for real-time pricing |
-| `governance-discovery-subagent` | IaC Planners      | Discovers Azure Policy constraints via REST API |
+| Subagent                        | Called By         | Purpose                                              |
+| ------------------------------- | ----------------- | ---------------------------------------------------- |
+| `bicep-validate-subagent`       | Bicep CodeGen     | Runs lint plus AVM and security review               |
+| `bicep-whatif-subagent`         | Bicep Deploy      | Runs `az deployment group what-if` preview           |
+| `terraform-validate-subagent`   | Terraform CodeGen | Runs `terraform fmt`, `validate`, TFLint, and review |
+| `terraform-plan-subagent`       | Terraform Deploy  | Runs `terraform plan` change preview                 |
+| `cost-estimate-subagent`        | Architect         | Queries Azure Pricing MCP for real-time pricing      |
+| `governance-discovery-subagent` | Governance        | Discovers Azure Policy constraints via REST API      |
 
 ### Prompt Files
 
@@ -99,20 +103,20 @@ to see available prompts.
 
 #### Core Workflow Prompts
 
-| Prompt File             | Agent              | Step | Purpose                               |
-| ----------------------- | ------------------ | ---- | ------------------------------------- |
-| `01-orchestrator`          | Orchestrator | All  | End-to-end multi-step orchestration   |
-| `02-requirements`       | Requirements       | 1    | Business-first requirements discovery |
-| `03-architect`          | Architect          | 2    | WAF assessment with cost estimates    |
-| `04-design`             | Design             | 3    | Python architecture diagrams and ADRs |
-| `04g-governance`        | Governance         | 3.5  | Azure Policy governance discovery     |
-| `05-iac-planner`        | IaC Planner        | 4    | Governance discovery and IaC planning |
-| `06b-bicep-codegen`     | Bicep CodeGen      | 5b   | AVM-first Bicep template generation   |
-| `06t-terraform-codegen` | Terraform CodeGen  | 5t   | AVM-TF Terraform config generation    |
-| `07b-bicep-deploy`      | Bicep Deploy       | 6b   | What-if analysis and Bicep deployment |
-| `07t-terraform-deploy`  | Terraform Deploy   | 6t   | Terraform plan preview and apply      |
-| `08-as-built`           | As-Built           | 7    | As-built documentation suite          |
-| `diagnose-resource`     | Diagnose           | —    | Resource health diagnostics           |
+| Prompt File             | Agent             | Step | Purpose                               |
+| ----------------------- | ----------------- | ---- | ------------------------------------- |
+| `01-orchestrator`       | Orchestrator      | All  | End-to-end multi-step orchestration   |
+| `02-requirements`       | Requirements      | 1    | Business-first requirements discovery |
+| `03-architect`          | Architect         | 2    | WAF assessment with cost estimates    |
+| `04-design`             | Design            | 3    | Python architecture diagrams and ADRs |
+| `04g-governance`        | Governance        | 3.5  | Azure Policy governance discovery     |
+| `05-iac-planner`        | IaC Planner       | 4    | Governance discovery and IaC planning |
+| `06b-bicep-codegen`     | Bicep CodeGen     | 5b   | AVM-first Bicep template generation   |
+| `06t-terraform-codegen` | Terraform CodeGen | 5t   | AVM-TF Terraform config generation    |
+| `07b-bicep-deploy`      | Bicep Deploy      | 6b   | What-if analysis and Bicep deployment |
+| `07t-terraform-deploy`  | Terraform Deploy  | 6t   | Terraform plan preview and apply      |
+| `08-as-built`           | As-Built          | 7    | As-built documentation suite          |
+| `diagnose-resource`     | Diagnose          | —    | Resource health diagnostics           |
 
 #### Utility Prompts
 

@@ -66,6 +66,16 @@ are enforced as first-class concerns across all generated infrastructure.
   />
 </CardGrid>
 
+## Recommended Reading Order
+
+If you are new to APEX, read the docs in this order:
+
+1. [System Architecture](architecture/) for the overall flow
+2. [Agent Architecture](agents/) for roles, handoffs, and subagents
+3. [Skills & Instructions](skills-and-instructions/) for the knowledge and rule layers
+4. [Workflow Engine & Quality](workflow-engine/) for gates, validation, and session state
+5. [MCP Integration](mcp-integration/) for external tool access and server capabilities
+
 ## Intellectual Foundations
 
 This project draws directly from two bodies of work that define how autonomous AI agents
@@ -201,8 +211,8 @@ artefact files in `agent-output/{project}/` and the machine-readable
 **Right-sized task decomposition.** Ralph insists that each PRD item must be
 small enough to complete within a single context window — "Add a database
 column" not "Build the entire dashboard." This project enforces the same
-principle at a different scale: each of the 8 workflow steps is scoped to a
-single well-defined output (one requirements doc, one architecture assessment,
+principle at a different scale: each of the 7 main workflow steps plus Step 3.5
+Governance is scoped to a single well-defined output (one requirements doc, one architecture assessment,
 one implementation plan), and subagents are further decomposed to atomic
 validation or review tasks.
 
@@ -249,14 +259,14 @@ This project weaves all three into a system purpose-built for Azure infrastructu
 | Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
 | Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
 | Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
-| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Orchestrator agent                       |
+| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Orchestrator agent                    |
 | Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Serial execution (v3.0 — lock/claim removed)                  |
 | Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |
-| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Orchestrator                            |
+| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Orchestrator                         |
 | Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules                             |
 | Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time                        |
 | Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews                         |
-| Cost governance        | Enforce invariants, not impls        | —                                   | —                                | `iac-cost-repeatability` instruction + adversarial checklists |
+| Cost governance        | Enforce invariants, not impls        | —                                   | —                                | `iac-best-practices.instructions.md` + adversarial checklists |
 | Context efficiency     | Context is scarce                    | Context shredding                   | Fresh context per iteration      | Session Break Protocol at Gates 2 & 3 + conditional pass 3    |
 
 ## Golden Principles

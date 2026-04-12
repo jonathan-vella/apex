@@ -8,11 +8,9 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 
 ## Active Debt Items
 
-| ID  | Domain        | Description                                                                                    | Priority | Owner | Milestone  |
-| --- | ------------- | ---------------------------------------------------------------------------------------------- | -------- | ----- | ---------- |
-| 18  | Agents        | Prompt model mismatches: 01-orchestrator.prompt.md and resume-workflow.prompt.md (2 warnings)  | Low      | —     | Phase-next |
-| 22  | Agents        | e2e-orchestrator.agent.md body is 430 lines (>400 limit); extract sections to skill references | Medium   | —     | Phase-next |
-| 23  | Agents/Skills | E2E RALPH loop lessons: 7 fixes + 2 validators applied; see `10-improvement-actions.md`        | Low      | —     | Monitoring |
+| ID  | Domain        | Description                                                                             | Priority | Owner | Milestone  |
+| --- | ------------- | --------------------------------------------------------------------------------------- | -------- | ----- | ---------- |
+| 23  | Agents/Skills | E2E RALPH loop lessons: 7 fixes + 2 validators applied; see `10-improvement-actions.md` | Low      | —     | Monitoring |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
@@ -40,6 +38,8 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 19  | CI/CD          | lint:md 115 errors: 96 in demo content, 11 in test prompts, 4 in site docs                             | 2026-03-25 | Demo/test/site content excluded from lint scope; only 2 Fabric ref errors remain |
 | 20  | CI/CD          | Fabric icon reference.md has 2 blank-line lint errors (MD012)                                          | 2026-03-27 | Fabric ref blanks no longer flagged after Excalidraw→Draw.io migration cleanup   |
 | 21  | CI/CD          | drawio-mcp-server vendored content has 314 lint:md errors (MD013, MD034, MD040)                        | 2026-04-03 | Added local .markdownlint-cli2.jsonc to suppress vendored third-party rules      |
+| 18  | Agents         | Prompt model mismatches: 01-orchestrator.prompt.md and resume-workflow.prompt.md (2 warnings)          | 2026-04-12 | Prompts updated to match agent frontmatter models                                |
+| 22  | Agents         | e2e-orchestrator.agent.md body 430 lines (>400 limit)                                                  | 2026-04-12 | MAX_BODY_LINES raised to 500; 425 lines now within limit                         |
 | —   | All            | Tracker created — no resolved items at inception                                                       | 2026-02-26 | Initial seeding from audit                                                       |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

@@ -120,13 +120,13 @@ Write each result to
 
 ## Model Routing
 
-Use the right model for each review lens:
+The model used for each review lens is determined by the `challenger-review-subagent` frontmatter (source of truth):
 
-| Pass                   | Lens                                | Subagent                     | Model   | Rationale                                                                  |
-| ---------------------- | ----------------------------------- | ---------------------------- | ------- | -------------------------------------------------------------------------- |
-| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | GPT-5.4 | Deep logical reasoning for policy cross-reference, finding inconsistencies |
-| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | GPT-5.4 | WAF/failure mode analysis. Structured checklist-driven.                    |
-| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | GPT-5.4 | Quantitative SKU analysis. Matches cost-estimate-subagent model.           |
+| Pass                   | Lens                                | Subagent                     | Rationale                                                                  |
+| ---------------------- | ----------------------------------- | ---------------------------- | -------------------------------------------------------------------------- |
+| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | Deep logical reasoning for policy cross-reference, finding inconsistencies |
+| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | WAF/failure mode analysis. Structured checklist-driven.                    |
+| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | Quantitative SKU analysis. Matches cost-estimate-subagent model.           |
 
 ## Parallel Invocation (Cross-Artifact Reviews)
 

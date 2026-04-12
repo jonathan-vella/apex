@@ -97,9 +97,11 @@ Include monthly and yearly totals for each resource.
 
 ## Step 4: Planning — 📐 Strategist
 
-Select the **IaC Planner** or **IaC Planner** agent depending on your
-IaC tool preference. Both discover governance constraints and create a
-machine-readable implementation plan.
+Select the **IaC Planner** agent for Step 4. The same planner handles both
+IaC tracks: use the Bicep example if your requirements selected `iac_tool: bicep`,
+or the Terraform example if your requirements selected `iac_tool: terraform`.
+It validates governance constraints first, then creates a machine-readable
+implementation plan for the chosen track.
 
 === "Bicep"
 
@@ -198,6 +200,25 @@ This produces documentation files in `agent-output/{project}/07-*.md`:
 design document, operations runbook, cost estimate, compliance matrix,
 backup/DR plan, and resource inventory.
 
+## If a Step Fails
+
+Use the failure signal to decide what to do next instead of restarting the
+workflow from scratch.
+
+- **Approval gate returns `must_fix`**: go back to the previous step, update the
+  artifact that was challenged, and re-run that step. The Orchestrator re-triggers
+  the gate after regenerating the output.
+- **Governance discovery returns an empty policy set**: proceed if
+  `04-governance-constraints.json` shows `discovery_status: "COMPLETE"`. An empty
+  array means no deny-effect constraints were found for that subscription.
+- **Validation or preview fails**: copy the exact `bicep build`, `terraform validate`,
+  `what-if`, or `terraform plan` error back into the parent agent prompt so it can
+  repair the generated code rather than guessing.
+- **Tooling or auth fails**: fix the environment first, then resume the same step.
+  Use [Quickstart](../../getting-started/quickstart/),
+  [Troubleshooting](../troubleshooting/), and
+  [Validation & Linting](../../reference/validation-reference/) as the primary recovery guides.
+
 ## Standalone Agents
 
 ### Orchestrator — 🧠 Orchestrator
@@ -249,3 +270,9 @@ Look for governance gaps, security blind spots, and cost risks.
 Review the architecture assessment for single points of failure
 and missing disaster recovery considerations.
 ```
+
+## Next Steps
+
+- [Best Practices](../best-practices/) — improve prompt quality before retrying a step
+- [Skill & Subagent Reference](../reference/) — interpret validator and preview output
+- [Troubleshooting](../../guides/troubleshooting/) — recover from auth, setup, and deployment issues

@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] — Unreleased
 
+### Changed
+
+- feat(agents): update model assignments for 9 agents/subagents.
+  Codegen agents (06b-Bicep CodeGen, 06t-Terraform CodeGen) and deploy agents
+  (07b-Bicep Deploy, 07t-Terraform Deploy) move from Claude Sonnet 4.6 → GPT-5.4.
+  Design agent (04-Design) moves from GPT-5.4 → Claude Sonnet 4.6.
+  Validation subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan)
+  move from GPT-5.4 → Claude Sonnet 4.6.
+  Body content rewritten per model conventions: XML semantic blocks converted to markdown
+  headings for GPT-5.4 agents; Claude XML blocks added to 04-Design.
+  DO/DON'T tables converted to heading+list format for GPT-5.4 agents.
+- fix(agents): resolve Debt #18 — fix 2 orchestrator prompt model mismatches
+  (`01-orchestrator.prompt.md` and `resume-workflow.prompt.md` now match agent frontmatter).
+- refactor(docs): remove hardcoded model names from challenger-review-subagent references
+  in 03-architect body, docs, and skill reference files. Model is now sourced from
+  subagent frontmatter only.
+- chore(scripts): raise MAX_BODY_LINES from 400 → 500 in `scripts/_lib/paths.mjs`.
+
 ### Added
 
 - feat(drawio): replace jgraph `@drawio/mcp@1.1.1` with simonkurtz-MSFT `drawio-mcp-server` v3.0.1

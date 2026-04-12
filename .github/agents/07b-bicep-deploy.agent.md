@@ -1,6 +1,6 @@
 ---
 name: 07b-Bicep Deploy
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
@@ -71,12 +71,10 @@ handoffs:
 
 # Deploy Agent
 
-<!-- Recommended reasoning_effort: medium -->
+## Context Awareness
 
-<context_awareness>
 This is a large agent definition (~537 lines). At >60% context, load SKILL.digest.md variants.
 At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
-</context_awareness>
 
 ## Read Skills First
 
@@ -149,24 +147,34 @@ If running in a PR context (branch ≠ `main`), after deployment completes:
 3. If all gates pass and review approved, execute auto-merge
 4. See `.github/skills/github-operations/references/smart-pr-flow.md` for full protocol
 
-## DO / DON'T
+## Do
 
-| DO                                                                | DON'T                                                     |
-| ----------------------------------------------------------------- | --------------------------------------------------------- |
-| Run preflight validation BEFORE deployment                        | Deploy without running what-if first                      |
-| Scan param file for placeholders; use `askQuestions` tool         | Pass param files with literal `<replace-with-*>` strings  |
-| Do not list placeholders in chat asking user to reply manually    | List placeholders in chat text and wait for a reply       |
-| Check `04-implementation-plan.md` for deployment strategy         | Skip phase gates when plan specifies phased deployment    |
-| Deploy phases one at a time with approval gates                   | Use `--output yaml/json` for what-if (disables rendering) |
-| Use **default output** for what-if (no `--output` flag)           | Auto-approve production deployments                       |
-| Validate auth via `az account get-access-token` (not just `show`) | Proceed if what-if shows Delete ops without approval      |
-| Present what-if summary; wait for user approval                   | Proceed if `bicep build` fails                            |
-| Require explicit approval for Delete (`-`) operations             | Create/modify Bicep templates — hand back to Code agent   |
-| Generate `deploy.ps1` with `-SkipValidation` switch               | Re-run build+lint when Step 5 validation is current       |
-| Generate `06-deployment-summary.md` after deployment              |                                                           |
-| Verify resources via Azure Resource Graph post-deploy             |                                                           |
-| Scan what-if output for deprecation signals                       |                                                           |
-| Update `agent-output/{project}/README.md` — mark Step 6 complete  |                                                           |
+- Run preflight validation BEFORE deployment
+- Scan param file for placeholders; use `askQuestions` tool
+- Check `04-implementation-plan.md` for deployment strategy
+- Deploy phases one at a time with approval gates
+- Use **default output** for what-if (no `--output` flag)
+- Validate auth via `az account get-access-token` (not just `show`)
+- Present what-if summary; wait for user approval
+- Require explicit approval for Delete (`-`) operations
+- Generate `deploy.ps1` with `-SkipValidation` switch
+- Generate `06-deployment-summary.md` after deployment
+- Verify resources via Azure Resource Graph post-deploy
+- Scan what-if output for deprecation signals
+- Update `agent-output/{project}/README.md` — mark Step 6 complete
+
+## Don't
+
+- Deploy without running what-if first
+- Pass param files with literal `<replace-with-*>` strings
+- List placeholders in chat text and wait for a reply
+- Skip phase gates when plan specifies phased deployment
+- Use `--output yaml/json` for what-if (disables rendering)
+- Auto-approve production deployments
+- Proceed if what-if shows Delete ops without approval
+- Proceed if `bicep build` fails
+- Create/modify Bicep templates — hand back to Code agent
+- Re-run build+lint when Step 5 validation is current
 
 ## Prerequisites Check
 
@@ -399,24 +407,25 @@ Mark status as "Simulated".
 Follow the **Copy-Then-Fill Artifact Protocol** above — copy the template, fill placeholders, validate.
 Do NOT compose the artifact from memory. Do NOT skip the post-save lint check.
 
-<output_contract>
+## Output Contract
+
 Expected output in `agent-output/{project}/`:
 
 - `06-deployment-summary.md` — Deployment results (copy-then-fill from template)
-  Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
-  </output_contract>
 
-<empty_result_recovery>
+Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
+
+## Empty Result Recovery
+
 If what-if returns no changes (all resources `NoChange`), report the result and confirm with the user.
 If what-if fails due to missing resource group, create the RG first and retry once.
 If deployment returns 0 resources created, verify the template was not empty and report findings.
-</empty_result_recovery>
 
-<default_follow_through_policy>
+## Default Follow Through Policy
+
 When an approval gate is presented and the user approves, proceed immediately to the next phase.
 Do not re-confirm or ask additional questions after approval is given.
 If the user provides a custom response at an approval gate, interpret it as instructions and adapt.
-</default_follow_through_policy>
 
 ## Boundaries
 

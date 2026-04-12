@@ -40,12 +40,12 @@ The system contains the following skills across several domains:
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`                                                                                                                                                                                                                                                                                                                                                      |
 | Azure Operations     | `azure-diagnostics`, `azure-adr`                                                                                                                                                                                                                                                                                                                                                                                    |
-| Diagram & Chart      | `drawio`, `excalidraw` (whiteboarding), `python-diagrams`, `mermaid`                                                                                                                                                                                                                                                                                                                                                                |
+| Diagram & Chart      | `drawio`, `excalidraw` (whiteboarding), `python-diagrams`, `mermaid`                                                                                                                                                                                                                                                                                                                                                |
 | Artefact Generation  | `azure-artifacts`, `context-shredding`                                                                                                                                                                                                                                                                                                                                                                              |
 | Documentation        | `docs-writer`                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`                                                                                                                                                                                                                                                                                                                                                            |
 | Deployment           | `iac-common`                                                                                                                                                                                                                                                                                                                                                                                                        |
-| GitHub Operations    | `github-operations`, `git-commit`                                                                                                                                                                                                                                                                                                                                                                                   |
+| GitHub Operations    | `github-operations`                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-deploy` (not active), `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-messaging`, `azure-kusto`, `azure-ai`, `azure-aigateway`, `azure-quotas`, `azure-resource-lookup`, `azure-resource-visualizer`, `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, `appinsights-instrumentation`, `entra-app-registration`, `microsoft-foundry` |
 | Microsoft Learn      | `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator`                                                                                                                                                                                                                                                                                                                                             |
 | Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`                                                                                                                                                                                                                                                                                                                                                 |
@@ -62,35 +62,29 @@ Instructions are not read explicitly by agents. They are injected automatically 
 VS Code Copilot when a matching file is in context. The `applyTo` glob pattern controls
 when each instruction activates:
 
-| Instruction                     | `applyTo`                                          | Enforces                                 |
-| ------------------------------- | -------------------------------------------------- | ---------------------------------------- |
-| `bicep-code-best-practices`     | `**/*.bicep`                                       | AVM-first, security baseline, naming     |
-| `terraform-code-best-practices` | `**/*.tf`                                          | AVM-TF, provider pinning, naming         |
-| `bicep-policy-compliance`       | `**/*.bicep`                                       | Azure Policy compliance in Bicep         |
-| `terraform-policy-compliance`   | `**/*.tf`                                          | Azure Policy compliance in Terraform     |
-| `iac-cost-repeatability`        | `**/*.bicep`, `**/*.tf`, `**/04-impl*.md`          | Budget alerts, zero hardcoded values     |
-| `azure-artifacts`               | `**/agent-output/**/*.md`                          | H2 template compliance for artefacts     |
-| `agent-definitions`             | `**/*.agent.md`                                    | Frontmatter standards for agents         |
-| `agent-research-first`          | `**/*.agent.md`, agent-output, skills              | Mandatory research-before-implementation |
-| `agent-skills`                  | `**/.github/skills/**/SKILL.md`                    | Skill file format standards              |
-| `instructions`                  | `**/*.instructions.md`                             | Meta: instruction file guidelines        |
-| `markdown`                      | `**/*.md`                                          | Documentation standards                  |
-| `context-optimization`          | Agents, skills, instructions                       | Context window management rules          |
-| `code-commenting`               | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`  | Self-explanatory code, minimal comments  |
-| `code-review`                   | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`  | Priority tiers, security checks          |
-| `cost-estimate`                 | `**/03-des-cost-estimate.md`, `**/07-ab-cost-*.md` | Cost estimate documentation standards    |
-| `docs-trigger`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`  | Trigger conditions for doc updates       |
-| `docs`                          | `docs/**/*.md`                                     | User-facing documentation standards      |
-| `governance-discovery`          | `**/04-governance-constraints.*`                   | Azure Policy discovery requirements      |
-| `workload-documentation`        | `**/agent-output/**/07-*.md`                       | Workload documentation standards         |
-| `github-actions`                | `.github/workflows/*.yml`                          | GitHub Actions workflow standards        |
-| `javascript`                    | `**/*.{js,mjs,cjs}`                                | JavaScript/Node.js conventions           |
-| `json`                          | `**/*.{json,jsonc}`                                | JSON/JSONC formatting                    |
-| `python`                        | `**/*.py`                                          | Python coding conventions                |
-| `shell`                         | `**/*.sh`                                          | Shell scripting best practices           |
-| `powershell`                    | `**/*.ps1`, `**/*.psm1`                            | PowerShell cmdlet best practices         |
-| `prompt`                        | `**/*.prompt.md`                                   | Prompt file guidelines                   |
-| `no-heredoc`                    | `**`                                               | Prevents terminal heredoc corruption     |
+| Instruction                     | `applyTo`                                                            | Enforces                                                            |
+| ------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `iac-best-practices`            | `**/*.bicep`, `**/*.tf`, `**/04-implementation-plan.md`              | Security baseline, policy alignment, cost monitoring, repeatability |
+| `terraform-code-best-practices` | `**/*.tf`                                                            | AVM-TF, provider pinning, naming                                    |
+| `azure-artifacts`               | `**/agent-output/**/*.md`                                            | H2 template compliance for artefacts                                |
+| `agent-definitions`             | `**/*.agent.md`                                                      | Frontmatter standards for agents                                    |
+| `agent-research-first`          | `**/*.agent.md`, agent-output, skills                                | Mandatory research-before-implementation                            |
+| `agent-skills`                  | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                         |
+| `instructions`                  | `**/*.instructions.md`                                               | Meta: instruction file guidelines                                   |
+| `markdown`                      | `**/*.md`                                                            | Documentation standards                                             |
+| `context-optimization`          | Agents, skills, instructions                                         | Context window management rules                                     |
+| `code-quality`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`                    | Review priorities and comment quality                               |
+| `docs-trigger`                  | `**/*.agent.md`, `**/.github/skills/**/SKILL.md`, `**/scripts/*.mjs` | Trigger conditions for doc updates                                  |
+| `docs`                          | `site/src/content/docs/**/*.md`, `site/src/content/docs/**/*.mdx`    | User-facing documentation standards                                 |
+| `governance-discovery`          | `**/04-governance-constraints.*`                                     | Azure Policy discovery requirements                                 |
+| `github-actions`                | `.github/workflows/*.yml`                                            | GitHub Actions workflow standards                                   |
+| `javascript`                    | `**/*.{js,mjs,cjs}`                                                  | JavaScript/Node.js conventions                                      |
+| `json`                          | `**/*.{json,jsonc}`                                                  | JSON/JSONC formatting                                               |
+| `python`                        | `**/*.py`                                                            | Python coding conventions                                           |
+| `shell`                         | `**/*.sh`                                                            | Shell scripting best practices                                      |
+| `powershell`                    | `**/*.ps1`, `**/*.psm1`                                              | PowerShell cmdlet best practices                                    |
+| `prompt`                        | `**/*.prompt.md`                                                     | Prompt file guidelines                                              |
+| `no-heredoc`                    | `**`                                                                 | Prevents terminal heredoc corruption                                |
 
 When multiple instructions apply to the same file via overlapping `applyTo` globs,
 precedence rules determine which takes priority. See
@@ -98,8 +92,8 @@ precedence rules determine which takes priority. See
 Short version: Azure Policy compliance (Tier 1) always wins over domain IaC (Tier 2),
 which wins over cross-cutting cost rules (Tier 3), which wins over general code quality (Tier 4).
 
-**`iac-cost-repeatability`** is a cross-cutting instruction that enforces two mandatory
-rules across ALL projects (Bicep and Terraform):
+**`iac-best-practices.instructions.md`** is the cross-cutting instruction that enforces
+two mandatory rules across all IaC projects (Bicep and Terraform):
 
 1. **Cost Monitoring**: Every deployment must include an Azure Budget resource with
    parameterised amount, forecast alerts at 80/100/120% thresholds, and anomaly

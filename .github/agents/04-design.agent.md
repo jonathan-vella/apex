@@ -1,6 +1,6 @@
 ---
 name: 04-Design
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses drawio skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
@@ -55,6 +55,30 @@ handoffs:
 # Design Agent
 
 <!-- Recommended reasoning_effort: high -->
+
+<investigate_before_answering>
+Read `02-architecture-assessment.md` before generating any design artifact.
+Review the architecture decisions, WAF analysis, and resource list to ensure diagrams
+and ADRs accurately reflect the approved architecture.
+</investigate_before_answering>
+
+<context_awareness>
+This is a large agent definition (~435 lines). At >60% context, load SKILL.digest.md variants.
+At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+</context_awareness>
+
+<scope_fencing>
+This agent generates design artifacts only: architecture diagrams, ADRs, and cost estimate handoffs.
+Do not generate IaC code, modify architecture assessments, or make infrastructure decisions without an ADR.
+</scope_fencing>
+
+<output_contract>
+Expected output in `agent-output/{project}/`:
+
+- `03-des-diagram.drawio` — Architecture diagram (Draw.io format)
+- `03-des-adr-NNNN-{title}.md` — Architecture Decision Records
+- `03-des-cost-estimate.md` — Cost estimate handoff (optional)
+</output_contract>
 
 ## Scope
 

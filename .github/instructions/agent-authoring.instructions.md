@@ -106,11 +106,11 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 - **Opus-first agents** (requirements, architect, iac-plan, diagnose,
   context-optimizer) require deeper reasoning for architecture decisions,
   WAF assessments, planning accuracy, and complex analysis
-- **GPT-5.4 agents** (orchestrator, design, governance, as-built, challenger wrapper,
-  e2e-orchestrator, and selected subagents) prioritize
+- **GPT-5.4 agents** (orchestrator, governance, as-built, challenger wrapper,
+  e2e-orchestrator, codegen, deploy) prioritize
   strong general reasoning for orchestration, diagrams, governance synthesis,
-  documentation generation, and structured reviews
-- **Claude Sonnet 4.6 agents** (orchestrator fast path, codegen, deploy) balance
+  documentation generation, code generation, deployment execution, and structured reviews
+- **Claude Sonnet 4.6 agents** (orchestrator fast path, design, and validation/preview subagents) balance
   speed with strong execution quality for implementation
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput validation or preview tasks
 
@@ -122,16 +122,16 @@ Current model assignments:
 | Orchestrator (Fast Path)  | Claude Sonnet 4.6       | Streamlined orchestration|
 | Requirements           | Claude Opus 4.6         | Deep understanding       |
 | Architect              | Claude Opus 4.6         | WAF analysis + cost      |
-| Design                 | GPT-5.4                 | Diagram generation       |
+| Design                 | Claude Sonnet 4.6       | Diagram generation       |
 | Governance             | GPT-5.4                 | Governance discovery     |
 | IaC Planner (unified)  | Claude Opus 4.6         | Planning accuracy        |
-| Bicep / Terraform Code | Claude Sonnet 4.6       | Code generation          |
-| Deploy                 | Claude Sonnet 4.6       | Deployment execution     |
+| Bicep / Terraform Code | GPT-5.4                 | Code generation          |
+| Deploy                 | GPT-5.4                 | Deployment execution     |
 | As-Built               | GPT-5.4                 | Documentation generation |
 | Diagnose               | Claude Opus 4.6         | Complex troubleshooting  |
 | Context Optimizer      | Claude Opus 4.6         | Deep analysis            |
 | Challenger wrapper     | GPT-5.4                 | Review orchestration     |
-| Subagents              | GPT-5.4 / GPT-5.3-Codex | Fast isolated validation |
+| Subagents              | Claude Sonnet 4.6 / GPT-5.3-Codex | Isolated validation |
 
 **Rules:**
 

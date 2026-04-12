@@ -31,13 +31,19 @@ when deploying to Azure in Step 6.
 | GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`        |
 | VS Code                 | [Download](https://code.visualstudio.com/)                  |
 | Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/) |
-| Azure subscription      | Optional for learning                                       |
+| Azure subscription      | Required only for Step 6 deployment                         |
 
 :::note[Docker is required]
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 is the most common choice. Free alternatives include [Rancher Desktop](https://rancherdesktop.io/),
 [Colima](https://github.com/abiosoft/colima) (macOS), and [Podman](https://podman.io/) (Linux/macOS).
 See [Dev Container Setup](../dev-containers/) for detailed installation options.
+:::
+
+:::tip[If the dev container fails to build]
+Verify Docker is running, then follow the recovery steps in
+[Dev Container Setup](../dev-containers/) and [Troubleshooting](../../guides/troubleshooting/).
+Most setup failures happen before APEX itself starts.
 :::
 
 :::caution[Configure `GH_TOKEN` before you open the container]
@@ -151,6 +157,9 @@ az --version && bicep --version && terraform --version && pwsh --version # (1)!
 The Orchestrator pattern requires this setting.
 :::
 
+Without this setting, the Orchestrator cannot delegate to specialized agents,
+so multi-step workflows will stall after the first response.
+
 Add this to your **VS Code User Settings** (`Ctrl+,` → Settings JSON):
 
 ```json
@@ -238,6 +247,21 @@ will re-execute the step and re-trigger the gate. Use the artifact files in
 `agent-output/{project}/` to understand what was flagged.
 :::
 
+### If a Step Fails
+
+- **Governance returns no policies**: continue if `04-governance-constraints.json`
+  shows `discovery_status: "COMPLETE"`. An empty policy list means no deny-effect
+  constraints were found for that scope.
+- **Pricing, auth, or tooling fails**: fix the environment first, then resume the same step.
+  Start with [Troubleshooting](../../guides/troubleshooting/) and
+  [Dev Container Setup](../dev-containers/).
+- **Security or cost findings block progress**: update the generated plan or code,
+  then re-run the same step with the exact failing output so the agent can repair it.
+
+Before you deploy, review the mandatory guidance in
+[Security Baseline](../../guides/security-baseline/) and
+[Cost Governance](../../guides/cost-governance/).
+
 ## What You've Created
 
 After completing the workflow:
@@ -278,16 +302,17 @@ infra/terraform/my-webapp/
 
 ## Next Steps
 
-| Goal                            | Resource                                                                           |
-| ------------------------------- | ---------------------------------------------------------------------------------- |
-| Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                            |
-| Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)          |
-| Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                         |
-| Generate architecture diagrams  | Use `drawio` skill (or `python-diagrams` for charts)                               |
-| Create documentation            | Use `azure-artifacts` skill                                                        |
-| Explore Terraform patterns      | Use `terraform-patterns` skill                                                     |
-| Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                |
-| Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops) |
+| Goal                            | Resource                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                                                   |
+| Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)                                 |
+| Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                                                |
+| Review mandatory guardrails     | [Security Baseline](../../guides/security-baseline/) and [Cost Governance](../../guides/cost-governance/) |
+| Generate architecture diagrams  | Use `drawio` skill (or `python-diagrams` for charts)                                                      |
+| Create documentation            | Use `azure-artifacts` skill                                                                               |
+| Explore Terraform patterns      | Use `terraform-patterns` skill                                                                            |
+| Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                                       |
+| Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops)                        |
 
 ## Quick Reference
 

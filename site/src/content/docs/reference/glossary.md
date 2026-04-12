@@ -410,7 +410,7 @@ A specialized validation agent invoked by other agents for specific tasks (lint,
 review). Seven exist: `challenger-review-subagent`, `cost-estimate-subagent`,
 `governance-discovery-subagent`, `bicep-validate-subagent`,
 `bicep-whatif-subagent`, `terraform-validate-subagent`,
-`iac-planner-subagent`.
+`terraform-plan-subagent`.
 
 📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
 

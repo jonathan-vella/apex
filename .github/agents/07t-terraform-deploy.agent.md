@@ -1,6 +1,6 @@
 ---
 name: 07t-Terraform Deploy
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.4"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
@@ -70,12 +70,10 @@ handoffs:
 
 # Terraform Deploy Agent
 
-<!-- Recommended reasoning_effort: medium -->
+## Context Awareness
 
-<context_awareness>
 This is a large agent definition (~576 lines). At >60% context, load SKILL.digest.md variants.
 At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
-</context_awareness>
 
 ## Read Skills First
 
@@ -150,23 +148,33 @@ Run `npm run validate:iac-security-baseline` before terraform plan.
 If violations found → STOP, hand back to Code agent.
 Skip if `05-implementation-reference.md` confirms `security_validation_status: PASSED`.
 
-## DO / DON'T
+## Do
 
-| DO                                                                       | DON'T                                                                    |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| Validate Azure CLI token FIRST (`az account get-access-token`)           | Deploy without running `terraform plan` first                            |
-| Verify state backend storage account BEFORE `terraform init`             | Skip phase gates when plan specifies phased deployment                   |
-| Offer `bootstrap-backend.sh/.ps1` if backend missing                     | Use `terraform -target` — code is phase-gated via `var.deployment_phase` |
-| Scan tfvars for placeholders; use `askQuestions` tool                    | Pass tfvars with literal `<replace-with-*>` strings to plan/apply        |
-| Do not list placeholders in chat asking user to reply manually           | List placeholders in chat text and wait for a reply                      |
-| Run `terraform validate` and `terraform fmt -check` before planning      | Auto-approve production deployments                                      |
-| Check `04-implementation-plan.md` for deployment strategy                | Proceed if plan shows resource destruction without approval              |
-| Deploy phases one at a time with `var.deployment_phase` + approval gates | Proceed if `terraform validate` fails                                    |
-| Present plan summary; wait for user approval before applying             | Create/modify Terraform configs — hand back to Code agent                |
-| Require explicit approval for destruction (`- destroy`) operations       | Run `terraform init` without verifying backend exists                    |
-| Generate `06-deployment-summary.md` after deployment                     |                                                                          |
-| Run `terraform output` + Azure Resource Graph post-deployment            |                                                                          |
-| Update `agent-output/{project}/README.md` — mark Step 6 complete         |                                                                          |
+- Validate Azure CLI token FIRST (`az account get-access-token`)
+- Verify state backend storage account BEFORE `terraform init`
+- Offer `bootstrap-backend.sh/.ps1` if backend missing
+- Scan tfvars for placeholders; use `askQuestions` tool
+- Run `terraform validate` and `terraform fmt -check` before planning
+- Check `04-implementation-plan.md` for deployment strategy
+- Deploy phases one at a time with `var.deployment_phase` + approval gates
+- Present plan summary; wait for user approval before applying
+- Require explicit approval for destruction (`- destroy`) operations
+- Generate `06-deployment-summary.md` after deployment
+- Run `terraform output` + Azure Resource Graph post-deployment
+- Update `agent-output/{project}/README.md` — mark Step 6 complete
+
+## Don't
+
+- Deploy without running `terraform plan` first
+- Skip phase gates when plan specifies phased deployment
+- Use `terraform -target` — code is phase-gated via `var.deployment_phase`
+- Pass tfvars with literal `<replace-with-*>` strings to plan/apply
+- List placeholders in chat text and wait for a reply
+- Auto-approve production deployments
+- Proceed if plan shows resource destruction without approval
+- Proceed if `terraform validate` fails
+- Create/modify Terraform configs — hand back to Code agent
+- Run `terraform init` without verifying backend exists
 
 ## Prerequisites Check
 
@@ -379,24 +387,25 @@ with plan results, mark status as "Plan Only — Not Applied".
 Follow the **Copy-Then-Fill Artifact Protocol** above — copy the template, fill placeholders, validate.
 Do NOT compose the artifact from memory. Do NOT skip the post-save lint check.
 
-<output_contract>
+## Output Contract
+
 Expected output in `agent-output/{project}/`:
 
 - `06-deployment-summary.md` — Deployment results (copy-then-fill from template)
-  Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
-  </output_contract>
 
-<empty_result_recovery>
+Validation: `npm run lint:artifact-templates -- agent-output/{project}/06-deployment-summary.md`.
+
+## Empty Result Recovery
+
 If terraform plan shows no changes, report the result and confirm with the user before proceeding.
 If plan fails due to missing backend, offer to run bootstrap scripts and retry once.
 If apply completes with 0 resources, verify the configuration and deployment_phase variable.
-</empty_result_recovery>
 
-<default_follow_through_policy>
+## Default Follow Through Policy
+
 When an approval gate is presented and the user approves, proceed immediately to the next phase.
 Do not re-confirm or ask additional questions after approval is given.
 If the user provides a custom response at an approval gate, interpret it as instructions and adapt.
-</default_follow_through_policy>
 
 ## Boundaries
 
