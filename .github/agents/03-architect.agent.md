@@ -311,14 +311,14 @@ Check `00-session-state.json` `decisions.complexity` to determine pass count per
 > skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`.
 
 > **Model routing**: For pass 1 (security-governance) or comprehensive reviews:
-> invoke `challenger-review-subagent` (GPT-5.4).
+> invoke `challenger-review-subagent`.
 > For pass 2 (architecture-reliability) and pass 3 (cost-feasibility):
 > invoke `challenger-review-subagent` with the appropriate `review_focus`
 > (model routing is handled internally by the subagent).
 
 ### Cost Estimate Review (1 pass)
 
-Invoke `challenger-review-subagent` (GPT-5.4):
+Invoke `challenger-review-subagent`:
 
 - `artifact_path` = `agent-output/{project}/03-des-cost-estimate.md`
 - `project_name` = `{project}`

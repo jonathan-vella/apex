@@ -3,7 +3,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": ".github/hooks/secrets-scanner/scan-secrets.sh",
+        "command": "bash .github/hooks/secrets-scanner/scan-secrets.sh",
         "timeout": 30
       }
     ]

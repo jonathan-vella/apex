@@ -10,12 +10,14 @@ Selection rules for adversarial review passes in CodeGen agents (06b/06t).
 
 ## Pass Routing Table
 
-| Pass                 | Subagent                     | Model   | Lens                     | Condition                                                             |
-| -------------------- | ---------------------------- | ------- | ------------------------ | --------------------------------------------------------------------- |
-| 1                    | `challenger-review-subagent` | GPT-5.4 | security-governance      | Always required for all complexities                                  |
-| 2                    | `challenger-review-subagent` | GPT-5.4 | architecture-reliability | Skip if pass 1 has 0 must_fix AND <2 should_fix                       |
-| 3                    | `challenger-review-subagent` | GPT-5.4 | cost-feasibility         | Skip if pass 2 has 0 must_fix                                         |
-| Batch (complex only) | `challenger-review-subagent` | GPT-5.4 | passes 2+3 combined      | Use instead of separate pass 2+3 for complex projects to save context |
+Model is determined by the `challenger-review-subagent` frontmatter (source of truth).
+
+| Pass                 | Subagent                     | Lens                     | Condition                                                             |
+| -------------------- | ---------------------------- | ------------------------ | --------------------------------------------------------------------- |
+| 1                    | `challenger-review-subagent` | security-governance      | Always required for all complexities                                  |
+| 2                    | `challenger-review-subagent` | architecture-reliability | Skip if pass 1 has 0 must_fix AND <2 should_fix                       |
+| 3                    | `challenger-review-subagent` | cost-feasibility         | Skip if pass 2 has 0 must_fix                                         |
+| Batch (complex only) | `challenger-review-subagent` | passes 2+3 combined      | Use instead of separate pass 2+3 for complex projects to save context |
 
 ## Conditional Skip Rules
 

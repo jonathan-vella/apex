@@ -106,7 +106,7 @@ It operates with rotating lenses:
 
 !!! info "Challenger Selection Rules"
 
-    Pass 1 (security-governance) always uses `challenger-review-subagent` (GPT-5.4).
+    Pass 1 (security-governance) always uses `challenger-review-subagent`.
     Additional passes also use `challenger-review-subagent` for
     architecture-reliability and cost-feasibility lenses.
     See `.github/skills/azure-defaults/references/challenger-selection-rules.md`

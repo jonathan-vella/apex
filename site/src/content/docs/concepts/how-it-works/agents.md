@@ -12,14 +12,14 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["Claude Opus (latest)"] # (1)!
+model: ["GPT-5.4"] # (1)!
 tools: [list of allowed tools] # (2)!
 handoffs:
   - label: "Step 6: Deploy"
     agent: 07b-Bicep Deploy # (3)!
     prompt: "Deploy the Bicep templates..."
 ---
-# Body (≤ 350 lines)
+# Body (≤ 500 lines)
 ## MANDATORY: Read Skills First
 1. **Read** `.github/skills/azure-defaults/SKILL.md` # (4)!
 2. **Read** `.github/skills/azure-artifacts/SKILL.md`
@@ -54,23 +54,23 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 
 ## Top-Level Agents
 
-| Agent                    | Role                                            | Primary Skills                                 |
-| ------------------------ | ----------------------------------------------- | ---------------------------------------------- |
+| Agent                       | Role                                            | Primary Skills                                 |
+| --------------------------- | ----------------------------------------------- | ---------------------------------------------- |
 | 01-Orchestrator             | Master orchestrator                             | workflow-engine, session-resume                |
 | 01-Orchestrator (Fast Path) | Simplified path for ≤3 resources                | session-resume, azure-defaults                 |
-| 02-Requirements          | Captures project requirements                   | azure-defaults, azure-artifacts                |
-| 03-Architect             | WAF assessment and cost estimation              | azure-defaults                                 |
-| 04-Design                | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
-| 04g-Governance           | Policy discovery and compliance                 | azure-defaults                                 |
-| 05-IaC Planner           | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
-| 06b-Bicep CodeGen        | Bicep template generation                       | azure-bicep-patterns                           |
-| 06t-Terraform CodeGen    | Terraform configuration generation              | terraform-patterns                             |
-| 07b-Bicep Deploy         | Bicep deployment execution                      | azure-validate, iac-common                     |
-| 07t-Terraform Deploy     | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built              | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
-| 09-Diagnose              | Azure resource troubleshooting                  | azure-diagnostics                              |
-| 10-Challenger            | Standalone adversarial review                   | —                                              |
-| 11-Context Optimizer     | Context window audit and optimisation           | context-optimizer                              |
+| 02-Requirements             | Captures project requirements                   | azure-defaults, azure-artifacts                |
+| 03-Architect                | WAF assessment and cost estimation              | azure-defaults                                 |
+| 04-Design                   | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
+| 04g-Governance              | Policy discovery and compliance                 | azure-defaults                                 |
+| 05-IaC Planner              | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
+| 06b-Bicep CodeGen           | Bicep template generation                       | azure-bicep-patterns                           |
+| 06t-Terraform CodeGen       | Terraform configuration generation              | terraform-patterns                             |
+| 07b-Bicep Deploy            | Bicep deployment execution                      | azure-validate, iac-common                     |
+| 07t-Terraform Deploy        | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
+| 08-As-Built                 | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
+| 09-Diagnose                 | Azure resource troubleshooting                  | azure-diagnostics                              |
+| 10-Challenger               | Standalone adversarial review                   | —                                              |
+| 11-Context Optimizer        | Context window audit and optimisation           | context-optimizer                              |
 
 ## Subagents
 
@@ -85,7 +85,7 @@ specific tasks:
 | bicep-validate-subagent       | Lint + AVM/security code review     | Step 5 (Bicep)      |
 | bicep-whatif-subagent         | `az deployment what-if` preview     | Step 6 (Bicep)      |
 | terraform-validate-subagent   | Lint + AVM-TF/security code review  | Step 5 (Terraform)  |
-| iac-planner-subagent       | `terraform plan` preview            | Step 6 (Terraform)  |
+| terraform-plan-subagent       | `terraform plan` preview            | Step 6 (Terraform)  |
 
 ## The Challenger Pattern
 
@@ -98,7 +98,7 @@ The `challenger-review-subagent` implements adversarial review at critical workf
 It operates with rotating lenses:
 
 :::note[Challenger Selection Rules]
-Pass 1 (security-governance) always uses `challenger-review-subagent` (GPT-5.4).
+Pass 1 (security-governance) always uses `challenger-review-subagent`.
 Additional passes also use `challenger-review-subagent` for
 architecture-reliability and cost-feasibility lenses.
 See `.github/skills/azure-defaults/references/challenger-selection-rules.md`
@@ -180,11 +180,13 @@ This section walks through creating a new agent from scratch.
 | Top-level agent | `.github/agents/{name}.agent.md`            | Yes            | User-facing workflow steps                |
 | Subagent        | `.github/agents/_subagents/{name}.agent.md` | No             | Isolated tasks delegated by parent agents |
 
-Model selection depends on the task:
+Model selection depends on the task. Use `.github/agent-registry.json` as the
+source of truth, but the current repo pattern is:
 
-- **Planning agents** (accuracy-first) — use `Claude Opus (latest)`
-- **Execution subagents** (speed) — check `.github/agent-registry.json` for current assignments
-- **Adversarial review** — use a different model family than the artifact author
+- **Planning agents** (accuracy-first) — typically `Claude Opus 4.6`
+- **Execution and deploy agents** — typically `GPT-5.4`
+- **Validation and preview subagents** — currently `Claude Sonnet 4.6`
+- **Adversarial review** — use a different model family than the artifact author when possible
 
 ### Step 2: Create the Agent File
 
@@ -197,7 +199,7 @@ description: >-
   One-line description of what this agent does.
   USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers.
 model:
-  - Claude Opus (latest)
+  - GPT-5.4
 tools:
   - read_file
   - create_file

@@ -210,7 +210,7 @@ configs against AVM-TF standards, CAF naming conventions, security baselines,
 and governance compliance. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION
 result.
 
-### iac-planner-subagent
+### terraform-plan-subagent
 
 Runs `terraform plan` to preview infrastructure changes. Classifies resources
 into create/update/destroy/replace, highlights destructive operations,
@@ -226,6 +226,19 @@ and returns a structured cost breakdown.
 Queries Azure Policy assignments via REST API (including management group-
 inherited policies). Classifies policy effects and returns structured governance
 constraints.
+
+## When Validation Fails
+
+Use the parent agent to repair the artifact that failed validation or preview.
+
+1. Copy the exact failing output from `bicep build`, `terraform validate`,
+   `what-if`, or `terraform plan`.
+2. Re-run the parent step with that output and the path to the affected artifact.
+3. Re-check the generated files before moving to the next gate.
+
+For environment or auth failures, start with
+[Troubleshooting](../../guides/troubleshooting/) and
+[Validation & Linting](../../reference/validation-reference/).
 
 ## Tips and Patterns
 
@@ -257,6 +270,12 @@ control over each step.
 4. Run **Bicep CodeGen** → review generated templates
 5. Run **Bicep Deploy** → review what-if before approving deployment
 6. Run **As-Built** → generate post-deployment documentation
+
+## Next Steps
+
+- [Workflow Prompts](../workflow-prompts/) — follow the step-by-step workflow templates
+- [Troubleshooting](../../guides/troubleshooting/) — recover from validation, auth, and setup failures
+- [Validation & Linting](../../reference/validation-reference/) — understand the checks behind each gate
 
 **Terraform track**:
 

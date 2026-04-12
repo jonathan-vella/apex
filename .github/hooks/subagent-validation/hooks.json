@@ -3,7 +3,7 @@
     "SubagentStop": [
       {
         "type": "command",
-        "command": ".github/hooks/subagent-validation/subagent-validation.sh",
+        "command": "bash .github/hooks/subagent-validation/subagent-validation.sh",
         "timeout": 15
       }
     ]

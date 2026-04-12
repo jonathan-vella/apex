@@ -8,8 +8,8 @@ description: "Budget alerts, forecasts, and cost anomaly detection"
 ## Why Cost Governance Is Mandatory
 
 Every IaC deployment in this project **must** include cost monitoring resources.
-This is enforced by the `iac-cost-repeatability` instruction, which auto-applies
-to all `.bicep`, `.tf`, and implementation plan files.
+This is enforced by `iac-best-practices.instructions.md`, which applies to
+all `.bicep`, `.tf`, and implementation plan files.
 
 The rule is simple: **no budget, no merge**. Challenger reviews verify cost
 monitoring exists, and CI validators flag missing budget resources.
@@ -155,15 +155,15 @@ The **cost-estimate-subagent** uses the Azure Pricing MCP server to query
 real-time SKU pricing during architecture review (Step 2) and as-built
 documentation (Step 7). Key tools:
 
-| Tool                          | Purpose                                |
-| ----------------------------- | -------------------------------------- |
-| `azure_cost_estimate`         | Estimate costs based on usage patterns |
-| `azure_bulk_estimate`         | Multi-resource estimate in one call    |
-| `azure_price_compare`         | Compare prices across regions and SKUs |
-| `azure_ri_pricing`            | Reserved Instance pricing and savings  |
-| `azure_region_recommend`      | Find cheapest regions for a service    |
-| `find_orphaned_resources`     | Detect unused resources with cost data |
-| `azure_ptu_sizing`            | Estimate PTUs for Azure OpenAI         |
+| Tool                      | Purpose                                |
+| ------------------------- | -------------------------------------- |
+| `azure_cost_estimate`     | Estimate costs based on usage patterns |
+| `azure_bulk_estimate`     | Multi-resource estimate in one call    |
+| `azure_price_compare`     | Compare prices across regions and SKUs |
+| `azure_ri_pricing`        | Reserved Instance pricing and savings  |
+| `azure_region_recommend`  | Find cheapest regions for a service    |
+| `find_orphaned_resources` | Detect unused resources with cost data |
+| `azure_ptu_sizing`        | Estimate PTUs for Azure OpenAI         |
 
 The **Microsoft Learn MCP** server provides `microsoft_docs_search()`
 for looking up service-specific pricing documentation.

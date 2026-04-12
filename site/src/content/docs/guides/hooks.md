@@ -76,7 +76,7 @@ Agents can define hooks in their YAML frontmatter (requires `chat.useCustomAgent
 hooks:
   PostToolUse:
     - type: command
-      command: ".github/hooks/post-edit-format/post-edit-format.sh"
+      command: "bash .github/hooks/post-edit-format/post-edit-format.sh"
       timeout: 30
 ```
 
@@ -116,7 +116,7 @@ Each hook follows this pattern:
 ```text
 .github/hooks/{name}/
 ├── hooks.json          # Event binding + timeout
-└── {name}.sh           # Shell script (must be executable)
+└── {name}.sh           # Shell script (present at configured path; exec bit optional)
 ```
 
 ### hooks.json Schema
@@ -127,7 +127,7 @@ Each hook follows this pattern:
     "<EventName>": [
       {
         "type": "command",
-        "command": ".github/hooks/{name}/{name}.sh",
+        "command": "bash .github/hooks/{name}/{name}.sh",
         "timeout": 30
       }
     ]
@@ -146,7 +146,8 @@ All hook scripts must:
 2. Include `set -euo pipefail`
 3. Read JSON from stdin
 4. Write JSON to stdout (`{"continue": true}` or `{"hookSpecificOutput": {...}}`)
-5. Be executable (`chmod +x`)
+5. Be present at the configured path and be invoked through `bash` in `hooks.json`
+   so execution does not depend on the file mode
 
 ## Validation
 
@@ -188,8 +189,6 @@ print(json.dumps({'continue': True, 'systemMessage': sys.argv[1]}))
 " "Your message" 2>/dev/null || echo '{"continue": true}'
 ```
 
-Then: `chmod +x .github/hooks/my-hook-name/my-hook-name.sh`
-
 ### 2. Create hooks.json
 
 ```json
@@ -198,7 +197,7 @@ Then: `chmod +x .github/hooks/my-hook-name/my-hook-name.sh`
     "PostToolUse": [
       {
         "type": "command",
-        "command": ".github/hooks/my-hook-name/my-hook-name.sh",
+        "command": "bash .github/hooks/my-hook-name/my-hook-name.sh",
         "timeout": 30
       }
     ]
@@ -236,7 +235,8 @@ npm run test:hooks
 ### Hook Not Firing
 
 1. Verify the hook directory is listed in `chat.hookFilesLocations` in `.vscode/settings.json`
-2. Check the script is executable: `ls -la .github/hooks/{name}/{name}.sh`
+2. Check the script exists and the configured command uses `bash`:
+   `ls -la .github/hooks/{name}/{name}.sh`
 3. View hook output: **Output** panel → **GitHub Copilot Chat Hooks** channel
 
 ### Hook Timeout

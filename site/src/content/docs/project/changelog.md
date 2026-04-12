@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] — Unreleased
 
+### Changed
+
+- feat(agents): update model assignments for 9 agents/subagents.
+  Codegen agents (06b-Bicep CodeGen, 06t-Terraform CodeGen) and deploy agents
+  (07b-Bicep Deploy, 07t-Terraform Deploy) move from Claude Sonnet 4.6 → GPT-5.4.
+  Design agent (04-Design) moves from GPT-5.4 → Claude Sonnet 4.6.
+  Validation subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan)
+  move from GPT-5.4 → Claude Sonnet 4.6.
+- fix(agents): resolve Debt #18 — fix 2 orchestrator prompt model mismatches.
+- refactor(docs): remove hardcoded model names from challenger-review-subagent references.
+- chore(scripts): raise MAX_BODY_LINES from 400 → 500.
+
 ### Added
 
 - feat(diagrams): add Excalidraw-native Azure icon libraries, reference docs, icon conversion tooling,

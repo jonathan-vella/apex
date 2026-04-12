@@ -3,7 +3,7 @@
     "PreToolUse": [
       {
         "type": "command",
-        "command": ".github/hooks/tool-guardian/guard-tool.sh",
+        "command": "bash .github/hooks/tool-guardian/guard-tool.sh",
         "timeout": 10
       }
     ]

@@ -3,21 +3,21 @@
     "SessionStart": [
       {
         "type": "command",
-        "command": ".github/hooks/governance-audit/audit-session-start.sh",
+        "command": "bash .github/hooks/governance-audit/audit-session-start.sh",
         "timeout": 5
       }
     ],
     "Stop": [
       {
         "type": "command",
-        "command": ".github/hooks/governance-audit/audit-session-end.sh",
+        "command": "bash .github/hooks/governance-audit/audit-session-end.sh",
         "timeout": 5
       }
     ],
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": ".github/hooks/governance-audit/audit-prompt.sh",
+        "command": "bash .github/hooks/governance-audit/audit-prompt.sh",
         "timeout": 10
       }
     ]

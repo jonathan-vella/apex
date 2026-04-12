@@ -36,6 +36,11 @@ description: "Common issues and solutions"
 
 ## Quick Decision Tree
 
+Before you start troubleshooting, confirm whether you are running inside the
+dev container or directly on your local machine. Setup fixes differ: container
+problems usually point to Docker or forwarded settings, while local problems
+usually point to missing CLIs or environment variables.
+
 ```mermaid
 flowchart TD
     START["Problem?"] --> TYPE{"What type?"}
@@ -141,6 +146,10 @@ Responses are instant, no terminal commands execute, no files are created.
 
 **Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
 for experimental features. User settings take precedence.
+
+If the workflow already produced files before failing, resume from the same step
+instead of restarting the whole run. Open the failing artifact, collect the exact
+validation output, and feed that back into the parent agent.
 
 ### 3. Skill Not Activating Automatically
 

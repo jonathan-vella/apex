@@ -142,7 +142,7 @@ The Orchestrator supports session resume via the `session-resume` skill. To resu
 Yes — the [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/) is a
 hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents,
 from requirements to deployment. It includes structured exercises, guided prompts, and
-reference solutions for each of the 8 workflow steps.
+reference solutions for each of the 7 main workflow steps plus Step 3.5 Governance.
 :::
 
 ---

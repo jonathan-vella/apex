@@ -130,7 +130,8 @@ sequenceDiagram
 
 The Orchestrator delegates work to specialised agents in sequence.
 Shared steps (1–3.5, 7) are common; steps 4–6 diverge into **Bicep** or **Terraform** tracks.
-Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
+Code agents invoke validation subagents, and deploy agents invoke the track-specific
+preview subagents before any Azure changes are applied.
 
 <img src="/azure-agentic-infraops/images/agent-delegation-graph.png"
      width="100%" style="border-radius: 10px; margin: 1rem 0;"
@@ -141,9 +142,9 @@ Each IaC Code agent invokes validation subagents (lint, whatif/plan, review).
 
 ### Primary Orchestrator
 
-| Agent            | Codename        | Role                                        | Model                |
-| ---------------- | --------------- | ------------------------------------------- | -------------------- |
-| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | Claude Opus (latest) |
+| Agent            | Codename        | Role                                        | Model   |
+| ---------------- | --------------- | ------------------------------------------- | ------- |
+| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | GPT-5.4 |
 
 ### Core Agents (by Workflow Step)
 
@@ -167,17 +168,17 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 
 **Bicep track:**
 
-| Subagent                  | Purpose                                      | Invoked By                   |
-| ------------------------- | -------------------------------------------- | ---------------------------- |
-| `bicep-validate-subagent` | Lint + code review (AVM, security, naming)   | `bicep-code`                 |
-| `bicep-whatif-subagent`   | Deployment preview (`az deployment what-if`) | `bicep-code`, `bicep-deploy` |
+| Subagent                  | Purpose                                      | Invoked By     |
+| ------------------------- | -------------------------------------------- | -------------- |
+| `bicep-validate-subagent` | Lint + code review (AVM, security, naming)   | `bicep-code`   |
+| `bicep-whatif-subagent`   | Deployment preview (`az deployment what-if`) | `bicep-deploy` |
 
 **Terraform track:**
 
-| Subagent                      | Purpose                                       | Invoked By       |
-| ----------------------------- | --------------------------------------------- | ---------------- |
-| `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming) | `terraform-code` |
-| `iac-planner-subagent`        | Deployment preview (`terraform plan`)         | `terraform-code` |
+| Subagent                      | Purpose                                       | Invoked By         |
+| ----------------------------- | --------------------------------------------- | ------------------ |
+| `terraform-validate-subagent` | Lint + code review (AVM-TF, security, naming) | `terraform-code`   |
+| `terraform-plan-subagent`     | Deployment preview (`terraform plan`)         | `terraform-deploy` |
 
 ### Standalone Agents
 
@@ -203,6 +204,13 @@ infrastructure that violates governance policies or security baselines.
 | **Gate 3**   | Planning (Step 4)     | Approve implementation plan         |
 | **Gate 4**   | Pre-Deploy (Step 5)   | Approve lint/what-if/review results |
 | **Gate 5**   | Post-Deploy (Step 6)  | Verify deployment                   |
+
+:::tip[If a gate rejects the current output]
+If a gate or challenger review returns `must_fix` findings, go back to the
+previous workflow step, update the artifact that was challenged, and re-run that
+step. The Orchestrator regenerates the output and re-triggers the gate instead of
+skipping ahead.
+:::
 
 ## Workflow Steps
 
@@ -308,6 +316,9 @@ fails, the planner stops and requests governance refresh.
 
 **Prerequisites**: `04-governance-constraints.md/.json` from Step 3.5
 
+If governance discovery completed successfully, an empty policy array is still a
+valid input. It means no deny-effect constraints were found for the current scope.
+
 **Features**:
 
 - Governance constraints integration from Step 3.5
@@ -356,7 +367,6 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 | Bicep Subagent            | Terraform Subagent            | Validation         |
 | ------------------------- | ----------------------------- | ------------------ |
 | `bicep-validate-subagent` | `terraform-validate-subagent` | Lint + code review |
-| `bicep-whatif-subagent`   | `iac-planner-subagent`        | Deployment preview |
 
 :::note[Approval Gate]
 The user must approve preflight validation results before deployment.
@@ -367,6 +377,11 @@ The user must approve preflight validation results before deployment.
 **Agent**: `bicep-deploy` (Bicep track) or `terraform-deploy` (Terraform track)
 
 Execute Azure deployment with preflight validation.
+
+The deploy agents always run a preview before applying changes:
+
+- **Bicep** uses `bicep-whatif-subagent` for `az deployment group what-if`
+- **Terraform** uses `terraform-plan-subagent` for `terraform plan`
 
 :::caution[Pre-Deploy Security Review]
 Before deployment, the agent runs `npm run validate:iac-security-baseline`
@@ -400,16 +415,19 @@ of the what-if/plan output. Violations block deployment.
 The user must verify deployed resources before proceeding to documentation.
 :::
 
-### Step 7: Documentation (📚 Skills)
+### Step 7: Documentation (📚 Chronicler)
 
-**Skill**: `azure-artifacts`
+**Agent**: `as-built`
 
-Generate comprehensive workload documentation.
+Generate comprehensive workload documentation after deployment verification.
 
 ```text
-Trigger: "Generate documentation for {project}"
+Invoke: Ctrl+Shift+A → as-built
 Output: agent-output/{project}/07-*.md
 ```
+
+The As-Built agent uses the `azure-artifacts` skill and prior workflow artifacts
+to assemble the final documentation suite.
 
 **Document Suite**:
 
