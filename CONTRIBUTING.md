@@ -9,13 +9,13 @@ validation steps, and PR checklist — lives on the published site:
 
 ## Quick links
 
-| Resource | Link |
-| --- | --- |
-| Contributing guide | [project/contributing](https://jonathan-vella.github.io/azure-agentic-infraops/project/contributing/) |
-| Development workflow | [concepts/workflow](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/) |
-| Getting started | [getting-started/quickstart](https://jonathan-vella.github.io/azure-agentic-infraops/getting-started/quickstart/) |
-| Open issues | [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues) |
-| Discussions | [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions) |
+| Resource             | Link                                                                                                              |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Contributing guide   | [project/contributing](https://jonathan-vella.github.io/azure-agentic-infraops/project/contributing/)             |
+| Development workflow | [concepts/workflow](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)                   |
+| Getting started      | [getting-started/quickstart](https://jonathan-vella.github.io/azure-agentic-infraops/getting-started/quickstart/) |
+| Open issues          | [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)                                  |
+| Discussions          | [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)                        |
 
 ## License
 

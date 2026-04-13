@@ -16,14 +16,14 @@ The guide below is for contributing changes **back to this upstream repo**.
 
 ## Where to contribute
 
-| Area | What to change | Branch prefix |
-| --- | --- | --- |
-| Agent prompts and handoffs | `.github/agents/*.agent.md` | `agents/` |
-| Skills and domain knowledge | `.github/skills/*/SKILL.md` | `skills/` |
-| Bicep or Terraform patterns | `infra/bicep/` or `infra/terraform/` | `infra/` |
-| Validation scripts | `scripts/*.mjs`, `package.json` | `scripts/` |
-| Published documentation | `site/src/content/docs/` | `docs/` |
-| Cross-cutting improvements | Any files | `feat/`, `fix/`, `chore/` |
+| Area                        | What to change                       | Branch prefix             |
+| --------------------------- | ------------------------------------ | ------------------------- |
+| Agent prompts and handoffs  | `.github/agents/*.agent.md`          | `agents/`                 |
+| Skills and domain knowledge | `.github/skills/*/SKILL.md`          | `skills/`                 |
+| Bicep or Terraform patterns | `infra/bicep/` or `infra/terraform/` | `infra/`                  |
+| Validation scripts          | `scripts/*.mjs`, `package.json`      | `scripts/`                |
+| Published documentation     | `site/src/content/docs/`             | `docs/`                   |
+| Cross-cutting improvements  | Any files                            | `feat/`, `fix/`, `chore/` |
 
 ## Before you start
 
@@ -119,12 +119,12 @@ git push origin feat/add-redis-caching-pattern
 Then open a PR against `main` on GitHub. The following checks run
 automatically:
 
-| Check | What it validates |
-| --- | --- |
-| `ci` | Markdown lint + all Node.js validators |
-| `Branch Naming Convention` | Prefix matches approved list |
-| `Branch Scope Check` | Files stay within the branch domain |
-| Copilot Code Review | Advisory AI review on the diff |
+| Check                      | What it validates                      |
+| -------------------------- | -------------------------------------- |
+| `ci`                       | Markdown lint + all Node.js validators |
+| `Branch Naming Convention` | Prefix matches approved list           |
+| `Branch Scope Check`       | Files stay within the branch domain    |
+| Copilot Code Review        | Advisory AI review on the diff         |
 
 All required checks must pass before merge. A code-owner review from
 a maintainer is also required.
@@ -141,18 +141,18 @@ Before requesting review, confirm:
 
 ## Commit message reference
 
-| Type | When to use | Version bump |
-| --- | --- | --- |
-| `feat` | New feature or capability | Minor |
-| `fix` | Bug fix | Patch |
-| `docs` | Documentation only | None |
-| `refactor` | Code restructuring without behavior change | None |
-| `chore` | Maintenance, dependency updates | None |
-| `ci` | CI/CD workflow changes | None |
-| `test` | Adding or updating tests | None |
-| `perf` | Performance improvement | None |
-| `build` | Build system changes | None |
-| `revert` | Reverting a previous commit | None |
+| Type       | When to use                                | Version bump |
+| ---------- | ------------------------------------------ | ------------ |
+| `feat`     | New feature or capability                  | Minor        |
+| `fix`      | Bug fix                                    | Patch        |
+| `docs`     | Documentation only                         | None         |
+| `refactor` | Code restructuring without behavior change | None         |
+| `chore`    | Maintenance, dependency updates            | None         |
+| `ci`       | CI/CD workflow changes                     | None         |
+| `test`     | Adding or updating tests                   | None         |
+| `perf`     | Performance improvement                    | None         |
+| `build`    | Build system changes                       | None         |
+| `revert`   | Reverting a previous commit                | None         |
 
 ## Getting help
 
