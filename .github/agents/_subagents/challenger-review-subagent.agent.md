@@ -47,7 +47,7 @@ Supports both single-lens and batch (multi-lens) execution modes.
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — agent operating principles and invariants
 2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM, security baselines, governance
 3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category and per-artifact-type checklists
-4. **Read** `.github/instructions/iac-best-practices.instructions.md` — governance enforcement rules
+4. **Read** `.github/instructions/references/iac-policy-compliance.md` — governance enforcement rules
 
 > **Context optimization**: Do NOT read the full `azure-artifacts/SKILL.md`.
 > Only read `adversarial-checklists.md` for H2 structural validation.
@@ -90,7 +90,7 @@ Batch mode is used for complex projects where passes 2+3 run together.
 2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps.
    Read `decision_log` from `00-session-state.json` to understand rationale behind prior
    choices — challenge the reasoning, not just the outcome.
-3. **Verify claims against skills and instructions** — cross-reference azure-defaults, bicep-policy-compliance,
+3. **Verify claims against skills and instructions** — cross-reference azure-defaults, iac-policy-compliance,
    and governance-discovery instructions. Do not trust claims like "all policies covered" — verify them
 4. **If `prior_findings` provided**, read them and avoid duplicating existing issues. Focus
    your adversarial energy on the `review_focus` lens

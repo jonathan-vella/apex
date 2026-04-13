@@ -255,7 +255,7 @@ For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`
 > **Important**: The plan must include an Azure Budget resource
 > (Bicep: `Microsoft.Consumption/budgets`; Terraform: `azurerm_consumption_budget_resource_group`)
 > with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
-> thresholds and Anomaly Detection. See `iac-best-practices.instructions.md`.
+> thresholds and Anomaly Detection. See `.github/instructions/references/iac-cost-monitoring.md`.
 
 ### Phase 4.3–4.4: Adversarial Plan Review (2 lenses max)
 

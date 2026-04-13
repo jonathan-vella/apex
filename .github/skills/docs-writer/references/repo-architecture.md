@@ -55,19 +55,15 @@ See `.github/count-manifest.json` for canonical counts.
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent                         | File                                        | Purpose                      |
-| -------------------------------- | ------------------------------------------- | ---------------------------- |
-| cost-estimate-subagent           | `cost-estimate-subagent.agent.md`           | Azure Pricing MCP queries    |
-| governance-discovery-subagent    | `governance-discovery-subagent.agent.md`    | Azure Policy discovery       |
-| challenger-review-subagent       | `challenger-review-subagent.agent.md`       | Adversarial artifact review  |
-| challenger-review-batch-subagent | `challenger-review-batch-subagent.agent.md` | Batch multi-lens review      |
-| challenger-review-codex-subagent | `challenger-review-codex-subagent.agent.md` | Fast checklist-driven review |
-| bicep-lint-subagent              | `bicep-lint-subagent.agent.md`              | Syntax validation            |
-| bicep-whatif-subagent            | `bicep-whatif-subagent.agent.md`            | Deployment preview           |
-| bicep-review-subagent            | `bicep-review-subagent.agent.md`            | AVM code review              |
-| terraform-lint-subagent          | `terraform-lint-subagent.agent.md`          | Syntax validation            |
-| terraform-review-subagent        | `terraform-review-subagent.agent.md`        | AVM-TF code review           |
-| iac-planner-subagent             | `iac-planner-subagent.agent.md`             | Deployment preview           |
+| Subagent                      | File                                     | Purpose                             |
+| ----------------------------- | ---------------------------------------- | ----------------------------------- |
+| bicep-validate-subagent       | `bicep-validate-subagent.agent.md`       | Lint + AVM/security code review     |
+| bicep-whatif-subagent         | `bicep-whatif-subagent.agent.md`         | Deployment preview (what-if)        |
+| challenger-review-subagent    | `challenger-review-subagent.agent.md`    | Adversarial artifact review         |
+| cost-estimate-subagent        | `cost-estimate-subagent.agent.md`        | Azure Pricing MCP queries           |
+| governance-discovery-subagent | `governance-discovery-subagent.agent.md` | Azure Policy REST API discovery     |
+| terraform-plan-subagent       | `terraform-plan-subagent.agent.md`       | Deployment preview (terraform plan) |
+| terraform-validate-subagent   | `terraform-validate-subagent.agent.md`   | Lint + AVM-TF/security code review  |
 
 ### Shared Knowledge (via Skills)
 
@@ -162,32 +158,33 @@ See `.github/count-manifest.json` for canonical counts.
 
 See `.github/count-manifest.json` for canonical counts.
 
-| Instruction                                     | Applies To (glob)                                               |
-| ----------------------------------------------- | --------------------------------------------------------------- |
-| `agent-authoring.instructions.md`               | `**/*.agent.md, **/*.prompt.md`                                 |
-| `agent-research-first.instructions.md`          | `**/*.agent.md`                                                 |
-| `agent-skills.instructions.md`                  | `**/.github/skills/**/SKILL.md`                                 |
-| `astro.instructions.md`                         | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
-| `azure-artifacts.instructions.md`               | `**/agent-output/**/*.md`                                       |
-| `iac-best-practices.instructions.md`            | `**/*.bicep, **/*.tf, **/04-implementation-plan.md`             |
-| `code-quality.instructions.md`                  | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`               |
-| `context-optimization.instructions.md`          | `.github/agents/**/*.agent.md, .github/skills/**/SKILL.md`      |
-| `docs.instructions.md`                          | `site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx` |
-| `docs-trigger.instructions.md`                  | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`                  |
-| `github-actions.instructions.md`                | `.github/workflows/*.yml`                                       |
-| `governance-discovery.instructions.md`          | `**/04-governance-*.md`                                         |
-| `instructions.instructions.md`                  | `**/*.instructions.md`                                          |
-| `javascript.instructions.md`                    | `**/*.{js,mjs,cjs}`                                             |
-| `json.instructions.md`                          | `**/*.{json,jsonc}`                                             |
-| `lesson-collection.instructions.md`             | `**/*orchestrator*.agent.md`                                    |
-| `markdown.instructions.md`                      | `**/*.md`                                                       |
-| `no-hardcoded-counts.instructions.md`           | `**/*.md, **/*.json, **/*.mjs`                                  |
-| `no-heredoc.instructions.md`                    | `**`                                                            |
-| `powershell.instructions.md`                    | `**/*.ps1, **/*.psm1`                                           |
-| `prompt.instructions.md`                        | `**/*.prompt.md`                                                |
-| `python.instructions.md`                        | `**/*.py`                                                       |
-| `shell.instructions.md`                         | `**/*.sh`                                                       |
-| `terraform-code-best-practices.instructions.md` | `**/*.tf`                                                       |
+| Instruction                                    | Applies To (glob)                                               |
+| ---------------------------------------------- | --------------------------------------------------------------- |
+| `agent-authoring.instructions.md`              | `**/*.agent.md, **/*.prompt.md`                                 |
+| `agent-research-first.instructions.md`         | `**/*.agent.md`                                                 |
+| `agent-skills.instructions.md`                 | `**/.github/skills/**/SKILL.md`                                 |
+| `astro.instructions.md`                        | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
+| `azure-artifacts.instructions.md`              | `**/agent-output/**/*.md`                                       |
+| `iac-bicep-best-practices.instructions.md`     | `**/*.bicep`                                                    |
+| `iac-terraform-best-practices.instructions.md` | `**/*.tf`                                                       |
+| `iac-plan-best-practices.instructions.md`      | `**/04-implementation-plan.md`                                  |
+| `code-quality.instructions.md`                 | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`               |
+| `context-optimization.instructions.md`         | `.github/agents/**/*.agent.md, .github/skills/**/SKILL.md`      |
+| `docs.instructions.md`                         | `site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx` |
+| `docs-trigger.instructions.md`                 | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`                  |
+| `github-actions.instructions.md`               | `.github/workflows/*.yml`                                       |
+| `governance-discovery.instructions.md`         | `**/04-governance-*.md`                                         |
+| `instructions.instructions.md`                 | `**/*.instructions.md`                                          |
+| `javascript.instructions.md`                   | `**/*.{js,mjs,cjs}`                                             |
+| `json.instructions.md`                         | `**/*.{json,jsonc}`                                             |
+| `lesson-collection.instructions.md`            | `**/*orchestrator*.agent.md`                                    |
+| `markdown.instructions.md`                     | `**/*.md`                                                       |
+| `no-hardcoded-counts.instructions.md`          | `**/*.md, **/*.json, **/*.mjs`                                  |
+| `no-heredoc.instructions.md`                   | `**`                                                            |
+| `powershell.instructions.md`                   | `**/*.ps1, **/*.psm1`                                           |
+| `prompt.instructions.md`                       | `**/*.prompt.md`                                                |
+| `python.instructions.md`                       | `**/*.py`                                                       |
+| `shell.instructions.md`                        | `**/*.sh`                                                       |
 
 ## Artifact Flow (Multi-Step Workflow)
 

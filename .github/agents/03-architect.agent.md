@@ -76,8 +76,7 @@ Do not rely on parametric knowledge for pricing — delegate to cost-estimate-su
 </investigate_before_answering>
 
 <context_awareness>
-This is a large agent definition (~354 lines). At >60% context, load SKILL.digest.md variants.
-At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+Context tiers: follow context-shredding skill. At >80% switch to SKILL.minimal.md.
 </context_awareness>
 
 <output_contract>
@@ -91,45 +90,27 @@ Session state: update 00-session-state.json after each phase.
 
 ## Prerequisites Check (BEFORE Reading Skills)
 
-**HARD RULE — CHECK PREREQUISITES FIRST**
-
-Your **first action** must be to verify `01-requirements.md` exists and contains
-the information below. Do NOT read skills or templates before this step.
-Skill files contain template skeletons that prime you to fill them in immediately.
-Check prerequisites FIRST so you know what context you have.
+Check prerequisites before reading skills or templates.
 
 Validate `01-requirements.md` exists in `agent-output/{project}/`.
-If missing, STOP and request handoff to Requirements agent.
+If missing, hand off to Requirements agent.
 
-Verify these are documented. **MANDATORY — use the `askQuestions` tool** to
-collect ALL missing values in a single interactive form, even if only one
-category is missing. **NEVER** list missing items in chat text and ask the
-user to reply — this wastes a full request round-trip.
+Verify these are documented. Use `askQuestions` to collect all missing values
+in a single form:
 
-| Category   | Required                           | If Missing                                                 |
-| ---------- | ---------------------------------- | ---------------------------------------------------------- |
-| NFRs       | SLA, RTO, RPO, performance targets | `askQuestions`: header "NFR Targets", freeform input       |
-| Compliance | Regulatory frameworks              | `askQuestions`: header "Compliance", multiSelect options   |
-| Budget     | Approximate monthly budget         | `askQuestions`: header "Budget Range", freeform input      |
-| Scale      | Users, transactions, data volume   | `askQuestions`: header "Scale Projections", freeform input |
+| Category   | Required                           |
+| ---------- | ---------------------------------- |
+| NFRs       | SLA, RTO, RPO, performance targets |
+| Compliance | Regulatory frameworks              |
+| Budget     | Approximate monthly budget         |
+| Scale      | Users, transactions, data volume   |
 
-Build one `askQuestions` call with all missing categories. Do NOT proceed
-to skill reading or WAF assessment until every category has a value.
+## Session State
 
-## Session State Protocol
-
-**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
-
-- **Context budget**: 2 files at startup (`00-session-state.json` + `01-requirements.md`)
-- **My step**: 2
-- **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_waf` →
-  `phase_2.5_compacted` → `phase_3_cost` → `phase_4_challenger` → `phase_5_artifact`
-- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.2.status`
-  is `"in_progress"` with a `sub_step`, skip to that checkpoint (e.g. if `phase_3_cost`,
-  skip WAF assessment re-generation and proceed to cost estimation).
-- **State writes**: Update `00-session-state.json` after each phase. On completion, set
-  `steps.2.status = "complete"` and populate `decisions` with architecture pattern and budget.
-  Append significant decisions to `decision_log` (see decision-logging instruction).
+Read `.github/skills/session-resume/SKILL.digest.md`. Step: 2.
+Sub-steps: `phase_1_prereqs` → `phase_2_waf` →
+`phase_2.5_compacted` → `phase_3_cost` →
+`phase_4_challenger` → `phase_5_artifact`.
 
 ## Read Skills (After Prerequisites, Before Assessment)
 
@@ -165,33 +146,14 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - ✅ Include collapsible `<details>` blocks where the template uses them
 - ✅ Update `agent-output/{project}/README.md` — mark Step 2 complete, add your artifacts (see azure-artifacts skill)
 
-### DON'T
+### DON'T (non-obvious pitfalls only)
 
-- ❌ Read skills or templates before verifying prerequisites and asking user for missing NFRs/budget/scale
-- ❌ Create Bicep, ARM, or infrastructure code files
-- ❌ Proceed to IaC Planner without explicit user approval
-- ❌ Use H2 headings that differ from the template
-- ❌ Skip any WAF pillar (even if requirements seem light)
-- ❌ Give 10/10 scores without exceptional justification
-- ❌ Provide generic recommendations — be specific to the workload
-- ❌ Assume requirements — ask when critical info is missing
-- ❌ Use wrong Pricing MCP service names (e.g., "Azure SQL" instead of "SQL Database")
-- ❌ **Hardcode prices** — NEVER write dollar amounts from memory. ALL prices in
-  `02-architecture-assessment.md` and `03-des-cost-estimate.md` MUST originate
-  from `cost-estimate-subagent` responses
-- ❌ **Guess SKU hourly rates** — pricing tiers change frequently;
-  only subagent-verified figures are trustworthy
-- ❌ **Recommend deprecated services** — check `azure-defaults` Deprecated
-  Services table. Never recommend Azure AD B2C (use Entra External ID),
-  Redis Enterprise E50, or CDN WAF classic
-- ❌ **Use GRS with GDPR single-region constraints** — GRS replicates to
-  a paired region. Use ZRS when data residency prohibits cross-region transfer
-- ❌ **Claim zone redundancy without SKU verification** — verify the selected
-  SKU/tier supports availability zones (APIM Standard v2 does NOT)
-- ❌ **Skip memory reservation in capacity sizing** — Azure Managed Redis
-  reserves ~20% for internal operations. Apply reservation factors
-- ❌ **Make arithmetic errors in RPS calculations** — use:
-  `monthly_txn / (days × hours × 3600)`. Apply 3-5× concentration for peaks
+- Do not hardcode prices — all dollar amounts come from `cost-estimate-subagent` responses
+- Do not recommend deprecated services — check `azure-defaults` Deprecated Services table
+- Do not use GRS with GDPR single-region constraints — use ZRS when data residency prohibits cross-region transfer
+- Do not claim zone redundancy without SKU verification (e.g., APIM Standard v2 does NOT support AZ)
+- Do not skip memory reservation in capacity sizing — Azure Managed Redis reserves ~20%
+- RPS calculation: `monthly_txn / (days × hours × 3600)`. Apply 3-5× concentration for peaks
 
 ## Core Workflow
 

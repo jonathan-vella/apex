@@ -58,15 +58,16 @@ Activate this skill when user wants to:
 
 ## Steps
 
-| #   | Action                                                                                                            | Reference                                                    |
-| --- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| 1   | **Check Plan** — Read `.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated | `.azure/plan.md`                                             |
-| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                | [Pre-Deploy Checklist](references/pre-deploy-checklist.md)   |
-| 3   | **Load Recipe** — Based on `recipe.type` in `.azure/plan.md`                                                      | [recipes/README.md](references/recipes/README.md)            |
-| 4   | **Execute Deploy** — Follow recipe steps                                                                          | Recipe README                                                |
-| 5   | **Post-Deploy** — Configure SQL managed identity and apply EF migrations if applicable                            | [Post-Deployment](references/recipes/azd/post-deployment.md) |
-| 6   | **Handle Errors** — See recipe's `errors.md`                                                                      | —                                                            |
-| 7   | **Verify Success** — Confirm deployment completed and endpoints are accessible                                    | [Verification](references/recipes/azd/verify.md)             |
+| #   | Action                                                                                                                                                                                                                                                   | Reference                                                    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 0   | **Auto-Prepare Gate** — Check if `.azure/plan.md` exists. If missing, invoke the **azure-prepare** skill to create it, then invoke **azure-validate** before returning here. Do not ask the user — run the full prepare→validate pipeline automatically. | —                                                            |
+| 1   | **Check Plan** — Read `.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If status is not `Validated`, invoke **azure-validate** first.                                                                        | `.azure/plan.md`                                             |
+| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                                                                                                       | [Pre-Deploy Checklist](references/pre-deploy-checklist.md)   |
+| 3   | **Load Recipe** — Based on `recipe.type` in `.azure/plan.md`                                                                                                                                                                                             | [recipes/README.md](references/recipes/README.md)            |
+| 4   | **Execute Deploy** — Follow recipe steps                                                                                                                                                                                                                 | Recipe README                                                |
+| 5   | **Post-Deploy** — Configure SQL managed identity and apply EF migrations if applicable                                                                                                                                                                   | [Post-Deployment](references/recipes/azd/post-deployment.md) |
+| 6   | **Handle Errors** — See recipe's `errors.md`                                                                                                                                                                                                             | —                                                            |
+| 7   | **Verify Success** — Confirm deployment completed and endpoints are accessible                                                                                                                                                                           | [Verification](references/recipes/azd/verify.md)             |
 
 > **⛔ VALIDATION PROOF CHECK**
 >
@@ -94,10 +95,10 @@ Activate this skill when user wants to:
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/auth-best-practices.md` | Auth Best Practices |
-| `references/global-rules.md` | Global Rules |
+| Reference                            | When to Load         |
+| ------------------------------------ | -------------------- |
+| `references/auth-best-practices.md`  | Auth Best Practices  |
+| `references/global-rules.md`         | Global Rules         |
 | `references/pre-deploy-checklist.md` | Pre Deploy Checklist |
-| `references/region-availability.md` | Region Availability |
-| `references/troubleshooting.md` | Troubleshooting |
+| `references/region-availability.md`  | Region Availability  |
+| `references/troubleshooting.md`      | Troubleshooting      |

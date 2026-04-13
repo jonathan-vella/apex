@@ -92,7 +92,7 @@ Before doing any work, read these skills:
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/terraform-patterns/SKILL.md` — patterns, AVM Known Pitfalls, module composition
-5. Read `.github/instructions/iac-best-practices.instructions.md` — governance mandate, translation table
+5. Read `.github/instructions/iac-terraform-best-practices.instructions.md` — governance mandate, translation table
 6. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
 
 ## Do
@@ -176,7 +176,7 @@ For EACH resource in `04-implementation-plan.md`:
 **HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
 
 1. Read `04-governance-constraints.json` — extract all `Deny` policies
-2. Translate `azurePropertyPath` → Terraform argument (use translation table in `iac-best-practices.instructions.md`)
+2. Translate `azurePropertyPath` → Terraform argument (use translation table in `.github/instructions/references/iac-policy-compliance.md`)
 3. Build compliance map: resource type → TF argument → required value
 4. Merge governance tags with 4 baseline defaults (governance wins)
 5. Validate every planned resource can comply

@@ -9,7 +9,7 @@
  * 1. Bicep Code Generator references 04-governance-constraints
  * 2. bicep-validate-subagent has Governance Compliance checklist
  * 3. IaC Planner references JSON output schema completeness
- * 4. iac-best-practices.instructions.md exists with correct applyTo
+ * 4. iac-bicep-best-practices.instructions.md exists with correct applyTo
  *
  * @example
  * node scripts/validate-governance-refs.mjs
@@ -64,8 +64,8 @@ check(
   fileContains(codeGenPath, "Phase 1.5"),
 );
 check(
-  "References iac-best-practices.instructions.md",
-  fileContains(codeGenPath, "iac-best-practices.instructions.md"),
+  "References iac-bicep-best-practices.instructions.md",
+  fileContains(codeGenPath, "iac-bicep-best-practices.instructions.md"),
 );
 check(
   "DO list includes governance constraint parsing",
@@ -116,26 +116,22 @@ check(
     fileContains(plannerPath, "policy-effect-decision-tree"),
 );
 
-// 4. iac-best-practices.instructions.md exists and is valid
-console.log("\n📄 iac-best-practices.instructions.md");
-const policyInstrPath =
-  ".github/instructions/iac-best-practices.instructions.md";
-check("File exists", fileExists(policyInstrPath));
+// 4. iac-bicep-best-practices.instructions.md exists and is valid
+console.log("\n📄 iac-bicep-best-practices.instructions.md");
+const bicepInstrPath =
+  ".github/instructions/iac-bicep-best-practices.instructions.md";
+check("File exists", fileExists(bicepInstrPath));
 check(
   "Has correct applyTo scope including *.bicep",
-  fileContains(policyInstrPath, "**/*.bicep"),
-);
-check(
-  "Has correct applyTo scope including *.tf",
-  fileContains(policyInstrPath, "**/*.tf"),
+  fileContains(bicepInstrPath, "**/*.bicep"),
 );
 check(
   'States "Azure Policy always wins"',
-  fileContains(policyInstrPath, "Azure Policy always wins"),
+  fileContains(bicepInstrPath, "Azure Policy always wins"),
 );
 check(
-  "References 04-governance-constraints.json",
-  fileContains(policyInstrPath, "04-governance-constraints.json"),
+  "References iac-policy-compliance",
+  fileContains(bicepInstrPath, "iac-policy-compliance"),
 );
 
 // 5. Governance discovery instructions include downstream enforcement
@@ -210,10 +206,10 @@ check(
   fileContains(tfReviewPath, "azurePropertyPath"),
 );
 
-// 9. iac-policy-compliance also covers Terraform (merged file)
-console.log("\n📄 iac-best-practices.instructions.md (Terraform section)");
+// 9. iac-terraform-best-practices.instructions.md covers Terraform
+console.log("\n📄 iac-terraform-best-practices.instructions.md");
 const tfPolicyInstrPath =
-  ".github/instructions/iac-best-practices.instructions.md";
+  ".github/instructions/iac-terraform-best-practices.instructions.md";
 check("File exists", fileExists(tfPolicyInstrPath));
 check(
   "Has correct applyTo scope including *.tf",
@@ -224,8 +220,8 @@ check(
   fileContains(tfPolicyInstrPath, "Azure Policy always wins"),
 );
 check(
-  "References 04-governance-constraints.json",
-  fileContains(tfPolicyInstrPath, "04-governance-constraints.json"),
+  "References iac-policy-compliance",
+  fileContains(tfPolicyInstrPath, "iac-policy-compliance"),
 );
 
 // 10. Governance discovery subagent produces BOTH bicepPropertyPath AND azurePropertyPath

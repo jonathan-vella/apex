@@ -85,7 +85,7 @@ Before doing any work, read these skills:
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, managed identity, module composition
-5. Read `.github/instructions/iac-best-practices.instructions.md` — governance mandate, dynamic tag list
+5. Read `.github/instructions/iac-bicep-best-practices.instructions.md` — governance mandate, dynamic tag list
 6. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
 
 ## Do

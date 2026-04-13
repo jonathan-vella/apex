@@ -96,7 +96,7 @@ For each `.agent.md` file, calculate context cost:
 **Red flags**:
 
 - Tool list > 30 items (~2,000+ tokens just for tool schemas)
-- Agent body > 300 lines (~2,000+ tokens)
+- Agent body > 350 lines (~2,500+ tokens)
 - Multiple `applyTo: "**"` instructions (~500+ tokens each, always loaded)
 
 ### Step 4: Map Context Growth

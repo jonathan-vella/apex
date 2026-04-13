@@ -83,14 +83,14 @@ Recommendation from VS Code docs:
 
 ## This Repo's Examples
 
-| File                                   | Glob                                                | Purpose                             |
-| -------------------------------------- | --------------------------------------------------- | ----------------------------------- |
-| `agent-authoring.instructions.md`      | `**/*.agent.md, **/*.prompt.md`                     | Agent authoring standards           |
-| `iac-best-practices.instructions.md`   | `**/*.bicep, **/*.tf, **/04-implementation-plan.md` | IaC best practices                  |
-| `python.instructions.md`               | `**/*.py`                                           | Python conventions                  |
-| `markdown.instructions.md`             | `**/*.md`                                           | Markdown formatting                 |
-| `no-heredoc.instructions.md`           | `**`                                                | Prevent terminal heredoc corruption |
-| `context-optimization.instructions.md` | Agents, skills, instructions                        | Context window limits               |
+| File                                       | Glob                            | Purpose                             |
+| ------------------------------------------ | ------------------------------- | ----------------------------------- |
+| `agent-authoring.instructions.md`          | `**/*.agent.md, **/*.prompt.md` | Agent authoring standards           |
+| `iac-bicep-best-practices.instructions.md` | `**/*.bicep`                    | Bicep IaC best practices            |
+| `python.instructions.md`                   | `**/*.py`                       | Python conventions                  |
+| `markdown.instructions.md`                 | `**/*.md`                       | Markdown formatting                 |
+| `no-heredoc.instructions.md`               | `**`                            | Prevent terminal heredoc corruption |
+| `context-optimization.instructions.md`     | Agents, skills, instructions    | Context window limits               |
 
 See `.github/instructions/` for the full set and `.github/count-manifest.json` for current counts.
 

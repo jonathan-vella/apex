@@ -2,7 +2,7 @@
 
 # Budget & Cost Monitoring Pattern (Bicep)
 
-MANDATORY per `iac-best-practices.instructions.md`. Every deployment
+MANDATORY per `.github/instructions/references/iac-cost-monitoring.md`. Every deployment
 MUST include budget tracking with forecast alerts and anomaly detection.
 
 ## Budget Module (AVM or Native)

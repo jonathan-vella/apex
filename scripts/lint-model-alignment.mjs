@@ -10,7 +10,7 @@
  * 1. Prompt files: model field matches the target agent's frontmatter model
  * 2. Agent handoffs: no redundant model overrides that match target agent model
  * 3. Claude agents: reasoning_effort comment present
- * 4. Claude agents >300 lines: context_awareness block recommended
+ * 4. Claude agents >350 lines: context_awareness block recommended
  * 5. Claude agents with investigate role: investigate_before_answering present
  *
  * @example
@@ -196,7 +196,7 @@ function checkContextAwareness() {
     if (agent.isSubagent) continue;
 
     const bodyLines = countBodyLines(agent.content);
-    if (bodyLines <= 300) continue;
+    if (bodyLines <= 350) continue;
 
     r.tick();
     const relPath = path.relative(process.cwd(), agent.path);
@@ -205,7 +205,7 @@ function checkContextAwareness() {
     if (!body.includes("<context_awareness>")) {
       r.warn(
         relPath,
-        `Claude agent has ${bodyLines} body lines but no <context_awareness> block (recommended for >300 lines)`,
+        `Claude agent has ${bodyLines} body lines but no <context_awareness> block (recommended for >350 lines)`,
       );
     }
   }

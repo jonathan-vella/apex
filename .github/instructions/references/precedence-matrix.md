@@ -5,13 +5,13 @@ When multiple instruction files apply to the same file type (via overlapping
 
 ## Precedence Order (highest wins)
 
-1. **Azure Policy constraints** — `iac-best-practices.instructions.md` (Policy Compliance section)
+1. **Azure Policy constraints** — `references/iac-policy-compliance.md`
    - Azure Policy ALWAYS wins. If a governance Deny policy conflicts with
      any other instruction, the policy constraint takes precedence.
-2. **Domain-specific IaC instructions** — `iac-best-practices.instructions.md`
-   or `terraform-code-best-practices.instructions.md`
+2. **Domain-specific IaC instructions** — `iac-bicep-best-practices.instructions.md`
+   or `iac-terraform-best-practices.instructions.md`
    - AVM-first, naming conventions, security baseline, file structure.
-3. **Cross-cutting IaC instructions** — `iac-best-practices.instructions.md` (Cost Monitoring section)
+3. **Cross-cutting IaC instructions** — `iac-plan-best-practices.instructions.md` / `references/iac-cost-monitoring.md`
    - Budget resources, forecast alerts, parameterization rules.
 4. **General code quality** — `code-quality.instructions.md`
    - Comment style (WHY not WHAT), review priority tiers, security checklist.
@@ -20,21 +20,21 @@ When multiple instruction files apply to the same file type (via overlapping
 
 ### Files matching `**/*.bicep`
 
-| Instruction               | Priority    | Key Rules                                               |
-| ------------------------- | ----------- | ------------------------------------------------------- |
-| iac-policy-compliance     | 1 (highest) | Governance Deny policies block deployment               |
-| bicep-code-best-practices | 2           | AVM-first, CAF naming, unique suffix, security defaults |
-| iac-cost-repeatability    | 3           | Budget resources, forecast alerts, no hardcoded values  |
-| code-quality              | 4 (lowest)  | WHY comments, security review priority                  |
+| Instruction              | Priority    | Key Rules                                               |
+| ------------------------ | ----------- | ------------------------------------------------------- |
+| iac-policy-compliance    | 1 (highest) | Governance Deny policies block deployment               |
+| iac-bicep-best-practices | 2           | AVM-first, CAF naming, unique suffix, security defaults |
+| iac-plan-best-practices  | 3           | Budget resources, forecast alerts, no hardcoded values  |
+| code-quality             | 4 (lowest)  | WHY comments, security review priority                  |
 
 ### Files matching `**/*.tf`
 
-| Instruction                   | Priority    | Key Rules                                                 |
-| ----------------------------- | ----------- | --------------------------------------------------------- |
-| iac-policy-compliance         | 1 (highest) | Governance Deny policies block deployment                 |
-| terraform-code-best-practices | 2           | AVM-TF, provider pin ~>4.0, CAF naming, security defaults |
-| iac-cost-repeatability        | 3           | Budget resources, forecast alerts, no hardcoded values    |
-| code-quality                  | 4 (lowest)  | WHY comments, security review priority                    |
+| Instruction                  | Priority    | Key Rules                                                 |
+| ---------------------------- | ----------- | --------------------------------------------------------- |
+| iac-policy-compliance        | 1 (highest) | Governance Deny policies block deployment                 |
+| iac-terraform-best-practices | 2           | AVM-TF, provider pin ~>4.0, CAF naming, security defaults |
+| iac-plan-best-practices      | 3           | Budget resources, forecast alerts, no hardcoded values    |
+| code-quality                 | 4 (lowest)  | WHY comments, security review priority                    |
 
 ### Files matching `**/*.md`
 

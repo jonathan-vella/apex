@@ -1,21 +1,18 @@
 ---
 applyTo: "**/agent-output/**/*.md"
-description: "MANDATORY template compliance rules for artifact generation"
+description: "Template compliance rules for artifact generation"
 ---
 
-# Artifact Generation Rules - MANDATORY
+# Artifact Generation Rules
 
-> **CRITICAL**: ENFORCEMENT TRIGGER for artifact H2 headings.
-> Agents MUST use exact headings. Violations block commits and PRs.
+Use exact H2 headings from the template files. Violations block commits and PRs.
 
-> [!NOTE]
-> This file enforces artifact H2 headings via `applyTo` scope.
-> `azure-artifacts/SKILL.md` is authoritative — read it for templates, workflow, styling.
+The `azure-artifacts/SKILL.md` is authoritative — read it for templates, workflow, styling.
 
 ## Structural Elements (Beyond H2 Headings)
 
-> **IMPORTANT**: Templates define structural elements that agents MUST reproduce.
-> These are validated by `npm run lint:artifact-templates` and cause warnings.
+Templates define structural elements that agents reproduce.
+Validated by `npm run lint:artifact-templates`.
 
 | Element              | What to Copy from Template                               |
 | -------------------- | -------------------------------------------------------- |
@@ -29,7 +26,7 @@ description: "MANDATORY template compliance rules for artifact generation"
 
 ## Complete H2 Heading Reference
 
-> **IMPORTANT**: Copy-paste headings from the template files. Do not paraphrase.
+Copy-paste headings from the template files. Do not paraphrase.
 
 Canonical H2 heading lists for all 15 artifact types live in the template files:
 

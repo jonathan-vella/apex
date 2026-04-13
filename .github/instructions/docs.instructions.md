@@ -36,55 +36,9 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 ## Current Architecture
 
-### Agents (see count-manifest.json for current counts)
-
-| Agent               | Purpose                                      |
-| ------------------- | -------------------------------------------- |
-| `orchestrator`      | Master orchestrator with approval gates      |
-| `requirements`      | Gather infrastructure requirements           |
-| `architect`         | WAF assessment and architecture design       |
-| `design`            | Architecture diagrams and ADRs               |
-| `iac-planner`       | Unified IaC implementation planning          |
-| `bicep-codegen`     | Bicep template generation                    |
-| `bicep-deploy`      | Bicep Azure deployment execution             |
-| `terraform-codegen` | Terraform config generation                  |
-| `terraform-deploy`  | Terraform Azure deployment execution         |
-| `as-built`          | Step 7 workload documentation suite          |
-| `diagnose`          | Post-deployment health diagnostics           |
-| `challenger`        | Adversarial review of requirements and plans |
-| `context-optimizer` | Context window audit and token waste report  |
-
-### Subagents (in `_subagents/`)
-
-| Subagent                        | Parent             | Purpose                             |
-| ------------------------------- | ------------------ | ----------------------------------- |
-| `cost-estimate-subagent`        | Architect          | Azure Pricing MCP queries           |
-| `governance-discovery-subagent` | IaC Planner        | Azure Policy REST API discovery     |
-| `challenger-review-subagent`    | Orchestrator/Plans | Adversarial artifact review         |
-| `bicep-validate-subagent`       | Bicep Code         | Lint + AVM/security code review     |
-| `bicep-whatif-subagent`         | Bicep Deploy       | Deployment preview                  |
-| `terraform-validate-subagent`   | Terraform Code     | Lint + AVM-TF/security code review  |
-| `terraform-plan-subagent`       | Terraform Deploy   | Deployment preview (terraform plan) |
-
-### Skills (see count-manifest.json for current counts)
-
-| Skill                  | Category            | Purpose                                     |
-| ---------------------- | ------------------- | ------------------------------------------- |
-| `azure-adr`            | Document Creation   | Architecture Decision Records               |
-| `azure-artifacts`      | Artifact Generation | Template H2s, styling, generation rules     |
-| `azure-bicep-patterns` | IaC Patterns        | Reusable Bicep infrastructure patterns      |
-| `azure-defaults`       | Azure Conventions   | Regions, naming, AVM, WAF, pricing, tags    |
-| `drawio`               | Document Creation   | Draw.io architecture diagrams               |
-| `python-diagrams`      | Document Creation   | WAF/cost/compliance charts (matplotlib)     |
-| `mermaid`              | Document Creation   | Inline Mermaid diagrams for markdown        |
-| `drawio`               | Document Creation   | Draw.io diagrams with Azure icon libraries  |
-| `azure-diagnostics`    | Troubleshooting     | KQL templates, health checks, remediation   |
-| `context-optimizer`    | Agent Optimization  | Context window audit, token waste reduction |
-| `docs-writer`          | Documentation       | Repo-aware docs maintenance                 |
-| `github-operations`    | Workflow Automation | Branch naming, commits, PRs, CLI, Actions   |
-| `golden-principles`    | Agent Conventions   | 10 operating invariants for all agents      |
-| `make-skill-template`  | Meta                | Skill creation helper                       |
-| `terraform-patterns`   | IaC Patterns        | Reusable Terraform infrastructure patterns  |
+See `.github/count-manifest.json` for current agent, subagent, and skill counts.
+See `.github/agent-registry.json` for the agent role → file mapping.
+See `.github/skill-affinity.json` for the skill catalog.
 
 ## Prohibited References
 

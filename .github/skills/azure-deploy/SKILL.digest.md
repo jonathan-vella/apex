@@ -27,12 +27,13 @@ Activate this skill when user wants to:
 
 ## Steps
 
-| #   | Action                                                                                                            | Reference                                                    |
-| --- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| 1   | **Check Plan** — Read `.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated | `.azure/plan.md`                                             |
-| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                | [Pre-Deploy Checklist](references/pre-deploy-checklist.md)   |
-| 3   | **Load Recipe** — Based on `recipe.type` in `.azure/plan.md`                                                      | [recipes/README.md](references/recipes/README.md)            |
-| 4   | **Execute Deploy** — Follow recipe steps                                                                          | Recipe README                                                |
+| #   | Action                                                                                                                                                                | Reference                                                  |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 0   | **Auto-Prepare Gate** — If `.azure/plan.md` is missing, invoke **azure-prepare** then **azure-validate** automatically                                                | —                                                          |
+| 1   | **Check Plan** — Read `.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If not validated, invoke **azure-validate** first. | `.azure/plan.md`                                           |
+| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                    | [Pre-Deploy Checklist](references/pre-deploy-checklist.md) |
+| 3   | **Load Recipe** — Based on `recipe.type` in `.azure/plan.md`                                                                                                          | [recipes/README.md](references/recipes/README.md)          |
+| 4   | **Execute Deploy** — Follow recipe steps                                                                                                                              | Recipe README                                              |
 
 > _See SKILL.md for full content._
 
