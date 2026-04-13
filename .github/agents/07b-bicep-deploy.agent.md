@@ -125,7 +125,7 @@ Before starting, validate:
 
 ## Session State
 
-Read `session-resume/SKILL.digest.md`. Step: 6.
+Read `.github/skills/session-resume/SKILL.digest.md`. Step: 6.
 Sub-steps: `phase_1_auth` → `phase_2_preview` →
 `phase_3_deploy` → `phase_4_verify` → `phase_5_artifact`.
 

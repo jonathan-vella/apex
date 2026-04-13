@@ -25,7 +25,7 @@ Gate: do not proceed to code generation with unresolved Deny policy violations.
 1. Read `04-governance-constraints.json` — extract all `Deny` policies
 2. Map policy property paths to IaC-specific arguments:
    - Bicep: use `azurePropertyPath` (fall back to `bicepPropertyPath`), drop leading resource-type segment
-   - Terraform: use `azurePropertyPath`, translate via the resource type mapping table in `references/iac-policy-compliance.md`
+   - Terraform: use `azurePropertyPath`, translate via the resource type mapping table in `.github/instructions/references/iac-policy-compliance.md`
 3. Build compliance map: resource type → IaC property → required value
 4. Merge governance tags with baseline defaults (governance wins)
 5. Validate every planned resource can comply

@@ -176,7 +176,7 @@ For EACH resource in `04-implementation-plan.md`:
 **HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
 
 1. Read `04-governance-constraints.json` — extract all `Deny` policies
-2. Translate `azurePropertyPath` → Terraform argument (use translation table in `references/iac-policy-compliance.md`)
+2. Translate `azurePropertyPath` → Terraform argument (use translation table in `.github/instructions/references/iac-policy-compliance.md`)
 3. Build compliance map: resource type → TF argument → required value
 4. Merge governance tags with 4 baseline defaults (governance wins)
 5. Validate every planned resource can comply

@@ -107,7 +107,7 @@ in a single form:
 
 ## Session State
 
-Read `session-resume/SKILL.digest.md`. Step: 2.
+Read `.github/skills/session-resume/SKILL.digest.md`. Step: 2.
 Sub-steps: `phase_1_prereqs` → `phase_2_waf` →
 `phase_2.5_compacted` → `phase_3_cost` →
 `phase_4_challenger` → `phase_5_artifact`.
