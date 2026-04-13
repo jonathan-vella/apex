@@ -8,7 +8,7 @@ Azure environments through coordinated AI agents.
 This file is the quick contributor entrypoint.
 The canonical, detailed contributor workflow (branch protection, PR flow, automation, versioning) is:
 
-- [Development Workflow Guide](docs/workflow.md)
+- [Development Workflow Guide](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)
 
 ## 🎯 What We're Looking For
 
@@ -20,7 +20,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Additional validation checks
 
 2. **Documentation**
-   - Workflow improvements (`docs/workflow.md`)
+   - Published site improvements (`site/src/content/docs/`)
    - Better examples and use cases
    - Troubleshooting guides
 
@@ -42,8 +42,8 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
 This repo uses a protected `main` branch.
 Contributions land via pull requests with required checks and review.
 
-- Workflow details: [Development Workflow Guide](docs/workflow.md)
-- Agent workflow details: [Agent Workflow Reference](docs/workflow.md)
+- Workflow details: [Development Workflow Guide](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)
+- Agent workflow details: [Agent Workflow Reference](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)
 
 #### Branch Naming Convention
 
@@ -53,7 +53,7 @@ GitHub Actions CI.
 
 | Prefix          | Scope                                                        | Example                         |
 | --------------- | ------------------------------------------------------------ | ------------------------------- |
-| `docs/`         | Documentation (`docs/`, `site/`, `README.md`)                | `docs/update-workflow-guide`    |
+| `docs/`         | Documentation (`site/`, `README.md`)                         | `docs/update-workflow-guide`    |
 | `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`   |
 | `skills/`       | Skill files (`.github/skills/`, `skill-affinity.json`)       | `skills/add-tf-patterns`        |
 | `infra/`        | Infrastructure code (`infra/bicep/`, `infra/terraform/`)     | `infra/add-private-endpoints`   |
@@ -79,14 +79,14 @@ narrow-scope branches.
 **Cross-cutting branches** (`feat/`, `fix/`, `chore/`, `ci/`, `refactor/`,
 `perf/`, `test/`, `build/`, `revert/`) may modify any files.
 
-| Domain Prefix   | Allowed File Paths                                               |
-| --------------- | ---------------------------------------------------------------- |
-| `docs/`         | `docs/`, `site/`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
-| `agents/`       | `.github/agents/`, `.github/agent-registry.json`                 |
-| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`                 |
-| `infra/`        | `infra/`                                                         |
-| `scripts/`      | `scripts/`, `package.json`                                       |
-| `instructions/` | `.github/instructions/`                                          |
+| Domain Prefix   | Allowed File Paths                                      |
+| --------------- | ------------------------------------------------------- |
+| `docs/`         | `site/`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
+| `agents/`       | `.github/agents/`, `.github/agent-registry.json`        |
+| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`        |
+| `infra/`        | `infra/`                                                |
+| `scripts/`      | `scripts/`, `package.json`                              |
+| `instructions/` | `.github/instructions/`                                 |
 
 !!! tip "Fixing a scope violation"
 
@@ -142,8 +142,8 @@ This repository uses [markdownlint](https://github.com/DavidAnson/markdownlint) 
 # Check for issues
 npm run lint:md
 
-# Check links (docs/ only)
-npm run lint:links
+# Check links (site docs)
+npm run lint:links:docs
 
 # Auto-fix issues
 npm run lint:md:fix
@@ -186,7 +186,7 @@ git checkout -b docs/update-workflow-guide
 
 For the full local-to-PR flow, see:
 
-- [Development Workflow Guide](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/docs/workflow.md)
+- [Development Workflow Guide](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)
 
 ### 4. Commit & Push
 

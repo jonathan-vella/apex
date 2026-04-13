@@ -17,7 +17,7 @@ if ! echo "$BRANCH" | grep -qE "^($ALLOWED_PREFIXES)"; then
   echo "❌ Branch name '$BRANCH' does not follow naming convention."
   echo ""
   echo "   Allowed prefixes:"
-  echo "     docs/         Documentation changes (docs/, site/, README.md)"
+  echo "     docs/         Documentation changes (site/, README.md)"
   echo "     agents/       Agent definitions (.github/agents/)"
   echo "     skills/       Skill files (.github/skills/)"
   echo "     infra/        Infrastructure code (infra/bicep/, infra/terraform/)"

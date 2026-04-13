@@ -7,13 +7,13 @@ argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works 
 
 # Docs Peer Review
 
-Orchestrate a peer review of every published documentation page in `docs/`.
+Orchestrate a peer review of every published documentation page in `site/src/content/docs/`.
 Two independent reviewer passes run sequentially, then an adversarial pass,
 then reconciliation into a prioritised triage report.
 
 ## Scope
 
-Published pages only. Excludes `tests/exec-plans/` and `docs/presenter/`.
+Published pages only. Excludes `tests/exec-plans/` and `site/public/`.
 
 ### Step 0 — Build file inventory dynamically
 
@@ -58,7 +58,7 @@ dynamic inventory and produces a structured findings list.
 - Max **5 `must_fix`** per file
 - Line numbers are approximate — use the **section heading** as anchor if uncertain
 - Verify each finding's file path exists before including it
-- Verify image/asset references in `docs/assets/` resolve to real files
+- Verify image/asset references in `site/public/` resolve to real files
 - If approaching context limits after reading docs, prioritise: (1) broken links,
   (2) agent/skill name accuracy, (3) cross-page consistency
 
@@ -187,15 +187,15 @@ Present a **triage report** structured for fast human action:
 ```markdown
 ## Must-Fix (blockers) — N items
 
-| #   | File           | Line | Category | Description | Fix | Source     |
-| --- | -------------- | ---- | -------- | ----------- | --- | ---------- |
-| 1   | docs/agents.md | ~42  | accuracy | ...         | ... | Reviewer A |
+| #   | File                            | Line | Category | Description | Fix | Source     |
+| --- | ------------------------------- | ---- | -------- | ----------- | --- | ---------- |
+| 1   | concepts/how-it-works/agents.md | ~42  | accuracy | ...         | ... | Reviewer A |
 
 ## Should-Fix (next sprint) — top 10
 
-| #   | File             | Line | Category    | Description | Fix | Source      |
-| --- | ---------------- | ---- | ----------- | ----------- | --- | ----------- |
-| 1   | docs/workflow.md | ~12  | consistency | ...         | ... | Adversarial |
+| #   | File                 | Line | Category    | Description | Fix | Source      |
+| --- | -------------------- | ---- | ----------- | ----------- | --- | ----------- |
+| 1   | concepts/workflow.md | ~12  | consistency | ...         | ... | Adversarial |
 
 ## Cross-File Findings
 

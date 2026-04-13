@@ -21,7 +21,7 @@ The canonical, detailed contributor workflow (branch protection, PR flow, automa
    - Additional validation checks
 
 2. **Documentation**
-   - Workflow improvements (`docs/workflow.md`)
+   - Published site improvements (`site/src/content/docs/`)
    - Better examples and use cases
    - Troubleshooting guides
 
@@ -52,8 +52,8 @@ GitHub Actions CI.
 
 | Prefix          | Scope                                                        | Example                         |
 | --------------- | ------------------------------------------------------------ | ------------------------------- |
-| `docs/`         | Documentation (`docs/`, `site/`, `README.md`)                | `docs/update-workflow-guide`    |
-| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`      |
+| `docs/`         | Documentation (`site/`, `README.md`)                         | `docs/update-workflow-guide`    |
+| `agents/`       | Agent definitions (`.github/agents/`, `agent-registry.json`) | `agents/improve-orchestrator`   |
 | `skills/`       | Skill files (`.github/skills/`, `skill-affinity.json`)       | `skills/add-tf-patterns`        |
 | `infra/`        | Infrastructure code (`infra/bicep/`, `infra/terraform/`)     | `infra/add-private-endpoints`   |
 | `scripts/`      | Validation scripts (`scripts/`, `package.json`)              | `scripts/fix-h2-sync`           |
@@ -78,14 +78,14 @@ narrow-scope branches.
 **Cross-cutting branches** (`feat/`, `fix/`, `chore/`, `ci/`, `refactor/`,
 `perf/`, `test/`, `build/`, `revert/`) may modify any files.
 
-| Domain Prefix   | Allowed File Paths                                                   |
-| --------------- | -------------------------------------------------------------------- |
-| `docs/`         | `docs/`, `site/src/`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
-| `agents/`       | `.github/agents/`, `.github/agent-registry.json`                     |
-| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`                     |
-| `infra/`        | `infra/`                                                             |
-| `scripts/`      | `scripts/`, `package.json`                                           |
-| `instructions/` | `.github/instructions/`                                              |
+| Domain Prefix   | Allowed File Paths                                      |
+| --------------- | ------------------------------------------------------- |
+| `docs/`         | `site/`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
+| `agents/`       | `.github/agents/`, `.github/agent-registry.json`        |
+| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`        |
+| `infra/`        | `infra/`                                                |
+| `scripts/`      | `scripts/`, `package.json`                              |
+| `instructions/` | `.github/instructions/`                                 |
 
 :::tip[Fixing a scope violation]
 If your `docs/` branch needs to edit a script, either rename the branch
@@ -141,8 +141,8 @@ This repository uses [markdownlint](https://github.com/DavidAnson/markdownlint) 
 # Check for issues
 npm run lint:md
 
-# Check links (docs/ only)
-npm run lint:links
+# Check links (site docs)
+npm run lint:links:docs
 
 # Auto-fix issues
 npm run lint:md:fix

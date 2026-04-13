@@ -38,11 +38,9 @@
 
 **Files to check**:
 
-| File                                        | What to verify                                       |
-| ------------------------------------------- | ---------------------------------------------------- |
-| `docs/README.md`                            | `## Agents (N + 3 Subagents)` heading and table rows |
-| `.github/instructions/docs.instructions.md` | `### Agents (N total)` and table                     |
-| `docs/README.md` project structure          | `# N agent definitions` comment                      |
+| File                                        | What to verify                   |
+| ------------------------------------------- | -------------------------------- |
+| `.github/instructions/docs.instructions.md` | `### Agents (N total)` and table |
 
 **Auto-fix**: Update count in heading. Add missing agents to table
 matching the existing column format. Remove entries for agents that
@@ -58,25 +56,22 @@ no longer exist.
 
 **Files to check**:
 
-| File                                        | What to verify                         |
-| ------------------------------------------- | -------------------------------------- |
-| `docs/README.md`                            | `## Skills (N)` heading and table rows |
-| `.github/instructions/docs.instructions.md` | `### Skills (N total)` and table       |
-| `docs/README.md` project structure          | `# N skill definitions` comment        |
+| File                                        | What to verify                   |
+| ------------------------------------------- | -------------------------------- |
+| `.github/instructions/docs.instructions.md` | `### Skills (N total)` and table |
 
 **Auto-fix**: Update count in heading. Add missing skills to the
 appropriate category table. Remove entries for deleted skills.
 
 ### 4. Prompt Guide Currency
 
-**Source of truth**: `docs/prompt-guide/README.md` agent/skill tables.
+**Source of truth**: `site/src/content/docs/guides/prompt-guide/` pages.
 
 **Files to check**:
 
-| File                          | What to verify                          |
-| ----------------------------- | --------------------------------------- |
-| `docs/prompt-guide/README.md` | Agent and skill tables match filesystem |
-| `docs/README.md`              | Prompt Guide section links are valid    |
+| File                                             | What to verify                          |
+| ------------------------------------------------ | --------------------------------------- |
+| `site/src/content/docs/guides/prompt-guide/*.md` | Agent and skill tables match filesystem |
 
 **Auto-fix**: Update tables to match current agent/skill inventory.
 
@@ -93,7 +88,7 @@ appropriate category table. Remove entries for deleted skills.
 - `docs/reference/`
 - `docs/getting-started.md`
 
-**Files to check**: All `docs/**/*.md`, `README.md`, `CONTRIBUTING.md`.
+**Files to check**: All `site/src/content/docs/**/*.md`, `README.md`, `CONTRIBUTING.md`.
 
 **Auto-fix**: Replace with the correct skill reference
 (see `references/doc-standards.md` → Prohibited References table).
@@ -113,7 +108,7 @@ appropriate category table. Remove entries for deleted skills.
 **Expected count** (as of 2026-02-26): computed dynamically from `.github/count-manifest.json`
 (run `validate:no-hardcoded-counts` to verify)
 
-**Files to check**: Only relevant if `docs/README.md` or the root
+**Files to check**: Only relevant if the root
 `README.md` lists instruction files.
 
 **Auto-fix**: Update table entries.
@@ -149,10 +144,9 @@ as resolved with the current date.
 When reporting audit results, use this format:
 
 ```markdown
-| #   | File                 | Line | Issue                                   | Fix            |
-| --- | -------------------- | ---- | --------------------------------------- | -------------- |
-| 1   | docs/README.md       | 42   | Agent count says 6, actual is 8         | Update heading |
-| 2   | docs.instructions.md | 34   | Missing `design` and `orchestrator` agents | Add table rows |
+| #   | File                 | Line | Issue                                      | Fix            |
+| --- | -------------------- | ---- | ------------------------------------------ | -------------- |
+| 1   | docs.instructions.md | 34   | Missing `design` and `orchestrator` agents | Add table rows |
 ```
 
 ## Known Issues
@@ -167,4 +161,4 @@ resolved (Tasks A–D). Fixes included:
 - Orchestrator model corrected to Claude Opus 4.6, approval gates to 5
 - MCP path fixed, broken link removed
 - Glossary cross-references fixed, keyboard shortcut corrected, new terms added
-- Scenarios directory removed; replaced by docs/prompt-guide/
+- Scenarios directory removed; replaced by prompt-guide section in published site

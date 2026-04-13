@@ -30,20 +30,20 @@ All hooks are defined in `lefthook.yml` at the repository root.
 
 ### Pre-Commit Hooks
 
-| Hook                  | Trigger (glob)                    | Purpose                                          |
-| --------------------- | --------------------------------- | ------------------------------------------------ |
-| `markdown-lint`       | `*.md`                            | markdownlint on staged markdown files            |
-| `link-check`          | `docs/**/*.md`                    | Verify URLs in staged docs files                 |
-| `h2-sync`             | SKILL.md, azure-artifacts files   | Check H2 heading sync across sources             |
-| `artifact-validation` | `agent-output/**/*.md`            | Validate artifact H2 structure against templates |
-| `agent-frontmatter`   | `**/*.agent.md`                   | Validate agent YAML frontmatter syntax           |
-| `model-alignment`     | `**/*.agent.md`, `**/*.prompt.md` | Check model-prompt alignment                     |
-| `agent-checks`        | `**/*.agent.md`                   | Agent body size and language density             |
-| `instruction-checks`  | `**/*.instructions.md`            | Instruction frontmatter validation               |
-| `instruction-refs`    | Agents, skills, instructions      | Cross-reference validation                       |
-| `python-lint`         | `mcp/**/*.py`                     | Ruff linter on Python files                      |
-| `terraform-fmt`       | `*.tf`                            | Terraform formatting check                       |
-| `terraform-validate`  | `*.tf`                            | Terraform validation per project                 |
+| Hook                  | Trigger (glob)                        | Purpose                                          |
+| --------------------- | ------------------------------------- | ------------------------------------------------ |
+| `markdown-lint`       | `*.md`                                | markdownlint on staged markdown files            |
+| `link-check`          | `site/src/content/docs/**/*.{md,mdx}` | Verify URLs in staged docs files                 |
+| `h2-sync`             | SKILL.md, azure-artifacts files       | Check H2 heading sync across sources             |
+| `artifact-validation` | `agent-output/**/*.md`                | Validate artifact H2 structure against templates |
+| `agent-frontmatter`   | `**/*.agent.md`                       | Validate agent YAML frontmatter syntax           |
+| `model-alignment`     | `**/*.agent.md`, `**/*.prompt.md`     | Check model-prompt alignment                     |
+| `agent-checks`        | `**/*.agent.md`                       | Agent body size and language density             |
+| `instruction-checks`  | `**/*.instructions.md`                | Instruction frontmatter validation               |
+| `instruction-refs`    | Agents, skills, instructions          | Cross-reference validation                       |
+| `python-lint`         | `mcp/**/*.py`                         | Ruff linter on Python files                      |
+| `terraform-fmt`       | `*.tf`                                | Terraform formatting check                       |
+| `terraform-validate`  | `*.tf`                                | Terraform validation per project                 |
 
 ### Commit-Msg Hook
 
@@ -131,7 +131,7 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 | -------------------- | ------------------- | ---------------------------------------------- |
 | `lint:md`            | markdownlint-cli2   | Markdown formatting and style                  |
 | `lint:links`         | markdown-link-check | URL validity in all markdown files             |
-| `lint:links:docs`    | markdown-link-check | URL validity in `docs/` only                   |
+| `lint:links:docs`    | markdown-link-check | URL validity in site docs                      |
 | `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                   |
 | `lint:python`        | ruff                | Python code quality (`mcp/azure-pricing-mcp/`) |
 | `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                |

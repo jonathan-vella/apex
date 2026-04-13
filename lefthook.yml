@@ -23,14 +23,14 @@ pre-commit:
       stage_fixed: true
 
     link-check:
-      glob: "docs/**/*.md"
+      glob: "site/src/content/docs/**/*.{md,mdx}"
       run: |
-        # Get staged docs markdown files
-        STAGED_DOCS=$(git diff --cached --name-only --diff-filter=ACM | grep '^docs/.*\.md$' || true)
+        # Get staged site docs markdown files
+        STAGED_DOCS=$(git diff --cached --name-only --diff-filter=ACM | grep '^site/src/content/docs/.*\.md' || true)
         if [ -n "$STAGED_DOCS" ]; then
           echo "🔗 Checking links in $(echo "$STAGED_DOCS" | wc -l | tr -d ' ') doc file(s)..."
           # Use npx to run from local node_modules (avoids Node.js 24 global install bug)
-          echo "$STAGED_DOCS" | xargs -I {} npx markdown-link-check {} --config .markdown-link-check.json --quiet
+          echo "$STAGED_DOCS" | xargs -I {} npx markdown-link-check {} --config .markdown-link-check-site.json --quiet
         else
           echo "ℹ️  No docs to check links"
         fi

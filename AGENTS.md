@@ -37,7 +37,7 @@ pip install -r requirements.txt
 ## Build & Validation
 
 For the complete reference of all validation scripts, linting commands, git hooks,
-and CI workflows, see the [Validation & Linting Reference](docs/validation-reference.md).
+and CI workflows, see the published [Validation & Linting Reference](https://jonathan-vella.github.io/azure-agentic-infraops/reference/validation-reference/).
 
 ```bash
 # Full validation suite
@@ -206,7 +206,9 @@ assets/
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)
 scripts/               # Validation and maintenance scripts (Node.js)
-docs/                  # User-facing documentation
+site/
+  src/content/docs/    # Published user-facing documentation (Astro Starlight)
+  public/              # Site-served static assets
 .vscode/
   mcp.json             # MCP server configuration (github, azure-pricing, terraform, microsoft-learn, drawio)
 ```

@@ -96,15 +96,15 @@ working on that project should create it from the template and backfill complete
 ## Related Resources
 
 - **Bicep Code**: [`infra/bicep/{project}/`](../../infra/bicep/{project}/)
-- **Prompt Guide**: [`docs/prompt-guide/`](../../docs/prompt-guide/)
+- **Prompt Guide**: [Published Prompt Guide](https://jonathan-vella.github.io/azure-agentic-infraops/guides/prompt-guide/)
 ```
 
 ## Showcase Projects
 
-| Project                                     | Description                                 | Highlights                                           |
-| ------------------------------------------- | ------------------------------------------- | ---------------------------------------------------- |
-| [e2e-orchestrator-test](./e2e-orchestrator-test/) | End-to-end Orchestrator workflow validation    | Full multi-step workflow, ADRs, diagrams, governance |
-| [static-webapp](./static-webapp/)           | Azure Static Web App with Functions backend | Complete example with compliance matrix              |
+| Project                                           | Description                                 | Highlights                                           |
+| ------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------- |
+| [e2e-orchestrator-test](./e2e-orchestrator-test/) | End-to-end Orchestrator workflow validation | Full multi-step workflow, ADRs, diagrams, governance |
+| [static-webapp](./static-webapp/)                 | Azure Static Web App with Functions backend | Complete example with compliance matrix              |
 
 > **Note**: These are curated showcase projects demonstrating the full workflow.
 > Create your own project folder when starting a new platform engineering project.
