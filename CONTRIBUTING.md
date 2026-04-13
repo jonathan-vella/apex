@@ -182,7 +182,7 @@ git checkout -b docs/update-workflow-guide
 - Follow the guidelines above
 - Test any Bicep changes with `bicep build` and `bicep lint`
 - Test any Terraform changes with `terraform fmt -check`, `terraform validate`, and `npm run validate:terraform`
-- Validate markdown and links with `npm run lint:md` and `npm run lint:links`
+- Validate markdown and links with `npm run lint:md` and `npm run lint:links:docs`
 
 For the full local-to-PR flow, see:
 
