@@ -1,6 +1,6 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
-# Skill (Digest)
+# azure-rbac (Digest)
 
 ## Prerequisites for Granting Roles
 

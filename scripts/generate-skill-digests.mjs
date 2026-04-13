@@ -23,7 +23,7 @@ const AUTO_GEN_HEADER =
 const PRIORITY_HEADINGS = new Set(["Mandatory Icon Embedding"]);
 
 function extractFrontmatterName(content) {
-  const match = content.match(/^---\n[\s\S]*?\nname:\s*["']?([^"'\n]+)["']?/m);
+  const match = content.match(/^---\n(?:[\s\S]*?\n)?name:\s*["']?([^"'\n]+)["']?/m);
   return match ? match[1].trim() : null;
 }
 
