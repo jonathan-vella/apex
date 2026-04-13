@@ -102,8 +102,8 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 - **Opus-first agents** (requirements, architect, iac-plan, diagnose,
   context-optimizer) require deeper reasoning for architecture decisions,
   WAF assessments, planning accuracy, and complex analysis
-- **GPT-5.4 agents** (orchestrator, governance, as-built, challenger wrapper,
-  e2e-orchestrator, codegen, deploy) prioritize
+- **GPT-5.4 workflow and execution agents** (orchestrator, governance,
+  as-built, challenger wrapper, e2e-orchestrator, codegen, deploy) prioritize
   strong general reasoning for orchestration, code generation, deployment execution,
   governance synthesis, documentation generation, and structured reviews
 - **Claude Sonnet 4.6 agents** (orchestrator fast path, design, and validation/preview subagents)

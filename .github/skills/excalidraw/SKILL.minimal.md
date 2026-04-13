@@ -1,15 +1,7 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
-# Excalidraw — Whiteboarding (Minimal)
+# Excalidraw — Hand-Drawn Whiteboarding (Minimal)
 
-Hand-drawn diagrams, wireframes, brainstorming sketches.
-For Azure architecture diagrams → use `drawio` skill.
+**Best Used For**:
 
-**Output**: `.excalidraw` JSON files.
-
-**Style**: Excalifont (fontFamily: 5), `roughness: 1`, stroke `#1e1e1e`.
-
-**Reference**: `references/quick-reference.md` for JSON patterns.
-
-Does NOT: generate Azure architecture diagrams · produce charts ·
-render Mermaid · create ADRs · generate IaC · deploy resources.
+Read `SKILL.md` or `SKILL.digest.md` for full content.

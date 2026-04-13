@@ -161,11 +161,11 @@ _Generated with [drawio](../../.github/skills/drawio/SKILL.md) skill_
 
 ## 🔗 Related Resources
 
-| Resource            | Path                                                               |
-| ------------------- | ------------------------------------------------------------------ |
-| **Bicep Templates** | [`infra/bicep/{project-slug}/`](../../infra/bicep/{project-slug}/) |
-| **Workflow Docs**   | [`docs/workflow.md`](../../docs/workflow.md)                       |
-| **Troubleshooting** | [`docs/troubleshooting.md`](../../docs/troubleshooting.md)         |
+| Resource            | Path                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Bicep Templates** | [`infra/bicep/{project-slug}/`](../../infra/bicep/{project-slug}/)                                                 |
+| **Workflow Docs**   | [Published workflow guide](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)             |
+| **Troubleshooting** | [Published troubleshooting guide](https://jonathan-vella.github.io/azure-agentic-infraops/guides/troubleshooting/) |
 
 ---
 

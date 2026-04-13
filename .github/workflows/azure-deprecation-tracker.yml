@@ -64,7 +64,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(data): Update Azure deprecation tracking [skip ci]"
+          commit-message: "chore(data): Update Azure deprecation tracking"
           branch: "chore/azure-deprecation-tracker"
           delete-branch: true
           title: "chore(data): Update Azure deprecation tracking"
@@ -76,6 +76,14 @@ jobs:
             automation
             dependencies
         id: cpr
+
+      - name: Enable auto-merge
+        if: steps.cpr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} \
+            --auto --squash --delete-branch
 
       - name: Log pull request
         if: steps.cpr.outputs.pull-request-number != ''

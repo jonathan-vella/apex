@@ -22,17 +22,34 @@ const AUTO_GEN_HEADER =
 
 const PRIORITY_HEADINGS = new Set(["Mandatory Icon Embedding"]);
 
+function extractFrontmatterName(content) {
+  const match = content.match(/^---\n(?:[\s\S]*?\n)?name:\s*["']?([^"'\n]+)["']?/m);
+  return match ? match[1].trim() : null;
+}
+
 function extractTitle(content) {
   const match = content.match(/^# (.+)$/m);
-  return match ? match[1].trim() : "Skill";
+  if (match) return match[1].trim();
+
+  const frontmatterName = extractFrontmatterName(content);
+  return frontmatterName || "Skill";
+}
+
+function countCodeFenceMarkers(lines) {
+  return lines.filter((line) => /^```/.test(line.trim())).length;
 }
 
 function trimSection(section, maxLines) {
   const lines = section.lines.map((l) => l.trimEnd());
   if (lines.length <= maxLines) return lines;
 
-  const trimmed = lines.slice(0, maxLines);
-  trimmed.push("");
+  const trimmed = lines.slice(0, Math.max(2, maxLines - 1));
+  while (trimmed.length > 1 && countCodeFenceMarkers(trimmed) % 2 !== 0) {
+    trimmed.pop();
+  }
+  while (trimmed.length > 1 && trimmed.at(-1)?.trim() === "") {
+    trimmed.pop();
+  }
   trimmed.push("> _See SKILL.md for full content._");
   return trimmed;
 }
@@ -53,28 +70,37 @@ function generateDigest(skillDir) {
 
   const content = fs.readFileSync(sourcePath, "utf-8");
   const sourceLines = content.split("\n").length;
-  const targetLines = Math.floor(sourceLines * 0.55);
+  const isShortSkill = sourceLines < 60;
+  const targetLines = Math.max(
+    isShortSkill ? 8 : 12,
+    Math.floor(sourceLines * (isShortSkill ? 0.5 : 0.55)),
+  );
   const title = extractTitle(content);
   const sections = prioritizeSections(extractH2Sections(content));
 
   const digestLines = [AUTO_GEN_HEADER, "", `# ${title} (Digest)`, ""];
-  digestLines.push(
-    "Compact reference for agent startup. Read full `SKILL.md` for details.",
-  );
-  digestLines.push("");
+  if (!isShortSkill) {
+    digestLines.push(
+      "Compact reference for agent startup. Read full `SKILL.md` for details.",
+    );
+    digestLines.push("");
+  }
 
   let remaining = targetLines - digestLines.length;
   const maxPerSection = Math.max(
-    8,
+    isShortSkill ? 4 : 8,
     Math.floor(remaining / Math.max(sections.length, 1)),
   );
 
   for (const section of sections) {
-    if (remaining <= 0) break;
-    const trimmed = trimSection(section, maxPerSection);
+    if (remaining <= 2) break;
+    const trimmed = trimSection(section, Math.min(maxPerSection, remaining));
     digestLines.push(...trimmed);
-    digestLines.push("");
-    remaining -= trimmed.length + 1;
+    remaining -= trimmed.length;
+    if (remaining > 1) {
+      digestLines.push("");
+      remaining -= 1;
+    }
   }
 
   return (
@@ -93,7 +119,17 @@ function generateMinimal(skillDir, digestContent) {
   const sections = prioritizeSections(extractH2Sections(content));
 
   const digestLineCount = digestContent.split("\n").length;
-  const targetLines = Math.floor(digestLineCount * 0.45);
+  if (digestLineCount < 14) {
+    return (
+      [
+        AUTO_GEN_HEADER,
+        `# ${title} (Minimal)`,
+        "Read `SKILL.md` for full content.",
+      ].join("\n") + "\n"
+    );
+  }
+
+  const targetLines = Math.max(7, Math.floor(digestLineCount * 0.4));
 
   const minimalLines = [AUTO_GEN_HEADER, "", `# ${title} (Minimal)`, ""];
 
@@ -113,7 +149,9 @@ function generateMinimal(skillDir, digestContent) {
     remaining -= 3;
   }
 
-  minimalLines.push("");
+  if (remaining > 1) {
+    minimalLines.push("");
+  }
   minimalLines.push("Read `SKILL.md` or `SKILL.digest.md` for full content.");
 
   return (

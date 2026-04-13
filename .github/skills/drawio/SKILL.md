@@ -27,55 +27,19 @@ This skill provides project-specific conventions that complement (not duplicate)
 - **Deno runtime**: Installed via devcontainer feature `ghcr.io/devcontainers-community/features/deno`
 - **VS Code extension** (optional): `hediet.vscode-drawio` for in-editor preview
 
-## MCP Tool Overview
+## MCP Workflow Summary
 
-### Shape Discovery
+Use the MCP server's startup instructions as the authoritative tool reference.
+This skill only captures the repo-specific sequence and guardrails that must stay
+consistent across generated diagrams.
 
-| Tool                     | Purpose                                                                                      |
-| ------------------------ | -------------------------------------------------------------------------------------------- |
-| `search-shapes`          | Fuzzy search for shapes including 700+ Azure icons. Pass ALL queries in the `queries` array. |
-| `get-shape-categories`   | List all shape categories (General, Flowchart, Azure categories).                            |
-| `get-shapes-in-category` | List all shapes in a category by `category_id`.                                              |
-| `get-style-presets`      | Get built-in style presets (Azure colors, flowchart shapes, edge styles).                    |
+- `search-shapes` — resolve all Azure icons up front in one batch
+- `create-groups` — create VNets, subnets, resource groups, or app environments
+- `add-cells` — add all vertices and edges in one batch using `shape_name` and `temp_id`
+- `add-cells-to-group` — assign all children to groups in one batch
+- `finish-diagram` or `export-diagram` — emit final XML with `compress: true`
 
-### Diagram Modification
-
-| Tool                | Purpose                                                                                                 |
-| ------------------- | ------------------------------------------------------------------------------------------------------- |
-| `add-cells`         | Add vertices and/or edges. Use `shape_name` for icon resolution, `temp_id` for within-batch references. |
-| `edit-cells`        | Update vertex cell properties (position, size, text, style).                                            |
-| `edit-edges`        | Update edge properties (text, source, target, style).                                                   |
-| `set-cell-shape`    | Apply library shape styles to existing cells.                                                           |
-| `delete-cell-by-id` | Remove a cell by ID. Cascade-deletes connected edges for vertices.                                      |
-
-### Diagram Inspection
-
-| Tool                | Purpose                                                       |
-| ------------------- | ------------------------------------------------------------- |
-| `list-paged-model`  | Paginated view of all cells with filtering by type.           |
-| `get-diagram-stats` | Statistics about cell counts, bounds, and layer distribution. |
-| `export-diagram`    | Export the diagram as Draw.io XML. Use `compress: true`.      |
-| `import-diagram`    | Import a Draw.io XML string, replacing the current diagram.   |
-| `clear-diagram`     | Clear all cells and reset the diagram.                        |
-| `finish-diagram`    | Resolve placeholders to real SVGs (transactional mode).       |
-
-### Group / Container Management
-
-| Tool                         | Purpose                                                           |
-| ---------------------------- | ----------------------------------------------------------------- |
-| `create-groups`              | Create group/container cells for VNets, subnets, resource groups. |
-| `add-cells-to-group`         | Assign cells to groups. Server auto-converts coordinates.         |
-| `remove-cell-from-group`     | Remove a cell from its group, returning it to the active layer.   |
-| `list-group-children`        | List all cells contained in a group.                              |
-| `validate-group-containment` | Detect children that exceed group bounds.                         |
-| `suggest-group-sizing`       | Calculate recommended group dimensions.                           |
-
-### Layer & Page Management
-
-| Tool                                                                             | Purpose        |
-| -------------------------------------------------------------------------------- | -------------- |
-| `list-layers` / `create-layer` / `set-active-layer` / `move-cell-to-layer`       | Manage layers. |
-| `create-page` / `list-pages` / `set-active-page` / `rename-page` / `delete-page` | Manage pages.  |
+For reusable call patterns, see `references/azure-patterns.md`.
 
 ## Icon Handling
 
@@ -206,60 +170,9 @@ Container Registry, DNS Zones, Application Insights, Log Analytics at the
 **bottom** of the diagram, 120px below the main flow. No edges to them.
 Space 100px apart (center-to-center). Wrap into multiple rows at page width.
 
-### Color Palette (Azure-Aligned)
-
-| Color              | Hex       | Use                              |
-| ------------------ | --------- | -------------------------------- |
-| Azure Blue         | `#0078D4` | Primary strokes, data flow edges |
-| VNet fill          | `#E7F5FF` | Virtual network backgrounds      |
-| Subnet fill (app)  | `#E6F5E6` | Application tier subnets         |
-| Subnet fill (data) | `#FFF2CC` | Data tier subnets                |
-| Security zone      | `#F8CECC` | Security boundaries, WAF zones   |
-| Light gray         | `#F5F5F5` | Resource group backgrounds       |
-| Monitoring         | `#E1D5E7` | Monitoring/governance containers |
-
-Call `get-style-presets` once to retrieve Azure color presets and apply consistently.
-
-## Output File Conventions
-
-| Step | Filename                       | Content                        |
-| ---- | ------------------------------ | ------------------------------ |
-| 3    | `03-des-diagram.drawio`        | Conceptual architecture        |
-| 4    | `04-dependency-diagram.drawio` | Resource dependency graph      |
-| 4    | `04-runtime-diagram.drawio`    | Runtime data flow              |
-| 7    | `07-ab-diagram.drawio`         | As-built deployed architecture |
-
-All outputs go to `agent-output/{project}/`.
-
-## Validation
-
-After generating a `.drawio` file, run:
-
-```bash
-python3 scripts/save-drawio.py '<mcp-response.json>' 'agent-output/{project}/<diagram>.drawio'
-node scripts/validate-drawio-files.mjs agent-output/{project}/<diagram>.drawio
-```
-
-The `save-drawio.py` script decompresses, embeds `mxGraphModel`, and strips
-edge anchors/waypoints in one step. The validator checks 14 points: valid XML,
-mxfile root, unique IDs, structural cells, parent refs, vertex/edge flags,
-edge source/target, geometry, style format, perimeter match, HTML escaping,
-coordinates, group hierarchy, and Azure icon presence.
-
-## Quality Gate
-
-A diagram passes quality review when it scores ≥9/10 on:
-
-1. Readable at 100% zoom — all labels visible
-2. No label overlap
-3. Minimal edge crossing
-4. Clear tier grouping — resources grouped by function/subnet/RG
-5. Correct Azure icons — every Azure service has its official icon
-6. Security boundaries visible
-7. No stray elements — no floating unconnected shapes
-8. Service labels centered
-9. Footer unobtrusive
-10. Dense canvas usage — compact, no excessive whitespace
+Use the Azure-aligned color palette from `get-style-presets` and the style
+examples in `references/style-reference.md`. Standard output filenames and the
+validation checklist live in `references/validation-checklist.md`.
 
 ## Reference Index
 

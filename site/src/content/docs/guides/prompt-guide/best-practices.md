@@ -17,17 +17,17 @@ Do not ask for an entire solution in one prompt. Start with the business outcome
 then iterate on specifics.
 
 ```text
-❌ Create a complete Azure landing zone with networking, identity, security,
-   and governance
+❌ Design the full platform for our new customer support product
 
-✅ We're launching a B2B SaaS product for 50 enterprise customers.
-   Start with the networking foundation:
-   - Hub VNet for shared services (firewall, DNS, monitoring)
-   - Spoke VNet for the application workload
-   - No direct internet access from the app tier
+✅ We're launching a customer support SaaS for mid-market retailers.
+   Start with the core application stack:
+   - Public web frontend for support agents and administrators
+   - Private API layer for tickets, users, and reporting
+   - Managed database for customer conversations and account data
+   - No direct access from the frontend to the database
 
-   (Then follow up: "Now add identity and RBAC for the platform team
-   and two application teams")
+   (Then follow up: "Now add identity, role separation, monitoring,
+   and backup requirements for production")
 ```
 
 ## Be Specific About Requirements
