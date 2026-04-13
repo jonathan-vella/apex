@@ -120,11 +120,13 @@ function generateMinimal(skillDir, digestContent) {
 
   const digestLineCount = digestContent.split("\n").length;
   if (digestLineCount < 14) {
-    return [
-      AUTO_GEN_HEADER,
-      `# ${title} (Minimal)`,
-      "Read `SKILL.md` for full content.",
-    ].join("\n") + "\n";
+    return (
+      [
+        AUTO_GEN_HEADER,
+        `# ${title} (Minimal)`,
+        "Read `SKILL.md` for full content.",
+      ].join("\n") + "\n"
+    );
   }
 
   const targetLines = Math.max(7, Math.floor(digestLineCount * 0.4));
