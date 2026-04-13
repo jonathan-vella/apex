@@ -58,6 +58,7 @@ build/
 
 # Node (if any demos use it)
 node_modules/
+.pnpm-store/
 
 # Python (if any scripts)
 __pycache__/
