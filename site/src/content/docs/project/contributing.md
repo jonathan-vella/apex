@@ -173,13 +173,3 @@ the [MIT License][license].
 [discussions]: https://github.com/jonathan-vella/azure-agentic-infraops/discussions
 [issues]: https://github.com/jonathan-vella/azure-agentic-infraops/issues
 [license]: https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/LICENSE
-
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="section divider" width="100%">
-
-**Thank you for helping improve the Azure platform engineering workflow!** 🚀
-
-<div align="right"><a href="#top"><b>⬆️ Back to Top</b></a>
