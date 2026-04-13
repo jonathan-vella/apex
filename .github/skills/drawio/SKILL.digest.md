@@ -1,84 +1,90 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
----
+# Draw.io Architecture Diagrams (Digest)
 
-name: drawio
-description: "Compact reference for Draw.io Azure architecture diagrams via simonkurtz-MSFT MCP server. Load at >60% context."
-metadata:
-tier: digest
-version: "2.0"
+Compact reference for agent startup. Read full `SKILL.md` for details.
 
----
+## Prerequisites
 
-# Draw.io Diagrams — Digest
+- **Draw.io MCP server**: `simonkurtz-MSFT/drawio-mcp-server` (Deno, stdio) configured in `.vscode/mcp.json`
+- **Deno runtime**: Installed via devcontainer feature `ghcr.io/devcontainers-community/features/deno`
+- **VS Code extension** (optional): `hediet.vscode-drawio` for in-editor preview
 
-## MCP Server (simonkurtz-MSFT)
+## MCP Workflow Summary
 
-700+ built-in Azure icons, batch operations, transactional mode.
-The server's `src/instructions.md` is the authoritative reference.
+Use the MCP server's startup instructions as the authoritative tool reference.
+This skill only captures the repo-specific sequence and guardrails that must stay
+consistent across generated diagrams.
+
+- `search-shapes` — resolve all Azure icons up front in one batch
+- `create-groups` — create VNets, subnets, resource groups, or app environments
+- `add-cells` — add all vertices and edges in one batch using `shape_name` and `temp_id`
+- `add-cells-to-group` — assign all children to groups in one batch
+- `finish-diagram` or `export-diagram` — emit final XML with `compress: true`
+> _See SKILL.md for full content._
 
 ## Icon Handling
 
-- Use `shape_name` in `add-cells` (e.g., `shape_name: "Front Doors"`)
-- Do NOT specify `width`, `height`, or `style` for shaped vertices — server auto-applies
-- Use `search-shapes` with `queries` array to find icon names
-- Every shaped vertex MUST have a `text` label or omit `text` entirely (never `text: ""`)
+Icons are resolved automatically by the MCP server from its built-in library
+(700+ Azure icons from `assets/azure-public-service-icons/`).
+
+- Use `shape_name` in `add-cells` to specify Azure icons (e.g., `shape_name: "Front Doors"`)
+- **Do NOT specify `width`, `height`, or `style`** when using `shape_name` —
+  the server auto-applies correct dimensions and styling
+- Use `search-shapes` with a `queries` array to find icon names by fuzzy match
+- Azure icons use their official service names, often plural (e.g., "Key Vaults", "Container Apps", "App Services")
+- Every shaped vertex **MUST** have a `text` label or omit `text` entirely — **never** pass `text: ""`
+- Output format is **embedded base64 SVG** in the style attribute
+
+## Diagram Creation Workflows
+
+### Workflow A: Non-Transactional (small diagrams)
+
+For simple diagrams or single operations. Each tool call returns full XML with
+complete SVG image data.
+
+```text
+search-shapes → add-cells → export-diagram(compress: true) → save .drawio
+```
+
+### Workflow B: Transactional (recommended for multi-step)
+> _See SKILL.md for full content._
 
 ## Batch-Only Workflow (CRITICAL)
 
-Each tool called exactly ONCE with ALL items:
+**Every tool that accepts an array MUST be called exactly ONCE with ALL items.**
+Never call a tool repeatedly for individual items.
 
-1. `search-shapes` — ONE call, ALL queries
-2. `create-groups` — ONE call, ALL groups (`text: ""`, label vertex above)
-3. `add-cells` — ONE call, ALL vertices + edges (vertices first, `shape_name`, `temp_id`)
-4. `add-cells-to-group` — ONE call, ALL assignments
-5. `edit-cells`/`edit-edges` — ONE call if needed
-6. `finish-diagram` (transactional) or `export-diagram` — with `compress: true`
+1. **`search-shapes`** — ONE call with ALL queries in the `queries` array (main flow + cross-cutting)
+2. **`create-groups`** — ONE call with ALL groups. Set `text: ""` for groups; create separate text vertex above.
+3. **`add-cells`** — ONE call with ALL vertices AND edges. Vertices before edges.
+   Use `temp_id` for cross-refs, `shape_name` for icons.
+4. **`add-cells-to-group`** — ONE call with ALL assignments. Server auto-converts absolute → group-relative coords.
+5. **`edit-cells`/`edit-edges`** — ONE call if adjustments needed.
+6. **`finish-diagram`** (transactional) or **`export-diagram`** (default) — with `compress: true`.
+> _See SKILL.md for full content._
 
-Save via terminal command, NOT LLM read-back.
+## Layout Conventions
 
-## Transactional Mode (Recommended)
+### General Rules
 
-Pass `transactional: true` on all tool calls for multi-step diagrams.
-Intermediate responses use lightweight placeholders (~2KB).
-**MUST** call `finish-diagram` at end to resolve to real SVGs.
+- **Primary flow**: left-to-right. Each stage occupies a column.
+- **Parallel services**: stacked vertically within their column, never side-by-side.
+- **Spacing**: 120px horizontal between columns, 80px vertical between rows, 40px around each cell.
+- **Page**: US Letter 850×1100px. Content within 40px margins (usable: 770×1020).
+- **No overlapping**: Components must not overlap each other.
 
-## Layout Rules
+### Groups
+> _See SKILL.md for full content._
 
-- Primary flow: left-to-right, columns for stages
-- Cross-cutting services at bottom (120px below main flow, NO edges)
-- Page: US Letter 850×1100px, 40px margins
-- Groups: `text: ""`, separate bold text vertex above
-- Edges: orthogonal only, NO anchor points (entryX/exitX etc.)
-- Spacing: 120px horizontal, 80px vertical, 40px around cells
+## Reference Index
 
-## Color Palette
+| File                                 | Purpose                                                 |
+| ------------------------------------ | ------------------------------------------------------- |
+| `references/style-reference.md`      | Draw.io style properties for AI-generated files         |
+| `references/azure-patterns.md`       | Reusable MCP tool call patterns for Azure architectures |
+| `references/validation-checklist.md` | Validation rules for AI-generated `.drawio` files       |
+| `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
+| `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 
-- Azure Blue `#0078D4` — strokes, data flow
-- VNet `#E7F5FF` — network backgrounds
-- App subnet `#E6F5E6` — green
-- Data subnet `#FFF2CC` — yellow
-- Security `#F8CECC` — red
-- Resource group `#F5F5F5` — gray
-
-Call `get-style-presets` once for full Azure presets.
-
-## Output Files
-
-| Step | Filename                                                    |
-| ---- | ----------------------------------------------------------- |
-| 3    | `03-des-diagram.drawio`                                     |
-| 4    | `04-dependency-diagram.drawio`, `04-runtime-diagram.drawio` |
-| 7    | `07-ab-diagram.drawio`                                      |
-
-All in `agent-output/{project}/`.
-
-## Validation
-
-Run `node scripts/validate-drawio-files.mjs` — 14-point checklist.
-After group assignments: `validate-group-containment`.
-
-## Quality Gate (≥9/10)
-
-Readable at 100% zoom, no label overlap, minimal edge crossing, clear grouping,
-correct Azure icons, security boundaries visible, no stray elements, centered labels.
+Quality target samples: `tmp/azure-architecture-example.drawio`, `tmp/03-des-diagram.svg`

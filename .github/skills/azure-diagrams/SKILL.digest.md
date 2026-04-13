@@ -2,17 +2,12 @@
 
 # Azure Diagrams — Routing Skill (Digest)
 
-Compact reference for agent startup. Read full `SKILL.md` for details.
-
 ## Routing Table
 
-| Diagram type                                   | Target skill         | Output format     |
-| ---------------------------------------------- | -------------------- | ----------------- |
-| Architecture diagrams (default)                | `drawio`             | `.drawio`         |
-| Dependency / runtime diagrams                  | `drawio`             | `.drawio`         |
-| As-built diagrams                              | `drawio`             | `.drawio`         |
-| WAF bar charts                                 | `python-diagrams`    | `.py` + `.png`    |
-
+| Diagram type                                   | Target skill      | Output format     |
+| ---------------------------------------------- | ----------------- | ----------------- |
+| Architecture diagrams (default)                | `drawio`          | `.drawio`         |
+| Dependency / runtime diagrams                  | `drawio`          | `.drawio`         |
 > _See SKILL.md for full content._
 
 ## How to Use

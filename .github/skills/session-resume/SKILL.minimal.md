@@ -15,9 +15,4 @@
 **Minimal State Snippet**:
 ```json
 
-**Reference Index**:
-
-**Claim Protocol (v2.0)**:
-The v2.0 schema adds an atomic claim-based model to prevent concurrent
-
 Read `SKILL.md` or `SKILL.digest.md` for full content.

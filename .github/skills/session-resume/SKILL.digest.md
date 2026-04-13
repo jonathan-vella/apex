@@ -13,24 +13,14 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Quick Reference
 
-| Concept          | Key Detail                                                |
-| ---------------- | --------------------------------------------------------- |
-| State file       | `agent-output/{project}/00-session-state.json`            |
-| Human companion  | `agent-output/{project}/00-handoff.md`                    |
-| Resume detection | Read JSON → check `steps.{N}.status` → branch accordingly |
-| Status values    | `pending` / `in_progress` / `complete` / `skipped`        |
-
+| Concept           | Key Detail                                                     |
+| ----------------- | -------------------------------------------------------------- |
+| State file        | `agent-output/{project}/00-session-state.json`                 |
+| Human companion   | `agent-output/{project}/00-handoff.md`                         |
+| Resume detection  | Read JSON → check `steps.{N}.status` → branch accordingly      |
 > _See SKILL.md for full content._
 
 ## Resume Flow (compact)
-
-````text
-00-session-state.json exists?
-  NO  → Fresh start (create from template)
-  YES → steps.{N}.status?
-        pending     → set "in_progress", proceed
-        in_progress → read sub_step, skip to checkpoint
-
 > _See SKILL.md for full content._
 
 ## State Write Moments
@@ -42,15 +32,15 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 5. **Challenger finding** — append/remove in `open_findings`
 
 ## Minimal State Snippet
+> _See SKILL.md for full content._
 
-```json
-{
-  "schema_version": "2.0",
-  "project": "my-project",
-  "current_step": 2,
-  "updated": "2026-03-02T10:15:00Z",
-  "lock": { "owner_id": null, "heartbeat": null, "attempt_token": null },
+## Schema Version Enforcement (MANDATORY)
 
+All agents MUST enforce schema version at read time:
+
+1. **On read**: Check `schema_version` field. If `"1.0"`, `"2.0"`, or missing → migrate to `"3.0"` immediately:
+   - Set `"schema_version": "3.0"`
+   - Remove `"lock"` object if present (no longer used)
 > _See SKILL.md for full content._
 
 ## Reference Index
@@ -58,6 +48,5 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | Reference         | File                              | Content                                                                                       |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
 | Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Orchestrator integration, portability |
-| State File Schema | `references/state-file-schema.md` | Full JSON template (v2.0), lock/claim field definitions, all step definitions                 |
+| State File Schema | `references/state-file-schema.md` | Full JSON template (v3.0), field definitions, all step definitions                            |
 | Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
-````
