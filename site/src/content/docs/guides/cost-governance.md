@@ -8,7 +8,8 @@ description: "Budget alerts, forecasts, and cost anomaly detection"
 ## Why Cost Governance Is Mandatory
 
 Every IaC deployment in this project **must** include cost monitoring resources.
-This is enforced by `iac-best-practices.instructions.md`, which applies to
+This is enforced by `iac-bicep-best-practices.instructions.md`
+and `iac-terraform-best-practices.instructions.md`, which apply to
 all `.bicep`, `.tf`, and implementation plan files.
 
 The rule is simple: **no budget, no merge**. Challenger reviews verify cost
@@ -214,7 +215,7 @@ az consumption budget show \
 :::tip[Further Reading]
 
 - The mandatory `iac-best-practices` instruction
-  (`.github/instructions/iac-best-practices.instructions.md`)
+  (`.github/instructions/iac-bicep-best-practices.instructions.md` / `iac-terraform-best-practices.instructions.md`)
   enforces these patterns automatically via glob matching
 - **Reusable budget patterns** are available in the IaC pattern skills:
   - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`

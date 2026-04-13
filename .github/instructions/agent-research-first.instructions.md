@@ -1,120 +1,54 @@
 ---
-description: "MANDATORY research-before-implementation requirements for all agents"
-applyTo: "**/*.agent.md, **/agent-output/**/*.md, **/.github/skills/**/SKILL.md"
+description: "Research-before-implementation requirements for all agents"
+applyTo: "**/*.agent.md, **/agent-output/**/*.md"
 ---
 
-# Agent Research Requirements
+# Research Before Implementation
 
-**MANDATORY: All agents MUST perform thorough research before implementation.**
+All agents gather context before producing output. This ensures complete,
+one-shot execution without missing context or requiring multiple iterations.
 
-This instruction enforces a "research-first" pattern to ensure complete, one-shot execution
-without missing context or requiring multiple iterations.
+## Pre-Implementation Checklist
 
-## Pre-Implementation Research Checklist
+Before creating output files or making changes:
 
-Before creating ANY output files or making changes, agents MUST:
+1. Search workspace for existing patterns (`agent-output/`, similar projects, templates)
+2. Read relevant templates in `.github/skills/azure-artifacts/templates/`
+3. Query documentation via MCP tools (Azure docs, best practices) where applicable
+4. Confirm all required artifacts from previous workflow steps exist
+5. Check shared defaults in `.github/skills/azure-defaults/SKILL.md`
+6. Proceed when you have sufficient context to produce a complete artifact
 
-- [ ] **Search workspace** for existing patterns (`agent-output/`, similar projects, templates)
-- [ ] **Read relevant templates** in `.github/skills/azure-artifacts/templates/` for output structure
-- [ ] **Query documentation** via MCP tools (Azure docs, best practices)
-- [ ] **Validate inputs** - confirm all required artifacts from previous steps exist
-- [ ] **Check shared defaults** in `.github/skills/azure-defaults/SKILL.md`
-- [ ] **Achieve 80% confidence** before proceeding to implementation
+## Context Gathering
 
-## Research Workflow Pattern
+Use read-only tools first to build understanding before making changes:
 
-<research_mandate>
-**MANDATORY: Before producing output artifacts, run comprehensive research.**
+- `semantic_search` / `grep_search` — find related code, patterns, documentation
+- `read_file` / `list_dir` — read templates, existing artifacts, configuration
+- Azure MCP tools — query documentation, best practices, SKU info, AVM metadata
 
-### Step 1: Context Gathering (REQUIRED)
-
-Use read-only tools to gather context without making changes:
-
-```text
-# Workspace context
-- semantic_search: Find related code, patterns, and documentation
-- grep_search: Search for specific terms, resource names, patterns
-- read_file: Read templates, existing artifacts, configuration files
-- list_dir: Explore project structure
-
-# Azure context (where applicable)
-- Azure MCP tools: Query documentation, best practices, SKU info
-- mcp_bicep_list_avm_metadata: Check Azure Verified Module availability
-```
-
-### Step 2: Validation Gate (REQUIRED)
+## Validation Gate
 
 Before implementation, confirm:
 
-1. **Required inputs exist** - Previous step artifacts are present and complete
-2. **Templates loaded** - Output structure template has been read
-3. **Standards understood** - Shared defaults and naming conventions reviewed
-4. **Azure guidance obtained** - Relevant documentation queried
+1. Required inputs exist — previous step artifacts are present and complete
+2. Templates loaded — output structure template has been read
+3. Standards reviewed — shared defaults and naming conventions understood
+4. Azure guidance obtained — relevant documentation queried (where applicable)
 
-### Step 3: Confidence Assessment
+## Delegation for Deep Research
 
-Only proceed when you have **80% confidence** in your understanding of:
+When extensive research is needed, delegate to a subagent. Instruct the
+subagent to work autonomously and return findings without pausing for
+user feedback.
 
-- What needs to be created/modified
-- Where files should be located
-- What format/structure to use
-- What Azure resources/patterns apply
+## Rules
 
-**If confidence is below 80%**: Use `#tool:agent` to delegate autonomous research,
-or ASK the user for clarification rather than assuming.
-</research_mandate>
+- Research before creating files
+- Read templates before generating output
+- Query Azure docs before recommending services
+- Validate inputs before proceeding to next step
+- Ask for clarification when context is insufficient rather than assuming
 
-## Delegation Pattern for Deep Research
-
-When extensive research is needed, delegate to a subagent:
-
-```markdown
-MANDATORY: Run #tool:agent tool, instructing the agent to work autonomously
-without pausing for user feedback, to gather comprehensive context and return findings.
-```
-
-This pattern enables thorough investigation without interrupting the workflow.
-
-## Enforcement Rules
-
-**DO:**
-
-- Research BEFORE creating files
-- Read templates BEFORE generating output
-- Query Azure docs BEFORE recommending services
-- Check existing patterns BEFORE creating new ones
-- Validate inputs BEFORE proceeding to next step
-- Ask for clarification when confidence is low
-
-**DO NOT:**
-
-- Skip research to "save time"
-- Assume requirements without verification
-- Create output without reading the template first
-- Recommend Azure services without checking documentation
-- Proceed with missing inputs from previous workflow steps
-- Make up information when uncertain
-
-## Per-Agent Research Focus
-
-| Agent            | Primary Research Focus                                            |
-| ---------------- | ----------------------------------------------------------------- |
-| **Requirements** | User needs, existing projects, compliance requirements            |
-| **Architect**    | Azure services, WAF pillars, SKU recommendations, pricing         |
-| **Design**       | Existing architecture, icon availability, layout patterns         |
-| **Bicep Plan**   | AVM availability, governance constraints, implementation patterns |
-| **Bicep Code**   | Module structure, naming conventions, security defaults           |
-| **Deploy**       | Template validation, what-if results, resource dependencies       |
-| **As-Built**     | Deployed resources, configuration details, operational procedures |
-
-## Integration with Workflow
-
-This research-first pattern integrates with the multi-step workflow:
-
-1. Each step should validate outputs from previous steps exist
-2. Each step should read its output template before generating content
-3. Each step should query relevant Azure documentation
-4. Each step should achieve 80% confidence before proceeding
-
-See [Azure Defaults Skill](../skills/azure-defaults/SKILL.md) for the complete
-research requirements specification.
+See [Azure Defaults Skill](../skills/azure-defaults/SKILL.md) for shared
+research requirements.

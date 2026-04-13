@@ -221,7 +221,7 @@ When an agent outputs a specific document type, it MUST treat these as authorita
 - Cost estimates: `.github/skills/azure-artifacts/references/cost-estimate-standards.md`
 - Workload docs: `.github/skills/docs-writer/references/workload-documentation.md`
 - Markdown style: `.github/instructions/markdown.instructions.md`
-- Bicep: `.github/instructions/iac-best-practices.instructions.md`
+- Bicep: `.github/instructions/iac-bicep-best-practices.instructions.md`
 
 If an agent contains an embedded template in its body, it MUST match the relevant instruction file.
 
@@ -335,7 +335,7 @@ be 3-5 lines. Place them after the first `#` heading, before the body content.
 | -------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `<investigate_before_answering>` | Agent researches before deciding (Architect, Planners, Diagnose) | ONE-SHOT agents (Requirements), procedural wrappers (lint subagents) |
 | `<output_contract>`              | Agent produces a formal artifact with defined structure          | Agent has no structured output                                       |
-| `<context_awareness>`            | Agent definition exceeds ~300 lines                              | Small agents, subagents                                              |
+| `<context_awareness>`            | Agent definition exceeds ~350 lines                              | Small agents, subagents                                              |
 | `<scope_fencing>`                | Agent produces scoped artifacts where creep is a risk            | Agents whose job is comprehensive analysis (Architect)               |
 | `<empty_result_recovery>`        | Agent queries Azure APIs that may return empty results           | Agents that don't call external APIs                                 |
 | `<subagent_budget>`              | Agent orchestrates 3+ subagents                                  | Leaf agents that don't delegate                                      |

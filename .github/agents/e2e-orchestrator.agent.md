@@ -142,41 +142,9 @@ never copy from other runs or `_baselines/`.
 
 ## Subagent Runtime Fallback
 
-When running in a context where agent delegation (`@agent` / `agent` tool) is
-unavailable (e.g., invoked via `runSubagent` from a parent chat), the E2E
-Orchestrator must adapt instead of blocking:
-
-1. **Detect the limitation**: If the first agent delegation attempt fails or
-   the `agent` tool is not listed in available tools, switch to direct
-   execution mode for all subsequent steps.
-2. **Direct execution mode**: Execute each step inline by reading the
-   corresponding agent definition (`.github/agents/*.agent.md`) and its
-   referenced skills, then performing the work directly using available tools
-   (file read/write, terminal, MCP, search, web).
-3. **Maintain the same quality bar**: Read each step agent's skills before
-   executing. Apply the same artifact templates, naming conventions, and
-   validation gates as the real agents would.
-4. **MCP tools are still required**: Pricing estimates must still use the
-   Azure Pricing MCP. Draw.io diagrams must still use the Draw.io MCP when
-   available. Governance must still use live Azure Policy discovery when
-   authenticated.
-5. **Log the fallback**: Record `"execution_mode": "direct"` in
-   `00-session-state.json` and add a lesson noting that agent delegation was
-   unavailable.
-6. **Challenger reviews**: Follow the "Direct Execution Mode" subsection of
-   the Challenger Protocol below. You MUST read the challenger subagent
-   definition and adversarial checklists, then perform an inline review for
-   every mandatory step (1, 2, 4, 5). Update `review_audit` in session state
-   after each review — the post-review gate check blocks step transitions
-   when this is missing.
-7. **Run isolation applies equally**: Direct execution mode does NOT grant
-   permission to read, copy, or adapt artifacts from other runs. Each
-   artifact must be generated from scratch using the RFQ input, prompt
-   defaults, and upstream artifacts from the current run only. See the
-   "Run Isolation" section above.
-
-This fallback ensures E2E runs can complete in any runtime environment while
-preserving artifact quality and validation rigor.
+When agent delegation is unavailable (e.g., invoked via `runSubagent`), switch to
+direct execution mode. Read `session-resume/references/e2e-direct-execution-protocol.md`
+for the full fallback protocol including inline challenger reviews and post-review gates.
 
 ## IaC Tool Routing
 
@@ -246,10 +214,9 @@ On pre-validation failure:
 - Retry the step (up to max iterations)
 - On 3 consecutive pre-validation failures: mark step as `blocked`
 
-## Challenger Protocol (MANDATORY — Zero-Skip Policy)
+## Challenger Protocol (Zero-Skip Policy)
 
-After every step completes validation, run a challenger review. The protocol
-adapts to the execution mode but the outcome is identical:
+After every step completes validation, run a challenger review.
 
 ### Delegated Mode (agent tool available)
 
@@ -257,57 +224,16 @@ adapts to the execution mode but the outcome is identical:
 2. Use `comprehensive` lens for all steps (simple complexity = 1 pass)
 3. If `must_fix` count > 0: feed findings back to the step agent for self-correction
 
-### Direct Execution Mode (agent tool unavailable)
+### Direct Execution Mode
 
-When running in direct execution mode (e.g., via `runSubagent`), you MUST
-perform the challenger review inline. Do NOT skip it:
+Read `session-resume/references/e2e-direct-execution-protocol.md` for the full
+inline challenger review procedure and post-review gate check.
 
-1. **Read** `.github/agents/_subagents/challenger-review-subagent.agent.md` for
-   the adversarial workflow, severity levels, and review focus lenses
-2. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md`
-   for the per-category and per-artifact-type checklists
-3. **Read the step's primary artifact** end to end
-4. **Apply the `comprehensive` lens** — challenge assumptions, find missing
-   failure modes, verify governance compliance, check WAF alignment, and
-   identify hidden dependencies
-5. **Produce structured findings** as valid JSON matching the challenger
-   subagent output contract: `challenged_artifact`, `artifact_type`,
-   `review_focus`, `pass_number`, `challenge_summary`, `compact_for_parent`,
-   `risk_level`, `must_fix_count`, `should_fix_count`, `suggestion_count`,
-   and `issues[]`
-6. **Save the full JSON output** to
-   `agent-output/{project}/10-challenger-step{N}.json` (e.g.,
-   `10-challenger-step1.json` for Step 1). This file is a mandatory
-   artifact — the review is not complete without it
-7. If `must_fix` count > 0: re-execute the step with the findings as correction
-   context, then re-validate
+Steps 1, 2, 3.5, 4, 5, and 6 require challenger reviews.
+Every review produces a persisted `10-challenger-step{N}.json` file.
+Before moving to the next step, verify `review_audit.step_{N}.passes_executed >= 1`
+in session state and that the challenger JSON file exists.
 
-### Post-Review Gate (Both Modes — BLOCKING)
-
-After the review (delegated or inline), you MUST:
-
-1. **Save the challenger JSON** to
-   `agent-output/{project}/10-challenger-step{N}.json`
-2. **IMMEDIATELY** update `review_audit.step_{N}` in `00-session-state.json`:
-
-   ```json
-   {
-     "passes_executed": 1,
-     "lens": "comprehensive",
-     "must_fix": 0,
-     "should_fix": 2,
-     "suggestion": 1,
-     "execution_mode": "direct"
-   }
-   ```
-
-3. **GATE CHECK**: Before moving to the next step, verify BOTH conditions:
-   - `review_audit.step_{N}.passes_executed >= 1` in `00-session-state.json`
-   - The file `agent-output/{project}/10-challenger-step{N}.json` exists
-     If either condition fails, STOP and run the challenger review before
-     proceeding.
-
-> **ENFORCEMENT**: Steps 1, 2, 3.5, 4, 5, and 6 MUST have challenger reviews.
 > Every review MUST produce a persisted `10-challenger-step{N}.json` file.
 > Skipping challenger reviews is the #1 cause of low benchmark scores
 > (17/100 F in 2 of 4 E2E runs).

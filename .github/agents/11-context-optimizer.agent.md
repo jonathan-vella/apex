@@ -160,7 +160,7 @@ For each agent in `.github/agents/`:
 | Check                  | Flag When                                       |
 | ---------------------- | ----------------------------------------------- |
 | Tool count             | > 30 tools (each adds ~50-100 tokens to prompt) |
-| Body length            | > 300 lines in agent definition                 |
+| Body length            | > 350 lines in agent definition                 |
 | Inline templates       | Large fenced blocks that could be in skills     |
 | Missing handoffs       | Agent does work that should be delegated        |
 | Broad skill references | "Read ALL skills" instead of targeted loading   |

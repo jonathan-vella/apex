@@ -52,7 +52,7 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | `agent-output/**/*.md`                      | `azure-artifacts.instructions.md` + validators |
 | `.github/agents/*.agent.md`                 | `agent-authoring.instructions.md`              |
 | `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify)            |
-| `**/*.bicep`                                | `iac-best-practices.instructions.md`           |
+| `**/*.bicep`                                | `iac-bicep-best-practices.instructions.md`     |
 
 ## Step-by-Step Workflows
 

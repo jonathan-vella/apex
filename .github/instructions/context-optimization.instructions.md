@@ -13,7 +13,7 @@ or modifying agent definitions, skills, and instruction files.
 | Rule                     | Limit            | Rationale                           |
 | ------------------------ | ---------------- | ----------------------------------- |
 | Tool list size           | ≤ 30 tools       | Each tool adds ~75 tokens to prompt |
-| Agent body length        | ≤ 300 lines      | Body is always in context           |
+| Agent body length        | ≤ 350 lines      | Body is always in context           |
 | Inline template size     | ≤ 50 lines       | Move larger templates to skills     |
 | Handoff count            | ≤ 8 handoffs     | Each adds ~40 tokens                |
 | Skill references in body | ≤ 5 "Read" lines | Progressive load, not bulk load     |

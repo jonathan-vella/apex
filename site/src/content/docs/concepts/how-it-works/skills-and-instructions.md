@@ -92,7 +92,9 @@ precedence rules determine which takes priority. See
 Short version: Azure Policy compliance (Tier 1) always wins over domain IaC (Tier 2),
 which wins over cross-cutting cost rules (Tier 3), which wins over general code quality (Tier 4).
 
-**`iac-best-practices.instructions.md`** is the cross-cutting instruction that enforces
+**`iac-bicep-best-practices.instructions.md`** and
+**`iac-terraform-best-practices.instructions.md`** are the
+track-specific instructions that enforce
 two mandatory rules across all IaC projects (Bicep and Terraform):
 
 1. **Cost Monitoring**: Every deployment must include an Azure Budget resource with

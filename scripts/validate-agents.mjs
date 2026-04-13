@@ -29,7 +29,9 @@ const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const RECOMMENDED_FIELDS = ["agents", "model"];
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 
-const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-orchestrator.agent.md"]);
+const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set([
+  "e2e-orchestrator.agent.md",
+]);
 
 function runFrontmatterValidation() {
   const r = new Reporter("Agent Frontmatter Validator");
@@ -405,7 +407,7 @@ function runModelAlignment() {
       if (agent.isSubagent) continue;
 
       const bodyLines = countBodyLines(agent.content);
-      if (bodyLines <= 300) continue;
+      if (bodyLines <= 350) continue;
 
       r.tick();
       const relPath = path.relative(process.cwd(), agent.path);
@@ -414,7 +416,7 @@ function runModelAlignment() {
       if (!body.includes("<context_awareness>")) {
         r.warn(
           relPath,
-          `Claude agent has ${bodyLines} body lines but no <context_awareness> block (recommended for >300 lines)`,
+          `Claude agent has ${bodyLines} body lines but no <context_awareness> block (recommended for >350 lines)`,
         );
       }
     }

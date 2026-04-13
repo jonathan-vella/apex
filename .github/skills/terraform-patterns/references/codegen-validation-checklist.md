@@ -13,7 +13,7 @@ Verify ALL items before marking Step 5 complete.
 
 - [ ] AVM-TF modules used for all available resources
 - [ ] `project_name` is a required variable with no default value
-- [ ] Zero hardcoded project-specific values (see `iac-best-practices.instructions.md`)
+- [ ] Zero hardcoded project-specific values (see `iac-terraform-best-practices.instructions.md`)
 
 ## Security Baseline
 

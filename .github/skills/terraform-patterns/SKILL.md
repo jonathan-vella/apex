@@ -7,7 +7,7 @@ compatibility: Requires Terraform >= 1.9, azurerm ~> 4.0, Azure CLI
 # Azure Terraform Patterns Skill
 
 Composable architecture building blocks for Azure Terraform. Complements
-`terraform-code-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
+`iac-terraform-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
 
 ---
 
