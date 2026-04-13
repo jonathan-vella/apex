@@ -26,8 +26,8 @@ esac
 # Determine allowed file patterns per domain prefix
 case "$PREFIX" in
   docs)
-    ALLOWED_PATTERN='^(docs/|site/|README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md|docs-)'
-    LABEL="docs/, site/, README.md, CONTRIBUTING.md, CHANGELOG.md"
+    ALLOWED_PATTERN='^(site/|README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md)'
+    LABEL="site/, README.md, CONTRIBUTING.md, CHANGELOG.md"
     ;;
   agents)
     ALLOWED_PATTERN='^(\.github/agents/|\.github/agent-registry\.json)'

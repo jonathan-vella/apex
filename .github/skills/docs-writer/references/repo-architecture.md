@@ -211,16 +211,15 @@ Implementation → Deploy       → Documentation
 These files contain counts, tables, or version references that need
 updating when agents or skills change:
 
-| File                                    | Contains                                   |
-| --------------------------------------- | ------------------------------------------ |
-| `docs/README.md`                        | Agent tables, skill tables, structure tree |
-| `docs.instructions.md`                  | Site docs standards                        |
-| `docs/prompt-guide/README.md`           | Agent & skill prompt examples              |
-| `QUALITY_SCORE.md`                      | Project health grades (doc-gardening)      |
-| `tests/exec-plans/tech-debt-tracker.md` | Tech debt inventory                        |
-| `VERSION.md`                            | Canonical version number                   |
-| `CHANGELOG.md`                          | Release history                            |
-| `README.md` (root)                      | Overview, project structure, tech stack    |
+| File                                    | Contains                                |
+| --------------------------------------- | --------------------------------------- |
+| `site/src/content/docs/`                | Published documentation pages           |
+| `docs.instructions.md`                  | Site docs standards                     |
+| `QUALITY_SCORE.md`                      | Project health grades (doc-gardening)   |
+| `tests/exec-plans/tech-debt-tracker.md` | Tech debt inventory                     |
+| `VERSION.md`                            | Canonical version number                |
+| `CHANGELOG.md`                          | Release history                         |
+| `README.md` (root)                      | Overview, project structure, tech stack |
 
 ## docs/ Folder Contents
 

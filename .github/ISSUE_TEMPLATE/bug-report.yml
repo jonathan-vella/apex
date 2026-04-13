@@ -21,7 +21,7 @@ body:
         - Bicep templates (infra/bicep/)
         - PowerShell scripts
         - Agent definitions (.github/agents/)
-        - Documentation (docs/, README files)
+        - Documentation (site/src/content/docs/, README files)
         - GitHub Actions workflows
         - MCP Server (mcp/azure-pricing-mcp/)
         - Devcontainer configuration

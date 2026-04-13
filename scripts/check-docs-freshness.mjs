@@ -1,9 +1,12 @@
 /**
  * Docs Freshness Checker
  *
- * Validates that documentation counts, references, and links remain
- * in sync with the actual filesystem. Produces human-readable output
- * and an optional JSON report for CI consumption.
+ * Validates that documentation references and links remain in sync with
+ * the actual filesystem. Produces human-readable output and an optional
+ * JSON report for CI consumption.
+ *
+ * Canonical documentation source: site/src/content/docs/
+ * Entity counts validated against: count-manifest.json computed_from globs
  */
 
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -54,81 +57,29 @@ async function collectMdFiles(dir, exclude = []) {
     if (exclude.some((ex) => rel.includes(ex))) continue;
     if (entry.isDirectory()) {
       results.push(...(await collectMdFiles(full, exclude)));
-    } else if (entry.name.endsWith(".md")) {
+    } else if (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")) {
       results.push(full);
     }
   }
   return results;
 }
 
-function extractNumber(text, pattern) {
-  const m = text.match(pattern);
-  return m ? parseInt(m[1], 10) : null;
-}
+// ── Check 1: Prohibited references ──────────────────────────────────
 
-// ── Check 1: Agent count ────────────────────────────────────────────
-
-async function checkAgentCount(docsReadme) {
-  const agentDir = join(ROOT, ".github", "agents");
-  const entries = await readdir(agentDir, { withFileTypes: true });
-  const agentFiles = entries
-    .filter(
-      (e) =>
-        e.isFile() &&
-        e.name.endsWith(".agent.md") &&
-        !["_subagents"].includes(e.name),
-    )
-    .map((e) => e.name);
-  const actual = agentFiles.length;
-
-  if (!docsReadme) return;
-  const documented = extractNumber(docsReadme, /## Agents \((\d+)/);
-  if (documented !== null && documented !== actual) {
-    addFinding(
-      "docs/README.md",
-      0,
-      `Agent count mismatch: docs say ${documented}, filesystem has ${actual}`,
-      "HIGH",
-    );
-  }
-}
-
-// ── Check 2: Skill count ────────────────────────────────────────────
-
-async function checkSkillCount(docsReadme) {
-  const skillDir = join(ROOT, ".github", "skills");
-  const dirs = await listDirs(skillDir);
-  const actual = dirs.length;
-
-  if (!docsReadme) return;
-  const documented = extractNumber(docsReadme, /## Skills \((\d+)/);
-  if (documented !== null && documented !== actual) {
-    addFinding(
-      "docs/README.md",
-      0,
-      `Skill count mismatch: docs say ${documented}, filesystem has ${actual}`,
-      "HIGH",
-    );
-  }
-}
-
-// ── Check 3: Prohibited references ──────────────────────────────────
-
-async function checkProhibitedRefs(cachedDocsMdFiles) {
+async function checkProhibitedRefs(cachedSiteMdFiles) {
   const prohibited = [
     { pattern: /diagram\.agent\.md/g, label: "diagram.agent.md (removed)" },
     { pattern: /adr\.agent\.md/g, label: "adr.agent.md (removed)" },
     { pattern: /docs\.agent\.md/g, label: "docs.agent.md (removed)" },
-    { pattern: /docs\/guides\//g, label: "docs/guides/ (non-existent path)" },
   ];
 
   const scanPaths = [join(ROOT, ".github", "instructions")];
   const singleFiles = [join(ROOT, ".github", "copilot-instructions.md")];
 
-  // Reuse cached docs MD files, only scan instructions dir fresh
+  // Scan site docs and instructions
   // Exclude CHANGELOG files — they are historical records that may legitimately
   // reference paths that have since been removed or restructured.
-  const mdFiles = [...cachedDocsMdFiles].filter(
+  const mdFiles = [...cachedSiteMdFiles].filter(
     (f) => !relative(ROOT, f).toLowerCase().includes("changelog"),
   );
   for (const dir of scanPaths) {
@@ -160,16 +111,12 @@ async function checkProhibitedRefs(cachedDocsMdFiles) {
   }
 }
 
-// ── Check 4: Deprecated path links ──────────────────────────────────
+// ── Check 2: Deprecated path links ──────────────────────────────────
 
-async function checkSupersededLinks(cachedDocsMdFiles) {
-  const mdFiles = cachedDocsMdFiles.filter(
-    (f) => !relative(ROOT, f).includes("presenter"),
-  );
-
+async function checkSupersededLinks(cachedSiteMdFiles) {
   const deprecatedPaths = [/_superseded\//, /\.github\/templates\//];
 
-  for (const file of mdFiles) {
+  for (const file of cachedSiteMdFiles) {
     const content = await readText(file);
     if (!content) continue;
     const rel = relative(ROOT, file);
@@ -189,105 +136,7 @@ async function checkSupersededLinks(cachedDocsMdFiles) {
   }
 }
 
-// ── Check 5: Agent table verification ───────────────────────────────
-
-async function checkAgentTable(docsReadme) {
-  if (!docsReadme) return;
-  // Extract only the Agents section (between ## Agents and next ## heading)
-  const agentSection = docsReadme.match(
-    /^## Agents[^\n]*\n([\s\S]*?)(?=\n## [^#])/m,
-  );
-  if (!agentSection) return;
-  const section = agentSection[1];
-  // Match agent names from table rows like: | `05-iac-planner` |
-  const agentNames = [...section.matchAll(/^\|\s*`([\w][\w-]*)`\s*\|/gm)].map(
-    (m) => m[1],
-  );
-
-  const agentDir = join(ROOT, ".github", "agents");
-  const subagentDir = join(agentDir, "_subagents");
-
-  // Build a set of canonical names from actual .agent.md files
-  // e.g. "02-requirements.agent.md" -> ["02-requirements", "requirements"]
-  const agentFiles = await readdir(agentDir).catch(() => []);
-  const subagentFiles = await readdir(subagentDir).catch(() => []);
-  const allFiles = [...agentFiles, ...subagentFiles];
-  const canonicalNames = new Set();
-  for (const f of allFiles) {
-    if (!f.endsWith(".agent.md")) continue;
-    const base = f.replace(".agent.md", "");
-    canonicalNames.add(base);
-    // Also add the name without the numeric prefix (e.g. "02-requirements" -> "requirements")
-    const stripped = base.replace(/^\d+[bt]?-/, "");
-    if (stripped !== base) canonicalNames.add(stripped);
-  }
-
-  for (const name of agentNames) {
-    const lower = name.toLowerCase();
-    if (!canonicalNames.has(lower) && !canonicalNames.has(name)) {
-      addFinding(
-        "docs/README.md",
-        0,
-        `Agent table lists '${name}' but no matching .agent.md found`,
-        "HIGH",
-      );
-    }
-  }
-}
-
-// ── Check 6: Skill table verification ───────────────────────────────
-
-async function checkSkillTable(docsReadme) {
-  if (!docsReadme) return;
-  const skillSection = docsReadme.split(/^## Skills/m)[1];
-  if (!skillSection) return;
-  // Match skill names from table rows like: | `azure-diagrams` |
-  const skillNames = [
-    ...skillSection.matchAll(/^\|\s*`([a-z][\w-]*)`\s*\|/gm),
-  ].map((m) => m[1]);
-
-  const skillDir = join(ROOT, ".github", "skills");
-  for (const name of skillNames) {
-    if (!(await exists(join(skillDir, name)))) {
-      addFinding(
-        "docs/README.md",
-        0,
-        `Skill table lists '${name}' but no matching directory in .github/skills/`,
-        "HIGH",
-      );
-    }
-  }
-}
-
-// ── Check 7: Hardcoded version headers ──────────────────────────────
-
-async function checkVersionHeaders() {
-  const docsDir = join(ROOT, "docs");
-  const entries = await readdir(docsDir, { withFileTypes: true });
-  const mdFiles = entries
-    .filter((e) => e.isFile() && e.name.endsWith(".md"))
-    .map((e) => join(docsDir, e.name));
-
-  const versionPattern = /> Version \d+\.\d+\.\d+/;
-  for (const file of mdFiles) {
-    const content = await readText(file);
-    if (!content) continue;
-    const rel = relative(ROOT, file);
-    const lines = content.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      if (versionPattern.test(lines[i])) {
-        addFinding(
-          rel,
-          i + 1,
-          "Hardcoded version header — use [Current Version](../VERSION.md) instead",
-          "LOW",
-        );
-      }
-    }
-  }
-}
-
-// ── Check 8: Skill references freshness ─────────────────────────────
+// ── Check 3: Skill references freshness ─────────────────────────────
 
 async function checkSkillReferences() {
   const skillDir = join(ROOT, ".github", "skills");
@@ -331,37 +180,48 @@ async function checkSkillReferences() {
   }
 }
 
+// ── Check 4: Hardcoded version headers in site docs ─────────────────
+
+async function checkVersionHeaders(cachedSiteMdFiles) {
+  const versionPattern = /> Version \d+\.\d+\.\d+/;
+  for (const file of cachedSiteMdFiles) {
+    const content = await readText(file);
+    if (!content) continue;
+    const rel = relative(ROOT, file);
+    const lines = content.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      if (versionPattern.test(lines[i])) {
+        addFinding(
+          rel,
+          i + 1,
+          "Hardcoded version header — use [Current Version](../VERSION.md) instead",
+          "LOW",
+        );
+      }
+    }
+  }
+}
+
 // ── Main ────────────────────────────────────────────────────────────
 
 async function main() {
   console.log("📋 Docs Freshness Checker\n");
 
-  // Pre-fetch shared data once (avoids 4+ redundant reads of docs/README.md
-  // and 3+ directory traversals of docs/)
-  const docsReadme = await readText(join(ROOT, "docs", "README.md"));
-  const docsMdFiles = await collectMdFiles(join(ROOT, "docs"), []);
-
-  console.log("─── Agent & Skill Counts ───");
-  await checkAgentCount(docsReadme);
-  await checkSkillCount(docsReadme);
+  // Scan the canonical site docs tree
+  const siteDocsDir = join(ROOT, "site", "src", "content", "docs");
+  const siteMdFiles = await collectMdFiles(siteDocsDir, []);
 
   console.log("─── Prohibited References ───");
-  await checkProhibitedRefs(docsMdFiles);
+  await checkProhibitedRefs(siteMdFiles);
 
   console.log("─── Superseded Links ───");
-  await checkSupersededLinks(docsMdFiles);
-
-  console.log("─── Agent Table Verification ───");
-  await checkAgentTable(docsReadme);
-
-  console.log("─── Skill Table Verification ───");
-  await checkSkillTable(docsReadme);
+  await checkSupersededLinks(siteMdFiles);
 
   console.log("─── Skill References Freshness ───");
   await checkSkillReferences();
 
   console.log("─── Version Header Check ───");
-  await checkVersionHeaders();
+  await checkVersionHeaders(siteMdFiles);
 
   // Print findings
   console.log("");

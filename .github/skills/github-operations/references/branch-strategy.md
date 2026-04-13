@@ -9,14 +9,14 @@ Validated by `scripts/validate-branch-naming.sh` and `scripts/validate-branch-sc
 
 ### Domain-Scoped (restricted to their file domain)
 
-| Prefix          | Allowed File Paths                                               |
-| --------------- | ---------------------------------------------------------------- |
-| `docs/`         | `docs/`, `site/`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
-| `agents/`       | `.github/agents/`, `.github/agent-registry.json`                 |
-| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`                 |
-| `infra/`        | `infra/`                                                         |
-| `scripts/`      | `scripts/`, `package.json`                                       |
-| `instructions/` | `.github/instructions/`                                          |
+| Prefix          | Allowed File Paths                                      |
+| --------------- | ------------------------------------------------------- |
+| `docs/`         | `site/`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md` |
+| `agents/`       | `.github/agents/`, `.github/agent-registry.json`        |
+| `skills/`       | `.github/skills/`, `.github/skill-affinity.json`        |
+| `infra/`        | `infra/`                                                |
+| `scripts/`      | `scripts/`, `package.json`                              |
+| `instructions/` | `.github/instructions/`                                 |
 
 ### Cross-Cutting (any files allowed)
 

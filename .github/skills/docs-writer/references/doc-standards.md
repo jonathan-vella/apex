@@ -99,11 +99,11 @@ Always specify language after opening backticks:
 
 These agents were removed and converted to skills. Never reference them:
 
-| Removed Agent      | Replacement Skill                       |
-| ------------------ | --------------------------------------- |
-| `diagram.agent.md` | `drawio` or `python-diagrams` skill     |
-| `adr.agent.md`     | `azure-adr` skill                       |
-| `docs.agent.md`    | `azure-artifacts` skill                 |
+| Removed Agent      | Replacement Skill                   |
+| ------------------ | ----------------------------------- |
+| `diagram.agent.md` | `drawio` or `python-diagrams` skill |
+| `adr.agent.md`     | `azure-adr` skill                   |
+| `docs.agent.md`    | `azure-artifacts` skill             |
 
 Also avoid references to removed paths:
 
@@ -113,13 +113,13 @@ Also avoid references to removed paths:
 
 ## Content Principles
 
-| Principle                  | Application                                |
-| -------------------------- | ------------------------------------------ |
-| **DRY**                    | Single source of truth per topic           |
-| **Current state**          | No historical context in main docs         |
-| **Action-oriented**        | Every section answers "how do I...?"       |
-| **Minimal**                | If it doesn't help users today, remove it  |
-| **Prompt guide for depth** | Point to `docs/prompt-guide/` for examples |
+| Principle                  | Application                                             |
+| -------------------------- | ------------------------------------------------------- |
+| **DRY**                    | Single source of truth per topic                        |
+| **Current state**          | No historical context in main docs                      |
+| **Action-oriented**        | Every section answers "how do I...?"                    |
+| **Minimal**                | If it doesn't help users today, remove it               |
+| **Prompt guide for depth** | Point to the prompt guide section in the published site |
 
 ## Validation Commands
 
@@ -144,23 +144,23 @@ npm run fix:artifact-h2 <path> [--apply]
 
 When `VERSION.md` is updated, check these files for version references:
 
-- `docs/*.md` — header lines with `> Version X.Y.Z`
+- `site/src/content/docs/**/*.md` — header lines with `> Version X.Y.Z`
 - `docs.instructions.md` — header template example
 - `CHANGELOG.md` — new version entry needed
 
 ## Emoji Conventions in Agent/Skill Tables
 
-Codenames use consistent emoji in `docs/README.md`:
+Codenames use consistent emoji in documentation:
 
-| Codename   | Emoji | Agent              |
-| ---------- | ----- | ------------------ |
-| Orchestrator | 🧠 | Orchestrator |
-| Scribe     | 📜    | Requirements       |
-| Oracle     | 🏛️    | Architect          |
-| Artisan    | 🎨    | Design             |
-| Strategist | 📐    | Bicep Plan         |
-| Forge      | ⚒️    | Bicep Code         |
-| Envoy      | 🚀    | Deploy             |
-| Sentinel   | 🔍    | Diagnose           |
+| Codename     | Emoji | Agent        |
+| ------------ | ----- | ------------ |
+| Orchestrator | 🧠    | Orchestrator |
+| Scribe       | 📜    | Requirements |
+| Oracle       | 🏛️    | Architect    |
+| Artisan      | 🎨    | Design       |
+| Strategist   | 📐    | Bicep Plan   |
+| Forge        | ⚒️    | Bicep Code   |
+| Envoy        | 🚀    | Deploy       |
+| Sentinel     | 🔍    | Diagnose     |
 
 When adding a new agent, choose a unique emoji + codename.

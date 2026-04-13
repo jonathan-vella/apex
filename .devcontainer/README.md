@@ -151,7 +151,7 @@ az account set --subscription "<your-subscription-id>"
 az bicep version && pwsh --version
 
 # 4. Explore docs and infrastructure
-cd docs/prompt-guide/ && ls -la
+cd site/src/content/docs/ && ls -la
 cd ../../infra/bicep/ && tree -L 2
 ```
 
@@ -241,7 +241,7 @@ installs all tools from scratch including the Go and Terraform features.
 | Azure auth fails      | Use `az login --use-device-code`                         |
 | Rebuild needed        | `F1` → `Dev Containers: Rebuild Container Without Cache` |
 
-📖 **Full troubleshooting guide:** [docs/troubleshooting.md](../docs/troubleshooting.md)
+📖 **Full troubleshooting guide:** [Troubleshooting](https://jonathan-vella.github.io/azure-agentic-infraops/guides/troubleshooting/)
 
 ## 📊 Resource Usage
 
@@ -261,8 +261,8 @@ installs all tools from scratch including the Go and Terraform features.
 
 ## 📚 Related Documentation
 
-- [Workflow Guide](../docs/workflow.md)
-- [Prompt Guide](../docs/prompt-guide/)
+- [Workflow Guide](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)
+- [Prompt Guide](https://jonathan-vella.github.io/azure-agentic-infraops/guides/prompt-guide/)
 - [Copilot Instructions](../.github/copilot-instructions.md)
 - [Repository README](../README.md)
 

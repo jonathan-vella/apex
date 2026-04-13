@@ -116,20 +116,16 @@ const DEPRECATED_PATTERNS = [
     severity: "error",
   },
 
-  // Dead documentation paths - IGNORED
-  // These folders were removed but many legacy files still reference them.
-  // The content is deprecated and will be cleaned up over time.
-  // Uncomment to re-enable detection:
-  // {
-  //   pattern: /docs\/guides\//gi,
-  //   message: "Reference to non-existent docs/guides/ folder",
-  //   severity: "warn",
-  // },
-  // {
-  //   pattern: /docs\/reference\//gi,
-  //   message: "Reference to non-existent docs/reference/ folder",
-  //   severity: "warn",
-  // },
+  // Detect stale references to the retired top-level docs/ tree.
+  // The canonical documentation source is site/src/content/docs/.
+  // Historical references in changelogs and archival records are excluded
+  // via EXCLUDE_PATTERNS.
+  {
+    pattern: /(?<![\w/])docs\/(?!tf-support|adr\/|diagrams\/)[\w-]+/gi,
+    message:
+      "Reference to retired docs/ tree (canonical source is site/src/content/docs/)",
+    severity: "warn",
+  },
 
   // Agent mentions that should be skills (in prose, not agent definitions)
   {
@@ -166,7 +162,7 @@ const DEPRECATED_PATTERNS = [
 
 // Folders to scan
 const SCAN_FOLDERS = [
-  "docs",
+  "site/src/content/docs",
   ".github/agents",
   ".github/skills",
   ".github/instructions",
@@ -247,7 +243,10 @@ function main() {
   }
 
   // Scan additional directories not covered by workspace-index
-  for (const folder of ["docs", ".github/skills/azure-artifacts/templates"]) {
+  for (const folder of [
+    "site/src/content/docs",
+    ".github/skills/azure-artifacts/templates",
+  ]) {
     scanDirectory(path.join(ROOT, folder));
   }
 

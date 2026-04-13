@@ -19,10 +19,10 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 Validate branch: `git rev-parse --abbrev-ref HEAD`
 
-| Type          | Prefixes                                                                             | File Scope |
-| ------------- | ------------------------------------------------------------------------------------ | ---------- |
-| Domain-scoped | `docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`                 | Restricted |
-| Cross-cutting | `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/` | Any files  |
+| Type          | Prefixes                                                                             | File Scope                          |
+| ------------- | ------------------------------------------------------------------------------------ | ----------------------------------- |
+| Domain-scoped | `docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`                 | Restricted (see branch-strategy.md) |
+| Cross-cutting | `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/` | Any files                           |
 
 📋 Full rules: `references/branch-strategy.md`
 

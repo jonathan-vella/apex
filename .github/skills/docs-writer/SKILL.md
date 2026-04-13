@@ -37,8 +37,7 @@ None — all tools and references are workspace-local.
 
 All markdown documentation **except** `agent-output/**/*.md`:
 
-- `docs/` — user-facing docs (quickstart, workflow, troubleshooting, etc.)
-- `docs/prompt-guide/` — agent & skill prompt examples
+- `site/src/content/docs/` — published user-facing docs (quickstart, workflow, troubleshooting, etc.)
 - `tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
 - `CONTRIBUTING.md` — contribution guidelines
@@ -59,7 +58,7 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 ### Workflow 1: Update Existing Documentation
 
-1. **Identify target files**: Determine which files in `docs/` need updates.
+1. **Identify target files**: Determine which files in `site/src/content/docs/` need updates.
 2. **Read latest version**: Always read the current file before editing.
 3. **Load standards**: Read `references/doc-standards.md` for conventions.
 4. **Apply changes**: Follow the doc-standards conventions strictly:
@@ -77,10 +76,8 @@ When a new agent or skill is added to the repo:
 1. **Read architecture**: Load `references/repo-architecture.md` for current
    entity inventory and naming conventions.
 2. **Identify all files needing updates**:
-   - New agent → update `docs/README.md` agent tables,
-     `README.md` (root) agent references
-   - New skill → update `docs/README.md` skill tables,
-     `README.md` (root) skill references
+   - New agent → update `README.md` (root) agent references
+   - New skill → update `README.md` (root) skill references
 3. **Match existing patterns**: Study adjacent entries in each table
    to match column format, emoji conventions, and description style.
 4. **Update references**: Use descriptive language per the

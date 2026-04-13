@@ -5,7 +5,7 @@ applyTo: "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx"
 
 # Documentation Standards
 
-Instructions for creating and maintaining user-facing documentation in the `docs/` folder.
+Instructions for creating and maintaining user-facing documentation in the `site/src/content/docs/` folder.
 
 ## Structure Requirements
 
@@ -19,8 +19,8 @@ Every doc file must start with:
 > [Current Version](../../VERSION.md) | {One-line description}
 ```
 
-Adjust the relative path depth based on folder nesting (`../../VERSION.md` from `docs/`,
-`../../../VERSION.md` from `docs/subfolder/`).
+Adjust the relative path depth based on folder nesting (`../../../VERSION.md` from
+`site/src/content/docs/`, `../../../../VERSION.md` from a subfolder).
 
 ### Single H1 Rule
 
@@ -38,33 +38,33 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 ### Agents (see count-manifest.json for current counts)
 
-| Agent                | Purpose                                      |
-| -------------------- | -------------------------------------------- |
-| `orchestrator` | Master orchestrator with approval gates      |
-| `requirements`       | Gather infrastructure requirements           |
-| `architect`          | WAF assessment and architecture design       |
-| `design`             | Architecture diagrams and ADRs               |
-| `iac-planner`        | Unified IaC implementation planning          |
-| `bicep-codegen`      | Bicep template generation                    |
-| `bicep-deploy`       | Bicep Azure deployment execution             |
-| `terraform-codegen`  | Terraform config generation                  |
-| `terraform-deploy`   | Terraform Azure deployment execution         |
-| `as-built`           | Step 7 workload documentation suite          |
-| `diagnose`           | Post-deployment health diagnostics           |
-| `challenger`         | Adversarial review of requirements and plans |
-| `context-optimizer`  | Context window audit and token waste report  |
+| Agent               | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| `orchestrator`      | Master orchestrator with approval gates      |
+| `requirements`      | Gather infrastructure requirements           |
+| `architect`         | WAF assessment and architecture design       |
+| `design`            | Architecture diagrams and ADRs               |
+| `iac-planner`       | Unified IaC implementation planning          |
+| `bicep-codegen`     | Bicep template generation                    |
+| `bicep-deploy`      | Bicep Azure deployment execution             |
+| `terraform-codegen` | Terraform config generation                  |
+| `terraform-deploy`  | Terraform Azure deployment execution         |
+| `as-built`          | Step 7 workload documentation suite          |
+| `diagnose`          | Post-deployment health diagnostics           |
+| `challenger`        | Adversarial review of requirements and plans |
+| `context-optimizer` | Context window audit and token waste report  |
 
 ### Subagents (in `_subagents/`)
 
-| Subagent                        | Parent           | Purpose                             |
-| ------------------------------- | ---------------- | ----------------------------------- |
-| `cost-estimate-subagent`        | Architect        | Azure Pricing MCP queries           |
-| `governance-discovery-subagent` | IaC Planner      | Azure Policy REST API discovery     |
-| `challenger-review-subagent`    | Orchestrator/Plans  | Adversarial artifact review         |
-| `bicep-validate-subagent`       | Bicep Code       | Lint + AVM/security code review     |
-| `bicep-whatif-subagent`         | Bicep Deploy     | Deployment preview                  |
-| `terraform-validate-subagent`   | Terraform Code   | Lint + AVM-TF/security code review  |
-| `terraform-plan-subagent`       | Terraform Deploy | Deployment preview (terraform plan) |
+| Subagent                        | Parent             | Purpose                             |
+| ------------------------------- | ------------------ | ----------------------------------- |
+| `cost-estimate-subagent`        | Architect          | Azure Pricing MCP queries           |
+| `governance-discovery-subagent` | IaC Planner        | Azure Policy REST API discovery     |
+| `challenger-review-subagent`    | Orchestrator/Plans | Adversarial artifact review         |
+| `bicep-validate-subagent`       | Bicep Code         | Lint + AVM/security code review     |
+| `bicep-whatif-subagent`         | Bicep Deploy       | Deployment preview                  |
+| `terraform-validate-subagent`   | Terraform Code     | Lint + AVM-TF/security code review  |
+| `terraform-plan-subagent`       | Terraform Deploy   | Deployment preview (terraform plan) |
 
 ### Skills (see count-manifest.json for current counts)
 
@@ -105,13 +105,13 @@ Do NOT reference these removed agents/skills:
 
 ## Content Principles
 
-| Principle                  | Application                                |
-| -------------------------- | ------------------------------------------ |
-| **DRY**                    | Single source of truth per topic           |
-| **Current state**          | No historical context in main docs         |
-| **Action-oriented**        | Every section answers "how do I...?"       |
-| **Minimal**                | If it doesn't help users today, remove it  |
-| **Prompt guide for depth** | Point to `docs/prompt-guide/` for examples |
+| Principle                  | Application                                             |
+| -------------------------- | ------------------------------------------------------- |
+| **DRY**                    | Single source of truth per topic                        |
+| **Current state**          | No historical context in main docs                      |
+| **Action-oriented**        | Every section answers "how do I...?"                    |
+| **Minimal**                | If it doesn't help users today, remove it               |
+| **Prompt guide for depth** | Point to the prompt guide section in the published site |
 
 ## Validation
 
