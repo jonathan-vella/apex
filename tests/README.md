@@ -46,9 +46,14 @@ Open VS Code Chat (`Ctrl+Shift+I`) and use the E2E prompt:
 
 This prompt is test-only and non-interactive:
 
+- It runs at **depth 0** (no `agent:` in frontmatter) so that all step agents
+  and subagents can be invoked as depth-1 subagents. VS Code Copilot only
+  supports one level of nesting.
 - It uses the RFP as the source of truth.
 - It pre-populates interactive answers with fixed test defaults.
-- It routes each workflow step through the real workflow agent when one exists.
+- It routes each workflow step through the real workflow agent.
+- It calls challenger, validator, and specialized subagents directly between
+  step agent invocations (flat delegation model).
 - It requires the real Draw.io, pricing, governance, and dry-run deployment
   paths instead of substituting inline benchmark-only artifacts.
 
@@ -181,8 +186,33 @@ See `.github/workflows/e2e-validation.yml` for the full CI configuration.
 | `scripts/benchmark-e2e.mjs`     | 8-dimension quality scoring  |
 | `scripts/combine-e2e-runs.mjs`  | Multi-run comparison         |
 
+## Delegation Architecture
+
+The E2E prompt uses a **flat delegation model** due to VS Code's depth-1
+subagent limit:
+
+```text
+Depth 0: Prompt (orchestrates the full loop)
+  ├─ @02-Requirements          (depth 1) → artifact generation
+  ├─ @challenger-review-subagent (depth 1) → review Step 1
+  ├─ @03-Architect             (depth 1) → artifact generation
+  ├─ @cost-estimate-subagent   (depth 1) → pricing
+  ├─ @challenger-review-subagent (depth 1) → review Step 2
+  ├─ @04-Design                (depth 1) → diagrams + ADRs
+  ├─ @04g-Governance           (depth 1) → governance artifacts
+  ├─ @governance-discovery-subagent (depth 1) → live policy discovery
+  ├─ @challenger-review-subagent (depth 1) → review Step 3.5
+  └─ ... (continues for Steps 4-7)
+```
+
+Step agents are told that challenger reviews and validation subagents will be
+handled externally. The `E2E Orchestrator` agent
+(`.github/agents/e2e-orchestrator.agent.md`) is referenced for its state
+management and iteration tracking procedures, but is not used as a delegation
+target.
+
 ## Safety
 
 - E2E runs **never deploy real Azure resources** — dry-run only
 - Max iteration limits prevent infinite loops
-- The E2E Orchestrator is separate from the production `01-Orchestrator` agent
+- The E2E Orchestrator agent remains available for direct manual invocation

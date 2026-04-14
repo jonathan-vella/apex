@@ -1,6 +1,5 @@
 ---
 name: e2e-contoso-rfp
-agent: E2E Orchestrator
 description: "Run a single real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path."
 argument-hint: "Specify project name and IaC tool (Bicep or Terraform)"
 ---
@@ -44,12 +43,66 @@ new loop.
 ## Mission
 
 Run the Contoso Service Hub benchmark as a real automated workflow, not as a
-simulation. Treat this prompt as scenario input and execution policy for the
-`E2E Orchestrator`, not as permission to synthesize missing workflow steps
-inline.
+simulation. Treat this prompt as scenario input and execution policy, not as
+permission to synthesize missing workflow steps inline.
 
 This prompt replaces the earlier inline-friendly behavior. Steps with real
 workflow agents must go through those agents.
+
+## Flat Delegation Model (Depth-1 Constraint)
+
+VS Code Copilot supports only one level of subagent nesting. This prompt runs
+at depth 0 so that all agents — step agents, challengers, validators — can be
+invoked as depth-1 subagents.
+
+**Key consequence**: Step agents (e.g., `03-Architect`) normally call their own
+subagents (e.g., `cost-estimate-subagent`, `challenger-review-subagent`), but
+at depth 1 they cannot nest further. Therefore:
+
+1. **Step agents handle artifact generation only** — do NOT expect them to run
+   their own challenger reviews or validation subagents.
+2. **This prompt (depth 0) calls challengers and validators directly** between
+   step agent invocations.
+3. When invoking step agents, include this context in the prompt:
+   _"Challenger reviews and validation subagents will be handled externally
+   by the orchestrator after you complete your artifacts. Focus on artifact
+   generation only. Do not attempt to invoke subagents."_
+
+Execution sequence per step:
+
+```
+Step N:
+  1. Invoke step agent (depth 1) → produces artifact
+  2. Pre-validate artifact (inline check)
+  3. Invoke challenger-review-subagent (depth 1) → reviews artifact
+  4. If must_fix > 0: re-invoke step agent with findings
+  5. Update session state, proceed to Step N+1
+```
+
+For steps that need specialized subagents (cost-estimate, governance-discovery,
+bicep-validate, terraform-validate, bicep-whatif, terraform-plan), invoke those
+directly from this prompt between the appropriate step agent calls.
+
+## Orchestration Procedures
+
+Read `.github/agents/e2e-orchestrator.agent.md` for detailed procedures:
+
+- **State Management**: Session state, handoff, iteration log, lessons JSON
+  initialization and update rules
+- **Pre-Validation Gate**: File exists, non-empty, structural H2 check, valid
+  session state JSON
+- **Iteration Tracking**: Append to `08-iteration-log.json` after every step
+  attempt (MANDATORY for benchmark scoring)
+- **Self-Correction Protocol**: Re-invoke step agent with findings on failure
+- **Timing Thresholds**: 3 min simple steps, 10 min codegen, 45 min total
+- **Benchmark Collection**: Per-step timing, pass/fail, iteration count
+- **Completion Criteria**: E2E_COMPLETE / E2E_PARTIAL / E2E_BLOCKED rules
+
+Also read these skills before executing any step:
+
+1. `.github/skills/session-resume/SKILL.digest.md` — session state schema
+2. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
+3. `.github/skills/azure-artifacts/SKILL.digest.md` — artifact structure
 
 ## Run Configuration
 
@@ -79,16 +132,22 @@ IaC tool:
   6. Bicep: `06b-Bicep CodeGen` / Terraform: `06t-Terraform CodeGen`
   7. Bicep: `07b-Bicep Deploy` / Terraform: `07t-Terraform Deploy`
   8. `08-As-Built`
+- Use the actual subagents for reviews and specialized tasks (invoked directly
+  from this prompt, not by the step agents):
+  - `challenger-review-subagent` — after Steps 1, 2, 3.5, 4, 5, 6
+  - `cost-estimate-subagent` — during Step 2
+  - `governance-discovery-subagent` — during Step 3.5 (when Azure auth exists)
+  - `bicep-validate-subagent` / `terraform-validate-subagent` — during Step 5
+  - `bicep-whatif-subagent` / `terraform-plan-subagent` — during Step 6
 - **Run isolation is MANDATORY**: Do NOT read, copy, or adapt artifacts from
   any other run directory (`agent-output/{other-project}/`,
   `infra/bicep/{other-project}/`, `infra/terraform/{other-project}/`).
   Each artifact must be generated from scratch using only the RFQ, prompt
   defaults, and this run's own upstream artifacts. See the "Run Isolation"
   section below for full rules and enforcement.
-- Use `challenger-review-subagent` for every required review pass. Challenger
-  reviews MUST be executed via the actual subagent (delegated or inline per the
-  Challenger Protocol in the E2E Orchestrator agent). Each review MUST produce
-  a persisted JSON artifact saved to
+- Use `challenger-review-subagent` for every required review pass, invoked
+  directly from this prompt (not by step agents, due to the depth-1
+  constraint). Each review MUST produce a persisted JSON artifact saved to
   `agent-output/{project}/10-challenger-step{N}.json` (e.g.,
   `10-challenger-step1.json`). The `review_audit` counters in session state
   are necessary but NOT sufficient — the JSON file must exist.
@@ -106,10 +165,10 @@ IaC tool:
   `terraform plan` results.
 - Do not replace a failed agent invocation with inline artifact creation just to
   keep the benchmark green.
-- The only files you may create inline without delegation are orchestrator-owned
-  bookkeeping files such as `00-session-state.json`, `00-handoff.md`,
-  `08-iteration-log.json`, `08-benchmark-report.md`,
-  `10-challenger-step{N}.json` (challenger review outputs), and lesson files.
+- The only files you may create inline without delegation are
+  orchestrator-owned bookkeeping files such as `00-session-state.json`,
+  `00-handoff.md`, `08-iteration-log.json`, `08-benchmark-report.md`,
+  and lesson files.
 
 ## IaC Tool Routing
 
@@ -171,9 +230,11 @@ continue without waiting for the user:
 
 ### Step 2: Architecture
 
-- Invoke `03-Architect`.
+- Invoke `03-Architect` for artifact generation only (tell it challenger and
+  cost subagents will be handled externally).
+- Invoke `cost-estimate-subagent` directly to produce a pricing-backed cost
+  estimate. Pass the architecture assessment as context.
 - Require a real WAF assessment across all five pillars.
-- Require a real cost estimate from the pricing-backed architecture flow.
 - Require `02-architecture-assessment.md` and `03-des-cost-estimate.md`.
 - If the pricing path cannot be used, stop with `E2E_BLOCKED` and explain why.
 - **Challenger review (MANDATORY)**: After `02-architecture-assessment.md`
@@ -195,7 +256,12 @@ continue without waiting for the user:
 
 ### Step 3.5: Governance
 
-- Invoke `04g-Governance`.
+- Invoke `04g-Governance` for artifact generation only (tell it the
+  governance-discovery and challenger subagents will be handled externally).
+- If Azure auth exists, invoke `governance-discovery-subagent` directly to
+  perform live Azure Policy discovery. Pass results to `04g-Governance` for
+  artifact formatting, or let `04g-Governance` handle discovery inline if
+  it can do so without nesting.
 - Require live discovery when Azure auth exists.
 - Require `04-governance-constraints.md` and
   `04-governance-constraints.json` with `discovery_status = COMPLETE`.
@@ -226,13 +292,19 @@ continue without waiting for the user:
 
 ### Step 5: IaC Code
 
-- Bicep: invoke `06b-Bicep CodeGen`.
-- Terraform: invoke `06t-Terraform CodeGen`.
+- Bicep: invoke `06b-Bicep CodeGen` (tell it validation subagents will be
+  handled externally).
+- Terraform: invoke `06t-Terraform CodeGen` (tell it validation subagents will
+  be handled externally).
 - Bicep: require `main.bicep`, `main.bicepparam`, and concrete service modules
   under `infra/bicep/{project}/modules/`.
 - Terraform: require `main.tf`, `variables.tf`, `outputs.tf`, and concrete
   service modules under `infra/terraform/{project}/modules/`.
-- Run the track-appropriate validation after each major correction cycle:
+- After codegen completes, invoke the track-appropriate validation subagent
+  directly from this prompt:
+  - Bicep: invoke `bicep-validate-subagent` on `infra/bicep/{project}/`
+  - Terraform: invoke `terraform-validate-subagent` on `infra/terraform/{project}/`
+- Also run CLI validation after each major correction cycle:
   - Bicep: `bicep build` and `bicep lint`
   - Terraform: `terraform validate` and `terraform fmt -check`
 - If a module must remain partial, mark the run `E2E_PARTIAL` or
@@ -248,12 +320,14 @@ continue without waiting for the user:
 
 ### Step 6: Deploy (Dry Run)
 
-- Bicep: invoke `07b-Bicep Deploy`.
-- Terraform: invoke `07t-Terraform Deploy`.
+- Bicep: invoke `07b-Bicep Deploy` (tell it the whatif subagent will be handled
+  externally).
+- Terraform: invoke `07t-Terraform Deploy` (tell it the plan subagent will be
+  handled externally).
 - Require final build/validate validation for the active track.
-- When Azure auth exists:
-  - Bicep: require `what-if` execution through the deploy path.
-  - Terraform: require `terraform plan` execution through the deploy path.
+- When Azure auth exists, invoke the deploy preview subagent directly:
+  - Bicep: invoke `bicep-whatif-subagent` for what-if execution
+  - Terraform: invoke `terraform-plan-subagent` for plan execution
 - Require `06-deployment-summary.md` to reflect the real preview output.
 - **Challenger review (MANDATORY)**: Invoke `challenger-review-subagent`
   with `comprehensive` lens on `06-deployment-summary.md`. Save the full

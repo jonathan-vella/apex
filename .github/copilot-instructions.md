@@ -97,6 +97,19 @@ At >60% context, agents load `SKILL.digest.md` (compact); at >80% they load
 - In devcontainers, do not run `gh auth` commands unless the user explicitly asks for CLI authentication troubleshooting.
 - `GH_TOKEN` is set via VS Code User Settings (`terminal.integrated.env.linux`) — shell exports do not propagate reliably.
 
+### Explore Subagent Thoroughness
+
+When invoking the Explore subagent, always specify thoroughness explicitly:
+
+| Lookup Type                           | Thoroughness | Examples                                                  |
+| ------------------------------------- | ------------ | --------------------------------------------------------- |
+| Single file read, config check        | `quick`      | "What's in azure.yaml?", "Find the main.bicep path"       |
+| Multi-file comparison, pattern search | `medium`     | "How do agents reference skills?", "What modules exist?"  |
+| Deep codebase research                | `thorough`   | "Audit all security patterns", "Full dependency analysis" |
+
+Before calling Explore, check whether the needed information is already in context
+from files read earlier in the session.
+
 ## Key Conventions
 
 See the root `AGENTS.md` for full conventions. Summary of VS Code-specific overrides:

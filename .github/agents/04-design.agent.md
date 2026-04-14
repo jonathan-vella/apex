@@ -264,12 +264,6 @@ Diagram complete: {filename}.drawio saved ({N} resources, quality {score}/10).
 Proceeding to {next artifact}.
 ```
 
-### Minimize Explore Subagent Calls
-
-Before delegating to the Explore subagent, check whether the needed information is
-already available from files read earlier in this session (e.g., `02-architecture-assessment.md`,
-`01-requirements.md`). Only invoke Explore for files not yet loaded in context.
-
 ## Workflow
 
 ### Diagram Generation (Draw.io — Default)
