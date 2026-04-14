@@ -214,9 +214,9 @@ az consumption budget show \
 
 :::tip[Further Reading]
 
-- The mandatory `iac-best-practices` instruction
-  (`.github/instructions/iac-bicep-best-practices.instructions.md` / `iac-terraform-best-practices.instructions.md`)
-  enforces these patterns automatically via glob matching
+- The mandatory IaC best-practices instructions
+  (`.github/instructions/iac-bicep-best-practices.instructions.md` and `iac-terraform-best-practices.instructions.md`)
+  enforce these patterns automatically via glob matching
 - **Reusable budget patterns** are available in the IaC pattern skills:
   - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`
   - Terraform: `.github/skills/terraform-patterns/references/budget-pattern.md`

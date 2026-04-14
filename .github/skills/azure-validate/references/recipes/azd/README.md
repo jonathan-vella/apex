@@ -4,10 +4,10 @@ Validation steps for Azure Developer CLI projects.
 
 ## Prerequisites
 
-- `azure.yaml` exists in the project directory (`infra/{iac}/{project}/`)", "oldString": "- `azure.yaml` exists in project root
+- `azure.yaml` exists in the project directory (`infra/{iac}/{project}/`)
 - Infrastructure files exist:
-  - For Bicep: `.` (project root) contains Bicep files
-  - For Terraform: `.` (project root) contains `.tf` files and `azure.yaml` has `infra.provider: terraform`
+  - For Bicep: project directory contains Bicep files
+  - For Terraform: project directory contains `.tf` files and `azure.yaml` has `infra.provider: terraform`
 
 ## Validation Steps
 

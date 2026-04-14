@@ -125,7 +125,7 @@ for (const [fileName, instr] of instructions) {
     console.log(
       `::error file=${relPath},line=1::Missing YAML frontmatter (requires description and applyTo)`,
     );
-    errors++;
+    r.error(`${relPath}: Missing YAML frontmatter`);
     continue;
   }
 
@@ -135,7 +135,7 @@ for (const [fileName, instr] of instructions) {
       console.log(
         `::error file=${relPath},line=1::Missing required frontmatter field: ${display}`,
       );
-      errors++;
+      r.error(`${relPath}: Missing required field: ${display}`);
     }
   }
 
@@ -146,7 +146,9 @@ for (const [fileName, instr] of instructions) {
     console.log(
       `::error file=${relPath},line=1::Unknown frontmatter fields: ${unknownFields.join(", ")} (allowed: ${ALLOWED_FIELDS_DISPLAY.join(", ")})`,
     );
-    errors++;
+    r.error(
+      `${relPath}: Unknown frontmatter fields: ${unknownFields.join(", ")}`,
+    );
   }
 }
 

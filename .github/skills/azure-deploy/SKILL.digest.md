@@ -27,13 +27,13 @@ Activate this skill when user wants to:
 
 ## Steps
 
-| #   | Action                                                                                                                                                                | Reference                                                  |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| #   | Action                                                                                                                                                                                      | Reference                                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | 0   | **Auto-Prepare Gate** — If `infra/{iac}/{project}/.azure/plan.md` is missing, invoke **azure-prepare** then **azure-validate** automatically                                                | —                                                          |
-| 1   | **Check Plan** — Read `infra/{iac}/{project}/.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If not validated, invoke **azure-validate** first. | `infra/{iac}/{project}/.azure/plan.md`                                           |
-| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                    | [Pre-Deploy Checklist](references/pre-deploy-checklist.md) |
+| 1   | **Check Plan** — Read `infra/{iac}/{project}/.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If not validated, invoke **azure-validate** first. | `infra/{iac}/{project}/.azure/plan.md`                     |
+| 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                                          | [Pre-Deploy Checklist](references/pre-deploy-checklist.md) |
 | 3   | **Load Recipe** — Based on `recipe.type` in `infra/{iac}/{project}/.azure/plan.md`                                                                                                          | [recipes/README.md](references/recipes/README.md)          |
-| 4   | **Execute Deploy** — Follow recipe steps                                                                                                                              | Recipe README                                              |
+| 4   | **Execute Deploy** — Follow recipe steps                                                                                                                                                    | Recipe README                                              |
 
 > _See SKILL.md for full content._
 

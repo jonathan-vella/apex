@@ -123,11 +123,11 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 ## Troubleshooting
 
 | Error                               | Solution                                                                |
-| ----------------------------------- | ----------------------------------------------------------------------- | --- | ----------------------------------------- |
+| ----------------------------------- | ----------------------------------------------------------------------- |
 | Cannot open database                | Check firewall rules: `az sql server firewall-rule list`                |
 | Login failed                        | Grant SQL access per [sql-managed-identity.md](sql-managed-identity.md) |
 | Unable to create DbContext          | Add `IDesignTimeDbContextFactory` implementation                        |
-| Hook fails but deployment continues | Remove `                                                                |     | true` to make migrations block deployment |
+| Hook fails but deployment continues | Remove `continueOnError: true` to make migrations block deployment      |
 
 **DbContext Factory Example:**
 

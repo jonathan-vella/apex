@@ -88,10 +88,10 @@ const BICEP_VIOLATIONS = [
     /disableLocalAuth\s*:\s*false/i,
     "Cosmos DB local auth must be disabled (disableLocalAuth must be true)",
   ],
-  // --- MUST-FAIL: PostgreSQL SSL ---
+  // --- MUST-FAIL: MySQL/PostgreSQL SSL ---
   [
     /sslEnforcement\s*:\s*'Disabled'/i,
-    "PostgreSQL SSL enforcement required (sslEnforcement must be Enabled)",
+    "MySQL/PostgreSQL SSL enforcement required (sslEnforcement must be Enabled)",
   ],
   // --- MUST-FAIL: Storage shared key access ---
   [
@@ -102,11 +102,6 @@ const BICEP_VIOLATIONS = [
   [
     /http20Enabled\s*:\s*false/i,
     "App Service HTTP/2 should be enabled (http20Enabled must be true)",
-  ],
-  // --- MUST-FAIL: MySQL SSL ---
-  [
-    /sslEnforcement\s*:\s*'Disabled'/i,
-    "MySQL SSL enforcement required (sslEnforcement must be Enabled)",
   ],
   // --- MUST-FAIL: Container Registry admin user ---
   [
@@ -195,10 +190,10 @@ const TERRAFORM_VIOLATIONS = [
     /local_authentication_disabled\s*=\s*false/i,
     "Cosmos DB local auth must be disabled (local_authentication_disabled must be true)",
   ],
-  // --- MUST-FAIL: PostgreSQL SSL ---
+  // --- MUST-FAIL: MySQL/PostgreSQL SSL ---
   [
     /ssl_enforcement_enabled\s*=\s*false/i,
-    "PostgreSQL SSL enforcement required (ssl_enforcement_enabled must be true)",
+    "MySQL/PostgreSQL SSL enforcement required (ssl_enforcement_enabled must be true)",
   ],
   // --- MUST-FAIL: Storage shared key access ---
   [
@@ -209,11 +204,6 @@ const TERRAFORM_VIOLATIONS = [
   [
     /http2_enabled\s*=\s*false/i,
     "App Service HTTP/2 should be enabled (http2_enabled must be true)",
-  ],
-  // --- MUST-FAIL: MySQL SSL ---
-  [
-    /ssl_enforcement_enabled\s*=\s*false/i,
-    "MySQL SSL enforcement required (ssl_enforcement_enabled must be true)",
   ],
   // --- MUST-FAIL: Container Registry admin user ---
   [
