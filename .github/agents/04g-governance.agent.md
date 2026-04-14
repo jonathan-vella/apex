@@ -59,6 +59,11 @@ Before doing any work, read:
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery section, regions, tags
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
 3. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
+4. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
+   This defines the downstream JSON contract (`discovery_status`, `policies` array,
+   dot-separated `azurePropertyPath`, `bicepPropertyPath` formats) that Step 4/5 agents
+   and review subagents consume. Loading this reference before Phase 2 prevents iterative
+   contract-mismatch rework.
 
 ## Prerequisites
 
@@ -103,6 +108,16 @@ If discovery fails, STOP. Do not proceed with incomplete policy data.
    group-inherited), classifies effects. Pass the user's scope choice to constrain the query.
 2. **Review result** — Status must be COMPLETE (if PARTIAL or FAILED, STOP and present error)
 
+### Phase 1.5: Subagent Fallback
+
+If the `governance-discovery-subagent` invocation fails (network error, timeout,
+or GOAWAY), fall back to direct Azure REST discovery in the main agent context.
+**When using the fallback path**, include the full JSON schema from
+`.github/agents/_subagents/governance-discovery-subagent.agent.md` §"JSON Constraint Schema"
+and `.github/instructions/references/iac-policy-compliance.md` in a single
+structured prompt so the contract is satisfied on the first write — do not
+discover the schema iteratively through challenger feedback.
+
 ### Phase 2: Generate Artifacts
 
 1. Populate `04-governance-constraints.md` matching H2 template from azure-artifacts skill
@@ -110,15 +125,26 @@ If discovery fails, STOP. Do not proceed with incomplete policy data.
      cross-navigation table, attribution, Mermaid diagram (tag inheritance flowchart), and
      traffic-light indicators (✅ / ⚠️ / ❌ — all three must appear in status columns)
 2. Populate `04-governance-constraints.json` with machine-readable policy data
+   - Root object MUST include `discovery_status` field (value `"COMPLETE"`, `"PARTIAL"`, or `"FAILED"`)
+     and a `policies` array — this is the envelope that Step 4 and E2E agents validate at startup
    - Every Deny/Modify policy MUST include both `bicepPropertyPath` and `azurePropertyPath`
+     using dot-separated format (e.g., `storageAccount.properties.minimumTlsVersion`)
+   - For tag-enforcement policies (Deny/Modify that target tags, not resource properties),
+     set `bicepPropertyPath` and `azurePropertyPath` to `"resourceGroups::tags"` / `"resourceGroup.tags"`
+     and include a separate `requiredTags` array — do NOT leave these fields null
    - Normalize tag names — verify exact tag key names from live policy (no drift)
-3. Run `npm run lint:artifact-templates` and fix any errors
+   - Include `assignment_inventory` array with all discovered assignments for audit trail
+3. **Self-validate before challenger**: run `npm run lint:artifact-templates`, verify
+   JSON parses with `python3 -m json.tool`, and confirm the JSON has `discovery_status`
+   and `policies` keys. Fix any issues **before** invoking the challenger.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
-### Phase 2.5: Challenger Review
+### Phase 2.5: Challenger Review (max 2 passes)
 
 Run a single comprehensive adversarial review on the governance artifacts.
+**Cap**: Maximum 2 challenger passes total. If must-fix findings remain after
+pass 2, present them to the user at the approval gate rather than looping further.
 
 1. Delegate to `challenger-review-subagent` using the `agent` tool via `#tool:agent`:
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
@@ -128,8 +154,11 @@ Run a single comprehensive adversarial review on the governance artifacts.
    - `pass_number` = `1`
    - `prior_findings` = `null`
 2. Write returned JSON to `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
-3. If any `must_fix` findings: fix the governance artifacts and re-run Phase 2.5
-4. Include challenger findings summary in the Gate 2.5 presentation below
+3. If any `must_fix` findings: batch-fix ALL findings in one edit pass, then re-run
+   the challenger exactly once more (pass 2). Do NOT fix-then-review one finding at a time.
+4. If must-fix findings remain after pass 2: document them at the approval gate
+   and let the user decide whether to accept, override, or request further iteration.
+5. Include challenger findings summary in the Gate 2.5 presentation below
 
 ### Phase 3: Approval Gate
 

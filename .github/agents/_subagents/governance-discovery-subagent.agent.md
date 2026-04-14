@@ -202,26 +202,37 @@ Recommendation: {proceed|adapt plan|escalate}
 
 ## JSON Constraint Schema (04-governance-constraints.json)
 
-For every Deny/Modify policy that affects specific resource properties, include
-BOTH `bicepPropertyPath` AND `azurePropertyPath` in the JSON output:
+The JSON file MUST use an envelope object (NOT a bare array) with these top-level fields:
 
 ```json
 {
+  "discovery_status": "COMPLETE",
+  "project": "{project-name}",
+  "subscription": { "displayName": "...", "subscriptionId": "...", "tenantId": "..." },
+  "discovery_timestamp": "2026-01-01T00:00:00Z",
+  "discovery_summary": { "assignment_total": 0, "subscription_scope_count": 0, "management_group_inherited_count": 0 },
+  "assignment_inventory": [ { "displayName": "...", "scope": "...", "assignmentType": "subscription" } ],
   "policies": [
     {
-      "name": "Require TLS 1.2 for Storage",
+      "displayName": "Require TLS 1.2 for Storage",
+      "policyDefinitionId": "/providers/...",
       "effect": "Deny",
-      "scope": "Management Group",
+      "scope": "/providers/Microsoft.Management/managementGroups/...",
+      "classification": "blocker",
+      "affectedResourceTypes": ["Microsoft.Storage/storageAccounts"],
       "bicepPropertyPath": "storageAccounts::properties.minimumTlsVersion",
       "azurePropertyPath": "storageAccount.properties.minimumTlsVersion",
       "requiredValue": "TLS1_2",
-      "status": "compliant"
+      "appliesToArchitecture": true
     }
   ]
 }
 ```
 
-Field definitions:
+**Mandatory top-level fields**: `discovery_status` (COMPLETE/PARTIAL/FAILED) and `policies`
+array. Step 4 (IaC Planner) and E2E orchestrator validate these at startup and STOP if missing.
+
+**Field definitions**:
 
 - **`bicepPropertyPath`**: Bicep resource type (lowerCamelCase) `::` ARM property path.
   Format: `{bicepResourceType}::{arm.property.path}`
@@ -234,9 +245,13 @@ Field definitions:
 
 - **`requiredValue`**: The exact value required by the Deny policy.
 
-Both fields MUST be populated for every Deny/Modify policy. If a policy does not
-target a specific resource property (e.g., tag enforcement, location restriction),
-omit both fields.
+Both fields MUST be populated for every Deny/Modify policy. For tag-enforcement
+policies that target tags rather than resource properties, use:
+
+- `bicepPropertyPath`: `"resourceGroups::tags"`
+- `azurePropertyPath`: `"resourceGroup.tags"`
+- Add a `requiredTags` array with the exact tag key names
+- Add `"pathSemantics": "tag-policy-non-property"` to signal downstream consumers
 
 ## Resource-Specific Filtering
 
