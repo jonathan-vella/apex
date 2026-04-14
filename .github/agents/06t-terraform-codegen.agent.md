@@ -233,10 +233,7 @@ Generate `bootstrap-backend.sh` + `bootstrap-backend.ps1`. Read
 
 ### Phase 3: Deploy Scripts and azd Manifest
 
-Generate `deploy.sh` + `deploy.ps1`. Read
-`terraform-patterns/references/deploy-script-template.md` for templates.
-
-Also generate `infra/terraform/{project}/azure.yaml` (azd manifest) with:
+Generate `infra/terraform/{project}/azure.yaml` (azd manifest — **primary deployment method**) with:
 
 ```yaml
 name: {project}
@@ -245,7 +242,10 @@ infra:
   path: .
 ```
 
-This enables `azd provision` as an alternative to raw `terraform apply`.
+This enables `azd provision` as the default deployment method (preferred over raw `terraform apply`).
+
+Also generate `deploy.sh` + `deploy.ps1` (deprecated fallback scripts). Read
+`terraform-patterns/references/deploy-script-template.md` for templates.
 
 Also generate `infra/terraform/{project}/main.tfvars.json` to map azd environment
 variables to Terraform variables:
@@ -311,8 +311,8 @@ Expected output in `infra/terraform/{project}/`:
 - `main.tf` — Resource group and module orchestration
 - `outputs.tf` — Deployment outputs
 - `bootstrap-backend.sh` + `bootstrap-backend.ps1` — State backend bootstrap
-- `deploy.sh` + `deploy.ps1` — Deployment scripts
-- `azure.yaml` — azd project manifest (`infra.provider: terraform`, `infra.path: .`)
+- `deploy.sh` + `deploy.ps1` — Deployment scripts (deprecated fallback)
+- `azure.yaml` — azd project manifest (`infra.provider: terraform`, `infra.path: .`) — PRIMARY
 - `main.tfvars.json` — azd parameter mapping (maps `${AZURE_ENV_NAME}`, `${AZURE_LOCATION}` to TF variables)
 
 In `agent-output/{project}/`:

@@ -1,7 +1,7 @@
 ---
 name: 07b-Bicep Deploy
 model: ["GPT-5.4"]
-description: Executes Azure deployments using generated Bicep templates. Uses azd provision (preferred when azure.yaml exists) or deploy.ps1 (legacy fallback), performs what-if analysis, and manages deployment lifecycle. Step 6 of the agentic workflow.
+description: Executes Azure deployments using generated Bicep templates. Uses azd provision (default). deploy.ps1 is deprecated and retained only as a fallback for legacy projects without azure.yaml. Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
 agents: ["bicep-whatif-subagent", "challenger-review-subagent"]
@@ -231,9 +231,10 @@ Then use `askQuestions` to gather the decision:
 ## Deployment Execution
 
 Read `04-implementation-plan.md` `## Deployment Phases` to determine phased vs single deployment.
-Check if the project has an `azure.yaml` file — if yes, use **azd** (preferred). If not, fall back to **deploy.ps1**.
+Use **azd** (default). If the project is missing `azure.yaml`, warn the user and recommend generating
+one via azure-prepare before falling back to the deprecated `deploy.ps1`.
 
-### Option 1: azd (preferred — when azure.yaml exists)
+### Option 1: azd (default)
 
 ```bash
 cd infra/bicep/{project}
@@ -249,7 +250,10 @@ azd provision --preview
 azd provision
 ```
 
-### Option 2: deploy.ps1 (legacy — when no azure.yaml)
+### Option 2: deploy.ps1 (deprecated — legacy projects only)
+
+> **⚠️ Deprecated.** Only use if the project has no `azure.yaml` and cannot be
+> migrated to azd. Recommend generating `azure.yaml` via azure-prepare instead.
 
 **Phased**: Deploy each phase sequentially — run what-if
 (`deploy.ps1 -Phase {name} -WhatIf`), get approval,

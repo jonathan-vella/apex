@@ -1,6 +1,11 @@
-<!-- ref:azd-vs-deploy-guide-v1 -->
+<!-- ref:azd-vs-deploy-guide-v2 -->
 
 # azd vs deploy.ps1 — Deployment Guide
+
+> **⚠️ deploy.ps1 is deprecated.** New projects MUST use `azd`. Codegen agents still
+> generate `deploy.ps1` for backward compatibility, but `azure.yaml` + `azd` is the
+> required deployment method. Use azd hooks (`preprovision`/`postprovision`) for
+> phased deployment workflows that previously relied on `deploy.ps1 -Phase`.
 
 Consolidated reference for choosing and using deployment strategies in this repo.
 Both deploy agents (07b-Bicep, 07t-Terraform) load this guide on demand.
@@ -12,17 +17,17 @@ Both deploy agents (07b-Bicep, 07t-Terraform) load this guide on demand.
 
 ## Quick Decision
 
-| Scenario                              | Use            | Why                                                   |
-| ------------------------------------- | -------------- | ----------------------------------------------------- |
-| New Bicep project                     | **azd**        | Default, cross-platform, built-in env management      |
-| New Terraform project                 | **azd**        | `infra.provider: terraform` gives TF + azd simplicity |
-| Existing project with `azure.yaml`    | **azd**        | Already configured                                    |
-| Existing project without `azure.yaml` | **deploy.ps1** | Legacy fallback until azure.yaml is added             |
-| Need fine-grained phased deployment   | **deploy.ps1** | azd provisions everything in one operation            |
-| CI/CD pipeline (non-interactive)      | **azd**        | `azd provision --no-prompt` with env vars             |
-| PowerShell-only team                  | **deploy.ps1** | No azd dependency                                     |
+| Scenario                              | Use                          | Why                                                            |
+| ------------------------------------- | ---------------------------- | -------------------------------------------------------------- |
+| New Bicep project                     | **azd**                      | Default, cross-platform, built-in env management               |
+| New Terraform project                 | **azd**                      | `infra.provider: terraform` gives TF + azd simplicity          |
+| Existing project with `azure.yaml`    | **azd**                      | Already configured                                             |
+| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via azure-prepare, then use azd          |
+| Need fine-grained phased deployment   | **azd** with hooks           | Use `preprovision`/`postprovision` hooks for phased logic      |
+| CI/CD pipeline (non-interactive)      | **azd**                      | `azd provision --no-prompt` with env vars                      |
+| Legacy project with deploy.ps1 only   | deploy.ps1 *(deprecated)*    | Migrate to azd when possible                                   |
 
-**Default: azd** unless a specific constraint pushes toward deploy.ps1.
+**Default: azd** for all projects. `deploy.ps1` is deprecated and retained only for backward compatibility.
 
 ---
 
@@ -33,7 +38,7 @@ Both deploy agents (07b-Bicep, 07t-Terraform) load this guide on demand.
 | **Cross-platform**          | Yes (Linux, macOS, Windows)                                                                                                 | PowerShell only                                                     |
 | **Environment management**  | Built-in (`azd env new/set/list`)                                                                                           | Manual parameters per invocation                                    |
 | **Hooks (pre/post deploy)** | `azure.yaml` hooks (`preprovision`, `postprovision`)                                                                        | Custom script logic in deploy.ps1                                   |
-| **Phased deployment**       | Single `azd provision` (all resources at once)                                                                              | Fine-grained phases (Foundation → Security → Data → Compute → Edge) |
+| **Phased deployment**       | Use `preprovision`/`postprovision` hooks for phased logic                                                                   | Fine-grained phases *(deprecated — migrate to azd hooks)*           |
 | **Preview / what-if**       | `azd provision --preview`                                                                                                   | `deploy.ps1 -WhatIf`                                                |
 | **IaC providers**           | Bicep (default) or Terraform (`infra.provider: terraform`)                                                                  | Bicep only                                                          |
 | **Secret management**       | `azd env set-secret` (Key Vault-backed)                                                                                     | Manual parameters                                                   |
@@ -60,7 +65,7 @@ infra/{iac}/{project}/
 │   └── {project}-{env}/    # e.g., hub-spoke-dev/
 │       └── .env            # azd environment variables
 ├── main.bicep (or main.tf) # IaC entry point (co-located)
-├── deploy.ps1              # Legacy fallback
+├── deploy.ps1              # DEPRECATED — legacy fallback only
 └── modules/
 ```
 
@@ -125,9 +130,44 @@ azd env set AZURE_LOCATION swedencentral
 
 ---
 
-## deploy.ps1 Workflow (Legacy Fallback)
+## Phased Deployment with azd Hooks
 
-Use when no `azure.yaml` exists or fine-grained phased deployment is required.
+Use `preprovision` and `postprovision` hooks in `azure.yaml` to implement phased
+deployment logic that previously required `deploy.ps1 -Phase`. Define hook scripts
+that run validation, ordering checks, or staged resource creation.
+
+```yaml
+# azure.yaml
+hooks:
+  preprovision:
+    posix:
+      shell: sh
+      run: ./hooks/pre-provision.sh
+    windows:
+      shell: pwsh
+      run: ./hooks/pre-provision.ps1
+  postprovision:
+    posix:
+      shell: sh
+      run: ./hooks/post-provision.sh
+    windows:
+      shell: pwsh
+      run: ./hooks/post-provision.ps1
+```
+
+Hook scripts can implement phase gates, RBAC propagation waits, DNS convergence
+checks, and post-deployment verification — all functionality that previously
+lived inside `deploy.ps1`.
+
+---
+
+## deploy.ps1 Workflow (Deprecated)
+
+> **⚠️ Deprecated.** This workflow is retained for backward compatibility only.
+> New projects MUST use `azd` with hooks. Migrate existing `deploy.ps1` usage
+> to `azure.yaml` hooks when possible.
+
+Use only for legacy projects that have not yet adopted `azure.yaml`.
 
 ### Single Deployment
 

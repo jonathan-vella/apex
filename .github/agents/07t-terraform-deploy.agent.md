@@ -258,7 +258,7 @@ Read `04-implementation-plan.md` `## Deployment Phases` to determine phased vs s
 2. `terraform apply tfplan` — run `terraform output`, verify via ARG, present completion gate
 3. Repeat for next phase
 
-Or use deploy scripts: `bash deploy.sh --phase {name}` / `pwsh -File deploy.ps1 -Phase {name}`
+Or use deploy scripts (deprecated): `bash deploy.sh --phase {name}` / `pwsh -File deploy.ps1 -Phase {name}`
 
 **Single**: `terraform plan -out=tfplan` → get approval → `terraform apply tfplan`
 

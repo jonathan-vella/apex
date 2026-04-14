@@ -16,7 +16,7 @@ Execute Azure deployment using generated Bicep templates.
 3. Validate Azure CLI authentication: `az account show`.
 4. Run what-if analysis: `az deployment group what-if` using the parameter file.
 5. Present the what-if results to the user and wait for explicit approval before deploying.
-6. Execute deployment via `deploy.ps1` in `infra/bicep/{project}/`.
+6. Execute deployment via `azd provision` (default) in `infra/bicep/{project}/`. Fall back to `deploy.ps1` (deprecated) only for legacy projects without `azure.yaml`.
 7. Verify resource health post-deployment.
 8. Save deployment summary to `agent-output/{project}/06-deployment-summary.md`.
 9. Update `agent-output/{project}/00-session-state.json`: mark Step 6 `complete`.

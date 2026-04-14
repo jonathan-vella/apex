@@ -54,7 +54,8 @@ infra/bicep/{project-name}/
 │   ├── module1.bicep
 │   ├── module2.bicep
 │   └── module3.bicep
-└── deploy.ps1
+├── azure.yaml           # azd manifest (primary deployment method)
+└── deploy.ps1           # DEPRECATED — use azd instead
 ```
 
 | Module        | AVM Source                            | Version | Purpose   |
@@ -110,7 +111,7 @@ Example configuration snippet
 
 - List outputs
 
-### Task N: deploy.ps1 (Deployment Script)
+### Task N: deploy.ps1 (Deployment Script — Deprecated)
 
 **Features**:
 

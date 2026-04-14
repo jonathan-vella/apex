@@ -5,14 +5,15 @@ description: "Deployment strategies: azd vs deploy.ps1, per-project conventions,
 
 import { LinkCard, CardGrid } from "@astrojs/starlight/components";
 
-Azure Developer CLI (`azd`) is the **recommended** deployment tool for this repo.
+Azure Developer CLI (`azd`) is the **default and required** deployment tool for this repo.
 It provides cross-platform environment management, lifecycle hooks, and CI/CD
-pipeline generation — replacing the legacy `deploy.ps1` PowerShell scripts.
+pipeline generation.
 
 :::tip[Default choice]
-**Use azd** for all new projects (Bicep and Terraform). Only fall back to
-`deploy.ps1` when you need fine-grained phased deployment or the project
-doesn't have an `azure.yaml` yet.
+**Use azd** for all projects (Bicep and Terraform). `deploy.ps1` is **deprecated**
+and retained only for backward compatibility with legacy projects that predate
+`azure.yaml` adoption. Use azd hooks (`preprovision`/`postprovision`) for phased
+deployment workflows.
 :::
 
 ## Quick Decision
@@ -22,8 +23,8 @@ doesn't have an `azure.yaml` yet.
 | New Bicep project | **azd** | Default, cross-platform, built-in env management |
 | New Terraform project | **azd** | `infra.provider: terraform` gives TF + azd simplicity |
 | Existing project with `azure.yaml` | **azd** | Already configured |
-| Existing project without `azure.yaml` | **deploy.ps1** | Legacy fallback until azure.yaml is added |
-| Need fine-grained phased deployment | **deploy.ps1** | azd provisions everything in one operation |
+| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via azure-prepare, then use azd |
+| Need fine-grained phased deployment | **azd** with hooks | Use `preprovision`/`postprovision` hooks for phased logic |
 | CI/CD pipeline (non-interactive) | **azd** | `azd provision --no-prompt` with env vars |
 
 ## Comparison
@@ -33,7 +34,7 @@ doesn't have an `azure.yaml` yet.
 | **Cross-platform** | Linux, macOS, Windows | PowerShell only |
 | **Environment management** | Built-in (`azd env new/set/list`) | Manual parameters |
 | **Hooks (pre/post deploy)** | `azure.yaml` hooks | Custom script logic |
-| **Phased deployment** | Single `azd provision` | Fine-grained phases |
+| **Phased deployment** | Use hooks (`preprovision`/`postprovision`) | Fine-grained phases *(deprecated)* |
 | **Preview / what-if** | `azd provision --preview` | `deploy.ps1 -WhatIf` |
 | **IaC providers** | Bicep or Terraform | Bicep only |
 | **Secret management** | `azd env set-secret` (Key Vault) | Manual parameters |
@@ -57,7 +58,7 @@ infra/{iac}/{project}/
 │   └── {project}-{env}/    # e.g., hub-spoke-dev/
 │       └── .env            # azd environment variables
 ├── main.bicep (or main.tf) # IaC entry point (co-located)
-├── deploy.ps1              # Legacy fallback
+├── deploy.ps1              # DEPRECATED — legacy fallback only
 └── modules/
 ```
 
@@ -135,9 +136,14 @@ azd env set AZURE_LOCATION swedencentral
 
 ---
 
-## deploy.ps1 Workflow (Legacy)
+## deploy.ps1 Workflow (Deprecated)
 
-Use when no `azure.yaml` exists or fine-grained phased deployment is required.
+:::caution[Deprecated]
+`deploy.ps1` is deprecated. New projects MUST use `azd` with hooks.
+Migrate existing `deploy.ps1` usage to `azure.yaml` hooks when possible.
+:::
+
+Use only for legacy projects that have not yet adopted `azure.yaml`.
 
 ### Single Deployment
 

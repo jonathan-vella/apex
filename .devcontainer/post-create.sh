@@ -105,10 +105,11 @@ if command -v deno &>/dev/null; then
     else
         step_warn "Deno upgrade failed — using feature-installed version"
     fi
-    # Pre-cache drawio MCP server dependencies to eliminate first-start latency
+    # Pre-cache drawio MCP server dependencies to eliminate first-start latency.
+    # Must run from the project dir so deno.json import map is resolved correctly.
     DRAWIO_DIR="${PWD}/mcp/drawio-mcp-server"
     if [ -f "$DRAWIO_DIR/deno.json" ]; then
-        deno install --entrypoint "$DRAWIO_DIR/src/index.ts" 2>/dev/null \
+        (cd "$DRAWIO_DIR" && deno install) 2>/dev/null \
             && printf "        ✅ drawio-mcp-server deps cached\n" \
             || printf "        ⚠️  drawio dep cache skipped\n"
     fi

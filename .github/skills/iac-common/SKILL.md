@@ -15,9 +15,9 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 
 ## Deployment Strategies
 
-### azd Deployment (recommended for projects with azure.yaml)
+### azd Deployment (default for all projects)
 
-Use `azd` when the project has an `azure.yaml` manifest. Each project is a self-contained
+Use `azd` for all projects. Each project is a self-contained
 azd project with `azure.yaml` and `.azure/` inside `infra/{iac}/{project}/`.
 
 ```bash
@@ -41,7 +41,7 @@ azd provision
 azd up
 ```
 
-**azd hooks** replace custom deploy.ps1 pre/post steps:
+**azd hooks** replace the deprecated deploy.ps1 pre/post steps:
 
 - `preprovision` — auth validation, banner, prerequisite checks
 - `postprovision` — resource verification, diagnostic setup
@@ -63,7 +63,11 @@ Before `azd provision --no-prompt`, verify these environment values are set:
 Run `azd env get-values` and check for missing values. If any are empty,
 set them via `azd env set {KEY} {VALUE}` before attempting `--no-prompt`.
 
-### Phased Deployment via deploy.ps1 (legacy, backward-compatible)
+### Phased Deployment via deploy.ps1 (deprecated)
+
+> **⚠️ Deprecated.** Use azd hooks (`preprovision`/`postprovision`) for phased
+> deployment workflows instead. `deploy.ps1` is retained only for backward
+> compatibility with projects that predate `azure.yaml` adoption.
 
 | Phase      | Resources                             | Gate          |
 | ---------- | ------------------------------------- | ------------- |
@@ -90,9 +94,9 @@ Deploy everything in one operation. Still requires user approval.
 | Cross-platform         | Yes                                                         | PowerShell only                                 |
 | Environment management | Built-in (`azd env`)                                        | Manual parameters                               |
 | Hooks (pre/post)       | `azure.yaml` hooks                                          | Custom script logic                             |
-| Phased deployment      | Single provision                                            | Fine-grained phases                             |
-| New projects           | **Use azd**                                                 | Not generated                                   |
-| Existing projects      | Use azd if `azure.yaml` exists                              | Fallback if no `azure.yaml`                     |
+| Phased deployment      | Use hooks (`preprovision`/`postprovision`)                  | Fine-grained phases *(deprecated)*              |
+| New projects           | **Use azd**                                                 | **Deprecated — do not use for new projects** |
+| Existing projects      | Use azd (generate `azure.yaml` if missing)                  | Deprecated fallback if no `azure.yaml`          |
 | Project isolation      | Per-project: `infra/{iac}/{project}/azure.yaml` + `.azure/` | Per-project: `infra/{iac}/{project}/deploy.ps1` |
 | Env naming             | `{project}-{env}` (e.g., `hub-spoke-dev`)                   | Manual parameter per invocation                 |
 

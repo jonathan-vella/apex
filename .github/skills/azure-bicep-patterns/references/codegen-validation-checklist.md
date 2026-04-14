@@ -41,7 +41,7 @@ Verify ALL items before marking Step 5 complete.
 
 ## Deployment Artifacts
 
-- [ ] `azure.yaml` generated; `deploy.ps1` generated; `05-implementation-reference.md` saved
+- [ ] `azure.yaml` generated (primary); `deploy.ps1` generated (deprecated fallback); `05-implementation-reference.md` saved
 - [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
 
 ## Review Gates

@@ -23,7 +23,7 @@ VS Code skill loading (`chat.agentSkillsLocations`).
 | `azure-compliance`            | Active (secondary)                                                           |
 | `azure-compute`               | Active (secondary)                                                           |
 | `azure-cost-optimization`     | Active (secondary)                                                           |
-| `azure-deploy`                | Active (secondary for deploy agents) — azd-first, deploy.ps1 fallback        |
+| `azure-deploy`                | Active (secondary for deploy agents) — azd-only for new projects; deploy.ps1 deprecated |
 | `azure-diagnostics`           | Active — merged with former `azure-troubleshooting`                          |
 | `azure-hosted-copilot-sdk`    | Active (secondary)                                                           |
 | `azure-kusto`                 | Active (secondary)                                                           |

@@ -82,7 +82,7 @@
 ## 🚀 To Actually Deploy
 
 <details>
-<summary><strong>🟢 PowerShell (deploy.ps1)</strong></summary>
+<summary><strong>� PowerShell (deploy.ps1 — Deprecated)</strong></summary>
 
 ```powershell
 # Navigate to Bicep directory

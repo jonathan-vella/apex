@@ -103,7 +103,7 @@ Before doing any work, read these skills:
 - Key Vault: set `networkAcls.bypass: 'AzureServices'` when enabledForDeployment is true
 - Use `take()` for length-constrained resources (KV≤24, Storage≤24)
 - Use `resourceId(subscription().subscriptionId, ...)` for cross-RG refs at subscription scope
-- Generate `azure.yaml` + `deploy.ps1` + `.bicepparam` per environment
+- Generate `azure.yaml` (required) + `deploy.ps1` (deprecated fallback) + `.bicepparam` per environment
 - Run `bicep build` + `bicep lint` after generation
 - Save `05-implementation-reference.md` + update project README
 
@@ -224,19 +224,19 @@ If **single**: no phase parameter needed.
 | 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`                      |
 | 2     | Networking, Key Vault, Log Analytics + App Insights                                 |
 | 3     | Compute, Data, Messaging                                                            |
-| 4     | Budget + alerts, Diagnostic settings, role assignments, `azure.yaml` + `deploy.ps1` |
+| 4     | Budget + alerts, Diagnostic settings, role assignments, `azure.yaml` + `deploy.ps1` (deprecated) |
 
 After each round: `bicep build` to catch errors early.
 
-### Phase 3: Deployment Script
+### Phase 3: Deployment Artifacts
 
-Generate `infra/bicep/{project}/azure.yaml` (azd manifest) with:
+Generate `infra/bicep/{project}/azure.yaml` (azd manifest — **primary deployment method**) with:
 
 - `name: {project}`, `metadata.template`, `infra.provider: bicep`, `infra.path: .` (co-located), `infra.module`
 - `hooks.preprovision` — ARM token validation, banner
 - `hooks.postprovision` — resource verification via ARG
 
-Also generate `infra/bicep/{project}/deploy.ps1` (legacy fallback) with:
+Also generate `infra/bicep/{project}/deploy.ps1` (deprecated fallback) with:
 
 - Banner, parameter validation (ResourceGroup, Location, Environment, Phase)
 - `az group create` + `az deployment group create --template-file --parameters`
@@ -287,8 +287,8 @@ Save validation status in `05-implementation-reference.md`. Run `npm run lint:ar
 infra/bicep/{project}/
 ├── main.bicep              # Entry point — uniqueSuffix, orchestrates modules
 ├── main.bicepparam         # Environment-specific parameters
-├── azure.yaml              # azd project manifest (infra.path: . — co-located)
-├── deploy.ps1              # PowerShell deployment script (legacy fallback)
+├── azure.yaml              # azd project manifest (infra.path: . — co-located) — PRIMARY
+├── deploy.ps1              # PowerShell deployment script (DEPRECATED)
 └── modules/
     ├── budget.bicep        # Azure Budget + forecast alerts + anomaly detection
     ├── key-vault.bicep     # Per-resource modules
@@ -302,8 +302,8 @@ Expected output in `infra/bicep/{project}/`:
 
 - `main.bicep` — Entry point with uniqueSuffix, orchestrates modules
 - `main.bicepparam` — Environment-specific parameters
-- `azure.yaml` — azd project manifest
-- `deploy.ps1` — PowerShell deployment script (legacy fallback)
+- `azure.yaml` — azd project manifest (primary deployment method)
+- `deploy.ps1` — PowerShell deployment script (deprecated fallback)
 - `modules/*.bicep` — Per-resource AVM module wrappers
 
 In `agent-output/{project}/`:

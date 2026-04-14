@@ -37,7 +37,7 @@ azd env set AZURE_LOCATION swedencentral
 azd provision --preview                # Preview
 azd provision                          # Deploy
 
-# Deploy with deploy.ps1 (legacy fallback)
+# Deploy with deploy.ps1 (DEPRECATED — use azd instead)
 cd infra/bicep/{project}
 pwsh deploy.ps1 -WhatIf
 pwsh deploy.ps1
@@ -52,7 +52,7 @@ infra/bicep/{project}/
   main.bicep           # Orchestrator — parameters, unique suffix, module calls
   main.bicepparam      # Parameter values
   azure.yaml           # azd project manifest (infra.path: . — co-located)
-  deploy.ps1           # Deployment script — legacy fallback
+  deploy.ps1           # Deployment script — DEPRECATED (use azd instead)
   .azure/              # azd environment state (git-ignored)
     plan.md            # azure-prepare output — source of truth for validate/deploy
     {project}-{env}/   # Per-environment azd state (e.g., hub-spoke-dev/)

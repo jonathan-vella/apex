@@ -19,7 +19,8 @@ Generate Bicep templates from the approved implementation plan.
    - `main.bicep` — orchestrator with `uniqueString(resourceGroup().id)` suffix.
    - `modules/*.bicep` — one module per resource type, using AVM where available.
    - `main.bicepparam` — parameter file for Dev environment.
-   - `deploy.ps1` — deployment script.
+   - `azure.yaml` — azd manifest (required, primary deployment method).
+   - `deploy.ps1` — deployment script (deprecated fallback).
 7. Run `bicep lint` and `bicep build` to validate all templates.
 8. Save implementation reference to `agent-output/{project}/05-implementation-reference.md`.
 9. Run adversarial review passes per complexity matrix in session state.

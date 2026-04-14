@@ -17,8 +17,8 @@ infra/terraform/{project}/
 ├── outputs.tf              # Resource IDs, endpoints, connection info
 ├── bootstrap-backend.sh    # Bash: provision storage account for state
 ├── bootstrap-backend.ps1   # PowerShell: same
-├── deploy.sh               # Bash deployment script
-├── deploy.ps1              # PowerShell deployment script
+├── deploy.sh               # Bash deployment script (deprecated — use azd)
+├── deploy.ps1              # PowerShell deployment script (deprecated — use azd)
 └── modules/                # Optional — only for complex sub-compositions
     └── {component}/
         ├── main.tf
@@ -75,5 +75,5 @@ module "key_vault" {
 | Terraform Configurations | `infra/terraform/{project}/`                            |
 | Bootstrap Backend (Bash) | `infra/terraform/{project}/bootstrap-backend.sh`        |
 | Bootstrap Backend (PS)   | `infra/terraform/{project}/bootstrap-backend.ps1`       |
-| Deploy Script (Bash)     | `infra/terraform/{project}/deploy.sh`                   |
-| Deploy Script (PS)       | `infra/terraform/{project}/deploy.ps1`                  |
+| Deploy Script (Bash)     | `infra/terraform/{project}/deploy.sh` *(deprecated — use azd)*  |
+| Deploy Script (PS)       | `infra/terraform/{project}/deploy.ps1` *(deprecated — use azd)* |

@@ -398,7 +398,7 @@ of the what-if/plan output. Violations block deployment.
     ```
 
     **Bicep features**: `bicep build` validation, `az deployment group what-if` analysis,
-    deployment execution via `deploy.ps1`, post-deployment resource verification.
+    deployment execution via `azd provision`, post-deployment resource verification.
 
 === "Terraform"
 

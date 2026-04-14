@@ -283,7 +283,7 @@ This repo supports multiple independent projects. Each project is a fully self-c
 - **Required tags**: Same as above, with `ManagedBy = "Bicep"`
 - **AVM registry**: `br/public:avm/res/{provider}/{resource}:{version}`
 - **Parameter files**: Use `.bicepparam` format
-- **Deployment**: `azure.yaml` manifest for `azd` (preferred); `deploy.ps1` PowerShell script (legacy fallback)
+- **Deployment**: `azure.yaml` manifest for `azd` (default and required for new projects); `deploy.ps1` is deprecated
 - **azd manifest**: `azure.yaml` lives inside `infra/bicep/{project}/` with `infra.path: .`
 
 ## Security Considerations

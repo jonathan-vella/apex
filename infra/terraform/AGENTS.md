@@ -23,7 +23,7 @@ azd env set AZURE_LOCATION swedencentral
 azd provision --preview                # Preview
 azd provision                          # Deploy
 
-# Deploy with pure Terraform (fallback — when no azure.yaml)
+# Deploy with pure Terraform (DEPRECATED fallback — use azd instead)
 cd infra/terraform/{project}
 terraform plan -out=tfplan
 terraform apply tfplan

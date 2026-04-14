@@ -1,6 +1,10 @@
 <!-- ref:deploy-script-template-v1 -->
 
-# Deploy Script Templates
+# Deploy Script Templates (Deprecated)
+
+> **⚠️ Deprecated.** `azd provision` is the default deployment method for all projects.
+> These deploy scripts are retained for backward compatibility only. New projects
+> should use `azure.yaml` with azd hooks for phased deployment workflows.
 
 Deployment scripts for Terraform projects. Generate BOTH `deploy.sh`
 (Bash) AND `deploy.ps1` (PowerShell) for every project.

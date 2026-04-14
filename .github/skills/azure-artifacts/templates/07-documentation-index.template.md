@@ -95,7 +95,7 @@ graph LR
 
 ## ⚡ 5. Quick Links
 
-- 📂 **Code**: [Deployment Script](../../infra/bicep/{project}/deploy.ps1) | [Main Bicep Template](../../infra/bicep/{project}/main.bicep)
+- 📂 **Code**: [azd Manifest](../../infra/bicep/{project}/azure.yaml) | [Main Bicep Template](../../infra/bicep/{project}/main.bicep) | [Deployment Script (deprecated)](../../infra/bicep/{project}/deploy.ps1)
 - 📄 **Docs**: [Design Document](./07-design-document.md) | [Runbook](./07-operations-runbook.md) | [Compliance](./07-compliance-matrix.md)
 - 🔗 **External**: [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/) | [AVM Index](https://aka.ms/avm/index)
 

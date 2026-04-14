@@ -32,7 +32,8 @@
 infra/bicep/{project-name}/
 ├── main.bicep              # Main orchestration template
 ├── main.bicepparam         # Parameter file
-├── deploy.ps1              # PowerShell deployment script
+├── azure.yaml              # azd manifest (primary deployment method)
+├── deploy.ps1              # PowerShell deployment script (DEPRECATED)
 └── modules/
     └── {module}.bicep      # Resource modules
 ```
@@ -66,7 +67,19 @@ graph TD
 ## 🚀 Deployment Instructions
 
 <details>
-<summary><strong>🟢 Quick Deploy (PowerShell)</strong></summary>
+<summary><strong>🟢 Quick Deploy (azd — Recommended)</strong></summary>
+
+```bash
+cd infra/bicep/{project-name}
+azd env new {project-name}-dev
+azd env set AZURE_LOCATION swedencentral
+azd provision
+```
+
+</details>
+
+<details>
+<summary><strong>🟡 Quick Deploy (deploy.ps1 — Deprecated)</strong></summary>
 
 ```powershell
 cd infra/bicep/{project-name}
