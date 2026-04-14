@@ -25,7 +25,7 @@ Azure CLI workflow for imperative Azure deployments.
 
 ### 1. Generate Infrastructure (Bicep)
 
-Create Bicep templates in `./infra/`.
+Create Bicep templates in the project directory (co-located with `azure.yaml`).
 
 **Structure:**
 ```
@@ -50,9 +50,9 @@ Manual Dockerfile creation required.
 
 | Artifact | Path |
 |----------|------|
-| Main Bicep | `./infra/main.bicep` |
-| Parameters | `./infra/main.parameters.json` |
-| Modules | `./infra/modules/*.bicep` |
+| Main Bicep | `./main.bicep` |
+| Parameters | `./main.parameters.json` |
+| Modules | `./modules/*.bicep` |
 | Deploy script | `./scripts/deploy.sh` or `deploy.ps1` |
 | Dockerfiles | `src/<service>/Dockerfile` |
 
@@ -75,4 +75,4 @@ Resources: `{prefix}{token}{instance}`
 
 ## Next
 
-→ Update `.azure/plan.md` → **azure-validate**
+→ Update `infra/{iac}/{project}/.azure/plan.md` → **azure-validate**

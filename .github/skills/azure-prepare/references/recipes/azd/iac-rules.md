@@ -37,10 +37,10 @@ Before finalizing generated guidance:
 
 | Requirement | Details |
 |-------------|---------|
-| Location | `./infra/` folder |
+| Location | `.` (project root) folder |
 | Entry point | `main.bicep` with `targetScope = 'subscription'` |
 | Parameters | `main.parameters.json` |
-| Modules | `./infra/modules/*.bicep` with `targetScope = 'resourceGroup'` |
+| Modules | `./modules/*.bicep` with `targetScope = 'resourceGroup'` |
 
 ## Naming Convention
 

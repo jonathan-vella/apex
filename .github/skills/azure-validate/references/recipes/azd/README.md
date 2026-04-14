@@ -4,10 +4,10 @@ Validation steps for Azure Developer CLI projects.
 
 ## Prerequisites
 
-- `azure.yaml` exists in project root
+- `azure.yaml` exists in the project directory (`infra/{iac}/{project}/`)", "oldString": "- `azure.yaml` exists in project root
 - Infrastructure files exist:
-  - For Bicep: `./infra/` contains Bicep files
-  - For Terraform: `./infra/` contains `.tf` files and `azure.yaml` has `infra.provider: terraform`
+  - For Bicep: `.` (project root) contains Bicep files
+  - For Terraform: `.` (project root) contains `.tf` files and `azure.yaml` has `infra.provider: terraform`
 
 ## Validation Steps
 
@@ -20,6 +20,7 @@ azd version
 ```
 
 **If not installed:**
+
 ```
 mcp_azure_mcp_extension_cli_install(cli-type: "azd")
 ```
@@ -43,6 +44,7 @@ azd auth login --check-status
 ```
 
 **If not logged in:**
+
 ```bash
 azd auth login
 ```
@@ -50,6 +52,7 @@ azd auth login
 ### 5. Subscription/Location Check
 
 Check environment values:
+
 ```bash
 azd env get-values
 ```
@@ -57,11 +60,13 @@ azd env get-values
 **If AZURE_SUBSCRIPTION_ID or AZURE_LOCATION not set:**
 
 Use Azure MCP tools to list subscriptions:
+
 ```
 mcp_azure_mcp_subscription_list
 ```
 
 Use Azure MCP tools to list resource groups (check for conflicts):
+
 ```
 mcp_azure_mcp_group_list
   subscription: <subscription-id>
@@ -70,6 +75,7 @@ mcp_azure_mcp_group_list
 Prompt user to confirm subscription and location before continuing.
 
 Refer to the region availability reference to select a region supported by all services in this template:
+
 - [Region availability](../../region-availability.md)
 
 ```bash
@@ -126,6 +132,7 @@ azd env set MANAGED_IDENTITY_CLIENT_ID $(az identity list --resource-group "$RG_
 ```
 
 **PowerShell:**
+
 ```powershell
 # Get resource group name
 $rgName = (azd env get-values | Select-String 'AZURE_RESOURCE_GROUP').Line.Split('=')[1].Trim('"')

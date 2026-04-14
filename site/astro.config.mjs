@@ -168,6 +168,7 @@ export default defineConfig({
             { label: "Session Debugging", slug: "guides/session-debugging" },
             { label: "Security Baseline", slug: "guides/security-baseline" },
             { label: "Cost Governance", slug: "guides/cost-governance" },
+            { label: "azd Deployment", slug: "guides/azd-deployment" },
             { label: "Agent Hooks", slug: "guides/hooks" },
             { label: "E2E Testing", slug: "guides/e2e-testing" },
           ],

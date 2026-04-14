@@ -1,0 +1,283 @@
+---
+title: "Azure Developer CLI (azd)"
+description: "Deployment strategies: azd vs deploy.ps1, per-project conventions, workflow, and troubleshooting"
+---
+
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
+Azure Developer CLI (`azd`) is the **recommended** deployment tool for this repo.
+It provides cross-platform environment management, lifecycle hooks, and CI/CD
+pipeline generation — replacing the legacy `deploy.ps1` PowerShell scripts.
+
+:::tip[Default choice]
+**Use azd** for all new projects (Bicep and Terraform). Only fall back to
+`deploy.ps1` when you need fine-grained phased deployment or the project
+doesn't have an `azure.yaml` yet.
+:::
+
+## Quick Decision
+
+| Scenario | Use | Why |
+|----------|-----|-----|
+| New Bicep project | **azd** | Default, cross-platform, built-in env management |
+| New Terraform project | **azd** | `infra.provider: terraform` gives TF + azd simplicity |
+| Existing project with `azure.yaml` | **azd** | Already configured |
+| Existing project without `azure.yaml` | **deploy.ps1** | Legacy fallback until azure.yaml is added |
+| Need fine-grained phased deployment | **deploy.ps1** | azd provisions everything in one operation |
+| CI/CD pipeline (non-interactive) | **azd** | `azd provision --no-prompt` with env vars |
+
+## Comparison
+
+| Factor | azd | deploy.ps1 |
+|--------|-----|------------|
+| **Cross-platform** | Linux, macOS, Windows | PowerShell only |
+| **Environment management** | Built-in (`azd env new/set/list`) | Manual parameters |
+| **Hooks (pre/post deploy)** | `azure.yaml` hooks | Custom script logic |
+| **Phased deployment** | Single `azd provision` | Fine-grained phases |
+| **Preview / what-if** | `azd provision --preview` | `deploy.ps1 -WhatIf` |
+| **IaC providers** | Bicep or Terraform | Bicep only |
+| **Secret management** | `azd env set-secret` (Key Vault) | Manual parameters |
+| **CI/CD generation** | `azd pipeline config` | Manual authoring |
+| **Service deployment** | `azd deploy` (app code) | Not supported (infra only) |
+| **Official docs** | [Azure Developer CLI docs](https://learn.microsoft.com/azure/developer/azure-developer-cli/) | N/A (custom script) |
+
+---
+
+## Per-Project Convention
+
+This repo supports **multiple independent projects**. Each project is a fully
+self-contained azd project — `azure.yaml` and `.azure/` live inside the
+IaC project directory, never at the repo root.
+
+```text
+infra/{iac}/{project}/
+├── azure.yaml              # azd manifest (infra.path: .)
+├── .azure/                 # git-ignored; per-environment state
+│   ├── plan.md             # azure-prepare output — source of truth
+│   └── {project}-{env}/    # e.g., hub-spoke-dev/
+│       └── .env            # azd environment variables
+├── main.bicep (or main.tf) # IaC entry point (co-located)
+├── deploy.ps1              # Legacy fallback
+└── modules/
+```
+
+:::caution[Never at repo root]
+Do **not** place `azure.yaml` or `.azure/` at the repo root — this breaks
+multi-project isolation. Each project must be self-contained.
+:::
+
+**Key rules:**
+
+- Environment names use `{project}-{env}` (e.g., `hub-spoke-dev`) to avoid collisions
+- `.azure/` folders are git-ignored (contains subscription IDs and env-specific state)
+- Run azd from the project dir: `cd infra/{iac}/{project}` then `azd` commands
+- Or use the `-C` flag from repo root: `azd -C infra/{iac}/{project} env list`
+
+---
+
+## azd Workflow
+
+The full deployment lifecycle follows three agent-driven steps:
+
+### 1. Prepare
+
+The **azure-prepare** skill generates infrastructure code and the deployment plan.
+
+```bash
+# Outputs: azure.yaml, main.bicep/main.tf, modules/, .azure/plan.md
+```
+
+### 2. Validate
+
+The **azure-validate** skill runs pre-deployment checks.
+
+```bash
+cd infra/{iac}/{project}
+
+# Bicep
+azd provision --preview
+
+# Terraform
+azd provision --preview
+# or: terraform validate + terraform plan
+```
+
+### 3. Deploy
+
+The **azure-deploy** skill executes the deployment.
+
+```bash
+cd infra/{iac}/{project}
+
+# Create environment
+azd env new {project}-{env}
+azd env set AZURE_LOCATION swedencentral
+
+# Full provision + deploy
+azd up --no-prompt
+
+# Or infrastructure only
+azd provision
+```
+
+### Environment Preflight
+
+Before `azd provision --no-prompt`, verify required values are set:
+
+```bash
+azd env get-values
+# Must have: AZURE_SUBSCRIPTION_ID, AZURE_LOCATION, AZURE_ENV_NAME
+
+# If missing:
+azd env set AZURE_SUBSCRIPTION_ID "$(az account show --query id -o tsv)"
+azd env set AZURE_LOCATION swedencentral
+```
+
+---
+
+## deploy.ps1 Workflow (Legacy)
+
+Use when no `azure.yaml` exists or fine-grained phased deployment is required.
+
+### Single Deployment
+
+```powershell
+cd infra/bicep/{project}
+pwsh deploy.ps1 -WhatIf    # Preview
+pwsh deploy.ps1             # Deploy all
+```
+
+### Phased Deployment
+
+Deploy each phase sequentially with approval gates:
+
+```powershell
+pwsh deploy.ps1 -Phase Foundation -WhatIf   # Preview
+pwsh deploy.ps1 -Phase Foundation            # Deploy
+# Repeat for: Security, Data, Compute, Edge
+```
+
+| Phase | Resources | When to Use |
+|-------|-----------|-------------|
+| Foundation | Resource group, networking, Key Vault | Always first |
+| Security | Identity, RBAC, certificates | After networking |
+| Data | Storage, databases, messaging | After security |
+| Compute | App Service, Functions, containers | After data layer |
+| Edge | CDN, Front Door, DNS | After compute |
+
+:::note[When to prefer phased]
+Use phased deployment for large deployments (>10 resources), production
+environments, or resources with ordering dependencies that `dependsOn` alone
+cannot capture (e.g., RBAC propagation delays, DNS convergence).
+:::
+
+---
+
+## azd Hooks
+
+Hooks replace custom pre/post logic that `deploy.ps1` handles in-script.
+Define them in `azure.yaml`:
+
+```yaml
+hooks:
+  preprovision:
+    posix:
+      shell: sh
+      run: ./scripts/pre-provision.sh
+    windows:
+      shell: pwsh
+      run: ./scripts/pre-provision.ps1
+  postprovision:
+    posix:
+      shell: sh
+      run: ./scripts/post-provision.sh
+    windows:
+      shell: pwsh
+      run: ./scripts/post-provision.ps1
+```
+
+| Hook | Purpose | Example |
+|------|---------|---------|
+| `preprovision` | Auth validation | `az account get-access-token --output none` |
+| `preprovision` | Prerequisite check | Verify quota, check policy compliance |
+| `postprovision` | Resource verification | Query Azure Resource Graph |
+| `postprovision` | RBAC assignment | Assign roles (use `|| true` for idempotency) |
+| `postprovision` | SQL setup | Run EF migrations, configure managed identity |
+
+---
+
+## azure.yaml Schema
+
+Key fields for the co-located layout:
+
+```yaml
+name: {project}
+metadata:
+  template: {project}@1.0.0
+infra:
+  provider: bicep          # or: terraform
+  path: .                  # co-located with azure.yaml
+  module: main             # entry point (main.bicep or main.tf)
+services:                  # optional — app code deployment
+  web:
+    project: ./src/web
+    language: js
+    host: containerapp
+hooks:                     # optional — lifecycle hooks
+  preprovision: ...
+  postprovision: ...
+```
+
+:::note[Terraform-specific]
+When using `infra.provider: terraform`, also generate `main.tfvars.json` to
+map azd environment variables to Terraform variables:
+
+```json
+{
+  "location": "${AZURE_LOCATION}",
+  "environment_name": "${AZURE_ENV_NAME}"
+}
+```
+:::
+
+<LinkCard
+  title="Full azure.yaml schema"
+  href="https://learn.microsoft.com/azure/developer/azure-developer-cli/azd-schema"
+  description="Official Microsoft documentation for the azure.yaml configuration file"
+/>
+
+---
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `azure.yaml not found` | Not in project directory | `cd infra/{iac}/{project}` first |
+| `missing required inputs` | Bicep params not mapped | `azd env config set infra.parameters.<param> <value>` |
+| `main.tfvars.json not found` | TF param file missing | Create `main.tfvars.json` with `${AZURE_*}` mappings |
+| `environment not found` | No azd env created | `azd env new {project}-{env}` |
+| `.azure/` at repo root | Breaks multi-project | Move to `infra/{iac}/{project}/.azure/` |
+| RBAC "already exists" | Idempotent runs | Add `|| true` to role assignment commands in hooks |
+| Preview fails despite login | az vs azd auth mismatch | Both `az` and `azd` need separate auth sessions |
+
+---
+
+## Related
+
+<CardGrid>
+  <LinkCard
+    title="Security Baseline"
+    href="/azure-agentic-infraops/guides/security-baseline/"
+    description="Non-negotiable security requirements for IaC"
+  />
+  <LinkCard
+    title="Cost Governance"
+    href="/azure-agentic-infraops/guides/cost-governance/"
+    description="Budget alerts and cost optimization"
+  />
+  <LinkCard
+    title="Azure Developer CLI docs"
+    href="https://learn.microsoft.com/azure/developer/azure-developer-cli/"
+    description="Official Microsoft documentation"
+  />
+</CardGrid>

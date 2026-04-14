@@ -4,7 +4,7 @@ Validation steps for Azure CLI deployments.
 
 ## Prerequisites
 
-- `./infra/main.bicep` exists
+- `./main.bicep` exists
 - Docker available (if containerized)
 
 ## Validation Steps
@@ -41,7 +41,7 @@ az account set --subscription <subscription-id>
 ### 3. Bicep Compilation
 
 ```bash
-az bicep build --file ./infra/main.bicep
+az bicep build --file ./main.bicep
 ```
 
 ### 4. Template Validation
@@ -50,14 +50,14 @@ az bicep build --file ./infra/main.bicep
 # Subscription scope
 az deployment sub validate \
   --location <location> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 
 # Resource group scope
 az deployment group validate \
   --resource-group <rg-name> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 ```
 
 ### 5. What-If Preview
@@ -66,14 +66,14 @@ az deployment group validate \
 # Subscription scope
 az deployment sub what-if \
   --location <location> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 
 # Resource group scope
 az deployment group what-if \
   --resource-group <rg-name> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 ```
 
 ### 6. Docker Build (if containerized)

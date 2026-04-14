@@ -7,33 +7,33 @@ Deploy to Azure using Azure Developer CLI (azd).
 ## Prerequisites
 
 - `azd` CLI installed → Run `mcp_azure_mcp_extension_cli_install` with `cli-type: azd` if needed
-- `.azure/plan.md` exists with status `Validated`
+- `infra/{iac}/{project}/.azure/plan.md` exists with status `Validated`
 - `azure.yaml` exists and validated
-- Infrastructure files exist (Bicep: `infra/main.bicep`, Terraform: `infra/*.tf`)
+- Infrastructure files exist (Bicep: `./main.bicep`, Terraform: `./*.tf`) — co-located with `azure.yaml`
 - **AZD environment configured** → Done in azure-validate
 - **Subscription and location confirmed** → See [Pre-deploy Checklist](../../pre-deploy-checklist.md)
 
 ## Workflow
 
-| Step | Task | Command |
-|------|------|---------|
-| 1 | **Verify environment** | `azd env get-values` — Confirm AZURE_SUBSCRIPTION_ID and AZURE_LOCATION set |
-| 2 | **Deploy** | `azd up --no-prompt` |
-| 3 | **Post-Deploy** | [Post-Deployment Steps](post-deployment.md) — If using SQL + managed identity |
-| 4 | **Verify** | See [Verification](verify.md) |
+| Step | Task                   | Command                                                                       |
+| ---- | ---------------------- | ----------------------------------------------------------------------------- |
+| 1    | **Verify environment** | `azd env get-values` — Confirm AZURE_SUBSCRIPTION_ID and AZURE_LOCATION set   |
+| 2    | **Deploy**             | `azd up --no-prompt`                                                          |
+| 3    | **Post-Deploy**        | [Post-Deployment Steps](post-deployment.md) — If using SQL + managed identity |
+| 4    | **Verify**             | See [Verification](verify.md)                                                 |
 
 > ⚠️ **Important:** For .NET Aspire projects or projects using azd "limited mode" (no explicit `infra/` folder), verify that `azd provision` populated all required environment variables. If `azd deploy` fails with errors about missing `AZURE_CONTAINER_REGISTRY_ENDPOINT`, `AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID`, or `MANAGED_IDENTITY_CLIENT_ID`, see [Error Handling](errors.md#missing-container-registry-variables) for the resolution.
 
 ## Common Mistakes
 
-| ❌ Wrong | Why It Fails |
-|----------|-------------|
-| `azd up --location eastus2` | `--location` is not a valid flag for `azd up` |
-| `azd up` without `azd env new` | Prompts for input, fails with `--no-prompt` |
-| `mkdir .azure` then `azd env new` | Creates env folder structure incorrectly |
-| Setting AZURE_LOCATION without checking RG | "Invalid resource group location" if RG exists elsewhere |
-| Ignoring `azd-service-name` tag conflicts in same RG | "found '2' resources tagged with..." error |
-| `language: html` or `language: static` | Not valid - use `language: js` with `dist: .` for static sites |
+| ❌ Wrong                                             | Why It Fails                                                   |
+| ---------------------------------------------------- | -------------------------------------------------------------- |
+| `azd up --location eastus2`                          | `--location` is not a valid flag for `azd up`                  |
+| `azd up` without `azd env new`                       | Prompts for input, fails with `--no-prompt`                    |
+| `mkdir .azure` then `azd env new`                    | Creates env folder structure incorrectly                       |
+| Setting AZURE_LOCATION without checking RG           | "Invalid resource group location" if RG exists elsewhere       |
+| Ignoring `azd-service-name` tag conflicts in same RG | "found '2' resources tagged with..." error                     |
+| `language: html` or `language: static`               | Not valid - use `language: js` with `dist: .` for static sites |
 
 ## Deployment Commands
 

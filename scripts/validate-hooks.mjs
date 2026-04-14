@@ -14,6 +14,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseJsonc } from "./_lib/parse-jsonc.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,21 +37,18 @@ const VALID_EVENTS = new Set([
 const MIN_TIMEOUT = 1;
 const MAX_TIMEOUT = 300;
 
-let errors = 0;
-let warnings = 0;
+const r = new Reporter("Hook Validation");
 
 function pass(msg) {
-  console.log(`  ✅ ${msg}`);
+  r.ok(msg);
 }
 
 function fail(msg) {
-  console.error(`  ❌ ${msg}`);
-  errors++;
+  r.error(msg);
 }
 
 function warn(msg) {
-  console.warn(`  ⚠️  ${msg}`);
-  warnings++;
+  r.warn(msg);
 }
 
 function parseCommand(command) {
@@ -163,7 +161,9 @@ for (const dir of hookDirs) {
 
       const scriptPath = resolve(REPO_ROOT, commandScriptPath);
       if (!existsSync(scriptPath)) {
-        fail(`${dir}/hooks.json references missing script: ${commandScriptPath}`);
+        fail(
+          `${dir}/hooks.json references missing script: ${commandScriptPath}`,
+        );
       } else {
         pass(`Script exists: ${commandScriptPath}`);
 
@@ -171,7 +171,9 @@ for (const dir of hookDirs) {
         const scriptContent = readFileSync(scriptPath, "utf-8");
         const lines = scriptContent.split("\n");
         if (!lines[0]?.startsWith("#!/usr/bin/env bash")) {
-          fail(`Script ${commandScriptPath} missing shebang (#!/usr/bin/env bash)`);
+          fail(
+            `Script ${commandScriptPath} missing shebang (#!/usr/bin/env bash)`,
+          );
         } else {
           pass(`Script has correct shebang`);
         }
@@ -241,12 +243,8 @@ if (!existsSync(SETTINGS_PATH)) {
 }
 
 // ── 4. Summary ──
-console.log("\n" + "─".repeat(50));
-if (errors === 0) {
-  console.log(`\n✅ Hook validation passed (${warnings} warning(s))`);
-} else {
-  console.error(
-    `\n❌ Hook validation failed: ${errors} error(s), ${warnings} warning(s)`,
-  );
-  process.exit(1);
-}
+r.summary("Hook validation");
+r.exitOnError(
+  `Hook validation passed (${r.warnings} warning(s))`,
+  `Hook validation failed: ${r.errors} error(s), ${r.warnings} warning(s)`,
+);

@@ -238,8 +238,8 @@ Check if the project has an `azure.yaml` file — if yes, use **azd** (preferred
 ```bash
 cd infra/bicep/{project}
 
-# Create/select environment
-azd env new {env}
+# Create/select environment (use {project}-{env} naming to avoid multi-project collisions)
+azd env new {project}-{env}
 azd env set AZURE_LOCATION swedencentral
 
 # Preview changes (replaces what-if)

@@ -11,5 +11,5 @@
 ## Debug
 
 ```bash
-az bicep build --file ./infra/main.bicep 2>&1
+az bicep build --file ./main.bicep 2>&1
 ```

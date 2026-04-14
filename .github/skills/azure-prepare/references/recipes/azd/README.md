@@ -59,7 +59,7 @@ Azure Developer CLI workflow for preparing Azure deployments.
 | 1 | azure.yaml | [Schema Guide](azure-yaml.md) |
 | 2 | Application code | Entry points, health endpoints, config |
 | 3 | Dockerfiles | [Docker Guide](docker.md) (if containerized) |
-| 4 | Infrastructure | `./infra/main.bicep` + modules per [IAC Rules](iac-rules.md) |
+| 4 | Infrastructure | `./main.bicep` + modules per [IAC Rules](iac-rules.md) |
 
 ### For Terraform
 
@@ -68,7 +68,7 @@ Azure Developer CLI workflow for preparing Azure deployments.
 | 1 | azure.yaml with `infra.provider: terraform` | [Terraform Guide](terraform.md) |
 | 2 | Application code | Entry points, health endpoints, config |
 | 3 | Dockerfiles | [Docker Guide](docker.md) (if containerized) |
-| 4 | Terraform files | `./infra/*.tf` per [Terraform Guide](terraform.md) |
+| 4 | Terraform files | `./*.tf` per [Terraform Guide](terraform.md) |
 
 ## Outputs
 
@@ -79,7 +79,7 @@ Azure Developer CLI workflow for preparing Azure deployments.
 | azure.yaml | `./azure.yaml` |
 | App Code | `src/<service>/*` |
 | Dockerfiles | `src/<service>/Dockerfile` (if containerized) |
-| Infrastructure | `./infra/` (Bicep files) |
+| Infrastructure | `.` (Bicep files, co-located with azure.yaml) |
 
 ### For Terraform
 
@@ -88,7 +88,7 @@ Azure Developer CLI workflow for preparing Azure deployments.
 | azure.yaml | `./azure.yaml` (with `infra.provider: terraform`) |
 | App Code | `src/<service>/*` |
 | Dockerfiles | `src/<service>/Dockerfile` (if containerized) |
-| Infrastructure | `./infra/` (Terraform files) |
+| Infrastructure | `.` (Terraform files, co-located with azure.yaml) |
 
 ## References
 
@@ -101,4 +101,4 @@ Azure Developer CLI workflow for preparing Azure deployments.
 
 ## Next
 
-→ Update `.azure/plan.md` → **azure-validate**
+→ Update `infra/{iac}/{project}/.azure/plan.md` → **azure-validate**

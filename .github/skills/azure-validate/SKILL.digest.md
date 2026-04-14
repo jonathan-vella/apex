@@ -21,10 +21,10 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 | #   | Action                                                                                                   | Reference                                         |
 | --- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| 1   | **Load Plan** — Read `.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `.azure/plan.md`                                  |
+| 1   | **Load Plan** — Read `infra/{iac}/{project}/.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `infra/{iac}/{project}/.azure/plan.md`                                  |
 | 2   | **Run Validation** — Execute recipe-specific validation commands                                         | [recipes/README.md](references/recipes/README.md) |
 | 3   | **Build Verification** — Build the project and fix any errors before proceeding                          | See recipe                                        |
-| 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                | `.azure/plan.md`                                  |
+| 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                | `infra/{iac}/{project}/.azure/plan.md`                                  |
 
 > _See SKILL.md for full content._
 

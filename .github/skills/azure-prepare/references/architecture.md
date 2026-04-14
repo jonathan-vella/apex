@@ -74,4 +74,4 @@ Select hosting stack and map components to Azure services.
 
 ## Document Architecture
 
-Record selections in `.azure/plan.md` with rationale for each choice.
+Record selections in `infra/{iac}/{project}/.azure/plan.md` with rationale for each choice.

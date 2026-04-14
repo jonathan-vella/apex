@@ -1,4 +1,5 @@
 <!-- ref:pre-deploy-checklist-v1 -->
+
 # Pre-Deployment Checklist
 
 > **CRITICAL**: Before running ANY provisioning commands, you MUST complete this checklist IN ORDER.
@@ -14,6 +15,7 @@ mcp_azure_mcp_subscription_list
 ```
 
 **CLI fallback:**
+
 ```bash
 az account show --query "{name:name, id:id}" -o json
 ```
@@ -23,6 +25,7 @@ az account show --query "{name:name, id:id}" -o json
 **You MUST use `ask_user`** to confirm the subscription. Find the default subscription (marked `isDefault: true`) from Step 1 results and present it as the recommended choice.
 
 ✅ **Correct — show actual name and ID as a choice:**
+
 ```
 ask_user(
   question: "Which Azure subscription would you like to deploy to?",
@@ -34,6 +37,7 @@ ask_user(
 ```
 
 ❌ **Wrong — never use freeform input for subscription:**
+
 ```
 ask_user(
   question: "Which Azure subscription should I deploy to? I'll need the subscription name or ID."
@@ -45,19 +49,23 @@ ask_user(
 > ⚠️ **MANDATORY** — Create the environment BEFORE setting any variables or running `azd up`.
 >
 > ⛔ **DO NOT** manually create `.azure/` folder with `mkdir` or `New-Item`. Let `azd` create it.
+> The `.azure/` folder is created per-project inside `infra/{iac}/{project}/` when you run `azd env new`.
 
 **For new projects (no azure.yaml):**
+
 ```bash
 azd init -e <environment-name>
 ```
 
 **For existing projects (azure.yaml exists):**
+
 ```bash
 azd env new <environment-name>
 ```
 
 Both commands create:
-- `.azure/<env-name>/` folder with config files
+
+- `.azure/<env-name>/` folder with config files (inside the project directory, e.g., `infra/{iac}/{project}/.azure/{project}-{env}/`)
 - Set the environment as default
 
 The environment name becomes part of the resource group name (`rg-<env-name>`).
@@ -76,11 +84,13 @@ mcp_azure_mcp_group_list
 Then check if `rg-<environment-name>` exists in the results.
 
 **CLI fallback:**
+
 ```bash
 az group show --name rg-<environment-name> --query "{location:location}" -o json 2>&1
 ```
 
 **If RG exists:**
+
 - Use `ask_user` to offer choices:
   1. Use existing RG location (show the location)
   2. Choose a different environment name
@@ -114,6 +124,7 @@ See [Region Availability](region-availability.md) for service-specific limitatio
 Environment should already be configured during **azure-validate**. Run `azd env get-values` to confirm.
 
 Verify settings:
+
 ```bash
 azd env get-values
 ```
@@ -147,12 +158,12 @@ azd up --no-prompt
 
 ## Common Mistakes to Avoid
 
-| ❌ Wrong | ✅ Correct |
-|----------|-----------|
-| `azd up --location eastus2` | `azd env set AZURE_LOCATION eastus2` then `azd up` |
-| Running `azd up` without environment | `azd env new <name>` first |
-| Assuming location without checking RG | Check `az group show` before choosing |
-| Ignoring tag conflicts in target RG | Check `az resource list --resource-group rg-<env>` before deploy |
+| ❌ Wrong                              | ✅ Correct                                                       |
+| ------------------------------------- | ---------------------------------------------------------------- |
+| `azd up --location eastus2`           | `azd env set AZURE_LOCATION eastus2` then `azd up`               |
+| Running `azd up` without environment  | `azd env new <name>` first                                       |
+| Assuming location without checking RG | Check `az group show` before choosing                            |
+| Ignoring tag conflicts in target RG   | Check `az resource list --resource-group rg-<env>` before deploy |
 
 ---
 
@@ -163,6 +174,7 @@ azd up --no-prompt
 > **⛔ MANDATORY**: If the plan includes Durable Functions, verify infrastructure uses **Durable Task Scheduler** (DTS), NOT Azure Storage.
 
 Check that `infra/` Bicep files contain:
+
 - `Microsoft.DurableTask/schedulers` resource
 - `Microsoft.DurableTask/schedulers/taskHubs` child resource
 - `Durable Task Data Contributor` RBAC role assignment
@@ -175,12 +187,14 @@ If any are missing, **STOP** and invoke **azure-prepare** to regenerate with the
 ## Non-AZD Deployments
 
 **For Azure CLI / Bicep:**
+
 ```bash
 az account set --subscription <subscription-id-or-name>
 # Pass location as parameter: --location <location>
 ```
 
 **For Terraform:**
+
 ```bash
 az account set --subscription <subscription-id-or-name>
 # Set in terraform.tfvars or -var="location=<location>"

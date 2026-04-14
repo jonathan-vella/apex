@@ -35,7 +35,7 @@ metadata:
 # Specify Terraform as IaC provider
 infra:
   provider: terraform
-  path: ./infra
+  path: .  # Co-located: IaC files are in the same directory as azure.yaml
 
 # Define services as usual
 services:
@@ -55,7 +55,7 @@ services:
 
 ### 2. Terraform File Structure
 
-Place Terraform files in `./infra/`:
+Place Terraform files in the project directory (co-located with `azure.yaml`):
 
 ```
 infra/
@@ -264,7 +264,7 @@ azd env set TF_STATE_STORAGE_ACCOUNT tfstate<unique>
 When preparing a new azd+Terraform project:
 
 1. **Generate azure.yaml** with `infra.provider: terraform`
-2. **Create Terraform files** in `./infra/`:
+2. **Create Terraform files** in the project directory:
    - `main.tf` - Core resources and resource group
    - `variables.tf` - environment_name, location, tags
    - `outputs.tf` - Service URLs and resource names (UPPERCASE)
@@ -289,7 +289,7 @@ Use `mcp_azure_mcp_documentation` (`azure-documentation`) for current guidance a
 Converting existing Terraform project to use azd:
 
 1. Create `azure.yaml` with services and `infra.provider: terraform`
-2. Move `.tf` files to `./infra/` directory
+2. Place `.tf` files in the same directory as `azure.yaml`
 3. Add `azd-service-name` tags to hosting resources
 4. Ensure outputs include service URLs in UPPERCASE
 5. Test with `azd provision` and `azd deploy`

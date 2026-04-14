@@ -15,7 +15,7 @@ metadata:
 >
 > Before proceeding, verify this prerequisite is met:
 >
-> **azure-prepare** was invoked and completed → `.azure/plan.md` exists with status `Approved` or later
+> **azure-prepare** was invoked and completed → `infra/{iac}/{project}/.azure/plan.md` exists with status `Approved` or later
 >
 > If the plan is missing, **STOP IMMEDIATELY** and invoke **azure-prepare** first.
 >
@@ -40,12 +40,12 @@ metadata:
 
 | #   | Action                                                                                                   | Reference                                         |
 | --- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| 1   | **Load Plan** — Read `.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `.azure/plan.md`                                  |
+| 1   | **Load Plan** — Read `infra/{iac}/{project}/.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `infra/{iac}/{project}/.azure/plan.md`                                  |
 | 2   | **Run Validation** — Execute recipe-specific validation commands                                         | [recipes/README.md](references/recipes/README.md) |
 | 3   | **Build Verification** — Build the project and fix any errors before proceeding                          | See recipe                                        |
-| 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                | `.azure/plan.md`                                  |
+| 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                | `infra/{iac}/{project}/.azure/plan.md`                                  |
 | 5   | **Resolve Errors** — Fix failures before proceeding                                                      | See recipe's `errors.md`                          |
-| 6   | **Update Status** — Only after ALL checks pass, set status to `Validated`                                | `.azure/plan.md`                                  |
+| 6   | **Update Status** — Only after ALL checks pass, set status to `Validated`                                | `infra/{iac}/{project}/.azure/plan.md`                                  |
 | 7   | **Deploy** — Invoke **azure-deploy** skill                                                               | —                                                 |
 
 > **⛔ VALIDATION AUTHORITY**

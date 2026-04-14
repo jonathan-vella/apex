@@ -32,8 +32,10 @@ bicep lint infra/bicep/{project}/main.bicep
 
 # Deploy with azd (preferred — when azure.yaml exists)
 cd infra/bicep/{project}
-azd provision --preview    # Preview
-azd provision              # Deploy
+azd env new {project}-{env}           # Create environment (e.g., hub-spoke-dev)
+azd env set AZURE_LOCATION swedencentral
+azd provision --preview                # Preview
+azd provision                          # Deploy
 
 # Deploy with deploy.ps1 (legacy fallback)
 cd infra/bicep/{project}
@@ -49,8 +51,12 @@ Each project follows this layout:
 infra/bicep/{project}/
   main.bicep           # Orchestrator — parameters, unique suffix, module calls
   main.bicepparam      # Parameter values
-  azure.yaml           # azd project manifest (preferred deployment method)
+  azure.yaml           # azd project manifest (infra.path: . — co-located)
   deploy.ps1           # Deployment script — legacy fallback
+  .azure/              # azd environment state (git-ignored)
+    plan.md            # azure-prepare output — source of truth for validate/deploy
+    {project}-{env}/   # Per-environment azd state (e.g., hub-spoke-dev/)
+      .env             # azd environment variables
   modules/
     *.bicep            # One module per resource or logical group
 ```

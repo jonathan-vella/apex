@@ -17,21 +17,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = process.cwd();
-
-let errors = 0;
-let checks = 0;
-
-function check(description, condition) {
-  checks++;
-  if (condition) {
-    console.log(`  ✅ ${description}`);
-  } else {
-    console.error(`  ❌ ${description}`);
-    errors++;
-  }
-}
+const r = new Reporter("Governance Reference Validation");
 
 const _fileCache = new Map();
 
@@ -51,6 +40,10 @@ function fileExists(filePath) {
 }
 
 console.log("\n🔍 Governance Reference Validation\n");
+
+function check(description, condition) {
+  r.check(description, condition);
+}
 
 // 1. Bicep Code Generator references governance constraints
 console.log("📄 06b-bicep-codegen.agent.md");
@@ -238,15 +231,8 @@ check(
 );
 
 // Summary
-console.log(`\n${"─".repeat(50)}`);
-console.log(
-  `Checks: ${checks} | Passed: ${checks - errors} | Failed: ${errors}`,
+r.summary("Governance guardrails");
+r.exitOnError(
+  "All governance guardrails intact",
+  `${r.errors} governance guardrail(s) missing — see failures above`,
 );
-if (errors > 0) {
-  console.error(
-    `\n❌ ${errors} governance guardrail(s) missing — see failures above`,
-  );
-  process.exit(1);
-} else {
-  console.log("\n✅ All governance guardrails intact");
-}

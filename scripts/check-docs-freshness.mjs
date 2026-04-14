@@ -68,9 +68,9 @@ async function collectMdFiles(dir, exclude = []) {
 
 async function checkProhibitedRefs(cachedSiteMdFiles) {
   const prohibited = [
-    { pattern: /diagram\.agent\.md/g, label: "diagram.agent.md (removed)" },
-    { pattern: /adr\.agent\.md/g, label: "adr.agent.md (removed)" },
-    { pattern: /docs\.agent\.md/g, label: "docs.agent.md (removed)" },
+    { pattern: /diagram\.agent\.md/, label: "diagram.agent.md (removed)" },
+    { pattern: /adr\.agent\.md/, label: "adr.agent.md (removed)" },
+    { pattern: /docs\.agent\.md/, label: "docs.agent.md (removed)" },
   ];
 
   const scanPaths = [join(ROOT, ".github", "instructions")];
@@ -95,17 +95,14 @@ async function checkProhibitedRefs(cachedSiteMdFiles) {
     const rel = relative(ROOT, file);
     const lines = content.split("\n");
     for (const { pattern, label } of prohibited) {
-      pattern.lastIndex = 0;
       for (let i = 0; i < lines.length; i++) {
         // Skip lines that document prohibited refs (e.g. "❌ ... → Use ...")
         if (/[❌→]/.test(lines[i]) || /^\s*[-*]\s*❌/.test(lines[i])) {
-          pattern.lastIndex = 0;
           continue;
         }
         if (pattern.test(lines[i])) {
           addFinding(rel, i + 1, `Prohibited reference: ${label}`, "HIGH");
         }
-        pattern.lastIndex = 0;
       }
     }
   }

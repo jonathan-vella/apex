@@ -232,7 +232,7 @@ After each round: `bicep build` to catch errors early.
 
 Generate `infra/bicep/{project}/azure.yaml` (azd manifest) with:
 
-- `name`, `metadata.template`, `infra.provider: bicep`, `infra.path`, `infra.module`
+- `name: {project}`, `metadata.template`, `infra.provider: bicep`, `infra.path: .` (co-located), `infra.module`
 - `hooks.preprovision` — ARM token validation, banner
 - `hooks.postprovision` — resource verification via ARG
 
@@ -287,7 +287,7 @@ Save validation status in `05-implementation-reference.md`. Run `npm run lint:ar
 infra/bicep/{project}/
 ├── main.bicep              # Entry point — uniqueSuffix, orchestrates modules
 ├── main.bicepparam         # Environment-specific parameters
-├── azure.yaml              # azd project manifest (preferred deployment method)
+├── azure.yaml              # azd project manifest (infra.path: . — co-located)
 ├── deploy.ps1              # PowerShell deployment script (legacy fallback)
 └── modules/
     ├── budget.bicep        # Azure Budget + forecast alerts + anomaly detection

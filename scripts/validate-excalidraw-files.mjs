@@ -10,6 +10,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { Reporter } from "./_lib/reporter.mjs";
+
+const _r = new Reporter("Excalidraw File Validation");
 
 // Directories to scan for .excalidraw files
 const SCAN_DIRS = [
@@ -216,10 +219,12 @@ for (const file of allFiles) {
   validateExcalidrawFile(file);
 }
 
-console.log(
-  `\n📊 Checked: ${filesChecked} | Errors: ${errors} | Warnings: ${warnings}`,
+// Sync local counters to Reporter for consistent summary output
+_r.errors = errors;
+_r.warnings = warnings;
+_r.checked = filesChecked;
+_r.summary("Excalidraw validation");
+_r.exitOnError(
+  "Excalidraw validation passed",
+  `${errors} excalidraw validation error(s) found`,
 );
-
-if (errors > 0) {
-  process.exit(1);
-}

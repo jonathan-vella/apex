@@ -1,7 +1,8 @@
 <!-- ref:plan-template-v1 -->
+
 # Plan Template
 
-Create `.azure/plan.md` using this template. This file is **mandatory** and serves as the source of truth for the entire workflow.
+Create `infra/{iac}/{project}/.azure/plan.md` using this template. This file is **mandatory** and serves as the source of truth for the entire workflow.
 
 ## ⛔ BLOCKING REQUIREMENTS
 
@@ -32,21 +33,21 @@ Generated: {timestamp}
 
 ## 2. Requirements
 
-| Attribute | Value |
-|-----------|-------|
-| Classification | POC / Development / Production |
-| Scale | Small / Medium / Large |
-| Budget | Cost-Optimized / Balanced / Performance |
+| Attribute        | Value                                               |
+| ---------------- | --------------------------------------------------- |
+| Classification   | POC / Development / Production                      |
+| Scale            | Small / Medium / Large                              |
+| Budget           | Cost-Optimized / Balanced / Performance             |
 | **Subscription** | {subscription-name-or-id} ⚠️ MUST confirm with user |
-| **Location** | {azure-region} ⚠️ MUST confirm with user |
+| **Location**     | {azure-region} ⚠️ MUST confirm with user            |
 
 ---
 
 ## 3. Components Detected
 
-| Component | Type | Technology | Path |
-|-----------|------|------------|------|
-| {name} | Frontend / API / Worker | {stack} | {path} |
+| Component | Type                    | Technology | Path   |
+| --------- | ----------------------- | ---------- | ------ |
+| {name}    | Frontend / API / Worker | {stack}    | {path} |
 
 ---
 
@@ -64,18 +65,18 @@ Generated: {timestamp}
 
 ### Service Mapping
 
-| Component | Azure Service | SKU |
-|-----------|---------------|-----|
+| Component   | Azure Service   | SKU   |
+| ----------- | --------------- | ----- |
 | {component} | {azure-service} | {sku} |
 
 ### Supporting Services
 
-| Service | Purpose |
-|---------|---------|
-| Log Analytics | Centralized logging |
-| Application Insights | Monitoring & APM |
-| Key Vault | Secrets management |
-| Managed Identity | Service-to-service auth |
+| Service              | Purpose                 |
+| -------------------- | ----------------------- |
+| Log Analytics        | Centralized logging     |
+| Application Insights | Monitoring & APM        |
+| Key Vault            | Secrets management      |
+| Managed Identity     | Service-to-service auth |
 
 ---
 
@@ -89,19 +90,19 @@ Generated: {timestamp}
 
 List all resources to be deployed with their types and quantities. Leave quota/limit columns empty.
 
-| Resource Type | Number to Deploy | Total After Deployment | Limit/Quota | Notes |
-|---------------|------------------|------------------------|-------------|-------|
-| {ARM-resource-type} | {count} | _To be filled in Phase 2_ | _To be filled in Phase 2_ | _To be filled in Phase 2_ |
+| Resource Type       | Number to Deploy | Total After Deployment    | Limit/Quota               | Notes                     |
+| ------------------- | ---------------- | ------------------------- | ------------------------- | ------------------------- |
+| {ARM-resource-type} | {count}          | _To be filled in Phase 2_ | _To be filled in Phase 2_ | _To be filled in Phase 2_ |
 
 **Example format:**
 
-| Resource Type | Number to Deploy | Total After Deployment | Limit/Quota | Notes |
-|---------------|------------------|------------------------|-------------|-------|
-| Microsoft.App/managedEnvironments | 1 | _TBD_ | _TBD_ | _TBD_ |
-| Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3 | _TBD_ | _TBD_ | _TBD_ |
-| Microsoft.Network/publicIPAddresses | 2 | _TBD_ | _TBD_ | _TBD_ |
-| Microsoft.DocumentDB/databaseAccounts | 1 | _TBD_ | _TBD_ | _TBD_ |
-| Microsoft.Storage/storageAccounts | 2 | _TBD_ | _TBD_ | _TBD_ |
+| Resource Type                                       | Number to Deploy | Total After Deployment | Limit/Quota | Notes |
+| --------------------------------------------------- | ---------------- | ---------------------- | ----------- | ----- |
+| Microsoft.App/managedEnvironments                   | 1                | _TBD_                  | _TBD_       | _TBD_ |
+| Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3                | _TBD_                  | _TBD_       | _TBD_ |
+| Microsoft.Network/publicIPAddresses                 | 2                | _TBD_                  | _TBD_       | _TBD_ |
+| Microsoft.DocumentDB/databaseAccounts               | 1                | _TBD_                  | _TBD_       | _TBD_ |
+| Microsoft.Storage/storageAccounts                   | 2                | _TBD_                  | _TBD_       | _TBD_ |
 
 ### Phase 2: Fetch Quotas and Validate Capacity
 
@@ -125,19 +126,20 @@ For each resource type:
 
 **Completed example:**
 
-| Resource Type | Number to Deploy | Total After Deployment | Limit/Quota | Notes |
-|---------------|------------------|------------------------|-------------|-------|
-| Microsoft.App/managedEnvironments | 1 | 1 | 50 | Fetched from: azure-quotas (ManagedEnvironmentCount) |
-| Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3 | 15 | 350 vCPUs | Fetched from: azure-quotas (standardDSv3Family) |
-| Microsoft.Network/publicIPAddresses | 2 | 5 | 100 | Fetched from: azure-quotas (PublicIPAddresses) |
-| Microsoft.DocumentDB/databaseAccounts | 1 | 1 | 50 per region | Fetched from: Official docs (quota CLI not supported) |
-| Microsoft.Storage/storageAccounts | 2 | 8 | 250 per region | Fetched from: Official docs |
+| Resource Type                                       | Number to Deploy | Total After Deployment | Limit/Quota    | Notes                                                 |
+| --------------------------------------------------- | ---------------- | ---------------------- | -------------- | ----------------------------------------------------- |
+| Microsoft.App/managedEnvironments                   | 1                | 1                      | 50             | Fetched from: azure-quotas (ManagedEnvironmentCount)  |
+| Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3                | 15                     | 350 vCPUs      | Fetched from: azure-quotas (standardDSv3Family)       |
+| Microsoft.Network/publicIPAddresses                 | 2                | 5                      | 100            | Fetched from: azure-quotas (PublicIPAddresses)        |
+| Microsoft.DocumentDB/databaseAccounts               | 1                | 1                      | 50 per region  | Fetched from: Official docs (quota CLI not supported) |
+| Microsoft.Storage/storageAccounts                   | 2                | 8                      | 250 per region | Fetched from: Official docs                           |
 
 **Status:** ✅ All resources within limits | ⚠️ Near limit (>80%) | ❌ Insufficient capacity
 
 > **⛔ CRITICAL:** You **CANNOT** present this plan to the customer if ANY cells contain "_TBD_" or "_To be filled in Phase 2_". Phase 2 **MUST** be completed with actual quota data before user presentation.
 
 **Notes:**
+
 - **MUST use azure-quotas skill first** to check providers via quota CLI (`az quota` commands) - Microsoft.Compute, Microsoft.Network, Microsoft.App, etc.
 - Azure quota CLI is **ALWAYS preferred over REST API** for checking quotas
 - **ONLY for unsupported providers** (e.g., Microsoft.DocumentDB returns `BadRequest`), use fallback methods: [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
@@ -148,6 +150,7 @@ For each resource type:
 ## 7. Execution Checklist
 
 ### Phase 1: Planning
+
 - [ ] Analyze workspace
 - [ ] Gather requirements
 - [ ] Confirm subscription and location with user
@@ -159,15 +162,17 @@ For each resource type:
 - [ ] **User approved this plan**
 
 ### Phase 2: Execution
+
 - [ ] Research components (load references, invoke skills)
 - [ ] **⛔ For Azure Functions: Load composition rules** (`services/functions/templates/selection.md` → `services/functions/templates/recipes/composition.md`) and use `azd init -t <template>` — NEVER hand-write Bicep/Terraform
 - [ ] For other services: Generate infrastructure files following service-specific guidance
 - [ ] Apply recipes for integrations (if needed)
 - [ ] Generate application configuration
 - [ ] Generate Dockerfiles (if containerized)
-- [ ] **⛔ Update plan status to "Ready for Validation"** — Use the `edit` tool to change the Status line in `.azure/plan.md`. This step is MANDATORY before invoking azure-validate.
+- [ ] **⛔ Update plan status to "Ready for Validation"** — Use the `edit` tool to change the Status line in `infra/{iac}/{project}/.azure/plan.md`. This step is MANDATORY before invoking azure-validate.
 
 ### Phase 3: Validation
+
 - [ ] **PREREQUISITE:** Plan status MUST be "Ready for Validation" (Phase 2 last step)
 - [ ] Invoke azure-validate skill
 - [ ] All validation checks pass
@@ -175,6 +180,7 @@ For each resource type:
 - [ ] Record validation proof below
 
 ### Phase 4: Deployment
+
 - [ ] Invoke azure-deploy skill
 - [ ] Deployment successful
 - [ ] Update plan status to "Deployed"
@@ -185,8 +191,8 @@ For each resource type:
 
 > **⛔ REQUIRED**: The azure-validate skill MUST populate this section before setting status to `Validated`. If this section is empty and status is `Validated`, the validation was bypassed improperly.
 
-| Check | Command Run | Result | Timestamp |
-|-------|-------------|--------|-----------|
+| Check        | Command Run               | Result            | Timestamp   |
+| ------------ | ------------------------- | ----------------- | ----------- |
 | {check-name} | {actual command executed} | ✅ Pass / ❌ Fail | {timestamp} |
 
 **Validated by:** azure-validate skill
@@ -196,12 +202,12 @@ For each resource type:
 
 ## 8. Files to Generate
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `.azure/plan.md` | This plan | ✅ |
-| `azure.yaml` | AZD configuration | ⏳ |
-| `infra/main.bicep` | Infrastructure | ⏳ |
-| `src/{component}/Dockerfile` | Container build | ⏳ |
+| File                                   | Purpose                    | Status |
+| -------------------------------------- | -------------------------- | ------ |
+| `infra/{iac}/{project}/.azure/plan.md` | This plan                  | ✅     |
+| `./azure.yaml`                         | AZD configuration          | ⏳     |
+| `./main.bicep` or `./main.tf`          | Infrastructure entry point | ⏳     |
+| `src/{component}/Dockerfile`           | Container build            | ⏳     |
 
 ---
 

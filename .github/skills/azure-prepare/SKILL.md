@@ -28,7 +28,7 @@ Activate this skill when user wants to:
 
 ## Rules
 
-1. **Plan first** — Create `.azure/plan.md` before any code generation
+1. **Plan first** — Create `infra/{iac}/{project}/.azure/plan.md` before any code generation
 2. **Get approval** — Present plan to user before execution
 3. **Research before generating** — Load references and invoke related skills
 4. **Update plan progressively** — Mark steps complete as you go
@@ -44,11 +44,11 @@ Activate this skill when user wants to:
 > **YOU MUST CREATE A PLAN BEFORE DOING ANY WORK**
 >
 > 1. **STOP** — Do not generate any code, infrastructure, or configuration yet
-> 2. **PLAN** — Follow the Planning Phase below to create `.azure/plan.md`
+> 2. **PLAN** — Follow the Planning Phase below to create `infra/{iac}/{project}/.azure/plan.md`
 > 3. **CONFIRM** — Present the plan to the user and get approval
 > 4. **EXECUTE** — Only after approval, execute the plan step by step
 >
-> The `.azure/plan.md` file is the **source of truth** for this workflow and for azure-validate and azure-deploy skills. Without it, those skills will fail.
+> The `infra/{iac}/{project}/.azure/plan.md` file is the **source of truth** for this workflow and for azure-validate and azure-deploy skills. Without it, those skills will fail.
 
 ---
 
@@ -73,7 +73,7 @@ After the specialized skill completes, **resume azure-prepare** at Phase 1 Step 
 
 ## Phase 1: Planning (BLOCKING — Complete Before Any Execution)
 
-Create `.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
+Create `infra/{iac}/{project}/.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
 
 | # | Action | Reference |
 |---|--------|-----------|
@@ -83,8 +83,8 @@ Create `.azure/plan.md` by completing these steps. Do NOT generate any artifacts
 | 3 | **Scan Codebase** — Identify components, technologies, dependencies | [scan.md](references/scan.md) |
 | 4 | **Select Recipe** — Choose AZD (default), AZCLI, Bicep, or Terraform | [recipe-selection.md](references/recipe-selection.md) |
 | 5 | **Plan Architecture** — Select stack + map components to Azure services | [architecture.md](references/architecture.md) |
-| 6 | **Write Plan** — Generate `.azure/plan.md` with all decisions | [plan-template.md](references/plan-template.md) |
-| 7 | **Present Plan** — Show plan to user and ask for approval | `.azure/plan.md` |
+| 6 | **Write Plan** — Generate `infra/{iac}/{project}/.azure/plan.md` with all decisions | [plan-template.md](references/plan-template.md) |
+| 7 | **Present Plan** — Show plan to user and ask for approval | `infra/{iac}/{project}/.azure/plan.md` |
 | 8 | **Destructive actions require `ask_user`** | [Global Rules](references/global-rules.md) |
 
 ---
@@ -95,7 +95,7 @@ Create `.azure/plan.md` by completing these steps. Do NOT generate any artifacts
 
 ## Phase 2: Execution (Only After Plan Approval)
 
-Execute the approved plan. Update `.azure/plan.md` status after each step.
+Execute the approved plan. Update `infra/{iac}/{project}/.azure/plan.md` status after each step.
 
 | # | Action | Reference |
 |---|--------|-----------|
@@ -103,8 +103,8 @@ Execute the approved plan. Update `.azure/plan.md` status after each step.
 | 2 | **Confirm Azure Context** — Detect and confirm subscription + location and check the resource provisioning limit | [Azure Context](references/azure-context.md) |
 | 3 | **Generate Artifacts** — Create infrastructure and configuration files | [generate.md](references/generate.md) |
 | 4 | **Harden Security** — Apply security best practices | [security.md](references/security.md) |
-| 5 | **⛔ Update Plan (MANDATORY before hand-off)** — Use the `edit` tool to change the Status in `.azure/plan.md` to `Ready for Validation`. You **MUST** complete this edit **BEFORE** invoking azure-validate. Do NOT skip this step. | `.azure/plan.md` |
-| 6 | **⚠️ Hand Off** — Invoke **azure-validate** skill. Your preparation work is done. Deployment execution is handled by azure-deploy. **PREREQUISITE:** Step 5 must be completed first — `.azure/plan.md` status must say `Ready for Validation`. | — |
+| 5 | **⛔ Update Plan (MANDATORY before hand-off)** — Use the `edit` tool to change the Status in `infra/{iac}/{project}/.azure/plan.md` to `Ready for Validation`. You **MUST** complete this edit **BEFORE** invoking azure-validate. Do NOT skip this step. | `infra/{iac}/{project}/.azure/plan.md` |
+| 6 | **⚠️ Hand Off** — Invoke **azure-validate** skill. Your preparation work is done. Deployment execution is handled by azure-deploy. **PREREQUISITE:** Step 5 must be completed first — `infra/{iac}/{project}/.azure/plan.md` status must say `Ready for Validation`. | — |
 
 ---
 
@@ -112,9 +112,9 @@ Execute the approved plan. Update `.azure/plan.md` status after each step.
 
 | Artifact | Location |
 |----------|----------|
-| **Plan** | `.azure/plan.md` |
-| Infrastructure | `./infra/` |
-| AZD Config | `azure.yaml` (AZD only) |
+| **Plan** | `infra/{iac}/{project}/.azure/plan.md` |
+| Infrastructure | `infra/{iac}/{project}/` |
+| AZD Config | `infra/{iac}/{project}/azure.yaml` (AZD only) |
 | Dockerfiles | `src/<component>/Dockerfile` |
 
 ---
@@ -135,7 +135,7 @@ Execute the approved plan. Update `.azure/plan.md` status after each step.
 >
 > `azure-prepare` → `azure-validate` → `azure-deploy`
 >
-> **⛔ BEFORE invoking azure-validate**, you MUST use the `edit` tool to update `.azure/plan.md` status to `Ready for Validation`. If the plan status has not been updated, the validation will fail.
+> **⛔ BEFORE invoking azure-validate**, you MUST use the `edit` tool to update `infra/{iac}/{project}/.azure/plan.md` status to `Ready for Validation`. If the plan status has not been updated, the validation will fail.
 >
 > Skipping validation leads to deployment failures. Be patient and follow the complete workflow for the highest success outcome.
 

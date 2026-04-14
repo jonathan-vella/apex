@@ -5,8 +5,8 @@ Deploy to Azure using Bicep templates directly.
 ## Prerequisites
 
 - `az` CLI installed with Bicep extension
-- `.azure/plan.md` exists with status `Validated`
-- Bicep templates exist in `infra/`
+- `infra/{iac}/{project}/.azure/plan.md` exists with status `Validated`
+- Bicep templates exist in the project directory (co-located with `azure.yaml`)
 - **Subscription and location confirmed** → See [Pre-Deploy Checklist](../../pre-deploy-checklist.md)
 
 ## Workflow
@@ -25,8 +25,8 @@ Deploy to Azure using Bicep templates directly.
 ```bash
 az deployment sub create \
   --location eastus2 \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 ```
 
 ### Resource Group Deployment
@@ -34,8 +34,8 @@ az deployment sub create \
 ```bash
 az deployment group create \
   --resource-group rg-myapp-dev \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 ```
 
 ### With Inline Parameters
@@ -43,7 +43,7 @@ az deployment group create \
 ```bash
 az deployment sub create \
   --location eastus2 \
-  --template-file ./infra/main.bicep \
+  --template-file ./main.bicep \
   --parameters environmentName=dev location=eastus2
 ```
 
@@ -52,7 +52,7 @@ az deployment sub create \
 ```bash
 az deployment sub what-if \
   --location eastus2 \
-  --template-file ./infra/main.bicep \
+  --template-file ./main.bicep \
   --parameters environmentName=dev
 ```
 

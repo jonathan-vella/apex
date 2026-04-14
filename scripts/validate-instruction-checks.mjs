@@ -17,24 +17,14 @@
 import fs, { globSync } from "node:fs";
 import path from "node:path";
 import { getInstructions } from "./_lib/workspace-index.mjs";
+import { findAllMatches } from "./_lib/regex-helpers.mjs";
+import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = process.cwd();
-
-let errors = 0;
-let warnings = 0;
-let checks = 0;
+const r = new Reporter("Instruction Checks");
 
 function check(description, condition, severity = "error") {
-  checks++;
-  if (condition) {
-    console.log(`  ✅ ${description}`);
-  } else if (severity === "warn") {
-    console.log(`  ⚠️  ${description}`);
-    warnings++;
-  } else {
-    console.log(`  ❌ ${description}`);
-    errors++;
-  }
+  r.check(description, condition, severity);
 }
 
 function fileExists(relPath) {
@@ -182,10 +172,8 @@ const foundInstructionRefs = new Map();
 for (const filePath of allMdFiles) {
   const content = fs.readFileSync(filePath, "utf-8");
   const relFile = path.relative(ROOT, filePath);
-  let match;
 
-  instructionRefPattern.lastIndex = 0;
-  while ((match = instructionRefPattern.exec(content)) !== null) {
+  for (const match of findAllMatches(instructionRefPattern, content)) {
     const refFile = `.github/instructions/${match[1]}`;
     if (!foundInstructionRefs.has(refFile)) {
       foundInstructionRefs.set(refFile, []);
@@ -265,10 +253,8 @@ const foundSkillRefs = new Map();
 for (const filePath of allMdFiles) {
   const content = fs.readFileSync(filePath, "utf-8");
   const relFile = path.relative(ROOT, filePath);
-  let match;
 
-  skillRefPattern.lastIndex = 0;
-  while ((match = skillRefPattern.exec(content)) !== null) {
+  for (const match of findAllMatches(skillRefPattern, content)) {
     if (match[1].includes("{") || match[1].includes("}")) continue;
     const skillFile = `.github/skills/${match[1]}/SKILL.md`;
     if (!foundSkillRefs.has(skillFile)) {
@@ -303,10 +289,8 @@ for (const filePath of allMdFiles) {
   const rawContent = fs.readFileSync(filePath, "utf-8");
   const content = stripCodeBlocks(rawContent);
   const relFile = path.relative(ROOT, filePath);
-  let match;
 
-  crossRefPattern.lastIndex = 0;
-  while ((match = crossRefPattern.exec(content)) !== null) {
+  for (const match of findAllMatches(crossRefPattern, content)) {
     const refName = match[1];
     if (EXAMPLE_PATTERNS.includes(refName)) continue;
     const refPath = `.github/instructions/${refName}`;
@@ -331,14 +315,5 @@ if (crossRefs.size === 0) {
 
 // ── Summary ──
 
-console.log(`\n${"═".repeat(60)}`);
-console.log(`Checks: ${checks} | Errors: ${errors} | Warnings: ${warnings}`);
-
-if (errors > 0) {
-  console.log(`\n❌ ${errors} error(s) found`);
-  process.exit(1);
-} else if (warnings > 0) {
-  console.log(`\n⚠️  Passed with ${warnings} warning(s)`);
-} else {
-  console.log(`\n✅ All instruction checks passed`);
-}
+r.summary("Instruction checks");
+r.exitOnError("All instruction checks passed", `${r.errors} error(s) found`);

@@ -36,7 +36,7 @@ metadata:
 # Specify Terraform as IaC provider
 infra:
   provider: terraform
-  path: ./infra
+  path: .  # Co-located: IaC files are in the same directory as azure.yaml
 
 services:
   <service-name>:
@@ -80,7 +80,7 @@ name: myapp
 
 infra:
   provider: terraform
-  path: ./infra
+  path: .  # Co-located: IaC files are in the same directory as azure.yaml
 
 services:
   api:

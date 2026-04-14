@@ -15,7 +15,7 @@ find . -name "*.csproj" -exec grep -l "Microsoft.EntityFrameworkCore" {} \;
 
 ### Method 1: azd Hook (Recommended)
 
-Automate via `postprovision` hook in `azure.yaml`:
+Automate via `postprovision` hook in `azure.yaml` (per-project: `infra/{iac}/{project}/azure.yaml`):
 
 ```yaml
 hooks:
@@ -73,7 +73,7 @@ az sql db query --server "$SQL_SERVER" --database "$SQL_DATABASE" \
   --auth-mode ActiveDirectoryDefault --queries "
     IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$SERVICE_API_NAME')
       CREATE USER [$SERVICE_API_NAME] FROM EXTERNAL PROVIDER;
-    
+
     IF NOT EXISTS (
       SELECT 1 FROM sys.database_role_members drm
       JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
@@ -81,7 +81,7 @@ az sql db query --server "$SQL_SERVER" --database "$SQL_DATABASE" \
       WHERE r.name = 'db_datareader' AND m.name = '$SERVICE_API_NAME'
     )
       ALTER ROLE db_datareader ADD MEMBER [$SERVICE_API_NAME];
-    
+
     IF NOT EXISTS (
       SELECT 1 FROM sys.database_role_members drm
       JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
@@ -89,7 +89,7 @@ az sql db query --server "$SQL_SERVER" --database "$SQL_DATABASE" \
       WHERE r.name = 'db_datawriter' AND m.name = '$SERVICE_API_NAME'
     )
       ALTER ROLE db_datawriter ADD MEMBER [$SERVICE_API_NAME];
-    
+
     IF NOT EXISTS (
       SELECT 1 FROM sys.database_role_members drm
       JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
@@ -122,12 +122,12 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 
 ## Troubleshooting
 
-| Error | Solution |
-|-------|----------|
-| Cannot open database | Check firewall rules: `az sql server firewall-rule list` |
-| Login failed | Grant SQL access per [sql-managed-identity.md](sql-managed-identity.md) |
-| Unable to create DbContext | Add `IDesignTimeDbContextFactory` implementation |
-| Hook fails but deployment continues | Remove `|| true` to make migrations block deployment |
+| Error                               | Solution                                                                |
+| ----------------------------------- | ----------------------------------------------------------------------- | --- | ----------------------------------------- |
+| Cannot open database                | Check firewall rules: `az sql server firewall-rule list`                |
+| Login failed                        | Grant SQL access per [sql-managed-identity.md](sql-managed-identity.md) |
+| Unable to create DbContext          | Add `IDesignTimeDbContextFactory` implementation                        |
+| Hook fails but deployment continues | Remove `                                                                |     | true` to make migrations block deployment |
 
 **DbContext Factory Example:**
 
@@ -135,7 +135,7 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext> {
     public ApplicationDbContext CreateDbContext(string[] args) {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
             ?? args.FirstOrDefault() ?? "Server=(localdb)\\mssqllocaldb;Database=MyDb;Trusted_Connection=True;";
         optionsBuilder.UseSqlServer(connectionString);
         return new ApplicationDbContext(optionsBuilder.Options);

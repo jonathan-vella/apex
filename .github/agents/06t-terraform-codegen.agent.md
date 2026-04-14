@@ -231,10 +231,33 @@ After each round: `terraform validate` to catch errors early.
 Generate `bootstrap-backend.sh` + `bootstrap-backend.ps1`. Read
 `terraform-patterns/references/bootstrap-backend-template.md` for templates.
 
-### Phase 3: Deploy Scripts
+### Phase 3: Deploy Scripts and azd Manifest
 
 Generate `deploy.sh` + `deploy.ps1`. Read
 `terraform-patterns/references/deploy-script-template.md` for templates.
+
+Also generate `infra/terraform/{project}/azure.yaml` (azd manifest) with:
+
+```yaml
+name: {project}
+infra:
+  provider: terraform
+  path: .
+```
+
+This enables `azd provision` as an alternative to raw `terraform apply`.
+
+Also generate `infra/terraform/{project}/main.tfvars.json` to map azd environment
+variables to Terraform variables:
+
+```json
+{
+  "location": "${AZURE_LOCATION}",
+  "environment_name": "${AZURE_ENV_NAME}"
+}
+```
+
+Add additional variable mappings as needed for the project's `variables.tf`.
 
 ### Phase 4: Validation (Subagent-Driven — Parallel)
 
@@ -289,6 +312,8 @@ Expected output in `infra/terraform/{project}/`:
 - `outputs.tf` — Deployment outputs
 - `bootstrap-backend.sh` + `bootstrap-backend.ps1` — State backend bootstrap
 - `deploy.sh` + `deploy.ps1` — Deployment scripts
+- `azure.yaml` — azd project manifest (`infra.provider: terraform`, `infra.path: .`)
+- `main.tfvars.json` — azd parameter mapping (maps `${AZURE_ENV_NAME}`, `${AZURE_LOCATION}` to TF variables)
 
 In `agent-output/{project}/`:
 

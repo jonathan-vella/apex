@@ -7,7 +7,7 @@ Activate this skill when user wants to:
 
 **Rules**:
 
-1. If `.azure/plan.md` is missing, invoke **azure-prepare** then **azure-validate** automatically
+1. If `infra/{iac}/{project}/.azure/plan.md` is missing, invoke **azure-prepare** then **azure-validate** automatically
 2. Run after azure-prepare and azure-validate
 
 **Steps**:

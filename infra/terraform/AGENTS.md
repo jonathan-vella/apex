@@ -16,7 +16,14 @@ terraform validate
 # Full suite (all projects)
 npm run validate:terraform
 
-# Deploy (plan preview first)
+# Deploy with azd (preferred — when azure.yaml exists)
+cd infra/terraform/{project}
+azd env new {project}-{env}           # Create environment (e.g., hub-spoke-dev)
+azd env set AZURE_LOCATION swedencentral
+azd provision --preview                # Preview
+azd provision                          # Deploy
+
+# Deploy with pure Terraform (fallback — when no azure.yaml)
 cd infra/terraform/{project}
 terraform plan -out=tfplan
 terraform apply tfplan
@@ -34,6 +41,11 @@ infra/terraform/{project}/
   terraform.tf         # Required providers and backend configuration
   locals.tf            # Local values (naming, tags, computed values)
   terraform.tfvars     # Variable values (not committed for sensitive data)
+  azure.yaml           # azd project manifest (infra.provider: terraform, infra.path: .)
+  .azure/              # azd environment state (git-ignored)
+    plan.md            # azure-prepare output — source of truth for validate/deploy
+    {project}-{env}/   # Per-environment azd state (e.g., hub-spoke-dev/)
+      .env             # azd environment variables
   modules/
     */                 # One module per resource or logical group
       main.tf

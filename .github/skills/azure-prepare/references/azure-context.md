@@ -131,7 +131,7 @@ Choices: [
 
 ## Record in Plan
 
-After confirmation, record in `.azure/plan.md`:
+After confirmation, record in `infra/{iac}/{project}/.azure/plan.md`:
 
 ```markdown
 ## Azure Context

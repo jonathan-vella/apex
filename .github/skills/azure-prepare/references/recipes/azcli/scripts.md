@@ -24,7 +24,7 @@ az group create \
 # Deploy infrastructure
 az deployment group create \
   --resource-group "$RESOURCE_GROUP" \
-  --template-file ./infra/main.bicep \
+  --template-file ./main.bicep \
   --parameters ./infra/main.parameters.json \
   --parameters environmentName="$ENVIRONMENT"
 
@@ -63,7 +63,7 @@ az group create `
 # Deploy infrastructure
 az deployment group create `
   --resource-group $ResourceGroup `
-  --template-file ./infra/main.bicep `
+  --template-file ./main.bicep `
   --parameters ./infra/main.parameters.json `
   --parameters environmentName=$Environment
 

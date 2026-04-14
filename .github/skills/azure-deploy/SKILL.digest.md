@@ -18,7 +18,7 @@ Activate this skill when user wants to:
 ## Rules
 
 1. Run after azure-prepare and azure-validate
-2. `.azure/plan.md` must exist with status `Validated`
+2. `infra/{iac}/{project}/.azure/plan.md` must exist with status `Validated`
 3. **Pre-deploy checklist required** — [Pre-Deploy Checklist](references/pre-deploy-checklist.md)
 4. ⛔ **Destructive actions require `ask_user`** — [global-rules](references/global-rules.md)
 5. **Scope: deployment execution only** — This skill owns execution of `azd up`, `azd deploy`, `terraform apply`, and `az deployment` commands. These commands are run through this skill's error recovery and verification pipeline.
@@ -29,10 +29,10 @@ Activate this skill when user wants to:
 
 | #   | Action                                                                                                                                                                | Reference                                                  |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| 0   | **Auto-Prepare Gate** — If `.azure/plan.md` is missing, invoke **azure-prepare** then **azure-validate** automatically                                                | —                                                          |
-| 1   | **Check Plan** — Read `.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If not validated, invoke **azure-validate** first. | `.azure/plan.md`                                           |
+| 0   | **Auto-Prepare Gate** — If `infra/{iac}/{project}/.azure/plan.md` is missing, invoke **azure-prepare** then **azure-validate** automatically                                                | —                                                          |
+| 1   | **Check Plan** — Read `infra/{iac}/{project}/.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If not validated, invoke **azure-validate** first. | `infra/{iac}/{project}/.azure/plan.md`                                           |
 | 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                    | [Pre-Deploy Checklist](references/pre-deploy-checklist.md) |
-| 3   | **Load Recipe** — Based on `recipe.type` in `.azure/plan.md`                                                                                                          | [recipes/README.md](references/recipes/README.md)          |
+| 3   | **Load Recipe** — Based on `recipe.type` in `infra/{iac}/{project}/.azure/plan.md`                                                                                                          | [recipes/README.md](references/recipes/README.md)          |
 | 4   | **Execute Deploy** — Follow recipe steps                                                                                                                              | Recipe README                                              |
 
 > _See SKILL.md for full content._

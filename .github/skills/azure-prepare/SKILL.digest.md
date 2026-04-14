@@ -17,7 +17,7 @@ Activate this skill when user wants to:
 
 ## Rules
 
-1. **Plan first** — Create `.azure/plan.md` before any code generation
+1. **Plan first** — Create `infra/{iac}/{project}/.azure/plan.md` before any code generation
 2. **Get approval** — Present plan to user before execution
 3. **Research before generating** — Load references and invoke related skills
 4. **Update plan progressively** — Mark steps complete as you go
@@ -31,7 +31,7 @@ Activate this skill when user wants to:
 > **YOU MUST CREATE A PLAN BEFORE DOING ANY WORK**
 >
 > 1. **STOP** — Do not generate any code, infrastructure, or configuration yet
-> 2. **PLAN** — Follow the Planning Phase below to create `.azure/plan.md`
+> 2. **PLAN** — Follow the Planning Phase below to create `infra/{iac}/{project}/.azure/plan.md`
 > 3. **CONFIRM** — Present the plan to the user and get approval
 > 4. **EXECUTE** — Only after approval, execute the plan step by step
 
@@ -50,7 +50,7 @@ Activate this skill when user wants to:
 
 ## Phase 1: Planning (BLOCKING — Complete Before Any Execution)
 
-Create `.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
+Create `infra/{iac}/{project}/.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
 
 | # | Action | Reference |
 |---|--------|-----------|
@@ -61,7 +61,7 @@ Create `.azure/plan.md` by completing these steps. Do NOT generate any artifacts
 
 ## Phase 2: Execution (Only After Plan Approval)
 
-Execute the approved plan. Update `.azure/plan.md` status after each step.
+Execute the approved plan. Update `infra/{iac}/{project}/.azure/plan.md` status after each step.
 
 | # | Action | Reference |
 |---|--------|-----------|
@@ -74,7 +74,7 @@ Execute the approved plan. Update `.azure/plan.md` status after each step.
 
 | Artifact | Location |
 |----------|----------|
-| **Plan** | `.azure/plan.md` |
+| **Plan** | `infra/{iac}/{project}/.azure/plan.md` |
 | Infrastructure | `./infra/` |
 | AZD Config | `azure.yaml` (AZD only) |
 | Dockerfiles | `src/<component>/Dockerfile` |

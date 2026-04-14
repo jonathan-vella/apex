@@ -1,6 +1,7 @@
 # Azure
 *.azureauth
 *.publishsettings
+# Per-project azd environments (infra/{iac}/{project}/.azure/) and root .azure/
 .azure/
 local.settings.json
 

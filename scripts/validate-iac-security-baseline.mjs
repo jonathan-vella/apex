@@ -10,6 +10,11 @@
  * 2. HTTPS-only traffic
  * 3. No public blob access
  * 4. Managed identity preferred (warning only — not all resources need it)
+ * 5. Azure AD-only SQL auth
+ * 6. No shared key access on storage
+ * 7. App Service HTTP/2 enabled
+ * 8. MySQL/PostgreSQL SSL enforcement
+ * 9. Container Registry admin user disabled
  *
  * Enforces Golden Principle #10: Mechanical Enforcement Over Documentation.
  *
@@ -22,29 +27,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { Reporter } from "./_lib/reporter.mjs";
+import { walkFiles } from "./_lib/glob-helpers.mjs";
+import { findAllMatches } from "./_lib/regex-helpers.mjs";
 
 const ROOT = process.cwd();
-
-let errors = 0;
-let warnings = 0;
-let checks = 0;
-let filesScanned = 0;
-
-function fail(file, line, message) {
-  checks++;
-  errors++;
-  console.error(`  ❌ ${file}:${line} — ${message}`);
-}
-
-function warn(file, line, message) {
-  warnings++;
-  console.warn(`  ⚠️  ${file}:${line} — ${message}`);
-}
-
-function pass(description) {
-  checks++;
-  console.log(`  ✅ ${description}`);
-}
+const r = new Reporter("IaC Security Baseline");
 
 // --- Bicep security anti-patterns ---
 // Each entry: [regex, description]
@@ -105,6 +93,26 @@ const BICEP_VIOLATIONS = [
     /sslEnforcement\s*:\s*'Disabled'/i,
     "PostgreSQL SSL enforcement required (sslEnforcement must be Enabled)",
   ],
+  // --- MUST-FAIL: Storage shared key access ---
+  [
+    /allowSharedKeyAccess\s*:\s*true/i,
+    "Storage shared key access must be disabled (allowSharedKeyAccess must be false) — use Entra ID auth",
+  ],
+  // --- MUST-FAIL: App Service HTTP/2 ---
+  [
+    /http20Enabled\s*:\s*false/i,
+    "App Service HTTP/2 should be enabled (http20Enabled must be true)",
+  ],
+  // --- MUST-FAIL: MySQL SSL ---
+  [
+    /sslEnforcement\s*:\s*'Disabled'/i,
+    "MySQL SSL enforcement required (sslEnforcement must be Enabled)",
+  ],
+  // --- MUST-FAIL: Container Registry admin user ---
+  [
+    /adminUserEnabled\s*:\s*true/i,
+    "Container Registry admin user must be disabled — use managed identity",
+  ],
 ];
 
 // --- Bicep WARN-ONLY patterns (flag but don't block) ---
@@ -116,6 +124,10 @@ const BICEP_WARNINGS = [
   [
     /allowedOrigins\s*:\s*\[\s*'\*'\s*\]/i,
     "Wildcard CORS origin (*) should be restricted to specific domains",
+  ],
+  [
+    /defaultToOAuthAuthentication\s*:\s*false/i,
+    "Storage should default to Entra ID auth (defaultToOAuthAuthentication should be true)",
   ],
 ];
 
@@ -188,6 +200,26 @@ const TERRAFORM_VIOLATIONS = [
     /ssl_enforcement_enabled\s*=\s*false/i,
     "PostgreSQL SSL enforcement required (ssl_enforcement_enabled must be true)",
   ],
+  // --- MUST-FAIL: Storage shared key access ---
+  [
+    /shared_access_key_enabled\s*=\s*true/i,
+    "Storage shared key access must be disabled — use Entra ID auth",
+  ],
+  // --- MUST-FAIL: App Service HTTP/2 ---
+  [
+    /http2_enabled\s*=\s*false/i,
+    "App Service HTTP/2 should be enabled (http2_enabled must be true)",
+  ],
+  // --- MUST-FAIL: MySQL SSL ---
+  [
+    /ssl_enforcement_enabled\s*=\s*false/i,
+    "MySQL SSL enforcement required (ssl_enforcement_enabled must be true)",
+  ],
+  // --- MUST-FAIL: Container Registry admin user ---
+  [
+    /admin_enabled\s*=\s*true/i,
+    "Container Registry admin user must be disabled — use managed identity",
+  ],
 ];
 
 // --- Terraform WARN-ONLY patterns ---
@@ -199,6 +231,10 @@ const TERRAFORM_WARNINGS = [
   [
     /allowed_origins\s*=\s*\[\s*"\*"\s*\]/i,
     "Wildcard CORS origin (*) should be restricted to specific domains",
+  ],
+  [
+    /default_to_oauth_authentication\s*=\s*false/i,
+    "Storage should default to Entra ID auth (default_to_oauth_authentication should be true)",
   ],
 ];
 
@@ -215,24 +251,23 @@ function scanFile(filePath, violations, warningPatterns = []) {
     const line = lines[i];
     for (const [pattern, message] of violations) {
       if (pattern.test(line)) {
-        fail(relPath, i + 1, message);
+        r.error(`${relPath}:${i + 1}`, message);
         fileHasViolation = true;
       }
     }
     for (const [pattern, message] of warningPatterns) {
       if (pattern.test(line)) {
-        warn(relPath, i + 1, message);
+        r.warn(`${relPath}:${i + 1}`, message);
       }
     }
   }
 
-  // Check for duplicate tag keys differing only by casing
   checkTagCasingDuplicates(relPath, content);
 
   if (!fileHasViolation) {
-    pass(`${relPath} — no security baseline violations`);
+    r.ok(`${relPath} — no security baseline violations`);
   }
-  filesScanned++;
+  r.tick();
 }
 
 /**
@@ -242,18 +277,13 @@ function scanFile(filePath, violations, warningPatterns = []) {
 function checkTagCasingDuplicates(relPath, content) {
   const tagKeyPattern =
     /['"]?(Environment|ManagedBy|Project|Owner|environment|managedby|managedBy|project|owner)['"]?\s*[:=]/gi;
-  const found = [];
-  let match;
-  while ((match = tagKeyPattern.exec(content)) !== null) {
-    found.push(match[1]);
-  }
+  const found = findAllMatches(tagKeyPattern, content).map((m) => m[1]);
   const seen = new Map();
   for (const key of found) {
     const lower = key.toLowerCase();
     if (seen.has(lower) && seen.get(lower) !== key) {
-      fail(
+      r.error(
         relPath,
-        0,
         `Tag casing conflict: both '${seen.get(lower)}' and '${key}' found — Azure Policy treats case-variant tag keys as ambiguous (AmbiguousPolicyEvaluationPaths). Use PascalCase only.`,
       );
     }
@@ -264,7 +294,8 @@ function checkTagCasingDuplicates(relPath, content) {
 }
 
 /**
- * Recursively find files matching a glob extension under a directory.
+ * Recursively find files matching an extension under a directory.
+ * @deprecated Use walkFiles from _lib/glob-helpers.mjs for new code.
  */
 function findFiles(dir, ext) {
   const results = [];
@@ -282,44 +313,33 @@ function findFiles(dir, ext) {
 }
 
 // --- Main ---
-console.log("\n🔒 IaC Security Baseline Validation\n");
+r.header();
 
 // Scan Bicep files
-const bicepDir = path.join(ROOT, "infra", "bicep");
-const bicepFiles = findFiles(bicepDir, ".bicep");
+const bicepFiles = walkFiles("infra/bicep", ".bicep");
 if (bicepFiles.length > 0) {
   console.log(`📄 Scanning ${bicepFiles.length} Bicep file(s)...\n`);
   for (const f of bicepFiles) {
-    scanFile(f, BICEP_VIOLATIONS, BICEP_WARNINGS);
+    scanFile(path.resolve(f), BICEP_VIOLATIONS, BICEP_WARNINGS);
   }
 } else {
   console.log("ℹ️  No Bicep files found in infra/bicep/\n");
 }
 
 // Scan Terraform files
-const tfDir = path.join(ROOT, "infra", "terraform");
-const tfFiles = findFiles(tfDir, ".tf");
+const tfFiles = walkFiles("infra/terraform", ".tf");
 if (tfFiles.length > 0) {
   console.log(`\n📄 Scanning ${tfFiles.length} Terraform file(s)...\n`);
   for (const f of tfFiles) {
-    scanFile(f, TERRAFORM_VIOLATIONS, TERRAFORM_WARNINGS);
+    scanFile(path.resolve(f), TERRAFORM_VIOLATIONS, TERRAFORM_WARNINGS);
   }
 } else {
   console.log("ℹ️  No Terraform files found in infra/terraform/\n");
 }
 
 // --- Summary ---
-console.log(
-  `\n📊 Security baseline: ${checks} checks, ${filesScanned} files scanned`,
+r.summary("Security baseline");
+r.exitOnError(
+  "Security baseline validation passed.",
+  `${r.errors} security baseline violation(s) found. Fix violations or document exceptions in 04-governance-constraints.md.`,
 );
-if (errors > 0) {
-  console.error(`\n❌ ${errors} security baseline violation(s) found.`);
-  console.error(
-    "   Fix violations or document exceptions in 04-governance-constraints.md.\n",
-  );
-  process.exit(1);
-}
-if (warnings > 0) {
-  console.log(`⚠️  ${warnings} warning(s) — review recommended.`);
-}
-console.log("✅ Security baseline validation passed.\n");

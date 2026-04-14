@@ -4,11 +4,11 @@
 
 ## Detection
 
-| Indicator | How to Detect |
-|-----------|---------------|
-| `*.AppHost.csproj` | `find . -name "*.AppHost.csproj"` |
-| `Aspire.Hosting` package | `grep -r "Aspire\.Hosting" . --include="*.csproj"` |
-| `Aspire.AppHost.Sdk` | `grep -r "Aspire\.AppHost\.Sdk" . --include="*.csproj"` |
+| Indicator                | How to Detect                                           |
+| ------------------------ | ------------------------------------------------------- |
+| `*.AppHost.csproj`       | `find . -name "*.AppHost.csproj"`                       |
+| `Aspire.Hosting` package | `grep -r "Aspire\.Hosting" . --include="*.csproj"`      |
+| `Aspire.AppHost.Sdk`     | `grep -r "Aspire\.AppHost\.Sdk" . --include="*.csproj"` |
 
 ## Workflow
 
@@ -33,6 +33,7 @@ azd init --from-code -e "$ENV_NAME"
 ```
 
 **Generated azure.yaml:**
+
 ```yaml
 name: aspire-app
 metadata:
@@ -46,13 +47,14 @@ services:
 
 ## Command Flags
 
-| Flag | Required | Purpose |
-|------|----------|---------|
-| `--from-code` | ✅ | Auto-detect AppHost, no prompts |
-| `-e <name>` | ✅ | Environment name (non-interactive) |
-| `--no-prompt` | Optional | Skip all confirmations |
+| Flag          | Required | Purpose                            |
+| ------------- | -------- | ---------------------------------- |
+| `--from-code` | ✅       | Auto-detect AppHost, no prompts    |
+| `-e <name>`   | ✅       | Environment name (non-interactive) |
+| `--no-prompt` | Optional | Skip all confirmations             |
 
 **Why `--from-code` is critical:**
+
 - Without: Prompts "How do you want to initialize?" (needs TTY)
 - With: Auto-detects AppHost, no interaction needed
 - Essential for agents and CI/CD
@@ -68,11 +70,13 @@ builder.AddDockerfile("servicename", "./path/to/context")
 ```
 
 The build context determines:
+
 - Where Docker looks for files during `COPY` commands
 - The base directory for all Dockerfile operations
 - What `azd init --from-code` sets as `docker.context` in azure.yaml
 
 **Generated azure.yaml includes context:**
+
 ```yaml
 services:
   ginapp:
@@ -90,6 +94,7 @@ dotnet run <apphost-project> -- --publisher manifest --output-path manifest.json
 ```
 
 Manifest structure for Dockerfile-based services:
+
 ```json
 {
   "resources": {
@@ -107,10 +112,13 @@ Manifest structure for Dockerfile-based services:
 ### Common Docker Patterns
 
 **Single Dockerfile service:**
+
 ```csharp
 builder.AddDockerfile("api", "./src/api")
 ```
+
 Generated azure.yaml:
+
 ```yaml
 services:
   api:
@@ -123,11 +131,14 @@ services:
 ```
 
 **Multiple Dockerfile services:**
+
 ```csharp
 builder.AddDockerfile("frontend", "./src/frontend");
 builder.AddDockerfile("backend", "./src/backend");
 ```
+
 Generated azure.yaml:
+
 ```yaml
 services:
   frontend:
@@ -147,10 +158,13 @@ services:
 ```
 
 **Root context:**
+
 ```csharp
 builder.AddDockerfile("app", ".")
 ```
+
 Generated azure.yaml:
+
 ```yaml
 services:
   app:
@@ -164,16 +178,17 @@ services:
 
 ### azure.yaml Rules for Docker Services
 
-| Rule | Explanation |
-|------|-------------|
-| **Omit `language`** | Docker handles the build; azd doesn't need language-specific behavior |
-| **Use relative paths** | All paths in azure.yaml are relative to project root |
-| **Extract from manifest** | When in doubt, generate the Aspire manifest and use `build.context` |
+| Rule                              | Explanation                                                           |
+| --------------------------------- | --------------------------------------------------------------------- |
+| **Omit `language`**               | Docker handles the build; azd doesn't need language-specific behavior |
+| **Use relative paths**            | All paths in azure.yaml are relative to project root                  |
+| **Extract from manifest**         | When in doubt, generate the Aspire manifest and use `build.context`   |
 | **Match Dockerfile expectations** | The `context` must match what the Dockerfile's `COPY` commands expect |
 
 ### ❌ Common Docker Mistakes
 
 **Missing context causes build failures:**
+
 ```yaml
 services:
   ginapp:
@@ -185,11 +200,12 @@ services:
 ```
 
 **Unnecessary language field:**
+
 ```yaml
 services:
   ginapp:
     project: .
-    language: go              # ❌ Not needed for Docker builds
+    language: go # ❌ Not needed for Docker builds
     host: containerapp
     docker:
       path: ginapp/Dockerfile
@@ -203,6 +219,7 @@ services:
 **Cause:** Manual azure.yaml without services section
 
 **Fix:**
+
 1. Delete manual azure.yaml
 2. Run `azd init --from-code -e <env-name>`
 3. Verify services section exists
@@ -212,6 +229,7 @@ services:
 **Cause:** Missing `--from-code` flag
 
 **Fix:** Always use `--from-code` for Aspire:
+
 ```bash
 azd init --from-code -e "$ENV_NAME"
 ```
@@ -219,6 +237,7 @@ azd init --from-code -e "$ENV_NAME"
 ### AppHost Not Detected
 
 **Solutions:**
+
 1. Verify: `find . -name "*.AppHost.csproj"`
 2. Build: `dotnet build`
 3. Check package references in .csproj
@@ -226,13 +245,14 @@ azd init --from-code -e "$ENV_NAME"
 
 ## Infrastructure Auto-Generation
 
-| Traditional | Aspire |
-|------------|--------|
-| Manual infra/main.bicep | Auto-gen from AppHost |
-| Define in IaC | Define in C# code |
-| Update IaC per service | Add to AppHost |
+| Traditional            | Aspire                |
+| ---------------------- | --------------------- |
+| Manual ./main.bicep    | Auto-gen from AppHost |
+| Define in IaC          | Define in C# code     |
+| Update IaC per service | Add to AppHost        |
 
 **How it works:**
+
 1. AppHost defines services in C#
 2. `azd provision` analyzes AppHost
 3. Generates Bicep automatically

@@ -21,6 +21,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { Reporter } from "./_lib/reporter.mjs";
+
+const _r = new Reporter("Draw.io File Validation");
 
 // Directories to scan for .drawio files
 const SCAN_DIRS = [
@@ -35,6 +38,7 @@ const SCAN_DIRS = [
 const ICON_REQUIRED_PATTERN =
   /(?:^|\/)(03-des-diagram|04-dependency-diagram|04-runtime-diagram|07-ab-diagram|showcase-[^/]+)\.drawio$/;
 
+// Error/warning counters — synced to Reporter at summary time.
 let errors = 0;
 let warnings = 0;
 let filesChecked = 0;
@@ -506,10 +510,12 @@ for (const file of allFiles) {
   await validateDrawioFile(file);
 }
 
-console.log(
-  `\n📊 Checked: ${filesChecked} | Errors: ${errors} | Warnings: ${warnings}`,
+// Sync local counters to Reporter for consistent summary output
+_r.errors = errors;
+_r.warnings = warnings;
+_r.checked = filesChecked;
+_r.summary("Draw.io validation");
+_r.exitOnError(
+  "Draw.io validation passed",
+  `${errors} draw.io validation error(s) found`,
 );
-
-if (errors > 0) {
-  process.exit(1);
-}

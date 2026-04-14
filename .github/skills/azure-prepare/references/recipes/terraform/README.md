@@ -5,6 +5,7 @@ Terraform workflow for Azure deployments.
 > **⚠️ IMPORTANT: Consider azd+Terraform First**
 >
 > If you're deploying to Azure, you should **default to [azd with Terraform](../azd/terraform.md)** instead of pure Terraform. azd+Terraform gives you:
+>
 > - Terraform's IaC capabilities
 > - Simple `azd up` deployment workflow
 > - Built-in environment management
@@ -38,10 +39,10 @@ Use azd+Terraform (the default) when:
 
 **REQUIRED: Research best practices before generating any files.**
 
-| Artifact | Research Action |
-|----------|-----------------|
-| Terraform patterns | Call `mcp_azure_mcp_azureterraformbestpractices` |
-| Azure best practices | Call `mcp_azure_mcp_get_bestpractices` |
+| Artifact             | Research Action                                  |
+| -------------------- | ------------------------------------------------ |
+| Terraform patterns   | Call `mcp_azure_mcp_azureterraformbestpractices` |
+| Azure best practices | Call `mcp_azure_mcp_get_bestpractices`           |
 
 ## Generation Steps
 
@@ -52,6 +53,7 @@ Create Terraform files in `./infra/`.
 → [patterns.md](patterns.md)
 
 **Structure:**
+
 ```
 infra/
 ├── main.tf
@@ -73,14 +75,14 @@ Manual Dockerfile creation required.
 
 ## Output Checklist
 
-| Artifact | Path |
-|----------|------|
-| Main config | `./infra/main.tf` |
-| Variables | `./infra/variables.tf` |
-| Outputs | `./infra/outputs.tf` |
-| Values | `./infra/terraform.tfvars` |
-| Backend | `./infra/backend.tf` |
-| Modules | `./infra/modules/` |
+| Artifact    | Path                       |
+| ----------- | -------------------------- |
+| Main config | `./main.tf`                |
+| Variables   | `./variables.tf`           |
+| Outputs     | `./outputs.tf`             |
+| Values      | `./terraform.tfvars`       |
+| Backend     | `./backend.tf`             |
+| Modules     | `./modules/`               |
 | Dockerfiles | `src/<service>/Dockerfile` |
 
 ## References
@@ -89,4 +91,4 @@ Manual Dockerfile creation required.
 
 ## Next
 
-→ Update `.azure/plan.md` → **azure-validate**
+→ Update `infra/{iac}/{project}/.azure/plan.md` → **azure-validate**

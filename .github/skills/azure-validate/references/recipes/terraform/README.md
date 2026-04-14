@@ -4,7 +4,7 @@ Validation steps for Terraform deployments.
 
 ## Prerequisites
 
-- `./infra/main.tf` exists
+- `./main.tf` exists
 - State backend accessible
 
 ## Validation Steps

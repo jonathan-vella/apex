@@ -5,8 +5,8 @@ Deploy to Azure using Azure CLI.
 ## Prerequisites
 
 - `az` CLI installed → Run `mcp_azure_mcp_extension_cli_install` with `cli-type: az` if needed
-- `.azure/plan.md` exists with status `Validated`
-- Bicep/ARM templates exist in `infra/`
+- `infra/{iac}/{project}/.azure/plan.md` exists with status `Validated`
+- Bicep/ARM templates exist in the project directory
 - **Subscription and location confirmed** → See [Pre-Deploy Checklist](../../pre-deploy-checklist.md)
 
 ## Workflow
@@ -25,7 +25,7 @@ Deploy to Azure using Azure CLI.
 ```bash
 az deployment sub create \
   --location eastus2 \
-  --template-file ./infra/main.bicep \
+  --template-file ./main.bicep \
   --parameters environmentName=dev
 ```
 
@@ -36,7 +36,7 @@ az group create --name rg-myapp-dev --location eastus2
 
 az deployment group create \
   --resource-group rg-myapp-dev \
-  --template-file ./infra/main.bicep \
+  --template-file ./main.bicep \
   --parameters environmentName=dev
 ```
 

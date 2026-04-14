@@ -4,8 +4,8 @@ Validation steps for standalone Bicep deployments.
 
 ## Prerequisites
 
-- `./infra/main.bicep` exists
-- `./infra/main.parameters.json` exists
+- `./main.bicep` exists
+- `./main.parameters.json` exists
 - Azure CLI authenticated
 
 ## Validation Steps
@@ -13,7 +13,7 @@ Validation steps for standalone Bicep deployments.
 ### 1. Bicep Compilation
 
 ```bash
-az bicep build --file ./infra/main.bicep
+az bicep build --file ./main.bicep
 ```
 
 **Pass:** No output (compiles cleanly)
@@ -25,14 +25,14 @@ az bicep build --file ./infra/main.bicep
 # Subscription scope
 az deployment sub validate \
   --location <location> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 
 # Resource group scope
 az deployment group validate \
   --resource-group <rg-name> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 ```
 
 ### 3. What-If Preview
@@ -40,8 +40,8 @@ az deployment group validate \
 ```bash
 az deployment sub what-if \
   --location <location> \
-  --template-file ./infra/main.bicep \
-  --parameters ./infra/main.parameters.json
+  --template-file ./main.bicep \
+  --parameters ./main.parameters.json
 ```
 
 **Expected output:**
@@ -63,7 +63,7 @@ az account show
 Use Bicep linter rules:
 
 ```bash
-az bicep lint --file ./infra/main.bicep
+az bicep lint --file ./main.bicep
 ```
 
 ### 6. Azure Policy Validation

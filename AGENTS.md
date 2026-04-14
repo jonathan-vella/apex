@@ -121,9 +121,13 @@ These are non-negotiable for all generated infrastructure code:
 - TLS 1.2 minimum on all services
 - HTTPS-only traffic (`supportsHttpsTrafficOnly: true`)
 - No public blob access (`allowBlobPublicAccess: false`)
+- No shared key access on storage (`allowSharedKeyAccess: false`) — use Entra ID
 - Managed Identity preferred over keys/connection strings
 - Azure AD-only authentication for SQL
-- Public network access disabled for production data services
+- App Service HTTP/2 enabled (`http20Enabled: true`)
+- Container Registry admin user disabled (`adminUserEnabled: false`)
+- MySQL/PostgreSQL SSL enforcement required
+- Public network access disabled for production data services (dev/test exempt)
 
 ## Testing
 
@@ -199,7 +203,13 @@ agent-output/          # All agent-generated artifacts organized by project
   {project}/           # Per-project: 00-session-state.json + 01-requirements.md through 07-*.md
 infra/
   bicep/{project}/     # Bicep templates (main.bicep + modules/)
+    azure.yaml         # azd project manifest (per-project, co-located)
+    .azure/            # azd environment state (git-ignored)
+      plan.md          # azure-prepare output — source of truth for validate/deploy
   terraform/{project}/ # Terraform configurations (main.tf + modules/)
+    azure.yaml         # azd project manifest (infra.provider: terraform)
+    .azure/            # azd environment state (git-ignored)
+      plan.md          # azure-prepare output — source of truth for validate/deploy
 assets/
   excalidraw-libraries/  # Excalidraw libraries (whiteboarding only)
   drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
@@ -244,6 +254,20 @@ tool output (what-if/plan previews).
 | Executable scripts      | Skill `scripts/` (NOT `references/`)     | Deterministic operations, build/deploy scripts |
 | Cross-agent boilerplate | Subagent or instruction with narrow glob | Repeated patterns across multiple agent bodies |
 
+## azd Multi-Project Convention
+
+This repo supports multiple independent projects. Each project is a fully self-contained
+`azd` project with its own `azure.yaml` and `.azure/` directory inside the IaC project folder.
+
+- **Project root**: `infra/bicep/{project}/` or `infra/terraform/{project}/`
+- **azd manifest**: `infra/{iac}/{project}/azure.yaml` with `infra.path: .` (co-located)
+- **azd state**: `infra/{iac}/{project}/.azure/` (git-ignored) — contains per-environment `.env` files
+- **Prepare plan**: `infra/{iac}/{project}/.azure/plan.md` — source of truth for azure-validate → azure-deploy
+- **Environment naming**: `{project}-{env}` (e.g., `hub-spoke-dev`, `webapp-prod`) to avoid collisions
+- **Running azd**: `cd infra/{iac}/{project}` then run `azd` commands,
+  or use `azd -C infra/{iac}/{project}` from repo root
+- **Never** place `azure.yaml` or `.azure/` at the repo root — this breaks multi-project isolation
+
 ## Terraform Conventions
 
 - **Provider pin**: `~> 4.0` (AzureRM)
@@ -251,6 +275,7 @@ tool output (what-if/plan previews).
 - **Required tags**: Same as above, with `ManagedBy = "Terraform"`
 - **Unique suffix**: `random_string` resource (4 chars, lowercase)
 - **AVM registry**: `registry.terraform.io/Azure/avm-res-*/azurerm`
+- **azd support**: `azure.yaml` with `infra.provider: terraform` and `infra.path: .` in each project directory
 
 ## Bicep Conventions
 
@@ -259,6 +284,7 @@ tool output (what-if/plan previews).
 - **AVM registry**: `br/public:avm/res/{provider}/{resource}:{version}`
 - **Parameter files**: Use `.bicepparam` format
 - **Deployment**: `azure.yaml` manifest for `azd` (preferred); `deploy.ps1` PowerShell script (legacy fallback)
+- **azd manifest**: `azure.yaml` lives inside `infra/bicep/{project}/` with `infra.path: .`
 
 ## Security Considerations
 

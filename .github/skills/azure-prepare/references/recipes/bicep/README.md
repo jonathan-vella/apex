@@ -24,7 +24,7 @@ Standalone Bicep workflow (without AZD).
 
 ### 1. Generate Infrastructure
 
-Create Bicep templates in `./infra/`.
+Create Bicep templates in the project directory (co-located with `azure.yaml`).
 
 → [patterns.md](patterns.md)
 
@@ -47,9 +47,9 @@ Manual Dockerfile creation required.
 
 | Artifact | Path |
 |----------|------|
-| Main Bicep | `./infra/main.bicep` |
-| Parameters | `./infra/main.parameters.json` |
-| Modules | `./infra/modules/*.bicep` |
+| Main Bicep | `./main.bicep` |
+| Parameters | `./main.parameters.json` |
+| Modules | `./modules/*.bicep` |
 | Dockerfiles | `src/<service>/Dockerfile` |
 
 ## References
@@ -58,4 +58,4 @@ Manual Dockerfile creation required.
 
 ## Next
 
-→ Update `.azure/plan.md` → **azure-validate**
+→ Update `infra/{iac}/{project}/.azure/plan.md` → **azure-validate**
