@@ -26,7 +26,7 @@
       "installTFsec": false
     },
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.23.8"
+      "version": "1.24.2"
     },
     "ghcr.io/devcontainers-community/features/deno": {
       "version": "latest"

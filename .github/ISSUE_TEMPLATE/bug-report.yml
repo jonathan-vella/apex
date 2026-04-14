@@ -90,7 +90,7 @@ body:
       placeholder: |
         - Bicep CLI: 0.24.x
         - Azure CLI: 2.55.x
-        - Node.js: 20.x
+        - Node.js: 24.x
         - PowerShell: 7.4.x
       render: markdown
     validations:
