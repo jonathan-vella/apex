@@ -105,13 +105,20 @@ Discovered from Azure Policy assignment "JV-Inherit Multiple Tags" (effect: modi
 
 ### JSON Schema (`04-governance-constraints.json`)
 
-- Root: array of policy objects
-- Required fields: `displayName`, `policyDefinitionId`, `effect`, `scope`
+- Root: envelope object with `discovery_status` and `policies` fields (NOT a bare array)
+- **`discovery_status`**: `"COMPLETE"`, `"PARTIAL"`, or `"FAILED"` — validated by Step 4 at startup
+- **`policies`**: array of policy objects
+- Required fields per policy: `displayName`, `policyDefinitionId`, `effect`, `scope`
 - For `Deny` policies, add machine-actionable fields:
-  - `bicepPropertyPath` (e.g., `"properties.publicNetworkAccess"`)
+  - `bicepPropertyPath` (e.g., `"storageAccounts::properties.publicNetworkAccess"`)
   - `azurePropertyPath` (e.g., `"storageAccount.properties.publicNetworkAccess"`)
   - `requiredValue` (e.g., `"Disabled"`)
   - `affectedResourceTypes` (e.g., `["Microsoft.Storage/storageAccounts"]`)
+- For tag-enforcement policies (Deny/Modify targeting tags, not resource properties):
+  - `bicepPropertyPath`: `"resourceGroups::tags"`
+  - `azurePropertyPath`: `"resourceGroup.tags"`
+  - `requiredTags`: array of exact tag key names
+  - `pathSemantics`: `"tag-policy-non-property"`
 - These fields enable programmatic compliance verification by Code Generators
   and review subagents across both Bicep and Terraform
 
