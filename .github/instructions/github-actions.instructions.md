@@ -14,7 +14,7 @@ For general GitHub Actions best practices, rely on
 ### Runner and Node.js
 
 - **Runner**: `ubuntu-latest` for all jobs
-- **Node.js**: Version `22` with `npm` caching
+- **Node.js**: Version `24` with `npm` caching
 - **Dependencies**: `npm ci` (not `npm install`)
 
 ### Permissions
@@ -33,16 +33,18 @@ For general GitHub Actions best practices, rely on
 
 ### Action Versions
 
-- Pin to **major version tags** (e.g., `@v4`), not `@main` or `@latest`
+- Pin to **major version tags** (e.g., `@v6`), not `@main` or `@latest`
 - Use current versions:
 
-| Action                      | Version |
-| --------------------------- | ------- |
-| `actions/checkout`          | `@v4`   |
-| `actions/setup-node`        | `@v4`   |
-| `actions/upload-artifact`   | `@v4`   |
-| `actions/download-artifact` | `@v4`   |
-| `actions/cache`             | `@v4`   |
+| Action                              | Version |
+| ----------------------------------- | ------- |
+| `actions/checkout`                  | `@v6`   |
+| `actions/setup-node`                | `@v6`   |
+| `actions/upload-artifact`           | `@v4`   |
+| `actions/download-artifact`         | `@v4`   |
+| `actions/cache`                     | `@v4`   |
+| `actions/github-script`             | `@v8`   |
+| `peter-evans/create-pull-request`   | `@v8`   |
 
 ### Naming and Structure
 
@@ -97,7 +99,7 @@ Workflows run these project validators:
 
 | Anti-Pattern                    | Solution                                   |
 | ------------------------------- | ------------------------------------------ |
-| Pinning to `@main` or `@latest` | Use `@v4` major version tags               |
+| Pinning to `@main` or `@latest` | Use `@v6` major version tags               |
 | `npm install` in CI             | Use `npm ci` for deterministic installs    |
 | Missing `permissions` block     | Always declare least-privilege permissions |
 | Broad triggers (no path filter) | Scope with `paths:` to relevant files      |
