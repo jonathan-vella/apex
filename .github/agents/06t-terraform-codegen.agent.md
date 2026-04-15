@@ -260,7 +260,7 @@ Generate `bootstrap-backend.sh` + `bootstrap-backend.ps1`. Read
 Generate `infra/terraform/{project}/azure.yaml` (azd manifest — **primary deployment method**) with:
 
 ```yaml
-name: { project }
+name: {project}
 infra:
   provider: terraform
   path: .
