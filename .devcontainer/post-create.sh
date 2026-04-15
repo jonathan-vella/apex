@@ -102,11 +102,15 @@ fi
 
 step_start "🦕" "Upgrading Deno to latest..."
 if command -v deno &>/dev/null; then
-    if sudo deno upgrade 2>&1 | tail -1; then
+    DENO_OUT=$(sudo deno upgrade 2>&1) ; DENO_RC=$?
+    echo "$DENO_OUT" | tail -1
+    if [[ $DENO_RC -eq 0 ]]; then
         step_done "deno $(deno --version 2>/dev/null | head -n1 | awk '{print $2}')"
     else
         # Fallback: install from official script if upgrade fails
-        if curl -fsSL https://deno.land/install.sh | sudo DENO_INSTALL=/usr/local sh 2>&1 | tail -1; then
+        DENO_OUT=$(curl -fsSL https://deno.land/install.sh | sudo env DENO_INSTALL=/usr/local sh 2>&1) ; DENO_RC=$?
+        echo "$DENO_OUT" | tail -1
+        if [[ $DENO_RC -eq 0 ]]; then
             step_done "deno $(deno --version 2>/dev/null | head -n1 | awk '{print $2}') (fresh install)"
         else
             step_warn "Deno upgrade and fresh install both failed — using feature-installed version"
@@ -131,7 +135,7 @@ sudo mkdir -p "${HOME}/.cache" "${HOME}/.cache/deno" "${HOME}/.config/gh" \
               "${HOME}/.local/share/powershell/PSReadLine"
 sudo chown -R vscode:vscode "${HOME}/.cache" 2>/dev/null || true
 sudo chown -R vscode:vscode "${HOME}/.config/gh" 2>/dev/null || true
-sudo chown -R vscode:vscode "${HOME}/.local/share" 2>/dev/null || true
+sudo chown -R vscode:vscode "${HOME}/.local/share/powershell/PSReadLine" 2>/dev/null || true
 chmod 755 "${HOME}/.cache" 2>/dev/null || true
 chmod 755 "${HOME}/.config/gh" 2>/dev/null || true
 git config --global --add safe.directory "${PWD}"
