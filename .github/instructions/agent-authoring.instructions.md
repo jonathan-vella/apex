@@ -103,35 +103,37 @@ tools: [read/readFile, edit/createFile, agent, "azure-mcp/*"]
 
 Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
-- **Opus-first agents** (requirements, architect, iac-plan, diagnose,
-  context-optimizer) require deeper reasoning for architecture decisions,
+- **Opus-first agents** (orchestrator, requirements, architect, iac-plan, diagnose,
+  context-optimizer) require deeper reasoning for orchestration, architecture decisions,
   WAF assessments, planning accuracy, and complex analysis
-- **GPT-5.4 workflow and execution agents** (orchestrator, governance,
-  as-built, challenger wrapper, e2e-orchestrator, codegen, deploy) prioritize
-  strong general reasoning for orchestration, diagrams, governance synthesis,
-  documentation generation, code generation, deployment execution, and structured reviews
-- **Claude Sonnet 4.6 agents** (orchestrator fast path, design, and validation/preview subagents) balance
-  speed with strong execution quality for implementation
-- **GPT-5.3-Codex subagents** handle narrow, high-throughput validation or preview tasks
+- **Claude Sonnet 4.6 agents** (orchestrator fast path, design, bicep codegen,
+  terraform codegen) balance speed with strong execution quality for implementation
+  and code generation
+- **GPT-5.4 workflow and execution agents** (governance, as-built, challenger wrapper,
+  e2e-orchestrator, deploy, and bicep/terraform validation/preview subagents) prioritize
+  strong general reasoning for governance synthesis, documentation generation,
+  deployment execution, structured reviews, and isolated validation
+- **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
 
 Current model assignments:
 
-| Agent / Group            | Model                             | Rationale                 |
-| ------------------------ | --------------------------------- | ------------------------- |
-| Orchestrator             | GPT-5.4                           | Orchestration             |
-| Orchestrator (Fast Path) | Claude Sonnet 4.6                 | Streamlined orchestration |
-| Requirements             | Claude Opus 4.6                   | Deep understanding        |
-| Architect                | Claude Opus 4.6                   | WAF analysis + cost       |
-| Design                   | Claude Sonnet 4.6                 | Diagram generation        |
-| Governance               | GPT-5.4                           | Governance discovery      |
-| IaC Planner (unified)    | Claude Opus 4.6                   | Planning accuracy         |
-| Bicep / Terraform Code   | GPT-5.4                           | Code generation           |
-| Deploy                   | GPT-5.4                           | Deployment execution      |
-| As-Built                 | GPT-5.4                           | Documentation generation  |
-| Diagnose                 | Claude Opus 4.6                   | Complex troubleshooting   |
-| Context Optimizer        | Claude Opus 4.6                   | Deep analysis             |
-| Challenger wrapper       | GPT-5.4                           | Review orchestration      |
-| Subagents                | Claude Sonnet 4.6 / GPT-5.3-Codex | Isolated validation       |
+| Agent / Group            | Model             | Rationale                 |
+| ------------------------ | ----------------- | ------------------------- |
+| Orchestrator             | Claude Opus 4.6   | Deep orchestration        |
+| Orchestrator (Fast Path) | Claude Sonnet 4.6 | Streamlined orchestration |
+| Requirements             | Claude Opus 4.6   | Deep understanding        |
+| Architect                | Claude Opus 4.6   | WAF analysis + cost       |
+| Design                   | Claude Sonnet 4.6 | Diagram generation        |
+| Governance               | GPT-5.4           | Governance discovery      |
+| IaC Planner (unified)    | Claude Opus 4.6   | Planning accuracy         |
+| Bicep / Terraform Code   | Claude Sonnet 4.6 | Code generation           |
+| Deploy                   | GPT-5.4           | Deployment execution      |
+| As-Built                 | GPT-5.4           | Documentation generation  |
+| Diagnose                 | Claude Opus 4.6   | Complex troubleshooting   |
+| Context Optimizer        | Claude Opus 4.6   | Deep analysis             |
+| Challenger wrapper       | GPT-5.4           | Review orchestration      |
+| Bicep/TF subagents       | GPT-5.4           | Isolated validation       |
+| Cost estimate subagent   | GPT-5.3-Codex     | High-throughput pricing   |
 
 **Rules:**
 

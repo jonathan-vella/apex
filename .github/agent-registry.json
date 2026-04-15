@@ -5,7 +5,7 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Opus 4.6",
       "skills": [
         "golden-principles",
         "session-resume",
@@ -95,7 +95,7 @@
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -108,7 +108,7 @@
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -199,7 +199,7 @@
     },
     "e2e-orchestrator": {
       "agent": ".github/agents/e2e-orchestrator.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Opus 4.6",
       "skills": [
         "session-resume",
         "workflow-engine",
@@ -231,25 +231,25 @@
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": ["azure-bicep-patterns"],
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": false
     },
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": ["terraform-patterns", "terraform-test"],
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.4",
       "skills": [],
       "invokable": false
     }

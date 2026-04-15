@@ -12,7 +12,7 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["GPT-5.4"] # (1)!
+model: ["Claude Sonnet 4.6"] # (1)!
 tools: [list of allowed tools] # (2)!
 handoffs:
   - label: "Step 6: Deploy"
@@ -184,8 +184,9 @@ Model selection depends on the task. Use `.github/agent-registry.json` as the
 source of truth, but the current repo pattern is:
 
 - **Planning agents** (accuracy-first) — typically `Claude Opus 4.6`
-- **Execution and deploy agents** — typically `GPT-5.4`
-- **Validation and preview subagents** — currently `Claude Sonnet 4.6`
+- **Orchestrator** — `Claude Opus 4.6` for deep reasoning across the full workflow
+- **Code generation agents** — `Claude Sonnet 4.6` for balanced code quality and speed
+- **Execution, deploy, and validation subagents** — typically `GPT-5.4`
 - **Adversarial review** — use a different model family than the artifact author when possible
 
 ### Step 2: Create the Agent File

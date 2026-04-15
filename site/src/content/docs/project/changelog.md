@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): model realignment v2 — Orchestrator moves GPT-5.4 → Claude Opus 4.6;
+  CodeGen agents (06b-Bicep CodeGen, 06t-Terraform CodeGen) move GPT-5.4 → Claude Sonnet 4.6;
+  bicep/terraform subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan)
+  move Claude Sonnet 4.6 → GPT-5.4. Claude XML directive blocks added to orchestrator and
+  codegen agents per model-prompt alignment rules. Agent-registry.json and authoring
+  instructions updated to match.
 - feat(agents): update model assignments for 9 agents/subagents.
   Codegen agents (06b-Bicep CodeGen, 06t-Terraform CodeGen) and deploy agents
   (07b-Bicep Deploy, 07t-Terraform Deploy) move from Claude Sonnet 4.6 → GPT-5.4.

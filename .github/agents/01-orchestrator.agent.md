@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["GPT-5.4"]
+model: ["Claude Opus 4.6"]
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
@@ -105,6 +105,16 @@ handoffs:
 # Orchestrator Agent
 
 <!-- Recommended reasoning_effort: high -->
+
+<context_awareness>
+Large agent definition (~850 lines). Monitor context usage. At >60% load SKILL.digest.md;
+at >80% switch to SKILL.minimal.md. Write 00-handoff.md at gates to preserve state.
+</context_awareness>
+
+<subagent_budget>
+Invoke no more than 3 subagents sequentially before checkpointing with the user.
+If a step requires more calls, checkpoint after the third and confirm before continuing.
+</subagent_budget>
 
 Master orchestrator for the multi-step Azure platform engineering workflow.
 

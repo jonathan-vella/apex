@@ -1,7 +1,7 @@
 ---
 name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
@@ -56,6 +56,30 @@ handoffs:
 ---
 
 # Terraform Code Agent
+
+<!-- Recommended reasoning_effort: medium -->
+
+<investigate_before_answering>
+Read the implementation plan and governance constraints before generating any Terraform code.
+Verify AVM-TF module availability and variable schemas via preflight checks.
+</investigate_before_answering>
+
+<context_awareness>
+Large agent definition (~590 lines). At >60% context, load SKILL.digest.md variants.
+At >80% switch to SKILL.minimal.md and stop re-reading predecessor artifacts.
+</context_awareness>
+
+<scope_fencing>
+Generate Terraform configurations and validation artifacts only.
+Do not deploy — that is the Deploy agent's responsibility.
+Do not modify architecture decisions — hand back to Planner.
+</scope_fencing>
+
+<output_contract>
+Phase 1: agent-output/{project}/04-preflight-check.md
+Phase 2-4: infra/terraform/{project}/ configurations
+Phase 5: agent-output/{project}/05-implementation-reference.md
+</output_contract>
 
 ## Investigate Before Answering
 
@@ -236,7 +260,7 @@ Generate `bootstrap-backend.sh` + `bootstrap-backend.ps1`. Read
 Generate `infra/terraform/{project}/azure.yaml` (azd manifest — **primary deployment method**) with:
 
 ```yaml
-name: {project}
+name: { project }
 infra:
   provider: terraform
   path: .
