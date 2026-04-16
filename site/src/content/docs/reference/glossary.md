@@ -26,9 +26,12 @@ Used to record "why" decisions were made for future reference.
 
 ### Agent (Custom)
 
-A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes top-level agents (including two Orchestrator
-variants, a Governance agent, and a Context Optimizer) plus subagents.
+A specialized AI assistant defined in `.github/agents/` that focuses on a specific
+workflow step or supporting role. Invoked via `Ctrl+Shift+A`. The catalog spans
+top-level workflow agents (Orchestrator plus the Requirements → As-Built chain),
+cross-cutting agents (Governance, Context Optimizer, Diagnose, Challenger), and
+non-user-invocable subagents under `.github/agents/_subagents/`. The authoritative
+inventory lives in `.github/agent-registry.json` and `count-manifest.json`.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
