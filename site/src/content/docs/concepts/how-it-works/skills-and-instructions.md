@@ -67,8 +67,7 @@ when each instruction activates:
 | `iac-best-practices`            | `**/*.bicep`, `**/*.tf`, `**/04-implementation-plan.md`              | Security baseline, policy alignment, cost monitoring, repeatability |
 | `terraform-code-best-practices` | `**/*.tf`                                                            | AVM-TF, provider pinning, naming                                    |
 | `azure-artifacts`               | `**/agent-output/**/*.md`                                            | H2 template compliance for artefacts                                |
-| `agent-definitions`             | `**/*.agent.md`                                                      | Frontmatter standards for agents                                    |
-| `agent-research-first`          | `**/*.agent.md`, agent-output, skills                                | Mandatory research-before-implementation                            |
+| `agent-definitions`             | `**/*.agent.md`                                                      | Frontmatter standards for agents + research-before-implementation   |
 | `agent-skills`                  | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                         |
 | `instructions`                  | `**/*.instructions.md`                                               | Meta: instruction file guidelines                                   |
 | `markdown`                      | `**/*.md`                                                            | Documentation standards                                             |

@@ -1,6 +1,6 @@
 ---
 description: "Prevents hard-coded numeric counts for project entities (agents, skills, instructions, validators). Enforces descriptive language and count-manifest.json as single source of truth."
-applyTo: "**/*.md, **/*.json, **/*.mjs"
+applyTo: ".github/**/*.{md,json}, scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
 ---
 
 # No Hard-Coded Counts

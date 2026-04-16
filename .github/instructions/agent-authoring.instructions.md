@@ -203,6 +203,29 @@ Read `.github/skills/azure-defaults/SKILL.md` FIRST for regional standards, nami
 security baseline, and workflow integration patterns common to all agents.
 ```
 
+### Research Before Implementation
+
+All agents gather context before producing output. This ensures complete, one-shot execution
+without missing context or requiring multiple iterations.
+
+Pre-implementation checklist:
+
+1. Search the workspace for existing patterns (`agent-output/`, similar projects, templates).
+2. Read relevant templates in `.github/skills/azure-artifacts/templates/`.
+3. Query documentation via MCP tools (Azure docs, best practices) where applicable.
+4. Confirm all required artifacts from previous workflow steps exist.
+5. Check shared defaults in `.github/skills/azure-defaults/SKILL.md`.
+6. Proceed only when you have sufficient context to produce a complete artifact.
+
+Use read-only tools first — `semantic_search`, `grep_search`, `read_file`, `list_dir`, and the
+Azure MCP tools — to build understanding before making changes. When extensive research is
+needed, delegate to a subagent and instruct it to work autonomously and return findings without
+pausing for user feedback.
+
+Rules: research before creating files; read templates before generating output; query Azure docs
+before recommending services; validate inputs before proceeding to the next step; ask for
+clarification when context is insufficient rather than assuming.
+
 ### Subagent Delegation Pattern
 
 When an agent delegates work to a subagent, follow this pattern:

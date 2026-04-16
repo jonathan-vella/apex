@@ -20,6 +20,12 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- chore(instructions): narrow overly-broad `applyTo` globs on `no-heredoc`,
+  `no-hardcoded-counts`, `markdown`, and `code-quality` to reclaim context budget
+  on every agent load. Merge `agent-research-first.instructions.md` into
+  `agent-authoring.instructions.md` (single source). Upgrade
+  `scripts/validate-glob-audit.mjs` to flag any `applyTo: "**"` plus oversized
+  `**/*.md` globs.
 - feat(azd): per-project azd multi-project support — `azure.yaml` and `.azure/` now live
   inside `infra/{iac}/{project}/` (co-located with `infra.path: .`), replacing the
   repo-root convention that broke multi-project isolation. Environment naming uses
