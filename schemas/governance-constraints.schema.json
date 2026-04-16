@@ -4,7 +4,12 @@
   "title": "APEX Governance Constraints",
   "description": "Shape of agent-output/{project}/04-governance-constraints.json produced by 04g-Governance. Used by 06b/06t codegen agents. Validators MAY use this schema; in-repo validation is advisory until 0.12.0.",
   "type": "object",
-  "required": ["schema_version", "subscription_id", "discovered_at", "findings"],
+  "required": [
+    "schema_version",
+    "subscription_id",
+    "discovered_at",
+    "findings"
+  ],
   "additionalProperties": true,
   "properties": {
     "schema_version": {
@@ -31,7 +36,15 @@
           "display_name": { "type": "string", "minLength": 1 },
           "effect": {
             "type": "string",
-            "enum": ["deny", "audit", "auditIfNotExists", "append", "modify", "deployIfNotExists", "disabled"]
+            "enum": [
+              "deny",
+              "audit",
+              "auditIfNotExists",
+              "append",
+              "modify",
+              "deployIfNotExists",
+              "disabled"
+            ]
           },
           "scope": { "type": "string" },
           "azurePropertyPath": { "type": "string" },

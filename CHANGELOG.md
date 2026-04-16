@@ -27,7 +27,7 @@ for full details on this and all prior releases.
   `// OVERRIDE <id> until <date> — see <issue>` banner comments above affected
   resources; missing fields or past expiry fail closed. JSON shape captured in
   new `schemas/governance-constraints.schema.json` (`schema_version:
-  governance-constraints-v1`) for future AJV enforcement.
+governance-constraints-v1`) for future AJV enforcement.
 - fix(agents): normalise `e2e-orchestrator.agent.md` model frontmatter to the
   standard array form `["Claude Opus 4.6"]` (was the only agent using the
   `"Claude Opus 4.6 (copilot)"` string form).
