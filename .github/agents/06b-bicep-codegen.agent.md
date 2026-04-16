@@ -177,6 +177,10 @@ Also read `02-architecture-assessment.md` for SKU/tier context.
 
 ## Workflow
 
+Shared phase contract for both IaC tracks:
+`.github/skills/iac-common/references/codegen-shared-workflow.md`.
+This agent substitutes Bicep-specific tools below.
+
 ### Phase 1: Preflight Check (MANDATORY)
 
 For EACH resource in `04-implementation-plan.md`:
