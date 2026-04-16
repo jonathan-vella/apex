@@ -71,6 +71,12 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | 09-Diagnose                 | Azure resource troubleshooting                  | azure-diagnostics                              |
 | 10-Challenger               | Standalone adversarial review                   | —                                              |
 | 11-Context Optimizer        | Context window audit and optimisation           | context-optimizer                              |
+| e2e-orchestrator            | Prompt-invoked end-to-end validation driver     | workflow-engine, session-resume                |
+
+For a live, always-current roster, see the
+[Architecture Explorer](../../reference/architecture-explorer/). The count is
+computed from `.github/count-manifest.json` and the source of truth is the
+`.github/agents/*.agent.md` files on disk.
 
 ## Subagents
 
@@ -186,7 +192,7 @@ source of truth, but the current repo pattern is:
 - **Planning agents** (accuracy-first) — typically `Claude Opus 4.6`
 - **Orchestrator** — `Claude Opus 4.6` for deep reasoning across the full workflow
 - **Code generation agents** — `Claude Sonnet 4.6` for balanced code quality and speed
-- **Execution, deploy, and validation subagents** — typically `GPT-5.4`
+- **Execution, deploy, and validation subagents** — model varies; consult `.github/agent-registry.json`
 - **Adversarial review** — use a different model family than the artifact author when possible
 
 ### Step 2: Create the Agent File
@@ -256,11 +262,8 @@ Update two registry files:
 ### Step 5: Validate
 
 ```bash
-# Validate frontmatter syntax
-npm run lint:agent-frontmatter
-
-# Check body size and language quality
-npm run lint:agent-checks
+# Validate frontmatter syntax, body size, and language quality
+npm run validate:agents
 
 # Verify registry consistency
 npm run validate:agent-registry
@@ -271,7 +274,7 @@ npm run validate:skill-affinity
 
 | Problem                     | Cause                           | Fix                                                 |
 | --------------------------- | ------------------------------- | --------------------------------------------------- |
-| Agent not appearing in chat | Missing or invalid frontmatter  | Run `npm run lint:agent-frontmatter`                |
+| Agent not appearing in chat | Missing or invalid frontmatter  | Run `npm run validate:agents`                       |
 | Tool not available          | Tool not in `tools:` allowlist  | Add the tool name to frontmatter                    |
 | Handoff not triggering      | Wrong agent name in `handoffs:` | Verify target agent file exists                     |
 | Skills not loading          | Typo in skill path              | Check path matches `.github/skills/{name}/SKILL.md` |
