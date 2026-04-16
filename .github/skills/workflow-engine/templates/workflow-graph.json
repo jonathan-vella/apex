@@ -268,9 +268,23 @@
     { "from": "gate-5", "to": "step-7", "condition": "on_complete" }
   ],
   "metadata": {
-    "version": "2.0",
+    "version": "2.1",
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
-    "total_steps": 7
+    "total_steps": 7,
+    "complexity_routing": {
+      "description": "Deterministic formula for selecting challenger-review pass counts. Orchestrator computes `score` at gate-1, stores result in session state `decisions.complexity`, and agents read from session state instead of re-deriving. Weights calibrated on existing agent-output projects; adjust via PR with rationale.",
+      "formula": "score = (resource_count / 3) + (policy_violations / 2) + (iac_tool == 'terraform' ? 0.5 : 0)",
+      "tiers": [
+        { "max_score": 1.5, "label": "simple", "passes": 1 },
+        { "max_score": 3.0, "label": "standard", "passes": 2 },
+        { "max_score": 999, "label": "complex", "passes": 3 }
+      ],
+      "inputs": {
+        "resource_count": "Count of Azure resources declared in 02-architecture-assessment.md",
+        "policy_violations": "Count of `deny`-effect findings from 04-governance-constraints.json",
+        "iac_tool": "bicep or terraform, from decisions.iac_tool"
+      }
+    }
   }
 }

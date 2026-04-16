@@ -1,0 +1,61 @@
+{
+  "$schema": "model-catalog-v1",
+  "description": "Allowed Copilot Chat model names used by APEX agents. Canonical source for model-floor lint. Update this file when model availability changes or models deprecate.",
+  "last_updated": "2026-04-16",
+  "models": {
+    "Claude Opus 4.6": {
+      "vendor": "Anthropic",
+      "tier": "frontier",
+      "released": "2026-01",
+      "deprecated": false,
+      "use_for": [
+        "orchestration",
+        "architecture",
+        "iac-planning",
+        "diagnosis",
+        "context-optimization"
+      ],
+      "notes": "Highest-reasoning tier. Reserve for steps with creative or multi-artifact decisions."
+    },
+    "Claude Sonnet 4.6": {
+      "vendor": "Anthropic",
+      "tier": "balanced",
+      "released": "2026-01",
+      "deprecated": false,
+      "use_for": ["design-diagrams", "iac-codegen"],
+      "notes": "Strong code generation at lower cost than Opus. Prefer for long code outputs."
+    },
+    "GPT-5.4": {
+      "vendor": "OpenAI",
+      "tier": "standard",
+      "released": "2026-02",
+      "deprecated": false,
+      "use_for": [
+        "governance",
+        "deployment",
+        "as-built",
+        "challenger-review",
+        "validation-subagents",
+        "whatif-interpretation"
+      ],
+      "notes": "Strong structured output + tool use. Use for validators and deterministic subagents."
+    },
+    "GPT-5.3-Codex": {
+      "vendor": "OpenAI",
+      "tier": "codex",
+      "released": "2025-12",
+      "deprecated": false,
+      "use_for": ["cost-estimation", "parametric-calculations"],
+      "notes": "Code/maths-focused. Used by cost-estimate-subagent for numerical reasoning."
+    }
+  },
+  "floors": {
+    "rationale": "A `model_floor` is the minimum capability tier an agent may use. Agents may be pinned above their floor but never below. Floor enforcement catches silent downgrades; ceilings are changed via PR review.",
+    "tiers": {
+      "frontier": 4,
+      "balanced": 3,
+      "codex": 2,
+      "standard": 2
+    }
+  }
+}

@@ -41,6 +41,7 @@
     "diff:baseline": "bash scripts/diff-context-baseline.sh",
     "lint:agent-checks": "node scripts/validate-agents.mjs",
     "lint:glob-audit": "node scripts/validate-glob-audit.mjs",
+    "lint:model-floors": "node scripts/validate-model-floors.mjs",
     "validate:skills": "node scripts/validate-skills.mjs",
     "lint:skill-references": "node scripts/validate-skills.mjs",
     "lint:orphaned-content": "node scripts/validate-orphaned-content.mjs",
@@ -64,8 +65,8 @@
     "validate:terminology": "node scripts/validate-terminology.mjs",
     "build:drawio-icons": "python scripts/convert-azure-icons-to-drawio.py",
     "test:hooks": "bash tests/test-hooks.sh",
-    "validate:_node": "run-p validate:artifacts validate:agents validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config validate:instruction-checks lint:governance-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-checks lint:json lint:glob-audit lint:orphaned-content lint:docs-freshness validate:no-hardcoded-counts validate:hooks validate:iac-security-baseline validate:vscode lint:drawio validate:terminology",
-    "validate:_node-ci": "run-p validate:artifacts validate:agents validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config lint:governance-refs validate:instruction-checks validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-checks lint:json lint:glob-audit lint:orphaned-content validate:vscode lint:drawio",
+    "validate:_node": "run-p validate:artifacts validate:agents validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config validate:instruction-checks lint:governance-refs validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-checks lint:json lint:glob-audit lint:orphaned-content lint:docs-freshness validate:no-hardcoded-counts validate:hooks validate:iac-security-baseline validate:vscode lint:drawio validate:terminology lint:model-floors",
+    "validate:_node-ci": "run-p validate:artifacts validate:agents validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config lint:governance-refs validate:instruction-checks validate:session-state validate:session-lock validate:workflow-graph validate:agent-registry validate:skill-checks lint:json lint:glob-audit lint:orphaned-content validate:vscode lint:drawio lint:model-floors",
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform",
     "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'",
     "audit:quarterly": "run-p lint:glob-audit lint:orphaned-content lint:docs-freshness"

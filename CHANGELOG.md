@@ -20,6 +20,13 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- feat(agents): add `.github/model-catalog.json` (single source of allowed Copilot
+  models with vendor, tier, release date, and deprecation flag) plus
+  `scripts/validate-model-floors.mjs` wired into `validate:_node` and CI. Extend
+  `.github/skills/workflow-engine/templates/workflow-graph.json` with a
+  deterministic `complexity_routing` formula (resource count + policy violations
+  + IaC-tool weight → passes) so orchestrators auto-route challenger passes from
+  session state instead of guessing.
 - docs: single-source glossary — `docs/GLOSSARY.md` is now a 9-line stub pointing
   to `site/src/content/docs/reference/glossary.md` (removes 570-line duplicate,
   fixes circular `#orchestrator` self-link, moves Orchestrator to its own `## O`
