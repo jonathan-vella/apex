@@ -135,6 +135,10 @@ class TestAzurePricingClient:
             # First call returns 429, second succeeds
             mock_response_429 = AsyncMock()
             mock_response_429.status = 429
+            # headers.get() is synchronous on real aiohttp responses; use
+            # MagicMock to avoid returning a coroutine that float() can't parse.
+            mock_response_429.headers = MagicMock()
+            mock_response_429.headers.get = MagicMock(return_value="0.1")
 
             mock_response_200 = AsyncMock()
             mock_response_200.status = 200
