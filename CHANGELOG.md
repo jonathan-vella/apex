@@ -20,6 +20,11 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- feat(governance): `schemas/governance-constraints.schema.json` is now
+  enforced at validation time. `scripts/validate-artifacts.mjs` compiles the
+  schema with AJV (draft 2020-12) and validates every
+  `agent-output/*/04-governance-constraints.json` artifact in Step 5b. Drops
+  the schema from advisory-only to hard-gate for the JSON companion.
 - feat(governance): structured policy-override pattern — `04g-Governance` now
   emits Deny findings with an optional `override` block (`reason`, `issue_link`,
   `expiry`) instead of silently dropping overridden policies. Codegen agents

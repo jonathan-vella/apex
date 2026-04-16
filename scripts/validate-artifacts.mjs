@@ -14,6 +14,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import Ajv from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 import { ARTIFACT_HEADINGS } from "./_lib/artifact-headings.mjs";
 
 // ============================================================================
@@ -920,6 +922,86 @@ function validateArtifactCompliance(relPath) {
   }
 }
 
+// ============================================================================
+// Governance JSON Schema Validation (AJV)
+// ============================================================================
+
+const GOVERNANCE_SCHEMA_PATH = "schemas/governance-constraints.schema.json";
+const GOVERNANCE_JSON_BASENAME = "04-governance-constraints.json";
+
+let _governanceValidator = null;
+function getGovernanceValidator() {
+  if (_governanceValidator !== null) return _governanceValidator;
+  if (!exists(GOVERNANCE_SCHEMA_PATH)) {
+    _governanceValidator = false;
+    return false;
+  }
+  const schema = JSON.parse(readText(GOVERNANCE_SCHEMA_PATH));
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  addFormats(ajv);
+  _governanceValidator = ajv.compile(schema);
+  return _governanceValidator;
+}
+
+function findGovernanceJsonArtifacts() {
+  const baseDir = path.resolve(process.cwd(), "agent-output");
+  if (!fs.existsSync(baseDir)) return [];
+  const entries = fs.readdirSync(baseDir, {
+    withFileTypes: true,
+    recursive: true,
+  });
+  return entries
+    .filter((entry) => {
+      if (!entry.isFile()) return false;
+      if (entry.name !== GOVERNANCE_JSON_BASENAME) return false;
+      const dir = entry.parentPath ?? entry.path;
+      const rel = path.relative(baseDir, dir);
+      if (rel.startsWith("_baselines")) return false;
+      return true;
+    })
+    .map((entry) => {
+      const dir = entry.parentPath ?? entry.path;
+      return path.relative(process.cwd(), path.join(dir, entry.name));
+    });
+}
+
+function validateGovernanceJsonArtifacts() {
+  const validator = getGovernanceValidator();
+  if (!validator) {
+    warn(
+      `Governance schema not found at ${GOVERNANCE_SCHEMA_PATH}; skipping JSON validation.`,
+      { filePath: GOVERNANCE_SCHEMA_PATH, line: 1, title: TITLE_MISSING },
+    );
+    return;
+  }
+
+  const files = findGovernanceJsonArtifacts();
+  console.log(`  Found ${files.length} governance JSON file(s).`);
+  for (const filePath of files) {
+    let data;
+    try {
+      data = JSON.parse(readText(filePath));
+    } catch (e) {
+      error(`${filePath}: invalid JSON — ${e.message}`, {
+        filePath,
+        line: 1,
+        title: "Governance JSON Parse Error",
+      });
+      continue;
+    }
+    if (!validator(data)) {
+      for (const err of validator.errors || []) {
+        const where = err.instancePath || "(root)";
+        error(`${filePath}: schema violation at ${where}: ${err.message}`, {
+          filePath,
+          line: 1,
+          title: "Governance Schema Violation",
+        });
+      }
+    }
+  }
+}
+
 function findArtifacts() {
   const baseDir = path.resolve(process.cwd(), "agent-output");
   if (!fs.existsSync(baseDir)) return [];
@@ -976,6 +1058,9 @@ function runTemplateValidation() {
   for (const artifact of artifacts) {
     validateArtifactCompliance(artifact);
   }
+
+  console.log("Step 5b: Validating governance JSON against schema (AJV)...");
+  validateGovernanceJsonArtifacts();
 
   console.log(
     "Step 6: Checking for duplicate H1 headers (resume integrity)...",

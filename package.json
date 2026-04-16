@@ -74,6 +74,8 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
+    "ajv": "^8.18.0",
+    "ajv-formats": "^3.0.1",
     "fast-xml-parser": "^5.5.10",
     "jsdom": "^29.0.1",
     "lefthook": "^2.1.4",
