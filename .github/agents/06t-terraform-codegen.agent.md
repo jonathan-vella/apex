@@ -211,6 +211,13 @@ For EACH resource in `04-implementation-plan.md`:
    - Options: **Return to Planner** (recommended) / **Override and proceed** (advanced)
      Do not list governance violations in chat text and ask the user to reply.
      If the user chooses to return, STOP and present the Return to Step 4 handoff.
+7. If `04-governance-constraints.json` contains a structured `override` block
+   for a Deny finding (see `04g-governance.agent.md` → Policy Override Pattern),
+   validate that `reason`, `issue_link`, and a future-dated `expiry` are all
+   present. If valid, treat the finding as informational and emit
+   `# OVERRIDE <policy_id> until <expiry> — see <issue_link>` above the
+   affected resource block. If any override field is missing or expired,
+   fail closed (return to user via `askQuestions`).
 
 > **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Always use the `askQuestions` tool for user decisions.

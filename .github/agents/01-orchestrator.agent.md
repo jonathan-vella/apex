@@ -201,6 +201,39 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 All steps default to **1-pass comprehensive adversarial review**. Multi-pass rotating
 lens reviews are **opt-in**, recommended only for complex projects.
 
+### Computing `decisions.complexity`
+
+At **Gate-1** (after Requirements approval) and refreshed at **Gate-2_5** (after
+Governance), derive `decisions.complexity` using the canonical formula in
+`.github/skills/workflow-engine/templates/workflow-graph.json`
+(`metadata.complexity_routing`). Do not re-invent the formula — read it from the
+graph.
+
+```text
+score = (resource_count / 3)
+      + (policy_violations / 2)
+      + (iac_tool == "terraform" ? 0.5 : 0)
+
+score <= 1.5  -> complexity = "simple"   (1 review pass)
+score <= 3.0  -> complexity = "standard" (2 review passes)
+score  > 3.0  -> complexity = "complex"  (3 review passes)
+```
+
+Inputs:
+
+| Input                | Source                                                |
+| -------------------- | ----------------------------------------------------- |
+| `resource_count`     | Count declared in `02-architecture-assessment.md`     |
+| `policy_violations`  | Count of `deny`-effect findings in `04-governance-constraints.json` |
+| `iac_tool`           | `decisions.iac_tool` (bicep or terraform)             |
+
+Persist the result at `decisions.complexity` in `00-session-state.json` so every
+agent reads the same value instead of re-deriving. If `04-governance-constraints.json`
+is not yet generated (pre-Gate-2_5), set `policy_violations = 0` and refresh the
+score after governance approval.
+
+### Gate behaviour
+
 At each approval gate:
 
 1. Run a single comprehensive challenger pass

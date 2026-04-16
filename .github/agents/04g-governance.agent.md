@@ -205,3 +205,39 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Always**: Query REST API (not just `az policy assignment list`), validate counts, produce both `.md` and `.json`
 - **Ask first**: Manual policy overrides, skipping discovery for known environments
 - **Never**: Generate IaC code, skip discovery, assume policy state from best practices
+
+## Policy Override Pattern
+
+When a user requests an override of a `deny`-effect policy finding (e.g., "deploy
+to a region blocked by Allowed Locations policy"), **do not silently drop the
+finding** and do not hard-gate the deployment. Emit a structured override in
+`04-governance-constraints.json` and carry it forward:
+
+```json
+{
+  "policy_id": "<policy definition or assignment id>",
+  "original_effect": "deny",
+  "override": {
+    "requested_at": "<ISO-8601 timestamp>",
+    "requested_by": "<user principal or 'unknown' for non-interactive>",
+    "reason": "<one-line justification; must not be empty>",
+    "issue_link": "<GitHub issue or ADR URL; required>",
+    "expiry": "<ISO-8601 date, max +90 days from requested_at>"
+  }
+}
+```
+
+Downstream consumers (`06b-Bicep CodeGen`, `06t-Terraform CodeGen`, their deploy
+counterparts) MUST:
+
+1. Treat findings with a non-null `override` as informational warnings, not blockers.
+2. Emit a banner comment in generated IaC: `// OVERRIDE <policy_id> until <expiry> — see <issue_link>`.
+3. Refuse to proceed if `reason` or `issue_link` is empty, or if `expiry` is in the
+   past. In those cases re-prompt the user or halt.
+
+Unchanged behaviour (no override field) continues to hard-gate as before.
+
+**Schema**: The full shape of `04-governance-constraints.json` is defined in
+[`schemas/governance-constraints.schema.json`](../../schemas/governance-constraints.schema.json)
+(`schema_version: governance-constraints-v1`). Emit outputs conforming to that
+schema; future validator upgrades will enforce it via AJV.

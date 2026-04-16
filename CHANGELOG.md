@@ -20,6 +20,25 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- feat(governance): structured policy-override pattern — `04g-Governance` now
+  emits Deny findings with an optional `override` block (`reason`, `issue_link`,
+  `expiry`) instead of silently dropping overridden policies. Codegen agents
+  (`06b`/`06t`) treat overrides as informational warnings and inject
+  `// OVERRIDE <id> until <date> — see <issue>` banner comments above affected
+  resources; missing fields or past expiry fail closed. JSON shape captured in
+  new `schemas/governance-constraints.schema.json` (`schema_version:
+  governance-constraints-v1`) for future AJV enforcement.
+- fix(agents): normalise `e2e-orchestrator.agent.md` model frontmatter to the
+  standard array form `["Claude Opus 4.6"]` (was the only agent using the
+  `"Claude Opus 4.6 (copilot)"` string form).
+- feat(orchestrator): document the complexity auto-calc procedure in
+  `01-orchestrator.agent.md` — formula read from `workflow-graph.json`
+  `metadata.complexity_routing`, inputs sourced from architecture + governance
+  artefacts, result persisted at `decisions.complexity` so every downstream
+  agent reads the same value.
+- docs: admonition taxonomy (`note`/`tip`/`caution`/`danger`) and mandatory
+  `## Related` footer pattern documented in `docs.instructions.md`; footers
+  added to the 6 guide pages that lacked them.
 - feat(drawio): 10-point visual-quality rubric (title, footer, legend, grouping,
   spacing, palette, edge labels, canonical icons, anchor stability, cross-cutting
   container) added to `.github/skills/drawio/references/validation-checklist.md`
