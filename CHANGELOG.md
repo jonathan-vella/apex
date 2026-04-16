@@ -20,6 +20,16 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- feat(drawio): 10-point visual-quality rubric (title, footer, legend, grouping,
+  spacing, palette, edge labels, canonical icons, anchor stability, cross-cutting
+  container) added to `.github/skills/drawio/references/validation-checklist.md`
+  with `automated?`/rationale columns. Formalise APEX palette (compute `#E7F5FF`,
+  data `#FFF2CC`, security `#FFE6E6`, networking `#E6F5E6`, governance `#F5F5F5`),
+  typography (title 14–16pt, service 11pt, footer 9pt), and spacing (40/80/120 px)
+  in `style-reference.md`. `scripts/validate-drawio-files.mjs` adds an advisory
+  palette-drift check on `03-des-*`, `04-*-diagram`, `07-ab-*`, and `showcase-*`
+  files; promote to blocking with `APEX_DRAWIO_RUBRIC=strict` (default advisory
+  until 0.12.0).
 - perf(mcp): Azure Pricing MCP — raise HTTP pool ceiling 10→20 (per-host 5→10)
   and dedup cache TTL 30s→300s / capacity 100→512 entries, configurable via
   `AZURE_PRICING_HTTP_POOL_SIZE`, `AZURE_PRICING_HTTP_POOL_PER_HOST`,
@@ -30,8 +40,8 @@ for full details on this and all prior releases.
   models with vendor, tier, release date, and deprecation flag) plus
   `scripts/validate-model-floors.mjs` wired into `validate:_node` and CI. Extend
   `.github/skills/workflow-engine/templates/workflow-graph.json` with a
-  deterministic `complexity_routing` formula (resource count + policy violations
-  + IaC-tool weight → passes) so orchestrators auto-route challenger passes from
+  deterministic `complexity_routing` formula (resource count, policy violations,
+  IaC-tool weight → passes) so orchestrators auto-route challenger passes from
   session state instead of guessing.
 - docs: single-source glossary — `docs/GLOSSARY.md` is now a 9-line stub pointing
   to `site/src/content/docs/reference/glossary.md` (removes 570-line duplicate,
