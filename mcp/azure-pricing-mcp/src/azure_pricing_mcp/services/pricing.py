@@ -70,8 +70,10 @@ class PricingService:
                 return result
         result = await self._client.fetch_prices(filter_conditions, currency_code, limit)
         self._request_cache[cache_key] = (result, datetime.now())
-        # Evict old entries
-        if len(self._request_cache) > 100:
+        # Evict old entries when cache exceeds configured capacity.
+        # Lazy eviction keeps hot paths fast; only pays cost on overflow.
+        from ..config import REQUEST_DEDUP_MAX_ENTRIES
+        if len(self._request_cache) > REQUEST_DEDUP_MAX_ENTRIES:
             cutoff = datetime.now()
             self._request_cache = {
                 k: v for k, v in self._request_cache.items()

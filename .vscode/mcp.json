@@ -11,7 +11,13 @@
         "-m",
         "azure_pricing_mcp"
       ],
-      "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src"
+      "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src",
+      "env": {
+        "AZURE_PRICING_HTTP_POOL_SIZE": "20",
+        "AZURE_PRICING_HTTP_POOL_PER_HOST": "10",
+        "AZURE_PRICING_DEDUP_TTL": "300",
+        "AZURE_PRICING_DEDUP_MAX_ENTRIES": "512"
+      }
     },
     "terraform": {
       "type": "stdio",

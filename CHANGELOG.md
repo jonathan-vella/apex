@@ -20,6 +20,12 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- perf(mcp): Azure Pricing MCP — raise HTTP pool ceiling 10→20 (per-host 5→10)
+  and dedup cache TTL 30s→300s / capacity 100→512 entries, configurable via
+  `AZURE_PRICING_HTTP_POOL_SIZE`, `AZURE_PRICING_HTTP_POOL_PER_HOST`,
+  `AZURE_PRICING_DEDUP_TTL`, `AZURE_PRICING_DEDUP_MAX_ENTRIES`. Defaults also
+  surfaced in `.vscode/mcp.json`. Cuts repeated-query latency on multi-region
+  bulk estimates; retail prices refresh at most hourly so 5-min reuse is safe.
 - feat(agents): add `.github/model-catalog.json` (single source of allowed Copilot
   models with vendor, tier, release date, and deprecation flag) plus
   `scripts/validate-model-floors.mjs` wired into `validate:_node` and CI. Extend
