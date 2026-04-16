@@ -3,6 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "prebuild": "node ../scripts/generate-explorer-graph.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
