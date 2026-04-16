@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- docs: single-source glossary — `docs/GLOSSARY.md` is now a 9-line stub pointing
+  to `site/src/content/docs/reference/glossary.md` (removes 570-line duplicate,
+  fixes circular `#orchestrator` self-link, moves Orchestrator to its own `## O`
+  section). Clarify `VERSION.md` 0.10.0 status as pre-release/Unreleased.
 - chore(instructions): narrow overly-broad `applyTo` globs on `no-heredoc`,
   `no-hardcoded-counts`, `markdown`, and `code-quality` to reclaim context budget
   on every agent load. Merge `agent-research-first.instructions.md` into

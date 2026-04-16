@@ -116,10 +116,6 @@ Auto-invoked by the Orchestrator after Steps 1, 2, and 4.
 The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Shift+I`. Supports
 custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
 
-### Orchestrator
-
-See [Orchestrator](#orchestrator).
-
 ### CLI (Command-Line Interface)
 
 A text-based interface for interacting with software. This project uses several CLIs:
@@ -239,14 +235,6 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
 ## I
 
-### Orchestrator
-
-The master orchestrator agent that coordinates all steps of the infrastructure workflow with
-mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
-orchestration features.
-
-📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md)
-
 ### IaC (Infrastructure as Code)
 
 Practice of managing infrastructure through code files (Bicep, Terraform, ARM) rather than manual
@@ -301,6 +289,16 @@ reduces MTTR by 73-85% (see Time Savings Evidence).
 
 Azure resource that filters network traffic with allow/deny rules. Applied to subnets or NICs.
 Essential for microsegmentation and defense-in-depth.
+
+## O
+
+### Orchestrator
+
+The master orchestrator agent that coordinates all steps of the infrastructure workflow with
+mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
+orchestration features.
+
+📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md)
 
 ## P
 
