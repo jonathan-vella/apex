@@ -25,7 +25,7 @@ It includes all required tools, extensions, and configurations to build Azure in
 ### Scripting & Automation
 
 - **PowerShell 7+** (via devcontainer feature) with Az modules (Accounts, Resources, Storage, Network, KeyVault, Websites)
-- **Python 3.13** (pyenv-managed, pinned in post-create.sh) with pip and uv
+- **Python 3.10+** (provided by the universal base image via Oryx; currently 3.12.x) with `uv` for venv and tool management
 - **Node.js LTS** (base image, nvm-managed) with npm
 - **Bash** with common utilities
 
@@ -213,13 +213,13 @@ pwsh -Command "Get-Module -ListAvailable Az.*"
 
 `post-start.sh` runs automatically via `postStartCommand` and updates:
 
-| Tool                          | Method                         |
-| ----------------------------- | ------------------------------ |
-| `terraform-mcp-server`        | `go install ...@latest`        |
-| Azure Pricing MCP             | `pip install -e .` in its venv |
-| npm local deps                | `npm install`                  |
-| `markdownlint-cli2`           | `npm install -g`               |
-| `checkov`, `ruff`, `diagrams` | `uv pip install --upgrade`     |
+| Tool                               | Method                                                   |
+| ---------------------------------- | -------------------------------------------------------- |
+| `terraform-mcp-server`             | clone + `go build` into `/go/bin` (only if missing)      |
+| Azure Pricing MCP                  | `uv pip install -e .[azure]` against its venv            |
+| npm local deps                     | `npm install`                                            |
+| `diagrams`, `matplotlib`, `pillow` | `uv pip install --system --upgrade`                      |
+| `checkov`, `ruff`                  | `uv tool upgrade` (isolated, binaries on `~/.local/bin`) |
 
 ### Manual Updates (require rebuild or manual run)
 
@@ -250,12 +250,12 @@ installs all tools from scratch including the Go and Terraform features.
 
 ## 📊 Resource Usage
 
-| Metric                 | Value        |
-| ---------------------- | ------------ |
+| Metric                 | Value                               |
+| ---------------------- | ----------------------------------- |
 | **Container Image**    | ~5-7 GB compressed / ~15 GB on disk |
-| **Memory (idle)**      | ~1 GB        |
-| **Memory (active)**    | ~2-3 GB      |
-| **Disk (with caches)** | ~18-22 GB    |
+| **Memory (idle)**      | ~1 GB                               |
+| **Memory (active)**    | ~2-3 GB                             |
+| **Disk (with caches)** | ~18-22 GB                           |
 
 ## 🔒 Security Notes
 
