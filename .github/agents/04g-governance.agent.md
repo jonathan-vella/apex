@@ -84,29 +84,60 @@ If missing, STOP and request handoff to the appropriate prior agent.
 
 ## Core Workflow
 
-### Phase 0.5: Discovery Scope
+### Phase 0: Scope
 
-Use the `askQuestions` tool before delegating to the subagent.
-Build a single form to scope the discovery:
+**Scope is always subscription and below** (subscription-scoped assignments plus
+management-group-inherited policies that apply at the subscription). Do NOT ask
+the user to choose a scope — the subagent discovers this range in a single
+batched call. If the user explicitly asks to narrow to specific resource types,
+honor that; otherwise proceed.
 
-- header: "Governance Discovery Scope"
-- question: "Which scope should I discover policies for?"
-- Options:
-  1. **Full subscription** (recommended) — discover all policies across the subscription
-  2. **Specific resource types only** — limit to services in the architecture assessment
-  3. **Enter custom answer** — for manual scope specification
+### Phase 0.5: Cache-First Check (MANDATORY before delegation)
 
-Do not skip this step or assume "full subscription" without asking.
-The `askQuestions` tool presents an inline form the user fills out in one shot.
+Before invoking `governance-discovery-subagent`, check for an existing snapshot:
+
+1. If `agent-output/{project}/04-governance-constraints.json` exists AND the
+   user did NOT request `--refresh` / "refresh governance" / "re-run discovery":
+   - Read the JSON directly
+   - Verify `discovery_status == "COMPLETE"` and `policies` array is present
+   - Skip Phase 1 entirely — proceed to Phase 2 using the cached snapshot
+   - Log: `"CACHE HIT: reusing 04-governance-constraints.json (pass --refresh to re-discover)"`
+2. If the user's prompt contains `refresh`, `re-run`, `rediscover`, or `--refresh`,
+   or if the cached JSON is missing / has `discovery_status != "COMPLETE"`:
+   - Proceed to Phase 1 (fresh discovery)
+
+This short-circuit turns re-invocations (challenger feedback loops, orchestrator
+resumes, manual re-runs) from ~2 minutes into ~1 second.
 
 ### Phase 1: Governance Discovery
 
 If discovery fails, STOP. Do not proceed with incomplete policy data.
 
-1. **Delegate** to `governance-discovery-subagent` using the `agent` tool via `#tool:agent` — verifies Azure
-   connectivity, queries ALL effective policy assignments via REST API (including management
-   group-inherited), classifies effects. Pass the user's scope choice to constrain the query.
+1. **Delegate** to `governance-discovery-subagent` using the `agent` tool via
+   `#tool:agent`. The delegation prompt MUST inline every input the subagent
+   needs so it does not read parent context files:
+   - `project`: `{project}` (from session state)
+   - `subscription`: `default` (or explicit id if the user specified one)
+   - `scope_mode`: `subscription-and-below` (fixed)
+   - `target_resource_types`: the list from `02-architecture-assessment.md`
+     resource inventory (inline as a comma-separated list)
+   - `refresh`: `true` only if Phase 0.5 determined a refresh is required
+
+   The subagent will verify connectivity via `az account get-access-token` in
+   its batched script, query effective policy assignments via REST with
+   `$filter=atScope()`, list all policy/set definitions in two batched calls,
+   and classify effects in-process. The subagent MUST NOT call
+   `azure_auth-get_auth_context` or `mcp_azure_mcp_get_azure_bestpractices`,
+   and MUST NOT read parent artifacts, templates, or schemas.
+
 2. **Review result** — Status must be COMPLETE (if PARTIAL or FAILED, STOP and present error)
+3. **Consume the compact rows, not raw JSON** — the subagent returns a compact
+   `rows` array (`{assignment, effect, scope, types, requiredValue}`) and writes
+   the full snapshot to `04-governance-constraints.json`. Operate on the rows
+   only. Do NOT read the full snapshot back into the model context during
+   artifact generation — it balloons the reasoning turn and is what caused
+   earlier 17 s+ template-fill turns. Read specific policy records from disk
+   only when a row is ambiguous.
 
 ### Phase 1.5: Subagent Fallback
 
@@ -145,6 +176,10 @@ discover the schema iteratively through challenger feedback.
 Run a single comprehensive adversarial review on the governance artifacts.
 **Cap**: Maximum 2 challenger passes total. If must-fix findings remain after
 pass 2, present them to the user at the approval gate rather than looping further.
+
+**Performance note**: When re-invoked to address challenger findings, this agent
+MUST hit the Phase 0.5 cache — fixing artifact content never requires rediscovering
+policies. Do not re-run Phase 1 between challenger passes.
 
 1. Delegate to `challenger-review-subagent` using the `agent` tool via `#tool:agent`:
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
@@ -203,8 +238,13 @@ If the user provides a custom response at an approval gate, interpret it as inst
 ## Boundaries
 
 - **Always**: Query REST API (not just `az policy assignment list`), validate counts, produce both `.md` and `.json`
-- **Ask first**: Manual policy overrides, skipping discovery for known environments
-- **Never**: Generate IaC code, skip discovery, assume policy state from best practices
+- **Always**: Check Phase 0.5 cache before delegating to the subagent
+- **Ask first**: Manual policy overrides
+- **Never**: Generate IaC code, skip discovery entirely on first run, assume policy state from best practices
+- **Never**: Re-run Phase 1 discovery on challenger feedback loops — only artifact content changes
+- **Never**: Read the full `04-governance-constraints.json` snapshot back into
+  the model during Phase 2 — operate on compact rows and read individual
+  records by path when needed
 
 ## Policy Override Pattern
 
