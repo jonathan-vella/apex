@@ -6,24 +6,24 @@ generating workflow documentation.
 
 ## Template Inventory
 
-| Artifact | Template File | Producing Agent |
-| --- | --- | --- |
-| Step 1: Requirements | `01-requirements.template.md` | Requirements |
-| Step 2: Architecture | `02-architecture-assessment.template.md` | Architect |
-| Step 3: Cost Estimate | `03-des-cost-estimate.template.md` | Architect |
-| Step 4: Governance | `04-governance-constraints.template.md` | Bicep Plan |
-| Step 4: Impl Plan | `04-implementation-plan.template.md` | Bicep Plan |
-| Step 4: Preflight | `04-preflight-check.template.md` | Bicep Code |
-| Step 5: Impl Reference | `05-implementation-reference.template.md` | Bicep Code |
-| Step 6: Deployment | `06-deployment-summary.template.md` | Deploy |
-| Step 7: Doc Index | `07-documentation-index.template.md` | azure-artifacts |
-| Step 7: Design Doc | `07-design-document.template.md` | azure-artifacts |
-| Step 7: Runbook | `07-operations-runbook.template.md` | azure-artifacts |
-| Step 7: Inventory | `07-resource-inventory.template.md` | azure-artifacts |
-| Step 7: Cost (As-Built) | `07-ab-cost-estimate.template.md` | azure-artifacts |
-| Step 7: Backup/DR | `07-backup-dr-plan.template.md` | azure-artifacts |
-| Step 7: Compliance | `07-compliance-matrix.template.md` | azure-artifacts |
-| Project README | `PROJECT-README.template.md` | Any agent |
+| Artifact                | Template File                             | Producing Agent |
+| ----------------------- | ----------------------------------------- | --------------- |
+| Step 1: Requirements    | `01-requirements.template.md`             | Requirements    |
+| Step 2: Architecture    | `02-architecture-assessment.template.md`  | Architect       |
+| Step 3: Cost Estimate   | `03-des-cost-estimate.template.md`        | Architect       |
+| Step 4: Governance      | `04-governance-constraints.template.md`   | Bicep Plan      |
+| Step 4: Impl Plan       | `04-implementation-plan.template.md`      | Bicep Plan      |
+| Step 4: Preflight       | `04-preflight-check.template.md`          | Bicep Code      |
+| Step 5: Impl Reference  | `05-implementation-reference.template.md` | Bicep Code      |
+| Step 6: Deployment      | `06-deployment-summary.template.md`       | Deploy          |
+| Step 7: Doc Index       | `07-documentation-index.template.md`      | azure-artifacts |
+| Step 7: Design Doc      | `07-design-document.template.md`          | azure-artifacts |
+| Step 7: Runbook         | `07-operations-runbook.template.md`       | azure-artifacts |
+| Step 7: Inventory       | `07-resource-inventory.template.md`       | azure-artifacts |
+| Step 7: Cost (As-Built) | `07-ab-cost-estimate.template.md`         | azure-artifacts |
+| Step 7: Backup/DR       | `07-backup-dr-plan.template.md`           | azure-artifacts |
+| Step 7: Compliance      | `07-compliance-matrix.template.md`        | azure-artifacts |
+| Project README          | `PROJECT-README.template.md`              | Any agent       |
 
 ## Template Structure
 
@@ -48,7 +48,7 @@ Each template defines:
 
 Templates and generated artifacts are validated by:
 
-- **Script**: `scripts/validate-artifact-templates.mjs`
+- **Script**: `scripts/validate-artifacts.mjs`
 - **npm script**: `npm run lint:artifact-templates`
 
 All 16 templates use `standard` strictness (missing/out-of-order headings
