@@ -193,6 +193,16 @@ fi
 # ─── Step 8: PowerShell modules ──────────────────────────────────────────────
 
 step_start "🔧" "Installing Azure PowerShell modules..."
+# PowerShell auto-creates /home/codespace/.local/share/powershell on first
+# launch; if any earlier step invoked pwsh as root (e.g. via sudo), that dir
+# ends up root-owned and Install-Module -Scope CurrentUser fails silently
+# with "Administrator rights are required". Force ownership back to codespace
+# before installing.
+if [ -d /home/codespace/.local/share/powershell ]; then
+    sudo chown -R codespace:codespace /home/codespace/.local/share/powershell 2>/dev/null || true
+fi
+mkdir -p /home/codespace/.local/share/powershell/Modules 2>/dev/null || true
+
 pwsh -NoProfile -Command "
     \$ErrorActionPreference = 'SilentlyContinue'
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
@@ -214,8 +224,15 @@ pwsh -NoProfile -Command "
         } -ArgumentList \$_
     }
 
-    \$completed = \$jobs | Wait-Job -Timeout 90
+    # Az modules are large (Az.Accounts alone ~25MB). 90s was too tight on
+    # slow CI networks and modules would silently time out. Allow 5 minutes.
+    \$completed = \$jobs | Wait-Job -Timeout 300
     \$jobs | Remove-Job -Force
+
+    # Surface what actually landed so step_done vs step_warn is accurate.
+    \$installed = \$modules | Where-Object { Get-Module -ListAvailable -Name \$_ }
+    Write-Host \"        Installed: \$(\$installed -join ', ')\"
+    if (\$installed.Count -lt \$modules.Count) { exit 1 }
 " && step_done "PowerShell modules installed" || step_warn "PowerShell module installation incomplete"
 
 # ─── Step 9: Azure Pricing MCP Server ────────────────────────────────────────

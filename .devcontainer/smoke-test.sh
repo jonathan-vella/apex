@@ -26,9 +26,20 @@ fail() { printf "  ❌ %-40s %s\n" "$1" "${2:-}"; FAIL=$((FAIL + 1)); FAILURES+=
 warn() { printf "  ⚠️  %-40s %s\n" "$1" "${2:-}"; WARN=$((WARN + 1)); }
 
 # Assert a command exists AND runs (capture first line of --version output).
+# NOTE: `set -o pipefail` at the top of this script causes any pipe where the
+# left side keeps writing after the right side (e.g. `head -n1`) closes the
+# reader to exit with 141 (SIGPIPE). That gives false negatives for tools
+# like tflint and markdownlint-cli2 whose --version prints multiple lines.
+# We therefore disable pipefail locally, capture the full output, then take
+# the first line from the string variable.
 check_cmd() {
     local label="$1" cmd="$2"
-    if out=$(eval "$cmd" 2>&1); then
+    local out rc
+    set +o pipefail
+    out=$(eval "$cmd" 2>&1)
+    rc=$?
+    set -o pipefail
+    if [[ $rc -eq 0 ]]; then
         pass "$label" "$(printf '%s' "$out" | head -n1)"
     else
         fail "$label" "command failed: $cmd"
@@ -99,14 +110,24 @@ check_file "~/.cache/uv (volume mount)"   "$HOME/.cache/uv"
 section "Language runtimes (base image provided)"
 
 check_cmd "python3"        "python3 --version"
-check_cmd "pyenv"          "pyenv --version"
 
-# Python must be pyenv-pinned to 3.13.x
-PY_VER=$(python3 --version 2>&1 | awk '{print $2}')
-if [[ "$PY_VER" == 3.13.* ]]; then
-    pass "Python pinned to 3.13.x" "$PY_VER"
+# pyenv is optional: universal:2-linux no longer ships it reliably (switched to
+# Oryx-managed Python). Treat absence as a warn, not a failure.
+if command -v pyenv &>/dev/null; then
+    check_cmd "pyenv"          "pyenv --version"
 else
-    fail "Python pinned to 3.13.x" "got: $PY_VER (expected 3.13.x)"
+    warn "pyenv (optional)" "not installed — base image uses Oryx Python"
+fi
+
+# Python must satisfy pyproject.toml's `requires-python = ">=3.10"`. Accept
+# any 3.10+ minor so we aren't tied to a specific base-image refresh.
+PY_VER=$(python3 --version 2>&1 | awk '{print $2}')
+PY_MAJOR=$(printf '%s' "$PY_VER" | cut -d. -f1)
+PY_MINOR=$(printf '%s' "$PY_VER" | cut -d. -f2)
+if [[ "$PY_MAJOR" == "3" && "$PY_MINOR" -ge 10 ]]; then
+    pass "Python >= 3.10" "$PY_VER"
+else
+    fail "Python >= 3.10" "got: $PY_VER (pyproject requires >=3.10)"
 fi
 
 check_cmd "node"           "node --version"
@@ -139,11 +160,14 @@ check_cmd "checkov"        "checkov --version"
 check_cmd "ruff"           "ruff --version"
 
 # markdownlint-cli2 lints the cwd by default; run from /tmp to avoid that.
-if out=$(cd /tmp && markdownlint-cli2 --version 2>&1 | head -n1); then
-    pass "markdownlint-cli2" "$out"
+# Disable pipefail locally so SIGPIPE from `head -n1` closing doesn't fail.
+set +o pipefail
+if out=$(cd /tmp && markdownlint-cli2 --version 2>&1); then
+    pass "markdownlint-cli2" "$(printf '%s' "$out" | head -n1)"
 else
     fail "markdownlint-cli2" "not found or failed"
 fi
+set -o pipefail
 
 # terraform-mcp-server is built into /go/bin or found on PATH.
 if command -v terraform-mcp-server &>/dev/null; then
