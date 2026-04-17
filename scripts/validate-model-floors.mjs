@@ -3,10 +3,12 @@
  * Model Floor Validator
  *
  * Enforces that every agent's declared `model` frontmatter appears in
- * `.github/model-catalog.json` and is not marked deprecated. This catches:
- *   - Typos ("Claude opus 4.6" vs "Claude Opus 4.6")
- *   - Silent drift to unapproved models
- *   - Use of deprecated models still referenced in agent files
+ * `.github/model-catalog.json` (unknown models are errors). Models marked
+ * `deprecated` in the catalog emit a warning (not an error) to allow a
+ * grace period before removal. This catches:
+ *   - Typos ("Claude opus 4.6" vs "Claude Opus 4.6") — error
+ *   - Silent drift to unapproved models — error
+ *   - Use of deprecated models still referenced in agent files — warning
  *
  * The catalog is the single source of truth. Update it when model availability
  * changes; update agents to match.

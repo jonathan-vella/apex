@@ -87,6 +87,6 @@ regex cannot detect.
 
 ## Related
 
-- [Quickstart](/getting-started/quickstart) — install and run your first project
-- [Workflow](/concepts/workflow) — how agents collaborate across steps
-- [Troubleshooting](/guides/troubleshooting) — diagnose failed deploys
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys

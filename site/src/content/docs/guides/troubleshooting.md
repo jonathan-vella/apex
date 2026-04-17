@@ -549,6 +549,6 @@ Ctrl+Shift+I → Orchestrator
 
 ## Related
 
-- [Quickstart](/getting-started/quickstart) — install and run your first project
-- [Workflow](/concepts/workflow) — how agents collaborate across steps
-- [Session Debugging](/guides/session-debugging) — inspect session state and resume
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Session Debugging](../session-debugging/) — inspect session state and resume

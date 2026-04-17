@@ -86,9 +86,9 @@ Example:
 ```markdown
 ## Related
 
-- [Cost & Governance](/guides/cost-governance) — track spend against policy
-- [Security Baseline](/guides/security-baseline) — TLS, identity, key rotation
-- [Troubleshooting](/guides/troubleshooting) — diagnose failed deploys
+- [Cost & Governance](../cost-governance/) — track spend against policy
+- [Security Baseline](../security-baseline/) — TLS, identity, key rotation
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys
 ```
 
 ## Content Principles
