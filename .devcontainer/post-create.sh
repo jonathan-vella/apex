@@ -3,7 +3,7 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=12
+TOTAL_STEPS=13
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0
@@ -50,7 +50,33 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 exec 1> >(tee ~/.devcontainer-install.log)
 exec 2>&1
 
-# ─── Step 1: npm install (local) ─────────────────────────────────────────────
+# ─── Step 1: Pin Python via pyenv ────────────────────────────────────────────
+# Universal base image includes pyenv with multiple Pythons. Pin to 3.13 so
+# downstream steps (uv, Azure Pricing MCP venv, diagrams) run on the expected
+# version. Uses pyenv's own HTTPS download — no APT.
+
+step_start "🐍" "Pinning Python 3.13 via pyenv..."
+if command -v pyenv &>/dev/null; then
+    CURRENT_PY=$(pyenv version-name 2>/dev/null || echo "")
+    if [[ "$CURRENT_PY" == 3.13.* ]]; then
+        step_done "pyenv already on $CURRENT_PY"
+    else
+        # Resolve the latest 3.13.x pyenv knows about, install if missing.
+        PY_TARGET=$(pyenv install --list 2>/dev/null | awk '/^[[:space:]]*3\.13\.[0-9]+$/ {v=$1} END{print v}' | tr -d ' ')
+        if [[ -z "$PY_TARGET" ]]; then
+            step_warn "pyenv install list did not report a 3.13.x version — keeping default"
+        elif pyenv install -s "$PY_TARGET" 2>&1 | tail -2 && pyenv global "$PY_TARGET"; then
+            pyenv rehash 2>/dev/null || true
+            step_done "pyenv global = $(pyenv version-name)"
+        else
+            step_warn "pyenv install $PY_TARGET failed — keeping default $CURRENT_PY"
+        fi
+    fi
+else
+    step_warn "pyenv not found — universal base image expected to provide it"
+fi
+
+# ─── Step 2: npm install (local) ─────────────────────────────────────────────
 
 step_start "📦" "Installing npm dependencies..."
 if npm install --loglevel=error 2>&1; then
@@ -59,7 +85,7 @@ else
     step_warn "npm install had issues, continuing"
 fi
 
-# ─── Step 2: npm global tools ────────────────────────────────────────────────
+# ─── Step 3: npm global tools ────────────────────────────────────────────────
 
 step_start "📦" "Installing global tools (markdownlint-cli2)..."
 if npm install -g markdownlint-cli2 --loglevel=warn 2>&1 | tail -2; then
@@ -68,7 +94,7 @@ else
     step_warn "Global install had issues"
 fi
 
-# ─── Step 3: k6 load testing tool ────────────────────────────────────────────
+# ─── Step 4: k6 load testing tool ────────────────────────────────────────────
 
 step_start "📦" "Installing k6 load testing tool..."
 ARCH=$(dpkg --print-architecture)
@@ -94,7 +120,7 @@ else
     step_warn "k6 skipped: unsupported architecture $ARCH (supported: amd64, arm64)"
 fi
 
-# ─── Step 4: Deno upgrade ─────────────────────────────────────────────────────
+# ─── Step 5: Deno upgrade ─────────────────────────────────────────────────────
 # The devcontainer feature caches the image layer, so "version: latest" may
 # lag behind. Explicitly upgrade to ensure we always have the latest release.
 # Falls back to curl installer if `deno upgrade` fails (e.g. corrupt binary,
@@ -128,21 +154,21 @@ else
     step_warn "Deno not found — rebuild container"
 fi
 
-# ─── Step 5: Directories & Git ───────────────────────────────────────────────
+# ─── Step 6: Directories & Git ───────────────────────────────────────────────
 
 step_start "🔐" "Configuring Git & directories..."
 sudo mkdir -p "${HOME}/.cache" "${HOME}/.cache/deno" "${HOME}/.config/gh" \
               "${HOME}/.local/share/powershell/PSReadLine"
-sudo chown -R vscode:vscode "${HOME}/.cache" 2>/dev/null || true
-sudo chown -R vscode:vscode "${HOME}/.config/gh" 2>/dev/null || true
-sudo chown -R vscode:vscode "${HOME}/.local/share/powershell/PSReadLine" 2>/dev/null || true
+sudo chown -R codespace:codespace "${HOME}/.cache" 2>/dev/null || true
+sudo chown -R codespace:codespace "${HOME}/.config/gh" 2>/dev/null || true
+sudo chown -R codespace:codespace "${HOME}/.local/share/powershell/PSReadLine" 2>/dev/null || true
 chmod 755 "${HOME}/.cache" 2>/dev/null || true
 chmod 755 "${HOME}/.config/gh" 2>/dev/null || true
 git config --global --add safe.directory "${PWD}"
 git config --global core.autocrlf input
 step_done "Git configured, cache dirs created"
 
-# ─── Step 6: Python packages ─────────────────────────────────────────────────
+# ─── Step 7: Python packages ─────────────────────────────────────────────────
 
 step_start "🐍" "Installing Python packages..."
 export PATH="${HOME}/.local/bin:${PATH}"
@@ -150,11 +176,12 @@ export PATH="${HOME}/.local/bin:${PATH}"
 if command -v uv &> /dev/null; then
     mkdir -p "${HOME}/.cache/uv" 2>/dev/null || true
     chmod -R 755 "${HOME}/.cache/uv" 2>/dev/null || true
-    if uv pip install --system --quiet diagrams matplotlib pillow checkov ruff 2>&1; then
-        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, ruff)"
-    else
-        step_warn "uv install had issues, continuing"
-    fi
+    # Libraries: install to system Python for scripts that import them directly
+    uv pip install --system --quiet diagrams matplotlib pillow 2>&1 || step_warn "uv library install had issues"
+    # CLI tools: install as isolated tools so binaries land in ~/.local/bin (on PATH)
+    uv tool install --quiet checkov 2>&1 || uv tool upgrade checkov --quiet 2>&1 || true
+    uv tool install --quiet ruff 2>&1 || uv tool upgrade ruff --quiet 2>&1 || true
+    step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, ruff)"
 else
     if pip3 install --quiet diagrams matplotlib pillow checkov ruff 2>&1 | tail -1; then
         step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, ruff)"
@@ -163,7 +190,7 @@ else
     fi
 fi
 
-# ─── Step 7: PowerShell modules ──────────────────────────────────────────────
+# ─── Step 8: PowerShell modules ──────────────────────────────────────────────
 
 step_start "🔧" "Installing Azure PowerShell modules..."
 pwsh -NoProfile -Command "
@@ -191,21 +218,29 @@ pwsh -NoProfile -Command "
     \$jobs | Remove-Job -Force
 " && step_done "PowerShell modules installed" || step_warn "PowerShell module installation incomplete"
 
-# ─── Step 8: Azure Pricing MCP Server ────────────────────────────────────────
+# ─── Step 9: Azure Pricing MCP Server ────────────────────────────────────────
 
 step_start "💰" "Setting up Azure Pricing MCP Server..."
 MCP_DIR="${PWD}/mcp/azure-pricing-mcp"
 if [ -d "$MCP_DIR" ]; then
-    if [ ! -f "$MCP_DIR/.venv/bin/pip" ]; then
+    # Use `uv venv` instead of `python3 -m venv`: ensurepip bootstrap is
+    # unreliable on this base image (pip ends up missing inside the venv).
+    # `uv pip install` works against the venv without needing pip installed in it.
+    if [ ! -x "$MCP_DIR/.venv/bin/python" ]; then
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
-        python3 -m venv "$MCP_DIR/.venv"
+        if command -v uv &>/dev/null; then
+            uv venv --quiet "$MCP_DIR/.venv"
+        else
+            python3 -m venv "$MCP_DIR/.venv"
+        fi
     fi
 
-    "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>&1 | tail -1 || true
-
-    cd "$MCP_DIR"
-    "$MCP_DIR/.venv/bin/pip" install --quiet -e ".[azure]" 2>&1 | tail -1 || true
-    cd - > /dev/null
+    if command -v uv &>/dev/null; then
+        VIRTUAL_ENV="$MCP_DIR/.venv" uv pip install --quiet -e "$MCP_DIR[azure]" 2>&1 | tail -1 || true
+    else
+        "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>&1 | tail -1 || true
+        "$MCP_DIR/.venv/bin/pip" install --quiet -e "$MCP_DIR[azure]" 2>&1 | tail -1 || true
+    fi
 
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then
         step_done "MCP server installed & health check passed"
@@ -216,7 +251,7 @@ else
     step_fail "MCP directory not found at $MCP_DIR"
 fi
 
-# ─── Step 9: Terraform MCP Server binary ────────────────────────────────────
+# ─── Step 10: Terraform MCP Server binary ────────────────────────────────────
 # Uses clone+build instead of go install because the module's go.mod contains
 # replace directives, which go install rejects for non-main modules.
 
@@ -246,7 +281,7 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
-# ─── Step 10: Python dependencies (authoritative) ───────────────────────────
+# ─── Step 11: Python dependencies (authoritative) ───────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."
 if [ -f "${PWD}/requirements.txt" ]; then
@@ -260,7 +295,7 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 11: Azure CLI extension install behavior ─────────────────────────
+# ─── Step 12: Azure CLI extension install behavior ─────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI extension install behavior..."
 if az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors 2>/dev/null \
@@ -271,7 +306,7 @@ else
     step_warn "Azure CLI config update failed"
 fi
 
-# ─── Step 12: MCP config & final verification ─────────────────────────────
+# ─── Step 13: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 

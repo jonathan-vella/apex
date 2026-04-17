@@ -46,12 +46,19 @@ fi
 
 # ─── Azure Pricing MCP ───────────────────────────────────────────────────────
 MCP_DIR="${WORKSPACE_FOLDER:-$PWD}/mcp/azure-pricing-mcp"
-if [ -f "$MCP_DIR/.venv/bin/pip" ]; then
-    "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>/dev/null || true
+if [ -x "$MCP_DIR/.venv/bin/python" ]; then
     printf "    azure-pricing-mcp     "
-    "$MCP_DIR/.venv/bin/pip" install --quiet -e "$MCP_DIR[azure]" \
-        && printf "✅ updated\n" \
-        || printf "⚠️  update failed (continuing)\n"
+    if command -v uv &>/dev/null; then
+        VIRTUAL_ENV="$MCP_DIR/.venv" uv pip install --quiet -e "$MCP_DIR[azure]" 2>/dev/null \
+            && printf "✅ updated\n" \
+            || printf "⚠️  update failed (continuing)\n"
+    elif [ -f "$MCP_DIR/.venv/bin/pip" ]; then
+        "$MCP_DIR/.venv/bin/pip" install --quiet -e "$MCP_DIR[azure]" 2>/dev/null \
+            && printf "✅ updated\n" \
+            || printf "⚠️  update failed (continuing)\n"
+    else
+        printf "⚠️  no installer available (continuing)\n"
+    fi
 fi
 
 # ─── npm local dependencies ──────────────────────────────────────────────────
@@ -76,9 +83,10 @@ fi
 UV_BIN=$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")
 if [ -x "$UV_BIN" ]; then
     printf "    python packages      "
-    "$UV_BIN" pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>&1 \
-        && printf "✅ updated\n" \
-        || printf "⚠️  update failed (continuing)\n"
+    "$UV_BIN" pip install --system --quiet --upgrade diagrams matplotlib pillow 2>/dev/null || true
+    "$UV_BIN" tool upgrade checkov --quiet 2>/dev/null || "$UV_BIN" tool install checkov --quiet 2>/dev/null || true
+    "$UV_BIN" tool upgrade ruff --quiet 2>/dev/null || "$UV_BIN" tool install ruff --quiet 2>/dev/null || true
+    printf "✅ updated\n"
 else
     printf "    python packages      ⚠️  uv not found — skipping\n"
 fi

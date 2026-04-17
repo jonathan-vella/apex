@@ -24,7 +24,12 @@ fi
 # Update Python packages
 echo "📦 Updating Python packages..."
 if command -v uv &>/dev/null; then
-    if uv pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>/dev/null; then
+    UV_OK=1
+    uv pip install --system --quiet --upgrade diagrams matplotlib pillow 2>/dev/null || UV_OK=0
+    # CLI tools installed as uv tools land in ~/.local/bin (on PATH)
+    (uv tool upgrade checkov --quiet 2>/dev/null || uv tool install checkov --quiet 2>/dev/null) || UV_OK=0
+    (uv tool upgrade ruff --quiet 2>/dev/null || uv tool install ruff --quiet 2>/dev/null) || UV_OK=0
+    if [ "$UV_OK" = "1" ]; then
         echo "   ✅ Python packages updated (checkov, ruff, diagrams, matplotlib, pillow)"
     else
         echo "   ⚠️  Python package updates had issues"

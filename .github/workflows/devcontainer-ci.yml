@@ -1,0 +1,98 @@
+name: Devcontainer CI
+
+# Builds the devcontainer on PRs that touch it, runs the smoke test suite
+# inside the built container, and asserts multi-arch buildability.
+# Does NOT push an image — this is purely a gate, not a prebuild pipeline.
+
+on:
+  pull_request:
+    paths:
+      - '.devcontainer/**'
+      - '.github/workflows/devcontainer-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.devcontainer/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: devcontainer-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Build & smoke-test (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # amd64 runs natively; arm64 uses QEMU (slower but validates the
+        # multi-arch manifest resolves correctly).
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (arm64 emulation)
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build devcontainer & run smoke test
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          platform: linux/${{ matrix.arch }}
+          runCmd: |
+            bash .devcontainer/smoke-test.sh
+        env:
+          # Smoke test skips the gh auth check when GH_TOKEN is unset, so CI
+          # stays green. Set to explicit empty string for clarity.
+          GH_TOKEN: ''
+          SKIP_NETWORK: '1'
+
+  static-checks:
+    name: Static validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shell syntax + lint
+        run: |
+          for f in .devcontainer/*.sh; do
+            echo "── $f ──"
+            bash -n "$f"
+            shellcheck -S warning "$f" || true  # warn-only for now
+          done
+
+      - name: JSONC validity
+        run: |
+          python3 - <<'PY'
+          import json, re, sys
+          raw = open('.devcontainer/devcontainer.json').read()
+          no_line = re.sub(r'^\s*//.*$', '', raw, flags=re.MULTILINE)
+          no_inline = re.sub(r'(?<!:)//[^\n"]*$', '', no_line, flags=re.MULTILINE)
+          json.loads(no_inline)
+          print('OK')
+          PY
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: npm validation
+        run: |
+          npm ci --loglevel=error
+          npm run lint:md -- .devcontainer/README.md
+          npm run lint:json

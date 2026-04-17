@@ -5,30 +5,35 @@
 This devcontainer provides a **complete, pre-configured development environment** for APEX.
 It includes all required tools, extensions, and configurations to build Azure infrastructure with AI agents.
 
-**Base Image:** `mcr.microsoft.com/devcontainers/base:ubuntu-24.04`
+**Base Image:** `mcr.microsoft.com/devcontainers/universal:2-linux` (multi-arch: amd64 + arm64)
+
+> The `2-linux` tag floats on Microsoft's weekly rebuilds, so base-OS and language-runtime
+> security patches arrive without a manual bump. Core toolchains (Go, Node, Python, gh,
+> Azure CLI, Git, Docker CLI) are baked into the image — not installed as features —
+> which removes 4 feature installs from every container build.
 
 ## 🎯 What's Included
 
 ### Infrastructure as Code Tools
 
-- **Azure CLI** (latest) with Bicep CLI
+- **Azure CLI** (latest, via feature) with Bicep CLI
 - **Bicep** for Azure infrastructure
-- **Terraform** (latest) with **TFLint** (pinned to v0.61.0)
+- **Terraform** (latest, via feature) with **TFLint** (pinned to v0.61.0)
 - **Checkov** - Infrastructure security scanner (replaces tfsec, which is archived and has no ARM64 support)
-- **Go** (latest) — used to install the Terraform MCP Server binary
+- **Go** (base image) — used to install the Terraform MCP Server binary
 
 ### Scripting & Automation
 
 - **PowerShell 7+** (via devcontainer feature) with Az modules (Accounts, Resources, Storage, Network, KeyVault, Websites)
-- **Python 3.13** with pip and uv
-- **Node.js LTS** with npm
+- **Python 3.13** (pyenv-managed, pinned in post-create.sh) with pip and uv
+- **Node.js LTS** (base image, nvm-managed) with npm
 - **Bash** with common utilities
 
 ### Development Tools
 
-- **Git** with common utilities
-- **GitHub CLI** (gh)
-- **graphviz**, **dos2unix**
+- **Git** with common utilities (base image)
+- **GitHub CLI** (`gh`) (base image)
+- **graphviz**, **dos2unix** (installed in onCreateCommand)
 
 ### MCP Servers (Auto-configured)
 
@@ -245,12 +250,12 @@ installs all tools from scratch including the Go and Terraform features.
 
 ## 📊 Resource Usage
 
-| Metric                 | Value   |
-| ---------------------- | ------- |
-| **Container Image**    | ~1.5 GB |
-| **Memory (idle)**      | ~1 GB   |
-| **Memory (active)**    | ~2-3 GB |
-| **Disk (with caches)** | ~4-6 GB |
+| Metric                 | Value        |
+| ---------------------- | ------------ |
+| **Container Image**    | ~5-7 GB compressed / ~15 GB on disk |
+| **Memory (idle)**      | ~1 GB        |
+| **Memory (active)**    | ~2-3 GB      |
+| **Disk (with caches)** | ~18-22 GB    |
 
 ## 🔒 Security Notes
 

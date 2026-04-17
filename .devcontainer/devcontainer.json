@@ -1,8 +1,23 @@
 {
   "name": "APEX",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  // Base image: mcr.microsoft.com/devcontainers/universal:2-linux. Includes Go,
+  // Node (nvm), Python (pyenv), gh, Azure CLI, Git, Docker CLI, Java, Ruby, PHP,
+  // .NET, Rust out of the box. Multi-arch (amd64 + arm64).
+  //
+  // We wrap it in a minimal Dockerfile that deletes a broken upstream apt
+  // source (yarn.list w/ expired GPG key) which causes the terraform feature
+  // install to fail. See .devcontainer/Dockerfile for details. When upstream
+  // fixes this, replace the "build" block with:
+  //   "image": "mcr.microsoft.com/devcontainers/universal:2-linux"
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
 
   "features": {
+    // Universal ships a non-root 'codespace' user (uid 1000) with an apt
+    // marker file that causes common-utils to fail on stale yarn GPG keys.
+    // We intentionally do NOT add common-utils — all other features
+    // auto-detect the existing 'codespace' user via _REMOTE_USER.
     "ghcr.io/devcontainers/features/azure-cli:1": {
       "installBicep": true,
       "version": "latest"
@@ -10,23 +25,9 @@
     "ghcr.io/devcontainers/features/powershell:1": {
       "version": "latest"
     },
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.13",
-      "installTools": false
-    },
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts",
-      "pnpmVersion": "none"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
-    },
     "ghcr.io/devcontainers/features/terraform:1": {
       "tflint": "0.61.0",
       "installTFsec": false
-    },
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.24.2"
     },
     "ghcr.io/devcontainers-community/features/deno": {
       "version": "latest"
@@ -36,7 +37,7 @@
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
   // Lifecycle: onCreateCommand runs first (system packages + uv), then postCreateCommand (tools), then postStartCommand (updates)
-  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
+  "onCreateCommand": "set -e; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; sudo install -d -m 0755 -o codespace -g codespace \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh && (npx lefthook install 2>/dev/null || true)",
 
@@ -44,9 +45,9 @@
   "containerEnv": {
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
-    "UV_CACHE_DIR": "/home/vscode/.cache/uv",
-    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache",
-    "DENO_DIR": "/home/vscode/.cache/deno"
+    "UV_CACHE_DIR": "/home/codespace/.cache/uv",
+    "TF_PLUGIN_CACHE_DIR": "/home/codespace/.terraform.d/plugin-cache",
+    "DENO_DIR": "/home/codespace/.cache/deno"
   },
 
   "remoteEnv": {
@@ -139,7 +140,8 @@
         "[python]": {
           "editor.tabSize": 4
         },
-        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python3",
+        // Python interpreter is pyenv-managed (pinned to 3.13 in post-create.sh).
+        // Let Pylance auto-detect via pyenv shims instead of hard-coding a path.
         "python.analysis.typeCheckingMode": "basic",
         "markdownlint.config": {
           "extends": "${workspaceFolder}/.markdownlint-cli2.jsonc"
@@ -160,20 +162,20 @@
   "mounts": [
     {
       "source": "${localEnv:USERPROFILE}${localEnv:HOME}/.azure",
-      "target": "/home/vscode/.azure",
+      "target": "/home/codespace/.azure",
       "type": "bind"
     },
     {
       "source": "devcontainer-gh-config-${devcontainerId}",
-      "target": "/home/vscode/.config/gh",
+      "target": "/home/codespace/.config/gh",
       "type": "volume"
     },
     {
       "source": "devcontainer-uv-cache-${devcontainerId}",
-      "target": "/home/vscode/.cache/uv",
+      "target": "/home/codespace/.cache/uv",
       "type": "volume"
     }
   ],
 
-  "remoteUser": "vscode"
+  "remoteUser": "codespace"
 }
