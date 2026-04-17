@@ -111,16 +111,11 @@ section "Language runtimes (base image provided)"
 
 check_cmd "python3"        "python3 --version"
 
-# pyenv is optional: universal:2-linux no longer ships it reliably (switched to
-# Oryx-managed Python). Treat absence as a warn, not a failure.
-if command -v pyenv &>/dev/null; then
-    check_cmd "pyenv"          "pyenv --version"
-else
-    warn "pyenv (optional)" "not installed — base image uses Oryx Python"
-fi
-
 # Python must satisfy pyproject.toml's `requires-python = ">=3.10"`. Accept
 # any 3.10+ minor so we aren't tied to a specific base-image refresh.
+# (No pyenv check: base image uses Oryx-managed Python, not pyenv. If a
+# specific minor is ever required, pin via `uv python install <ver>` rather
+# than relying on a base-image tool.)
 PY_VER=$(python3 --version 2>&1 | awk '{print $2}')
 PY_MAJOR=$(printf '%s' "$PY_VER" | cut -d. -f1)
 PY_MINOR=$(printf '%s' "$PY_VER" | cut -d. -f2)
