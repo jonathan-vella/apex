@@ -172,6 +172,10 @@ Resume the workflow from step 4 using the existing session state.
 Machine-readable workflow DAG for the multi-step pipeline. Defines node
 types, edge conditions, gates, and fan-out patterns.
 
+```text
+@workspace Show the workflow graph edges and gate conditions.
+```
+
 ## Subagents
 
 :::note[Not user-invocable]
@@ -179,12 +183,6 @@ Subagents are delegated to automatically by parent agents. You cannot
 select them from the agent picker (`Ctrl+Shift+A`). See
 [Workflow Prompts](../workflow-prompts/) for end-user scenarios.
 :::
-
-```text
-@workspace Show the workflow graph edges and gate conditions.
-```
-
-## Subagents
 
 Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
 **Bicep Deploy**, **Terraform Deploy**, **Architect**, and **IaC Planner** agents.

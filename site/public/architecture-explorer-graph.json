@@ -1,0 +1,3309 @@
+{
+  "$schema": "architecture-explorer-graph-v1",
+  "generatedAt": "2026-04-20T11:00:39.475Z",
+  "categories": [
+    {
+      "id": "agent",
+      "key": "agents",
+      "label": "Agent",
+      "color": "#3b82f6",
+      "shape": "round-rectangle",
+      "count": 16
+    },
+    {
+      "id": "subagent",
+      "key": "subagents",
+      "label": "Subagent",
+      "color": "#6366f1",
+      "shape": "round-diamond",
+      "count": 7
+    },
+    {
+      "id": "skill",
+      "key": "skills",
+      "label": "Skill",
+      "color": "#10b981",
+      "shape": "ellipse",
+      "count": 47
+    },
+    {
+      "id": "instruction",
+      "key": "instructions",
+      "label": "Instruction",
+      "color": "#f59e0b",
+      "shape": "rectangle",
+      "count": 26
+    },
+    {
+      "id": "prompt",
+      "key": "prompts",
+      "label": "Prompt",
+      "color": "#ec4899",
+      "shape": "tag",
+      "count": 20
+    },
+    {
+      "id": "validator",
+      "key": "validators",
+      "label": "Validator",
+      "color": "#8b5cf6",
+      "shape": "hexagon",
+      "count": 28
+    },
+    {
+      "id": "workflow",
+      "key": "workflows",
+      "label": "CI Workflow",
+      "color": "#06b6d4",
+      "shape": "cut-rectangle",
+      "count": 7
+    },
+    {
+      "id": "mcp",
+      "key": "mcp_servers",
+      "label": "MCP Server",
+      "color": "#f43f5e",
+      "shape": "barrel",
+      "count": 6
+    }
+  ],
+  "nodeCount": 157,
+  "edgeCount": 190,
+  "nodes": [
+    {
+      "id": "agent:01-orchestrator-fast-path",
+      "category": "agent",
+      "label": "01-Orchestrator (Fast Path)",
+      "description": "Experimental fast-path orchestrator for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Orchestrator agent.",
+      "path": ".github/agents/01-orchestrator-fastpath.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md"
+      },
+      "meta": {
+        "model": "Claude Sonnet 4.6",
+        "invocable": true,
+        "subagents": [
+          "02-Requirements",
+          "03-Architect",
+          "05-IaC Planner",
+          "06b-Bicep CodeGen",
+          "07b-Bicep Deploy",
+          "08-As-Built",
+          "06t-Terraform CodeGen",
+          "07t-Terraform Deploy",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "01-Orchestrator (Fast Path)",
+          "02-Requirements",
+          "03-Architect",
+          "05-IaC Planner",
+          "07b-Bicep Deploy",
+          "08-As-Built",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:01-orchestrator",
+      "category": "agent",
+      "label": "01-Orchestrator",
+      "description": "Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.",
+      "path": ".github/agents/01-orchestrator.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6",
+        "invocable": true,
+        "subagents": [
+          "02-Requirements",
+          "03-Architect",
+          "04-Design",
+          "04g-Governance",
+          "05-IaC Planner",
+          "06b-Bicep CodeGen",
+          "07b-Bicep Deploy",
+          "08-As-Built",
+          "09-Diagnose",
+          "06t-Terraform CodeGen",
+          "07t-Terraform Deploy"
+        ],
+        "handoffTargets": [
+          "01-Orchestrator",
+          "02-Requirements",
+          "03-Architect",
+          "04-Design",
+          "04g-Governance",
+          "05-IaC Planner",
+          "06b-Bicep CodeGen",
+          "07b-Bicep Deploy",
+          "08-As-Built",
+          "01-Orchestrator (Fast Path)",
+          "09-Diagnose",
+          "06t-Terraform CodeGen",
+          "07t-Terraform Deploy"
+        ]
+      }
+    },
+    {
+      "id": "agent:02-requirements",
+      "category": "agent",
+      "label": "02-Requirements",
+      "description": "Researches and captures Azure platform engineering project requirements",
+      "path": ".github/agents/02-requirements.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6",
+        "invocable": true,
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "02-Requirements",
+          "10-Challenger",
+          "03-Architect",
+          "agent",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:03-architect",
+      "category": "agent",
+      "label": "03-Architect",
+      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.",
+      "path": ".github/agents/03-architect.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/03-architect.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6",
+        "invocable": true,
+        "subagents": [
+          "cost-estimate-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "03-Architect",
+          "04-Design",
+          "04g-Governance",
+          "02-Requirements",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:04-design",
+      "category": "agent",
+      "label": "04-Design",
+      "description": "Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses drawio skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.",
+      "path": ".github/agents/04-design.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04-design.agent.md"
+      },
+      "meta": {
+        "model": "Claude Sonnet 4.6",
+        "invocable": true,
+        "subagents": [],
+        "handoffTargets": [
+          "04-Design",
+          "03-Architect",
+          "04g-Governance",
+          "06b-Bicep CodeGen",
+          "06t-Terraform CodeGen",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:04g-governance",
+      "category": "agent",
+      "label": "04g-Governance",
+      "description": "Azure governance discovery agent. Queries Azure Policy assignments via REST API (including management group-inherited policies), classifies policy effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5 of the workflow — runs after Architecture approval, before IaC Planning.",
+      "path": ".github/agents/04g-governance.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04g-governance.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4",
+        "invocable": true,
+        "subagents": [
+          "governance-discovery-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "04g-Governance",
+          "05-IaC Planner",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:05-iac-planner",
+      "category": "agent",
+      "label": "05-IaC Planner",
+      "description": "Expert Azure Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), and designs complete infrastructure solutions with architecture diagrams. Routes to the appropriate IaC track based on decisions.iac_tool in session state.",
+      "path": ".github/agents/05-iac-planner.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/05-iac-planner.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6",
+        "invocable": true,
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "04g-Governance",
+          "05-IaC Planner",
+          "06b-Bicep CodeGen",
+          "06t-Terraform CodeGen",
+          "03-Architect",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:06b-bicep-codegen",
+      "category": "agent",
+      "label": "06b-Bicep CodeGen",
+      "description": "Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.",
+      "path": ".github/agents/06b-bicep-codegen.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06b-bicep-codegen.agent.md"
+      },
+      "meta": {
+        "model": "Claude Sonnet 4.6",
+        "invocable": true,
+        "subagents": [
+          "bicep-validate-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "06b-Bicep CodeGen",
+          "07b-Bicep Deploy",
+          "05-IaC Planner",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:06t-terraform-codegen",
+      "category": "agent",
+      "label": "06t-Terraform CodeGen",
+      "description": "Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.",
+      "path": ".github/agents/06t-terraform-codegen.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06t-terraform-codegen.agent.md"
+      },
+      "meta": {
+        "model": "Claude Sonnet 4.6",
+        "invocable": true,
+        "subagents": [
+          "terraform-validate-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "06t-Terraform CodeGen",
+          "07t-Terraform Deploy",
+          "05-IaC Planner",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:07b-bicep-deploy",
+      "category": "agent",
+      "label": "07b-Bicep Deploy",
+      "description": "Executes Azure deployments using generated Bicep templates. Uses azd provision (default). deploy.ps1 is deprecated and retained only as a fallback for legacy projects without azure.yaml. Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow.",
+      "path": ".github/agents/07b-bicep-deploy.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07b-bicep-deploy.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4",
+        "invocable": true,
+        "subagents": [
+          "bicep-whatif-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "07b-Bicep Deploy",
+          "08-As-Built",
+          "06b-Bicep CodeGen",
+          "03-Architect",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:07t-terraform-deploy",
+      "category": "agent",
+      "label": "07t-Terraform Deploy",
+      "description": "Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.",
+      "path": ".github/agents/07t-terraform-deploy.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07t-terraform-deploy.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4",
+        "invocable": true,
+        "subagents": [
+          "terraform-plan-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "07t-Terraform Deploy",
+          "08-As-Built",
+          "06t-Terraform CodeGen",
+          "03-Architect",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:08-as-built",
+      "category": "agent",
+      "label": "08-As-Built",
+      "description": "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index.",
+      "path": ".github/agents/08-as-built.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/08-as-built.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4",
+        "invocable": true,
+        "subagents": [
+          "cost-estimate-subagent"
+        ],
+        "handoffTargets": [
+          "08-As-Built",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:09-diagnose",
+      "category": "agent",
+      "label": "09-Diagnose",
+      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.",
+      "path": ".github/agents/09-diagnose.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/09-diagnose.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6",
+        "invocable": true,
+        "subagents": [],
+        "handoffTargets": [
+          "09-Diagnose",
+          "08-As-Built",
+          "03-Architect",
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:10-challenger",
+      "category": "agent",
+      "label": "10-Challenger",
+      "description": "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents.",
+      "path": ".github/agents/10-challenger.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4",
+        "invocable": true,
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:11-context-optimizer",
+      "category": "agent",
+      "label": "11-Context Optimizer",
+      "description": "Analyzes Copilot Chat debug logs to audit context window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports with specific agent/skill refactoring recommendations. Reusable across any project with custom agents. Does NOT modify agent definitions directly — produces recommendations only.",
+      "path": ".github/agents/11-context-optimizer.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/11-context-optimizer.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6",
+        "invocable": true,
+        "subagents": [
+          "*"
+        ],
+        "handoffTargets": [
+          "01-Orchestrator"
+        ]
+      }
+    },
+    {
+      "id": "agent:e2e-orchestrator",
+      "category": "agent",
+      "label": "E2E Orchestrator",
+      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes the real workflow agents end to end, with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace the production 01-Orchestrator.",
+      "path": ".github/agents/e2e-orchestrator.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md"
+      },
+      "meta": {
+        "model": "Claude Opus 4.6 (copilot)",
+        "invocable": true,
+        "subagents": [
+          "02-Requirements",
+          "03-Architect",
+          "04-Design",
+          "04g-Governance",
+          "05-IaC Planner",
+          "06b-Bicep CodeGen",
+          "06t-Terraform CodeGen",
+          "07b-Bicep Deploy",
+          "07t-Terraform Deploy",
+          "08-As-Built",
+          "challenger-review-subagent",
+          "bicep-validate-subagent",
+          "bicep-whatif-subagent",
+          "terraform-validate-subagent",
+          "terraform-plan-subagent"
+        ],
+        "handoffTargets": []
+      }
+    },
+    {
+      "id": "subagent:bicep-validate-subagent",
+      "category": "subagent",
+      "label": "bicep-validate-subagent",
+      "description": "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict.",
+      "path": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4"
+      }
+    },
+    {
+      "id": "subagent:bicep-whatif-subagent",
+      "category": "subagent",
+      "label": "bicep-whatif-subagent",
+      "description": "Bicep deployment preview subagent. Runs az deployment group what-if to preview changes before deployment. Analyzes policy violations, resource changes, and cost impact. Returns structured summary for parent agent review.",
+      "path": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4"
+      }
+    },
+    {
+      "id": "subagent:challenger-review-subagent",
+      "category": "subagent",
+      "label": "challenger-review-subagent",
+      "description": "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports single-pass and multi-pass rotating-lens reviews. Handles batch execution (multiple lenses per invocation) for complex projects.",
+      "path": ".github/agents/_subagents/challenger-review-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4"
+      }
+    },
+    {
+      "id": "subagent:cost-estimate-subagent",
+      "category": "subagent",
+      "label": "cost-estimate-subagent",
+      "description": "Azure cost estimation subagent. Queries Azure Pricing MCP tools for real-time SKU pricing, compares regions, and returns structured cost breakdown. Isolates pricing API calls from the parent Architect agent's context window.",
+      "path": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.3-Codex"
+      }
+    },
+    {
+      "id": "subagent:governance-discovery-subagent",
+      "category": "subagent",
+      "label": "governance-discovery-subagent",
+      "description": "Azure governance discovery subagent. Queries Azure Policy assignments via REST API (including management group-inherited policies), classifies policy effects, and returns structured governance constraints. Isolates heavy REST API work from the parent IaC plan agents (Bicep and Terraform) context.",
+      "path": ".github/agents/_subagents/governance-discovery-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/governance-discovery-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4"
+      }
+    },
+    {
+      "id": "subagent:terraform-plan-subagent",
+      "category": "subagent",
+      "label": "terraform-plan-subagent",
+      "description": "Terraform deployment preview subagent. Runs terraform plan to preview infrastructure changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive operations requiring explicit approval, and returns a structured change summary.",
+      "path": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4"
+      }
+    },
+    {
+      "id": "subagent:terraform-validate-subagent",
+      "category": "subagent",
+      "label": "terraform-validate-subagent",
+      "description": "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict.",
+      "path": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.4"
+      }
+    },
+    {
+      "id": "skill:appinsights-instrumentation",
+      "category": "skill",
+      "label": "appinsights-instrumentation",
+      "description": "Guidance for instrumenting webapps with Azure Application Insights. Provides telemetry patterns, SDK setup, and configuration references. WHEN: how to instrument app, App Insights SDK, telemetry patterns, what is App Insights, Application Insights guidance, instrumentation examples, APM best practices.",
+      "path": ".github/skills/appinsights-instrumentation/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/appinsights-instrumentation/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-adr",
+      "category": "skill",
+      "label": "azure-adr",
+      "description": "Creates Azure Architecture Decision Records with WAF mapping, alternatives, and consequences. USE FOR: ADR creation, architecture decisions, trade-off analysis, WAF pillar justification. DO NOT USE FOR: Bicep/Terraform code generation, diagram creation, cost estimates.",
+      "path": ".github/skills/azure-adr/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-adr/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-ai",
+      "category": "skill",
+      "label": "azure-ai",
+      "description": "Use for Azure AI: Search, Speech, OpenAI, Document Intelligence. Helps with search, vector/hybrid search, speech-to-text, text-to-speech, transcription, OCR. WHEN: AI Search, query search, vector search, hybrid search, semantic search, speech-to-text, text-to-speech, transcribe, OCR, convert text to speech.",
+      "path": ".github/skills/azure-ai/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-ai/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-aigateway",
+      "category": "skill",
+      "label": "azure-aigateway",
+      "description": "Configure Azure API Management as an AI Gateway for AI models, MCP tools, and agents. WHEN: semantic caching, token limit, content safety, load balancing, AI model governance, MCP rate limiting, jailbreak detection, add Azure OpenAI backend, add AI Foundry model, test AI gateway, LLM policies, configure AI backend, token metrics, AI cost control, convert API to MCP, import OpenAPI to gateway.",
+      "path": ".github/skills/azure-aigateway/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-aigateway/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-artifacts",
+      "category": "skill",
+      "label": "azure-artifacts",
+      "description": "Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use azure-defaults), Bicep/Terraform patterns (use bicep-patterns or terraform-patterns).",
+      "path": ".github/skills/azure-artifacts/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-artifacts/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-bicep-patterns",
+      "category": "skill",
+      "label": "azure-bicep-patterns",
+      "description": "Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code, architecture decisions, troubleshooting, diagram generation.",
+      "path": ".github/skills/azure-bicep-patterns/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-bicep-patterns/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-cloud-migrate",
+      "category": "skill",
+      "label": "azure-cloud-migrate",
+      "description": "Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: migrate Lambda to Azure Functions, migrate AWS to Azure, Lambda migration assessment, convert AWS serverless to Azure, migration readiness report, migrate from AWS, migrate from GCP, cross-cloud migration.",
+      "path": ".github/skills/azure-cloud-migrate/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cloud-migrate/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-compliance",
+      "category": "skill",
+      "label": "azure-compliance",
+      "description": "Comprehensive Azure compliance and security auditing capabilities including best practices assessment, Key Vault expiration monitoring, and resource configuration validation. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, compliance assessment, resource review, configuration validation, expired certificates, expiring secrets, orphaned resources, policy compliance, security posture evaluation.",
+      "path": ".github/skills/azure-compliance/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compliance/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-compute",
+      "category": "skill",
+      "label": "azure-compute",
+      "description": "Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations based on workload requirements, performance needs, and budget constraints. No Azure account required — uses public documentation and the Azure Retail Prices API. WHEN: recommend VM size, which VM should I use, choose Azure VM, VM for web/database/ML/batch/HPC, GPU VM, compare VM sizes, cheapest VM, best VM for workload, VM pricing, cost estimate, burstable/compute/memory/storage optimized VM, confidential computing, VM trade-offs, VM families, VMSS, scale set recommendation, autoscale VMs, load balanced VMs, VMSS vs VM, scale out, horizontal scaling, flexible orchestration.",
+      "path": ".github/skills/azure-compute/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compute/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-cost-optimization",
+      "category": "skill",
+      "label": "azure-cost-optimization",
+      "description": "Identify and quantify cost savings across Azure subscriptions by analyzing actual costs, utilization metrics, and generating actionable optimization recommendations. USE FOR: optimize Azure costs, reduce Azure spending, reduce Azure expenses, analyze Azure costs, find cost savings, generate cost optimization report, find orphaned resources, rightsize VMs, cost analysis, reduce waste, Azure spending analysis, find unused resources, optimize Redis costs. DO NOT USE FOR: deploying resources (use azure-deploy), general Azure diagnostics (use azure-diagnostics), security issues (use azure-security)",
+      "path": ".github/skills/azure-cost-optimization/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cost-optimization/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-defaults",
+      "category": "skill",
+      "label": "azure-defaults",
+      "description": "Azure infrastructure defaults: regions, tags, naming (CAF), AVM-first policy, security baseline, unique suffix patterns. USE FOR: any agent generating or planning Azure resources. DO NOT USE FOR: artifact template structures (use azure-artifacts), pricing lookups (read references/pricing-guidance.md on demand).",
+      "path": ".github/skills/azure-defaults/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-defaults/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-deploy",
+      "category": "skill",
+      "label": "azure-deploy",
+      "description": "Execute Azure deployments for ALREADY-PREPARED applications that have existing infra/{iac}/{project}/.azure/plan.md and infrastructure files. DO NOT use this skill when the user asks to CREATE a new application — use azure-prepare instead. This skill runs azd up, azd deploy, terraform apply, and az deployment commands with built-in error recovery. Requires infra/{iac}/{project}/.azure/plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"execute deployment\", \"push to production\", \"push to cloud\", \"go live\", \"ship it\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\", \"launch on Azure\". DO NOT USE WHEN: \"create and deploy\", \"build and deploy\", \"create a new app\", \"set up infrastructure\", \"create and deploy to Azure using Terraform\" — use azure-prepare for these.",
+      "path": ".github/skills/azure-deploy/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-deploy/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-diagnostics",
+      "category": "skill",
+      "label": "azure-diagnostics",
+      "description": "Debug and troubleshoot production issues on Azure. Covers Container Apps and Function Apps diagnostics, log analysis with KQL, health checks, and common issue resolution for image pulls, cold starts, health probes, and function invocation failures. WHEN: debug production issues, troubleshoot container apps, troubleshoot function apps, troubleshoot Azure Functions, analyze logs with KQL, fix image pull failures, resolve cold start issues, investigate health probe failures, check resource health, view application logs, find root cause of errors, function app not working, function invocation failures.",
+      "path": ".github/skills/azure-diagnostics/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagnostics/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-diagrams",
+      "category": "skill",
+      "label": "azure-diagrams",
+      "description": "ROUTING SKILL — delegates to specialized diagram skills. USE FOR: any diagram request when the caller does not know which tool to use. Routes to drawio, python-diagrams, or mermaid based on diagram type.",
+      "path": ".github/skills/azure-diagrams/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagrams/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-hosted-copilot-sdk",
+      "category": "skill",
+      "label": "azure-hosted-copilot-sdk",
+      "description": "Build and deploy GitHub Copilot SDK apps to Azure. WHEN: build copilot app, create copilot app, copilot SDK, @github/copilot-sdk, scaffold copilot project, copilot-powered app, deploy copilot app, host on azure, azure model, BYOM, bring your own model, use my own model, azure openai model, DefaultAzureCredential, self-hosted model, copilot SDK service, chat app with copilot, copilot-sdk-service template, azd init copilot, CopilotClient, createSession, sendAndWait, GitHub Models API.",
+      "path": ".github/skills/azure-hosted-copilot-sdk/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-hosted-copilot-sdk/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-kusto",
+      "category": "skill",
+      "label": "azure-kusto",
+      "description": "Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL for log analytics, telemetry, and time series analysis. WHEN: KQL queries, Kusto database queries, Azure Data Explorer, ADX clusters, log analytics, time series data, IoT telemetry, anomaly detection.",
+      "path": ".github/skills/azure-kusto/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-kusto/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-messaging",
+      "category": "skill",
+      "label": "azure-messaging",
+      "description": "Troubleshoot and resolve issues with Azure Messaging SDKs for Event Hubs and Service Bus. Covers connection failures, authentication errors, message processing issues, and SDK configuration problems. WHEN: event hub SDK error, service bus SDK issue, messaging connection failure, AMQP error, event processor host issue, message lock lost, send timeout, receiver disconnected, SDK troubleshooting, azure messaging SDK, event hub consumer, service bus queue issue, topic subscription error, enable logging event hub, service bus logging, eventhub python, servicebus java, eventhub javascript, servicebus dotnet, event hub checkpoint, event hub not receiving messages, service bus dead letter.",
+      "path": ".github/skills/azure-messaging/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-messaging/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-prepare",
+      "category": "skill",
+      "label": "azure-prepare",
+      "description": "Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Use for create/modernize or create+deploy; not cross-cloud migration (use azure-cloud-migrate). WHEN: \\\"create app\\\", \\\"build web app\\\", \\\"create API\\\", \\\"create serverless HTTP API\\\", \\\"create frontend\\\", \\\"create back end\\\", \\\"build a service\\\", \\\"modernize application\\\", \\\"update application\\\", \\\"add authentication\\\", \\\"add caching\\\", \\\"host on Azure\\\", \\\"create and deploy\\\", \\\"deploy to Azure\\\", \\\"deploy to Azure using Terraform\\\", \\\"deploy to Azure App Service\\\", \\\"deploy to Azure App Service using Terraform\\\", \\\"deploy to Azure Container Apps\\\", \\\"deploy to Azure Container Apps using Terraform\\\", \\\"generate Terraform\\\", \\\"generate Bicep\\\", \\\"function app\\\", \\\"timer trigger\\\", \\\"service bus trigger\\\", \\\"event-driven function\\\", \\\"containerized Node.js app\\\", \\\"social media app\\\", \\\"static portfolio website\\\", \\\"todo list with frontend and API\\\", \\\"prepare my Azure application to use Key Vault\\\", \\\"managed identity\\\".",
+      "path": ".github/skills/azure-prepare/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-prepare/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-quotas",
+      "category": "skill",
+      "label": "azure-quotas",
+      "description": "Check/manage Azure quotas and usage across providers. For deployment planning, capacity validation, region selection. WHEN: \"check quotas\", \"service limits\", \"current usage\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"provisioning limits\", \"vCPU limit\", \"how many vCPUs available in my subscription\".",
+      "path": ".github/skills/azure-quotas/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-quotas/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-rbac",
+      "category": "skill",
+      "label": "azure-rbac",
+      "description": "Helps users find the right Azure RBAC role for an identity with least privilege access, then generate CLI commands and Bicep code to assign it. Also provides guidance on permissions required to grant roles. WHEN: what role should I assign, least privilege role, RBAC role for, role to read blobs, role for managed identity, custom role definition, assign role to identity, what role do I need to grant access, permissions to assign roles.",
+      "path": ".github/skills/azure-rbac/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-rbac/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-resource-lookup",
+      "category": "skill",
+      "label": "azure-resource-lookup",
+      "description": "List, find, and show Azure resources. Answers \\\"list my VMs\\\", \\\"show my storage accounts\\\", \\\"list websites\\\", \\\"find container apps\\\", \\\"what resources do I have\\\", and similar queries for any Azure resource type. USE FOR: list resources, list virtual machines, list VMs, list storage accounts, list websites, list web apps, list container apps, show resources, find resources, what resources do I have, list resources in resource group, list resources in subscription, find resources by tag, find orphaned resources, resource inventory, count resources by type, cross-subscription resource query, Azure Resource Graph, resource discovery, list container registries, list SQL servers, list Key Vaults, show resource groups, list app services, find resources across subscriptions, find unattached disks, tag analysis. DO NOT USE FOR: deploying resources (use azure-deploy), creating or modifying resources, cost optimization (use azure-cost-optimization), writing application code, non-Azure clouds.",
+      "path": ".github/skills/azure-resource-lookup/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resource-lookup/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-resource-visualizer",
+      "category": "skill",
+      "label": "azure-resource-visualizer",
+      "description": "Analyze Azure resource groups and generate detailed Mermaid architecture diagrams showing the relationships between individual resources. USE FOR: create architecture diagram, visualize Azure resources, show resource relationships, generate Mermaid diagram, analyze resource group, diagram my resources, architecture visualization, resource topology, map Azure infrastructure DO NOT USE FOR: creating/modifying resources (use azure-deploy), security scanning (use azure-security), performance troubleshooting (use azure-diagnostics), code generation (use relevant service skill)",
+      "path": ".github/skills/azure-resource-visualizer/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resource-visualizer/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-storage",
+      "category": "skill",
+      "label": "azure-storage",
+      "description": "Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus (use azure-messaging).",
+      "path": ".github/skills/azure-storage/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-storage/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-validate",
+      "category": "skill",
+      "label": "azure-validate",
+      "description": "Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: validate my app, check deployment readiness, run preflight checks, verify configuration, check if ready to deploy, validate azure.yaml, validate Bicep, test before deploying, troubleshoot deployment errors, validate Azure Functions, validate function app, validate serverless deployment.",
+      "path": ".github/skills/azure-validate/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-validate/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:context-optimizer",
+      "category": "skill",
+      "label": "context-optimizer",
+      "description": "Audits agent context window usage via debug logs, token profiling, and redundancy detection. USE FOR: context optimization, token waste analysis, debug log parsing, hand-off gap analysis. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
+      "path": ".github/skills/context-optimizer/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-optimizer/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:context-shredding",
+      "category": "skill",
+      "label": "context-shredding",
+      "description": "Runtime context compression for agents approaching model context limits. Defines 3 compression tiers (full/summarized/minimal) with per-artifact templates. USE FOR: reducing artifact loading size at runtime, context budget management. DO NOT USE FOR: diagnostic context auditing (use context-optimizer), Azure infrastructure.",
+      "path": ".github/skills/context-shredding/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-shredding/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:copilot-customization",
+      "category": "skill",
+      "label": "copilot-customization",
+      "description": "Authoritative reference for VS Code Copilot customization mechanisms: instructions, prompt files, custom agents, agent skills, MCP servers, hooks, and plugins. Use when deciding which customization type to use, creating new .instructions.md/.prompt.md/.agent.md/SKILL.md/mcp.json files from scratch, or debugging why a customization is not loading. DO NOT USE FOR: routine file edits where the format is already known.",
+      "path": ".github/skills/copilot-customization/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/copilot-customization/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:count-registry",
+      "category": "skill",
+      "label": "count-registry",
+      "description": "Provides canonical entity counts from count-manifest.json. Use when agents need to reference how many agents, skills, instructions, or validators exist. Prevents hard-coded counts. WHEN: agent count, skill count, how many agents, how many skills, entity inventory, project statistics.",
+      "path": ".github/skills/count-registry/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/count-registry/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:docs-writer",
+      "category": "skill",
+      "label": "docs-writer",
+      "description": "Maintains repository documentation accuracy and freshness; use for doc updates, agent or skill changes, staleness checks, changelog entries, and repo explanation requests.",
+      "path": ".github/skills/docs-writer/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/docs-writer/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:drawio",
+      "category": "skill",
+      "label": "drawio",
+      "description": "Draw.io architecture diagrams for Azure via simonkurtz-MSFT MCP server — 700+ Azure icons, batch creation, transactional mode. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), Excalidraw diagrams (use excalidraw).",
+      "path": ".github/skills/drawio/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:entra-app-registration",
+      "category": "skill",
+      "label": "entra-app-registration",
+      "description": "Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. USE FOR: create app registration, register Azure AD app, configure OAuth, set up authentication, add API permissions, generate service principal, MSAL example, console app auth, Entra ID setup, Azure AD authentication. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets (use azure-keyvault-expiration-audit), Azure resource security (use azure-security).",
+      "path": ".github/skills/entra-app-registration/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/entra-app-registration/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:excalidraw",
+      "category": "skill",
+      "label": "excalidraw",
+      "description": "Excalidraw hand-drawn whiteboarding, brainstorming, wireframes, and informal sketches. USE FOR: hand-drawn style diagrams, real-time collaborative sketching, wireframes, UI mockups, quick informal diagrams, brainstorming sessions. DO NOT USE FOR: Azure architecture diagrams (use drawio), WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), formal reference-architecture diagrams.",
+      "path": ".github/skills/excalidraw/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/excalidraw/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:github-operations",
+      "category": "skill",
+      "label": "github-operations",
+      "description": "Full contribution lifecycle: branch naming, conventional commits, GitHub issues, PRs, Actions, and releases. MCP-first with gh CLI fallback. USE FOR: commit, push, PR, branch, issue, release, GitHub operations. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions.",
+      "path": ".github/skills/github-operations/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/github-operations/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:golden-principles",
+      "category": "skill",
+      "label": "golden-principles",
+      "description": "The 10 agent-first operating principles governing how agents work in this repository. USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
+      "path": ".github/skills/golden-principles/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/golden-principles/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:iac-common",
+      "category": "skill",
+      "label": "iac-common",
+      "description": "Shared IaC deploy patterns for Bicep and Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. For preflight validation (auth, governance, stop rules), see azure-validate. USE FOR: Phased deployment, circuit breaker, deploy-specific known issues. DO NOT USE FOR: Preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns).",
+      "path": ".github/skills/iac-common/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/iac-common/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:make-skill-template",
+      "category": "skill",
+      "label": "make-skill-template",
+      "description": "Scaffolds new Agent Skills with SKILL.md frontmatter, folder structure, and bundled resources. USE FOR: create a skill, scaffold skill, new skill template, add agent capability. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions.",
+      "path": ".github/skills/make-skill-template/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/make-skill-template/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:mermaid",
+      "category": "skill",
+      "label": "mermaid",
+      "description": "Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, and architecture visualizations. USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams, Azure resource visualization. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams), Draw.io diagrams (use drawio).",
+      "path": ".github/skills/mermaid/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/mermaid/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:microsoft-code-reference",
+      "category": "skill",
+      "label": "microsoft-code-reference",
+      "description": "Look up Microsoft API references, find working code samples, and verify SDK code is correct. USE FOR: Azure SDK method verification, .NET/Python package lookups, code sample discovery, error troubleshooting, catching hallucinated methods and deprecated patterns. DO NOT USE FOR: conceptual documentation (use microsoft-docs), skill creation (use microsoft-skill-creator), Bicep/Terraform module lookups (use azure-bicep-patterns or terraform-patterns).",
+      "path": ".github/skills/microsoft-code-reference/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-code-reference/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:microsoft-docs",
+      "category": "skill",
+      "label": "microsoft-docs",
+      "description": "Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. USE FOR: Azure service overviews, quickstarts, configuration guides, limits and quotas, best practices, architecture patterns, WAF pillar references. DO NOT USE FOR: code sample lookups (use microsoft-code-reference), skill creation (use microsoft-skill-creator), Azure pricing (use azure-pricing MCP).",
+      "path": ".github/skills/microsoft-docs/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-docs/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:microsoft-foundry",
+      "category": "skill",
+      "label": "microsoft-foundry",
+      "description": "Deploy, evaluate, and manage Foundry agents end-to-end: Docker build, ACR push, hosted/prompt agent create, container start, batch eval, prompt optimization, agent.yaml, dataset curation from traces. USE FOR: deploy agent to Foundry, hosted agent, create agent, invoke agent, evaluate agent, run batch eval, optimize prompt, deploy model, Foundry project, RBAC, role assignment, permissions, quota, capacity, region, troubleshoot agent, deployment failure, create dataset from traces, dataset versioning, eval trending, create AI Services, Cognitive Services, create Foundry resource, provision resource, knowledge index, agent monitoring, customize deployment, onboard, availability, standard agent setup, capability host. DO NOT USE FOR: Azure Functions, App Service, general Azure deploy (use azure-deploy), general Azure prep (use azure-prepare).",
+      "path": ".github/skills/microsoft-foundry/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-foundry/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:microsoft-skill-creator",
+      "category": "skill",
+      "label": "microsoft-skill-creator",
+      "description": "Create agent skills for Microsoft technologies using Learn MCP tools. USE FOR: generating skills that teach agents about Azure services, .NET libraries, Microsoft 365 APIs, VS Code extensions, Bicep modules, or any Microsoft technology. DO NOT USE FOR: general skill scaffolding without Microsoft tech focus (use make-skill-template), Azure infrastructure deployment, Bicep/Terraform code generation.",
+      "path": ".github/skills/microsoft-skill-creator/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-skill-creator/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:python-diagrams",
+      "category": "skill",
+      "label": "python-diagrams",
+      "description": "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid), Excalidraw whiteboarding (use excalidraw).",
+      "path": ".github/skills/python-diagrams/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/python-diagrams/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:session-resume",
+      "category": "skill",
+      "label": "session-resume",
+      "description": "Session state tracking and resume protocol for the multi-step agent workflow. USE FOR: resume session, persist progress, checkpoint recovery, session-state.json schema. DO NOT USE FOR: Azure infrastructure, code generation, architecture design, troubleshooting.",
+      "path": ".github/skills/session-resume/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/session-resume/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:terraform-patterns",
+      "category": "skill",
+      "label": "terraform-patterns",
+      "description": "Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. USE FOR: Terraform template design, hub-spoke networking, AVM modules, plan interpretation. DO NOT USE FOR: Bicep code, architecture decisions, troubleshooting, diagram generation.",
+      "path": ".github/skills/terraform-patterns/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-patterns/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:terraform-search-import",
+      "category": "skill",
+      "label": "terraform-search-import",
+      "description": "Discover existing Azure resources and bulk import them into Terraform management. USE FOR: import Azure resources, bring unmanaged infra under Terraform, audit Azure resources, migrate to IaC, terraform import, bulk import. WHEN: import existing resources, discover Azure infrastructure, adopt Terraform for existing resources, generate import blocks. DO NOT USE FOR: Bicep code, new resource creation, architecture decisions.",
+      "path": ".github/skills/terraform-search-import/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-search-import/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:terraform-test",
+      "category": "skill",
+      "label": "terraform-test",
+      "description": "Write and run Terraform tests (.tftest.hcl). USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. WHEN: create test, write test, terraform test, .tftest.hcl, mock provider, test module, validate infrastructure, test assertion. DO NOT USE FOR: Bicep code, architecture decisions, deployment.",
+      "path": ".github/skills/terraform-test/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-test/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:workflow-engine",
+      "category": "skill",
+      "label": "workflow-engine",
+      "description": "Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
+      "path": ".github/skills/workflow-engine/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "instruction:agent-authoring",
+      "category": "instruction",
+      "label": "agent-authoring",
+      "description": "Standards for Copilot custom agent definition files, decision logging, and model-specific prompt patterns",
+      "path": ".github/instructions/agent-authoring.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-authoring.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.agent.md, **/*.prompt.md"
+      }
+    },
+    {
+      "id": "instruction:agent-research-first",
+      "category": "instruction",
+      "label": "agent-research-first",
+      "description": "Research-before-implementation requirements for all agents",
+      "path": ".github/instructions/agent-research-first.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-research-first.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.agent.md, **/agent-output/**/*.md"
+      }
+    },
+    {
+      "id": "instruction:agent-skills",
+      "category": "instruction",
+      "label": "agent-skills",
+      "description": "Guidelines for creating high-quality Agent Skills for GitHub Copilot",
+      "path": ".github/instructions/agent-skills.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-skills.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
+      }
+    },
+    {
+      "id": "instruction:astro",
+      "category": "instruction",
+      "label": "astro",
+      "description": "Astro Starlight development standards for the documentation site",
+      "path": ".github/instructions/astro.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/astro.instructions.md"
+      },
+      "meta": {
+        "applyTo": "site/**/*.astro, site/**/*.ts, site/**/*.mjs, site/**/*.mdx, site/**/*.md"
+      }
+    },
+    {
+      "id": "instruction:azure-artifacts",
+      "category": "instruction",
+      "label": "azure-artifacts",
+      "description": "Template compliance rules for artifact generation",
+      "path": ".github/instructions/azure-artifacts.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/azure-artifacts.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/agent-output/**/*.md"
+      }
+    },
+    {
+      "id": "instruction:code-quality",
+      "category": "instruction",
+      "label": "code-quality",
+      "description": "Code quality guidelines: commenting best practices (WHY not WHAT) and review priorities with security checks",
+      "path": ".github/instructions/code-quality.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/code-quality.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
+      }
+    },
+    {
+      "id": "instruction:context-optimization",
+      "category": "instruction",
+      "label": "context-optimization",
+      "description": "Context window optimization rules for agent definitions, skills, and instruction files",
+      "path": ".github/instructions/context-optimization.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/context-optimization.instructions.md"
+      },
+      "meta": {
+        "applyTo": ".github/agents/**/*.agent.md, .github/skills/**/SKILL.md, .github/instructions/*.instructions.md"
+      }
+    },
+    {
+      "id": "instruction:docs-trigger",
+      "category": "instruction",
+      "label": "docs-trigger",
+      "description": "Trigger conditions for updating documentation when code changes. Defines WHEN docs need updating — not HOW to write them (see docs.instructions.md and markdown.instructions.md for formatting).",
+      "path": ".github/instructions/docs-trigger.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/docs-trigger.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/scripts/*.mjs"
+      }
+    },
+    {
+      "id": "instruction:docs",
+      "category": "instruction",
+      "label": "docs",
+      "description": "Standards for user-facing documentation in the site/src/content/docs/ folder",
+      "path": ".github/instructions/docs.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/docs.instructions.md"
+      },
+      "meta": {
+        "applyTo": "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx"
+      }
+    },
+    {
+      "id": "instruction:drawio",
+      "category": "instruction",
+      "label": "drawio",
+      "description": "Draw.io diagram generation and editing conventions",
+      "path": ".github/instructions/drawio.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/drawio.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.drawio"
+      }
+    },
+    {
+      "id": "instruction:github-actions",
+      "category": "instruction",
+      "label": "github-actions",
+      "description": "Project-specific standards for GitHub Actions workflows in this repository",
+      "path": ".github/instructions/github-actions.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/github-actions.instructions.md"
+      },
+      "meta": {
+        "applyTo": ".github/workflows/*.yml,.github/workflows/*.yaml"
+      }
+    },
+    {
+      "id": "instruction:governance-discovery",
+      "category": "instruction",
+      "label": "governance-discovery",
+      "description": "MANDATORY Azure Policy discovery requirements for governance constraints",
+      "path": ".github/instructions/governance-discovery.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/governance-discovery.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/04-governance-constraints.md, **/04-governance-constraints.json"
+      }
+    },
+    {
+      "id": "instruction:iac-bicep-best-practices",
+      "category": "instruction",
+      "label": "iac-bicep-best-practices",
+      "description": "Bicep-specific IaC best practices for Azure templates. Security baseline, naming, AVM mandate, anti-patterns.",
+      "path": ".github/instructions/iac-bicep-best-practices.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-bicep-best-practices.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.bicep"
+      }
+    },
+    {
+      "id": "instruction:iac-plan-best-practices",
+      "category": "instruction",
+      "label": "iac-plan-best-practices",
+      "description": "IaC planning best practices for implementation plans. Policy compliance, cost monitoring, repeatability.",
+      "path": ".github/instructions/iac-plan-best-practices.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-plan-best-practices.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/04-implementation-plan.md"
+      }
+    },
+    {
+      "id": "instruction:iac-terraform-best-practices",
+      "category": "instruction",
+      "label": "iac-terraform-best-practices",
+      "description": "Terraform-specific IaC best practices for Azure templates. AVM-first, CAF naming, security baseline, provider pins.",
+      "path": ".github/instructions/iac-terraform-best-practices.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-terraform-best-practices.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.tf"
+      }
+    },
+    {
+      "id": "instruction:instructions",
+      "category": "instruction",
+      "label": "instructions",
+      "description": "Guidelines for creating high-quality custom instruction files for GitHub Copilot",
+      "path": ".github/instructions/instructions.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/instructions.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.instructions.md"
+      }
+    },
+    {
+      "id": "instruction:javascript",
+      "category": "instruction",
+      "label": "javascript",
+      "description": "JavaScript and Node.js conventions for validation scripts and tooling",
+      "path": ".github/instructions/javascript.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/javascript.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.{js,mjs,cjs}"
+      }
+    },
+    {
+      "id": "instruction:json",
+      "category": "instruction",
+      "label": "json",
+      "description": "JSON and JSONC formatting conventions for configuration and data files",
+      "path": ".github/instructions/json.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/json.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.{json,jsonc}"
+      }
+    },
+    {
+      "id": "instruction:lesson-collection",
+      "category": "instruction",
+      "label": "lesson-collection",
+      "description": "Lesson collection and retrospective protocol for orchestrator agents. Captures process observations during workflow execution and generates lessons-learned artifacts at completion.",
+      "path": ".github/instructions/lesson-collection.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/lesson-collection.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*orchestrator*.agent.md"
+      }
+    },
+    {
+      "id": "instruction:markdown",
+      "category": "instruction",
+      "label": "markdown",
+      "description": "Documentation and content creation standards for markdown files",
+      "path": ".github/instructions/markdown.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/markdown.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.md"
+      }
+    },
+    {
+      "id": "instruction:no-hardcoded-counts",
+      "category": "instruction",
+      "label": "no-hardcoded-counts",
+      "description": "Prevents hard-coded numeric counts for project entities (agents, skills, instructions, validators). Enforces descriptive language and count-manifest.json as single source of truth.",
+      "path": ".github/instructions/no-hardcoded-counts.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-hardcoded-counts.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.md, **/*.json, **/*.mjs"
+      }
+    },
+    {
+      "id": "instruction:no-heredoc",
+      "category": "instruction",
+      "label": "no-heredoc",
+      "description": "Prevents terminal heredoc file corruption in VS Code Copilot by enforcing use of file editing tools instead of shell redirections",
+      "path": ".github/instructions/no-heredoc.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-heredoc.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**"
+      }
+    },
+    {
+      "id": "instruction:powershell",
+      "category": "instruction",
+      "label": "powershell",
+      "description": "PowerShell cmdlet and scripting best practices based on Microsoft guidelines",
+      "path": ".github/instructions/powershell.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/powershell.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.ps1,**/*.psm1"
+      }
+    },
+    {
+      "id": "instruction:prompt",
+      "category": "instruction",
+      "label": "prompt",
+      "description": "Guidelines for creating high-quality prompt files for GitHub Copilot",
+      "path": ".github/instructions/prompt.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/prompt.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.prompt.md"
+      }
+    },
+    {
+      "id": "instruction:python",
+      "category": "instruction",
+      "label": "python",
+      "description": "Python coding conventions for diagram generation, MCP servers, and tooling scripts",
+      "path": ".github/instructions/python.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/python.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.py"
+      }
+    },
+    {
+      "id": "instruction:shell",
+      "category": "instruction",
+      "label": "shell",
+      "description": "Shell scripting best practices and conventions for bash, sh, zsh, and other shells",
+      "path": ".github/instructions/shell.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/shell.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.sh"
+      }
+    },
+    {
+      "id": "prompt:01-orchestrator",
+      "category": "prompt",
+      "label": "01-orchestrator",
+      "description": "Kick off a new Azure platform engineering project through the full multi-step workflow with the Orchestrator agent.",
+      "path": ".github/prompts/01-orchestrator.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/01-orchestrator.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:02-requirements",
+      "category": "prompt",
+      "label": "02-requirements",
+      "description": "Gather Azure project requirements through structured discovery phases and produce 01-requirements.md.",
+      "path": ".github/prompts/02-requirements.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/02-requirements.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:03-architect",
+      "category": "prompt",
+      "label": "03-architect",
+      "description": "Perform a WAF assessment and generate cost estimates based on completed requirements.",
+      "path": ".github/prompts/03-architect.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/03-architect.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:04-design",
+      "category": "prompt",
+      "label": "04-design",
+      "description": "Generate architecture diagrams and Architecture Decision Records (ADRs). Optional step — can be skipped.",
+      "path": ".github/prompts/04-design.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/04-design.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:04g-governance",
+      "category": "prompt",
+      "label": "04g-governance",
+      "description": "Discover Azure Policy constraints for the project subscription and produce governance constraint artifacts.",
+      "path": ".github/prompts/04g-governance.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/04g-governance.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:05-iac-planner",
+      "category": "prompt",
+      "label": "05-iac-planner",
+      "description": "Create an IaC implementation plan with governance constraints, dependency and runtime diagrams.",
+      "path": ".github/prompts/05-iac-planner.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/05-iac-planner.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:06b-bicep-codegen",
+      "category": "prompt",
+      "label": "06b-bicep-codegen",
+      "description": "Generate near-production-ready Bicep templates from the implementation plan.",
+      "path": ".github/prompts/06b-bicep-codegen.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/06b-bicep-codegen.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:06t-terraform-codegen",
+      "category": "prompt",
+      "label": "06t-terraform-codegen",
+      "description": "Generate near-production-ready Terraform configurations from the implementation plan.",
+      "path": ".github/prompts/06t-terraform-codegen.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/06t-terraform-codegen.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:07b-bicep-deploy",
+      "category": "prompt",
+      "label": "07b-bicep-deploy",
+      "description": "Deploy Bicep templates to Azure with what-if analysis and deployment validation.",
+      "path": ".github/prompts/07b-bicep-deploy.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/07b-bicep-deploy.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:07t-terraform-deploy",
+      "category": "prompt",
+      "label": "07t-terraform-deploy",
+      "description": "Deploy Terraform configurations to Azure with plan preview and phased execution.",
+      "path": ".github/prompts/07t-terraform-deploy.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/07t-terraform-deploy.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:08-as-built",
+      "category": "prompt",
+      "label": "08-as-built",
+      "description": "Generate the as-built documentation suite from all prior artifacts and deployed state.",
+      "path": ".github/prompts/08-as-built.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/08-as-built.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:as-built-from-azure",
+      "category": "prompt",
+      "label": "as-built-from-azure",
+      "description": "Generate as-built documentation for an existing Azure deployment with no prior artifacts. Discovers resources, collects requirements interactively, synthesizes pseudo-artifacts, then hands off to 08-As-Built.",
+      "path": ".github/prompts/as-built-from-azure.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/as-built-from-azure.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:challenger-review",
+      "category": "prompt",
+      "label": "challenger-review",
+      "description": "Run an adversarial review against any agent-output artifact to find gaps and weaknesses.",
+      "path": ".github/prompts/challenger-review.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/challenger-review.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:context-audit",
+      "category": "prompt",
+      "label": "context-audit",
+      "description": "Audit agent context window utilization from Copilot Chat debug logs and produce optimization recommendations.",
+      "path": ".github/prompts/context-audit.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/context-audit.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:diagnose-resource",
+      "category": "prompt",
+      "label": "diagnose-resource",
+      "description": "Diagnose Azure resource health issues with guided troubleshooting and remediation planning.",
+      "path": ".github/prompts/diagnose-resource.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/diagnose-resource.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:doc-gardening",
+      "category": "prompt",
+      "label": "doc-gardening",
+      "description": "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md.",
+      "path": ".github/prompts/doc-gardening.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/doc-gardening.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:git-commit-push",
+      "category": "prompt",
+      "label": "git-commit-push",
+      "description": "Stage changes, create a conventional commit, push to the current branch, and optionally open a pull request to main using the GitHub MCP server.",
+      "path": ".github/prompts/git-commit-push.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/git-commit-push.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:plan-docspeerreview",
+      "category": "prompt",
+      "label": "plan-docsPeerReview",
+      "description": "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report.",
+      "path": ".github/prompts/plan-docsPeerReview.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-docsPeerReview.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:resume-workflow",
+      "category": "prompt",
+      "label": "resume-workflow",
+      "description": "Resume the multi-step workflow from where it left off by reading session state and routing to the correct agent.",
+      "path": ".github/prompts/resume-workflow.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/resume-workflow.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:review-imported-iac",
+      "category": "prompt",
+      "label": "review-imported-iac",
+      "description": "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts.",
+      "path": ".github/prompts/review-imported-iac.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/review-imported-iac.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "validator:validate-artifacts",
+      "category": "validator",
+      "label": "validate:artifacts",
+      "description": "node scripts/validate-artifacts.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-artifacts.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-agents",
+      "category": "validator",
+      "label": "validate:agents",
+      "description": "node scripts/validate-agents.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-agents.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-skills",
+      "category": "validator",
+      "label": "validate:skills",
+      "description": "node scripts/validate-skills.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-skills.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-version-sync",
+      "category": "validator",
+      "label": "lint:version-sync",
+      "description": "node scripts/validate-version-sync.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-version-sync.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-deprecated-refs",
+      "category": "validator",
+      "label": "lint:deprecated-refs",
+      "description": "node scripts/validate-no-deprecated-refs.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-no-deprecated-refs.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-mcp-config",
+      "category": "validator",
+      "label": "lint:mcp-config",
+      "description": "node scripts/validate-mcp-config.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-mcp-config.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-instruction-checks",
+      "category": "validator",
+      "label": "validate:instruction-checks",
+      "description": "node scripts/validate-instruction-checks.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-instruction-checks.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-governance-refs",
+      "category": "validator",
+      "label": "lint:governance-refs",
+      "description": "node scripts/validate-governance-refs.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-governance-refs.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-session-state",
+      "category": "validator",
+      "label": "validate:session-state",
+      "description": "node scripts/validate-session-state.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-session-state.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-session-lock",
+      "category": "validator",
+      "label": "validate:session-lock",
+      "description": "node scripts/validate-session-lock.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-session-lock.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-workflow-graph",
+      "category": "validator",
+      "label": "validate:workflow-graph",
+      "description": "node scripts/validate-workflow-graph.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-workflow-graph.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-agent-registry",
+      "category": "validator",
+      "label": "validate:agent-registry",
+      "description": "node scripts/validate-agent-registry.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-agent-registry.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-skill-checks",
+      "category": "validator",
+      "label": "validate:skill-checks",
+      "description": "node scripts/validate-skill-checks.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-skill-checks.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-json",
+      "category": "validator",
+      "label": "lint:json",
+      "description": "node scripts/lint-json.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/lint-json.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-glob-audit",
+      "category": "validator",
+      "label": "lint:glob-audit",
+      "description": "node scripts/validate-glob-audit.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-glob-audit.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-orphaned-content",
+      "category": "validator",
+      "label": "lint:orphaned-content",
+      "description": "node scripts/validate-orphaned-content.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-orphaned-content.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-docs-freshness",
+      "category": "validator",
+      "label": "lint:docs-freshness",
+      "description": "node scripts/check-docs-freshness.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/check-docs-freshness.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-no-hardcoded-counts",
+      "category": "validator",
+      "label": "validate:no-hardcoded-counts",
+      "description": "node scripts/validate-no-hardcoded-counts.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-no-hardcoded-counts.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-hooks",
+      "category": "validator",
+      "label": "validate:hooks",
+      "description": "node scripts/validate-hooks.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-hooks.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-iac-security-baseline",
+      "category": "validator",
+      "label": "validate:iac-security-baseline",
+      "description": "node scripts/validate-iac-security-baseline.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-iac-security-baseline.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-vscode",
+      "category": "validator",
+      "label": "validate:vscode",
+      "description": "node scripts/validate-vscode-config.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-vscode-config.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-drawio",
+      "category": "validator",
+      "label": "lint:drawio",
+      "description": "node scripts/validate-drawio-files.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-drawio-files.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-terminology",
+      "category": "validator",
+      "label": "validate:terminology",
+      "description": "node scripts/validate-terminology.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-terminology.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-explorer-graph",
+      "category": "validator",
+      "label": "validate:explorer-graph",
+      "description": "EXPLORER_GRAPH_STRICT=1 node scripts/validate-explorer-graph.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "EXPLORER_GRAPH_STRICT=1 node scripts/validate-explorer-graph.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-md",
+      "category": "validator",
+      "label": "lint:md",
+      "description": "markdownlint-cli2",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "markdownlint-cli2"
+      }
+    },
+    {
+      "id": "validator:lint-python",
+      "category": "validator",
+      "label": "lint:python",
+      "description": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/"
+      }
+    },
+    {
+      "id": "validator:lint-terraform-fmt",
+      "category": "validator",
+      "label": "lint:terraform-fmt",
+      "description": "terraform fmt -check -recursive infra/terraform/",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "terraform fmt -check -recursive infra/terraform/"
+      }
+    },
+    {
+      "id": "validator:validate-terraform",
+      "category": "validator",
+      "label": "validate:terraform",
+      "description": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done"
+      }
+    },
+    {
+      "id": "workflow:azure-deprecation-tracker",
+      "category": "workflow",
+      "label": "azure-deprecation-tracker",
+      "description": "",
+      "path": ".github/workflows/azure-deprecation-tracker.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/azure-deprecation-tracker.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:branch-enforcement",
+      "category": "workflow",
+      "label": "branch-enforcement",
+      "description": "",
+      "path": ".github/workflows/branch-enforcement.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/branch-enforcement.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:ci",
+      "category": "workflow",
+      "label": "ci",
+      "description": "",
+      "path": ".github/workflows/ci.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/ci.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:docs",
+      "category": "workflow",
+      "label": "docs",
+      "description": "",
+      "path": ".github/workflows/docs.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/docs.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:e2e-validation",
+      "category": "workflow",
+      "label": "e2e-validation",
+      "description": "",
+      "path": ".github/workflows/e2e-validation.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/e2e-validation.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:link-check",
+      "category": "workflow",
+      "label": "link-check",
+      "description": "",
+      "path": ".github/workflows/link-check.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/link-check.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:weekly-maintenance",
+      "category": "workflow",
+      "label": "weekly-maintenance",
+      "description": "",
+      "path": ".github/workflows/weekly-maintenance.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/weekly-maintenance.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "mcp:github",
+      "category": "mcp",
+      "label": "github",
+      "description": "HTTP: https://api.githubcopilot.com/mcp/",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "http"
+      }
+    },
+    {
+      "id": "mcp:azure-pricing",
+      "category": "mcp",
+      "label": "azure-pricing",
+      "description": "stdio: ${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "stdio"
+      }
+    },
+    {
+      "id": "mcp:terraform",
+      "category": "mcp",
+      "label": "terraform",
+      "description": "stdio: /go/bin/terraform-mcp-server",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "stdio"
+      }
+    },
+    {
+      "id": "mcp:microsoft-learn",
+      "category": "mcp",
+      "label": "microsoft-learn",
+      "description": "HTTP: https://learn.microsoft.com/api/mcp?maxTokenBudget=4000",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "http"
+      }
+    },
+    {
+      "id": "mcp:astro-docs",
+      "category": "mcp",
+      "label": "astro-docs",
+      "description": "HTTP: https://mcp.docs.astro.build/mcp",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "http"
+      }
+    },
+    {
+      "id": "mcp:drawio",
+      "category": "mcp",
+      "label": "drawio",
+      "description": "stdio: deno",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:02-requirements",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:02-requirements",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:03-architect",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:03-architect",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:05-iac-planner",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:05-iac-planner",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:06b-bicep-codegen",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:07b-bicep-deploy",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:08-as-built",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:08-as-built",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:06t-terraform-codegen",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:07t-terraform-deploy",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--delegates->subagent:challenger-review-subagent",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:02-requirements",
+      "source": "agent:01-orchestrator",
+      "target": "agent:02-requirements",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:03-architect",
+      "source": "agent:01-orchestrator",
+      "target": "agent:03-architect",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:04-design",
+      "source": "agent:01-orchestrator",
+      "target": "agent:04-design",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:04g-governance",
+      "source": "agent:01-orchestrator",
+      "target": "agent:04g-governance",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:05-iac-planner",
+      "source": "agent:01-orchestrator",
+      "target": "agent:05-iac-planner",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:06b-bicep-codegen",
+      "source": "agent:01-orchestrator",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:07b-bicep-deploy",
+      "source": "agent:01-orchestrator",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:08-as-built",
+      "source": "agent:01-orchestrator",
+      "target": "agent:08-as-built",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:09-diagnose",
+      "source": "agent:01-orchestrator",
+      "target": "agent:09-diagnose",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:06t-terraform-codegen",
+      "source": "agent:01-orchestrator",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:07t-terraform-deploy",
+      "source": "agent:01-orchestrator",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:02-requirements--delegates->subagent:challenger-review-subagent",
+      "source": "agent:02-requirements",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:03-architect--delegates->subagent:cost-estimate-subagent",
+      "source": "agent:03-architect",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:03-architect--delegates->subagent:challenger-review-subagent",
+      "source": "agent:03-architect",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:04g-governance--delegates->subagent:governance-discovery-subagent",
+      "source": "agent:04g-governance",
+      "target": "subagent:governance-discovery-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:04g-governance--delegates->subagent:challenger-review-subagent",
+      "source": "agent:04g-governance",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:05-iac-planner--delegates->subagent:challenger-review-subagent",
+      "source": "agent:05-iac-planner",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--delegates->subagent:bicep-validate-subagent",
+      "source": "agent:06b-bicep-codegen",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--delegates->subagent:challenger-review-subagent",
+      "source": "agent:06b-bicep-codegen",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--delegates->subagent:terraform-validate-subagent",
+      "source": "agent:06t-terraform-codegen",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--delegates->subagent:challenger-review-subagent",
+      "source": "agent:06t-terraform-codegen",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--delegates->subagent:bicep-whatif-subagent",
+      "source": "agent:07b-bicep-deploy",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--delegates->subagent:challenger-review-subagent",
+      "source": "agent:07b-bicep-deploy",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--delegates->subagent:terraform-plan-subagent",
+      "source": "agent:07t-terraform-deploy",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--delegates->subagent:challenger-review-subagent",
+      "source": "agent:07t-terraform-deploy",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:08-as-built--delegates->subagent:cost-estimate-subagent",
+      "source": "agent:08-as-built",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:10-challenger--delegates->subagent:challenger-review-subagent",
+      "source": "agent:10-challenger",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:02-requirements",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:02-requirements",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:03-architect",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:03-architect",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:04-design",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:04-design",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:04g-governance",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:04g-governance",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:05-iac-planner",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:05-iac-planner",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:06b-bicep-codegen",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:06t-terraform-codegen",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:07b-bicep-deploy",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:07t-terraform-deploy",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->agent:08-as-built",
+      "source": "agent:e2e-orchestrator",
+      "target": "agent:08-as-built",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->subagent:challenger-review-subagent",
+      "source": "agent:e2e-orchestrator",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->subagent:bicep-validate-subagent",
+      "source": "agent:e2e-orchestrator",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->subagent:bicep-whatif-subagent",
+      "source": "agent:e2e-orchestrator",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->subagent:terraform-validate-subagent",
+      "source": "agent:e2e-orchestrator",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:e2e-orchestrator--delegates->subagent:terraform-plan-subagent",
+      "source": "agent:e2e-orchestrator",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:02-requirements",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:02-requirements",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:03-architect",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:05-iac-planner",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:05-iac-planner",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:07b-bicep-deploy",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:08-as-built",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:08-as-built",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:01-orchestrator",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:02-requirements",
+      "source": "agent:01-orchestrator",
+      "target": "agent:02-requirements",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:03-architect",
+      "source": "agent:01-orchestrator",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:04-design",
+      "source": "agent:01-orchestrator",
+      "target": "agent:04-design",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:04g-governance",
+      "source": "agent:01-orchestrator",
+      "target": "agent:04g-governance",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:05-iac-planner",
+      "source": "agent:01-orchestrator",
+      "target": "agent:05-iac-planner",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:06b-bicep-codegen",
+      "source": "agent:01-orchestrator",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:07b-bicep-deploy",
+      "source": "agent:01-orchestrator",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:08-as-built",
+      "source": "agent:01-orchestrator",
+      "target": "agent:08-as-built",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:01-orchestrator-fast-path",
+      "source": "agent:01-orchestrator",
+      "target": "agent:01-orchestrator-fast-path",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:09-diagnose",
+      "source": "agent:01-orchestrator",
+      "target": "agent:09-diagnose",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:06t-terraform-codegen",
+      "source": "agent:01-orchestrator",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:07t-terraform-deploy",
+      "source": "agent:01-orchestrator",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:02-requirements--hands-off->agent:10-challenger",
+      "source": "agent:02-requirements",
+      "target": "agent:10-challenger",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:02-requirements--hands-off->agent:03-architect",
+      "source": "agent:02-requirements",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:02-requirements--hands-off->agent:01-orchestrator",
+      "source": "agent:02-requirements",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:03-architect--hands-off->agent:04-design",
+      "source": "agent:03-architect",
+      "target": "agent:04-design",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:03-architect--hands-off->agent:04g-governance",
+      "source": "agent:03-architect",
+      "target": "agent:04g-governance",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:03-architect--hands-off->agent:02-requirements",
+      "source": "agent:03-architect",
+      "target": "agent:02-requirements",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:03-architect--hands-off->agent:01-orchestrator",
+      "source": "agent:03-architect",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04-design--hands-off->agent:03-architect",
+      "source": "agent:04-design",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04-design--hands-off->agent:04g-governance",
+      "source": "agent:04-design",
+      "target": "agent:04g-governance",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04-design--hands-off->agent:06b-bicep-codegen",
+      "source": "agent:04-design",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04-design--hands-off->agent:06t-terraform-codegen",
+      "source": "agent:04-design",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04-design--hands-off->agent:01-orchestrator",
+      "source": "agent:04-design",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04g-governance--hands-off->agent:05-iac-planner",
+      "source": "agent:04g-governance",
+      "target": "agent:05-iac-planner",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:04g-governance--hands-off->agent:01-orchestrator",
+      "source": "agent:04g-governance",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:05-iac-planner--hands-off->agent:04g-governance",
+      "source": "agent:05-iac-planner",
+      "target": "agent:04g-governance",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:05-iac-planner--hands-off->agent:06b-bicep-codegen",
+      "source": "agent:05-iac-planner",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:05-iac-planner--hands-off->agent:06t-terraform-codegen",
+      "source": "agent:05-iac-planner",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:05-iac-planner--hands-off->agent:03-architect",
+      "source": "agent:05-iac-planner",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:05-iac-planner--hands-off->agent:01-orchestrator",
+      "source": "agent:05-iac-planner",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--hands-off->agent:07b-bicep-deploy",
+      "source": "agent:06b-bicep-codegen",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--hands-off->agent:05-iac-planner",
+      "source": "agent:06b-bicep-codegen",
+      "target": "agent:05-iac-planner",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--hands-off->agent:01-orchestrator",
+      "source": "agent:06b-bicep-codegen",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--hands-off->agent:07t-terraform-deploy",
+      "source": "agent:06t-terraform-codegen",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--hands-off->agent:05-iac-planner",
+      "source": "agent:06t-terraform-codegen",
+      "target": "agent:05-iac-planner",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--hands-off->agent:01-orchestrator",
+      "source": "agent:06t-terraform-codegen",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--hands-off->agent:08-as-built",
+      "source": "agent:07b-bicep-deploy",
+      "target": "agent:08-as-built",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--hands-off->agent:06b-bicep-codegen",
+      "source": "agent:07b-bicep-deploy",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--hands-off->agent:03-architect",
+      "source": "agent:07b-bicep-deploy",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--hands-off->agent:01-orchestrator",
+      "source": "agent:07b-bicep-deploy",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--hands-off->agent:08-as-built",
+      "source": "agent:07t-terraform-deploy",
+      "target": "agent:08-as-built",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--hands-off->agent:06t-terraform-codegen",
+      "source": "agent:07t-terraform-deploy",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--hands-off->agent:03-architect",
+      "source": "agent:07t-terraform-deploy",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--hands-off->agent:01-orchestrator",
+      "source": "agent:07t-terraform-deploy",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:08-as-built--hands-off->agent:01-orchestrator",
+      "source": "agent:08-as-built",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:09-diagnose--hands-off->agent:08-as-built",
+      "source": "agent:09-diagnose",
+      "target": "agent:08-as-built",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:09-diagnose--hands-off->agent:03-architect",
+      "source": "agent:09-diagnose",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:09-diagnose--hands-off->agent:01-orchestrator",
+      "source": "agent:09-diagnose",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:10-challenger--hands-off->agent:01-orchestrator",
+      "source": "agent:10-challenger",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:11-context-optimizer--hands-off->agent:01-orchestrator",
+      "source": "agent:11-context-optimizer",
+      "target": "agent:01-orchestrator",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-primary->skill:workflow-engine",
+      "source": "agent:01-orchestrator",
+      "target": "skill:workflow-engine",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->skill:golden-principles",
+      "source": "agent:01-orchestrator",
+      "target": "skill:golden-principles",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->skill:session-resume",
+      "source": "agent:01-orchestrator",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->skill:azure-defaults",
+      "source": "agent:01-orchestrator",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:01-orchestrator",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->skill:context-shredding",
+      "source": "agent:01-orchestrator",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->skill:github-operations",
+      "source": "agent:01-orchestrator",
+      "target": "skill:github-operations",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-secondary->skill:microsoft-docs",
+      "source": "agent:01-orchestrator",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:golden-principles",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "skill:golden-principles",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:session-resume",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:azure-defaults",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:context-shredding",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:github-operations",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "skill:github-operations",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:microsoft-docs",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:02-requirements--uses-primary->skill:azure-defaults",
+      "source": "agent:02-requirements",
+      "target": "skill:azure-defaults",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:02-requirements--uses-primary->instruction:azure-artifacts",
+      "source": "agent:02-requirements",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:02-requirements--uses-primary->skill:session-resume",
+      "source": "agent:02-requirements",
+      "target": "skill:session-resume",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:02-requirements--uses-secondary->skill:microsoft-docs",
+      "source": "agent:02-requirements",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:03-architect--uses-primary->skill:azure-defaults",
+      "source": "agent:03-architect",
+      "target": "skill:azure-defaults",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:03-architect--uses-primary->instruction:azure-artifacts",
+      "source": "agent:03-architect",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:03-architect--uses-primary->skill:session-resume",
+      "source": "agent:03-architect",
+      "target": "skill:session-resume",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:03-architect--uses-secondary->skill:context-shredding",
+      "source": "agent:03-architect",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:03-architect--uses-secondary->mcp:drawio",
+      "source": "agent:03-architect",
+      "target": "mcp:drawio",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:03-architect--uses-secondary->skill:python-diagrams",
+      "source": "agent:03-architect",
+      "target": "skill:python-diagrams",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:03-architect--uses-secondary->skill:microsoft-docs",
+      "source": "agent:03-architect",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:04-design--uses-primary->skill:azure-adr",
+      "source": "agent:04-design",
+      "target": "skill:azure-adr",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:04-design--uses-secondary->mcp:drawio",
+      "source": "agent:04-design",
+      "target": "mcp:drawio",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:04-design--uses-secondary->skill:python-diagrams",
+      "source": "agent:04-design",
+      "target": "skill:python-diagrams",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:04-design--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:04-design",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:04-design--uses-secondary->skill:session-resume",
+      "source": "agent:04-design",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:04-design--uses-secondary->skill:microsoft-docs",
+      "source": "agent:04-design",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:04g-governance--uses-primary->skill:azure-defaults",
+      "source": "agent:04g-governance",
+      "target": "skill:azure-defaults",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:04g-governance--uses-primary->instruction:azure-artifacts",
+      "source": "agent:04g-governance",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:04g-governance--uses-primary->skill:session-resume",
+      "source": "agent:04g-governance",
+      "target": "skill:session-resume",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:04g-governance--uses-secondary->skill:microsoft-docs",
+      "source": "agent:04g-governance",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-primary->skill:azure-bicep-patterns",
+      "source": "agent:05-iac-planner",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-primary->skill:terraform-patterns",
+      "source": "agent:05-iac-planner",
+      "target": "skill:terraform-patterns",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-secondary->skill:azure-defaults",
+      "source": "agent:05-iac-planner",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:05-iac-planner",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-secondary->skill:session-resume",
+      "source": "agent:05-iac-planner",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-secondary->skill:context-shredding",
+      "source": "agent:05-iac-planner",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-secondary->skill:microsoft-docs",
+      "source": "agent:05-iac-planner",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-secondary->skill:microsoft-code-reference",
+      "source": "agent:05-iac-planner",
+      "target": "skill:microsoft-code-reference",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-primary->skill:azure-bicep-patterns",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-secondary->skill:azure-defaults",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:06b-bicep-codegen",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-secondary->skill:session-resume",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-secondary->skill:context-shredding",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-secondary->skill:microsoft-docs",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-secondary->skill:microsoft-code-reference",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:microsoft-code-reference",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-primary->skill:terraform-patterns",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:terraform-patterns",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-secondary->skill:azure-defaults",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:06t-terraform-codegen",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-secondary->skill:session-resume",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-secondary->skill:context-shredding",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-secondary->skill:microsoft-docs",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-secondary->skill:microsoft-code-reference",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:microsoft-code-reference",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-primary->skill:azure-defaults",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:azure-defaults",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-primary->instruction:azure-artifacts",
+      "source": "agent:07b-bicep-deploy",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-primary->skill:iac-common",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:iac-common",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-secondary->skill:session-resume",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-secondary->skill:github-operations",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:github-operations",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-primary->skill:azure-defaults",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:azure-defaults",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-primary->instruction:azure-artifacts",
+      "source": "agent:07t-terraform-deploy",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-primary->skill:iac-common",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:iac-common",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-primary->skill:terraform-patterns",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:terraform-patterns",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-secondary->skill:session-resume",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-secondary->skill:github-operations",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:github-operations",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:08-as-built--uses-primary->mcp:drawio",
+      "source": "agent:08-as-built",
+      "target": "mcp:drawio",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:08-as-built--uses-primary->skill:python-diagrams",
+      "source": "agent:08-as-built",
+      "target": "skill:python-diagrams",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:08-as-built--uses-secondary->skill:azure-defaults",
+      "source": "agent:08-as-built",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:08-as-built--uses-secondary->instruction:azure-artifacts",
+      "source": "agent:08-as-built",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:08-as-built--uses-secondary->skill:session-resume",
+      "source": "agent:08-as-built",
+      "target": "skill:session-resume",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:08-as-built--uses-secondary->skill:context-shredding",
+      "source": "agent:08-as-built",
+      "target": "skill:context-shredding",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:08-as-built--uses-secondary->skill:microsoft-docs",
+      "source": "agent:08-as-built",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:09-diagnose--uses-primary->skill:azure-diagnostics",
+      "source": "agent:09-diagnose",
+      "target": "skill:azure-diagnostics",
+      "kind": "uses-primary"
+    },
+    {
+      "id": "agent:09-diagnose--uses-secondary->skill:azure-defaults",
+      "source": "agent:09-diagnose",
+      "target": "skill:azure-defaults",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:09-diagnose--uses-secondary->skill:microsoft-docs",
+      "source": "agent:09-diagnose",
+      "target": "skill:microsoft-docs",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:09-diagnose--uses-secondary->skill:microsoft-code-reference",
+      "source": "agent:09-diagnose",
+      "target": "skill:microsoft-code-reference",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:10-challenger--uses-secondary->skill:golden-principles",
+      "source": "agent:10-challenger",
+      "target": "skill:golden-principles",
+      "kind": "uses-secondary"
+    },
+    {
+      "id": "agent:11-context-optimizer--uses-primary->skill:context-optimizer",
+      "source": "agent:11-context-optimizer",
+      "target": "skill:context-optimizer",
+      "kind": "uses-primary"
+    }
+  ]
+}

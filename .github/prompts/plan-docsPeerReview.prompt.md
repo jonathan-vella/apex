@@ -7,13 +7,23 @@ argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works 
 
 # Docs Peer Review
 
-Orchestrate a peer review of every published documentation page in `site/src/content/docs/`.
-Two independent reviewer passes run sequentially, then an adversarial pass,
-then reconciliation into a prioritised triage report.
+Orchestrate a peer review of every published documentation page in
+`site/src/content/docs/` **plus** the interactive Architecture Explorer at
+`site/public/architecture-explorer.html`. Two independent reviewers (A + B) run
+**in parallel**, then an adversarial pass runs after them with their JSON as
+context, then reconciliation into a prioritised triage report.
 
 ## Scope
 
-Published pages only. Excludes `tests/exec-plans/` and `site/public/`.
+**In scope:**
+
+- All `.md`/`.mdx` pages under `site/src/content/docs/` (includes `demo/`,
+  `concepts/`, `guides/`, `getting-started/`, `reference/`, `project/`).
+- `site/public/architecture-explorer.html` (interactive component — accuracy,
+  a11y, responsive, legend vs. repo reality).
+
+**Out of scope:** `tests/exec-plans/`, `agent-output/`, `site/public/demo/*` raw
+fixtures, `site/public/downloads/`.
 
 ### Step 0 — Build file inventory dynamically
 
@@ -30,27 +40,36 @@ Known filename note: `four-pillars.md` renders as "Core Concepts" in the nav.
 
 ### Source-of-truth files for cross-referencing
 
-Reviewers should validate docs claims against these files:
+Reviewers validate docs claims against these files. **Counts** come from
+`.github/count-manifest.json` (computed from globs) — never hard-code numbers in
+findings; compute them from the manifest's `computed_from` patterns at review
+time.
 
-| File                          | What it proves                            |
-| ----------------------------- | ----------------------------------------- |
-| `.github/agents/*.agent.md`   | Top-level agent names and count           |
-| `.github/agents/_subagents/`  | Subagent names and count                  |
-| `.github/skills/*/SKILL.md`   | Skill names and count                     |
-| `.github/instructions/`       | Instruction file names                    |
-| `.github/agent-registry.json` | Agent → file/model/skills mapping         |
-| `.github/skill-affinity.json` | Skill → agent affinity weights            |
-| `.vscode/mcp.json`            | MCP server names and config               |
-| `package.json`                | Validation script names                   |
-| `site/astro.config.mjs`       | Sidebar structure and published page list |
-| `AGENTS.md`                   | Project conventions table of contents     |
+| File                                                   | What it proves                                                 |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
+| `.github/count-manifest.json`                          | **Authoritative** entity counts (agents, subagents, skills, …) |
+| `.github/agents/*.agent.md`                            | Top-level agent names                                          |
+| `.github/agents/_subagents/*.agent.md`                 | Subagent names                                                 |
+| `.github/skills/*/SKILL.md`                            | Skill names                                                    |
+| `.github/instructions/*.instructions.md`               | Instruction file names                                         |
+| `.github/prompts/*.prompt.md`                          | Prompt names                                                   |
+| `.github/agent-registry.json`                          | Agent → file/model/skills mapping                              |
+| `.github/skill-affinity.json`                          | Skill → agent affinity weights                                 |
+| `.vscode/mcp.json`                                     | MCP server names and config                                    |
+| `package.json`                                         | Validation script names                                        |
+| `site/astro.config.mjs`                                | Sidebar structure and published page list                      |
+| `site/public/architecture-explorer-graph.json`         | Graph node/edge canonical data (if present)                    |
+| `tests/exec-plans/tech-debt-tracker.md`                | Known tech-debt items (cross-check "stale promise" findings)   |
+| `AGENTS.md`                                            | Project conventions table of contents                          |
 
 ## Workflow
 
-### Phase 1 — Independent reviews (sequential)
+### Phase 1 — Independent reviews (PARALLEL)
 
-Run two subagent reviews sequentially. Each reviewer reads every file from the
-dynamic inventory and produces a structured findings list.
+Run Reviewer A and Reviewer B **in parallel** — they read independent inputs and
+must not share context. Invoke both subagents in the same tool-call batch.
+Each reviewer reads every file from the dynamic inventory and produces a
+structured findings list.
 
 **Constraints for both reviewers:**
 
@@ -71,8 +90,9 @@ dynamic inventory and produces a structured findings list.
 > Read every page from the dynamic inventory. Check:
 >
 > 1. **Factual accuracy** — Do agent names, skill names, MCP server names,
->    and CLI commands match reality? Cross-reference the source-of-truth files
->    listed above.
+>    and CLI commands match reality? Cross-reference the source-of-truth files.
+>    For any numeric count in the docs, compute the expected value from
+>    `.github/count-manifest.json` globs and flag mismatches.
 > 2. **Internal consistency** — Do cross-page references agree? Are tables, lists,
 >    and terminology consistent across files? Does the workflow step numbering
 >    (including Step 3.5 Governance) appear correctly everywhere?
@@ -80,6 +100,9 @@ dynamic inventory and produces a structured findings list.
 >    from docs but present on disk?
 > 4. **Broken links** — Flag any relative links or image references that point to
 >    deleted or renamed files.
+> 5. **Explorer parity** — For `architecture-explorer.html`: do legend counts
+>    match `count-manifest.json` values? Do referenced node IDs exist as real
+>    files on disk?
 >
 > Return a JSON array (max 30 items). Each finding:
 >
@@ -98,7 +121,7 @@ dynamic inventory and produces a structured findings list.
 > Category values: `accuracy` | `consistency` | `completeness` | `broken_link`.
 > One category per finding — if multi-faceted, split into separate findings.
 
-**Reviewer B** (readability, UX, and navigation):
+**Reviewer B** (readability, UX, navigation, accessibility, responsive):
 
 > You are a documentation UX specialist reviewing a developer docs site.
 > Your goal is actionable UX improvements, not style nits. Aim for
@@ -117,9 +140,20 @@ dynamic inventory and produces a structured findings list.
 >    concepts should use declarative "X is...")
 > 5. **Navigation** — Do pages link forward to logical next steps?
 >    Are dead ends flagged?
+> 6. **Accessibility (a11y)** — Check published markdown for: images without
+>    alt text, heading-order jumps (e.g., h2 → h4), link text that reads as
+>    "click here", color-only indicators in tables/callouts. For
+>    `architecture-explorer.html`, check: keyboard-navigability claims, ARIA
+>    labels on interactive controls, focus-visible styling, and whether
+>    category cues rely on color alone.
+> 7. **Responsive** — Flag wide tables that will overflow on mobile (>6
+>    columns without wrapping), fixed-width code blocks without horizontal
+>    scroll, and explorer/interactive components that lack viewport-meta
+>    consideration or touch-target sizing (<44 px hit areas).
 >
 > Return a JSON array (max 30 items) using the same schema as Reviewer A.
-> Category values: `scannability` | `onboarding` | `redundancy` | `clarity` | `navigation`.
+> Category values: `scannability` | `onboarding` | `redundancy` | `clarity` |
+> `navigation` | `accessibility` | `responsive`.
 
 ### Phase 2 — Adversarial review
 

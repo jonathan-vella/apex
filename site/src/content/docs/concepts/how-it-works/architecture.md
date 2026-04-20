@@ -58,19 +58,23 @@ This prevents context exhaustion in long-running sessions — real-world testing
 that a 3h39m session experienced 5 forced context summarisations, losing critical
 decision context. The new session resumes from the checkpoint by reading the state file.
 
-**Model Selection**: The Orchestrator routes to different model tiers based on task complexity:
+**Model Selection**: The Orchestrator routes work to different model tiers based on task
+complexity, not to specific model versions. Tier assignments are declared per agent in
+the `model:` frontmatter field inside each `.github/agents/*.agent.md` file and are
+validated by `npm run lint:model-alignment`. Concrete model names change over time.
 
-:::note[Model versions evolve]
-The specific versions below reflect the current configuration. Check agent
-frontmatter (`model:` field) for the latest selections.
+:::note[Check agent frontmatter, not this page, for current models]
+This table describes **what each tier is used for**. The specific model backing each
+tier is resolved from agent frontmatter — consult those files (or
+`.github/agent-registry.json`) for the authoritative mapping.
 :::
 
-| Tier           | Model         | Used By                                          |
-| -------------- | ------------- | ------------------------------------------------ |
-| Primary        | Claude Opus   | Orchestrator, all workflow step agents           |
-| Review         | Claude Sonnet | Challenger reviews, code reviews (A/B validated) |
-| Heavy API Work | GPT Codex     | Governance discovery (batch REST API calls)      |
-| Utility        | GPT-4o-mini   | Session state updates, lightweight tasks         |
+| Tier           | Purpose                                                               | Used By                                          |
+| -------------- | --------------------------------------------------------------------- | ------------------------------------------------ |
+| Primary        | Deep reasoning, multi-step planning, architecture & code generation   | Orchestrator, all workflow step agents           |
+| Review         | Adversarial critique, structured comparison, A/B validation           | Challenger reviews, code reviews                 |
+| Heavy API Work | Long-context batch execution over external APIs with deterministic I/O | Governance discovery (batch REST API calls)      |
+| Utility        | Cheap, fast, well-defined transforms                                  | Session state updates, lightweight tasks         |
 
 **Subagent Integration Matrix**: The full mapping of which subagents are invoked by
 which parent agents is externalised to the
