@@ -1082,8 +1082,8 @@
               ${docsLink ? `<a href="${docsLink}">Open docs →</a>` : ""}
               ${sourceLink ? `<a class="secondary" href="${sourceLink}" rel="noopener" target="_blank">View source ↗</a>` : ""}
             </div>
-            ${connectionsSection("Delegates to / hands off", outgoing)}
-            ${connectionsSection("Used by / invoked by", incoming)}
+            ${connectionsSection("Outgoing connections", outgoing)}
+            ${connectionsSection("Incoming connections", incoming)}
           `;
           drawer.scrollTop = 0;
           drawer.querySelectorAll("button[data-goto]").forEach((btn) => {

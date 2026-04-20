@@ -142,7 +142,7 @@ validators) and `validate:_external` (external tool validators):
 | Explorer graph      | `validate:explorer-graph`                                                                 |
 | Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`, `validate:no-hardcoded-counts`, `validate:terminology` |
 
-See [`reference/validation-reference`](../../../reference/validation-reference/)
+See [`reference/validation-reference`](../../reference/validation-reference/)
 for the full authoritative list — it is generated from `package.json`.
 
 All validators run via `npm run validate:all`.
@@ -232,7 +232,7 @@ the `compact_for_parent` carry-forward between passes is the part that reliably 
 ### Copilot Hooks
 
 Copilot hooks in `.github/hooks/` intercept agent actions at runtime. See the
-[Hooks guide](../../../guides/hooks/) for the authoritative list; the current
+[Hooks guide](../../guides/hooks/) for the authoritative list; the current
 set covers:
 
 | Hook                   | Trigger               | Purpose                                                              |

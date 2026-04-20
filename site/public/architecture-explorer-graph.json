@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-16T21:44:16.757Z",
+  "generatedAt": "2026-04-20T11:00:39.475Z",
   "categories": [
     {
       "id": "agent",
@@ -1947,13 +1947,13 @@
       "id": "validator:validate-explorer-graph",
       "category": "validator",
       "label": "validate:explorer-graph",
-      "description": "node scripts/validate-explorer-graph.mjs",
+      "description": "EXPLORER_GRAPH_STRICT=1 node scripts/validate-explorer-graph.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-explorer-graph.mjs"
+        "command": "EXPLORER_GRAPH_STRICT=1 node scripts/validate-explorer-graph.mjs"
       }
     },
     {

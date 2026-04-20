@@ -15,8 +15,6 @@
  *  - agent → subagent (frontmatter `agents:` field)
  *  - agent handoff → agent (frontmatter `handoffs[].agent`)
  *  - agent → skill (from `.github/skill-affinity.json`, tiered)
- *  - agent → mcp-server (heuristic: tools list containing server name)
- *  - instruction → target glob (informational, category-level)
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";

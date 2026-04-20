@@ -9,7 +9,7 @@
  *  4. Every edge source/target resolves to a node id
  *  5. Category counts match actual per-category node counts
  *  6. Graph generatedAt is not older than the newest mtime of source dirs
- *     (otherwise warn and exit non-zero so CI catches stale commits)
+ *     (warns locally; exits non-zero in CI when EXPLORER_GRAPH_STRICT=1)
  */
 
 import { readFileSync, existsSync, statSync, readdirSync } from "node:fs";
