@@ -133,7 +133,7 @@ jobs:
             }
 
       - name: Upload version report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: avm-version-report
           path: |
