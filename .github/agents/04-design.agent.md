@@ -292,14 +292,14 @@ generate each diagram as a separate phase with a context checkpoint between them
 7. Use `add-cells-to-group` for all group assignments in one call
 8. Call `finish-diagram` with compress: true
 9. Save via `python3 scripts/save-drawio.py <json-path> <output.drawio>`
-11. Post-save cleanup: fix `New Cell` defaults, watermark height, spacing
-12. Validate via `node scripts/validate-drawio-files.mjs`
-11. Left-to-right flow, cross-cutting services at bottom (no edges to them)
-12. Orthogonal edges, generous spacing (120px H, 80px V minimum)
-13. Groups with text: '' and separate bold label vertex above
-14. Keep Step 3 diagrams conceptual: service names and major boundaries matter
-15. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
-16. **Context checkpoint** — summarize diagram result before next artifact
+10. Post-save cleanup: `python3 .github/skills/drawio/scripts/cleanup-drawio.py <output.drawio>`
+11. Validate via `node scripts/validate-drawio-files.mjs`
+12. Left-to-right flow, cross-cutting services at bottom (no edges to them)
+13. Orthogonal edges, generous spacing (120px H, 80px V minimum)
+14. Groups with text: '' and separate bold label vertex above
+15. Keep Step 3 diagrams conceptual: service names and major boundaries matter
+16. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
+17. **Context checkpoint** — summarize diagram result before next artifact
 
 ### ADR Generation
 

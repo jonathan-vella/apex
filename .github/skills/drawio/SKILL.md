@@ -139,7 +139,8 @@ After group assignments, call `validate-group-containment` to detect any childre
 - **Subnet row height**: For stacked subnet/namespace layouts, use **120–130px row height**
   per row — icon (48px) + label (~20px below) + 40px gap to next subnet border.
 - **Page**: US Letter 850×1100px (extend to 1300px for diagrams with legend).
-  Content within 40px margins (usable: 770×1020).
+  Content within 40px margins on all sides (usable area = page size minus 80px
+  in each dimension; e.g., 770×1020 at 1100px height, 770×1220 at 1300px).
 - **No overlapping**: Components must not overlap each other.
 
 ### Layout Patterns
@@ -200,7 +201,9 @@ client apps, CI/CD pipelines.
   (via `temp_id`), not the parent group/subnet cell ID, because the orthogonal
   router calculates the path through every intervening group boundary between
   source and target — creating messy vertical corridors and label collisions.
-- **One edge per source into a group**: target the group cell, not children inside.
+- **One edge per source into a group**: When a source connects to a service
+  inside a group, target the specific child icon. Only target the group cell
+  itself when the container is the conceptual endpoint (rare).
 - **No edges to cross-cutting services**: their presence is implied.
 - **Fan-out staggering**: When multiple edges leave the same source, keep them
   minimal. Consider merging semantically similar paths (e.g., "Partner Data Export"
