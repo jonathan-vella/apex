@@ -59,6 +59,9 @@ fi
 
 mkdir -p "${SNAPSHOT_DIR}"
 
+# Cleanup partial snapshot on error
+trap 'rc=$?; if [[ $rc -ne 0 ]]; then echo "Error: snapshot failed; cleaning up ${SNAPSHOT_DIR}" >&2; rm -rf "${SNAPSHOT_DIR}"; fi; exit $rc' ERR
+
 file_count=0
 for target in "${BACKUP_TARGETS[@]}"; do
   src="${REPO_ROOT}/${target}"

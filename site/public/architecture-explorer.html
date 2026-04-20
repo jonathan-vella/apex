@@ -1953,7 +1953,6 @@
       // Instructions
       const instructions = [
         "agent-definitions",
-        "agent-research-first",
         "agent-skills",
         "azure-artifacts",
         "bicep-code-best-practices",
@@ -2000,7 +1999,10 @@
         markdown: ["skill:docs-writer", "skill:azure-artifacts"],
         "no-heredoc": ["agent:01-Orchestrator", "agent:06b-Bicep CodeGen"],
         "no-hardcoded-counts": ["skill:count-registry", "skill:docs-writer"],
-        "model-prompt-alignment": ["agent:01-Orchestrator", "agent:03-Architect"],
+        "model-prompt-alignment": [
+          "agent:01-Orchestrator",
+          "agent:03-Architect",
+        ],
         "decision-logging": ["agent:02-Requirements", "agent:03-Architect"],
         "iac-policy-compliance": [
           "agent:06b-Bicep CodeGen",
@@ -2221,7 +2223,9 @@
         "07t-Terraform Deploy",
         "08-As-Built",
         "09-Diagnose",
-      ].forEach((a) => addLink("agent:01-Orchestrator", `agent:${a}`, "handoff"));
+      ].forEach((a) =>
+        addLink("agent:01-Orchestrator", `agent:${a}`, "handoff"),
+      );
 
       // ─── VIEW PRESETS ────────────────────────────────────────────────────────────
       const views = {

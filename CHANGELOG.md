@@ -20,6 +20,63 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- feat(governance): `schemas/governance-constraints.schema.json` is now
+  enforced at validation time. `scripts/validate-artifacts.mjs` compiles the
+  schema with AJV (draft 2020-12) and validates every
+  `agent-output/*/04-governance-constraints.json` artifact in Step 5b. Drops
+  the schema from advisory-only to hard-gate for the JSON companion.
+- feat(governance): structured policy-override pattern — `04g-Governance` now
+  emits Deny findings with an optional `override` block (`reason`, `issue_link`,
+  `expiry`) instead of silently dropping overridden policies. Codegen agents
+  (`06b`/`06t`) treat overrides as informational warnings and inject
+  `// OVERRIDE <id> until <date> — see <issue>` banner comments above affected
+  resources; missing fields or past expiry fail closed. JSON shape captured in
+  new `schemas/governance-constraints.schema.json` (`schema_version:
+governance-constraints-v1`) for future AJV enforcement.
+- fix(agents): normalise `e2e-orchestrator.agent.md` model frontmatter to the
+  standard array form `["Claude Opus 4.6"]` (was the only agent using the
+  `"Claude Opus 4.6 (copilot)"` string form).
+- feat(orchestrator): document the complexity auto-calc procedure in
+  `01-orchestrator.agent.md` — formula read from `workflow-graph.json`
+  `metadata.complexity_routing`, inputs sourced from architecture + governance
+  artefacts, result persisted at `decisions.complexity` so every downstream
+  agent reads the same value.
+- docs: admonition taxonomy (`note`/`tip`/`caution`/`danger`) and mandatory
+  `## Related` footer pattern documented in `docs.instructions.md`; footers
+  added to the 6 guide pages that lacked them.
+- feat(drawio): 10-point visual-quality rubric (title, footer, legend, grouping,
+  spacing, palette, edge labels, canonical icons, anchor stability, cross-cutting
+  container) added to `.github/skills/drawio/references/validation-checklist.md`
+  with `automated?`/rationale columns. Formalise APEX palette (compute `#E7F5FF`,
+  data `#FFF2CC`, security `#FFE6E6`, networking `#E6F5E6`, governance `#F5F5F5`),
+  typography (title 14–16pt, service 11pt, footer 9pt), and spacing (40/80/120 px)
+  in `style-reference.md`. `scripts/validate-drawio-files.mjs` adds an advisory
+  palette-drift check on `03-des-*`, `04-*-diagram`, `07-ab-*`, and `showcase-*`
+  files; promote to blocking with `APEX_DRAWIO_RUBRIC=strict` (default advisory
+  until 0.12.0).
+- perf(mcp): Azure Pricing MCP — raise HTTP pool ceiling 10→20 (per-host 5→10)
+  and dedup cache TTL 30s→300s / capacity 100→512 entries, configurable via
+  `AZURE_PRICING_HTTP_POOL_SIZE`, `AZURE_PRICING_HTTP_POOL_PER_HOST`,
+  `AZURE_PRICING_DEDUP_TTL`, `AZURE_PRICING_DEDUP_MAX_ENTRIES`. Defaults also
+  surfaced in `.vscode/mcp.json`. Cuts repeated-query latency on multi-region
+  bulk estimates; retail prices refresh at most hourly so 5-min reuse is safe.
+- feat(agents): add `.github/model-catalog.json` (single source of allowed Copilot
+  models with vendor, tier, release date, and deprecation flag) plus
+  `scripts/validate-model-floors.mjs` wired into `validate:_node` and CI. Extend
+  `.github/skills/workflow-engine/templates/workflow-graph.json` with a
+  deterministic `complexity_routing` formula (resource count, policy violations,
+  IaC-tool weight → passes) so orchestrators auto-route challenger passes from
+  session state instead of guessing.
+- docs: single-source glossary — `docs/GLOSSARY.md` is now a 9-line stub pointing
+  to `site/src/content/docs/reference/glossary.md` (removes 570-line duplicate,
+  fixes circular `#orchestrator` self-link, moves Orchestrator to its own `## O`
+  section). Clarify `VERSION.md` 0.10.0 status as pre-release/Unreleased.
+- chore(instructions): narrow overly-broad `applyTo` globs on `no-heredoc`,
+  `no-hardcoded-counts`, `markdown`, and `code-quality` to reclaim context budget
+  on every agent load. Merge `agent-research-first.instructions.md` into
+  `agent-authoring.instructions.md` (single source). Upgrade
+  `scripts/validate-glob-audit.mjs` to flag any `applyTo: "**"` plus oversized
+  `**/*.md` globs.
 - feat(azd): per-project azd multi-project support — `azure.yaml` and `.azure/` now live
   inside `infra/{iac}/{project}/` (co-located with `infra.path: .`), replacing the
   repo-root convention that broke multi-project isolation. Environment naming uses

@@ -84,3 +84,9 @@ regex cannot detect.
 
 [mcsb]: https://learn.microsoft.com/security/benchmark/azure/overview
 [waf-sec]: https://learn.microsoft.com/azure/well-architected/security/
+
+## Related
+
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys

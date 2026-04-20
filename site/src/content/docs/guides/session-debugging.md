@@ -183,3 +183,9 @@ Run these after manual edits to the state file to ensure consistency.
 - [Validation & Linting](../../reference/validation-reference/) — all validation scripts
 
 :::
+
+## Related
+
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys

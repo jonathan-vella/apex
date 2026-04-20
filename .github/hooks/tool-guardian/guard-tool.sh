@@ -37,17 +37,20 @@ LOG_FILE="$LOG_DIR/guard.log"
 TOOL_NAME=""
 TOOL_INPUT=""
 
+# VS Code sends snake_case (tool_name, tool_input); older clients used camelCase.
+# tool_input is an object, so serialize it to a compact JSON string for scanning.
 if command -v jq &>/dev/null; then
-  TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.toolName // empty' 2>/dev/null || echo "")
-  TOOL_INPUT=$(printf '%s' "$INPUT" | jq -r '.toolInput // empty' 2>/dev/null || echo "")
+  TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // .toolName // empty' 2>/dev/null || echo "")
+  TOOL_INPUT=$(printf '%s' "$INPUT" | jq -c '.tool_input // .toolInput // empty' 2>/dev/null || echo "")
 fi
 
 # Fallback: extract with grep/sed if jq unavailable or fields empty
 if [[ -z "$TOOL_NAME" ]]; then
-  TOOL_NAME=$(printf '%s' "$INPUT" | grep -oE '"toolName"\s*:\s*"[^"]*"' | head -1 | sed 's/.*"toolName"\s*:\s*"//;s/"//')
+  TOOL_NAME=$(printf '%s' "$INPUT" | grep -oE '"(tool_name|toolName)"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"(tool_name|toolName)"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
 fi
 if [[ -z "$TOOL_INPUT" ]]; then
-  TOOL_INPUT=$(printf '%s' "$INPUT" | grep -oE '"toolInput"\s*:\s*"[^"]*"' | head -1 | sed 's/.*"toolInput"\s*:\s*"//;s/"//')
+  # Best-effort: grab everything after "tool_input": up to end-of-line. Scanning is coarse but safe.
+  TOOL_INPUT=$(printf '%s' "$INPUT" | grep -oE '"(tool_input|toolInput)"[[:space:]]*:[[:space:]]*.*' | head -1 | sed -E 's/.*"(tool_input|toolInput)"[[:space:]]*:[[:space:]]*//' || true)
 fi
 
 # ---------------------------------------------------------------------------
@@ -57,7 +60,7 @@ case "$TOOL_NAME" in
   replace_string_in_file|multi_replace_string_in_file|create_file|editFiles)
     FILE_PATH=""
     if command -v jq &>/dev/null; then
-      FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.toolInput.filePath // .toolInput.path // empty' 2>/dev/null || echo "")
+      FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.filePath // .tool_input.path // .toolInput.filePath // .toolInput.path // empty' 2>/dev/null || echo "")
     fi
     if [[ -z "$FILE_PATH" ]]; then
       FILE_PATH=$(printf '%s' "$INPUT" | grep -oE '"filePath"\s*:\s*"[^"]*"' | head -1 | sed 's/.*"filePath"\s*:\s*"//;s/"//')

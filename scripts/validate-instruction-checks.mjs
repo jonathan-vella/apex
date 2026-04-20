@@ -225,7 +225,10 @@ for (const filePath of instructionFiles) {
 
   // Instructions targeting runtime-generated files (agent-output artifacts)
   // won't have matches in a clean repo — skip with info message
-  const RUNTIME_ONLY_PATTERNS = ["04-governance-constraints"];
+  const RUNTIME_ONLY_PATTERNS = [
+    "04-governance-constraints",
+    "04-implementation-plan",
+  ];
   const isRuntimeOnly = RUNTIME_ONLY_PATTERNS.some((p) => applyTo.includes(p));
   if (isRuntimeOnly) {
     console.log(

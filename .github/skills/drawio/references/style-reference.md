@@ -113,3 +113,40 @@ Full documentation: <https://www.drawio.com/doc/faq/drawio-style-reference>
 | Purple | `#E1D5E7` | `#9673A6` |
 | Gray   | `#F5F5F5` | `#666666` |
 | Orange | `#FFE6CC` | `#D79B00` |
+
+## Azure Architecture Palette (APEX convention)
+
+Used for grouping-container fills in `03-des-*.drawio`, `04-dependency-*.drawio`,
+`04-runtime-*.drawio`, `07-ab-*.drawio`. Enforced as advisory-now / blocking-in-0.12
+by [`scripts/validate-drawio-files.mjs`](../../../../scripts/validate-drawio-files.mjs).
+
+| Concern        | Fill      | Rationale                          |
+| -------------- | --------- | ---------------------------------- |
+| Compute        | `#E7F5FF` | Pale blue — low-saturation primary |
+| Data           | `#FFF2CC` | Warm amber — persistence context   |
+| Security       | `#FFE6E6` | Pink — risk / control surfaces     |
+| Networking     | `#E6F5E6` | Pale green — transport planes      |
+| Governance/Ops | `#F5F5F5` | Neutral gray — cross-cutting       |
+
+Strokes use the matching draw.io stroke from the standard palette (e.g. compute
+fill `#E7F5FF` pairs with stroke `#6C8EBF`) to preserve visual continuity with
+stock shapes.
+
+## Typography (APEX convention)
+
+| Element       | Size  | Weight | Notes                                 |
+| ------------- | ----- | ------ | ------------------------------------- |
+| Page title    | 14–16 | Bold   | Top-of-page, matches diagram `name`   |
+| Group label   | 12    | Bold   | Container header                      |
+| Service label | 11    | Normal | Azure icon captions                   |
+| Edge label    | 10    | Normal | Protocol/port or verb                 |
+| Footer        | 9     | Normal | Owner + revision date, bottom-of-page |
+
+## Layout Spacing (APEX convention)
+
+- **Intra-group**: 40 px between peers inside the same container
+- **Cross-group**: 80 px between containers in the same tier
+- **Cross-tier**: 120 px between tiers (e.g., compute → data)
+
+These values feed the spacing rubric check in
+[`scripts/validate-drawio-files.mjs`](../../../../scripts/validate-drawio-files.mjs).

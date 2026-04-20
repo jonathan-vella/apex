@@ -177,6 +177,10 @@ Also read `02-architecture-assessment.md` for SKU/tier context.
 
 ## Workflow
 
+Shared phase contract for both IaC tracks:
+`.github/skills/iac-common/references/codegen-shared-workflow.md`.
+This agent substitutes Bicep-specific tools below.
+
 ### Phase 1: Preflight Check (MANDATORY)
 
 For EACH resource in `04-implementation-plan.md`:
@@ -213,6 +217,13 @@ For EACH resource in `04-implementation-plan.md`:
    - Options: **Return to Planner** (recommended) / **Override and proceed** (advanced)
      Do not list governance violations in chat text and ask the user to reply.
      If the user chooses to return, STOP and present the Return to Step 4 handoff.
+7. If `04-governance-constraints.json` contains a structured `override` block
+   for a Deny finding (see `04g-governance.agent.md` → Policy Override Pattern),
+   validate that `reason`, `issue_link`, and a future-dated `expiry` are all
+   present. If valid, treat the finding as informational and emit
+   `// OVERRIDE <policy_id> until <expiry> — see <issue_link>` above the
+   affected resource declaration. If any override field is missing or expired,
+   fail closed (return to user via `askQuestions`).
 
 > **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Always use the `askQuestions` tool for user decisions.

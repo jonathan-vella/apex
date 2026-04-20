@@ -161,7 +161,6 @@ See `.github/count-manifest.json` for canonical counts.
 | Instruction                                    | Applies To (glob)                                               |
 | ---------------------------------------------- | --------------------------------------------------------------- |
 | `agent-authoring.instructions.md`              | `**/*.agent.md, **/*.prompt.md`                                 |
-| `agent-research-first.instructions.md`         | `**/*.agent.md`                                                 |
 | `agent-skills.instructions.md`                 | `**/.github/skills/**/SKILL.md`                                 |
 | `astro.instructions.md`                        | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
 | `azure-artifacts.instructions.md`              | `**/agent-output/**/*.md`                                       |

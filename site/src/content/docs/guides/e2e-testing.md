@@ -153,3 +153,9 @@ The validator runs this automatically, but network issues may cause failures.
 
 The agent may have written to the wrong output directory. Check that the project
 name in session state matches the `--project` flag.
+
+## Related
+
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys

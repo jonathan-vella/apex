@@ -1,6 +1,6 @@
 ---
 description: "Documentation and content creation standards for markdown files"
-applyTo: "**/*.md"
+applyTo: "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, mcp/**/*.md, scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
 ---
 
 # Markdown Documentation Standards

@@ -57,6 +57,40 @@ Do NOT reference these removed agents/skills:
 - `microsoft-code-reference` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
 - `microsoft-skill-creator` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
 
+## Admonitions (Starlight asides)
+
+Use Starlight's four built-in admonition types consistently. Pick the weakest
+type that communicates the urgency; escalate only when needed.
+
+| Type      | When to use                                                         | Syntax                     |
+| --------- | ------------------------------------------------------------------- | -------------------------- |
+| `note`    | Side information that aids understanding but isn't required         | `:::note` … `:::`          |
+| `tip`     | Optional best practice or shortcut                                  | `:::tip` … `:::`           |
+| `caution` | Behaviour that can cause confusion, unexpected cost, or rework      | `:::caution` … `:::`       |
+| `danger`  | Data loss, security regression, irreversible destructive action     | `:::danger` … `:::`        |
+
+Rules:
+
+- At most **one `danger`** per page; overuse trains readers to ignore them.
+- Don't stack admonitions back-to-back; if two appear consecutively, merge or
+  rewrite as prose.
+- Custom titles allowed via `:::caution[Region drift]`; keep under ~30 chars.
+
+## Related footers
+
+Every guide under `site/src/content/docs/guides/` ends with a `## Related`
+section listing 2–4 adjacent topics (sibling guides, upstream concepts,
+downstream references). Use bullet links with a one-line description each.
+Example:
+
+```markdown
+## Related
+
+- [Cost & Governance](../cost-governance/) — track spend against policy
+- [Security Baseline](../security-baseline/) — TLS, identity, key rotation
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys
+```
+
 ## Content Principles
 
 | Principle                  | Application                                             |

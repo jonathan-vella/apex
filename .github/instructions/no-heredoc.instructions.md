@@ -1,6 +1,6 @@
 ---
 description: "Prevents terminal heredoc file corruption in VS Code Copilot by enforcing use of file editing tools instead of shell redirections"
-applyTo: "**"
+applyTo: "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
 ---
 
 # MANDATORY: File Operation Override

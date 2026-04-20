@@ -121,7 +121,7 @@ and one skill? Does it only load more when needed?
 
 If a rule can be a linter check, CI validation, or pre-commit hook,
 make it one. Documentation is for humans; machines enforce rules.
-The `validate-artifact-templates.mjs` script is more reliable than
+The `validate-artifacts.mjs` script is more reliable than
 a paragraph saying "use the correct H2 headings."
 
 **Test**: For each documented rule, is there a corresponding validator

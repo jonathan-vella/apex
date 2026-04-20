@@ -51,7 +51,8 @@ technical accuracy.
    - Manually scan for: grammar errors, spelling mistakes, passive
      voice, awkward phrasing, overly long sentences (>30 words).
 3. **Layer 2 — Tone and terminology**:
-   - Verify consistent terminology against `docs/GLOSSARY.md`.
+   - Verify consistent terminology against `site/src/content/docs/reference/glossary.md`
+     (authoritative source; `docs/GLOSSARY.md` is a stub).
    - Check tone is active and action-oriented (not academic/passive).
    - Flag jargon not defined in the glossary.
    - Ensure agent/skill names use exact casing from their frontmatter

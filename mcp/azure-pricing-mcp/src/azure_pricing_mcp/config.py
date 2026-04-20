@@ -14,10 +14,30 @@ RATE_LIMIT_RETRY_BASE_WAIT = 0.5  # seconds (exponential backoff base)
 DEFAULT_CUSTOMER_DISCOUNT = 10.0  # percent
 
 # HTTP performance configuration
+#
+# Defaults chosen to balance Azure Retail Prices API rate limits against
+# agent-driven parallelism. The API is a single endpoint, so per-host pool
+# size is the practical ceiling. Increase via env vars when running against
+# private/cached proxies; lower in rate-limited environments.
+#
+# Azure Retail Prices API is lightly rate-limited (no published RPS, observed
+# ~30 rps sustained). 20 concurrent connections gives headroom for
+# multi-region cost estimates without triggering throttling.
 HTTP_REQUEST_TIMEOUT = float(os.environ.get("AZURE_PRICING_HTTP_TIMEOUT", "30.0"))
-HTTP_POOL_SIZE = int(os.environ.get("AZURE_PRICING_HTTP_POOL_SIZE", "10"))
-HTTP_POOL_PER_HOST = int(os.environ.get("AZURE_PRICING_HTTP_POOL_PER_HOST", "5"))
-REQUEST_DEDUP_TTL = float(os.environ.get("AZURE_PRICING_DEDUP_TTL", "30.0"))
+HTTP_POOL_SIZE = int(os.environ.get("AZURE_PRICING_HTTP_POOL_SIZE", "20"))
+HTTP_POOL_PER_HOST = int(os.environ.get("AZURE_PRICING_HTTP_POOL_PER_HOST", "10"))
+
+# Request deduplication TTL
+#
+# 300 s (5 min) balances cache reuse across multi-step agent workflows
+# against pricing freshness. Retail prices are updated hourly at most.
+# Override via AZURE_PRICING_DEDUP_TTL for longer/shorter horizons.
+REQUEST_DEDUP_TTL = float(os.environ.get("AZURE_PRICING_DEDUP_TTL", "300.0"))
+
+# Max in-memory dedup cache entries. When exceeded, entries older than
+# REQUEST_DEDUP_TTL are evicted. 512 covers typical multi-SKU bulk
+# estimates (10-20 SKUs x 3-5 regions) with headroom.
+REQUEST_DEDUP_MAX_ENTRIES = int(os.environ.get("AZURE_PRICING_DEDUP_MAX_ENTRIES", "512"))
 
 # SSL verification configuration
 # Set to False if behind a corporate proxy with self-signed certificates
