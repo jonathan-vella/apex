@@ -679,10 +679,13 @@
       </aside>
     </div>
 
-    <!-- Cytoscape.js core + dagre/cose-bilkent layouts via CDN -->
+    <!-- Cytoscape.js core + layout plugins via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/layout-base@2.0.1/layout-base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cose-base@2.2.0/cose-base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
 
     <script>
       (function () {
@@ -923,12 +926,43 @@
               },
             });
           }
+          // Compound parent ("group") styling — translucent bubble per category
+          styles.push({
+            selector: "node.group",
+            style: {
+              "background-opacity": 0.08,
+              "background-color": "#64748b",
+              "border-width": 1,
+              "border-style": "dashed",
+              "border-color": "#94a3b8",
+              "border-opacity": 0.5,
+              shape: "round-rectangle",
+              label: "data(label)",
+              "text-valign": "top",
+              "text-halign": "center",
+              "text-margin-y": -6,
+              "font-size": 11,
+              "font-weight": 600,
+              color: "#cbd5e1",
+              padding: 18,
+              "z-index": 1,
+            },
+          });
+          for (const cat of graph.categories) {
+            styles.push({
+              selector: `node.group[category = "${cat.id}"]`,
+              style: {
+                "background-color": cat.color,
+                "border-color": cat.color,
+              },
+            });
+          }
           return styles;
         }
 
         function buildElements(graph) {
-          const nodes = graph.nodes.map((n) => ({
-            data: {
+          const nodes = graph.nodes.map((n) => {
+            const data = {
               id: n.id,
               label: n.label,
               category: n.category,
@@ -936,8 +970,11 @@
               path: n.path || "",
               links: n.links || {},
               meta: n.meta || {},
-            },
-          }));
+            };
+            if (n.parent) data.parent = n.parent;
+            if (n.isGroup) data.isGroup = true;
+            return { data, classes: n.isGroup ? "group" : "" };
+          });
           const edges = graph.edges.map((e) => ({
             data: {
               id: e.id,
@@ -998,17 +1035,24 @@
           }
           return {
             ...base,
-            name: "cose",
-            idealEdgeLength: 80,
-            nodeRepulsion: 4500,
-            edgeElasticity: 120,
-            gravity: 0.6,
-            gravityRange: 1.2,
-            numIter: reduceMotion ? 400 : 1800,
+            name: "fcose",
+            quality: reduceMotion ? "default" : "proof",
             randomize: true,
-            componentSpacing: 40,
-            nodeOverlap: 12,
-            coolingFactor: 0.97,
+            animate: !reduceMotion,
+            animationDuration: 600,
+            nodeSeparation: 75,
+            idealEdgeLength: 90,
+            nodeRepulsion: 6000,
+            edgeElasticity: 0.45,
+            gravity: 0.35,
+            gravityRange: 3.8,
+            gravityCompound: 1.0,
+            gravityRangeCompound: 1.5,
+            numIter: reduceMotion ? 1500 : 2500,
+            tile: true,
+            tilingPaddingVertical: 12,
+            tilingPaddingHorizontal: 12,
+            packComponents: true,
           };
         }
 
@@ -1262,8 +1306,9 @@
             const matches = state.graph.nodes
               .filter(
                 (n) =>
-                  n.label.toLowerCase().includes(q) ||
-                  (n.description || "").toLowerCase().includes(q),
+                  !n.isGroup &&
+                  (n.label.toLowerCase().includes(q) ||
+                    (n.description || "").toLowerCase().includes(q)),
               )
               .sort((a, b) => {
                 const al = a.label.toLowerCase().startsWith(q) ? 0 : 1;

@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-20T11:24:43.776Z",
+  "generatedAt": "2026-04-20T11:46:52.858Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 29
+      "count": 30
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 7
+      "count": 8
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 157,
-  "edgeCount": 428,
+  "nodeCount": 159,
+  "edgeCount": 707,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1862,8 +1862,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-no-hardcoded-counts.mjs"
-      }
+        "command": "node scripts/validate-no-hardcoded-counts.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-hooks",
@@ -1875,8 +1877,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-hooks.mjs"
-      }
+        "command": "node scripts/validate-hooks.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-iac-security-baseline",
@@ -1888,8 +1892,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-iac-security-baseline.mjs"
-      }
+        "command": "node scripts/validate-iac-security-baseline.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-vscode",
@@ -1927,8 +1933,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-terminology.mjs"
-      }
+        "command": "node scripts/validate-terminology.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-model-floors",
@@ -1979,8 +1987,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/"
-      }
+        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-terraform-fmt",
@@ -1992,8 +2002,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "terraform fmt -check -recursive infra/terraform/"
-      }
+        "command": "terraform fmt -check -recursive infra/terraform/",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-terraform",
@@ -2005,8 +2017,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done"
-      }
+        "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "workflow:azure-deprecation-tracker",
@@ -2017,7 +2031,10 @@
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/azure-deprecation-tracker.yml"
       },
-      "meta": {}
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
     },
     {
       "id": "workflow:branch-enforcement",
@@ -2028,7 +2045,10 @@
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/branch-enforcement.yml"
       },
-      "meta": {}
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
     },
     {
       "id": "workflow:ci",
@@ -2050,7 +2070,10 @@
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/docs.yml"
       },
-      "meta": {}
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
     },
     {
       "id": "workflow:e2e-validation",
@@ -2061,7 +2084,10 @@
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/e2e-validation.yml"
       },
-      "meta": {}
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
     },
     {
       "id": "workflow:link-check",
@@ -2072,7 +2098,10 @@
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/link-check.yml"
       },
-      "meta": {}
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
     },
     {
       "id": "workflow:weekly-maintenance",
@@ -2147,7 +2176,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
       },
       "meta": {
-        "type": "http"
+        "type": "http",
+        "orphan": true
       }
     },
     {
@@ -2161,6 +2191,26 @@
       },
       "meta": {
         "type": "stdio"
+      }
+    },
+    {
+      "id": "group:validator-orphans",
+      "category": "validator",
+      "label": "Validator (unlinked, 7)",
+      "description": "7 validator nodes with no cross-references in the current graph.",
+      "isGroup": true,
+      "meta": {
+        "groupSize": 7
+      }
+    },
+    {
+      "id": "group:workflow-orphans",
+      "category": "workflow",
+      "label": "CI Workflow (unlinked, 5)",
+      "description": "5 ci workflow nodes with no cross-references in the current graph.",
+      "isGroup": true,
+      "meta": {
+        "groupSize": 5
       }
     }
   ],
@@ -3372,15 +3422,2073 @@
       "kind": "invokes"
     },
     {
+      "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator-fast-path",
+      "source": "instruction:agent-authoring",
+      "target": "agent:01-orchestrator-fast-path",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
+      "source": "instruction:agent-authoring",
+      "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:02-requirements",
+      "source": "instruction:agent-authoring",
+      "target": "agent:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:03-architect",
+      "source": "instruction:agent-authoring",
+      "target": "agent:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:04-design",
+      "source": "instruction:agent-authoring",
+      "target": "agent:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:04g-governance",
+      "source": "instruction:agent-authoring",
+      "target": "agent:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:05-iac-planner",
+      "source": "instruction:agent-authoring",
+      "target": "agent:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:06b-bicep-codegen",
+      "source": "instruction:agent-authoring",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:06t-terraform-codegen",
+      "source": "instruction:agent-authoring",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:07b-bicep-deploy",
+      "source": "instruction:agent-authoring",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:07t-terraform-deploy",
+      "source": "instruction:agent-authoring",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:08-as-built",
+      "source": "instruction:agent-authoring",
+      "target": "agent:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:09-diagnose",
+      "source": "instruction:agent-authoring",
+      "target": "agent:09-diagnose",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:10-challenger",
+      "source": "instruction:agent-authoring",
+      "target": "agent:10-challenger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:11-context-optimizer",
+      "source": "instruction:agent-authoring",
+      "target": "agent:11-context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:e2e-orchestrator",
+      "source": "instruction:agent-authoring",
+      "target": "agent:e2e-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:bicep-validate-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:bicep-whatif-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:challenger-review-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:cost-estimate-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:governance-discovery-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:governance-discovery-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:terraform-plan-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->subagent:terraform-validate-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:01-orchestrator",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:02-requirements",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:03-architect",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:04-design",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:04g-governance",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:05-iac-planner",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:08-as-built",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:challenger-review",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:challenger-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:diagnose-resource",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:doc-gardening",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:git-commit-push",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:resume-workflow",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:review-imported-iac",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:appinsights-instrumentation",
+      "source": "instruction:agent-skills",
+      "target": "skill:appinsights-instrumentation",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-adr",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-adr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-ai",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-ai",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-aigateway",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-aigateway",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-artifacts",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-artifacts",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-bicep-patterns",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-cloud-migrate",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-cloud-migrate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-compliance",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-compliance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-compute",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-compute",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-cost-optimization",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-cost-optimization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-defaults",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-defaults",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-deploy",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-diagnostics",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-diagnostics",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-diagrams",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-hosted-copilot-sdk",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-hosted-copilot-sdk",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-kusto",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-kusto",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-messaging",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-messaging",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-prepare",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-prepare",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-quotas",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-quotas",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-rbac",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-rbac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-resource-lookup",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-resource-lookup",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-resource-visualizer",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-resource-visualizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-storage",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-validate",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-validate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:context-optimizer",
+      "source": "instruction:agent-skills",
+      "target": "skill:context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:context-shredding",
+      "source": "instruction:agent-skills",
+      "target": "skill:context-shredding",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:copilot-customization",
+      "source": "instruction:agent-skills",
+      "target": "skill:copilot-customization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:count-registry",
+      "source": "instruction:agent-skills",
+      "target": "skill:count-registry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:docs-writer",
+      "source": "instruction:agent-skills",
+      "target": "skill:docs-writer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:drawio",
+      "source": "instruction:agent-skills",
+      "target": "skill:drawio",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:entra-app-registration",
+      "source": "instruction:agent-skills",
+      "target": "skill:entra-app-registration",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:excalidraw",
+      "source": "instruction:agent-skills",
+      "target": "skill:excalidraw",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:github-operations",
+      "source": "instruction:agent-skills",
+      "target": "skill:github-operations",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:golden-principles",
+      "source": "instruction:agent-skills",
+      "target": "skill:golden-principles",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:iac-common",
+      "source": "instruction:agent-skills",
+      "target": "skill:iac-common",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:make-skill-template",
+      "source": "instruction:agent-skills",
+      "target": "skill:make-skill-template",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:mermaid",
+      "source": "instruction:agent-skills",
+      "target": "skill:mermaid",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:microsoft-code-reference",
+      "source": "instruction:agent-skills",
+      "target": "skill:microsoft-code-reference",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:microsoft-docs",
+      "source": "instruction:agent-skills",
+      "target": "skill:microsoft-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:microsoft-foundry",
+      "source": "instruction:agent-skills",
+      "target": "skill:microsoft-foundry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:microsoft-skill-creator",
+      "source": "instruction:agent-skills",
+      "target": "skill:microsoft-skill-creator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:python-diagrams",
+      "source": "instruction:agent-skills",
+      "target": "skill:python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:session-resume",
+      "source": "instruction:agent-skills",
+      "target": "skill:session-resume",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:terraform-patterns",
+      "source": "instruction:agent-skills",
+      "target": "skill:terraform-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:terraform-search-import",
+      "source": "instruction:agent-skills",
+      "target": "skill:terraform-search-import",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:terraform-test",
+      "source": "instruction:agent-skills",
+      "target": "skill:terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:workflow-engine",
+      "source": "instruction:agent-skills",
+      "target": "skill:workflow-engine",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:01-orchestrator-fast-path",
+      "source": "instruction:context-optimization",
+      "target": "agent:01-orchestrator-fast-path",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:01-orchestrator",
+      "source": "instruction:context-optimization",
+      "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:02-requirements",
+      "source": "instruction:context-optimization",
+      "target": "agent:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:03-architect",
+      "source": "instruction:context-optimization",
+      "target": "agent:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:04-design",
+      "source": "instruction:context-optimization",
+      "target": "agent:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:04g-governance",
+      "source": "instruction:context-optimization",
+      "target": "agent:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:05-iac-planner",
+      "source": "instruction:context-optimization",
+      "target": "agent:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:06b-bicep-codegen",
+      "source": "instruction:context-optimization",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:06t-terraform-codegen",
+      "source": "instruction:context-optimization",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:07b-bicep-deploy",
+      "source": "instruction:context-optimization",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:07t-terraform-deploy",
+      "source": "instruction:context-optimization",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:08-as-built",
+      "source": "instruction:context-optimization",
+      "target": "agent:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:09-diagnose",
+      "source": "instruction:context-optimization",
+      "target": "agent:09-diagnose",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:10-challenger",
+      "source": "instruction:context-optimization",
+      "target": "agent:10-challenger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:11-context-optimizer",
+      "source": "instruction:context-optimization",
+      "target": "agent:11-context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:e2e-orchestrator",
+      "source": "instruction:context-optimization",
+      "target": "agent:e2e-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:bicep-validate-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:bicep-whatif-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:challenger-review-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:cost-estimate-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:governance-discovery-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:governance-discovery-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:terraform-plan-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:terraform-validate-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:appinsights-instrumentation",
+      "source": "instruction:context-optimization",
+      "target": "skill:appinsights-instrumentation",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-adr",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-adr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-ai",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-ai",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-aigateway",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-aigateway",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-artifacts",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-artifacts",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-bicep-patterns",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-cloud-migrate",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-cloud-migrate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-compliance",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-compliance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-compute",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-compute",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-cost-optimization",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-cost-optimization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-defaults",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-defaults",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-deploy",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-diagnostics",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-diagnostics",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-diagrams",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-hosted-copilot-sdk",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-hosted-copilot-sdk",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-kusto",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-kusto",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-messaging",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-messaging",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-prepare",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-prepare",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-quotas",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-quotas",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-rbac",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-rbac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-resource-lookup",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-resource-lookup",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-resource-visualizer",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-resource-visualizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-storage",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-validate",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-validate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:context-optimizer",
+      "source": "instruction:context-optimization",
+      "target": "skill:context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:context-shredding",
+      "source": "instruction:context-optimization",
+      "target": "skill:context-shredding",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:copilot-customization",
+      "source": "instruction:context-optimization",
+      "target": "skill:copilot-customization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:count-registry",
+      "source": "instruction:context-optimization",
+      "target": "skill:count-registry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:docs-writer",
+      "source": "instruction:context-optimization",
+      "target": "skill:docs-writer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:drawio",
+      "source": "instruction:context-optimization",
+      "target": "skill:drawio",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:entra-app-registration",
+      "source": "instruction:context-optimization",
+      "target": "skill:entra-app-registration",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:excalidraw",
+      "source": "instruction:context-optimization",
+      "target": "skill:excalidraw",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:github-operations",
+      "source": "instruction:context-optimization",
+      "target": "skill:github-operations",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:golden-principles",
+      "source": "instruction:context-optimization",
+      "target": "skill:golden-principles",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:iac-common",
+      "source": "instruction:context-optimization",
+      "target": "skill:iac-common",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:make-skill-template",
+      "source": "instruction:context-optimization",
+      "target": "skill:make-skill-template",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:mermaid",
+      "source": "instruction:context-optimization",
+      "target": "skill:mermaid",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:microsoft-code-reference",
+      "source": "instruction:context-optimization",
+      "target": "skill:microsoft-code-reference",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:microsoft-docs",
+      "source": "instruction:context-optimization",
+      "target": "skill:microsoft-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:microsoft-foundry",
+      "source": "instruction:context-optimization",
+      "target": "skill:microsoft-foundry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:microsoft-skill-creator",
+      "source": "instruction:context-optimization",
+      "target": "skill:microsoft-skill-creator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:python-diagrams",
+      "source": "instruction:context-optimization",
+      "target": "skill:python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:session-resume",
+      "source": "instruction:context-optimization",
+      "target": "skill:session-resume",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:terraform-patterns",
+      "source": "instruction:context-optimization",
+      "target": "skill:terraform-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:terraform-search-import",
+      "source": "instruction:context-optimization",
+      "target": "skill:terraform-search-import",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:terraform-test",
+      "source": "instruction:context-optimization",
+      "target": "skill:terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:workflow-engine",
+      "source": "instruction:context-optimization",
+      "target": "skill:workflow-engine",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:context-optimization--applies-to->instruction:instructions",
       "source": "instruction:context-optimization",
       "target": "instruction:instructions",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:instructions--applies-to->instruction:instructions",
+      "id": "instruction:docs-trigger--applies-to->agent:01-orchestrator-fast-path",
+      "source": "instruction:docs-trigger",
+      "target": "agent:01-orchestrator-fast-path",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:01-orchestrator",
+      "source": "instruction:docs-trigger",
+      "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:02-requirements",
+      "source": "instruction:docs-trigger",
+      "target": "agent:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:03-architect",
+      "source": "instruction:docs-trigger",
+      "target": "agent:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:04-design",
+      "source": "instruction:docs-trigger",
+      "target": "agent:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:04g-governance",
+      "source": "instruction:docs-trigger",
+      "target": "agent:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:05-iac-planner",
+      "source": "instruction:docs-trigger",
+      "target": "agent:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:06b-bicep-codegen",
+      "source": "instruction:docs-trigger",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:06t-terraform-codegen",
+      "source": "instruction:docs-trigger",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:07b-bicep-deploy",
+      "source": "instruction:docs-trigger",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:07t-terraform-deploy",
+      "source": "instruction:docs-trigger",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:08-as-built",
+      "source": "instruction:docs-trigger",
+      "target": "agent:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:09-diagnose",
+      "source": "instruction:docs-trigger",
+      "target": "agent:09-diagnose",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:10-challenger",
+      "source": "instruction:docs-trigger",
+      "target": "agent:10-challenger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:11-context-optimizer",
+      "source": "instruction:docs-trigger",
+      "target": "agent:11-context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:e2e-orchestrator",
+      "source": "instruction:docs-trigger",
+      "target": "agent:e2e-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:bicep-validate-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:bicep-whatif-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:challenger-review-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:cost-estimate-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:governance-discovery-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:governance-discovery-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:terraform-plan-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:terraform-validate-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:appinsights-instrumentation",
+      "source": "instruction:docs-trigger",
+      "target": "skill:appinsights-instrumentation",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-adr",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-adr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-ai",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-ai",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-aigateway",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-aigateway",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-artifacts",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-artifacts",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-bicep-patterns",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-cloud-migrate",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-cloud-migrate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-compliance",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-compliance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-compute",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-compute",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-cost-optimization",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-cost-optimization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-defaults",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-defaults",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-deploy",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-diagnostics",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-diagnostics",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-diagrams",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-hosted-copilot-sdk",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-hosted-copilot-sdk",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-kusto",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-kusto",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-messaging",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-messaging",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-prepare",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-prepare",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-quotas",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-quotas",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-rbac",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-rbac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-resource-lookup",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-resource-lookup",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-resource-visualizer",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-resource-visualizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-storage",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-validate",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-validate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:context-optimizer",
+      "source": "instruction:docs-trigger",
+      "target": "skill:context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:context-shredding",
+      "source": "instruction:docs-trigger",
+      "target": "skill:context-shredding",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:copilot-customization",
+      "source": "instruction:docs-trigger",
+      "target": "skill:copilot-customization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:count-registry",
+      "source": "instruction:docs-trigger",
+      "target": "skill:count-registry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:docs-writer",
+      "source": "instruction:docs-trigger",
+      "target": "skill:docs-writer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:drawio",
+      "source": "instruction:docs-trigger",
+      "target": "skill:drawio",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:entra-app-registration",
+      "source": "instruction:docs-trigger",
+      "target": "skill:entra-app-registration",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:excalidraw",
+      "source": "instruction:docs-trigger",
+      "target": "skill:excalidraw",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:github-operations",
+      "source": "instruction:docs-trigger",
+      "target": "skill:github-operations",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:golden-principles",
+      "source": "instruction:docs-trigger",
+      "target": "skill:golden-principles",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:iac-common",
+      "source": "instruction:docs-trigger",
+      "target": "skill:iac-common",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:make-skill-template",
+      "source": "instruction:docs-trigger",
+      "target": "skill:make-skill-template",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:mermaid",
+      "source": "instruction:docs-trigger",
+      "target": "skill:mermaid",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:microsoft-code-reference",
+      "source": "instruction:docs-trigger",
+      "target": "skill:microsoft-code-reference",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:microsoft-docs",
+      "source": "instruction:docs-trigger",
+      "target": "skill:microsoft-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:microsoft-foundry",
+      "source": "instruction:docs-trigger",
+      "target": "skill:microsoft-foundry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:microsoft-skill-creator",
+      "source": "instruction:docs-trigger",
+      "target": "skill:microsoft-skill-creator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:python-diagrams",
+      "source": "instruction:docs-trigger",
+      "target": "skill:python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:session-resume",
+      "source": "instruction:docs-trigger",
+      "target": "skill:session-resume",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:terraform-patterns",
+      "source": "instruction:docs-trigger",
+      "target": "skill:terraform-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:terraform-search-import",
+      "source": "instruction:docs-trigger",
+      "target": "skill:terraform-search-import",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:terraform-test",
+      "source": "instruction:docs-trigger",
+      "target": "skill:terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:workflow-engine",
+      "source": "instruction:docs-trigger",
+      "target": "skill:workflow-engine",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:agent-authoring",
       "source": "instruction:instructions",
-      "target": "instruction:instructions",
+      "target": "instruction:agent-authoring",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:agent-skills",
+      "source": "instruction:instructions",
+      "target": "instruction:agent-skills",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:astro",
+      "source": "instruction:instructions",
+      "target": "instruction:astro",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:azure-artifacts",
+      "source": "instruction:instructions",
+      "target": "instruction:azure-artifacts",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:code-quality",
+      "source": "instruction:instructions",
+      "target": "instruction:code-quality",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:context-optimization",
+      "source": "instruction:instructions",
+      "target": "instruction:context-optimization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:docs-trigger",
+      "source": "instruction:instructions",
+      "target": "instruction:docs-trigger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:docs",
+      "source": "instruction:instructions",
+      "target": "instruction:docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:drawio",
+      "source": "instruction:instructions",
+      "target": "instruction:drawio",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:github-actions",
+      "source": "instruction:instructions",
+      "target": "instruction:github-actions",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:governance-discovery",
+      "source": "instruction:instructions",
+      "target": "instruction:governance-discovery",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:iac-bicep-best-practices",
+      "source": "instruction:instructions",
+      "target": "instruction:iac-bicep-best-practices",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:iac-plan-best-practices",
+      "source": "instruction:instructions",
+      "target": "instruction:iac-plan-best-practices",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:iac-terraform-best-practices",
+      "source": "instruction:instructions",
+      "target": "instruction:iac-terraform-best-practices",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:javascript",
+      "source": "instruction:instructions",
+      "target": "instruction:javascript",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:json",
+      "source": "instruction:instructions",
+      "target": "instruction:json",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:lesson-collection",
+      "source": "instruction:instructions",
+      "target": "instruction:lesson-collection",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:markdown",
+      "source": "instruction:instructions",
+      "target": "instruction:markdown",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:no-hardcoded-counts",
+      "source": "instruction:instructions",
+      "target": "instruction:no-hardcoded-counts",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:no-heredoc",
+      "source": "instruction:instructions",
+      "target": "instruction:no-heredoc",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:powershell",
+      "source": "instruction:instructions",
+      "target": "instruction:powershell",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:prompt",
+      "source": "instruction:instructions",
+      "target": "instruction:prompt",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:python",
+      "source": "instruction:instructions",
+      "target": "instruction:python",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:shell",
+      "source": "instruction:instructions",
+      "target": "instruction:shell",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:01-orchestrator-fast-path",
+      "source": "instruction:lesson-collection",
+      "target": "agent:01-orchestrator-fast-path",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:01-orchestrator",
+      "source": "instruction:lesson-collection",
+      "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:02-requirements",
+      "source": "instruction:lesson-collection",
+      "target": "agent:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:03-architect",
+      "source": "instruction:lesson-collection",
+      "target": "agent:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:04-design",
+      "source": "instruction:lesson-collection",
+      "target": "agent:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:04g-governance",
+      "source": "instruction:lesson-collection",
+      "target": "agent:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:05-iac-planner",
+      "source": "instruction:lesson-collection",
+      "target": "agent:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:06b-bicep-codegen",
+      "source": "instruction:lesson-collection",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:06t-terraform-codegen",
+      "source": "instruction:lesson-collection",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:07b-bicep-deploy",
+      "source": "instruction:lesson-collection",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:07t-terraform-deploy",
+      "source": "instruction:lesson-collection",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:08-as-built",
+      "source": "instruction:lesson-collection",
+      "target": "agent:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:09-diagnose",
+      "source": "instruction:lesson-collection",
+      "target": "agent:09-diagnose",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:10-challenger",
+      "source": "instruction:lesson-collection",
+      "target": "agent:10-challenger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:11-context-optimizer",
+      "source": "instruction:lesson-collection",
+      "target": "agent:11-context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:e2e-orchestrator",
+      "source": "instruction:lesson-collection",
+      "target": "agent:e2e-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:bicep-validate-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:bicep-whatif-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:challenger-review-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:cost-estimate-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:governance-discovery-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:governance-discovery-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:terraform-plan-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:terraform-validate-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:appinsights-instrumentation",
+      "source": "instruction:markdown",
+      "target": "skill:appinsights-instrumentation",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-adr",
+      "source": "instruction:markdown",
+      "target": "skill:azure-adr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-ai",
+      "source": "instruction:markdown",
+      "target": "skill:azure-ai",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-aigateway",
+      "source": "instruction:markdown",
+      "target": "skill:azure-aigateway",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-artifacts",
+      "source": "instruction:markdown",
+      "target": "skill:azure-artifacts",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-bicep-patterns",
+      "source": "instruction:markdown",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-cloud-migrate",
+      "source": "instruction:markdown",
+      "target": "skill:azure-cloud-migrate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-compliance",
+      "source": "instruction:markdown",
+      "target": "skill:azure-compliance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-compute",
+      "source": "instruction:markdown",
+      "target": "skill:azure-compute",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-cost-optimization",
+      "source": "instruction:markdown",
+      "target": "skill:azure-cost-optimization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-defaults",
+      "source": "instruction:markdown",
+      "target": "skill:azure-defaults",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-deploy",
+      "source": "instruction:markdown",
+      "target": "skill:azure-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-diagnostics",
+      "source": "instruction:markdown",
+      "target": "skill:azure-diagnostics",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-diagrams",
+      "source": "instruction:markdown",
+      "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-hosted-copilot-sdk",
+      "source": "instruction:markdown",
+      "target": "skill:azure-hosted-copilot-sdk",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-kusto",
+      "source": "instruction:markdown",
+      "target": "skill:azure-kusto",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-messaging",
+      "source": "instruction:markdown",
+      "target": "skill:azure-messaging",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-prepare",
+      "source": "instruction:markdown",
+      "target": "skill:azure-prepare",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-quotas",
+      "source": "instruction:markdown",
+      "target": "skill:azure-quotas",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-rbac",
+      "source": "instruction:markdown",
+      "target": "skill:azure-rbac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-resource-lookup",
+      "source": "instruction:markdown",
+      "target": "skill:azure-resource-lookup",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-resource-visualizer",
+      "source": "instruction:markdown",
+      "target": "skill:azure-resource-visualizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-storage",
+      "source": "instruction:markdown",
+      "target": "skill:azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-validate",
+      "source": "instruction:markdown",
+      "target": "skill:azure-validate",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:context-optimizer",
+      "source": "instruction:markdown",
+      "target": "skill:context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:context-shredding",
+      "source": "instruction:markdown",
+      "target": "skill:context-shredding",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:copilot-customization",
+      "source": "instruction:markdown",
+      "target": "skill:copilot-customization",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:count-registry",
+      "source": "instruction:markdown",
+      "target": "skill:count-registry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:docs-writer",
+      "source": "instruction:markdown",
+      "target": "skill:docs-writer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:drawio",
+      "source": "instruction:markdown",
+      "target": "skill:drawio",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:entra-app-registration",
+      "source": "instruction:markdown",
+      "target": "skill:entra-app-registration",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:excalidraw",
+      "source": "instruction:markdown",
+      "target": "skill:excalidraw",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:github-operations",
+      "source": "instruction:markdown",
+      "target": "skill:github-operations",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:golden-principles",
+      "source": "instruction:markdown",
+      "target": "skill:golden-principles",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:iac-common",
+      "source": "instruction:markdown",
+      "target": "skill:iac-common",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:make-skill-template",
+      "source": "instruction:markdown",
+      "target": "skill:make-skill-template",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:mermaid",
+      "source": "instruction:markdown",
+      "target": "skill:mermaid",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:microsoft-code-reference",
+      "source": "instruction:markdown",
+      "target": "skill:microsoft-code-reference",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:microsoft-docs",
+      "source": "instruction:markdown",
+      "target": "skill:microsoft-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:microsoft-foundry",
+      "source": "instruction:markdown",
+      "target": "skill:microsoft-foundry",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:microsoft-skill-creator",
+      "source": "instruction:markdown",
+      "target": "skill:microsoft-skill-creator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:python-diagrams",
+      "source": "instruction:markdown",
+      "target": "skill:python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:session-resume",
+      "source": "instruction:markdown",
+      "target": "skill:session-resume",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:terraform-patterns",
+      "source": "instruction:markdown",
+      "target": "skill:terraform-patterns",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:terraform-search-import",
+      "source": "instruction:markdown",
+      "target": "skill:terraform-search-import",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:terraform-test",
+      "source": "instruction:markdown",
+      "target": "skill:terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:workflow-engine",
+      "source": "instruction:markdown",
+      "target": "skill:workflow-engine",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:01-orchestrator",
+      "source": "instruction:prompt",
+      "target": "prompt:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:02-requirements",
+      "source": "instruction:prompt",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:03-architect",
+      "source": "instruction:prompt",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:04-design",
+      "source": "instruction:prompt",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:04g-governance",
+      "source": "instruction:prompt",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:05-iac-planner",
+      "source": "instruction:prompt",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:prompt",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:prompt",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:prompt",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:prompt",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:08-as-built",
+      "source": "instruction:prompt",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:prompt",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:challenger-review",
+      "source": "instruction:prompt",
+      "target": "prompt:challenger-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:context-audit",
+      "source": "instruction:prompt",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:diagnose-resource",
+      "source": "instruction:prompt",
+      "target": "prompt:diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:doc-gardening",
+      "source": "instruction:prompt",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:git-commit-push",
+      "source": "instruction:prompt",
+      "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:prompt",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:resume-workflow",
+      "source": "instruction:prompt",
+      "target": "prompt:resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:review-imported-iac",
+      "source": "instruction:prompt",
+      "target": "prompt:review-imported-iac",
       "kind": "applies-to"
     },
     {
@@ -4348,390 +6456,6 @@
       "source": "skill:terraform-search-import",
       "target": "skill:terraform-patterns",
       "kind": "refs"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:github",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:terraform",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:github",
-      "source": "agent:01-orchestrator",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:terraform",
-      "source": "agent:01-orchestrator",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:01-orchestrator",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:drawio",
-      "source": "agent:01-orchestrator",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements--uses-mcp->mcp:github",
-      "source": "agent:02-requirements",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements--uses-mcp->mcp:terraform",
-      "source": "agent:02-requirements",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:02-requirements",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:03-architect--uses-mcp->mcp:github",
-      "source": "agent:03-architect",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:03-architect--uses-mcp->mcp:terraform",
-      "source": "agent:03-architect",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:03-architect--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:03-architect",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:03-architect--uses-mcp->mcp:drawio",
-      "source": "agent:03-architect",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04-design--uses-mcp->mcp:github",
-      "source": "agent:04-design",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04-design--uses-mcp->mcp:terraform",
-      "source": "agent:04-design",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04-design--uses-mcp->mcp:drawio",
-      "source": "agent:04-design",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04g-governance--uses-mcp->mcp:github",
-      "source": "agent:04g-governance",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04g-governance--uses-mcp->mcp:terraform",
-      "source": "agent:04g-governance",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04g-governance--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:04g-governance",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:05-iac-planner--uses-mcp->mcp:github",
-      "source": "agent:05-iac-planner",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:05-iac-planner--uses-mcp->mcp:terraform",
-      "source": "agent:05-iac-planner",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:05-iac-planner--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:05-iac-planner",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:github",
-      "source": "agent:06b-bicep-codegen",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:06b-bicep-codegen",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:github",
-      "source": "agent:06t-terraform-codegen",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:terraform",
-      "source": "agent:06t-terraform-codegen",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:06t-terraform-codegen",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:github",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:drawio",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:github",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:terraform",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:drawio",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:08-as-built--uses-mcp->mcp:github",
-      "source": "agent:08-as-built",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:08-as-built--uses-mcp->mcp:terraform",
-      "source": "agent:08-as-built",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:08-as-built--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:08-as-built",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:08-as-built--uses-mcp->mcp:drawio",
-      "source": "agent:08-as-built",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:09-diagnose--uses-mcp->mcp:github",
-      "source": "agent:09-diagnose",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:09-diagnose--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:09-diagnose",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:10-challenger--uses-mcp->mcp:github",
-      "source": "agent:10-challenger",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:10-challenger--uses-mcp->mcp:terraform",
-      "source": "agent:10-challenger",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:11-context-optimizer--uses-mcp->mcp:github",
-      "source": "agent:11-context-optimizer",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:github",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:terraform",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:drawio",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:github",
-      "source": "subagent:bicep-validate-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:bicep-validate-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:github",
-      "source": "subagent:bicep-whatif-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:bicep-whatif-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:github",
-      "source": "subagent:challenger-review-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:challenger-review-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:github",
-      "source": "subagent:cost-estimate-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-pricing",
-      "source": "subagent:cost-estimate-subagent",
-      "target": "mcp:azure-pricing",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:github",
-      "source": "subagent:governance-discovery-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:terraform",
-      "source": "subagent:governance-discovery-subagent",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:governance-discovery-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:github",
-      "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:terraform",
-      "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:github",
-      "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:terraform",
-      "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
     }
   ]
 }
