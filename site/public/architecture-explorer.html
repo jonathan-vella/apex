@@ -867,6 +867,51 @@
                 opacity: 0.35,
               },
             },
+            {
+              selector: 'edge[kind = "invokes"]',
+              style: {
+                "line-color": "#ec4899",
+                "target-arrow-color": "#ec4899",
+                "target-arrow-shape": "triangle",
+                opacity: 0.55,
+              },
+            },
+            {
+              selector: 'edge[kind = "applies-to"]',
+              style: {
+                "line-color": "#f59e0b",
+                "target-arrow-color": "#f59e0b",
+                "line-style": "dashed",
+                opacity: 0.45,
+              },
+            },
+            {
+              selector: 'edge[kind = "runs"]',
+              style: {
+                "line-color": "#06b6d4",
+                "target-arrow-color": "#06b6d4",
+                "target-arrow-shape": "triangle",
+                opacity: 0.55,
+              },
+            },
+            {
+              selector: 'edge[kind = "uses-mcp"]',
+              style: {
+                "line-color": "#f43f5e",
+                "target-arrow-color": "#f43f5e",
+                "line-style": "dotted",
+                opacity: 0.5,
+              },
+            },
+            {
+              selector: 'edge[kind = "refs"]',
+              style: {
+                "line-color": "#34d399",
+                "line-style": "dotted",
+                opacity: 0.3,
+                width: 1,
+              },
+            },
           ];
           // Per-category node styling (colour + shape)
           for (const cat of graph.categories) {
@@ -954,13 +999,16 @@
           return {
             ...base,
             name: "cose",
-            idealEdgeLength: 90,
-            nodeRepulsion: 6000,
-            edgeElasticity: 100,
-            gravity: 0.3,
-            numIter: reduceMotion ? 400 : 1500,
+            idealEdgeLength: 80,
+            nodeRepulsion: 4500,
+            edgeElasticity: 120,
+            gravity: 0.6,
+            gravityRange: 1.2,
+            numIter: reduceMotion ? 400 : 1800,
             randomize: true,
-            componentSpacing: 80,
+            componentSpacing: 40,
+            nodeOverlap: 12,
+            coolingFactor: 0.97,
           };
         }
 

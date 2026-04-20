@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-20T11:13:53.639Z",
+  "generatedAt": "2026-04-20T11:24:43.776Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 157,
-  "edgeCount": 190,
+  "edgeCount": 428,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -3304,6 +3304,1434 @@
       "source": "agent:11-context-optimizer",
       "target": "skill:context-optimizer",
       "kind": "uses-primary"
+    },
+    {
+      "id": "prompt:01-orchestrator--invokes->agent:01-orchestrator",
+      "source": "prompt:01-orchestrator",
+      "target": "agent:01-orchestrator",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:02-requirements--invokes->agent:02-requirements",
+      "source": "prompt:02-requirements",
+      "target": "agent:02-requirements",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:03-architect--invokes->agent:03-architect",
+      "source": "prompt:03-architect",
+      "target": "agent:03-architect",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:04-design--invokes->agent:04-design",
+      "source": "prompt:04-design",
+      "target": "agent:04-design",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:04g-governance--invokes->agent:04g-governance",
+      "source": "prompt:04g-governance",
+      "target": "agent:04g-governance",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:05-iac-planner--invokes->agent:05-iac-planner",
+      "source": "prompt:05-iac-planner",
+      "target": "agent:05-iac-planner",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:06b-bicep-codegen--invokes->agent:06b-bicep-codegen",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--invokes->agent:06t-terraform-codegen",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--invokes->agent:07b-bicep-deploy",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--invokes->agent:07t-terraform-deploy",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:08-as-built--invokes->agent:08-as-built",
+      "source": "prompt:08-as-built",
+      "target": "agent:08-as-built",
+      "kind": "invokes"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->instruction:instructions",
+      "source": "instruction:context-optimization",
+      "target": "instruction:instructions",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:instructions",
+      "source": "instruction:instructions",
+      "target": "instruction:instructions",
+      "kind": "applies-to"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-md",
+      "source": "workflow:ci",
+      "target": "validator:lint-md",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-artifacts",
+      "source": "workflow:ci",
+      "target": "validator:validate-artifacts",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-agents",
+      "source": "workflow:ci",
+      "target": "validator:validate-agents",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-skills",
+      "source": "workflow:ci",
+      "target": "validator:validate-skills",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-version-sync",
+      "source": "workflow:ci",
+      "target": "validator:lint-version-sync",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-deprecated-refs",
+      "source": "workflow:ci",
+      "target": "validator:lint-deprecated-refs",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-mcp-config",
+      "source": "workflow:ci",
+      "target": "validator:lint-mcp-config",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-governance-refs",
+      "source": "workflow:ci",
+      "target": "validator:lint-governance-refs",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-instruction-checks",
+      "source": "workflow:ci",
+      "target": "validator:validate-instruction-checks",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-session-state",
+      "source": "workflow:ci",
+      "target": "validator:validate-session-state",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-session-lock",
+      "source": "workflow:ci",
+      "target": "validator:validate-session-lock",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-workflow-graph",
+      "source": "workflow:ci",
+      "target": "validator:validate-workflow-graph",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-agent-registry",
+      "source": "workflow:ci",
+      "target": "validator:validate-agent-registry",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-skill-checks",
+      "source": "workflow:ci",
+      "target": "validator:validate-skill-checks",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-json",
+      "source": "workflow:ci",
+      "target": "validator:lint-json",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-glob-audit",
+      "source": "workflow:ci",
+      "target": "validator:lint-glob-audit",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-orphaned-content",
+      "source": "workflow:ci",
+      "target": "validator:lint-orphaned-content",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-vscode",
+      "source": "workflow:ci",
+      "target": "validator:validate-vscode",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-drawio",
+      "source": "workflow:ci",
+      "target": "validator:lint-drawio",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-model-floors",
+      "source": "workflow:ci",
+      "target": "validator:lint-model-floors",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-explorer-graph",
+      "source": "workflow:ci",
+      "target": "validator:validate-explorer-graph",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:weekly-maintenance--runs->validator:lint-docs-freshness",
+      "source": "workflow:weekly-maintenance",
+      "target": "validator:lint-docs-freshness",
+      "kind": "runs"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:github",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:terraform",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:github",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:terraform",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:drawio",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements--uses-mcp->mcp:github",
+      "source": "agent:02-requirements",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements--uses-mcp->mcp:terraform",
+      "source": "agent:02-requirements",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:02-requirements",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:github",
+      "source": "agent:03-architect",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:terraform",
+      "source": "agent:03-architect",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:03-architect",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:drawio",
+      "source": "agent:03-architect",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04-design--uses-mcp->mcp:github",
+      "source": "agent:04-design",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04-design--uses-mcp->mcp:terraform",
+      "source": "agent:04-design",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04-design--uses-mcp->mcp:drawio",
+      "source": "agent:04-design",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:github",
+      "source": "agent:04g-governance",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:terraform",
+      "source": "agent:04g-governance",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:04g-governance",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-mcp->mcp:github",
+      "source": "agent:05-iac-planner",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-mcp->mcp:terraform",
+      "source": "agent:05-iac-planner",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:05-iac-planner",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:github",
+      "source": "agent:06b-bicep-codegen",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:06b-bicep-codegen",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:github",
+      "source": "agent:06t-terraform-codegen",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:terraform",
+      "source": "agent:06t-terraform-codegen",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:06t-terraform-codegen",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:github",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:drawio",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:github",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:terraform",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:drawio",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:github",
+      "source": "agent:08-as-built",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:terraform",
+      "source": "agent:08-as-built",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:08-as-built",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:drawio",
+      "source": "agent:08-as-built",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:09-diagnose--uses-mcp->mcp:github",
+      "source": "agent:09-diagnose",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:09-diagnose--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:09-diagnose",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:10-challenger--uses-mcp->mcp:github",
+      "source": "agent:10-challenger",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:10-challenger--uses-mcp->mcp:terraform",
+      "source": "agent:10-challenger",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:11-context-optimizer--uses-mcp->mcp:github",
+      "source": "agent:11-context-optimizer",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:github",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:terraform",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:drawio",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:github",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:github",
+      "source": "subagent:bicep-whatif-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:bicep-whatif-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:github",
+      "source": "subagent:challenger-review-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:challenger-review-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:github",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-pricing",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "mcp:azure-pricing",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:github",
+      "source": "subagent:governance-discovery-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:governance-discovery-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:governance-discovery-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:github",
+      "source": "subagent:terraform-plan-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:terraform-plan-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:terraform-plan-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:github",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "skill:appinsights-instrumentation--refs->skill:azure-prepare",
+      "source": "skill:appinsights-instrumentation",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-adr--refs->skill:drawio",
+      "source": "skill:azure-adr",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-aigateway--refs->skill:azure-ai",
+      "source": "skill:azure-aigateway",
+      "target": "skill:azure-ai",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-aigateway--refs->skill:azure-prepare",
+      "source": "skill:azure-aigateway",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-artifacts--refs->skill:azure-defaults",
+      "source": "skill:azure-artifacts",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-artifacts--refs->skill:terraform-patterns",
+      "source": "skill:azure-artifacts",
+      "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-bicep-patterns--refs->skill:azure-defaults",
+      "source": "skill:azure-bicep-patterns",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-cloud-migrate--refs->skill:azure-prepare",
+      "source": "skill:azure-cloud-migrate",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-cost-optimization--refs->skill:azure-deploy",
+      "source": "skill:azure-cost-optimization",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-cost-optimization--refs->skill:azure-diagnostics",
+      "source": "skill:azure-cost-optimization",
+      "target": "skill:azure-diagnostics",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-defaults--refs->skill:azure-artifacts",
+      "source": "skill:azure-defaults",
+      "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-deploy--refs->skill:azure-aigateway",
+      "source": "skill:azure-deploy",
+      "target": "skill:azure-aigateway",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-deploy--refs->skill:azure-prepare",
+      "source": "skill:azure-deploy",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-deploy--refs->skill:azure-validate",
+      "source": "skill:azure-deploy",
+      "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-deploy--refs->skill:iac-common",
+      "source": "skill:azure-deploy",
+      "target": "skill:iac-common",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-diagrams--refs->skill:drawio",
+      "source": "skill:azure-diagrams",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-diagrams--refs->skill:excalidraw",
+      "source": "skill:azure-diagrams",
+      "target": "skill:excalidraw",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-diagrams--refs->skill:mermaid",
+      "source": "skill:azure-diagrams",
+      "target": "skill:mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-diagrams--refs->skill:python-diagrams",
+      "source": "skill:azure-diagrams",
+      "target": "skill:python-diagrams",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-hosted-copilot-sdk--refs->skill:azure-deploy",
+      "source": "skill:azure-hosted-copilot-sdk",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-hosted-copilot-sdk--refs->skill:azure-prepare",
+      "source": "skill:azure-hosted-copilot-sdk",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-hosted-copilot-sdk--refs->skill:azure-validate",
+      "source": "skill:azure-hosted-copilot-sdk",
+      "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-prepare--refs->skill:azure-aigateway",
+      "source": "skill:azure-prepare",
+      "target": "skill:azure-aigateway",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-prepare--refs->skill:azure-cloud-migrate",
+      "source": "skill:azure-prepare",
+      "target": "skill:azure-cloud-migrate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-prepare--refs->skill:azure-deploy",
+      "source": "skill:azure-prepare",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-prepare--refs->skill:azure-hosted-copilot-sdk",
+      "source": "skill:azure-prepare",
+      "target": "skill:azure-hosted-copilot-sdk",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-prepare--refs->skill:azure-validate",
+      "source": "skill:azure-prepare",
+      "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-resource-lookup--refs->skill:azure-cost-optimization",
+      "source": "skill:azure-resource-lookup",
+      "target": "skill:azure-cost-optimization",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-resource-lookup--refs->skill:azure-deploy",
+      "source": "skill:azure-resource-lookup",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-resource-visualizer--refs->skill:azure-deploy",
+      "source": "skill:azure-resource-visualizer",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-resource-visualizer--refs->skill:azure-diagnostics",
+      "source": "skill:azure-resource-visualizer",
+      "target": "skill:azure-diagnostics",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-resource-visualizer--refs->skill:mermaid",
+      "source": "skill:azure-resource-visualizer",
+      "target": "skill:mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-storage--refs->skill:azure-messaging",
+      "source": "skill:azure-storage",
+      "target": "skill:azure-messaging",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-storage--refs->skill:azure-prepare",
+      "source": "skill:azure-storage",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-validate--refs->skill:azure-deploy",
+      "source": "skill:azure-validate",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-validate--refs->skill:azure-prepare",
+      "source": "skill:azure-validate",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:context-shredding--refs->skill:azure-artifacts",
+      "source": "skill:context-shredding",
+      "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:context-shredding--refs->skill:azure-defaults",
+      "source": "skill:context-shredding",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:context-shredding--refs->skill:context-optimizer",
+      "source": "skill:context-shredding",
+      "target": "skill:context-optimizer",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:context-shredding--refs->skill:golden-principles",
+      "source": "skill:context-shredding",
+      "target": "skill:golden-principles",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:context-shredding--refs->skill:session-resume",
+      "source": "skill:context-shredding",
+      "target": "skill:session-resume",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:copilot-customization--refs->skill:context-optimizer",
+      "source": "skill:copilot-customization",
+      "target": "skill:context-optimizer",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:docs-writer--refs->skill:azure-artifacts",
+      "source": "skill:docs-writer",
+      "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:drawio--refs->skill:excalidraw",
+      "source": "skill:drawio",
+      "target": "skill:excalidraw",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:drawio--refs->skill:mermaid",
+      "source": "skill:drawio",
+      "target": "skill:mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:drawio--refs->skill:python-diagrams",
+      "source": "skill:drawio",
+      "target": "skill:python-diagrams",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:entra-app-registration--refs->skill:azure-rbac",
+      "source": "skill:entra-app-registration",
+      "target": "skill:azure-rbac",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:excalidraw--refs->skill:drawio",
+      "source": "skill:excalidraw",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:excalidraw--refs->skill:mermaid",
+      "source": "skill:excalidraw",
+      "target": "skill:mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:excalidraw--refs->skill:python-diagrams",
+      "source": "skill:excalidraw",
+      "target": "skill:python-diagrams",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:golden-principles--refs->skill:azure-artifacts",
+      "source": "skill:golden-principles",
+      "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:golden-principles--refs->skill:azure-defaults",
+      "source": "skill:golden-principles",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:iac-common--refs->skill:azure-bicep-patterns",
+      "source": "skill:iac-common",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:iac-common--refs->skill:azure-defaults",
+      "source": "skill:iac-common",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:iac-common--refs->skill:azure-validate",
+      "source": "skill:iac-common",
+      "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:iac-common--refs->skill:terraform-patterns",
+      "source": "skill:iac-common",
+      "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:mermaid--refs->skill:azure-resource-visualizer",
+      "source": "skill:mermaid",
+      "target": "skill:azure-resource-visualizer",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:mermaid--refs->skill:drawio",
+      "source": "skill:mermaid",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:mermaid--refs->skill:python-diagrams",
+      "source": "skill:mermaid",
+      "target": "skill:python-diagrams",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-code-reference--refs->skill:azure-bicep-patterns",
+      "source": "skill:microsoft-code-reference",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-code-reference--refs->skill:azure-storage",
+      "source": "skill:microsoft-code-reference",
+      "target": "skill:azure-storage",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-code-reference--refs->skill:microsoft-docs",
+      "source": "skill:microsoft-code-reference",
+      "target": "skill:microsoft-docs",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-code-reference--refs->skill:microsoft-skill-creator",
+      "source": "skill:microsoft-code-reference",
+      "target": "skill:microsoft-skill-creator",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-code-reference--refs->skill:terraform-patterns",
+      "source": "skill:microsoft-code-reference",
+      "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-docs--refs->skill:microsoft-code-reference",
+      "source": "skill:microsoft-docs",
+      "target": "skill:microsoft-code-reference",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-docs--refs->skill:microsoft-skill-creator",
+      "source": "skill:microsoft-docs",
+      "target": "skill:microsoft-skill-creator",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-foundry--refs->skill:azure-ai",
+      "source": "skill:microsoft-foundry",
+      "target": "skill:azure-ai",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-foundry--refs->skill:azure-deploy",
+      "source": "skill:microsoft-foundry",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-foundry--refs->skill:azure-prepare",
+      "source": "skill:microsoft-foundry",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:microsoft-skill-creator--refs->skill:make-skill-template",
+      "source": "skill:microsoft-skill-creator",
+      "target": "skill:make-skill-template",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:python-diagrams--refs->skill:drawio",
+      "source": "skill:python-diagrams",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:python-diagrams--refs->skill:excalidraw",
+      "source": "skill:python-diagrams",
+      "target": "skill:excalidraw",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:python-diagrams--refs->skill:mermaid",
+      "source": "skill:python-diagrams",
+      "target": "skill:mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-patterns--refs->skill:azure-defaults",
+      "source": "skill:terraform-patterns",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-search-import--refs->skill:terraform-patterns",
+      "source": "skill:terraform-search-import",
+      "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:github",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:terraform",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:github",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:terraform",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:drawio",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements--uses-mcp->mcp:github",
+      "source": "agent:02-requirements",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements--uses-mcp->mcp:terraform",
+      "source": "agent:02-requirements",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:02-requirements",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:github",
+      "source": "agent:03-architect",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:terraform",
+      "source": "agent:03-architect",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:03-architect",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:drawio",
+      "source": "agent:03-architect",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04-design--uses-mcp->mcp:github",
+      "source": "agent:04-design",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04-design--uses-mcp->mcp:terraform",
+      "source": "agent:04-design",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04-design--uses-mcp->mcp:drawio",
+      "source": "agent:04-design",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:github",
+      "source": "agent:04g-governance",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:terraform",
+      "source": "agent:04g-governance",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:04g-governance",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-mcp->mcp:github",
+      "source": "agent:05-iac-planner",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-mcp->mcp:terraform",
+      "source": "agent:05-iac-planner",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:05-iac-planner",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:github",
+      "source": "agent:06b-bicep-codegen",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:06b-bicep-codegen",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:github",
+      "source": "agent:06t-terraform-codegen",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:terraform",
+      "source": "agent:06t-terraform-codegen",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:06t-terraform-codegen",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:github",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:drawio",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:github",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:terraform",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:drawio",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:github",
+      "source": "agent:08-as-built",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:terraform",
+      "source": "agent:08-as-built",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:08-as-built",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:drawio",
+      "source": "agent:08-as-built",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:09-diagnose--uses-mcp->mcp:github",
+      "source": "agent:09-diagnose",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:09-diagnose--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:09-diagnose",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:10-challenger--uses-mcp->mcp:github",
+      "source": "agent:10-challenger",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:10-challenger--uses-mcp->mcp:terraform",
+      "source": "agent:10-challenger",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:11-context-optimizer--uses-mcp->mcp:github",
+      "source": "agent:11-context-optimizer",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:github",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:terraform",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-mcp->mcp:drawio",
+      "source": "agent:e2e-orchestrator",
+      "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:github",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:github",
+      "source": "subagent:bicep-whatif-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:bicep-whatif-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:github",
+      "source": "subagent:challenger-review-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:challenger-review-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:github",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-pricing",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "mcp:azure-pricing",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:github",
+      "source": "subagent:governance-discovery-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:governance-discovery-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:governance-discovery-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:github",
+      "source": "subagent:terraform-plan-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:terraform-plan-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:terraform-plan-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:github",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
     }
   ]
 }

@@ -15,6 +15,11 @@
  *  - agent → subagent (frontmatter `agents:` field)
  *  - agent handoff → agent (frontmatter `handoffs[].agent`)
  *  - agent → skill (from `.github/skill-affinity.json`, tiered)
+ *  - prompt → agent (slug match, e.g. `02-requirements` → `02-Requirements`)
+ *  - instruction → agent/skill/prompt (via `applyTo` glob + name match)
+ *  - workflow → validator (parse YAML for `npm run …`, expanding composite scripts)
+ *  - agent → mcp (scan agent body for MCP server names)
+ *  - skill → skill (parse SKILL.md for references to other skill slugs)
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
@@ -384,6 +389,189 @@ function buildEdges(nodes, skillAffinity) {
             kind: tier === "primary" ? "uses-primary" : "uses-secondary",
           });
         }
+      }
+    }
+  }
+
+  // Prompt -> Agent (by slug match, e.g. 02-requirements prompt -> 02-Requirements agent)
+  for (const n of nodes) {
+    if (n.category !== "prompt") continue;
+    const promptSlug = n.id.replace(/^prompt:/, "");
+    const target = nodes.find(
+      (m) => m.category === "agent" && slug(m.label) === promptSlug,
+    );
+    if (target) {
+      edges.push({
+        id: `${n.id}--invokes->${target.id}`,
+        source: n.id,
+        target: target.id,
+        kind: "invokes",
+      });
+    }
+  }
+
+  // Instruction -> Agent/Skill/Prompt (by applyTo glob)
+  for (const n of nodes) {
+    if (n.category !== "instruction") continue;
+    const applyTo = (n.meta.applyTo || "").toString();
+    if (!applyTo) continue;
+    // Match instructions that target agent/skill/prompt file types or specific names
+    const targetCats = [];
+    if (/\.agent\.md/i.test(applyTo)) targetCats.push("agent", "subagent");
+    if (/SKILL\.md|skills\//i.test(applyTo)) targetCats.push("skill");
+    if (/\.prompt\.md/i.test(applyTo)) targetCats.push("prompt");
+    if (/\.instructions\.md/i.test(applyTo)) targetCats.push("instruction");
+    if (targetCats.length === 0) continue;
+    // Connect to a representative (orchestrator for agents, first agent) to avoid explosion
+    // Only connect to agents explicitly named in applyTo; otherwise attach to all agents is noisy.
+    // Instead, attach to a single hub node per targetCat if no specific name match.
+    for (const cat of new Set(targetCats)) {
+      // Find an explicit name match first (e.g., "orchestrator" in applyTo)
+      const explicit = nodes.find(
+        (m) =>
+          m.category === cat &&
+          new RegExp(slug(m.label).replace(/-/g, "[-_]"), "i").test(applyTo),
+      );
+      if (explicit) {
+        edges.push({
+          id: `${n.id}--applies-to->${explicit.id}`,
+          source: n.id,
+          target: explicit.id,
+          kind: "applies-to",
+        });
+      }
+    }
+  }
+
+  // Workflow -> Validator (parse YAML for `npm run <script>` references,
+  // recursively expanding composite scripts like `validate:_node`).
+  const pkgScripts = readJson(join(REPO_ROOT, "package.json")).scripts || {};
+  const validatorLabels = new Set(
+    nodes.filter((m) => m.category === "validator").map((m) => m.label),
+  );
+  function expandScript(name, seen = new Set()) {
+    if (seen.has(name)) return [];
+    seen.add(name);
+    if (validatorLabels.has(name)) return [name];
+    const body = pkgScripts[name];
+    if (!body) return [];
+    // Expand tokens that are themselves script names
+    const tokens = body.split(/\s+/).filter((t) => pkgScripts[t]);
+    return tokens.flatMap((t) => expandScript(t, seen));
+  }
+  for (const n of nodes) {
+    if (n.category !== "workflow") continue;
+    let yamlContent;
+    try {
+      yamlContent = readFileSync(join(REPO_ROOT, n.path), "utf8");
+    } catch {
+      continue;
+    }
+    const seen = new Set();
+    const re = /npm run\s+([a-zA-Z][\w:-]+)/g;
+    let match;
+    while ((match = re.exec(yamlContent))) {
+      const scriptName = match[1];
+      for (const validatorName of expandScript(scriptName)) {
+        if (seen.has(validatorName)) continue;
+        seen.add(validatorName);
+        const validator = nodes.find(
+          (m) => m.category === "validator" && m.label === validatorName,
+        );
+        if (validator) {
+          edges.push({
+            id: `${n.id}--runs->${validator.id}`,
+            source: n.id,
+            target: validator.id,
+            kind: "runs",
+          });
+        }
+      }
+    }
+  }
+
+  // Agent -> MCP (scan agent body for MCP server names)
+  const mcpNodes = nodes.filter((m) => m.category === "mcp");
+  for (const n of nodes) {
+    if (n.category !== "agent" && n.category !== "subagent") continue;
+    let body;
+    try {
+      body = readFileSync(join(REPO_ROOT, n.path), "utf8").toLowerCase();
+    } catch {
+      continue;
+    }
+    const seen = new Set();
+    for (const mcpNode of mcpNodes) {
+      const mcpName = mcpNode.label.toLowerCase();
+      if (seen.has(mcpNode.id)) continue;
+      const re = new RegExp(
+        `\\b${mcpName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+      );
+      if (re.test(body)) {
+        seen.add(mcpNode.id);
+        edges.push({
+          id: `${n.id}--uses-mcp->${mcpNode.id}`,
+          source: n.id,
+          target: mcpNode.id,
+          kind: "uses-mcp",
+        });
+      }
+    }
+  }
+
+  // Skill -> Skill (parse SKILL.md body/description for references to other skills, e.g. "delegates to drawio")
+  const skillNodes = nodes.filter((m) => m.category === "skill");
+  const skillSlugMap = new Map(
+    skillNodes.map((s) => [s.id.replace(/^skill:/, ""), s]),
+  );
+  for (const n of skillNodes) {
+    let body;
+    try {
+      body = readFileSync(join(REPO_ROOT, n.path), "utf8");
+    } catch {
+      continue;
+    }
+    const nSlug = n.id.replace(/^skill:/, "");
+    const seen = new Set();
+    for (const [otherSlug, otherNode] of skillSlugMap) {
+      if (otherSlug === nSlug || seen.has(otherNode.id)) continue;
+      // Match word-boundary backtick or plain reference
+      const re = new RegExp(`\\b${otherSlug}\\b`);
+      if (re.test(body)) {
+        seen.add(otherNode.id);
+        edges.push({
+          id: `${n.id}--refs->${otherNode.id}`,
+          source: n.id,
+          target: otherNode.id,
+          kind: "refs",
+        });
+      }
+    }
+  }
+  for (const n of nodes) {
+    if (n.category !== "agent" && n.category !== "subagent") continue;
+    let body;
+    try {
+      body = readFileSync(join(REPO_ROOT, n.path), "utf8").toLowerCase();
+    } catch {
+      continue;
+    }
+    const seen = new Set();
+    for (const mcpNode of mcpNodes) {
+      const mcpName = mcpNode.label.toLowerCase();
+      if (seen.has(mcpNode.id)) continue;
+      // Require word-boundary match to reduce false positives
+      const re = new RegExp(
+        `\\b${mcpName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+      );
+      if (re.test(body)) {
+        seen.add(mcpNode.id);
+        edges.push({
+          id: `${n.id}--uses-mcp->${mcpNode.id}`,
+          source: n.id,
+          target: mcpNode.id,
+          kind: "uses-mcp",
+        });
       }
     }
   }

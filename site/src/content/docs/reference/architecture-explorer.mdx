@@ -68,6 +68,11 @@ the explorer is always authoritative. The categories tracked are:
 | Dashed purple       | Agent **delegates** to a subagent (`agents:` frontmatter).           |
 | Solid green         | Agent **uses a primary skill** (always loaded).                      |
 | Dotted grey         | Agent **uses a secondary skill** (on-demand).                        |
+| Solid pink, arrow   | Prompt **invokes** an agent (name-matched).                          |
+| Dashed amber        | Instruction **applies to** an agent/skill/prompt type.               |
+| Solid teal, arrow   | CI workflow **runs** a validator (`npm run …`).                      |
+| Dotted red          | Agent **uses an MCP server** (referenced in body).                   |
+| Dotted green        | Skill **references** another skill (e.g. routing/delegation).        |
 
 ## Data source
 
