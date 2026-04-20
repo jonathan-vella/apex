@@ -220,13 +220,10 @@ to a temp file between steps via terminal command to avoid inflating context.
    python3 scripts/save-drawio.py '<json-path>' 'agent-output/{project}/03-des-diagram.drawio'
    ```
 
-8. **Post-save cleanup** — Fix known MCP server artifacts:
+8. **Post-save cleanup** — Run the bundled cleanup script:
 
-   ```python
-   # After save-drawio.py, run fixup:
-   # - Replace value="New Cell" with value="" (legend shape samples)
-   # - Set watermark height >= 70px
-   # - Verify cross-cutting icon spacing >= 120px apart
+   ```bash
+   python3 .github/skills/drawio/scripts/cleanup-drawio.py 'agent-output/{project}/03-des-diagram.drawio'
    ```
 
 9. **Validate** — Run `node scripts/validate-drawio-files.mjs` to confirm.
