@@ -134,14 +134,55 @@ After group assignments, call `validate-group-containment` to detect any childre
 - **Primary flow**: left-to-right. Each stage occupies a column.
 - **Parallel services**: stacked vertically within their column, never side-by-side.
 - **Spacing**: 120px horizontal between columns, 80px vertical between rows, 40px around each cell.
-- **Page**: US Letter 850×1100px. Content within 40px margins (usable: 770×1020).
+- **Subnet row height**: For stacked subnet/namespace layouts, use **120–130px row height**
+  per row to give icon labels ~40px breathing room before the next row starts.
+- **Page**: US Letter 850×1100px (extend to 1300px for diagrams with legend).
+  Content within 40px margins (usable: 770×1020).
 - **No overlapping**: Components must not overlap each other.
+
+### Layout Patterns
+
+- **Left-to-right flow** (default): Each stage occupies a column. Use for
+  ingress → compute → data store architectures (VM baseline, AKS, App Service).
+- **Center-column hub-spoke**: Hub VNet in the center column with spokes
+  radiating right. External/on-prem services on the left. Use for networking
+  architectures (DNS, firewall, hub-spoke topologies).
+- **Multi-subscription landing zone**: Stacked color-coded containers for each
+  subscription boundary (e.g., green for connectivity/hub, blue for app landing
+  zone, purple for external PaaS like Foundry). External actors (Users) placed
+  outside all containers. Use for enterprise landing zone architectures.
+
+### Numbered Callout Annotations
+
+For multi-step flow explanations (common in Microsoft reference architectures),
+use circled Unicode numbers as small text vertices placed near the relevant
+icon or edge: `①②③④⑤⑥⑦⑧⑨⑩`. Style them with `fontSize=11;fontColor=#CC0000;fontStyle=1`
+so they stand out as red bold callouts without cluttering the diagram.
+
+### Non-Azure Component Styling
+
+For on-premises, external, or third-party services that don't have Azure icons,
+use a **yellow-tinted rectangle** to visually distinguish them from Azure resources:
+
+```text
+shape=mxgraph.basic.rect;fillColor=#FFF9E6;strokeColor=#D4A017;rounded=1;
+fontSize=10;fontColor=#8B6914;whiteSpace=wrap;
+```
+
+Examples: on-premises DNS servers, hosted public DNS, external partner systems,
+client apps, CI/CD pipelines.
 
 ### Groups
 
 - Create groups for VNets, subnets, Container Apps Environments, resource groups.
 - Set `text: ""` for groups — create a separate bold text vertex above the group instead.
 - Use `suggest-group-sizing` to calculate dimensions based on child count.
+- **Minimum width per icon count**: Allow at least **150px per icon** horizontally.
+  A hub VNet with 5 icons needs ≥ 750px width. Cramming icons at 80px spacing
+  causes label collisions.
+- **Actor placement**: External actors (Users, Operators, Clients) must be
+  positioned **outside** all container boundaries. After placing actors, verify
+  their coordinates don’t fall within any group’s x/y/width/height range.
 
 ### Edges
 
@@ -149,6 +190,10 @@ After group assignments, call `validate-group-containment` to detect any childre
 - **NO anchor points**: Never set `entryX`, `entryY`, `exitX`, `exitY` in your edge style.
 - **NO waypoints**: Do not add `<Array as="points">` or `<mxPoint>` elements.
 - **Side exits preferred**: edges exit/enter through left or right sides.
+- **Target icons, not groups**: Always connect edges to the specific icon vertex
+  (via `temp_id`), not the parent group/subnet cell ID. When edges target groups,
+  the orthogonal router draws them through every intervening group boundary,
+  creating messy vertical corridors and label collisions.
 - **One edge per source into a group**: target the group cell, not children inside.
 - **No edges to cross-cutting services**: their presence is implied.
 - **Fan-out staggering**: When multiple edges leave the same source, keep them
@@ -168,7 +213,33 @@ After group assignments, call `validate-group-containment` to detect any childre
 Place Azure Monitor, Entra ID, Key Vault, Azure Policy, Defender for Cloud,
 Container Registry, DNS Zones, Application Insights, Log Analytics at the
 **bottom** of the diagram, 120px below the main flow. No edges to them.
-Space 100px apart (center-to-center). Wrap into multiple rows at page width.
+Space **120px apart** (center-to-center) — labels like "Application Insights"
+and "Private DNS Zones" need this width. Wrap into multiple rows at page width.
+
+Enclose all cross-cutting icons in a **single light-grey rounded container**
+(`fillColor=#F5F5F5;strokeColor=#BDBDBD`) with a bold Azure-blue heading
+("Cross-cutting platform services") inside at the top.
+
+### Legend
+
+Every diagram MUST include a legend. Place it in a horizontal bar **below** the
+cross-cutting services box (not beside it — side-by-side causes overlap).
+
+- Use inline HTML for colored arrow indicators:
+  `<font color="#0078D4"><b>━━▶</b></font>  Data flow (HTTPS / TLS)`
+- Add small colored rectangle swatches for container styles (e.g., blue dashed
+  for data-path subnets, orange dashed for operational subnets).
+- **When creating legend shape samples** via `add-cells`, always set `text: ""`
+  explicitly — the MCP server defaults to `"New Cell"` which renders as visible text.
+
+### Post-Save Cleanup
+
+After `save-drawio.py`, run a Python post-processing pass to fix known MCP artifacts:
+
+1. Replace any `value="New Cell"` with `value=""`
+2. Verify watermark cell height ≥ 70px (so all 4 lines of APEX attribution show)
+3. Confirm cross-cutting icon spacing ≥ 120px apart
+4. Verify no edge targets group cells — all edges should target icon vertices
 
 Use the Azure-aligned color palette from `get-style-presets` and the style
 examples in `references/style-reference.md`. Standard output filenames and the
@@ -184,4 +255,14 @@ validation checklist live in `references/validation-checklist.md`.
 | `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
 | `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 
-Quality target samples: `tmp/azure-architecture-example.drawio`, `tmp/03-des-diagram.svg`
+### Quality Reference Examples
+
+| File                                             | Pattern                                                |
+| ------------------------------------------------ | ------------------------------------------------------ |
+| `examples/azure-vm-baseline-architecture.drawio` | VM baseline — VNet + 6 subnets, vertical flow, legend  |
+| `examples/azure-aks-microservices.drawio`        | AKS microservices — horizontal flow, namespaces, CI/CD |
+| `examples/azure-dns-private-resolver.drawio`     | DNS Private Resolver — hub-spoke, numbered callouts    |
+| `examples/azure-foundry-landing-zone.drawio`     | Foundry Chat — landing zone, multi-subscription        |
+| `examples/azure-vm-baseline-architecture.svg`    | Source SVG from Microsoft Learn (reference comparison) |
+
+Also see: `tmp/azure-architecture-example.drawio`, `tmp/03-des-diagram.svg`
