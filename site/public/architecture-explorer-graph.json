@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-20T12:11:16.215Z",
+  "generatedAt": "2026-04-20T17:25:36.715Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 159,
-  "edgeCount": 704,
+  "edgeCount": 705,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -228,7 +228,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -415,7 +415,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -513,7 +513,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4"
+        "model": "Claude Sonnet 4.6"
       }
     },
     {
@@ -6098,6 +6098,12 @@
       "id": "skill:azure-diagrams--refs->skill:python-diagrams",
       "source": "skill:azure-diagrams",
       "target": "skill:python-diagrams",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-governance-discovery--refs->skill:azure-artifacts",
+      "source": "skill:azure-governance-discovery",
+      "target": "skill:azure-artifacts",
       "kind": "refs"
     },
     {
