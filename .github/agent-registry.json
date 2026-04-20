@@ -68,6 +68,7 @@
       "model": "GPT-5.4",
       "skills": [
         "azure-defaults",
+        "azure-governance-discovery",
         "azure-artifacts",
         "session-resume",
         "microsoft-docs"
@@ -220,12 +221,6 @@
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "model": "GPT-5.3-Codex",
-      "skills": ["azure-defaults"],
-      "invokable": false
-    },
-    "governance-discovery-subagent": {
-      "agent": ".github/agents/_subagents/governance-discovery-subagent.agent.md",
-      "model": "GPT-5.4",
       "skills": ["azure-defaults"],
       "invokable": false
     },

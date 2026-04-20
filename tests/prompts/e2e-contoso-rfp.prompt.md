@@ -136,7 +136,7 @@ IaC tool:
   from this prompt, not by the step agents):
   - `challenger-review-subagent` — after Steps 1, 2, 3.5, 4, 5, 6
   - `cost-estimate-subagent` — during Step 2
-  - `governance-discovery-subagent` — during Step 3.5 (when Azure auth exists)
+  - `azure-governance-discovery/scripts/discover.py` — during Step 3.5 (when Azure auth exists)
   - `bicep-validate-subagent` / `terraform-validate-subagent` — during Step 5
   - `bicep-whatif-subagent` / `terraform-plan-subagent` — during Step 6
 - **Run isolation is MANDATORY**: Do NOT read, copy, or adapt artifacts from
@@ -258,7 +258,7 @@ continue without waiting for the user:
 
 - Invoke `04g-Governance` for artifact generation only (tell it the
   governance-discovery and challenger subagents will be handled externally).
-- If Azure auth exists, invoke `governance-discovery-subagent` directly to
+- If Azure auth exists, invoke `.github/skills/azure-governance-discovery/scripts/discover.py` directly to
   perform live Azure Policy discovery. Pass results to `04g-Governance` for
   artifact formatting, or let `04g-Governance` handle discovery inline if
   it can do so without nesting.

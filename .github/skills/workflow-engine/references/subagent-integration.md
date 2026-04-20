@@ -17,7 +17,6 @@ Subagents are wired into their parent agents automatically:
 | `challenger-review-subagent`    | Terraform Deploy   | Step 6† — pre-deploy adversarial review                | 1x     |
 | `cost-estimate-subagent`        | Architect          | Step 2 — pricing isolation + accuracy validation       | —      |
 | `cost-estimate-subagent`        | As-Built           | Step 7 — as-built pricing for deployed SKUs            | —      |
-| `governance-discovery-subagent` | IaC Planner        | Step 4 — policy discovery gate                         | —      |
 | `bicep-validate-subagent`       | Bicep Code         | Step 5 Phase 4 — lint + code review                    | —      |
 | `bicep-whatif-subagent`         | Deploy             | Step 6 — deployment preview                            | —      |
 | `terraform-validate-subagent`   | Terraform Code Gen | Step 5† — lint + AVM-TF/security review                | —      |

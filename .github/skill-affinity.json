@@ -90,7 +90,12 @@
       ]
     },
     "04g-Governance": {
-      "primary": ["azure-defaults", "azure-artifacts", "session-resume"],
+      "primary": [
+        "azure-defaults",
+        "azure-governance-discovery",
+        "azure-artifacts",
+        "session-resume"
+      ],
       "secondary": ["microsoft-docs"],
       "never": [
         "azure-bicep-patterns",
@@ -243,11 +248,6 @@
       "primary": ["azure-defaults"],
       "secondary": [],
       "never": ["azure-bicep-patterns", "terraform-patterns", "iac-common"]
-    },
-    "governance-discovery-subagent": {
-      "primary": ["azure-defaults"],
-      "secondary": [],
-      "never": ["azure-bicep-patterns", "terraform-patterns"]
     },
     "bicep-validate-subagent": {
       "primary": ["azure-bicep-patterns"],

@@ -217,10 +217,10 @@ check(
   fileContains(tfPolicyInstrPath, "iac-policy-compliance"),
 );
 
-// 10. Governance discovery subagent produces BOTH bicepPropertyPath AND azurePropertyPath
-console.log("\n📄 governance-discovery-subagent.agent.md (dual-field)");
+// 10. Governance discovery script produces BOTH bicepPropertyPath AND azurePropertyPath
+console.log("\n📄 azure-governance-discovery/scripts/discover.py (dual-field)");
 const govDiscSubPath =
-  ".github/agents/_subagents/governance-discovery-subagent.agent.md";
+  ".github/skills/azure-governance-discovery/scripts/discover.py";
 check(
   "Produces bicepPropertyPath field in JSON output",
   fileContains(govDiscSubPath, "bicepPropertyPath"),

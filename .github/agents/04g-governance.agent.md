@@ -4,7 +4,7 @@ description: Azure governance discovery agent. Queries Azure Policy assignments 
 model: ["GPT-5.4"]
 argument-hint: Discover governance constraints for a project
 user-invocable: true
-agents: ["governance-discovery-subagent", "challenger-review-subagent"]
+agents: ["challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -57,20 +57,14 @@ governance artifacts, and get them reviewed before handing off to IaC Planning.
 Before doing any work, read:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery section, regions, tags
-2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
-3. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
-4. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
+2. Read `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract
+3. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
+4. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
+5. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
    This defines the downstream JSON contract (`discovery_status`, `policies` array,
    dot-separated `azurePropertyPath`, `bicepPropertyPath` formats) that Step 4/5 agents
    and review subagents consume. Loading this reference before Phase 2 prevents iterative
    contract-mismatch rework.
-
-> **DO NOT read `.github/agents/_subagents/governance-discovery-subagent.agent.md`
-> into this agent's context.** The subagent runs in isolation via `#runSubagent`;
-> reading its body defeats context isolation and causes the model to run the
-> subagent's internal Python/REST script inline — bypassing delegation and
-> triggering the long artifact-writing loops observed in prior runs. The
-> authoritative output contract lives in `schemas/governance-constraints.schema.json`.
 
 ## Prerequisites
 
@@ -95,89 +89,61 @@ If missing, STOP and request handoff to the appropriate prior agent.
 
 **Scope is always subscription and below** (subscription-scoped assignments plus
 management-group-inherited policies that apply at the subscription). Do NOT ask
-the user to choose a scope — the subagent discovers this range in a single
-batched call. If the user explicitly asks to narrow to specific resource types,
-honor that; otherwise proceed.
+the user to choose a scope — `discover.py` covers this range in a single
+batched traversal. If the user explicitly asks to narrow to specific resource
+types, honour that; otherwise proceed.
 
-### Phase 0.5: Cache-First Check (MANDATORY before delegation)
+### Phase 0.5: Cache-First Check
 
-Before invoking `governance-discovery-subagent`, check for an existing snapshot:
-
-1. If `agent-output/{project}/04-governance-constraints.json` exists AND the
-   user did NOT request `--refresh` / "refresh governance" / "re-run discovery":
-   - Read the JSON directly
-   - Verify `discovery_status == "COMPLETE"` and `policies` array is present
-   - Skip Phase 1 entirely — proceed to Phase 2 using the cached snapshot
-   - Log: `"CACHE HIT: reusing 04-governance-constraints.json (pass --refresh to re-discover)"`
-2. If the user's prompt contains `refresh`, `re-run`, `rediscover`, or `--refresh`,
-   or if the cached JSON is missing / has `discovery_status != "COMPLETE"`:
-   - Proceed to Phase 1 (fresh discovery)
-
-This short-circuit turns re-invocations (challenger feedback loops, orchestrator
-resumes, manual re-runs) from ~2 minutes into ~1 second.
+`discover.py` handles caching internally: if
+`agent-output/{project}/04-governance-constraints.json` exists and
+`--refresh` was NOT passed, the script short-circuits, emits
+`{"status":"COMPLETE","cache_hit":true,...}` on stdout, and exits 0 without
+calling Azure. Pass `--refresh` only when the user explicitly asks for
+`refresh`, `re-run`, or `rediscover`.
 
 ### Phase 1: Governance Discovery
 
-If discovery fails, STOP. Do not proceed with incomplete policy data.
+Run the deterministic discovery script via `run_in_terminal`. Do NOT delegate
+this phase to a subagent — the script is pure ETL and adds no LLM value in a
+subagent wrapper.
 
-1. **Delegate** to `governance-discovery-subagent` via `#runSubagent`.
-   The delegation prompt MUST inline every input the subagent
-   needs so it does not read parent context files:
-   - `project`: `{project}` (from session state)
-   - `subscription`: `default` (or explicit id if the user specified one)
-   - `scope_mode`: `subscription-and-below` (fixed)
-   - `target_resource_types`: the list from `02-architecture-assessment.md`
-     resource inventory (inline as a comma-separated list)
-   - `refresh`: `true` only if Phase 0.5 determined a refresh is required
+```bash
+python .github/skills/azure-governance-discovery/scripts/discover.py \
+    --project {project} \
+    --out agent-output/{project}/04-governance-constraints.json
+```
 
-   The subagent will verify connectivity via `az account get-access-token` in
-   its batched script, query effective policy assignments via REST with
-   `$filter=atScope()`, list all policy/set definitions in two batched calls,
-   and classify effects in-process. The subagent MUST NOT call
-   `azure_auth-get_auth_context` or `mcp_azure_mcp_get_azure_bestpractices`,
-   and MUST NOT read parent artifacts, templates, or schemas.
+Append `--refresh` if the user requested it. Append `--include-defender-auto`
+only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
+(they are filtered by default).
 
-   > **Anti-pattern — DO NOT improvise discovery**: Do NOT run `az rest`,
-   > `execution_subagent`, or Python REST scripts directly in this agent.
-   > ALL Azure Policy REST work goes through `governance-discovery-subagent`
-   > via `#runSubagent`. If the subagent fails, use Phase 1.5 fallback.
+1. **Read the first stdout line only** — it is a single JSON status object:
 
-2. **Review result** — Status must be COMPLETE (if PARTIAL or FAILED, STOP and present error)
-3. **Consume the compact rows, not raw JSON** — the subagent returns a compact
-   `rows` array (`{assignment, effect, scope, types, requiredValue}`) and writes
-   the full snapshot to `04-governance-constraints.json`. Operate on the rows
-   only.
+   ```json
+   {"status":"COMPLETE","cache_hit":false,"assignment_total":247,"blockers":18,"auto_remediate":12,"exempted":3}
+   ```
 
-   > **MANDATORY**: Do NOT read the full `04-governance-constraints.json`
-   > snapshot back into the model context. Do NOT launch additional
-   > `execution_subagent` or `runSubagent` calls to re-query Azure Policy
-   > APIs after the discovery subagent returns. The compact rows are the
-   > single source of truth. If a row needs deeper inspection, read ONE
-   > definition from the cached JSON on disk — do not re-query Azure.
+   The remaining stdout lines are a human-readable Markdown preview **for the
+   user**, not for LLM re-ingestion. Do NOT pipe them back into the model.
+2. **Gate on status**:
+   - `COMPLETE` → proceed to Phase 2
+   - `PARTIAL` → present the partial state to the user and ask whether to continue
+   - `FAILED` → STOP and surface the error (typically `az login` needed)
+3. **Exit codes** mirror status: `0` COMPLETE, `1` PARTIAL, `2` FAILED, `3` bad args.
 
-### Phase 1.5: Subagent Fallback
-
-If the `governance-discovery-subagent` invocation fails (network error, timeout,
-or GOAWAY), fall back to direct Azure REST discovery in the main agent context.
-**When using the fallback path**, conform the output to the authoritative JSON
-contract defined in [`schemas/governance-constraints.schema.json`](../../schemas/governance-constraints.schema.json)
-and follow the enforcement rules in `.github/instructions/references/iac-policy-compliance.md`
-(already loaded via Read Skills First). Emit the complete contract in a single
-structured prompt so it is satisfied on the first write — do not discover the
-schema iteratively through challenger feedback.
-
-> **DO NOT** read `.github/agents/_subagents/governance-discovery-subagent.agent.md`
-> into this agent's context under any circumstance — including fallback. The
-> subagent runs in isolation via `#runSubagent`; reading its body defeats
-> context isolation and causes the model to run the subagent's internal script
-> inline, bypassing delegation entirely.
+> **Anti-pattern — DO NOT improvise discovery**: Do NOT run `az rest`,
+> `execution_subagent`, or inline Python REST scripts. ALL Azure Policy REST
+> work goes through `discover.py`. If the script fails with exit code 2,
+> surface the error — do not reinvent the discovery path.
 
 ### Phase 2: Generate Artifacts
 
 > **MANDATORY context budget**: Before writing artifacts, summarize the compact
 > rows into a <50-line structured outline. Do NOT feed raw policy JSON or full
-> definition objects into the artifact-writing turn. Operate only on the compact
-> rows from Phase 1.
+> definition objects into the artifact-writing turn. Operate only on the
+> compact `findings[]` written by `discover.py` (use `jq` to read specific
+> slices, not `read_file` on the full JSON).
 
 1. Populate `04-governance-constraints.md` matching H2 template from azure-artifacts skill
    - Replicate ALL structural elements from the template: badge row, collapsible TOC (`<details open>`),
@@ -265,23 +231,23 @@ If the user provides a custom response at an approval gate, interpret it as inst
 
 ## Boundaries
 
-- **Always**: Query REST API (not just `az policy assignment list`), validate counts, produce both `.md` and `.json`
-- **Always**: Check Phase 0.5 cache before delegating to the subagent
+- **Always**: Invoke `discover.py` via `run_in_terminal`, validate the first-line JSON status, produce both `.md` and `.json`
+- **Always**: Let `discover.py` handle cache-first behaviour; pass `--refresh` only when the user asks
 - **Ask first**: Manual policy overrides
 - **Never**: Generate IaC code, skip discovery entirely on first run, assume policy state from best practices
 - **Never**: Re-run Phase 1 discovery on challenger feedback loops — only artifact content changes
 - **Never**: Read the full `04-governance-constraints.json` snapshot back into
-  the model during Phase 2 — operate on compact rows and read individual
-  records by path when needed
+  the model during Phase 2 — operate on compact findings summaries and read
+  individual records with `jq` when needed
 - **Never**: Execute Azure REST API calls (`az rest`, Python REST scripts,
   `execution_subagent` for Azure queries) directly — all discovery goes through
-  `governance-discovery-subagent` via `#runSubagent`
+  `discover.py`
+- **Never**: Delegate the discovery script to `execution_subagent` or
+  `#runSubagent`. It is a deterministic CLI; call it directly via
+  `run_in_terminal` to avoid the 60-170s per-subagent-call overhead
 - **Never**: Delegate validation to `execution_subagent` (e.g. `npm run lint:artifact-templates`,
   `python3 -m json.tool`, AJV schema checks). Run validation commands directly in the
   terminal — each `execution_subagent` call adds 60-170s of overhead per invocation
-- **Never**: Read `.github/agents/_subagents/governance-discovery-subagent.agent.md`
-  into context. The subagent runs in isolation via `#runSubagent`; reading its body
-  defeats context isolation and causes inline script execution
 - **Never**: Read JSON files >50 KB via `read_file` — use `jq` in terminal
   to extract specific fields from large files instead
 

@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-20T11:46:52.858Z",
+  "generatedAt": "2026-04-20T12:11:16.215Z",
   "categories": [
     {
       "id": "agent",
@@ -16,7 +16,7 @@
       "label": "Subagent",
       "color": "#6366f1",
       "shape": "round-diamond",
-      "count": 7
+      "count": 6
     },
     {
       "id": "skill",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 47
+      "count": 48
     },
     {
       "id": "instruction",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 159,
-  "edgeCount": 707,
+  "edgeCount": 704,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -231,7 +231,6 @@
         "model": "GPT-5.4",
         "invocable": true,
         "subagents": [
-          "governance-discovery-subagent",
           "challenger-review-subagent"
         ],
         "handoffTargets": [
@@ -531,19 +530,6 @@
       }
     },
     {
-      "id": "subagent:governance-discovery-subagent",
-      "category": "subagent",
-      "label": "governance-discovery-subagent",
-      "description": "Azure governance discovery subagent. Queries Azure Policy assignments via REST API (including management group-inherited policies), classifies policy effects, and returns structured governance constraints. Isolates heavy REST API work from the parent IaC plan agents (Bicep and Terraform) context.",
-      "path": ".github/agents/_subagents/governance-discovery-subagent.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/governance-discovery-subagent.agent.md"
-      },
-      "meta": {
-        "model": "GPT-5.4"
-      }
-    },
-    {
       "id": "subagent:terraform-plan-subagent",
       "category": "subagent",
       "label": "terraform-plan-subagent",
@@ -720,6 +706,17 @@
       "path": ".github/skills/azure-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagrams/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:azure-governance-discovery",
+      "category": "skill",
+      "label": "azure-governance-discovery",
+      "description": "Deterministic Azure Policy discovery: lists effective policy assignments at subscription scope (including MG-inherited), pulls definitions and exemptions, classifies effects, filters Defender auto-assignments, and emits the governance-constraints JSON envelope via a Python script. USE FOR: 04g-Governance Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration — those stay in the parent agent.",
+      "path": ".github/skills/azure-governance-discovery/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-governance-discovery/SKILL.md"
       },
       "meta": {}
     },
@@ -2354,12 +2351,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:04g-governance--delegates->subagent:governance-discovery-subagent",
-      "source": "agent:04g-governance",
-      "target": "subagent:governance-discovery-subagent",
-      "kind": "delegates"
-    },
-    {
       "id": "agent:04g-governance--delegates->subagent:challenger-review-subagent",
       "source": "agent:04g-governance",
       "target": "subagent:challenger-review-subagent",
@@ -3062,6 +3053,12 @@
       "kind": "uses-primary"
     },
     {
+      "id": "agent:04g-governance--uses-primary->skill:azure-governance-discovery",
+      "source": "agent:04g-governance",
+      "target": "skill:azure-governance-discovery",
+      "kind": "uses-primary"
+    },
+    {
       "id": "agent:04g-governance--uses-primary->instruction:azure-artifacts",
       "source": "agent:04g-governance",
       "target": "instruction:azure-artifacts",
@@ -3542,12 +3539,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->subagent:governance-discovery-subagent",
-      "source": "instruction:agent-authoring",
-      "target": "subagent:governance-discovery-subagent",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-plan-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-plan-subagent",
@@ -3761,6 +3752,12 @@
       "id": "instruction:agent-skills--applies-to->skill:azure-diagrams",
       "source": "instruction:agent-skills",
       "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:azure-governance-discovery",
+      "source": "instruction:agent-skills",
+      "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
@@ -4082,12 +4079,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->subagent:governance-discovery-subagent",
-      "source": "instruction:context-optimization",
-      "target": "subagent:governance-discovery-subagent",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->subagent:terraform-plan-subagent",
       "source": "instruction:context-optimization",
       "target": "subagent:terraform-plan-subagent",
@@ -4181,6 +4172,12 @@
       "id": "instruction:context-optimization--applies-to->skill:azure-diagrams",
       "source": "instruction:context-optimization",
       "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:azure-governance-discovery",
+      "source": "instruction:context-optimization",
+      "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
@@ -4508,12 +4505,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->subagent:governance-discovery-subagent",
-      "source": "instruction:docs-trigger",
-      "target": "subagent:governance-discovery-subagent",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->subagent:terraform-plan-subagent",
       "source": "instruction:docs-trigger",
       "target": "subagent:terraform-plan-subagent",
@@ -4607,6 +4598,12 @@
       "id": "instruction:docs-trigger--applies-to->skill:azure-diagrams",
       "source": "instruction:docs-trigger",
       "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:azure-governance-discovery",
+      "source": "instruction:docs-trigger",
+      "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
@@ -5072,12 +5069,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:lesson-collection--applies-to->subagent:governance-discovery-subagent",
-      "source": "instruction:lesson-collection",
-      "target": "subagent:governance-discovery-subagent",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:lesson-collection--applies-to->subagent:terraform-plan-subagent",
       "source": "instruction:lesson-collection",
       "target": "subagent:terraform-plan-subagent",
@@ -5171,6 +5162,12 @@
       "id": "instruction:markdown--applies-to->skill:azure-diagrams",
       "source": "instruction:markdown",
       "target": "skill:azure-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:azure-governance-discovery",
+      "source": "instruction:markdown",
+      "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
@@ -5951,24 +5948,6 @@
       "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-pricing",
       "source": "subagent:cost-estimate-subagent",
       "target": "mcp:azure-pricing",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:github",
-      "source": "subagent:governance-discovery-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:terraform",
-      "source": "subagent:governance-discovery-subagent",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:governance-discovery-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:governance-discovery-subagent",
-      "target": "mcp:microsoft-learn",
       "kind": "uses-mcp"
     },
     {

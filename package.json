@@ -25,6 +25,7 @@
     "lint:agent-frontmatter": "node scripts/validate-agents.mjs",
     "lint:skills-format": "node scripts/validate-skills.mjs",
     "lint:governance-refs": "node scripts/validate-governance-refs.mjs",
+    "test:governance-discovery": "python -m pytest .github/skills/azure-governance-discovery/scripts/test_discover.py -q",
     "validate:instruction-checks": "node scripts/validate-instruction-checks.mjs",
     "validate:session-state": "node scripts/validate-session-state.mjs",
     "lint:prose": "vale --config .vale.ini site/src/content/docs/ .github/ README.md || echo 'Vale not installed - run: brew install vale'",

@@ -3,11 +3,13 @@
  * Governance Phase Trace Validator
  *
  * Parses a Copilot debug log (OTLP JSON) and checks that the governance
- * phase followed the expected delegation pattern:
- *   1. The parent (04g-Governance) used #runSubagent to invoke
- *      governance-discovery-subagent
+ * phase followed the expected pattern:
+ *   1. The parent (04g-Governance) invoked
+ *      `.github/skills/azure-governance-discovery/scripts/discover.py`
+ *      via run_in_terminal (the deterministic discovery script)
  *   2. No follow-up execution_subagent calls re-queried Azure Policy APIs
  *   3. The parent did not run inline az rest / Python REST scripts
+ *   4. No execution_subagent calls were used for validation work
  *
  * Usage:
  *   node scripts/validate-governance-trace.mjs <debug-log.json>
@@ -63,45 +65,40 @@ for (const rs of data.resourceSpans || []) {
 
 r.tick();
 
-// Check 1: Was governance-discovery-subagent invoked via runSubagent?
-const govInvocations = spans.filter(
-  (s) =>
-    s.name === "runSubagent-governance-discovery-subagent" ||
-    (s.name === "runSubagent" &&
-      (s.attrs["gen_ai.tool.call.arguments"] || "").includes(
-        "governance-discovery-subagent",
-      )),
-);
+// Check 1: Did 04g-Governance invoke discover.py via run_in_terminal?
+const DISCOVER_MARKER = "azure-governance-discovery/scripts/discover.py";
+const discoverInvocations = spans.filter((s) => {
+  if (s.attrs["gen_ai.tool.name"] !== "run_in_terminal") return false;
+  const args = s.attrs["gen_ai.tool.call.arguments"] || "";
+  return args.includes(DISCOVER_MARKER);
+});
 
-if (govInvocations.length > 0) {
+if (discoverInvocations.length > 0) {
   r.ok?.(
-    "delegation",
-    `governance-discovery-subagent invoked ${govInvocations.length} time(s)`,
+    "discovery",
+    `discover.py invoked ${discoverInvocations.length} time(s)`,
   );
   console.log(
-    `  ✅ governance-discovery-subagent invoked ${govInvocations.length} time(s)`,
+    `  ✅ discover.py invoked ${discoverInvocations.length} time(s)`,
   );
 } else {
-  // Check if there's a 04g-Governance span at all
   const govSpans = spans.filter(
     (s) => s.attrs["gen_ai.agent.name"] === "04g-Governance",
   );
   if (govSpans.length === 0) {
     r.warn(
-      "delegation",
+      "discovery",
       "No 04g-Governance spans found in trace — governance phase may not have run",
     );
   } else {
     r.error(
-      "delegation",
-      "04g-Governance ran but governance-discovery-subagent was NEVER invoked — delegation failed",
+      "discovery",
+      "04g-Governance ran but discover.py was NEVER invoked — agent bypassed the deterministic discovery path",
     );
   }
 }
 
 // Check 2: No follow-up execution_subagent calls for Azure REST re-queries
-// Look for runSubagent spans that contain Azure Policy REST query keywords
-// but are NOT the governance-discovery-subagent invocation
 const azureReQueryPatterns = [
   "Azure Policy",
   "policy assignment",
@@ -114,7 +111,6 @@ const azureReQueryPatterns = [
 const reQuerySubagents = spans.filter((s) => {
   if (s.name !== "runSubagent") return false;
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
-  if (args.includes("governance-discovery-subagent")) return false;
   if (args.includes("challenger-review-subagent")) return false;
   return azureReQueryPatterns.some((p) =>
     args.toLowerCase().includes(p.toLowerCase()),
@@ -131,11 +127,10 @@ if (reQuerySubagents.length === 0) {
   );
 }
 
-// Check 3: No inline az rest in the parent agent (outside subagent)
-// Look for tool calls with "az rest" in their arguments that are NOT inside
-// a governance-discovery-subagent span
+// Check 3: No inline az rest in the parent agent (discover.py wraps all REST work)
 const inlineRestCalls = spans.filter((s) => {
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
+  if (args.includes(DISCOVER_MARKER)) return false; // discover.py is the sanctioned path
   return (
     (s.attrs["gen_ai.tool.name"] === "run_in_terminal" ||
       s.attrs["gen_ai.tool.name"] === "execution_subagent") &&
@@ -145,37 +140,15 @@ const inlineRestCalls = spans.filter((s) => {
 
 r.tick();
 if (inlineRestCalls.length === 0) {
-  console.log("  ✅ No inline az rest calls in parent agent context");
-} else {
-  // This may be acceptable in Phase 1.5 fallback, so warn not error
-  r.warn(
-    "inline-rest",
-    `${inlineRestCalls.length} inline az rest call(s) found — verify these are in Phase 1.5 fallback path only`,
-  );
-}
-
-// Check 4 (v2): Parent agent must NOT read the subagent file into context.
-// Reading _subagents/governance-discovery-subagent.agent.md breaks context
-// isolation and causes the model to run the subagent's internal script inline.
-const subagentFileReads = spans.filter((s) => {
-  if (s.attrs["gen_ai.tool.name"] !== "read_file") return false;
-  const args = s.attrs["gen_ai.tool.call.arguments"] || "";
-  return args.includes("_subagents/governance-discovery-subagent.agent.md");
-});
-
-r.tick();
-if (subagentFileReads.length === 0) {
-  console.log(
-    "  ✅ Parent agent did not read governance-discovery-subagent.agent.md",
-  );
+  console.log("  ✅ No inline az rest calls outside discover.py");
 } else {
   r.error(
-    "subagent-file-read",
-    `${subagentFileReads.length} read(s) of _subagents/governance-discovery-subagent.agent.md detected — parent is bypassing delegation by reading subagent body into context`,
+    "inline-rest",
+    `${inlineRestCalls.length} inline az rest call(s) detected outside discover.py — agent is bypassing the sanctioned discovery script`,
   );
 }
 
-// Check 5 (v2): No execution_subagent calls used for validation work.
+// Check 4: No execution_subagent calls used for validation work.
 // Validation commands (lint, JSON parse, AJV) must run directly in terminal;
 // each execution_subagent call adds 60-170s of overhead.
 const validationPattern = /lint:|json\.tool|ajv|re-?validate|validation/i;

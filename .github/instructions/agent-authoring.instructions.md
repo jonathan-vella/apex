@@ -173,7 +173,6 @@ expensive or specialized work from their parent agent's context window.
 | ------------------------------- | ------------------- | ---------------------------------------------------- |
 | `challenger-review-subagent`    | All workflow agents | Adversarial review (comprehensive + rotating lenses) |
 | `cost-estimate-subagent`        | Architect           | Pricing MCP queries                                  |
-| `governance-discovery-subagent` | IaC Planner         | Azure Policy REST API discovery                      |
 | `bicep-validate-subagent`       | Bicep Code          | Lint + AVM/security code review                      |
 | `bicep-whatif-subagent`         | Bicep Deploy        | `az deployment group what-if`                        |
 | `terraform-validate-subagent`   | Terraform Code      | Lint + AVM-TF/security code review                   |
