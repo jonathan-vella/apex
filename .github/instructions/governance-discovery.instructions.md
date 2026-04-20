@@ -24,15 +24,21 @@ Use REST API (not `az policy assignment list`) to capture all inherited policies
 
 ## Discovery Is Delegated to Subagent
 
-The `governance-discovery-subagent` handles all procedural work:
+Discovery runs inside an isolated subagent invoked via `#runSubagent`. The
+subagent:
 
 1. Verifies Azure connectivity via ARM token
 2. Queries ALL policy assignments via REST API (including MG-inherited)
 3. Drills into Deny/DeployIfNotExists definitions to verify actual impact
 4. Classifies effects and returns a structured report
 
-See `.github/agents/_subagents/governance-discovery-subagent.agent.md` for the complete
-discovery procedure, REST API commands, and output format.
+The authoritative output contract is defined in
+[`schemas/governance-constraints.schema.json`](../../schemas/governance-constraints.schema.json).
+
+> **DO NOT** read the subagent's `.agent.md` file into the parent agent's
+> context. Doing so defeats context isolation and causes the parent to execute
+> the subagent's internal script inline instead of delegating. Treat the
+> subagent as opaque — interact with it only via `#runSubagent`.
 
 ## Fail-Safe: If Discovery Fails
 

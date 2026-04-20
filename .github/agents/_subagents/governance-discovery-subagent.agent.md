@@ -128,7 +128,10 @@ per-assignment — that is the slow path and is prohibited.
 - **Assignments**: `policyAssignments?$filter=atScope()&api-version=2022-06-01`
   (returns subscription-scoped AND management-group-inherited, in one page-follow)
 - **Definitions**: `policyDefinitions?api-version=2021-06-01` (list-by-subscription,
-  built-ins + custom — one call, pagination followed)
+  built-ins + custom — one call, pagination followed). Also list built-in
+  definitions at tenant scope (`/providers/Microsoft.Authorization/policyDefinitions?api-version=2021-06-01`)
+  because management-group-inherited assignments often reference built-in
+  definitions that do not appear in the subscription-level list.
 - **Set definitions**: `policySetDefinitions?api-version=2021-06-01` (one call,
   pagination followed)
 
@@ -161,6 +164,11 @@ base = f"https://management.azure.com/subscriptions/{sub}/providers/Microsoft.Au
 # TWO batched list calls — no per-assignment fetch
 assignments = list_all(f"{base}/policyAssignments?$filter=atScope()&api-version=2022-06-01")
 defs = {d["id"].lower(): d for d in list_all(f"{base}/policyDefinitions?api-version=2021-06-01")}
+# Also list built-in definitions at tenant scope (MG-inherited assignments reference these)
+for d in list_all("https://management.azure.com/providers/Microsoft.Authorization/policyDefinitions?api-version=2021-06-01"):
+    did = d["id"].lower()
+    if did not in defs:
+        defs[did] = d
 sets = {s["id"].lower(): s for s in list_all(f"{base}/policySetDefinitions?api-version=2021-06-01")}
 
 def effect_of(defn):
@@ -178,6 +186,27 @@ def types_of(defn):
         elif isinstance(n, list):
             stack.extend(n)
     return sorted(types)
+
+def required_value_of(defn):
+    """Extract the required value from a Deny/Modify policy's then clause."""
+    then = defn.get("properties", {}).get("policyRule", {}).get("then", {}) or {}
+    details = then.get("details", {}) or {}
+    # Check for direct value in effect details
+    if "value" in details:
+        return details["value"]
+    # Check for field/value pairs in operations (Modify)
+    ops = details.get("operations", [])
+    if ops and isinstance(ops, list) and len(ops) == 1:
+        return ops[0].get("value")
+    # Check for allowedValues / listOfAllowedLocations etc in parameters
+    params = defn.get("properties", {}).get("parameters", {}) or {}
+    for pname, pval in params.items():
+        dv = pval.get("defaultValue")
+        if dv and pname.lower() in ("allowedlocations", "listofallowedlocations",
+                                     "allowedskus", "listofallowedskus",
+                                     "tagname", "tagvalue"):
+            return dv
+    return None
 
 rows = []
 for a in assignments:
@@ -201,6 +230,7 @@ for a in assignments:
             "scope": scope,
             "types": types_of(d),
             "policyDefinitionId": d["id"],
+            "requiredValue": required_value_of(d),
         })
 
 print(json.dumps({
@@ -216,8 +246,8 @@ PY
 - **NEVER** paste raw `az rest` JSON back into the conversation — that is what
   caused 73 s / 45 s / 34 s LLM turns.
 - Feed the model ONLY the compact `rows` array above: `{assignment, effect,
-scope, types}`. For a subscription with hundreds of assignments this is
-  a few KB, not megabytes.
+scope, types, requiredValue}`. For a subscription with hundreds of assignments
+this is a few KB, not megabytes.
 - Write the full snapshot to disk (`04-governance-constraints.json`). Refer
   to it by path, not by content.
 - If a row needs deeper inspection (rare), read ONE definition by id from the
@@ -369,7 +399,9 @@ relevant to the planned resource types. Include:
 - **CACHE-FIRST**: Short-circuit on existing `04-governance-constraints.json` unless `--refresh` is passed
 - **BATCHED API**: Use `$filter=atScope()` + list-by-subscription definitions; NO per-assignment GETs
 - **NARROW SCOPE**: Emit only `Deny`/`DeployIfNotExists`/`Modify` in `policies[]`; count Audit/Disabled in summary only
-- **COMPACT MODEL INPUT**: Feed only `{assignment, effect, scope, types}` rows to the LLM; never raw REST JSON
+- **COMPACT MODEL INPUT**: Feed only `{assignment, effect, scope, types, requiredValue}` rows to the LLM; never raw REST JSON
+- **LARGE FILE READS**: Do NOT use `read_file` for JSON files >50 KB — use
+  `jq` in terminal to extract specific fields instead
 - **MINIMAL CONTEXT**: Read only `azure-defaults/SKILL.digest.md`; do NOT read
   parent artifacts, templates, schemas, or references
 - **NO REDUNDANT TOOLS**: Do NOT call `azure_auth-get_auth_context` or `mcp_azure_mcp_get_azure_bestpractices`
