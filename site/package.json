@@ -16,7 +16,6 @@
     "@fontsource/manrope": "^5.2.8",
     "@fontsource/space-grotesk": "^5.2.10",
     "astro": "^6.0.1",
-    "d3": "^7.9.0",
     "rehype-mermaid-lite": "^1.0.0",
     "sharp": "^0.33.5",
     "starlight-links-validator": "^0.20.1"

@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-20T11:00:39.475Z",
+  "generatedAt": "2026-04-20T11:13:53.639Z",
   "categories": [
     {
       "id": "agent",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 26
+      "count": 25
     },
     {
       "id": "prompt",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 28
+      "count": 29
     },
     {
       "id": "workflow",
@@ -456,7 +456,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6 (copilot)",
+        "model": "Claude Opus 4.6",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -1100,19 +1100,6 @@
       }
     },
     {
-      "id": "instruction:agent-research-first",
-      "category": "instruction",
-      "label": "agent-research-first",
-      "description": "Research-before-implementation requirements for all agents",
-      "path": ".github/instructions/agent-research-first.instructions.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-research-first.instructions.md"
-      },
-      "meta": {
-        "applyTo": "**/*.agent.md, **/agent-output/**/*.md"
-      }
-    },
-    {
       "id": "instruction:agent-skills",
       "category": "instruction",
       "label": "agent-skills",
@@ -1161,7 +1148,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/code-quality.instructions.md"
       },
       "meta": {
-        "applyTo": "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
+        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, mcp/**/*.{py,ts,js,mjs}, site/**/*.{ts,mjs,js}"
       }
     },
     {
@@ -1343,7 +1330,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/markdown.instructions.md"
       },
       "meta": {
-        "applyTo": "**/*.md"
+        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, mcp/**/*.md, scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1356,7 +1343,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-hardcoded-counts.instructions.md"
       },
       "meta": {
-        "applyTo": "**/*.md, **/*.json, **/*.mjs"
+        "applyTo": ".github/**/*.{md,json}, scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1369,7 +1356,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-heredoc.instructions.md"
       },
       "meta": {
-        "applyTo": "**"
+        "applyTo": "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
       }
     },
     {
@@ -1941,6 +1928,19 @@
       },
       "meta": {
         "command": "node scripts/validate-terminology.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-model-floors",
+      "category": "validator",
+      "label": "lint:model-floors",
+      "description": "node scripts/validate-model-floors.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-model-floors.mjs"
       }
     },
     {
