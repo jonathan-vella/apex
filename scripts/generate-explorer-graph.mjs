@@ -411,32 +411,40 @@ function buildEdges(nodes, skillAffinity) {
   }
 
   // Instruction -> Agent/Skill/Prompt (by applyTo glob)
+  // For each file-type glob in `applyTo`, connect either to every node in the
+  // matching category (when the applyTo is broad like `**/*.agent.md`) or to a
+  // specific node when the applyTo names one explicitly. Self-edges filtered.
   for (const n of nodes) {
     if (n.category !== "instruction") continue;
     const applyTo = (n.meta.applyTo || "").toString();
     if (!applyTo) continue;
-    // Match instructions that target agent/skill/prompt file types or specific names
-    const targetCats = [];
-    if (/\.agent\.md/i.test(applyTo)) targetCats.push("agent", "subagent");
-    if (/SKILL\.md|skills\//i.test(applyTo)) targetCats.push("skill");
-    if (/\.prompt\.md/i.test(applyTo)) targetCats.push("prompt");
-    if (/\.instructions\.md/i.test(applyTo)) targetCats.push("instruction");
-    if (targetCats.length === 0) continue;
-    // Connect to a representative (orchestrator for agents, first agent) to avoid explosion
-    // Only connect to agents explicitly named in applyTo; otherwise attach to all agents is noisy.
-    // Instead, attach to a single hub node per targetCat if no specific name match.
-    for (const cat of new Set(targetCats)) {
-      // Find an explicit name match first (e.g., "orchestrator" in applyTo)
+    const targetCats = new Set();
+    if (/\.agent\.md/i.test(applyTo)) {
+      targetCats.add("agent");
+      targetCats.add("subagent");
+    }
+    if (/SKILL\.md|skills\//i.test(applyTo)) targetCats.add("skill");
+    if (/\.prompt\.md/i.test(applyTo)) targetCats.add("prompt");
+    if (/\.instructions\.md/i.test(applyTo)) targetCats.add("instruction");
+    if (targetCats.size === 0) continue;
+    for (const cat of targetCats) {
+      // Prefer an explicit name match inside applyTo (e.g. "orchestrator").
       const explicit = nodes.find(
         (m) =>
           m.category === cat &&
-          new RegExp(slug(m.label).replace(/-/g, "[-_]"), "i").test(applyTo),
+          m.id !== n.id &&
+          new RegExp(`\\b${slug(m.label).replace(/-/g, "[-_]")}\\b`, "i").test(
+            applyTo,
+          ),
       );
-      if (explicit) {
+      const targets = explicit
+        ? [explicit]
+        : nodes.filter((m) => m.category === cat && m.id !== n.id);
+      for (const t of targets) {
         edges.push({
-          id: `${n.id}--applies-to->${explicit.id}`,
+          id: `${n.id}--applies-to->${t.id}`,
           source: n.id,
-          target: explicit.id,
+          target: t.id,
           kind: "applies-to",
         });
       }
@@ -548,35 +556,14 @@ function buildEdges(nodes, skillAffinity) {
       }
     }
   }
-  for (const n of nodes) {
-    if (n.category !== "agent" && n.category !== "subagent") continue;
-    let body;
-    try {
-      body = readFileSync(join(REPO_ROOT, n.path), "utf8").toLowerCase();
-    } catch {
-      continue;
-    }
-    const seen = new Set();
-    for (const mcpNode of mcpNodes) {
-      const mcpName = mcpNode.label.toLowerCase();
-      if (seen.has(mcpNode.id)) continue;
-      // Require word-boundary match to reduce false positives
-      const re = new RegExp(
-        `\\b${mcpName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-      );
-      if (re.test(body)) {
-        seen.add(mcpNode.id);
-        edges.push({
-          id: `${n.id}--uses-mcp->${mcpNode.id}`,
-          source: n.id,
-          target: mcpNode.id,
-          kind: "uses-mcp",
-        });
-      }
-    }
-  }
 
-  return edges;
+  // Final passes: drop self-edges and dedupe by edge id.
+  const filtered = edges.filter((e) => e.source !== e.target);
+  const byId = new Map();
+  for (const e of filtered) {
+    if (!byId.has(e.id)) byId.set(e.id, e);
+  }
+  return Array.from(byId.values());
 }
 
 // ---------- Main ----------
@@ -610,6 +597,41 @@ function main() {
   }
 
   const edges = buildEdges(nodes, skillAffinity);
+
+  // Mark orphans (nodes with no edges) and assign them to a category-level
+  // compound parent node. This lets the explorer collapse the disconnected
+  // "grid of dots" into tidy group bubbles.
+  const connected = new Set();
+  for (const e of edges) {
+    connected.add(e.source);
+    connected.add(e.target);
+  }
+  const orphansByCat = new Map();
+  for (const n of nodes) {
+    if (connected.has(n.id)) continue;
+    n.meta = n.meta || {};
+    n.meta.orphan = true;
+    if (!orphansByCat.has(n.category)) orphansByCat.set(n.category, []);
+    orphansByCat.get(n.category).push(n);
+  }
+  const parentNodes = [];
+  for (const [catId, members] of orphansByCat) {
+    if (members.length < 2) continue; // don't group singletons
+    const cat = CATEGORIES.find((c) => c.id === catId);
+    const parentId = `group:${catId}-orphans`;
+    parentNodes.push({
+      id: parentId,
+      category: catId,
+      label: `${cat?.label || catId} (unlinked, ${members.length})`,
+      description: `${members.length} ${cat?.label?.toLowerCase() || catId} nodes with no cross-references in the current graph.`,
+      isGroup: true,
+      meta: { groupSize: members.length },
+    });
+    for (const m of members) {
+      m.parent = parentId;
+    }
+  }
+  nodes.push(...parentNodes);
 
   const categories = CATEGORIES.map((c) => ({
     ...c,
