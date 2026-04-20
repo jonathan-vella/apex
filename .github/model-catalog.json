@@ -22,7 +22,7 @@
       "tier": "balanced",
       "released": "2026-01",
       "deprecated": false,
-      "use_for": ["design-diagrams", "iac-codegen"],
+      "use_for": ["design-diagrams", "iac-codegen", "governance", "challenger-review"],
       "notes": "Strong code generation at lower cost than Opus. Prefer for long code outputs."
     },
     "GPT-5.4": {
@@ -31,10 +31,8 @@
       "released": "2026-02",
       "deprecated": false,
       "use_for": [
-        "governance",
         "deployment",
         "as-built",
-        "challenger-review",
         "validation-subagents",
         "whatif-interpretation"
       ],

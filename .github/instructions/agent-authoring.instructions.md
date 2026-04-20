@@ -124,14 +124,14 @@ Current model assignments:
 | Requirements             | Claude Opus 4.6   | Deep understanding        |
 | Architect                | Claude Opus 4.6   | WAF analysis + cost       |
 | Design                   | Claude Sonnet 4.6 | Diagram generation        |
-| Governance               | GPT-5.4           | Governance discovery      |
+| Governance               | Claude Sonnet 4.6 | Procedural discovery      |
 | IaC Planner (unified)    | Claude Opus 4.6   | Planning accuracy         |
 | Bicep / Terraform Code   | Claude Sonnet 4.6 | Code generation           |
 | Deploy                   | GPT-5.4           | Deployment execution      |
 | As-Built                 | GPT-5.4           | Documentation generation  |
 | Diagnose                 | Claude Opus 4.6   | Complex troubleshooting   |
 | Context Optimizer        | Claude Opus 4.6   | Deep analysis             |
-| Challenger wrapper       | GPT-5.4           | Review orchestration      |
+| Challenger wrapper       | Claude Sonnet 4.6 | Structured review         |
 | Bicep/TF subagents       | GPT-5.4           | Isolated validation       |
 | Cost estimate subagent   | GPT-5.3-Codex     | High-throughput pricing   |
 
@@ -169,14 +169,14 @@ the multi-step workflow:
 Subagents live in `.github/agents/_subagents/` and are `user-invocable: false`. They isolate
 expensive or specialized work from their parent agent's context window.
 
-| Subagent                        | Parent Agent        | Purpose                                              |
-| ------------------------------- | ------------------- | ---------------------------------------------------- |
-| `challenger-review-subagent`    | All workflow agents | Adversarial review (comprehensive + rotating lenses) |
-| `cost-estimate-subagent`        | Architect           | Pricing MCP queries                                  |
-| `bicep-validate-subagent`       | Bicep Code          | Lint + AVM/security code review                      |
-| `bicep-whatif-subagent`         | Bicep Deploy        | `az deployment group what-if`                        |
-| `terraform-validate-subagent`   | Terraform Code      | Lint + AVM-TF/security code review                   |
-| `terraform-plan-subagent`       | Terraform Deploy    | `terraform plan` change preview                      |
+| Subagent                      | Parent Agent        | Purpose                                              |
+| ----------------------------- | ------------------- | ---------------------------------------------------- |
+| `challenger-review-subagent`  | All workflow agents | Adversarial review (comprehensive + rotating lenses) |
+| `cost-estimate-subagent`      | Architect           | Pricing MCP queries                                  |
+| `bicep-validate-subagent`     | Bicep Code          | Lint + AVM/security code review                      |
+| `bicep-whatif-subagent`       | Bicep Deploy        | `az deployment group what-if`                        |
+| `terraform-validate-subagent` | Terraform Code      | Lint + AVM-TF/security code review                   |
+| `terraform-plan-subagent`     | Terraform Deploy    | `terraform plan` change preview                      |
 
 Subagent definition rules:
 

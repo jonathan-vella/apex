@@ -36,28 +36,36 @@ python .github/skills/azure-governance-discovery/scripts/discover.py \
 
 Flags:
 
-| Flag | Meaning |
-|---|---|
-| `--project <name>` | Required. Used only for cache key and provenance. |
-| `--out <path>` | Required. Full envelope written here (overwrites). |
-| `--subscription <id\|default>` | Optional. `default` uses `az account show`. |
-| `--refresh` | Force re-discovery even if `<out>` already exists. |
-| `--include-defender-auto` | Include Defender-for-Cloud auto-assignments (excluded by default). |
+| Flag                           | Meaning                                                            |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `--project <name>`             | Required. Used only for cache key and provenance.                  |
+| `--out <path>`                 | Required. Full envelope written here (overwrites).                 |
+| `--subscription <id\|default>` | Optional. `default` uses `az account show`.                        |
+| `--refresh`                    | Force re-discovery even if `<out>` already exists.                 |
+| `--include-defender-auto`      | Include Defender-for-Cloud auto-assignments (excluded by default). |
 
 Exit codes:
 
-| Code | Meaning |
-|---|---|
-| `0` | `COMPLETE` — discovery succeeded |
-| `1` | `PARTIAL` — partial data written; parent should surface to user |
-| `2` | `FAILED` — auth/network/permission error |
-| `3` | Invalid arguments |
+| Code | Meaning                                                         |
+| ---- | --------------------------------------------------------------- |
+| `0`  | `COMPLETE` — discovery succeeded                                |
+| `1`  | `PARTIAL` — partial data written; parent should surface to user |
+| `2`  | `FAILED` — auth/network/permission error                        |
+| `3`  | Invalid arguments                                               |
 
 Stdout — always exactly one machine-readable JSON line first, optional
 human-readable preview after:
 
 ```json
-{"status":"COMPLETE","cache_hit":false,"assignment_total":247,"blockers":18,"auto_remediate":12,"exempted":3,"out_path":"agent-output/my-project/04-governance-constraints.json"}
+{
+  "status": "COMPLETE",
+  "cache_hit": false,
+  "assignment_total": 247,
+  "blockers": 18,
+  "auto_remediate": 12,
+  "exempted": 3,
+  "out_path": "agent-output/my-project/04-governance-constraints.json"
+}
 ```
 
 ## Output Contract
@@ -73,6 +81,22 @@ The script writes a JSON envelope conforming to
   `Microsoft.Authorization/policyExemptions` record matches.
 - `classification` — `"blocker"` | `"auto-remediate"` | `"informational"`.
   Exempted Deny/Modify blockers downgrade to `"informational"`.
+
+Top-level envelope also includes:
+
+- `policies` — alias (same reference) of `findings`; provided for downstream consumers.
+- `tags_required` — extracted tag-enforcement findings as `[{name, source_policy}]`.
+- `allowed_locations` — extracted from location-constraint policies.
+
+Property paths (`azurePropertyPath`, `bicepPropertyPath`) are always strings —
+empty `""` when unresolvable, never `null`.
+
+### Preview Markdown
+
+When invoked via CLI, the script also writes a sibling `.preview.md` file
+(e.g., `04-governance-constraints.preview.md`) with the H2 structure matching
+the azure-artifacts template. The agent copies this to `04-governance-constraints.md`
+and annotates placeholder sections only — avoiding slow mega-patch generation.
 
 See `references/effect-classification.md` for the full classification table.
 See `references/schema.md` for the output JSON envelope and per-finding fields.

@@ -65,7 +65,7 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [
         "azure-defaults",
         "azure-governance-discovery",
@@ -186,7 +186,7 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": true,
       "step": null
@@ -214,7 +214,7 @@
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     },

@@ -306,7 +306,7 @@ def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str
         }
 
     if not resource_types:
-        return {"azurePropertyPath": None, "bicepPropertyPath": None}
+        return {"azurePropertyPath": "", "bicepPropertyPath": ""}
 
     primary_type = resource_types[0]
 
@@ -332,7 +332,7 @@ def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str
                 candidate_fields.append(f)
 
     if not candidate_fields:
-        return {"azurePropertyPath": None, "bicepPropertyPath": None}
+        return {"azurePropertyPath": "", "bicepPropertyPath": ""}
 
     # Prefer the field that names the deepest property path (most slashes
     # after the type prefix); otherwise take the first candidate.
@@ -344,7 +344,7 @@ def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str
     # Drop empty tails and sort by descending depth.
     scored = [(tail, orig) for tail, orig in scored if tail]
     if not scored:
-        return {"azurePropertyPath": None, "bicepPropertyPath": None}
+        return {"azurePropertyPath": "", "bicepPropertyPath": ""}
     scored.sort(key=lambda pair: pair[0].count("/"), reverse=True)
     path = scored[0][0]
     # Azure path: lowerCamel resource type + dot + property path.
@@ -398,6 +398,105 @@ def _build_exemption_map(exemptions: list[dict[str, Any]]) -> dict[str, dict[str
             "policyDefinitionReferenceIds": props.get("policyDefinitionReferenceIds") or [],
         }
     return out
+
+
+# --------------------------------------------------------------------------- #
+# Envelope enrichment helpers (Fix E)                                         #
+# --------------------------------------------------------------------------- #
+
+
+def _extract_tags_required(findings: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Extract tag-enforcement findings into a flat tags_required list.
+
+    Looks for actual tag key names in assignment parameters (tagName, tagNames)
+    and in required_value. Falls back to category-based matching for tag policies
+    that don't use pathSemantics.
+    """
+    seen: set[str] = set()
+    tags: list[dict[str, str]] = []
+
+    for f in findings:
+        is_tag = (
+            f.get("pathSemantics") == "tag-policy-non-property"
+            or (f.get("category") or "").lower() == "tags"
+        )
+        if not is_tag:
+            continue
+
+        # Try to extract actual tag keys from assignment parameters.
+        params = f.get("assignment_parameters") or {}
+        tag_keys: list[str] = []
+
+        # Common parameter names for tag policies
+        for pname in ("tagName", "tagname", "tag_name"):
+            val = params.get(pname)
+            if isinstance(val, str) and val:
+                tag_keys.append(val)
+            elif isinstance(val, list):
+                tag_keys.extend(str(v) for v in val if v)
+
+        # Some policies use tagNames (plural) or listOfTagNames
+        for pname in ("tagNames", "listOfTagNames", "tagnames"):
+            val = params.get(pname)
+            if isinstance(val, list):
+                tag_keys.extend(str(v) for v in val if v)
+
+        source = f.get("policy_id", "")
+        policy_name = (f.get("display_name") or "").strip()
+
+        if tag_keys:
+            for key in tag_keys:
+                key = key.strip()
+                if key and key not in seen:
+                    seen.add(key)
+                    tags.append({
+                        "name": key,
+                        "source_policy": source,
+                        "source_assignment": f.get("assignment_display_name", ""),
+                    })
+        elif policy_name and policy_name not in seen:
+            # No specific tag key found — record the policy as a tag requirement
+            # so the agent knows to investigate further.
+            seen.add(policy_name)
+            tags.append({
+                "name": f"[unresolved: {policy_name}]",
+                "source_policy": source,
+                "source_assignment": f.get("assignment_display_name", ""),
+                "unresolved": "true",
+            })
+    return tags
+
+
+def _extract_allowed_locations(findings: list[dict[str, Any]]) -> list[str]:
+    """Extract allowed-location values from findings with location constraints.
+
+    Checks both required_value (from definition defaults) and assignment_parameters
+    (which carry the actual configured location list).
+    """
+    locations: set[str] = set()
+    for f in findings:
+        dn = (f.get("display_name") or "").lower()
+        cat = (f.get("category") or "").lower()
+        is_location = "location" in dn or "region" in dn or "location" in cat
+
+        # Check required_value from definition
+        rv = f.get("required_value")
+        if is_location:
+            if isinstance(rv, list):
+                locations.update(str(v) for v in rv)
+            elif isinstance(rv, str) and rv:
+                locations.add(rv)
+
+        # Check assignment parameters for location lists
+        params = f.get("assignment_parameters") or {}
+        for pname in (
+            "listOfAllowedLocations", "allowedLocations",
+            "listofallowedlocations", "allowedlocations",
+        ):
+            val = params.get(pname)
+            if isinstance(val, list):
+                locations.update(str(v) for v in val if v)
+    return sorted(locations)
 
 
 # --------------------------------------------------------------------------- #
@@ -593,6 +692,14 @@ def discover(
                 "exemption": exemption,
                 "override": None,
             }
+            # Carry assignment-level parameter values (tag keys, location lists).
+            assignment_params = props.get("parameters") or {}
+            if assignment_params:
+                finding["assignment_parameters"] = {
+                    k: (v or {}).get("value")
+                    for k, v in assignment_params.items()
+                    if (v or {}).get("value") is not None
+                }
             if paths.get("pathSemantics"):
                 finding["pathSemantics"] = paths["pathSemantics"]
             findings.append(finding)
@@ -629,6 +736,11 @@ def discover(
         },
         "assignment_inventory": assignment_inventory,
         "findings": findings,
+        # Fix E: canonical aliases so the agent never needs to reshape JSON.
+        # `policies` is a reference alias of `findings` (not a copy).
+        "policies": findings,
+        "tags_required": _extract_tags_required(findings),
+        "allowed_locations": _extract_allowed_locations(findings),
     }
     return envelope
 
@@ -667,6 +779,262 @@ def _emit_preview(envelope: dict[str, Any], limit: int = 20) -> None:
         print(f"\n… {len(envelope['findings']) - limit} more in {envelope.get('_out_path')}")
 
 
+def _extract_arch_resources(arch_path: str | Path) -> list[dict[str, str]]:
+    """Extract Azure resource types from 02-architecture-assessment.md.
+
+    Scans for ARM resource type patterns (Microsoft.{Provider}/{Type}) and
+    returns a list of {name, arm_type} dicts. Used to pre-populate
+    policy→resource mapping in preview.md.
+    """
+    arch_path = Path(arch_path)
+    if not arch_path.exists():
+        return []
+    text = arch_path.read_text(errors="replace")
+    # Match ARM types like Microsoft.Compute/virtualMachines
+    import re
+    arm_pattern = re.compile(r"Microsoft\.\w+/\w+(?:/\w+)?")
+    types_found = sorted(set(arm_pattern.findall(text)))
+    # Also extract resource names from Mermaid diagrams or SKU tables
+    # Pattern: common name labels like "vm-iis-01", "sql-...", "vnet-..."
+    name_pattern = re.compile(r"(?:vm|sql|vnet|kv|st|app|pip|lb|nsg|nic|pe|natgw|log|acr|aks)-[\w-]+", re.IGNORECASE)
+    names_found = sorted(set(name_pattern.findall(text)))
+    resources: list[dict[str, str]] = []
+    for t in types_found:
+        resources.append({"arm_type": t, "name": t.split("/")[-1]})
+    for n in names_found:
+        if not any(r["name"] == n for r in resources):
+            resources.append({"arm_type": "", "name": n})
+    return resources
+
+
+def _emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: list[dict[str, str]] | None = None) -> Path | None:
+    """Write a sibling `.preview.md` with H2 structure matching the template.
+
+    The agent copies this to `04-governance-constraints.md` and annotates
+    placeholder sections only — avoiding the slow mega-patch generation.
+
+    If `arch_resources` is provided (from `--arch`), the preview includes a
+    pre-populated policy→architecture resource mapping table under
+    "Plan Adaptations → Architectural Changes".
+    """
+    preview_path = out_path.with_suffix(".preview.md")
+    project = envelope.get("project", "{project}")
+    summary = envelope.get("discovery_summary", {})
+    findings = envelope.get("findings", [])
+    tags_required = envelope.get("tags_required", [])
+    discovered_at = envelope.get("discovered_at", "")
+
+    blockers = [f for f in findings if f.get("classification") == "blocker"]
+    auto_remediate = [f for f in findings if f.get("classification") == "auto-remediate"]
+    # Group by category for security/network/cost sections
+    by_category: dict[str, list[dict[str, Any]]] = {}
+    for f in findings:
+        cat = (f.get("category") or "Uncategorized").strip()
+        by_category.setdefault(cat, []).append(f)
+
+    lines: list[str] = []
+    a = lines.append
+
+    # Header + badge row
+    a(f"# 🛡️ Governance Constraints - {project}\n")
+    a("![Step](https://img.shields.io/badge/Step-3.5-blue?style=for-the-badge)")
+    a("![Status](https://img.shields.io/badge/Status-Discovered-green?style=for-the-badge)")
+    a("![Agent](https://img.shields.io/badge/Agent-04g--Governance-purple?style=for-the-badge)\n")
+
+    # TOC
+    a("<details open>")
+    a("<summary><strong>📑 Governance Contents</strong></summary>\n")
+    a("- [🔍 Discovery Source](#-discovery-source)")
+    a("- [📋 Azure Policy Compliance](#-azure-policy-compliance)")
+    a("- [🔄 Plan Adaptations Based on Policies](#-plan-adaptations-based-on-policies)")
+    a("- [🚫 Deployment Blockers](#-deployment-blockers)")
+    a("- [🏷️ Required Tags](#-required-tags)")
+    a("- [🔐 Security Policies](#-security-policies)")
+    a("- [💰 Cost Policies](#-cost-policies)")
+    a("- [🌐 Network Policies](#-network-policies)")
+    a("- [References](#references)\n")
+    a("</details>\n")
+
+    a(f"> Generated by 04g-Governance agent | {discovered_at}\n")
+
+    # Cross-nav
+    a("| ⬅️ Previous | 📑 Index | Next ➡️ |")
+    a("| --- | --- | --- |")
+    a("| [02-architecture-assessment.md](02-architecture-assessment.md) | [README](README.md) | [04-implementation-plan.md](04-implementation-plan.md) |\n")
+
+    # Discovery Source
+    a("## 🔍 Discovery Source\n")
+    a("| Query | Results | Timestamp |")
+    a("| --- | --- | --- |")
+    a(f"| Policy Assignments | {summary.get('assignment_kept', 0)} policies discovered | {discovered_at} |")
+    a(f"| Tag Policies | {len(tags_required)} tags required | {discovered_at} |")
+    security_count = len(by_category.get("Security", []))
+    a(f"| Security Policies | {security_count} constraints | {discovered_at} |\n")
+    a(f"**Discovery Method**: Azure Policy REST API (discover.py)")
+    a(f"**Subscription**: {envelope.get('subscription_id', 'unknown')}")
+    a(f"**Scope**: Subscription + management-group inherited\n")
+
+    # Policy Definition Analysis table
+    a("### Policy Definition Analysis\n")
+    a("| Policy Display Name | Assignment Scope | Effect | Classification | Category | Bicep Property Path | Required Value |")
+    a("| --- | --- | --- | --- | --- | --- | --- |")
+    for f in findings:
+        a(f"| {f.get('display_name', '')} | {f.get('scope', '')} | {f.get('effect', '')} "
+          f"| {f.get('classification', '')} | {f.get('category', '')} "
+          f"| {f.get('bicepPropertyPath', '')} | {f.get('required_value', '') or ''} |")
+    a("")
+
+    # Azure Policy Compliance
+    a("## 📋 Azure Policy Compliance\n")
+    a("<!-- AGENT: annotate below -->\n")
+    a("| Category | Constraint | Implementation | Status |")
+    a("| --- | --- | --- | --- |")
+    for cat, items in sorted(by_category.items()):
+        for f in items:
+            a(f"| {cat} | {f.get('display_name', '')} | <!-- annotate --> | ⚠️ |")
+    a("")
+
+    # Plan Adaptations
+    a("## 🔄 Plan Adaptations Based on Policies\n")
+
+    # Architectural Changes — pre-populated policy→resource mapping
+    a("### Architectural Changes\n")
+    if blockers and arch_resources:
+        a("| Original Design | Blocking Policy | Effect | Target Resource Types | Adaptation Applied |")
+        a("| --- | --- | --- | --- | --- |")
+        for f in blockers:
+            f_types = set(f.get("resource_types", []))
+            matched = [r for r in arch_resources if r.get("arm_type", "") in f_types]
+            if matched:
+                for r in matched:
+                    a(f"| {r.get('name', '')} ({r.get('arm_type', '')}) "
+                      f"| {f.get('display_name', '')} | {f.get('effect', '')} "
+                      f"| {', '.join(f_types)} | <!-- AGENT: annotate below --> |")
+            else:
+                a(f"| <!-- check applicability --> "
+                  f"| {f.get('display_name', '')} | {f.get('effect', '')} "
+                  f"| {', '.join(f_types)} | <!-- AGENT: annotate below --> |")
+    elif blockers:
+        a("| Original Design | Blocking Policy | Effect | Adaptation Applied |")
+        a("| --- | --- | --- | --- |")
+        for f in blockers:
+            a(f"| <!-- AGENT: annotate below --> "
+              f"| {f.get('display_name', '')} | {f.get('effect', '')} "
+              f"| <!-- AGENT: annotate below --> |")
+    else:
+        a("✅ Original architecture complies with all discovered policies.\n")
+    a("")
+
+    a("### Auto-Applied Resources\n")
+    dine_findings = [f for f in findings if f.get("effect") == "deployIfNotExists"]
+    if dine_findings:
+        a("| Policy | Effect | Auto-Applied Resource |")
+        a("| --- | --- | --- |")
+        for f in dine_findings:
+            a(f"| {f.get('display_name', '')} | DeployIfNotExists | <!-- AGENT: annotate below --> |")
+    else:
+        a("✅ No additional resources will be auto-deployed.\n")
+    a("")
+
+    a("### Auto-Modified Configurations\n")
+    modify_findings = [f for f in findings if f.get("effect") == "modify"]
+    if modify_findings:
+        a("| Policy | Effect | Auto-Applied Change |")
+        a("| --- | --- | --- |")
+        for f in modify_findings:
+            a(f"| {f.get('display_name', '')} | Modify | <!-- AGENT: annotate below --> |")
+    else:
+        a("✅ No auto-modifications expected.\n")
+    a("")
+
+    # Deployment Blockers
+    a("## 🚫 Deployment Blockers\n")
+    if not blockers:
+        a("✅ No deployment blockers detected.\n")
+    else:
+        for f in blockers:
+            a(f"### {f.get('display_name', 'Unknown Policy')}\n")
+            a(f"- **Policy ID**: `{f.get('policy_id', '')}`")
+            a(f"- **Effect**: {f.get('effect', '')}")
+            a(f"- **Scope**: {f.get('scope', '')}")
+            a(f"- **Category**: {f.get('category', '')}")
+            a(f"- **Bicep Property Path**: `{f.get('bicepPropertyPath', '')}`")
+            a(f"- **Required Value**: {f.get('required_value', '') or 'N/A'}")
+            a("")
+            a("<!-- AGENT: annotate resolution options below -->\n")
+    a("")
+
+    # Required Tags
+    a("## 🏷️ Required Tags\n")
+    if tags_required:
+        a("All resources must include the following tags:\n")
+        a("| Tag Name | Source Policy |")
+        a("| --- | --- |")
+        for t in tags_required:
+            a(f"| {t.get('name', '')} | {t.get('source_policy', '')} |")
+    else:
+        a("No tag-enforcement policies discovered.\n")
+    a("")
+    a("```mermaid")
+    a("%%{init: {'theme':'neutral'}}%%")
+    a("flowchart TD")
+    a('    MG["Management Group Tags"] -->|inherited| SUB["Subscription Tags"]')
+    a('    SUB -->|inherited| RG["Resource Group Tags"]')
+    a('    RG -->|inherited| RES["Resource Tags"]')
+    a('    POL["Azure Policy\\n(Modify effect)"] -->|auto-applies| RES')
+    a("    style POL fill:#FFB900,stroke:#333")
+    a("    style RES fill:#0078D4,color:#fff,stroke:#333")
+    a("```\n")
+
+    # Security Policies
+    a("## 🔐 Security Policies\n")
+    security = by_category.get("Security", [])
+    if security:
+        a("| Policy | Requirement |")
+        a("| --- | --- |")
+        for f in security:
+            a(f"| {f.get('display_name', '')} | {f.get('required_value', '') or '<!-- AGENT: annotate below -->'} |")
+    else:
+        a("No security-specific policies discovered.\n")
+    a("")
+
+    # Cost Policies
+    a("## 💰 Cost Policies\n")
+    cost = by_category.get("Cost", []) + by_category.get("Budget", [])
+    if cost:
+        a("| Policy | Constraint |")
+        a("| --- | --- |")
+        for f in cost:
+            a(f"| {f.get('display_name', '')} | {f.get('required_value', '') or '<!-- AGENT: annotate below -->'} |")
+    else:
+        a("No cost-specific policies discovered.\n")
+    a("")
+
+    # Network Policies
+    a("## 🌐 Network Policies\n")
+    network = by_category.get("Network", []) + by_category.get("Networking", [])
+    if network:
+        a("| Policy | Constraint |")
+        a("| --- | --- |")
+        for f in network:
+            a(f"| {f.get('display_name', '')} | {f.get('required_value', '') or '<!-- AGENT: annotate below -->'} |")
+    else:
+        a("No network-specific policies discovered.\n")
+    a("")
+
+    # References
+    a("## References\n")
+    a("| Topic | Link |")
+    a("| --- | --- |")
+    a("| Azure Policy | [Overview](https://learn.microsoft.com/azure/governance/policy/overview) |")
+    a("| Tag Governance | [Tagging Strategy](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging) |\n")
+    a("---\n")
+    a("_Governance constraints discovered from Azure Policy REST API via discover.py._\n")
+
+    preview_path.write_text("\n".join(lines) + "\n")
+    return preview_path
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="discover",
@@ -676,6 +1044,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True)
     parser.add_argument("--subscription", default="default")
     parser.add_argument("--refresh", action="store_true")
+    parser.add_argument(
+        "--arch",
+        default=None,
+        help="Path to 02-architecture-assessment.md. Enables policy→resource mapping in preview.md.",
+    )
     parser.add_argument(
         "--include-defender-auto",
         action="store_true",
@@ -761,6 +1134,12 @@ def main(argv: list[str] | None = None) -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     envelope["_out_path"] = str(out_path)
     out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")
+
+    # Fix C: emit sibling preview.md for agent annotation
+    arch_resources = _extract_arch_resources(args.arch) if args.arch else None
+    preview_path = _emit_preview_md(envelope, out_path, arch_resources=arch_resources)
+    if preview_path:
+        print(f"preview: wrote {preview_path}", file=sys.stderr)
 
     summary = envelope["discovery_summary"]
     status = {

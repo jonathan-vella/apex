@@ -5,13 +5,13 @@
 `discover.py` emits only plan-relevant effects in `findings[]`. Audit/Disabled
 effects are counted in `discovery_summary` but not expanded.
 
-| Effect | Classification | In `findings[]`? | Notes |
-|---|---|---|---|
-| `Deny` | `blocker` | Yes | Hard blocker unless exempted |
-| `DeployIfNotExists` | `auto-remediate` | Yes | Azure handles; plan must allow it |
-| `Modify` | `auto-remediate` | Yes | Azure mutates resource at deploy |
-| `Audit` / `AuditIfNotExists` | (summary only) | No | Informational; count in `discovery_summary.audit_count` |
-| `Disabled` | (summary only) | No | Ignored |
+| Effect                       | Classification   | In `findings[]`? | Notes                                                   |
+| ---------------------------- | ---------------- | ---------------- | ------------------------------------------------------- |
+| `Deny`                       | `blocker`        | Yes              | Hard blocker unless exempted                            |
+| `DeployIfNotExists`          | `auto-remediate` | Yes              | Azure handles; plan must allow it                       |
+| `Modify`                     | `auto-remediate` | Yes              | Azure mutates resource at deploy                        |
+| `Audit` / `AuditIfNotExists` | (summary only)   | No               | Informational; count in `discovery_summary.audit_count` |
+| `Disabled`                   | (summary only)   | No               | Ignored                                                 |
 
 ## Exemption Downgrade
 

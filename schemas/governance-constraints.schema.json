@@ -82,6 +82,11 @@
     "allowed_locations": {
       "type": "array",
       "items": { "type": "string" }
+    },
+    "policies": {
+      "description": "Alias of findings — same array reference, emitted by discover.py for downstream consumers.",
+      "type": "array",
+      "items": { "$ref": "#/properties/findings/items" }
     }
   }
 }

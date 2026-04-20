@@ -1,11 +1,10 @@
 ---
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports single-pass and multi-pass rotating-lens reviews. Handles batch execution (multiple lenses per invocation) for complex projects."
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 disable-model-invocation: false
-# Model rationale: GPT-5.4 for pass 1 (security-governance) and comprehensive reviews.
-# For passes 2-3 (architecture-reliability, cost-feasibility), parent agents may request
-# GPT-5.3-Codex via model routing — checklist-driven analysis suits structured output models.
+# Model rationale: Claude Sonnet 4.6 for structured adversarial review.
+# Checklist-driven analysis with JSON output suits Sonnet's instruction-following strength.
 user-invocable: false
 agents: []
 tools:
@@ -30,6 +29,8 @@ tools:
 ---
 
 # Challenger Review Subagent
+
+<!-- Recommended reasoning_effort: medium -->
 
 You are a **UNIFIED ADVERSARIAL REVIEW SUBAGENT** called by a parent agent.
 

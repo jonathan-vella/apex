@@ -1,7 +1,7 @@
 ---
 name: 04g-Governance
 description: Azure governance discovery agent. Queries Azure Policy assignments via REST API (including management group-inherited policies), classifies policy effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5 of the workflow — runs after Architecture approval, before IaC Planning.
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 argument-hint: Discover governance constraints for a project
 user-invocable: true
 agents: ["challenger-review-subagent"]
@@ -43,6 +43,23 @@ handoffs:
 
 <!-- Recommended reasoning_effort: medium -->
 
+<output_contract>
+
+This agent produces two artifacts:
+
+1. `04-governance-constraints.json` — machine-readable policy envelope (via discover.py)
+2. `04-governance-constraints.md` — human-readable governance narrative (from preview.md + annotation)
+
+Both must pass `npm run lint:artifact-templates` before handoff.
+
+</output_contract>
+
+<scope_fencing>
+Scope: Azure Policy discovery and governance artifact generation ONLY.
+Do NOT generate IaC code, deploy resources, modify architecture decisions,
+or assume policy state from best practices. All policy data comes from discover.py.
+</scope_fencing>
+
 ## Scope Boundaries
 
 This agent discovers Azure Policy constraints and produces governance artifacts.
@@ -58,9 +75,12 @@ Before doing any work, read:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery section, regions, tags
 2. Read `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract
-3. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
-4. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
-5. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
+3. Read `.github/skills/azure-governance-discovery/references/terminal-commands.md` — **MANDATORY**.
+   Pre-built batched terminal commands (Cmd 1–7) for the entire governance phase.
+   Copy-paste these instead of composing your own `jq` queries.
+4. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
+5. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
+6. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
    This defines the downstream JSON contract (`discovery_status`, `policies` array,
    dot-separated `azurePropertyPath`, `bicepPropertyPath` formats) that Step 4/5 agents
    and review subagents consume. Loading this reference before Phase 2 prevents iterative
@@ -79,7 +99,8 @@ If missing, STOP and request handoff to the appropriate prior agent.
 
 - **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
 - **My step**: 3_5
-- **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
+- **Sub-step checkpoints**: `phase_0_4_resume_check` → `phase_1_discovery` →
+  `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
 - **Resume**: If `steps["3_5"].status` is `"in_progress"`, skip to the saved `sub_step`.
 - **State writes**: Update after each phase. On completion, set `steps["3_5"].status = "complete"`.
 
@@ -92,6 +113,27 @@ management-group-inherited policies that apply at the subscription). Do NOT ask
 the user to choose a scope — `discover.py` covers this range in a single
 batched traversal. If the user explicitly asks to narrow to specific resource
 types, honour that; otherwise proceed.
+
+### Phase 0.4: Resume-Complete Short-Circuit
+
+Before any discovery, check whether Step 3.5 is already finished. This guards
+against cold-boot re-entry (e.g., subagent dispatch, resumed session, or
+challenger re-invocation) where the parent context knows the work is done but
+the current turn does not.
+
+1. Read `agent-output/{project}/00-session-state.json`.
+2. If **all** of the following are true, skip to Phase 3 (Approval Gate) and
+   hand off — do NOT re-run discovery or regenerate artifacts:
+   - `steps["3_5"].status == "complete"`
+   - `agent-output/{project}/04-governance-constraints.json` exists
+   - `agent-output/{project}/04-governance-constraints.md` exists
+   - The JSON's `discovery_status` is `"COMPLETE"`
+   - The user did NOT explicitly ask for `refresh`, `re-run`, or `rediscover`
+3. Otherwise proceed to Phase 0.5.
+
+This is the single biggest latency win when this agent is re-entered after a
+challenger review or as a subagent — both artifacts are already on disk, so
+there is nothing to do except present the gate.
 
 ### Phase 0.5: Cache-First Check
 
@@ -109,10 +151,15 @@ this phase to a subagent — the script is pure ETL and adds no LLM value in a
 subagent wrapper.
 
 ```bash
-python .github/skills/azure-governance-discovery/scripts/discover.py \
+set +H && python .github/skills/azure-governance-discovery/scripts/discover.py \
     --project {project} \
-    --out agent-output/{project}/04-governance-constraints.json
+    --out agent-output/{project}/04-governance-constraints.json \
+    --arch agent-output/{project}/02-architecture-assessment.md
 ```
+
+> **Fix G — Bash history expansion**: Always prefix inline terminal commands
+> containing `!` with `set +H &&` to disable bash history expansion, which
+> causes `!` in JSON strings to trigger `event not found` errors.
 
 Append `--refresh` if the user requested it. Append `--include-defender-auto`
 only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
@@ -121,11 +168,19 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
 1. **Read the first stdout line only** — it is a single JSON status object:
 
    ```json
-   {"status":"COMPLETE","cache_hit":false,"assignment_total":247,"blockers":18,"auto_remediate":12,"exempted":3}
+   {
+     "status": "COMPLETE",
+     "cache_hit": false,
+     "assignment_total": 247,
+     "blockers": 18,
+     "auto_remediate": 12,
+     "exempted": 3
+   }
    ```
 
    The remaining stdout lines are a human-readable Markdown preview **for the
    user**, not for LLM re-ingestion. Do NOT pipe them back into the model.
+
 2. **Gate on status**:
    - `COMPLETE` → proceed to Phase 2
    - `PARTIAL` → present the partial state to the user and ask whether to continue
@@ -137,6 +192,20 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
 > work goes through `discover.py`. If the script fails with exit code 2,
 > surface the error — do not reinvent the discovery path.
 
+> **Anti-pattern — DO NOT call `mcp_azure_mcp_get_azure_bestpractices`**:
+> Governance discovers constraints from live Azure Policy data, not from
+> best-practice recommendations. The MCP bestpractices tool adds ~21s and
+> returns generic guidance that is irrelevant to policy discovery.
+
+> **Anti-pattern — DO NOT read `tmp/{project}-governance-live.json`**:
+> This file is a legacy intermediate. The authoritative governance data is
+> `agent-output/{project}/04-governance-constraints.json`, which discover.py
+> writes directly. Reading the tmp file wastes ~2-3 min on 920+ lines of raw data.
+
+**Auto-proceed**: After discover.py exits 0 (`COMPLETE`), proceed directly to
+Phase 2 without asking the user any questions. The only user interaction point
+is the Phase 3 Approval Gate.
+
 ### Phase 2: Generate Artifacts
 
 > **MANDATORY context budget**: Before writing artifacts, summarize the compact
@@ -145,31 +214,51 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
 > compact `findings[]` written by `discover.py` (use `jq` to read specific
 > slices, not `read_file` on the full JSON).
 
-1. Populate `04-governance-constraints.md` matching H2 template from azure-artifacts skill
-   - Replicate ALL structural elements from the template: badge row, collapsible TOC (`<details open>`),
+> **MANDATORY — use pre-built terminal commands from references**:
+> Read `.github/skills/azure-governance-discovery/references/terminal-commands.md`
+> before running ANY terminal commands in Phase 2 or Phase 3. It contains
+> optimized, batched commands (Cmd 1–7) that cover the entire governance phase
+> in ≤8 terminal calls. Copy-paste them with `{project}` substituted.
+> Do NOT improvise your own `jq` queries — the reference commands already
+> extract everything you need in combined queries.
+> Do NOT query the same file more than twice. Do NOT `read_file` on JSON or .md.
+> Do NOT `sed`/`grep` the preview.md before copying — just `cp` it directly.
+
+1. **Generate `04-governance-constraints.md`**: If `04-governance-constraints.preview.md` exists
+   (written by discover.py), copy it to `04-governance-constraints.md` via `cp` (Cmd 3).
+   The preview.md already contains the full H2 structure, policy tables, blocker sections,
+   tag Mermaid diagram, and policy→architecture resource mapping table (if `--arch` was used).
+   **Annotation rules**:
+   - Only fill in `<!-- AGENT: annotate below -->` placeholder cells/sections.
+   - Do NOT rewrite, restructure, or re-generate sections that are already populated.
+   - Do NOT re-read the .md via `read_file` — use `sed -n` for targeted section reads.
+   - Do NOT issue more than 3 `apply_patch` calls total on the .md file.
+     If `.preview.md` does not exist, populate the `.md` matching H2 template from azure-artifacts skill,
+     replicating ALL structural elements: badge row, collapsible TOC (`<details open>`),
      cross-navigation table, attribution, Mermaid diagram (tag inheritance flowchart), and
-     traffic-light indicators (✅ / ⚠️ / ❌ — all three must appear in status columns)
-2. Populate `04-governance-constraints.json` with machine-readable policy data
-   - Root object MUST include `discovery_status` field (value `"COMPLETE"`, `"PARTIAL"`, or `"FAILED"`)
-     and a `policies` array — this is the envelope that Step 4 and E2E agents validate at startup
-   - Every Deny/Modify policy MUST include both `bicepPropertyPath` and `azurePropertyPath`
-     using dot-separated format (e.g., `storageAccount.properties.minimumTlsVersion`)
-   - For tag-enforcement policies (Deny/Modify that target tags, not resource properties),
-     set `bicepPropertyPath` and `azurePropertyPath` to `"resourceGroups::tags"` / `"resourceGroup.tags"`
-     and include a separate `requiredTags` array — do NOT leave these fields null
-   - Normalize tag names — verify exact tag key names from live policy (no drift)
-   - Include `assignment_inventory` array with all discovered assignments for audit trail
+     traffic-light indicators (✅ / ⚠️ / ❌ — all three must appear in status columns).
+2. **Verify `04-governance-constraints.json`** was written correctly by discover.py.
+   Run **Cmd 2** from `references/terminal-commands.md` — it returns discovery status,
+   all blockers, tags_required, allowed_locations, and category summary in one query.
+
+   Do NOT re-create or re-populate this file — discover.py is the single
+   source of truth. Only add an `architecture_mapping` section if the architecture
+   assessment requires policy→resource mapping not already present.
+
 3. **Self-validate before challenger**: run `npm run lint:artifact-templates`, verify
    JSON parses with `python3 -m json.tool`, and confirm the JSON has `discovery_status`
    and `policies` keys. Fix any issues **before** invoking the challenger.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
-### Phase 2.5: Challenger Review (max 2 passes)
+### Phase 2.5: Challenger Review (max 1 pass)
 
 Run a single comprehensive adversarial review on the governance artifacts.
-**Cap**: Maximum 2 challenger passes total. If must-fix findings remain after
-pass 2, present them to the user at the approval gate rather than looping further.
+**Cap**: Maximum 1 challenger pass. If must-fix findings remain after
+pass 1, present them to the user at the approval gate rather than looping further.
+
+**Skip condition**: When `blockers + auto_remediate == 0` (trivial subscription
+with no actionable policies), skip the challenger entirely and proceed to Phase 3.
 
 **Performance note**: When re-invoked to address challenger findings, this agent
 MUST hit the Phase 0.5 cache — fixing artifact content never requires rediscovering
@@ -183,11 +272,8 @@ policies. Do not re-run Phase 1 between challenger passes.
    - `pass_number` = `1`
    - `prior_findings` = `null`
 2. Write returned JSON to `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
-3. If any `must_fix` findings: batch-fix ALL findings in one edit pass, then re-run
-   the challenger exactly once more (pass 2). Do NOT fix-then-review one finding at a time.
-4. If must-fix findings remain after pass 2: document them at the approval gate
-   and let the user decide whether to accept, override, or request further iteration.
-5. Include challenger findings summary in the Gate 2.5 presentation below
+3. If any `must_fix` findings: batch-fix ALL findings in one edit pass.
+4. Include challenger findings summary in the Gate 2.5 presentation below
 
 ### Phase 3: Approval Gate
 

@@ -626,3 +626,346 @@ def test_fetches_only_referenced_tenant_definitions():
         if any(ref in u for ref in refs)
     ]
     assert len(individual_gets) == 2, f"expected 2 individual GETs, got {individual_gets}"
+
+
+# --------------------------------------------------------------------------- #
+# Fix A — empty string not None for unresolved property paths                 #
+# --------------------------------------------------------------------------- #
+
+
+def test_no_resource_types_returns_empty_string_paths():
+    """When a definition has no resource types, property paths are "" not None."""
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/notype",
+        "name": "notype",
+        "properties": {
+            "displayName": "No-Type Policy",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/notype",
+            "scope": "/subscriptions/s",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/notype",
+        "name": "notype",
+        "properties": {
+            "displayName": "No-type deny",
+            "metadata": {"category": "General"},
+            "policyRule": {
+                "if": {"field": "name", "equals": "bad-resource"},
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {
+            "value": [definition]
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert len(env["findings"]) == 1
+    f = env["findings"][0]
+    assert f["azurePropertyPath"] == ""
+    assert f["bicepPropertyPath"] == ""
+
+
+# --------------------------------------------------------------------------- #
+# Fix E — policies alias, tags_required, allowed_locations                    #
+# --------------------------------------------------------------------------- #
+
+
+def test_policies_is_same_reference_as_findings():
+    env = discover.discover(
+        "00000000-0000-0000-0000-000000000000",
+        project="alias-test",
+        az_rest=_router({}),
+    )
+    assert env["policies"] is env["findings"]
+
+
+def test_tags_required_populated_for_tag_policy():
+    """Tag-enforcement findings should surface in tags_required[] with actual tag keys."""
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/tags",
+        "name": "tags",
+        "properties": {
+            "displayName": "Tag Enforcement",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/req-env-tag",
+            "scope": "/subscriptions/s",
+            "parameters": {"tagName": {"value": "Environment"}},
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/req-env-tag",
+        "name": "req-env-tag",
+        "properties": {
+            "displayName": "Require tag Environment",
+            "metadata": {"category": "Tags"},
+            "policyRule": {
+                "if": {"field": "tags['Environment']", "exists": "false"},
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {
+            "value": [definition]
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert len(env["tags_required"]) == 1
+    assert env["tags_required"][0]["name"] == "Environment"
+    assert "source_assignment" in env["tags_required"][0]
+
+
+def test_tags_required_unresolved_when_no_params():
+    """Tag policy without assignment params should surface as [unresolved: ...]."""
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/tags2",
+        "name": "tags2",
+        "properties": {
+            "displayName": "Tag Enforcement No Params",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/req-tag-nop",
+            "scope": "/subscriptions/s",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/req-tag-nop",
+        "name": "req-tag-nop",
+        "properties": {
+            "displayName": "Require tag Owner",
+            "metadata": {"category": "Tags"},
+            "policyRule": {
+                "if": {"field": "tags['Owner']", "exists": "false"},
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {
+            "value": [definition]
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert len(env["tags_required"]) == 1
+    assert env["tags_required"][0]["name"].startswith("[unresolved:")
+
+
+def test_allowed_locations_from_assignment_params():
+    """allowed_locations should extract from assignment parameters."""
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/loc",
+        "name": "loc",
+        "properties": {
+            "displayName": "Allowed Locations",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/loc-deny",
+            "scope": "/subscriptions/s",
+            "parameters": {"listOfAllowedLocations": {"value": ["swedencentral", "westeurope"]}},
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/loc-deny",
+        "name": "loc-deny",
+        "properties": {
+            "displayName": "Allowed Locations",
+            "metadata": {"category": "General"},
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"field": "location", "notIn": "[parameters('listOfAllowedLocations')]"},
+                        {"field": "location", "notEquals": "global"},
+                    ]
+                },
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {
+            "value": [definition]
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert "swedencentral" in env["allowed_locations"]
+    assert "westeurope" in env["allowed_locations"]
+
+
+def test_allowed_locations_empty_when_no_location_policy():
+    env = discover.discover(
+        "00000000-0000-0000-0000-000000000000",
+        project="no-loc",
+        az_rest=_router({}),
+    )
+    assert env["allowed_locations"] == []
+
+
+# --------------------------------------------------------------------------- #
+# Fix C — preview.md emission                                                 #
+# --------------------------------------------------------------------------- #
+
+
+def test_preview_md_emitted_with_expected_h2s(tmp_path, capsys, monkeypatch):
+    """main() should write a .preview.md sibling with the template H2 structure."""
+    out = tmp_path / "04-governance-constraints.json"
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/tls",
+        "name": "tls",
+        "properties": {
+            "displayName": "TLS Policy",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/tls",
+            "scope": "/subscriptions/s",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/tls",
+        "name": "tls",
+        "properties": {
+            "displayName": "Require TLS 1.2",
+            "metadata": {"category": "Security"},
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+                        {"field": "Microsoft.Storage/storageAccounts/minimumTlsVersion", "notEquals": "TLS1_2"},
+                    ]
+                },
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {
+            "value": [definition]
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+        "policyExemptions": EMPTY,
+    }
+    monkeypatch.setattr(discover, "_default_get_subscription", lambda: "s")
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: None)
+    monkeypatch.setattr(discover, "_default_az_rest", _router(mapping))
+
+    rc = discover.main(["--project", "preview-test", "--out", str(out), "--refresh"])
+    assert rc == 0
+
+    preview = tmp_path / "04-governance-constraints.preview.md"
+    assert preview.exists(), "preview.md was not created"
+    content = preview.read_text()
+
+    expected_h2s = [
+        "## 🔍 Discovery Source",
+        "## 📋 Azure Policy Compliance",
+        "## 🔄 Plan Adaptations Based on Policies",
+        "## 🚫 Deployment Blockers",
+        "## 🏷️ Required Tags",
+        "## 🔐 Security Policies",
+        "## 💰 Cost Policies",
+        "## 🌐 Network Policies",
+        "## References",
+    ]
+    for h2 in expected_h2s:
+        assert h2 in content, f"Missing H2: {h2}"
+
+
+def test_preview_md_with_arch_maps_blockers_to_resources(tmp_path, capsys, monkeypatch):
+    """When --arch is provided, preview.md includes policy→resource mapping."""
+    out = tmp_path / "04-governance-constraints.json"
+
+    # Write a minimal architecture assessment with ARM types
+    arch = tmp_path / "02-architecture-assessment.md"
+    arch.write_text(
+        "# Architecture\n"
+        "## Resources\n"
+        "- Microsoft.Storage/storageAccounts\n"
+        "- Microsoft.Sql/servers\n"
+        "- vm-iis-01 (B2s)\n"
+    )
+
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/deny-pub",
+        "name": "deny-pub",
+        "properties": {
+            "displayName": "Deny Public Storage",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/deny-pub",
+            "scope": "/subscriptions/s",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/deny-pub",
+        "name": "deny-pub",
+        "properties": {
+            "displayName": "Deny public blob access",
+            "metadata": {"category": "Storage"},
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+                        {"field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess", "equals": True},
+                    ]
+                },
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {
+            "value": [definition]
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+        "policyExemptions": EMPTY,
+    }
+    monkeypatch.setattr(discover, "_default_get_subscription", lambda: "s")
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: None)
+    monkeypatch.setattr(discover, "_default_az_rest", _router(mapping))
+
+    rc = discover.main([
+        "--project", "arch-test",
+        "--out", str(out),
+        "--refresh",
+        "--arch", str(arch),
+    ])
+    assert rc == 0
+
+    preview = tmp_path / "04-governance-constraints.preview.md"
+    assert preview.exists()
+    content = preview.read_text()
+
+    # Should have the Architectural Changes section with the resource mapping
+    assert "### Architectural Changes" in content
+    assert "storageAccounts" in content
+    assert "Deny public blob access" in content
+    # Should still have the standard H2s
+    assert "## 🚫 Deployment Blockers" in content
+
+
+def test_extract_arch_resources_parses_arm_types(tmp_path):
+    """_extract_arch_resources should find ARM types and resource names."""
+    arch = tmp_path / "arch.md"
+    arch.write_text(
+        "## Resources\n"
+        "- Microsoft.Compute/virtualMachines\n"
+        "- Microsoft.Storage/storageAccounts\n"
+        "- vm-iis-01 is a B2s VM\n"
+        "- sql-prod-01 is the database\n"
+    )
+    resources = discover._extract_arch_resources(arch)
+    arm_types = [r["arm_type"] for r in resources if r["arm_type"]]
+    names = [r["name"] for r in resources]
+    assert "Microsoft.Compute/virtualMachines" in arm_types
+    assert "Microsoft.Storage/storageAccounts" in arm_types
+    assert "vm-iis-01" in names
+    assert "sql-prod-01" in names
+
+
+def test_extract_arch_resources_returns_empty_for_missing_file(tmp_path):
+    """_extract_arch_resources should return [] when file doesn't exist."""
+    resources = discover._extract_arch_resources(tmp_path / "nonexistent.md")
+    assert resources == []

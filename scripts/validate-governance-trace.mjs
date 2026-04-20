@@ -78,9 +78,7 @@ if (discoverInvocations.length > 0) {
     "discovery",
     `discover.py invoked ${discoverInvocations.length} time(s)`,
   );
-  console.log(
-    `  ✅ discover.py invoked ${discoverInvocations.length} time(s)`,
-  );
+  console.log(`  ✅ discover.py invoked ${discoverInvocations.length} time(s)`);
 } else {
   const govSpans = spans.filter(
     (s) => s.attrs["gen_ai.agent.name"] === "04g-Governance",
