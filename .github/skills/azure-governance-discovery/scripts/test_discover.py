@@ -224,12 +224,11 @@ def test_initiative_inherited_from_management_group():
     mapping = {
         "policyAssignments": {"value": [assignment]},
         "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
-        "/providers/Microsoft.Authorization/policyDefinitions": {
-            "value": [member_def]
-        },
-        "/subscriptions/s/providers/Microsoft.Authorization/policySetDefinitions": {
-            "value": [initiative]
-        },
+        "/subscriptions/s/providers/Microsoft.Authorization/policySetDefinitions": EMPTY,
+        # MG-inherited initiative lives at tenant scope; discover.py fetches
+        # it individually after seeing the assignment reference it.
+        "/providers/Microsoft.Authorization/policySetDefinitions/corp-baseline": initiative,
+        "/providers/Microsoft.Authorization/policyDefinitions/req-tags": member_def,
         "policyExemptions": EMPTY,
     }
     env = discover.discover("s", project="p", az_rest=_router(mapping))
@@ -519,3 +518,111 @@ def test_status_line_is_valid_json_and_first(tmp_path, capsys, monkeypatch):
     # No JSON envelopes or raw REST payloads in stdout.
     joined = "\n".join(lines[1:])
     assert not re.search(r'"policyAssignments"', joined)
+
+
+# --------------------------------------------------------------------------- #
+# Perf-optimization tests (parallel fetch + skip tenant-wide list)            #
+# --------------------------------------------------------------------------- #
+
+
+def test_skips_tenant_wide_definition_list_when_no_tenant_refs():
+    """When every assignment references sub-scope definitions, discover.py
+    must NOT issue a tenant-wide `policyDefinitions` list call.
+    """
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/local",
+        "name": "local",
+        "properties": {
+            "displayName": "Local",
+            "policyDefinitionId": "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions/local-deny",
+            "scope": "/subscriptions/s",
+        },
+    }
+    definition = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions/local-deny",
+        "name": "local-deny",
+        "properties": {
+            "displayName": "Local deny",
+            "metadata": {"category": "Storage"},
+            "policyRule": {
+                "if": {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    calls: list[str] = []
+
+    def spy(url: str) -> dict[str, Any]:
+        calls.append(url)
+        if "policyAssignments" in url:
+            return {"value": [assignment]}
+        if "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions" in url:
+            return {"value": [definition]}
+        if "/subscriptions/s/providers/Microsoft.Authorization/policySetDefinitions" in url:
+            return EMPTY
+        if "policyExemptions" in url:
+            return EMPTY
+        return EMPTY
+
+    env = discover.discover("s", project="p", az_rest=spy)
+    assert len(env["findings"]) == 1
+    # Zero calls against the tenant-wide built-in list — that's the win.
+    tenant_list_calls = [
+        u for u in calls
+        if "/providers/Microsoft.Authorization/policyDefinitions?" in u
+        and "/subscriptions/" not in u
+    ]
+    assert tenant_list_calls == [], f"unexpected tenant-wide list calls: {tenant_list_calls}"
+
+
+def test_fetches_only_referenced_tenant_definitions():
+    """Two assignments referencing two distinct tenant-built-in definitions
+    must trigger exactly two individual GETs — not a list scan.
+    """
+    def _assignment(suffix: str, ref: str) -> dict[str, Any]:
+        return {
+            "id": f"/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/{suffix}",
+            "name": suffix,
+            "properties": {
+                "displayName": suffix,
+                "policyDefinitionId": ref,
+                "scope": "/subscriptions/s",
+            },
+        }
+
+    def _definition(name: str) -> dict[str, Any]:
+        return {
+            "id": f"/providers/Microsoft.Authorization/policyDefinitions/{name}",
+            "name": name,
+            "properties": {
+                "displayName": name,
+                "metadata": {"category": "Security"},
+                "policyRule": {
+                    "if": {"field": "type", "equals": "Microsoft.KeyVault/vaults"},
+                    "then": {"effect": "Deny"},
+                },
+            },
+        }
+
+    refs = [
+        "/providers/Microsoft.Authorization/policyDefinitions/require-kv-purge",
+        "/providers/Microsoft.Authorization/policyDefinitions/require-kv-rbac",
+    ]
+    calls: list[str] = []
+
+    def spy(url: str) -> dict[str, Any]:
+        calls.append(url)
+        if "policyAssignments" in url:
+            return {"value": [_assignment("a1", refs[0]), _assignment("a2", refs[1])]}
+        for ref in refs:
+            if ref in url:
+                return _definition(ref.rsplit("/", 1)[-1])
+        return EMPTY
+
+    env = discover.discover("s", project="p", az_rest=spy)
+    assert len(env["findings"]) == 2
+    individual_gets = [
+        u for u in calls
+        if any(ref in u for ref in refs)
+    ]
+    assert len(individual_gets) == 2, f"expected 2 individual GETs, got {individual_gets}"

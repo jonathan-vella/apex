@@ -17,6 +17,10 @@ import json
 import os
 import subprocess
 import sys
+import time
+import urllib.error
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -60,15 +64,73 @@ BICEP_TYPE_OVERRIDES = {
 # Azure CLI shim (injectable for tests)                                       #
 # --------------------------------------------------------------------------- #
 
+# Parallelism cap for concurrent ARM calls. ARM throttles aggressively above
+# ~16 concurrent; 8 is a safe default that still gives ~4-6x speedup over
+# sequential `az rest` subprocess invocations.
+_PARALLEL_WORKERS = 8
+
+# Process-wide ARM token cache. `az account get-access-token` takes ~0.5-1s
+# per invocation; caching saves that overhead on every subsequent REST call.
+_TOKEN_CACHE: dict[str, Any] = {"token": None, "expires_at": 0.0}
+
+
+def _get_arm_token() -> str:
+    """Return a cached ARM bearer token, refreshing when near expiry."""
+    now = time.time()
+    if _TOKEN_CACHE["token"] and _TOKEN_CACHE["expires_at"] > now + 60:
+        return _TOKEN_CACHE["token"]
+    out = subprocess.check_output(  # noqa: S603 — trusted Azure CLI
+        [
+            "az",
+            "account",
+            "get-access-token",
+            "--resource",
+            f"{ARM}/",
+            "-o",
+            "json",
+        ],
+        text=True,
+        timeout=30,
+    )
+    data = json.loads(out)
+    _TOKEN_CACHE["token"] = data["accessToken"]
+    # Tokens are valid for ~60 min. Use 50-min safe window to avoid mid-run
+    # expiry. `expiresOn` format varies across az versions, so we compute
+    # relative expiry from wall-clock instead of parsing it.
+    _TOKEN_CACHE["expires_at"] = now + 50 * 60
+    return data["accessToken"]
+
 
 def _default_az_rest(url: str) -> dict[str, Any]:
-    """Call `az rest` and return parsed JSON. Raises on non-zero exit."""
-    out = subprocess.check_output(  # noqa: S603 — trusted Azure CLI
-        ["az", "rest", "--method", "GET", "--url", url, "-o", "json"],
-        text=True,
-        timeout=180,
+    """GET `url` with the cached ARM bearer token via stdlib urllib.
+
+    Replaces per-call `az rest` subprocess (saves ~0.5-1s × N calls). Returns
+    `{}` for 404 (missing policy definition) so callers can filter silently.
+    Raises on auth failures and other HTTP errors.
+    """
+    token = _get_arm_token()
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        method="GET",
     )
-    return json.loads(out)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310 — ARM https
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return {}
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8", errors="replace")[:500]
+        except Exception:  # pragma: no cover
+            pass
+        raise RuntimeError(
+            f"ARM GET {url} failed: HTTP {e.code} {e.reason}; {detail}"
+        ) from e
 
 
 def _default_get_subscription() -> str:
@@ -82,19 +144,8 @@ def _default_get_subscription() -> str:
 
 def _default_check_auth() -> None:
     """Raise if the ARM token cannot be obtained."""
-    subprocess.check_output(  # noqa: S603
-        [
-            "az",
-            "account",
-            "get-access-token",
-            "--resource",
-            f"{ARM}/",
-            "--output",
-            "none",
-        ],
-        stderr=subprocess.STDOUT,
-        timeout=30,
-    )
+    # Warms the token cache as a side effect so subsequent REST calls are fast.
+    _get_arm_token()
 
 
 # --------------------------------------------------------------------------- #
@@ -111,6 +162,61 @@ def _list_all(az_rest: Callable[[str], dict[str, Any]], url: str) -> list[dict[s
         items.extend(page.get("value", []))
         next_url = page.get("nextLink")
     return items
+
+
+def _parallel_list(
+    az_rest: Callable[[str], dict[str, Any]],
+    urls: dict[str, str],
+) -> dict[str, list[dict[str, Any]]]:
+    """Run multiple paginated list calls concurrently. Preserves key mapping.
+
+    Uses a thread pool because `az_rest` is a blocking callable (either
+    urllib GET or subprocess `az rest`). Thread-per-URL is fine at this
+    concurrency level.
+    """
+    if not urls:
+        return {}
+    with ThreadPoolExecutor(max_workers=min(_PARALLEL_WORKERS, len(urls))) as pool:
+        futures = {key: pool.submit(_list_all, az_rest, url) for key, url in urls.items()}
+        return {key: fut.result() for key, fut in futures.items()}
+
+
+def _parallel_fetch_items(
+    az_rest: Callable[[str], dict[str, Any]],
+    urls: list[str],
+    expected_ids: list[str] | None = None,
+) -> list[dict[str, Any] | None]:
+    """Fetch individual items concurrently; tolerate both response shapes.
+
+    Azure returns a single object for GET `.../policyDefinitions/{name}`, but
+    injected test fakes commonly match on a URL substring and return the
+    wrapped list shape `{"value": [...]}`. This helper accepts both:
+
+    - dict with no `value` key → single-item payload (return as-is, unless empty)
+    - dict with `value` list → look for the item whose id matches the expected
+      id (preserved positionally via `expected_ids`); fall back to first
+    """
+    if not urls:
+        return []
+    if expected_ids is None:
+        expected_ids = [""] * len(urls)
+
+    def _fetch(url: str, expected_id: str) -> dict[str, Any] | None:
+        resp = az_rest(url)
+        if not isinstance(resp, dict) or not resp:
+            return None
+        if "value" in resp and isinstance(resp["value"], list):
+            if expected_id:
+                for item in resp["value"]:
+                    if (item.get("id") or "").lower() == expected_id.lower():
+                        return item
+            return resp["value"][0] if resp["value"] else None
+        if resp.get("id"):
+            return resp
+        return None
+
+    with ThreadPoolExecutor(max_workers=min(_PARALLEL_WORKERS, len(urls))) as pool:
+        return list(pool.map(_fetch, urls, expected_ids))
 
 
 def _effect_of(defn: dict[str, Any]) -> str | None:
@@ -320,32 +426,72 @@ def discover(
         az_rest = _default_az_rest
     base = f"{ARM}/subscriptions/{subscription_id}/providers/Microsoft.Authorization"
 
-    assignments = _list_all(
+    # Phase 1 — Parallel list calls for subscription-scope data + exemptions.
+    # The tenant-wide built-in definition list (~1500 items) is deliberately
+    # NOT fetched here; we fetch only the tenant definitions an assignment
+    # actually references (Phase 2). Saves a large, mostly-unused payload.
+    primary = _parallel_list(
         az_rest,
-        f"{base}/policyAssignments?$filter=atScope()&api-version={API_ASSIGNMENTS}",
+        {
+            "assignments": f"{base}/policyAssignments?$filter=atScope()&api-version={API_ASSIGNMENTS}",
+            "sub_defs": f"{base}/policyDefinitions?api-version={API_DEFINITIONS}",
+            "sub_sets": f"{base}/policySetDefinitions?api-version={API_DEFINITIONS}",
+            "exemptions": f"{base}/policyExemptions?$filter=atScope()&api-version={API_EXEMPTIONS}",
+        },
     )
-    defs: dict[str, dict[str, Any]] = {
-        d["id"].lower(): d
-        for d in _list_all(
-            az_rest, f"{base}/policyDefinitions?api-version={API_DEFINITIONS}"
+    assignments = primary["assignments"]
+    defs: dict[str, dict[str, Any]] = {d["id"].lower(): d for d in primary["sub_defs"]}
+    sets: dict[str, dict[str, Any]] = {s["id"].lower(): s for s in primary["sub_sets"]}
+    exemptions = primary["exemptions"]
+
+    # Phase 2 — Fetch only the tenant-scoped initiatives and definitions that
+    # assignments actually reference. Initiatives come first because their
+    # members may themselves be tenant-scope definitions. We preserve the
+    # original-case ID for URL construction (ARM is case-insensitive but
+    # downstream consumers and test routers match by substring).
+    tenant_set_ids: dict[str, str] = {}  # lowercase → original-case
+    tenant_def_ids: dict[str, str] = {}
+    for a in assignments:
+        pid_original = (a.get("properties") or {}).get("policyDefinitionId") or ""
+        pid = pid_original.lower()
+        if not pid or not pid.startswith("/providers/microsoft.authorization/"):
+            continue
+        if "/policysetdefinitions/" in pid and pid not in sets:
+            tenant_set_ids.setdefault(pid, pid_original)
+        elif "/policydefinitions/" in pid and pid not in defs:
+            tenant_def_ids.setdefault(pid, pid_original)
+
+    if tenant_set_ids:
+        ordered = sorted(tenant_set_ids.items())
+        fetched_sets = _parallel_fetch_items(
+            az_rest,
+            [f"{ARM}{orig}?api-version={API_DEFINITIONS}" for _, orig in ordered],
+            expected_ids=[orig for _, orig in ordered],
         )
-    }
-    # Tenant-built-in definitions (MG-inherited assignments reference these).
-    for d in _list_all(
-        az_rest,
-        f"{ARM}/providers/Microsoft.Authorization/policyDefinitions?api-version={API_DEFINITIONS}",
-    ):
-        defs.setdefault(d["id"].lower(), d)
-    sets: dict[str, dict[str, Any]] = {
-        s["id"].lower(): s
-        for s in _list_all(
-            az_rest, f"{base}/policySetDefinitions?api-version={API_DEFINITIONS}"
+        for s in fetched_sets:
+            if s:
+                sets.setdefault((s.get("id") or "").lower(), s)
+                for m in (s.get("properties") or {}).get("policyDefinitions") or []:
+                    mid_original = (m.get("policyDefinitionId") or "")
+                    mid = mid_original.lower()
+                    if (
+                        mid
+                        and mid.startswith("/providers/microsoft.authorization/")
+                        and mid not in defs
+                    ):
+                        tenant_def_ids.setdefault(mid, mid_original)
+
+    if tenant_def_ids:
+        ordered = sorted(tenant_def_ids.items())
+        fetched_defs = _parallel_fetch_items(
+            az_rest,
+            [f"{ARM}{orig}?api-version={API_DEFINITIONS}" for _, orig in ordered],
+            expected_ids=[orig for _, orig in ordered],
         )
-    }
-    exemptions = _list_all(
-        az_rest,
-        f"{base}/policyExemptions?$filter=atScope()&api-version={API_EXEMPTIONS}",
-    )
+        for d in fetched_defs:
+            if d:
+                defs.setdefault((d.get("id") or "").lower(), d)
+
     exemption_map = _build_exemption_map(exemptions)
 
     # Assignment filtering (Defender auto-assignments).
