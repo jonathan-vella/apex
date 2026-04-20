@@ -250,9 +250,10 @@ python3 scripts/cleanup-drawio.py '<output-path>.drawio'
 ```
 
 The script fixes:
-1. `value="New Cell"` → `value=""` (MCP default for vertices without explicit text)
-2. Watermark cell height ≥ 70px (so all 4 lines of APEX attribution show)
-3. Reports any cross-cutting icons spaced < 120px apart
+
+- `value="New Cell"` → `value=""` (MCP default for vertices without explicit text)
+- Watermark cell height ≥ 70px (so all 4 lines of APEX attribution show)
+- Reports any cross-cutting icons spaced less than 120px apart
 
 Use the Azure-aligned color palette from `get-style-presets` and the style
 examples in `references/style-reference.md`. Standard output filenames and the
