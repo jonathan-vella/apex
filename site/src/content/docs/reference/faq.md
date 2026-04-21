@@ -39,7 +39,9 @@ the latest Claude Opus model.
 
     Model versions evolve — check agent frontmatter for current selections.
 
-    You need an active **GitHub Copilot** license (Individual, Business, or Enterprise).
+    APEX requires either a **Copilot Business** or **Copilot Enterprise** license
+    (other SKUs do not include the required functionality).
+    See [GitHub Copilot plans](https://github.com/features/copilot/plans) for details.
 
 :::note[Do I need an Azure subscription?]
 **For learning**: No. You can run the full workflow through Steps 1-5 (requirements,
