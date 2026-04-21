@@ -1,6 +1,6 @@
 {
-  "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-21T09:45:38.225Z",
+  "$schema": "../schemas/explorer-graph.schema.json",
+  "generatedAt": "2026-04-21T12:11:39.954Z",
   "categories": [
     {
       "id": "agent",
@@ -889,7 +889,7 @@
       "id": "skill:drawio",
       "category": "skill",
       "label": "drawio",
-      "description": "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams) or inline Mermaid (use mermaid).",
+      "description": "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), or Excalidraw diagrams (use excalidraw).",
       "path": ".github/skills/drawio/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md"

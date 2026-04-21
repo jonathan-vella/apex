@@ -3,7 +3,7 @@
  * E2E Benchmark Scoring Engine
  *
  * Benchmarks E2E RALPH loop results against a per-complexity expected set.
- * Expected artifacts aligned with nordic-fresh-foods gold standard (~45 items).
+ * Expected artifacts aligned with the E2E gold standard (~45 items).
  * Includes visual artifacts (WAF charts, cost projections, as-built diagrams)
  * and adversarial review outputs (challenge-findings-*.json).
  *
@@ -52,7 +52,7 @@ function detectIacTool() {
 
 const IAC_TOOL = detectIacTool();
 
-// Expected artifact set — aligned with nordic-fresh-foods gold standard
+// Expected artifact set — aligned with E2E gold standard
 const EXPECTED_ARTIFACTS = {
   // Step 0 — Session
   "00-session-state.json": { required: true, step: 0 },

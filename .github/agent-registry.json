@@ -1,5 +1,5 @@
 {
-  "$schema": "agent-registry-v1",
+  "$schema": "../../schemas/agent-registry.schema.json",
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
   "agents": {
     "orchestrator": {

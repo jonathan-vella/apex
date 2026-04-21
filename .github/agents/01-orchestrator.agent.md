@@ -144,7 +144,7 @@ and next-step guidance (see gate templates below).
 Everything below happens in a **single turn** — no back-and-forth.
 
 1. Extract a kebab-case project name from the user's message
-   (e.g., "nordic foods" → `nordic-fresh-foods`).
+   (e.g., "malta catering" → `malta-catering`).
 2. Call `askQuestions` with ONE question to confirm or change it:
    _"I'll use `{kebab-case-name}` as the project folder. Type OK to confirm, or enter a different name."_
    (If the user's message gives NO clue, ask for it outright.)
@@ -221,11 +221,11 @@ score  > 3.0  -> complexity = "complex"  (3 review passes)
 
 Inputs:
 
-| Input                | Source                                                |
-| -------------------- | ----------------------------------------------------- |
-| `resource_count`     | Count declared in `02-architecture-assessment.md`     |
-| `policy_violations`  | Count of `deny`-effect findings in `04-governance-constraints.json` |
-| `iac_tool`           | `decisions.iac_tool` (bicep or terraform)             |
+| Input               | Source                                                              |
+| ------------------- | ------------------------------------------------------------------- |
+| `resource_count`    | Count declared in `02-architecture-assessment.md`                   |
+| `policy_violations` | Count of `deny`-effect findings in `04-governance-constraints.json` |
+| `iac_tool`          | `decisions.iac_tool` (bicep or terraform)                           |
 
 Persist the result at `decisions.complexity` in `00-session-state.json` so every
 agent reads the same value instead of re-deriving. If `04-governance-constraints.json`

@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/session-state.schema.json",
+  "title": "APEX Session State",
+  "description": "Shape of agent-output/{project}/00-session-state.json produced by the Orchestrator. Tracks workflow progress, decisions, and review audit. Enforced by scripts/validate-session-state.mjs.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "iac_tool",
+    "region",
+    "branch",
+    "updated",
+    "current_step",
+    "decisions",
+    "open_findings",
+    "steps"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0", "2.0", "3.0"],
+      "description": "Schema version. New files must use 3.0."
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project folder name under agent-output/."
+    },
+    "iac_tool": {
+      "type": "string",
+      "enum": ["", "Bicep", "Terraform"],
+      "description": "Selected Infrastructure as Code tool. Empty until decided."
+    },
+    "region": {
+      "type": "string",
+      "description": "Primary Azure region for deployment."
+    },
+    "branch": {
+      "type": "string",
+      "description": "Git branch associated with this session."
+    },
+    "updated": {
+      "type": "string",
+      "description": "ISO 8601 timestamp of last update."
+    },
+    "current_step": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7,
+      "description": "Current workflow step (0 = not started, 1-7 = active step)."
+    },
+    "decisions": {
+      "type": "object",
+      "required": [
+        "region",
+        "compliance",
+        "budget",
+        "architecture_pattern",
+        "deployment_strategy"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "region": { "type": "string" },
+        "compliance": { "type": "string" },
+        "budget": { "type": "string" },
+        "architecture_pattern": { "type": "string" },
+        "deployment_strategy": { "type": "string" },
+        "complexity": {
+          "type": "string",
+          "enum": ["simple", "standard", "complex", ""],
+          "description": "Project complexity tier. Empty until assessed."
+        }
+      }
+    },
+    "open_findings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Unresolved findings carried forward between steps."
+    },
+    "decision_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": ["integer", "string"] },
+          "decision": { "type": "string" },
+          "rationale": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      },
+      "description": "Append-only log of key decisions made during the workflow."
+    },
+    "review_audit": {
+      "type": "object",
+      "description": "Per-step challenger review tracking.",
+      "patternProperties": {
+        "^step_[0-9_]+$": {
+          "type": "object",
+          "properties": {
+            "complexity": { "type": "string" },
+            "passes_planned": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "passes_executed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "skipped": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "skip_reasons": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "models_used": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "steps": {
+      "type": "object",
+      "description": "Per-step execution state keyed by step number (1-7, 3_5).",
+      "patternProperties": {
+        "^[0-9_]+$": {
+          "type": "object",
+          "required": [
+            "name",
+            "agent",
+            "status",
+            "sub_step",
+            "started",
+            "completed",
+            "artifacts",
+            "context_files_used"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "name": {
+              "type": "string",
+              "enum": [
+                "Requirements",
+                "Architecture",
+                "Design",
+                "Governance",
+                "IaC Plan",
+                "IaC Code",
+                "Deploy",
+                "As-Built"
+              ]
+            },
+            "agent": { "type": "string" },
+            "status": {
+              "type": "string",
+              "enum": ["pending", "in_progress", "complete", "skipped"]
+            },
+            "sub_step": { "type": ["string", "null"] },
+            "started": { "type": ["string", "null"] },
+            "completed": { "type": ["string", "null"] },
+            "artifacts": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "context_files_used": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/model-catalog.schema.json",
+  "title": "APEX Model Catalog",
+  "description": "Shape of .github/model-catalog.json. Defines allowed Copilot Chat model names, tiers, and deprecation status. Enforced by scripts/validate-model-floors.mjs.",
+  "type": "object",
+  "required": ["$schema", "description", "models"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "description": { "type": "string" },
+    "last_updated": {
+      "type": "string",
+      "description": "ISO 8601 date of last catalog update."
+    },
+    "models": {
+      "type": "object",
+      "description": "Map of model display names to model metadata.",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "required": ["vendor", "tier", "released", "deprecated"],
+          "additionalProperties": true,
+          "properties": {
+            "vendor": {
+              "type": "string",
+              "description": "Model provider (e.g. Anthropic, OpenAI)."
+            },
+            "tier": {
+              "type": "string",
+              "enum": ["frontier", "balanced", "codex", "standard"],
+              "description": "Capability tier for floor/ceiling enforcement."
+            },
+            "released": {
+              "type": "string",
+              "description": "Release date (YYYY-MM format)."
+            },
+            "deprecated": {
+              "type": "boolean",
+              "description": "Whether the model is deprecated (warning on use)."
+            },
+            "use_for": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Recommended use cases for this model."
+            },
+            "notes": {
+              "type": "string",
+              "description": "Guidance notes for model selection."
+            }
+          }
+        }
+      }
+    },
+    "floors": {
+      "type": "object",
+      "description": "Floor enforcement configuration.",
+      "properties": {
+        "rationale": { "type": "string" },
+        "tiers": {
+          "type": "object",
+          "description": "Tier name to numeric ranking for floor comparison.",
+          "patternProperties": {
+            ".*": { "type": "integer" }
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

@@ -12,7 +12,6 @@ emoji_map = {
     "## Executive Summary": "## 📋 Executive Summary",
     "## Intellectual Foundations": "## 🧠 Intellectual Foundations",
     "### Harness Engineering (OpenAI)": "### 🛠️ Harness Engineering (OpenAI)",
-    "### Bosun (VirtEngine)": "### ⚓ Bosun (VirtEngine)",
     "### How This Project Synthesises Both": "### ⚖️ How This Project Synthesises Both",
     "## System Architecture Overview": "## 📐 System Architecture Overview",
     "### The Multi-Step Workflow": "### 🔄 The Multi-Step Workflow",

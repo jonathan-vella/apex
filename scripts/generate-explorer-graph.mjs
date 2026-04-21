@@ -651,7 +651,7 @@ function main() {
 
   const generatedAt = new Date().toISOString();
   const graph = {
-    $schema: "architecture-explorer-graph-v1",
+    $schema: "../schemas/explorer-graph.schema.json",
     generatedAt,
     categories,
     nodeCount: nodes.length,

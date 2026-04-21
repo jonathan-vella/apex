@@ -1,35 +1,38 @@
 ---
-title: "Deployment Outputs"
+title: "Resource Outputs"
+description: "Deployed resources with actual names and deployment output values from the Malta catering infrastructure deployment"
 sidebar:
-  order: 1
+  order: 2
 ---
 
-## 📤 Outputs (Expected)
+## Deployed Resources
+
+| Resource                | Actual Name                      | Type                                       | Status |
+| ----------------------- | -------------------------------- | ------------------------------------------ | ------ |
+| Log Analytics Workspace | `log-malta-catering-dev`         | `Microsoft.OperationalInsights/workspaces` | Pass   |
+| Application Insights    | `appi-malta-catering-dev`        | `Microsoft.Insights/components`            | Pass   |
+| Key Vault               | `kv-malta-dev-b6lg3l`            | `Microsoft.KeyVault/vaults`                | Pass   |
+| Storage Account         | `stmaltadevb6lg3l`               | `Microsoft.Storage/storageAccounts`        | Pass   |
+| Container Registry      | `acrmaltadevb6lg3l`              | `Microsoft.ContainerRegistry/registries`   | Pass   |
+| Virtual Network         | `vnet-malta-catering-dev`        | `Microsoft.Network/virtualNetworks`        | Pass   |
+| App Service Plan        | `asp-malta-catering-dev`         | `Microsoft.Web/serverfarms`                | Pass   |
+| Web App                 | `app-malta-catering-dev`         | `Microsoft.Web/sites`                      | Pass   |
+| Staging Slot            | `app-malta-catering-dev/staging` | `Microsoft.Web/sites/slots`                | Pass   |
+| Private Endpoints       | `pep-*`                          | `Microsoft.Network/privateEndpoints`       | Pass   |
+| Private DNS Zones       | `privatelink.*`                  | `Microsoft.Network/privateDnsZones`        | Pass   |
+| Consumption Budget      | `budget-malta-catering-dev`      | `Microsoft.Consumption/budgets`            | Pass   |
+
+## Deployment Outputs
 
 ```json
 {
-  "vnetResourceId": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9/resourceGroups/rg-nordic-fresh-foods-prod/providers/Microsoft.Network/virtualNetworks/vnet-nordic-fresh-foods-prod",
-  "appServiceHostname": "app-nordic-fresh-foods-prod-7jrcjf.azurewebsites.net",
-  "appServicePrincipalId": "24cd6768-7247-43ac-a1d2-9a7f22000a40",
-  "keyVaultUri": "https://kv-nff-prod-7jrcjfo3iqck.vault.azure.net/",
-  "sqlServerFqdn": "sql-nordic-fresh-foods-prod.database.windows.net",
-  "storageAccountName": "stnffprod7jrcjfo3iqckk",
-  "logAnalyticsWorkspaceName": "log-nordic-fresh-foods-prod"
+  "status": "succeeded",
+  "webAppName": "app-malta-catering-dev",
+  "webAppUrl": "https://app-malta-catering-dev.azurewebsites.net",
+  "stagingUrl": "https://app-malta-catering-dev-staging.azurewebsites.net",
+  "appServicePlanName": "asp-malta-catering-dev",
+  "appServicePlanSku": "P0v3",
+  "resourceGroup": "rg-malta-catering-dev",
+  "location": "swedencentral"
 }
 ```
-
-### Security Baseline Verification
-
-| Check                      | Expected      | Actual          | Status |
-| -------------------------- | ------------- | --------------- | ------ |
-| Key Vault public access    | Disabled      | Disabled        | ✅     |
-| Key Vault purge protection | Enabled       | True            | ✅     |
-| SQL Server auth            | Azure AD-only | ActiveDirectory | ✅     |
-| SQL Server public access   | Disabled      | Disabled        | ✅     |
-| Storage HTTPS-only         | True          | True            | ✅     |
-| Storage public blob access | False         | False           | ✅     |
-| Storage network access     | Disabled      | Disabled        | ✅     |
-| App Service state          | Running       | Running         | ✅     |
-| App Managed Identity       | Assigned      | 24cd6768-...    | ✅     |
-
----
