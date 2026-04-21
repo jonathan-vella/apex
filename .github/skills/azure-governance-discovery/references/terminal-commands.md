@@ -1,3 +1,5 @@
+<!-- ref:terminal-commands-v1 -->
+
 # Terminal Command Reference — Governance Phase
 
 Pre-built terminal commands for each phase of the governance workflow.
