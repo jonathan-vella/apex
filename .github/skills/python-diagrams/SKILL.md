@@ -1,6 +1,6 @@
 ---
 name: python-diagrams
-description: "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid), Excalidraw whiteboarding (use excalidraw)."
+description: "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid)."
 compatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.
 license: MIT
 metadata:

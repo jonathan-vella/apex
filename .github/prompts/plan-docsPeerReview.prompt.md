@@ -45,22 +45,21 @@ Reviewers validate docs claims against these files. **Counts** come from
 findings; compute them from the manifest's `computed_from` patterns at review
 time.
 
-| File                                                   | What it proves                                                 |
-| ------------------------------------------------------ | -------------------------------------------------------------- |
-| `.github/count-manifest.json`                          | **Authoritative** entity counts (agents, subagents, skills, …) |
-| `.github/agents/*.agent.md`                            | Top-level agent names                                          |
-| `.github/agents/_subagents/*.agent.md`                 | Subagent names                                                 |
-| `.github/skills/*/SKILL.md`                            | Skill names                                                    |
-| `.github/instructions/*.instructions.md`               | Instruction file names                                         |
-| `.github/prompts/*.prompt.md`                          | Prompt names                                                   |
-| `.github/agent-registry.json`                          | Agent → file/model/skills mapping                              |
-| `.github/skill-affinity.json`                          | Skill → agent affinity weights                                 |
-| `.vscode/mcp.json`                                     | MCP server names and config                                    |
-| `package.json`                                         | Validation script names                                        |
-| `site/astro.config.mjs`                                | Sidebar structure and published page list                      |
-| `site/public/architecture-explorer-graph.json`         | Graph node/edge canonical data (if present)                    |
-| `tests/exec-plans/tech-debt-tracker.md`                | Known tech-debt items (cross-check "stale promise" findings)   |
-| `AGENTS.md`                                            | Project conventions table of contents                          |
+| File                                           | What it proves                                                 |
+| ---------------------------------------------- | -------------------------------------------------------------- |
+| `.github/count-manifest.json`                  | **Authoritative** entity counts (agents, subagents, skills, …) |
+| `.github/agents/*.agent.md`                    | Top-level agent names                                          |
+| `.github/agents/_subagents/*.agent.md`         | Subagent names                                                 |
+| `.github/skills/*/SKILL.md`                    | Skill names                                                    |
+| `.github/instructions/*.instructions.md`       | Instruction file names                                         |
+| `.github/prompts/*.prompt.md`                  | Prompt names                                                   |
+| `.github/agent-registry.json`                  | Agent → file/model/skills mapping                              |
+| `.vscode/mcp.json`                             | MCP server names and config                                    |
+| `package.json`                                 | Validation script names                                        |
+| `site/astro.config.mjs`                        | Sidebar structure and published page list                      |
+| `site/public/architecture-explorer-graph.json` | Graph node/edge canonical data (if present)                    |
+| `tests/exec-plans/tech-debt-tracker.md`        | Known tech-debt items (cross-check "stale promise" findings)   |
+| `AGENTS.md`                                    | Project conventions table of contents                          |
 
 ## Workflow
 

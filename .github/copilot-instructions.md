@@ -63,7 +63,6 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 | `docs-writer`                 | Documentation generation                                                                          |
 | `drawio`                      | Azure architecture diagrams via MCP server (700+ Azure icons, batch creation, transactional mode) |
 | `entra-app-registration`      | Microsoft Entra ID app registration, OAuth 2.0, MSAL integration                                  |
-| `excalidraw`                  | Hand-drawn whiteboarding, brainstorming, wireframes, informal sketches                            |
 | `github-operations`           | GitHub issues, PRs, CLI, Actions, releases, commit conventions                                    |
 | `golden-principles`           | The 10 agent-first operating principles governing agent behavior                                  |
 | `iac-common`                  | Shared IaC deploy patterns, circuit breaker, known deploy issues                                  |
@@ -132,7 +131,6 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `.github/skills/*/SKILL.md`                    | Reusable skill knowledge                                                     |
 | `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                                      |
 | `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                                       |
-| `.github/skill-affinity.json`                  | Skill/agent affinity weights                                                 |
 | `agent-output/{project}/`                      | Agent-generated artifacts                                                    |
 | `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (session-resume skill)                    |
 | `infra/bicep/{project}/`                       | Bicep templates                                                              |

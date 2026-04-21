@@ -252,12 +252,10 @@ knowledge rather than inlining it.
 
 ### Step 4: Register the Agent
 
-Update two registry files:
+Update the registry file:
 
 1. **`.github/agent-registry.json`** — add the agent's role, file path,
    model, and skill list
-2. **`.github/skill-affinity.json`** — set primary/secondary/never
-   affinities for each skill the agent uses
 
 ### Step 5: Validate
 
@@ -267,7 +265,6 @@ npm run validate:agents
 
 # Verify registry consistency
 npm run validate:agent-registry
-npm run validate:skill-affinity
 ```
 
 ### Troubleshooting

@@ -56,7 +56,6 @@ npm run validate:session-state           # Session state JSON schema validation
 npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
-npm run validate:skill-affinity          # Skill/agent affinity catalog validation
 npm run validate:iac-security-baseline   # IaC security baseline (TLS, HTTPS, blob, identity, SQL auth)
 
 # Bicep validation (replace {project} with actual project name)
@@ -197,7 +196,6 @@ Always run `npm run lint:md` and relevant validations before committing.
     iac-common/        # Shared deploy patterns + circuit-breaker.md
   instructions/        # File-type rules with glob-based auto-application
   agent-registry.json  # Machine-readable agent role → file/model/skills mapping
-  skill-affinity.json  # Skill/agent affinity weights (primary/secondary/never)
   copilot-instructions.md  # VS Code Copilot-specific orchestration instructions
 agent-output/          # All agent-generated artifacts organized by project
   {project}/           # Per-project: 00-session-state.json + 01-requirements.md through 07-*.md
@@ -211,7 +209,6 @@ infra/
     .azure/            # azd environment state (git-ignored)
       plan.md          # azure-prepare output — source of truth for validate/deploy
 assets/
-  excalidraw-libraries/  # Excalidraw libraries (whiteboarding only)
   drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)

@@ -49,7 +49,6 @@
     "validate:session-lock": "node scripts/validate-session-lock.mjs",
     "validate:workflow-graph": "node scripts/validate-workflow-graph.mjs",
     "validate:agent-registry": "node scripts/validate-agent-registry.mjs",
-    "validate:skill-affinity": "node scripts/validate-skills.mjs",
     "validate:skill-checks": "node scripts/validate-skill-checks.mjs",
     "validate:stale-refs": "node scripts/validate-skills.mjs",
     "lint:model-alignment": "node scripts/validate-agents.mjs",

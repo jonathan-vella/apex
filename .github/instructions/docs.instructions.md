@@ -38,7 +38,7 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 
 See `.github/count-manifest.json` for current agent, subagent, and skill counts.
 See `.github/agent-registry.json` for the agent role → file mapping.
-See `.github/skill-affinity.json` for the skill catalog.
+See `.github/agent-registry.json` for the agent role → file/model/skills mapping.
 
 ## Prohibited References
 
@@ -62,12 +62,12 @@ Do NOT reference these removed agents/skills:
 Use Starlight's four built-in admonition types consistently. Pick the weakest
 type that communicates the urgency; escalate only when needed.
 
-| Type      | When to use                                                         | Syntax                     |
-| --------- | ------------------------------------------------------------------- | -------------------------- |
-| `note`    | Side information that aids understanding but isn't required         | `:::note` … `:::`          |
-| `tip`     | Optional best practice or shortcut                                  | `:::tip` … `:::`           |
-| `caution` | Behaviour that can cause confusion, unexpected cost, or rework      | `:::caution` … `:::`       |
-| `danger`  | Data loss, security regression, irreversible destructive action     | `:::danger` … `:::`        |
+| Type      | When to use                                                     | Syntax               |
+| --------- | --------------------------------------------------------------- | -------------------- |
+| `note`    | Side information that aids understanding but isn't required     | `:::note` … `:::`    |
+| `tip`     | Optional best practice or shortcut                              | `:::tip` … `:::`     |
+| `caution` | Behaviour that can cause confusion, unexpected cost, or rework  | `:::caution` … `:::` |
+| `danger`  | Data loss, security regression, irreversible destructive action | `:::danger` … `:::`  |
 
 Rules:
 

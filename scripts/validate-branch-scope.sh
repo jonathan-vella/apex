@@ -34,8 +34,8 @@ case "$PREFIX" in
     LABEL=".github/agents/, .github/agent-registry.json"
     ;;
   skills)
-    ALLOWED_PATTERN='^(\.github/skills/|\.github/skill-affinity\.json)'
-    LABEL=".github/skills/, .github/skill-affinity.json"
+    ALLOWED_PATTERN='^(\.github/skills/)'
+    LABEL=".github/skills/"
     ;;
   infra)
     ALLOWED_PATTERN='^infra/'

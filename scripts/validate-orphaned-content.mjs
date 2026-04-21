@@ -41,7 +41,6 @@ const KNOWN_UNLINKED_SKILLS = new Set([
   "copilot-customization",
   "count-registry",
   "entra-app-registration",
-  "excalidraw",
   "mermaid",
   "microsoft-foundry",
   "python-diagrams",

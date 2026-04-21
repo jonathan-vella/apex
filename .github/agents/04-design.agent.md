@@ -78,7 +78,7 @@ Expected output in `agent-output/{project}/`:
 - `03-des-diagram.drawio` — Architecture diagram (Draw.io format)
 - `03-des-adr-NNNN-{title}.md` — Architecture Decision Records
 - `03-des-cost-estimate.md` — Cost estimate handoff (optional)
-</output_contract>
+  </output_contract>
 
 ## Scope
 

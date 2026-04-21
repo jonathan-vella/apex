@@ -126,20 +126,20 @@ Every convention is backed by a machine-enforceable check. The validation suite 
 via two parallel groups: `validate:_node` (Node.js
 validators) and `validate:_external` (external tool validators):
 
-| Category            | Validators                                                                                |
-| ------------------- | ----------------------------------------------------------------------------------------- |
-| Markdown            | `lint:md`, `lint:links:docs`                                                              |
-| Artefact format     | `validate:artifacts`, `lint:artifact-templates`, `lint:h2-sync`                           |
-| Agent quality       | `validate:agents`                                                                         |
-| Skill quality       | `validate:skills`, `validate:skill-checks`, `lint:skill-references`, `lint:orphaned-content` |
-| Instruction quality | `validate:instruction-checks`                                                             |
-| Governance          | `lint:governance-refs`, `lint:mcp-config`                                                 |
-| Infrastructure      | `lint:terraform-fmt`, `validate:terraform`, `validate:iac-security-baseline`              |
-| Session state       | `validate:session-state`, `validate:session-lock`                                         |
-| Registry/config     | `validate:workflow-graph`, `validate:agent-registry`, `validate:skill-affinity`           |
-| Code quality        | `lint:json`, `lint:python`, `lint:yaml`                                                   |
-| VS Code config      | `validate:vscode`                                                                         |
-| Explorer graph      | `validate:explorer-graph`                                                                 |
+| Category            | Validators                                                                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Markdown            | `lint:md`, `lint:links:docs`                                                                                                                  |
+| Artefact format     | `validate:artifacts`, `lint:artifact-templates`, `lint:h2-sync`                                                                               |
+| Agent quality       | `validate:agents`                                                                                                                             |
+| Skill quality       | `validate:skills`, `validate:skill-checks`, `lint:skill-references`, `lint:orphaned-content`                                                  |
+| Instruction quality | `validate:instruction-checks`                                                                                                                 |
+| Governance          | `lint:governance-refs`, `lint:mcp-config`                                                                                                     |
+| Infrastructure      | `lint:terraform-fmt`, `validate:terraform`, `validate:iac-security-baseline`                                                                  |
+| Session state       | `validate:session-state`, `validate:session-lock`                                                                                             |
+| Registry/config     | `validate:workflow-graph`, `validate:agent-registry`                                                                                          |
+| Code quality        | `lint:json`, `lint:python`, `lint:yaml`                                                                                                       |
+| VS Code config      | `validate:vscode`                                                                                                                             |
+| Explorer graph      | `validate:explorer-graph`                                                                                                                     |
 | Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`, `validate:no-hardcoded-counts`, `validate:terminology` |
 
 See [`reference/validation-reference`](../../reference/validation-reference/)
@@ -235,14 +235,14 @@ Copilot hooks in `.github/hooks/` intercept agent actions at runtime. See the
 [Hooks guide](../../guides/hooks/) for the authoritative list; the current
 set covers:
 
-| Hook                   | Trigger               | Purpose                                                              |
-| ---------------------- | --------------------- | -------------------------------------------------------------------- |
-| `tool-guardian`        | `preToolUse`          | Blocks dangerous commands (destructive ops, force pushes, DB drops)  |
-| `secrets-scanner`      | `sessionEnd`          | Scans modified files for leaked secrets and credentials              |
-| `session-logger`       | `sessionStart`        | Logs session lifecycle and injects project context                   |
-| `governance-audit`     | `userPromptSubmitted` | Scans prompts for threat signals with governance levels              |
-| `post-edit-format`     | `PostToolUse`         | Auto-formats files after agent edits (whitespace, trailing newlines) |
-| `subagent-validation`  | subagent lifecycle    | Validates subagent invocation and outputs                            |
+| Hook                  | Trigger               | Purpose                                                              |
+| --------------------- | --------------------- | -------------------------------------------------------------------- |
+| `tool-guardian`       | `preToolUse`          | Blocks dangerous commands (destructive ops, force pushes, DB drops)  |
+| `secrets-scanner`     | `sessionEnd`          | Scans modified files for leaked secrets and credentials              |
+| `session-logger`      | `sessionStart`        | Logs session lifecycle and injects project context                   |
+| `governance-audit`    | `userPromptSubmitted` | Scans prompts for threat signals with governance levels              |
+| `post-edit-format`    | `PostToolUse`         | Auto-formats files after agent edits (whitespace, trailing newlines) |
+| `subagent-validation` | subagent lifecycle    | Validates subagent invocation and outputs                            |
 
 Hooks are defined in `hooks.json` files with type (`command`), path to shell script,
 and timeout. They run automatically — agents do not invoke them explicitly.

@@ -39,20 +39,20 @@ list is generated from `.github/skills/*/SKILL.md` and surfaced in the
 [Architecture Explorer](../../reference/architecture-explorer/). The total
 count is computed by `.github/count-manifest.json`. A grouped overview:
 
-| Domain               | Skills                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`, `azure-validate`                                                                                                                                                                                                                                                                                                                                                                                  |
-| Azure Operations     | `azure-diagnostics`, `azure-adr`, `azure-deploy`                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Diagram & Chart      | `drawio`, `excalidraw` (whiteboarding), `python-diagrams`, `mermaid`, `azure-diagrams` (routing)                                                                                                                                                                                                                                                                                                                                                                  |
-| Artefact Generation  | `azure-artifacts`, `context-shredding`                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Documentation        | `docs-writer`                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`, `count-registry`                                                                                                                                                                                                                                                                                                                                                                                        |
-| Deployment           | `iac-common`                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| GitHub Operations    | `github-operations`                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Terraform Tooling    | `terraform-search-import`, `terraform-test`                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-messaging`, `azure-kusto`, `azure-ai`, `azure-aigateway`, `azure-quotas`, `azure-resource-lookup`, `azure-resource-visualizer`, `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, `appinsights-instrumentation`, `entra-app-registration`, `microsoft-foundry`                                                                             |
-| Microsoft Learn      | `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator`                                                                                                                                                                                                                                                                                                                                                                                           |
-| Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`                                                                                                                                                                                                                                                                                                                                                                                               |
+| Domain               | Skills                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`, `azure-validate`                                                                                                                                                                                                                                                                                                       |
+| Azure Operations     | `azure-diagnostics`, `azure-adr`, `azure-deploy`                                                                                                                                                                                                                                                                                                                                       |
+| Diagram & Chart      | `drawio`, `python-diagrams`, `mermaid`, `azure-diagrams` (routing)                                                                                                                                                                                                                                                                                                                     |
+| Artefact Generation  | `azure-artifacts`, `context-shredding`                                                                                                                                                                                                                                                                                                                                                 |
+| Documentation        | `docs-writer`                                                                                                                                                                                                                                                                                                                                                                          |
+| Workflow and State   | `session-resume`, `workflow-engine`, `golden-principles`, `count-registry`                                                                                                                                                                                                                                                                                                             |
+| Deployment           | `iac-common`                                                                                                                                                                                                                                                                                                                                                                           |
+| GitHub Operations    | `github-operations`                                                                                                                                                                                                                                                                                                                                                                    |
+| Terraform Tooling    | `terraform-search-import`, `terraform-test`                                                                                                                                                                                                                                                                                                                                            |
+| Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-messaging`, `azure-kusto`, `azure-ai`, `azure-aigateway`, `azure-quotas`, `azure-resource-lookup`, `azure-resource-visualizer`, `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, `appinsights-instrumentation`, `entra-app-registration`, `microsoft-foundry` |
+| Microsoft Learn      | `microsoft-docs`, `microsoft-code-reference`, `microsoft-skill-creator`                                                                                                                                                                                                                                                                                                                |
+| Meta / Tooling       | `make-skill-template`, `context-optimizer`, `copilot-customization`                                                                                                                                                                                                                                                                                                                    |
 
 The `copilot-customization` skill is an authoritative reference for VS Code Copilot
 customisation mechanisms: instructions, prompt files, custom agents, agent skills,
@@ -66,34 +66,34 @@ Instructions are not read explicitly by agents. They are injected automatically 
 VS Code Copilot when a matching file is in context. The `applyTo` glob pattern controls
 when each instruction activates:
 
-| Instruction                      | `applyTo`                                                            | Enforces                                                            |
-| -------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `iac-bicep-best-practices`       | `**/*.bicep`                                                         | Bicep: security baseline, AVM, cost monitoring, repeatability       |
-| `iac-terraform-best-practices`   | `**/*.tf`                                                            | Terraform: AVM-TF, provider pinning, naming, security baseline     |
-| `iac-plan-best-practices`        | `**/04-implementation-plan.md`                                       | IaC plan structure, governance alignment                            |
-| `azure-artifacts`                | `**/agent-output/**/*.md`                                            | H2 template compliance for artefacts                                |
-| `agent-authoring`                | `**/*.agent.md`                                                      | Frontmatter standards for agents                                    |
-| `agent-research-first`           | `**/*.agent.md`, agent-output, skills                                | Mandatory research-before-implementation                            |
-| `agent-skills`                   | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                         |
-| `astro`                          | `site/**/*.{astro,mjs,ts}`                                           | Astro/Starlight site conventions                                    |
-| `drawio`                         | `**/*.drawio`, `**/*.drawio.svg`                                     | Draw.io diagram conventions                                         |
-| `instructions`                   | `**/*.instructions.md`                                               | Meta: instruction file guidelines                                   |
-| `markdown`                       | `**/*.md`                                                            | Documentation standards                                             |
-| `context-optimization`           | Agents, skills, instructions                                         | Context window management rules                                     |
-| `code-quality`                   | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`                    | Review priorities and comment quality                               |
-| `docs-trigger`                   | `**/*.agent.md`, `**/.github/skills/**/SKILL.md`, `**/scripts/*.mjs` | Trigger conditions for doc updates                                  |
-| `docs`                           | `site/src/content/docs/**/*.md`, `site/src/content/docs/**/*.mdx`    | User-facing documentation standards                                 |
-| `governance-discovery`           | `**/04-governance-constraints.*`                                     | Azure Policy discovery requirements                                 |
-| `github-actions`                 | `.github/workflows/*.yml`                                            | GitHub Actions workflow standards                                   |
-| `javascript`                     | `**/*.{js,mjs,cjs}`                                                  | JavaScript/Node.js conventions                                      |
-| `json`                           | `**/*.{json,jsonc}`                                                  | JSON/JSONC formatting                                               |
-| `lesson-collection`              | `agent-output/**/09-lessons-learned.*`                               | Lessons-learned capture format                                      |
-| `no-hardcoded-counts`            | `**`                                                                 | Entity counts must come from `count-manifest.json`                  |
-| `python`                         | `**/*.py`                                                            | Python coding conventions                                           |
-| `shell`                          | `**/*.sh`                                                            | Shell scripting best practices                                      |
-| `powershell`                     | `**/*.ps1`, `**/*.psm1`                                              | PowerShell cmdlet best practices                                    |
-| `prompt`                         | `**/*.prompt.md`                                                     | Prompt file guidelines                                              |
-| `no-heredoc`                     | `**`                                                                 | Prevents terminal heredoc corruption                                |
+| Instruction                    | `applyTo`                                                            | Enforces                                                       |
+| ------------------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `iac-bicep-best-practices`     | `**/*.bicep`                                                         | Bicep: security baseline, AVM, cost monitoring, repeatability  |
+| `iac-terraform-best-practices` | `**/*.tf`                                                            | Terraform: AVM-TF, provider pinning, naming, security baseline |
+| `iac-plan-best-practices`      | `**/04-implementation-plan.md`                                       | IaC plan structure, governance alignment                       |
+| `azure-artifacts`              | `**/agent-output/**/*.md`                                            | H2 template compliance for artefacts                           |
+| `agent-authoring`              | `**/*.agent.md`                                                      | Frontmatter standards for agents                               |
+| `agent-research-first`         | `**/*.agent.md`, agent-output, skills                                | Mandatory research-before-implementation                       |
+| `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                    |
+| `astro`                        | `site/**/*.{astro,mjs,ts}`                                           | Astro/Starlight site conventions                               |
+| `drawio`                       | `**/*.drawio`, `**/*.drawio.svg`                                     | Draw.io diagram conventions                                    |
+| `instructions`                 | `**/*.instructions.md`                                               | Meta: instruction file guidelines                              |
+| `markdown`                     | `**/*.md`                                                            | Documentation standards                                        |
+| `context-optimization`         | Agents, skills, instructions                                         | Context window management rules                                |
+| `code-quality`                 | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`                    | Review priorities and comment quality                          |
+| `docs-trigger`                 | `**/*.agent.md`, `**/.github/skills/**/SKILL.md`, `**/scripts/*.mjs` | Trigger conditions for doc updates                             |
+| `docs`                         | `site/src/content/docs/**/*.md`, `site/src/content/docs/**/*.mdx`    | User-facing documentation standards                            |
+| `governance-discovery`         | `**/04-governance-constraints.*`                                     | Azure Policy discovery requirements                            |
+| `github-actions`               | `.github/workflows/*.yml`                                            | GitHub Actions workflow standards                              |
+| `javascript`                   | `**/*.{js,mjs,cjs}`                                                  | JavaScript/Node.js conventions                                 |
+| `json`                         | `**/*.{json,jsonc}`                                                  | JSON/JSONC formatting                                          |
+| `lesson-collection`            | `agent-output/**/09-lessons-learned.*`                               | Lessons-learned capture format                                 |
+| `no-hardcoded-counts`          | `**`                                                                 | Entity counts must come from `count-manifest.json`             |
+| `python`                       | `**/*.py`                                                            | Python coding conventions                                      |
+| `shell`                        | `**/*.sh`                                                            | Shell scripting best practices                                 |
+| `powershell`                   | `**/*.ps1`, `**/*.psm1`                                              | PowerShell cmdlet best practices                               |
+| `prompt`                       | `**/*.prompt.md`                                                     | Prompt file guidelines                                         |
+| `no-heredoc`                   | `**`                                                                 | Prevents terminal heredoc corruption                           |
 
 When multiple instructions apply to the same file via overlapping `applyTo` globs,
 precedence rules determine which takes priority. See
@@ -186,25 +186,7 @@ Example: a pricing skill might have `SKILL.md` with a service-to-tool
 mapping table, `references/pricing-guidance.md` with detailed MCP tool
 usage, and `templates/cost-estimate.template.md` with the output skeleton.
 
-### Step 4: Register in Skill Affinity
-
-Update `.github/skill-affinity.json` to declare which agents use the skill:
-
-```json
-{
-  "my-new-skill": {
-    "primary": ["06b-Bicep CodeGen"],
-    "secondary": ["03-Architect"],
-    "never": ["09-Diagnose"]
-  }
-}
-```
-
-- **primary** — agent loads this skill by default
-- **secondary** — agent loads on demand when relevant
-- **never** — agent must not load this skill (prevents context waste)
-
-### Step 5: Wire Into Agent Bodies
+### Step 4: Wire Into Agent Bodies
 
 Add a skill reference in the relevant agent's `.agent.md` body:
 
@@ -214,7 +196,15 @@ Add a skill reference in the relevant agent's `.agent.md` body:
 1. **Read** `.github/skills/my-new-skill/SKILL.md`
 ```
 
-### Step 6: Validate
+Also add the skill to the agent's entry in `.github/agent-registry.json`:
+
+```json
+{
+  "skills": ["existing-skill", "my-new-skill"]
+}
+```
+
+### Step 5: Validate
 
 ```bash
 # Check skill format, size, and references
@@ -223,8 +213,8 @@ npm run validate:skills
 # Check skill body size and cross-references
 npm run validate:skill-checks
 
-# Verify skill-affinity consistency
-npm run validate:skill-affinity
+# Verify agent registry consistency
+npm run validate:agent-registry
 ```
 
 ### How Skill Discovery Works

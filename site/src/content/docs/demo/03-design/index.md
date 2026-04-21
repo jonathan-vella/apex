@@ -20,9 +20,7 @@ This is **Step 3: Design**, where specific architecture decisions are formalized
 
 ## Architecture Diagram
 
-![Architecture Diagram](/azure-agentic-infraops/demo/03-des-diagram.excalidraw.svg)
-
-Source: [Excalidraw source file](/azure-agentic-infraops/demo/03-des-diagram.excalidraw)
+_Diagram removed — Excalidraw is no longer in use. Architecture diagrams now use Draw.io._
 
 ## Cost Distribution
 

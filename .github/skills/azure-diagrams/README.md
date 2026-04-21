@@ -9,7 +9,6 @@ This skill routes diagram requests to the appropriate specialized skill:
 | Architecture diagrams          | [`drawio`](../drawio/)                   |
 | WAF / cost / compliance charts | [`python-diagrams`](../python-diagrams/) |
 | Inline markdown diagrams       | [`mermaid`](../mermaid/)                 |
-| Hand-drawn whiteboarding       | [`excalidraw`](../excalidraw/)           |
 
 See [SKILL.md](SKILL.md) for the full routing table.
 

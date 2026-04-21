@@ -50,11 +50,6 @@
 *.so binary
 *.dylib binary
 
-# Excalidraw diagram files
-*.excalidraw text eol=lf
-*.excalidrawlib text eol=lf
-*.excalidraw.svg binary
-
 # Draw.io diagram files
 *.drawio text eol=lf
 assets/drawio-libraries/**/*.xml binary

@@ -182,10 +182,10 @@ and deploy agent integration.
 validation that only runs checks for changed file domains. This project's `pre-push` hook
 in `lefthook.yml` categorises changed files and runs only matching validators in parallel.
 
-**Built-in tools catalog with skill affinity.** Bosun's `agent-custom-tools.mjs` includes
+**Built-in tools catalog with skill mapping.** Bosun's `agent-custom-tools.mjs` includes
 a `BUILTIN_TOOLS` catalog that maps which tools and skills each agent profile needs.
-This project's `skill-affinity.json` maps each agent to skills with affinity weights
-(`primary`, `secondary`, `never`).
+This project's `agent-registry.json` maps each agent to its required skills via the
+`skills` array.
 
 **Agent prompts registry.** Bosun's `agent-prompts.mjs` provides a machine-readable
 registry of agent configurations. This project's `agent-registry.json` maps each agent

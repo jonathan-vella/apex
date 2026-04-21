@@ -93,7 +93,6 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `azure-defaults`              | `azure-defaults/`              | Azure Conventions   | "azure defaults", "naming"                |
 | `azure-deploy`                | `azure-deploy/`                | Deployment          | "azd up", "deploy", "go live"             |
 | `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
-| `excalidraw`                  | `excalidraw/`                  | Whiteboarding       | "whiteboard", "brainstorm", "sketch"      |
 | `python-diagrams`             | `python-diagrams/`             | Document Creation   | "create chart", "WAF chart"               |
 | `mermaid`                     | `mermaid/`                     | Document Creation   | "mermaid diagram", "flowchart"            |
 | `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to drawio/python-diagrams/mermaid  |

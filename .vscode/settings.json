@@ -51,10 +51,5 @@
   "deno.enable": false,
   "deno.enablePaths": ["mcp/drawio-mcp-server"],
   "deno.lint": true,
-  "deno.unstable": [],
-  "workbench.editorAssociations": {
-    "*.excalidraw": "editor.excalidraw",
-    "*.excalidraw.svg": "editor.excalidraw",
-    "*.excalidraw.png": "editor.excalidraw"
-  }
+  "deno.unstable": []
 }

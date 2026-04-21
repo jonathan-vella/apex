@@ -26,7 +26,7 @@ The As-Built agent generates a complete documentation package after successful d
 
 ## Architecture (As-Built)
 
-![As-Built Architecture](/azure-agentic-infraops/demo/07-ab-diagram.excalidraw.svg)
+_Diagram removed — Excalidraw is no longer in use. Architecture diagrams now use Draw.io._
 
 ## Cost Distribution (Actual)
 
@@ -111,9 +111,7 @@ Cloud-based farm-to-table ordering platform connecting farms, restaurants, and c
 
 ### 2.1 Architecture Diagram
 
-![System Context Diagram - nordic-fresh-foods](/azure-agentic-infraops/demo/07-ab-diagram.excalidraw.svg)
-
-Source: [As-built architecture Excalidraw source](/azure-agentic-infraops/demo/07-ab-diagram.excalidraw)
+_Diagram removed — Excalidraw is no longer in use. Architecture diagrams now use Draw.io._
 
 ### 2.2 Resource Summary
 
@@ -266,7 +264,7 @@ Monitoring stack:
 | Azure Architecture Center  | [Architectures](https://learn.microsoft.com/azure/architecture/)                                   |
 | Security Best Practices    | [Security Baseline](https://learn.microsoft.com/security/benchmark/azure/overview)                 |
 | Networking Best Practices  | [Network Security](https://learn.microsoft.com/azure/security/fundamentals/network-best-practices) |
-| Backup Best Practices      | [Azure Backup](https://learn.microsoft.com/azure/backup/backup-best-practices)                     |
+| Backup Best Practices      | [Azure Backup](https://learn.microsoft.com/azure/backup/backup-overview)                           |
 | Monitoring Overview        | [Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/overview)                          |
 
 ---
@@ -483,7 +481,7 @@ az sql db show \
 | Topic                 | Link                                                                                            |
 | --------------------- | ----------------------------------------------------------------------------------------------- |
 | Azure Backup Overview | [Backup Overview](https://learn.microsoft.com/azure/backup/backup-overview)                     |
-| Backup Best Practices | [Best Practices](https://learn.microsoft.com/azure/backup/backup-best-practices)                |
+| Backup Best Practices | [Best Practices](https://learn.microsoft.com/azure/backup/backup-overview)                     |
 | RTO/RPO Guidance      | [Reliability Metrics](https://learn.microsoft.com/azure/well-architected/reliability/metrics)   |
 | Site Recovery         | [ASR Overview](https://learn.microsoft.com/azure/site-recovery/site-recovery-overview)          |
 | Business Continuity   | [DR Planning](https://learn.microsoft.com/azure/well-architected/reliability/disaster-recovery) |
@@ -628,7 +626,7 @@ _Resource inventory generated from deployed resources and Bicep templates._
 **Region**: swedencentral
 **Environment**: Production
 **MCP Tools Used**: `azure_bulk_estimate`, `azure_cost_estimate`, `azure_price_search`, `azure_sku_discovery` (via subagent)
-**IaC Reference**: [Bicep templates repository folder](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/infra/bicep/nordic-fresh-foods)
+**IaC Reference**: `infra/bicep/nordic-fresh-foods/` (demo project)
 
 ### 💵 Cost At-a-Glance
 

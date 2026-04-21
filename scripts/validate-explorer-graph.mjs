@@ -34,7 +34,6 @@ const SOURCE_DIRS = [
 const SOURCE_FILES = [
   ".vscode/mcp.json",
   ".github/agent-registry.json",
-  ".github/skill-affinity.json",
   "package.json",
 ];
 

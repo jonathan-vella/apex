@@ -26,8 +26,6 @@ Do NOT load this skill's references directly — load the target skill instead.
 | Python architecture diagrams (diagrams lib)    | `python-diagrams` | `.py` + `.png`    |
 | Swimlane / ERD / timeline / wireframe          | `python-diagrams` | `.py` + `.png`    |
 | Inline markdown diagrams (flowchart, sequence) | `mermaid`         | fenced code block |
-| Azure resource visualization                   | `mermaid`         | fenced code block |
-| Hand-drawn whiteboarding / brainstorming       | `excalidraw`      | `.excalidraw`     |
 
 ## How to Use
 

@@ -84,12 +84,11 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 ### Artifact and Template Validators
 
-| npm Command          | Script                          | Purpose                                                                                   |
-| -------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
-| `validate:artifacts` | `validate-artifacts.mjs`        | H2 sync, template compliance, and auto-fix (with `--fix`)                                 |
-| `lint:excalidraw`    | `validate-excalidraw-files.mjs` | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset |
-| `e2e:validate`       | `validate-e2e-step.mjs`         | E2E pipeline structural validation                                                        |
-| `e2e:benchmark`      | `benchmark-e2e.mjs`             | 8-dimension benchmark scoring                                                             |
+| npm Command          | Script                   | Purpose                                                   |
+| -------------------- | ------------------------ | --------------------------------------------------------- |
+| `validate:artifacts` | `validate-artifacts.mjs` | H2 sync, template compliance, and auto-fix (with `--fix`) |
+| `e2e:validate`       | `validate-e2e-step.mjs`  | E2E pipeline structural validation                        |
+| `e2e:benchmark`      | `benchmark-e2e.mjs`      | 8-dimension benchmark scoring                             |
 
 ### Governance and Compliance Validators
 
@@ -152,15 +151,15 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 All workflows are in `.github/workflows/`.
 
-| Workflow                  | File                            | Trigger                               | Purpose                                                      |
-| ------------------------- | ------------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-| CI                        | `ci.yml`                        | PR to `main`, push to `main`          | Full validation suite (markdown, artifacts, agents, skills, instructions, JSON, MCP, VS Code config) |
-| Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                          | Branch naming convention and scope validation                |
-| Link Check                | `link-check.yml`                | Docs changes                          | URL validity in documentation                                |
-| Docs                      | `docs.yml`                      | Docs changes                          | Build and deploy Astro Starlight site                        |
-| E2E Validation            | `e2e-validation.yml`            | Agent output changes                  | E2E pipeline structural validation                           |
-| Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)                    | Freshness audits, orphaned content, glob audit               |
-| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                             | Track Azure service deprecations                             |
+| Workflow                  | File                            | Trigger                      | Purpose                                                                                              |
+| ------------------------- | ------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, artifacts, agents, skills, instructions, JSON, MCP, VS Code config) |
+| Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                        |
+| Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                        |
+| Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                                |
+| E2E Validation            | `e2e-validation.yml`            | Agent output changes         | E2E pipeline structural validation                                                                   |
+| Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                       |
+| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                     |
 
 ## Running Validations Locally
 

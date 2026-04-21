@@ -1,6 +1,6 @@
 ---
 name: drawio
-description: "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), or Excalidraw diagrams (use excalidraw)."
+description: "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams) or inline Mermaid (use mermaid)."
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
@@ -258,6 +258,25 @@ The script fixes:
 Use the Azure-aligned color palette from `get-style-presets` and the style
 examples in `references/style-reference.md`. Standard output filenames and the
 validation checklist live in `references/validation-checklist.md`.
+
+## Gotchas
+
+- **`text: ""` breaks shapes** — Every shaped vertex MUST have a `text`
+  label or omit `text` entirely. NEVER pass `text: ""` (empty string).
+- **Do NOT specify dimensions with `shape_name`** — Do NOT pass `width`,
+  `height`, or `style` when using `shape_name` — the MCP server auto-applies
+  correct dimensions. Specifying these breaks icon rendering.
+- **Transactional mode MUST call `finish-diagram`** — When using
+  `transactional: true`, MUST call `finish-diagram` at the end. Without it,
+  diagram contains ~2KB placeholder shapes instead of real SVG icons.
+- **Never read large MCP responses through LLM** — When a tool returns
+  full XML in JSON (~200KB), extract via terminal (Python script) to avoid
+  context window inflation.
+- **Batch-only workflow** — Every tool accepting arrays MUST be called
+  ONCE with ALL items. Never call repeatedly for individual items.
+- **No anchor points or waypoints** — Never set `entryX`, `entryY`,
+  `exitX`, `exitY` in edge style. Do not add `<Array as="points">` or
+  `<mxPoint>` elements.
 
 ## Reference Index
 

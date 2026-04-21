@@ -506,9 +506,7 @@ config:
 
 ## 🔗 Dependency Graph
 
-![Dependency Diagram](/azure-agentic-infraops/demo/04-dependency-diagram.excalidraw.svg)
-
-Source: [Dependency diagram Excalidraw source](/azure-agentic-infraops/demo/04-dependency-diagram.excalidraw)
+_Diagram removed — Excalidraw is no longer in use. Architecture diagrams now use Draw.io._
 
 ```text
 Resource Group
@@ -530,15 +528,13 @@ Resource Group
 └── Budget Alert
 ```
 
-The editable source for this diagram is the Excalidraw file linked above.
+The dependency structure is shown in the text diagram below.
 
 ---
 
 ## 🔄 Runtime Flow Diagram
 
-![Runtime Flow Diagram](/azure-agentic-infraops/demo/04-runtime-diagram.excalidraw.svg)
-
-Source: [Runtime flow Excalidraw source](/azure-agentic-infraops/demo/04-runtime-diagram.excalidraw)
+_Diagram removed — Excalidraw is no longer in use. Architecture diagrams now use Draw.io._
 
 ```text
 User Request
@@ -560,7 +556,7 @@ Log Analytics ◄── Diagnostic Settings (all resources)
 Budget Alert ──→ Email notification (CTO)
 ```
 
-The editable source for this diagram is the Excalidraw file linked above.
+The runtime flow structure is shown in the text diagram above.
 
 ---
 

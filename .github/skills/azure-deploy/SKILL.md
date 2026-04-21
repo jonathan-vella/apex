@@ -92,6 +92,13 @@ Activate this skill when user wants to:
 - [Troubleshooting](references/troubleshooting.md) - Common issues and solutions
 - [Post-Deployment Steps](references/recipes/azd/post-deployment.md) - SQL + EF Core setup
 
+## Gotchas
+
+- **FORBIDDEN: Do NOT manually update plan status to `Validated`** — Only the **azure-validate** skill can set this after running actual checks. Manually updating causes deployment failures.
+- **Plan status MUST be `Validated` before deploying** — If status is not `Validated`, invoke **azure-validate** first. Do NOT proceed.
+- **Prerequisite chain is strict** — `azure-prepare` → `azure-validate` → `azure-deploy`. Skipping validation causes failures.
+- **Validation Proof must be populated** — The plan's **Validation Proof** section must contain actual results (commands run, timestamps). If empty, validation was bypassed.
+
 ## Reference Index
 
 Load these on demand — do NOT read all at once:

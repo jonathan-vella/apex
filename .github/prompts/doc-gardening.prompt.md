@@ -44,9 +44,9 @@ stop and ask the user (do not create them silently):
    `node scripts/validate-no-deprecated-refs.mjs` to catch stale script/module refs.
 
 3. **Cross-reference integrity** — run `node scripts/validate-skills.mjs` (covers format
-   + size; replaces the historical `validate-skills-format.mjs`) and
-   `node scripts/validate-agents.mjs` (covers frontmatter; replaces the historical
-   `validate-agent-frontmatter.mjs`).
+   - size; replaces the historical `validate-skills-format.mjs`) and
+     `node scripts/validate-agents.mjs` (covers frontmatter; replaces the historical
+     `validate-agent-frontmatter.mjs`).
 
 4. **Count-manifest alignment** — run `node scripts/validate-no-hardcoded-counts.mjs`.
    Additionally, scan `site/src/content/docs/**/*.{md,mdx}`, `README.md`, `AGENTS.md`,
@@ -59,7 +59,7 @@ stop and ask the user (do not create them silently):
    timestamp (or file mtime as fallback) against the newest mtime across
    `.github/agents/**`, `.github/agents/_subagents/**`, `.github/skills/**`,
    `.github/instructions/**`, `.github/prompts/**`, `.vscode/mcp.json`,
-   `.github/agent-registry.json`, `.github/skill-affinity.json`. Flag as stale if any
+   `.github/agent-registry.json`. Flag as stale if any
    source is newer than the graph. Recommend running `npm run build:explorer-graph`.
 
 6. **Quality score review** — read `QUALITY_SCORE.md`, compare grades against current
