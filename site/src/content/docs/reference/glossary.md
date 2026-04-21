@@ -278,8 +278,7 @@ Learn (official documentation search and code sample discovery).
 ### MJS (ECMAScript Module)
 
 A JavaScript file using modern `import`/`export` syntax (as opposed to `.cjs` which
-uses `require()`). Bosun's codebase uses `.mjs` files. This project's validation
-scripts in `scripts/` also use the `.mjs` extension.
+uses `require()`). This project's validation scripts in `scripts/` use the `.mjs` extension.
 
 ### MTTR (Mean Time To Recovery)
 

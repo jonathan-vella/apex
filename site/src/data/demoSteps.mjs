@@ -11,38 +11,43 @@ const stepDefinitions = [
     agent: "Multi-agent workflow",
     artifact: "Walkthrough hub",
     summary:
-      "Start with the business context, the architecture snapshot, and the full step map before diving into the generated artifacts.",
+      "A Maltese catering outlet needs an online ordering app on Azure. Start with the business context, architecture snapshot, and full step map.",
     focus:
-      "Orient yourself around the end-to-end flow, the audience, and the proof points that make the walkthrough credible.",
+      "Orient yourself around the end-to-end flow, the scenario, and the proof points that make the walkthrough credible.",
     sections: ["Scenario", "Workflow map", "Proof points"],
   },
   {
     id: "requirements",
-    label: "Step 1 — Requirements Discovery",
-    slug: "demo/01-requirements-discovery",
+    label: "Step 1 — Requirements",
+    slug: "demo/01-requirements",
     stepLabel: "Step 1",
     chipLabel: "1",
-    shortTitle: "Requirements Discovery",
+    shortTitle: "Requirements",
     agent: "Requirements Agent",
     artifact: "Business and technical requirements",
     summary:
-      "The opening artifact defines the workload goals, success criteria, non-functional requirements, compliance scope, and budget guardrails.",
+      "The opening artifact captures what the catering outlet needs: an online ordering app for pastizzi, Cisk, and Kinnie with GDPR compliance and a EUR 100-500 monthly budget.",
     focus:
-      "Read this step to understand what the platform must deliver before architecture and governance narrow the solution space.",
-    sections: ["Business context", "Success criteria", "Constraints"],
+      "Read this step to understand the workload goals, compliance scope, and budget constraints before architecture narrows the solution space.",
+    sections: [
+      "Business context",
+      "Functional requirements",
+      "Compliance & security",
+      "Budget & scaling",
+    ],
     items: [
-      { label: "Overview", slug: "demo/01-requirements-discovery" },
+      { label: "Overview", slug: "demo/01-requirements" },
       {
         label: "Functional Requirements",
-        slug: "demo/01-requirements-discovery/functional",
+        slug: "demo/01-requirements/functional",
       },
       {
         label: "Compliance & Security",
-        slug: "demo/01-requirements-discovery/compliance-security",
+        slug: "demo/01-requirements/compliance-security",
       },
       {
         label: "Budget & Scaling",
-        slug: "demo/01-requirements-discovery/budget-scaling",
+        slug: "demo/01-requirements/budget-scaling",
       },
     ],
   },
@@ -64,9 +69,9 @@ const stepDefinitions = [
     agent: "Architect Agent",
     artifact: "WAF assessment and SKU recommendations",
     summary:
-      "This step translates the workload into an Azure architecture, tests it against the Well-Architected Framework, and sizes the core services.",
+      "App Service S1 with VNet integration and private endpoints. WAF scores: Security 8, Reliability 7, Performance 9, Cost 7, Operations 7. Estimated ~$155/month.",
     focus:
-      "Use it to see the trade-offs between security, cost, reliability, and operational complexity before implementation begins.",
+      "See the trade-offs between security posture, cost, and operational complexity before implementation begins.",
     sections: ["Service topology", "WAF assessment", "SKU recommendations"],
   },
   {
@@ -84,9 +89,9 @@ const stepDefinitions = [
     agent: "Design Agent",
     artifact: "ADRs, diagrams, and cost visuals",
     summary:
-      "The design pass turns the architecture into visual artifacts and formal design decisions that can be reviewed by humans before coding.",
+      "Three ADRs (App Service S1, Table Storage, public network posture), architecture diagram, and cost breakdown with distribution and projection charts.",
     focus:
-      "Look here for the diagrams, the architecture decision record, and the supporting visuals that make the plan easier to audit.",
+      "Look here for the diagrams, architecture decisions, and cost visuals that make the plan auditable before coding starts.",
     sections: [
       "Architecture diagram",
       "Architecture decisions",
@@ -99,11 +104,11 @@ const stepDefinitions = [
     slug: "demo/04-governance",
     items: [
       { label: "Overview", slug: "demo/04-governance" },
+      { label: "Tagging Policy", slug: "demo/04-governance/tags" },
       {
-        label: "Tagging & Deployment Validation",
-        slug: "demo/04-governance/tags",
+        label: "Security & Network Policies",
+        slug: "demo/04-governance/security",
       },
-      { label: "Security Constraints", slug: "demo/04-governance/security" },
     ],
     stepLabel: "Step 3.5",
     chipLabel: "3.5",
@@ -111,9 +116,9 @@ const stepDefinitions = [
     agent: "Governance Agent",
     artifact: "Azure Policy constraints",
     summary:
-      "Governance discovery checks what the target subscription will actually allow, so the implementation plan is grounded in policy reality.",
+      "Live REST API discovery found 21 policy assignments including a 9-tag deny blocker on resource groups. Storage and Key Vault hardening are audit-only.",
     focus:
-      "This is the policy checkpoint that prevents the plan from drifting away from Azure Policy, tagging, networking, or security constraints.",
+      "This is the policy checkpoint that prevents the plan from drifting away from Azure Policy, tagging, and security constraints.",
     sections: ["Policy effects", "Required tags", "Deployment blockers"],
   },
   {
@@ -122,7 +127,7 @@ const stepDefinitions = [
     slug: "demo/05-plan",
     items: [
       { label: "Overview", slug: "demo/05-plan" },
-      { label: "Azure Verified Modules (AVM)", slug: "demo/05-plan/modules" },
+      { label: "Module Architecture", slug: "demo/05-plan/modules" },
       { label: "Implementation Phases", slug: "demo/05-plan/phases" },
     ],
     stepLabel: "Step 4",
@@ -131,9 +136,9 @@ const stepDefinitions = [
     agent: "IaC Planner",
     artifact: "Implementation plan and dependency flow",
     summary:
-      "The planner turns the approved architecture into a phased implementation sequence with dependencies, module structure, and deployment ordering.",
+      "12 resources across 10 AVM Bicep modules deployed in 5 phases. Governance-adapted tag contract expands from 4 to 9 required tags.",
     focus:
-      "Use this step to understand how the future codebase is organized and how the deployment is staged for safe delivery.",
+      "Understand how the codebase is organized and how deployment is staged for safe delivery.",
     sections: ["Module structure", "Implementation tasks", "Dependency flow"],
   },
   {
@@ -148,13 +153,13 @@ const stepDefinitions = [
     stepLabel: "Step 5",
     chipLabel: "5",
     shortTitle: "Infra-as-Code Gen",
-    agent: "CodeGen Agent",
+    agent: "Bicep CodeGen Agent",
     artifact: "Bicep templates and validation results",
     summary:
-      "This step shows the AVM-first Bicep output, the resulting module layout, and the validation trail that proves the generated code is viable.",
+      "AVM-first Bicep output with 10 modules. Bicep build, lint, and security baseline all pass. Preflight check confirms AVM versions.",
     focus:
-      "Review this artifact to see how the planning decisions become concrete Azure infrastructure code and how the validation loop tightens quality.",
-    sections: ["IaC modules", "Validation results", "Implementation notes"],
+      "Review how planning decisions become concrete Bicep code and how the validation loop tightens quality.",
+    sections: ["File structure", "Validation results", "AVM modules"],
   },
   {
     id: "deploy",
@@ -171,9 +176,9 @@ const stepDefinitions = [
     agent: "Deploy Agent",
     artifact: "Deployment execution summary",
     summary:
-      "The deploy step records what was provisioned, what succeeded, and which post-deployment tasks remain after the infrastructure reaches Azure.",
+      "Deployed via azd provision in 5 minutes. S1 was unavailable in swedencentral — auto-switched to P0v3. All 12 resources provisioned successfully.",
     focus:
-      "Use it to inspect the preflight checks, the deployment phases, and the final resource outputs from the live rollout.",
+      "Inspect the preflight checks, deployment phases, and final resource outputs from the live rollout.",
     sections: ["Preflight checks", "Deployment phases", "Outputs"],
   },
   {
@@ -182,11 +187,9 @@ const stepDefinitions = [
     slug: "demo/08-as-built",
     items: [
       { label: "Overview", slug: "demo/08-as-built" },
+      { label: "Design & Inventory", slug: "demo/08-as-built/design" },
       { label: "Operations Runbook", slug: "demo/08-as-built/runbook" },
-      {
-        label: "Compliance Matrix",
-        slug: "demo/08-as-built/compliance-matrix",
-      },
+      { label: "Compliance & Cost", slug: "demo/08-as-built/compliance" },
     ],
     stepLabel: "Step 7",
     chipLabel: "7",
@@ -194,10 +197,10 @@ const stepDefinitions = [
     agent: "As-Built Agent",
     artifact: "Operational documentation suite",
     summary:
-      "The final delivery package turns the deployed workload into runbooks, architecture documentation, inventories, compliance views, and cost reporting.",
+      "Post-deployment documentation: design document, resource inventory, operations runbook, backup/DR plan, compliance matrix, and cost estimate.",
     focus:
       "This is the handover step for operators and stakeholders who need to understand what was delivered and how to run it safely.",
-    sections: ["Architecture", "Resources", "Operations", "Compliance", "Cost"],
+    sections: ["Design", "Resources", "Operations", "Compliance", "Cost"],
   },
   {
     id: "reviews",
@@ -205,20 +208,24 @@ const stepDefinitions = [
     slug: "demo/09-reviews",
     items: [
       { label: "Overview", slug: "demo/09-reviews" },
+      { label: "Requirements Review", slug: "demo/09-reviews/requirements" },
       { label: "Architecture Review", slug: "demo/09-reviews/architecture" },
       { label: "Governance Review", slug: "demo/09-reviews/governance" },
-      { label: "IaC Plan Review", slug: "demo/09-reviews/plan" },
+      {
+        label: "Implementation Review",
+        slug: "demo/09-reviews/implementation",
+      },
     ],
     stepLabel: "Reviews",
     chipLabel: "R",
-    shortTitle: "Adversarial reviews",
+    shortTitle: "Adversarial Reviews",
     agent: "Challenger Agent",
     artifact: "Cross-step findings",
     summary:
-      "The walkthrough closes with the challenge passes that forced corrections across requirements, architecture, planning, and deployment.",
+      "Four independent adversarial reviews found 1 critical (ACR SKU mismatch), 2 high, 10 medium, and 13 low findings across all workflow steps.",
     focus:
-      "Read this page to see where the system pushed back, what it caught, and how adversarial review improves the final output.",
-    sections: ["Review findings", "Corrections", "Residual risks"],
+      "See where the system pushed back, what it caught, and how adversarial review improves the final output.",
+    sections: ["Requirements", "Architecture", "Governance", "Implementation"],
   },
 ];
 
@@ -229,7 +236,7 @@ export const demoSteps = stepDefinitions.map((step) => ({
 
 export const demoStats = [
   { label: "Workflow steps", value: "7 + governance" },
-  { label: "Challenge passes", value: "12 reviews" },
+  { label: "Challenge passes", value: "4 reviews" },
   { label: "IaC track", value: "Bicep + AVM" },
   { label: "Primary region", value: "Sweden Central" },
 ];

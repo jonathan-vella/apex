@@ -115,7 +115,7 @@ that lose critical decision context. The Session Break Protocol:
 4. User starts a new chat, invokes Orchestrator again
 5. Orchestrator reads `00-session-state.json`, finds the next pending step, and resumes
 
-This was driven by real-world observation: the nordic-fresh-foods end-to-end test
+This was driven by real-world observation: the malta-catering end-to-end test
 experienced 5 forced context summarisations in a single 3h39m session.
 
 ## Quality and Safety Systems

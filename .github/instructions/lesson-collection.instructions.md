@@ -47,6 +47,7 @@ All production triggers PLUS:
 
 ## Lesson Schema
 
+Formal JSON Schema: `schemas/lesson-log.schema.json`.
 Read `.github/skills/session-resume/references/lesson-schema.md` for the
 full JSON schema. Required fields per entry: `id`, `step`, `category`,
 `severity`, `title`, `observation`, `root_cause`, `recommendation`,

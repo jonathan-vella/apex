@@ -26,6 +26,25 @@ explain the multi-agent workflow, and demonstrate the end-to-end pipeline to sta
 
 ---
 
+## Demo Workspace
+
+### BMIT 2026 — Il-Pastizzeria ta' Mario
+
+The full demo workspace from The Perspectives 2026 session. Includes the React app,
+Bicep infrastructure (10 AVM modules), agent output artifacts, and the complete
+malta-catering project that powers the [demo walkthrough](/azure-agentic-infraops/demo/).
+
+<a
+  href="/azure-agentic-infraops/downloads/bmit-2026.zip"
+  download
+  class="sl-link-button primary not-content"
+  style="display:inline-block;margin-bottom:1rem;">⬇ Download bmit-2026.zip (9.6 MB)</a>
+
+> **Contents:** App source code, Bicep templates, agent-output artifacts, devcontainer,
+> MCP servers, validation scripts. Open in VS Code with Dev Containers to get started.
+
+---
+
 ## Quick Access URL
 
 To share a direct download link:

@@ -1,5 +1,5 @@
 {
-  "$schema": "model-catalog-v1",
+  "$schema": "../../schemas/model-catalog.schema.json",
   "description": "Allowed Copilot Chat model names used by APEX agents. Canonical source for model-floor lint. Update this file when model availability changes or models deprecate.",
   "last_updated": "2026-04-16",
   "models": {
@@ -22,7 +22,12 @@
       "tier": "balanced",
       "released": "2026-01",
       "deprecated": false,
-      "use_for": ["design-diagrams", "iac-codegen", "governance", "challenger-review"],
+      "use_for": [
+        "design-diagrams",
+        "iac-codegen",
+        "governance",
+        "challenger-review"
+      ],
       "notes": "Strong code generation at lower cost than Opus. Prefer for long code outputs."
     },
     "GPT-5.4": {

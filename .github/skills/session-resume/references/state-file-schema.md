@@ -2,6 +2,8 @@
 
 # State File Schema: `00-session-state.json`
 
+Formal JSON Schema: [`schemas/session-state.schema.json`](../../../../schemas/session-state.schema.json)
+
 ## Schema Versions
 
 | Version | Description                                                        |

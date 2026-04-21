@@ -130,12 +130,12 @@ See `.github/instructions/agent-authoring.instructions.md` for the entry schema.
 
 ## Test Projects
 
-| Project                     | IaC Tool  | Complexity | Description                         |
-| --------------------------- | --------- | ---------- | ----------------------------------- |
-| `e2e-ralph-loop`            | Bicep     | Simple     | Nordic Fresh Foods Lite (canonical) |
-| `terraform-e2e`             | Terraform | Simple     | Small ecommerce storefront          |
-| `contoso-service-hub-run-1` | Bicep     | Complex    | Contoso Service Hub (RFP-driven)    |
-| `contoso-service-hub-run-2` | Bicep     | Complex    | Contoso Service Hub (second run)    |
+| Project                     | IaC Tool  | Complexity | Description                      |
+| --------------------------- | --------- | ---------- | -------------------------------- |
+| `e2e-ralph-loop`            | Bicep     | Simple     | Canonical E2E test (simple)      |
+| `terraform-e2e`             | Terraform | Simple     | Small ecommerce storefront       |
+| `contoso-service-hub-run-1` | Bicep     | Complex    | Contoso Service Hub (RFP-driven) |
+| `contoso-service-hub-run-2` | Bicep     | Complex    | Contoso Service Hub (second run) |
 
 ## Troubleshooting
 

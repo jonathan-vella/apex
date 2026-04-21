@@ -2,6 +2,8 @@
 
 # Lesson Schema Reference
 
+Formal JSON Schema: [`schemas/lesson-log.schema.json`](../../../../schemas/lesson-log.schema.json)
+
 Single source of truth for the `09-lessons-learned.json` structure.
 Both production and E2E orchestrators use this schema.
 
