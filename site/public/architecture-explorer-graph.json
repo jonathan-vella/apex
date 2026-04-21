@@ -1,6 +1,6 @@
 {
   "$schema": "architecture-explorer-graph-v1",
-  "generatedAt": "2026-04-20T17:25:36.715Z",
+  "generatedAt": "2026-04-21T09:45:38.225Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 48
+      "count": 47
     },
     {
       "id": "instruction",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 159,
-  "edgeCount": 705,
+  "nodeCount": 158,
+  "edgeCount": 698,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -889,7 +889,7 @@
       "id": "skill:drawio",
       "category": "skill",
       "label": "drawio",
-      "description": "Draw.io architecture diagrams for Azure via simonkurtz-MSFT MCP server — 700+ Azure icons, batch creation, transactional mode. USE FOR: architecture diagrams, dependency diagrams, runtime flow diagrams, as-built diagrams. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), Excalidraw diagrams (use excalidraw).",
+      "description": "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams) or inline Mermaid (use mermaid).",
       "path": ".github/skills/drawio/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md"
@@ -904,17 +904,6 @@
       "path": ".github/skills/entra-app-registration/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/entra-app-registration/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:excalidraw",
-      "category": "skill",
-      "label": "excalidraw",
-      "description": "Excalidraw hand-drawn whiteboarding, brainstorming, wireframes, and informal sketches. USE FOR: hand-drawn style diagrams, real-time collaborative sketching, wireframes, UI mockups, quick informal diagrams, brainstorming sessions. DO NOT USE FOR: Azure architecture diagrams (use drawio), WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), formal reference-architecture diagrams.",
-      "path": ".github/skills/excalidraw/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/excalidraw/SKILL.md"
       },
       "meta": {}
     },
@@ -1021,7 +1010,7 @@
       "id": "skill:python-diagrams",
       "category": "skill",
       "label": "python-diagrams",
-      "description": "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid), Excalidraw whiteboarding (use excalidraw).",
+      "description": "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid).",
       "path": ".github/skills/python-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/python-diagrams/SKILL.md"
@@ -2855,502 +2844,520 @@
       "kind": "hands-off"
     },
     {
-      "id": "agent:01-orchestrator--uses-primary->skill:workflow-engine",
-      "source": "agent:01-orchestrator",
+      "id": "prompt:01-orchestrator--uses->skill:golden-principles",
+      "source": "prompt:01-orchestrator",
+      "target": "skill:golden-principles",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:01-orchestrator--uses->skill:session-resume",
+      "source": "prompt:01-orchestrator",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:01-orchestrator--uses->skill:azure-defaults",
+      "source": "prompt:01-orchestrator",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:01-orchestrator--uses->instruction:azure-artifacts",
+      "source": "prompt:01-orchestrator",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:01-orchestrator--uses->skill:workflow-engine",
+      "source": "prompt:01-orchestrator",
       "target": "skill:workflow-engine",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:01-orchestrator--uses-secondary->skill:golden-principles",
-      "source": "agent:01-orchestrator",
-      "target": "skill:golden-principles",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-secondary->skill:session-resume",
-      "source": "agent:01-orchestrator",
-      "target": "skill:session-resume",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-secondary->skill:azure-defaults",
-      "source": "agent:01-orchestrator",
+      "id": "prompt:02-requirements--uses->skill:azure-defaults",
+      "source": "prompt:02-requirements",
       "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:01-orchestrator--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:01-orchestrator",
+      "id": "prompt:02-requirements--uses->instruction:azure-artifacts",
+      "source": "prompt:02-requirements",
       "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:01-orchestrator--uses-secondary->skill:context-shredding",
-      "source": "agent:01-orchestrator",
-      "target": "skill:context-shredding",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-secondary->skill:github-operations",
-      "source": "agent:01-orchestrator",
-      "target": "skill:github-operations",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-secondary->skill:microsoft-docs",
-      "source": "agent:01-orchestrator",
-      "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:golden-principles",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "skill:golden-principles",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:session-resume",
-      "source": "agent:01-orchestrator-fast-path",
+      "id": "prompt:02-requirements--uses->skill:session-resume",
+      "source": "prompt:02-requirements",
       "target": "skill:session-resume",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:azure-defaults",
-      "source": "agent:01-orchestrator-fast-path",
+      "id": "prompt:03-architect--uses->skill:azure-defaults",
+      "source": "prompt:03-architect",
       "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:01-orchestrator-fast-path",
+      "id": "prompt:03-architect--uses->instruction:azure-artifacts",
+      "source": "prompt:03-architect",
       "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:context-shredding",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "skill:context-shredding",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:github-operations",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "skill:github-operations",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-secondary->skill:microsoft-docs",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:02-requirements--uses-primary->skill:azure-defaults",
-      "source": "agent:02-requirements",
-      "target": "skill:azure-defaults",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:02-requirements--uses-primary->instruction:azure-artifacts",
-      "source": "agent:02-requirements",
-      "target": "instruction:azure-artifacts",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:02-requirements--uses-primary->skill:session-resume",
-      "source": "agent:02-requirements",
-      "target": "skill:session-resume",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:02-requirements--uses-secondary->skill:microsoft-docs",
-      "source": "agent:02-requirements",
-      "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:03-architect--uses-primary->skill:azure-defaults",
-      "source": "agent:03-architect",
-      "target": "skill:azure-defaults",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:03-architect--uses-primary->instruction:azure-artifacts",
-      "source": "agent:03-architect",
-      "target": "instruction:azure-artifacts",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:03-architect--uses-primary->skill:session-resume",
-      "source": "agent:03-architect",
-      "target": "skill:session-resume",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:03-architect--uses-secondary->skill:context-shredding",
-      "source": "agent:03-architect",
-      "target": "skill:context-shredding",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:03-architect--uses-secondary->mcp:drawio",
-      "source": "agent:03-architect",
+      "id": "prompt:03-architect--uses->mcp:drawio",
+      "source": "prompt:03-architect",
       "target": "mcp:drawio",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:03-architect--uses-secondary->skill:python-diagrams",
-      "source": "agent:03-architect",
+      "id": "prompt:03-architect--uses->skill:python-diagrams",
+      "source": "prompt:03-architect",
       "target": "skill:python-diagrams",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:03-architect--uses-secondary->skill:microsoft-docs",
-      "source": "agent:03-architect",
+      "id": "prompt:03-architect--uses->skill:context-shredding",
+      "source": "prompt:03-architect",
+      "target": "skill:context-shredding",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:03-architect--uses->skill:session-resume",
+      "source": "prompt:03-architect",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:03-architect--uses->skill:microsoft-docs",
+      "source": "prompt:03-architect",
       "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04-design--uses-primary->skill:azure-adr",
-      "source": "agent:04-design",
+      "id": "prompt:04-design--uses->mcp:drawio",
+      "source": "prompt:04-design",
+      "target": "mcp:drawio",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:04-design--uses->skill:python-diagrams",
+      "source": "prompt:04-design",
+      "target": "skill:python-diagrams",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:04-design--uses->skill:azure-adr",
+      "source": "prompt:04-design",
       "target": "skill:azure-adr",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04-design--uses-secondary->mcp:drawio",
-      "source": "agent:04-design",
-      "target": "mcp:drawio",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:04-design--uses-secondary->skill:python-diagrams",
-      "source": "agent:04-design",
-      "target": "skill:python-diagrams",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:04-design--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:04-design",
+      "id": "prompt:04-design--uses->instruction:azure-artifacts",
+      "source": "prompt:04-design",
       "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04-design--uses-secondary->skill:session-resume",
-      "source": "agent:04-design",
+      "id": "prompt:04-design--uses->skill:session-resume",
+      "source": "prompt:04-design",
       "target": "skill:session-resume",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04-design--uses-secondary->skill:microsoft-docs",
-      "source": "agent:04-design",
-      "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:04g-governance--uses-primary->skill:azure-defaults",
-      "source": "agent:04g-governance",
+      "id": "prompt:04g-governance--uses->skill:azure-defaults",
+      "source": "prompt:04g-governance",
       "target": "skill:azure-defaults",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04g-governance--uses-primary->skill:azure-governance-discovery",
-      "source": "agent:04g-governance",
+      "id": "prompt:04g-governance--uses->skill:azure-governance-discovery",
+      "source": "prompt:04g-governance",
       "target": "skill:azure-governance-discovery",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04g-governance--uses-primary->instruction:azure-artifacts",
-      "source": "agent:04g-governance",
+      "id": "prompt:04g-governance--uses->instruction:azure-artifacts",
+      "source": "prompt:04g-governance",
       "target": "instruction:azure-artifacts",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04g-governance--uses-primary->skill:session-resume",
-      "source": "agent:04g-governance",
+      "id": "prompt:04g-governance--uses->skill:session-resume",
+      "source": "prompt:04g-governance",
       "target": "skill:session-resume",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:04g-governance--uses-secondary->skill:microsoft-docs",
-      "source": "agent:04g-governance",
+      "id": "prompt:04g-governance--uses->skill:microsoft-docs",
+      "source": "prompt:04g-governance",
       "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-primary->skill:azure-bicep-patterns",
-      "source": "agent:05-iac-planner",
+      "id": "prompt:05-iac-planner--uses->skill:azure-defaults",
+      "source": "prompt:05-iac-planner",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:05-iac-planner--uses->instruction:azure-artifacts",
+      "source": "prompt:05-iac-planner",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:05-iac-planner--uses->skill:azure-bicep-patterns",
+      "source": "prompt:05-iac-planner",
       "target": "skill:azure-bicep-patterns",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-primary->skill:terraform-patterns",
-      "source": "agent:05-iac-planner",
+      "id": "prompt:05-iac-planner--uses->skill:terraform-patterns",
+      "source": "prompt:05-iac-planner",
       "target": "skill:terraform-patterns",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-secondary->skill:azure-defaults",
-      "source": "agent:05-iac-planner",
-      "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
+      "id": "prompt:05-iac-planner--uses->skill:terraform-test",
+      "source": "prompt:05-iac-planner",
+      "target": "skill:terraform-test",
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:05-iac-planner",
-      "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
+      "id": "prompt:05-iac-planner--uses->skill:terraform-search-import",
+      "source": "prompt:05-iac-planner",
+      "target": "skill:terraform-search-import",
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-secondary->skill:session-resume",
-      "source": "agent:05-iac-planner",
+      "id": "prompt:05-iac-planner--uses->skill:session-resume",
+      "source": "prompt:05-iac-planner",
       "target": "skill:session-resume",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-secondary->skill:context-shredding",
-      "source": "agent:05-iac-planner",
-      "target": "skill:context-shredding",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:05-iac-planner--uses-secondary->skill:microsoft-docs",
-      "source": "agent:05-iac-planner",
+      "id": "prompt:05-iac-planner--uses->skill:microsoft-docs",
+      "source": "prompt:05-iac-planner",
       "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:05-iac-planner--uses-secondary->skill:microsoft-code-reference",
-      "source": "agent:05-iac-planner",
+      "id": "prompt:05-iac-planner--uses->skill:microsoft-code-reference",
+      "source": "prompt:05-iac-planner",
       "target": "skill:microsoft-code-reference",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-primary->skill:azure-bicep-patterns",
-      "source": "agent:06b-bicep-codegen",
+      "id": "prompt:06b-bicep-codegen--uses->skill:azure-defaults",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06b-bicep-codegen--uses->instruction:azure-artifacts",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06b-bicep-codegen--uses->skill:azure-bicep-patterns",
+      "source": "prompt:06b-bicep-codegen",
       "target": "skill:azure-bicep-patterns",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-secondary->skill:azure-defaults",
-      "source": "agent:06b-bicep-codegen",
-      "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:06b-bicep-codegen",
-      "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-secondary->skill:session-resume",
-      "source": "agent:06b-bicep-codegen",
-      "target": "skill:session-resume",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-secondary->skill:context-shredding",
-      "source": "agent:06b-bicep-codegen",
+      "id": "prompt:06b-bicep-codegen--uses->skill:context-shredding",
+      "source": "prompt:06b-bicep-codegen",
       "target": "skill:context-shredding",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-secondary->skill:microsoft-docs",
-      "source": "agent:06b-bicep-codegen",
-      "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-secondary->skill:microsoft-code-reference",
-      "source": "agent:06b-bicep-codegen",
-      "target": "skill:microsoft-code-reference",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-primary->skill:terraform-patterns",
-      "source": "agent:06t-terraform-codegen",
-      "target": "skill:terraform-patterns",
-      "kind": "uses-primary"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-secondary->skill:azure-defaults",
-      "source": "agent:06t-terraform-codegen",
-      "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:06t-terraform-codegen",
-      "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-secondary->skill:session-resume",
-      "source": "agent:06t-terraform-codegen",
+      "id": "prompt:06b-bicep-codegen--uses->skill:session-resume",
+      "source": "prompt:06b-bicep-codegen",
       "target": "skill:session-resume",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-secondary->skill:context-shredding",
-      "source": "agent:06t-terraform-codegen",
+      "id": "prompt:06b-bicep-codegen--uses->skill:microsoft-docs",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "skill:microsoft-docs",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06b-bicep-codegen--uses->skill:microsoft-code-reference",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "skill:microsoft-code-reference",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->skill:azure-defaults",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->instruction:azure-artifacts",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->skill:terraform-patterns",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:terraform-patterns",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->skill:terraform-test",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:terraform-test",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->skill:terraform-search-import",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:terraform-search-import",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->skill:context-shredding",
+      "source": "prompt:06t-terraform-codegen",
       "target": "skill:context-shredding",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-secondary->skill:microsoft-docs",
-      "source": "agent:06t-terraform-codegen",
+      "id": "prompt:06t-terraform-codegen--uses->skill:session-resume",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--uses->skill:microsoft-docs",
+      "source": "prompt:06t-terraform-codegen",
       "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-secondary->skill:microsoft-code-reference",
-      "source": "agent:06t-terraform-codegen",
+      "id": "prompt:06t-terraform-codegen--uses->skill:microsoft-code-reference",
+      "source": "prompt:06t-terraform-codegen",
       "target": "skill:microsoft-code-reference",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-primary->skill:azure-defaults",
-      "source": "agent:07b-bicep-deploy",
+      "id": "prompt:07b-bicep-deploy--uses->skill:azure-defaults",
+      "source": "prompt:07b-bicep-deploy",
       "target": "skill:azure-defaults",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-primary->instruction:azure-artifacts",
-      "source": "agent:07b-bicep-deploy",
+      "id": "prompt:07b-bicep-deploy--uses->instruction:azure-artifacts",
+      "source": "prompt:07b-bicep-deploy",
       "target": "instruction:azure-artifacts",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-primary->skill:iac-common",
-      "source": "agent:07b-bicep-deploy",
+      "id": "prompt:07b-bicep-deploy--uses->skill:azure-validate",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "skill:azure-validate",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--uses->skill:azure-deploy",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "skill:azure-deploy",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--uses->skill:iac-common",
+      "source": "prompt:07b-bicep-deploy",
       "target": "skill:iac-common",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-secondary->skill:session-resume",
-      "source": "agent:07b-bicep-deploy",
-      "target": "skill:session-resume",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--uses-secondary->skill:github-operations",
-      "source": "agent:07b-bicep-deploy",
+      "id": "prompt:07b-bicep-deploy--uses->skill:github-operations",
+      "source": "prompt:07b-bicep-deploy",
       "target": "skill:github-operations",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-primary->skill:azure-defaults",
-      "source": "agent:07t-terraform-deploy",
+      "id": "prompt:07b-bicep-deploy--uses->skill:session-resume",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--uses->skill:azure-defaults",
+      "source": "prompt:07t-terraform-deploy",
       "target": "skill:azure-defaults",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-primary->instruction:azure-artifacts",
-      "source": "agent:07t-terraform-deploy",
+      "id": "prompt:07t-terraform-deploy--uses->instruction:azure-artifacts",
+      "source": "prompt:07t-terraform-deploy",
       "target": "instruction:azure-artifacts",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-primary->skill:iac-common",
-      "source": "agent:07t-terraform-deploy",
+      "id": "prompt:07t-terraform-deploy--uses->skill:azure-validate",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:azure-validate",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--uses->skill:azure-deploy",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:azure-deploy",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--uses->skill:iac-common",
+      "source": "prompt:07t-terraform-deploy",
       "target": "skill:iac-common",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-primary->skill:terraform-patterns",
-      "source": "agent:07t-terraform-deploy",
+      "id": "prompt:07t-terraform-deploy--uses->skill:terraform-patterns",
+      "source": "prompt:07t-terraform-deploy",
       "target": "skill:terraform-patterns",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-secondary->skill:session-resume",
-      "source": "agent:07t-terraform-deploy",
-      "target": "skill:session-resume",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-secondary->skill:github-operations",
-      "source": "agent:07t-terraform-deploy",
+      "id": "prompt:07t-terraform-deploy--uses->skill:github-operations",
+      "source": "prompt:07t-terraform-deploy",
       "target": "skill:github-operations",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:08-as-built--uses-primary->mcp:drawio",
-      "source": "agent:08-as-built",
+      "id": "prompt:07t-terraform-deploy--uses->skill:session-resume",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:08-as-built--uses->skill:azure-defaults",
+      "source": "prompt:08-as-built",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:08-as-built--uses->instruction:azure-artifacts",
+      "source": "prompt:08-as-built",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:08-as-built--uses->mcp:drawio",
+      "source": "prompt:08-as-built",
       "target": "mcp:drawio",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:08-as-built--uses-primary->skill:python-diagrams",
-      "source": "agent:08-as-built",
+      "id": "prompt:08-as-built--uses->skill:python-diagrams",
+      "source": "prompt:08-as-built",
       "target": "skill:python-diagrams",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:08-as-built--uses-secondary->skill:azure-defaults",
-      "source": "agent:08-as-built",
-      "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
+      "id": "prompt:08-as-built--uses->skill:azure-cost-optimization",
+      "source": "prompt:08-as-built",
+      "target": "skill:azure-cost-optimization",
+      "kind": "uses"
     },
     {
-      "id": "agent:08-as-built--uses-secondary->instruction:azure-artifacts",
-      "source": "agent:08-as-built",
-      "target": "instruction:azure-artifacts",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:08-as-built--uses-secondary->skill:session-resume",
-      "source": "agent:08-as-built",
-      "target": "skill:session-resume",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:08-as-built--uses-secondary->skill:context-shredding",
-      "source": "agent:08-as-built",
+      "id": "prompt:08-as-built--uses->skill:context-shredding",
+      "source": "prompt:08-as-built",
       "target": "skill:context-shredding",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:08-as-built--uses-secondary->skill:microsoft-docs",
-      "source": "agent:08-as-built",
+      "id": "prompt:08-as-built--uses->skill:session-resume",
+      "source": "prompt:08-as-built",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "prompt:08-as-built--uses->skill:microsoft-docs",
+      "source": "prompt:08-as-built",
       "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:09-diagnose--uses-primary->skill:azure-diagnostics",
+      "id": "agent:09-diagnose--uses->skill:azure-diagnostics",
       "source": "agent:09-diagnose",
       "target": "skill:azure-diagnostics",
-      "kind": "uses-primary"
+      "kind": "uses"
     },
     {
-      "id": "agent:09-diagnose--uses-secondary->skill:azure-defaults",
+      "id": "agent:09-diagnose--uses->skill:azure-defaults",
       "source": "agent:09-diagnose",
       "target": "skill:azure-defaults",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:09-diagnose--uses-secondary->skill:microsoft-docs",
+      "id": "agent:09-diagnose--uses->skill:microsoft-docs",
       "source": "agent:09-diagnose",
       "target": "skill:microsoft-docs",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:09-diagnose--uses-secondary->skill:microsoft-code-reference",
+      "id": "agent:09-diagnose--uses->skill:microsoft-code-reference",
       "source": "agent:09-diagnose",
       "target": "skill:microsoft-code-reference",
-      "kind": "uses-secondary"
+      "kind": "uses"
     },
     {
-      "id": "agent:10-challenger--uses-secondary->skill:golden-principles",
-      "source": "agent:10-challenger",
-      "target": "skill:golden-principles",
-      "kind": "uses-secondary"
-    },
-    {
-      "id": "agent:11-context-optimizer--uses-primary->skill:context-optimizer",
+      "id": "agent:11-context-optimizer--uses->skill:context-optimizer",
       "source": "agent:11-context-optimizer",
       "target": "skill:context-optimizer",
-      "kind": "uses-primary"
+      "kind": "uses"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses->skill:session-resume",
+      "source": "agent:e2e-orchestrator",
+      "target": "skill:session-resume",
+      "kind": "uses"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses->skill:workflow-engine",
+      "source": "agent:e2e-orchestrator",
+      "target": "skill:workflow-engine",
+      "kind": "uses"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses->instruction:azure-artifacts",
+      "source": "agent:e2e-orchestrator",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses->skill:context-shredding",
+      "source": "agent:e2e-orchestrator",
+      "target": "skill:context-shredding",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:cost-estimate-subagent--uses->skill:azure-defaults",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses->skill:azure-bicep-patterns",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses->skill:terraform-patterns",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "skill:terraform-patterns",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses->skill:terraform-test",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "skill:terraform-test",
+      "kind": "uses"
     },
     {
       "id": "prompt:01-orchestrator--invokes->agent:01-orchestrator",
@@ -3863,12 +3870,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:excalidraw",
-      "source": "instruction:agent-skills",
-      "target": "skill:excalidraw",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:github-operations",
       "source": "instruction:agent-skills",
       "target": "skill:github-operations",
@@ -4280,12 +4281,6 @@
       "id": "instruction:context-optimization--applies-to->skill:entra-app-registration",
       "source": "instruction:context-optimization",
       "target": "skill:entra-app-registration",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:excalidraw",
-      "source": "instruction:context-optimization",
-      "target": "skill:excalidraw",
       "kind": "applies-to"
     },
     {
@@ -4706,12 +4701,6 @@
       "id": "instruction:docs-trigger--applies-to->skill:entra-app-registration",
       "source": "instruction:docs-trigger",
       "target": "skill:entra-app-registration",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:excalidraw",
-      "source": "instruction:docs-trigger",
-      "target": "skill:excalidraw",
       "kind": "applies-to"
     },
     {
@@ -5270,12 +5259,6 @@
       "id": "instruction:markdown--applies-to->skill:entra-app-registration",
       "source": "instruction:markdown",
       "target": "skill:entra-app-registration",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:excalidraw",
-      "source": "instruction:markdown",
-      "target": "skill:excalidraw",
       "kind": "applies-to"
     },
     {
@@ -6083,12 +6066,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-diagrams--refs->skill:excalidraw",
-      "source": "skill:azure-diagrams",
-      "target": "skill:excalidraw",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-diagrams--refs->skill:mermaid",
       "source": "skill:azure-diagrams",
       "target": "skill:mermaid",
@@ -6251,12 +6228,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:drawio--refs->skill:excalidraw",
-      "source": "skill:drawio",
-      "target": "skill:excalidraw",
-      "kind": "refs"
-    },
-    {
       "id": "skill:drawio--refs->skill:mermaid",
       "source": "skill:drawio",
       "target": "skill:mermaid",
@@ -6272,24 +6243,6 @@
       "id": "skill:entra-app-registration--refs->skill:azure-rbac",
       "source": "skill:entra-app-registration",
       "target": "skill:azure-rbac",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:excalidraw--refs->skill:drawio",
-      "source": "skill:excalidraw",
-      "target": "skill:drawio",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:excalidraw--refs->skill:mermaid",
-      "source": "skill:excalidraw",
-      "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:excalidraw--refs->skill:python-diagrams",
-      "source": "skill:excalidraw",
-      "target": "skill:python-diagrams",
       "kind": "refs"
     },
     {
@@ -6416,12 +6369,6 @@
       "id": "skill:python-diagrams--refs->skill:drawio",
       "source": "skill:python-diagrams",
       "target": "skill:drawio",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:python-diagrams--refs->skill:excalidraw",
-      "source": "skill:python-diagrams",
-      "target": "skill:excalidraw",
       "kind": "refs"
     },
     {
