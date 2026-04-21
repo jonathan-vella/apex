@@ -7,7 +7,7 @@ Fixes known MCP artifacts:
 3. Reports cross-cutting icons spaced < 120px apart
 
 Usage:
-    python3 scripts/cleanup-drawio.py <drawio-file>
+    python3 .github/skills/drawio/scripts/cleanup-drawio.py <drawio-file>
 """
 
 import sys
@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print("Usage: python3 scripts/cleanup-drawio.py <drawio-file>", file=sys.stderr)
+        print("Usage: python3 .github/skills/drawio/scripts/cleanup-drawio.py <drawio-file>", file=sys.stderr)
         return 1
 
     path = sys.argv[1]
@@ -41,7 +41,7 @@ def main() -> int:
         if "watermark" in cell.get("id", ""):
             geo = cell.find("mxGeometry")
             if geo is not None:
-                h = int(geo.get("height", "0"))
+                h = float(geo.get("height", "0"))
                 if h < 70:
                     geo.set("height", "70")
                     fixes += 1
@@ -54,11 +54,11 @@ def main() -> int:
         geo = cell.find("mxGeometry")
         if geo is None:
             continue
-        y = int(geo.get("y", "0"))
-        x = int(geo.get("x", "0"))
+        y = float(geo.get("y", "0"))
+        x = float(geo.get("x", "0"))
         # Heuristic: icons in the cross-cutting band are shaped vertices
         # between y=900 and y=1100 with width=48 (standard icon size)
-        w = int(geo.get("width", "0"))
+        w = float(geo.get("width", "0"))
         if w == 48 and 900 <= y <= 1100 and "placeholder" not in style:
             val = cell.get("value", "")
             if val:

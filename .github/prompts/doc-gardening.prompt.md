@@ -44,9 +44,9 @@ stop and ask the user (do not create them silently):
    `node scripts/validate-no-deprecated-refs.mjs` to catch stale script/module refs.
 
 3. **Cross-reference integrity** — run `node scripts/validate-skills.mjs` (covers format
-   - size; replaces the historical `validate-skills-format.mjs`) and
-     `node scripts/validate-agents.mjs` (covers frontmatter; replaces the historical
-     `validate-agent-frontmatter.mjs`).
+   and size; replaces the historical `validate-skills-format.mjs`) and
+   `node scripts/validate-agents.mjs` (covers frontmatter; replaces the historical
+   `validate-agent-frontmatter.mjs`).
 
 4. **Count-manifest alignment** — run `node scripts/validate-no-hardcoded-counts.mjs`.
    Additionally, scan `site/src/content/docs/**/*.{md,mdx}`, `README.md`, `AGENTS.md`,

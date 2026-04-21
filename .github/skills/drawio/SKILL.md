@@ -246,7 +246,7 @@ cross-cutting services box (not beside it — side-by-side causes overlap).
 After `save-drawio.py`, run the cleanup script to fix known MCP artifacts:
 
 ```bash
-python3 scripts/cleanup-drawio.py '<output-path>.drawio'
+python3 .github/skills/drawio/scripts/cleanup-drawio.py '<output-path>.drawio'
 ```
 
 The script fixes:
