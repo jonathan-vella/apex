@@ -15,7 +15,7 @@
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/manrope": "^5.2.8",
     "@fontsource/space-grotesk": "^5.2.10",
-    "astro": "^6.0.1",
+    "astro": "^6.1.8",
     "rehype-mermaid-lite": "^1.0.0",
     "sharp": "^0.33.5",
     "starlight-links-validator": "^0.20.1"
