@@ -19,6 +19,12 @@
   },
   "chat.useCustomAgentHooks": true,
   "chat.useAgentSkills": true,
+  "json.schemas": [
+    {
+      "fileMatch": [".github/agent-registry.json"],
+      "url": "./schemas/agent-registry.schema.json"
+    }
+  ],
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.rulers": [120],
