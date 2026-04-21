@@ -27,7 +27,7 @@ when deploying to Azure in Step 6.
 | Requirement             | How to Get                                                  |
 | ----------------------- | ----------------------------------------------------------- |
 | GitHub account          | [Sign up](https://github.com/signup)                        |
-| GitHub Copilot license  | [Get Copilot](https://github.com/features/copilot)          |
+| GitHub Copilot license  | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
 | GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`        |
 | VS Code                 | [Download](https://code.visualstudio.com/)                  |
 | Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/) |
