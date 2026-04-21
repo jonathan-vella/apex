@@ -33,7 +33,12 @@ function validateAgentEntry(key, entry, skillNames) {
     for (const variant of ["bicep", "terraform"]) {
       if (entry[variant]) {
         validateAgentFile(key, entry[variant].agent);
-        validateSkills(key, entry[variant].skills, skillNames);
+        validateSkills(
+          `${key} (${variant})`,
+          entry[variant].skills,
+          entry[variant].capability_skills,
+          skillNames,
+        );
         validateModel(key, entry[variant].model);
       }
     }
@@ -41,7 +46,7 @@ function validateAgentEntry(key, entry, skillNames) {
   }
 
   validateAgentFile(key, entry.agent);
-  validateSkills(key, entry.skills, skillNames);
+  validateSkills(key, entry.skills, entry.capability_skills, skillNames);
   validateModel(key, entry.model);
 }
 
@@ -55,11 +60,34 @@ function validateAgentFile(key, agentPath) {
   }
 }
 
-function validateSkills(key, skills, skillNames) {
+function validateSkills(key, skills, capabilitySkills, skillNames) {
   if (!Array.isArray(skills)) return;
   for (const skill of skills) {
     if (!skillNames.has(skill)) {
       r.error(`Agent "${key}"`, `references non-existent skill: "${skill}"`);
+    }
+  }
+  if (capabilitySkills !== undefined) {
+    if (!Array.isArray(capabilitySkills)) {
+      r.error(`Agent "${key}"`, "capability_skills must be an array");
+      return;
+    }
+    for (const skill of capabilitySkills) {
+      if (!skillNames.has(skill)) {
+        r.error(
+          `Agent "${key}"`,
+          `references non-existent capability skill: "${skill}"`,
+        );
+      }
+    }
+    const skillSet = new Set(skills);
+    for (const cap of capabilitySkills) {
+      if (skillSet.has(cap)) {
+        r.error(
+          `Agent "${key}"`,
+          `skill "${cap}" appears in both skills[] and capability_skills[]`,
+        );
+      }
     }
   }
 }

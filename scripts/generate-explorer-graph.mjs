@@ -15,6 +15,7 @@
  *  - agent → subagent (frontmatter `agents:` field)
  *  - agent handoff → agent (frontmatter `handoffs[].agent`)
  *  - agent → skill (from `.github/agent-registry.json` skills array)
+ *  - agent ⇢ skill (from `.github/agent-registry.json` capability_skills array, kind="capability")
  *  - prompt → agent (slug match, e.g. `02-requirements` → `02-Requirements`)
  *  - instruction → agent/skill/prompt (via `applyTo` glob + name match)
  *  - workflow → validator (parse YAML for `npm run …`, expanding composite scripts)
@@ -405,6 +406,17 @@ function buildEdges(nodes) {
             source: agentNode.id,
             target: skillNode.id,
             kind: "uses",
+          });
+        }
+      }
+      for (const skillName of sub.capability_skills || []) {
+        const skillNode = findNode(skillName, "skill");
+        if (skillNode) {
+          edges.push({
+            id: `${agentNode.id}--capability->${skillNode.id}`,
+            source: agentNode.id,
+            target: skillNode.id,
+            kind: "capability",
           });
         }
       }

@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-21T12:11:39.954Z",
+  "generatedAt": "2026-04-21T15:18:09.578Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 30
+      "count": 32
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 158,
-  "edgeCount": 698,
+  "nodeCount": 160,
+  "edgeCount": 713,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1774,6 +1774,19 @@
       }
     },
     {
+      "id": "validator:lint-registry-coverage",
+      "category": "validator",
+      "label": "lint:registry-coverage",
+      "description": "node scripts/validate-registry-skill-coverage.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-registry-skill-coverage.mjs"
+      }
+    },
+    {
       "id": "validator:validate-skill-checks",
       "category": "validator",
       "label": "validate:skill-checks",
@@ -1797,6 +1810,19 @@
       },
       "meta": {
         "command": "node scripts/lint-json.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-json-schemas",
+      "category": "validator",
+      "label": "lint:json-schemas",
+      "description": "node scripts/validate-json-schemas.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node scripts/validate-json-schemas.mjs"
       }
     },
     {
@@ -2904,12 +2930,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:03-architect--uses->mcp:drawio",
-      "source": "prompt:03-architect",
-      "target": "mcp:drawio",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:03-architect--uses->skill:python-diagrams",
       "source": "prompt:03-architect",
       "target": "skill:python-diagrams",
@@ -2928,21 +2948,27 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:03-architect--uses->skill:microsoft-docs",
+      "id": "prompt:03-architect--capability->mcp:drawio",
+      "source": "prompt:03-architect",
+      "target": "mcp:drawio",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:03-architect--capability->skill:microsoft-docs",
       "source": "prompt:03-architect",
       "target": "skill:microsoft-docs",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:04-design--uses->skill:azure-defaults",
+      "source": "prompt:04-design",
+      "target": "skill:azure-defaults",
       "kind": "uses"
     },
     {
       "id": "prompt:04-design--uses->mcp:drawio",
       "source": "prompt:04-design",
       "target": "mcp:drawio",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:04-design--uses->skill:python-diagrams",
-      "source": "prompt:04-design",
-      "target": "skill:python-diagrams",
       "kind": "uses"
     },
     {
@@ -2962,6 +2988,12 @@
       "source": "prompt:04-design",
       "target": "skill:session-resume",
       "kind": "uses"
+    },
+    {
+      "id": "prompt:04-design--capability->skill:python-diagrams",
+      "source": "prompt:04-design",
+      "target": "skill:python-diagrams",
+      "kind": "capability"
     },
     {
       "id": "prompt:04g-governance--uses->skill:azure-defaults",
@@ -2988,10 +3020,10 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:04g-governance--uses->skill:microsoft-docs",
+      "id": "prompt:04g-governance--capability->skill:microsoft-docs",
       "source": "prompt:04g-governance",
       "target": "skill:microsoft-docs",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
       "id": "prompt:05-iac-planner--uses->skill:azure-defaults",
@@ -3018,15 +3050,9 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:05-iac-planner--uses->skill:terraform-test",
+      "id": "prompt:05-iac-planner--uses->skill:python-diagrams",
       "source": "prompt:05-iac-planner",
-      "target": "skill:terraform-test",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:05-iac-planner--uses->skill:terraform-search-import",
-      "source": "prompt:05-iac-planner",
-      "target": "skill:terraform-search-import",
+      "target": "skill:python-diagrams",
       "kind": "uses"
     },
     {
@@ -3036,16 +3062,28 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:05-iac-planner--uses->skill:microsoft-docs",
+      "id": "prompt:05-iac-planner--capability->skill:terraform-test",
       "source": "prompt:05-iac-planner",
-      "target": "skill:microsoft-docs",
-      "kind": "uses"
+      "target": "skill:terraform-test",
+      "kind": "capability"
     },
     {
-      "id": "prompt:05-iac-planner--uses->skill:microsoft-code-reference",
+      "id": "prompt:05-iac-planner--capability->skill:terraform-search-import",
+      "source": "prompt:05-iac-planner",
+      "target": "skill:terraform-search-import",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:05-iac-planner--capability->skill:microsoft-docs",
+      "source": "prompt:05-iac-planner",
+      "target": "skill:microsoft-docs",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:05-iac-planner--capability->skill:microsoft-code-reference",
       "source": "prompt:05-iac-planner",
       "target": "skill:microsoft-code-reference",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
       "id": "prompt:06b-bicep-codegen--uses->skill:azure-defaults",
@@ -3066,6 +3104,12 @@
       "kind": "uses"
     },
     {
+      "id": "prompt:06b-bicep-codegen--uses->skill:iac-common",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "skill:iac-common",
+      "kind": "uses"
+    },
+    {
       "id": "prompt:06b-bicep-codegen--uses->skill:context-shredding",
       "source": "prompt:06b-bicep-codegen",
       "target": "skill:context-shredding",
@@ -3078,16 +3122,16 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:06b-bicep-codegen--uses->skill:microsoft-docs",
+      "id": "prompt:06b-bicep-codegen--capability->skill:microsoft-docs",
       "source": "prompt:06b-bicep-codegen",
       "target": "skill:microsoft-docs",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
-      "id": "prompt:06b-bicep-codegen--uses->skill:microsoft-code-reference",
+      "id": "prompt:06b-bicep-codegen--capability->skill:microsoft-code-reference",
       "source": "prompt:06b-bicep-codegen",
       "target": "skill:microsoft-code-reference",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
       "id": "prompt:06t-terraform-codegen--uses->skill:azure-defaults",
@@ -3108,15 +3152,9 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:06t-terraform-codegen--uses->skill:terraform-test",
+      "id": "prompt:06t-terraform-codegen--uses->skill:iac-common",
       "source": "prompt:06t-terraform-codegen",
-      "target": "skill:terraform-test",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:06t-terraform-codegen--uses->skill:terraform-search-import",
-      "source": "prompt:06t-terraform-codegen",
-      "target": "skill:terraform-search-import",
+      "target": "skill:iac-common",
       "kind": "uses"
     },
     {
@@ -3132,16 +3170,28 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:06t-terraform-codegen--uses->skill:microsoft-docs",
+      "id": "prompt:06t-terraform-codegen--capability->skill:terraform-test",
       "source": "prompt:06t-terraform-codegen",
-      "target": "skill:microsoft-docs",
-      "kind": "uses"
+      "target": "skill:terraform-test",
+      "kind": "capability"
     },
     {
-      "id": "prompt:06t-terraform-codegen--uses->skill:microsoft-code-reference",
+      "id": "prompt:06t-terraform-codegen--capability->skill:terraform-search-import",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:terraform-search-import",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--capability->skill:microsoft-docs",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "skill:microsoft-docs",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--capability->skill:microsoft-code-reference",
       "source": "prompt:06t-terraform-codegen",
       "target": "skill:microsoft-code-reference",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
       "id": "prompt:07b-bicep-deploy--uses->skill:azure-defaults",
@@ -3156,27 +3206,9 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:07b-bicep-deploy--uses->skill:azure-validate",
-      "source": "prompt:07b-bicep-deploy",
-      "target": "skill:azure-validate",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:07b-bicep-deploy--uses->skill:azure-deploy",
-      "source": "prompt:07b-bicep-deploy",
-      "target": "skill:azure-deploy",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:07b-bicep-deploy--uses->skill:iac-common",
       "source": "prompt:07b-bicep-deploy",
       "target": "skill:iac-common",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:07b-bicep-deploy--uses->skill:github-operations",
-      "source": "prompt:07b-bicep-deploy",
-      "target": "skill:github-operations",
       "kind": "uses"
     },
     {
@@ -3184,6 +3216,24 @@
       "source": "prompt:07b-bicep-deploy",
       "target": "skill:session-resume",
       "kind": "uses"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--capability->skill:azure-validate",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "skill:azure-validate",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--capability->skill:azure-deploy",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "skill:azure-deploy",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--capability->skill:github-operations",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "skill:github-operations",
+      "kind": "capability"
     },
     {
       "id": "prompt:07t-terraform-deploy--uses->skill:azure-defaults",
@@ -3198,33 +3248,9 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:07t-terraform-deploy--uses->skill:azure-validate",
-      "source": "prompt:07t-terraform-deploy",
-      "target": "skill:azure-validate",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:07t-terraform-deploy--uses->skill:azure-deploy",
-      "source": "prompt:07t-terraform-deploy",
-      "target": "skill:azure-deploy",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:07t-terraform-deploy--uses->skill:iac-common",
       "source": "prompt:07t-terraform-deploy",
       "target": "skill:iac-common",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:07t-terraform-deploy--uses->skill:terraform-patterns",
-      "source": "prompt:07t-terraform-deploy",
-      "target": "skill:terraform-patterns",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:07t-terraform-deploy--uses->skill:github-operations",
-      "source": "prompt:07t-terraform-deploy",
-      "target": "skill:github-operations",
       "kind": "uses"
     },
     {
@@ -3232,6 +3258,30 @@
       "source": "prompt:07t-terraform-deploy",
       "target": "skill:session-resume",
       "kind": "uses"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--capability->skill:azure-validate",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:azure-validate",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--capability->skill:azure-deploy",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:azure-deploy",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--capability->skill:terraform-patterns",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:terraform-patterns",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--capability->skill:github-operations",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "skill:github-operations",
+      "kind": "capability"
     },
     {
       "id": "prompt:08-as-built--uses->skill:azure-defaults",
@@ -3258,12 +3308,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:08-as-built--uses->skill:azure-cost-optimization",
-      "source": "prompt:08-as-built",
-      "target": "skill:azure-cost-optimization",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:08-as-built--uses->skill:context-shredding",
       "source": "prompt:08-as-built",
       "target": "skill:context-shredding",
@@ -3276,10 +3320,16 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:08-as-built--uses->skill:microsoft-docs",
+      "id": "prompt:08-as-built--capability->skill:azure-cost-optimization",
+      "source": "prompt:08-as-built",
+      "target": "skill:azure-cost-optimization",
+      "kind": "capability"
+    },
+    {
+      "id": "prompt:08-as-built--capability->skill:microsoft-docs",
       "source": "prompt:08-as-built",
       "target": "skill:microsoft-docs",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
       "id": "agent:09-diagnose--uses->skill:azure-diagnostics",
@@ -3294,15 +3344,21 @@
       "kind": "uses"
     },
     {
-      "id": "agent:09-diagnose--uses->skill:microsoft-docs",
+      "id": "agent:09-diagnose--capability->skill:microsoft-docs",
       "source": "agent:09-diagnose",
       "target": "skill:microsoft-docs",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
-      "id": "agent:09-diagnose--uses->skill:microsoft-code-reference",
+      "id": "agent:09-diagnose--capability->skill:microsoft-code-reference",
       "source": "agent:09-diagnose",
       "target": "skill:microsoft-code-reference",
+      "kind": "capability"
+    },
+    {
+      "id": "agent:11-context-optimizer--uses->skill:golden-principles",
+      "source": "agent:11-context-optimizer",
+      "target": "skill:golden-principles",
       "kind": "uses"
     },
     {
@@ -3318,9 +3374,9 @@
       "kind": "uses"
     },
     {
-      "id": "agent:e2e-orchestrator--uses->skill:workflow-engine",
+      "id": "agent:e2e-orchestrator--uses->skill:azure-defaults",
       "source": "agent:e2e-orchestrator",
-      "target": "skill:workflow-engine",
+      "target": "skill:azure-defaults",
       "kind": "uses"
     },
     {
@@ -3330,9 +3386,27 @@
       "kind": "uses"
     },
     {
-      "id": "agent:e2e-orchestrator--uses->skill:context-shredding",
+      "id": "agent:e2e-orchestrator--capability->skill:workflow-engine",
+      "source": "agent:e2e-orchestrator",
+      "target": "skill:workflow-engine",
+      "kind": "capability"
+    },
+    {
+      "id": "agent:e2e-orchestrator--capability->skill:context-shredding",
       "source": "agent:e2e-orchestrator",
       "target": "skill:context-shredding",
+      "kind": "capability"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses->skill:golden-principles",
+      "source": "subagent:challenger-review-subagent",
+      "target": "skill:golden-principles",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses->skill:azure-defaults",
+      "source": "subagent:challenger-review-subagent",
+      "target": "skill:azure-defaults",
       "kind": "uses"
     },
     {
@@ -3342,22 +3416,52 @@
       "kind": "uses"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses->skill:azure-bicep-patterns",
+      "id": "subagent:cost-estimate-subagent--uses->instruction:azure-artifacts",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "instruction:azure-artifacts",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses->skill:azure-defaults",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "skill:azure-defaults",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses->skill:iac-common",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "skill:iac-common",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--capability->skill:azure-bicep-patterns",
       "source": "subagent:bicep-validate-subagent",
       "target": "skill:azure-bicep-patterns",
+      "kind": "capability"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses->skill:azure-defaults",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "skill:azure-defaults",
       "kind": "uses"
     },
     {
-      "id": "subagent:terraform-validate-subagent--uses->skill:terraform-patterns",
+      "id": "subagent:terraform-validate-subagent--uses->skill:iac-common",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "skill:iac-common",
+      "kind": "uses"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--capability->skill:terraform-patterns",
       "source": "subagent:terraform-validate-subagent",
       "target": "skill:terraform-patterns",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
-      "id": "subagent:terraform-validate-subagent--uses->skill:terraform-test",
+      "id": "subagent:terraform-validate-subagent--capability->skill:terraform-test",
       "source": "subagent:terraform-validate-subagent",
       "target": "skill:terraform-test",
-      "kind": "uses"
+      "kind": "capability"
     },
     {
       "id": "prompt:01-orchestrator--invokes->agent:01-orchestrator",
@@ -5550,6 +5654,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:lint-registry-coverage",
+      "source": "workflow:ci",
+      "target": "validator:lint-registry-coverage",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:validate-skill-checks",
       "source": "workflow:ci",
       "target": "validator:validate-skill-checks",
@@ -5559,6 +5669,12 @@
       "id": "workflow:ci--runs->validator:lint-json",
       "source": "workflow:ci",
       "target": "validator:lint-json",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-json-schemas",
+      "source": "workflow:ci",
+      "target": "validator:lint-json-schemas",
       "kind": "runs"
     },
     {
