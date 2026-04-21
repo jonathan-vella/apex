@@ -1,6 +1,6 @@
 ---
 name: drawio
-description: "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams) or inline Mermaid (use mermaid)."
+description: "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), or Excalidraw diagrams (use excalidraw)."
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
