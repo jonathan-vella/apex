@@ -84,10 +84,27 @@ Track approximate context usage per step. If context approaches 60% capacity
 
 ## Run Isolation (MANDATORY — Anti-Copy Enforcement)
 
-**Read** `.github/skills/session-resume/references/e2e-run-isolation.md` for the
-full run isolation rules (prohibited/allowed reads, timestamp coherence, freshness
-verification). Key rule: each run's artifacts must be independently generated —
-never copy from other runs or `_baselines/`.
+Each E2E run MUST produce independently generated artifacts. Copying, cloning,
+or adapting artifacts from other runs is strictly prohibited.
+
+**Prohibited Actions:**
+
+- **NEVER** read files from `agent-output/{other-project}/` (not current run)
+- **NEVER** read from `infra/bicep/{other-project}/` or `infra/terraform/{other-project}/`
+- **NEVER** read `agent-output/_baselines/` as copy sources (baselines are for benchmark only)
+- **NEVER** copy artifacts between runs and find-replace project names
+- **NEVER** reuse `decision_log` entries (including timestamps) from another run
+
+**Allowed Cross-Run Reads:** shared templates (`.github/skills/`, agents, instructions),
+RFQ input (`tests/e2e-inputs/`), prompt definitions, validation scripts, and
+current run's own artifacts for downstream steps.
+
+**Timestamp Coherence:** All `decision_log[].timestamp`, `steps[].started/completed`
+must fall within the run's time window and be monotonically increasing.
+
+**Post-Step Freshness:** After each step, check if a byte-identical artifact exists
+in other `contoso-service-hub-*` directories. If found, delete and re-execute.
+A run where >50% of artifacts are copies is terminated with `E2E_BLOCKED`.
 
 ## Core Differences from Production Orchestrator
 
@@ -143,12 +160,17 @@ never copy from other runs or `_baselines/`.
 ## Subagent Runtime Fallback
 
 When agent delegation is unavailable (e.g., invoked via `runSubagent`), switch to
-direct execution mode. Read `session-resume/references/e2e-direct-execution-protocol.md`
-for the full fallback protocol including inline challenger reviews and post-review gates.
+direct execution mode:
+
+1. Read each step agent's `.agent.md` and its referenced skills
+2. Execute the work directly using available tools (file read/write, terminal, MCP, search)
+3. Apply the same artifact templates, naming, and validation gates
+4. Log `"execution_mode": "direct"` in session state via `apex-recall`
+5. Run isolation applies equally — do not read/copy from other runs
 
 ## IaC Tool Routing
 
-Read `decisions.iac_tool` from `00-session-state.json` (or from `01-requirements.md`)
+Read `decisions.iac_tool` from `apex-recall show <project> --json` (or from `01-requirements.md`)
 to determine which IaC track to use. Route accordingly:
 
 | Aspect         | Bicep Track                                    | Terraform Track                                      |
@@ -170,20 +192,19 @@ across both tracks. Only Steps 4–6 diverge based on the IaC tool decision.
 
 Before executing any step, read:
 
-1. `.github/skills/session-resume/SKILL.digest.md` — session state schema
-2. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
-3. `.github/skills/azure-artifacts/SKILL.digest.md` — artifact structure
+1. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
+2. `.github/skills/azure-artifacts/SKILL.digest.md` — artifact structure
 
 ## State Management
 
-- **Session state**: `agent-output/{project}/00-session-state.json`
+- **Session state**: managed via `apex-recall` CLI — do not read/write `00-session-state.json` directly
 - **Handoff**: `agent-output/{project}/00-handoff.md`
 - **Iteration log**: `agent-output/{project}/08-iteration-log.json`
 - **Lessons**: `agent-output/{project}/09-lessons-learned.json`
 
 At the start of every run, ensure these files exist:
 
-1. `00-session-state.json` — initialize if not present (use session-resume skill schema)
+1. `00-session-state.json` — `apex-recall init <project> --json` (if not present)
 2. `00-handoff.md` — create with project name, run ID, start timestamp, and IaC tool
 3. `08-iteration-log.json` — initialize: `{ "run_id": "", "started": "", "entries": [] }`
 4. `09-lessons-learned.json` — initialize per `lesson-collection.instructions.md`:
@@ -191,13 +212,9 @@ At the start of every run, ensure these files exist:
 
 Update session state after every step completion:
 
-- Set step `.status` to `complete`
-- Add artifact filenames to `.artifacts` array
-- Update `current_step` to next step number
-- Update `updated` timestamp
-- Append any significant decisions to `decision_log` array
-  (see `agent-authoring.instructions.md` for entry schema:
-  id, step, agent, title, choice, rationale, alternatives, impact)
+- `apex-recall complete-step <project> <step> --json`
+- `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step <N> --json`
+- `apex-recall review-audit <project> <step> ... --json`
 
 ## Pre-Validation Gate (After Every Subagent Return)
 
@@ -226,8 +243,15 @@ After every step completes validation, run a challenger review.
 
 ### Direct Execution Mode
 
-Read `session-resume/references/e2e-direct-execution-protocol.md` for the full
-inline challenger review procedure and post-review gate check.
+When delegation is unavailable, perform challenger reviews inline:
+
+1. Read the challenger subagent's `.agent.md` and `azure-defaults/references/adversarial-checklists.md`
+2. Read the step's primary artifact end to end
+3. Apply the `comprehensive` lens — challenge assumptions, find failure modes, verify governance
+4. Produce structured JSON matching the challenger output contract
+5. Save to `agent-output/{project}/10-challenger-step{N}.json`
+6. If `must_fix` count > 0: re-execute the step with findings as correction context
+7. Update review audit via `apex-recall review-audit <project> <step> --passes-executed 1 --json`
 
 Steps 1, 2, 3.5, 4, 5, and 6 require challenger reviews.
 Every review produces a persisted `10-challenger-step{N}.json` file.
@@ -346,6 +370,6 @@ After each step, record to `08-benchmark-report.md`:
 
 ## Execution Entry Point
 
-Start by reading `00-session-state.json` and following the RALPH execution
+Start by running `apex-recall show <project> --json` and following the RALPH execution
 sequence from Phase A through Phase H as defined in the E2E prompt file
 (`.github/prompts/e2e-ralph-loop.prompt.md`).

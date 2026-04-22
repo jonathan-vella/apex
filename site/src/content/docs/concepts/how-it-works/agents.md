@@ -56,8 +56,8 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 
 | Agent                       | Role                                            | Primary Skills                                 |
 | --------------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| 01-Orchestrator             | Master orchestrator                             | workflow-engine, session-resume                |
-| 01-Orchestrator (Fast Path) | Simplified path for ≤3 resources                | session-resume, azure-defaults                 |
+| 01-Orchestrator             | Master orchestrator                             | workflow-engine, apex-recall                   |
+| 01-Orchestrator (Fast Path) | Simplified path for ≤3 resources                | apex-recall, azure-defaults                    |
 | 02-Requirements             | Captures project requirements                   | azure-defaults, azure-artifacts                |
 | 03-Architect                | WAF assessment and cost estimation              | azure-defaults                                 |
 | 04-Design                   | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
@@ -71,7 +71,7 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | 09-Diagnose                 | Azure resource troubleshooting                  | azure-diagnostics                              |
 | 10-Challenger               | Standalone adversarial review                   | —                                              |
 | 11-Context Optimizer        | Context window audit and optimisation           | context-optimizer                              |
-| e2e-orchestrator            | Prompt-invoked end-to-end validation driver     | workflow-engine, session-resume                |
+| e2e-orchestrator            | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../reference/architecture-explorer/). The count is
@@ -234,7 +234,6 @@ The body (below the frontmatter) is the agent's operating manual:
 ## MANDATORY: Read Skills First
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md`
-2. **Read** `.github/skills/session-resume/SKILL.md`
 
 ## DO (required behaviours)
 

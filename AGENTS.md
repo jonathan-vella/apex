@@ -33,6 +33,7 @@ pip install -r requirements.txt
 - **Node.js** + npm (validation scripts)
 - **Python 3** + pip (MCP server, diagram generation)
 - **Go** (Terraform MCP server)
+- **apex-recall** CLI (progressive session recall for agent-output artifacts)
 
 ## Build & Validation
 
@@ -213,6 +214,8 @@ assets/
 mcp/
   azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)
 scripts/               # Validation and maintenance scripts (Node.js)
+tools/
+  apex-recall/         # Progressive session recall CLI (Python, pip-installable)
 site/
   src/content/docs/    # Published user-facing documentation (Astro Starlight)
   public/              # Site-served static assets

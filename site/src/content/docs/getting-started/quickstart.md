@@ -24,14 +24,14 @@ An Azure subscription is optional for learning the workflow — you only need it
 when deploying to Azure in Step 6.
 :::
 
-| Requirement             | How to Get                                                  |
-| ----------------------- | ----------------------------------------------------------- |
-| GitHub account          | [Sign up](https://github.com/signup)                        |
+| Requirement             | How to Get                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| GitHub account          | [Sign up](https://github.com/signup)                                                     |
 | GitHub Copilot license  | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
-| GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`        |
-| VS Code                 | [Download](https://code.visualstudio.com/)                  |
-| Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/) |
-| Azure subscription      | Required only for Step 6 deployment                         |
+| GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`                                     |
+| VS Code                 | [Download](https://code.visualstudio.com/)                                               |
+| Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/)                              |
+| Azure subscription      | Required only for Step 6 deployment                                                      |
 
 :::note[Docker is required]
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
@@ -100,6 +100,7 @@ The Dev Container installs all tools automatically:
 - PowerShell 7
 - Python 3 + diagrams library
 - Go (Terraform MCP server)
+- `apex-recall` CLI (session recall)
 - Comprehensive set of VS Code extensions
 
 ## Step 4: Configure `GH_TOKEN` for the Dev Container

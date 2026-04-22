@@ -240,10 +240,11 @@ The Dev Container includes:
 | **PowerShell**         | PowerShell 7+, Az modules                                                |
 | **Python**             | Python 3.13+, diagrams library, graphviz                                 |
 | **Node.js**            | Node LTS+, npm, markdownlint                                             |
+| **APEX Tools**         | `apex-recall` CLI (progressive session recall)                           |
 | **VS Code Extensions** | Comprehensive set of extensions (Bicep, Terraform, Copilot, Azure, etc.) |
 
 > **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, `markdownlint-cli2`,
-> `checkov`, `ruff`, and `diagrams` are refreshed automatically on every container start via `post-start.sh`.
+> `checkov`, `ruff`, `diagrams`, and `apex-recall` are refreshed automatically on every container start via `post-start.sh`.
 > Heavy tools (PowerShell modules, system packages) are installed once at build time.
 
 ## Troubleshooting

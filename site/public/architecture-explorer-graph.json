@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-21T15:24:31.664Z",
+  "generatedAt": "2026-04-22T12:40:16.886Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 47
+      "count": 46
     },
     {
       "id": "instruction",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 32
+      "count": 33
     },
     {
       "id": "workflow",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 160,
-  "edgeCount": 713,
+  "edgeCount": 696,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1014,17 +1014,6 @@
       "path": ".github/skills/python-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/python-diagrams/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:session-resume",
-      "category": "skill",
-      "label": "session-resume",
-      "description": "Session state tracking and resume protocol for the multi-step agent workflow. USE FOR: resume session, persist progress, checkpoint recovery, session-state.json schema. DO NOT USE FOR: Azure infrastructure, code generation, architecture design, troubleshooting.",
-      "path": ".github/skills/session-resume/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/session-resume/SKILL.md"
       },
       "meta": {}
     },
@@ -1993,13 +1982,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
+      "description": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/ && cd ../../tools/apex-recall && python -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
+        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/ && cd ../../tools/apex-recall && python -m ruff check src/",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2030,6 +2019,21 @@
       },
       "meta": {
         "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-apex-recall",
+      "category": "validator",
+      "label": "test:apex-recall",
+      "description": "python -m pytest tests/test_apex_recall/ -q",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python -m pytest tests/test_apex_recall/ -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2208,11 +2212,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 7)",
-      "description": "7 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 8)",
+      "description": "8 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 7
+        "groupSize": 8
       }
     },
     {
@@ -2876,12 +2880,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:01-orchestrator--uses->skill:session-resume",
-      "source": "prompt:01-orchestrator",
-      "target": "skill:session-resume",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:01-orchestrator--uses->skill:azure-defaults",
       "source": "prompt:01-orchestrator",
       "target": "skill:azure-defaults",
@@ -2912,12 +2910,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:02-requirements--uses->skill:session-resume",
-      "source": "prompt:02-requirements",
-      "target": "skill:session-resume",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:03-architect--uses->skill:azure-defaults",
       "source": "prompt:03-architect",
       "target": "skill:azure-defaults",
@@ -2939,12 +2931,6 @@
       "id": "prompt:03-architect--uses->skill:context-shredding",
       "source": "prompt:03-architect",
       "target": "skill:context-shredding",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:03-architect--uses->skill:session-resume",
-      "source": "prompt:03-architect",
-      "target": "skill:session-resume",
       "kind": "uses"
     },
     {
@@ -2984,12 +2970,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:04-design--uses->skill:session-resume",
-      "source": "prompt:04-design",
-      "target": "skill:session-resume",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:04-design--capability->skill:python-diagrams",
       "source": "prompt:04-design",
       "target": "skill:python-diagrams",
@@ -3011,12 +2991,6 @@
       "id": "prompt:04g-governance--uses->instruction:azure-artifacts",
       "source": "prompt:04g-governance",
       "target": "instruction:azure-artifacts",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:04g-governance--uses->skill:session-resume",
-      "source": "prompt:04g-governance",
-      "target": "skill:session-resume",
       "kind": "uses"
     },
     {
@@ -3053,12 +3027,6 @@
       "id": "prompt:05-iac-planner--uses->skill:python-diagrams",
       "source": "prompt:05-iac-planner",
       "target": "skill:python-diagrams",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:05-iac-planner--uses->skill:session-resume",
-      "source": "prompt:05-iac-planner",
-      "target": "skill:session-resume",
       "kind": "uses"
     },
     {
@@ -3116,12 +3084,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:06b-bicep-codegen--uses->skill:session-resume",
-      "source": "prompt:06b-bicep-codegen",
-      "target": "skill:session-resume",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:06b-bicep-codegen--capability->skill:microsoft-docs",
       "source": "prompt:06b-bicep-codegen",
       "target": "skill:microsoft-docs",
@@ -3161,12 +3123,6 @@
       "id": "prompt:06t-terraform-codegen--uses->skill:context-shredding",
       "source": "prompt:06t-terraform-codegen",
       "target": "skill:context-shredding",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:06t-terraform-codegen--uses->skill:session-resume",
-      "source": "prompt:06t-terraform-codegen",
-      "target": "skill:session-resume",
       "kind": "uses"
     },
     {
@@ -3212,12 +3168,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:07b-bicep-deploy--uses->skill:session-resume",
-      "source": "prompt:07b-bicep-deploy",
-      "target": "skill:session-resume",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:07b-bicep-deploy--capability->skill:azure-validate",
       "source": "prompt:07b-bicep-deploy",
       "target": "skill:azure-validate",
@@ -3251,12 +3201,6 @@
       "id": "prompt:07t-terraform-deploy--uses->skill:iac-common",
       "source": "prompt:07t-terraform-deploy",
       "target": "skill:iac-common",
-      "kind": "uses"
-    },
-    {
-      "id": "prompt:07t-terraform-deploy--uses->skill:session-resume",
-      "source": "prompt:07t-terraform-deploy",
-      "target": "skill:session-resume",
       "kind": "uses"
     },
     {
@@ -3314,12 +3258,6 @@
       "kind": "uses"
     },
     {
-      "id": "prompt:08-as-built--uses->skill:session-resume",
-      "source": "prompt:08-as-built",
-      "target": "skill:session-resume",
-      "kind": "uses"
-    },
-    {
       "id": "prompt:08-as-built--capability->skill:azure-cost-optimization",
       "source": "prompt:08-as-built",
       "target": "skill:azure-cost-optimization",
@@ -3365,12 +3303,6 @@
       "id": "agent:11-context-optimizer--uses->skill:context-optimizer",
       "source": "agent:11-context-optimizer",
       "target": "skill:context-optimizer",
-      "kind": "uses"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses->skill:session-resume",
-      "source": "agent:e2e-orchestrator",
-      "target": "skill:session-resume",
       "kind": "uses"
     },
     {
@@ -4034,12 +3966,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:session-resume",
-      "source": "instruction:agent-skills",
-      "target": "skill:session-resume",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:terraform-patterns",
       "source": "instruction:agent-skills",
       "target": "skill:terraform-patterns",
@@ -4445,12 +4371,6 @@
       "id": "instruction:context-optimization--applies-to->skill:python-diagrams",
       "source": "instruction:context-optimization",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:session-resume",
-      "source": "instruction:context-optimization",
-      "target": "skill:session-resume",
       "kind": "applies-to"
     },
     {
@@ -4865,12 +4785,6 @@
       "id": "instruction:docs-trigger--applies-to->skill:python-diagrams",
       "source": "instruction:docs-trigger",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:session-resume",
-      "source": "instruction:docs-trigger",
-      "target": "skill:session-resume",
       "kind": "applies-to"
     },
     {
@@ -5423,12 +5337,6 @@
       "id": "instruction:markdown--applies-to->skill:python-diagrams",
       "source": "instruction:markdown",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:session-resume",
-      "source": "instruction:markdown",
-      "target": "skill:session-resume",
       "kind": "applies-to"
     },
     {
@@ -6323,12 +6231,6 @@
       "id": "skill:context-shredding--refs->skill:golden-principles",
       "source": "skill:context-shredding",
       "target": "skill:golden-principles",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:context-shredding--refs->skill:session-resume",
-      "source": "skill:context-shredding",
-      "target": "skill:session-resume",
       "kind": "refs"
     },
     {

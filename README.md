@@ -122,6 +122,7 @@ directly.
 - Agent definitions, skills, and instruction files for the workflow engine
 - Reference implementations for Bicep and Terraform tracks
 - Validation scripts, MCP configuration, and sample agent outputs
+- `apex-recall` CLI for progressive session recall across agent-output projects
 - Source content for the published documentation site
 
 ## License

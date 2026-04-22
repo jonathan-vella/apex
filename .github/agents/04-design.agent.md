@@ -237,17 +237,16 @@ to a temp file between steps via terminal command to avoid inflating context.
 Before starting, validate `02-architecture-assessment.md` exists in `agent-output/{project}/`.
 If missing, STOP and request handoff to Architect agent.
 
-## Session State Protocol
+## Session State
 
-**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
 
-- **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
+- **Context budget**: Read `02-architecture-assessment.md` at startup
 - **My step**: 3
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_diagram` → `phase_3_adr` → `phase_4_artifact`
-- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.3.status`
-  is `"in_progress"` with a `sub_step`, skip to that checkpoint.
-- **State writes**: Update `00-session-state.json` after each phase. On completion, set
-  `steps.3.status = "complete"` and list all `03-des-*` artifacts.
+- **Resume**: Use the `apex-recall show` output to detect resume point from `sub_step`.
+- **Checkpoints**: `apex-recall checkpoint <project> 3 <phase_name> --json`
+- **On completion**: `apex-recall complete-step <project> 3 --json`
 
 ## Context Management
 

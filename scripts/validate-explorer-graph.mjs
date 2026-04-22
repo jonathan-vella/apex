@@ -117,29 +117,35 @@ function main() {
   }
 
   // Freshness: graph generatedAt must be >= newest source mtime
-  const graphMs = Date.parse(graph.generatedAt) || statSync(GRAPH_PATH).mtimeMs;
-  let newestSource = 0;
-  let newestName = "";
-  for (const d of SOURCE_DIRS) {
-    const m = newestMtime(join(REPO_ROOT, d));
-    if (m > newestSource) {
-      newestSource = m;
-      newestName = d;
+  // In CI (EXPLORER_GRAPH_STRICT=1), git checkout sets all mtimes to now,
+  // making the graph always appear stale. Skip the mtime-based freshness
+  // check in CI — structural errors are still enforced.
+  if (process.env.EXPLORER_GRAPH_STRICT !== "1") {
+    const graphMs =
+      Date.parse(graph.generatedAt) || statSync(GRAPH_PATH).mtimeMs;
+    let newestSource = 0;
+    let newestName = "";
+    for (const d of SOURCE_DIRS) {
+      const m = newestMtime(join(REPO_ROOT, d));
+      if (m > newestSource) {
+        newestSource = m;
+        newestName = d;
+      }
     }
-  }
-  for (const f of SOURCE_FILES) {
-    const m = newestMtime(join(REPO_ROOT, f));
-    if (m > newestSource) {
-      newestSource = m;
-      newestName = f;
+    for (const f of SOURCE_FILES) {
+      const m = newestMtime(join(REPO_ROOT, f));
+      if (m > newestSource) {
+        newestSource = m;
+        newestName = f;
+      }
     }
-  }
-  // Tolerate 5-second skew (writes in rapid succession, filesystem resolution).
-  if (newestSource > graphMs + 5000) {
-    warnings.push(
-      `Graph is stale — ${newestName} is newer than ${GRAPH_PATH}\n` +
-        `   Run: node scripts/generate-explorer-graph.mjs`,
-    );
+    // Tolerate 5-second skew (writes in rapid succession, filesystem resolution).
+    if (newestSource > graphMs + 5000) {
+      warnings.push(
+        `Graph is stale — ${newestName} is newer than ${GRAPH_PATH}\n` +
+          `   Run: node scripts/generate-explorer-graph.mjs`,
+      );
+    }
   }
 
   report();
@@ -153,8 +159,6 @@ function report() {
   }
   if (errors.length === 0) {
     console.log("✅ validate-explorer-graph passed (with warnings)");
-    // Warnings about staleness are non-fatal locally but CI uses strict mode below.
-    if (process.env.EXPLORER_GRAPH_STRICT === "1") process.exit(1);
     return;
   }
   for (const e of errors) console.error(`❌ ${e}`);

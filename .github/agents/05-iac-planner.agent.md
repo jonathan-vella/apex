@@ -85,7 +85,7 @@ features, or analysis beyond what the template specifies. Code generation belong
 
 ## IaC Track Detection
 
-Read `00-session-state.json` from `agent-output/{project}/`. Check `decisions.iac_tool`:
+Run `apex-recall show <project> --json` and check `decisions.iac_tool`:
 
 - **`"Bicep"`** → Use Bicep-specific tools and patterns (Phase 2 uses `mcp_bicep_list_avm_metadata`)
 - **`"Terraform"`** → Use Terraform-specific tools and patterns (Phase 2 uses `terraform/search_modules`)
@@ -135,20 +135,22 @@ Validate these files exist in `agent-output/{project}/`:
 
 If any are missing, STOP and request handoff to the appropriate prior agent.
 
-## Session State Protocol
+## Session State
 
-**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
 
-- **Context budget**: 3 files at startup (`00-session-state.json` + `02-architecture-assessment.md` + `04-governance-constraints.json`)
+- **Context budget**: Read `02-architecture-assessment.md` + `04-governance-constraints.json` at startup
 - **My step**: 4
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_avm` →
   `phase_3_plan` → `phase_3.5_strategy` → `phase_3.6_compacted` → `phase_4_diagrams` →
   `phase_5_challenger` → `phase_6_artifact`
-- **Resume**: Read `00-session-state.json` first. If `steps.4.status` is `"in_progress"`,
-  skip to the saved `sub_step` checkpoint.
-- **State writes**: Update after each phase. On completion, set `steps.4.status = "complete"`
-  and populate `decisions.deployment_strategy`.
-  Append significant decisions to `decision_log` (see decision-logging instruction).
+- **Resume**: Use the `apex-recall show` output to detect resume point.
+- **Checkpoints**: `apex-recall checkpoint <project> 4 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --key deployment_strategy --value <v> --json`
+  Append significant decisions to `decision_log`:
+  `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 4 --json`
+- **Review audit**: `apex-recall review-audit <project> 4 ... --json`
+- **On completion**: `apex-recall complete-step <project> 4 --json`
 
 ## Core Workflow
 

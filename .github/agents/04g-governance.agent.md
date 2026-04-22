@@ -93,16 +93,18 @@ Before doing any work, read:
 
 If missing, STOP and request handoff to the appropriate prior agent.
 
-## Session State Protocol
+## Session State
 
-**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
 
-- **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
+- **Context budget**: Read `02-architecture-assessment.md` at startup
 - **My step**: 3_5
 - **Sub-step checkpoints**: `phase_0_4_resume_check` → `phase_1_discovery` →
   `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
-- **Resume**: If `steps["3_5"].status` is `"in_progress"`, skip to the saved `sub_step`.
-- **State writes**: Update after each phase. On completion, set `steps["3_5"].status = "complete"`.
+- **Resume**: Use the `apex-recall show` output to detect resume point.
+- **Checkpoints**: `apex-recall checkpoint <project> 3_5 <phase_name> --json`
+- **Review audit**: `apex-recall review-audit <project> 3_5 ... --json`
+- **On completion**: `apex-recall complete-step <project> 3_5 --json`
 
 ## Core Workflow
 
@@ -121,10 +123,10 @@ against cold-boot re-entry (e.g., subagent dispatch, resumed session, or
 challenger re-invocation) where the parent context knows the work is done but
 the current turn does not.
 
-1. Read `agent-output/{project}/00-session-state.json`.
+1. Run `apex-recall show <project> --json`.
 2. If **all** of the following are true, skip to Phase 3 (Approval Gate) and
    hand off — do NOT re-run discovery or regenerate artifacts:
-   - `steps["3_5"].status == "complete"`
+   - step `3_5` shows `status == "complete"`
    - `agent-output/{project}/04-governance-constraints.json` exists
    - `agent-output/{project}/04-governance-constraints.md` exists
    - The JSON's `discovery_status` is `"COMPLETE"`
@@ -293,7 +295,7 @@ Then use `askQuestions` to gather the decision:
   2. **Refresh governance** — re-run discovery (if policies were recently changed)
   3. **Enter custom answer** — for manual overrides
 
-Update `00-session-state.json`: set `steps["3_5"].status = "complete"`.
+Run `apex-recall complete-step <project> 3_5 --json`.
 Update `agent-output/{project}/README.md` — mark Step 3_5 complete.
 
 ## Output Files

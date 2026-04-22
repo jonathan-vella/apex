@@ -89,7 +89,7 @@ Batch mode is used for complex projects where passes 2+3 run together.
 
 1. **Read the artifact completely** — understand the proposed approach end to end
 2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps.
-   Read `decision_log` from `00-session-state.json` to understand rationale behind prior
+   Read `decision_log` via `apex-recall decisions --project {project} --json` to understand rationale behind prior
    choices — challenge the reasoning, not just the outcome.
 3. **Verify claims against skills and instructions** — cross-reference azure-defaults, iac-policy-compliance,
    and governance-discovery instructions. Do not trust claims like "all policies covered" — verify them

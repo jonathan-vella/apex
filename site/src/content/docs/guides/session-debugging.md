@@ -18,7 +18,7 @@ The schema version is declared in the `schema_version` field. New state files
 should use `schema_version: "3.0"` (the v2.0 lock/claim protocol was removed
 since VS Code Copilot executes agents serially).
 The authoritative schema definition is in
-`.github/skills/session-resume/references/state-file-schema.md`.
+`schemas/session-state.schema.json` (managed by `apex-recall` CLI).
 
 A human-readable companion file `00-handoff.md` summarises the same
 state for manual inspection.
@@ -76,7 +76,7 @@ flowchart TD
    All steps reset to `pending`.
 
 :::tip[Prevention]
-The session-resume skill uses atomic writes (write to `.tmp`, rename to target,
+The `apex-recall` CLI uses atomic writes (write to `.tmp`, rename to target,
 keep `.bak` of previous version) to prevent corruption during agent crashes.
 :::
 

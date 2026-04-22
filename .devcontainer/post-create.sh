@@ -3,7 +3,16 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=12
+# Compute total steps dynamically from step_start calls in this script
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+TOTAL_STEPS=0
+if [[ -r "$SCRIPT_PATH" ]]; then
+    TOTAL_STEPS=$(grep -Ec '^step_start ' "$SCRIPT_PATH" || true)
+fi
+# Fallback if grep fails
+if [[ "$TOTAL_STEPS" -eq 0 ]]; then
+    TOTAL_STEPS=13
+fi
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0
@@ -260,7 +269,34 @@ else
     step_warn "requirements.txt not found"
 fi
 
-# ─── Step 11: Azure CLI extension install behavior ─────────────────────────
+# ─── Step 11: apex-recall CLI ────────────────────────────────────────────────
+
+step_start "🔍" "Installing apex-recall CLI..."
+APEX_RECALL_DIR="${PWD}/tools/apex-recall"
+if [ -d "$APEX_RECALL_DIR" ]; then
+    UV_BIN=$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")
+    if [ -x "$UV_BIN" ]; then
+        if "$UV_BIN" pip install --system --quiet -e "$APEX_RECALL_DIR" 2>&1; then
+            if apex-recall --version >/dev/null 2>&1; then
+                step_done "apex-recall $(apex-recall --version 2>&1 | awk '{print $2}') installed"
+            else
+                step_warn "apex-recall installed but --version check failed"
+            fi
+        else
+            step_warn "uv pip install failed for apex-recall"
+        fi
+    else
+        if pip3 install --quiet -e "$APEX_RECALL_DIR" 2>&1; then
+            step_done "apex-recall installed via pip3"
+        else
+            step_warn "pip3 install failed for apex-recall"
+        fi
+    fi
+else
+    step_warn "apex-recall directory not found at $APEX_RECALL_DIR"
+fi
+
+# ─── Step 12: Azure CLI extension install behavior ─────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI extension install behavior..."
 if az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors 2>/dev/null \
@@ -271,7 +307,7 @@ else
     step_warn "Azure CLI config update failed"
 fi
 
-# ─── Step 12: MCP config & final verification ─────────────────────────────
+# ─── Step 13: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 

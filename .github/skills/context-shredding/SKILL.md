@@ -55,7 +55,7 @@ Skills also have compression tiers (digest and minimal variants):
 | 60-80%        | Digest        | `SKILL.digest.md`  | 150-320       |
 | > 80%         | Minimal       | `SKILL.minimal.md` | 40-100        |
 
-Available for: `azure-defaults`, `azure-artifacts`, `session-resume`,
+Available for: `azure-defaults`, `azure-artifacts`,
 `golden-principles`, `context-shredding`.
 
 ## Reference Index

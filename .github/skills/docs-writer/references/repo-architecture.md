@@ -120,7 +120,6 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `microsoft-docs`              | `microsoft-docs/`              | Documentation       | "Azure docs", "quickstart"                |
 | `microsoft-foundry`           | `microsoft-foundry/`           | AI Platform         | "Foundry agent", "deploy agent"           |
 | `microsoft-skill-creator`     | `microsoft-skill-creator/`     | Meta                | "create skill for Microsoft tech"         |
-| `session-resume`              | `session-resume/`              | Workflow            | "resume session", "checkpoint"            |
 | `terraform-patterns`          | `terraform-patterns/`          | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 | `terraform-search-import`     | `terraform-search-import/`     | IaC Import          | "import resources", "terraform import"    |
 | `terraform-test`              | `terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"           |
