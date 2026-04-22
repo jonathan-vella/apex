@@ -29,7 +29,7 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 - `docs/` — user-facing docs (quickstart, workflow, troubleshooting, etc.)
 - `docs/prompt-guide/` — agent & skill prompt examples
-- `tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
+- `tools/tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
 
 > _See SKILL.md for full content._

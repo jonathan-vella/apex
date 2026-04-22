@@ -31,7 +31,7 @@ To regenerate icon libraries from the latest Microsoft Azure icon pack:
 #    https://learn.microsoft.com/en-us/azure/architecture/icons/
 #
 # 2. Run the conversion pipeline:
-python scripts/convert-azure-icons-to-drawio.py <path-to-zip>
+python tools/scripts/convert-azure-icons-to-drawio.py <path-to-zip>
 ```
 
 ## Usage in Diagrams

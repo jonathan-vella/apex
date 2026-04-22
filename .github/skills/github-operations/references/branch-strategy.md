@@ -40,10 +40,10 @@ git checkout -b infra/add-private-endpoints
 
 ```bash
 # Check branch name locally
-bash scripts/validate-branch-naming.sh
+bash tools/scripts/validate-branch-naming.sh
 
 # Check file scope locally
-bash scripts/validate-branch-scope.sh
+bash tools/scripts/validate-branch-scope.sh
 ```
 
 ## Agent Workflow

@@ -216,7 +216,7 @@ updating when agents or skills change:
 | `site/src/content/docs/`                | Published documentation pages           |
 | `docs.instructions.md`                  | Site docs standards                     |
 | `QUALITY_SCORE.md`                      | Project health grades (doc-gardening)   |
-| `tests/exec-plans/tech-debt-tracker.md` | Tech debt inventory                     |
+| `tools/tests/exec-plans/tech-debt-tracker.md` | Tech debt inventory                     |
 | `VERSION.md`                            | Canonical version number                |
 | `CHANGELOG.md`                          | Release history                         |
 | `README.md` (root)                      | Overview, project structure, tech stack |

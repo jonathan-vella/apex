@@ -48,7 +48,7 @@ Each template defines:
 
 Templates and generated artifacts are validated by:
 
-- **Script**: `scripts/validate-artifacts.mjs`
+- **Script**: `tools/scripts/validate-artifacts.mjs`
 - **npm script**: `npm run lint:artifact-templates`
 
 All 16 templates use `standard` strictness (missing/out-of-order headings

@@ -38,7 +38,7 @@ None — all tools and references are workspace-local.
 All markdown documentation **except** `agent-output/**/*.md`:
 
 - `site/src/content/docs/` — published user-facing docs (quickstart, workflow, troubleshooting, etc.)
-- `tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
+- `tools/tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
 - `CONTRIBUTING.md` — contribution guidelines
 - `CHANGELOG.md` — release history
@@ -95,7 +95,7 @@ When a new agent or skill is added to the repo:
    - No references to removed/renamed agents
 3. **Check project health files**:
    - Read `QUALITY_SCORE.md` — verify grades still reflect reality
-   - Read `tests/exec-plans/tech-debt-tracker.md` — verify items still relevant
+   - Read `tools/tests/exec-plans/tech-debt-tracker.md` — verify items still relevant
 4. **Report findings**: Present a table of issues found with:
    - File path, line number, issue description, suggested fix
 5. **Auto-fix**: For each issue, propose the exact edit and apply it

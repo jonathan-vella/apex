@@ -59,7 +59,7 @@ This prompt is test-only and non-interactive:
 
 This runs the full 7-step pipeline autonomously:
 
-1. **Requirements** — extracts from `tests/e2e-inputs/contoso-rfq.md`
+1. **Requirements** — extracts from `tools/tests/e2e-inputs/contoso-rfq.md`
 2. **Architecture** — WAF assessment + cost estimates
 3. **Design** — ADRs + diagrams (optional, skippable)
 4. **Governance** — Azure Policy discovery

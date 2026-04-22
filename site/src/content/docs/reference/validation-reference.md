@@ -41,7 +41,7 @@ All hooks are defined in `lefthook.yml` at the repository root.
 | `agent-checks`        | `**/*.agent.md`                       | Agent body size and language density             |
 | `instruction-checks`  | `**/*.instructions.md`                | Instruction frontmatter validation               |
 | `instruction-refs`    | Agents, skills, instructions          | Cross-reference validation                       |
-| `python-lint`         | `mcp/**/*.py`                         | Ruff linter on Python files                      |
+| `python-lint`         | `tools/mcp-servers/**/*.py`             | Ruff linter on Python files                      |
 | `terraform-fmt`       | `*.tf`                                | Terraform formatting check                       |
 | `terraform-validate`  | `*.tf`                                | Terraform validation per project                 |
 

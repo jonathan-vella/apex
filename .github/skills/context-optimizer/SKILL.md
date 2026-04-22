@@ -82,7 +82,7 @@ This skill contains **no project-specific logic**. To use in another project:
 1. Copy `.github/skills/context-optimizer/` to the target repo
 2. Copy `.github/agents/11-context-optimizer.agent.md`
 3. Copy `.github/instructions/context-optimization.instructions.md`
-4. Copy `scripts/snapshot-agent-context.sh` and `scripts/diff-context-baseline.sh`
+4. Copy `tools/scripts/snapshot-agent-context.sh` and `tools/scripts/diff-context-baseline.sh`
 5. Adjust agent numbering if needed (11 is the slot used in this repo)
 6. The log parser auto-discovers VS Code log directories
 
@@ -90,7 +90,7 @@ This skill contains **no project-specific logic**. To use in another project:
 
 ## References
 
-- `scripts/parse-chat-logs.py` — Log parser producing structured JSON
+- `tools/scripts/parse-chat-logs.py` — Log parser producing structured JSON
 - `templates/optimization-report.md` — Report output template
 - `references/token-estimation.md` — Detailed token cost heuristics
 

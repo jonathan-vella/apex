@@ -113,7 +113,7 @@ IaC tool:
 
 ## Project Context
 
-- RFP source: `tests/e2e-inputs/contoso-rfq.md`
+- RFP source: `tools/tests/e2e-inputs/contoso-rfq.md`
 - Output directory: `agent-output/{project}/`
 - IaC directory (Bicep): `infra/bicep/{project}/`
 - IaC directory (Terraform): `infra/terraform/{project}/`

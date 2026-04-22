@@ -96,7 +96,7 @@ or adapting artifacts from other runs is strictly prohibited.
 - **NEVER** reuse `decision_log` entries (including timestamps) from another run
 
 **Allowed Cross-Run Reads:** shared templates (`.github/skills/`, agents, instructions),
-RFQ input (`tests/e2e-inputs/`), prompt definitions, validation scripts, and
+RFQ input (`tools/tests/e2e-inputs/`), prompt definitions, validation scripts, and
 current run's own artifacts for downstream steps.
 
 **Timestamp Coherence:** All `decision_log[].timestamp`, `steps[].started/completed`

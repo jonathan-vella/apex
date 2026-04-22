@@ -26,7 +26,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram (Draw.io)"
     agent: 08-As-Built
-    prompt: "Generate an as-built architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. Use actual deployed resource names where they improve traceability. (4) Extract cell IDs via terminal command (do NOT read full JSON through the LLM). Save `diagram_xml` to temp file. (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 scripts/save-drawio.py <json-path> agent-output/{project}/07-ab-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node scripts/validate-drawio-files.mjs`. Quality score >= 9/10."
+    prompt: "Generate an as-built architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. Use actual deployed resource names where they improve traceability. (4) Extract cell IDs via terminal command (do NOT read full JSON through the LLM). Save `diagram_xml` to temp file. (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/07-ab-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node tools/scripts/validate-drawio-files.mjs`. Quality score >= 9/10."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -130,7 +130,7 @@ edge routing, group sizing, and cross-cutting service placement.
 4. **Assign to groups** — Call `add-cells-to-group` ONCE. Call `validate-group-containment` after.
 5. **Finish** — Call `finish-diagram` with `compress: true`.
 6. **Save** — Extract XML via terminal and write to `agent-output/{project}/07-ab-diagram.drawio`.
-7. **Validate** — Run `node scripts/validate-drawio-files.mjs`.
+7. **Validate** — Run `node tools/scripts/validate-drawio-files.mjs`.
 
 ## Prerequisites Check
 
@@ -249,8 +249,8 @@ Follow the batch-only workflow from the drawio skill:
 - Remove non-essential edge labels and low-value supporting groups that weaken hierarchy
 - Prefer service names and deployed resource names over SKU, tier, policy, or
   count annotations unless a difference is architecturally significant
-- Save via `python3 scripts/save-drawio.py <json-path> <output.drawio>` (strips edge anchors)
-- Validate via `node scripts/validate-drawio-files.mjs`
+- Save via `python3 tools/scripts/save-drawio.py <json-path> <output.drawio>` (strips edge anchors)
+- Validate via `node tools/scripts/validate-drawio-files.mjs`
 
 ### Phase 4: Finalize
 

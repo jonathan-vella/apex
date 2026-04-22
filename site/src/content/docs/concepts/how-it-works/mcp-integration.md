@@ -255,7 +255,7 @@ Common MCP errors and their resolution:
 
 To add a new MCP server:
 
-1. Place server code in `mcp/{server-name}/` (for custom servers)
+1. Place server code in `tools/mcp-servers/{server-name}/` (for custom servers)
 2. Add the server entry to `.vscode/mcp.json`:
 
    ```json

@@ -118,7 +118,7 @@ Full documentation: <https://www.drawio.com/doc/faq/drawio-style-reference>
 
 Used for grouping-container fills in `03-des-*.drawio`, `04-dependency-*.drawio`,
 `04-runtime-*.drawio`, `07-ab-*.drawio`. Enforced as advisory-now / blocking-in-0.12
-by [`scripts/validate-drawio-files.mjs`](../../../../scripts/validate-drawio-files.mjs).
+by [`tools/scripts/validate-drawio-files.mjs`](../../../../tools/scripts/validate-drawio-files.mjs).
 
 | Concern        | Fill      | Rationale                          |
 | -------------- | --------- | ---------------------------------- |
@@ -149,4 +149,4 @@ stock shapes.
 - **Cross-tier**: 120 px between tiers (e.g., compute → data)
 
 These values feed the spacing rubric check in
-[`scripts/validate-drawio-files.mjs`](../../../../scripts/validate-drawio-files.mjs).
+[`tools/scripts/validate-drawio-files.mjs`](../../../../tools/scripts/validate-drawio-files.mjs).

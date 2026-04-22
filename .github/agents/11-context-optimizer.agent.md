@@ -276,8 +276,8 @@ This agent is designed to be reusable across projects:
 - To use in another project: copy `.github/agents/11-context-optimizer.agent.md`,
   `.github/skills/context-optimizer/`, and
   `.github/instructions/context-optimization.instructions.md`
-- **Baseline scripts**: also copy `scripts/snapshot-agent-context.sh` and
-  `scripts/diff-context-baseline.sh` for before/after comparison
+- **Baseline scripts**: also copy `tools/scripts/snapshot-agent-context.sh` and
+  `tools/scripts/diff-context-baseline.sh` for before/after comparison
 
 ## Error Handling
 

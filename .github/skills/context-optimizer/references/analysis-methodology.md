@@ -213,5 +213,5 @@ npm run diff:baseline -- --baseline my-label
 
 ### Scripts
 
-- `scripts/snapshot-agent-context.sh` — creates timestamped baseline snapshots
-- `scripts/diff-context-baseline.sh` — generates diff reports against a baseline
+- `tools/scripts/snapshot-agent-context.sh` — creates timestamped baseline snapshots
+- `tools/scripts/diff-context-baseline.sh` — generates diff reports against a baseline

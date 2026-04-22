@@ -89,8 +89,8 @@ When `finish-diagram` or `export-diagram` returns XML in a JSON response, use
 the helper script to decompress, strip edge anchors, and save in one step:
 
 ```bash
-python3 scripts/save-drawio.py '<temp-content-json-path>' '<output-path>.drawio'
-node scripts/validate-drawio-files.mjs '<output-path>.drawio'
+python3 tools/scripts/save-drawio.py '<temp-content-json-path>' '<output-path>.drawio'
+node tools/scripts/validate-drawio-files.mjs '<output-path>.drawio'
 ```
 
 The script handles: compressed content decompression, `mxGraphModel` embedding
@@ -213,7 +213,7 @@ client apps, CI/CD pipelines.
 > `exitX/exitY/entryX/entryY` anchor points and `<Array>` waypoints into every
 > edge it creates. These computed routes are poor for fan-out patterns and cause
 > edges to pile up in horizontal corridors. After `finish-diagram`, the agent
-> **MUST** run `scripts/save-drawio.py` which strips these injected anchors and
+> **MUST** run `tools/scripts/save-drawio.py` which strips these injected anchors and
 > waypoints, letting Draw.io's client-side renderer calculate clean orthogonal
 > paths when the file is opened.
 

@@ -68,8 +68,8 @@ npm run e2e:benchmark -- --compare
 Open VS Code Chat and use one of the prompt files:
 
 1. **Simple project (pre-seeded)**: Open `.github/prompts/e2e-ralph-loop.prompt.md`
-2. **Complex project (RFP-driven)**: Open `tests/prompts/e2e-contoso-rfp.prompt.md`
-3. **Post-loop analysis**: Open `tests/prompts/e2e-analyze-lessons.prompt.md`
+2. **Complex project (RFP-driven)**: Open `tools/tests/prompts/e2e-contoso-rfp.prompt.md`
+3. **Post-loop analysis**: Open `tools/tests/prompts/e2e-analyze-lessons.prompt.md`
 
 The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`)
 orchestrates the loop with conditional IaC routing based on session state. The

@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Added
 
+- refactor(tools): consolidate tests under `tools/tests/`.
+  Moves `tests/` → `tools/tests/`. Updates npm test commands,
+  markdownlint excludes, and documentation references.
+
 - refactor(tools): consolidate validation scripts under `tools/scripts/`.
   Moves `scripts/` → `tools/scripts/`. Updates 45+ npm scripts, lefthook
   hooks, CI workflows, instruction applyTo globs, and documentation.
