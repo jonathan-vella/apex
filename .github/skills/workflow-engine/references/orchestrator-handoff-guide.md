@@ -22,7 +22,7 @@ Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing 
 
 ### Complexity Routing
 
-After Step 1 (Requirements), read `decisions.complexity` from `00-session-state.json`.
+After Step 1 (Requirements), read `decisions.complexity` from `apex-recall show <project> --json`.
 If missing (old sessions), default to `"standard"`.
 
 When dispatching Steps 2, 4, 5, and 6, the Orchestrator defaults to **1-pass comprehensive review**.
@@ -88,7 +88,7 @@ Runtime Diagram: agent-output/{project}/04-runtime-diagram.drawio
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
-   Run @01-Orchestrator with the project name — context restores from 00-session-state.json.
+   Run @01-Orchestrator with the project name — context restores via `apex-recall show`.
 ❓ Review plan and confirm to proceed (same session or fresh chat)
 ```
 

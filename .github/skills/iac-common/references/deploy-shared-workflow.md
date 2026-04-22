@@ -13,7 +13,7 @@ Before executing any deployment (after preview/what-if, before apply):
 2. Focus lens: security-governance (Deny policy violations, destructive operations, missing tags)
 3. If `must_fix` count > 0: stop deployment and present findings to user
 4. If `should_fix` count > 0: present findings and ask user for explicit approval
-5. Log review result to `00-session-state.json` under `review_audit.step_6`
+5. Log review result via `apex-recall review-audit <project> 6 --passes-executed 1 --json`
 
 ## Preflight: Security Baseline Check
 

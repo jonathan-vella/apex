@@ -130,6 +130,10 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Sub-steps**: `phase_1_auth` → `phase_2_preview` →
   `phase_3_deploy` → `phase_4_verify` → `phase_5_artifact`
 - **Checkpoints**: `apex-recall checkpoint <project> 6 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 6 --json`
+  Record: deployment strategy (azd/standalone), target subscription, resource group, skip-validation decisions.
+- **Findings**: `apex-recall finding <project> --add "<text>" --json`
+  Record: deployment blockers, what-if warnings, policy violations found during deploy.
 - **On completion**: `apex-recall complete-step <project> 6 --json`
 
 ## Azure CLI Token Validation
@@ -156,7 +160,7 @@ bicep build infra/bicep/{project}/main.bicep
 
 If errors → STOP, report, hand off to Bicep Code agent.
 
-> **Skip-Validation shortcut**: When `00-session-state.json` confirms
+> **Skip-Validation shortcut**: When `apex-recall show <project> --json` confirms
 > `steps.5.status == "complete"` and the Bicep files have not changed since
 > Step 5, you may skip `bicep build` and `bicep lint` to avoid redundant
 > validation. The generated `deploy.ps1` should include a `-SkipValidation`

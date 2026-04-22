@@ -159,6 +159,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Resume**: Use the `apex-recall show` output to detect resume point from `sub_step`.
   (e.g. if `phase_3_docs`, inventory is done — read `07-resource-inventory.md` on-demand.)
 - **Checkpoints**: `apex-recall checkpoint <project> 7 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 7 --json`
+  Record: documentation scope decisions, resource inventory inclusions/exclusions.
 - **On completion**: `apex-recall complete-step <project> 7 --json`
 
 ## Core Workflow
@@ -189,8 +191,8 @@ Compact before generating the 7-document suite.
    `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
 3. **Do NOT re-read predecessor artifacts during doc generation** — rely on
    the summary above and query Azure CLI for specific resource details as needed
-4. **Update session state** — write `sub_step: "phase_1.5_compacted"` to
-   `00-session-state.json` so resume skips re-loading prior context
+4. **Update session state** — run `apex-recall checkpoint <project> 7 phase_1.5_compacted --json`
+   so resume skips re-loading prior context
 
 ### Phase 2: Documentation Generation
 

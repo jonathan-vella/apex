@@ -265,6 +265,18 @@ in `workflow-graph.json`). For complex projects, the Orchestrator asks whether t
 | Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or session state updates                     |
 | Update session state via `apex-recall` at EVERY gate                 |                                                                   |
 
+### Checkpoint Fallback (Safety Net)
+
+After each subagent returns (autonomous steps 2, 3, 5, 6, 7), verify the step was recorded:
+
+1. Run `apex-recall show <project> --json` and check `steps.{N}.status`
+2. If the step agent did NOT call `complete-step` (status is still `in_progress` or `pending`):
+   - Run `apex-recall complete-step <project> {N} --json` as a fallback
+3. If the step agent did NOT record key decisions (e.g., `decisions.iac_tool` after Step 1):
+   - Extract the decision from the artifact and run `apex-recall decide <project> --key <k> --value <v> --json`
+
+This ensures session state stays current even when step agents skip apex-recall calls.
+
 ## The Workflow
 
 ```text
@@ -346,7 +358,7 @@ Orchestrator with the project name — no special resume prompt needed.
 | ---- | -------------------------------- | ---------------------------------------- |
 | —    | `README.md`                      | Exists? (required)                       |
 | —    | `00-handoff.md`                  | Updated at every gate? (human companion) |
-| —    | `00-session-state.json`          | Updated at every gate? (machine state)   |
+| —    | `00-session-state.json`          | Updated via `apex-recall` at every gate? |
 | 1    | `01-requirements.md`             | Exists?                                  |
 | 2    | `02-architecture-assessment.md`  | Exists?                                  |
 | 3    | `03-des-*.md`, `03-des-*.py`     | Optional                                 |

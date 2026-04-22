@@ -11,7 +11,7 @@ reads instead of relying on hardcoded step logic.
 ## When to Use
 
 - Orchestrator determining the next step after a gate
-- Resuming a workflow from `00-session-state.json`
+- Resuming a workflow via `apex-recall show <project> --json`
 - Validating that all steps have proper dependencies and outputs
 - Understanding fan-out (parallel sub-steps) and conditional routing
 
@@ -63,7 +63,7 @@ The full machine-readable DAG is in:
 
 ```text
 1. Load workflow-graph.json
-2. Read 00-session-state.json → current_step
+2. Run `apex-recall show <project> --json` → current_step
 3. Find the node matching current_step in the graph
 4. Check node status:
    - complete → follow on_complete edges → find next node

@@ -95,12 +95,8 @@ jq '{
 ## Cmd 7: Phase 3 — Update session state
 
 ```bash
-jq '.steps["3_5"].status = "complete" | .steps["3_5"].completed = (now | strftime("%Y-%m-%dT%H:%M:%SZ"))' \
-  agent-output/{project}/00-session-state.json > /tmp/ss.json \
-  && mv /tmp/ss.json agent-output/{project}/00-session-state.json
+apex-recall complete-step {project} 3_5 --json
 ```
-
-Note: if `jq` `now` is unavailable, use `apply_patch` on the session state instead.
 
 ## Anti-patterns
 

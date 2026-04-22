@@ -89,7 +89,7 @@ Before doing any work, read:
 ## Prerequisites
 
 1. `02-architecture-assessment.md` must exist — read for resource list and compliance requirements
-2. `00-session-state.json` must exist — read for project name, complexity, decisions
+2. Run `apex-recall show <project> --json` to verify project context exists (project name, complexity, decisions)
 
 If missing, STOP and request handoff to the appropriate prior agent.
 
@@ -103,6 +103,10 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
 - **Resume**: Use the `apex-recall show` output to detect resume point.
 - **Checkpoints**: `apex-recall checkpoint <project> 3_5 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 3_5 --json`
+  Record: governance exemptions, policy waivers, allowed-location overrides.
+- **Findings**: `apex-recall finding <project> --add "<text>" --json`
+  Record: Deny-policy blockers, audit warnings, compliance gaps discovered.
 - **Review audit**: `apex-recall review-audit <project> 3_5 ... --json`
 - **On completion**: `apex-recall complete-step <project> 3_5 --json`
 

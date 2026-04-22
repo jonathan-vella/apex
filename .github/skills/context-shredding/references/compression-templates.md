@@ -73,5 +73,5 @@ Compression is only needed when the As-Built agent loads predecessor artifacts.
 - Keep **decision rationale** over implementation details
 - Keep **resource names and SKUs** over configuration details
 - Always preserve the document title (H1) and first paragraph
-- At the `minimal` tier, prefer reading `decision_log` from `00-session-state.json`
+- At the `minimal` tier, prefer reading `decision_log` from `apex-recall show <project> --json`
   over loading full artifact prose for rationale behind prior choices

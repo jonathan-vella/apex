@@ -7,7 +7,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 ## When to Use
 
 - Orchestrator determining the next step after a gate
-- Resuming a workflow from `00-session-state.json`
+- Resuming a workflow via `apex-recall show <project> --json`
 - Validating that all steps have proper dependencies and outputs
 - Understanding fan-out (parallel sub-steps) and conditional routing
 
@@ -33,7 +33,7 @@ The full machine-readable DAG is in:
 
 ```text
 1. Load workflow-graph.json
-2. Read 00-session-state.json → current_step
+2. Run `apex-recall show <project> --json` → current_step
 
 > _See SKILL.md for full content._
 
