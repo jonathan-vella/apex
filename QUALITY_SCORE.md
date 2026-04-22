@@ -98,7 +98,7 @@
 | 2026-03-27 | Skills          | Drawio SKILL.md: Reference Index section added; 3 canary markers added; ref files 473 total                       |
 | 2026-03-27 | Skills          | Excalidraw references cleaned: 2 orphaned files removed (migrated to drawio); 1 ref remaining                     |
 | 2026-03-27 | Agents          | 08-as-built.agent.md: ordered list numbering fixed (MD029)                                                        |
-| 2026-03-27 | CI / Validation | Core repo lint clean (0 errors); 91 lint errors in vendored `mcp/drawio-mcp-server/` only                         |
+| 2026-03-27 | CI / Validation | Core repo lint clean (0 errors); 91 lint errors in vendored `tools/mcp-servers/drawio/` only                       |
 | 2026-03-27 | CI / Validation | Freshness check: 0 issues (was 5); all canary markers and Reference Index sections present                        |
 | 2026-03-27 | Instructions    | All instruction checks pass: 65 checks, 0 errors, 0 warnings                                                      |
 | 2026-03-27 | Backlog         | Debt #20 resolved (Fabric ref blanks no longer flagged); drawio-mcp-server lint added as #21                      |

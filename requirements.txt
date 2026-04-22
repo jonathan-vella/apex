@@ -3,7 +3,7 @@
 # Note: graphviz system package required (apt-get install graphviz)
 #
 # Additional component-specific requirements:
-#   - mcp/azure-pricing-mcp/requirements.txt  (Azure Pricing MCP server)
+#   - tools/mcp-servers/azure-pricing/requirements.txt  (Azure Pricing MCP server)
 #   - scenarios/S04-*/solution/app/requirements.txt  (FastAPI validation app)
 #
 # The devcontainer post-create.sh handles all installations automatically.

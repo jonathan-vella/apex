@@ -281,7 +281,7 @@ uses MCP servers for GitHub (repo operations), Azure (RBAC-aware resource access
 Azure Pricing (cost estimation), Terraform Registry (module lookup), and Microsoft
 Learn (official documentation search and code sample discovery).
 
-📁 **See**: [mcp/azure-pricing-mcp/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/mcp/azure-pricing-mcp),
+📁 **See**: [tools/mcp-servers/azure-pricing/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/tools/mcp-servers/azure-pricing),
 [MCP Integration](../../concepts/how-it-works/mcp-integration/)
 
 ### MJS (ECMAScript Module)

@@ -6,12 +6,12 @@
     },
     "azure-pricing": {
       "type": "stdio",
-      "command": "${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
+      "command": "${workspaceFolder}/tools/mcp-servers/azure-pricing/.venv/bin/python",
       "args": [
         "-m",
         "azure_pricing_mcp"
       ],
-      "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src",
+      "cwd": "${workspaceFolder}/tools/mcp-servers/azure-pricing/src",
       "env": {
         "AZURE_PRICING_HTTP_POOL_SIZE": "20",
         "AZURE_PRICING_HTTP_POOL_PER_HOST": "10",
@@ -45,7 +45,7 @@
         "-P",
         "--no-check",
         "--cached-only",
-        "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"
+        "${workspaceFolder}/tools/mcp-servers/drawio/src/index.ts"
       ]
     }
   }

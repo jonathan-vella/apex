@@ -127,7 +127,7 @@ if command -v deno &>/dev/null; then
     fi
     # Pre-cache drawio MCP server dependencies to eliminate first-start latency.
     # Must run from the project dir so deno.json import map is resolved correctly.
-    DRAWIO_DIR="${PWD}/mcp/drawio-mcp-server"
+    DRAWIO_DIR="${PWD}/tools/mcp-servers/drawio"
     if [ -f "$DRAWIO_DIR/deno.json" ]; then
         (cd "$DRAWIO_DIR" && deno install) 2>/dev/null \
             && printf "        ✅ drawio-mcp-server deps cached\n" \
@@ -203,7 +203,7 @@ pwsh -NoProfile -Command "
 # ─── Step 8: Azure Pricing MCP Server ────────────────────────────────────────
 
 step_start "💰" "Setting up Azure Pricing MCP Server..."
-MCP_DIR="${PWD}/mcp/azure-pricing-mcp"
+MCP_DIR="${PWD}/tools/mcp-servers/azure-pricing"
 if [ -d "$MCP_DIR" ]; then
     if [ ! -f "$MCP_DIR/.venv/bin/pip" ]; then
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
@@ -323,9 +323,9 @@ config_path = Path(sys.argv[1])
 
 default_azure_pricing = {
     "type": "stdio",
-    "command": "${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
+    "command": "${workspaceFolder}/tools/mcp-servers/azure-pricing/.venv/bin/python",
     "args": ["-m", "azure_pricing_mcp"],
-    "cwd": "${workspaceFolder}/mcp/azure-pricing-mcp/src",
+    "cwd": "${workspaceFolder}/tools/mcp-servers/azure-pricing/src",
 }
 
 default_github = {
@@ -336,7 +336,7 @@ default_github = {
 default_drawio = {
     "type": "stdio",
     "command": "deno",
-    "args": ["run", "-P", "--no-check", "--cached-only", "${workspaceFolder}/mcp/drawio-mcp-server/src/index.ts"],
+    "args": ["run", "-P", "--no-check", "--cached-only", "${workspaceFolder}/tools/mcp-servers/drawio/src/index.ts"],
 }
 
 data = {"servers": {}}

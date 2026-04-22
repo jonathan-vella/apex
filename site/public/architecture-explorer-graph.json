@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-22T14:04:45.307Z",
+  "generatedAt": "2026-04-22T14:14:31.835Z",
   "categories": [
     {
       "id": "agent",
@@ -1982,13 +1982,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/ && cd ../../tools/apex-recall && python -m ruff check src/",
+      "description": "cd tools/mcp-servers/azure-pricing && python -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/ && cd ../../tools/apex-recall && python -m ruff check src/",
+        "command": "cd tools/mcp-servers/azure-pricing && python -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python -m ruff check src/",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2147,7 +2147,7 @@
       "id": "mcp:azure-pricing",
       "category": "mcp",
       "label": "azure-pricing",
-      "description": "stdio: ${workspaceFolder}/mcp/azure-pricing-mcp/.venv/bin/python",
+      "description": "stdio: ${workspaceFolder}/tools/mcp-servers/azure-pricing/.venv/bin/python",
       "path": ".vscode/mcp.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"

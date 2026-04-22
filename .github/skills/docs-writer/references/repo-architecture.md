@@ -23,7 +23,11 @@ azure-agentic-infraops/  (APEX)
 ├── tests/                   # Test checklists and exec plans
 │   └── exec-plans/          # Execution plans and tech debt tracker
 ├── infra/bicep/             # Bicep module library
-├── mcp/azure-pricing-mcp/   # Azure Pricing MCP server
+├── tools/
+│   ├── apex-recall/        # Progressive session recall CLI
+│   └── mcp-servers/
+│       ├── azure-pricing/  # Azure Pricing MCP server
+│       └── drawio/         # Draw.io MCP server
 ├── scripts/                 # Validation and automation scripts
 └── temp/                    # Scratch space (gitignored for outputs)
 ```

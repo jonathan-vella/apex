@@ -16,7 +16,7 @@ Thank you to everyone who has contributed to making this project better!
 
 ## Azure Pricing MCP Server Contributors
 
-The [Azure Pricing MCP Server](mcp/azure-pricing-mcp/) is a key component that provides
+The [Azure Pricing MCP Server](tools/mcp-servers/azure-pricing/) is a key component that provides
 real-time Azure pricing information to AI assistants.
 
 ### Original Author
@@ -59,7 +59,7 @@ diagramming capabilities for architecture documentation.
 
 ## Draw.io MCP Server Contributors
 
-The [Draw.io MCP Server](mcp/drawio-mcp-server/) provides Azure architecture diagram generation
+The [Draw.io MCP Server](tools/mcp-servers/drawio/) provides Azure architecture diagram generation
 with 700+ built-in Azure icons, batch operations, and transactional workflow support.
 
 ### Original Author

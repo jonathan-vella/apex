@@ -211,11 +211,12 @@ infra/
       plan.md          # azure-prepare output — source of truth for validate/deploy
 assets/
   drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
-mcp/
-  azure-pricing-mcp/   # Custom Azure Pricing MCP server (Python)
 scripts/               # Validation and maintenance scripts (Node.js)
 tools/
   apex-recall/         # Progressive session recall CLI (Python, pip-installable)
+  mcp-servers/
+    azure-pricing/     # Custom Azure Pricing MCP server (Python)
+    drawio/            # Draw.io MCP server (Deno/TypeScript)
   schemas/             # JSON schemas for session state, governance, workflow, etc.
 site/
   src/content/docs/    # Published user-facing documentation (Astro Starlight)

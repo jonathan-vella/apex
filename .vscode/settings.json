@@ -55,7 +55,7 @@
   "python.terminal.useEnvFile": true,
   "azureTerraform.checkTerraformCmd": false,
   "deno.enable": false,
-  "deno.enablePaths": ["mcp/drawio-mcp-server"],
+  "deno.enablePaths": ["tools/mcp-servers/drawio"],
   "deno.lint": true,
   "deno.unstable": []
 }

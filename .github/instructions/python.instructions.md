@@ -13,7 +13,7 @@ with Ruff for linting and formatting.
 Python is used for three purposes in this repo:
 
 1. **Architecture diagrams** — `diagrams` library scripts in `agent-output/` and `.github/skills/`
-2. **Azure Pricing MCP server** — async `aiohttp`/`starlette` server in `mcp/azure-pricing-mcp/`
+2. **Azure Pricing MCP server** — async `aiohttp`/`starlette` server in `tools/mcp-servers/azure-pricing/`
 3. **Utility scripts** — Checkov scanning, diagram verification
 
 ## Style & Formatting
@@ -29,7 +29,7 @@ Python is used for three purposes in this repo:
 
 - Use `uv` (Astral) as the package manager — installed in devcontainer
 - Root dependencies in `requirements.txt`: `diagrams`, `matplotlib`, `pillow`, `checkov`
-- MCP server dependencies in `mcp/azure-pricing-mcp/pyproject.toml`
+- MCP server dependencies in `tools/mcp-servers/azure-pricing/pyproject.toml`
 - Use virtual environments: MCP server has its own `.venv`
 
 ## Diagram Scripts

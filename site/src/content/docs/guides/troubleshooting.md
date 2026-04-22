@@ -364,7 +364,7 @@ cat .vscode/mcp.json
 python3 --version  # Should be 3.10+
 
 # Install dependencies
-cd mcp/azure-pricing-mcp && pip install -r requirements.txt
+cd tools/mcp-servers/azure-pricing && pip install -r requirements.txt
 ```
 
 :::tip[Graceful degradation]

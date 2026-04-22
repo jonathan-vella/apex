@@ -20,6 +20,11 @@ for full details on this and all prior releases.
 
 ### Added
 
+- refactor(tools): consolidate MCP servers under `tools/mcp-servers/`.
+  Moves `mcp/azure-pricing-mcp/` → `tools/mcp-servers/azure-pricing/` and
+  `mcp/drawio-mcp-server/` → `tools/mcp-servers/drawio/`. Updates all path
+  references across config, devcontainer, agents, docs, and validation.
+
 - feat(cli): `apex-recall` CLI v0.2.0 for progressive cross-project session recall.
   Indexes `agent-output/` into SQLite + FTS5 for low-token context recovery.
   Owns the full session lifecycle (read + write) via CLI commands; replaces the

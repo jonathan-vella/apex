@@ -167,7 +167,7 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `agent-output/{project}/`                      | Agent-generated artifacts                                                    |
 | `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (managed by apex-recall CLI)              |
 | `infra/bicep/{project}/`                       | Bicep templates                                                              |
-| `mcp/azure-pricing-mcp/`                       | Azure Pricing MCP server                                                     |
+| `tools/mcp-servers/azure-pricing/`              | Azure Pricing MCP server                                                     |
 | `.vscode/mcp.json`                             | MCP server configuration (github, azure-pricing, terraform, microsoft-learn) |
 | `infra/terraform/{project}/`                   | Terraform templates by project                                               |
 | `tools/apex-recall/`                           | Progressive session recall CLI (indexes agent-output/)                       |

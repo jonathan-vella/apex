@@ -147,20 +147,20 @@
     "coverage/**",
 
     // Archived content
-    "mcp/azure-pricing-mcp/.archive/**",
+    "tools/mcp-servers/azure-pricing/.archive/**",
 
     // Vendored MCP server (external fork — not hand-authored)
-    "mcp/drawio-mcp-server/**",
+    "tools/mcp-servers/drawio/**",
 
     // Upstream vendored files (not hand-authored)
-    "mcp/azure-pricing-mcp/CHANGELOG.md",
-    "mcp/azure-pricing-mcp/README.md",
-    "mcp/azure-pricing-mcp/CONTRIBUTING.md",
-    "mcp/azure-pricing-mcp/INSTALL.md",
-    "mcp/azure-pricing-mcp/docs/**",
+    "tools/mcp-servers/azure-pricing/CHANGELOG.md",
+    "tools/mcp-servers/azure-pricing/README.md",
+    "tools/mcp-servers/azure-pricing/CONTRIBUTING.md",
+    "tools/mcp-servers/azure-pricing/INSTALL.md",
+    "tools/mcp-servers/azure-pricing/docs/**",
 
     // pytest cache (auto-generated, not hand-authored)
-    "mcp/azure-pricing-mcp/.pytest_cache/**",
+    "tools/mcp-servers/azure-pricing/.pytest_cache/**",
 
     // Presenter/demo content and planning docs (intentionally less strict)
     "docs/audit-checklists/**",

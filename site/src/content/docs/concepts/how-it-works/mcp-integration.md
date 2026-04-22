@@ -70,12 +70,12 @@ and is pre-configured in the dev container via the
 | Transport | stdio                                                 |
 | Command   | Python (`azure_pricing_mcp` module)                   |
 | Auth      | None for pricing; Azure credentials for Spot VM tools |
-| Tools     | 19 tools                                              |
-| Source    | `mcp/azure-pricing-mcp/` (custom, built in-repo)      |
+| Tools     | Multiple (see tool list below)                        |
+| Source    | `tools/mcp-servers/azure-pricing/` (custom, built in-repo)      |
 
 This is a **custom MCP server built specifically for this project**. It
 queries the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
-and provides 19 tools for cost estimation, SKU discovery, and FinOps:
+and provides tools for cost estimation, SKU discovery, and FinOps:
 
 | Tool                          | Purpose                                              |
 | ----------------------------- | ---------------------------------------------------- |
@@ -119,10 +119,10 @@ Primarily scoped to the **Architect** agent (Step 2), the
 | Property  | Value                                                    |
 | --------- | -------------------------------------------------------- |
 | Transport | stdio                                                    |
-| Command   | Deno (`mcp/drawio-mcp-server/src/index.ts`)              |
+| Command   | Deno (`tools/mcp-servers/drawio/src/index.ts`)              |
 | Auth      | None                                                     |
 | Icons     | 700+ built-in Azure service icons                        |
-| Source    | `mcp/drawio-mcp-server/` (simonkurtz-MSFT fork, in-repo) |
+| Source    | `tools/mcp-servers/drawio/` (simonkurtz-MSFT fork, in-repo) |
 | Purpose   | Azure architecture diagrams via batch MCP tools          |
 
 The Draw.io MCP server provides agents with batch diagram creation tools

@@ -23,7 +23,7 @@ body:
         - Agent definitions (.github/agents/)
         - Documentation (site/src/content/docs/, README files)
         - GitHub Actions workflows
-        - MCP Server (mcp/azure-pricing-mcp/)
+        - MCP Server (tools/mcp-servers/azure-pricing/)
         - Devcontainer configuration
         - Other
     validations:

@@ -131,7 +131,7 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 | `lint:links`         | markdown-link-check | URL validity in all markdown files             |
 | `lint:links:docs`    | markdown-link-check | URL validity in site docs                      |
 | `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                   |
-| `lint:python`        | ruff                | Python code quality (`mcp/azure-pricing-mcp/`) |
+| `lint:python`        | ruff                | Python code quality (`tools/mcp-servers/azure-pricing/`) |
 | `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                |
 | `validate:terraform` | terraform validate  | Terraform validation per project               |
 
