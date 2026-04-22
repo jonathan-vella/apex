@@ -196,6 +196,8 @@ Compact before generating the 7-document suite.
 
 ### Phase 2: Documentation Generation
 
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 7 phase_2_inventory --json`
+
 Generate these files IN ORDER (each builds on the previous):
 
 | Order | File                        | Content                                                     |
@@ -259,6 +261,8 @@ Follow the batch-only workflow from the drawio skill:
 1. **Update README.md** — Mark Step 7 complete in the project README
 2. **Self-validate** — Run `npm run lint:artifact-templates` and fix H2 errors
 3. **Present summary** — List all generated documents with brief descriptions
+
+**On completion** (MANDATORY): `apex-recall complete-step <project> 7 --json`
 
 ## Resource Query Commands
 

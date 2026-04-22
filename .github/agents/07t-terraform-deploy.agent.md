@@ -254,6 +254,9 @@ Then use `askQuestions` to gather the decision:
      mark as `recommended`)
 - If the user chooses to abort: stop and present details for review
 - If the user chooses to deploy: proceed with deployment execution
+  **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 6 phase_2_preview --json`
+  **Decisions** (MANDATORY):
+  `apex-recall decide <project> --decision "Deploy approved after plan review" --rationale "<change summary>" --step 6 --json`
 
 ### Step 5: Phase-Aware Deployment
 
@@ -276,6 +279,8 @@ After successful `terraform apply`, verify the deployed resources:
 Run `terraform output` and query deployed resources via Azure Resource Graph.
 Verify all are in `Succeeded` provisioning state. Report any failures and key outputs (redact secrets).
 
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 6 phase_4_verify --json`
+
 If plan shows no changes, report and confirm with the user.
 If plan fails due to missing backend, offer to run bootstrap scripts and retry once.
 
@@ -289,6 +294,8 @@ backend state lock → `terraform force-unlock` (requires approval).
 
 `agent-output/{project}/06-deployment-summary.md` — copy-then-fill from template.
 Validation: `npm run lint:artifact-templates`.
+
+**On completion** (MANDATORY): `apex-recall complete-step <project> 6 --json`
 
 ## Validation Checklist
 

@@ -192,6 +192,9 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
    - `PARTIAL` → present the partial state to the user and ask whether to continue
    - `FAILED` → STOP and surface the error (typically `az login` needed)
 3. **Exit codes** mirror status: `0` COMPLETE, `1` PARTIAL, `2` FAILED, `3` bad args.
+4. **Record findings** (MANDATORY): For each Deny-policy blocker discovered, run:
+   `apex-recall finding <project> --add "Deny: <policy_display_name> — blocks <resource_types>" --json`
+5. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_1_discovery --json`
 
 > **Anti-pattern — DO NOT improvise discovery**: Do NOT run `az rest`,
 > `execution_subagent`, or inline Python REST scripts. ALL Azure Policy REST
@@ -254,6 +257,7 @@ is the Phase 3 Approval Gate.
 3. **Self-validate before challenger**: run `npm run lint:artifact-templates`, verify
    JSON parses with `python3 -m json.tool`, and confirm the JSON has `discovery_status`
    and `policies` keys. Fix any issues **before** invoking the challenger.
+4. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_artifacts --json`
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
@@ -280,6 +284,8 @@ policies. Do not re-run Phase 1 between challenger passes.
 2. Write returned JSON to `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
 3. If any `must_fix` findings: batch-fix ALL findings in one edit pass.
 4. Include challenger findings summary in the Gate 2.5 presentation below
+5. **Review audit** (MANDATORY): `apex-recall review-audit <project> 3_5 --passes-executed 1 --json`
+6. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_5_challenger --json`
 
 ### Phase 3: Approval Gate
 
@@ -299,7 +305,8 @@ Then use `askQuestions` to gather the decision:
   2. **Refresh governance** — re-run discovery (if policies were recently changed)
   3. **Enter custom answer** — for manual overrides
 
-Run `apex-recall complete-step <project> 3_5 --json`.
+**On approval** (MANDATORY): `apex-recall complete-step <project> 3_5 --json`
+
 Update `agent-output/{project}/README.md` — mark Step 3_5 complete.
 
 ## Output Files

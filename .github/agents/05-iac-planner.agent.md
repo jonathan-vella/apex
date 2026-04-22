@@ -166,6 +166,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 3. Extract all `Deny` policies — these are hard blockers for the plan
 4. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
 
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_1_prereqs --json`
+
 **Policy effects:** Read `azure-defaults/references/policy-effect-decision-tree.md`.
 
 ### Phase 1.5: Deployment Context Discovery
@@ -219,6 +221,10 @@ Use `askQuestions` to present:
 
 If phased, ask grouping: **Standard** (Foundation → Security → Data → Compute → Edge) or **Custom**.
 Record choice for `## Deployment Phases` section.
+
+**Decisions** (MANDATORY):
+`apex-recall decide <project> --decision "Deployment strategy: <phased|single>" --rationale "<why>" --step 4 --json`
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_3.5_strategy --json`
 
 **Terraform-specific**: Phased deployment uses `var.deployment_phase` + `count` conditionals
 (not `terraform -target`).
@@ -279,6 +285,8 @@ Pass 2 → `challenger-review-subagent` with `review_focus = "architecture-relia
 
 Write results to `agent-output/{project}/challenge-findings-plan-pass{N}.json`.
 
+**Review audit** (MANDATORY): `apex-recall review-audit <project> 4 --passes-executed <N> --json`
+
 ### Phase 5: Approval Gate
 
 **Present findings directly in chat** before asking the user to decide:
@@ -303,6 +311,7 @@ Then use `askQuestions` to gather the decision:
   `04-implementation-plan.md`, re-run the challenger review, then repeat
 - If the user chooses to proceed: present final handoff to the appropriate
   CodeGen agent (Bicep or Terraform based on `decisions.iac_tool`)
+  **On completion** (MANDATORY): `apex-recall complete-step <project> 4 --json`
 
 ## Output Files
 

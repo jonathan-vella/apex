@@ -302,6 +302,8 @@ generate each diagram as a separate phase with a context checkpoint between them
 16. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
 17. **Context checkpoint** — summarize diagram result before next artifact
 
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3 phase_2_diagram --json`
+
 ### ADR Generation
 
 1. Identify key architectural decisions from `02-architecture-assessment.md`
@@ -309,6 +311,10 @@ generate each diagram as a separate phase with a context checkpoint between them
 3. Include WAF trade-offs as decision rationale
 4. Number ADRs sequentially: `03-des-adr-0001-{slug}.md`
 5. Save to `agent-output/{project}/`
+
+**Decisions** (MANDATORY): For each ADR, record:
+`apex-recall decide <project> --decision "<ADR title>" --rationale "<outcome>" --step 3 --json`
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3 phase_3_adr --json`
 
 ### Cost Estimate Generation
 
@@ -336,6 +342,8 @@ agent-output/{project}/
 ```
 
 Validation: `npm run lint:artifact-templates` must pass for all output files.
+
+**On completion** (MANDATORY): `apex-recall complete-step <project> 3 --json`
 
 ## Boundaries
 

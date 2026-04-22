@@ -173,6 +173,16 @@ Delegate to `08-As-Built` agent. For simple projects:
 - Generate only: design document, operations runbook, resource inventory
 - Skip: compliance matrix, backup/DR plan (not needed for simple)
 
+### Checkpoint Fallback (Safety Net)
+
+After each subagent or handoff returns, verify the step was recorded:
+
+1. Run `apex-recall show <project> --json` and check `steps.{N}.status`
+2. If the step agent did NOT call `complete-step` (status still `in_progress`
+   or `pending`): run `apex-recall complete-step <project> {N} --json`
+3. If key decisions are missing (e.g., `decisions.iac_tool` after Step 1):
+   extract from the artifact and run `apex-recall decide <project> --key <k> --value <v> --json`
+
 ## Boundaries
 
 - **Always**: Check complexity classification, require user approval at deploy
