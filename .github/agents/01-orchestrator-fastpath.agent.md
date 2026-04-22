@@ -87,9 +87,8 @@ If the project is `standard` or `complex`, hand off to the main
 ## MANDATORY: Read Skills First
 
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md`
-2. **Read** `.github/skills/session-resume/SKILL.digest.md`
-3. **Read** `.github/skills/azure-defaults/SKILL.digest.md`
-4. **Read** `.github/skills/azure-artifacts/SKILL.digest.md`
+2. **Read** `.github/skills/azure-defaults/SKILL.digest.md`
+3. **Read** `.github/skills/azure-artifacts/SKILL.digest.md`
 
 ## Fast-Path Workflow (5 Steps)
 
@@ -104,14 +103,14 @@ interactive question panels.
 
 The output MUST include
 `## 📊 Complexity Classification` with `complexity: simple`.
-The Requirements agent writes `decisions.complexity = "simple"` to
-`00-session-state.json`.
+The Requirements agent writes `decisions.complexity = "simple"` via
+`apex-recall decide <project> --key complexity --value simple --json`.
 
 **GATE**: If complexity is NOT `simple`, STOP and hand off to
 main `01-Orchestrator`.
 
 **Post-gate validation**: After Requirements completes, verify
-`decisions.complexity == "simple"` in `00-session-state.json`.
+`decisions.complexity == "simple"` via `apex-recall show <project> --json`.
 If missing or not `simple`, STOP with error before proceeding.
 
 ### Step 2: Architecture (streamlined)
@@ -142,10 +141,10 @@ Review pass counts follow the `simple` row of the review matrix in
         with `--query "[?parameters.effect.value=='Deny']..."` `--only-show-errors -o json`
      3. If exit code is non-zero: STOP. CLI failed — cannot validate assumption. Hand off to main `01-Orchestrator`
      4. If output is not a valid JSON array: STOP. Malformed response — hand off to main `01-Orchestrator`
-     5. If the array contains ANY Deny-effect policies: STOP. Update
-        `00-session-state.json`: set `decisions.complexity` to null, add
-        `decision_log` entry: "Fast-path fallback — complexity reset due to
-        Deny policies." Hand off to main `01-Orchestrator` with message:
+     5. If the array contains ANY Deny-effect policies: STOP. Update via
+        `apex-recall decide <project> --key complexity --value "" --json` and
+        `apex-recall decide <project> --decision "Fast-path fallback — complexity reset due to Deny policies." --json`.
+        Hand off to main `01-Orchestrator` with message:
         "Subscription has active Deny policies — fast-path governance bypass
         is not safe. Switching to full orchestrator with governance discovery."
      6. If the array is empty or contains only Audit/Modify policies:

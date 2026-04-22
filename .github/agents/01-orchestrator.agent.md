@@ -132,8 +132,9 @@ subagent calls, checkpoint after the third and confirm with the user before cont
 
 ## Output Contract
 
-Session state: agent-output/{project}/00-session-state.json — update at every gate with
+Session state: managed via `apex-recall` CLI — update at every gate with
 current_step, step status, decisions, and artifact inventory.
+Do not read or write `00-session-state.json` directly.
 Handoff: agent-output/{project}/00-handoff.md — overwrite at every gate (under 60 lines,
 paths only, never embed artifact content).
 Gate format: structured text block with artifact paths, challenger findings summary,
@@ -150,7 +151,7 @@ Everything below happens in a **single turn** — no back-and-forth.
    (If the user's message gives NO clue, ask for it outright.)
 3. **Immediately after `askQuestions` returns** (same turn), proceed:
    a. Check `agent-output/{project}/` for existing artifacts → resume if found
-   b. Otherwise: create folder + `00-session-state.json`
+   b. Otherwise: create folder + initialize session state via `apex-recall init {project} --json`
    c. Read skills
    d. Present the **Step 1: Gather Requirements** handoff
 
@@ -166,10 +167,9 @@ after Step 1 completes.
 **After confirming the project name**, read:
 
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — foundational quality principles for all agents
-2. **Read** `.github/skills/session-resume/SKILL.digest.md` — JSON state schema (v2.0), context budgets, resume, claims
-3. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags
-4. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — artifact file naming and structure overview
-5. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
+2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags
+3. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — artifact file naming and structure overview
+4. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
 
 After reading skills, extract key facts (region, tags, naming, security baseline,
 complexity, AVM-first) into the `## Skill Context` section of `00-handoff.md`.
@@ -181,7 +181,7 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 
 1. Load `.github/skills/workflow-engine/templates/workflow-graph.json`
 2. Read `.github/agent-registry.json` to resolve agent paths and models for each step
-3. Determine current node from `00-session-state.json` `current_step`
+3. Determine current node from `apex-recall show <project> --json` output (`current_step`)
 4. Execute the current node's agent (using model from registry)
 5. Evaluate outgoing edges (conditions: `on_complete`, `on_skip`, `on_fail`)
 6. Advance to the next node — if it's a gate, present to user for approval
@@ -227,7 +227,8 @@ Inputs:
 | `policy_violations` | Count of `deny`-effect findings in `04-governance-constraints.json` |
 | `iac_tool`          | `decisions.iac_tool` (bicep or terraform)                           |
 
-Persist the result at `decisions.complexity` in `00-session-state.json` so every
+Persist the result at `decisions.complexity` via
+`apex-recall decide <project> --key complexity --value <result> --json` so every
 agent reads the same value instead of re-deriving. If `04-governance-constraints.json`
 is not yet generated (pre-Gate-2_5), set `policy_violations = 0` and refresh the
 score after governance approval.
@@ -237,7 +238,7 @@ score after governance approval.
 At each approval gate:
 
 1. Run a single comprehensive challenger pass
-2. Check `decisions.complexity` from `00-session-state.json`
+2. Check `decisions.complexity` from `apex-recall show <project> --json`
 3. **simple/standard**: Present the single-pass result directly — no additional review
 4. **complex**: Ask the user via `askQuestions`:
    _"Run additional adversarial review? (recommended for complex projects)"_
@@ -259,10 +260,10 @@ in `workflow-graph.json`). For complex projects, the Orchestrator asks whether t
 | Recommend session break at Gates 2 and 3                             | Ask about IaC tool (Bicep/Terraform) — Requirements handles this  |
 | Track progress via artifact files in `agent-output/{project}/`       | Deploy without validation (Deploy agent handles preflight)        |
 | Summarize subagent results concisely                                 | Modify files directly — delegate to appropriate agent             |
-| Create `agent-output/{project}/` + `00-session-state.json` at start  | Include raw subagent dumps                                        |
+| Create `agent-output/{project}/` + init session via `apex-recall`    | Include raw subagent dumps                                        |
 | Ensure `README.md` exists (Requirements agent creates it)            | Combine multiple steps without approval between them              |
-| Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or `00-session-state.json` updates           |
-| Update `00-session-state.json` at EVERY gate                         |                                                                   |
+| Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or session state updates                     |
+| Update session state via `apex-recall` at EVERY gate                 |                                                                   |
 
 ## The Workflow
 
@@ -313,9 +314,10 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 3. **Check for existing artifacts** in `agent-output/{project-name}/`.
    If `01-requirements.md` or other step artifacts already exist, follow
    [Resuming a Project](#resuming-a-project) instead of starting fresh.
-4. Create `agent-output/{project-name}/` and `00-session-state.json` from
-   `.github/skills/azure-artifacts/templates/00-session-state.template.json`
-   — set `project`, `branch`, `updated`, `current_step: 1`
+4. Create `agent-output/{project-name}/` and initialize session state:
+   `apex-recall init {project-name} --json`
+   Then set project-specific fields:
+   `apex-recall decide {project-name} --key region --value swedencentral --json`
 5. Read skills (see [Read Skills](#read-skills-after-project-name-before-delegating))
 6. **Present the Step 1 handoff** to the Requirements agent — do NOT use
    `#runSubagent` for Step 1. Tell the user: _"Click **Step 1: Gather Requirements** below to start."_
@@ -323,11 +325,10 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 
 ## Resuming a Project
 
-1. **Check for `00-session-state.json`** — if it exists in `agent-output/{project}/`, read it first.
-   It is the machine-readable source of truth: current step, sub-step checkpoint,
-   key decisions, IaC tool, and artifact inventory. Use it to determine exactly where
-   to resume without re-reading completed artifacts.
-2. **Check for `00-handoff.md`** — if `00-session-state.json` is missing but `00-handoff.md`
+1. **Run `apex-recall show {project} --json`** — this returns the machine-readable
+   source of truth: current step, sub-step checkpoint, key decisions, IaC tool,
+   and artifact inventory. Use it to determine exactly where to resume.
+2. **Check for `00-handoff.md`** — if apex-recall returns no project but `00-handoff.md`
    exists, parse it for the completed-steps checklist and key decisions.
 3. If both are absent, scan existing artifacts in `agent-output/{project-name}/`
    and identify the last completed step from artifact numbering.
@@ -336,7 +337,7 @@ All steps below happen in **one turn** — do NOT end your turn between them.
    delegate to the appropriate agent with context: _"Resume Step {N} from checkpoint {sub_step}."_
 
 **Starting a new chat thread mid-workflow?**
-The agent auto-detects progress from `00-session-state.json`. Just invoke the
+The agent auto-detects progress via `apex-recall show <project> --json`. Just invoke the
 Orchestrator with the project name — no special resume prompt needed.
 
 ## Artifact Tracking
@@ -378,16 +379,16 @@ Orchestrator with the project name — no special resume prompt needed.
 
 At Gates 2 and 3, recommend starting a fresh chat session to prevent context exhaustion:
 
-1. Write `00-handoff.md` and update `00-session-state.json` (as always)
+1. Write `00-handoff.md` and update session state via `apex-recall` (as always)
 2. Present the gate with a session break recommendation (see gate templates above)
 3. If the user agrees: tell them to open a new chat and invoke `@01-Orchestrator` with the project name
 4. If the user prefers to continue: proceed in same session (warn context may degrade)
 
-At resumption, the Orchestrator reads `00-session-state.json` and restores full context
+At resumption, the Orchestrator runs `apex-recall show <project> --json` and restores full context
 from artifact paths — no information is lost. See [Resuming a Project](#resuming-a-project).
 
 <example title="Workflow routing after Step 2 completes">
-Input state: 00-session-state.json shows steps.2.status = "complete", decisions.iac_tool = "Bicep"
+Input state: apex-recall show output shows steps.2.status = "complete", decisions.iac_tool = "Bicep"
 Decision logic:
   1. Step 2 complete → check if Step 3 (Design) should run → user said "skip design"
   2. Follow on_skip edge → next node = Step 3.5 (Governance)

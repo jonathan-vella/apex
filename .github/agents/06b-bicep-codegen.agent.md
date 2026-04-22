@@ -161,19 +161,20 @@ Before starting, validate these files exist in `agent-output/{project}/`:
 
 Also read `02-architecture-assessment.md` for SKU/tier context.
 
-## Session State Protocol
+## Session State
 
-**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
 
-- **Context budget**: 3 files at startup (`00-session-state.json` + `04-implementation-plan.md` + `04-governance-constraints.json`)
+- **Context budget**: Read `04-implementation-plan.md` + `04-governance-constraints.json` at startup
 - **My step**: 5
 - **Sub-steps**: `phase_1_preflight` → `phase_1.5_governance` →
   `phase_1.6_compacted` → `phase_2_scaffold` → `phase_3_modules` → `phase_4_lint` →
   `phase_5_challenger` → `phase_6_artifact`
-- **Resume**: Read `00-session-state.json` first. If `steps.5.status = "in_progress"`
-  with a `sub_step`, skip to that checkpoint.
-- **State writes**: Update `00-session-state.json` after each phase.
-  Append significant decisions to `decision_log` (see decision-logging instruction).
+- **Resume**: Use the `apex-recall show` output to detect resume point.
+- **Checkpoints**: `apex-recall checkpoint <project> 5 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 5 --json`
+- **Review audit**: `apex-recall review-audit <project> 5 ... --json`
+- **On completion**: `apex-recall complete-step <project> 5 --json`
 
 ## Workflow
 

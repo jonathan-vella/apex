@@ -137,7 +137,7 @@ from Ralph:
 **Fresh-context iteration model.** Each Ralph iteration spawns a brand-new
 AI instance with zero carry-over context. The only memory between iterations
 is git history, a `progress.txt` append-only learning log, and a `prd.json`
-task list. This project adopts the same philosophy through its session-resume
+task list. This project adopts the same philosophy through its `apex-recall` CLI
 skill: each agent step is stateless, and all memory persists through versioned
 artefact files in `agent-output/{project}/` and the machine-readable
 `00-session-state.json`.

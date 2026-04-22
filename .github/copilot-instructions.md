@@ -9,17 +9,35 @@
 2. Open Chat (`Ctrl+Shift+I`) → Select **Orchestrator** → Describe your project
 3. The Orchestrator guides you through all steps with approval gates
 
-## Progressive Session Recall — RUN FIRST on Start/Resume
+## Session State — apex-recall
 
-Before reading artifact files, run `apex-recall` for low-token orientation (~50 tokens).
-This prevents expensive blind reads of files that may not be relevant.
+All session state is managed through `apex-recall`. Do not read or write
+`00-session-state.json` directly.
 
 ```bash
+# On start/resume
+apex-recall show <project> --json       # full context: step, decisions, findings, artifacts
+
+# During work
+apex-recall checkpoint <project> <step> <phase> --json   # after each phase
+apex-recall decide <project> --key <k> --value <v> --json # record decisions
+apex-recall decide <project> --decision "<text>" --rationale "<why>" --json # decision log
+apex-recall finding <project> --add "<text>" --json       # add findings
+
+# On completion
+apex-recall complete-step <project> <step> --json
+
+# New project
+apex-recall init <project> --json
+
+# Review tracking
+apex-recall review-audit <project> <step> ... --json
+
+# Quick orientation (read-only)
 apex-recall sessions --json --limit 5   # which projects exist, current step, status
 apex-recall files --json --limit 10     # recently modified artifacts across projects
 apex-recall search '<term>' --json      # full-text search when you need specifics
 apex-recall decisions --json            # decision logs across projects
-apex-recall show <project> --json       # full context dump for one project
 ```
 
 If `apex-recall` returns useful context, skip redundant file reads.
@@ -89,7 +107,6 @@ Reviews target AI-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
 | `microsoft-foundry`           | Deploy, evaluate, and manage Foundry agents end-to-end                                            |
 | `microsoft-skill-creator`     | Generate custom agent skills for Microsoft technologies                                           |
 | `python-diagrams`             | Python charts (WAF/cost/compliance) and diagrams library patterns                                 |
-| `session-resume`              | Session state tracking, resume protocol, context budgets                                          |
 | `terraform-patterns`          | Terraform HCL patterns (hub-spoke, PE, diagnostics, AVM pitfalls)                                 |
 | `terraform-search-import`     | Azure resource discovery and bulk Terraform import                                                |
 | `terraform-test`              | Terraform testing framework (.tftest.hcl, mocks, assertions)                                      |
@@ -148,7 +165,7 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                                      |
 | `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                                       |
 | `agent-output/{project}/`                      | Agent-generated artifacts                                                    |
-| `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (session-resume skill)                    |
+| `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (managed by apex-recall CLI)              |
 | `infra/bicep/{project}/`                       | Bicep templates                                                              |
 | `mcp/azure-pricing-mcp/`                       | Azure Pricing MCP server                                                     |
 | `.vscode/mcp.json`                             | MCP server configuration (github, azure-pricing, terraform, microsoft-learn) |

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 import time
 from pathlib import Path
@@ -11,12 +10,12 @@ from pathlib import Path
 import pytest
 
 from apex_recall.indexer import (
+    _walk_agent_output,
     classify_artifact,
+    ensure_fresh,
     extract_step,
     init_db,
     reindex,
-    ensure_fresh,
-    _walk_agent_output,
 )
 
 

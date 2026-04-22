@@ -78,7 +78,6 @@ Context tiers: follow context-shredding skill.
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `06-deployment-summary.md`
 3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
 4. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
-5. Read `.github/skills/session-resume/SKILL.digest.md` — session state protocol
 
 ## Shared Deploy Protocol
 
@@ -123,9 +122,13 @@ Before starting, validate:
 
 ## Session State
 
-Read `.github/skills/session-resume/SKILL.digest.md`. Step: 6.
-Sub-steps: `phase_1_auth` → `phase_2_preview` →
-`phase_3_deploy` → `phase_4_verify` → `phase_5_artifact`.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
+
+- **My step**: 6
+- **Sub-steps**: `phase_1_auth` → `phase_2_preview` →
+  `phase_3_deploy` → `phase_4_verify` → `phase_5_artifact`
+- **Checkpoints**: `apex-recall checkpoint <project> 6 <phase_name> --json`
+- **On completion**: `apex-recall complete-step <project> 6 --json`
 
 ## Deployment Workflow
 
