@@ -2,11 +2,10 @@
 /**
  * Skill Validators (consolidated)
  *
- * Combines four skill validation checks into one script:
+ * Combines three skill validation checks into one script:
  * 1. Skills format & size validation (was validate-skills-format.mjs)
- * 2. Skill affinity validation (was validate-skill-affinity.mjs)
- * 3. Skill references validation (was validate-skill-references.mjs)
- * 4. Stale skill reference detection (was validate-no-stale-skill-references.mjs)
+ * 2. Skill references validation (was validate-skill-references.mjs)
+ * 3. Stale skill reference detection (was validate-no-stale-skill-references.mjs)
  *
  * @example
  * node scripts/validate-skills.mjs
@@ -25,7 +24,6 @@ import {
   MAX_SKILL_LINES_WITHOUT_REFS,
   SKILLS_DIR,
   INSTRUCTIONS_DIR,
-  AFFINITY_PATH,
 } from "./_lib/paths.mjs";
 
 let overallFailed = false;
@@ -165,134 +163,7 @@ function runFormatValidation() {
 }
 
 // ============================================================================
-// Part 2: Skill Affinity Validation (was validate-skill-affinity.mjs)
-// ============================================================================
-
-function getAgentNames() {
-  const names = new Set();
-  for (const [, agent] of getAgents()) {
-    const name = agent.frontmatter?.name?.trim();
-    if (name) names.add(name);
-  }
-  return names;
-}
-
-function buildAgentSkillReadsMap() {
-  const map = new Map();
-  for (const [, agent] of getAgents()) {
-    const name = agent.frontmatter?.name?.trim();
-    if (!name) continue;
-    const reads = new Set();
-    const skillRefs = agent.content.matchAll(
-      /\.github\/skills\/([a-z0-9-]+)\/SKILL\.md/g,
-    );
-    for (const match of skillRefs) {
-      reads.add(match[1]);
-    }
-    map.set(name, reads);
-  }
-  return map;
-}
-
-function runAffinityValidation() {
-  const r = new Reporter("Skill Affinity Validator");
-
-  console.log("\n🎯 Validating skill affinity configuration...\n");
-
-  if (!fs.existsSync(AFFINITY_PATH)) {
-    r.error(`Skill affinity config not found at ${AFFINITY_PATH}`);
-    overallFailed = true;
-    return;
-  }
-
-  let affinity;
-  try {
-    affinity = JSON.parse(fs.readFileSync(AFFINITY_PATH, "utf-8"));
-  } catch (e) {
-    r.error(`Invalid JSON in ${AFFINITY_PATH}: ${e.message}`);
-    overallFailed = true;
-    return;
-  }
-
-  const skillNames = getSkillNamesFromIndex();
-  const agentNames = getAgentNames();
-  const agentSkillReadsMap = buildAgentSkillReadsMap();
-
-  function validateEntry(key, entry, isSubagent) {
-    for (const tier of ["primary", "secondary", "never"]) {
-      if (!Array.isArray(entry[tier])) {
-        r.error(`${key}: "${tier}" must be an array`);
-        continue;
-      }
-      for (const skill of entry[tier]) {
-        if (!skillNames.has(skill)) {
-          r.error(
-            `${key}: references non-existent skill "${skill}" in ${tier}`,
-          );
-        }
-      }
-    }
-
-    if (Array.isArray(entry.primary) && Array.isArray(entry.never)) {
-      for (const skill of entry.primary) {
-        if (entry.never.includes(skill)) {
-          r.error(
-            `${key}: skill "${skill}" appears in both "primary" and "never"`,
-          );
-        }
-      }
-    }
-
-    if (!isSubagent) {
-      const bodyReads = agentSkillReadsMap.get(key) || new Set();
-      if (bodyReads.size > 0 && Array.isArray(entry.primary)) {
-        for (const skill of entry.primary) {
-          if (!bodyReads.has(skill)) {
-            r.warn(
-              `${key}: primary skill "${skill}" is not referenced in agent body "Read" lines`,
-            );
-          }
-        }
-      }
-    }
-  }
-
-  let entryCount = 0;
-
-  if (affinity.agents) {
-    for (const [key, entry] of Object.entries(affinity.agents)) {
-      if (!agentNames.has(key)) {
-        r.warn(`Agent "${key}" in affinity config not found in agent files`);
-      }
-      validateEntry(key, entry, false);
-      entryCount++;
-    }
-  }
-
-  if (affinity.subagents) {
-    for (const [key, entry] of Object.entries(affinity.subagents)) {
-      if (!agentNames.has(key)) {
-        r.warn(`Subagent "${key}" in affinity config not found in agent files`);
-      }
-      validateEntry(key, entry, true);
-      entryCount++;
-    }
-  }
-
-  r.ok(`Validated ${entryCount} affinity entries`);
-
-  console.log(`\n📊 Results: ${r.errors} error(s), ${r.warnings} warning(s)\n`);
-
-  if (r.errors > 0) {
-    overallFailed = true;
-    console.log("❌ Skill affinity validation FAILED\n");
-  } else {
-    console.log("✅ Skill affinity validation passed\n");
-  }
-}
-
-// ============================================================================
-// Part 3: Skill References Validation (was validate-skill-references.mjs)
+// Part 2: Skill References Validation (was validate-skill-references.mjs)
 // ============================================================================
 
 function runReferencesValidation() {
@@ -373,7 +244,7 @@ function runReferencesValidation() {
 }
 
 // ============================================================================
-// Part 4: Stale Skill Reference Detection (was validate-no-stale-skill-references.mjs)
+// Part 3: Stale Skill Reference Detection (was validate-no-stale-skill-references.mjs)
 // ============================================================================
 
 const RETIRED_SKILLS = [
@@ -487,13 +358,10 @@ function main() {
   console.log("═══ Part 1: Skills Format & Size ═══");
   runFormatValidation();
 
-  console.log("═══ Part 2: Skill Affinity ═══");
-  runAffinityValidation();
-
-  console.log("═══ Part 3: Skill References ═══");
+  console.log("═══ Part 2: Skill References ═══");
   runReferencesValidation();
 
-  console.log("═══ Part 4: Stale Skill References ═══");
+  console.log("═══ Part 3: Stale Skill References ═══");
   runStaleReferenceDetection();
 
   if (overallFailed) {

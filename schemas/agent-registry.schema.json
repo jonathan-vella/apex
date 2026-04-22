@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/agent-registry.schema.json",
+  "title": "APEX Agent Registry",
+  "description": "Shape of .github/agent-registry.json. Each entry declares `skills` (explicitly read at runtime) and optional `capability_skills` (auto-triggered via description keywords). A skill must not appear in both arrays on the same entry; that invariant is enforced by scripts/validate-agent-registry.mjs.",
+  "type": "object",
+  "required": ["$schema", "description", "agents"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "description": { "type": "string" },
+    "agents": {
+      "type": "object",
+      "description": "Map of agent role keys to agent entries.",
+      "patternProperties": {
+        ".*": { "$ref": "#/$defs/agentEntryOrIacConditional" }
+      }
+    },
+    "subagents": {
+      "type": "object",
+      "description": "Map of subagent role keys to agent entries.",
+      "patternProperties": {
+        ".*": { "$ref": "#/$defs/agentEntryOrIacConditional" }
+      }
+    }
+  },
+  "$defs": {
+    "agentEntry": {
+      "type": "object",
+      "required": ["agent", "model", "skills"],
+      "additionalProperties": true,
+      "properties": {
+        "agent": {
+          "type": "string",
+          "description": "Relative path to the .agent.md file.",
+          "pattern": "\\.agent\\.md$"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Model name (must exist in model-catalog.json)."
+        },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skillName" },
+          "uniqueItems": true,
+          "description": "Skills explicitly read at runtime via `Read .github/skills/{name}/...`."
+        },
+        "capability_skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skillName" },
+          "uniqueItems": true,
+          "minItems": 1,
+          "description": "Skills authorized for auto-trigger via description keywords. Must not overlap with `skills`."
+        },
+        "invokable": {
+          "type": "boolean",
+          "description": "Whether the agent can be directly invoked by users."
+        },
+        "step": {
+          "type": ["number", "null"],
+          "description": "Workflow step number (null for orchestrators and cross-cutting agents)."
+        }
+      }
+    },
+    "skillName": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Skill name (kebab-case, must exist in .github/skills/)."
+    },
+    "agentEntryOrIacConditional": {
+      "oneOf": [
+        { "$ref": "#/$defs/agentEntry" },
+        {
+          "type": "object",
+          "description": "IaC-conditional entry with bicep/terraform variants.",
+          "properties": {
+            "bicep": { "$ref": "#/$defs/agentEntry" },
+            "terraform": { "$ref": "#/$defs/agentEntry" }
+          },
+          "anyOf": [{ "required": ["bicep"] }, { "required": ["terraform"] }],
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

@@ -4,1248 +4,1449 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>APEX — Architecture Explorer</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <meta
+      name="description"
+      content="Interactive map of APEX agents, subagents, skills, instructions, prompts, validators, CI workflows, and MCP servers."
+    />
+    <link rel="icon" type="image/svg+xml" href="/azure-agentic-infraops/images/favicon.svg" />
     <style>
+      :root {
+        --bg: #0f172a;
+        --bg-2: #111c31;
+        --panel: #1e293b;
+        --panel-2: #22304a;
+        --border: #334155;
+        --border-strong: #475569;
+        --text: #e2e8f0;
+        --text-dim: #94a3b8;
+        --text-faint: #64748b;
+        --accent: #38bdf8;
+        --accent-strong: #0ea5e9;
+        --focus: #fbbf24;
+        --danger: #f43f5e;
+      }
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+      html,
       body {
-        font-family:
-          "Inter",
-          system-ui,
-          -apple-system,
-          sans-serif;
-        background: #0f172a;
-        color: #e2e8f0;
-        overflow: hidden;
-      }
-      #app {
-        display: flex;
-        height: 100vh;
-      }
-      #sidebar {
-        width: 300px;
-        background: #1e293b;
-        border-right: 1px solid #334155;
-        display: flex;
-        flex-direction: column;
-        z-index: 10;
-      }
-      #sidebar h1 {
-        font-size: 14px;
-        padding: 16px;
-        border-bottom: 1px solid #334155;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-      #filters {
-        padding: 12px;
-        border-bottom: 1px solid #334155;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .filter-btn {
-        padding: 4px 10px;
-        border-radius: 12px;
-        border: 1px solid #475569;
-        background: transparent;
-        color: #94a3b8;
-        font-size: 11px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .filter-btn.active {
-        border-color: var(--cat-color);
-        color: #fff;
-        background: var(--cat-color);
-      }
-      .filter-btn:hover {
-        border-color: #64748b;
-        color: #cbd5e1;
-      }
-      #details {
-        flex: 1;
-        overflow-y: auto;
-        padding: 12px;
-      }
-      #details::-webkit-scrollbar {
-        width: 6px;
-      }
-      #details::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 3px;
-      }
-      .detail-card {
-        background: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 14px;
-        margin-bottom: 10px;
-      }
-      .detail-card h3 {
-        font-size: 13px;
-        color: #f1f5f9;
-        margin-bottom: 6px;
-      }
-      .detail-card p {
-        font-size: 11px;
-        color: #94a3b8;
-        line-height: 1.5;
-      }
-      .detail-card .badge {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 8px;
-        font-size: 10px;
-        margin-right: 4px;
-        margin-bottom: 4px;
-      }
-      .conn-list {
-        list-style: none;
-        padding: 0;
-        margin-top: 6px;
-      }
-      .conn-list li {
-        font-size: 11px;
-        color: #94a3b8;
-        padding: 2px 0;
-        cursor: pointer;
-      }
-      .conn-list li:hover {
-        color: #60a5fa;
-      }
-      .conn-list li::before {
-        content: "→ ";
-        color: #475569;
-      }
-      #graph {
-        flex: 1;
-        position: relative;
-      }
-      svg {
-        width: 100%;
         height: 100%;
       }
-      .link {
-        stroke-opacity: 0.3;
-        fill: none;
+      body {
+        font-family:
+          "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
       }
-      .link.highlighted {
-        stroke-opacity: 0.9;
-        stroke-width: 2.5px !important;
+
+      /* ---------- Layout ---------- */
+      #app {
+        display: grid;
+        grid-template-rows: 56px 1fr;
+        grid-template-columns: 280px 1fr 360px;
+        grid-template-areas:
+          "topbar topbar topbar"
+          "sidebar canvas drawer";
+        height: 100vh;
       }
-      .node circle {
-        stroke-width: 2px;
-        cursor: pointer;
-        transition: r 0.2s;
-      }
-      .node circle:hover {
-        filter: brightness(1.3);
-      }
-      .node text {
-        font-size: 9px;
-        fill: #94a3b8;
-        pointer-events: none;
-      }
-      .node.dimmed circle {
-        opacity: 0.15;
-      }
-      .node.dimmed text {
-        opacity: 0.1;
-      }
-      .link.dimmed {
-        stroke-opacity: 0.03;
-      }
-      #legend {
-        position: absolute;
-        bottom: 16px;
-        left: 16px;
-        background: #1e293bdd;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 12px;
-        z-index: 5;
-      }
-      #legend h4 {
-        font-size: 11px;
-        color: #64748b;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .legend-item {
+
+      /* ---------- Top bar ---------- */
+      #topbar {
+        grid-area: topbar;
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        color: #94a3b8;
-        margin-bottom: 4px;
+        gap: 16px;
+        padding: 0 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
       }
-      .legend-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
+      #brand {
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1.5px;
+        color: var(--accent);
+      }
+      #brand a {
+        color: inherit;
+        text-decoration: none;
+      }
+      #subbrand {
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+      #search-wrap {
+        flex: 1;
+        max-width: 520px;
+        position: relative;
       }
       #search {
         width: 100%;
-        padding: 8px 12px;
-        background: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 6px;
-        color: #e2e8f0;
-        font-size: 12px;
-        margin-bottom: 8px;
-        outline: none;
+        padding: 8px 12px 8px 34px;
+        border-radius: 8px;
+        border: 1px solid var(--border-strong);
+        background: var(--bg-2);
+        color: var(--text);
+        font-size: 13px;
+      }
+      #search::placeholder {
+        color: var(--text-faint);
       }
       #search:focus {
-        border-color: #3b82f6;
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
       }
-      #stats {
-        padding: 8px 12px;
-        font-size: 11px;
-        color: #64748b;
-        border-bottom: 1px solid #334155;
-      }
-      #tooltip {
+      #search-icon {
         position: absolute;
-        background: #1e293bf0;
-        border: 1px solid #475569;
-        border-radius: 6px;
-        padding: 10px 14px;
-        font-size: 11px;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-faint);
+        font-size: 14px;
         pointer-events: none;
-        z-index: 20;
-        max-width: 280px;
+      }
+      #search-results {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        max-height: 320px;
+        overflow-y: auto;
+        background: var(--panel);
+        border: 1px solid var(--border-strong);
+        border-radius: 8px;
+        z-index: 100;
         display: none;
-        backdrop-filter: blur(8px);
       }
-      #tooltip h4 {
-        color: #f1f5f9;
-        margin-bottom: 4px;
-        font-size: 12px;
+      #search-results.open {
+        display: block;
       }
-      #tooltip p {
-        color: #94a3b8;
-        line-height: 1.4;
+      .search-result {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border);
       }
-      .view-toggle {
+      .search-result:last-child {
+        border-bottom: none;
+      }
+      .search-result:hover,
+      .search-result[aria-selected="true"] {
+        background: var(--panel-2);
+      }
+      .search-result .sr-cat {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text-dim);
+        margin-right: 8px;
+      }
+      #presets {
         display: flex;
         gap: 4px;
-        padding: 8px 12px;
-        border-bottom: 1px solid #334155;
       }
-      .view-btn {
-        flex: 1;
-        padding: 6px;
-        border-radius: 4px;
-        border: 1px solid #334155;
+      .preset-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-strong);
         background: transparent;
-        color: #94a3b8;
-        font-size: 11px;
+        color: var(--text-dim);
+        font-size: 12px;
         cursor: pointer;
-        text-align: center;
+        transition: all 0.15s;
       }
-      .view-btn.active {
-        background: #3b82f6;
-        border-color: #3b82f6;
-        color: #fff;
+      .preset-btn:hover {
+        color: var(--text);
+      }
+      .preset-btn[aria-pressed="true"] {
+        background: var(--accent);
+        color: #0b1220;
+        border-color: var(--accent);
+      }
+      .preset-btn:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      #github-link {
+        color: var(--text-dim);
+        font-size: 12px;
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+      #github-link:hover {
+        color: var(--text);
+        border-color: var(--border-strong);
+      }
+
+      /* ---------- Sidebar ---------- */
+      #sidebar {
+        grid-area: sidebar;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        padding: 16px;
+      }
+      .panel-heading {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        margin: 16px 0 8px;
+      }
+      .panel-heading:first-child {
+        margin-top: 0;
+      }
+      #stats {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .stat {
+        flex: 1;
+        padding: 10px;
+        background: var(--bg-2);
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+      .stat-n {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .stat-l {
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .cat-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 4px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .cat-row:hover {
+        background: var(--bg-2);
+      }
+      .cat-row input {
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+      .cat-swatch {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+      .cat-swatch[data-shape="ellipse"] {
+        border-radius: 50%;
+      }
+      .cat-swatch[data-shape="hexagon"] {
+        clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+      }
+      .cat-swatch[data-shape="round-diamond"] {
+        transform: rotate(45deg);
+        border-radius: 3px;
+      }
+      .cat-swatch[data-shape="barrel"] {
+        border-radius: 50% / 25%;
+      }
+      .cat-swatch[data-shape="cut-rectangle"] {
+        clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+      }
+      .cat-swatch[data-shape="tag"] {
+        clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+      }
+      .cat-label {
+        flex: 1;
+        font-size: 13px;
+      }
+      .cat-count {
+        font-size: 11px;
+        color: var(--text-dim);
+        font-variant-numeric: tabular-nums;
+      }
+      .quick-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .quick-actions button {
+        flex: 1;
+        font-size: 11px;
+        padding: 5px;
+        background: transparent;
+        color: var(--text-dim);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .quick-actions button:hover {
+        color: var(--text);
+        border-color: var(--border-strong);
+      }
+
+      /* ---------- Canvas ---------- */
+      #canvas-wrap {
+        grid-area: canvas;
+        position: relative;
+        background:
+          radial-gradient(
+            circle at 50% 50%,
+            rgba(56, 189, 248, 0.03),
+            transparent 70%
+          ),
+          var(--bg);
+      }
+      #cy {
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+      #cy:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+      #toolbar {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        display: flex;
+        gap: 4px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 4px;
+      }
+      .tool-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .tool-btn:hover {
+        background: var(--panel-2);
+        color: var(--text);
+      }
+      .tool-btn:focus-visible {
+        outline: 2px solid var(--focus);
+      }
+      #status {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+      #loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dim);
+        font-size: 13px;
+      }
+      #loading.hidden {
+        display: none;
+      }
+
+      /* ---------- Drawer ---------- */
+      #drawer {
+        grid-area: drawer;
+        background: var(--panel);
+        border-left: 1px solid var(--border);
+        overflow-y: auto;
+        padding: 20px;
+      }
+      #drawer h2 {
+        font-size: 18px;
+        margin-bottom: 4px;
+        word-break: break-word;
+      }
+      #drawer .cat-pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 14px;
+      }
+      #drawer .desc {
+        font-size: 13px;
+        color: var(--text-dim);
+        line-height: 1.5;
+        margin-bottom: 16px;
+      }
+      #drawer .meta-item {
+        font-size: 12px;
+        margin-bottom: 8px;
+        color: var(--text-dim);
+      }
+      #drawer .meta-item strong {
+        color: var(--text);
+        margin-right: 4px;
+      }
+      #drawer .actions {
+        display: flex;
+        gap: 8px;
+        margin: 16px 0;
+        flex-wrap: wrap;
+      }
+      #drawer .actions a {
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #0b1220;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      #drawer .actions a.secondary {
+        background: var(--bg-2);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+      }
+      #drawer .actions a:hover {
+        background: var(--accent-strong);
+      }
+      #drawer .actions a.secondary:hover {
+        border-color: var(--accent);
+      }
+      #drawer .conns-group {
+        margin-top: 18px;
+      }
+      #drawer .conns-group h3 {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+      }
+      #drawer .conn-link {
+        display: block;
+        padding: 6px 8px;
+        font-size: 12px;
+        color: var(--text);
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 4px;
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+      }
+      #drawer .conn-link:hover {
+        border-color: var(--accent);
+        background: var(--bg-2);
+      }
+      #drawer .empty {
+        font-size: 13px;
+        color: var(--text-faint);
+        line-height: 1.5;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 1024px) {
+        #app {
+          grid-template-columns: 240px 1fr 300px;
+        }
+      }
+      @media (max-width: 768px) {
+        #app {
+          grid-template-rows: 56px auto 1fr;
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "topbar"
+            "sidebar"
+            "canvas";
+        }
+        #sidebar {
+          max-height: 40vh;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        #drawer {
+          position: fixed;
+          inset: 0;
+          z-index: 200;
+          transform: translateY(100%);
+          transition: transform 0.25s ease;
+        }
+        #drawer.open {
+          transform: translateY(0);
+        }
+        #drawer::before {
+          content: "";
+          display: block;
+          width: 40px;
+          height: 4px;
+          background: var(--border-strong);
+          border-radius: 2px;
+          margin: 0 auto 16px;
+        }
+        #presets {
+          flex-wrap: wrap;
+        }
+        .preset-btn {
+          padding: 8px 12px;
+          font-size: 13px;
+        }
+        #search-wrap {
+          max-width: none;
+        }
+      }
+      @media (max-width: 480px) {
+        #topbar {
+          flex-wrap: wrap;
+          padding: 8px;
+          height: auto;
+        }
+        #app {
+          grid-template-rows: auto auto 1fr;
+        }
+        #subbrand {
+          display: none;
+        }
+      }
+
+      /* ---------- A11y ---------- */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <div id="sidebar">
-        <h1>APEX Explorer</h1>
-        <div class="view-toggle">
-          <button class="view-btn active" data-view="all">All</button>
-          <button class="view-btn" data-view="workflow">Workflow</button>
-          <button class="view-btn" data-view="skills">Skills</button>
-          <button class="view-btn" data-view="ci">CI/Lint</button>
+      <header id="topbar" role="banner">
+        <div id="brand">
+          <a href="/azure-agentic-infraops/" aria-label="Back to APEX home"
+            >APEX</a
+          >
         </div>
-        <div id="stats"></div>
-        <div id="filters"></div>
-        <div id="details">
-          <input type="text" id="search" placeholder="Search nodes…" />
-          <div id="detail-content">
-            <div class="detail-card">
-              <h3>Click a node to explore</h3>
-              <p>
-                Hover for quick info. Click to see connections. Use view toggles
-                to focus on subsystems.
-              </p>
-            </div>
+        <div id="subbrand">Architecture Explorer</div>
+        <div id="search-wrap" role="search">
+          <span id="search-icon" aria-hidden="true">⌕</span>
+          <input
+            id="search"
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Search nodes… (press /)"
+            aria-label="Search nodes"
+            aria-controls="search-results"
+            aria-expanded="false"
+          />
+          <div
+            id="search-results"
+            role="listbox"
+            aria-label="Search results"
+          ></div>
+        </div>
+        <div id="presets" role="group" aria-label="View presets">
+          <button
+            class="preset-btn"
+            data-preset="all"
+            aria-pressed="true"
+          >
+            All
+          </button>
+          <button class="preset-btn" data-preset="workflow" aria-pressed="false">
+            Workflow
+          </button>
+          <button class="preset-btn" data-preset="skills" aria-pressed="false">
+            Skills
+          </button>
+          <button class="preset-btn" data-preset="ci" aria-pressed="false">
+            CI / Lint
+          </button>
+          <button
+            class="preset-btn"
+            data-preset="instructions"
+            aria-pressed="false"
+          >
+            Instructions
+          </button>
+        </div>
+        <a
+          id="github-link"
+          href="https://github.com/jonathan-vella/azure-agentic-infraops"
+          rel="noopener"
+          >GitHub ↗</a
+        >
+      </header>
+
+      <aside id="sidebar" aria-label="Filters and stats">
+        <div id="stats">
+          <div class="stat">
+            <div class="stat-n" id="stat-nodes">—</div>
+            <div class="stat-l">Nodes</div>
+          </div>
+          <div class="stat">
+            <div class="stat-n" id="stat-edges">—</div>
+            <div class="stat-l">Edges</div>
           </div>
         </div>
-      </div>
-      <div id="graph">
-        <div id="tooltip"></div>
-        <div id="legend">
-          <h4>Component Types</h4>
+
+        <div class="panel-heading">Categories</div>
+        <div id="categories" role="group" aria-label="Category filters"></div>
+        <div class="quick-actions">
+          <button id="filter-all" type="button">All</button>
+          <button id="filter-none" type="button">None</button>
+          <button id="filter-invert" type="button">Invert</button>
         </div>
-      </div>
+
+        <div class="panel-heading">Keyboard</div>
+        <div class="meta-item" style="font-size: 11px; line-height: 1.6">
+          <kbd>/</kbd> search &middot; <kbd>Tab</kbd> focus canvas &middot;
+          <kbd>Esc</kbd> clear &middot; <kbd>F</kbd> fit &middot;
+          <kbd>+</kbd>/<kbd>-</kbd> zoom
+        </div>
+
+        <div class="panel-heading">Legend</div>
+        <div class="meta-item" style="font-size: 11px">
+          Edge colour reflects relationship kind. Dashed = delegation,
+          solid = uses-primary, dotted = uses-secondary, arrowed solid =
+          workflow handoff.
+        </div>
+      </aside>
+
+      <main id="canvas-wrap" aria-label="Graph canvas">
+        <div id="loading">Loading graph…</div>
+        <div id="status" aria-live="polite">—</div>
+        <div
+          id="cy"
+          role="application"
+          aria-label="Architecture graph. Use Tab to focus, Enter to open node details."
+          tabindex="0"
+        ></div>
+        <div id="toolbar" role="group" aria-label="Canvas controls">
+          <button class="tool-btn" id="zoom-in" aria-label="Zoom in">+</button>
+          <button class="tool-btn" id="zoom-out" aria-label="Zoom out">
+            −
+          </button>
+          <button class="tool-btn" id="fit" aria-label="Fit to screen">
+            ⤢
+          </button>
+          <button class="tool-btn" id="relayout" aria-label="Re-run layout">
+            ⟳
+          </button>
+        </div>
+      </main>
+
+      <aside id="drawer" aria-label="Node details" aria-live="polite">
+        <div class="empty">
+          <p style="font-size: 14px; color: var(--text); margin-bottom: 8px">
+            Click a node to explore.
+          </p>
+          <p>
+            Hover to highlight connections. Use the search bar or keyboard
+            shortcuts above to navigate. Filter categories from the left panel.
+          </p>
+        </div>
+      </aside>
     </div>
 
+    <!-- Cytoscape.js core + layout plugins via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/layout-base@2.0.1/layout-base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cose-base@2.2.0/cose-base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
+
     <script>
-      // ─── DATA MODEL ──────────────────────────────────────────────────────────────
-      const CATEGORIES = {
-        agent: { color: "#3b82f6", label: "Agent", icon: "●", radius: 14 },
-        subagent: { color: "#6366f1", label: "Subagent", icon: "●", radius: 9 },
-        skill: { color: "#10b981", label: "Skill", icon: "●", radius: 10 },
-        instruction: {
-          color: "#f59e0b",
-          label: "Instruction",
-          icon: "●",
-          radius: 8,
-        },
-        prompt: { color: "#ec4899", label: "Prompt", icon: "●", radius: 7 },
-        validator: {
-          color: "#8b5cf6",
-          label: "Validator",
-          icon: "●",
-          radius: 7,
-        },
-        workflow: {
-          color: "#ef4444",
-          label: "CI Workflow",
-          icon: "●",
-          radius: 8,
-        },
-        gate: { color: "#f97316", label: "Gate", icon: "◆", radius: 11 },
-        mcp: { color: "#06b6d4", label: "MCP Server", icon: "●", radius: 12 },
-      };
+      (function () {
+        "use strict";
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        const GRAPH_URL = "./architecture-explorer-graph.json";
 
-      const LINK_TYPES = {
-        "uses-skill": { color: "#10b981", label: "uses skill" },
-        handoff: { color: "#3b82f6", label: "handoff" },
-        delegates: { color: "#6366f1", label: "delegates to" },
-        triggers: { color: "#ec4899", label: "triggers" },
-        validates: { color: "#8b5cf6", label: "validates" },
-        enforces: { color: "#f59e0b", label: "enforces on" },
-        runs: { color: "#ef4444", label: "runs" },
-        connects: { color: "#06b6d4", label: "connects to" },
-        "workflow-edge": { color: "#f97316", label: "workflow flow" },
-      };
+        const state = {
+          graph: null,
+          cy: null,
+          enabledCategories: new Set(),
+          preset: "all",
+          selectedId: null,
+        };
 
-      // ─── BUILD GRAPH DATA ────────────────────────────────────────────────────────
-      const nodes = [];
-      const links = [];
-      const nodeMap = {};
+        function qs(id) {
+          return document.getElementById(id);
+        }
 
-      function addNode(id, label, category, meta = {}) {
-        if (nodeMap[id]) return;
-        const n = { id, label, category, ...meta };
-        nodes.push(n);
-        nodeMap[id] = n;
-      }
-      function addLink(source, target, type) {
-        if (!nodeMap[source] || !nodeMap[target]) return;
-        if (
-          links.find(
-            (l) =>
-              l.source === source && l.target === target && l.type === type,
-          )
-        )
-          return;
-        links.push({ source, target, type });
-      }
-
-      // Agents
-      const agents = {
-        "01-Orchestrator": { model: "Claude Opus 4.6", step: null },
-        "01-Orchestrator-FastPath": { model: "Claude Sonnet 4.6", step: null },
-        "02-Requirements": { model: "Claude Opus 4.6", step: 1 },
-        "03-Architect": { model: "Claude Opus 4.6", step: 2 },
-        "04-Design": { model: "Claude Sonnet 4.6", step: 3 },
-        "04g-Governance": { model: "GPT-5.4", step: 3.5 },
-        "05-IaC Planner": { model: "Claude Opus 4.6", step: 4 },
-        "06b-Bicep CodeGen": { model: "GPT-5.4", step: 5 },
-        "06t-Terraform CodeGen": { model: "GPT-5.4", step: 5 },
-        "07b-Bicep Deploy": { model: "GPT-5.4", step: 6 },
-        "07t-Terraform Deploy": { model: "GPT-5.4", step: 6 },
-        "08-As-Built": { model: "GPT-5.4", step: 7 },
-        "09-Diagnose": { model: "Claude Opus 4.6", step: null },
-        "10-Challenger": { model: "GPT-5.4", step: null },
-        "11-Context Optimizer": { model: "Claude Opus 4.6", step: null },
-      };
-      for (const [name, meta] of Object.entries(agents)) {
-        addNode(`agent:${name}`, name, "agent", {
-          model: meta.model,
-          step: meta.step,
-        });
-      }
-
-      // Subagents
-      const subagents = [
-        "challenger-review",
-        "challenger-review-codex",
-        "challenger-review-batch",
-        "cost-estimate",
-        "governance-discovery",
-        "bicep-lint",
-        "bicep-review",
-        "bicep-whatif",
-        "terraform-lint",
-        "terraform-review",
-        "terraform-plan",
-      ];
-      subagents.forEach((s) => addNode(`subagent:${s}`, s, "subagent"));
-
-      // Delegation links
-      const delegations = {
-        "01-Orchestrator": [
-          "challenger-review",
-          "challenger-review-codex",
-          "challenger-review-batch",
-          "cost-estimate",
-          "governance-discovery",
-        ],
-        "05-IaC Planner": ["governance-discovery"],
-        "06b-Bicep CodeGen": ["bicep-lint", "bicep-review"],
-        "06t-Terraform CodeGen": ["terraform-lint", "terraform-review"],
-        "07b-Bicep Deploy": ["bicep-whatif"],
-        "07t-Terraform Deploy": ["terraform-plan"],
-        "03-Architect": ["cost-estimate"],
-        "10-Challenger": [
-          "challenger-review",
-          "challenger-review-codex",
-          "challenger-review-batch",
-        ],
-      };
-      for (const [agent, subs] of Object.entries(delegations)) {
-        subs.forEach((s) =>
-          addLink(`agent:${agent}`, `subagent:${s}`, "delegates"),
-        );
-      }
-
-      // Skills
-      const skills = [
-        "appinsights-instrumentation",
-        "azure-adr",
-        "azure-ai",
-        "azure-aigateway",
-        "azure-artifacts",
-        "azure-bicep-patterns",
-        "azure-cloud-migrate",
-        "azure-compliance",
-        "azure-compute",
-        "azure-cost-optimization",
-        "azure-defaults",
-        "azure-deploy",
-        "azure-diagnostics",
-        "excalidraw",
-        "python-diagrams",
-        "mermaid",
-        "azure-diagrams",
-        "azure-hosted-copilot-sdk",
-        "azure-kusto",
-        "azure-messaging",
-        "azure-prepare",
-        "azure-quotas",
-        "azure-rbac",
-        "azure-resource-lookup",
-        "azure-resource-visualizer",
-        "azure-storage",
-        "azure-validate",
-        "context-optimizer",
-        "context-shredding",
-        "copilot-customization",
-        "count-registry",
-        "docs-writer",
-        "entra-app-registration",
-        "github-operations",
-        "golden-principles",
-        "iac-common",
-        "make-skill-template",
-        "microsoft-foundry",
-        "session-resume",
-        "terraform-patterns",
-        "workflow-engine",
-      ];
-      skills.forEach((s) => addNode(`skill:${s}`, s, "skill"));
-
-      // Skill affinity links
-      const affinity = {
-        "01-Orchestrator": {
-          primary: [
-            "golden-principles",
-            "session-resume",
-            "azure-defaults",
-            "azure-artifacts",
-            "workflow-engine",
-          ],
-          secondary: [
-            "context-shredding",
-            "github-operations",
-            "azure-prepare",
-          ],
-        },
-        "01-Orchestrator-FastPath": {
-          primary: [
-            "golden-principles",
-            "session-resume",
-            "azure-defaults",
-            "azure-artifacts",
-          ],
-          secondary: [
-            "context-shredding",
-            "github-operations",
-            "azure-prepare",
-          ],
-        },
-        "02-Requirements": {
-          primary: ["azure-defaults", "azure-artifacts", "session-resume"],
-          secondary: ["azure-prepare"],
-        },
-        "03-Architect": {
-          primary: ["azure-defaults", "azure-artifacts", "session-resume"],
-          secondary: [
-            "context-shredding",
-            "excalidraw",
-            "python-diagrams",
-            "azure-prepare",
-            "azure-cost-optimization",
-          ],
-        },
-        "04-Design": {
-          primary: ["excalidraw", "python-diagrams", "azure-adr"],
-          secondary: ["azure-artifacts", "session-resume"],
-        },
-        "04g-Governance": {
-          primary: ["azure-defaults", "azure-artifacts", "session-resume"],
-          secondary: [],
-        },
-        "05-IaC Planner": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "azure-bicep-patterns",
-            "terraform-patterns",
-            "session-resume",
-          ],
-          secondary: ["context-shredding"],
-        },
-        "06b-Bicep CodeGen": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "azure-bicep-patterns",
-            "session-resume",
-          ],
-          secondary: ["context-shredding"],
-        },
-        "06t-Terraform CodeGen": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "terraform-patterns",
-            "session-resume",
-          ],
-          secondary: ["context-shredding"],
-        },
-        "07b-Bicep Deploy": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "azure-validate",
-            "iac-common",
-          ],
-          secondary: ["session-resume", "github-operations", "azure-deploy"],
-        },
-        "07t-Terraform Deploy": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "azure-validate",
-            "iac-common",
-            "terraform-patterns",
-          ],
-          secondary: ["session-resume", "github-operations", "azure-deploy"],
-        },
-        "08-As-Built": {
-          primary: [
-            "azure-defaults",
-            "azure-artifacts",
-            "excalidraw",
-            "python-diagrams",
-            "session-resume",
-          ],
-          secondary: ["context-shredding", "azure-cost-optimization"],
-        },
-        "09-Diagnose": {
-          primary: ["azure-diagnostics", "azure-defaults"],
-          secondary: ["azure-cost-optimization"],
-        },
-        "10-Challenger": { primary: [], secondary: ["golden-principles"] },
-        "11-Context Optimizer": {
-          primary: ["context-optimizer"],
-          secondary: [],
-        },
-      };
-      for (const [agent, sk] of Object.entries(affinity)) {
-        [...sk.primary, ...sk.secondary].forEach((s) =>
-          addLink(`agent:${agent}`, `skill:${s}`, "uses-skill"),
-        );
-      }
-
-      // Instructions
-      const instructions = [
-        "agent-definitions",
-        "agent-research-first",
-        "agent-skills",
-        "azure-artifacts",
-        "bicep-code-best-practices",
-        "code-quality",
-        "context-optimization",
-        "decision-logging",
-        "docs",
-        "docs-trigger",
-        "github-actions",
-        "governance-discovery",
-        "iac-cost-repeatability",
-        "iac-policy-compliance",
-        "instructions",
-        "javascript",
-        "json",
-        "markdown",
-        "model-prompt-alignment",
-        "no-hardcoded-counts",
-        "no-heredoc",
-        "powershell",
-        "prompt",
-        "python",
-        "shell",
-        "terraform-code-best-practices",
-      ];
-      instructions.forEach((i) => addNode(`instr:${i}`, i, "instruction"));
-
-      // Instruction → target type enforcement links
-      const instrTargets = {
-        "agent-definitions": [
-          "agent:01-Orchestrator",
-          "agent:02-Requirements",
-          "agent:03-Architect",
-        ],
-        "agent-skills": ["skill:azure-defaults", "skill:azure-artifacts"],
-        "bicep-code-best-practices": [
-          "agent:06b-Bicep CodeGen",
-          "agent:05-IaC Planner",
-        ],
-        "terraform-code-best-practices": [
-          "agent:06t-Terraform CodeGen",
-          "agent:05-IaC Planner",
-        ],
-        markdown: ["skill:docs-writer", "skill:azure-artifacts"],
-        "no-heredoc": ["agent:01-Orchestrator", "agent:06b-Bicep CodeGen"],
-        "no-hardcoded-counts": ["skill:count-registry", "skill:docs-writer"],
-        "model-prompt-alignment": ["agent:01-Orchestrator", "agent:03-Architect"],
-        "decision-logging": ["agent:02-Requirements", "agent:03-Architect"],
-        "iac-policy-compliance": [
-          "agent:06b-Bicep CodeGen",
-          "agent:06t-Terraform CodeGen",
-        ],
-      };
-      for (const [instr, targets] of Object.entries(instrTargets)) {
-        targets.forEach((t) => {
-          if (nodeMap[t]) addLink(`instr:${instr}`, t, "enforces");
-        });
-      }
-
-      // Prompts
-      const prompts = [
-        "01-orchestrator",
-        "02-requirements",
-        "03-architect",
-        "04-design",
-        "04g-governance",
-        "05-iac-planner",
-        "06b-bicep-codegen",
-        "06t-terraform-codegen",
-        "07b-bicep-deploy",
-        "07t-terraform-deploy",
-        "08-as-built",
-        "challenger-review",
-        "context-audit",
-        "diagnose-resource",
-        "doc-gardening",
-        "git-commit-push",
-        "resume-workflow",
-      ];
-      prompts.forEach((p) => addNode(`prompt:${p}`, p, "prompt"));
-
-      // Prompt → Agent links
-      const promptAgent = {
-        "01-orchestrator": "01-Orchestrator",
-        "02-requirements": "02-Requirements",
-        "03-architect": "03-Architect",
-        "04-design": "04-Design",
-        "04g-governance": "04g-Governance",
-        "05-iac-planner": "05-IaC Planner",
-        "06b-bicep-codegen": "06b-Bicep CodeGen",
-        "06t-terraform-codegen": "06t-Terraform CodeGen",
-        "07b-bicep-deploy": "07b-Bicep Deploy",
-        "07t-terraform-deploy": "07t-Terraform Deploy",
-        "08-as-built": "08-As-Built",
-        "challenger-review": "10-Challenger",
-        "diagnose-resource": "09-Diagnose",
-        "resume-workflow": "01-Orchestrator",
-        "context-audit": "11-Context Optimizer",
-      };
-      for (const [p, a] of Object.entries(promptAgent)) {
-        addLink(`prompt:${p}`, `agent:${a}`, "triggers");
-      }
-
-      // Validators
-      const validators = [
-        "artifact-templates",
-        "h2-sync",
-        "version-sync",
-        "deprecated-refs",
-        "mcp-config",
-        "agent-frontmatter",
-        "skills-format",
-        "instruction-checks",
-        "governance-refs",
-        "session-state",
-        "session-lock",
-        "workflow-graph",
-        "agent-registry",
-        "skill-affinity",
-        "skill-checks",
-        "stale-refs",
-        "json",
-        "glob-audit",
-        "skill-references",
-        "orphaned-content",
-        "docs-freshness",
-        "model-alignment",
-        "agent-checks",
-        "no-hardcoded-counts",
-        "md",
-        "python",
-        "terraform-fmt",
-        "terraform-validate",
-      ];
-      validators.forEach((v) => addNode(`validator:${v}`, v, "validator"));
-
-      // CI Workflows
-      const ciWorkflows = [
-        "lint",
-        "agent-validation",
-        "policy-compliance-check",
-        "docs-freshness",
-        "docs",
-        "link-check",
-        "avm-version-check",
-        "azure-deprecation-tracker",
-      ];
-      ciWorkflows.forEach((w) => addNode(`ci:${w}`, w, "workflow"));
-
-      // Workflow → Validator links
-      const wfValidators = {
-        lint: [
-          "md",
-          "json",
-          "artifact-templates",
-          "h2-sync",
-          "version-sync",
-          "deprecated-refs",
-          "mcp-config",
-          "docs-freshness",
-        ],
-        "agent-validation": [
-          "agent-frontmatter",
-          "skills-format",
-          "mcp-config",
-          "h2-sync",
-          "governance-refs",
-          "instruction-checks",
-        ],
-        "policy-compliance-check": [
-          "agent-frontmatter",
-          "skills-format",
-          "instruction-checks",
-          "governance-refs",
-          "session-state",
-          "session-lock",
-          "workflow-graph",
-          "agent-registry",
-          "skill-affinity",
-          "skill-checks",
-          "stale-refs",
-          "json",
-          "glob-audit",
-          "skill-references",
-          "orphaned-content",
-          "docs-freshness",
-          "model-alignment",
-          "agent-checks",
-          "no-hardcoded-counts",
-          "artifact-templates",
-          "h2-sync",
-          "version-sync",
-          "deprecated-refs",
-          "mcp-config",
-        ],
-      };
-      for (const [wf, vals] of Object.entries(wfValidators)) {
-        vals.forEach((v) => addLink(`ci:${wf}`, `validator:${v}`, "runs"));
-      }
-
-      // MCP Servers
-      ["github", "azure-pricing", "terraform"].forEach((m) =>
-        addNode(`mcp:${m}`, m, "mcp"),
-      );
-      // MCP → Agent usage
-      addLink("mcp:github", "agent:01-Orchestrator", "connects");
-      addLink("mcp:github", "agent:07b-Bicep Deploy", "connects");
-      addLink("mcp:github", "agent:07t-Terraform Deploy", "connects");
-      addLink("mcp:azure-pricing", "agent:03-Architect", "connects");
-      addLink("mcp:azure-pricing", "subagent:cost-estimate", "connects");
-      addLink("mcp:terraform", "agent:05-IaC Planner", "connects");
-      addLink("mcp:terraform", "agent:06t-Terraform CodeGen", "connects");
-
-      // Workflow gates
-      const gates = [
-        "gate-1",
-        "gate-2",
-        "gate-2.5",
-        "gate-3",
-        "gate-4",
-        "gate-5",
-      ];
-      const gateNames = {
-        "gate-1": "Requirements Approval",
-        "gate-2": "Architecture Approval",
-        "gate-2.5": "Governance Approval",
-        "gate-3": "Plan Approval",
-        "gate-4": "Code Validation",
-        "gate-5": "Deploy Approval",
-      };
-      gates.forEach((g) => addNode(`gate:${g}`, gateNames[g], "gate"));
-
-      // Workflow edges
-      const workflowFlow = [
-        ["agent:02-Requirements", "gate:gate-1"],
-        ["gate:gate-1", "agent:03-Architect"],
-        ["agent:03-Architect", "gate:gate-2"],
-        ["gate:gate-2", "agent:04-Design"],
-        ["gate:gate-2", "agent:04g-Governance"],
-        ["agent:04g-Governance", "gate:gate-2.5"],
-        ["gate:gate-2.5", "agent:05-IaC Planner"],
-        ["agent:05-IaC Planner", "gate:gate-3"],
-        ["gate:gate-3", "agent:06b-Bicep CodeGen"],
-        ["gate:gate-3", "agent:06t-Terraform CodeGen"],
-        ["agent:06b-Bicep CodeGen", "gate:gate-4"],
-        ["agent:06t-Terraform CodeGen", "gate:gate-4"],
-        ["gate:gate-4", "agent:07b-Bicep Deploy"],
-        ["gate:gate-4", "agent:07t-Terraform Deploy"],
-        ["agent:07b-Bicep Deploy", "gate:gate-5"],
-        ["agent:07t-Terraform Deploy", "gate:gate-5"],
-        ["gate:gate-5", "agent:08-As-Built"],
-      ];
-      workflowFlow.forEach(([s, t]) => addLink(s, t, "workflow-edge"));
-
-      // Handoff from orchestrator
-      [
-        "02-Requirements",
-        "03-Architect",
-        "04-Design",
-        "04g-Governance",
-        "05-IaC Planner",
-        "06b-Bicep CodeGen",
-        "07b-Bicep Deploy",
-        "06t-Terraform CodeGen",
-        "07t-Terraform Deploy",
-        "08-As-Built",
-        "09-Diagnose",
-      ].forEach((a) => addLink("agent:01-Orchestrator", `agent:${a}`, "handoff"));
-
-      // ─── VIEW PRESETS ────────────────────────────────────────────────────────────
-      const views = {
-        all: () => true,
-        workflow: (n) => ["agent", "gate", "subagent"].includes(n.category),
-        skills: (n) => ["agent", "skill", "subagent"].includes(n.category),
-        ci: (n) =>
-          ["validator", "workflow", "instruction"].includes(n.category),
-      };
-
-      // ─── D3 RENDERING ────────────────────────────────────────────────────────────
-      const width = window.innerWidth - 300;
-      const height = window.innerHeight;
-
-      const svg = d3
-        .select("#graph")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-      const defs = svg.append("defs");
-      // Arrow markers
-      for (const [type, conf] of Object.entries(LINK_TYPES)) {
-        defs
-          .append("marker")
-          .attr("id", `arrow-${type}`)
-          .attr("viewBox", "0 -5 10 10")
-          .attr("refX", 20)
-          .attr("refY", 0)
-          .attr("markerWidth", 6)
-          .attr("markerHeight", 6)
-          .attr("orient", "auto")
-          .append("path")
-          .attr("d", "M0,-4L10,0L0,4")
-          .attr("fill", conf.color)
-          .attr("opacity", 0.5);
-      }
-
-      const g = svg.append("g");
-      const zoom = d3
-        .zoom()
-        .scaleExtent([0.1, 4])
-        .on("zoom", (e) => g.attr("transform", e.transform));
-      svg.call(zoom);
-
-      const linkG = g.append("g").attr("class", "links");
-      const nodeG = g.append("g").attr("class", "nodes");
-
-      const simulation = d3
-        .forceSimulation(nodes)
-        .force(
-          "link",
-          d3
-            .forceLink(links)
-            .id((d) => d.id)
-            .distance((d) => {
-              if (d.type === "workflow-edge") return 60;
-              if (d.type === "delegates") return 50;
-              if (d.type === "uses-skill") return 80;
-              return 100;
-            })
-            .strength((d) => (d.type === "workflow-edge" ? 1.2 : 0.3)),
-        )
-        .force(
-          "charge",
-          d3.forceManyBody().strength((d) => {
-            if (d.category === "agent") return -400;
-            if (d.category === "gate") return -300;
-            return -120;
-          }),
-        )
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force(
-          "collision",
-          d3.forceCollide().radius((d) => CATEGORIES[d.category].radius + 4),
-        )
-        .force("x", d3.forceX(width / 2).strength(0.03))
-        .force("y", d3.forceY(height / 2).strength(0.03));
-
-      let linkEls = linkG.selectAll("line");
-      let nodeEls = nodeG.selectAll("g.node");
-
-      function render(nodeFilter = views.all) {
-        const visibleNodes = new Set(nodes.filter(nodeFilter).map((n) => n.id));
-        const visibleLinks = links.filter((l) => {
-          const sid = typeof l.source === "object" ? l.source.id : l.source;
-          const tid = typeof l.target === "object" ? l.target.id : l.target;
-          return visibleNodes.has(sid) && visibleNodes.has(tid);
-        });
-
-        linkEls = linkG
-          .selectAll("line")
-          .data(
-            visibleLinks,
-            (d) => `${d.source.id || d.source}-${d.target.id || d.target}`,
-          );
-        linkEls.exit().remove();
-        linkEls = linkEls
-          .enter()
-          .append("line")
-          .attr("class", "link")
-          .attr("stroke", (d) => LINK_TYPES[d.type]?.color || "#475569")
-          .attr("stroke-width", (d) => (d.type === "workflow-edge" ? 2 : 1))
-          .attr("marker-end", (d) => `url(#arrow-${d.type})`)
-          .merge(linkEls);
-
-        nodeEls = nodeG.selectAll("g.node").data(
-          nodes.filter((n) => visibleNodes.has(n.id)),
-          (d) => d.id,
-        );
-        nodeEls.exit().remove();
-        const enter = nodeEls
-          .enter()
-          .append("g")
-          .attr("class", "node")
-          .call(
-            d3
-              .drag()
-              .on("start", dragStart)
-              .on("drag", dragging)
-              .on("end", dragEnd),
-          )
-          .on("click", (e, d) => selectNode(d))
-          .on("mouseover", (e, d) => showTooltip(e, d))
-          .on("mouseout", hideTooltip);
-        enter
-          .append("circle")
-          .attr("r", (d) => CATEGORIES[d.category].radius)
-          .attr("fill", (d) => CATEGORIES[d.category].color)
-          .attr("stroke", (d) =>
-            d3.color(CATEGORIES[d.category].color).brighter(0.5),
-          );
-        enter
-          .append("text")
-          .attr("dy", (d) => CATEGORIES[d.category].radius + 12)
-          .attr("text-anchor", "middle")
-          .text((d) =>
-            d.label.length > 20 ? d.label.slice(0, 18) + "…" : d.label,
-          );
-        nodeEls = enter.merge(nodeEls);
-
-        simulation.nodes(nodes.filter((n) => visibleNodes.has(n.id)));
-        simulation.force("link").links(visibleLinks);
-        simulation.alpha(0.8).restart();
-      }
-
-      simulation.on("tick", () => {
-        linkEls
-          .attr("x1", (d) => d.source.x)
-          .attr("y1", (d) => d.source.y)
-          .attr("x2", (d) => d.target.x)
-          .attr("y2", (d) => d.target.y);
-        nodeEls.attr("transform", (d) => `translate(${d.x},${d.y})`);
-      });
-
-      function dragStart(e, d) {
-        if (!e.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      }
-      function dragging(e, d) {
-        d.fx = e.x;
-        d.fy = e.y;
-      }
-      function dragEnd(e, d) {
-        if (!e.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      }
-
-      // ─── INTERACTIVITY ───────────────────────────────────────────────────────────
-      const tooltip = d3.select("#tooltip");
-
-      function showTooltip(event, d) {
-        const cat = CATEGORIES[d.category];
-        let html = `<h4 style="color:${cat.color}">${cat.label}: ${d.label}</h4>`;
-        if (d.model) html += `<p>Model: ${d.model}</p>`;
-        if (d.step !== undefined && d.step !== null)
-          html += `<p>Step: ${d.step}</p>`;
-        const conns = links.filter(
-          (l) =>
-            (l.source.id || l.source) === d.id ||
-            (l.target.id || l.target) === d.id,
-        );
-        html += `<p>${conns.length} connections</p>`;
-        tooltip
-          .html(html)
-          .style("display", "block")
-          .style("left", event.pageX - 300 + 15 + "px")
-          .style("top", event.pageY + 15 + "px");
-      }
-      function hideTooltip() {
-        tooltip.style("display", "none");
-      }
-
-      function selectNode(d) {
-        const connected = new Set();
-        connected.add(d.id);
-        const connLinks = [];
-        links.forEach((l) => {
-          const sid = l.source.id || l.source;
-          const tid = l.target.id || l.target;
-          if (sid === d.id) {
-            connected.add(tid);
-            connLinks.push(l);
+        async function loadGraph() {
+          const res = await fetch(GRAPH_URL, { cache: "no-cache" });
+          if (!res.ok) {
+            throw new Error(`Graph fetch failed (${res.status})`);
           }
-          if (tid === d.id) {
-            connected.add(sid);
-            connLinks.push(l);
+          return res.json();
+        }
+
+        function buildCategoryPanel(graph) {
+          const container = qs("categories");
+          container.innerHTML = "";
+          for (const cat of graph.categories) {
+            state.enabledCategories.add(cat.id);
+            const row = document.createElement("label");
+            row.className = "cat-row";
+            row.innerHTML = `
+              <input type="checkbox" checked data-cat="${cat.id}" aria-label="Toggle ${cat.label}">
+              <span class="cat-swatch" data-shape="${cat.shape}" style="background:${cat.color}"></span>
+              <span class="cat-label">${cat.label}</span>
+              <span class="cat-count" aria-label="${cat.count} ${cat.label}s">${cat.count}</span>
+            `;
+            container.appendChild(row);
           }
-        });
-
-        nodeEls.classed("dimmed", (n) => !connected.has(n.id));
-        linkEls.classed("dimmed", (l) => {
-          const sid = l.source.id || l.source;
-          const tid = l.target.id || l.target;
-          return !(sid === d.id || tid === d.id);
-        });
-        linkEls.classed("highlighted", (l) => {
-          const sid = l.source.id || l.source;
-          const tid = l.target.id || l.target;
-          return sid === d.id || tid === d.id;
-        });
-
-        // Update detail panel
-        const cat = CATEGORIES[d.category];
-        const outgoing = connLinks.filter(
-          (l) => (l.source.id || l.source) === d.id,
-        );
-        const incoming = connLinks.filter(
-          (l) => (l.target.id || l.target) === d.id,
-        );
-
-        let html = `<div class="detail-card">
-    <h3 style="color:${cat.color}">${cat.label}: ${d.label}</h3>
-    ${d.model ? `<p>Model: <strong>${d.model}</strong></p>` : ""}
-    ${d.step != null ? `<p>Workflow Step: <strong>${d.step}</strong></p>` : ""}
-    <p>${connLinks.length} total connections</p>
-  </div>`;
-
-        if (outgoing.length) {
-          html += `<div class="detail-card"><h3>Outgoing (${outgoing.length})</h3><ul class="conn-list">`;
-          outgoing.forEach((l) => {
-            const tid = l.target.id || l.target;
-            const tn = nodeMap[tid];
-            html += `<li data-id="${tid}" style="color:${LINK_TYPES[l.type]?.color || "#94a3b8"}">${LINK_TYPES[l.type]?.label || l.type}: ${tn?.label || tid}</li>`;
+          container.addEventListener("change", (ev) => {
+            const cb = ev.target;
+            if (!cb.matches || !cb.matches('input[type="checkbox"]')) return;
+            const cat = cb.dataset.cat;
+            if (cb.checked) state.enabledCategories.add(cat);
+            else state.enabledCategories.delete(cat);
+            applyFilters();
           });
-          html += "</ul></div>";
-        }
-        if (incoming.length) {
-          html += `<div class="detail-card"><h3>Incoming (${incoming.length})</h3><ul class="conn-list">`;
-          incoming.forEach((l) => {
-            const sid = l.source.id || l.source;
-            const sn = nodeMap[sid];
-            html += `<li data-id="${sid}" style="color:${LINK_TYPES[l.type]?.color || "#94a3b8"}">${LINK_TYPES[l.type]?.label || l.type}: ${sn?.label || sid}</li>`;
-          });
-          html += "</ul></div>";
+          qs("filter-all").onclick = () =>
+            toggleAllCategories(true, graph.categories);
+          qs("filter-none").onclick = () =>
+            toggleAllCategories(false, graph.categories);
+          qs("filter-invert").onclick = () =>
+            invertCategories(graph.categories);
         }
 
-        document.getElementById("detail-content").innerHTML = html;
-        // Make connection list items clickable
-        document.querySelectorAll(".conn-list li").forEach((li) => {
-          li.addEventListener("click", () => {
-            const targetId = li.dataset.id;
-            const targetNode = nodes.find((n) => n.id === targetId);
-            if (targetNode) selectNode(targetNode);
-          });
-        });
-      }
-
-      // Reset on background click
-      svg.on("click", (e) => {
-        if (e.target === svg.node()) {
-          nodeEls.classed("dimmed", false);
-          linkEls.classed("dimmed", false).classed("highlighted", false);
-        }
-      });
-
-      // ─── SIDEBAR CONTROLS ────────────────────────────────────────────────────────
-      // Stats
-      const catCounts = {};
-      nodes.forEach((n) => {
-        catCounts[n.category] = (catCounts[n.category] || 0) + 1;
-      });
-      document.getElementById("stats").textContent =
-        `${nodes.length} nodes · ${links.length} edges`;
-
-      // Legend
-      const legendEl = document.getElementById("legend");
-      for (const [key, cat] of Object.entries(CATEGORIES)) {
-        if (!catCounts[key]) continue;
-        const div = document.createElement("div");
-        div.className = "legend-item";
-        div.innerHTML = `<div class="legend-dot" style="background:${cat.color}"></div>${cat.label} (${catCounts[key]})`;
-        legendEl.appendChild(div);
-      }
-
-      // Category filter buttons
-      const filtersEl = document.getElementById("filters");
-      for (const [key, cat] of Object.entries(CATEGORIES)) {
-        if (!catCounts[key]) continue;
-        const btn = document.createElement("button");
-        btn.className = "filter-btn active";
-        btn.style.setProperty("--cat-color", cat.color);
-        btn.textContent = `${cat.label} (${catCounts[key]})`;
-        btn.dataset.category = key;
-        btn.addEventListener("click", () => {
-          btn.classList.toggle("active");
+        function toggleAllCategories(on, categories) {
+          state.enabledCategories = new Set(
+            on ? categories.map((c) => c.id) : [],
+          );
+          for (const cb of document.querySelectorAll(
+            '#categories input[type="checkbox"]',
+          )) {
+            cb.checked = on;
+          }
           applyFilters();
-        });
-        filtersEl.appendChild(btn);
-      }
-
-      function applyFilters() {
-        const active = new Set(
-          [...document.querySelectorAll(".filter-btn.active")].map(
-            (b) => b.dataset.category,
-          ),
-        );
-        render((n) => active.has(n.category));
-      }
-
-      // View toggles
-      document.querySelectorAll(".view-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document
-            .querySelectorAll(".view-btn")
-            .forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const view = btn.dataset.view;
-          // Reset filter buttons to match view
-          const viewCategories = {
-            all: Object.keys(CATEGORIES),
-            workflow: ["agent", "gate", "subagent"],
-            skills: ["agent", "skill", "subagent"],
-            ci: ["validator", "workflow", "instruction"],
-          }[view];
-          document.querySelectorAll(".filter-btn").forEach((fb) => {
-            fb.classList.toggle(
-              "active",
-              viewCategories.includes(fb.dataset.category),
-            );
-          });
-          render(views[view]);
-        });
-      });
-
-      // Search
-      document.getElementById("search").addEventListener("input", (e) => {
-        const q = e.target.value.toLowerCase();
-        if (!q) {
-          nodeEls.classed("dimmed", false);
-          linkEls.classed("dimmed", false);
-          return;
         }
-        const matches = new Set(
-          nodes
-            .filter((n) => n.label.toLowerCase().includes(q))
-            .map((n) => n.id),
-        );
-        nodeEls.classed("dimmed", (n) => !matches.has(n.id));
-        linkEls.classed("dimmed", (l) => {
-          const sid = l.source.id || l.source;
-          const tid = l.target.id || l.target;
-          return !matches.has(sid) && !matches.has(tid);
-        });
-      });
+        function invertCategories(categories) {
+          const next = new Set();
+          for (const c of categories) {
+            if (!state.enabledCategories.has(c.id)) next.add(c.id);
+          }
+          state.enabledCategories = next;
+          for (const cb of document.querySelectorAll(
+            '#categories input[type="checkbox"]',
+          )) {
+            cb.checked = next.has(cb.dataset.cat);
+          }
+          applyFilters();
+        }
 
-      // Initial render
-      render();
-      // Auto-zoom to fit after stabilization
-      setTimeout(() => {
-        const bounds = g.node().getBBox();
-        const fullWidth = bounds.width || width;
-        const fullHeight = bounds.height || height;
-        const midX = bounds.x + fullWidth / 2;
-        const midY = bounds.y + fullHeight / 2;
-        const scale = 0.85 / Math.max(fullWidth / width, fullHeight / height);
-        const transform = d3.zoomIdentity
-          .translate(width / 2 - midX * scale, height / 2 - midY * scale)
-          .scale(scale);
-        svg.transition().duration(750).call(zoom.transform, transform);
-      }, 3000);
+        function stylesheet(graph) {
+          const styles = [
+            {
+              selector: "node",
+              style: {
+                label: "data(label)",
+                "font-size": 10,
+                "font-family":
+                  "Inter, system-ui, sans-serif",
+                color: "#e2e8f0",
+                "text-valign": "bottom",
+                "text-halign": "center",
+                "text-margin-y": 4,
+                "text-wrap": "ellipsis",
+                "text-max-width": 120,
+                "text-outline-color": "#0f172a",
+                "text-outline-width": 2,
+                width: 28,
+                height: 28,
+                "border-width": 1.5,
+                "border-color": "#0f172a",
+              },
+            },
+            {
+              selector: "node:selected",
+              style: {
+                "border-color": "#fbbf24",
+                "border-width": 3,
+                "font-weight": "bold",
+                "z-index": 99,
+              },
+            },
+            {
+              selector: "node.faded",
+              style: { opacity: 0.12 },
+            },
+            {
+              selector: "node.highlight",
+              style: {
+                "border-color": "#fbbf24",
+                "border-width": 2.5,
+                "z-index": 50,
+              },
+            },
+            {
+              selector: "edge",
+              style: {
+                width: 1.2,
+                "line-color": "#475569",
+                "curve-style": "bezier",
+                "target-arrow-color": "#475569",
+                opacity: 0.6,
+              },
+            },
+            {
+              selector: "edge.faded",
+              style: { opacity: 0.05 },
+            },
+            {
+              selector: "edge.highlight",
+              style: {
+                "line-color": "#fbbf24",
+                "target-arrow-color": "#fbbf24",
+                opacity: 1,
+                width: 2,
+                "z-index": 40,
+              },
+            },
+            {
+              selector: 'edge[kind = "hands-off"]',
+              style: {
+                "target-arrow-shape": "triangle",
+                "line-color": "#38bdf8",
+                "target-arrow-color": "#38bdf8",
+                width: 1.8,
+                opacity: 0.75,
+              },
+            },
+            {
+              selector: 'edge[kind = "delegates"]',
+              style: {
+                "line-style": "dashed",
+                "line-color": "#a78bfa",
+                "target-arrow-color": "#a78bfa",
+                "target-arrow-shape": "triangle-backcurve",
+              },
+            },
+            {
+              selector: 'edge[kind = "uses-primary"]',
+              style: { "line-color": "#10b981", opacity: 0.55 },
+            },
+            {
+              selector: 'edge[kind = "uses-secondary"]',
+              style: {
+                "line-style": "dotted",
+                "line-color": "#64748b",
+                opacity: 0.35,
+              },
+            },
+            {
+              selector: 'edge[kind = "invokes"]',
+              style: {
+                "line-color": "#ec4899",
+                "target-arrow-color": "#ec4899",
+                "target-arrow-shape": "triangle",
+                opacity: 0.55,
+              },
+            },
+            {
+              selector: 'edge[kind = "applies-to"]',
+              style: {
+                "line-color": "#f59e0b",
+                "target-arrow-color": "#f59e0b",
+                "line-style": "dashed",
+                opacity: 0.45,
+              },
+            },
+            {
+              selector: 'edge[kind = "runs"]',
+              style: {
+                "line-color": "#06b6d4",
+                "target-arrow-color": "#06b6d4",
+                "target-arrow-shape": "triangle",
+                opacity: 0.55,
+              },
+            },
+            {
+              selector: 'edge[kind = "uses-mcp"]',
+              style: {
+                "line-color": "#f43f5e",
+                "target-arrow-color": "#f43f5e",
+                "line-style": "dotted",
+                opacity: 0.5,
+              },
+            },
+            {
+              selector: 'edge[kind = "refs"]',
+              style: {
+                "line-color": "#34d399",
+                "line-style": "dotted",
+                opacity: 0.3,
+                width: 1,
+              },
+            },
+          ];
+          // Per-category node styling (colour + shape)
+          for (const cat of graph.categories) {
+            styles.push({
+              selector: `node[category = "${cat.id}"]`,
+              style: {
+                "background-color": cat.color,
+                shape: cat.shape,
+              },
+            });
+          }
+          // Compound parent ("group") styling — translucent bubble per category
+          styles.push({
+            selector: "node.group",
+            style: {
+              "background-opacity": 0.08,
+              "background-color": "#64748b",
+              "border-width": 1,
+              "border-style": "dashed",
+              "border-color": "#94a3b8",
+              "border-opacity": 0.5,
+              shape: "round-rectangle",
+              label: "data(label)",
+              "text-valign": "top",
+              "text-halign": "center",
+              "text-margin-y": -6,
+              "font-size": 11,
+              "font-weight": 600,
+              color: "#cbd5e1",
+              padding: 18,
+              "z-index": 1,
+            },
+          });
+          for (const cat of graph.categories) {
+            styles.push({
+              selector: `node.group[category = "${cat.id}"]`,
+              style: {
+                "background-color": cat.color,
+                "border-color": cat.color,
+              },
+            });
+          }
+          return styles;
+        }
+
+        function buildElements(graph) {
+          const nodes = graph.nodes.map((n) => {
+            const data = {
+              id: n.id,
+              label: n.label,
+              category: n.category,
+              description: n.description || "",
+              path: n.path || "",
+              links: n.links || {},
+              meta: n.meta || {},
+            };
+            if (n.parent) data.parent = n.parent;
+            if (n.isGroup) data.isGroup = true;
+            return { data, classes: n.isGroup ? "group" : "" };
+          });
+          const edges = graph.edges.map((e) => ({
+            data: {
+              id: e.id,
+              source: e.source,
+              target: e.target,
+              kind: e.kind,
+            },
+          }));
+          return { nodes, edges };
+        }
+
+        function initCytoscape(graph) {
+          const elements = buildElements(graph);
+          const cy = cytoscape({
+            container: qs("cy"),
+            elements: [...elements.nodes, ...elements.edges],
+            style: stylesheet(graph),
+            wheelSensitivity: 0.25,
+            minZoom: 0.15,
+            maxZoom: 3,
+            layout: layoutForPreset("all"),
+            textureOnViewport: true,
+            motionBlur: !reduceMotion,
+          });
+          state.cy = cy;
+          wireCyEvents(cy);
+          qs("stat-nodes").textContent = graph.nodeCount;
+          qs("stat-edges").textContent = graph.edgeCount;
+          qs("status").textContent = `${graph.nodeCount} nodes · ${graph.edgeCount} edges · generated ${new Date(graph.generatedAt).toLocaleDateString()}`;
+          qs("loading").classList.add("hidden");
+          applyUrlHash();
+        }
+
+        function layoutForPreset(preset) {
+          const base = {
+            animate: !reduceMotion,
+            animationDuration: 400,
+            fit: true,
+            padding: 40,
+          };
+          if (preset === "workflow") {
+            return {
+              ...base,
+              name: "dagre",
+              rankDir: "LR",
+              nodeSep: 40,
+              rankSep: 90,
+            };
+          }
+          if (preset === "ci") {
+            return {
+              ...base,
+              name: "dagre",
+              rankDir: "TB",
+              nodeSep: 30,
+              rankSep: 70,
+            };
+          }
+          return {
+            ...base,
+            name: "fcose",
+            quality: reduceMotion ? "default" : "proof",
+            randomize: true,
+            animate: !reduceMotion,
+            animationDuration: 600,
+            nodeSeparation: 75,
+            idealEdgeLength: 90,
+            nodeRepulsion: 6000,
+            edgeElasticity: 0.45,
+            gravity: 0.35,
+            gravityRange: 3.8,
+            gravityCompound: 1.0,
+            gravityRangeCompound: 1.5,
+            numIter: reduceMotion ? 1500 : 2500,
+            tile: true,
+            tilingPaddingVertical: 12,
+            tilingPaddingHorizontal: 12,
+            packComponents: true,
+          };
+        }
+
+        function wireCyEvents(cy) {
+          cy.on("tap", "node", (ev) => selectNode(ev.target.id()));
+          cy.on("tap", (ev) => {
+            if (ev.target === cy) clearSelection();
+          });
+          cy.on("mouseover", "node", (ev) => hoverHighlight(ev.target));
+          cy.on("mouseout", "node", () => {
+            if (!state.selectedId) clearHighlight();
+            else applyHighlightForId(state.selectedId);
+          });
+          // Keyboard on canvas
+          qs("cy").addEventListener("keydown", onCanvasKey);
+        }
+
+        function onCanvasKey(ev) {
+          const cy = state.cy;
+          if (!cy) return;
+          if (ev.key === "+" || ev.key === "=") {
+            cy.zoom({ level: cy.zoom() * 1.2, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+          } else if (ev.key === "-" || ev.key === "_") {
+            cy.zoom({ level: cy.zoom() / 1.2, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+          } else if (ev.key.toLowerCase() === "f") {
+            cy.fit(undefined, 40);
+          } else if (ev.key === "Tab") {
+            const visible = cy.nodes(":visible");
+            if (!visible.length) return;
+            ev.preventDefault();
+            const idx = visible.toArray().findIndex(
+              (n) => n.id() === state.selectedId,
+            );
+            const step = ev.shiftKey ? -1 : 1;
+            const next = visible[(idx + step + visible.length) % visible.length];
+            selectNode(next.id());
+          } else if (ev.key === "Enter" && state.selectedId) {
+            const node = cy.getElementById(state.selectedId);
+            cy.animate({ center: { eles: node }, zoom: 1.4 }, { duration: reduceMotion ? 0 : 300 });
+          } else if (ev.key === "Escape") {
+            clearSelection();
+          }
+        }
+
+        function hoverHighlight(node) {
+          if (state.selectedId) return;
+          applyHighlightForId(node.id(), /*soft*/ true);
+        }
+        function applyHighlightForId(id, soft) {
+          const cy = state.cy;
+          const node = cy.getElementById(id);
+          if (node.empty()) return;
+          const neighborhood = node.closedNeighborhood();
+          cy.elements().addClass("faded").removeClass("highlight");
+          neighborhood.removeClass("faded").addClass("highlight");
+          node.removeClass("faded");
+          if (soft) {
+            // Softer: no selection styling
+          }
+        }
+        function clearHighlight() {
+          const cy = state.cy;
+          if (!cy) return;
+          cy.elements().removeClass("faded highlight");
+        }
+
+        function selectNode(id) {
+          const cy = state.cy;
+          const node = cy.getElementById(id);
+          if (node.empty()) return;
+          state.selectedId = id;
+          cy.$(":selected").unselect();
+          node.select();
+          applyHighlightForId(id);
+          renderDrawer(node);
+          updateUrlHash(id);
+          if (window.innerWidth <= 768) qs("drawer").classList.add("open");
+        }
+        function clearSelection() {
+          state.selectedId = null;
+          state.cy?.$(":selected").unselect();
+          clearHighlight();
+          qs("drawer").innerHTML = `<div class="empty">
+            <p style="font-size:14px;color:var(--text);margin-bottom:8px">Click a node to explore.</p>
+            <p>Hover to highlight connections. Use the search bar or keyboard shortcuts to navigate.</p>
+          </div>`;
+          qs("drawer").classList.remove("open");
+          updateUrlHash(null);
+        }
+
+        function renderDrawer(node) {
+          const d = node.data();
+          const cat = state.graph.categories.find((c) => c.id === d.category);
+          const catColor = cat ? cat.color : "#64748b";
+          const catLabel = cat ? cat.label : d.category;
+          const incoming = node.incomers("node");
+          const outgoing = node.outgoers("node");
+          const drawer = qs("drawer");
+
+          const docsLink = d.links?.docs || null;
+          const sourceLink = d.links?.source || null;
+
+          let metaHtml = "";
+          if (d.meta?.model)
+            metaHtml += `<div class="meta-item"><strong>Model:</strong>${escapeHtml(d.meta.model)}</div>`;
+          if (d.meta?.applyTo)
+            metaHtml += `<div class="meta-item"><strong>Applies to:</strong><code>${escapeHtml(String(d.meta.applyTo))}</code></div>`;
+          if (d.meta?.type)
+            metaHtml += `<div class="meta-item"><strong>Type:</strong>${escapeHtml(d.meta.type)}</div>`;
+          if (d.path)
+            metaHtml += `<div class="meta-item"><strong>Path:</strong><code>${escapeHtml(d.path)}</code></div>`;
+
+          drawer.innerHTML = `
+            <h2>${escapeHtml(d.label)}</h2>
+            <span class="cat-pill" style="background:${catColor}22;color:${catColor};border:1px solid ${catColor}55;">${escapeHtml(catLabel)}</span>
+            ${d.description ? `<p class="desc">${escapeHtml(d.description)}</p>` : ""}
+            ${metaHtml}
+            <div class="actions">
+              ${docsLink ? `<a href="${docsLink}">Open docs →</a>` : ""}
+              ${sourceLink ? `<a class="secondary" href="${sourceLink}" rel="noopener" target="_blank">View source ↗</a>` : ""}
+            </div>
+            ${connectionsSection("Outgoing connections", outgoing)}
+            ${connectionsSection("Incoming connections", incoming)}
+          `;
+          drawer.scrollTop = 0;
+          drawer.querySelectorAll("button[data-goto]").forEach((btn) => {
+            btn.addEventListener("click", () => selectNode(btn.dataset.goto));
+          });
+        }
+
+        function connectionsSection(title, collection) {
+          if (!collection || collection.length === 0) {
+            return `<div class="conns-group"><h3>${escapeHtml(title)}</h3><div class="empty">None</div></div>`;
+          }
+          const items = collection
+            .toArray()
+            .map(
+              (n) =>
+                `<button class="conn-link" data-goto="${escapeHtml(n.id())}">${escapeHtml(n.data("label"))} <span style="color:var(--text-faint);font-size:10px;">· ${escapeHtml(n.data("category"))}</span></button>`,
+            )
+            .join("");
+          return `<div class="conns-group"><h3>${escapeHtml(title)} (${collection.length})</h3>${items}</div>`;
+        }
+
+        function escapeHtml(s) {
+          return String(s ?? "").replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+        }
+
+        // ---------- Filters / presets ----------
+        function applyFilters() {
+          const cy = state.cy;
+          if (!cy) return;
+          cy.batch(() => {
+            cy.nodes().forEach((n) => {
+              const visible = state.enabledCategories.has(n.data("category"));
+              n.style("display", visible ? "element" : "none");
+            });
+            cy.edges().forEach((e) => {
+              const s = e.source().style("display") !== "none";
+              const t = e.target().style("display") !== "none";
+              e.style("display", s && t ? "element" : "none");
+            });
+          });
+          qs("status").textContent = `${cy.nodes(":visible").length} visible nodes · ${cy.edges(":visible").length} visible edges`;
+        }
+
+        function applyPreset(preset) {
+          state.preset = preset;
+          for (const btn of document.querySelectorAll(".preset-btn")) {
+            btn.setAttribute(
+              "aria-pressed",
+              btn.dataset.preset === preset ? "true" : "false",
+            );
+          }
+          const catMap = {
+            all: null,
+            workflow: ["agent", "subagent"],
+            skills: ["skill", "agent"],
+            ci: ["validator", "workflow"],
+            instructions: ["instruction", "agent"],
+          };
+          const keep = catMap[preset];
+          if (keep) {
+            state.enabledCategories = new Set(keep);
+          } else {
+            state.enabledCategories = new Set(
+              state.graph.categories.map((c) => c.id),
+            );
+          }
+          for (const cb of document.querySelectorAll(
+            '#categories input[type="checkbox"]',
+          )) {
+            cb.checked = state.enabledCategories.has(cb.dataset.cat);
+          }
+          applyFilters();
+          state.cy.layout(layoutForPreset(preset)).run();
+        }
+
+        function wirePresets() {
+          for (const btn of document.querySelectorAll(".preset-btn")) {
+            btn.addEventListener("click", () =>
+              applyPreset(btn.dataset.preset),
+            );
+          }
+        }
+
+        // ---------- Search ----------
+        function wireSearch() {
+          const input = qs("search");
+          const results = qs("search-results");
+          let activeIndex = -1;
+
+          function close() {
+            results.classList.remove("open");
+            input.setAttribute("aria-expanded", "false");
+            activeIndex = -1;
+          }
+          function open(items) {
+            if (!items.length) {
+              results.innerHTML = `<div class="search-result" aria-disabled="true"><span class="sr-cat">—</span>No matches</div>`;
+            } else {
+              results.innerHTML = items
+                .slice(0, 20)
+                .map(
+                  (n, i) =>
+                    `<div class="search-result" role="option" tabindex="-1" data-id="${escapeHtml(n.id)}" data-idx="${i}"><span class="sr-cat" style="color:${colorFor(n.category)}">${escapeHtml(n.category)}</span>${escapeHtml(n.label)}</div>`,
+                )
+                .join("");
+            }
+            results.classList.add("open");
+            input.setAttribute("aria-expanded", "true");
+            activeIndex = -1;
+          }
+
+          input.addEventListener("input", () => {
+            const q = input.value.trim().toLowerCase();
+            if (!q) {
+              close();
+              return;
+            }
+            const matches = state.graph.nodes
+              .filter(
+                (n) =>
+                  !n.isGroup &&
+                  (n.label.toLowerCase().includes(q) ||
+                    (n.description || "").toLowerCase().includes(q)),
+              )
+              .sort((a, b) => {
+                const al = a.label.toLowerCase().startsWith(q) ? 0 : 1;
+                const bl = b.label.toLowerCase().startsWith(q) ? 0 : 1;
+                return al - bl;
+              });
+            open(matches);
+          });
+          input.addEventListener("keydown", (ev) => {
+            const items = results.querySelectorAll(
+              ".search-result[data-id]",
+            );
+            if (ev.key === "ArrowDown") {
+              ev.preventDefault();
+              if (!items.length) return;
+              activeIndex = (activeIndex + 1) % items.length;
+              updateActive(items);
+            } else if (ev.key === "ArrowUp") {
+              ev.preventDefault();
+              if (!items.length) return;
+              activeIndex = (activeIndex - 1 + items.length) % items.length;
+              updateActive(items);
+            } else if (ev.key === "Enter") {
+              const target =
+                activeIndex >= 0 ? items[activeIndex] : items[0];
+              if (target) {
+                selectNode(target.dataset.id);
+                input.blur();
+                close();
+              }
+            } else if (ev.key === "Escape") {
+              close();
+              input.blur();
+            }
+          });
+          function updateActive(items) {
+            items.forEach((el, i) =>
+              el.setAttribute(
+                "aria-selected",
+                i === activeIndex ? "true" : "false",
+              ),
+            );
+            if (activeIndex >= 0) items[activeIndex].scrollIntoView({ block: "nearest" });
+          }
+          results.addEventListener("click", (ev) => {
+            const row = ev.target.closest(".search-result[data-id]");
+            if (!row) return;
+            selectNode(row.dataset.id);
+            close();
+            input.blur();
+          });
+          document.addEventListener("click", (ev) => {
+            if (!ev.target.closest("#search-wrap")) close();
+          });
+          // Global "/" hotkey
+          document.addEventListener("keydown", (ev) => {
+            if (
+              ev.key === "/" &&
+              document.activeElement !== input &&
+              !ev.target.matches("input, textarea")
+            ) {
+              ev.preventDefault();
+              input.focus();
+              input.select();
+            }
+          });
+        }
+        function colorFor(catId) {
+          const c = state.graph.categories.find((x) => x.id === catId);
+          return c ? c.color : "#94a3b8";
+        }
+
+        // ---------- Toolbar ----------
+        function wireToolbar() {
+          qs("zoom-in").onclick = () =>
+            state.cy.zoom({
+              level: state.cy.zoom() * 1.25,
+              renderedPosition: {
+                x: state.cy.width() / 2,
+                y: state.cy.height() / 2,
+              },
+            });
+          qs("zoom-out").onclick = () =>
+            state.cy.zoom({
+              level: state.cy.zoom() / 1.25,
+              renderedPosition: {
+                x: state.cy.width() / 2,
+                y: state.cy.height() / 2,
+              },
+            });
+          qs("fit").onclick = () => state.cy.fit(undefined, 40);
+          qs("relayout").onclick = () =>
+            state.cy.layout(layoutForPreset(state.preset)).run();
+        }
+
+        // ---------- URL hash ----------
+        function updateUrlHash(id) {
+          if (id) {
+            history.replaceState(null, "", `#node=${encodeURIComponent(id)}`);
+          } else if (location.hash) {
+            history.replaceState(null, "", location.pathname + location.search);
+          }
+        }
+        function applyUrlHash() {
+          const m = location.hash.match(/#node=([^&]+)/);
+          if (m) {
+            const id = decodeURIComponent(m[1]);
+            // Accept either full id or trailing slug for convenience
+            const byId = state.graph.nodes.find((n) => n.id === id);
+            const bySlug = state.graph.nodes.find((n) => n.id.endsWith(":" + id));
+            const hit = byId || bySlug;
+            if (hit) selectNode(hit.id);
+          }
+        }
+        window.addEventListener("hashchange", applyUrlHash);
+
+        // ---------- Init ----------
+        async function init() {
+          try {
+            const graph = await loadGraph();
+            state.graph = graph;
+            buildCategoryPanel(graph);
+            initCytoscape(graph);
+            wirePresets();
+            wireSearch();
+            wireToolbar();
+          } catch (e) {
+            qs("loading").innerHTML = `<div style="color:var(--danger)">Failed to load graph: ${escapeHtml(e.message)}<br><br>Run <code>npm run build:explorer-graph</code> to regenerate.</div>`;
+            console.error(e);
+          }
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", init);
+        } else {
+          init();
+        }
+      })();
     </script>
   </body>
 </html>

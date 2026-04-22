@@ -54,18 +54,6 @@ export function getAgents() {
 }
 
 /**
- * Returns a Map of agent name (from frontmatter) → filename.
- */
-export function getAgentNameMap() {
-  const map = new Map();
-  for (const [file, agent] of getAgents()) {
-    const name = agent.frontmatter?.name?.trim();
-    if (name) map.set(name, file);
-  }
-  return map;
-}
-
-/**
  * Returns a Map of all skills: skillName → { dir, content, frontmatter, hasRefs, refFiles }
  */
 export function getSkills() {

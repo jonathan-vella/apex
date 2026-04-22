@@ -225,3 +225,9 @@ az consumption budget show \
 - [Workflow](../../concepts/workflow/) — how cost estimation fits into the agent workflow
 
   :::
+
+## Related
+
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys

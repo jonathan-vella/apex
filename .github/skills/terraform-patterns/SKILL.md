@@ -68,6 +68,24 @@ module "key_vault" {
 - **Moved blocks**: Use `moved {}` when renaming resources to prevent destroy/recreate
 - **Budget**: 3 forecast thresholds (80%/100%/120%); amount and emails MUST be variables
 
+## Gotchas
+
+- **Set-type phantom diffs** — `azurerm_application_gateway`, `azurerm_lb`,
+  `azurerm_network_security_group`, `azurerm_firewall`, `azurerm_frontdoor`:
+  adding ONE element causes ALL elements to show `~` changes. Mitigation:
+  `ignore_changes` on set-type blocks.
+- **Provider pin `~> 4.0` is critical** — `>= 3.0` crosses breaking
+  versions; `= 4.1.0` blocks patches. MUST use `~> 4.0`.
+- **`for_each` over `count` for named resources** — `count` causes drift
+  when items are inserted/removed (Terraform reindexes).
+  Use `for_each = toset()`.
+- **`moved` block required for renaming** — Renaming a resource ID
+  without a `moved {}` block causes destroy + recreate.
+- **azurerm 4.x renamed attributes** —
+  `allow_blob_public_access` → `allow_nested_items_to_be_public`;
+  `enable_https_traffic_only` → `https_traffic_only_enabled`;
+  `azurerm_app_service` removed → use `azurerm_linux_web_app`.
+
 ---
 
 ## Reference Index

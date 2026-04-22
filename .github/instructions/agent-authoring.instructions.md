@@ -124,14 +124,14 @@ Current model assignments:
 | Requirements             | Claude Opus 4.6   | Deep understanding        |
 | Architect                | Claude Opus 4.6   | WAF analysis + cost       |
 | Design                   | Claude Sonnet 4.6 | Diagram generation        |
-| Governance               | GPT-5.4           | Governance discovery      |
+| Governance               | Claude Sonnet 4.6 | Procedural discovery      |
 | IaC Planner (unified)    | Claude Opus 4.6   | Planning accuracy         |
 | Bicep / Terraform Code   | Claude Sonnet 4.6 | Code generation           |
 | Deploy                   | GPT-5.4           | Deployment execution      |
 | As-Built                 | GPT-5.4           | Documentation generation  |
 | Diagnose                 | Claude Opus 4.6   | Complex troubleshooting   |
 | Context Optimizer        | Claude Opus 4.6   | Deep analysis             |
-| Challenger wrapper       | GPT-5.4           | Review orchestration      |
+| Challenger wrapper       | Claude Sonnet 4.6 | Structured review         |
 | Bicep/TF subagents       | GPT-5.4           | Isolated validation       |
 | Cost estimate subagent   | GPT-5.3-Codex     | High-throughput pricing   |
 
@@ -169,15 +169,14 @@ the multi-step workflow:
 Subagents live in `.github/agents/_subagents/` and are `user-invocable: false`. They isolate
 expensive or specialized work from their parent agent's context window.
 
-| Subagent                        | Parent Agent        | Purpose                                              |
-| ------------------------------- | ------------------- | ---------------------------------------------------- |
-| `challenger-review-subagent`    | All workflow agents | Adversarial review (comprehensive + rotating lenses) |
-| `cost-estimate-subagent`        | Architect           | Pricing MCP queries                                  |
-| `governance-discovery-subagent` | IaC Planner         | Azure Policy REST API discovery                      |
-| `bicep-validate-subagent`       | Bicep Code          | Lint + AVM/security code review                      |
-| `bicep-whatif-subagent`         | Bicep Deploy        | `az deployment group what-if`                        |
-| `terraform-validate-subagent`   | Terraform Code      | Lint + AVM-TF/security code review                   |
-| `terraform-plan-subagent`       | Terraform Deploy    | `terraform plan` change preview                      |
+| Subagent                      | Parent Agent        | Purpose                                              |
+| ----------------------------- | ------------------- | ---------------------------------------------------- |
+| `challenger-review-subagent`  | All workflow agents | Adversarial review (comprehensive + rotating lenses) |
+| `cost-estimate-subagent`      | Architect           | Pricing MCP queries                                  |
+| `bicep-validate-subagent`     | Bicep Code          | Lint + AVM/security code review                      |
+| `bicep-whatif-subagent`       | Bicep Deploy        | `az deployment group what-if`                        |
+| `terraform-validate-subagent` | Terraform Code      | Lint + AVM-TF/security code review                   |
+| `terraform-plan-subagent`     | Terraform Deploy    | `terraform plan` change preview                      |
 
 Subagent definition rules:
 
@@ -202,6 +201,29 @@ knowledge. Include a reference near the top of the agent body:
 Read `.github/skills/azure-defaults/SKILL.md` FIRST for regional standards, naming conventions,
 security baseline, and workflow integration patterns common to all agents.
 ```
+
+### Research Before Implementation
+
+All agents gather context before producing output. This ensures complete, one-shot execution
+without missing context or requiring multiple iterations.
+
+Pre-implementation checklist:
+
+1. Search the workspace for existing patterns (`agent-output/`, similar projects, templates).
+2. Read relevant templates in `.github/skills/azure-artifacts/templates/`.
+3. Query documentation via MCP tools (Azure docs, best practices) where applicable.
+4. Confirm all required artifacts from previous workflow steps exist.
+5. Check shared defaults in `.github/skills/azure-defaults/SKILL.md`.
+6. Proceed only when you have sufficient context to produce a complete artifact.
+
+Use read-only tools first — `semantic_search`, `grep_search`, `read_file`, `list_dir`, and the
+Azure MCP tools — to build understanding before making changes. When extensive research is
+needed, delegate to a subagent and instruct it to work autonomously and return findings without
+pausing for user feedback.
+
+Rules: research before creating files; read templates before generating output; query Azure docs
+before recommending services; validate inputs before proceeding to the next step; ask for
+clarification when context is insufficient rather than assuming.
 
 ### Subagent Delegation Pattern
 

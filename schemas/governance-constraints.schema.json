@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/governance-constraints.schema.json",
+  "title": "APEX Governance Constraints",
+  "description": "Shape of agent-output/{project}/04-governance-constraints.json produced by 04g-Governance. Used by 06b/06t codegen agents and enforced in CI by scripts/validate-artifacts.mjs (Step 5b).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "subscription_id",
+    "discovered_at",
+    "findings"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "governance-constraints-v1"
+    },
+    "subscription_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F-]{36}$|^unknown$"
+    },
+    "discovered_at": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "string",
+      "enum": ["azure-policy-rest-api", "az-cli", "static", "partial"]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["policy_id", "display_name", "effect"],
+        "additionalProperties": true,
+        "properties": {
+          "policy_id": { "type": "string", "minLength": 1 },
+          "display_name": { "type": "string", "minLength": 1 },
+          "effect": {
+            "type": "string",
+            "enum": [
+              "deny",
+              "audit",
+              "auditIfNotExists",
+              "append",
+              "modify",
+              "deployIfNotExists",
+              "disabled"
+            ]
+          },
+          "scope": { "type": "string" },
+          "azurePropertyPath": { "type": "string" },
+          "bicepPropertyPath": { "type": "string" },
+          "terraformPropertyPath": { "type": "string" },
+          "required_value": {},
+          "resource_types": { "type": "array", "items": { "type": "string" } },
+          "override": {
+            "type": ["object", "null"],
+            "required": ["requested_at", "reason", "issue_link", "expiry"],
+            "additionalProperties": false,
+            "properties": {
+              "requested_at": { "type": "string", "format": "date-time" },
+              "requested_by": { "type": "string" },
+              "reason": { "type": "string", "minLength": 8 },
+              "issue_link": { "type": "string", "format": "uri" },
+              "expiry": { "type": "string", "format": "date" }
+            }
+          }
+        }
+      }
+    },
+    "tags_required": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "allowed_values": { "type": "array", "items": { "type": "string" } },
+          "default": { "type": "string" }
+        }
+      }
+    },
+    "allowed_locations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "policies": {
+      "description": "Alias of findings — same array reference, emitted by discover.py for downstream consumers.",
+      "type": "array",
+      "items": { "$ref": "#/properties/findings/items" }
+    }
+  }
+}

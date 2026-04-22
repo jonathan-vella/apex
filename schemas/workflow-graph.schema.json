@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/workflow-graph.schema.json",
+  "title": "APEX Workflow Graph",
+  "description": "Shape of the workflow DAG in .github/skills/workflow-engine/templates/workflow-graph.json. Defines the multi-step agent pipeline with typed nodes, conditional edges, and challenger configuration. Enforced by scripts/validate-workflow-graph.mjs.",
+  "type": "object",
+  "required": ["$schema", "description", "nodes", "edges"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "description": { "type": "string" },
+    "nodes": {
+      "type": "object",
+      "description": "Map of node IDs to node definitions.",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "required": ["id", "type", "name"],
+          "additionalProperties": true,
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Must match the object key."
+            },
+            "type": {
+              "type": "string",
+              "enum": ["agent-step", "gate", "subagent-fan-out", "validation"]
+            },
+            "name": { "type": "string", "minLength": 1 },
+            "agent": {
+              "type": "string",
+              "description": "Agent name (must match an existing .agent.md file)."
+            },
+            "requires": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Node IDs that must complete before this node."
+            },
+            "produces": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Artifact filenames produced by this step."
+            },
+            "gate": {
+              "type": "string",
+              "description": "Gate type (e.g. 'approval')."
+            },
+            "challenger": {
+              "type": "object",
+              "description": "Adversarial review configuration.",
+              "properties": {
+                "passes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Number of review passes (legacy format)."
+                },
+                "lenses": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Review lens names (legacy format)."
+                },
+                "default_passes": { "type": "integer", "minimum": 1 },
+                "default_lenses": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "opt_in_multi_pass": { "type": "boolean" },
+                "complexity_matrix": {
+                  "type": "object",
+                  "description": "Per-complexity-tier review config.",
+                  "properties": {
+                    "simple": { "$ref": "#/$defs/challengerTier" },
+                    "standard": { "$ref": "#/$defs/challengerTier" },
+                    "complex": { "$ref": "#/$defs/challengerTier" }
+                  },
+                  "required": ["simple", "standard", "complex"]
+                },
+                "skip_condition": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "condition"],
+        "additionalProperties": true,
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source node ID."
+          },
+          "to": {
+            "type": "string",
+            "description": "Target node ID."
+          },
+          "condition": {
+            "type": "string",
+            "enum": ["on_complete", "on_skip", "on_fail"]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "challengerTier": {
+      "type": "object",
+      "required": ["passes", "lenses"],
+      "properties": {
+        "passes": { "type": "integer", "minimum": 1 },
+        "lenses": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

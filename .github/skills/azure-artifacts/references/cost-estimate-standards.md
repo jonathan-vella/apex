@@ -19,7 +19,7 @@ Agents MUST start from the appropriate template:
 - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
 - `.github/skills/azure-artifacts/templates/07-ab-cost-estimate.template.md`
 
-H2 headings validated by `azure-artifacts.instructions.md` + `validate-artifact-templates.mjs`.
+H2 headings validated by `azure-artifacts.instructions.md` + `validate-artifacts.mjs`.
 Use `→` (not `->`) in the Requirements heading.
 
 ## Required Sections (21)

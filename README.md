@@ -60,7 +60,7 @@ sequenceDiagram
   end
 
   C->>IaC: Create implementation plan + governance
-  Note right of IaC: governance-discovery-subagent<br/>queries Azure Policy via REST API
+  Note right of IaC: azure-governance-discovery skill<br/>queries Azure Policy via REST API
   Note right of IaC: Unified IaC Planner (05)<br/>routes based on decisions.iac_tool
   IaC-->>C: 04-plan.md + governance constraints
   C->>X: Challenge implementation plan
@@ -122,6 +122,7 @@ directly.
 - Agent definitions, skills, and instruction files for the workflow engine
 - Reference implementations for Bicep and Terraform tracks
 - Validation scripts, MCP configuration, and sample agent outputs
+- `apex-recall` CLI for progressive session recall across agent-output projects
 - Source content for the published documentation site
 
 ## License

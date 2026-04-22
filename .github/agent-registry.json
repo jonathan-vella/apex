@@ -1,14 +1,12 @@
 {
-  "$schema": "agent-registry-v1",
-  "description": "Machine-readable registry mapping agent roles to their definitions, models, and required skills",
-  "_reconciliation": "The 'skills' array lists ALL skills an agent uses (primary + secondary). For tier classification (primary/secondary/now), see skill-affinity.json. Both files use different key naming: registry uses role slugs (e.g. 'iac-plan'), affinity uses display names (e.g. '05-IaC Planner'). The validate:skill-affinity and validate:agent-registry scripts MUST catch mismatches between these two files.",
+  "$schema": "../schemas/agent-registry.schema.json",
+  "description": "Machine-readable registry mapping agent roles to their definitions, models, and skills. Each entry has two skill fields: `skills` lists skills the agent explicitly reads at runtime (via `Read .github/skills/{name}/...`); `capability_skills` lists skills the agent is authorized to invoke but that activate via description-keyword auto-triggering rather than explicit reads (e.g., `microsoft-docs`, `github-operations`, `azure-validate`). `capability_skills` is optional and omitted when empty. A skill must not appear in both fields for the same entry.",
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
       "model": "Claude Opus 4.6",
       "skills": [
         "golden-principles",
-        "session-resume",
         "azure-defaults",
         "azure-artifacts",
         "workflow-engine"
@@ -21,7 +19,6 @@
       "model": "Claude Sonnet 4.6",
       "skills": [
         "golden-principles",
-        "session-resume",
         "azure-defaults",
         "azure-artifacts"
       ],
@@ -31,7 +28,10 @@
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
       "model": "Claude Opus 4.6",
-      "skills": ["azure-defaults", "azure-artifacts", "session-resume"],
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts"
+      ],
       "invokable": true,
       "step": 1
     },
@@ -41,10 +41,11 @@
       "skills": [
         "azure-defaults",
         "azure-artifacts",
-        "drawio",
         "python-diagrams",
-        "context-shredding",
-        "session-resume",
+        "context-shredding"
+      ],
+      "capability_skills": [
+        "drawio",
         "microsoft-docs"
       ],
       "invokable": true,
@@ -54,22 +55,26 @@
       "agent": ".github/agents/04-design.agent.md",
       "model": "Claude Sonnet 4.6",
       "skills": [
+        "azure-defaults",
         "drawio",
-        "python-diagrams",
         "azure-adr",
-        "azure-artifacts",
-        "session-resume"
+        "azure-artifacts"
+      ],
+      "capability_skills": [
+        "python-diagrams"
       ],
       "invokable": true,
       "step": 3
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [
         "azure-defaults",
-        "azure-artifacts",
-        "session-resume",
+        "azure-governance-discovery",
+        "azure-artifacts"
+      ],
+      "capability_skills": [
         "microsoft-docs"
       ],
       "invokable": true,
@@ -83,9 +88,11 @@
         "azure-artifacts",
         "azure-bicep-patterns",
         "terraform-patterns",
+        "python-diagrams"
+      ],
+      "capability_skills": [
         "terraform-test",
         "terraform-search-import",
-        "session-resume",
         "microsoft-docs",
         "microsoft-code-reference"
       ],
@@ -100,8 +107,10 @@
           "azure-defaults",
           "azure-artifacts",
           "azure-bicep-patterns",
-          "context-shredding",
-          "session-resume",
+          "iac-common",
+          "context-shredding"
+        ],
+        "capability_skills": [
           "microsoft-docs",
           "microsoft-code-reference"
         ]
@@ -113,10 +122,12 @@
           "azure-defaults",
           "azure-artifacts",
           "terraform-patterns",
+          "iac-common",
+          "context-shredding"
+        ],
+        "capability_skills": [
           "terraform-test",
           "terraform-search-import",
-          "context-shredding",
-          "session-resume",
           "microsoft-docs",
           "microsoft-code-reference"
         ]
@@ -131,11 +142,12 @@
         "skills": [
           "azure-defaults",
           "azure-artifacts",
+          "iac-common"
+        ],
+        "capability_skills": [
           "azure-validate",
           "azure-deploy",
-          "iac-common",
-          "github-operations",
-          "session-resume"
+          "github-operations"
         ]
       },
       "terraform": {
@@ -144,12 +156,13 @@
         "skills": [
           "azure-defaults",
           "azure-artifacts",
+          "iac-common"
+        ],
+        "capability_skills": [
           "azure-validate",
           "azure-deploy",
-          "iac-common",
           "terraform-patterns",
-          "github-operations",
-          "session-resume"
+          "github-operations"
         ]
       },
       "invokable": true,
@@ -163,9 +176,10 @@
         "azure-artifacts",
         "drawio",
         "python-diagrams",
+        "context-shredding"
+      ],
+      "capability_skills": [
         "azure-cost-optimization",
-        "context-shredding",
-        "session-resume",
         "microsoft-docs"
       ],
       "invokable": true,
@@ -176,7 +190,9 @@
       "model": "Claude Opus 4.6",
       "skills": [
         "azure-diagnostics",
-        "azure-defaults",
+        "azure-defaults"
+      ],
+      "capability_skills": [
         "microsoft-docs",
         "microsoft-code-reference"
       ],
@@ -185,7 +201,7 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": true,
       "step": null
@@ -193,7 +209,10 @@
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
       "model": "Claude Opus 4.6",
-      "skills": ["context-optimizer"],
+      "skills": [
+        "golden-principles",
+        "context-optimizer"
+      ],
       "invokable": true,
       "step": null
     },
@@ -201,9 +220,11 @@
       "agent": ".github/agents/e2e-orchestrator.agent.md",
       "model": "Claude Opus 4.6",
       "skills": [
-        "session-resume",
+        "azure-defaults",
+        "azure-artifacts"
+      ],
+      "capability_skills": [
         "workflow-engine",
-        "azure-artifacts",
         "context-shredding"
       ],
       "invokable": false,
@@ -213,26 +234,32 @@
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "GPT-5.4",
-      "skills": [],
+      "model": "Claude Sonnet 4.6",
+      "skills": [
+        "golden-principles",
+        "azure-defaults"
+      ],
       "invokable": false
     },
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "model": "GPT-5.3-Codex",
-      "skills": ["azure-defaults"],
-      "invokable": false
-    },
-    "governance-discovery-subagent": {
-      "agent": ".github/agents/_subagents/governance-discovery-subagent.agent.md",
-      "model": "GPT-5.4",
-      "skills": ["azure-defaults"],
+      "skills": [
+        "azure-defaults",
+        "azure-artifacts"
+      ],
       "invokable": false
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
       "model": "GPT-5.4",
-      "skills": ["azure-bicep-patterns"],
+      "skills": [
+        "azure-defaults",
+        "iac-common"
+      ],
+      "capability_skills": [
+        "azure-bicep-patterns"
+      ],
       "invokable": false
     },
     "bicep-whatif-subagent": {
@@ -244,7 +271,14 @@
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
       "model": "GPT-5.4",
-      "skills": ["terraform-patterns", "terraform-test"],
+      "skills": [
+        "azure-defaults",
+        "iac-common"
+      ],
+      "capability_skills": [
+        "terraform-patterns",
+        "terraform-test"
+      ],
       "invokable": false
     },
     "terraform-plan-subagent": {

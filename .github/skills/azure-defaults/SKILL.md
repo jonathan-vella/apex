@@ -139,6 +139,20 @@ For the full Bicep + Terraform AVM module registry, read
 
 ---
 
+## Gotchas
+
+- **Tag casing is case-sensitive** — Use PascalCase exactly: `Environment`,
+  `ManagedBy`, `Project`, `Owner`. Never emit both `owner` and `Owner` in the
+  same template — Azure Policy treats case-variant keys as ambiguous →
+  `AmbiguousPolicyEvaluationPaths` error.
+- **Never recommend deprecated services for greenfield** — Azure AD B2C
+  (retired May 2025), CDN WAF classic, App Gateway v1, etc. Check the
+  Deprecated Services list in Quick Reference.
+- **AVM-first is non-negotiable** — NEVER write raw Bicep/Terraform for a
+  resource that has an AVM module available.
+
+---
+
 ## Reference Index
 
 Load these on demand — do NOT read all at once:

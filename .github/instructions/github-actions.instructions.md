@@ -36,15 +36,15 @@ For general GitHub Actions best practices, rely on
 - Pin to **major version tags** (e.g., `@v6`), not `@main` or `@latest`
 - Use current versions:
 
-| Action                              | Version |
-| ----------------------------------- | ------- |
-| `actions/checkout`                  | `@v6`   |
-| `actions/setup-node`                | `@v6`   |
-| `actions/upload-artifact`           | `@v4`   |
-| `actions/download-artifact`         | `@v4`   |
-| `actions/cache`                     | `@v4`   |
-| `actions/github-script`             | `@v8`   |
-| `peter-evans/create-pull-request`   | `@v8`   |
+| Action                            | Version |
+| --------------------------------- | ------- |
+| `actions/checkout`                | `@v6`   |
+| `actions/setup-node`              | `@v6`   |
+| `actions/upload-artifact`         | `@v4`   |
+| `actions/download-artifact`       | `@v4`   |
+| `actions/cache`                   | `@v4`   |
+| `actions/github-script`           | `@v8`   |
+| `peter-evans/create-pull-request` | `@v8`   |
 
 ### Naming and Structure
 
@@ -66,14 +66,13 @@ concurrency:
 
 ## Existing Workflows
 
-| Workflow                        | Purpose                                           | Trigger                     |
-| ------------------------------- | ------------------------------------------------- | --------------------------- |
-| `ci.yml`                        | Required PR check: lint + all Node.js validators  | PR + push to main/feature   |
-| `link-check.yml`                | Broken link detection in site docs                | Changes to site/ + weekly   |
-| `docs.yml`                      | Astro Starlight site deployment to Pages          | Push to main (site/)        |
-| `weekly-maintenance.yml`        | AVM version audit + docs freshness checks         | Weekly (Mon 07:00) + manual |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring                      | Weekly (Mon 06:00) + manual |
-| `excalidraw-svg-export.yml`     | REMOVED — Draw.io is now the default diagram tool | —                           |
+| Workflow                        | Purpose                                          | Trigger                     |
+| ------------------------------- | ------------------------------------------------ | --------------------------- |
+| `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature   |
+| `link-check.yml`                | Broken link detection in site docs               | Changes to site/ + weekly   |
+| `docs.yml`                      | Astro Starlight site deployment to Pages         | Push to main (site/)        |
+| `weekly-maintenance.yml`        | AVM version audit + docs freshness checks        | Weekly (Mon 07:00) + manual |
+| `azure-deprecation-tracker.yml` | Azure deprecation monitoring                     | Weekly (Mon 06:00) + manual |
 
 ## Validation Scripts
 

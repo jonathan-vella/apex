@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/lesson-log.schema.json",
+  "title": "APEX Lessons Learned Log",
+  "description": "Shape of agent-output/{project}/09-lessons-learned.json produced by the Orchestrator at workflow completion. Captures process observations for retrospective analysis.",
+  "type": "object",
+  "required": ["workflow_mode", "project", "lessons"],
+  "additionalProperties": true,
+  "properties": {
+    "workflow_mode": {
+      "type": "string",
+      "enum": ["production", "e2e"],
+      "description": "Distinguishes production runs from E2E test runs."
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project folder name."
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "step",
+          "category",
+          "severity",
+          "title",
+          "observation",
+          "root_cause",
+          "recommendation",
+          "applies_to",
+          "applies_to_paths",
+          "status"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^LL-[0-9]{3}$",
+            "description": "Sequential ID within the run (LL-001, LL-002, ...)."
+          },
+          "step": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7,
+            "description": "Workflow step where the issue occurred."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "agent-behavior",
+              "skill-gap",
+              "prompt-quality",
+              "validation-gap",
+              "workflow-design",
+              "context-budget",
+              "artifact-quality",
+              "factual-accuracy",
+              "deployment-failure"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Short one-line description."
+          },
+          "observation": {
+            "type": "string",
+            "description": "What happened (factual)."
+          },
+          "expected": {
+            "type": "string",
+            "description": "What should have happened."
+          },
+          "root_cause": {
+            "type": "string",
+            "description": "Why it happened (analysis)."
+          },
+          "self_corrected": {
+            "type": "boolean",
+            "description": "Whether the issue was auto-fixed."
+          },
+          "iterations_to_fix": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many retries to resolve (0 if not fixed)."
+          },
+          "recommendation": {
+            "type": "string",
+            "description": "Actionable fix with file paths."
+          },
+          "applies_to": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Agent or skill names affected."
+          },
+          "applies_to_paths": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "File paths to change."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["new", "resolved", "deferred"]
+          },
+          "azure_error_codes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Azure RP error codes (deployment failures)."
+          },
+          "failed_deployments": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Deployment names that failed."
+          }
+        }
+      }
+    }
+  }
+}

@@ -21,7 +21,8 @@ artifacts before IaC planning begins.
    `04-governance-constraints.md`.
 5. Read the template:
    `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`.
-6. Invoke the `governance-discovery-subagent` to query Azure Policy REST API (including
+6. Invoke `.github/skills/azure-governance-discovery/scripts/discover.py` via
+   `run_in_terminal` to query Azure Policy REST API (including
    management group-inherited policies) for the target subscription.
 7. Classify each discovered policy by effect: `Deny`, `Audit`, `Modify`, `DeployIfNotExists`,
    `Append`, `Disabled`.

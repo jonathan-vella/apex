@@ -199,7 +199,7 @@ export default defineConfig({
           ],
         },
         {
-          label: "Demo: Nordic Fresh Foods",
+          label: "Demo: Il-Pastizzeria ta' Mario",
           collapsed: true,
           badge: { text: "New", variant: "tip" },
           items: demoSidebarItems,

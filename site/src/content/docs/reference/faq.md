@@ -39,7 +39,9 @@ the latest Claude Opus model.
 
     Model versions evolve — check agent frontmatter for current selections.
 
-    You need an active **GitHub Copilot** license (Individual, Business, or Enterprise).
+    APEX requires either a **Copilot Business** or **Copilot Enterprise** license
+    (other SKUs do not include the required functionality).
+    See [GitHub Copilot plans](https://github.com/features/copilot/plans) for details.
 
 :::note[Do I need an Azure subscription?]
 **For learning**: No. You can run the full workflow through Steps 1-5 (requirements,
@@ -128,12 +130,12 @@ To create a new agent:
     that agents load on demand. See the [Workflow](../concepts/workflow/) page for details.
 
 :::note[How do I resume a failed or interrupted workflow?]
-The Orchestrator supports session resume via the `session-resume` skill. To resume:
+The Orchestrator supports session resume via the `apex-recall` CLI. To resume:
 :::
 
     1. Open Copilot Chat and select **Orchestrator**
     2. Say: *"Resume the workflow from where we left off. Check agent-output/{project}/ for existing artifacts."*
-    3. The Orchestrator reads `00-session-state.json` and existing artifacts to determine
+    3. The Orchestrator runs `apex-recall show <project> --json` and uses existing artifacts to determine
        which steps are complete, then continues from the next pending step.
 
     See the [Quickstart](../../getting-started/quickstart/) for the full getting-started flow.

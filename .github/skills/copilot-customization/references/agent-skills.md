@@ -141,7 +141,7 @@ See `.github/skills/` for the full catalog and `.github/count-manifest.json` for
 | SKILL.md body > 500 lines           | Move content to `references/` directory                                     |
 | Putting scripts in `references/`    | Scripts go in `scripts/`; `references/` is for documentation                |
 | Vague description                   | Include WHAT, WHEN, and trigger keywords                                    |
-| Loading all skills upfront          | Use skill-affinity.json to control which agents load which skills           |
+| Loading all skills upfront          | Only load skills referenced in the agent body's "Read Skills" section       |
 
 ## Enforcement Rules
 

@@ -2,11 +2,17 @@
 
 # Version Information
 
-**Current Version:** 0.10.0
+**Current Version:** 0.10.0 (pre-release)
 
-**Last Updated:** 2026-03-15
+**Status:** Unreleased — development in progress on `main`
 
-**Build:** bosun-inspired-enhancements
+**Last Content Update:** 2026-03-15
+
+**Build:** quality-improvements
+
+> Consumers tracking stable releases should pin to the most recent tag in
+> [GitHub Releases](https://github.com/jonathan-vella/azure-agentic-infraops/releases)
+> rather than the `Current Version` above.
 
 ## Version History
 

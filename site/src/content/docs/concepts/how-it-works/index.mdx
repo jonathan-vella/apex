@@ -125,72 +125,6 @@ Engineering approach runs recurring agents that scan for deviations and open tar
 refactoring pull requests. This project implements a quarterly context audit checklist
 and weekly documentation freshness checks.
 
-### Bosun (VirtEngine)
-
-[Bosun](https://github.com/virtengine/bosun) is an open-source, production-grade control
-plane for autonomous software engineering. Originally named OpenFleet, Bosun routes work
-across multiple AI executors (Codex, Copilot, Claude, OpenCode), automates retries and
-failover, manages PR lifecycles, and provides operator control through a Telegram Mini App
-dashboard. Key concepts adopted from Bosun:
-
-:::note[What are `.mjs` files?]
-Files ending in `.mjs` are **ECMAScript Modules** — JavaScript files that use the
-modern `import`/`export` syntax (as opposed to `.cjs` which uses `require()`).
-Bosun's codebase is written as Node.js ESM modules. References like
-`shared-state-manager.mjs` point to specific source files in the Bosun repository.
-:::
-
-**Distributed shared state with claim-based locking.** Bosun's `shared-state-manager.mjs`
-implements heartbeat-based liveness detection and claim tokens to prevent concurrent agents
-from double-writing the same task. This project originally adapted this pattern in schema
-v2.0 but simplified to serial-only state tracking in v3.0 (VS Code Copilot executes agents
-serially, making concurrent locking unnecessary).
-
-**Workflow engine as a DAG.** Bosun's `workflow-engine.mjs` and `workflow-nodes.mjs`
-define workflow execution as a directed acyclic graph with typed nodes, conditional edges,
-and fan-out patterns. This project's `workflow-graph.json` encodes the multi-step pipeline
-as a machine-readable DAG with `agent-step`, `gate`, `subagent-fan-out`, and `validation`
-node types.
-
-:::tip[What is a DAG?]
-A **DAG (Directed Acyclic Graph)** is a graph where edges have a direction and there
-are no cycles — meaning you can never follow the arrows back to where you started.
-In workflow engines, a DAG models task dependencies: each step points to the steps
-that must come after it, guaranteeing a clear execution order with no infinite loops.
-:::
-
-**Context shredding.** Bosun's `context-shredding-config.mjs` implements tiered context
-compression to manage token budgets across long-running sessions. This project's
-`context-shredding` skill defines three compression tiers (`full`, `summarized`, `minimal`)
-with per-artifact compression templates. Note: the pre-built skill file variants
-(`SKILL.digest.md`, `SKILL.minimal.md`) and hardcoded compaction checkpoints in agent
-bodies work reliably; the dynamic tier selection based on LLM self-estimated context
-percentage is best-effort (see [Context Compression](workflow-engine/#context-compression)
-for details on current limitations).
-
-**Circuit breaker and anomaly detection.** Bosun's `anomaly-detector.mjs` and
-`error-detector.mjs` detect stalled loops and repeated failures, triggering escalation.
-This project's circuit breaker pattern (in `iac-common/references/circuit-breaker.md`)
-defines a failure taxonomy, detection thresholds, and mandatory stopping rules.
-
-**Smart PR lifecycle.** Bosun auto-labels PRs with `bosun-needs-fix` when CI fails
-and merges passing PRs through a watchdog with a mandatory review gate. This project's
-Smart PR Flow adapts the same pattern with `infraops-ci-pass` / `infraops-needs-fix` labels
-and deploy agent integration.
-
-**Diff-based pre-push hooks.** Bosun's `.githooks/` directory implements targeted
-validation that only runs checks for changed file domains. This project's `pre-push` hook
-in `lefthook.yml` categorises changed files and runs only matching validators in parallel.
-
-**Built-in tools catalog with skill affinity.** Bosun's `agent-custom-tools.mjs` includes
-a `BUILTIN_TOOLS` catalog that maps which tools and skills each agent profile needs.
-This project's `skill-affinity.json` maps each agent to skills with affinity weights
-(`primary`, `secondary`, `never`).
-
-**Agent prompts registry.** Bosun's `agent-prompts.mjs` provides a machine-readable
-registry of agent configurations. This project's `agent-registry.json` maps each agent
-role to its definition file, default model, and required skills.
-
 ### Ralph (Snarktank)
 
 [Ralph](https://github.com/snarktank/ralph) is an autonomous AI agent loop
@@ -203,7 +137,7 @@ from Ralph:
 **Fresh-context iteration model.** Each Ralph iteration spawns a brand-new
 AI instance with zero carry-over context. The only memory between iterations
 is git history, a `progress.txt` append-only learning log, and a `prd.json`
-task list. This project adopts the same philosophy through its session-resume
+task list. This project adopts the same philosophy through its `apex-recall` CLI
 skill: each agent step is stateless, and all memory persists through versioned
 artefact files in `agent-output/{project}/` and the machine-readable
 `00-session-state.json`.
@@ -238,36 +172,32 @@ conditions: each step transition requires either human approval or automated
 validation pass, and the Orchestrator agent tracks completion state in the
 session state file.
 
-### How This Project Synthesises All Three
+### How This Project Synthesises Both
 
 Harness Engineering provides the **philosophy**: treat the repository as the single source
 of truth, encode human taste into mechanical rules, enforce invariants rather than
 implementations, and manage context as a scarce resource.
 
-Bosun provides the **engineering patterns**: distributed state with claims, DAG-based
-workflow execution, complexity routing, context compression, circuit breakers, and PR
-automation.
-
 Ralph provides the **execution model**: stateless iteration loops, right-sized task
 decomposition, append-only learning, mandatory feedback loops, and deterministic
 stop conditions.
 
-This project weaves all three into a system purpose-built for Azure infrastructure:
+This project weaves both into a system purpose-built for Azure infrastructure:
 
-| Concern                | Harness Engineering Principle        | Bosun Pattern                       | Ralph Pattern                    | This Project                                                  |
-| ---------------------- | ------------------------------------ | ----------------------------------- | -------------------------------- | ------------------------------------------------------------- |
-| Knowledge management   | Repo is system of record             | Shared knowledge base               | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
-| Context management     | Map, not manual                      | Context shredding                   | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
-| Quality enforcement    | Mechanical enforcement of invariants | Pre-push hooks + anomaly detection  | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
-| Workflow orchestration | Structured step progression          | Workflow engine DAG                 | Bash loop + `prd.json` task list | `workflow-graph.json` + Orchestrator agent                    |
-| Concurrency safety     | —                                    | Claim-based locking                 | Single-instance sequential loop  | Serial execution (v3.0 — lock/claim removed)                  |
-| Task decomposition     | —                                    | —                                   | One context window per story     | One artefact per workflow step                                |
-| Cost optimisation      | —                                    | —                                   | —                                | Model tier selection via Orchestrator                         |
-| Failure resilience     | —                                    | Circuit breaker + anomaly detection | CI-gated iteration               | Failure taxonomy + stopping rules                             |
-| Learning persistence   | Human taste gets encoded             | —                                   | Append-only `progress.txt`       | Skills + instructions evolve over time                        |
-| Human control          | Human taste gets encoded             | Mandatory review gates              | Max iterations cap               | 5 approval gates + challenger reviews                         |
-| Cost governance        | Enforce invariants, not impls        | —                                   | —                                | `iac-best-practices.instructions.md` + adversarial checklists |
-| Context efficiency     | Context is scarce                    | Context shredding                   | Fresh context per iteration      | Session Break Protocol at Gates 2 & 3 + conditional pass 3    |
+| Concern                | Harness Engineering Principle        | Ralph Pattern                    | This Project                                                  |
+| ---------------------- | ------------------------------------ | -------------------------------- | ------------------------------------------------------------- |
+| Knowledge management   | Repo is system of record             | `AGENTS.md` + `progress.txt`     | Skills + instructions + `agent-output/`                       |
+| Context management     | Map, not manual                      | Fresh context per iteration      | Progressive skill loading + 3-tier compression                |
+| Quality enforcement    | Mechanical enforcement of invariants | Mandatory CI feedback loops      | Validators + pre-commit/push hooks + Copilot hooks            |
+| Workflow orchestration | Structured step progression          | Bash loop + `prd.json` task list | `workflow-graph.json` + Orchestrator agent                    |
+| Concurrency safety     | —                                    | Single-instance sequential loop  | Serial execution (v3.0 — lock/claim removed)                  |
+| Task decomposition     | —                                    | One context window per story     | One artefact per workflow step                                |
+| Cost optimisation      | —                                    | —                                | Model tier selection via Orchestrator                         |
+| Failure resilience     | —                                    | CI-gated iteration               | Failure taxonomy + stopping rules                             |
+| Learning persistence   | Human taste gets encoded             | Append-only `progress.txt`       | Skills + instructions evolve over time                        |
+| Human control          | Human taste gets encoded             | Max iterations cap               | 5 approval gates + challenger reviews                         |
+| Cost governance        | Enforce invariants, not impls        | —                                | `iac-best-practices.instructions.md` + adversarial checklists |
+| Context efficiency     | Context is scarce                    | Fresh context per iteration      | Session Break Protocol at Gates 2 & 3 + conditional pass 3    |
 
 ## Golden Principles
 
@@ -287,7 +217,6 @@ The system operates under 10 principles adapted from the Harness Engineering phi
 ## References
 
 - **Harness Engineering** — OpenAI's account of building a product with zero manually-written code. [Read on openai.com](https://openai.com/index/harness-engineering/)
-- **Bosun** — Open-source control plane for autonomous software engineering. [View on GitHub](https://github.com/virtengine/bosun)
 - **Ralph** — Autonomous AI agent loop based on Geoffrey Huntley's Ralph pattern. [View on GitHub](https://github.com/snarktank/ralph)
 - **Azure Well-Architected Framework** — [learn.microsoft.com](https://learn.microsoft.com/azure/well-architected/)
 - **Azure Verified Modules** — [aka.ms/AVM](https://aka.ms/AVM)

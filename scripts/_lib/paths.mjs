@@ -13,7 +13,6 @@ export const AGENT_OUTPUT_DIR = "agent-output";
 export const PROMPTS_DIR = ".github/prompts";
 
 export const REGISTRY_PATH = ".github/agent-registry.json";
-export const AFFINITY_PATH = ".github/skill-affinity.json";
 export const COPILOT_INSTRUCTIONS = ".github/copilot-instructions.md";
 
 export const MAX_BODY_LINES = 500;

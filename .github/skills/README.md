@@ -20,13 +20,12 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ### Category 2: Document Creation
 
-| Skill             | Description                                              | Triggers                                  |
-| ----------------- | -------------------------------------------------------- | ----------------------------------------- |
-| `excalidraw`      | Hand-drawn whiteboarding, brainstorming, wireframes      | "whiteboard", "brainstorm", "sketch"      |
-| `python-diagrams` | WAF/cost/compliance charts and Python diagrams           | "WAF chart", "cost chart", "create chart" |
-| `mermaid`         | Inline Mermaid diagrams for markdown                     | "mermaid diagram", "flowchart"            |
-| `drawio`          | Draw.io diagrams with Azure icon libraries               | "draw.io diagram"                         |
-| `azure-adr`       | Create Architecture Decision Records with WAF mapping    | "create ADR", "document decision"         |
+| Skill             | Description                                           | Triggers                                  |
+| ----------------- | ----------------------------------------------------- | ----------------------------------------- |
+| `python-diagrams` | WAF/cost/compliance charts and Python diagrams        | "WAF chart", "cost chart", "create chart" |
+| `mermaid`         | Inline Mermaid diagrams for markdown                  | "mermaid diagram", "flowchart"            |
+| `drawio`          | Draw.io diagrams with Azure icon libraries            | "draw.io diagram"                         |
+| `azure-adr`       | Create Architecture Decision Records with WAF mapping | "create ADR", "document decision"         |
 
 ### Category 3: Workflow & Tool Integration
 

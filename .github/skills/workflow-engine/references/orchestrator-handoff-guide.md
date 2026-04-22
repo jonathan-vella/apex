@@ -181,7 +181,7 @@ producing low-quality artifacts with fabricated defaults.
 For the full subagent matrix, read `.github/skills/workflow-engine/references/subagent-integration.md`.
 Key points: Challenger runs 1-pass comprehensive review by default at Steps 1, 2, 4, 5, 6;
 multi-pass rotating lens reviews are opt-in for complex projects; cost-estimate-subagent handles pricing
-at Steps 2 and 7; governance-discovery-subagent runs at Step 3.5 (Governance agent).
+at Steps 2 and 7; the `azure-governance-discovery` skill runs at Step 3.5 (Governance agent).
 
 **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
 `cost-estimate-subagent` (Codex + Azure Pricing MCP). Never write dollar

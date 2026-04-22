@@ -130,12 +130,12 @@ See `.github/instructions/agent-authoring.instructions.md` for the entry schema.
 
 ## Test Projects
 
-| Project                     | IaC Tool  | Complexity | Description                         |
-| --------------------------- | --------- | ---------- | ----------------------------------- |
-| `e2e-ralph-loop`            | Bicep     | Simple     | Nordic Fresh Foods Lite (canonical) |
-| `terraform-e2e`             | Terraform | Simple     | Small ecommerce storefront          |
-| `contoso-service-hub-run-1` | Bicep     | Complex    | Contoso Service Hub (RFP-driven)    |
-| `contoso-service-hub-run-2` | Bicep     | Complex    | Contoso Service Hub (second run)    |
+| Project                     | IaC Tool  | Complexity | Description                      |
+| --------------------------- | --------- | ---------- | -------------------------------- |
+| `e2e-ralph-loop`            | Bicep     | Simple     | Canonical E2E test (simple)      |
+| `terraform-e2e`             | Terraform | Simple     | Small ecommerce storefront       |
+| `contoso-service-hub-run-1` | Bicep     | Complex    | Contoso Service Hub (RFP-driven) |
+| `contoso-service-hub-run-2` | Bicep     | Complex    | Contoso Service Hub (second run) |
 
 ## Troubleshooting
 
@@ -153,3 +153,9 @@ The validator runs this automatically, but network issues may cause failures.
 
 The agent may have written to the wrong output directory. Check that the project
 name in session state matches the `--project` flag.
+
+## Related
+
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/) — diagnose failed deploys

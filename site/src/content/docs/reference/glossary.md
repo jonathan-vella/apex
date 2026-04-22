@@ -26,9 +26,12 @@ Used to record "why" decisions were made for future reference.
 
 ### Agent (Custom)
 
-A specialized AI assistant defined in `.github/agents/` that focuses on specific workflow steps.
-Invoked via `Ctrl+Shift+A`. This project includes top-level agents (including two Orchestrator
-variants, a Governance agent, and a Context Optimizer) plus subagents.
+A specialized AI assistant defined in `.github/agents/` that focuses on a specific
+workflow step or supporting role. Invoked via `Ctrl+Shift+A`. The catalog spans
+top-level workflow agents (Orchestrator plus the Requirements → As-Built chain),
+cross-cutting agents (Governance, Context Optimizer, Diagnose, Challenger), and
+non-user-invocable subagents under `.github/agents/_subagents/`. The authoritative
+inventory lives in `.github/agent-registry.json` and `count-manifest.json`.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 
@@ -36,6 +39,15 @@ variants, a Governance agent, and a Context Optimizer) plus subagents.
 
 The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
 Azure infrastructure. Combines GitHub Copilot with custom agents and reusable skills.
+
+### apex-recall
+
+A pip-installable Python CLI (`tools/apex-recall/`) that indexes `agent-output/` into SQLite + FTS5
+for low-token session context recovery. Owns the full session lifecycle (read + write) via commands
+like `show`, `init`, `checkpoint`, `decide`, and `finding`. All agents use it instead of
+direct `00-session-state.json` manipulation.
+
+📁 **Source**: `tools/apex-recall/`
 
 ### AVM (Azure Verified Modules)
 
@@ -115,10 +127,6 @@ Auto-invoked by the Orchestrator after Steps 1, 2, and 4.
 
 The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Shift+I`. Supports
 custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
-
-### Orchestrator
-
-See [Orchestrator](#orchestrator).
 
 ### CLI (Command-Line Interface)
 
@@ -239,14 +247,6 @@ and "spoke" VNets contain workloads. Spokes peer with the hub for connectivity.
 
 ## I
 
-### Orchestrator
-
-The master orchestrator agent that coordinates all steps of the infrastructure workflow with
-mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
-orchestration features.
-
-📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md)
-
 ### IaC (Infrastructure as Code)
 
 Practice of managing infrastructure through code files (Bicep, Terraform, ARM) rather than manual
@@ -287,8 +287,7 @@ Learn (official documentation search and code sample discovery).
 ### MJS (ECMAScript Module)
 
 A JavaScript file using modern `import`/`export` syntax (as opposed to `.cjs` which
-uses `require()`). Bosun's codebase uses `.mjs` files. This project's validation
-scripts in `scripts/` also use the `.mjs` extension.
+uses `require()`). This project's validation scripts in `scripts/` use the `.mjs` extension.
 
 ### MTTR (Mean Time To Recovery)
 
@@ -301,6 +300,16 @@ reduces MTTR by 73-85% (see Time Savings Evidence).
 
 Azure resource that filters network traffic with allow/deny rules. Applied to subnets or NICs.
 Essential for microsegmentation and defense-in-depth.
+
+## O
+
+### Orchestrator
+
+The master orchestrator agent that coordinates all steps of the infrastructure workflow with
+mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
+orchestration features.
+
+📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md)
 
 ## P
 

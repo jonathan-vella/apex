@@ -38,6 +38,31 @@ const SCAN_DIRS = [
 const ICON_REQUIRED_PATTERN =
   /(?:^|\/)(03-des-diagram|04-dependency-diagram|04-runtime-diagram|07-ab-diagram|showcase-[^/]+)\.drawio$/;
 
+// APEX visual-quality palette (see .github/skills/drawio/references/style-reference.md).
+// Container fills on architecture deliverables should come from this set.
+// Advisory in 0.11.x, blocking in 0.12.0 when APEX_DRAWIO_RUBRIC=strict.
+const APEX_PALETTE = new Set([
+  "#e7f5ff", // compute
+  "#fff2cc", // data
+  "#ffe6e6", // security
+  "#e6f5e6", // networking
+  "#f5f5f5", // governance/ops
+  // Stock draw.io palette fills allowed for non-container shapes:
+  "#dae8fc",
+  "#d5e8d4",
+  "#f8cecc",
+  "#e1d5e7",
+  "#ffe6cc",
+  "none",
+  "default",
+  "#ffffff",
+  "#fff",
+]);
+
+const RUBRIC_MODE = (
+  process.env.APEX_DRAWIO_RUBRIC || "advisory"
+).toLowerCase();
+
 // Error/warning counters — synced to Reporter at summary time.
 let errors = 0;
 let warnings = 0;
@@ -486,6 +511,34 @@ async function validateDrawioFile(filePath) {
         `❌ ${filePath}: Architecture deliverable has no embedded Azure icons (image cells)`,
       );
       errors++;
+    }
+
+    // APEX visual-quality rubric: palette-drift advisory.
+    // Collect fillColor values from content cells and flag any that fall
+    // outside the approved palette. Advisory-only until 0.12.0 unless
+    // APEX_DRAWIO_RUBRIC=strict.
+    const offenders = new Set();
+    for (const diagram of diagrams) {
+      const root = diagram.mxGraphModel?.root;
+      if (!root) continue;
+      const cells = extractCells(root);
+      for (const cell of cells) {
+        const style = cell["@_style"] || "";
+        const match = style.match(/fillColor=([^;]+)/i);
+        if (!match) continue;
+        const color = match[1].trim().toLowerCase();
+        if (!APEX_PALETTE.has(color)) offenders.add(color);
+      }
+    }
+    if (offenders.size > 0) {
+      const msg = `APEX palette drift on architecture deliverable — unexpected fillColor(s): ${[...offenders].join(", ")} (see .github/skills/drawio/references/style-reference.md)`;
+      if (RUBRIC_MODE === "strict") {
+        console.error(`❌ ${filePath}: ${msg}`);
+        errors++;
+      } else {
+        console.warn(`⚠️  ${filePath}: ${msg}`);
+        warnings++;
+      }
     }
   }
 

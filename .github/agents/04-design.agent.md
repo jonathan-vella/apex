@@ -78,7 +78,7 @@ Expected output in `agent-output/{project}/`:
 - `03-des-diagram.drawio` — Architecture diagram (Draw.io format)
 - `03-des-adr-NNNN-{title}.md` — Architecture Decision Records
 - `03-des-cost-estimate.md` — Cost estimate handoff (optional)
-</output_contract>
+  </output_contract>
 
 ## Scope
 
@@ -112,7 +112,9 @@ do NOT load them at startup.
 - Use `shape_name` in `add-cells` for Azure icons — never specify width/height/style for shaped vertices
 - Save exported diagrams via terminal command, not LLM read-back
 - Save diagrams to `agent-output/{project}/03-des-diagram.drawio`
-- Regenerate poor diagrams from a clean base layout instead of incrementally patching a broken file
+- Regenerate poor diagrams from a clean base layout instead of incrementally patching a broken file.
+  **This is faster than iterative fixes** — if a diagram needs more than 2 post-save
+  adjustments, `clear-diagram` and rebuild from scratch.
 - Prefer the enterprise reference-architecture visual style:
   left-to-right flow, cross-cutting services at bottom (no edges), orthogonal routing
 - Prefer fewer, larger service tiles over many small cards so the result stays readable
@@ -184,6 +186,9 @@ to a temp file between steps via terminal command to avoid inflating context.
    - Use `shape_name` for Azure icons (e.g., `"Front Doors"`, `"Key Vaults"`)
    - Do NOT specify `width`, `height`, or `style` for shaped vertices
    - Use `temp_id` on vertices for edge cross-references
+   - **Target edges at icon vertices** (via `temp_id`), never at group cell IDs
+     (`cell-2`, `cell-3`, etc.) — edges to groups cause the router to draw
+     through every intervening group boundary
    - List vertices before edges in the array
    - Target edges at specific vertices (not groups) when possible
    - Cross-cutting services at bottom (120px below main flow, no edges)
@@ -215,7 +220,13 @@ to a temp file between steps via terminal command to avoid inflating context.
    python3 scripts/save-drawio.py '<json-path>' 'agent-output/{project}/03-des-diagram.drawio'
    ```
 
-8. **Validate** — Run `node scripts/validate-drawio-files.mjs` to confirm.
+8. **Post-save cleanup** — Run the bundled cleanup script:
+
+   ```bash
+   python3 .github/skills/drawio/scripts/cleanup-drawio.py 'agent-output/{project}/03-des-diagram.drawio'
+   ```
+
+9. **Validate** — Run `node scripts/validate-drawio-files.mjs` to confirm.
 
 - Leaving service labels left-aligned or inconsistent across peer boxes
 - Leaving stray vector/icon elements outside the intended diagram layout
@@ -226,17 +237,16 @@ to a temp file between steps via terminal command to avoid inflating context.
 Before starting, validate `02-architecture-assessment.md` exists in `agent-output/{project}/`.
 If missing, STOP and request handoff to Architect agent.
 
-## Session State Protocol
+## Session State
 
-**Read** `.github/skills/session-resume/SKILL.digest.md` for the full protocol.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
 
-- **Context budget**: 2 files at startup (`00-session-state.json` + `02-architecture-assessment.md`)
+- **Context budget**: Read `02-architecture-assessment.md` at startup
 - **My step**: 3
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_diagram` → `phase_3_adr` → `phase_4_artifact`
-- **Resume detection**: Read `00-session-state.json` BEFORE reading skills. If `steps.3.status`
-  is `"in_progress"` with a `sub_step`, skip to that checkpoint.
-- **State writes**: Update `00-session-state.json` after each phase. On completion, set
-  `steps.3.status = "complete"` and list all `03-des-*` artifacts.
+- **Resume**: Use the `apex-recall show` output to detect resume point from `sub_step`.
+- **Checkpoints**: `apex-recall checkpoint <project> 3 <phase_name> --json`
+- **On completion**: `apex-recall complete-step <project> 3 --json`
 
 ## Context Management
 
@@ -281,13 +291,14 @@ generate each diagram as a separate phase with a context checkpoint between them
 7. Use `add-cells-to-group` for all group assignments in one call
 8. Call `finish-diagram` with compress: true
 9. Save via `python3 scripts/save-drawio.py <json-path> <output.drawio>`
-10. Validate via `node scripts/validate-drawio-files.mjs`
-11. Left-to-right flow, cross-cutting services at bottom (no edges to them)
-12. Orthogonal edges, generous spacing (120px H, 80px V minimum)
-13. Groups with text: '' and separate bold label vertex above
-14. Keep Step 3 diagrams conceptual: service names and major boundaries matter
-15. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
-16. **Context checkpoint** — summarize diagram result before next artifact
+10. Post-save cleanup: `python3 .github/skills/drawio/scripts/cleanup-drawio.py <output.drawio>`
+11. Validate via `node scripts/validate-drawio-files.mjs`
+12. Left-to-right flow, cross-cutting services at bottom (no edges to them)
+13. Orthogonal edges, generous spacing (120px H, 80px V minimum)
+14. Groups with text: '' and separate bold label vertex above
+15. Keep Step 3 diagrams conceptual: service names and major boundaries matter
+16. Quality check (>= 9/10); if below, rebuild and retry (max 2 attempts)
+17. **Context checkpoint** — summarize diagram result before next artifact
 
 ### ADR Generation
 

@@ -3,7 +3,7 @@
  * Session State JSON Validator
  *
  * Validates all 00-session-state.json files in agent-output/{project}/
- * against the schema defined in the session-resume skill.
+ * against the schema defined in schemas/session-state.schema.json.
  * Also validates the template file itself.
  *
  * @example

@@ -546,3 +546,9 @@ Or start the Orchestrator (🧠 Orchestrator) for a guided workflow:
 Ctrl+Shift+I → Orchestrator
 "Help me troubleshoot my Azure deployment"
 ```
+
+## Related
+
+- [Quickstart](../../getting-started/quickstart/) — install and run your first project
+- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
+- [Session Debugging](../session-debugging/) — inspect session state and resume

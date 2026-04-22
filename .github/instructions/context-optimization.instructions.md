@@ -99,12 +99,7 @@ usage exceeds 60% of the model limit, use the compression tier system from the
 3. Apply compression template for the specific artifact being loaded
 4. Compress older/less-critical artifacts first when loading multiple files
 
-## Skill Affinity
+## Skill Loading
 
-Before reading a skill, check `.github/skill-affinity.json`:
-
-- **Primary** skills: load at startup (always needed for this agent)
-- **Secondary** skills: load on demand when the task context requires it
-- **Never** skills: do not load (wrong domain for this agent)
-
-This prevents agents from wasting context on irrelevant skills.
+Load skills referenced in the agent body's "Read Skills" section.
+Use context-shredding tiers to select the right compression level.

@@ -65,8 +65,8 @@ jobs:
               LABEL=".github/agents/, .github/agent-registry.json"
               ;;
             skills)
-              ALLOWED='^(\.github/skills/|\.github/skill-affinity\.json)'
-              LABEL=".github/skills/, .github/skill-affinity.json"
+              ALLOWED='^(\.github/skills/)'
+              LABEL=".github/skills/"
               ;;
             infra)
               ALLOWED='^infra/'

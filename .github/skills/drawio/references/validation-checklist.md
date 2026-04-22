@@ -134,3 +134,28 @@ For files matching `03-des-|04-dependency-|04-runtime-|07-ab-`:
 - **No remote image URLs**: Icons should use `data:image/svg+xml;base64,...`
   data URIs or `img/lib/azure2/` draw.io built-in paths (not external URLs)
 - **Labels present**: Every Azure service icon should have a meaningful `value`
+
+## Visual-Quality Rubric (10 points)
+
+Status: **advisory in 0.11.x**, **blocking in 0.12.0** (see `CHANGELOG.md`).
+Award 1 point per item; ship with ≥ 8/10 or record an exemption in the ADR
+that owns the diagram. Automated checks live in
+[`scripts/validate-drawio-files.mjs`](../../../../scripts/validate-drawio-files.mjs);
+remaining items are reviewer-judged during challenger passes.
+
+| #   | Rubric item                                                                                       | Automated? | Rationale                                           |
+| --- | ------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------- |
+| 1   | **Title present** — top-of-page text 14–16pt bold, page tab matches                               | partial    | Orients readers in <5s; challenger checks match     |
+| 2   | **Footer present** — bottom-of-page 9pt with owner + revision date                                | partial    | Establishes provenance and freshness                |
+| 3   | **Legend present** — maps colors/shapes to concepts used on the page                              | manual     | Disambiguates custom palettes and container types   |
+| 4   | **Grouped by concern** — compute/data/security/networking containers                              | yes        | Reduces cognitive load; aids incremental reading    |
+| 5   | **Consistent spacing** — 40px intra-group, 80px cross-group, 120px cross-tier                     | yes        | Eliminates crowded layouts; forces cleaner routing  |
+| 6   | **Palette aligned** — compute `#E7F5FF`, data `#FFF2CC`, security `#FFE6E6`, networking `#E6F5E6` | yes        | Visual grammar consistency across project artefacts |
+| 7   | **Labels on every edge** — protocol/port or relationship verb                                     | yes        | Prevents ambiguous connections                      |
+| 8   | **Icons from canonical set** — names in `assets/drawio-libraries/azure-icons/reference.md`        | yes        | Stops drift from vendor library                     |
+| 9   | **No anchor drift** — connectors use `exitX/entryX` where shown in style reference                | yes        | Prevents lines slipping to centroid on re-open      |
+| 10  | **Cross-cutting container** — governance/identity/observability shown if in scope                 | manual     | Forces explicit security & ops coverage             |
+
+Validator behaviour: items flagged `automated: yes` are enforced; `partial` raises
+warnings only; `manual` items are surfaced in `drawio` skill checklists for
+reviewers (04-Design, 02-Architect challenger pass).

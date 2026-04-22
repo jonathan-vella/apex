@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apex-recall"
+version = "0.2.0"
+description = "Progressive session recall CLI for APEX agent-output artifacts"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = []
+
+[project.scripts]
+apex-recall = "apex_recall.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

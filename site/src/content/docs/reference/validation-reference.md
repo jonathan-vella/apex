@@ -84,12 +84,11 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 ### Artifact and Template Validators
 
-| npm Command          | Script                          | Purpose                                                                                   |
-| -------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
-| `validate:artifacts` | `validate-artifacts.mjs`        | H2 sync, template compliance, and auto-fix (with `--fix`)                                 |
-| `lint:excalidraw`    | `validate-excalidraw-files.mjs` | Validate `.excalidraw` structure for the `readme-workflow.excalidraw` whiteboarding asset |
-| `e2e:validate`       | `validate-e2e-step.mjs`         | E2E pipeline structural validation                                                        |
-| `e2e:benchmark`      | `benchmark-e2e.mjs`             | 8-dimension benchmark scoring                                                             |
+| npm Command          | Script                   | Purpose                                                   |
+| -------------------- | ------------------------ | --------------------------------------------------------- |
+| `validate:artifacts` | `validate-artifacts.mjs` | H2 sync, template compliance, and auto-fix (with `--fix`) |
+| `e2e:validate`       | `validate-e2e-step.mjs`  | E2E pipeline structural validation                        |
+| `e2e:benchmark`      | `benchmark-e2e.mjs`      | 8-dimension benchmark scoring                             |
 
 ### Governance and Compliance Validators
 
@@ -113,7 +112,6 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 | ----------------------- | ------------------------------- | ---------------------------------- |
 | `lint:glob-audit`       | `validate-glob-audit.mjs`       | Detect overly broad glob patterns  |
 | `lint:orphaned-content` | `validate-orphaned-content.mjs` | Detect unreferenced skills/content |
-| `validate:docs-sync`    | `validate-docs-sync.mjs`        | Documentation file sync checks     |
 | `lint:docs-freshness`   | `check-docs-freshness.mjs`      | Documentation staleness detection  |
 | `lint:version-sync`     | `validate-version-sync.mjs`     | Version consistency across files   |
 
@@ -153,18 +151,15 @@ All scripts are in the `scripts/` directory. Run via `npm run <command>`.
 
 All workflows are in `.github/workflows/`.
 
-| Workflow                  | File                            | Trigger                               | Purpose                                                      |
-| ------------------------- | ------------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-| Lint                      | `lint.yml`                      | PR to `main`, push to `main`          | Markdown, artifacts, H2 sync, instructions, JSON, MCP config |
-| Agent Validation          | `agent-validation.yml`          | Changes to agents/skills/instructions | Agent frontmatter, skills format, VS Code config             |
-| Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                          | Branch naming convention and scope validation                |
-| Link Check                | `link-check.yml`                | Docs changes                          | URL validity in documentation                                |
-| Docs                      | `docs.yml`                      | Docs changes                          | Build and deploy Astro Starlight site                        |
-| Docs Freshness            | `docs-freshness.yml`            | Scheduled                             | Documentation staleness detection                            |
-| E2E Validation            | `e2e-validation.yml`            | Agent output changes                  | E2E pipeline structural validation                           |
-| Policy Compliance         | `policy-compliance-check.yml`   | IaC changes                           | Azure Policy compliance checks                               |
-| AVM Version Check         | `avm-version-check.yml`         | Scheduled                             | Azure Verified Module version updates                        |
-| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                             | Track Azure service deprecations                             |
+| Workflow                  | File                            | Trigger                      | Purpose                                                                                              |
+| ------------------------- | ------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, artifacts, agents, skills, instructions, JSON, MCP, VS Code config) |
+| Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                        |
+| Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                        |
+| Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                                |
+| E2E Validation            | `e2e-validation.yml`            | Agent output changes         | E2E pipeline structural validation                                                                   |
+| Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                       |
+| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                     |
 
 ## Running Validations Locally
 

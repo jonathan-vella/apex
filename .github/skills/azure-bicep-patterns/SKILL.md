@@ -58,6 +58,19 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
 - **AVM Version Fallback**: When AVM version helpers are incomplete, query public MCR tag listings
   (`mcr.microsoft.com/v2/bicep/{module}/tags/list`) to discover authoritative published versions
 
+## Gotchas
+
+- **AVM output shapes vary across modules** — Different AVM modules expose different
+  outputs. Always check the module README before referencing outputs.
+- **Tag merging in AVM modules** — Some AVM modules merge tags internally.
+  Verify deployed tags include all required policy tags after deployment.
+- **What-If red flags** — Watch for unexpected deletes, SKU downgrades,
+  public access changes, authentication mode changes, or identity removal.
+  Always run what-if before deploy.
+- **MCR version discovery** — When AVM version helpers are incomplete,
+  query `mcr.microsoft.com/v2/bicep/{module}/tags/list` for authoritative
+  published versions.
+
 ---
 
 ## Reference Index

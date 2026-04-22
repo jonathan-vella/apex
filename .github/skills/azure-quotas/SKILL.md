@@ -173,6 +173,13 @@ Invoke this skill when:
                      or change region
 ```
 
+## Gotchas
+
+- **"No Limit" is misleading** — REST API shows `"No Limit"` or `"Unlimited"` but service-specific hard limits still apply. Usually means the resource doesn't support the quota API.
+- **REST API data is unreliable** — DO NOT use REST API or Portal as first approach. CLI (`az quota`) is the ONLY reliable method. REST API shows incomplete/cached/misleading data.
+- **No 1:1 ARM-to-quota mapping** — ARM resource type name ≠ quota resource name. Never assume. MUST discover via `az quota list` each time.
+- **CLI-first workflow is mandatory** — Try `az quota list` first → if `BadRequest` → then use docs. Never start with REST API/Portal.
+
 ## Reference Index
 
 Load these on demand — do NOT read all at once:

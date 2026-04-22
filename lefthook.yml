@@ -36,9 +36,9 @@ pre-commit:
         fi
 
     h2-sync:
-      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,scripts/validate-artifact-templates*}"
+      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,scripts/validate-artifacts*}"
       run: |
-        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifact-templates)' || true)
+        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifacts)' || true)
         if [ -n "$STAGED_SYNC" ]; then
           echo "🔄 Checking H2 heading sync across sources..."
           npm run validate:artifacts

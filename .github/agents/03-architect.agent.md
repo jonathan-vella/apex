@@ -107,10 +107,15 @@ in a single form:
 
 ## Session State
 
-Read `.github/skills/session-resume/SKILL.digest.md`. Step: 2.
-Sub-steps: `phase_1_prereqs` → `phase_2_waf` →
-`phase_2.5_compacted` → `phase_3_cost` →
-`phase_4_challenger` → `phase_5_artifact`.
+Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
+
+- **My step**: 2
+- **Sub-steps**: `phase_1_prereqs` → `phase_2_waf` →
+  `phase_2.5_compacted` → `phase_3_cost` →
+  `phase_4_challenger` → `phase_5_artifact`
+- **Checkpoints**: `apex-recall checkpoint <project> 2 <phase_name> --json`
+- **Review audit**: `apex-recall review-audit <project> 2 ... --json`
+- **On completion**: `apex-recall complete-step <project> 2 --json`
 
 ## Read Skills (After Prerequisites, Before Assessment)
 

@@ -55,15 +55,14 @@ See `.github/count-manifest.json` for canonical counts.
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent                      | File                                     | Purpose                             |
-| ----------------------------- | ---------------------------------------- | ----------------------------------- |
-| bicep-validate-subagent       | `bicep-validate-subagent.agent.md`       | Lint + AVM/security code review     |
-| bicep-whatif-subagent         | `bicep-whatif-subagent.agent.md`         | Deployment preview (what-if)        |
-| challenger-review-subagent    | `challenger-review-subagent.agent.md`    | Adversarial artifact review         |
-| cost-estimate-subagent        | `cost-estimate-subagent.agent.md`        | Azure Pricing MCP queries           |
-| governance-discovery-subagent | `governance-discovery-subagent.agent.md` | Azure Policy REST API discovery     |
-| terraform-plan-subagent       | `terraform-plan-subagent.agent.md`       | Deployment preview (terraform plan) |
-| terraform-validate-subagent   | `terraform-validate-subagent.agent.md`   | Lint + AVM-TF/security code review  |
+| Subagent                    | File                                   | Purpose                             |
+| --------------------------- | -------------------------------------- | ----------------------------------- |
+| bicep-validate-subagent     | `bicep-validate-subagent.agent.md`     | Lint + AVM/security code review     |
+| bicep-whatif-subagent       | `bicep-whatif-subagent.agent.md`       | Deployment preview (what-if)        |
+| challenger-review-subagent  | `challenger-review-subagent.agent.md`  | Adversarial artifact review         |
+| cost-estimate-subagent      | `cost-estimate-subagent.agent.md`      | Azure Pricing MCP queries           |
+| terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Deployment preview (terraform plan) |
+| terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Lint + AVM-TF/security code review  |
 
 ### Shared Knowledge (via Skills)
 
@@ -94,7 +93,6 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `azure-defaults`              | `azure-defaults/`              | Azure Conventions   | "azure defaults", "naming"                |
 | `azure-deploy`                | `azure-deploy/`                | Deployment          | "azd up", "deploy", "go live"             |
 | `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
-| `excalidraw`                  | `excalidraw/`                  | Whiteboarding       | "whiteboard", "brainstorm", "sketch"      |
 | `python-diagrams`             | `python-diagrams/`             | Document Creation   | "create chart", "WAF chart"               |
 | `mermaid`                     | `mermaid/`                     | Document Creation   | "mermaid diagram", "flowchart"            |
 | `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to drawio/python-diagrams/mermaid  |
@@ -122,7 +120,6 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `microsoft-docs`              | `microsoft-docs/`              | Documentation       | "Azure docs", "quickstart"                |
 | `microsoft-foundry`           | `microsoft-foundry/`           | AI Platform         | "Foundry agent", "deploy agent"           |
 | `microsoft-skill-creator`     | `microsoft-skill-creator/`     | Meta                | "create skill for Microsoft tech"         |
-| `session-resume`              | `session-resume/`              | Workflow            | "resume session", "checkpoint"            |
 | `terraform-patterns`          | `terraform-patterns/`          | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 | `terraform-search-import`     | `terraform-search-import/`     | IaC Import          | "import resources", "terraform import"    |
 | `terraform-test`              | `terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"           |
@@ -161,7 +158,6 @@ See `.github/count-manifest.json` for canonical counts.
 | Instruction                                    | Applies To (glob)                                               |
 | ---------------------------------------------- | --------------------------------------------------------------- |
 | `agent-authoring.instructions.md`              | `**/*.agent.md, **/*.prompt.md`                                 |
-| `agent-research-first.instructions.md`         | `**/*.agent.md`                                                 |
 | `agent-skills.instructions.md`                 | `**/.github/skills/**/SKILL.md`                                 |
 | `astro.instructions.md`                        | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
 | `azure-artifacts.instructions.md`              | `**/agent-output/**/*.md`                                       |
