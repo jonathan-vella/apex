@@ -40,6 +40,15 @@ inventory lives in `.github/agent-registry.json` and `count-manifest.json`.
 The methodology of using coordinated AI agents and skills to transform requirements into deploy-ready
 Azure infrastructure. Combines GitHub Copilot with custom agents and reusable skills.
 
+### apex-recall
+
+A pip-installable Python CLI (`tools/apex-recall/`) that indexes `agent-output/` into SQLite + FTS5
+for low-token session context recovery. Owns the full session lifecycle (read + write) via commands
+like `show`, `init`, `checkpoint`, `decide`, and `finding`. All agents use it instead of
+direct `00-session-state.json` manipulation.
+
+📁 **Source**: `tools/apex-recall/`
+
 ### AVM (Azure Verified Modules)
 
 Microsoft's official library of pre-built, tested IaC modules that follow Azure best
