@@ -33,7 +33,7 @@ subagent:
 4. Classifies effects and returns a structured report
 
 The authoritative output contract is defined in
-[`schemas/governance-constraints.schema.json`](../../schemas/governance-constraints.schema.json).
+[`tools/schemas/governance-constraints.schema.json`](../../tools/schemas/governance-constraints.schema.json).
 
 > **DO NOT** read the subagent's `.agent.md` file into the parent agent's
 > context. Doing so defeats context isolation and causes the parent to execute

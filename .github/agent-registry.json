@@ -1,5 +1,5 @@
 {
-  "$schema": "../schemas/agent-registry.schema.json",
+  "$schema": "../tools/schemas/agent-registry.schema.json",
   "description": "Machine-readable registry mapping agent roles to their definitions, models, and skills. Each entry has two skill fields: `skills` lists skills the agent explicitly reads at runtime (via `Read .github/skills/{name}/...`); `capability_skills` lists skills the agent is authorized to invoke but that activate via description-keyword auto-triggering rather than explicit reads (e.g., `microsoft-docs`, `github-operations`, `azure-validate`). `capability_skills` is optional and omitted when empty. A skill must not appear in both fields for the same entry.",
   "agents": {
     "orchestrator": {

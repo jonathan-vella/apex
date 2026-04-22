@@ -26,7 +26,7 @@ Optional: `--refresh`, `--include-defender-auto`, `--subscription <id>`.
 
 - Stdout line 1 = JSON: `{"status":"COMPLETE|PARTIAL|FAILED","cache_hit":bool,"assignment_total":N,"blockers":N,"auto_remediate":N,"exempted":N,"out_path":"..."}`
 - Exit 0/1/2/3 = COMPLETE / PARTIAL / FAILED / bad args
-- File output conforms to `schemas/governance-constraints.schema.json`
+- File output conforms to `tools/schemas/governance-constraints.schema.json`
 - Also writes `04-governance-constraints.preview.md` sibling (H2-structured markdown)
 
 ## Envelope keys

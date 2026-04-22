@@ -22,7 +22,7 @@
   "json.schemas": [
     {
       "fileMatch": [".github/agent-registry.json"],
-      "url": "./schemas/agent-registry.schema.json"
+      "url": "./tools/schemas/agent-registry.schema.json"
     }
   ],
   "editor.formatOnSave": true,

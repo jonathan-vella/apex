@@ -371,6 +371,6 @@ counterparts) MUST:
 Unchanged behaviour (no override field) continues to hard-gate as before.
 
 **Schema**: The full shape of `04-governance-constraints.json` is defined in
-[`schemas/governance-constraints.schema.json`](../../schemas/governance-constraints.schema.json)
+[`tools/schemas/governance-constraints.schema.json`](../../tools/schemas/governance-constraints.schema.json)
 (`schema_version: governance-constraints-v1`). Emit outputs conforming to that
 schema; future validator upgrades will enforce it via AJV.
