@@ -79,7 +79,7 @@ sequentially within a single invocation:
 ## Context Awareness
 
 Track approximate context usage per step. If context approaches 60% capacity
-(many large subagent returns), save state to `00-session-state.json` and
+(many large subagent returns), save state via `apex-recall checkpoint` and
 `00-handoff.md`, then output SESSION_SPLIT_NEEDED with the next step/run number.
 
 ## Run Isolation (MANDATORY — Anti-Copy Enforcement)
@@ -133,8 +133,8 @@ A run where >50% of artifacts are copies is terminated with `E2E_BLOCKED`.
     combination (notably Azure Managed Redis in Sweden Central), fall back
     to the first-party pricing page via the microsoft-learn MCP tools.
     Document the fallback source in the cost estimate artifact.
-  - After Step 2 completes, verify that `decisions.budget` is populated in
-    `00-session-state.json`. If missing, log a lesson with
+  - After Step 2 completes, verify that `decisions.budget` is populated via
+    `apex-recall show <project> --json`. If missing, log a lesson with
     `category: "artifact-quality"` and `severity: "medium"` and populate
     the budget from the cost estimate before proceeding.
 - Step 3 should use the Draw.io path via `04-Design` and output `.drawio`

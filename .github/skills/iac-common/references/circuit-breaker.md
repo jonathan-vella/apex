@@ -31,16 +31,7 @@ and the Orchestrator.
 **After 3 consecutive failures of the same type:**
 
 1. **HALT** — do NOT retry further
-2. Write finding to `open_findings` in `00-session-state.json`:
-   ```json
-   {
-     "type": "circuit_breaker",
-     "failure_category": "{category}",
-     "consecutive_count": 3,
-     "last_error": "{error message}",
-     "timestamp": "{ISO}"
-   }
-   ```
+2. Record finding via `apex-recall finding <project> --add "circuit_breaker: {category} - {error message} (3 consecutive failures)" --json`
 3. Set step status to `blocked` in session state
 4. Increment `claim.retry_count` for the affected step
 5. Notify via PR comment (if in PR context)

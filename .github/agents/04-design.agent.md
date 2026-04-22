@@ -246,6 +246,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_diagram` → `phase_3_adr` → `phase_4_artifact`
 - **Resume**: Use the `apex-recall show` output to detect resume point from `sub_step`.
 - **Checkpoints**: `apex-recall checkpoint <project> 3 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 3 --json`
+  Record: diagram tool choices, ADR outcomes, design pattern selections.
 - **On completion**: `apex-recall complete-step <project> 3 --json`
 
 ## Context Management

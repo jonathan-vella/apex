@@ -51,7 +51,7 @@ Passes cascade — each gate checks the previous pass's severity:
 2. **After pass 2**: If 0 `must_fix` → skip pass 3. Approve with pass 1+2 findings.
 3. **After pass 3**: Full 3-pass review complete. Approve with all findings.
 
-Log skipped passes and reasons in `00-session-state.json` `review_audit` (when available).
+Log skipped passes and reasons via `apex-recall review-audit <project> <step> --json` (when available).
 
 ## 1-Pass Comprehensive
 
@@ -76,7 +76,7 @@ Challengers MUST apply strict severity definitions:
 
 ## Complexity Classification Criteria
 
-Read `decisions.complexity` from `00-session-state.json`. The Requirements agent classifies;
+Read `decisions.complexity` from `apex-recall show <project> --json`. The Requirements agent classifies;
 the Orchestrator validates. If missing from old sessions, default to `"standard"`.
 
 | Tier         | Criteria                                                                             |
@@ -195,7 +195,7 @@ When passing predecessor artifacts to the challenger, apply context shredding
 - **< 60% context**: Pass full artifact
 - **60–80% context**: Pass only key H2 sections (resource list, SKU decisions,
   WAF scores, compliance requirements, budget). Drop detailed prose.
-- **> 80% context**: Pass only the decision summary from `00-session-state.json`
+- **> 80% context**: Pass only the decision summary from `apex-recall show <project> --json`
   `decisions` field plus `decision_log` entries plus the resource list.
   The `decision_log` provides rationale for prior choices without loading full artifacts.
 

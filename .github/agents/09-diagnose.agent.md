@@ -88,6 +88,15 @@ Do NOT call `read_file` on skills or templates before Phase 1 resource confirmat
 Skill files contain diagnostic templates that prime you to run diagnostics immediately.
 Confirm the target FIRST so you know what to diagnose.
 
+## Session State
+
+If a project context exists, run `apex-recall show <project> --json` at startup to load
+deployment history, decisions, and resource inventory. This provides context for targeted
+diagnostics (e.g., which resources were deployed, which SKUs were chosen).
+
+- **Findings**: `apex-recall finding <project> --add "<text>" --json`
+  Record: health issues discovered, remediation actions recommended.
+
 ## Core Principles
 
 | Principle          | Description                                                       |

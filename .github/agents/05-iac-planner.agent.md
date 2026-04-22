@@ -75,7 +75,7 @@ Deny-policy blockers before designing the module structure.
 Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
 specs, module inventory, deployment phases, dependency order. H2 structure from template.
 Diagrams: 04-dependency-diagram.py/.png and 04-runtime-diagram.py/.png (Python diagrams library).
-Session state: update 00-session-state.json after each phase with sub_step checkpoint.
+Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 </output_contract>
 
 <scope_fencing>
@@ -237,8 +237,8 @@ Context usage reaches ~80% by the end of the deployment strategy gate.
    `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved files on disk (`04-governance-constraints.md/json`)
-4. **Update session state** — write `sub_step: "phase_3.6_compacted"` to
-   `00-session-state.json` so resume skips re-loading prior context
+4. **Update session state** — run `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`
+   so resume skips re-loading prior context
 
 ### Phase 4: Implementation Plan Generation
 
@@ -263,7 +263,8 @@ For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table,
 prior_findings format, and invocation template.
-Check `00-session-state.json` `decisions.complexity` to determine pass count
+Check `decisions.complexity` from `apex-recall show <project> --json`
+to determine pass count
 per the review matrix in `adversarial-review-protocol.md`.
 
 > **Governance review is NOT needed here** — it was already done in Step 3.5.

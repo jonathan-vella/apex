@@ -40,6 +40,12 @@ For multi-pass reviews, invoke with batch_lenses array to run remaining lenses i
 You are a delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke challenger subagents directly.
 
+## Session State
+
+If a project context exists, run `apex-recall show <project> --json` at startup to load
+workflow context (current step, decisions, prior findings). This helps the challenger
+understand what has already been reviewed and which decisions to scrutinize.
+
 ## Workflow
 
 1. **Read the user-provided artifact path** from the argument

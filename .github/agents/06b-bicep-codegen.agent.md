@@ -245,8 +245,8 @@ Compact the conversation before proceeding to code generation.
    `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
-4. **Update session state** — write `sub_step: "phase_1.6_compacted"` to
-   `00-session-state.json` so resume skips re-loading prior context
+4. **Update session state** — run `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
+   so resume skips re-loading prior context
 
 ### Phase 2: Progressive Implementation
 
@@ -294,7 +294,7 @@ violations are a hard gate (fix before Phase 4.5).
 ### Phase 4.5: Adversarial Code Review (1–3 passes, complexity-based)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
-Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+Check `decisions.complexity` from `apex-recall show <project> --json` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
 
 **Complexity routing**:
 

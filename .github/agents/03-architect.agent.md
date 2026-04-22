@@ -85,7 +85,7 @@ scores (1-10) with confidence, service maturity table, SKU recommendations, cost
 Cost artifact: agent-output/{project}/03-des-cost-estimate.md — every dollar figure from
 cost-estimate-subagent, not from parametric knowledge.
 Charts: 02-waf-scores.py/.png, 03-des-cost-distribution.py/.png, 03-des-cost-projection.py/.png.
-Session state: update 00-session-state.json after each phase.
+Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 </output_contract>
 
 ## Prerequisites Check (BEFORE Reading Skills)
@@ -114,6 +114,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   `phase_2.5_compacted` → `phase_3_cost` →
   `phase_4_challenger` → `phase_5_artifact`
 - **Checkpoints**: `apex-recall checkpoint <project> 2 <phase_name> --json`
+- **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 2 --json`
+  Record: WAF pillar scores, SKU selections, architecture pattern choice, cost tier decisions.
 - **Review audit**: `apex-recall review-audit <project> 2 ... --json`
 - **On completion**: `apex-recall complete-step <project> 2 --json`
 
@@ -270,7 +272,7 @@ After generating the assessment and cost estimate, run adversarial reviews.
 Read `azure-defaults/references/adversarial-review-protocol.md` for the
 lens table, compact prior_findings guidance, and invocation template.
 
-Check `00-session-state.json` `decisions.complexity` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+Check `decisions.complexity` from `apex-recall show <project> --json` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
 
 ### Architecture Review (3 passes — rotating lenses)
 

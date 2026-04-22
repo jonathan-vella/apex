@@ -47,7 +47,7 @@ Context reaches ~80% after preflight and governance mapping. Compact before code
 ## Phase 4.5: Adversarial Code Review
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
-Check `00-session-state.json` `decisions.complexity` for pass count.
+Check `decisions.complexity` from `apex-recall show <project> --json` for pass count.
 
 Complexity routing:
 
