@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-22T08:57:41.629Z",
+  "generatedAt": "2026-04-22T09:28:09.006Z",
   "categories": [
     {
       "id": "agent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 21
+      "count": 22
     },
     {
       "id": "validator",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 162,
-  "edgeCount": 715,
+  "nodeCount": 163,
+  "edgeCount": 717,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1581,6 +1581,17 @@
       "path": ".github/prompts/git-commit-push.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/git-commit-push.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:plan-apexrecall",
+      "category": "prompt",
+      "label": "plan-apexRecall",
+      "description": "Implementation plan for the apex-recall progressive session recall CLI",
+      "path": ".github/prompts/plan-apexRecall.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-apexRecall.prompt.md"
       },
       "meta": {}
     },
@@ -3790,6 +3801,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-authoring--applies-to->prompt:plan-apexrecall",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:plan-apexrecall",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
       "source": "instruction:agent-authoring",
       "target": "prompt:plan-docspeerreview",
@@ -5587,6 +5604,12 @@
       "id": "instruction:prompt--applies-to->prompt:git-commit-push",
       "source": "instruction:prompt",
       "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:plan-apexrecall",
+      "source": "instruction:prompt",
+      "target": "prompt:plan-apexrecall",
       "kind": "applies-to"
     },
     {

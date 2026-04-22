@@ -9,6 +9,22 @@
 2. Open Chat (`Ctrl+Shift+I`) → Select **Orchestrator** → Describe your project
 3. The Orchestrator guides you through all steps with approval gates
 
+## Progressive Session Recall — RUN FIRST on Start/Resume
+
+Before reading artifact files, run `apex-recall` for low-token orientation (~50 tokens).
+This prevents expensive blind reads of files that may not be relevant.
+
+```bash
+apex-recall sessions --json --limit 5   # which projects exist, current step, status
+apex-recall files --json --limit 10     # recently modified artifacts across projects
+apex-recall search '<term>' --json      # full-text search when you need specifics
+apex-recall decisions --json            # decision logs across projects
+apex-recall show <project> --json       # full context dump for one project
+```
+
+If `apex-recall` returns useful context, skip redundant file reads.
+If it returns empty results or errors, continue normally — it is a convenience, not a blocker.
+
 ## Multi-Step Workflow
 
 | Step | Agent                                                                      | Output                                                                                       | Review                           | Gate       |
