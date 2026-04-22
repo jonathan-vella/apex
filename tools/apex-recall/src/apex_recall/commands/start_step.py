@@ -10,6 +10,7 @@ from ..state_writer import (
     migrate_to_v3,
     read_state,
     session_state_path,
+    step_to_int,
     validate_step_key,
     write_state,
 )
@@ -39,7 +40,7 @@ def run(args) -> int:
     step_data["started"] = now
     step_data["completed"] = None
     data["steps"][step] = step_data
-    data["current_step"] = step
+    data["current_step"] = step_to_int(step)
 
     write_state(project, data)
 

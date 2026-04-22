@@ -3,7 +3,16 @@ set -e
 
 # ─── Progress Tracking Helpers ───────────────────────────────────────────────
 
-TOTAL_STEPS=13
+# Compute total steps dynamically from step_start calls in this script
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+TOTAL_STEPS=0
+if [[ -r "$SCRIPT_PATH" ]]; then
+    TOTAL_STEPS=$(grep -Ec '^step_start ' "$SCRIPT_PATH" || true)
+fi
+# Fallback if grep fails
+if [[ "$TOTAL_STEPS" -eq 0 ]]; then
+    TOTAL_STEPS=13
+fi
 CURRENT_STEP=0
 SETUP_START=$(date +%s)
 STEP_START=0

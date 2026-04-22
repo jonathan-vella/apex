@@ -12,6 +12,17 @@ from .config import find_workspace_root, get_agent_output_dir
 # Canonical step keys matching the v3.0 template
 VALID_STEP_KEYS = {"1", "2", "3", "3_5", "4", "5", "6", "7"}
 
+# Map step keys to the numeric current_step value (schema: integer 0-7)
+_STEP_KEY_TO_INT: dict[str, int] = {
+    "1": 1, "2": 2, "3": 3, "3_5": 3,
+    "4": 4, "5": 5, "6": 6, "7": 7,
+}
+
+
+def step_to_int(step: str) -> int:
+    """Convert a step key to the integer current_step value (0-7)."""
+    return _STEP_KEY_TO_INT.get(step, 0)
+
 # v3.0 template for a fresh session-state file
 _STEP_TEMPLATE = {
     "1": {"name": "Requirements", "agent": "02-Requirements", "status": "pending", "sub_step": None, "started": None, "completed": None, "artifacts": [], "context_files_used": []},
@@ -24,9 +35,11 @@ _STEP_TEMPLATE = {
     "7": {"name": "As-Built", "agent": "08-As-Built", "status": "pending", "sub_step": None, "started": None, "completed": None, "artifacts": [], "context_files_used": []},
 }
 
+# Only generate review_audit entries for steps the validator expects
+_REVIEW_AUDIT_KEYS = ["1", "2", "3_5", "4", "5", "6"]
 _REVIEW_AUDIT_TEMPLATE = {
     f"step_{k}": {"complexity": "", "passes_planned": 0, "passes_executed": 0, "skipped": [], "skip_reasons": [], "models_used": []}
-    for k in VALID_STEP_KEYS
+    for k in _REVIEW_AUDIT_KEYS
 }
 
 
@@ -88,12 +101,22 @@ def read_state(path: Path) -> dict:
                 data = json.loads(text)
                 if isinstance(data, dict):
                     # If we recovered from backup, restore the primary
+                    # without overwriting the good backup
                     if candidate == bak:
-                        atomic_write(path, data)
+                        _restore_primary(path, data)
                     return data
             except (json.JSONDecodeError, OSError):
                 continue
     raise FileNotFoundError(f"No valid session state at {path} (or .bak)")
+
+
+def _restore_primary(path: Path, data: dict) -> None:
+    """Restore the primary file from recovered data without overwriting .bak."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")
+    content = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+    tmp.write_text(content, encoding="utf-8")
+    tmp.replace(path)
 
 
 def atomic_write(path: Path, data: dict) -> None:
@@ -167,7 +190,11 @@ def _reindex_file(path: Path, project: str, workspace_root: Path | None = None) 
 def migrate_to_v3(data: dict) -> dict:
     """Auto-migrate v1.0/v2.0 session state to v3.0 in-place."""
     version = str(data.get("schema_version", "1.0"))
-    if version >= "3.0":
+    try:
+        version_num = float(version)
+    except (ValueError, TypeError):
+        version_num = 1.0
+    if version_num >= 3.0:
         return data
 
     import copy

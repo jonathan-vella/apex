@@ -20,10 +20,10 @@ for full details on this and all prior releases.
 
 ### Added
 
-- feat(cli): `apex-recall` CLI for progressive cross-project session recall.
+- feat(cli): `apex-recall` CLI v0.2.0 for progressive cross-project session recall.
   Indexes `agent-output/` into SQLite + FTS5 for low-token context recovery.
-  Integrated into the `session-resume` skill as the first orientation step
-  on start/resume boundaries.
+  Owns the full session lifecycle (read + write) via CLI commands; replaces the
+  deleted `session-resume` skill.
 
 ### Changed
 

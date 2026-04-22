@@ -12,16 +12,28 @@ def run(args) -> int:
     conn = ensure_fresh()
     try:
         limit = args.limit or 10
+        days = getattr(args, "days", None)
 
-        query = """
-            SELECT project, file_path, content, modified_time
-            FROM artifacts
-            WHERE artifact_type = 'session-state'
-            ORDER BY modified_time DESC
-            LIMIT ?
-        """
-
-        rows = conn.execute(query, (limit,)).fetchall()
+        if days is not None:
+            import time
+            cutoff = time.time() - (days * 86400)
+            query = """
+                SELECT project, file_path, content, modified_time
+                FROM artifacts
+                WHERE artifact_type = 'session-state' AND modified_time >= ?
+                ORDER BY modified_time DESC
+                LIMIT ?
+            """
+            rows = conn.execute(query, (cutoff, limit)).fetchall()
+        else:
+            query = """
+                SELECT project, file_path, content, modified_time
+                FROM artifacts
+                WHERE artifact_type = 'session-state'
+                ORDER BY modified_time DESC
+                LIMIT ?
+            """
+            rows = conn.execute(query, (limit,)).fetchall()
 
         results = []
         for r in rows:
