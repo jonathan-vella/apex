@@ -4,6 +4,8 @@
 
 **When to Use**:
 
+**Fast Recall**: Run `apex-recall sessions --json --limit 5` before loading full artifacts on start/resume.
+
 **Quick Reference**:
 
 **Resume Flow (compact)**:

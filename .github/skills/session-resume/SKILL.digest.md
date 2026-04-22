@@ -11,6 +11,24 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 - Orchestrator gate transitions
 - Recovering after a chat crash or thread switch
 
+## Fast Recall with apex-recall (Tier 0)
+
+Before loading full artifacts, use `apex-recall` for lightweight orientation.
+
+### When to invoke
+
+- **Fresh step start** — before reading any artifact files
+- **Interrupted/resumed step recovery** — before re-reading sub-step context
+- NOT on every chat turn or generic file edit
+
+### Progressive disclosure protocol
+
+1. **Tier 1 — orientation** (~50 tokens): `apex-recall sessions --json --limit 5` + `apex-recall files --json --limit 5`
+2. **Tier 2 — targeted search** (~200 tokens): `apex-recall search '<term>' --json --project <name>` or `apex-recall decisions --json --project <name>`
+3. **Tier 3 — full project context** (~500 tokens): `apex-recall show <project> --json`
+
+If `apex-recall` is not installed or returns empty results, skip to normal artifact file reads.
+
 ## Quick Reference
 
 | Concept           | Key Detail                                                     |
