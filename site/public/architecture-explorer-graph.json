@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-22T14:49:33.667Z",
+  "generatedAt": "2026-04-22T15:09:56.190Z",
   "categories": [
     {
       "id": "agent",
@@ -2027,13 +2027,13 @@
       "id": "validator:test-apex-recall",
       "category": "validator",
       "label": "test:apex-recall",
-      "description": "python -m pytest tests/test_apex_recall/ -q",
+      "description": "python -m pytest tools/tests/test_apex_recall/ -q",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "python -m pytest tests/test_apex_recall/ -q",
+        "command": "python -m pytest tools/tests/test_apex_recall/ -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"

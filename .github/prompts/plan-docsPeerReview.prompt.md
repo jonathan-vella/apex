@@ -22,7 +22,7 @@ context, then reconciliation into a prioritised triage report.
 - `site/public/architecture-explorer.html` (interactive component — accuracy,
   a11y, responsive, legend vs. repo reality).
 
-**Out of scope:** `tests/exec-plans/`, `agent-output/`, `site/public/demo/*` raw
+**Out of scope:** `tools/tests/exec-plans/`, `agent-output/`, `site/public/demo/*` raw
 fixtures, `site/public/downloads/`.
 
 ### Step 0 — Build file inventory dynamically
@@ -58,7 +58,7 @@ time.
 | `package.json`                                 | Validation script names                                        |
 | `site/astro.config.mjs`                        | Sidebar structure and published page list                      |
 | `site/public/architecture-explorer-graph.json` | Graph node/edge canonical data (if present)                    |
-| `tests/exec-plans/tech-debt-tracker.md`        | Known tech-debt items (cross-check "stale promise" findings)   |
+| `tools/tests/exec-plans/tech-debt-tracker.md`        | Known tech-debt items (cross-check "stale promise" findings)   |
 | `AGENTS.md`                                    | Project conventions table of contents                          |
 
 ## Workflow

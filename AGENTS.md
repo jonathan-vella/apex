@@ -220,6 +220,7 @@ tools/
     count-manifest.json  # Canonical entity counts (computed from globs)
   schemas/             # JSON schemas for session state, governance, workflow, etc.
   scripts/             # Validation and maintenance scripts (Node.js)
+  tests/               # Test suites, E2E inputs, exec plans
 site/
   src/content/docs/    # Published user-facing documentation (Astro Starlight)
   public/              # Site-served static assets

@@ -9,7 +9,7 @@ Handles the full pipeline in one call:
   5. Write the final .drawio file
 
 Usage:
-    python3 scripts/save-drawio.py <mcp-response.json> <output.drawio>
+    python3 tools/scripts/save-drawio.py <mcp-response.json> <output.drawio>
 
 Exit codes:
     0 = success

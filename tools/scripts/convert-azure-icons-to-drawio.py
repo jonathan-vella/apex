@@ -9,7 +9,7 @@ extracts SVG icons, and produces:
   4. A manifest.json with metadata
 
 Usage:
-    python scripts/convert-azure-icons-to-drawio.py <path-to-zip>
+    python tools/scripts/convert-azure-icons-to-drawio.py <path-to-zip>
 
 The ZIP is expected to contain a top-level folder with category subfolders,
 each containing SVG files (Microsoft's standard icon pack structure).

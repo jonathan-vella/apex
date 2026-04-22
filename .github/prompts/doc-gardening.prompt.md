@@ -28,7 +28,7 @@ Before running tasks, verify target files exist. If any of the following are mis
 stop and ask the user (do not create them silently):
 
 - `QUALITY_SCORE.md`
-- `tests/exec-plans/tech-debt-tracker.md`
+- `tools/tests/exec-plans/tech-debt-tracker.md`
 - `tools/registry/count-manifest.json`
 - `freshness-report.json` (optional — first-run gardening will create it)
 
@@ -65,13 +65,13 @@ stop and ask the user (do not create them silently):
 6. **Quality score review** — read `QUALITY_SCORE.md`, compare grades against current
    state, propose updates.
 
-7. **Tech debt inventory** — read `tests/exec-plans/tech-debt-tracker.md`, verify items
+7. **Tech debt inventory** — read `tools/tests/exec-plans/tech-debt-tracker.md`, verify items
    still relevant, add new discoveries.
 
 ## Output
 
 - Update `QUALITY_SCORE.md` with revised grades and change log entries.
-- Update `tests/exec-plans/tech-debt-tracker.md` with new/resolved items.
+- Update `tools/tests/exec-plans/tech-debt-tracker.md` with new/resolved items.
 - Report a summary to the user including: freshness diff totals, count-manifest
   conflicts (if any), explorer graph staleness status, and prioritised follow-ups.
 - Do NOT hard-code counts in any output — reference `tools/registry/count-manifest.json`.

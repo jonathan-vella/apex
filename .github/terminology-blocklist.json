@@ -121,7 +121,7 @@
     "node_modules/",
     ".git/",
     "agent-output/_baselines/",
-    "tests/exec-plans/completed/",
+    "tools/tests/exec-plans/completed/",
     ".github/terminology-blocklist.json"
   ],
   "excludeLinePatterns": [

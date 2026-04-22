@@ -140,7 +140,7 @@ For files matching `03-des-|04-dependency-|04-runtime-|07-ab-`:
 Status: **advisory in 0.11.x**, **blocking in 0.12.0** (see `CHANGELOG.md`).
 Award 1 point per item; ship with ≥ 8/10 or record an exemption in the ADR
 that owns the diagram. Automated checks live in
-[`scripts/validate-drawio-files.mjs`](../../../../scripts/validate-drawio-files.mjs);
+[`tools/scripts/validate-drawio-files.mjs`](../../../../tools/scripts/validate-drawio-files.mjs);
 remaining items are reviewer-judged during challenger passes.
 
 | #   | Rubric item                                                                                       | Automated? | Rationale                                           |

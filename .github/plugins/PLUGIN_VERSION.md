@@ -11,7 +11,7 @@
 ## Installed Skills
 
 Skills are copied from the plugin into `.github/skills/{name}/` so they are
-discoverable by the workspace index (`scripts/_lib/workspace-index.mjs`) and
+discoverable by the workspace index (`tools/scripts/_lib/workspace-index.mjs`) and
 VS Code skill loading (`chat.agentSkillsLocations`).
 
 | Plugin Skill                  | Status                                                                       |

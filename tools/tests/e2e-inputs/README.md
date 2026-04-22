@@ -2,7 +2,7 @@
 
 Permanent source documents consumed by E2E evaluation prompts (RALPH loop).
 
-- **Prompts** are in `tests/prompts/`
+- **Prompts** are in `tools/tests/prompts/`
 - **Agent output** goes to `agent-output/{project}/`
 - **IaC code** goes to `infra/bicep/{project}/` or `infra/terraform/{project}/`
 
