@@ -71,7 +71,7 @@ human-readable preview after:
 ## Output Contract
 
 The script writes a JSON envelope conforming to
-[`schemas/governance-constraints.schema.json`](../../../schemas/governance-constraints.schema.json)
+[`tools/schemas/governance-constraints.schema.json`](../../../tools/schemas/governance-constraints.schema.json)
 (`schema_version: governance-constraints-v1`). Findings include both
 `bicepPropertyPath` and `azurePropertyPath`, plus three additive fields:
 

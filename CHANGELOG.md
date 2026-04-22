@@ -25,6 +25,10 @@ for full details on this and all prior releases.
   Owns the full session lifecycle (read + write) via CLI commands; replaces the
   deleted `session-resume` skill.
 
+- refactor(tools): consolidate JSON schemas under `tools/schemas/`.
+  Moves `schemas/*.schema.json` → `tools/schemas/`. Updates all `$schema`,
+  `$id`, path constants, and documentation references.
+
 ### Changed
 
 - feat(governance): `schemas/governance-constraints.schema.json` is now

@@ -663,7 +663,7 @@ function main() {
 
   const generatedAt = new Date().toISOString();
   const graph = {
-    $schema: "../schemas/explorer-graph.schema.json",
+    $schema: "../../tools/schemas/explorer-graph.schema.json",
     generatedAt,
     categories,
     nodeCount: nodes.length,

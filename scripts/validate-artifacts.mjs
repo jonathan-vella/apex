@@ -926,7 +926,7 @@ function validateArtifactCompliance(relPath) {
 // Governance JSON Schema Validation (AJV)
 // ============================================================================
 
-const GOVERNANCE_SCHEMA_PATH = "schemas/governance-constraints.schema.json";
+const GOVERNANCE_SCHEMA_PATH = "tools/schemas/governance-constraints.schema.json";
 const GOVERNANCE_JSON_BASENAME = "04-governance-constraints.json";
 
 let _governanceValidator = null;

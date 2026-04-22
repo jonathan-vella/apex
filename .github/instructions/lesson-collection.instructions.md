@@ -47,7 +47,7 @@ All production triggers PLUS:
 
 ## Lesson Schema
 
-Formal JSON Schema: `schemas/lesson-log.schema.json`.
+Formal JSON Schema: `tools/schemas/lesson-log.schema.json`.
 Required fields per entry: `id`, `step`, `category`,
 `severity`, `title`, `observation`, `root_cause`, `recommendation`,
 `applies_to`, `applies_to_paths`, `status`.

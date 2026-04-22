@@ -18,7 +18,7 @@ The schema version is declared in the `schema_version` field. New state files
 should use `schema_version: "3.0"` (the v2.0 lock/claim protocol was removed
 since VS Code Copilot executes agents serially).
 The authoritative schema definition is in
-`schemas/session-state.schema.json` (managed by `apex-recall` CLI).
+`tools/schemas/session-state.schema.json` (managed by `apex-recall` CLI).
 
 A human-readable companion file `00-handoff.md` summarises the same
 state for manual inspection.

@@ -216,6 +216,7 @@ mcp/
 scripts/               # Validation and maintenance scripts (Node.js)
 tools/
   apex-recall/         # Progressive session recall CLI (Python, pip-installable)
+  schemas/             # JSON schemas for session state, governance, workflow, etc.
 site/
   src/content/docs/    # Published user-facing documentation (Astro Starlight)
   public/              # Site-served static assets

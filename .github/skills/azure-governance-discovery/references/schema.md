@@ -2,7 +2,7 @@
 
 # Output Schema
 
-Full schema: [`schemas/governance-constraints.schema.json`](../../../../schemas/governance-constraints.schema.json)
+Full schema: [`tools/schemas/governance-constraints.schema.json`](../../../../tools/schemas/governance-constraints.schema.json)
 (`schema_version: governance-constraints-v1`).
 
 `discover.py` emits a minimal envelope that conforms to the schema's required
