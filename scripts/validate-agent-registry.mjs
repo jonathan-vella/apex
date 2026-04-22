@@ -2,7 +2,7 @@
 /**
  * Agent Registry Validator
  *
- * Validates .github/agent-registry.json:
+ * Validates tools/registry/agent-registry.json:
  * - All referenced .agent.md files exist
  * - All referenced skills exist in .github/skills/
  * - Cross-checks model names against known valid models

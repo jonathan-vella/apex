@@ -37,7 +37,7 @@ Skills implement three levels of disclosure:
 The system contains skills across several domains. The full, always-current
 list is generated from `.github/skills/*/SKILL.md` and surfaced in the
 [Architecture Explorer](../../reference/architecture-explorer/). The total
-count is computed by `.github/count-manifest.json`. A grouped overview:
+count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 
 | Domain               | Skills                                                                                                                                                                                                                                                                                                                                                                                 |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -196,7 +196,7 @@ Add a skill reference in the relevant agent's `.agent.md` body:
 1. **Read** `.github/skills/my-new-skill/SKILL.md`
 ```
 
-Also add the skill to the agent's entry in `.github/agent-registry.json`:
+Also add the skill to the agent's entry in `tools/registry/agent-registry.json`:
 
 ```json
 {

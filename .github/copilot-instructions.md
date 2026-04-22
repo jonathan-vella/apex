@@ -163,7 +163,7 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `.github/agents/*.agent.md`                    | Agent definitions                                                            |
 | `.github/skills/*/SKILL.md`                    | Reusable skill knowledge                                                     |
 | `.github/instructions/`                        | File-type rules (Bicep, Markdown, etc.)                                      |
-| `.github/agent-registry.json`                  | Agent role → file/model/skills mapping                                       |
+| `tools/registry/agent-registry.json`            | Agent role → file/model/skills mapping                                       |
 | `agent-output/{project}/`                      | Agent-generated artifacts                                                    |
 | `agent-output/{project}/00-session-state.json` | Machine-readable workflow progress (managed by apex-recall CLI)              |
 | `infra/bicep/{project}/`                       | Bicep templates                                                              |

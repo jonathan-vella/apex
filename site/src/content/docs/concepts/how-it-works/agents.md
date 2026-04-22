@@ -75,7 +75,7 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../reference/architecture-explorer/). The count is
-computed from `.github/count-manifest.json` and the source of truth is the
+computed from `tools/registry/count-manifest.json` and the source of truth is the
 `.github/agents/*.agent.md` files on disk.
 
 ## Subagents
@@ -186,13 +186,13 @@ This section walks through creating a new agent from scratch.
 | Top-level agent | `.github/agents/{name}.agent.md`            | Yes            | User-facing workflow steps                |
 | Subagent        | `.github/agents/_subagents/{name}.agent.md` | No             | Isolated tasks delegated by parent agents |
 
-Model selection depends on the task. Use `.github/agent-registry.json` as the
+Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
 source of truth, but the current repo pattern is:
 
 - **Planning agents** (accuracy-first) — typically `Claude Opus 4.6`
 - **Orchestrator** — `Claude Opus 4.6` for deep reasoning across the full workflow
 - **Code generation agents** — `Claude Sonnet 4.6` for balanced code quality and speed
-- **Execution, deploy, and validation subagents** — model varies; consult `.github/agent-registry.json`
+- **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
 - **Adversarial review** — use a different model family than the artifact author when possible
 
 ### Step 2: Create the Agent File
@@ -253,7 +253,7 @@ knowledge rather than inlining it.
 
 Update the registry file:
 
-1. **`.github/agent-registry.json`** — add the agent's role, file path,
+1. **`tools/registry/agent-registry.json`** — add the agent's role, file path,
    model, and skill list
 
 ### Step 5: Validate

@@ -21,7 +21,7 @@
   "chat.useAgentSkills": true,
   "json.schemas": [
     {
-      "fileMatch": [".github/agent-registry.json"],
+      "fileMatch": ["tools/registry/agent-registry.json"],
       "url": "./tools/schemas/agent-registry.schema.json"
     }
   ],

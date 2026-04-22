@@ -8,14 +8,14 @@
  * Cytoscape-based explorer.
  *
  * Counts are computed from disk; the explorer UI reads them at runtime so no
- * entity count is ever hardcoded (honours `.github/count-manifest.json`
+ * entity count is ever hardcoded (honours `tools/registry/count-manifest.json`
  * as the authoritative source of truth).
  *
  * Edges:
  *  - agent → subagent (frontmatter `agents:` field)
  *  - agent handoff → agent (frontmatter `handoffs[].agent`)
- *  - agent → skill (from `.github/agent-registry.json` skills array)
- *  - agent ⇢ skill (from `.github/agent-registry.json` capability_skills array, kind="capability")
+ * agent → skill (from `tools/registry/agent-registry.json` skills array)
+ * agent ⇢ skill (from `tools/registry/agent-registry.json` capability_skills array, kind="capability")
  *  - prompt → agent (slug match, e.g. `02-requirements` → `02-Requirements`)
  *  - instruction → agent/skill/prompt (via `applyTo` glob + name match)
  *  - workflow → validator (parse YAML for `npm run …`, expanding composite scripts)
@@ -377,7 +377,7 @@ function buildEdges(nodes) {
   // Agent -> Skill (from agent-registry.json)
   let registry = { agents: {}, subagents: {} };
   try {
-    registry = readJson(join(REPO_ROOT, ".github/agent-registry.json"));
+    registry = readJson(join(REPO_ROOT, "tools/registry/agent-registry.json"));
   } catch {
     // optional
   }

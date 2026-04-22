@@ -20,7 +20,7 @@ tools:
 # Doc Gardening
 
 Scan the repository for entropy and update health metrics. All counts cited in outputs
-must come from `.github/count-manifest.json` — never hard-code numbers.
+must come from `tools/registry/count-manifest.json` — never hard-code numbers.
 
 ## Pre-flight
 
@@ -29,7 +29,7 @@ stop and ask the user (do not create them silently):
 
 - `QUALITY_SCORE.md`
 - `tests/exec-plans/tech-debt-tracker.md`
-- `.github/count-manifest.json`
+- `tools/registry/count-manifest.json`
 - `freshness-report.json` (optional — first-run gardening will create it)
 
 ## Tasks
@@ -59,7 +59,7 @@ stop and ask the user (do not create them silently):
    timestamp (or file mtime as fallback) against the newest mtime across
    `.github/agents/**`, `.github/agents/_subagents/**`, `.github/skills/**`,
    `.github/instructions/**`, `.github/prompts/**`, `.vscode/mcp.json`,
-   `.github/agent-registry.json`. Flag as stale if any
+   `tools/registry/agent-registry.json`. Flag as stale if any
    source is newer than the graph. Recommend running `npm run build:explorer-graph`.
 
 6. **Quality score review** — read `QUALITY_SCORE.md`, compare grades against current
@@ -74,4 +74,4 @@ stop and ask the user (do not create them silently):
 - Update `tests/exec-plans/tech-debt-tracker.md` with new/resolved items.
 - Report a summary to the user including: freshness diff totals, count-manifest
   conflicts (if any), explorer graph staleness status, and prioritised follow-ups.
-- Do NOT hard-code counts in any output — reference `.github/count-manifest.json`.
+- Do NOT hard-code counts in any output — reference `tools/registry/count-manifest.json`.

@@ -9,7 +9,7 @@ Single source of truth for project entity counts.
 
 ## Source of Truth
 
-All counts live in `.github/count-manifest.json`. Validators auto-compute actual
+All counts live in `tools/registry/count-manifest.json`. Validators auto-compute actual
 values from filesystem globs. No other file should hard-code these numbers.
 
 ## How to Reference Counts
@@ -18,7 +18,7 @@ When generating documentation or artifacts that mention entity quantities:
 
 1. **Prefer descriptive language** — "a set of specialized agents and subagents",
    "the full skill catalog", "the multi-step workflow"
-2. **When exact numbers are needed**, read `.github/count-manifest.json` and state
+2. **When exact numbers are needed**, read `tools/registry/count-manifest.json` and state
    the number with a parenthetical source: "16 primary agents (per count-manifest.json)"
 3. **Never hard-code** a count into prose that will be committed to the repo
 

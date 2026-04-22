@@ -20,6 +20,11 @@ for full details on this and all prior releases.
 
 ### Added
 
+- refactor(tools): consolidate registry files under `tools/registry/`.
+  Moves `.github/agent-registry.json` and `.github/count-manifest.json`
+  to `tools/registry/`. Updates path references across scripts, agents,
+  skills, instructions, prompts, workflows, and documentation.
+
 - refactor(tools): consolidate MCP servers under `tools/mcp-servers/`.
   Moves `mcp/azure-pricing-mcp/` → `tools/mcp-servers/azure-pricing/` and
   `mcp/drawio-mcp-server/` → `tools/mcp-servers/drawio/`. Updates all path

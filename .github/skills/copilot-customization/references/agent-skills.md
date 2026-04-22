@@ -130,7 +130,7 @@ Control access with these frontmatter fields (on SKILL.md, as of VS Code docs):
 | `make-skill-template`  | Meta-skill for scaffolding new skills          | No                 |
 | `github-operations`    | Branch naming, commits, PRs, CLI, Actions      | Yes                |
 
-See `.github/skills/` for the full catalog and `.github/count-manifest.json` for current counts.
+See `.github/skills/` for the full catalog and `tools/registry/count-manifest.json` for current counts.
 
 ## Common Mistakes
 

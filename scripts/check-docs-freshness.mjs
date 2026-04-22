@@ -6,7 +6,7 @@
  * JSON report for CI consumption.
  *
  * Canonical documentation source: site/src/content/docs/
- * Entity counts validated against: count-manifest.json computed_from globs
+ * Entity counts validated against: tools/registry/count-manifest.json computed_from globs
  */
 
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";

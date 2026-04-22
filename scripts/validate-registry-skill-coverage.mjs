@@ -2,7 +2,7 @@
 /**
  * Registry Skill-Coverage Validator
  *
- * Cross-checks `.github/agent-registry.json` against how each agent actually
+ * Cross-checks `tools/registry/agent-registry.json` against how each agent actually
  * references its skills inside the corresponding `.agent.md` body.
  *
  * Rules:
@@ -20,7 +20,7 @@ import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const REGISTRY_PATH = join(ROOT, ".github/agent-registry.json");
+const REGISTRY_PATH = join(ROOT, "tools/registry/agent-registry.json");
 
 const SKILL_REF_RE = /\.github\/skills\/([a-z0-9][a-z0-9-]*)(?:\/|\b)/g;
 
