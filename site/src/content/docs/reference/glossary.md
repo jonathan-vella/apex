@@ -31,7 +31,7 @@ workflow step or supporting role. Invoked via `Ctrl+Shift+A`. The catalog spans
 top-level workflow agents (Orchestrator plus the Requirements → As-Built chain),
 cross-cutting agents (Governance, Context Optimizer, Diagnose, Challenger), and
 non-user-invocable subagents under `.github/agents/_subagents/`. The authoritative
-inventory lives in `.github/agent-registry.json` and `count-manifest.json`.
+inventory lives in `tools/registry/agent-registry.json` and `count-manifest.json`.
 
 📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
 

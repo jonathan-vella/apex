@@ -152,7 +152,7 @@ VS Code maps Claude tool names to VS Code equivalents.
 **Convention in this repo**: Filenames use kebab-case; `name` frontmatter uses display-friendly casing.
 Subagents live in `_subagents/` and typically set `user-invocable: false`.
 
-See `.github/agents/` for the full roster and `.github/count-manifest.json` for current counts.
+See `.github/agents/` for the full roster and `tools/registry/count-manifest.json` for current counts.
 
 ## Common Mistakes
 

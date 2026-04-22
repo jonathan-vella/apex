@@ -2,6 +2,6 @@
 
 # Count Registry (Minimal)
 
-All counts live in `.github/count-manifest.json`. Prefer descriptive language over numbers.
+All counts live in `tools/registry/count-manifest.json`. Prefer descriptive language over numbers.
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/agent-registry.schema.json",
   "title": "APEX Agent Registry",
-  "description": "Shape of .github/agent-registry.json. Each entry declares `skills` (explicitly read at runtime) and optional `capability_skills` (auto-triggered via description keywords). A skill must not appear in both arrays on the same entry; that invariant is enforced by scripts/validate-agent-registry.mjs.",
+  "description": "Shape of tools/registry/agent-registry.json. Each entry declares `skills` (explicitly read at runtime) and optional `capability_skills` (auto-triggered via description keywords). A skill must not appear in both arrays on the same entry; that invariant is enforced by scripts/validate-agent-registry.mjs.",
   "type": "object",
   "required": ["$schema", "description", "agents"],
   "additionalProperties": true,

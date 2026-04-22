@@ -7,7 +7,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 > The tables below show representative skills by category. For the complete
 > catalog, list all `SKILL.md` files: `find .github/skills -name SKILL.md`.
-> See `.github/count-manifest.json` for current counts.
+> See `tools/registry/count-manifest.json` for current counts.
 
 ### Category 1: Azure Conventions
 

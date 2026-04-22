@@ -66,7 +66,7 @@ validated by `npm run lint:model-alignment`. Concrete model names change over ti
 :::note[Check agent frontmatter, not this page, for current models]
 This table describes **what each tier is used for**. The specific model backing each
 tier is resolved from agent frontmatter — consult those files (or
-`.github/agent-registry.json`) for the authoritative mapping.
+`tools/registry/agent-registry.json`) for the authoritative mapping.
 :::
 
 | Tier           | Purpose                                                               | Used By                                          |

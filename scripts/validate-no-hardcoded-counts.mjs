@@ -4,7 +4,7 @@
  *
  * Two responsibilities:
  * 1. Manifest validation: compute actual counts from filesystem globs and compare
- *    against .github/count-manifest.json definitions.
+ *    against tools/registry/count-manifest.json definitions.
  * 2. Grep scan: detect hard-coded entity counts in prose files and flag violations
  *    (with an allowlist for historical entries and the manifest itself).
  *
@@ -29,17 +29,22 @@ const r = new Reporter("No Hard-Coded Counts Validator");
 
 // ─── Part 1: Manifest validation ────────────────────────────────────────────
 
-const MANIFEST_PATH = path.join(ROOT, ".github", "count-manifest.json");
+const MANIFEST_PATH = path.join(
+  ROOT,
+  "tools",
+  "registry",
+  "count-manifest.json",
+);
 
 function loadManifest() {
   if (!fs.existsSync(MANIFEST_PATH)) {
-    r.error(".github/count-manifest.json", "File not found");
+    r.error("tools/registry/count-manifest.json", "File not found");
     return null;
   }
   try {
     return JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8"));
   } catch (e) {
-    r.error(".github/count-manifest.json", `Invalid JSON: ${e.message}`);
+    r.error("tools/registry/count-manifest.json", `Invalid JSON: ${e.message}`);
     return null;
   }
 }
@@ -90,7 +95,7 @@ function computeActualCounts() {
 
 function validateManifest(manifest) {
   if (!manifest?.counts) {
-    r.error(".github/count-manifest.json", "Missing 'counts' object");
+    r.error("tools/registry/count-manifest.json", "Missing 'counts' object");
     return;
   }
 

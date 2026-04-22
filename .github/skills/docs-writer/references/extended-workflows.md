@@ -61,7 +61,7 @@ technical accuracy.
    - Load `references/repo-architecture.md` for ground truth.
    - Verify agent/skill names and descriptions match
      the actual filesystem. Do not hard-code counts — reference
-     `.github/count-manifest.json` for canonical numbers.
+     `tools/registry/count-manifest.json` for canonical numbers.
    - Confirm artifact filenames are correct.
    - Check that capability claims are truthful and verifiable
      against the filesystem.

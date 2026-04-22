@@ -61,8 +61,8 @@ jobs:
               LABEL="site/, README.md, CONTRIBUTING.md, CHANGELOG.md"
               ;;
             agents)
-              ALLOWED='^(\.github/agents/|\.github/agent-registry\.json)'
-              LABEL=".github/agents/, .github/agent-registry.json"
+              ALLOWED='^(\.github/agents/|tools/registry/agent-registry\.json)'
+              LABEL=".github/agents/, tools/registry/agent-registry.json"
               ;;
             skills)
               ALLOWED='^(\.github/skills/)'

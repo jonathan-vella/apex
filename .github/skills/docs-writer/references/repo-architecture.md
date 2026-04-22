@@ -34,7 +34,7 @@ azure-agentic-infraops/  (APEX)
 
 ## Agent Inventory
 
-See `.github/count-manifest.json` for canonical counts.
+See `tools/registry/count-manifest.json` for canonical counts.
 
 ### Primary Agents
 
@@ -79,7 +79,7 @@ All shared context previously in `_shared/` is now consolidated into skills:
 
 ## Skill Catalog
 
-See `.github/count-manifest.json` for canonical skill counts.
+See `tools/registry/count-manifest.json` for canonical skill counts.
 Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 
 | Skill                         | Folder                         | Category            | Triggers                                  |
@@ -132,7 +132,7 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 ## Template Inventory
 
 All in `.github/skills/azure-artifacts/templates/`. Naming: `{step}-{name}.template.md`.
-See `.github/count-manifest.json` for canonical counts.
+See `tools/registry/count-manifest.json` for canonical counts.
 
 | Template                                  | Artifact             | Validation        |
 | ----------------------------------------- | -------------------- | ----------------- |
@@ -157,7 +157,7 @@ See `.github/count-manifest.json` for canonical counts.
 
 ## Instruction File Map
 
-See `.github/count-manifest.json` for canonical counts.
+See `tools/registry/count-manifest.json` for canonical counts.
 
 | Instruction                                    | Applies To (glob)                                               |
 | ---------------------------------------------- | --------------------------------------------------------------- |

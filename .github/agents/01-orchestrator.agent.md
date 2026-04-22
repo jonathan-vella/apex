@@ -180,7 +180,7 @@ Step agents can use this pre-extracted context instead of re-reading skill files
 Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-engine skill:
 
 1. Load `.github/skills/workflow-engine/templates/workflow-graph.json`
-2. Read `.github/agent-registry.json` to resolve agent paths and models for each step
+2. Read `tools/registry/agent-registry.json` to resolve agent paths and models for each step
 3. Determine current node from `apex-recall show <project> --json` output (`current_step`)
 4. Execute the current node's agent (using model from registry)
 5. Evaluate outgoing edges (conditions: `on_complete`, `on_skip`, `on_fail`)

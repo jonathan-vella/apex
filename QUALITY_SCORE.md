@@ -1,7 +1,7 @@
 # Quality Score
 
 > Project health at a glance. Updated by the doc-gardening workflow and manual review.
-> Exact entity counts are computed dynamically — see `.github/count-manifest.json`.
+> Exact entity counts are computed dynamically — see `tools/registry/count-manifest.json`.
 
 | Domain          | Grade | Status                                                                  | Next Action                                |
 | --------------- | ----- | ----------------------------------------------------------------------- | ------------------------------------------ |

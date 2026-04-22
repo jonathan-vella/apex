@@ -40,7 +40,7 @@ The Orchestrator reads this graph instead of relying on hardcoded step logic:
 - **IaC routing**: conditional edges route to Bicep or Terraform agents based on `decisions.iac_tool`
 - **Fan-out**: Step 7 substeps (cost estimate, runbook, etc.) can execute in parallel
 
-The Orchestrator resolves agent paths and models via `.github/agent-registry.json`.
+The Orchestrator resolves agent paths and models via `tools/registry/agent-registry.json`.
 
 ### Fast-Path Variant
 

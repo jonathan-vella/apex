@@ -41,19 +41,19 @@ Known filename note: `four-pillars.md` renders as "Core Concepts" in the nav.
 ### Source-of-truth files for cross-referencing
 
 Reviewers validate docs claims against these files. **Counts** come from
-`.github/count-manifest.json` (computed from globs) — never hard-code numbers in
+`tools/registry/count-manifest.json` (computed from globs) — never hard-code numbers in
 findings; compute them from the manifest's `computed_from` patterns at review
 time.
 
 | File                                           | What it proves                                                 |
 | ---------------------------------------------- | -------------------------------------------------------------- |
-| `.github/count-manifest.json`                  | **Authoritative** entity counts (agents, subagents, skills, …) |
+| `tools/registry/count-manifest.json`                  | **Authoritative** entity counts (agents, subagents, skills, …) |
 | `.github/agents/*.agent.md`                    | Top-level agent names                                          |
 | `.github/agents/_subagents/*.agent.md`         | Subagent names                                                 |
 | `.github/skills/*/SKILL.md`                    | Skill names                                                    |
 | `.github/instructions/*.instructions.md`       | Instruction file names                                         |
 | `.github/prompts/*.prompt.md`                  | Prompt names                                                   |
-| `.github/agent-registry.json`                  | Agent → file/model/skills mapping                              |
+| `tools/registry/agent-registry.json`                  | Agent → file/model/skills mapping                              |
 | `.vscode/mcp.json`                             | MCP server names and config                                    |
 | `package.json`                                 | Validation script names                                        |
 | `site/astro.config.mjs`                        | Sidebar structure and published page list                      |
@@ -91,7 +91,7 @@ structured findings list.
 > 1. **Factual accuracy** — Do agent names, skill names, MCP server names,
 >    and CLI commands match reality? Cross-reference the source-of-truth files.
 >    For any numeric count in the docs, compute the expected value from
->    `.github/count-manifest.json` globs and flag mismatches.
+>    `tools/registry/count-manifest.json` globs and flag mismatches.
 > 2. **Internal consistency** — Do cross-page references agree? Are tables, lists,
 >    and terminology consistent across files? Does the workflow step numbering
 >    (including Step 3.5 Governance) appear correctly everywhere?

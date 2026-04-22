@@ -12,7 +12,8 @@ export const INSTRUCTIONS_DIR = ".github/instructions";
 export const AGENT_OUTPUT_DIR = "agent-output";
 export const PROMPTS_DIR = ".github/prompts";
 
-export const REGISTRY_PATH = ".github/agent-registry.json";
+export const REGISTRY_PATH = "tools/registry/agent-registry.json";
+export const COUNT_MANIFEST_PATH = "tools/registry/count-manifest.json";
 export const COPILOT_INSTRUCTIONS = ".github/copilot-instructions.md";
 
 export const MAX_BODY_LINES = 500;
