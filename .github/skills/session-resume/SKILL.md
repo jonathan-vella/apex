@@ -16,6 +16,34 @@ checkpoint after any interruption — mid-step, cross-step, or direct invocation
 - Orchestrator gate transitions
 - Recovering after a chat crash or thread switch
 
+## Fast Recall with apex-recall (Tier 0)
+
+Before loading full artifacts, use `apex-recall` for lightweight orientation.
+This avoids burning context tokens on files that may not be relevant.
+
+### When to invoke
+
+- **Fresh step start** — before reading any artifact files
+- **Interrupted/resumed step recovery** — before re-reading sub-step context
+- NOT on every chat turn or generic file edit
+
+### Progressive disclosure protocol
+
+1. **Tier 1 — orientation** (~50 tokens): Run `apex-recall sessions --json --limit 5`
+   and `apex-recall files --json --limit 5` to see what projects exist and what
+   changed recently. If this gives enough context, stop here.
+2. **Tier 2 — targeted search** (~200 tokens): If you need specific information,
+   run `apex-recall search '<term>' --json --project <name>` or
+   `apex-recall decisions --json --project <name>`.
+3. **Tier 3 — full project context** (~500 tokens): If the project needs deep
+   context, run `apex-recall show <project> --json` for a full dump of session
+   state, decisions, findings, and artifact inventory.
+
+### Fallback
+
+If `apex-recall` is not installed, or returns empty results (no indexed data),
+skip directly to normal artifact file reads. Do not fail or block.
+
 ## Quick Reference
 
 | Concept           | Key Detail                                                     |
@@ -89,11 +117,11 @@ All agents MUST enforce schema version at read time:
 
 ## Reference Index
 
-| Reference         | File                              | Content                                                                                       |
-| ----------------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
+| Reference         | File                              | Content                                                                                          |
+| ----------------- | --------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Recovery Protocol | `references/recovery-protocol.md` | Resume detection, direct invocation, state write protocol, Orchestrator integration, portability |
-| State File Schema | `references/state-file-schema.md` | Full JSON template (v3.0), field definitions, all step definitions                            |
-| Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                        |
+| State File Schema | `references/state-file-schema.md` | Full JSON template (v3.0), field definitions, all step definitions                               |
+| Context Budgets   | `references/context-budgets.md`   | Per-step file budget table, all sub-step checkpoint tables (Steps 1-7)                           |
 
 ## Concurrency Note
 

@@ -140,7 +140,11 @@
           "iac-common",
           "session-resume"
         ],
-        "capability_skills": ["azure-validate", "azure-deploy", "github-operations"]
+        "capability_skills": [
+          "azure-validate",
+          "azure-deploy",
+          "github-operations"
+        ]
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",

@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-21T15:24:31.664Z",
+  "generatedAt": "2026-04-22T08:02:37.295Z",
   "categories": [
     {
       "id": "agent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 20
+      "count": 21
     },
     {
       "id": "validator",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 32
+      "count": 33
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 160,
-  "edgeCount": 713,
+  "nodeCount": 162,
+  "edgeCount": 715,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1618,6 +1618,17 @@
       "meta": {}
     },
     {
+      "id": "prompt:test-apex-recall",
+      "category": "prompt",
+      "label": "test-apex-recall",
+      "description": "Step-by-step test plan for the apex-recall CLI",
+      "path": ".github/prompts/test-apex-recall.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/test-apex-recall.prompt.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "validator:validate-artifacts",
       "category": "validator",
       "label": "validate:artifacts",
@@ -1993,13 +2004,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
+      "description": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/ && cd ../../tools/apex-recall && python -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/",
+        "command": "cd mcp/azure-pricing-mcp && python -m ruff check src/ tests/ && cd ../../tools/apex-recall && python -m ruff check src/",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2030,6 +2041,21 @@
       },
       "meta": {
         "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-apex-recall",
+      "category": "validator",
+      "label": "test:apex-recall",
+      "description": "python -m pytest tests/test_apex_recall/ -q",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python -m pytest tests/test_apex_recall/ -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2208,11 +2234,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 7)",
-      "description": "7 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 8)",
+      "description": "8 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 7
+        "groupSize": 8
       }
     },
     {
@@ -3779,6 +3805,12 @@
       "id": "instruction:agent-authoring--applies-to->prompt:review-imported-iac",
       "source": "instruction:agent-authoring",
       "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:test-apex-recall",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:test-apex-recall",
       "kind": "applies-to"
     },
     {
@@ -5573,6 +5605,12 @@
       "id": "instruction:prompt--applies-to->prompt:review-imported-iac",
       "source": "instruction:prompt",
       "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:test-apex-recall",
+      "source": "instruction:prompt",
+      "target": "prompt:test-apex-recall",
       "kind": "applies-to"
     },
     {

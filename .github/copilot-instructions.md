@@ -137,6 +137,7 @@ Full details in `.github/skills/terraform-patterns/SKILL.md` and root `AGENTS.md
 | `mcp/azure-pricing-mcp/`                       | Azure Pricing MCP server                                                     |
 | `.vscode/mcp.json`                             | MCP server configuration (github, azure-pricing, terraform, microsoft-learn) |
 | `infra/terraform/{project}/`                   | Terraform templates by project                                               |
+| `tools/apex-recall/`                           | Progressive session recall CLI (indexes agent-output/)                       |
 
 ## Validation
 

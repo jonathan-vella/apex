@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://jonathan-vella.github.io/azure-agentic-infraops/project/changelog/)
 for full details on this and all prior releases.
 
+### Added
+
+- feat(cli): `apex-recall` CLI for progressive cross-project session recall.
+  Indexes `agent-output/` into SQLite + FTS5 for low-token context recovery.
+  Integrated into the `session-resume` skill as the first orientation step
+  on start/resume boundaries.
+
 ### Changed
 
 - feat(governance): `schemas/governance-constraints.schema.json` is now
