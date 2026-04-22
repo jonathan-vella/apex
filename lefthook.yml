@@ -36,7 +36,7 @@ pre-commit:
         fi
 
     h2-sync:
-      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,scripts/validate-artifacts*}"
+      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,tools/scripts/validate-artifacts*}"
       run: |
         STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifacts)' || true)
         if [ -n "$STAGED_SYNC" ]; then
@@ -248,16 +248,16 @@ pre-push:
   parallel: true
   commands:
     branch-naming:
-      run: bash scripts/validate-branch-naming.sh
+      run: bash tools/scripts/validate-branch-naming.sh
       fail_text: |
         ❌ Branch naming convention violated!
 
         🔧 Rename your branch using an approved prefix:
-           docs/, agents/, skills/, infra/, scripts/, instructions/,
+           docs/, agents/, skills/, infra/, tools/scripts/, instructions/,
            fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/
 
     branch-scope:
-      run: bash scripts/validate-branch-scope.sh
+      run: bash tools/scripts/validate-branch-scope.sh
       fail_text: |
         ❌ Branch scope violation!
 
@@ -265,7 +265,7 @@ pre-push:
         modify files within their domain. Use feat/ or fix/ for cross-cutting changes.
 
     diff-based-check:
-      run: bash scripts/diff-based-push-check.sh
+      run: bash tools/scripts/diff-based-push-check.sh
       fail_text: |
         ❌ Pre-push validation failed!
 
@@ -278,21 +278,21 @@ post-commit:
     version-sync:
       run: |
         echo "🔍 Checking version synchronization..."
-        node scripts/validate-version-sync.mjs
+        node tools/scripts/validate-version-sync.mjs
       fail_text: "❌ Version sync check failed"
 
     deprecated-refs:
       glob: "*.md"
       run: |
         echo "🔍 Checking for deprecated references..."
-        node scripts/validate-no-deprecated-refs.mjs
+        node tools/scripts/validate-no-deprecated-refs.mjs
       fail_text: "❌ Deprecated references check failed"
 
     terminology:
       glob: "*.{md,mdx,json,mjs,py,yml,yaml,sh,toml,astro,css,html,txt,svg}"
       run: |
         echo "🔍 Checking terminology blocklist..."
-        node scripts/validate-terminology.mjs
+        node tools/scripts/validate-terminology.mjs
       fail_text: "❌ Terminology check failed"
 
     json-syntax:

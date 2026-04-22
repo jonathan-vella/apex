@@ -69,7 +69,7 @@ All hooks are defined in `lefthook.yml` at the repository root.
 
 ## Validation Scripts
 
-All scripts are in the `scripts/` directory. Run via `npm run <command>`.
+All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 ### Architecture and Registry Validators
 

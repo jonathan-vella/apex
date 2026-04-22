@@ -45,7 +45,7 @@ jobs:
       - name: Fetch Azure Updates RSS
         id: fetch-updates
         run: |
-          node scripts/fetch-azure-deprecations.mjs
+          node tools/scripts/fetch-azure-deprecations.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

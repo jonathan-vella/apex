@@ -210,7 +210,6 @@ infra/
       plan.md          # azure-prepare output — source of truth for validate/deploy
 assets/
   drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
-scripts/               # Validation and maintenance scripts (Node.js)
 tools/
   apex-recall/         # Progressive session recall CLI (Python, pip-installable)
   mcp-servers/
@@ -220,6 +219,7 @@ tools/
     agent-registry.json  # Machine-readable agent role → file/model/skills mapping
     count-manifest.json  # Canonical entity counts (computed from globs)
   schemas/             # JSON schemas for session state, governance, workflow, etc.
+  scripts/             # Validation and maintenance scripts (Node.js)
 site/
   src/content/docs/    # Published user-facing documentation (Astro Starlight)
   public/              # Site-served static assets

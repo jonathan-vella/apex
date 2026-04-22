@@ -25,9 +25,12 @@ azure-agentic-infraops/  (APEX)
 ├── infra/bicep/             # Bicep module library
 ├── tools/
 │   ├── apex-recall/        # Progressive session recall CLI
-│   └── mcp-servers/
-│       ├── azure-pricing/  # Azure Pricing MCP server
-│       └── drawio/         # Draw.io MCP server
+│   ├── mcp-servers/
+│   │   ├── azure-pricing/  # Azure Pricing MCP server
+│   │   └── drawio/         # Draw.io MCP server
+│   ├── registry/           # Agent registry + count manifest
+│   ├── schemas/            # JSON schemas
+│   └── scripts/            # Validation and maintenance scripts
 ├── scripts/                 # Validation and automation scripts
 └── temp/                    # Scratch space (gitignored for outputs)
 ```

@@ -92,14 +92,14 @@ If `git status --short` returns nothing, stop and tell the user: "Working tree i
 If the current branch is `main`, warn and stop.
 
 **Branch naming check**: The branch must start with an approved prefix:
-`docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`,
+`docs/`, `agents/`, `skills/`, `infra/`, `tools/scripts/`, `instructions/`,
 `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/`.
 
 If the branch name is invalid, warn the user and suggest renaming:
 `git branch -m <current-name> feat/<descriptive-name>`
 
 For domain-scoped branches (`docs/`, `agents/`, `skills/`, `infra/`,
-`scripts/`, `instructions/`), check that changed files are within scope.
+`tools/scripts/`, `instructions/`), check that changed files are within scope.
 If files are out of scope, warn and suggest using `feat/` or `fix/` instead.
 
 Read `.github/skills/github-operations/references/branch-strategy.md` for

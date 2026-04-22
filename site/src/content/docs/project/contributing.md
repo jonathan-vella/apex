@@ -21,7 +21,7 @@ The guide below is for contributing changes **back to this upstream repo**.
 | Agent prompts and handoffs  | `.github/agents/*.agent.md`          | `agents/`                 |
 | Skills and domain knowledge | `.github/skills/*/SKILL.md`          | `skills/`                 |
 | Bicep or Terraform patterns | `infra/bicep/` or `infra/terraform/` | `infra/`                  |
-| Validation scripts          | `scripts/*.mjs`, `package.json`      | `scripts/`                |
+| Validation scripts          | `tools/scripts/*.mjs`, `package.json`      | `tools/scripts/`                |
 | Published documentation     | `site/src/content/docs/`             | `docs/`                   |
 | Cross-cutting improvements  | Any files                            | `feat/`, `fix/`, `chore/` |
 
@@ -59,7 +59,7 @@ git checkout -b fix/session-state-schema
 
 :::tip[Branch scope enforcement]
 Domain-scoped prefixes (`docs/`, `agents/`, `skills/`, `infra/`,
-`scripts/`, `instructions/`) restrict which files you can touch. If your
+`tools/scripts/`, `instructions/`) restrict which files you can touch. If your
 change spans multiple domains, use a cross-cutting prefix like `feat/`
 or `fix/` instead.
 :::

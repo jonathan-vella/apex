@@ -20,7 +20,7 @@ tools:
 handoffs:
   - label: "▶ Generate Diagram (Draw.io)"
     agent: 04-Design
-    prompt: "Generate an Azure architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. (4) Extract cell IDs from the response via terminal command (do NOT read the full JSON through the LLM). (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node scripts/validate-drawio-files.mjs`. The diagram should be a conceptual enterprise Azure reference-architecture diagram with left-to-right flow, cross-cutting services at bottom (no edges to them), orthogonal edges, and quality score >= 9/10. Prioritize readability at 100% zoom."
+    prompt: "Generate an Azure architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. (4) Extract cell IDs from the response via terminal command (do NOT read the full JSON through the LLM). (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node tools/scripts/validate-drawio-files.mjs`. The diagram should be a conceptual enterprise Azure reference-architecture diagram with left-to-right flow, cross-cutting services at bottom (no edges to them), orthogonal edges, and quality score >= 9/10. Prioritize readability at 100% zoom."
     send: false
   - label: "▶ Generate ADR"
     agent: 04-Design
@@ -217,7 +217,7 @@ to a temp file between steps via terminal command to avoid inflating context.
    `mxGraphModel` embedding, AND edge anchor/waypoint stripping):
 
    ```bash
-   python3 scripts/save-drawio.py '<json-path>' 'agent-output/{project}/03-des-diagram.drawio'
+   python3 tools/scripts/save-drawio.py '<json-path>' 'agent-output/{project}/03-des-diagram.drawio'
    ```
 
 8. **Post-save cleanup** — Run the bundled cleanup script:
@@ -226,7 +226,7 @@ to a temp file between steps via terminal command to avoid inflating context.
    python3 .github/skills/drawio/scripts/cleanup-drawio.py 'agent-output/{project}/03-des-diagram.drawio'
    ```
 
-9. **Validate** — Run `node scripts/validate-drawio-files.mjs` to confirm.
+9. **Validate** — Run `node tools/scripts/validate-drawio-files.mjs` to confirm.
 
 - Leaving service labels left-aligned or inconsistent across peer boxes
 - Leaving stray vector/icon elements outside the intended diagram layout
@@ -290,9 +290,9 @@ generate each diagram as a separate phase with a context checkpoint between them
 6. Extract cell IDs via terminal command (do NOT read full JSON through LLM)
 7. Use `add-cells-to-group` for all group assignments in one call
 8. Call `finish-diagram` with compress: true
-9. Save via `python3 scripts/save-drawio.py <json-path> <output.drawio>`
+9. Save via `python3 tools/scripts/save-drawio.py <json-path> <output.drawio>`
 10. Post-save cleanup: `python3 .github/skills/drawio/scripts/cleanup-drawio.py <output.drawio>`
-11. Validate via `node scripts/validate-drawio-files.mjs`
+11. Validate via `node tools/scripts/validate-drawio-files.mjs`
 12. Left-to-right flow, cross-cutting services at bottom (no edges to them)
 13. Orthogonal edges, generous spacing (120px H, 80px V minimum)
 14. Groups with text: '' and separate bold label vertex above

@@ -215,7 +215,7 @@ Add to `chat.hookFilesLocations` in `.vscode/settings.json`:
 
 ### 4. Add tests and validate
 
-Add test cases to `scripts/test-hooks.sh`, then run:
+Add test cases to `tools/scripts/test-hooks.sh`, then run:
 
 ```bash
 npm run validate:hooks

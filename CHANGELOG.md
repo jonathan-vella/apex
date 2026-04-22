@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Added
 
+- refactor(tools): consolidate validation scripts under `tools/scripts/`.
+  Moves `scripts/` → `tools/scripts/`. Updates 45+ npm scripts, lefthook
+  hooks, CI workflows, instruction applyTo globs, and documentation.
+
 - refactor(tools): consolidate registry files under `tools/registry/`.
   Moves `.github/agent-registry.json` and `.github/count-manifest.json`
   to `tools/registry/`. Updates path references across scripts, agents,

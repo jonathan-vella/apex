@@ -42,10 +42,10 @@ Validates all E2E artifacts for structural compliance (fast, no agent invocation
 npm run e2e:validate
 
 # Specific project
-node scripts/validate-e2e-step.mjs --project=terraform-e2e all
+node tools/scripts/validate-e2e-step.mjs --project=terraform-e2e all
 
 # Single step
-node scripts/validate-e2e-step.mjs --project=e2e-ralph-loop 5
+node tools/scripts/validate-e2e-step.mjs --project=e2e-ralph-loop 5
 ```
 
 ### Benchmark Scoring

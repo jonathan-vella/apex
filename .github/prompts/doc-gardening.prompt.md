@@ -34,21 +34,21 @@ stop and ask the user (do not create them silently):
 
 ## Tasks
 
-1. **Stale documentation** — run `node scripts/check-docs-freshness.mjs` and flag files
+1. **Stale documentation** — run `node tools/scripts/check-docs-freshness.mjs` and flag files
    not updated in >90 days. Diff the resulting `freshness-report.json` against the
    previous committed version (if any) and summarise files that became stale, were
    refreshed, or were added since the last run.
 
-2. **Instruction/skill drift** — run `node scripts/validate-instruction-checks.mjs` to
+2. **Instruction/skill drift** — run `node tools/scripts/validate-instruction-checks.mjs` to
    find orphaned references from deleted/renamed instructions, plus
-   `node scripts/validate-no-deprecated-refs.mjs` to catch stale script/module refs.
+   `node tools/scripts/validate-no-deprecated-refs.mjs` to catch stale script/module refs.
 
-3. **Cross-reference integrity** — run `node scripts/validate-skills.mjs` (covers format
+3. **Cross-reference integrity** — run `node tools/scripts/validate-skills.mjs` (covers format
    and size; replaces the historical `validate-skills-format.mjs`) and
-   `node scripts/validate-agents.mjs` (covers frontmatter; replaces the historical
+   `node tools/scripts/validate-agents.mjs` (covers frontmatter; replaces the historical
    `validate-agent-frontmatter.mjs`).
 
-4. **Count-manifest alignment** — run `node scripts/validate-no-hardcoded-counts.mjs`.
+4. **Count-manifest alignment** — run `node tools/scripts/validate-no-hardcoded-counts.mjs`.
    Additionally, scan `site/src/content/docs/**/*.{md,mdx}`, `README.md`, `AGENTS.md`,
    and `QUALITY_SCORE.md` for numeric entity counts (e.g., "15 agents", "41 skills")
    that conflict with `count-manifest.json` computed values. Report each conflict with

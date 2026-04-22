@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-22T14:35:31.909Z",
+  "generatedAt": "2026-04-22T14:49:33.667Z",
   "categories": [
     {
       "id": "agent",
@@ -1123,7 +1123,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/code-quality.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, mcp/**/*.{py,ts,js,mjs}, site/**/*.{ts,mjs,js}"
+        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}, site/**/*.{ts,mjs,js}"
       }
     },
     {
@@ -1149,7 +1149,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/docs-trigger.instructions.md"
       },
       "meta": {
-        "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/scripts/*.mjs"
+        "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs"
       }
     },
     {
@@ -1305,7 +1305,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/markdown.instructions.md"
       },
       "meta": {
-        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, mcp/**/*.md, scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1318,7 +1318,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-hardcoded-counts.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{md,json}, scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": ".github/**/*.{md,json}, tools/scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1610,260 +1610,260 @@
       "id": "validator:validate-artifacts",
       "category": "validator",
       "label": "validate:artifacts",
-      "description": "node scripts/validate-artifacts.mjs",
+      "description": "node tools/scripts/validate-artifacts.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-artifacts.mjs"
+        "command": "node tools/scripts/validate-artifacts.mjs"
       }
     },
     {
       "id": "validator:validate-agents",
       "category": "validator",
       "label": "validate:agents",
-      "description": "node scripts/validate-agents.mjs",
+      "description": "node tools/scripts/validate-agents.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-agents.mjs"
+        "command": "node tools/scripts/validate-agents.mjs"
       }
     },
     {
       "id": "validator:validate-skills",
       "category": "validator",
       "label": "validate:skills",
-      "description": "node scripts/validate-skills.mjs",
+      "description": "node tools/scripts/validate-skills.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-skills.mjs"
+        "command": "node tools/scripts/validate-skills.mjs"
       }
     },
     {
       "id": "validator:lint-version-sync",
       "category": "validator",
       "label": "lint:version-sync",
-      "description": "node scripts/validate-version-sync.mjs",
+      "description": "node tools/scripts/validate-version-sync.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-version-sync.mjs"
+        "command": "node tools/scripts/validate-version-sync.mjs"
       }
     },
     {
       "id": "validator:lint-deprecated-refs",
       "category": "validator",
       "label": "lint:deprecated-refs",
-      "description": "node scripts/validate-no-deprecated-refs.mjs",
+      "description": "node tools/scripts/validate-no-deprecated-refs.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-no-deprecated-refs.mjs"
+        "command": "node tools/scripts/validate-no-deprecated-refs.mjs"
       }
     },
     {
       "id": "validator:lint-mcp-config",
       "category": "validator",
       "label": "lint:mcp-config",
-      "description": "node scripts/validate-mcp-config.mjs",
+      "description": "node tools/scripts/validate-mcp-config.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-mcp-config.mjs"
+        "command": "node tools/scripts/validate-mcp-config.mjs"
       }
     },
     {
       "id": "validator:validate-instruction-checks",
       "category": "validator",
       "label": "validate:instruction-checks",
-      "description": "node scripts/validate-instruction-checks.mjs",
+      "description": "node tools/scripts/validate-instruction-checks.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-instruction-checks.mjs"
+        "command": "node tools/scripts/validate-instruction-checks.mjs"
       }
     },
     {
       "id": "validator:lint-governance-refs",
       "category": "validator",
       "label": "lint:governance-refs",
-      "description": "node scripts/validate-governance-refs.mjs",
+      "description": "node tools/scripts/validate-governance-refs.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-governance-refs.mjs"
+        "command": "node tools/scripts/validate-governance-refs.mjs"
       }
     },
     {
       "id": "validator:validate-session-state",
       "category": "validator",
       "label": "validate:session-state",
-      "description": "node scripts/validate-session-state.mjs",
+      "description": "node tools/scripts/validate-session-state.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-session-state.mjs"
+        "command": "node tools/scripts/validate-session-state.mjs"
       }
     },
     {
       "id": "validator:validate-session-lock",
       "category": "validator",
       "label": "validate:session-lock",
-      "description": "node scripts/validate-session-lock.mjs",
+      "description": "node tools/scripts/validate-session-lock.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-session-lock.mjs"
+        "command": "node tools/scripts/validate-session-lock.mjs"
       }
     },
     {
       "id": "validator:validate-workflow-graph",
       "category": "validator",
       "label": "validate:workflow-graph",
-      "description": "node scripts/validate-workflow-graph.mjs",
+      "description": "node tools/scripts/validate-workflow-graph.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-workflow-graph.mjs"
+        "command": "node tools/scripts/validate-workflow-graph.mjs"
       }
     },
     {
       "id": "validator:validate-agent-registry",
       "category": "validator",
       "label": "validate:agent-registry",
-      "description": "node scripts/validate-agent-registry.mjs",
+      "description": "node tools/scripts/validate-agent-registry.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-agent-registry.mjs"
+        "command": "node tools/scripts/validate-agent-registry.mjs"
       }
     },
     {
       "id": "validator:lint-registry-coverage",
       "category": "validator",
       "label": "lint:registry-coverage",
-      "description": "node scripts/validate-registry-skill-coverage.mjs",
+      "description": "node tools/scripts/validate-registry-skill-coverage.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-registry-skill-coverage.mjs"
+        "command": "node tools/scripts/validate-registry-skill-coverage.mjs"
       }
     },
     {
       "id": "validator:validate-skill-checks",
       "category": "validator",
       "label": "validate:skill-checks",
-      "description": "node scripts/validate-skill-checks.mjs",
+      "description": "node tools/scripts/validate-skill-checks.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-skill-checks.mjs"
+        "command": "node tools/scripts/validate-skill-checks.mjs"
       }
     },
     {
       "id": "validator:lint-json",
       "category": "validator",
       "label": "lint:json",
-      "description": "node scripts/lint-json.mjs",
+      "description": "node tools/scripts/lint-json.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/lint-json.mjs"
+        "command": "node tools/scripts/lint-json.mjs"
       }
     },
     {
       "id": "validator:lint-json-schemas",
       "category": "validator",
       "label": "lint:json-schemas",
-      "description": "node scripts/validate-json-schemas.mjs",
+      "description": "node tools/scripts/validate-json-schemas.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-json-schemas.mjs"
+        "command": "node tools/scripts/validate-json-schemas.mjs"
       }
     },
     {
       "id": "validator:lint-glob-audit",
       "category": "validator",
       "label": "lint:glob-audit",
-      "description": "node scripts/validate-glob-audit.mjs",
+      "description": "node tools/scripts/validate-glob-audit.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-glob-audit.mjs"
+        "command": "node tools/scripts/validate-glob-audit.mjs"
       }
     },
     {
       "id": "validator:lint-orphaned-content",
       "category": "validator",
       "label": "lint:orphaned-content",
-      "description": "node scripts/validate-orphaned-content.mjs",
+      "description": "node tools/scripts/validate-orphaned-content.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-orphaned-content.mjs"
+        "command": "node tools/scripts/validate-orphaned-content.mjs"
       }
     },
     {
       "id": "validator:lint-docs-freshness",
       "category": "validator",
       "label": "lint:docs-freshness",
-      "description": "node scripts/check-docs-freshness.mjs",
+      "description": "node tools/scripts/check-docs-freshness.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/check-docs-freshness.mjs"
+        "command": "node tools/scripts/check-docs-freshness.mjs"
       }
     },
     {
       "id": "validator:validate-no-hardcoded-counts",
       "category": "validator",
       "label": "validate:no-hardcoded-counts",
-      "description": "node scripts/validate-no-hardcoded-counts.mjs",
+      "description": "node tools/scripts/validate-no-hardcoded-counts.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-no-hardcoded-counts.mjs",
+        "command": "node tools/scripts/validate-no-hardcoded-counts.mjs",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -1872,13 +1872,13 @@
       "id": "validator:validate-hooks",
       "category": "validator",
       "label": "validate:hooks",
-      "description": "node scripts/validate-hooks.mjs",
+      "description": "node tools/scripts/validate-hooks.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-hooks.mjs",
+        "command": "node tools/scripts/validate-hooks.mjs",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -1887,13 +1887,13 @@
       "id": "validator:validate-iac-security-baseline",
       "category": "validator",
       "label": "validate:iac-security-baseline",
-      "description": "node scripts/validate-iac-security-baseline.mjs",
+      "description": "node tools/scripts/validate-iac-security-baseline.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-iac-security-baseline.mjs",
+        "command": "node tools/scripts/validate-iac-security-baseline.mjs",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -1902,39 +1902,39 @@
       "id": "validator:validate-vscode",
       "category": "validator",
       "label": "validate:vscode",
-      "description": "node scripts/validate-vscode-config.mjs",
+      "description": "node tools/scripts/validate-vscode-config.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-vscode-config.mjs"
+        "command": "node tools/scripts/validate-vscode-config.mjs"
       }
     },
     {
       "id": "validator:lint-drawio",
       "category": "validator",
       "label": "lint:drawio",
-      "description": "node scripts/validate-drawio-files.mjs",
+      "description": "node tools/scripts/validate-drawio-files.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-drawio-files.mjs"
+        "command": "node tools/scripts/validate-drawio-files.mjs"
       }
     },
     {
       "id": "validator:validate-terminology",
       "category": "validator",
       "label": "validate:terminology",
-      "description": "node scripts/validate-terminology.mjs",
+      "description": "node tools/scripts/validate-terminology.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-terminology.mjs",
+        "command": "node tools/scripts/validate-terminology.mjs",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -1943,26 +1943,26 @@
       "id": "validator:lint-model-floors",
       "category": "validator",
       "label": "lint:model-floors",
-      "description": "node scripts/validate-model-floors.mjs",
+      "description": "node tools/scripts/validate-model-floors.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node scripts/validate-model-floors.mjs"
+        "command": "node tools/scripts/validate-model-floors.mjs"
       }
     },
     {
       "id": "validator:validate-explorer-graph",
       "category": "validator",
       "label": "validate:explorer-graph",
-      "description": "EXPLORER_GRAPH_STRICT=1 node scripts/validate-explorer-graph.mjs",
+      "description": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "EXPLORER_GRAPH_STRICT=1 node scripts/validate-explorer-graph.mjs"
+        "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs"
       }
     },
     {

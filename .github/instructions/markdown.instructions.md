@@ -1,6 +1,6 @@
 ---
 description: "Documentation and content creation standards for markdown files"
-applyTo: "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, mcp/**/*.md, scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
+applyTo: "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
 ---
 
 # Markdown Documentation Standards
@@ -51,7 +51,7 @@ See `azure-artifacts.instructions.md` for the complete heading reference.
 1. Preserve H2 heading order (invariant sections)
 2. No embedded skeletons — link to templates
 3. Optional sections after last required H2
-4. Validated by `scripts/validate-artifacts.mjs`
+4. Validated by `tools/scripts/validate-artifacts.mjs`
 
 Enforcement: Lefthook pre-commit + CI + `npm run fix:artifact-h2`.
 

@@ -27,7 +27,7 @@ tests/
 npm run e2e:validate
 
 # Validate a specific step
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 2
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 2
 
 # Benchmark scoring (8 dimensions, 0-100)
 npm run e2e:benchmark
@@ -91,24 +91,24 @@ After the runs complete:
 
 ```bash
 # Validate all runs
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 all
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-2 all
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-3 all
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-1 all
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-2 all
-node scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-3 all
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 all
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-2 all
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-3 all
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-1 all
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-2 all
+node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-3 all
 
 # Benchmark each run
-node scripts/benchmark-e2e.mjs contoso-service-hub-run-1
-node scripts/benchmark-e2e.mjs contoso-service-hub-run-2
-node scripts/benchmark-e2e.mjs contoso-service-hub-run-3
-node scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-1
-node scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-2
-node scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-3
+node tools/scripts/benchmark-e2e.mjs contoso-service-hub-run-1
+node tools/scripts/benchmark-e2e.mjs contoso-service-hub-run-2
+node tools/scripts/benchmark-e2e.mjs contoso-service-hub-run-3
+node tools/scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-1
+node tools/scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-2
+node tools/scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-3
 
 # Combine per track
-node scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
-node scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3
+node tools/scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
+node tools/scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3
 
 # Cross-track comparison
 npm run e2e:benchmark -- --compare

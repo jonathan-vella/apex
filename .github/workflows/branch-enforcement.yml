@@ -73,8 +73,8 @@ jobs:
               LABEL="infra/"
               ;;
             scripts)
-              ALLOWED='^(scripts/|package\.json)'
-              LABEL="scripts/, package.json"
+              ALLOWED='^(tools/scripts/|package\.json)'
+              LABEL="tools/scripts/, package.json"
               ;;
             instructions)
               ALLOWED='^\.github/instructions/'

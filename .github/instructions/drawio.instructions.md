@@ -38,13 +38,13 @@ For Steps 3, 4, and 7 architecture deliverables:
 - Use `drawio/create-groups` for VNets, subnets, resource groups — set `text: ""`, add separate label vertex above
 - Edges: orthogonal only, NEVER set `entryX/entryY/exitX/exitY` — server auto-calculates anchors
 - **CRITICAL**: The MCP server injects anchor points and waypoints into edges despite not being
-  requested. After `finish-diagram`, ALWAYS use `scripts/save-drawio.py` to strip them.
+  requested. After `finish-diagram`, ALWAYS use `tools/scripts/save-drawio.py` to strip them.
   This lets Draw.io's client renderer calculate clean orthogonal paths when opened.
 - Minimize edge count — merge semantically similar paths instead of chaining 3 edges
 - Cross-cutting services at bottom (120px below main flow) — NO edges to them
 - For multi-step diagrams, use transactional mode (`transactional: true` on all calls), then `finish-diagram`
 - Use `compress: true` on `export-diagram`/`finish-diagram` for smaller payloads
-- Save exported `.drawio` via `python3 scripts/save-drawio.py <json> <output.drawio>` — handles
+- Save exported `.drawio` via `python3 tools/scripts/save-drawio.py <json> <output.drawio>` — handles
   decompression, mxGraphModel embedding, and edge anchor stripping in one step
 - Do NOT read large MCP JSON responses back through the LLM — extract via terminal commands
 - The MCP server is NOT stateful between calls; you MUST pass `diagram_xml` from the
@@ -53,8 +53,8 @@ For Steps 3, 4, and 7 architecture deliverables:
 
 ## Validation
 
-Files are validated by `scripts/validate-drawio-files.mjs` against the
+Files are validated by `tools/scripts/validate-drawio-files.mjs` against the
 14-point checklist from the draw.io style reference.
-Use `scripts/save-drawio.py` before validation to ensure correct format.
+Use `tools/scripts/save-drawio.py` before validation to ensure correct format.
 
 Full skill guidance: `.github/skills/drawio/SKILL.md`

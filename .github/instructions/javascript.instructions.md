@@ -17,7 +17,7 @@ target Node.js LTS (22+) and use ES modules (`.mjs`).
 
 ## Script Structure
 
-Follow the existing pattern in `scripts/`:
+Follow the existing pattern in `tools/scripts/`:
 
 ```javascript
 #!/usr/bin/env node
@@ -25,7 +25,7 @@ Follow the existing pattern in `scripts/`:
  * Brief description of what the script validates or does.
  *
  * @example
- * node scripts/my-script.mjs
+ * node tools/scripts/my-script.mjs
  */
 
 import fs from "node:fs";

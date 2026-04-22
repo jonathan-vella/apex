@@ -1,6 +1,6 @@
 ---
 description: Trigger conditions for updating documentation when code changes. Defines WHEN docs need updating — not HOW to write them (see docs.instructions.md and markdown.instructions.md for formatting).
-applyTo: "**/*.agent.md, **/.github/skills/**/SKILL.md, **/scripts/*.mjs"
+applyTo: "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs"
 ---
 
 # Update Documentation on Code Change
