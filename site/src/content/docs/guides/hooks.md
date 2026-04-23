@@ -44,7 +44,6 @@ sequenceDiagram
 | Hook Directory         | Event(s)                             | Purpose                                               | Timeout |
 | :--------------------- | :----------------------------------- | :---------------------------------------------------- | ------: |
 | `governance-audit/`    | SessionStart, Stop, UserPromptSubmit | Audit session lifecycle and prompt governance         |   5–10s |
-| `post-edit-format/`    | PostToolUse                          | Auto-format `.md`, `.bicep`, `.tf`, `.js` after edits |     30s |
 | `secrets-scanner/`     | Stop                                 | Scan for leaked secrets at session end                |     30s |
 | `session-logger/`      | SessionStart, Stop, UserPromptSubmit | Log session start/end and prompt activity             |      5s |
 | `subagent-validation/` | SubagentStop                         | Validate subagent output quality (advisory)           |     15s |
@@ -58,7 +57,6 @@ Hooks are registered in `.vscode/settings.json`:
 {
   "chat.hookFilesLocations": {
     ".github/hooks/governance-audit": true,
-    ".github/hooks/post-edit-format": true,
     ".github/hooks/secrets-scanner": true,
     ".github/hooks/session-logger": true,
     ".github/hooks/subagent-validation": true,
@@ -74,10 +72,10 @@ Agents can define hooks in their YAML frontmatter (requires `chat.useCustomAgent
 
 ```yaml
 hooks:
-  PostToolUse:
+  PreToolUse:
     - type: command
-      command: "bash .github/hooks/post-edit-format/post-edit-format.sh"
-      timeout: 30
+      command: "bash .github/hooks/tool-guardian/guard-tool.sh"
+      timeout: 10
 ```
 
 :::caution[Do not duplicate global hooks]
@@ -244,7 +242,7 @@ npm run test:hooks
 If a hook exceeds its timeout, VS Code kills the process and continues. Check for:
 
 - Network calls in hooks (avoid — hooks should be fast and local)
-- Large file processing (the >1MB guard in post-edit-format prevents this)
+- Large file processing
 - Missing tool binaries (hooks should check `command -v` before running tools)
 
 ### Manual Testing

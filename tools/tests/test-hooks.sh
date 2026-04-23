@@ -141,30 +141,6 @@ run_test_exit_code "passthrough non-terminal tools" "$HOOK" \
 echo ""
 
 # ═══════════════════════════════════════════════════════════════
-# PostToolUse: post-edit-format
-# ═══════════════════════════════════════════════════════════════
-echo "📂 post-edit-format/"
-HOOK="$HOOKS_DIR/post-edit-format/post-edit-format.sh"
-
-run_test "passthrough non-edit tools" "$HOOK" \
-  '{"tool_name":"run_in_terminal","tool_input":{"command":"ls"}}' \
-  '"continue":\s*true'
-
-run_test "passthrough unknown file type" "$HOOK" \
-  '{"tool_name":"create_file","tool_input":{"filePath":"/tmp/test.xyz"}}' \
-  '"continue":\s*true'
-
-run_test "handle .tf file (terraform available)" "$HOOK" \
-  '{"tool_name":"replace_string_in_file","tool_input":{"filePath":"/tmp/test.tf"}}' \
-  '"continue":\s*true'
-
-run_test "handle empty file path" "$HOOK" \
-  '{"tool_name":"create_file","tool_input":{}}' \
-  '"continue":\s*true'
-
-echo ""
-
-# ═══════════════════════════════════════════════════════════════
 # sessionStart/sessionEnd/userPromptSubmitted: session-logger
 # ═══════════════════════════════════════════════════════════════
 echo "📂 session-logger/"
