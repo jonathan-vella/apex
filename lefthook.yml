@@ -3,7 +3,10 @@
 # https://github.com/evilmartians/lefthook
 
 pre-commit:
-  parallel: false
+  # SAFETY: parallel is safe only while markdown-lint is the sole stage_fixed command.
+  # Adding another auto-fixer requires switching back to parallel: false or adding
+  # explicit file-lock coordination.
+  parallel: true
   commands:
     markdown-lint:
       glob: "*.md"
@@ -81,87 +84,51 @@ pre-commit:
         📚 Reference: .github/instructions/azure-artifacts.instructions.md
         🔧 Auto-fix: npm run fix:artifacts -- <file> --apply
 
-    agent-frontmatter:
-      glob: "**/*.agent.md"
-      run: |
-        # Check if any agent files are staged
-        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.agent\.md$' || true)
-        if [ -n "$STAGED_AGENTS" ]; then
-          COUNT=$(echo "$STAGED_AGENTS" | wc -l | tr -d ' ')
-          echo "🤖 Validating $COUNT agent file(s)..."
-          npm run validate:agents
-        else
-          echo "ℹ️  No agent files to validate"
-        fi
-      fail_text: |
-        ❌ Agent frontmatter validation failed!
-
-        🔧 Check YAML syntax in agent definitions
-        📚 Reference: .github/instructions/agent-authoring.instructions.md
-
-    model-alignment:
+    agents:
       glob: "**/*.agent.md,**/*.prompt.md"
       run: |
         STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|prompt)\.md$' || true)
         if [ -n "$STAGED" ]; then
-          echo "🔗 Checking model-prompt alignment..."
+          COUNT=$(echo "$STAGED" | wc -l | tr -d ' ')
+          echo "🤖 Validating $COUNT agent/prompt file(s)..."
           npm run validate:agents
         else
-          echo "ℹ️  No agent/prompt files to check"
+          echo "ℹ️  No agent/prompt files to validate"
         fi
       fail_text: |
-        ❌ Model-prompt alignment check failed!
+        ❌ Agent validation failed!
 
-        🔧 Fix prompt model mismatches or stale handoff overrides
+        Checks: frontmatter syntax, model-prompt alignment, body size (<400 lines),
+        language density (<5 absolute terms per 100 lines)
         📚 Reference: .github/instructions/agent-authoring.instructions.md
 
-    agent-checks:
-      glob: "**/*.agent.md"
+    instructions:
+      glob: "**/*.instructions.md,{.github/agents/**,.github/skills/**,.github/instructions/**}"
       run: |
-        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.agent\.md$' || true)
-        if [ -n "$STAGED_AGENTS" ]; then
-          echo "📝 Checking agent body size + language density..."
-          npm run validate:agents
-        else
-          echo "ℹ️  No agent files to check"
-        fi
-      fail_text: |
-        ❌ Agent checks failed!
-
-        🔧 Fix body size (>400 lines) or soften absolute language (>5/100 lines)
-
-    instruction-checks:
-      glob: "**/*.instructions.md"
-      run: |
-        STAGED_INSTR=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.instructions\.md$' || true)
-        if [ -n "$STAGED_INSTR" ]; then
-          COUNT=$(echo "$STAGED_INSTR" | wc -l | tr -d ' ')
-          echo "📋 Validating $COUNT instruction file(s)..."
+        STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(instructions|agent)\.md$|SKILL\.md$' || true)
+        if [ -n "$STAGED" ]; then
+          COUNT=$(echo "$STAGED" | wc -l | tr -d ' ')
+          echo "📋 Validating $COUNT instruction/reference file(s)..."
           npm run validate:instruction-checks
         else
           echo "ℹ️  No instruction files to validate"
         fi
       fail_text: |
-        ❌ Instruction frontmatter validation failed!
+        ❌ Instruction validation failed!
 
-        📚 Allowed fields: description, applyTo
-        🔧 Remove any non-standard fields from YAML frontmatter
+        Checks: frontmatter syntax (description, applyTo only), cross-reference integrity
+        📚 Run: npm run validate:instruction-checks
 
-    instruction-refs:
-      glob: "{.github/agents/**,.github/skills/**,.github/instructions/**}"
+    secrets-baseline:
       run: |
-        STAGED_REFS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(agent|instructions)\.md$|SKILL\.md$' || true)
-        if [ -n "$STAGED_REFS" ]; then
-          echo "🔗 Validating instruction cross-references..."
-          npm run validate:instruction-checks
+        if command -v gitleaks &>/dev/null; then
+          gitleaks protect --staged --redact --no-banner
         else
-          echo "ℹ️  No agent/skill/instruction files to check references"
+          echo "⚠️  gitleaks not installed — skipping secret scan (CI will enforce)"
         fi
       fail_text: |
-        ❌ Instruction reference validation failed!
-
-        🔧 A referenced instruction or skill file does not exist.
-        📚 Run: npm run validate:instruction-checks
+        ❌ Secrets detected in staged files!
+        🔧 Remove secrets before committing. See AGENTS.md for gitleaks setup.
 
     python-lint:
       glob: "tools/mcp-servers/**/*.py"
@@ -271,39 +238,3 @@ pre-push:
 
         🔧 Run the failing validator manually to see details.
         Only validators for changed file types were executed.
-
-# Post-commit validation checks (enforced)
-post-commit:
-  commands:
-    version-sync:
-      run: |
-        echo "🔍 Checking version synchronization..."
-        node tools/scripts/validate-version-sync.mjs
-      fail_text: "❌ Version sync check failed"
-
-    deprecated-refs:
-      glob: "*.md"
-      run: |
-        echo "🔍 Checking for deprecated references..."
-        node tools/scripts/validate-no-deprecated-refs.mjs
-      fail_text: "❌ Deprecated references check failed"
-
-    terminology:
-      glob: "*.{md,mdx,json,mjs,py,yml,yaml,sh,toml,astro,css,html,txt,svg}"
-      run: |
-        echo "🔍 Checking terminology blocklist..."
-        node tools/scripts/validate-terminology.mjs
-      fail_text: "❌ Terminology check failed"
-
-    json-syntax:
-      glob: "*.json"
-      run: |
-        echo "🔍 Validating JSON syntax..."
-        # Use last commit's changed files (post-commit has no staged files)
-        CHANGED_JSON=$(git diff --name-only HEAD~1..HEAD 2>/dev/null | grep '\.json$' | grep -v node_modules | grep -v infra || true)
-        if [ -n "$CHANGED_JSON" ]; then
-          for f in $CHANGED_JSON; do
-            [ -f "$f" ] && node -e "JSON.parse(require('fs').readFileSync('$f'))" 2>/dev/null && echo "  ✓ $f" || { echo "  ✗ $f - Invalid JSON"; exit 1; }
-          done
-        fi
-      fail_text: "❌ JSON syntax validation failed"

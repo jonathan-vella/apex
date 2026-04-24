@@ -34,12 +34,11 @@ Each hook lives in its own folder under `.github/hooks/` (one `hooks.json` + one
 
 | Folder                 | Event                                               | Script                      | Purpose                                                       |
 | ---------------------- | --------------------------------------------------- | --------------------------- | ------------------------------------------------------------- |
-| `tool-guardian/`       | `preToolUse`                                        | `guard-tool.sh`             | Block dangerous commands + hook self-modification protection  |
-| `secrets-scanner/`     | `sessionEnd`                                        | `scan-secrets.sh`           | Scan modified files for leaked secrets and credentials        |
-| `session-logger/`      | `sessionStart`, `sessionEnd`, `userPromptSubmitted` | `log-session-start.sh` etc. | Log session lifecycle and inject project context              |
-| `governance-audit/`    | `sessionStart`, `sessionEnd`, `userPromptSubmitted` | `audit-prompt.sh` etc.      | Scan prompts for threat signals with governance levels        |
-| `post-edit-format/`    | `PostToolUse`                                       | `post-edit-format.sh`       | Auto-run `markdownlint` on `.md` and `terraform fmt` on `.tf` |
+| `tool-guardian/`       | `PreToolUse`                                        | `guard-tool.sh`             | Block dangerous commands + hook self-modification protection  |
+| `secrets-scanner/`     | `Stop`                                              | `scan-secrets.sh`           | Scan modified files for leaked secrets and credentials        |
+| `session-telemetry/`   | `SessionStart`, `Stop`, `UserPromptSubmit`          | `session-start.sh` etc.     | Merged session lifecycle logging and governance audit          |
 | `subagent-validation/` | `SubagentStop`                                      | `subagent-validation.sh`    | Validate subagent output quality (advisory)                   |
+| `tool-audit/`          | `PostToolUse`                                       | `tool-audit.sh`             | Log tool usage metadata (name, status)                        |
 
 Hook folder paths are registered in `.vscode/settings.json` via `chat.hookFilesLocations`.
 

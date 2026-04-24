@@ -1,0 +1,8 @@
+# Gitleaks configuration — path-based allowlist for test fixtures
+# These files contain intentional dummy secrets (e.g., AKIAIOSFODNN7EXAMPLE)
+
+[allowlist]
+paths = [
+  '''tools/tests/test-hooks\.sh''',
+  '''tools/tests/bats/secrets-scanner\.bats''',
+]

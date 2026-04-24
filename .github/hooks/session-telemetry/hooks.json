@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/session-telemetry/session-start.sh",
+        "timeout": 5
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/session-telemetry/prompt-submit.sh",
+        "timeout": 10
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/session-telemetry/session-end.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}

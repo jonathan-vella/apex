@@ -33,6 +33,7 @@ pip install -r requirements.txt
 - **Node.js** + npm (validation scripts)
 - **Python 3** + pip (MCP server, diagram generation)
 - **Go** (Terraform MCP server)
+- **gitleaks** (pre-commit secret scanning; local soft-skip if missing, CI hard-fail)
 - **apex-recall** CLI (progressive session recall for agent-output artifacts)
 
 ## Build & Validation

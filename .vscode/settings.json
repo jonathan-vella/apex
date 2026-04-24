@@ -12,10 +12,9 @@
   "chat.hookFilesLocations": {
     ".github/hooks/tool-guardian": true,
     ".github/hooks/secrets-scanner": true,
-    ".github/hooks/session-logger": true,
-    ".github/hooks/governance-audit": true,
-    ".github/hooks/post-edit-format": true,
-    ".github/hooks/subagent-validation": true
+    ".github/hooks/session-telemetry": true,
+    ".github/hooks/subagent-validation": true,
+    ".github/hooks/tool-audit": true
   },
   "chat.useCustomAgentHooks": true,
   "chat.useAgentSkills": true,

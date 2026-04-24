@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/tool-audit/tool-audit.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}
