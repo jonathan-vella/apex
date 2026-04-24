@@ -268,7 +268,10 @@ const OPTIONAL_ALLOWED = {
   "01-requirements.md": ["## References"],
   "02-architecture-assessment.md": ["## References"],
   "04-implementation-plan.md": ["## References"],
-  "04-governance-constraints.md": ["## References"],
+  "04-governance-constraints.md": [
+    "## 📜 Compliance Frameworks",
+    "## References",
+  ],
   "04-preflight-check.md": ["## References"],
   "05-implementation-reference.md": ["## Next Steps", "## References"],
   "06-deployment-summary.md": ["## References"],

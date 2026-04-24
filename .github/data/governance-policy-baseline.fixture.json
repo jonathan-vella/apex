@@ -1,0 +1,166 @@
+{
+  "schema_version": "governance-baseline-v1",
+  "management_group_id": "mg-contoso-root",
+  "coverage_status": "COMPLETE",
+  "subscriptions_discovered": 2,
+  "subscriptions_processed": 1,
+  "subscriptions_skipped": [],
+  "subscriptions_excluded": [
+    {
+      "subscription_id": "00000000-0000-0000-0000-000000000002",
+      "reason": "disabled"
+    }
+  ],
+  "summary": {
+    "total_findings": 3,
+    "total_blockers": 1,
+    "total_auto_remediate": 1,
+    "subscriptions_complete": 1
+  },
+  "subscriptions": {
+    "00000000-0000-0000-0000-000000000001": {
+      "schema_version": "governance-constraints-v1",
+      "subscription_id": "00000000-0000-0000-0000-000000000001",
+      "discovered_at": "2026-04-20T04:00:00Z",
+      "source": "github-actions-baseline",
+      "discovery_status": "COMPLETE",
+      "discovery_summary": {
+        "assignment_total": 10,
+        "assignment_kept": 8,
+        "defender_auto_filtered": 2,
+        "subscription_scope_count": 3,
+        "management_group_inherited_count": 5,
+        "blocker_count": 1,
+        "auto_remediate_count": 1,
+        "informational_count": 1,
+        "audit_count": 4,
+        "disabled_count": 1,
+        "exempted_count": 0
+      },
+      "assignment_inventory": [
+        {
+          "displayName": "Require TLS 1.2",
+          "scope": "/providers/Microsoft.Management/managementGroups/mg-contoso-root",
+          "assignmentType": "management-group",
+          "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000010"
+        }
+      ],
+      "findings": [
+        {
+          "policy_id": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000010",
+          "display_name": "Require minimum TLS version of 1.2",
+          "effect": "deny",
+          "scope": "/providers/Microsoft.Management/managementGroups/mg-contoso-root",
+          "assignment_display_name": "Require TLS 1.2",
+          "assignment_id": "/providers/microsoft.authorization/policyassignments/tls12",
+          "classification": "blocker",
+          "category": "Security",
+          "resource_types": ["Microsoft.Storage/storageAccounts"],
+          "required_value": "TLS1_2",
+          "azurePropertyPath": "properties.minimumTlsVersion",
+          "bicepPropertyPath": "minimumTlsVersion",
+          "exemption": null,
+          "override": null
+        },
+        {
+          "policy_id": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000011",
+          "display_name": "Deploy diagnostic settings for storage accounts",
+          "effect": "deployIfNotExists",
+          "scope": "/providers/Microsoft.Management/managementGroups/mg-contoso-root",
+          "assignment_display_name": "Diagnostics for storage",
+          "assignment_id": "/providers/microsoft.authorization/policyassignments/diag-storage",
+          "classification": "auto-remediate",
+          "category": "Monitoring",
+          "resource_types": ["Microsoft.Storage/storageAccounts"],
+          "required_value": null,
+          "azurePropertyPath": null,
+          "bicepPropertyPath": null,
+          "exemption": null,
+          "override": null
+        },
+        {
+          "policy_id": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000012",
+          "display_name": "Require tag on resource group",
+          "effect": "deny",
+          "scope": "/subscriptions/00000000-0000-0000-0000-000000000001",
+          "assignment_display_name": "Tag enforcement",
+          "assignment_id": "/providers/microsoft.authorization/policyassignments/tag-enforce",
+          "classification": "blocker",
+          "category": "Tags",
+          "resource_types": ["Microsoft.Resources/subscriptions/resourceGroups"],
+          "required_value": null,
+          "azurePropertyPath": null,
+          "bicepPropertyPath": null,
+          "exemption": null,
+          "override": null,
+          "pathSemantics": "tag-policy-non-property",
+          "assignment_parameters": {
+            "tagName": "Environment"
+          }
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000010",
+          "display_name": "Require minimum TLS version of 1.2",
+          "effect": "deny",
+          "scope": "/providers/Microsoft.Management/managementGroups/mg-contoso-root",
+          "assignment_display_name": "Require TLS 1.2",
+          "assignment_id": "/providers/microsoft.authorization/policyassignments/tls12",
+          "classification": "blocker",
+          "category": "Security",
+          "resource_types": ["Microsoft.Storage/storageAccounts"],
+          "required_value": "TLS1_2",
+          "azurePropertyPath": "properties.minimumTlsVersion",
+          "bicepPropertyPath": "minimumTlsVersion",
+          "exemption": null,
+          "override": null
+        },
+        {
+          "policy_id": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000011",
+          "display_name": "Deploy diagnostic settings for storage accounts",
+          "effect": "deployIfNotExists",
+          "scope": "/providers/Microsoft.Management/managementGroups/mg-contoso-root",
+          "assignment_display_name": "Diagnostics for storage",
+          "assignment_id": "/providers/microsoft.authorization/policyassignments/diag-storage",
+          "classification": "auto-remediate",
+          "category": "Monitoring",
+          "resource_types": ["Microsoft.Storage/storageAccounts"],
+          "required_value": null,
+          "azurePropertyPath": null,
+          "bicepPropertyPath": null,
+          "exemption": null,
+          "override": null
+        },
+        {
+          "policy_id": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000012",
+          "display_name": "Require tag on resource group",
+          "effect": "deny",
+          "scope": "/subscriptions/00000000-0000-0000-0000-000000000001",
+          "assignment_display_name": "Tag enforcement",
+          "assignment_id": "/providers/microsoft.authorization/policyassignments/tag-enforce",
+          "classification": "blocker",
+          "category": "Tags",
+          "resource_types": ["Microsoft.Resources/subscriptions/resourceGroups"],
+          "required_value": null,
+          "azurePropertyPath": null,
+          "bicepPropertyPath": null,
+          "exemption": null,
+          "override": null,
+          "pathSemantics": "tag-policy-non-property",
+          "assignment_parameters": {
+            "tagName": "Environment"
+          }
+        }
+      ],
+      "tags_required": [
+        {
+          "name": "Environment",
+          "source_policy": "/providers/microsoft.authorization/policydefinitions/00000000-0000-0000-0000-000000000012",
+          "source_assignment": "Tag enforcement"
+        }
+      ],
+      "allowed_locations": []
+    }
+  }
+}

@@ -5,11 +5,16 @@ description: "MANDATORY Azure Policy discovery requirements for governance const
 
 # Governance Discovery Instructions
 
-**CRITICAL**: Governance constraints MUST be discovered from the live Azure
-environment, NOT assumed from best practices.
+**CRITICAL**: Governance constraints MUST come from the live Azure environment —
+either directly through `discover.py` during the current run, or indirectly
+through the approved scheduled workflow baseline generated from live Azure and
+committed under `.github/data/governance-policy-baseline.json`.
 **GATE**: This is a mandatory gate. If Azure connectivity fails or policies
-cannot be retrieved, STOP and inform the user.
+cannot be retrieved during live discovery, STOP and inform the user.
 Do NOT generate governance constraints from assumptions.
+Do NOT accept arbitrary static files as governance input — only the approved
+workflow output file (`.github/data/governance-policy-baseline.json`) is valid
+for cached baseline mode.
 
 ## Why This Matters
 

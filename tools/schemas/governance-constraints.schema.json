@@ -23,7 +23,7 @@
     "discovered_at": { "type": "string", "format": "date-time" },
     "source": {
       "type": "string",
-      "enum": ["azure-policy-rest-api", "az-cli", "static", "partial"]
+      "enum": ["azure-policy-rest-api", "az-cli", "static", "partial", "github-actions-baseline"]
     },
     "findings": {
       "type": "array",

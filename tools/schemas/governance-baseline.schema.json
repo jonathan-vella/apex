@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/governance-baseline.schema.json",
+  "title": "APEX Governance Baseline",
+  "description": "Shape of .github/data/governance-policy-baseline.json produced by the governance-policy-baseline workflow. Wraps per-subscription governance-constraints-v1 envelopes.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "management_group_id",
+    "coverage_status",
+    "subscriptions_discovered",
+    "subscriptions_processed",
+    "subscriptions_skipped",
+    "subscriptions_excluded",
+    "summary",
+    "subscriptions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "governance-baseline-v1"
+    },
+    "management_group_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "coverage_status": {
+      "type": "string",
+      "enum": ["COMPLETE", "PARTIAL"]
+    },
+    "subscriptions_discovered": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "subscriptions_processed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "subscriptions_skipped": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "subscriptions_excluded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["subscription_id", "reason"],
+        "additionalProperties": true,
+        "properties": {
+          "subscription_id": { "type": "string" },
+          "reason": {
+            "type": "string",
+            "enum": ["disabled", "AAD_quota", "unreadable", "processing_error"]
+          },
+          "detail": { "type": "string" },
+          "quota_id": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_findings", "total_blockers", "total_auto_remediate", "subscriptions_complete"],
+      "additionalProperties": true,
+      "properties": {
+        "total_findings": { "type": "integer", "minimum": 0 },
+        "total_blockers": { "type": "integer", "minimum": 0 },
+        "total_auto_remediate": { "type": "integer", "minimum": 0 },
+        "subscriptions_complete": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "subscriptions": {
+      "type": "object",
+      "description": "Map of subscription ID to governance-constraints-v1 envelope. Each value must be a valid governance-constraints-v1 envelope.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["schema_version", "subscription_id", "discovered_at", "findings"],
+        "additionalProperties": true,
+        "properties": {
+          "schema_version": { "type": "string", "const": "governance-constraints-v1" },
+          "subscription_id": { "type": "string" },
+          "discovered_at": { "type": "string" },
+          "source": { "type": "string" },
+          "discovery_status": { "type": "string" },
+          "findings": { "type": "array" },
+          "policies": { "type": "array" },
+          "tags_required": { "type": "array" },
+          "allowed_locations": { "type": "array" }
+        }
+      }
+    }
+  }
+}

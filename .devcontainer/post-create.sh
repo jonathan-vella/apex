@@ -296,7 +296,22 @@ else
     step_warn "apex-recall directory not found at $APEX_RECALL_DIR"
 fi
 
-# ─── Step 12: Azure CLI extension install behavior ─────────────────────────
+# ─── Step 12: Gitleaks (secret scanner) ────────────────────────────────────
+
+step_start "🔐" "Installing gitleaks secret scanner..."
+GITLEAKS_VERSION=$(curl -fsSL "https://api.github.com/repos/gitleaks/gitleaks/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null | sed 's/^v//' || echo '')
+if [ -n "$GITLEAKS_VERSION" ] && [ "$GITLEAKS_VERSION" != "null" ]; then
+    if curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+        | sudo tar -xz -C /usr/local/bin gitleaks 2>/dev/null; then
+        step_done "gitleaks ${GITLEAKS_VERSION} installed"
+    else
+        step_warn "gitleaks binary download failed (pre-commit hook will soft-skip)"
+    fi
+else
+    step_warn "gitleaks version lookup failed (pre-commit hook will soft-skip)"
+fi
+
+# ─── Step 13: Azure CLI extension install behavior ─────────────────────────
 
 step_start "☁️ " "Configuring Azure CLI extension install behavior..."
 if az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors 2>/dev/null \
@@ -307,7 +322,7 @@ else
     step_warn "Azure CLI config update failed"
 fi
 
-# ─── Step 13: MCP config & final verification ─────────────────────────────
+# ─── Step 14: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 
@@ -373,6 +388,7 @@ printf "        %-15s %s\n" "graphviz:" "$(dot -V 2>&1 | head -n1 || echo '❌ n
 printf "        %-15s %s\n" "dos2unix:" "$(dos2unix --version 2>&1 | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "k6:" "$(k6 version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "Deno:" "$(deno --version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "gitleaks:" "$(gitleaks version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(( terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null ) | head -2 | tr '\n' ' ' || echo '❌ not installed')"
 
 step_done "All verifications complete"

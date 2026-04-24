@@ -99,3 +99,6 @@ crash.log
 crash.*.log
 .infracost/
 # DO NOT ignore .terraform.lock.hcl — it must be committed for reproducible provider versions
+
+# Governance baseline raw debug file (not committed — local troubleshooting only)
+.github/data/governance-policy-raw.json

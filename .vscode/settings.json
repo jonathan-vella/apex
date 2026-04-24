@@ -22,6 +22,10 @@
     {
       "fileMatch": ["tools/registry/agent-registry.json"],
       "url": "./tools/schemas/agent-registry.schema.json"
+    },
+    {
+      "fileMatch": [".github/data/governance-policy-baseline.fixture.json"],
+      "url": "./tools/schemas/governance-baseline.schema.json"
     }
   ],
   "editor.formatOnSave": true,
