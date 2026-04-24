@@ -49,6 +49,13 @@ echo ""
 RESULTS_DIR=$(mktemp -d)
 trap 'rm -rf "$RESULTS_DIR"' EXIT
 
+# ── Unconditional checks (migrated from post-commit) ──
+run_check "Version sync" "1" "npm run lint:version-sync" "version-sync" &
+run_check "Deprecated refs" "1" "npm run lint:deprecated-refs" "deprecated-refs" &
+run_check "Terminology" "1" "npm run validate:terminology" "terminology" &
+
+# ── File-type-scoped checks ──
+
 run_check() {
   local label="$1"
   local count="$2"

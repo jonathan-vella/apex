@@ -1,35 +1,50 @@
 #!/usr/bin/env bash
-# Session Logger: Log session start event with project context injection
-# Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/session-logger
-# Merged with project context injection from session-start-audit
+# Session Telemetry: Merged session-start hook (governance audit + session logger)
+# Env precedence: SKIP_SESSION_TELEMETRY disables everything (umbrella).
+# If unset, SKIP_GOVERNANCE_AUDIT and SKIP_LOGGING work independently.
+# The systemMessage is always emitted unless SKIP_SESSION_TELEMETRY is set.
 
 set -euo pipefail
 
-# Skip if logging disabled
-if [[ "${SKIP_LOGGING:-}" == "true" ]]; then
+# Umbrella kill switch
+if [[ "${SKIP_SESSION_TELEMETRY:-}" == "true" ]]; then
   exit 0
 fi
 
-# Read input from Copilot
 INPUT=$(cat)
 
-# Create logs directory if it doesn't exist
-LOG_DIR="logs/copilot"
-mkdir -p "$LOG_DIR"
-
-# Extract timestamp and session info
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 CWD=$(pwd)
+LEVEL="${GOVERNANCE_LEVEL:-standard}"
 
-# Log session start (use jq for proper JSON encoding)
-if command -v jq &>/dev/null; then
-  jq -Rn --arg timestamp "$TIMESTAMP" --arg cwd "$CWD" \
-    '{"timestamp":$timestamp,"event":"sessionStart","cwd":$cwd}' >> "$LOG_DIR/session.log"
-else
-  echo "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"sessionStart\",\"cwd\":\"$CWD\"}" >> "$LOG_DIR/session.log"
+# ── Governance log ──
+if [[ "${SKIP_GOVERNANCE_AUDIT:-}" != "true" ]]; then
+  mkdir -p logs/copilot/governance
+  if command -v jq &>/dev/null; then
+    jq -Rn \
+      --arg timestamp "$TIMESTAMP" \
+      --arg cwd "$CWD" \
+      --arg level "$LEVEL" \
+      '{"timestamp":$timestamp,"event":"session_start","governance_level":$level,"cwd":$cwd}' \
+      >> logs/copilot/governance/audit.log
+  else
+    echo "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"session_start\",\"governance_level\":\"$LEVEL\",\"cwd\":\"$CWD\"}" \
+      >> logs/copilot/governance/audit.log
+  fi
 fi
 
-# ── Project context injection ──
+# ── Session log ──
+if [[ "${SKIP_LOGGING:-}" != "true" ]]; then
+  mkdir -p logs/copilot
+  if command -v jq &>/dev/null; then
+    jq -Rn --arg timestamp "$TIMESTAMP" --arg cwd "$CWD" \
+      '{"timestamp":$timestamp,"event":"sessionStart","cwd":$cwd}' >> logs/copilot/session.log
+  else
+    echo "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"sessionStart\",\"cwd\":\"$CWD\"}" >> logs/copilot/session.log
+  fi
+fi
+
+# ── Context injection (always, unless umbrella skip) ──
 CONTEXT_PARTS=()
 
 # Last completed workflow step from session state

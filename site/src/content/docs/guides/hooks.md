@@ -43,10 +43,10 @@ sequenceDiagram
 
 | Hook Directory         | Event(s)                             | Purpose                                               | Timeout |
 | :--------------------- | :----------------------------------- | :---------------------------------------------------- | ------: |
-| `governance-audit/`    | SessionStart, Stop, UserPromptSubmit | Audit session lifecycle and prompt governance         |   5–10s |
 | `secrets-scanner/`     | Stop                                 | Scan for leaked secrets at session end                |     30s |
-| `session-logger/`      | SessionStart, Stop, UserPromptSubmit | Log session start/end and prompt activity             |      5s |
+| `session-telemetry/`   | SessionStart, Stop, UserPromptSubmit | Merged session lifecycle logging and governance audit |   5–10s |
 | `subagent-validation/` | SubagentStop                         | Validate subagent output quality (advisory)           |     15s |
+| `tool-audit/`          | PostToolUse                          | Log tool usage metadata (name, status)                |      5s |
 | `tool-guardian/`       | PreToolUse                           | Block dangerous terminal commands                     |     10s |
 
 ## Configuration
@@ -56,10 +56,10 @@ Hooks are registered in `.vscode/settings.json`:
 ```json
 {
   "chat.hookFilesLocations": {
-    ".github/hooks/governance-audit": true,
     ".github/hooks/secrets-scanner": true,
-    ".github/hooks/session-logger": true,
+    ".github/hooks/session-telemetry": true,
     ".github/hooks/subagent-validation": true,
+    ".github/hooks/tool-audit": true,
     ".github/hooks/tool-guardian": true
   },
   "chat.useCustomAgentHooks": true
@@ -88,7 +88,7 @@ Use agent-scoped hooks only for agent-specific logic not covered by global hooks
 
 ### Infinite Loop Prevention
 
-The Stop hook (`session-report.sh`) checks `stop_hook_active` from stdin JSON. If `true`,
+The Stop hook (`session-telemetry/session-end.sh`) checks `stop_hook_active` from stdin JSON. If `true`,
 it returns immediately without processing — preventing infinite re-invocation.
 
 ### Self-Modification Protection
@@ -106,6 +106,15 @@ it and continues the agent session.
 
 The Stop hook sanitizes `sessionId` input to prevent path traversal — only alphanumeric
 characters, hyphens, and underscores are preserved.
+
+### Two-Layer Secrets Defense
+
+Secrets are caught at two independent layers:
+
+- **Layer 1 — Pre-commit (gitleaks):** Blocks known secret patterns in staged files before
+  they enter git history. Local soft-skip if gitleaks is not installed; CI hard-fail.
+- **Layer 2 — Session end (secrets-scanner):** Regex-based scanner at `Stop` event catches
+  in-session writes that may not yet be staged. Logs to `logs/copilot/secrets/scan.log`.
 
 ## Hook Directory Structure
 
