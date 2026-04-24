@@ -31,11 +31,13 @@ services:
 
 | Language | linuxFxVersion |
 |----------|----------------|
-| Node.js 18 | `NODE\|18-lts` |
-| Node.js 20 | `NODE\|20-lts` |
-| Python 3.11 | `PYTHON\|3.11` |
+| Node.js 24 | `NODE\|24-lts` |
+| Node.js 22 | `NODE\|22-lts` |
+| Python 3.12 | `PYTHON\|3.12` |
 | .NET 8 | `DOTNETCORE\|8.0` |
-| Java 17 | `JAVA\|17-java17` |
+| Java 21 | `JAVA\|21-java21` |
+
+> ⚠️ Node.js 18 and 20 have reached End of Life — do **not** use them for new deployments.
 
 ## SKU Selection
 

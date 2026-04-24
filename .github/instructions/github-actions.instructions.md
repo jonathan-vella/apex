@@ -14,7 +14,7 @@ For general GitHub Actions best practices, rely on
 ### Runner and Node.js
 
 - **Runner**: `ubuntu-latest` for all jobs
-- **Node.js**: Version `24` with `npm` caching
+- **Node.js**: Version `24` with `npm` caching — **never use `20` or older** (Node.js 20 reached EOL April 2026)
 - **Dependencies**: `npm ci` (not `npm install`)
 
 ### Permissions
@@ -104,3 +104,4 @@ Workflows run these project validators:
 | Broad triggers (no path filter) | Scope with `paths:` to relevant files      |
 | Duplicate validation logic      | Reuse existing validator scripts           |
 | `actions/upload-artifact@v3`    | Use `@v4` (v3 is deprecated)               |
+| `node-version: "20"` or older   | Use `node-version: "24"` — Node.js 20 is EOL (April 2026) |
