@@ -210,12 +210,6 @@ and returns a structured change summary.
 Queries Azure Pricing MCP tools for real-time SKU pricing. Compares regions
 and returns a structured cost breakdown.
 
-### governance-discovery-subagent
-
-Queries Azure Policy assignments via REST API (including management group-
-inherited policies). Classifies policy effects and returns structured governance
-constraints.
-
 ## When Validation Fails
 
 Use the parent agent to repair the artifact that failed validation or preview.

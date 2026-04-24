@@ -19,19 +19,19 @@ configuration ready to go.
 
 ## Prerequisites
 
-:::note[What you need before starting]
-An Azure subscription is optional for learning the workflow — you only need it
+:::note[What you need]
+Items marked ⭐ are required for learning. An Azure subscription is optional — you only need it
 when deploying to Azure in Step 6.
 :::
 
 | Requirement             | How to Get                                                                               |
 | ----------------------- | ---------------------------------------------------------------------------------------- |
-| GitHub account          | [Sign up](https://github.com/signup)                                                     |
-| GitHub Copilot license  | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
-| GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`                                     |
-| VS Code                 | [Download](https://code.visualstudio.com/)                                               |
-| Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/)                              |
-| Azure subscription      | Required only for Step 6 deployment                                                      |
+| ⭐ GitHub account       | [Sign up](https://github.com/signup)                                                     |
+| ⭐ GitHub Copilot license | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
+| ⭐ GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`                                     |
+| ⭐ VS Code              | [Download](https://code.visualstudio.com/)                                               |
+| ⭐ Docker Desktop       | [Download](https://www.docker.com/products/docker-desktop/)                              |
+| Azure subscription      | Optional — required only for Step 6 deployment                                                      |
 
 :::note[Docker is required]
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
@@ -41,8 +41,12 @@ See [Dev Container Setup](../dev-containers/) for detailed installation options.
 :::
 
 :::tip[If the dev container fails to build]
-Verify Docker is running, then follow the recovery steps in
-[Dev Container Setup](../dev-containers/) and [Troubleshooting](../../guides/troubleshooting/).
+
+1. Check the VS Code terminal for error messages
+2. Verify Docker is running (`docker ps` should succeed)
+3. Follow recovery steps in [Dev Container Setup](../dev-containers/)
+   and [Troubleshooting](../../guides/troubleshooting/)
+
 Most setup failures happen before APEX itself starts.
 :::
 

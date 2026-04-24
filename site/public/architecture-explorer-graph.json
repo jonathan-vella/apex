@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-22T15:09:56.190Z",
+  "generatedAt": "2026-04-24T14:49:30.934Z",
   "categories": [
     {
       "id": "agent",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 25
+      "count": 26
     },
     {
       "id": "prompt",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 33
+      "count": 34
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 8
+      "count": 9
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 160,
-  "edgeCount": 696,
+  "nodeCount": 163,
+  "edgeCount": 699,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1114,6 +1114,19 @@
       }
     },
     {
+      "id": "instruction:azure-yaml",
+      "category": "instruction",
+      "label": "azure-yaml",
+      "description": "Azure Developer CLI (azd) manifest conventions for multi-project co-location. Enforces infra.path, environment naming, and repo-root prohibition.",
+      "path": ".github/instructions/azure-yaml.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/azure-yaml.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/azure.yaml"
+      }
+    },
+    {
       "id": "instruction:code-quality",
       "category": "instruction",
       "label": "code-quality",
@@ -1750,6 +1763,19 @@
       }
     },
     {
+      "id": "validator:lint-workflow-table-sync",
+      "category": "validator",
+      "label": "lint:workflow-table-sync",
+      "description": "node tools/scripts/validate-workflow-table-sync.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-workflow-table-sync.mjs"
+      }
+    },
+    {
       "id": "validator:validate-agent-registry",
       "category": "validator",
       "label": "validate:agent-registry",
@@ -1878,10 +1904,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-hooks.mjs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
+        "command": "node tools/scripts/validate-hooks.mjs"
+      }
     },
     {
       "id": "validator:validate-iac-security-baseline",
@@ -1982,13 +2006,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "cd tools/mcp-servers/azure-pricing && python -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python -m ruff check src/",
+      "description": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "cd tools/mcp-servers/azure-pricing && python -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python -m ruff check src/",
+        "command": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2027,13 +2051,13 @@
       "id": "validator:test-apex-recall",
       "category": "validator",
       "label": "test:apex-recall",
-      "description": "python -m pytest tools/tests/test_apex_recall/ -q",
+      "description": "python3 -m pytest tools/tests/test_apex_recall/ -q",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "python -m pytest tools/tests/test_apex_recall/ -q",
+        "command": "python3 -m pytest tools/tests/test_apex_recall/ -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2099,6 +2123,20 @@
       "path": ".github/workflows/e2e-validation.yml",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/e2e-validation.yml"
+      },
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
+    },
+    {
+      "id": "workflow:governance-policy-baseline",
+      "category": "workflow",
+      "label": "governance-policy-baseline",
+      "description": "",
+      "path": ".github/workflows/governance-policy-baseline.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/governance-policy-baseline.yml"
       },
       "meta": {
         "orphan": true
@@ -2212,21 +2250,21 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 8)",
-      "description": "8 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 7)",
+      "description": "7 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 8
+        "groupSize": 7
       }
     },
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 5)",
-      "description": "5 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 6)",
+      "description": "6 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 5
+        "groupSize": 6
       }
     }
   ],
@@ -4836,6 +4874,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:instructions--applies-to->instruction:azure-yaml",
+      "source": "instruction:instructions",
+      "target": "instruction:azure-yaml",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:instructions--applies-to->instruction:code-quality",
       "source": "instruction:instructions",
       "target": "instruction:code-quality",
@@ -5556,6 +5600,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:lint-workflow-table-sync",
+      "source": "workflow:ci",
+      "target": "validator:lint-workflow-table-sync",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:validate-agent-registry",
       "source": "workflow:ci",
       "target": "validator:validate-agent-registry",
@@ -5619,6 +5669,12 @@
       "id": "workflow:ci--runs->validator:validate-explorer-graph",
       "source": "workflow:ci",
       "target": "validator:validate-explorer-graph",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-hooks",
+      "source": "workflow:ci",
+      "target": "validator:validate-hooks",
       "kind": "runs"
     },
     {

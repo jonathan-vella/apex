@@ -7,6 +7,11 @@ tableOfContents:
 
 Quick reference for terms used throughout APEX documentation.
 
+**Jump to:** [A](#a) · [B](#b) · [C](#c) · [D](#d) · [E](#e) · [F](#f) ·
+[G](#g) · [H](#h) · [I](#i) · [J](#j) · [K](#k) · [M](#m) · [N](#n) ·
+[O](#o) · [P](#p) · [S](#s) · [T](#t) · [U](#u) · [W](#w) · [Y](#y) ·
+[Numbers \& Symbols](#numbers--symbols)
+
 ## A
 
 ### AAD (Azure Active Directory)
@@ -339,7 +344,7 @@ Reader). Managed through Azure AD / Entra ID. The Azure MCP server is RBAC-aware
 ### REST (Representational State Transfer)
 
 An architectural style for web APIs using standard HTTP methods (GET, POST, PUT, DELETE).
-The governance-discovery-subagent queries Azure Policy assignments via REST API.
+The governance agent queries Azure Policy assignments via REST API.
 
 ### ROI (Return on Investment)
 
@@ -416,8 +421,8 @@ workflow automation, and troubleshooting categories.
 ### Subagent
 
 A specialized validation agent invoked by other agents for specific tasks (lint, what-if/plan,
-review). Seven exist: `challenger-review-subagent`, `cost-estimate-subagent`,
-`governance-discovery-subagent`, `bicep-validate-subagent`,
+review). Six exist: `challenger-review-subagent`, `cost-estimate-subagent`,
+`bicep-validate-subagent`,
 `bicep-whatif-subagent`, `terraform-validate-subagent`,
 `terraform-plan-subagent`.
 

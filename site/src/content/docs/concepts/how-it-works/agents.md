@@ -78,6 +78,12 @@ For a live, always-current roster, see the
 computed from `tools/registry/count-manifest.json` and the source of truth is the
 `.github/agents/*.agent.md` files on disk.
 
+:::note[Fast Path Variant]
+01-Orchestrator (Fast Path) is an experimental variant for simple projects
+(≤3 resources, single environment, no custom policies). For standard or
+complex projects, use the main 01-Orchestrator.
+:::
+
 ## Subagents
 
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
@@ -87,7 +93,6 @@ specific tasks:
 | ----------------------------- | ----------------------------------- | ------------------- |
 | challenger-review-subagent    | Adversarial review of artifacts     | Steps 1, 2, 4, 5, 6 |
 | cost-estimate-subagent        | Azure Pricing MCP queries           | Steps 2, 7          |
-| governance-discovery-subagent | Azure Policy discovery via REST API | Step 4              |
 | bicep-validate-subagent       | Lint + AVM/security code review     | Step 5 (Bicep)      |
 | bicep-whatif-subagent         | `az deployment what-if` preview     | Step 6 (Bicep)      |
 | terraform-validate-subagent   | Lint + AVM-TF/security code review  | Step 5 (Terraform)  |

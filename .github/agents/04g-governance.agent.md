@@ -62,6 +62,11 @@ or assume policy state from best practices. Policy data comes from discover.py
 (cached). No other sources are permitted.
 </scope_fencing>
 
+<context_awareness>
+Before loading skill files, check if SKILL.digest.md variants exist.
+At >60% context, load digest variants; at >80% load SKILL.minimal.md.
+</context_awareness>
+
 ## Scope Boundaries
 
 This agent discovers Azure Policy constraints and produces governance artifacts.
@@ -180,6 +185,7 @@ live Azure calls entirely. This phase runs only if Phase 0.4 did NOT short-circu
    - Copy `.preview.md` to `04-governance-constraints.md` — treat it as freshly
      generated. Do NOT reuse any prior annotated markdown from the agent-output folder.
    - Proceed directly to Phase 2 (Generate Artifacts / validation).
+
 6. If the baseline file is missing, eligibility fails, or the user chooses live
    discovery, proceed to Phase 0.5.
 

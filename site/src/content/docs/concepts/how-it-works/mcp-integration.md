@@ -7,8 +7,8 @@ The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
 This project integrates six core MCP servers, each providing specialised capabilities that
 agents invoke at runtime: Azure MCP, Azure Pricing MCP, Draw.io MCP, GitHub MCP,
-MS Learn MCP, and Terraform MCP. Five are declared in `.vscode/mcp.json`; the sixth
-(Azure MCP) runs as a VS Code extension. An additional `astro-docs` server is declared in
+MS Learn MCP, and Terraform MCP. Five core servers are declared in `.vscode/mcp.json`; the sixth
+(Azure MCP) runs as a VS Code extension. A non-core `astro-docs` server is also declared in
 `.vscode/mcp.json` for documentation site development but is not part of the core agent
 toolchain.
 

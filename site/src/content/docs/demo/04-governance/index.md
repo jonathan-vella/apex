@@ -35,8 +35,8 @@ Governance constraints were discovered from the live Azure environment and not a
 **Scope**: Full subscription, including management-group-inherited assignments
 **Portal Validation**: Not performed in this session; assignment coverage is REST-verified but was not cross-checked in Azure Portal
 
-:::caution[Subagent Unavailable]
-The dedicated `governance-discovery-subagent` was unavailable because of repeated network `GOAWAY` failures, so live discovery was completed with direct Azure REST calls instead of the subagent. Policy data below remains live and verified.
+:::note[Discovery Method]
+Governance discovery was completed using direct Azure REST API calls by the governance agent. Policy data below is live and verified.
 :::
 
 ## Policy Definition Analysis

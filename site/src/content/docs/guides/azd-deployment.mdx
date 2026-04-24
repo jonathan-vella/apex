@@ -9,6 +9,13 @@ Azure Developer CLI (`azd`) is the **default and required** deployment tool for 
 It provides cross-platform environment management, lifecycle hooks, and CI/CD
 pipeline generation.
 
+:::note[Single-project users]
+If you have a single project, the `azure.yaml` and `infra/` conventions
+below still apply — but you can skip the multi-project isolation details.
+The per-project section is most relevant for repos hosting multiple
+independent Azure projects.
+:::
+
 :::tip[Default choice]
 **Use azd** for all projects (Bicep and Terraform). `deploy.ps1` is **deprecated**
 and retained only for backward compatibility with legacy projects that predate
@@ -207,7 +214,7 @@ hooks:
 | `preprovision` | Auth validation | `az account get-access-token --output none` |
 | `preprovision` | Prerequisite check | Verify quota, check policy compliance |
 | `postprovision` | Resource verification | Query Azure Resource Graph |
-| `postprovision` | RBAC assignment | Assign roles (use `|| true` for idempotency) |
+| `postprovision` | RBAC assignment | Assign roles (use `\|\| true` for idempotency) |
 | `postprovision` | SQL setup | Run EF migrations, configure managed identity |
 
 ---
@@ -244,6 +251,7 @@ map azd environment variables to Terraform variables:
   "environment_name": "${AZURE_ENV_NAME}"
 }
 ```
+
 :::
 
 <LinkCard
@@ -263,7 +271,7 @@ map azd environment variables to Terraform variables:
 | `main.tfvars.json not found` | TF param file missing | Create `main.tfvars.json` with `${AZURE_*}` mappings |
 | `environment not found` | No azd env created | `azd env new {project}-{env}` |
 | `.azure/` at repo root | Breaks multi-project | Move to `infra/{iac}/{project}/.azure/` |
-| RBAC "already exists" | Idempotent runs | Add `|| true` to role assignment commands in hooks |
+| RBAC "already exists" | Idempotent runs | Add `\|\| true` to role assignment commands in hooks |
 | Preview fails despite login | az vs azd auth mismatch | Both `az` and `azd` need separate auth sessions |
 
 ---

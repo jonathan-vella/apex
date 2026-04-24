@@ -5,6 +5,12 @@ description: "All validation scripts, linting, and CI workflows"
 
 > Central reference for all validation scripts, linting commands, git hooks, and CI workflows.
 
+**Jump to:** [Architecture](#validation-architecture) ·
+[Lefthook Hooks](#lefthook-hooks) ·
+[Validation Scripts](#validation-scripts) ·
+[CI Workflows](#ci-workflows) ·
+[Running Locally](#running-validations-locally)
+
 ## Validation Architecture
 
 Validation runs at three stages, catching issues progressively earlier:

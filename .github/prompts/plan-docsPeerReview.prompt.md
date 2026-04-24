@@ -1,7 +1,7 @@
 ---
 description: "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report."
 agent: agent
-tools: vscode, execute, read, agent, edit, search, web, azure-mcp/search, 'microsoft-learn/*', todo
+tools: vscode, execute, read, agent, search, web, 'microsoft-learn/*'
 argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works only')"
 ---
 
@@ -33,8 +33,11 @@ hardcoded table — the sidebar changes over time.
 
 Expected sections (for reference, not as source of truth):
 
-- Landing, Getting Started, Concepts (How It Works + Workflow), Guides (Prompt Guide +
-  Troubleshooting), Reference (Glossary, FAQ), Project (Contributing, Changelog)
+- Landing, Getting Started, Concepts (How It Works + Workflow), Guides (Prompt Guide,
+  Troubleshooting, Session Debugging, Security Baseline, Cost Governance, azd Deployment,
+  Agent Hooks, E2E Testing), Reference (FAQ, Validation & Linting, Architecture Explorer,
+  Glossary, Resources & Downloads), Project (Contributing, Changelog),
+  Demo (Il-Pastizzeria ta' Mario)
 
 Known filename note: `four-pillars.md` renders as "Core Concepts" in the nav.
 
@@ -47,18 +50,18 @@ time.
 
 | File                                           | What it proves                                                 |
 | ---------------------------------------------- | -------------------------------------------------------------- |
-| `tools/registry/count-manifest.json`                  | **Authoritative** entity counts (agents, subagents, skills, …) |
+| `tools/registry/count-manifest.json`           | **Authoritative** entity counts (agents, subagents, skills, …) |
 | `.github/agents/*.agent.md`                    | Top-level agent names                                          |
 | `.github/agents/_subagents/*.agent.md`         | Subagent names                                                 |
 | `.github/skills/*/SKILL.md`                    | Skill names                                                    |
 | `.github/instructions/*.instructions.md`       | Instruction file names                                         |
 | `.github/prompts/*.prompt.md`                  | Prompt names                                                   |
-| `tools/registry/agent-registry.json`                  | Agent → file/model/skills mapping                              |
+| `tools/registry/agent-registry.json`           | Agent → file/model/skills mapping                              |
 | `.vscode/mcp.json`                             | MCP server names and config                                    |
 | `package.json`                                 | Validation script names                                        |
 | `site/astro.config.mjs`                        | Sidebar structure and published page list                      |
 | `site/public/architecture-explorer-graph.json` | Graph node/edge canonical data (if present)                    |
-| `tools/tests/exec-plans/tech-debt-tracker.md`        | Known tech-debt items (cross-check "stale promise" findings)   |
+| `tools/tests/exec-plans/tech-debt-tracker.md`  | Known tech-debt items (cross-check "stale promise" findings)   |
 | `AGENTS.md`                                    | Project conventions table of contents                          |
 
 ## Workflow

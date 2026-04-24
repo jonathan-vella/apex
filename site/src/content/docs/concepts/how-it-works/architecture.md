@@ -23,7 +23,7 @@ between critical phases:
 
 </div>
 
-<small>🔒 human approval gate · ✔ automated validation gate</small>
+<small>🔒 = Approval gate (human decision required) · ✔ = Automated validation gate (CI pass/fail) · blank = No gate</small>
 
 ## The Orchestrator Pattern
 

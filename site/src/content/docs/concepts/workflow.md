@@ -282,7 +282,7 @@ Output: agent-output/{project}/04-governance-constraints.md, 04-governance-const
 
 **Features**:
 
-- Azure Policy REST API discovery via `governance-discovery-subagent`
+- Azure Policy REST API discovery via the governance agent
 - Policy effect classification (Deny, Audit, Modify, DeployIfNotExists)
 - Dual-track property mapping (`bicepPropertyPath` + `azurePropertyPath`)
 
