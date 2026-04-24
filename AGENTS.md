@@ -20,26 +20,15 @@ code .
 # Install Node.js dependencies (validation scripts, linting)
 npm install
 
-# Python dependencies (Azure Pricing MCP server, diagrams)
-pip install -r requirements.txt
+# Azure + GitHub environment setup (OIDC, secrets, RBAC)
+# See: https://jonathan-vella.github.io/azure-agentic-infraops/getting-started/azure-setup/
+npm run setup
 ```
 
-### Pre-installed Tools (Dev Container)
-
-- **Azure CLI** (`az`) with Bicep extension
-- **Azure Developer CLI** (`azd`) for standardized deployments
-- **Terraform CLI** with TFLint
-- **GitHub CLI** (`gh`)
-- **Node.js** + npm (validation scripts)
-- **Python 3** + pip (MCP server, diagram generation)
-- **Go** (Terraform MCP server)
-- **gitleaks** (pre-commit secret scanning; local soft-skip if missing, CI hard-fail)
-- **apex-recall** CLI (progressive session recall for agent-output artifacts)
+> **Note:** Python dependencies (diagrams, Azure Pricing MCP server, apex-recall) are installed
+> automatically by the dev container's `post-create.sh` script. No manual `pip install` is needed.
 
 ## Build & Validation
-
-For the complete reference of all validation scripts, linting commands, git hooks,
-and CI workflows, see the published [Validation & Linting Reference](https://jonathan-vella.github.io/azure-agentic-infraops/reference/validation-reference/).
 
 ```bash
 # Full validation suite
@@ -59,6 +48,15 @@ npm run validate:session-lock            # Session lock/claim model validation
 npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
 npm run validate:iac-security-baseline   # IaC security baseline (TLS, HTTPS, blob, identity, SQL auth)
+npm run lint:workflow-table-sync          # Workflow table ↔ workflow-graph.json sync
+
+# E2E Ralph Loop
+npm run e2e:validate                     # Validate artifacts (structural, no agent invocation)
+npm run e2e:benchmark                    # Benchmark scoring (8 dimensions, 0-100)
+
+# Pre-commit/pre-push hooks (installed via lefthook)
+npm run prepare                          # Install hooks
+git push                                 # Triggers diff-based-push-check.sh automatically
 
 # Bicep validation (replace {project} with actual project name)
 bicep build infra/bicep/{project}/main.bicep
@@ -129,41 +127,8 @@ These are non-negotiable for all generated infrastructure code:
 - Container Registry admin user disabled (`adminUserEnabled: false`)
 - MySQL/PostgreSQL SSL enforcement required
 - Public network access disabled for production data services (dev/test exempt)
-
-## Testing
-
-```bash
-# Run all validations (CI equivalent)
-npm run validate:all
-
-# E2E Ralph Loop — validate artifacts (structural, no agent invocation)
-npm run e2e:validate
-
-# E2E Ralph Loop — benchmark scoring (8 dimensions, 0-100)
-npm run e2e:benchmark
-
-# E2E Ralph Loop — Terraform project benchmark
-npm run e2e:benchmark -- terraform-e2e
-
-# E2E Ralph Loop — multi-project comparison
-npm run e2e:benchmark -- --compare
-
-# Pre-commit hooks (installed via lefthook)
-npm run prepare
-
-# Pre-push hook (diff-based, automatic via lefthook)
-# Only validates file types that changed: *.bicep, *.tf, *.md, *.agent.md, etc.
-# Runs domain-scoped validators in parallel for speed
-git push  # triggers diff-based-push-check.sh automatically
-
-# Bicep: lint + build before committing templates
-bicep lint infra/bicep/{project}/main.bicep
-bicep build infra/bicep/{project}/main.bicep
-
-# Terraform: format + validate before committing
-terraform fmt -recursive infra/terraform/
-cd infra/terraform/{project} && terraform init -backend=false && terraform validate
-```
+- Never hardcode secrets, connection strings, or API keys — use Key Vault references
+- Always check `04-governance-constraints.md` for subscription-level Azure Policy requirements
 
 ## Commit & PR Guidelines
 
@@ -186,50 +151,7 @@ Scopes: `agents`, `skills`, `instructions`, `bicep`, `terraform`, `mcp`, `docs`,
 
 Always run `npm run lint:md` and relevant validations before committing.
 
-## Project Structure
-
-```text
-.github/
-  agents/              # Agent definitions (*.agent.md) — top-level + subagents
-    _subagents/        # Subagent definitions (non-user-invocable)
-  skills/              # Reusable domain knowledge (SKILL.md per skill)
-    workflow-engine/   # DAG model, workflow-graph.json
-    context-shredding/ # Runtime context compression tiers and templates
-    iac-common/        # Shared deploy patterns + circuit-breaker.md
-  instructions/        # File-type rules with glob-based auto-application
-  copilot-instructions.md  # VS Code Copilot-specific orchestration instructions
-agent-output/          # All agent-generated artifacts organized by project
-  {project}/           # Per-project: 00-session-state.json + 01-requirements.md through 07-*.md
-infra/
-  bicep/{project}/     # Bicep templates (main.bicep + modules/)
-    azure.yaml         # azd project manifest (per-project, co-located)
-    .azure/            # azd environment state (git-ignored)
-      plan.md          # azure-prepare output — source of truth for validate/deploy
-  terraform/{project}/ # Terraform configurations (main.tf + modules/)
-    azure.yaml         # azd project manifest (infra.provider: terraform)
-    .azure/            # azd environment state (git-ignored)
-      plan.md          # azure-prepare output — source of truth for validate/deploy
-assets/
-  drawio-libraries/      # Draw.io Azure icon libraries (for VS Code extension; MCP server has built-in icons) (mxlibrary XML + mxfile.xsd)
-tools/
-  apex-recall/         # Progressive session recall CLI (Python, pip-installable)
-  mcp-servers/
-    azure-pricing/     # Custom Azure Pricing MCP server (Python)
-    drawio/            # Draw.io MCP server (Deno/TypeScript)
-  registry/
-    agent-registry.json  # Machine-readable agent role → file/model/skills mapping
-    count-manifest.json  # Canonical entity counts (computed from globs)
-  schemas/             # JSON schemas for session state, governance, workflow, etc.
-  scripts/             # Validation and maintenance scripts (Node.js)
-  tests/               # Test suites, E2E inputs, exec plans
-site/
-  src/content/docs/    # Published user-facing documentation (Astro Starlight)
-  public/              # Site-served static assets
-.vscode/
-  mcp.json             # MCP server configuration (github, azure-pricing, terraform, microsoft-learn, drawio)
-```
-
-### Agent Workflow
+## Agent Workflow
 
 | Step | Phase        | Output                                                   | Review                           |
 | ---- | ------------ | -------------------------------------------------------- | -------------------------------- |
@@ -244,6 +166,7 @@ site/
 | Post | Lessons      | `09-lessons-learned.json/.md`                            | —                                |
 
 All outputs go to `agent-output/{project}/`.
+Programmatic source of truth: `.github/skills/workflow-engine/templates/workflow-graph.json`.
 Unified planner (05-IaC Planner) feeds into dual IaC tracks: Bicep (06b/07b) and Terraform (06t/07t).
 The Orchestrator agent orchestrates the full workflow with human approval gates.
 Review column = adversarial passes by challenger subagents, complexity-dependent
@@ -251,66 +174,14 @@ Complexity-dependent. Conditional early exits reduce actual passes.
 Reviews target AI-generated creative decisions (architecture, governance, plan, code) not
 tool output (what-if/plan previews).
 
-### Content Sharing Decision Framework
+## Conventions Detail
 
-| Content Type            | Mechanism                                | When to Use                                    |
-| ----------------------- | ---------------------------------------- | ---------------------------------------------- |
-| Enforcement rules       | Instructions (auto-loaded by glob)       | Rules that must apply to all files of a type   |
-| Shared domain knowledge | Skill `references/`                      | Deep content loaded on-demand by agents        |
-| Executable scripts      | Skill `scripts/` (NOT `references/`)     | Deterministic operations, build/deploy scripts |
-| Cross-agent boilerplate | Subagent or instruction with narrow glob | Repeated patterns across multiple agent bodies |
+The sections above (Code Style, Security Baseline) are always loaded. For deeper
+guidance, agents should read these on demand:
 
-## azd Multi-Project Convention
-
-This repo supports multiple independent projects. Each project is a fully self-contained
-`azd` project with its own `azure.yaml` and `.azure/` directory inside the IaC project folder.
-
-- **Project root**: `infra/bicep/{project}/` or `infra/terraform/{project}/`
-- **azd manifest**: `infra/{iac}/{project}/azure.yaml` with `infra.path: .` (co-located)
-- **azd state**: `infra/{iac}/{project}/.azure/` (git-ignored) — contains per-environment `.env` files
-- **Prepare plan**: `infra/{iac}/{project}/.azure/plan.md` — source of truth for azure-validate → azure-deploy
-- **Environment naming**: `{project}-{env}` (e.g., `hub-spoke-dev`, `webapp-prod`) to avoid collisions
-- **Running azd**: `cd infra/{iac}/{project}` then run `azd` commands,
-  or use `azd -C infra/{iac}/{project}` from repo root
-- **Never** place `azure.yaml` or `.azure/` at the repo root — this breaks multi-project isolation
-
-## Terraform Conventions
-
-- **Provider pin**: `~> 4.0` (AzureRM)
-- **Backend**: Azure Storage Account
-- **Required tags**: Same as above, with `ManagedBy = "Terraform"`
-- **Unique suffix**: `random_string` resource (4 chars, lowercase)
-- **AVM registry**: `registry.terraform.io/Azure/avm-res-*/azurerm`
-- **azd support**: `azure.yaml` with `infra.provider: terraform` and `infra.path: .` in each project directory
-
-## Bicep Conventions
-
-- **Unique suffix**: `uniqueString(resourceGroup().id)` — generated once in `main.bicep`, passed to all modules
-- **Required tags**: Same as above, with `ManagedBy = "Bicep"`
-- **AVM registry**: `br/public:avm/res/{provider}/{resource}:{version}`
-- **Parameter files**: Use `.bicepparam` format
-- **Deployment**: `azure.yaml` manifest for `azd` (default and required for new projects); `deploy.ps1` is deprecated
-- **azd manifest**: `azure.yaml` lives inside `infra/bicep/{project}/` with `infra.path: .`
-
-## Security Considerations
-
-- Never hardcode secrets, connection strings, or API keys in templates
-- Use Key Vault references for sensitive parameters
-- Managed Identity is the default authentication method
-- All storage accounts: HTTPS-only, TLS 1.2, no public blob access
-- SQL databases: Azure AD-only authentication
-- Production environments: disable public network access on data services
-- Always check `04-governance-constraints.md` for subscription-level Azure Policy requirements
-
-## Quarterly Context Audit
-
-Run every 3 months to prevent context bloat regression:
-
-1. `npm run lint:skill-size` — check for skills >200 lines without references
-2. `npm run lint:agent-body-size` — check for agents >350 lines
-3. `npm run lint:glob-audit` — check for broad wildcards on large files
-4. `npm run lint:skill-references` — check for orphaned reference files
-5. `npm run lint:orphaned-content` — check for unreferenced skills
-6. `npm run lint:docs-freshness` — check docs counts and links
-7. Review `QUALITY_SCORE.md` and update if metrics changed
-8. Run `npm run snapshot:baseline` to capture current state for future diffs
+- **Bicep conventions**: `infra/bicep/AGENTS.md`
+- **Terraform conventions**: `infra/terraform/AGENTS.md`
+- **azd multi-project rules**: `.github/instructions/azure-yaml.instructions.md` (auto-loaded for `azure.yaml`)
+- **Azure infrastructure defaults**: `.github/skills/azure-defaults/SKILL.md`
+- **Workflow DAG (machine-readable)**: `.github/skills/workflow-engine/templates/workflow-graph.json`
+- **Full validation reference**: [Validation & Linting Reference](https://jonathan-vella.github.io/azure-agentic-infraops/reference/validation-reference/)

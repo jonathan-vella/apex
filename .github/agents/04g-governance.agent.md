@@ -57,7 +57,9 @@ Both must pass `npm run lint:artifact-templates` before handoff.
 <scope_fencing>
 Scope: Azure Policy discovery and governance artifact generation ONLY.
 Do NOT generate IaC code, deploy resources, modify architecture decisions,
-or assume policy state from best practices. All policy data comes from discover.py.
+or assume policy state from best practices. Policy data comes from discover.py
+(live) or from the approved workflow baseline via render_cached_governance.py
+(cached). No other sources are permitted.
 </scope_fencing>
 
 ## Scope Boundaries
@@ -135,11 +137,51 @@ the current turn does not.
    - `agent-output/{project}/04-governance-constraints.md` exists
    - The JSON's `discovery_status` is `"COMPLETE"`
    - The user did NOT explicitly ask for `refresh`, `re-run`, or `rediscover`
-3. Otherwise proceed to Phase 0.5.
+3. Otherwise proceed to Phase 0.45.
 
 This is the single biggest latency win when this agent is re-entered after a
 challenger review or as a subagent — both artifacts are already on disk, so
 there is nothing to do except present the gate.
+
+### Phase 0.45: Baseline Check
+
+Check whether a committed governance baseline can satisfy the request, avoiding
+live Azure calls entirely. This phase runs only if Phase 0.4 did NOT short-circuit.
+
+> Baseline freshness is branch-local: on feature branches that lag `main`, the
+> visible baseline will also lag.
+
+1. Check if `.github/data/governance-policy-baseline.json` exists.
+2. If it exists, read the target subscription ID from the project's
+   `02-architecture-assessment.md` or session state.
+3. **All** eligibility conditions must be true:
+   - The target subscription exists as a key in `subscriptions`.
+   - The target subscription is NOT in `subscriptions_skipped` or `subscriptions_excluded`.
+   - The subscription entry has `discovery_status == "COMPLETE"`.
+   - The top-level `coverage_status == "COMPLETE"` OR the target subscription
+     is individually present and complete despite partial overall coverage.
+4. If eligible, use `askQuestions` to ask the user:
+   _"A governance baseline from {date} is available for subscription {id}.
+   Use the cached baseline or run fresh live discovery?"_
+   Options: **Use baseline** (recommended) | **Run live discovery**
+5. If the user chooses baseline:
+   - Extract the subscription entry from the baseline JSON.
+   - Write it to a temporary file.
+   - Run `render_cached_governance.py`:
+
+     ```bash
+     set +H && python .github/skills/azure-governance-discovery/scripts/render_cached_governance.py \
+         --in /tmp/{project}-baseline-sub.json \
+         --out agent-output/{project}/04-governance-constraints.json \
+         --arch agent-output/{project}/02-architecture-assessment.md
+     ```
+
+   - Read the first stdout line for status JSON.
+   - Copy `.preview.md` to `04-governance-constraints.md` — treat it as freshly
+     generated. Do NOT reuse any prior annotated markdown from the agent-output folder.
+   - Proceed directly to Phase 2 (Generate Artifacts / validation).
+6. If the baseline file is missing, eligibility fails, or the user chooses live
+   discovery, proceed to Phase 0.5.
 
 ### Phase 0.5: Cache-First Check
 
@@ -211,9 +253,9 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
 > `agent-output/{project}/04-governance-constraints.json`, which discover.py
 > writes directly. Reading the tmp file wastes ~2-3 min on 920+ lines of raw data.
 
-**Auto-proceed**: After discover.py exits 0 (`COMPLETE`), proceed directly to
-Phase 2 without asking the user any questions. The only user interaction point
-is the Phase 3 Approval Gate.
+**Auto-proceed**: After discover.py or render_cached_governance.py exits 0
+(`COMPLETE`), proceed directly to Phase 2 without asking the user any questions.
+The only user interaction point is the Phase 3 Approval Gate.
 
 ### Phase 2: Generate Artifacts
 
@@ -330,9 +372,15 @@ If the user provides a custom response at an approval gate, interpret it as inst
 
 ## Boundaries
 
-- **Always**: Invoke `discover.py` via `run_in_terminal`, validate the first-line JSON status, produce both `.md` and `.json`
-- **Always**: Let `discover.py` handle cache-first behaviour; pass `--refresh` only when the user asks
-- **Ask first**: Manual policy overrides
+- **Always**: Invoke `discover.py` (live) or `render_cached_governance.py`
+  (cached baseline) via `run_in_terminal`, validate the first-line JSON status,
+  produce both `.md` and `.json`
+- **Always**: Let `discover.py` handle cache-first behaviour; pass `--refresh`
+  only when the user asks
+- **Always**: When using cached baseline mode, re-render a fresh `.preview.md` —
+  never reuse prior annotated markdown from other projects or past runs
+- **Ask first**: Manual policy overrides; choice between baseline and live
+  discovery (Phase 0.45)
 - **Never**: Generate IaC code, skip discovery entirely on first run, assume policy state from best practices
 - **Never**: Re-run Phase 1 discovery on challenger feedback loops — only artifact content changes
 - **Never**: Read the full `04-governance-constraints.json` snapshot back into

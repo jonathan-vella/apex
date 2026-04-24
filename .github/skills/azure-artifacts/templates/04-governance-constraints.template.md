@@ -15,6 +15,7 @@
 - [🔐 Security Policies](#-security-policies)
 - [💰 Cost Policies](#-cost-policies)
 - [🌐 Network Policies](#-network-policies)
+- [📜 Compliance Frameworks](#-compliance-frameworks)
 - [References](#references)
 
 </details>
@@ -210,6 +211,17 @@ flowchart TD
 | Private Endpoints | {constraint} |
 | VNet Integration  | {constraint} |
 | Public Endpoints  | {constraint} |
+
+---
+
+## 📜 Compliance Frameworks
+
+> Audit/compliance assignments active at subscription or management-group scope.
+> While they do not block deployments (audit effect), they may impose architecture constraints.
+
+| Assignment        | Scope   | Type   |
+| ----------------- | ------- | ------ |
+| {assignment-name} | {scope} | {type} |
 
 ---
 

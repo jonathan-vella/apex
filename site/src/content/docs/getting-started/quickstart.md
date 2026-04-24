@@ -103,7 +103,25 @@ The Dev Container installs all tools automatically:
 - `apex-recall` CLI (session recall)
 - Comprehensive set of VS Code extensions
 
-## Step 4: Configure `GH_TOKEN` for the Dev Container
+## Step 4: Set Up Azure (Optional)
+
+If you plan to deploy to Azure or run the governance baseline workflow, configure
+your Azure environment with a single command:
+
+```bash
+npm run setup
+```
+
+This creates an Entra ID app registration, OIDC federated credentials, RBAC
+roles, and GitHub secrets/variables. See [Azure Setup](./azure-setup) for
+details and manual alternatives.
+
+:::note[Skip this if you are just learning]
+Azure setup is only required for Step 6 (Deploy) and the governance baseline
+workflow. You can explore the full agent workflow without it.
+:::
+
+## Step 5: Configure `GH_TOKEN` for the Dev Container
 
 This step is easy to miss, but it is required for reliable GitHub CLI and repository operations in
 the devcontainer.
@@ -138,7 +156,7 @@ Adding it in `.bashrc`, `.profile`, or an in-container shell session does not pe
 See [Dev Container Setup](../dev-containers/) for the full explanation, screenshots, and token
 rotation guidance.
 
-## Step 5: Verify Setup
+## Step 6: Verify Setup
 
 :::tip[Verify all tools installed correctly]
 Run these commands to confirm the dev container has all required CLIs and GitHub authentication:
@@ -152,7 +170,7 @@ az --version && bicep --version && terraform --version && pwsh --version # (1)!
 1. `gh auth status` should show a token-backed login, and all four CLIs should print
    version numbers. If any fail, rebuild or reopen the dev container.
 
-## Step 6: Enable Subagent Orchestration
+## Step 7: Enable Subagent Orchestration
 
 :::caution[Required]
 The Orchestrator pattern requires this setting.
@@ -181,7 +199,7 @@ take precedence for experimental features like subagent invocation.
 2. Type: `Preferences: Open User Settings (JSON)`
 3. Confirm the setting is present
 
-## Step 7: Start the Orchestrator
+## Step 8: Start the Orchestrator
 
 ### Option A: Orchestrator (Recommended)
 
@@ -211,7 +229,7 @@ Invoke agents directly for specific tasks:
 2. Select the specific agent (e.g., `requirements`)
 3. Enter your prompt
 
-## Step 8: Follow the Workflow
+## Step 9: Follow the Workflow
 
 The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
 steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection

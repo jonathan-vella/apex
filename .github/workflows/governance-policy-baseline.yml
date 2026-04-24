@@ -1,0 +1,154 @@
+name: Governance Policy Baseline
+
+on:
+  schedule:
+    # Run daily at 04:00 UTC
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: "Force PR creation even if no changes detected"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  collect-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      # Kill switch — exit cleanly if disabled
+      - name: Check kill switch
+        if: vars.GOVERNANCE_BASELINE_ENABLED == 'false'
+        run: |
+          echo "::notice::Governance baseline collection is disabled (GOVERNANCE_BASELINE_ENABLED=false). Exiting."
+          exit 0
+
+      - name: Skip remaining steps if disabled
+        if: vars.GOVERNANCE_BASELINE_ENABLED == 'false'
+        id: disabled
+        run: echo "skip=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        if: steps.disabled.outputs.skip != 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 2
+
+      - name: Azure Login (OIDC)
+        if: steps.disabled.outputs.skip != 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create data directory
+        if: steps.disabled.outputs.skip != 'true'
+        run: mkdir -p .github/data
+
+      - name: Collect governance baseline
+        if: steps.disabled.outputs.skip != 'true'
+        run: |
+          pwsh tools/scripts/collect-governance-baseline.ps1 \
+            -ManagementGroupId "${{ vars.GOVERNANCE_MG_ID }}" \
+            -MaxSubscriptions "${{ vars.GOVERNANCE_MAX_SUBSCRIPTIONS || '100' }}"
+
+      - name: Stage baseline file
+        if: steps.disabled.outputs.skip != 'true'
+        id: changes
+        run: |
+          git add .github/data/governance-policy-baseline.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect MG ID change
+        if: steps.disabled.outputs.skip != 'true' && steps.changes.outputs.changed == 'true'
+        id: mg-check
+        run: |
+          CURRENT_MG=$(jq -r '.management_group_id' .github/data/governance-policy-baseline.json)
+          PRIOR_MG=$(git show HEAD:.github/data/governance-policy-baseline.json 2>/dev/null | jq -r '.management_group_id' 2>/dev/null || echo "")
+          if [[ -n "$PRIOR_MG" && "$CURRENT_MG" != "$PRIOR_MG" ]]; then
+            echo "mg_changed=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Management Group ID changed: $PRIOR_MG → $CURRENT_MG"
+          else
+            echo "mg_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Read baseline summary
+        if: steps.disabled.outputs.skip != 'true' && steps.changes.outputs.changed == 'true'
+        id: summary
+        run: |
+          COVERAGE=$(jq -r '.coverage_status' .github/data/governance-policy-baseline.json)
+          PROCESSED=$(jq -r '.subscriptions_processed' .github/data/governance-policy-baseline.json)
+          SKIPPED=$(jq -r '.subscriptions_skipped | length' .github/data/governance-policy-baseline.json)
+          EXCLUDED=$(jq -r '.subscriptions_excluded | length' .github/data/governance-policy-baseline.json)
+          MG_ID=$(jq -r '.management_group_id' .github/data/governance-policy-baseline.json)
+          echo "coverage=$COVERAGE" >> "$GITHUB_OUTPUT"
+          echo "processed=$PROCESSED" >> "$GITHUB_OUTPUT"
+          echo "skipped=$SKIPPED" >> "$GITHUB_OUTPUT"
+          echo "excluded=$EXCLUDED" >> "$GITHUB_OUTPUT"
+          echo "mg_id=$MG_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        if: (steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true') && steps.disabled.outputs.skip != 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(data): Update governance policy baseline"
+          branch: "chore/governance-baseline-update"
+          delete-branch: true
+          title: "chore(data): Update governance policy baseline"
+          body: |
+            Automated update of `.github/data/governance-policy-baseline.json` from Management Group `${{ steps.summary.outputs.mg_id }}`.
+
+            | Metric | Value |
+            | --- | --- |
+            | Coverage | ${{ steps.summary.outputs.coverage }} |
+            | Subscriptions Processed | ${{ steps.summary.outputs.processed }} |
+            | Subscriptions Skipped | ${{ steps.summary.outputs.skipped }} |
+            | Subscriptions Excluded | ${{ steps.summary.outputs.excluded }} |
+            | MG ID Changed | ${{ steps.mg-check.outputs.mg_changed }} |
+
+            Generated by `Governance Policy Baseline` workflow.
+          labels: |
+            automation
+            governance
+            ${{ steps.mg-check.outputs.mg_changed == 'true' && 'needs-human-review' || '' }}
+        id: cpr
+
+      - name: Enable auto-merge (MG ID unchanged only)
+        if: steps.cpr.outputs.pull-request-number != '' && steps.mg-check.outputs.mg_changed != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} \
+            --auto --squash --delete-branch
+
+      - name: Log MG change warning
+        if: steps.cpr.outputs.pull-request-number != '' && steps.mg-check.outputs.mg_changed == 'true'
+        run: |
+          echo "⚠️ Management Group ID changed — PR requires human review."
+          echo "Auto-merge is disabled for this PR."
+
+      - name: Log pull request
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: |
+          echo "✅ Created/updated PR #${{ steps.cpr.outputs.pull-request-number }}"
+          echo "🔗 ${{ steps.cpr.outputs.pull-request-url }}"
+
+      - name: Log no changes
+        if: steps.changes.outputs.changed == 'false' && steps.disabled.outputs.skip != 'true'
+        run: echo "ℹ️ No governance baseline changes detected — no PR created."
