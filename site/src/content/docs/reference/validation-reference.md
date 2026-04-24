@@ -18,11 +18,9 @@ flowchart LR
     style C fill:#ffebee,stroke:#f44336,color:#000
 ```
 
-1. **Pre-commit** — validates staged files only (fast, file-type scoped)
+1. **Pre-commit** — validates staged files only (fast, file-type scoped, parallel)
 2. **Pre-push** — validates all changed files vs `main` (domain-scoped, parallel)
 3. **CI** — validates the full repository on every PR and push to `main`
-
-A **post-commit** layer also runs lightweight checks after each commit.
 
 ## Lefthook Hooks
 
@@ -30,20 +28,19 @@ All hooks are defined in `lefthook.yml` at the repository root.
 
 ### Pre-Commit Hooks
 
-| Hook                  | Trigger (glob)                        | Purpose                                          |
-| --------------------- | ------------------------------------- | ------------------------------------------------ |
-| `markdown-lint`       | `*.md`                                | markdownlint on staged markdown files            |
-| `link-check`          | `site/src/content/docs/**/*.{md,mdx}` | Verify URLs in staged docs files                 |
-| `h2-sync`             | SKILL.md, azure-artifacts files       | Check H2 heading sync across sources             |
-| `artifact-validation` | `agent-output/**/*.md`                | Validate artifact H2 structure against templates |
-| `agent-frontmatter`   | `**/*.agent.md`                       | Validate agent YAML frontmatter syntax           |
-| `model-alignment`     | `**/*.agent.md`, `**/*.prompt.md`     | Check model-prompt alignment                     |
-| `agent-checks`        | `**/*.agent.md`                       | Agent body size and language density             |
-| `instruction-checks`  | `**/*.instructions.md`                | Instruction frontmatter validation               |
-| `instruction-refs`    | Agents, skills, instructions          | Cross-reference validation                       |
-| `python-lint`         | `tools/mcp-servers/**/*.py`             | Ruff linter on Python files                      |
-| `terraform-fmt`       | `*.tf`                                | Terraform formatting check                       |
-| `terraform-validate`  | `*.tf`                                | Terraform validation per project                 |
+| Hook                    | Trigger (glob)                                      | Purpose                                               |
+| ----------------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| `markdown-lint`         | `*.md`                                              | markdownlint on staged markdown files                 |
+| `link-check`            | `site/src/content/docs/**/*.{md,mdx}`               | Verify URLs in staged docs files                      |
+| `h2-sync`               | SKILL.md, azure-artifacts files                     | Check H2 heading sync across sources                  |
+| `artifact-validation`   | `agent-output/**/*.md`                              | Validate artifact H2 structure against templates      |
+| `agents`                | `**/*.agent.md`, `**/*.prompt.md`                   | Agent frontmatter, model alignment, body size         |
+| `instructions`          | `**/*.instructions.md`, agents, skills              | Instruction frontmatter and cross-reference validity  |
+| `secrets-baseline`      | _(all staged files)_                                | gitleaks secret scan (soft-skip if not installed)     |
+| `python-lint`           | `tools/mcp-servers/**/*.py`                         | Ruff linter on Python files                           |
+| `terraform-fmt`         | `*.tf`                                              | Terraform formatting check                            |
+| `terraform-validate`    | `*.tf`                                              | Terraform validation per project                      |
+| `iac-security-baseline` | `infra/bicep/**/*.bicep`, `infra/terraform/**/*.tf` | TLS 1.2, HTTPS-only, no public blob, managed identity |
 
 ### Commit-Msg Hook
 
@@ -58,14 +55,6 @@ All hooks are defined in `lefthook.yml` at the repository root.
 | `branch-naming`    | Validate branch name uses an approved prefix        |
 | `branch-scope`     | Validate domain branches only modify in-scope files |
 | `diff-based-check` | Run domain-scoped validators for changed file types |
-
-### Post-Commit Hooks
-
-| Hook              | Purpose                                                          |
-| ----------------- | ---------------------------------------------------------------- |
-| `version-sync`    | Check version consistency across `VERSION.md` and `package.json` |
-| `deprecated-refs` | Detect deprecated references in changed markdown                 |
-| `json-syntax`     | Validate JSON syntax of changed `.json` files                    |
 
 ## Validation Scripts
 
@@ -121,19 +110,20 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | ----------------- | ---------------------------- | --------------------------------- |
 | `validate:vscode` | `validate-vscode-config.mjs` | VS Code settings completeness     |
 | `validate:hooks`  | `validate-hooks.mjs`         | Hook script structure and syntax  |
+| `test:hooks`      | `test-hooks.sh`              | Hook integration tests (bats)     |
 | `lint:mcp-config` | `validate-mcp-config.mjs`    | MCP server configuration validity |
 
 ### Code and Format Linters
 
-| npm Command          | Tool                | Purpose                                        |
-| -------------------- | ------------------- | ---------------------------------------------- |
-| `lint:md`            | markdownlint-cli2   | Markdown formatting and style                  |
-| `lint:links`         | markdown-link-check | URL validity in all markdown files             |
-| `lint:links:docs`    | markdown-link-check | URL validity in site docs                      |
-| `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                   |
+| npm Command          | Tool                | Purpose                                                  |
+| -------------------- | ------------------- | -------------------------------------------------------- |
+| `lint:md`            | markdownlint-cli2   | Markdown formatting and style                            |
+| `lint:links`         | markdown-link-check | URL validity in all markdown files                       |
+| `lint:links:docs`    | markdown-link-check | URL validity in site docs                                |
+| `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                             |
 | `lint:python`        | ruff                | Python code quality (`tools/mcp-servers/azure-pricing/`) |
-| `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                |
-| `validate:terraform` | terraform validate  | Terraform validation per project               |
+| `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                          |
+| `validate:terraform` | terraform validate  | Terraform validation per project                         |
 
 ### Aggregate Commands
 
@@ -151,15 +141,15 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 All workflows are in `.github/workflows/`.
 
-| Workflow                  | File                            | Trigger                      | Purpose                                                                                              |
-| ------------------------- | ------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
-| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, artifacts, agents, skills, instructions, JSON, MCP, VS Code config) |
-| Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                        |
-| Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                        |
-| Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                                |
-| E2E Validation            | `e2e-validation.yml`            | Agent output changes         | E2E pipeline structural validation                                                                   |
-| Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                       |
-| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                     |
+| Workflow                  | File                            | Trigger                      | Purpose                                                                                            |
+| ------------------------- | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, agents, skills, hooks, gitleaks, bats tests, MCP, VS Code config) |
+| Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
+| Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                      |
+| Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                              |
+| E2E Validation            | `e2e-validation.yml`            | Agent output changes         | E2E pipeline structural validation                                                                 |
+| Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                     |
+| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                   |
 
 ## Running Validations Locally
 

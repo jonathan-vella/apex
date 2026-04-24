@@ -98,7 +98,7 @@
 | 2026-03-27 | Skills          | Drawio SKILL.md: Reference Index section added; 3 canary markers added; ref files 473 total                       |
 | 2026-03-27 | Skills          | Excalidraw references cleaned: 2 orphaned files removed (migrated to drawio); 1 ref remaining                     |
 | 2026-03-27 | Agents          | 08-as-built.agent.md: ordered list numbering fixed (MD029)                                                        |
-| 2026-03-27 | CI / Validation | Core repo lint clean (0 errors); 91 lint errors in vendored `tools/mcp-servers/drawio/` only                       |
+| 2026-03-27 | CI / Validation | Core repo lint clean (0 errors); 91 lint errors in vendored `tools/mcp-servers/drawio/` only                      |
 | 2026-03-27 | CI / Validation | Freshness check: 0 issues (was 5); all canary markers and Reference Index sections present                        |
 | 2026-03-27 | Instructions    | All instruction checks pass: 65 checks, 0 errors, 0 warnings                                                      |
 | 2026-03-27 | Backlog         | Debt #20 resolved (Fabric ref blanks no longer flagged); drawio-mcp-server lint added as #21                      |
@@ -117,6 +117,11 @@
 | 2026-04-12 | Instructions    | `agent-definitions.instructions.md` prose + table model drift fixed (challenger, codegen, design)                 |
 | 2026-04-12 | Agents          | Grade A- → A: e2e-orchestrator 425 lines under new 500-line limit; all validators pass                            |
 | 2026-04-12 | Backlog         | Debt #22 resolved (body limit raised to 500); active items 2 → 1                                                  |
+| 2026-04-24 | CI / Validation | Hooks consolidation: gitleaks-action in CI, bats test suite, `validate:hooks` + `test:hooks` steps added          |
+| 2026-04-24 | CI / Validation | Lefthook pre-commit: 5 granular hooks consolidated to 2 (`agents`, `instructions`); `secrets-baseline` added      |
+| 2026-04-24 | CI / Validation | Lefthook post-commit section removed; checks migrated to pre-push `diff-based-check`                              |
+| 2026-04-24 | Documentation   | `validation-reference.md` corrected: stale post-commit section removed, pre-commit table updated                  |
+| 2026-04-24 | Documentation   | Site `changelog.md` updated with hooks consolidation entry                                                        |
 
 ## How to Update
 

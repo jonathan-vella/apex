@@ -32,13 +32,13 @@ These aspects are unlikely to change significantly:
 
 Each hook lives in its own folder under `.github/hooks/` (one `hooks.json` + one script per folder):
 
-| Folder                 | Event                                               | Script                      | Purpose                                                       |
-| ---------------------- | --------------------------------------------------- | --------------------------- | ------------------------------------------------------------- |
-| `tool-guardian/`       | `PreToolUse`                                        | `guard-tool.sh`             | Block dangerous commands + hook self-modification protection  |
-| `secrets-scanner/`     | `Stop`                                              | `scan-secrets.sh`           | Scan modified files for leaked secrets and credentials        |
-| `session-telemetry/`   | `SessionStart`, `Stop`, `UserPromptSubmit`          | `session-start.sh` etc.     | Merged session lifecycle logging and governance audit          |
-| `subagent-validation/` | `SubagentStop`                                      | `subagent-validation.sh`    | Validate subagent output quality (advisory)                   |
-| `tool-audit/`          | `PostToolUse`                                       | `tool-audit.sh`             | Log tool usage metadata (name, status)                        |
+| Folder                 | Event                                      | Script                   | Purpose                                                      |
+| ---------------------- | ------------------------------------------ | ------------------------ | ------------------------------------------------------------ |
+| `tool-guardian/`       | `PreToolUse`                               | `guard-tool.sh`          | Block dangerous commands + hook self-modification protection |
+| `secrets-scanner/`     | `Stop`                                     | `scan-secrets.sh`        | Scan modified files for leaked secrets and credentials       |
+| `session-telemetry/`   | `SessionStart`, `Stop`, `UserPromptSubmit` | `session-start.sh` etc.  | Merged session lifecycle logging and governance audit        |
+| `subagent-validation/` | `SubagentStop`                             | `subagent-validation.sh` | Validate subagent output quality (advisory)                  |
+| `tool-audit/`          | `PostToolUse`                              | `tool-audit.sh`          | Log tool usage metadata (name, status)                       |
 
 Hook folder paths are registered in `.vscode/settings.json` via `chat.hookFilesLocations`.
 

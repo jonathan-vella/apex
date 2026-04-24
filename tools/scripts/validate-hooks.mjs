@@ -244,9 +244,7 @@ if (!existsSync(SETTINGS_PATH)) {
 
 // ── 3b. Cross-check with .devcontainer/devcontainer.json ──
 const DEVCONTAINER_PATH = resolve(REPO_ROOT, ".devcontainer/devcontainer.json");
-console.log(
-  "\n📋 Cross-checking with .devcontainer/devcontainer.json...\n",
-);
+console.log("\n📋 Cross-checking with .devcontainer/devcontainer.json...\n");
 
 if (!existsSync(DEVCONTAINER_PATH)) {
   warn(".devcontainer/devcontainer.json not found — skipping cross-check");
