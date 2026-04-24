@@ -51,27 +51,16 @@ def _split_tags(tags_required: list[dict[str, Any]]) -> tuple[list[dict[str, Any
     return resolved, unresolved
 
 
-# Known assignment-parameter keys whose values are the actual constraint.
-_PARAM_VALUE_KEYS: dict[str, str] = {
-    "listofallowedlocations": "Allowed locations",
-    "allowedlocations": "Allowed locations",
-    "listofresourcetypesnotallowed": "Blocked resource types",
-    "listofresourcetypesallowed": "Allowed resource types",
-    "listofallowedskus": "Allowed VM SKUs",
-    "listofdeniedskus": "Blocked VM SKUs",
-    "allowedskus": "Allowed VM SKUs",
-    "effect": "",  # skip the 'effect' override param — not a constraint value
-}
-
-
 def _extract_constraint_value(finding: dict[str, Any]) -> str | None:
     """Extract the actual constraint value from assignment_parameters or required_value.
 
     Returns a human-readable string summarising the constraint, or None.
     """
-    # Prefer explicit required_value if present and truthy
+    # Prefer explicit required_value if present (including boolean False)
     rv = finding.get("required_value")
-    if rv is not None and rv != "" and rv is not False:
+    if rv is not None and rv != "":
+        if isinstance(rv, bool):
+            return str(rv).lower()
         if isinstance(rv, list):
             return ", ".join(str(v) for v in rv[:20])
         return str(rv)
@@ -235,7 +224,9 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a(f"| Policy Assignments | {summary.get('assignment_kept', 0)} policies discovered | {discovered_at} |")
     a(f"| Tag Policies | {len(tags_required)} tags required | {discovered_at} |")
     a(f"| Security Policies | {len(security)} constraints | {discovered_at} |\n")
-    a(f"**Discovery Method**: Azure Policy REST API (discover.py)")
+    is_cached = envelope.get("source") == "cached_baseline" or envelope.get("cached_baseline", False)
+    discovery_method = "Cached governance baseline (governance-policy-baseline.json)" if is_cached else "Azure Policy REST API (discover.py)"
+    a(f"**Discovery Method**: {discovery_method}")
     a(f"**Subscription**: {envelope.get('subscription_id', 'unknown')}")
     a(f"**Scope**: Subscription + management-group inherited\n")
     if blockers:
@@ -483,6 +474,9 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
             atype = inv.get("assignmentType", "")
             a(f"| {dn} | {scope} | {atype} |")
         a("")
+    else:
+        a("## 📜 Compliance Frameworks\n")
+        a("✅ No compliance framework assignments (GDPR, PCI DSS, HIPAA, etc.) discovered at subscription or management-group scope.\n")
 
     # References
     a("## References\n")
@@ -491,7 +485,8 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a("| Azure Policy | [Overview](https://learn.microsoft.com/azure/governance/policy/overview) |")
     a("| Tag Governance | [Tagging Strategy](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging) |\n")
     a("---\n")
-    a("_Governance constraints discovered from Azure Policy REST API via discover.py._\n")
+    footer_source = "cached governance baseline" if is_cached else "Azure Policy REST API via discover.py"
+    a(f"_Governance constraints discovered from {footer_source}._\n")
 
     preview_path.write_text("\n".join(lines) + "\n")
     return preview_path

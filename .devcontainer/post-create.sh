@@ -299,7 +299,7 @@ fi
 # ─── Step 12: Gitleaks (secret scanner) ────────────────────────────────────
 
 step_start "🔐" "Installing gitleaks secret scanner..."
-GITLEAKS_VERSION=$(curl -fsSL "https://api.github.com/repos/gitleaks/gitleaks/releases/latest" | jq -r '.tag_name' | sed 's/^v//')
+GITLEAKS_VERSION=$(curl -fsSL "https://api.github.com/repos/gitleaks/gitleaks/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null | sed 's/^v//' || echo '')
 if [ -n "$GITLEAKS_VERSION" ] && [ "$GITLEAKS_VERSION" != "null" ]; then
     if curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
         | sudo tar -xz -C /usr/local/bin gitleaks 2>/dev/null; then
