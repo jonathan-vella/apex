@@ -57,11 +57,18 @@ for e in entries:
 
     [ -z "$script" ] && continue
 
+    # Extract script path from "bash <path>" to avoid eval (command injection risk)
+    script_path="${script#bash }"
+    if [[ ! -f "$script_path" ]]; then
+      echo "    ⚠️  Script not found: $script_path — skipping"
+      continue
+    fi
+
     echo "  ⏱️  $dir_name/$event ..."
     durations=()
     for ((i = 1; i <= ITERATIONS; i++)); do
       start_ns=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-      echo "$input_json" | eval "$script" > /dev/null 2>&1 || true
+      echo "$input_json" | bash "$script_path" > /dev/null 2>&1 || true
       end_ns=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
       duration_ms=$(( (end_ns - start_ns) / 1000000 ))
       durations+=("$duration_ms")

@@ -7,7 +7,8 @@ HOOK="$HOOKS_DIR/subagent-validation/subagent-validation.sh"
 
 @test "warns on short output" {
   run bash "$HOOK" <<< '{"subagentName":"test-agent","output":"short"}'
-  [[ "$output" == *"short output"* ]] || [ "$status" -eq 0 ]
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"short output"* ]] || [[ "$output" == *"Warning"* ]]
 }
 
 @test "accepts normal output" {
@@ -19,7 +20,8 @@ HOOK="$HOOKS_DIR/subagent-validation/subagent-validation.sh"
 
 @test "warns challenger with no findings" {
   run bash "$HOOK" <<< '{"subagentName":"challenger-review-subagent","output":"{\"findings\": []}"}'
-  [[ "$output" == *"no findings"* ]] || [[ "$output" == *"empty"* ]] || [ "$status" -eq 0 ]
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"no findings"* ]] || [[ "$output" == *"empty"* ]] || [[ "$output" == *"Warning"* ]]
 }
 
 @test "accepts challenger with findings" {

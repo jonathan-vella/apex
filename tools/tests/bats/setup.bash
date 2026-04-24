@@ -31,7 +31,7 @@ mock_session_start() {
 
 mock_prompt() {
   local msg="${1:-deploy a web app to Azure}"
-  python3 -c "import json; print(json.dumps({'userMessage': '$msg'}))"
+  python3 -c "import json, sys; print(json.dumps({'userMessage': sys.argv[1]}))" "$msg"
 }
 
 mock_session_end() {
@@ -41,5 +41,5 @@ mock_session_end() {
 mock_tool_use() {
   local tool="${1:-run_in_terminal}"
   local input="${2:-ls -la}"
-  echo "{\"toolName\":\"$tool\",\"toolInput\":\"$input\"}"
+  python3 -c "import json, sys; print(json.dumps({'toolName': sys.argv[1], 'toolInput': sys.argv[2]}))" "$tool" "$input"
 }

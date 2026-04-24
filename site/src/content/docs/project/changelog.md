@@ -19,8 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directory. Add `tool-audit/` hook (PostToolUse metadata logging), gitleaks
   pre-commit secret scan, bats-based hook test suite (`tools/tests/bats/`),
   and CI enforcement (`validate:hooks` + `test:hooks`). Lefthook pre-commit
-  consolidated (5→2 validator commands, parallel enabled) and post-commit
-  removed (checks migrated to pre-push `diff-based-check`).
+  validator commands consolidated with parallel execution enabled, and
+  post-commit removed (checks migrated to pre-push `diff-based-check`).
 - feat(agents): model realignment v2 — Orchestrator moves GPT-5.4 → Claude Opus 4.6;
   CodeGen agents (06b-Bicep CodeGen, 06t-Terraform CodeGen) move GPT-5.4 → Claude Sonnet 4.6;
   bicep/terraform subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan)
