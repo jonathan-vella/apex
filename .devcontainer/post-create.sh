@@ -300,10 +300,15 @@ fi
 
 step_start "🔐" "Installing gitleaks secret scanner..."
 GITLEAKS_VERSION=$(curl -fsSL "https://api.github.com/repos/gitleaks/gitleaks/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null | sed 's/^v//' || echo '')
+# Map uname -m to the gitleaks archive architecture label
+case "$(uname -m)" in
+    aarch64|arm64) GITLEAKS_ARCH="arm64" ;;
+    *)             GITLEAKS_ARCH="x64"   ;;
+esac
 if [ -n "$GITLEAKS_VERSION" ] && [ "$GITLEAKS_VERSION" != "null" ]; then
-    if curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+    if curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${GITLEAKS_ARCH}.tar.gz" \
         | sudo tar -xz -C /usr/local/bin gitleaks 2>/dev/null; then
-        step_done "gitleaks ${GITLEAKS_VERSION} installed"
+        step_done "gitleaks ${GITLEAKS_VERSION} installed (${GITLEAKS_ARCH})"
     else
         step_warn "gitleaks binary download failed (pre-commit hook will soft-skip)"
     fi
