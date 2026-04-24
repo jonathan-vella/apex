@@ -24,14 +24,14 @@ Items marked ⭐ are required for learning. An Azure subscription is optional �
 when deploying to Azure in Step 6.
 :::
 
-| Requirement             | How to Get                                                                               |
-| ----------------------- | ---------------------------------------------------------------------------------------- |
-| ⭐ GitHub account       | [Sign up](https://github.com/signup)                                                     |
-| ⭐ GitHub Copilot license | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
+| Requirement                | How to Get                                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| ⭐ GitHub account          | [Sign up](https://github.com/signup)                                                     |
+| ⭐ GitHub Copilot license  | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
 | ⭐ GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`                                     |
-| ⭐ VS Code              | [Download](https://code.visualstudio.com/)                                               |
-| ⭐ Docker Desktop       | [Download](https://www.docker.com/products/docker-desktop/)                              |
-| Azure subscription      | Optional — required only for Step 6 deployment                                                      |
+| ⭐ VS Code                 | [Download](https://code.visualstudio.com/)                                               |
+| ⭐ Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/)                              |
+| Azure subscription         | Optional — required only for Step 6 deployment                                           |
 
 :::note[Docker is required]
 A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
