@@ -1,3 +1,3 @@
-# Test fixtures with intentional dummy secrets (not real credentials)
-tools/tests/test-hooks.sh
-tools/tests/bats/secrets-scanner.bats
+# Gitleaks fingerprint allowlist
+# Add fingerprints (commit:file:rule:line) here to suppress known false positives.
+# For file-level allowlists, use .gitleaks.toml [allowlist] paths instead.
