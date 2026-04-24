@@ -1,0 +1,3 @@
+# Gitleaks fingerprint allowlist
+# Add fingerprints (commit:file:rule:line) here to suppress known false positives.
+# For file-level allowlists, use .gitleaks.toml [allowlist] paths instead.

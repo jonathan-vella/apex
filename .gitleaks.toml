@@ -1,0 +1,4 @@
+# Gitleaks configuration
+# Do not broadly allowlist test fixture paths.
+# If a concrete false positive occurs, suppress only that exact finding
+# with a fingerprint-based entry in `.gitleaksignore`.

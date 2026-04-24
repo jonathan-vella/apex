@@ -20,6 +20,12 @@ for full details on this and all prior releases.
 
 ### Added
 
+- refactor(hooks): consolidate agent hooks — merge `governance-audit/` and
+  `session-logger/` into single `session-telemetry/` directory. Adds `tool-audit/`
+  (PostToolUse metadata logging), gitleaks pre-commit guard, bats-based hook
+  test suite, and CI enforcement. Lefthook pre-commit consolidated (5→2 validator
+  commands, parallel enabled) and post-commit removed (checks migrated to pre-push).
+
 - refactor(tools): consolidate tests under `tools/tests/`.
   Moves `tests/` → `tools/tests/`. Updates npm test commands,
   markdownlint excludes, and documentation references.

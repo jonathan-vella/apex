@@ -31,12 +31,13 @@
     "ghcr.io/devcontainers-community/features/deno": {
       "version": "latest"
     },
-    "ghcr.io/azure/azure-dev/azd:latest": {}
+    "ghcr.io/azure/azure-dev/azd:latest": {},
+    "ghcr.io/devcontainers-contrib/features/gitleaks:1": {}
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
   // Lifecycle: onCreateCommand runs first (system packages + uv), then postCreateCommand (tools), then postStartCommand (updates)
-  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
+  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix bats; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh && (npx lefthook install 2>/dev/null || true)",
 
@@ -104,10 +105,9 @@
         "chat.hookFilesLocations": {
           ".github/hooks/tool-guardian": true,
           ".github/hooks/secrets-scanner": true,
-          ".github/hooks/session-logger": true,
-          ".github/hooks/governance-audit": true,
-          ".github/hooks/post-edit-format": true,
-          ".github/hooks/subagent-validation": true
+          ".github/hooks/session-telemetry": true,
+          ".github/hooks/subagent-validation": true,
+          ".github/hooks/tool-audit": true
         },
         "chat.useCustomAgentHooks": true,
         "chat.useAgentSkills": true,

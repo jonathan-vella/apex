@@ -242,6 +242,48 @@ if (!existsSync(SETTINGS_PATH)) {
   }
 }
 
+// ── 3b. Cross-check with .devcontainer/devcontainer.json ──
+const DEVCONTAINER_PATH = resolve(REPO_ROOT, ".devcontainer/devcontainer.json");
+console.log("\n📋 Cross-checking with .devcontainer/devcontainer.json...\n");
+
+if (!existsSync(DEVCONTAINER_PATH)) {
+  warn(".devcontainer/devcontainer.json not found — skipping cross-check");
+} else {
+  let devcontainer;
+  try {
+    devcontainer = parseJsonc(readFileSync(DEVCONTAINER_PATH, "utf-8"));
+  } catch (e) {
+    fail(`.devcontainer/devcontainer.json parse error: ${e.message}`);
+    devcontainer = null;
+  }
+
+  if (devcontainer) {
+    const dcHookLocations =
+      devcontainer?.customizations?.vscode?.settings?.[
+        "chat.hookFilesLocations"
+      ] || {};
+
+    for (const dir of discoveredDirs) {
+      const settingsKey = `.github/hooks/${dir}`;
+      if (dcHookLocations[settingsKey] === true) {
+        pass(`devcontainer.json includes ${settingsKey}`);
+      } else {
+        fail(`devcontainer.json missing hook directory: ${settingsKey}`);
+      }
+    }
+
+    // Check for stale entries in devcontainer that don't exist on disk
+    for (const key of Object.keys(dcHookLocations)) {
+      const dirName = basename(key);
+      if (!discoveredDirs.includes(dirName)) {
+        warn(
+          `devcontainer.json references non-existent hook directory: ${key}`,
+        );
+      }
+    }
+  }
+}
+
 // ── 4. Summary ──
 r.summary("Hook validation");
 r.exitOnError(

@@ -65,6 +65,13 @@ run_check() {
 }
 
 # Launch all checks in background
+
+# ── Unconditional checks (migrated from post-commit) ──
+run_check "Version sync" "1" "npm run lint:version-sync" "version-sync" &
+run_check "Deprecated refs" "1" "npm run lint:deprecated-refs" "deprecated-refs" &
+run_check "Terminology" "1" "npm run validate:terminology" "terminology" &
+
+# ── File-type-scoped checks ──
 run_check "Bicep lint" "$BICEP_COUNT" "shopt -s nullglob; for f in infra/bicep/*/main.bicep; do bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
 run_check "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt" "tf-fmt" &
 run_check "Terraform validate" "$TF_COUNT" "npm run validate:terraform" "tf-validate" &

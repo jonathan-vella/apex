@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -36,11 +38,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install bats
+        run: sudo apt-get install -y bats
+
+      - name: Scan for secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Lint Markdown
         run: npm run lint:md
 
       - name: Run Node.js validators (CI-safe)
         run: npm run validate:_node-ci
+
+      - name: Validate hooks
+        run: npm run validate:hooks
+
+      - name: Run hook tests
+        run: npm run test:hooks
 
       - name: Validate handoff references
         run: |

@@ -1,28 +1,34 @@
 #!/usr/bin/env bash
-# Governance Audit: Scan user prompts for threat signals before agent processing
-# Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/governance-audit
-#
-# Environment variables:
-#   GOVERNANCE_LEVEL - "open", "standard", "strict", "locked" (default: standard)
-#   BLOCK_ON_THREAT  - "true" to exit non-zero on threats (default: false)
-#   SKIP_GOVERNANCE_AUDIT - "true" to disable (default: unset)
+# Session Telemetry: Merged prompt-submit hook (governance audit + session logger)
+# Env precedence: SKIP_SESSION_TELEMETRY disables everything.
+# SKIP_GOVERNANCE_AUDIT and SKIP_LOGGING work independently when umbrella is unset.
 
 set -euo pipefail
 
-if [[ "${SKIP_GOVERNANCE_AUDIT:-}" == "true" ]]; then
+if [[ "${SKIP_SESSION_TELEMETRY:-}" == "true" ]]; then
   exit 0
 fi
 
 INPUT=$(cat)
 
-mkdir -p logs/copilot/governance
+mkdir -p logs/copilot/governance logs/copilot
 
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 LEVEL="${GOVERNANCE_LEVEL:-standard}"
 BLOCK="${BLOCK_ON_THREAT:-false}"
 LOG_FILE="logs/copilot/governance/audit.log"
 
-# Extract prompt text from Copilot input (JSON with userMessage field)
+# ── Session log (prompt event) ──
+if [[ "${SKIP_LOGGING:-}" != "true" ]]; then
+  echo "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"userPromptSubmitted\",\"level\":\"${LOG_LEVEL:-INFO}\"}" >> logs/copilot/prompts.log
+fi
+
+# ── Governance: threat detection ──
+if [[ "${SKIP_GOVERNANCE_AUDIT:-}" == "true" ]]; then
+  exit 0
+fi
+
+# Extract prompt text from Copilot input
 PROMPT=""
 if command -v jq &>/dev/null; then
   PROMPT=$(echo "$INPUT" | jq -r '.userMessage // .prompt // empty' 2>/dev/null || echo "")
@@ -31,8 +37,7 @@ if [[ -z "$PROMPT" ]]; then
   PROMPT="$INPUT"
 fi
 
-# Threat detection patterns organized by category
-# Each pattern has: category, description, severity (0.0-1.0)
+# Threat detection patterns
 THREATS_FOUND=()
 
 check_pattern() {
@@ -77,7 +82,6 @@ check_pattern "(aws_access_key|AKIA[0-9A-Z]{16})" "credential_exposure" "0.95" "
 
 # Log the prompt event
 if [[ ${#THREATS_FOUND[@]} -gt 0 ]]; then
-  # Build threats JSON array
   THREATS_JSON="["
   FIRST=true
   MAX_SEVERITY="0.0"
@@ -101,7 +105,6 @@ if [[ ${#THREATS_FOUND[@]} -gt 0 ]]; then
       THREATS_JSON+="{\"category\":\"$category\",\"severity\":$severity,\"description\":\"$description\",\"evidence\":\"$evidence\"}"
     fi
 
-    # Track max severity
     if command -v bc &>/dev/null; then
       if (( $(echo "$severity > $MAX_SEVERITY" | bc -l 2>/dev/null || echo 0) )); then
         MAX_SEVERITY="$severity"
@@ -130,7 +133,6 @@ if [[ ${#THREATS_FOUND[@]} -gt 0 ]]; then
     echo "  🔴 [$category] $description (severity: $severity)"
   done
 
-  # In strict/locked mode or when BLOCK_ON_THREAT is true, exit non-zero to block
   if [[ "$BLOCK" == "true" ]] || [[ "$LEVEL" == "strict" ]] || [[ "$LEVEL" == "locked" ]]; then
     echo "🚫 Prompt blocked by governance policy (level: $LEVEL)"
     exit 1
