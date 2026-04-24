@@ -117,7 +117,7 @@ npm run setup
 ```
 
 This creates an Entra ID app registration, OIDC federated credentials, RBAC
-roles, and GitHub secrets/variables. See [Azure Setup](./azure-setup) for
+roles, and GitHub secrets/variables. See [Azure Setup](../azure-setup/) for
 details and manual alternatives.
 
 :::note[Skip this if you are just learning]
