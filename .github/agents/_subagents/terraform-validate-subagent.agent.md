@@ -44,11 +44,13 @@ PASS/FAIL diagnostic and verdict for the parent IaC agent.
 <context_awareness>
 Skill loading tiers (apply per the `context-shredding` skill):
 
-- ≤60% context — read full SKILL.md for `azure-defaults` and `iac-common`.
-- 60–80% — load `azure-defaults/SKILL.digest.md` and
-  `iac-common/SKILL.digest.md`.
-- ≥80% — load `azure-defaults/SKILL.minimal.md` and
-  `iac-common/SKILL.minimal.md`.
+- ≤60% context — read full SKILL.md for `azure-defaults` and `iac-common`
+  (`.github/skills/azure-defaults/SKILL.md`,
+  `.github/skills/iac-common/SKILL.md`).
+- 60–80% — load `.github/skills/azure-defaults/SKILL.digest.md` and
+  `.github/skills/iac-common/SKILL.digest.md`.
+- ≥80% — load `.github/skills/azure-defaults/SKILL.minimal.md` and
+  `.github/skills/iac-common/SKILL.minimal.md`.
 
 Read `04-governance-constraints.json` from `agent-output/{project}/`
 whenever the parent agent provides a project name; translate every
@@ -212,17 +214,9 @@ Run the checklist below over every `.tf` file under `module_path`.
    | Outputs defined            | MEDIUM   | Resource ids and endpoints exposed as `output`        |
    | `terraform fmt` clean      | LOW      | No format drift                                       |
 
-6. **Governance compliance** — read
-   `04-governance-constraints.json`, translate
-   `azurePropertyPath` to Terraform attribute paths, and verify:
-   - Tag count matches governance constraints (four baseline +
-     discovered).
-   - Every Deny policy is satisfied by the resource config.
-   - `public_network_access_enabled = false` for production data
-     services.
-   - SKU restriction policies respected.
-
-   An unresolved policy violation forces `Overall Status: FAILED`.
+6. **Governance compliance** — see `### 7. Governance Compliance`
+   below for the full checklist. An unresolved policy violation forces
+   `Overall Status: FAILED`.
 
 7. **RBAC least privilege** — review every `azurerm_role_assignment`
    resource and classify role/scope risk:
@@ -238,6 +232,21 @@ Run the checklist below over every `.tf` file under `module_path`.
    `RBAC_EXCEPTION_APPROVED: <ticket-or-ADR>` plus a matching record in
    the implementation docs. When the marker is absent, classify as
    CRITICAL → `FAILED`.
+
+### 7. Governance Compliance
+
+Read `04-governance-constraints.json` from `agent-output/{project}/`,
+translate every `azurePropertyPath` entry to its Terraform attribute
+path, and verify the resource config against every Deny policy listed
+in the constraints envelope.
+
+- Tag count matches governance constraints (four baseline + discovered).
+- Every Deny policy is satisfied in the resource config.
+- `public_network_access_enabled = false` for production data services
+  (dev/test environments may exempt per project policy).
+- SKU restriction policies respected.
+
+An unresolved policy violation forces `Overall Status: FAILED`.
 
 ### Phase 3 — Compose response
 

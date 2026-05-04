@@ -44,9 +44,13 @@ parent IaC agent.
 <context_awareness>
 Skill loading tiers (apply per the `context-shredding` skill):
 
-- ≤60% context — read full SKILL.md for `azure-defaults` and `iac-common`.
-- 60–80% — load `azure-defaults/SKILL.digest.md` and `iac-common/SKILL.digest.md`.
-- ≥80% — load `azure-defaults/SKILL.minimal.md` and `iac-common/SKILL.minimal.md`.
+- ≤60% context — read full SKILL.md for `azure-defaults` and `iac-common`
+  (`.github/skills/azure-defaults/SKILL.md`,
+  `.github/skills/iac-common/SKILL.md`).
+- 60–80% — load `.github/skills/azure-defaults/SKILL.digest.md` and
+  `.github/skills/iac-common/SKILL.digest.md`.
+- ≥80% — load `.github/skills/azure-defaults/SKILL.minimal.md` and
+  `.github/skills/iac-common/SKILL.minimal.md`.
 
 Read `04-governance-constraints.md` from `agent-output/{project}/` whenever
 the parent agent provides a project name; if absent, note the gap in findings
@@ -189,14 +193,24 @@ generic statements.
    | No hardcoded values | HIGH     | Configurable values flow through params |
    | Output definitions  | MEDIUM   | Necessary outputs exposed               |
 
-6. **Governance compliance** — read `04-governance-constraints.md` and
-   verify:
-   - Tag count matches governance constraints (four baseline + discovered).
-   - Every Deny policy is satisfied by the resource config.
-   - `publicNetworkAccess` disabled for production data services.
-   - SKU restriction policies respected.
+6. **Governance compliance** — see `### 7. Governance Compliance` below
+   for the full checklist. An unresolved policy violation forces
+   `Overall Status: FAILED`.
 
-   An unresolved policy violation forces `Overall Status: FAILED`.
+### 7. Governance Compliance
+
+Read `04-governance-constraints.md` from `agent-output/{project}/` and
+verify the resource config against every Deny policy listed in the
+constraints envelope. Translate each `azurePropertyPath` entry to its
+Bicep property and confirm the value satisfies the policy.
+
+- Tag count matches governance constraints (four baseline + discovered).
+- Every Deny policy is satisfied in the resource config.
+- `publicNetworkAccess` disabled for production data services
+  (dev/test environments may exempt per project policy).
+- SKU restriction policies respected.
+
+An unresolved policy violation forces `Overall Status: FAILED`.
 
 ### Phase 3 — Compose response
 

@@ -141,7 +141,7 @@ Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so d
 - **GPT-5.4 workflow and execution agents** (as-built, deploy) prioritize strong
   general reasoning for documentation generation and deployment execution. The
   IaC validation/preview subagents previously on this tier moved to Sonnet 4.6
-  in the 2026-05 subagent migration (see Sonnet 4.6 bullet above).
+  in the 2026-05 IaC subagent migration (see Sonnet 4.6 bullet above).
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
 
 #### GPT-5.5 prompting style (summary)
