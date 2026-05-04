@@ -6,6 +6,7 @@
  */
 
 import fs from "node:fs";
+import { promises as fsp } from "node:fs";
 import path from "node:path";
 import {
   getAgents,
@@ -13,6 +14,7 @@ import {
   getInstructions,
 } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
+import { findAllMatches } from "./_lib/regex-helpers.mjs";
 
 const ROOT = process.cwd();
 const r = new Reporter("Deprecated References Validator");
@@ -214,11 +216,7 @@ function scanFile(filePath, content) {
   if (EXCLUDE_PATTERNS.some((p) => p.test(relativePath))) return;
 
   for (const { pattern, message, severity } of DEPRECATED_PATTERNS) {
-    // Reset regex lastIndex for global patterns
-    pattern.lastIndex = 0;
-
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
+    for (const match of findAllMatches(pattern, content)) {
       const lineNum = content.substring(0, match.index).split("\n").length;
       const lineText = getLineText(content, match.index);
       if (shouldIgnoreDeprecatedMatch(message, lineText, match[0])) {
@@ -235,28 +233,44 @@ function scanFile(filePath, content) {
   }
 }
 
-function scanDirectory(dirPath) {
+const SCAN_EXTENSIONS = new Set([".md", ".mjs", ".yml", ".yaml", ".json"]);
+
+/**
+ * Walk a directory tree and yield every file path with a scan-eligible
+ * extension that is not excluded. Synchronous walk (cheap), async read.
+ */
+function* walkScanFiles(dirPath) {
   if (!fs.existsSync(dirPath)) return;
   const dirRel = path.relative(ROOT, dirPath);
   if (EXCLUDE_PATTERNS.some((p) => p.test(dirRel))) return;
 
-  const SCAN_EXTENSIONS = new Set([".md", ".mjs", ".yml", ".yaml", ".json"]);
-  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-  for (const entry of entries) {
+  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
-      scanDirectory(fullPath);
+      yield* walkScanFiles(fullPath);
     } else if (
       entry.isFile() &&
       SCAN_EXTENSIONS.has(path.extname(entry.name))
     ) {
-      const content = fs.readFileSync(fullPath, "utf8");
-      scanFile(fullPath, content);
+      yield fullPath;
     }
   }
 }
 
-function main() {
+async function scanDirectoryAsync(dirPath) {
+  const files = [...walkScanFiles(dirPath)];
+  // Read all files in parallel, then scan sequentially (scanFile is CPU-bound
+  // but writes to a shared counter, so serial scan after parallel I/O is
+  // both correct and fast).
+  const contents = await Promise.all(
+    files.map((f) => fsp.readFile(f, "utf8")),
+  );
+  for (let i = 0; i < files.length; i++) {
+    scanFile(files[i], contents[i]);
+  }
+}
+
+async function main() {
   r.header();
 
   // Leverage workspace-index for agents, skills, instructions (already cached)
@@ -271,21 +285,23 @@ function main() {
     scanFile(instr.path, instr.content);
   }
 
-  // Scan additional directories not covered by workspace-index
-  for (const folder of [
-    "site/src/content/docs",
-    ".github/skills/azure-artifacts/templates",
-  ]) {
-    scanDirectory(path.join(ROOT, folder));
-  }
+  // Scan additional directories not covered by workspace-index — in parallel.
+  await Promise.all(
+    [
+      "site/src/content/docs",
+      ".github/skills/azure-artifacts/templates",
+    ].map((folder) => scanDirectoryAsync(path.join(ROOT, folder))),
+  );
 
-  // Scan root files
-  for (const file of SCAN_ROOT_FILES) {
-    const filePath = path.join(ROOT, file);
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, "utf8");
-      scanFile(filePath, content);
-    }
+  // Scan root files in parallel.
+  const rootPaths = SCAN_ROOT_FILES.map((f) => path.join(ROOT, f)).filter((p) =>
+    fs.existsSync(p),
+  );
+  const rootContents = await Promise.all(
+    rootPaths.map((p) => fsp.readFile(p, "utf8")),
+  );
+  for (let i = 0; i < rootPaths.length; i++) {
+    scanFile(rootPaths[i], rootContents[i]);
   }
 
   // Summary

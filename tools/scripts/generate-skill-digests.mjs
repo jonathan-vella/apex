@@ -10,6 +10,7 @@
  * @example
  * node tools/scripts/generate-skill-digests.mjs              # all skills
  * node tools/scripts/generate-skill-digests.mjs azure-validate  # single skill
+ * node tools/scripts/generate-skill-digests.mjs --check      # CI drift detection (no writes)
  */
 
 import fs from "node:fs";
@@ -162,7 +163,9 @@ function generateMinimal(skillDir, digestContent) {
   );
 }
 
-const targetSkill = process.argv[2];
+const args = process.argv.slice(2);
+const checkOnly = args.includes("--check");
+const targetSkill = args.find((a) => a !== "--check");
 const skillDirs = fs
   .readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((d) => d.isDirectory())
@@ -171,6 +174,7 @@ const skillDirs = fs
 
 let generated = 0;
 let skipped = 0;
+const drifted = [];
 
 for (const skillName of skillDirs) {
   const skillDir = path.join(SKILLS_DIR, skillName);
@@ -184,21 +188,62 @@ for (const skillName of skillDirs) {
   const digestPath = path.join(skillDir, "SKILL.digest.md");
   const minimalPath = path.join(skillDir, "SKILL.minimal.md");
 
-  if (fs.existsSync(digestPath) && !targetSkill) {
+  // In check mode we always re-derive and compare (drift detection).
+  // In write mode we keep the legacy "skip if digest exists and no
+  // explicit target" behavior to avoid clobbering hand-tuned digests.
+  if (!checkOnly && fs.existsSync(digestPath) && !targetSkill) {
     skipped++;
     continue;
   }
 
   const digest = generateDigest(skillDir);
-  if (digest) {
-    fs.writeFileSync(digestPath, digest);
-    const minimal = generateMinimal(skillDir, digest);
-    if (minimal) {
-      fs.writeFileSync(minimalPath, minimal);
+  if (!digest) continue;
+  const minimal = generateMinimal(skillDir, digest);
+
+  if (checkOnly) {
+    const currentDigest = fs.existsSync(digestPath)
+      ? fs.readFileSync(digestPath, "utf-8")
+      : null;
+    const currentMinimal =
+      minimal && fs.existsSync(minimalPath)
+        ? fs.readFileSync(minimalPath, "utf-8")
+        : null;
+    const digestDrift = currentDigest !== digest;
+    const minimalDrift = minimal != null && currentMinimal !== minimal;
+    if (digestDrift || minimalDrift) {
+      drifted.push({
+        skill: skillName,
+        digest: digestDrift,
+        minimal: minimalDrift,
+      });
     }
-    generated++;
-    console.log(`✅ ${skillName}: digest + minimal generated`);
+    continue;
   }
+
+  fs.writeFileSync(digestPath, digest);
+  if (minimal) fs.writeFileSync(minimalPath, minimal);
+  generated++;
+  console.log(`✅ ${skillName}: digest + minimal generated`);
+}
+
+if (checkOnly) {
+  if (drifted.length > 0) {
+    console.error(
+      `❌ ${drifted.length} skill digest(s) out of sync with SKILL.md:`,
+    );
+    for (const d of drifted) {
+      const parts = [];
+      if (d.digest) parts.push("SKILL.digest.md");
+      if (d.minimal) parts.push("SKILL.minimal.md");
+      console.error(`   - ${d.skill}: ${parts.join(", ")}`);
+    }
+    console.error(
+      "\n💡 Run: node tools/scripts/generate-skill-digests.mjs <skill-name>",
+    );
+    process.exit(1);
+  }
+  console.log("✅ All skill digests in sync with their SKILL.md");
+  process.exit(0);
 }
 
 console.log(

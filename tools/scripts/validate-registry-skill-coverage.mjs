@@ -18,6 +18,7 @@
 import { readFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findAllMatches } from "./_lib/regex-helpers.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const REGISTRY_PATH = join(ROOT, "tools/registry/agent-registry.json");
@@ -30,8 +31,7 @@ function readJson(path) {
 
 function extractSkillRefs(body) {
   const names = new Set();
-  let m;
-  while ((m = SKILL_REF_RE.exec(body)) !== null) {
+  for (const m of findAllMatches(SKILL_REF_RE, body)) {
     names.add(m[1]);
   }
   return names;

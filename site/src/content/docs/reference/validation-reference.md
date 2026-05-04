@@ -96,10 +96,9 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 ### Session and State Validators
 
-| npm Command              | Script                       | Purpose                               |
-| ------------------------ | ---------------------------- | ------------------------------------- |
-| `validate:session-state` | `validate-session-state.mjs` | Session state JSON schema compliance  |
-| `validate:session-lock`  | `validate-session-lock.mjs`  | Deprecated lock/claim field detection |
+| npm Command              | Script                       | Purpose                                                   |
+| ------------------------ | ---------------------------- | --------------------------------------------------------- |
+| `validate:session-state` | `validate-session-state.mjs` | Schema validation + deprecated lock/claim field detection |
 
 ### Quality and Cross-Reference Validators
 

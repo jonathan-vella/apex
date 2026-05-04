@@ -22,37 +22,21 @@ import { Reporter } from "./_lib/reporter.mjs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
 import { buildAssignments } from "./generate-model-catalog.mjs";
+import { normalizeModel, walkRegistry } from "./_lib/model-helpers.mjs";
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
 
 const r = new Reporter("Model Catalog Validator");
 
-function normalizeModel(raw) {
-  if (!raw) return null;
-  const v = Array.isArray(raw) ? raw[0] : raw;
-  if (typeof v !== "string") return null;
-  return v.replace(/ \(copilot\)$/i, "").trim();
-}
-
 function collectRegistryModels(registry) {
   const out = new Map(); // model -> [origin labels]
-  function add(model, origin) {
-    const m = normalizeModel(model);
-    if (!m) return;
+  for (const [label, entry] of walkRegistry(registry)) {
+    const m = normalizeModel(entry.model);
+    if (!m) continue;
     if (!out.has(m)) out.set(m, []);
-    out.get(m).push(origin);
+    out.get(m).push(label);
   }
-  function walk(key, entry) {
-    if (entry.bicep || entry.terraform) {
-      if (entry.bicep) add(entry.bicep.model, `${key}.bicep`);
-      if (entry.terraform) add(entry.terraform.model, `${key}.terraform`);
-      return;
-    }
-    add(entry.model, key);
-  }
-  for (const [k, e] of Object.entries(registry.agents || {})) walk(k, e);
-  for (const [k, e] of Object.entries(registry.subagents || {})) walk(k, e);
   return out;
 }
 

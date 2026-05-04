@@ -29,16 +29,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getAgents } from "./_lib/workspace-index.mjs";
+import { normalizeModel } from "./_lib/model-helpers.mjs";
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
-
-function normalizeModel(raw) {
-  if (!raw) return null;
-  const v = Array.isArray(raw) ? raw[0] : raw;
-  if (typeof v !== "string") return null;
-  return v.replace(/ \(copilot\)$/i, "").trim();
-}
 
 export function buildAssignments() {
   const agents = getAgents();

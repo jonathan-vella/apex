@@ -332,6 +332,33 @@ function validateStateFile(filePath, isTemplate) {
     }
   }
 
+  // Lock/claim deprecation checks (formerly validate-session-lock.mjs).
+  // Schema v3.0 removed the lock/claim protocol because VS Code Copilot
+  // executes agents serially. Warn on any leftover lock fields so they
+  // get cleaned up during migration.
+  if (state.lock !== undefined) {
+    warn(
+      label,
+      "Deprecated: lock object found — remove it (lock/claim protocol removed in v3.0)",
+    );
+  }
+  if (state.stale_threshold_ms !== undefined) {
+    warn(
+      label,
+      "Deprecated: stale_threshold_ms found — remove it (lock/claim protocol removed in v3.0)",
+    );
+  }
+  if (state.steps) {
+    for (const [stepNum, step] of Object.entries(state.steps)) {
+      if (step && step.claim !== undefined) {
+        warn(
+          label,
+          `Deprecated: Step ${stepNum} has claim object — remove it (lock/claim protocol removed in v3.0)`,
+        );
+      }
+    }
+  }
+
   ok(label, "Valid");
 }
 

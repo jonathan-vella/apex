@@ -20,6 +20,7 @@ import {
   getSkillNames as getSkillNamesFromIndex,
 } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
+import { getRawFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import {
   MAX_SKILL_LINES_WITHOUT_REFS,
   SKILLS_DIR,
@@ -82,8 +83,7 @@ function runFormatValidation() {
       continue;
     }
 
-    const rawFrontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    const rawFrontmatter = rawFrontmatterMatch ? rawFrontmatterMatch[1] : "";
+    const rawFrontmatter = getRawFrontmatter(content);
 
     if (!frontmatter) {
       r.error(skillName, "No frontmatter found in SKILL.md");

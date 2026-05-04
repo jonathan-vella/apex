@@ -23,34 +23,45 @@ import fs from "node:fs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
+import { normalizeModel, walkRegistry } from "./_lib/model-helpers.mjs";
 
 const r = new Reporter("Model Consistency Validator");
 
-function normalize(model) {
-  if (!model) return null;
-  const s = Array.isArray(model) ? model[0] : model;
-  if (typeof s !== "string") return null;
-  return s.replace(/ \(copilot\)$/, "").trim();
-}
-
-function findAgentFrontmatter(agents, registryAgentPath) {
+/**
+ * Build lookups once: by basename and by relative path. Both forms are
+ * used in the registry, so we index by both.
+ */
+function buildAgentLookup(agents) {
+  const byBase = new Map();
+  const byRelPath = new Map();
   for (const [file, agent] of agents) {
-    if (
-      registryAgentPath.endsWith(file) ||
-      file.endsWith(registryAgentPath.replace(/^\.github\/agents\//, ""))
-    ) {
-      return agent.frontmatter || null;
+    byBase.set(file, agent.frontmatter || null);
+    if (agent.path) {
+      const rel = agent.path.replace(/^\.?\/?/, "");
+      byRelPath.set(rel, agent.frontmatter || null);
     }
   }
+  return { byBase, byRelPath };
+}
+
+function findAgentFrontmatter(lookup, registryAgentPath) {
+  if (!registryAgentPath) return null;
+  // Try exact relative path match first.
+  const direct = lookup.byRelPath.get(registryAgentPath);
+  if (direct !== undefined) return direct;
+  // Fall back to basename match.
+  const base = registryAgentPath.split("/").pop();
+  if (base && lookup.byBase.has(base)) return lookup.byBase.get(base);
   return null;
 }
 
-function checkEntry(key, registryModel, registryAgentPath, agents) {
+function checkEntry(key, entry, lookup) {
+  const registryAgentPath = entry.agent;
   if (!registryAgentPath) {
     r.error(`Agent "${key}"`, "registry entry missing agent file path");
     return;
   }
-  const fm = findAgentFrontmatter(agents, registryAgentPath);
+  const fm = findAgentFrontmatter(lookup, registryAgentPath);
   if (!fm) {
     r.error(
       `Agent "${key}"`,
@@ -58,8 +69,8 @@ function checkEntry(key, registryModel, registryAgentPath, agents) {
     );
     return;
   }
-  const yamlModel = normalize(fm.model);
-  const regModel = normalize(registryModel);
+  const yamlModel = normalizeModel(fm.model);
+  const regModel = normalizeModel(entry.model);
 
   if (!yamlModel) {
     r.error(`Agent "${key}"`, `frontmatter is missing \`model\` field`);
@@ -75,22 +86,6 @@ function checkEntry(key, registryModel, registryAgentPath, agents) {
       `frontmatter model "${yamlModel}" does not equal registry model "${regModel}"`,
     );
   }
-}
-
-function walk(key, entry, agents) {
-  if (entry.bicep || entry.terraform) {
-    if (entry.bicep)
-      checkEntry(`${key} (bicep)`, entry.bicep.model, entry.bicep.agent, agents);
-    if (entry.terraform)
-      checkEntry(
-        `${key} (terraform)`,
-        entry.terraform.model,
-        entry.terraform.agent,
-        agents,
-      );
-    return;
-  }
-  checkEntry(key, entry.model, entry.agent, agents);
 }
 
 console.log("\n📋 Validating model consistency (frontmatter ≡ registry)...\n");
@@ -109,14 +104,11 @@ try {
 }
 
 const agents = getAgents();
+const lookup = buildAgentLookup(agents);
 
 let count = 0;
-for (const [key, entry] of Object.entries(registry.agents || {})) {
-  walk(key, entry, agents);
-  count++;
-}
-for (const [key, entry] of Object.entries(registry.subagents || {})) {
-  walk(key, entry, agents);
+for (const [label, entry] of walkRegistry(registry)) {
+  checkEntry(label, entry, lookup);
   count++;
 }
 

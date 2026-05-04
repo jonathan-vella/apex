@@ -135,7 +135,7 @@ validators) and `validate:_external` (external tool validators):
 | Instruction quality | `validate:instruction-checks`                                                                                                                 |
 | Governance          | `lint:governance-refs`, `lint:mcp-config`                                                                                                     |
 | Infrastructure      | `lint:terraform-fmt`, `validate:terraform`, `validate:iac-security-baseline`                                                                  |
-| Session state       | `validate:session-state`, `validate:session-lock`                                                                                             |
+| Session state       | `validate:session-state` (also covers deprecated lock/claim field detection)                                                                  |
 | Registry/config     | `validate:workflow-graph`, `validate:agent-registry`                                                                                          |
 | Code quality        | `lint:json`, `lint:python`, `lint:yaml`                                                                                                       |
 | VS Code config      | `validate:vscode`                                                                                                                             |

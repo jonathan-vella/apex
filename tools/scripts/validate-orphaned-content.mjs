@@ -50,12 +50,15 @@ const r = new Reporter("Orphaned Content Validator");
 r.header();
 
 // Gather reference corpus from cached index + top-level config.
+// Splits the corpus into a base (agents + instructions + top-level config)
+// and a per-skill map so that orphan checks can avoid an O(n^2) string
+// concatenation (rebuilding "all-other-skills" once per skill).
 function gatherReferenceContent() {
-  const corpus = [];
+  const baseParts = [];
   const perSkill = {};
 
-  for (const [, agent] of getAgents()) corpus.push(agent.content);
-  for (const [, instr] of getInstructions()) corpus.push(instr.content);
+  for (const [, agent] of getAgents()) baseParts.push(agent.content);
+  for (const [, instr] of getInstructions()) baseParts.push(instr.content);
 
   for (const [name, skill] of getSkills()) {
     if (skill.content) perSkill[name] = skill.content;
@@ -67,13 +70,38 @@ function gatherReferenceContent() {
     "AGENTS.md",
     ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md",
   ]) {
-    if (fs.existsSync(f)) corpus.push(fs.readFileSync(f, "utf-8"));
+    if (fs.existsSync(f)) baseParts.push(fs.readFileSync(f, "utf-8"));
   }
 
-  return { corpus: corpus.join("\n"), perSkill };
+  return { base: baseParts.join("\n"), perSkill };
 }
 
-const { corpus, perSkill } = gatherReferenceContent();
+const { base, perSkill } = gatherReferenceContent();
+
+// Pre-compute the trigger strings used to detect a skill reference. The
+// regex form below is built per-skill but the substring set is constant
+// per check.
+function isSkillReferenced(skill, base, perSkill) {
+  const triggers = [
+    `${skill}/SKILL.md`,
+    `skills/${skill}`,
+    `${skill}/references/`,
+    `${skill}/`,
+    `\`${skill}\``,
+  ];
+  // Fast path: check the base corpus first (most refs live in agents).
+  for (const t of triggers) {
+    if (base.includes(t)) return true;
+  }
+  // Slow path: scan other skills' contents (excluding self).
+  for (const [name, content] of Object.entries(perSkill)) {
+    if (name === skill) continue;
+    for (const t of triggers) {
+      if (content.includes(t)) return true;
+    }
+  }
+  return false;
+}
 
 // Check skills — exclude the skill's own SKILL.md to prevent self-referencing
 console.log("📁 Skills:");
@@ -81,21 +109,7 @@ const skills = getSkills();
 
 for (const [skill] of skills) {
   r.tick();
-  // Build search content: agents + instructions + config + OTHER skills (not self)
-  const otherSkills = Object.entries(perSkill)
-    .filter(([name]) => name !== skill)
-    .map(([, content]) => content)
-    .join("\n");
-  const searchContent = corpus + "\n" + otherSkills;
-
-  const isReferenced =
-    searchContent.includes(`${skill}/SKILL.md`) ||
-    searchContent.includes(`skills/${skill}`) ||
-    searchContent.includes(`${skill}/references/`) ||
-    searchContent.includes(`${skill}/`) ||
-    searchContent.includes(`\`${skill}\``);
-
-  if (!isReferenced) {
+  if (!isSkillReferenced(skill, base, perSkill)) {
     if (KNOWN_UNLINKED_SKILLS.has(skill)) {
       // Intentionally unlinked — skip warning
     } else {

@@ -44,7 +44,7 @@ npm run lint:artifact-templates          # Artifact template compliance
 npm run lint:h2-sync                     # H2 heading sync between templates and artifacts
 npm run lint:governance-refs             # Governance reference validation
 npm run validate:session-state           # Session state JSON schema validation
-npm run validate:session-lock            # Session lock/claim model validation
+npm run validate:session-state           # Session state schema + deprecated lock/claim field detection
 npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
 npm run validate:iac-security-baseline   # IaC security baseline (TLS, HTTPS, blob, identity, SQL auth)

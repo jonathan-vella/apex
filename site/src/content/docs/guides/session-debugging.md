@@ -169,7 +169,7 @@ Two validators check session state integrity:
 npm run validate:session-state
 
 # Validate for deprecated lock/claim fields
-npm run validate:session-lock
+npm run validate:session-state
 ```
 
 Run these after manual edits to the state file to ensure consistency.
