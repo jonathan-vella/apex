@@ -47,30 +47,61 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 
 ## Model Context Limits
 
-| Model           | Context Window | Practical Limit (80%) |
-| --------------- | -------------- | --------------------- |
-| Claude Opus 4.7 (High reasoning) | 200K tokens    | ~160K tokens          |
-| Claude Sonnet 4.6 | 200K tokens    | ~160K tokens          |
-| GPT-5.5         | 128K tokens    | ~102K tokens          |
-| GPT-5.4         | 128K tokens    | ~102K tokens          |
-| GPT-5.3-Codex   | 128K tokens    | ~102K tokens          |
-| gpt-4o-mini     | 128K tokens    | ~102K tokens          |
+> **Last verified: 2026-05-04.** Vendor-native windows below come straight
+> from each provider's model docs (links in the footnotes). GitHub Copilot
+> Chat applies its **own** per-turn context budget that is **smaller** than
+> these vendor-native limits and varies by model and Copilot client; that
+> per-turn budget is **not publicly published** per model in the GitHub
+> Copilot supported-models docs.[^gh] Treat the vendor-native value as an
+> upper bound for tokenization math (e.g. fits-in-prompt sanity checks),
+> not as the effective per-turn ceiling Copilot Chat will allow.
 
-The "practical limit" accounts for output generation headroom.
-Quality typically degrades before hitting the hard limit.
+| Model                            | Vendor-native context | Vendor-native max output | Source        |
+| -------------------------------- | --------------------- | ------------------------ | ------------- |
+| Claude Opus 4.7 (High reasoning) | 1,000,000 tokens      | 128,000 tokens           | Anthropic[^a] |
+| Claude Sonnet 4.6                | 1,000,000 tokens      | 64,000 tokens            | Anthropic[^a] |
+| GPT-5.5                          | 400,000 tokens        | 128,000 tokens           | OpenAI[^o5]   |
+| GPT-5.4                          | 400,000 tokens        | 128,000 tokens           | OpenAI[^o5]   |
+| GPT-5.3-Codex                    | 400,000 tokens        | 128,000 tokens           | OpenAI[^oc]   |
+
+Practical rule of thumb: keep the running prompt under ~80% of whichever
+budget binds first (Copilot's per-turn budget in interactive use, the
+vendor-native window in API math). Quality typically degrades before the
+hard limit due to attention dilution; the [`context-shredding`
+skill](../../context-shredding/SKILL.md) governs the SKILL/digest/minimal
+tier loading APEX agents apply when a model's effective context is tight.
+
+[^gh]: GitHub Copilot — _Supported AI models in GitHub Copilot_ (the model
+    catalog and multipliers are listed; per-model per-turn context budgets
+    for Copilot Chat are not published in this reference).
+    <https://docs.github.com/en/copilot/reference/ai-models/supported-models>
+[^a]: Anthropic — _Models overview_ (latest models comparison table; values
+    apply to the synchronous Messages API).
+    <https://platform.claude.com/docs/en/about-claude/models/overview>
+[^o5]: OpenAI — _GPT-5 model card_ (values apply across the GPT-5 family,
+    including GPT-5.4 and GPT-5.5; GPT-5.5 is documented as inheriting all
+    GPT-5.4 API features).
+    <https://developers.openai.com/api/docs/models/gpt-5>
+[^oc]: OpenAI — _GPT-5-Codex model card_ (the GPT-5.x-Codex line shares the
+    GPT-5 family context window).
+    <https://developers.openai.com/api/docs/models/gpt-5-codex>
 
 ## Latency-to-Context Correlation
 
-Based on empirical observation of streaming responses:
+These bands are **empirical, not vendor-published**, and refer to the
+input-token count visible to the streaming response (`in`). Output length,
+streaming overhead, server load, and per-turn Copilot budgets all affect
+latency — re-benchmark on your own workflow before relying on them.
 
-| Model           | Latency < 5s | 5-10s     | 10-20s     | 20-30s      | > 30s      |
-| --------------- | ------------ | --------- | ---------- | ----------- | ---------- |
-| Claude Opus 4.7 (High reasoning) | < 20K in     | 20-60K in | 60-120K in | 120-160K in | Near limit |
-| GPT-5.3-Codex   | < 15K in     | 15-40K in | 40-80K in  | 80-100K in  | Near limit |
-| gpt-4o-mini     | < 10K in     | 10-30K in | 30-60K in  | 60-80K in   | Near limit |
+| Model                            | < 5s     | 5-10s     | 10-20s     | 20-30s      | > 30s      |
+| -------------------------------- | -------- | --------- | ---------- | ----------- | ---------- |
+| Claude Opus 4.7 (High reasoning) | < 20K in | 20-60K in | 60-120K in | 120-200K in | Beyond     |
+| Claude Sonnet 4.6                | < 25K in | 25-70K in | 70-140K in | 140-220K in | Beyond     |
+| GPT-5.5                          | < 15K in | 15-45K in | 45-90K in  | 90-140K in  | Beyond     |
+| GPT-5.3-Codex                    | < 15K in | 15-40K in | 40-80K in  | 80-100K in  | Beyond     |
 
-"in" = input tokens. These are rough bands — output length, streaming
-overhead, and server load all affect latency.
+Reasoning effort matters: Sonnet 4.6 and GPT-5.5 default to `medium`,
+Opus 4.7 to `high` — `high` adds visible latency at every band.
 
 ## Warning Thresholds
 
