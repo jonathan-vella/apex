@@ -57,8 +57,6 @@ handoffs:
 
 # Terraform Code Agent
 
-<!-- Recommended reasoning_effort: medium -->
-
 <investigate_before_answering>
 Read the implementation plan and governance constraints before generating any Terraform code.
 Verify AVM-TF module availability and variable schemas via preflight checks.

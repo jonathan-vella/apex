@@ -41,8 +41,6 @@ handoffs:
 
 # Governance Discovery Agent
 
-<!-- Recommended reasoning_effort: medium -->
-
 <output_contract>
 
 This agent produces two artifacts:

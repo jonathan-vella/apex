@@ -29,8 +29,6 @@ handoffs:
 
 # Plan Challenger (Standalone Wrapper)
 
-<!-- Recommended reasoning_effort: high -->
-
 ## Subagent Budget
 
 This agent orchestrates 1 subagent — `challenger-review-subagent` (unified, supports single-lens and batch modes).

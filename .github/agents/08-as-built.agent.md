@@ -40,8 +40,6 @@ handoffs:
 
 # As-Built Agent
 
-<!-- Recommended reasoning_effort: high -->
-
 ## Context Awareness
 
 **This is a large agent definition (~405 lines).** At >60% context, load SKILL.digest.md variants.

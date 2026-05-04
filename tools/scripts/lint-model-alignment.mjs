@@ -9,9 +9,8 @@
  * Checks:
  * 1. Prompt files: model field matches the target agent's frontmatter model
  * 2. Agent handoffs: no redundant model overrides that match target agent model
- * 3. Claude agents: reasoning_effort comment present
- * 4. Claude agents >350 lines: context_awareness block recommended
- * 5. Claude agents with investigate role: investigate_before_answering present
+ * 3. Claude agents >350 lines: context_awareness block recommended
+ * 4. Claude agents with investigate role: investigate_before_answering present
  *
  * @example
  * node tools/scripts/lint-model-alignment.mjs
@@ -160,31 +159,7 @@ function checkHandoffOverrides() {
   }
 }
 
-// ── Check 3: Claude agents missing reasoning_effort comment ──
-
-function checkReasoningEffort() {
-  const agents = getAgents();
-
-  for (const [filename, agent] of agents) {
-    if (!agent.frontmatter?.model) continue;
-    const family = classifyModel(agent.frontmatter.model);
-    if (!isClaude(family)) continue;
-    if (agent.isSubagent) continue; // subagents don't need reasoning_effort
-
-    r.tick();
-    const relPath = path.relative(process.cwd(), agent.path);
-    const body = getBody(agent.content);
-
-    if (!body.includes("reasoning_effort")) {
-      r.warn(
-        relPath,
-        "Claude agent missing <!-- Recommended reasoning_effort: --> comment",
-      );
-    }
-  }
-}
-
-// ── Check 4: Large Claude agents missing context_awareness ──
+// ── Check 3: Large Claude agents missing context_awareness ──
 
 function checkContextAwareness() {
   const agents = getAgents();
@@ -211,7 +186,7 @@ function checkContextAwareness() {
   }
 }
 
-// ── Check 5: Claude non-ONE-SHOT research agents missing investigate block ──
+// ── Check 4: Claude non-ONE-SHOT research agents missing investigate block ──
 
 const INVESTIGATE_AGENTS = [
   "03-architect",
@@ -257,13 +232,10 @@ checkPromptModelSync();
 console.log("  Check 2: Handoff model override redundancy");
 checkHandoffOverrides();
 
-console.log("  Check 3: Claude reasoning_effort comments");
-checkReasoningEffort();
-
-console.log("  Check 4: Claude large-agent context_awareness");
+console.log("  Check 3: Claude large-agent context_awareness");
 checkContextAwareness();
 
-console.log("  Check 5: Claude investigate_before_answering");
+console.log("  Check 4: Claude investigate_before_answering");
 checkInvestigateBlock();
 
 r.summary();

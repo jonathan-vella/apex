@@ -371,32 +371,8 @@ function runModelAlignment() {
     }
   }
 
-  // Check 3: Claude agents missing reasoning_effort comment
-  console.log("  Check 3: Claude reasoning_effort comments");
-  {
-    const agents = getAgents();
-
-    for (const [filename, agent] of agents) {
-      if (!agent.frontmatter?.model) continue;
-      const family = classifyModel(agent.frontmatter.model);
-      if (!isClaude(family)) continue;
-      if (agent.isSubagent) continue;
-
-      r.tick();
-      const relPath = path.relative(process.cwd(), agent.path);
-      const body = getBody(agent.content);
-
-      if (!body.includes("reasoning_effort")) {
-        r.warn(
-          relPath,
-          "Claude agent missing <!-- Recommended reasoning_effort: --> comment",
-        );
-      }
-    }
-  }
-
-  // Check 4: Large Claude agents missing context_awareness
-  console.log("  Check 4: Claude large-agent context_awareness");
+  // Check 3: Large Claude agents missing context_awareness
+  console.log("  Check 3: Claude large-agent context_awareness");
   {
     const agents = getAgents();
 
@@ -422,7 +398,7 @@ function runModelAlignment() {
     }
   }
 
-  // Check 5: Claude non-ONE-SHOT research agents missing investigate block
+  // Check 4: Claude non-ONE-SHOT research agents missing investigate block
   const INVESTIGATE_AGENTS = [
     "03-architect",
     "05-iac-planner",
@@ -430,7 +406,7 @@ function runModelAlignment() {
     "11-context-optimizer",
   ];
 
-  console.log("  Check 5: Claude investigate_before_answering");
+  console.log("  Check 4: Claude investigate_before_answering");
   {
     const agents = getAgents();
 

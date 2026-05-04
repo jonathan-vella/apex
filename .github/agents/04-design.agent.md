@@ -54,8 +54,6 @@ handoffs:
 
 # Design Agent
 
-<!-- Recommended reasoning_effort: high -->
-
 <investigate_before_answering>
 Read `02-architecture-assessment.md` before generating any design artifact.
 Review the architecture decisions, WAF analysis, and resource list to ensure diagrams

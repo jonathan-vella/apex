@@ -70,8 +70,6 @@ handoffs:
 
 # Fast-Path Orchestrator (Experimental)
 
-<!-- Recommended reasoning_effort: medium -->
-
 Streamlined orchestrator for **simple** Azure platform engineering projects.
 
 <context_awareness>

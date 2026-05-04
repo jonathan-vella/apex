@@ -54,8 +54,6 @@ handoffs:
 
 # Bicep Code Agent
 
-<!-- Recommended reasoning_effort: medium -->
-
 <investigate_before_answering>
 Read the implementation plan and governance constraints before generating any Bicep code.
 Verify AVM module availability and parameter schemas via preflight checks.
