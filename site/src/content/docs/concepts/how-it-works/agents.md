@@ -89,14 +89,14 @@ complex projects, use the main 01-Orchestrator.
 Subagents are not user-invocable. They are delegated to by parent agents for isolated,
 specific tasks:
 
-| Subagent                      | Purpose                             | Invoked By          |
-| ----------------------------- | ----------------------------------- | ------------------- |
-| challenger-review-subagent    | Adversarial review of artifacts     | Steps 1, 2, 4, 5, 6 |
-| cost-estimate-subagent        | Azure Pricing MCP queries           | Steps 2, 7          |
-| bicep-validate-subagent       | Lint + AVM/security code review     | Step 5 (Bicep)      |
-| bicep-whatif-subagent         | `az deployment what-if` preview     | Step 6 (Bicep)      |
-| terraform-validate-subagent   | Lint + AVM-TF/security code review  | Step 5 (Terraform)  |
-| terraform-plan-subagent       | `terraform plan` preview            | Step 6 (Terraform)  |
+| Subagent                      | Model         | Purpose                             | Invoked By          |
+| ----------------------------- | ------------- | ----------------------------------- | ------------------- |
+| challenger-review-subagent    | GPT-5.5       | Adversarial review of artifacts     | Steps 1, 2, 4, 5, 6 |
+| cost-estimate-subagent        | GPT-5.3-Codex | Azure Pricing MCP queries           | Steps 2, 7          |
+| bicep-validate-subagent       | Sonnet 4.6    | Lint + AVM/security code review     | Step 5 (Bicep)      |
+| bicep-whatif-subagent         | Sonnet 4.6    | `az deployment what-if` preview     | Step 6 (Bicep)      |
+| terraform-validate-subagent   | Sonnet 4.6    | Lint + AVM-TF/security code review  | Step 5 (Terraform)  |
+| terraform-plan-subagent       | Sonnet 4.6    | `terraform plan` preview            | Step 6 (Terraform)  |
 
 ## The Challenger Pattern
 
@@ -199,6 +199,9 @@ source of truth, but the current repo pattern is:
   (Role / Personality / Goal / Success / Constraints / Output / Stop)
 - **Design** — `Claude Sonnet 4.6` with the Anthropic prompting style
   (XML-tagged blocks, role-first, quote-grounded ADR drafting, multishot examples)
+- **IaC validation/preview subagents** — `Claude Sonnet 4.6` with the Anthropic
+  prompting style (XML-tagged role + output_contract + investigate_before_answering;
+  effort pinned to `medium` for structured I/O)
 - **Governance + Code generation + Challenger** — `GPT-5.5` for balanced execution
   quality with explicit retrieval budgets and stopping conditions
 - **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`

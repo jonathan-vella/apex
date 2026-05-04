@@ -62,14 +62,14 @@ See `tools/registry/count-manifest.json` for canonical counts.
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent                    | File                                   | Purpose                             |
-| --------------------------- | -------------------------------------- | ----------------------------------- |
-| bicep-validate-subagent     | `bicep-validate-subagent.agent.md`     | Lint + AVM/security code review     |
-| bicep-whatif-subagent       | `bicep-whatif-subagent.agent.md`       | Deployment preview (what-if)        |
-| challenger-review-subagent  | `challenger-review-subagent.agent.md`  | Adversarial artifact review         |
-| cost-estimate-subagent      | `cost-estimate-subagent.agent.md`      | Azure Pricing MCP queries           |
-| terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Deployment preview (terraform plan) |
-| terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Lint + AVM-TF/security code review  |
+| Subagent                    | File                                   | Model             | Purpose                             |
+| --------------------------- | -------------------------------------- | ----------------- | ----------------------------------- |
+| bicep-validate-subagent     | `bicep-validate-subagent.agent.md`     | Sonnet 4.6        | Lint + AVM/security code review     |
+| bicep-whatif-subagent       | `bicep-whatif-subagent.agent.md`       | Sonnet 4.6        | Deployment preview (what-if)        |
+| challenger-review-subagent  | `challenger-review-subagent.agent.md`  | GPT-5.5           | Adversarial artifact review         |
+| cost-estimate-subagent      | `cost-estimate-subagent.agent.md`      | GPT-5.3-Codex     | Azure Pricing MCP queries           |
+| terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Sonnet 4.6        | Deployment preview (terraform plan) |
+| terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Sonnet 4.6        | Lint + AVM-TF/security code review  |
 
 ### Shared Knowledge (via Skills)
 

@@ -20,6 +20,23 @@ for full details on this and all prior releases.
 
 ### Added
 
+- feat(agents): migrate the four IaC validation/preview subagents
+  (`bicep-validate-subagent`, `bicep-whatif-subagent`,
+  `terraform-validate-subagent`, `terraform-plan-subagent`) from `GPT-5.4`
+  to `Claude Sonnet 4.6` and rewrite each body in Anthropic prompting style.
+  Bodies use the XML-tagged skeleton (`<role>`, `<context_awareness>`,
+  `<scope_fencing>`, `<output_contract>`, `<investigate_before_answering>`,
+  `<example>`), pin reasoning effort to `medium` for structured I/O, and
+  convert ALWAYS/NEVER absolutes to scoped decision rules. The existing
+  text-shaped output contracts (`BICEP VALIDATION RESULT`,
+  `WHAT-IF ANALYSIS RESULT`, `TERRAFORM VALIDATION RESULT`,
+  `TERRAFORM PLAN RESULT`) are preserved verbatim, so the parent IaC and
+  deploy agents' parsers are unaffected. The deploy agents (07b, 07t)
+  remain on `GPT-5.4` and now carry a one-line `## Subagent Budget` note
+  flagging the cross-family call. `Claude Sonnet 4.6` `use_for` expanded to
+  include `iac-validation` and `deployment-preview`. Main GPT-5.4 agents
+  (07b, 07t, 08), `as-built-from-azure.prompt.md` (GPT-5.5), and
+  `cost-estimate-subagent` (GPT-5.3-Codex) are unchanged.
 - feat(agents): revert 04-Design from `GPT-5.5` to `Claude Sonnet 4.6` and
   rewrite the agent body in Anthropic prompting-best-practices style. The
   Design agent now uses XML-tagged blocks (`<role>`, `<context_awareness>`,

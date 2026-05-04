@@ -124,20 +124,24 @@ Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so d
 - **Opus-first agents** (requirements, architect, iac-plan, diagnose, context-optimizer,
   e2e-orchestrator) require deeper reasoning for architecture decisions, WAF assessments,
   planning accuracy, and complex analysis
-- **Claude Sonnet 4.6 agent** (design): retained for Step 3 because the Anthropic
-  prompting style (XML-tagged blocks, role-first, quote-grounded ADR drafting,
-  multishot examples) suits ADR + diagram authoring better than the OpenAI
+- **Claude Sonnet 4.6 agents** (design, plus the four IaC validation/preview
+  subagents `bicep-validate`, `bicep-whatif`, `terraform-validate`,
+  `terraform-plan`): Anthropic prompting style (XML-tagged blocks, role-first,
+  quote-grounded review, checklist-driven structured output) suits both ADR +
+  diagram authoring and structured PASS/FAIL findings better than the OpenAI
   outcome-first style. Default Sonnet 4.6 effort is `high`; the Design agent
-  pins effort to `medium` for typical work.
+  and the four subagents pin effort to `medium` for typical work and only
+  raise it for large change sets.
 - **GPT-5.5 agents** (orchestrator, orchestrator fast path, governance,
   bicep codegen, terraform codegen, challenger wrapper, challenger-review-subagent)
   use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
   over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
   predecessors — re-evaluate `low`/`medium` reasoning effort before escalating
-- **GPT-5.4 workflow and execution agents** (as-built, deploy, and bicep/terraform
-  validation/preview subagents) prioritize strong general reasoning for documentation
-  generation, deployment execution, and isolated validation
+- **GPT-5.4 workflow and execution agents** (as-built, deploy) prioritize strong
+  general reasoning for documentation generation and deployment execution. The
+  IaC validation/preview subagents previously on this tier moved to Sonnet 4.6
+  in the 2026-05 subagent migration (see Sonnet 4.6 bullet above).
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
 
 #### GPT-5.5 prompting style (summary)
@@ -175,7 +179,7 @@ Current model assignments:
 | Context Optimizer        | Claude Opus 4.7 (High reasoning) | Deep analysis             |
 | Challenger wrapper       | GPT-5.5                          | Structured review         |
 | Challenger subagent      | GPT-5.5                          | Structured review         |
-| Bicep/TF subagents       | GPT-5.4                          | Isolated validation       |
+| Bicep/TF validate+preview subagents | Claude Sonnet 4.6     | Isolated validation (Anthropic prompting style) |
 | Cost estimate subagent   | GPT-5.3-Codex                    | High-throughput pricing   |
 
 **Source-of-truth chain:**

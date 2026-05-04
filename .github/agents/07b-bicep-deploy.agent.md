@@ -73,6 +73,13 @@ handoffs:
 
 Context tiers: follow context-shredding skill.
 
+## Subagent Budget
+
+This agent runs on `GPT-5.4`. The `bicep-whatif-subagent` it delegates to runs on
+`Claude Sonnet 4.6` (cross-family call) after the 2026-05 IaC subagent migration
+— the JSON-shaped what-if contract was preserved verbatim, so no parsing changes
+are required here.
+
 ## Read Skills First
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline

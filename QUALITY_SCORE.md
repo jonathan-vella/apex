@@ -140,6 +140,7 @@
 | 2026-05-04 | Agents          | Orchestrator + Sonnet 4.6 cohort (8 agents + 1 subagent) migrated to `GPT-5.5`; full prompt rewrites per OpenAI guide; 4 prompts + 8 registry rows + body table updated |
 | 2026-05-04 | CI / Validation | `.github/model-catalog.json` redesigned as metadata + auto-generated assignments; `generate-model-catalog.mjs` + `validate-model-catalog.mjs` added; lefthook pre-commit auto-regenerates assignments |
 | 2026-05-04 | Agents          | 04-Design reverted to `Claude Sonnet 4.6`; body rewritten in Anthropic prompting-best-practices style (XML-tagged blocks, role-first, multishot example, quote-grounded ADR drafting, Sonnet effort calibration) |
+| 2026-05-04 | Agents          | Four IaC validation/preview subagents (`bicep-validate`, `bicep-whatif`, `terraform-validate`, `terraform-plan`) migrated `GPT-5.4` → `Claude Sonnet 4.6` with full Anthropic-style body rewrites (XML skeleton, effort pinned `medium`, decision-rule boundaries); existing text-shaped output contracts preserved verbatim; deploy agents (07b, 07t) stay on `GPT-5.4` and gain a `## Subagent Budget` cross-family note |
 
 ## How to Update
 

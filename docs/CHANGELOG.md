@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): migrate the four IaC validation/preview subagents
+  (`bicep-validate-subagent`, `bicep-whatif-subagent`,
+  `terraform-validate-subagent`, `terraform-plan-subagent`) from `GPT-5.4`
+  to `Claude Sonnet 4.6` and rewrite each body in Anthropic prompting style
+  (XML-tagged skeleton, effort pinned to `medium`, decision-rule boundaries).
+  Existing text-shaped output contracts preserved verbatim so the parent IaC
+  and deploy agents' parsers are unaffected. Deploy agents (07b, 07t) stay on
+  `GPT-5.4` and gain a one-line `## Subagent Budget` cross-family note.
+  `Claude Sonnet 4.6` `use_for` expanded to include `iac-validation` and
+  `deployment-preview`.
 - feat(agents): revert 04-Design from `GPT-5.5` to `Claude Sonnet 4.6` and
   rewrite the agent body in Anthropic prompting-best-practices style
   (XML-tagged blocks, role-first, multishot example, quote-grounded ADR
