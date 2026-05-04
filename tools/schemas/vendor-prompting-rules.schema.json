@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/schemas/vendor-prompting-rules.schema.json",
+  "title": "Vendor Prompting Rules Registry",
+  "description": "Documentation-only registry of vendor prompting best-practice rules cross-referenced from validate-agents.mjs RULE_ID constants. The validator does not import this file at runtime; instead validate-vendor-rules.mjs cross-checks that every JS RULE_ID is registered here and vice versa.",
+  "type": "object",
+  "required": ["version", "generated_at", "rules"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver of the rules registry shape."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this file was last regenerated."
+    },
+    "sources": {
+      "type": "array",
+      "description": "External source documents that rules cite.",
+      "items": {
+        "type": "object",
+        "required": ["id", "vendor", "url", "fetched_at", "sha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "vendor": { "type": "string", "enum": ["anthropic", "openai"] },
+          "url": { "type": "string", "format": "uri" },
+          "ref": {
+            "type": "string",
+            "description": "Git SHA for openai/skills sources; null for live web docs."
+          },
+          "fetched_at": { "type": "string", "format": "date-time" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "fetch_method": {
+            "type": "string",
+            "enum": ["gh-api", "fetch-webpage", "raw"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "families": {
+      "type": "array",
+      "description": "Model family support matrix. Severity overrides per rule are computed by combining the rule's default severity with the family's status.",
+      "items": {
+        "type": "object",
+        "required": ["family", "status", "label_examples"],
+        "properties": {
+          "family": {
+            "type": "string",
+            "enum": [
+              "claude-opus",
+              "claude-sonnet",
+              "claude-haiku",
+              "claude",
+              "gpt-5.5",
+              "gpt-5.4",
+              "gpt-codex",
+              "gpt-4o",
+              "unknown"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["enforced", "warn-only", "reviewer-only", "out-of-scope"]
+          },
+          "label_examples": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "rule_subset_note": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "vendor",
+          "model_families",
+          "applies_to",
+          "severity",
+          "summary",
+          "rationale",
+          "source_id",
+          "validator_check_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(legacy|claude|gpt|gpt55|gpt-no-claude|cross-language|frontmatter|model|handoff|personality|prompt)-[a-z0-9-]+-\\d{3}$|^legacy-\\d{3}$",
+            "description": "Rule ID. Must match a RULE_ID constant in validate-agents.mjs (or 'reviewer-only' check)."
+          },
+          "vendor": {
+            "type": "string",
+            "enum": ["anthropic", "openai", "cross-vendor"]
+          },
+          "model_families": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "claude-opus",
+                "claude-sonnet",
+                "claude-haiku",
+                "claude",
+                "gpt-5.5",
+                "gpt-5.4",
+                "gpt-codex",
+                "gpt-4o",
+                "any"
+              ]
+            }
+          },
+          "applies_to": {
+            "type": "string",
+            "enum": ["agent", "prompt", "both"],
+            "description": "Whether this rule applies to .agent.md files, .prompt.md files, or both."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warn", "info"],
+            "description": "Default severity. Family overrides may downgrade enforcement."
+          },
+          "summary": { "type": "string", "maxLength": 240 },
+          "rationale": { "type": "string" },
+          "source_id": {
+            "type": "string",
+            "description": "References sources[].id"
+          },
+          "source_anchor": { "type": ["string", "null"] },
+          "validator_check_id": {
+            "type": "string",
+            "description": "Name of the JS function in validate-agents.mjs implementing this rule, or 'reviewer-only'."
+          },
+          "promotion_date": {
+            "type": ["string", "null"],
+            "description": "ISO date when severity should be promoted (e.g., warn -> error)."
+          },
+          "family_overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["family", "severity"],
+              "properties": {
+                "family": { "type": "string" },
+                "severity": {
+                  "type": "string",
+                  "enum": ["error", "warn", "info", "skip"]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

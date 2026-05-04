@@ -44,6 +44,17 @@ When multiple instruction files apply to the same file type (via overlapping
 | docs (for docs/)                    | 2          | Single H1, relative links, DRY         |
 | markdown                            | 3 (lowest) | 120-char lines, ATX headings, alt text |
 
+### Files matching `**/*.agent.md` and `**/*.prompt.md`
+
+| Instruction                    | Priority    | Key Rules                                                      |
+| ------------------------------ | ----------- | -------------------------------------------------------------- |
+| agent-authoring                | 1 (highest) | Frontmatter schema, handoff structure, model assignment table  |
+| vendor-prompting               | 2           | Claude/GPT-5.5 vendor rules, rule-ID-tagged validator findings |
+| prompt (for `.prompt.md` only) | 3           | Prompt-file frontmatter (`agent`, `argument-hint`, `tools`)    |
+| markdown                       | 4 (lowest)  | 120-char lines, ATX headings, alt text                         |
+
+> `agent-skills.instructions.md` covers `**/.github/skills/**/SKILL.md` only — not in this glob.
+
 ## Conflict Resolution
 
 When two instructions at the same priority level conflict:

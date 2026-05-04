@@ -1,0 +1,316 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-05-04T00:00:00Z",
+  "sources": [
+    {
+      "id": "anthropic-prompting-best-practices",
+      "vendor": "anthropic",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+      "ref": null,
+      "fetched_at": "2026-05-04T17:27:35Z",
+      "sha256": "c65cc1e89a0d32c0b79be02df6b82c090a9411f98ab5a14a2ecf84bfd49858c5",
+      "fetch_method": "fetch-webpage"
+    },
+    {
+      "id": "openai-prompting-guide",
+      "vendor": "openai",
+      "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md",
+      "ref": "724cd511c96593f642bddf13187217aa155d2554",
+      "fetched_at": "2026-05-04T00:00:00Z",
+      "sha256": "ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa",
+      "fetch_method": "gh-api"
+    },
+    {
+      "id": "openai-upgrade-guide",
+      "vendor": "openai",
+      "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md",
+      "ref": "724cd511c96593f642bddf13187217aa155d2554",
+      "fetched_at": "2026-05-04T00:00:00Z",
+      "sha256": "563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39",
+      "fetch_method": "gh-api"
+    }
+  ],
+  "families": [
+    {
+      "family": "claude-opus",
+      "status": "enforced",
+      "label_examples": ["Claude Opus 4.7 (High reasoning)", "Claude Opus 4.6"],
+      "rule_subset_note": "All Claude rules apply at default severity."
+    },
+    {
+      "family": "claude-sonnet",
+      "status": "enforced",
+      "label_examples": ["Claude Sonnet 4.6", "Claude Sonnet 4.5"],
+      "rule_subset_note": "All Claude rules apply at default severity."
+    },
+    {
+      "family": "claude-haiku",
+      "status": "warn-only",
+      "label_examples": ["Claude Haiku 4.5"],
+      "rule_subset_note": "XML structuring + few-shot rules only; everything else downgraded to warn."
+    },
+    {
+      "family": "claude",
+      "status": "warn-only",
+      "label_examples": ["Claude (unspecified variant)"],
+      "rule_subset_note": "Generic Claude label — flag at warn for explicit version."
+    },
+    {
+      "family": "gpt-5.5",
+      "status": "enforced",
+      "label_examples": ["GPT-5.5"],
+      "rule_subset_note": "All GPT-5.5 rules apply at default severity."
+    },
+    {
+      "family": "gpt-5.4",
+      "status": "warn-only",
+      "label_examples": ["GPT-5.4"],
+      "rule_subset_note": "Skeleton presence + stop-rules apply at warn (migration path)."
+    },
+    {
+      "family": "gpt-codex",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-5.3-Codex"],
+      "rule_subset_note": "Decision-log only; no automated enforcement."
+    },
+    {
+      "family": "gpt-4o",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-4o"],
+      "rule_subset_note": "Legacy model; no new enforcement."
+    },
+    {
+      "family": "unknown",
+      "status": "enforced",
+      "label_examples": [],
+      "rule_subset_note": "Unknown model classification raises an error to force explicit model: in frontmatter."
+    }
+  ],
+  "rules": [
+    {
+      "id": "legacy-001",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "prompt",
+      "severity": "warn",
+      "summary": "Prompt file model: must match its target agent's model: when both are present.",
+      "rationale": "Mismatched models cause runtime selection drift; the prompt's frontmatter model: is the source the user sees in chat.",
+      "source_id": "anthropic-prompting-best-practices",
+      "source_anchor": "model-self-knowledge",
+      "validator_check_id": "checkPromptModelSync",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "legacy-002",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "handoff entries should not redundantly set model: when it matches the target agent's own model.",
+      "rationale": "Redundant overrides become stale and prevent global model rollouts.",
+      "source_id": "openai-upgrade-guide",
+      "source_anchor": "upgrade-posture",
+      "validator_check_id": "checkHandoffModelOverride",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "legacy-003",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet",
+        "claude-haiku",
+        "claude"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "Large Claude agents (>350 body lines) should include <context_awareness> block.",
+      "rationale": "Anthropic recommends explicit context budgeting for long system prompts; <context_awareness> activates context-shredding routing.",
+      "source_id": "anthropic-prompting-best-practices",
+      "source_anchor": "context-awareness-and-multi-window-workflows",
+      "validator_check_id": "checkClaudeContextAwareness",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "legacy-004",
+      "vendor": "anthropic",
+      "model_families": ["claude-opus", "claude-sonnet"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "Claude research agents should include <investigate_before_answering> block.",
+      "rationale": "Anthropic's recommended pattern for grounding agents that read code or external sources before answering.",
+      "source_id": "anthropic-prompting-best-practices",
+      "source_anchor": "minimizing-hallucinations-in-agentic-coding",
+      "validator_check_id": "checkClaudeInvestigateBlock",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-oneshot-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet",
+        "claude-haiku",
+        "claude"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "ONE-SHOT Claude agents (Requirements, Challenger subagent) MUST NOT contain <investigate_before_answering>.",
+      "rationale": "ONE-SHOT agents complete work in a single round; the investigate block adds latency and conflicts with their bounded contract. False-positive guard for legacy-004.",
+      "source_id": "anthropic-prompting-best-practices",
+      "source_anchor": "minimizing-hallucinations-in-agentic-coding",
+      "validator_check_id": "checkClaudeOneShotNoInvestigate",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt55-skeleton-001",
+      "vendor": "openai",
+      "model_families": ["gpt-5.5"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT-5.5 agents must contain outcome-first skeleton sections: # Goal, # Success criteria, # Constraints, # Output, # Stop rules.",
+      "rationale": "OpenAI's GPT-5.5 prompting guide explicitly publishes this skeleton; missing sections degrade behavior calibration.",
+      "source_id": "openai-prompting-guide",
+      "source_anchor": "suggested-prompt-structure",
+      "validator_check_id": "checkGpt55Skeleton",
+      "promotion_date": "2026-09-01",
+      "family_overrides": [{ "family": "gpt-5.4", "severity": "info" }]
+    },
+    {
+      "id": "gpt-no-claude-xml-001",
+      "vendor": "cross-vendor",
+      "model_families": ["gpt-5.5", "gpt-5.4"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>).",
+      "rationale": "OpenAI prompting guide steers GPT-5.5 with markdown sections; Claude-only XML blocks are noise that GPT models do not natively interpret.",
+      "source_id": "openai-prompting-guide",
+      "source_anchor": "personality-and-behavior",
+      "validator_check_id": "checkGptNoClaudeXml",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "cross-language-density-001",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "agent",
+      "severity": "info",
+      "summary": "Absolute words (ALWAYS, NEVER, MUST, HARD RULE) density should not exceed 0.05 outside permitted prose contexts (security baseline / governance / approval gate / non-negotiable).",
+      "rationale": "OpenAI guide: 'Avoid unnecessary absolute rules. Use those words for true invariants ... For judgment calls, prefer decision rules instead.' Anthropic 4.6+ models also overtrigger on aggressive language.",
+      "source_id": "openai-prompting-guide",
+      "source_anchor": "outcome-first-prompts-and-stopping-conditions",
+      "validator_check_id": "checkAbsoluteLanguageDensity",
+      "promotion_date": "2026-09-01",
+      "family_overrides": []
+    },
+    {
+      "id": "model-deprecation-001",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Agents/prompts using a deprecated model label (per validate-deprecated-models.mjs) should be migrated.",
+      "rationale": "Deprecated models lose vendor support and security updates; migration windows are often time-bound.",
+      "source_id": "openai-upgrade-guide",
+      "source_anchor": "upgrade-workflow",
+      "validator_check_id": "checkModelDeprecation",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-no-prefill-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet",
+        "claude-haiku",
+        "claude"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Claude agents/prompts MUST NOT instruct prefilling the assistant turn.",
+      "rationale": "Anthropic doc explicitly states: 'Prefilled responses on the last assistant turn are no longer supported. Starting with Claude 4.6 models and Mythos Preview, requests with prefilled assistant messages return a 400 error.' Prefill instructions silently break Claude 4.6+ deployments.",
+      "source_id": "anthropic-prompting-best-practices",
+      "source_anchor": "migrating-away-from-prefilled-responses",
+      "validator_check_id": "checkClaudeNoPrefill",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt55-stop-rules-non-empty-001",
+      "vendor": "openai",
+      "model_families": ["gpt-5.5"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT-5.5 agents must have a non-empty body under # Stop rules (>=1 non-blank line before next H1).",
+      "rationale": "OpenAI prompting guide: 'Add explicit stopping conditions ... Define missing-evidence behavior'. An empty Stop rules section is misleading scaffolding.",
+      "source_id": "openai-prompting-guide",
+      "source_anchor": "outcome-first-prompts-and-stopping-conditions",
+      "validator_check_id": "checkGpt55StopRulesNonEmpty",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "frontmatter-model-style-001",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "both",
+      "severity": "error",
+      "summary": ".agent.md must use array form for model:; .prompt.md must use string form.",
+      "rationale": "YAML bareword form misparses parenthetical qualifiers (e.g., 'Claude Opus 4.7 (High reasoning)') and breaks frontmatter loading. Array vs string is the canonical convention for each file type.",
+      "source_id": "openai-upgrade-guide",
+      "source_anchor": "upgrade-posture",
+      "validator_check_id": "checkFrontmatterModelStyle",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-output-contract-001",
+      "vendor": "anthropic",
+      "model_families": ["claude-opus", "claude-sonnet"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "Claude agents that produce a formal artifact MUST include an <output_contract> block.",
+      "rationale": "Anthropic recommends XML-tagged structured output for agents with defined deliverables. Heuristic: handoff prompts referencing agent-output/ paths or known artifact-producing names.",
+      "source_id": "anthropic-prompting-best-practices",
+      "source_anchor": "structure-prompts-with-xml-tags",
+      "validator_check_id": "checkClaudeOutputContract",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "handoff-enrichment-001",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "Every handoffs[].prompt must contain BOTH an input reference (artifact path or 'Input:') AND an output reference (save path or 'Output:').",
+      "rationale": "Multi-agent workflows lose state when handoffs omit input/output context; receiving agents waste tokens reconstructing what they need.",
+      "source_id": "openai-prompting-guide",
+      "source_anchor": "outcome-first-prompts-and-stopping-conditions",
+      "validator_check_id": "checkHandoffEnrichment",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "personality-scoping-001",
+      "vendor": "openai",
+      "model_families": ["gpt-5.5", "gpt-5.4"],
+      "applies_to": "agent",
+      "severity": "info",
+      "summary": "# Personality block should appear only on user-facing agents (Orchestrator family); internal pipeline agents should omit it.",
+      "rationale": "OpenAI guide: 'For customer-facing assistants, support workflows, coaching experiences, and other conversational products, define both personality and collaboration style.' Pipeline subagents have no user-facing surface; personality is noise.",
+      "source_id": "openai-prompting-guide",
+      "source_anchor": "personality-and-behavior",
+      "validator_check_id": "checkPersonalityScoping",
+      "promotion_date": null,
+      "family_overrides": []
+    }
+  ]
+}

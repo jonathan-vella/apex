@@ -105,3 +105,6 @@ crash.*.log
 
 # Governance baseline raw debug file (not committed — local troubleshooting only)
 .github/data/governance-policy-raw.json
+
+# Vendor-prompting raw fetched snapshots (committed canonical prose lives one level up)
+.github/skills/vendor-prompting/references/.snapshots/

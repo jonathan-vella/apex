@@ -49,6 +49,9 @@ npm run validate:workflow-graph          # Workflow DAG graph validation
 npm run validate:agent-registry          # Agent registry consistency
 npm run validate:iac-security-baseline   # IaC security baseline (TLS, HTTPS, blob, identity, SQL auth)
 npm run lint:workflow-table-sync          # Workflow table ↔ workflow-graph.json sync
+npm run lint:vendor-prompting             # Anthropic Claude / OpenAI GPT-5.5 prompting rules
+npm run audit:vendor-prompting            # Refresh vendor source snapshots + drift report
+npm run test:vendor-prompting             # Validator classifier unit tests
 
 # E2E Ralph Loop
 npm run e2e:validate                     # Validate artifacts (structural, no agent invocation)

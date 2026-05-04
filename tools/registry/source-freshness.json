@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "source_id": "anthropic-prompting-best-practices",
+      "owner": "vendor-prompting",
+      "max_age_days": 90,
+      "last_fetched": "2026-05-04T17:27:35.269Z",
+      "sha256": "c65cc1e89a0d32c0b79be02df6b82c090a9411f98ab5a14a2ecf84bfd49858c5",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+    },
+    {
+      "source_id": "openai-prompting-guide",
+      "owner": "vendor-prompting",
+      "max_age_days": 90,
+      "last_fetched": "2026-05-04T17:27:35.965Z",
+      "sha256": "ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa",
+      "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md"
+    },
+    {
+      "source_id": "openai-upgrade-guide",
+      "owner": "vendor-prompting",
+      "max_age_days": 90,
+      "last_fetched": "2026-05-04T17:27:36.341Z",
+      "sha256": "563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39",
+      "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md"
+    }
+  ]
+}

@@ -21,7 +21,10 @@ export class Reporter {
     this.title = title;
     this.errors = 0;
     this.warnings = 0;
+    this.infos = 0;
     this.checked = 0;
+    /** Structured findings (used by --format=json output). */
+    this.findings = [];
   }
 
   header() {
@@ -31,6 +34,15 @@ export class Reporter {
   /** Count an item as checked */
   tick() {
     this.checked++;
+  }
+
+  /**
+   * Record a structured finding for JSON output. Optional: callers using only
+   * legacy error/warn helpers do not need to call this.
+   * @param {{ check?: string, ruleId?: string, severity: "error"|"warn"|"info", file: string, message: string, sourceUrl?: string, line?: number }} f
+   */
+  record(f) {
+    this.findings.push({ check: this.title, ...f });
   }
 
   error(location, msg) {
@@ -60,6 +72,15 @@ export class Reporter {
   warnAnnotation(file, msg) {
     console.log(`::warning file=${file}::${msg}`);
     this.warnings++;
+  }
+
+  info(location, msg) {
+    if (msg === undefined) {
+      console.log(`  ℹ️  ${location}`);
+    } else {
+      console.log(`  ℹ️  ${location}: ${msg}`);
+    }
+    this.infos++;
   }
 
   ok(location, msg) {

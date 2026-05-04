@@ -29,11 +29,12 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 ### Category 3: Workflow & Tool Integration
 
-| Skill                 | Description                               | Triggers                            |
-| --------------------- | ----------------------------------------- | ----------------------------------- |
-| `github-operations`   | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command" |
-| `docs-writer`         | Repo-aware documentation maintenance      | "update docs", "check staleness"    |
-| `make-skill-template` | Create new skills from template           | "create skill", "new skill"         |
+| Skill                 | Description                               | Triggers                                                                        |
+| --------------------- | ----------------------------------------- | ------------------------------------------------------------------------------- |
+| `github-operations`   | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command"                                             |
+| `docs-writer`         | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
+| `make-skill-template` | Create new skills from template           | "create skill", "new skill"                                                     |
+| `vendor-prompting`    | Audit Claude / GPT-5.5 agents and prompts | "audit agent", "claude prompting", "gpt-5.5 prompting", "vendor best practices" |
 
 ## Usage
 

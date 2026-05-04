@@ -19,11 +19,13 @@ import {
   SUBAGENTS_DIR,
   SKILLS_DIR,
   INSTRUCTIONS_DIR,
+  PROMPTS_DIR,
 } from "./paths.mjs";
 
 let _agents = null;
 let _skills = null;
 let _instructions = null;
+let _prompts = null;
 
 /**
  * Returns a Map of all agent files: filename → { path, dir, content, frontmatter, isSubagent }
@@ -118,4 +120,26 @@ export function resetIndex() {
   _agents = null;
   _skills = null;
   _instructions = null;
+  _prompts = null;
+}
+
+/**
+ * Returns a Map of all prompt files: filename → { path, content, frontmatter, body }.
+ * Prompt frontmatter uses string `model:` (not array, per agent-authoring convention).
+ * `body` is the markdown after the closing `---`.
+ */
+export function getPromptFiles() {
+  if (_prompts) return _prompts;
+  _prompts = new Map();
+  if (!fs.existsSync(PROMPTS_DIR)) return _prompts;
+  for (const file of fs.readdirSync(PROMPTS_DIR)) {
+    if (!file.endsWith(".prompt.md")) continue;
+    const filePath = path.join(PROMPTS_DIR, file);
+    const content = fs.readFileSync(filePath, "utf-8");
+    const frontmatter = parseFrontmatter(content);
+    const fmEnd = content.indexOf("\n---", content.indexOf("---") + 3);
+    const body = fmEnd !== -1 ? content.substring(fmEnd + 4) : content;
+    _prompts.set(file, { path: filePath, content, frontmatter, body });
+  }
+  return _prompts;
 }
