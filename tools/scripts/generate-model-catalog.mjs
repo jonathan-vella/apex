@@ -44,9 +44,7 @@ export function buildAssignments() {
   const agents = getAgents();
   const main = {};
   const subs = {};
-  const sorted = [...agents.entries()].sort(([a], [b]) =>
-    a.localeCompare(b),
-  );
+  const sorted = [...agents.entries()].sort(([a], [b]) => a.localeCompare(b));
   for (const [file, a] of sorted) {
     const model = normalizeModel(a.frontmatter?.model);
     if (!model) continue;
@@ -88,9 +86,7 @@ function main() {
       console.error(
         "❌ model-catalog.json `assignments` block is out of sync with frontmatter.",
       );
-      console.error(
-        "   Run: node tools/scripts/generate-model-catalog.mjs",
-      );
+      console.error("   Run: node tools/scripts/generate-model-catalog.mjs");
       process.exit(1);
     }
     console.log("✅ model-catalog.json assignments in sync with frontmatter");

@@ -126,9 +126,7 @@ function main() {
   }
 
   // Check 3: deprecated models not used in active assignments
-  console.log(
-    "  Check 3: deprecated models absent from active assignments",
-  );
+  console.log("  Check 3: deprecated models absent from active assignments");
   for (const dep of deprecated) {
     r.tick();
     const fmHits = fmModels.get(dep) || [];
