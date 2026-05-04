@@ -1,12 +1,12 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
-  "description": "Allowed Copilot Chat model names used by APEX agents. Canonical source for model-floor lint. Update this file when model availability changes or models deprecate.",
-  "last_updated": "2026-04-16",
+  "description": "Allowed Copilot Chat model names used by APEX agents. Documentation only — agent frontmatter is canonical, registry mirrors it. Update this file when model availability changes or models deprecate.",
+  "last_updated": "2026-05-04",
   "models": {
-    "Claude Opus 4.6": {
+    "Claude Opus 4.7 (High reasoning)": {
       "vendor": "Anthropic",
       "tier": "frontier",
-      "released": "2026-01",
+      "released": "2026-05",
       "deprecated": false,
       "use_for": [
         "orchestration",
@@ -16,6 +16,20 @@
         "context-optimization"
       ],
       "notes": "Highest-reasoning tier. Reserve for steps with creative or multi-artifact decisions."
+    },
+    "Claude Opus 4.6": {
+      "vendor": "Anthropic",
+      "tier": "frontier",
+      "released": "2026-01",
+      "deprecated": true,
+      "use_for": [
+        "orchestration",
+        "architecture",
+        "iac-planning",
+        "diagnosis",
+        "context-optimization"
+      ],
+      "notes": "Deprecated 2026-05 in favor of Claude Opus 4.7 (High reasoning). Retained for audit history; not authorized for new agents."
     },
     "Claude Sonnet 4.6": {
       "vendor": "Anthropic",
