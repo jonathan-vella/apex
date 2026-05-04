@@ -1,6 +1,6 @@
 ---
 name: E2E Orchestrator
-model: ["Claude Opus 4.6"]
+model: ["Claude Opus 4.7 (High reasoning)"]
 description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes the real workflow agents end to end, with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace the production 01-Orchestrator."
 user-invocable: true
 agents:
@@ -43,8 +43,6 @@ tools:
 ---
 
 # E2E Evaluation Orchestrator
-
-<!-- Recommended reasoning_effort: high -->
 
 Autonomous orchestrator for the RALPH-style E2E workflow evaluation loop.
 Runs all 7 APEX steps without human gates, validates every artifact,

@@ -1,6 +1,6 @@
 ---
 agent: agent
-model: "Claude Opus 4.6"
+model: "Claude Opus 4.7 (High reasoning)"
 description: "Post-loop lessons analysis. Reads E2E RALPH loop results (single or multi-run), merges data, and generates actionable improvements for agents, skills, validators, and prompts."
 tools:[vscode, execute, read, agent, browser, edit, search, web, 'azure-mcp/*', 'microsoft-learn/*', todo]
 ---

@@ -1,7 +1,7 @@
 ---
 name: 05-IaC Planner
 description: Expert Azure Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), and designs complete infrastructure solutions with architecture diagrams. Routes to the appropriate IaC track based on decisions.iac_tool in session state.
-model: ["Claude Opus 4.6"]
+model: ["Claude Opus 4.7 (High reasoning)"]
 user-invocable: true
 agents: ["challenger-review-subagent"]
 tools:
@@ -61,8 +61,6 @@ handoffs:
 ---
 
 # IaC Plan Agent
-
-<!-- Recommended reasoning_effort: high -->
 
 <investigate_before_answering>
 Before writing the implementation plan, verify AVM module availability for every resource.

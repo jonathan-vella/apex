@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["Claude Opus 4.6"]
+model: ["Claude Opus 4.7 (High reasoning)"]
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
@@ -103,8 +103,6 @@ handoffs:
 ---
 
 # Orchestrator Agent
-
-<!-- Recommended reasoning_effort: high -->
 
 <context_awareness>
 Large agent definition (~850 lines). Monitor context usage. At >60% load SKILL.digest.md;
@@ -237,7 +235,9 @@ score after governance approval.
 
 At each approval gate:
 
-1. Run a single comprehensive challenger pass
+1. **Mandatory:** run a single comprehensive challenger pass. This pass is
+   required at every gate by default — it is not optional and must not be
+   skipped to save tokens or turns.
 2. Check `decisions.complexity` from `apex-recall show <project> --json`
 3. **simple/standard**: Present the single-pass result directly — no additional review
 4. **complex**: Ask the user via `askQuestions`:
@@ -340,10 +340,20 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 1. **Run `apex-recall show {project} --json`** — this returns the machine-readable
    source of truth: current step, sub-step checkpoint, key decisions, IaC tool,
    and artifact inventory. Use it to determine exactly where to resume.
-2. **Check for `00-handoff.md`** — if apex-recall returns no project but `00-handoff.md`
-   exists, parse it for the completed-steps checklist and key decisions.
-3. If both are absent, scan existing artifacts in `agent-output/{project-name}/`
-   and identify the last completed step from artifact numbering.
+2. **An empty / "no project found" response from `apex-recall show` is NOT a
+   signal to start fresh.** It only means apex-recall has no record of this
+   project name. Before treating the project as new, you MUST also:
+   a. Check whether `agent-output/{project}/00-handoff.md` exists — if so,
+      parse it for the completed-steps checklist and key decisions, then
+      resume from there.
+   b. List `agent-output/{project}/` and look for any numbered artifacts
+      (`01-requirements.md`, `02-architecture-assessment.md`, etc.). If any
+      exist, infer the last completed step from artifact numbering and
+      resume from the next step — do not overwrite prior work.
+3. Only when **all three** signals are absent (no apex-recall state, no
+   `00-handoff.md`, and no numbered artifacts in `agent-output/{project}/`)
+   should you treat this as a brand-new project and follow
+   [Starting a New Project](#starting-a-new-project).
 4. Present a brief status summary and offer to continue from the next step.
 5. If resuming mid-step (JSON state shows `in_progress` with a `sub_step` value),
    delegate to the appropriate agent with context: _"Resume Step {N} from checkpoint {sub_step}."_
@@ -377,7 +387,7 @@ Orchestrator with the project name — no special resume prompt needed.
 | Tier     | Model             | Used For                                       |
 | -------- | ----------------- | ---------------------------------------------- |
 | `orch`   | GPT-5.4           | Orchestrator orchestration, routing, gates     |
-| `high`   | Claude Opus 4.6   | Requirements, Architecture, Planning, Code Gen |
+| `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Code Gen |
 | `medium` | Claude Sonnet 4.6 | Deploy, As-Built, Reviews, Governance          |
 | `low`    | Claude Haiku 4.5  | Lint, Cost Estimate, What-If, Plan Preview     |
 

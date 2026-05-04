@@ -1,6 +1,6 @@
 ---
 name: 02-Requirements
-model: ["Claude Opus 4.6"]
+model: ["Claude Opus 4.7 (High reasoning)"]
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
@@ -55,7 +55,6 @@ handoffs:
 ---
 
 <!-- ONE-SHOT GATE — the model must complete ALL phases in a single turn -->
-<!-- Recommended reasoning_effort: high -->
 
 <output_contract>
 Primary artifact: agent-output/{project}/01-requirements.md — H2 structure must match

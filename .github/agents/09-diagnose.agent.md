@@ -1,6 +1,6 @@
 ---
 name: 09-Diagnose
-model: ["Claude Opus 4.6"]
+model: ["Claude Opus 4.7 (High reasoning)"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
 user-invocable: true
 agents: []
@@ -59,8 +59,6 @@ handoffs:
 ---
 
 # Azure Resource Health Diagnostician Agent
-
-<!-- Recommended reasoning_effort: medium -->
 
 This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.

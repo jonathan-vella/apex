@@ -1,7 +1,7 @@
 ---
 description: "Kick off a new Azure platform engineering project through the full multi-step workflow with the Orchestrator agent."
 agent: "01-Orchestrator"
-model: "Claude Opus 4.6"
+model: "Claude Opus 4.7 (High reasoning)"
 argument-hint: "Describe the Azure platform engineering project you want to build end-to-end"
 ---
 
