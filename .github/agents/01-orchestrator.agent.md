@@ -384,12 +384,11 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-| Tier     | Model             | Used For                                       |
-| -------- | ----------------- | ---------------------------------------------- |
-| `orch`   | GPT-5.4           | Orchestrator orchestration, routing, gates     |
-| `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Code Gen |
-| `medium` | Claude Sonnet 4.6 | Deploy, As-Built, Reviews, Governance          |
-| `low`    | Claude Haiku 4.5  | Lint, Cost Estimate, What-If, Plan Preview     |
+| Tier     | Model                            | Used For                                                    |
+| -------- | -------------------------------- | ----------------------------------------------------------- |
+| `high`   | Claude Opus 4.7 (High reasoning) | Orchestrator, Requirements, Architecture, Planning, Code Gen |
+| `medium` | Claude Sonnet 4.6                | Deploy, As-Built, Reviews, Governance                       |
+| `low`    | Claude Haiku 4.5                 | Lint, Cost Estimate, What-If, Plan Preview                  |
 
 ## Boundaries
 
