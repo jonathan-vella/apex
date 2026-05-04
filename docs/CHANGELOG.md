@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): migrate the Orchestrator (was Claude Opus 4.7 (High reasoning))
+  and the Sonnet 4.6 cohort (Orchestrator Fast Path, Design, Governance,
+  Bicep CodeGen, Terraform CodeGen, Challenger, challenger-review-subagent)
+  to `GPT-5.5`. Full GPT-5.5 prompt rewrites per agent following the OpenAI
+  prompting guide skeleton; existing required sections (output_contract,
+  security baseline, workflow contracts) preserved verbatim. Six Opus 4.7
+  agents (Requirements, Architect, IaC Planner, Diagnose, Context Optimizer,
+  E2E Orchestrator) and the GPT-5.4 / GPT-5.3-Codex agents and subagents
+  are unchanged.
+- chore(catalog): redesign `.github/model-catalog.json` as `models`
+  (hand-maintained label allow-list) plus auto-generated `assignments`
+  block (mirrored from frontmatter). Replaces the retired `floors` block
+  with a `governance` block documenting the source-of-truth chain. Adds
+  `GPT-5.5` and marks `Claude Sonnet 4.6` `deprecated: true`. New
+  `validate-model-catalog.mjs` validator + `generate-model-catalog.mjs`
+  generator + lefthook pre-commit auto-regeneration.
 - feat(agents): migrate Opus-tier agents from `Claude Opus 4.6` to
   `Claude Opus 4.7 (High reasoning)` (7 agents + 4 prompt files + 7 registry rows).
   Catalog entry for 4.6 retained with `deprecated: true` for audit history.

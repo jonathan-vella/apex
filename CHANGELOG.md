@@ -20,6 +20,37 @@ for full details on this and all prior releases.
 
 ### Added
 
+- feat(agents): migrate the Orchestrator (was Claude Opus 4.7 (High reasoning))
+  and the Sonnet 4.6 cohort (Orchestrator Fast Path, Design, Governance,
+  Bicep CodeGen, Terraform CodeGen, Challenger, challenger-review-subagent)
+  to `GPT-5.5`. Eight agents + one subagent receive full GPT-5.5 prompt
+  rewrites following the OpenAI prompting guide skeleton (Role / Personality
+  / Goal / Success / Constraints / Output / Stop), layered around the
+  existing required sections (output_contract, security baseline, workflow
+  contracts) which stay verbatim. Four prompt files swap accordingly
+  (`01-orchestrator.prompt.md`, `resume-workflow.prompt.md`,
+  `04-design.prompt.md`, `as-built-from-azure.prompt.md` — the last
+  intentionally GPT-5.5 even though it invokes the GPT-5.4 08-As-Built
+  agent, to keep the prompt-author UX consistent across the migrated
+  cohort). Eight registry rows updated. Orchestrator self-reference body
+  table corrected (high-row 'Code Gen' attribution fixed; low-row tier
+  retired in favor of a footnote pointing at the registry). The six
+  Opus 4.7 agents (Requirements, Architect, IaC Planner, Diagnose, Context
+  Optimizer, E2E Orchestrator) and the GPT-5.4 / GPT-5.3-Codex agents and
+  subagents are unchanged.
+- chore(catalog): redesign `.github/model-catalog.json` as model metadata
+  (`models`, hand-maintained label allow-list) plus auto-generated
+  `assignments` (mirrored from frontmatter). Adds `governance` block
+  documenting the source-of-truth chain. Replaces the retired `floors`
+  block. Adds `GPT-5.5` (tier `balanced`) and marks `Claude Sonnet 4.6`
+  `deprecated: true`.
+- feat(tools): add `generate-model-catalog.mjs` (rebuilds `assignments`
+  from frontmatter; `--check` mode for CI drift detection) and
+  `validate-model-catalog.mjs` (enforces label allow-list, assignments
+  match generator output, deprecated models absent from active
+  assignments). Wired into `validate:_node` / `validate:_node-ci`. Adds a
+  lefthook pre-commit hook that auto-regenerates `assignments` whenever an
+  agent frontmatter file is staged.
 - feat(agents): migrate Opus-tier agents from `Claude Opus 4.6` to
   `Claude Opus 4.7 (High reasoning)`. Updates 7 agent frontmatters
   (Orchestrator, Requirements, Architect, IaC Planner, Diagnose,

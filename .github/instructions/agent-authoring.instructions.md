@@ -121,37 +121,71 @@ Always quote.
 
 Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so deliberately:
 
-- **Opus-first agents** (orchestrator, requirements, architect, iac-plan, diagnose,
-  context-optimizer) require deeper reasoning for orchestration, architecture decisions,
-  WAF assessments, planning accuracy, and complex analysis
-- **Claude Sonnet 4.6 agents** (orchestrator fast path, design, bicep codegen,
-  terraform codegen) balance speed with strong execution quality for implementation
-  and code generation
-- **GPT-5.4 workflow and execution agents** (governance, as-built, challenger wrapper,
-  e2e-orchestrator, deploy, and bicep/terraform validation/preview subagents) prioritize
-  strong general reasoning for governance synthesis, documentation generation,
-  deployment execution, structured reviews, and isolated validation
+- **Opus-first agents** (requirements, architect, iac-plan, diagnose, context-optimizer,
+  e2e-orchestrator) require deeper reasoning for architecture decisions, WAF assessments,
+  planning accuracy, and complex analysis
+- **GPT-5.5 agents** (orchestrator, orchestrator fast path, design, governance,
+  bicep codegen, terraform codegen, challenger wrapper, challenger-review-subagent)
+  use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
+  Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
+  over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
+  predecessors — re-evaluate `low`/`medium` reasoning effort before escalating
+- **GPT-5.4 workflow and execution agents** (as-built, deploy, and bicep/terraform
+  validation/preview subagents) prioritize strong general reasoning for documentation
+  generation, deployment execution, and isolated validation
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
+
+#### GPT-5.5 prompting style (summary)
+
+The migrated GPT-5.5 cohort follows the OpenAI GPT-5.5 prompting guide:
+
+- Outcome-first body skeleton: `Role` → `Personality` (user-facing agents only) →
+  `Goal` → `Success criteria` → `Constraints` → `Output` → `Stop rules`.
+- Existing required sections (`output_contract`, security baseline, workflow
+  contracts, examples) stay verbatim — the skeleton wraps them, it does not
+  replace them.
+- Constraints replace ALWAYS/NEVER absolutes with scoped decision rules; gate
+  enforcement language and security-baseline language stay verbatim.
+- Personality blocks are present only on the user-facing Orchestrator and
+  Orchestrator (Fast Path); internal pipeline agents (CodeGen, Governance,
+  Challenger, subagent) get no personality block — output contracts rule.
+- Reasoning effort defaults to the Copilot runtime default; do not request
+  `high` reflexively.
 
 Current model assignments:
 
 | Agent / Group            | Model                            | Rationale                 |
 | ------------------------ | -------------------------------- | ------------------------- |
-| Orchestrator             | Claude Opus 4.7 (High reasoning) | Deep orchestration        |
-| Orchestrator (Fast Path) | Claude Sonnet 4.6                | Streamlined orchestration |
+| Orchestrator             | GPT-5.5                          | Outcome-first orchestration |
+| Orchestrator (Fast Path) | GPT-5.5                          | Streamlined orchestration |
 | Requirements             | Claude Opus 4.7 (High reasoning) | Deep understanding        |
 | Architect                | Claude Opus 4.7 (High reasoning) | WAF analysis + cost       |
-| Design                   | Claude Sonnet 4.6                | Diagram generation        |
-| Governance               | Claude Sonnet 4.6                | Procedural discovery      |
+| Design                   | GPT-5.5                          | Diagram + ADR generation  |
+| Governance               | GPT-5.5                          | Procedural discovery      |
 | IaC Planner (unified)    | Claude Opus 4.7 (High reasoning) | Planning accuracy         |
-| Bicep / Terraform Code   | Claude Sonnet 4.6                | Code generation           |
+| Bicep / Terraform Code   | GPT-5.5                          | Code generation           |
 | Deploy                   | GPT-5.4                          | Deployment execution      |
 | As-Built                 | GPT-5.4                          | Documentation generation  |
 | Diagnose                 | Claude Opus 4.7 (High reasoning) | Complex troubleshooting   |
 | Context Optimizer        | Claude Opus 4.7 (High reasoning) | Deep analysis             |
-| Challenger wrapper       | Claude Sonnet 4.6                | Structured review         |
+| Challenger wrapper       | GPT-5.5                          | Structured review         |
+| Challenger subagent      | GPT-5.5                          | Structured review         |
 | Bicep/TF subagents       | GPT-5.4                          | Isolated validation       |
 | Cost estimate subagent   | GPT-5.3-Codex                    | High-throughput pricing   |
+
+**Source-of-truth chain:**
+
+- Agent frontmatter is canonical (`.github/agents/**/*.agent.md`).
+- The agent registry mirrors frontmatter (enforced by
+  `validate-model-consistency.mjs`).
+- The model catalog (`.github/model-catalog.json`) authorizes labels via its
+  hand-maintained `models` block and mirrors the canonical assignments via
+  its auto-generated `assignments` block (enforced by
+  `validate-model-catalog.mjs`).
+- The `assignments` block is regenerated by
+  `node tools/scripts/generate-model-catalog.mjs` and refreshed automatically
+  by the lefthook pre-commit hook whenever an agent frontmatter file is
+  staged.
 
 **Rules:**
 

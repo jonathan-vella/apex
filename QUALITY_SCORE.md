@@ -137,6 +137,8 @@
 | 2026-05-04 | Agents          | Opus-tier agents migrated `Claude Opus 4.6` → `Claude Opus 4.7 (High reasoning)` (7 agents + 4 prompts + 7 registry rows)  |
 | 2026-05-04 | CI / Validation | `validate-model-floors.mjs` + `KNOWN_MODELS` retired; replaced by `validate-model-consistency.mjs` (frontmatter ≡ registry) |
 | 2026-05-04 | Agents          | `<!-- Recommended reasoning_effort -->` HTML annotation retired workspace-wide (15 agent files + 1 instruction + 2 validators) |
+| 2026-05-04 | Agents          | Orchestrator + Sonnet 4.6 cohort (8 agents + 1 subagent) migrated to `GPT-5.5`; full prompt rewrites per OpenAI guide; 4 prompts + 8 registry rows + body table updated |
+| 2026-05-04 | CI / Validation | `.github/model-catalog.json` redesigned as metadata + auto-generated assignments; `generate-model-catalog.mjs` + `validate-model-catalog.mjs` added; lefthook pre-commit auto-regenerates assignments |
 
 ## How to Update
 

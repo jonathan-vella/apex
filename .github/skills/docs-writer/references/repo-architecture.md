@@ -43,22 +43,22 @@ See `tools/registry/count-manifest.json` for canonical counts.
 
 | Agent               | File                                | Model      | Step | Artifacts                       |
 | ------------------- | ----------------------------------- | ---------- | ---- | ------------------------------- |
-| Orchestrator        | `01-orchestrator.agent.md`          | Opus 4.7 (High reasoning)   | All  | Orchestration                   |
-| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | Opus 4.7 (High reasoning)   | All  | Fast-path orchestration         |
-| Requirements        | `02-requirements.agent.md`          | Opus 4.7 (High reasoning)   | 1    | `01-requirements.md`            |
-| Architect           | `03-architect.agent.md`             | Opus 4.7 (High reasoning)   | 2    | `02-architecture-assessment.md` |
-| Design              | `04-design.agent.md`                | Sonnet 4.5 | 3    | `03-des-*.{drawio,py,png,md}`   |
-| Governance          | `04g-governance.agent.md`           | Sonnet 4.5 | 3.5  | `04-governance-constraints.md`  |
-| IaC Plan            | `05-iac-planner.agent.md`           | Opus 4.7 (High reasoning)   | 4    | `04-implementation-plan.md`     |
-| Bicep Code          | `06b-bicep-codegen.agent.md`        | Sonnet 4.5 | 5b   | Bicep in `infra/bicep/`         |
-| Bicep Deploy        | `07b-bicep-deploy.agent.md`         | Sonnet 4.5 | 6b   | `06-deployment-summary.md`      |
-| Terraform Code      | `06t-terraform-codegen.agent.md`    | Sonnet 4.5 | 5t   | Terraform in `infra/terraform/` |
-| Terraform Deploy    | `07t-terraform-deploy.agent.md`     | Sonnet 4.5 | 6t   | `06-deployment-summary.md`      |
-| As-Built            | `08-as-built.agent.md`              | Sonnet 4.5 | 7    | `07-ab-*.md` docs suite         |
-| Diagnose            | `09-diagnose.agent.md`              | Sonnet 4.5 | —    | Diagnostic reports              |
-| Challenger          | `10-challenger.agent.md`            | Sonnet 4.5 | —    | Challenge findings              |
-| Context Optimizer   | `11-context-optimizer.agent.md`     | Sonnet 4.5 | —    | Optimization reports            |
-| E2E Orchestrator    | `e2e-orchestrator.agent.md`         | Opus 4.7 (High reasoning)   | All  | E2E evaluation loop             |
+| Orchestrator        | `01-orchestrator.agent.md`          | GPT-5.5                          | All  | Orchestration                   |
+| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | GPT-5.5                          | All  | Fast-path orchestration         |
+| Requirements        | `02-requirements.agent.md`          | Opus 4.7 (High reasoning)        | 1    | `01-requirements.md`            |
+| Architect           | `03-architect.agent.md`             | Opus 4.7 (High reasoning)        | 2    | `02-architecture-assessment.md` |
+| Design              | `04-design.agent.md`                | GPT-5.5                          | 3    | `03-des-*.{drawio,py,png,md}`   |
+| Governance          | `04g-governance.agent.md`           | GPT-5.5                          | 3.5  | `04-governance-constraints.md`  |
+| IaC Plan            | `05-iac-planner.agent.md`           | Opus 4.7 (High reasoning)        | 4    | `04-implementation-plan.md`     |
+| Bicep Code          | `06b-bicep-codegen.agent.md`        | GPT-5.5                          | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy        | `07b-bicep-deploy.agent.md`         | GPT-5.4                          | 6b   | `06-deployment-summary.md`      |
+| Terraform Code      | `06t-terraform-codegen.agent.md`    | GPT-5.5                          | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy    | `07t-terraform-deploy.agent.md`     | GPT-5.4                          | 6t   | `06-deployment-summary.md`      |
+| As-Built            | `08-as-built.agent.md`              | GPT-5.4                          | 7    | `07-ab-*.md` docs suite         |
+| Diagnose            | `09-diagnose.agent.md`              | Opus 4.7 (High reasoning)        | —    | Diagnostic reports              |
+| Challenger          | `10-challenger.agent.md`            | GPT-5.5                          | —    | Challenge findings              |
+| Context Optimizer   | `11-context-optimizer.agent.md`     | Opus 4.7 (High reasoning)        | —    | Optimization reports            |
+| E2E Orchestrator    | `e2e-orchestrator.agent.md`         | Opus 4.7 (High reasoning)        | All  | E2E evaluation loop             |
 
 ### Validation Subagents (in `_subagents/`)
 

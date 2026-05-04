@@ -144,7 +144,7 @@ preview subagents before any Azure changes are applied.
 
 | Agent            | Codename        | Role                                        | Model           |
 | ---------------- | --------------- | ------------------------------------------- | --------------- |
-| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | Claude Opus 4.7 (High reasoning) |
+| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | GPT-5.5         |
 
 ### Core Agents (by Workflow Step)
 
