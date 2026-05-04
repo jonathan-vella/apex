@@ -3,10 +3,12 @@
 # https://github.com/evilmartians/lefthook
 
 pre-commit:
-  # SAFETY: parallel is safe only while markdown-lint is the sole stage_fixed command.
-  # Adding another auto-fixer requires switching back to parallel: false or adding
-  # explicit file-lock coordination.
-  parallel: true
+  # SAFETY: serial because two commands now use stage_fixed (markdown-lint
+  # touches *.md; model-catalog-sync touches .github/model-catalog.json).
+  # Although their file sets are disjoint today, parallel + stage_fixed
+  # races on git index lock when both try to re-stage. Keep serial unless
+  # an explicit file-lock coordination layer is introduced.
+  parallel: false
   commands:
     markdown-lint:
       glob: "*.md"
@@ -101,6 +103,28 @@ pre-commit:
         Checks: frontmatter syntax, model-prompt alignment, body size (<400 lines),
         language density (<5 absolute terms per 100 lines)
         📚 Reference: .github/instructions/agent-authoring.instructions.md
+
+    model-catalog-sync:
+      glob: ".github/agents/**/*.agent.md"
+      run: |
+        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^\.github/agents/.*\.agent\.md$' || true)
+        if [ -n "$STAGED_AGENTS" ]; then
+          echo "🔄 Regenerating model-catalog assignments from frontmatter..."
+          node tools/scripts/generate-model-catalog.mjs
+          # Re-stage the catalog if the generator changed it
+          if ! git diff --quiet .github/model-catalog.json 2>/dev/null; then
+            git add .github/model-catalog.json
+            echo "  ↳ Re-staged .github/model-catalog.json"
+          fi
+        else
+          echo "ℹ️  No agent frontmatter staged — catalog regeneration skipped"
+        fi
+      stage_fixed: true
+      fail_text: |
+        ❌ Model catalog regeneration failed!
+
+        🔧 Manually run: node tools/scripts/generate-model-catalog.mjs
+        📚 Reference: .github/model-catalog.json governance block
 
     instructions:
       glob: "**/*.instructions.md,{.github/agents/**,.github/skills/**,.github/instructions/**}"

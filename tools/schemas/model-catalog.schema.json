@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/model-catalog.schema.json",
   "title": "APEX Model Catalog",
-  "description": "Shape of .github/model-catalog.json. Documentation-only catalog of Copilot Chat models authorized for APEX agents. Not enforced by any validator (agent frontmatter is canonical; registry mirrors via validate-model-consistency.mjs).",
+  "description": "Shape of .github/model-catalog.json. The catalog has two roles: (1) `models` is hand-maintained metadata that authorizes which Copilot Chat model labels APEX agents may use; (2) `assignments` is auto-generated from agent/subagent frontmatter and mirrors the canonical agent → model mapping. Frontmatter remains the single source of truth; the registry mirrors it; the catalog records authorized labels and a generated inventory.",
   "type": "object",
-  "required": ["$schema", "description", "models"],
+  "required": ["$schema", "description", "models", "governance", "assignments"],
   "additionalProperties": true,
   "properties": {
     "$schema": { "type": "string" },
@@ -15,7 +15,7 @@
     },
     "models": {
       "type": "object",
-      "description": "Map of model display names to model metadata.",
+      "description": "Hand-maintained metadata keyed by model display name. Acts as the authorized-label allow-list.",
       "patternProperties": {
         ".*": {
           "type": "object",
@@ -29,7 +29,7 @@
             "tier": {
               "type": "string",
               "enum": ["frontier", "balanced", "codex", "standard"],
-              "description": "Capability tier for floor/ceiling enforcement."
+              "description": "Capability tier descriptor (documentation only; floor enforcement was retired)."
             },
             "released": {
               "type": "string",
@@ -37,7 +37,7 @@
             },
             "deprecated": {
               "type": "boolean",
-              "description": "Whether the model is deprecated (warning on use)."
+              "description": "Whether the model is deprecated. Deprecated entries may remain for audit history but must not appear in active assignments."
             },
             "use_for": {
               "type": "array",
@@ -52,20 +52,54 @@
         }
       }
     },
-    "floors": {
+    "governance": {
       "type": "object",
-      "description": "Floor enforcement configuration.",
+      "description": "Documents the canonical source-of-truth chain and the catalog's role within it.",
+      "required": ["source_of_truth", "rules"],
+      "additionalProperties": true,
       "properties": {
-        "rationale": { "type": "string" },
-        "tiers": {
+        "source_of_truth": {
+          "type": "string",
+          "description": "Plain-language statement of which file is canonical (agent frontmatter)."
+        },
+        "rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Invariants enforced by the catalog validator."
+        }
+      }
+    },
+    "assignments": {
+      "type": "object",
+      "description": "Auto-generated inventory of agent → model assignments. Do not edit by hand; regenerate via `node tools/scripts/generate-model-catalog.mjs`.",
+      "required": ["generated", "agents", "subagents"],
+      "additionalProperties": true,
+      "properties": {
+        "generated": {
+          "type": "boolean",
+          "const": true,
+          "description": "Always true; marks the block as generator-owned."
+        },
+        "generated_by": {
+          "type": "string",
+          "description": "Path to the generator script that produced this block."
+        },
+        "description": { "type": "string" },
+        "agents": {
           "type": "object",
-          "description": "Tier name to numeric ranking for floor comparison.",
+          "description": "Map of agent file basename (e.g. 01-orchestrator.agent.md) to its frontmatter model label.",
           "patternProperties": {
-            ".*": { "type": "integer" }
+            ".*\\.agent\\.md$": { "type": "string" }
+          }
+        },
+        "subagents": {
+          "type": "object",
+          "description": "Map of subagent file basename to its frontmatter model label.",
+          "patternProperties": {
+            ".*\\.agent\\.md$": { "type": "string" }
           }
         }
-      },
-      "additionalProperties": true
+      }
     }
   }
 }
