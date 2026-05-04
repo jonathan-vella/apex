@@ -1,7 +1,7 @@
 ---
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports single-pass and multi-pass rotating-lens reviews. Handles batch execution (multiple lenses per invocation) for complex projects."
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.5"]
 disable-model-invocation: false
 # Model rationale: Claude Sonnet 4.6 for structured adversarial review.
 # Checklist-driven analysis with JSON output suits Sonnet's instruction-following strength.

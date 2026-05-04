@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.5"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 tools:

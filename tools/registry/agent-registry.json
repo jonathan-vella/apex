@@ -4,7 +4,7 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "GPT-5.5",
       "skills": [
         "golden-principles",
         "azure-defaults",
@@ -16,7 +16,7 @@
     },
     "orchestrator-fast-path": {
       "agent": ".github/agents/01-orchestrator-fastpath.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "skills": ["golden-principles", "azure-defaults", "azure-artifacts"],
       "invokable": true,
       "step": null
@@ -43,7 +43,7 @@
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "skills": ["azure-defaults", "drawio", "azure-adr", "azure-artifacts"],
       "capability_skills": ["python-diagrams"],
       "invokable": true,
@@ -51,7 +51,7 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "skills": [
         "azure-defaults",
         "azure-governance-discovery",
@@ -83,7 +83,7 @@
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -95,7 +95,7 @@
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "skills": [
           "azure-defaults",
           "azure-artifacts",
@@ -162,7 +162,7 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "skills": [],
       "invokable": true,
       "step": null
@@ -186,7 +186,7 @@
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "skills": ["golden-principles", "azure-defaults"],
       "invokable": false
     },

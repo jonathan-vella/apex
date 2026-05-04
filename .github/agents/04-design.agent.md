@@ -1,6 +1,6 @@
 ---
 name: 04-Design
-model: ["Claude Sonnet 4.6"]
+model: ["GPT-5.5"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses drawio skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []

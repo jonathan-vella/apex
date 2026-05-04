@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.
-model: ["Claude Opus 4.7 (High reasoning)"]
+model: ["GPT-5.5"]
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
@@ -384,11 +384,19 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-| Tier     | Model                            | Used For                                                    |
-| -------- | -------------------------------- | ----------------------------------------------------------- |
-| `high`   | Claude Opus 4.7 (High reasoning) | Orchestrator, Requirements, Architecture, Planning, Code Gen |
-| `medium` | Claude Sonnet 4.6                | Deploy, As-Built, Reviews, Governance                       |
-| `low`    | Claude Haiku 4.5                 | Lint, Cost Estimate, What-If, Plan Preview                  |
+| Tier     | Model                            | Used For                                                       |
+| -------- | -------------------------------- | -------------------------------------------------------------- |
+| `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Diagnose, Context        |
+| `medium` | GPT-5.5                          | Orchestrator, Fast Path, Design, Governance, Code Gen, Challenger |
+| `mixed`  | _See registry footnote below_    | Deploy, As-Built, Validation/Cost subagents                    |
+
+> Footnote: deploy and as-built agents (07b/07t/08) and the validation/cost subagents
+> (bicep-validate, bicep-whatif, terraform-validate, terraform-plan, cost-estimate)
+> map to GPT-5.4 / GPT-5.3-Codex on a per-agent basis. The single low-tier row that
+> previously existed has been retired because there is no longer a one-to-one
+> tier→model mapping. The canonical assignments live in
+> [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and
+> are mirrored into [.github/model-catalog.json](../model-catalog.json) `assignments`.
 
 ## Boundaries
 
