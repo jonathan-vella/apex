@@ -197,7 +197,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
    - Do NOT re-read `01-requirements.md` or doc search results — rely on the
      summary and the saved `02-waf-research.tmp.md` on disk
    - Update session state: `sub_step: "phase_2.5_compacted"`
-   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
+     **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
 7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
 8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
    **Decisions** (MANDATORY): Record key architecture choices:
