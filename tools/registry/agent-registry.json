@@ -198,27 +198,27 @@
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": ["azure-defaults", "iac-common"],
       "capability_skills": ["azure-bicep-patterns"],
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     },
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": ["azure-defaults", "iac-common"],
       "capability_skills": ["terraform-patterns", "terraform-test"],
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "skills": [],
       "invokable": false
     }

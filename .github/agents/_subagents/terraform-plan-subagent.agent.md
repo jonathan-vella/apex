@@ -1,10 +1,14 @@
 ---
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview infrastructure changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive operations requiring explicit approval, and returns a structured change summary.
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
+# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# scope, output_contract, investigate_before_answering blocks; checklist-driven
+# structured findings). Effort calibrated to medium for structured I/O — raise
+# to high only when previewing plans with destroy/replace operations.
 tools:
   [
     vscode,

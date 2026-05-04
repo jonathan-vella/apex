@@ -1,10 +1,14 @@
 ---
 name: terraform-validate-subagent
 description: "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
+# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# scope, output_contract, investigate_before_answering blocks; checklist-driven
+# structured findings). Effort calibrated to medium for structured I/O — raise
+# to high only when reviewing >10 simultaneous resources.
 tools:
   [
     vscode,

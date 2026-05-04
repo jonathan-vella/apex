@@ -1,10 +1,14 @@
 ---
 name: bicep-whatif-subagent
 description: Bicep deployment preview subagent. Runs az deployment group what-if to preview changes before deployment. Analyzes policy violations, resource changes, and cost impact. Returns structured summary for parent agent review.
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
+# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# scope, output_contract, investigate_before_answering blocks; checklist-driven
+# structured findings). Effort calibrated to medium for structured I/O — raise
+# to high only when previewing deployments with mixed Add/Update/Delete.
 tools:
   [
     vscode,

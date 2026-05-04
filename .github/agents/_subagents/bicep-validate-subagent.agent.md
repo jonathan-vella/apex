@@ -1,10 +1,14 @@
 ---
 name: bicep-validate-subagent
 description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-5.4"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
+# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# scope, output_contract, investigate_before_answering blocks; checklist-driven
+# structured findings). Effort calibrated to medium for structured I/O — raise
+# to high only when reviewing >10 simultaneous resources.
 tools:
   [
     vscode,
