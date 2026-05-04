@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-04T17:00:28.317Z",
+  "generatedAt": "2026-05-04T18:26:51.371Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 46
+      "count": 47
     },
     {
       "id": "instruction",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 26
+      "count": 27
     },
     {
       "id": "prompt",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 165,
-  "edgeCount": 701,
+  "nodeCount": 167,
+  "edgeCount": 749,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -487,7 +487,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4"
+        "model": "Claude Sonnet 4.6"
       }
     },
     {
@@ -500,7 +500,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4"
+        "model": "Claude Sonnet 4.6"
       }
     },
     {
@@ -539,7 +539,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4"
+        "model": "Claude Sonnet 4.6"
       }
     },
     {
@@ -552,7 +552,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4"
+        "model": "Claude Sonnet 4.6"
       }
     },
     {
@@ -1051,6 +1051,17 @@
       "meta": {}
     },
     {
+      "id": "skill:vendor-prompting",
+      "category": "skill",
+      "label": "vendor-prompting",
+      "description": "Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. Use when authoring or auditing custom agents and prompts to verify vendor-specific patterns (Claude XML structuring, GPT-5.5 outcome-first skeleton), to review .agent.md or .prompt.md files for compliance, or to understand why npm run lint:vendor-prompting flagged a finding. Triggers: claude prompting, gpt-5.5 prompting, agent authoring, audit agent, review prompt, vendor best practices, prompting guide, anthropic best practices, openai prompting. DO NOT USE FOR: deciding which customization mechanism to create (use copilot-customization), routine edits where the rules are already known, or generic markdown style (use markdown.instructions.md).",
+      "path": ".github/skills/vendor-prompting/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/vendor-prompting/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "skill:workflow-engine",
       "category": "skill",
       "label": "workflow-engine",
@@ -1397,6 +1408,19 @@
       },
       "meta": {
         "applyTo": "**/*.sh"
+      }
+    },
+    {
+      "id": "instruction:vendor-prompting",
+      "category": "instruction",
+      "label": "vendor-prompting",
+      "description": "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.5 agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting.",
+      "path": ".github/instructions/vendor-prompting.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/vendor-prompting.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/*.agent.md, **/*.prompt.md"
       }
     },
     {
@@ -4048,6 +4072,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:vendor-prompting",
+      "source": "instruction:agent-skills",
+      "target": "skill:vendor-prompting",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:workflow-engine",
       "source": "instruction:agent-skills",
       "target": "skill:workflow-engine",
@@ -4453,6 +4483,12 @@
       "id": "instruction:context-optimization--applies-to->skill:terraform-test",
       "source": "instruction:context-optimization",
       "target": "skill:terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:vendor-prompting",
+      "source": "instruction:context-optimization",
+      "target": "skill:vendor-prompting",
       "kind": "applies-to"
     },
     {
@@ -4870,6 +4906,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:docs-trigger--applies-to->skill:vendor-prompting",
+      "source": "instruction:docs-trigger",
+      "target": "skill:vendor-prompting",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:docs-trigger--applies-to->skill:workflow-engine",
       "source": "instruction:docs-trigger",
       "target": "skill:workflow-engine",
@@ -5023,6 +5065,12 @@
       "id": "instruction:instructions--applies-to->instruction:shell",
       "source": "instruction:instructions",
       "target": "instruction:shell",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:vendor-prompting",
+      "source": "instruction:instructions",
+      "target": "instruction:vendor-prompting",
       "kind": "applies-to"
     },
     {
@@ -5428,6 +5476,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:vendor-prompting",
+      "source": "instruction:markdown",
+      "target": "skill:vendor-prompting",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:workflow-engine",
       "source": "instruction:markdown",
       "target": "skill:workflow-engine",
@@ -5550,6 +5604,258 @@
     {
       "id": "instruction:prompt--applies-to->prompt:review-imported-iac",
       "source": "instruction:prompt",
+      "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:01-orchestrator-fast-path",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:01-orchestrator-fast-path",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:01-orchestrator",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:02-requirements",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:03-architect",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:04-design",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:04g-governance",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:05-iac-planner",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:06b-bicep-codegen",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:06t-terraform-codegen",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:07b-bicep-deploy",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:07t-terraform-deploy",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:08-as-built",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:09-diagnose",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:09-diagnose",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:10-challenger",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:10-challenger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:11-context-optimizer",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:11-context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:e2e-orchestrator",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:e2e-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->subagent:bicep-validate-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->subagent:bicep-whatif-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->subagent:challenger-review-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->subagent:cost-estimate-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->subagent:terraform-plan-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->subagent:terraform-validate-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:01-orchestrator",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:02-requirements",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:03-architect",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:04-design",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:04g-governance",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:05-iac-planner",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:08-as-built",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:challenger-review",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:challenger-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:diagnose-resource",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:doc-gardening",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:git-commit-push",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:resume-workflow",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:review-imported-iac",
+      "source": "instruction:vendor-prompting",
       "target": "prompt:review-imported-iac",
       "kind": "applies-to"
     },
@@ -6499,6 +6805,12 @@
       "id": "skill:terraform-search-import--refs->skill:terraform-patterns",
       "source": "skill:terraform-search-import",
       "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:vendor-prompting--refs->skill:copilot-customization",
+      "source": "skill:vendor-prompting",
+      "target": "skill:copilot-customization",
       "kind": "refs"
     }
   ]
