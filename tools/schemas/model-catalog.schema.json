@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/model-catalog.schema.json",
   "title": "APEX Model Catalog",
-  "description": "Shape of .github/model-catalog.json. Defines allowed Copilot Chat model names, tiers, and deprecation status. Enforced by scripts/validate-model-floors.mjs.",
+  "description": "Shape of .github/model-catalog.json. Documentation-only catalog of Copilot Chat models authorized for APEX agents. Not enforced by any validator (agent frontmatter is canonical; registry mirrors via validate-model-consistency.mjs).",
   "type": "object",
   "required": ["$schema", "description", "models"],
   "additionalProperties": true,

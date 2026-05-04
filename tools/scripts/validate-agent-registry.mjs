@@ -5,7 +5,11 @@
  * Validates tools/registry/agent-registry.json:
  * - All referenced .agent.md files exist
  * - All referenced skills exist in .github/skills/
- * - Cross-checks model names against known valid models
+ * - Cross-checks registry model strings against the agent YAML frontmatter
+ *
+ * Model allow-listing is intentionally NOT performed here. The agent frontmatter
+ * is the canonical source of truth; this validator only confirms registry mirrors it.
+ * For the frontmatter ≡ registry equality check, see validate-model-consistency.mjs.
  *
  * @example
  * node tools/scripts/validate-agent-registry.mjs
@@ -15,15 +19,6 @@ import fs from "node:fs";
 import { getSkillNames, getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
-
-const KNOWN_MODELS = [
-  "Claude Opus 4.6",
-  "Claude Sonnet 4.6",
-  "Claude Haiku 4.5",
-  "GPT-5.3-Codex",
-  "GPT-5.4",
-  "GPT-4o",
-];
 
 const r = new Reporter("Agent Registry Validator");
 
@@ -39,7 +34,6 @@ function validateAgentEntry(key, entry, skillNames) {
           entry[variant].capability_skills,
           skillNames,
         );
-        validateModel(key, entry[variant].model);
       }
     }
     return;
@@ -47,7 +41,6 @@ function validateAgentEntry(key, entry, skillNames) {
 
   validateAgentFile(key, entry.agent);
   validateSkills(key, entry.skills, entry.capability_skills, skillNames);
-  validateModel(key, entry.model);
 }
 
 function validateAgentFile(key, agentPath) {
@@ -89,13 +82,6 @@ function validateSkills(key, skills, capabilitySkills, skillNames) {
         );
       }
     }
-  }
-}
-
-function validateModel(key, model) {
-  if (!model) return;
-  if (!KNOWN_MODELS.includes(model)) {
-    r.warn(`Agent "${key}"`, `unknown model "${model}"`);
   }
 }
 
