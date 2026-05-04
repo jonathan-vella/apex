@@ -1,6 +1,6 @@
 ---
 name: 09-Diagnose
-model: ["Claude Opus 4.7 (High reasoning)"]
+model: ["Claude Opus 4.7"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
 user-invocable: true
 agents: []
@@ -19,7 +19,6 @@ tools:
     "bicep/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,

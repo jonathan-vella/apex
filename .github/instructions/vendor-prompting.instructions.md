@@ -41,9 +41,9 @@ Applies when frontmatter `model:` matches `claude` (case-insensitive).
 - **`claude-output-contract-001`** — Artifact-producing agents
   (handoffs reference `agent-output/`) include `<output_contract>`.
 
-### OpenAI GPT-5.5 (gpt-5.5, gpt-5.4 in migration)
+### OpenAI GPT-5.5
 
-Applies when frontmatter `model:` matches `gpt-5.5` or `gpt-5.4`.
+Applies when frontmatter `model:` matches `gpt-5.5`.
 
 - **`gpt55-skeleton-001`** — Required H1 sections present (any order):
   `# Goal`, `# Success criteria`, `# Constraints`, `# Output`,
@@ -83,7 +83,7 @@ Applies when frontmatter `model:` matches `gpt-5.5` or `gpt-5.4`.
 | `claude-sonnet` | enforced      | All Claude rules at default severity           |
 | `claude-haiku`  | warn-only     | Severity downgrades to warn                    |
 | `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity          |
-| `gpt-5.4`       | warn-only     | Skeleton + stop-rules at warn (migration)      |
+| `gpt-5.4`       | deprecated    | Retired 2026-05; no active assignments         |
 | `gpt-codex`     | reviewer-only | No automated enforcement                       |
 | `gpt-4o`        | reviewer-only | No new enforcement                             |
 | `unknown`       | enforced      | ERROR — force explicit `model:` in frontmatter |

@@ -62,12 +62,6 @@
       "rule_subset_note": "All GPT-5.5 rules apply at default severity."
     },
     {
-      "family": "gpt-5.4",
-      "status": "warn-only",
-      "label_examples": ["GPT-5.4"],
-      "rule_subset_note": "Skeleton presence + stop-rules apply at warn (migration path)."
-    },
-    {
       "family": "gpt-codex",
       "status": "reviewer-only",
       "label_examples": ["GPT-5.3-Codex"],
@@ -179,12 +173,12 @@
       "source_anchor": "suggested-prompt-structure",
       "validator_check_id": "checkGpt55Skeleton",
       "promotion_date": "2026-09-01",
-      "family_overrides": [{ "family": "gpt-5.4", "severity": "info" }]
+      "family_overrides": []
     },
     {
       "id": "gpt-no-claude-xml-001",
       "vendor": "cross-vendor",
-      "model_families": ["gpt-5.5", "gpt-5.4"],
+      "model_families": ["gpt-5.5"],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>).",
@@ -301,7 +295,7 @@
     {
       "id": "personality-scoping-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.5", "gpt-5.4"],
+      "model_families": ["gpt-5.5"],
       "applies_to": "agent",
       "severity": "info",
       "summary": "# Personality block should appear only on user-facing agents (Orchestrator family); internal pipeline agents should omit it.",

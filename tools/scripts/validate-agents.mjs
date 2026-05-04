@@ -611,7 +611,7 @@ const FAMILY_STATUS = {
   "claude-haiku": "warn-only",
   claude: "warn-only",
   "gpt-5.5": "enforced",
-  "gpt-5.4": "warn-only",
+  "gpt-5.4": "deprecated",
   "gpt-codex": "reviewer-only",
   "gpt-4o": "reviewer-only",
   unknown: "enforced",
@@ -622,6 +622,7 @@ function effectiveSeverity(rule, family) {
   const base = rule.severity;
   const status = FAMILY_STATUS[family] || "enforced";
   if (status === "reviewer-only") return "info";
+  if (status === "deprecated") return "info";
   if (status === "warn-only") {
     if (base === "error") return "warn";
     return base;

@@ -10,9 +10,9 @@ consumable by `validate-agents.mjs`. Each rule references its ID in
 
 ## Applicable models
 
-GPT-5.5 (current OpenAI default). GPT-5.4 (migration target — see
-[gpt-5-upgrade.md](gpt-5-upgrade.md)). GPT-5.3-Codex and GPT-4o are
-reviewer-only.
+GPT-5.5 (current OpenAI default for the APEX OpenAI cohort). GPT-5.4 was retired
+2026-05 — see [gpt-5-upgrade.md](gpt-5-upgrade.md) for historical migration notes.
+GPT-5.3-Codex and GPT-4o are reviewer-only.
 
 ## Rule R-GPT-1 — Outcome-first skeleton
 

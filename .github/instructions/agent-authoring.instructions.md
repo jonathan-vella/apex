@@ -121,27 +121,25 @@ Always quote.
 
 Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so deliberately:
 
-- **Opus-first agents** (requirements, architect, iac-plan, diagnose, context-optimizer,
-  e2e-orchestrator) require deeper reasoning for architecture decisions, WAF assessments,
-  planning accuracy, and complex analysis
+- **Opus-first agents** (requirements, architect, iac-plan, context-optimizer)
+  use `Claude Opus 4.7 (High reasoning)` for architecture decisions, WAF assessments,
+  planning accuracy, and complex analysis. Diagnose uses base `Claude Opus 4.7`
+  (no reasoning suffix) so the interactive approval-first flow runs on default effort.
 - **Claude Sonnet 4.6 agents** (design, plus the four IaC validation/preview
   subagents `bicep-validate`, `bicep-whatif`, `terraform-validate`,
   `terraform-plan`): Anthropic prompting style (XML-tagged blocks, role-first,
   quote-grounded review, checklist-driven structured output) suits both ADR +
-  diagram authoring and structured PASS/FAIL findings better than the OpenAI
-  outcome-first style. Default Sonnet 4.6 effort is `high`; the Design agent
+  diagram authoring and the structured PASS/FAIL findings produced by the
+  validation subagents. Default Sonnet 4.6 effort is `high`; the Design agent
   and the four subagents pin effort to `medium` for typical work and only
   raise it for large change sets.
 - **GPT-5.5 agents** (orchestrator, orchestrator fast path, governance,
-  bicep codegen, terraform codegen, challenger wrapper, challenger-review-subagent)
+  bicep codegen, terraform codegen, challenger wrapper, challenger-review-subagent,
+  deploy (Bicep + Terraform), as-built, e2e-orchestrator)
   use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
   over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
   predecessors — re-evaluate `low`/`medium` reasoning effort before escalating
-- **GPT-5.4 workflow and execution agents** (as-built, deploy) prioritize strong
-  general reasoning for documentation generation and deployment execution. The
-  IaC validation/preview subagents previously on this tier moved to Sonnet 4.6
-  in the 2026-05 IaC subagent migration (see Sonnet 4.6 bullet above).
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
 
 #### GPT-5.5 prompting style (summary)
@@ -163,24 +161,25 @@ The migrated GPT-5.5 cohort follows the OpenAI GPT-5.5 prompting guide:
 
 Current model assignments:
 
-| Agent / Group            | Model                            | Rationale                 |
-| ------------------------ | -------------------------------- | ------------------------- |
-| Orchestrator             | GPT-5.5                          | Outcome-first orchestration |
-| Orchestrator (Fast Path) | GPT-5.5                          | Streamlined orchestration |
-| Requirements             | Claude Opus 4.7 (High reasoning) | Deep understanding        |
-| Architect                | Claude Opus 4.7 (High reasoning) | WAF analysis + cost       |
-| Design                   | Claude Sonnet 4.6                | Diagram + ADR authoring (Anthropic prompting style) |
-| Governance               | GPT-5.5                          | Procedural discovery      |
-| IaC Planner (unified)    | Claude Opus 4.7 (High reasoning) | Planning accuracy         |
-| Bicep / Terraform Code   | GPT-5.5                          | Code generation           |
-| Deploy                   | GPT-5.4                          | Deployment execution      |
-| As-Built                 | GPT-5.4                          | Documentation generation  |
-| Diagnose                 | Claude Opus 4.7 (High reasoning) | Complex troubleshooting   |
-| Context Optimizer        | Claude Opus 4.7 (High reasoning) | Deep analysis             |
-| Challenger wrapper       | GPT-5.5                          | Structured review         |
-| Challenger subagent      | GPT-5.5                          | Structured review         |
-| Bicep/TF validate+preview subagents | Claude Sonnet 4.6     | Isolated validation (Anthropic prompting style) |
-| Cost estimate subagent   | GPT-5.3-Codex                    | High-throughput pricing   |
+| Agent / Group                       | Model                            | Rationale                                    |
+| ----------------------------------- | -------------------------------- | -------------------------------------------- |
+| Orchestrator                        | GPT-5.5                          | Outcome-first orchestration                  |
+| Orchestrator (Fast Path)            | GPT-5.5                          | Streamlined orchestration                    |
+| Requirements                        | Claude Opus 4.7 (High reasoning) | Deep understanding                           |
+| Architect                           | Claude Opus 4.7 (High reasoning) | WAF analysis + cost                          |
+| Design                              | Claude Sonnet 4.6                | Diagram + ADR (Anthropic style)              |
+| Governance                          | GPT-5.5                          | Procedural discovery                         |
+| IaC Planner (unified)               | Claude Opus 4.7 (High reasoning) | Planning accuracy                            |
+| Bicep / Terraform Code              | GPT-5.5                          | Code generation                              |
+| Deploy (Bicep + TF)                 | GPT-5.5                          | Deployment execution (outcome-first)         |
+| As-Built                            | GPT-5.5                          | Documentation generation (outcome-first)     |
+| Diagnose                            | Claude Opus 4.7                  | Interactive troubleshooting (default effort) |
+| Context Optimizer                   | Claude Opus 4.7 (High reasoning) | Deep analysis                                |
+| E2E Orchestrator                    | GPT-5.5                          | Autonomous benchmark loop                    |
+| Challenger wrapper                  | GPT-5.5                          | Structured review                            |
+| Challenger subagent                 | GPT-5.5                          | Structured review                            |
+| Bicep/TF validate+preview subagents | Claude Sonnet 4.6                | Isolated validation (Anthropic style)        |
+| Cost estimate subagent              | GPT-5.3-Codex                    | High-throughput pricing                      |
 
 **Source-of-truth chain:**
 
@@ -403,7 +402,7 @@ apply the patterns below based on the `model:` field in the file's YAML frontmat
 Read the `model:` field from frontmatter and classify:
 
 - **Claude family**: any value containing `Claude Opus`, `Claude Sonnet`, or `Claude Haiku`
-- **GPT family**: any value containing `GPT-5.4`, `GPT-5.3-Codex`, or `GPT-4o`
+- **GPT family**: any value containing `GPT-5.5`, `GPT-5.4`, `GPT-5.3-Codex`, or `GPT-4o`
 
 If `model:` is an array, classify by the first entry.
 
@@ -437,7 +436,7 @@ be 3-5 lines. Place them after the first `#` heading, before the body content.
 
 ### GPT-Specific Patterns
 
-Sources: OpenAI prompt engineering documentation, GPT-5.4 system prompt guidance.
+Sources: OpenAI prompt engineering documentation, GPT-5.5 system prompt guidance.
 
 #### Structure Over XML
 
@@ -485,7 +484,7 @@ Output: 02-architecture-assessment.md and 03-des-cost-estimate.md."`
 #### Prompt File Model Sync
 
 The `model:` field in a `.prompt.md` file must match the corresponding agent's
-frontmatter `model:` value. If the agent uses `GPT-5.4`, the prompt must too.
+frontmatter `model:` value. If the agent uses `GPT-5.5`, the prompt must too.
 
 Run `npm run lint:model-alignment` to catch mismatches.
 

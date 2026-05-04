@@ -14,22 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- feat(agents): migrate the four IaC validation/preview subagents
-  (`bicep-validate-subagent`, `bicep-whatif-subagent`,
-  `terraform-validate-subagent`, `terraform-plan-subagent`) from `GPT-5.4`
-  to `Claude Sonnet 4.6` and rewrite each body in Anthropic prompting style
-  (XML-tagged skeleton, effort pinned to `medium`, decision-rule boundaries).
-  Existing text-shaped output contracts preserved verbatim so the parent IaC
-  and deploy agents' parsers are unaffected. Deploy agents (07b, 07t) stay on
-  `GPT-5.4` and gain a one-line `## Subagent Budget` cross-family note.
-  `Claude Sonnet 4.6` `use_for` expanded to include `iac-validation` and
-  `deployment-preview`.
-- feat(agents): revert 04-Design from `GPT-5.5` to `Claude Sonnet 4.6` and
-  rewrite the agent body in Anthropic prompting-best-practices style
-  (XML-tagged blocks, role-first, multishot example, quote-grounded ADR
-  drafting, Sonnet 4.6 effort calibration). Draw.io MCP workflow preserved
-  verbatim. `Claude Sonnet 4.6` un-deprecated in the catalog (retained for
-  Step 3 Design only); the other Sonnet-cohort agents stay on GPT-5.5.
+- feat(agents): migrate the three remaining GPT-5.4 main agents
+  (`07b-bicep-deploy`, `07t-terraform-deploy`, `08-as-built`) to `GPT-5.5`
+  with outcome-first body rewrites. `08-as-built` gains a `## Subagent
+Budget` H2. `GPT-5.4` flipped to `deprecated: true` with zero remaining
+  active assignments — the GPT-5.4 cohort is fully retired. `GPT-5.5`
+  `use_for` adds `deployment-execution` and `as-built-documentation`.
+  `as-built-from-azure.prompt.md` ↔ 08-As-Built cross-family gap closed;
+  orphan `review-imported-iac.prompt.md` migrated to GPT-5.5.
+  `lint-model-alignment.mjs` gains a `gpt-5.5` classifier branch
+  (pre-existing blind spot). `.github/skills/vendor-prompting/rules.json`
+  cleaned of retired GPT-5.4 family entry and overrides.
+  `e2e-orchestrator` migrated to `GPT-5.5` and rewritten in the
+  outcome-first style. Catalog gains a `Claude Opus 4.7` entry (no suffix)
+  used by `09-Diagnose`.
 - feat(agents): migrate the Orchestrator (was Claude Opus 4.7 (High reasoning))
   and the Sonnet 4.6 cohort (Orchestrator Fast Path, Design, Governance,
   Bicep CodeGen, Terraform CodeGen, Challenger, challenger-review-subagent)

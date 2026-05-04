@@ -24,7 +24,6 @@ tools:
     "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
@@ -60,7 +59,7 @@ This subagent does not:
   `Status: FAIL` with a remediation step instead of running `az login`.
 - Estimate cost from scratch — it reuses the parent agent's cost-estimate
   artifact (or marks the cost section as `unavailable`).
-</scope_fencing>
+  </scope_fencing>
 
 <output_contract>
 Return results in this exact text shape. The status keyword in the second
@@ -115,7 +114,7 @@ Before composing the response:
    etc.) and the offending resource id verbatim.
 5. If the cost section cannot be filled (no estimate provided by parent),
    write `unavailable` for each line rather than fabricating a number.
-</investigate_before_answering>
+   </investigate_before_answering>
 
 ## Effort calibration
 
@@ -169,18 +168,18 @@ naming the missing field — do not guess defaults.
    ```
 
    For subscription-scoped deployments substitute `az deployment sub
-   what-if --location {location}`.
+what-if --location {location}`.
 
 4. **Classify changes** using the table below.
 
-   | Symbol | changeType    | Meaning                       | Risk |
-   | ------ | ------------- | ----------------------------- | ---- |
-   | `+`    | `Create`      | New resource                  | Low  |
-   | `~`    | `Modify`      | Existing resource changing    | Med  |
-   | `-`    | `Delete`      | Resource being removed        | High |
-   | `=`    | `Deploy`      | No-op deploy                  | None |
-   | `*`    | `Ignore`      | Excluded from this deployment | None |
-   |        | `NoChange`    | Untouched                     | None |
+   | Symbol | changeType | Meaning                       | Risk |
+   | ------ | ---------- | ----------------------------- | ---- |
+   | `+`    | `Create`   | New resource                  | Low  |
+   | `~`    | `Modify`   | Existing resource changing    | Med  |
+   | `-`    | `Delete`   | Resource being removed        | High |
+   | `=`    | `Deploy`   | No-op deploy                  | None |
+   | `*`    | `Ignore`   | Excluded from this deployment | None |
+   |        | `NoChange` | Untouched                     | None |
 
 5. **Detect policy issues** — scan the JSON for `PolicyViolation`,
    `PolicyWarning`, `MissingTags`, `DisallowedSKU`, `DisallowedLocation`,
@@ -211,10 +210,12 @@ resource_group: rg-demo-dev-swc
 What-if JSON snippet:
 
 ```json
-{ "changes": [
-  { "changeType": "Create", "resourceId": ".../storageAccounts/stdemo1234" },
-  { "changeType": "Delete", "resourceId": ".../storageAccounts/stlegacy" }
-]}
+{
+  "changes": [
+    { "changeType": "Create", "resourceId": ".../storageAccounts/stdemo1234" },
+    { "changeType": "Delete", "resourceId": ".../storageAccounts/stlegacy" }
+  ]
+}
 ```
 
 Resulting findings (abridged):

@@ -154,7 +154,7 @@
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "Claude Opus 4.7",
       "skills": ["azure-diagnostics", "azure-defaults"],
       "capability_skills": ["microsoft-docs", "microsoft-code-reference"],
       "invokable": true,
@@ -176,7 +176,7 @@
     },
     "e2e-orchestrator": {
       "agent": ".github/agents/e2e-orchestrator.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "GPT-5.5",
       "skills": ["azure-defaults", "azure-artifacts"],
       "capability_skills": ["workflow-engine", "context-shredding"],
       "invokable": false,

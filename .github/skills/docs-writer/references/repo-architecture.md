@@ -41,35 +41,35 @@ See `tools/registry/count-manifest.json` for canonical counts.
 
 ### Primary Agents
 
-| Agent               | File                                | Model      | Step | Artifacts                       |
-| ------------------- | ----------------------------------- | ---------- | ---- | ------------------------------- |
-| Orchestrator        | `01-orchestrator.agent.md`          | GPT-5.5                          | All  | Orchestration                   |
-| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | GPT-5.5                          | All  | Fast-path orchestration         |
-| Requirements        | `02-requirements.agent.md`          | Opus 4.7 (High reasoning)        | 1    | `01-requirements.md`            |
-| Architect           | `03-architect.agent.md`             | Opus 4.7 (High reasoning)        | 2    | `02-architecture-assessment.md` |
-| Design              | `04-design.agent.md`                | Sonnet 4.6                       | 3    | `03-des-*.{drawio,py,png,md}`   |
-| Governance          | `04g-governance.agent.md`           | GPT-5.5                          | 3.5  | `04-governance-constraints.md`  |
-| IaC Plan            | `05-iac-planner.agent.md`           | Opus 4.7 (High reasoning)        | 4    | `04-implementation-plan.md`     |
-| Bicep Code          | `06b-bicep-codegen.agent.md`        | GPT-5.5                          | 5b   | Bicep in `infra/bicep/`         |
-| Bicep Deploy        | `07b-bicep-deploy.agent.md`         | GPT-5.4                          | 6b   | `06-deployment-summary.md`      |
-| Terraform Code      | `06t-terraform-codegen.agent.md`    | GPT-5.5                          | 5t   | Terraform in `infra/terraform/` |
-| Terraform Deploy    | `07t-terraform-deploy.agent.md`     | GPT-5.4                          | 6t   | `06-deployment-summary.md`      |
-| As-Built            | `08-as-built.agent.md`              | GPT-5.4                          | 7    | `07-ab-*.md` docs suite         |
-| Diagnose            | `09-diagnose.agent.md`              | Opus 4.7 (High reasoning)        | —    | Diagnostic reports              |
-| Challenger          | `10-challenger.agent.md`            | GPT-5.5                          | —    | Challenge findings              |
-| Context Optimizer   | `11-context-optimizer.agent.md`     | Opus 4.7 (High reasoning)        | —    | Optimization reports            |
-| E2E Orchestrator    | `e2e-orchestrator.agent.md`         | Opus 4.7 (High reasoning)        | All  | E2E evaluation loop             |
+| Agent               | File                                | Model                     | Step | Artifacts                       |
+| ------------------- | ----------------------------------- | ------------------------- | ---- | ------------------------------- |
+| Orchestrator        | `01-orchestrator.agent.md`          | GPT-5.5                   | All  | Orchestration                   |
+| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | GPT-5.5                   | All  | Fast-path orchestration         |
+| Requirements        | `02-requirements.agent.md`          | Opus 4.7 (High reasoning) | 1    | `01-requirements.md`            |
+| Architect           | `03-architect.agent.md`             | Opus 4.7 (High reasoning) | 2    | `02-architecture-assessment.md` |
+| Design              | `04-design.agent.md`                | Sonnet 4.6                | 3    | `03-des-*.{drawio,py,png,md}`   |
+| Governance          | `04g-governance.agent.md`           | GPT-5.5                   | 3.5  | `04-governance-constraints.md`  |
+| IaC Plan            | `05-iac-planner.agent.md`           | Opus 4.7 (High reasoning) | 4    | `04-implementation-plan.md`     |
+| Bicep Code          | `06b-bicep-codegen.agent.md`        | GPT-5.5                   | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy        | `07b-bicep-deploy.agent.md`         | GPT-5.5                   | 6b   | `06-deployment-summary.md`      |
+| Terraform Code      | `06t-terraform-codegen.agent.md`    | GPT-5.5                   | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy    | `07t-terraform-deploy.agent.md`     | GPT-5.5                   | 6t   | `06-deployment-summary.md`      |
+| As-Built            | `08-as-built.agent.md`              | GPT-5.5                   | 7    | `07-ab-*.md` docs suite         |
+| Diagnose            | `09-diagnose.agent.md`              | Opus 4.7                  | —    | Diagnostic reports              |
+| Challenger          | `10-challenger.agent.md`            | GPT-5.5                   | —    | Challenge findings              |
+| Context Optimizer   | `11-context-optimizer.agent.md`     | Opus 4.7 (High reasoning) | —    | Optimization reports            |
+| E2E Orchestrator    | `e2e-orchestrator.agent.md`         | GPT-5.5                   | All  | E2E evaluation loop             |
 
 ### Validation Subagents (in `_subagents/`)
 
-| Subagent                    | File                                   | Model             | Purpose                             |
-| --------------------------- | -------------------------------------- | ----------------- | ----------------------------------- |
-| bicep-validate-subagent     | `bicep-validate-subagent.agent.md`     | Sonnet 4.6        | Lint + AVM/security code review     |
-| bicep-whatif-subagent       | `bicep-whatif-subagent.agent.md`       | Sonnet 4.6        | Deployment preview (what-if)        |
-| challenger-review-subagent  | `challenger-review-subagent.agent.md`  | GPT-5.5           | Adversarial artifact review         |
-| cost-estimate-subagent      | `cost-estimate-subagent.agent.md`      | GPT-5.3-Codex     | Azure Pricing MCP queries           |
-| terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Sonnet 4.6        | Deployment preview (terraform plan) |
-| terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Sonnet 4.6        | Lint + AVM-TF/security code review  |
+| Subagent                    | File                                   | Purpose                             |
+| --------------------------- | -------------------------------------- | ----------------------------------- |
+| bicep-validate-subagent     | `bicep-validate-subagent.agent.md`     | Lint + AVM/security code review     |
+| bicep-whatif-subagent       | `bicep-whatif-subagent.agent.md`       | Deployment preview (what-if)        |
+| challenger-review-subagent  | `challenger-review-subagent.agent.md`  | Adversarial artifact review         |
+| cost-estimate-subagent      | `cost-estimate-subagent.agent.md`      | Azure Pricing MCP queries           |
+| terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Deployment preview (terraform plan) |
+| terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Lint + AVM-TF/security code review  |
 
 ### Shared Knowledge (via Skills)
 
@@ -211,15 +211,15 @@ Implementation → Deploy       → Documentation
 These files contain counts, tables, or version references that need
 updating when agents or skills change:
 
-| File                                    | Contains                                |
-| --------------------------------------- | --------------------------------------- |
-| `site/src/content/docs/`                | Published documentation pages           |
-| `docs.instructions.md`                  | Site docs standards                     |
-| `QUALITY_SCORE.md`                      | Project health grades (doc-gardening)   |
+| File                                          | Contains                                |
+| --------------------------------------------- | --------------------------------------- |
+| `site/src/content/docs/`                      | Published documentation pages           |
+| `docs.instructions.md`                        | Site docs standards                     |
+| `QUALITY_SCORE.md`                            | Project health grades (doc-gardening)   |
 | `tools/tests/exec-plans/tech-debt-tracker.md` | Tech debt inventory                     |
-| `VERSION.md`                            | Canonical version number                |
-| `CHANGELOG.md`                          | Release history                         |
-| `README.md` (root)                      | Overview, project structure, tech stack |
+| `VERSION.md`                                  | Canonical version number                |
+| `CHANGELOG.md`                                | Release history                         |
+| `README.md` (root)                            | Overview, project structure, tech stack |
 
 ## docs/ Folder Contents
 

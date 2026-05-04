@@ -23,7 +23,6 @@ tools:
     "azure-mcp/*",
     "microsoft-learn/*",
     todo,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
@@ -63,7 +62,7 @@ This subagent does not:
   replaces are surfaced for explicit human approval.
 - Run `terraform validate` or `tfsec` (those belong to
   `terraform-validate-subagent`).
-</scope_fencing>
+  </scope_fencing>
 
 <output_contract>
 Return results in this exact text shape. The `Status:` keyword and the
@@ -106,7 +105,7 @@ Status mapping:
   approval before any apply.
 - `FAIL` — plan error (auth, provider, config) or any policy
   violation surfaced by the provider.
-</output_contract>
+  </output_contract>
 
 <investigate_before_answering>
 Before composing the response:
@@ -115,7 +114,7 @@ Before composing the response:
    session can succeed with confusing or incomplete output.
 2. Run `terraform plan -out=tfplan -input=false`, then re-parse the
    plan with `terraform show -json tfplan | jq '.resource_changes[] |
-   {address, actions: .change.actions}'`.
+{address, actions: .change.actions}'`.
 3. Quote the exact `address` and `actions` array from the JSON output
    for every entry under `Resource Changes`. Paraphrasing is a defect.
 4. For every destroy or replace, copy the resource address verbatim
@@ -124,7 +123,7 @@ Before composing the response:
 5. When the plan errors out, copy the first error line verbatim under
    `Recommendation` so the parent agent can route it to the correct
    remediation.
-</investigate_before_answering>
+   </investigate_before_answering>
 
 ## Effort calibration
 
@@ -213,12 +212,12 @@ guess defaults.
 
 8. **Surface known error patterns** under `Recommendation`:
 
-   | Error fragment                          | Likely cause                         |
-   | --------------------------------------- | ------------------------------------ |
-   | `Error: building AzureRM Client`        | Authentication; re-run `az login`    |
-   | `Error: Provider configuration not present` | Missing `terraform init`         |
-   | `Error: Unsupported argument`           | AVM module version mismatch          |
-   | `RequestDisallowedByPolicy`             | Azure Policy block; see governance   |
+   | Error fragment                              | Likely cause                       |
+   | ------------------------------------------- | ---------------------------------- |
+   | `Error: building AzureRM Client`            | Authentication; re-run `az login`  |
+   | `Error: Provider configuration not present` | Missing `terraform init`           |
+   | `Error: Unsupported argument`               | AVM module version mismatch        |
+   | `RequestDisallowedByPolicy`                 | Azure Policy block; see governance |
 
 9. **Compose response** — fill the `<output_contract>` shape, apply
    the status mapping, then stop.
@@ -238,12 +237,18 @@ var_file: environments/dev.tfvars
 Plan JSON snippet:
 
 ```json
-{ "resource_changes": [
-  { "address": "azurerm_storage_account.demo",
-    "change": { "actions": ["create"] } },
-  { "address": "azurerm_key_vault.legacy",
-    "change": { "actions": ["delete", "create"] } }
-]}
+{
+  "resource_changes": [
+    {
+      "address": "azurerm_storage_account.demo",
+      "change": { "actions": ["create"] }
+    },
+    {
+      "address": "azurerm_key_vault.legacy",
+      "change": { "actions": ["delete", "create"] }
+    }
+  ]
+}
 ```
 
 Resulting findings (abridged):

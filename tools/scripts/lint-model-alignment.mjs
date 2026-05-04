@@ -36,6 +36,7 @@ function classifyModel(modelStr) {
   if (lower.includes("claude sonnet")) return "claude-sonnet";
   if (lower.includes("claude haiku")) return "claude-haiku";
   if (lower.includes("claude")) return "claude";
+  if (lower.includes("gpt-5.5")) return "gpt-5.5";
   if (lower.includes("gpt-5.4")) return "gpt-5.4";
   if (lower.includes("gpt-5.3") || lower.includes("codex")) return "gpt-codex";
   if (lower.includes("gpt-4o")) return "gpt-4o";

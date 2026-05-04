@@ -12,10 +12,19 @@
         "orchestration",
         "architecture",
         "iac-planning",
-        "diagnosis",
         "context-optimization"
       ],
-      "notes": "Highest-reasoning tier. Reserve for steps with creative or multi-artifact decisions."
+      "notes": "Highest-reasoning tier. Reserve for steps with creative or multi-artifact decisions (Requirements, Architect, IaC Planner, Context Optimizer)."
+    },
+    "Claude Opus 4.7": {
+      "vendor": "Anthropic",
+      "tier": "frontier",
+      "released": "2026-05",
+      "deprecated": false,
+      "use_for": [
+        "diagnosis"
+      ],
+      "notes": "Base Opus 4.7 SKU (no reasoning effort suffix). Used by 09-Diagnose where the interactive approval-first flow benefits from default reasoning effort. For high-effort planning/architecture work, prefer 'Claude Opus 4.7 (High reasoning)'."
     },
     "Claude Opus 4.6": {
       "vendor": "Anthropic",
@@ -65,14 +74,14 @@
       "use_for": [
         "orchestration",
         "fast-path-orchestration",
-        "design-diagrams",
-        "iac-codegen",
         "governance",
-        "challenger-review",
+        "iac-codegen",
         "deployment-execution",
-        "as-built-documentation"
+        "as-built-documentation",
+        "challenger-review",
+        "e2e-evaluation"
       ],
-      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 also covers deploy (Bicep + Terraform) and as-built documentation (was GPT-5.4)."
+      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 also covers deploy (Bicep + Terraform), as-built documentation, and the e2e-orchestrator (was GPT-5.4 / Opus 4.7 respectively)."
     },
     "GPT-5.3-Codex": {
       "vendor": "OpenAI",
@@ -112,10 +121,10 @@
       "07b-bicep-deploy.agent.md": "GPT-5.5",
       "07t-terraform-deploy.agent.md": "GPT-5.5",
       "08-as-built.agent.md": "GPT-5.5",
-      "09-diagnose.agent.md": "Claude Opus 4.7 (High reasoning)",
+      "09-diagnose.agent.md": "Claude Opus 4.7",
       "10-challenger.agent.md": "GPT-5.5",
       "11-context-optimizer.agent.md": "Claude Opus 4.7 (High reasoning)",
-      "e2e-orchestrator.agent.md": "Claude Opus 4.7 (High reasoning)"
+      "e2e-orchestrator.agent.md": "GPT-5.5"
     },
     "subagents": {
       "bicep-validate-subagent.agent.md": "Claude Sonnet 4.6",

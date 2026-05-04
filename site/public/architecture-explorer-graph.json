@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-04T18:26:51.371Z",
+  "generatedAt": "2026-05-04T19:28:21.536Z",
   "categories": [
     {
       "id": "agent",
@@ -323,7 +323,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "bicep-whatif-subagent",
@@ -348,7 +348,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "terraform-plan-subagent",
@@ -373,7 +373,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/08-as-built.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent"
@@ -394,7 +394,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7 (High reasoning)",
+        "model": "Claude Opus 4.7",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -455,7 +455,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7 (High reasoning)",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "02-Requirements",

@@ -100,7 +100,7 @@ pre-commit:
       fail_text: |
         ❌ Agent validation failed!
 
-        Checks: frontmatter syntax, model-prompt alignment, body size (<400 lines),
+        Checks: frontmatter syntax, model-prompt alignment, body size (<500 lines),
         language density (<5 absolute terms per 100 lines)
         📚 Reference: .github/instructions/agent-authoring.instructions.md
 

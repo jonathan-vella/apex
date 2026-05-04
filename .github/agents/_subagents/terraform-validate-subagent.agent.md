@@ -23,7 +23,6 @@ tools:
     "azure-mcp/*",
     "microsoft-learn/*",
     todo,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
@@ -70,7 +69,7 @@ This subagent does not:
 - Re-run governance discovery — it consumes the constraints artifact only.
 - Approve RBAC exceptions — it surfaces missing
   `RBAC_EXCEPTION_APPROVED` markers as CRITICAL findings for the parent.
-</scope_fencing>
+  </scope_fencing>
 
 <output_contract>
 Return results in this exact text shape. Field names and section order are
@@ -134,7 +133,7 @@ Before composing findings:
 6. If a check cannot be evaluated because a file or skill is missing,
    record it under `⚠️ Warnings` with the missing artifact named, rather
    than silently skipping.
-</investigate_before_answering>
+   </investigate_before_answering>
 
 ## Effort calibration
 
@@ -206,13 +205,13 @@ Run the checklist below over every `.tf` file under `module_path`.
 5. **Code quality** — the table below is non-negotiable for the listed
    severities:
 
-   | Check                      | Severity | Detail                                                |
-   | -------------------------- | -------- | ----------------------------------------------------- |
-   | `description` on variables | MEDIUM   | Every `variable` block has a `description`            |
+   | Check                      | Severity | Detail                                                                  |
+   | -------------------------- | -------- | ----------------------------------------------------------------------- |
+   | `description` on variables | MEDIUM   | Every `variable` block has a `description`                              |
    | Module organization        | LOW      | Logical split (`main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`) |
-   | No hardcoded values        | HIGH     | Configurable values flow through variables            |
-   | Outputs defined            | MEDIUM   | Resource ids and endpoints exposed as `output`        |
-   | `terraform fmt` clean      | LOW      | No format drift                                       |
+   | No hardcoded values        | HIGH     | Configurable values flow through variables                              |
+   | Outputs defined            | MEDIUM   | Resource ids and endpoints exposed as `output`                          |
+   | `terraform fmt` clean      | LOW      | No format drift                                                         |
 
 6. **Governance compliance** — see `### 7. Governance Compliance`
    below for the full checklist. An unresolved policy violation forces

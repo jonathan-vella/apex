@@ -414,12 +414,12 @@ All steps below happen in **one turn** — do NOT end your turn between them.
    signal to start fresh.** It only means apex-recall has no record of this
    project name. Before treating the project as new, you MUST also:
    a. Check whether `agent-output/{project}/00-handoff.md` exists — if so,
-      parse it for the completed-steps checklist and key decisions, then
-      resume from there.
+   parse it for the completed-steps checklist and key decisions, then
+   resume from there.
    b. List `agent-output/{project}/` and look for any numbered artifacts
-      (`01-requirements.md`, `02-architecture-assessment.md`, etc.). If any
-      exist, infer the last completed step from artifact numbering and
-      resume from the next step — do not overwrite prior work.
+   (`01-requirements.md`, `02-architecture-assessment.md`, etc.). If any
+   exist, infer the last completed step from artifact numbering and
+   resume from the next step — do not overwrite prior work.
 3. Only when **all three** signals are absent (no apex-recall state, no
    `00-handoff.md`, and no numbered artifacts in `agent-output/{project}/`)
    should you treat this as a brand-new project and follow
@@ -454,18 +454,19 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-| Tier     | Model                            | Used For                                                       |
-| -------- | -------------------------------- | -------------------------------------------------------------- |
-| `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Diagnose, Context        |
-| `medium` | GPT-5.5                          | Orchestrator, Fast Path, Design, Governance, Code Gen, Challenger, Deploy, As-Built |
-| `mixed`  | _See registry footnote below_    | Validation/Cost subagents                                      |
+| Tier     | Model                            | Used For                                                                             |
+| -------- | -------------------------------- | ------------------------------------------------------------------------------------ |
+| `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Context Optimizer, E2E Orchestrator            |
+| `base`   | Claude Opus 4.7                  | Diagnose (interactive approval-first flow uses default reasoning effort)             |
+| `medium` | GPT-5.5                          | Orchestrator, Fast Path, Governance, CodeGen, Deploy, As-Built, Challenger, E2E loop |
+| `medium` | Claude Sonnet 4.6                | Design, Bicep/Terraform validate + preview subagents (Anthropic prompting style)     |
+| `codex`  | GPT-5.3-Codex                    | Cost estimate subagent (parametric pricing)                                          |
 
-> Footnote: validation and cost subagents (bicep-validate, bicep-whatif, terraform-validate,
-> terraform-plan, cost-estimate) map to Claude Sonnet 4.6 / GPT-5.3-Codex on a per-subagent
-> basis. The single low-tier row that previously existed has been retired because there is
-> no longer a one-to-one tier→model mapping. The canonical assignments live in
+> The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and
-> are mirrored into [.github/model-catalog.json](../model-catalog.json) `assignments`.
+> are mirrored into [.github/model-catalog.json](../model-catalog.json) `assignments`
+> by `tools/scripts/generate-model-catalog.mjs`. Agent frontmatter is the single
+> source of truth.
 
 ## Boundaries
 

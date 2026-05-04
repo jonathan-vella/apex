@@ -24,7 +24,6 @@ tools:
     "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azure-github-copilot/azure_recommend_custom_modes,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
     ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
@@ -65,7 +64,7 @@ This subagent does not:
 - Run `az deployment ... what-if` (that is `bicep-whatif-subagent`'s job).
 - Deploy infrastructure or call `azd up` / `az deployment ... create`.
 - Re-run governance discovery — it consumes the constraints artifact only.
-</scope_fencing>
+  </scope_fencing>
 
 <output_contract>
 Return results in this exact text shape. Field names and section order are
@@ -122,7 +121,7 @@ Before composing findings:
 5. If a check cannot be evaluated because a file or skill is missing, record
    it under `⚠️ Warnings` with the missing artifact named, rather than
    silently skipping.
-</investigate_before_answering>
+   </investigate_before_answering>
 
 ## Effort calibration
 

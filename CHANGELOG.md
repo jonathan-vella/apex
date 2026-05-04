@@ -20,36 +20,27 @@ for full details on this and all prior releases.
 
 ### Added
 
-- feat(agents): migrate the four IaC validation/preview subagents
-  (`bicep-validate-subagent`, `bicep-whatif-subagent`,
-  `terraform-validate-subagent`, `terraform-plan-subagent`) from `GPT-5.4`
-  to `Claude Sonnet 4.6` and rewrite each body in Anthropic prompting style.
-  Bodies use the XML-tagged skeleton (`<role>`, `<context_awareness>`,
-  `<scope_fencing>`, `<output_contract>`, `<investigate_before_answering>`,
-  `<example>`), pin reasoning effort to `medium` for structured I/O, and
-  convert ALWAYS/NEVER absolutes to scoped decision rules. The existing
-  text-shaped output contracts (`BICEP VALIDATION RESULT`,
-  `WHAT-IF ANALYSIS RESULT`, `TERRAFORM VALIDATION RESULT`,
-  `TERRAFORM PLAN RESULT`) are preserved verbatim, so the parent IaC and
-  deploy agents' parsers are unaffected. The deploy agents (07b, 07t)
-  remain on `GPT-5.4` and now carry a one-line `## Subagent Budget` note
-  flagging the cross-family call. `Claude Sonnet 4.6` `use_for` expanded to
-  include `iac-validation` and `deployment-preview`. Main GPT-5.4 agents
-  (07b, 07t, 08), `as-built-from-azure.prompt.md` (GPT-5.5), and
-  `cost-estimate-subagent` (GPT-5.3-Codex) are unchanged.
-- feat(agents): revert 04-Design from `GPT-5.5` to `Claude Sonnet 4.6` and
-  rewrite the agent body in Anthropic prompting-best-practices style. The
-  Design agent now uses XML-tagged blocks (`<role>`, `<context_awareness>`,
-  `<scope_fencing>`, `<output_contract>`, `<investigate_before_answering>`,
-  `<example>`), a role-first opening, multishot example for ADR + Draw.io
-  cell payloads, quote-grounded ADR drafting, Sonnet 4.6-specific effort
-  guidance (pin `medium` for typical work; raise to `high` only when
-  comparing layouts or alternatives), and decision-rule boundaries instead
-  of ALWAYS/NEVER absolutes. The Draw.io MCP-driven workflow contract is
-  preserved verbatim. `Claude Sonnet 4.6` flipped back to `deprecated: false`
-  in `.github/model-catalog.json` and `notes` updated to reflect that it is
-  retained for Step 3 Design only. The other Sonnet-cohort agents stay on
-  GPT-5.5.
+- feat(agents): migrate the three remaining GPT-5.4 main agents
+  (`07b-bicep-deploy`, `07t-terraform-deploy`, `08-as-built`) to `GPT-5.5`
+  with outcome-first body rewrites (`Role` / `# Goal` / `# Success criteria`
+  / `# Constraints` / `# Output` / `# Stop rules`). `08-as-built` gains a
+  `## Subagent Budget` H2 for symmetry with the deploy agents. `GPT-5.4`
+  flipped to `deprecated: true` in `.github/model-catalog.json` with zero
+  remaining active assignments — the GPT-5.4 cohort is fully retired.
+  `GPT-5.5` `use_for` adds `deployment-execution` and
+  `as-built-documentation`. The cross-family gap between
+  `as-built-from-azure.prompt.md` (GPT-5.5) and its target `08-As-Built`
+  agent is closed (both same-family). The orphan
+  `review-imported-iac.prompt.md` (previously GPT-5.4) is also migrated to
+  `GPT-5.5`. `lint-model-alignment.mjs` gains a `gpt-5.5` classifier branch
+  (pre-existing blind spot — every existing GPT-5.5 agent previously
+  classified as `unknown`). `.github/skills/vendor-prompting/rules.json`
+  cleaned of retired GPT-5.4 family registry entry,
+  `gpt55-skeleton-001.family_overrides`, and
+  `gpt-no-claude-xml-001`/`personality-scoping-001` `model_families` arrays.
+  `e2e-orchestrator` (was Claude Opus 4.7 (High reasoning), now `GPT-5.5`)
+  also rewritten in the GPT-5.5 outcome-first style. Catalog gains a new
+  `Claude Opus 4.7` (no reasoning suffix) entry used by `09-Diagnose`.
 - feat(agents): migrate the Orchestrator (was Claude Opus 4.7 (High reasoning))
   and the Sonnet 4.6 cohort (Orchestrator Fast Path, Design, Governance,
   Bicep CodeGen, Terraform CodeGen, Challenger, challenger-review-subagent)
