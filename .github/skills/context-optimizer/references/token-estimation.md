@@ -52,7 +52,7 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 | Claude Opus 4.7 (High reasoning) | 200K tokens    | ~160K tokens          |
 | GPT-5.3-Codex   | 128K tokens    | ~102K tokens          |
 | gpt-4o-mini     | 128K tokens    | ~102K tokens          |
-| Claude Sonnet 4 | 200K tokens    | ~160K tokens          |
+| Claude Sonnet 4.6 | 200K tokens    | ~160K tokens          |
 
 The "practical limit" accounts for output generation headroom.
 Quality typically degrades before hitting the hard limit.
