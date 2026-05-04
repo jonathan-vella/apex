@@ -54,35 +54,48 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 > per-turn budget is **not publicly published** per model in the GitHub
 > Copilot supported-models docs.[^gh] Treat the vendor-native value as an
 > upper bound for tokenization math (e.g. fits-in-prompt sanity checks),
-> not as the effective per-turn ceiling Copilot Chat will allow.
+> not as the effective per-turn ceiling Copilot Chat will allow. The
+> "VS Code Copilot Chat" column captures the budget that actually binds
+> in interactive use; numbers there are operator-confirmed, not
+> vendor-published — open a PR with evidence (debug log, request inspector
+> screenshot) to refine an `unverified` entry.
 
-| Model                            | Vendor-native context | Vendor-native max output | Source        |
-| -------------------------------- | --------------------- | ------------------------ | ------------- |
-| Claude Opus 4.7 (High reasoning) | 1,000,000 tokens      | 128,000 tokens           | Anthropic[^a] |
-| Claude Sonnet 4.6                | 1,000,000 tokens      | 64,000 tokens            | Anthropic[^a] |
-| GPT-5.5                          | 400,000 tokens        | 128,000 tokens           | OpenAI[^o5]   |
-| GPT-5.4                          | 400,000 tokens        | 128,000 tokens           | OpenAI[^o5]   |
-| GPT-5.3-Codex                    | 400,000 tokens        | 128,000 tokens           | OpenAI[^oc]   |
+| Model                            | Vendor-native context | Vendor-native max output | VS Code Copilot Chat (per-turn) | Source              |
+| -------------------------------- | --------------------- | ------------------------ | ------------------------------- | ------------------- |
+| Claude Opus 4.7 (High reasoning) | 1,000,000 tokens      | 128,000 tokens           | 200,000 tokens (operator-confirmed) | Anthropic[^a] / VS Code Copilot |
+| Claude Sonnet 4.6                | 1,000,000 tokens      | 64,000 tokens            | unverified                      | Anthropic[^a]       |
+| GPT-5.5                          | 400,000 tokens        | 128,000 tokens           | unverified                      | OpenAI[^o5]         |
+| GPT-5.4                          | 400,000 tokens        | 128,000 tokens           | unverified                      | OpenAI[^o5]         |
+| GPT-5.3-Codex                    | 400,000 tokens        | 128,000 tokens           | unverified                      | OpenAI[^oc]         |
 
 Practical rule of thumb: keep the running prompt under ~80% of whichever
-budget binds first (Copilot's per-turn budget in interactive use, the
-vendor-native window in API math). Quality typically degrades before the
-hard limit due to attention dilution; the [`context-shredding`
+budget binds first — for interactive VS Code Copilot Chat work that is
+the per-turn budget (the rightmost column above), not the vendor-native
+window. For Opus 4.7 in VS Code, plan for ~160K of usable context, not
+800K. Quality typically degrades before the hard limit due to attention
+dilution; the [`context-shredding`
 skill](../../context-shredding/SKILL.md) governs the SKILL/digest/minimal
 tier loading APEX agents apply when a model's effective context is tight.
 
-[^gh]: GitHub Copilot — _Supported AI models in GitHub Copilot_ (the model
+[^gh]:
+    GitHub Copilot — _Supported AI models in GitHub Copilot_ (the model
     catalog and multipliers are listed; per-model per-turn context budgets
     for Copilot Chat are not published in this reference).
     <https://docs.github.com/en/copilot/reference/ai-models/supported-models>
-[^a]: Anthropic — _Models overview_ (latest models comparison table; values
+
+[^a]:
+    Anthropic — _Models overview_ (latest models comparison table; values
     apply to the synchronous Messages API).
     <https://platform.claude.com/docs/en/about-claude/models/overview>
-[^o5]: OpenAI — _GPT-5 model card_ (values apply across the GPT-5 family,
+
+[^o5]:
+    OpenAI — _GPT-5 model card_ (values apply across the GPT-5 family,
     including GPT-5.4 and GPT-5.5; GPT-5.5 is documented as inheriting all
     GPT-5.4 API features).
     <https://developers.openai.com/api/docs/models/gpt-5>
-[^oc]: OpenAI — _GPT-5-Codex model card_ (the GPT-5.x-Codex line shares the
+
+[^oc]:
+    OpenAI — _GPT-5-Codex model card_ (the GPT-5.x-Codex line shares the
     GPT-5 family context window).
     <https://developers.openai.com/api/docs/models/gpt-5-codex>
 
@@ -93,12 +106,12 @@ input-token count visible to the streaming response (`in`). Output length,
 streaming overhead, server load, and per-turn Copilot budgets all affect
 latency — re-benchmark on your own workflow before relying on them.
 
-| Model                            | < 5s     | 5-10s     | 10-20s     | 20-30s      | > 30s      |
-| -------------------------------- | -------- | --------- | ---------- | ----------- | ---------- |
-| Claude Opus 4.7 (High reasoning) | < 20K in | 20-60K in | 60-120K in | 120-200K in | Beyond     |
-| Claude Sonnet 4.6                | < 25K in | 25-70K in | 70-140K in | 140-220K in | Beyond     |
-| GPT-5.5                          | < 15K in | 15-45K in | 45-90K in  | 90-140K in  | Beyond     |
-| GPT-5.3-Codex                    | < 15K in | 15-40K in | 40-80K in  | 80-100K in  | Beyond     |
+| Model                            | < 5s     | 5-10s     | 10-20s     | 20-30s      | > 30s  |
+| -------------------------------- | -------- | --------- | ---------- | ----------- | ------ |
+| Claude Opus 4.7 (High reasoning) | < 20K in | 20-60K in | 60-120K in | 120-200K in | Beyond |
+| Claude Sonnet 4.6                | < 25K in | 25-70K in | 70-140K in | 140-220K in | Beyond |
+| GPT-5.5                          | < 15K in | 15-45K in | 45-90K in  | 90-140K in  | Beyond |
+| GPT-5.3-Codex                    | < 15K in | 15-40K in | 40-80K in  | 80-100K in  | Beyond |
 
 Reasoning effort matters: Sonnet 4.6 and GPT-5.5 default to `medium`,
 Opus 4.7 to `high` — `high` adds visible latency at every band.
