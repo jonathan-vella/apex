@@ -1,10 +1,8 @@
 ---
 description: "Generate as-built documentation for an existing Azure deployment with no prior artifacts. Discovers resources, collects requirements interactively, synthesizes pseudo-artifacts, then hands off to 08-As-Built."
 agent: "agent"
-# Intentionally GPT-5.5 even though this prompt invokes the GPT-5.4 08-As-Built agent.
-# The prompt-vs-agent label is the picker default for the user's session before
-# delegation; aligning to GPT-5.5 keeps prompt-author UX consistent across the
-# migrated prompt cohort. Cross-cohort handoff happens at delegation time.
+# Same-family with the 08-As-Built target agent (both GPT-5.5) after the 2026-05
+# deploy + as-built migration. Cross-family handoff risk has been eliminated.
 model: "GPT-5.5"
 tools:
   - vscode

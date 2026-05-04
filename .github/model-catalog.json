@@ -48,14 +48,14 @@
       "vendor": "OpenAI",
       "tier": "standard",
       "released": "2026-02",
-      "deprecated": false,
+      "deprecated": true,
       "use_for": [
         "deployment",
         "as-built",
         "validation-subagents",
         "whatif-interpretation"
       ],
-      "notes": "Strong structured output + tool use. Use for validators and deterministic subagents."
+      "notes": "Deprecated 2026-05 in favor of GPT-5.5 after deploy + as-built migration. Retained for audit history; not authorized for new agents."
     },
     "GPT-5.5": {
       "vendor": "OpenAI",
@@ -68,9 +68,11 @@
         "design-diagrams",
         "iac-codegen",
         "governance",
-        "challenger-review"
+        "challenger-review",
+        "deployment-execution",
+        "as-built-documentation"
       ],
-      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high."
+      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 also covers deploy (Bicep + Terraform) and as-built documentation (was GPT-5.4)."
     },
     "GPT-5.3-Codex": {
       "vendor": "OpenAI",
@@ -107,9 +109,9 @@
       "05-iac-planner.agent.md": "Claude Opus 4.7 (High reasoning)",
       "06b-bicep-codegen.agent.md": "GPT-5.5",
       "06t-terraform-codegen.agent.md": "GPT-5.5",
-      "07b-bicep-deploy.agent.md": "GPT-5.4",
-      "07t-terraform-deploy.agent.md": "GPT-5.4",
-      "08-as-built.agent.md": "GPT-5.4",
+      "07b-bicep-deploy.agent.md": "GPT-5.5",
+      "07t-terraform-deploy.agent.md": "GPT-5.5",
+      "08-as-built.agent.md": "GPT-5.5",
       "09-diagnose.agent.md": "Claude Opus 4.7 (High reasoning)",
       "10-challenger.agent.md": "GPT-5.5",
       "11-context-optimizer.agent.md": "Claude Opus 4.7 (High reasoning)",

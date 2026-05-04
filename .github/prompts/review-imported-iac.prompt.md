@@ -1,7 +1,10 @@
 ---
 name: review-imported-iac
 agent: agent
-model: GPT-5.4
+# Migrated 2026-05 to GPT-5.5 alongside the deploy + as-built cohort
+# retirement. Body reasoning style preserved verbatim; outcome-first skeleton not
+# applied (prompt is a procedural review checklist, not an agent body).
+model: GPT-5.5
 description: "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts."
 argument-hint: "Paste or select IaC, or provide a workspace path plus a project name"
 ---

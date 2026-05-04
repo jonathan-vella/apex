@@ -116,7 +116,7 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "GPT-5.4",
+        "model": "GPT-5.5",
         "skills": ["azure-defaults", "azure-artifacts", "iac-common"],
         "capability_skills": [
           "azure-validate",
@@ -126,7 +126,7 @@
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "GPT-5.4",
+        "model": "GPT-5.5",
         "skills": ["azure-defaults", "azure-artifacts", "iac-common"],
         "capability_skills": [
           "azure-validate",
@@ -140,7 +140,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "GPT-5.4",
+      "model": "GPT-5.5",
       "skills": [
         "azure-defaults",
         "azure-artifacts",

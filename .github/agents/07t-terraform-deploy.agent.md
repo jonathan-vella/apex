@@ -1,6 +1,6 @@
 ---
 name: 07t-Terraform Deploy
-model: ["GPT-5.4"]
+model: ["GPT-5.5"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
@@ -74,7 +74,7 @@ Context tiers: follow context-shredding skill.
 
 ## Subagent Budget
 
-This agent runs on `GPT-5.4`. The `terraform-plan-subagent` it delegates to runs on
+This agent runs on `GPT-5.5`. The `terraform-plan-subagent` it delegates to runs on
 `Claude Sonnet 4.6` (cross-family call) after the 2026-05 IaC subagent migration
 — the JSON-shaped plan-result contract was preserved verbatim, so no parsing
 changes are required here.

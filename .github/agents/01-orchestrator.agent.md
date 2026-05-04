@@ -457,14 +457,13 @@ Orchestrator with the project name — no special resume prompt needed.
 | Tier     | Model                            | Used For                                                       |
 | -------- | -------------------------------- | -------------------------------------------------------------- |
 | `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Diagnose, Context        |
-| `medium` | GPT-5.5                          | Orchestrator, Fast Path, Design, Governance, Code Gen, Challenger |
-| `mixed`  | _See registry footnote below_    | Deploy, As-Built, Validation/Cost subagents                    |
+| `medium` | GPT-5.5                          | Orchestrator, Fast Path, Design, Governance, Code Gen, Challenger, Deploy, As-Built |
+| `mixed`  | _See registry footnote below_    | Validation/Cost subagents                                      |
 
-> Footnote: deploy and as-built agents (07b/07t/08) and the validation/cost subagents
-> (bicep-validate, bicep-whatif, terraform-validate, terraform-plan, cost-estimate)
-> map to GPT-5.4 / GPT-5.3-Codex on a per-agent basis. The single low-tier row that
-> previously existed has been retired because there is no longer a one-to-one
-> tier→model mapping. The canonical assignments live in
+> Footnote: validation and cost subagents (bicep-validate, bicep-whatif, terraform-validate,
+> terraform-plan, cost-estimate) map to Claude Sonnet 4.6 / GPT-5.3-Codex on a per-subagent
+> basis. The single low-tier row that previously existed has been retired because there is
+> no longer a one-to-one tier→model mapping. The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and
 > are mirrored into [.github/model-catalog.json](../model-catalog.json) `assignments`.
 
