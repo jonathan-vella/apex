@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-04-24T14:49:30.934Z",
+  "generatedAt": "2026-05-04T15:11:06.842Z",
   "categories": [
     {
       "id": "agent",
@@ -114,7 +114,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -156,7 +156,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -180,7 +180,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent",
@@ -250,7 +250,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -394,7 +394,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -435,7 +435,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [
           "*"
@@ -455,7 +455,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.6",
+        "model": "Claude Opus 4.7 (High reasoning)",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -1964,16 +1964,16 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "validator:lint-model-floors",
+      "id": "validator:validate-model-consistency",
       "category": "validator",
-      "label": "lint:model-floors",
-      "description": "node tools/scripts/validate-model-floors.mjs",
+      "label": "validate:model-consistency",
+      "description": "node tools/scripts/validate-model-consistency.mjs",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-model-floors.mjs"
+        "command": "node tools/scripts/validate-model-consistency.mjs"
       }
     },
     {
@@ -5660,9 +5660,9 @@
       "kind": "runs"
     },
     {
-      "id": "workflow:ci--runs->validator:lint-model-floors",
+      "id": "workflow:ci--runs->validator:validate-model-consistency",
       "source": "workflow:ci",
-      "target": "validator:lint-model-floors",
+      "target": "validator:validate-model-consistency",
       "kind": "runs"
     },
     {

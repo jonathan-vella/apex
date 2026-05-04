@@ -134,6 +134,9 @@
 | 2026-04-24 | Documentation   | Site docs updated: `validation-reference.md`, `glossary.md`, `quickstart.md`, `azd-deployment.mdx`, prompt-guide refreshed |
 | 2026-04-24 | Backlog         | Debt #24 resolved (explorer graph regenerated); #25 resolved (`<context_awareness>` block added to governance agent)       |
 | 2026-04-24 | All             | Doc-gardening run: all validators pass (0 errors); freshness report clean; 2 count corrections applied                     |
+| 2026-05-04 | Agents          | Opus-tier agents migrated `Claude Opus 4.6` → `Claude Opus 4.7 (High reasoning)` (7 agents + 4 prompts + 7 registry rows)  |
+| 2026-05-04 | CI / Validation | `validate-model-floors.mjs` + `KNOWN_MODELS` retired; replaced by `validate-model-consistency.mjs` (frontmatter ≡ registry) |
+| 2026-05-04 | Agents          | `<!-- Recommended reasoning_effort -->` HTML annotation retired workspace-wide (15 agent files + 1 instruction + 2 validators) |
 
 ## How to Update
 

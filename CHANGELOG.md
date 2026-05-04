@@ -20,6 +20,49 @@ for full details on this and all prior releases.
 
 ### Added
 
+- feat(agents): migrate Opus-tier agents from `Claude Opus 4.6` to
+  `Claude Opus 4.7 (High reasoning)`. Updates 7 agent frontmatters
+  (Orchestrator, Requirements, Architect, IaC Planner, Diagnose,
+  Context Optimizer, E2E Orchestrator), 4 prompt frontmatters
+  (`01-orchestrator.prompt.md`, `resume-workflow.prompt.md`,
+  `doc-gardening.prompt.md`, `tools/tests/prompts/e2e-analyze-lessons.prompt.md`),
+  the 7 corresponding rows in `tools/registry/agent-registry.json`, and the
+  Orchestrator self-reference body table. The `Claude Opus 4.6` catalog entry
+  is retained with `deprecated: true` for audit history. Sonnet 4.6 / Haiku 4.5
+  are unchanged.
+- feat(tools): replace `validate-model-floors.mjs` + the `KNOWN_MODELS`
+  allow-list in `validate-agent-registry.mjs` with a single
+  `validate-model-consistency.mjs` check. The agent's YAML frontmatter
+  `model` field is now the single source of truth; the registry mirrors it
+  and the catalog is documentation only (not enforced). Adds
+  `validate:model-consistency` to `validate:_node` and `validate:_node-ci`;
+  removes `lint:model-floors`.
+- feat(agents): retire workspace-wide `<!-- Recommended reasoning_effort: ... -->`
+  HTML annotation. Removed from 15 agent files (Orchestrator, Requirements,
+  Architect, Design, Governance, IaC Planner, Bicep CodeGen, Terraform CodeGen,
+  As-Built, Diagnose, Challenger, Context Optimizer, E2E Orchestrator,
+  Orchestrator Fast Path, challenger-review-subagent) and from
+  `agent-authoring.instructions.md`. `validate-agents.mjs` and
+  `lint-model-alignment.mjs` Check 3 (reasoning_effort presence) deleted;
+  remaining checks renumbered 4 → 3 (large-agent context_awareness) and
+  5 → 4 (investigate_before_answering).
+
+### Changed
+
+- chore(audit): Phase 5 of the Opus 4.7 migration audited the 7 Opus agents
+  end-to-end against Anthropic's published 4.7 behavioral changes. Strengthened
+  the Orchestrator's gate-1 challenger pass language (now declared "**Mandatory:**…
+  not optional and must not be skipped") and rewrote `## Resuming a Project`
+  to require a 3-signal absence (no apex-recall state, no `00-handoff.md`,
+  no numbered artifacts) before treating a project as new — mitigating 4.7's
+  stricter literalism on empty `apex-recall show` responses. Audit table
+  archived under `tmp/phase5-opus-audit-table.md`.
+- docs: update `agent-authoring.instructions.md` § `model` to document the
+  new source-of-truth (frontmatter canonical, registry mirrors, catalog is
+  documentation), the array/string/JSON-string frontmatter form mandate, and
+  the YAML-bareword forbidden form. Update `[claude-guide]:` reference link
+  to the current `platform.claude.com` URL.
+
 - refactor(hooks): consolidate agent hooks — merge `governance-audit/` and
   `session-logger/` into single `session-telemetry/` directory. Adds `tool-audit/`
   (PostToolUse metadata logging), gitleaks pre-commit guard, bats-based hook

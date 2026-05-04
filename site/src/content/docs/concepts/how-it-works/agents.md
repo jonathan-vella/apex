@@ -194,8 +194,8 @@ This section walks through creating a new agent from scratch.
 Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
 source of truth, but the current repo pattern is:
 
-- **Planning agents** (accuracy-first) — typically `Claude Opus 4.6`
-- **Orchestrator** — `Claude Opus 4.6` for deep reasoning across the full workflow
+- **Planning agents** (accuracy-first) — typically `Claude Opus 4.7 (High reasoning)`
+- **Orchestrator** — `Claude Opus 4.7 (High reasoning)` for deep reasoning across the full workflow
 - **Code generation agents** — `Claude Sonnet 4.6` for balanced code quality and speed
 - **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
 - **Adversarial review** — use a different model family than the artifact author when possible

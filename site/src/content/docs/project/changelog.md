@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): migrate Opus-tier agents from `Claude Opus 4.6` to
+  `Claude Opus 4.7 (High reasoning)` (7 agents + 4 prompt files + 7 registry rows).
+  Catalog entry for 4.6 retained with `deprecated: true` for audit history.
+  Sonnet 4.6 / Haiku 4.5 unchanged.
+- feat(tools): retire `validate-model-floors.mjs` and the `KNOWN_MODELS` allow-list;
+  replace with `validate-model-consistency.mjs` (frontmatter ≡ registry equality).
+  Catalog is now documentation only.
+- feat(agents): retire `<!-- Recommended reasoning_effort: ... -->` HTML annotation
+  workspace-wide (15 agent files + instruction file + 2 validators). Validator
+  Check 3 removed; checks 4 → 3 and 5 → 4 renumbered.
+- chore(audit): Phase 5 audit of the 7 Opus agents against Anthropic 4.7 behavioral
+  changes. Strengthened Orchestrator gate-1 challenger language and Resuming-a-Project
+  empty-result branch.
+- docs: update `agent-authoring.instructions.md` model source-of-truth section,
+  refresh `repo-architecture.md` and `token-estimation.md` Opus rows, and update
+  `[claude-guide]:` reference link target to `platform.claude.com`.
+
 - refactor(hooks): consolidate agent hooks and lefthook validators — merge
   `governance-audit/` and `session-logger/` into single `session-telemetry/`
   directory. Add `tool-audit/` hook (PostToolUse metadata logging), gitleaks

@@ -101,7 +101,25 @@ tools: [read/readFile, edit/createFile, agent, "azure-mcp/*"]
 
 **Model selection is intentional and must not be changed without explicit approval.**
 
-Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
+**Source of truth:** the agent's frontmatter `model` field is canonical. The
+[`tools/registry/agent-registry.json`](../../tools/registry/agent-registry.json) entry
+mirrors it (verified by `validate-model-consistency.mjs`). The
+[`.github/model-catalog.json`](../model-catalog.json) file is documentation only —
+it records authorized models and intended use cases but is **not** enforced by any
+validator. To change a model, update the agent frontmatter first, then mirror the
+change in the registry.
+
+**Frontmatter form:**
+
+- Agents (`*.agent.md`): array form — `model: ["Claude Opus 4.7 (High reasoning)"]`
+- Prompts (`*.prompt.md`): string form — `model: "Claude Opus 4.7 (High reasoning)"`
+- Registry JSON: string form — `"model": "Claude Opus 4.7 (High reasoning)"`
+
+**Do not** use the YAML bareword form (e.g., `model: Claude Opus 4.7 (High reasoning)`)
+— the parenthetical qualifier is misparsed by YAML and breaks frontmatter loading.
+Always quote.
+
+Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so deliberately:
 
 - **Opus-first agents** (orchestrator, requirements, architect, iac-plan, diagnose,
   context-optimizer) require deeper reasoning for orchestration, architecture decisions,
@@ -117,23 +135,23 @@ Agents that specify `Claude Opus 4.6` as priority model do so deliberately:
 
 Current model assignments:
 
-| Agent / Group            | Model             | Rationale                 |
-| ------------------------ | ----------------- | ------------------------- |
-| Orchestrator             | Claude Opus 4.6   | Deep orchestration        |
-| Orchestrator (Fast Path) | Claude Sonnet 4.6 | Streamlined orchestration |
-| Requirements             | Claude Opus 4.6   | Deep understanding        |
-| Architect                | Claude Opus 4.6   | WAF analysis + cost       |
-| Design                   | Claude Sonnet 4.6 | Diagram generation        |
-| Governance               | Claude Sonnet 4.6 | Procedural discovery      |
-| IaC Planner (unified)    | Claude Opus 4.6   | Planning accuracy         |
-| Bicep / Terraform Code   | Claude Sonnet 4.6 | Code generation           |
-| Deploy                   | GPT-5.4           | Deployment execution      |
-| As-Built                 | GPT-5.4           | Documentation generation  |
-| Diagnose                 | Claude Opus 4.6   | Complex troubleshooting   |
-| Context Optimizer        | Claude Opus 4.6   | Deep analysis             |
-| Challenger wrapper       | Claude Sonnet 4.6 | Structured review         |
-| Bicep/TF subagents       | GPT-5.4           | Isolated validation       |
-| Cost estimate subagent   | GPT-5.3-Codex     | High-throughput pricing   |
+| Agent / Group            | Model                            | Rationale                 |
+| ------------------------ | -------------------------------- | ------------------------- |
+| Orchestrator             | Claude Opus 4.7 (High reasoning) | Deep orchestration        |
+| Orchestrator (Fast Path) | Claude Sonnet 4.6                | Streamlined orchestration |
+| Requirements             | Claude Opus 4.7 (High reasoning) | Deep understanding        |
+| Architect                | Claude Opus 4.7 (High reasoning) | WAF analysis + cost       |
+| Design                   | Claude Sonnet 4.6                | Diagram generation        |
+| Governance               | Claude Sonnet 4.6                | Procedural discovery      |
+| IaC Planner (unified)    | Claude Opus 4.7 (High reasoning) | Planning accuracy         |
+| Bicep / Terraform Code   | Claude Sonnet 4.6                | Code generation           |
+| Deploy                   | GPT-5.4                          | Deployment execution      |
+| As-Built                 | GPT-5.4                          | Documentation generation  |
+| Diagnose                 | Claude Opus 4.7 (High reasoning) | Complex troubleshooting   |
+| Context Optimizer        | Claude Opus 4.7 (High reasoning) | Deep analysis             |
+| Challenger wrapper       | Claude Sonnet 4.6                | Structured review         |
+| Bicep/TF subagents       | GPT-5.4                          | Isolated validation       |
+| Cost estimate subagent   | GPT-5.3-Codex                    | High-throughput pricing   |
 
 **Rules:**
 
@@ -367,16 +385,6 @@ be 3-5 lines. Place them after the first `#` heading, before the body content.
 **Never add**: `<use_parallel_tool_calls>` (Claude does this natively),
 `<avoid_overengineering>` on comprehensive-analysis agents.
 
-#### Reasoning Effort
-
-Add an HTML comment after the first `#` heading:
-
-```markdown
-<!-- Recommended reasoning_effort: high -->
-```
-
-Use `high` for planning/architecture agents, `medium` for execution/validation agents.
-
 #### Language Calibration
 
 - Keep absolute language (`MUST`, `NEVER`, `HARD RULE`) at: approval gates,
@@ -449,4 +457,4 @@ in `<example>` tags (Claude) or a fenced block (GPT) showing:
 
 Keep examples under 12 lines. Place them at the end of the agent body.
 
-[claude-guide]: https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview
+[claude-guide]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
