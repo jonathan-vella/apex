@@ -35,14 +35,14 @@
       "vendor": "Anthropic",
       "tier": "balanced",
       "released": "2026-01",
-      "deprecated": false,
+      "deprecated": true,
       "use_for": [
         "design-diagrams",
         "iac-codegen",
         "governance",
         "challenger-review"
       ],
-      "notes": "Strong code generation at lower cost than Opus. Prefer for long code outputs."
+      "notes": "Deprecated 2026-05 in favor of GPT-5.5 for the Orchestrator + Sonnet cohort migration. Retained for audit history; not authorized for new agents."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-04T15:11:06.842Z",
+  "generatedAt": "2026-05-04T16:39:04.472Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 34
+      "count": 36
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 163,
-  "edgeCount": 699,
+  "nodeCount": 165,
+  "edgeCount": 701,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -80,7 +80,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -114,7 +114,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7 (High reasoning)",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -205,7 +205,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04-design.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -228,7 +228,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -275,7 +275,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "bicep-validate-subagent",
@@ -299,7 +299,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "terraform-validate-subagent",
@@ -415,7 +415,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -513,7 +513,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6"
+        "model": "GPT-5.5"
       }
     },
     {
@@ -1974,6 +1974,32 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-model-consistency.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-deprecated-models",
+      "category": "validator",
+      "label": "validate:deprecated-models",
+      "description": "node tools/scripts/validate-deprecated-models.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-deprecated-models.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-model-catalog",
+      "category": "validator",
+      "label": "validate:model-catalog",
+      "description": "node tools/scripts/validate-model-catalog.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-model-catalog.mjs"
       }
     },
     {
@@ -5663,6 +5689,18 @@
       "id": "workflow:ci--runs->validator:validate-model-consistency",
       "source": "workflow:ci",
       "target": "validator:validate-model-consistency",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-deprecated-models",
+      "source": "workflow:ci",
+      "target": "validator:validate-deprecated-models",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-model-catalog",
+      "source": "workflow:ci",
+      "target": "validator:validate-model-catalog",
       "kind": "runs"
     },
     {
