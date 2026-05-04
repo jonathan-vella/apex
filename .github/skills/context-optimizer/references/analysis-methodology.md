@@ -14,7 +14,7 @@ common optimization patterns, and baseline comparison automation.
 The primary signal. Each completed LLM request produces a line like:
 
 ```text
-2026-02-27 08:03:29.492 [info] ccreq:c5f11ccd.copilotmd | success | claude-opus-4.6 -> claude-opus-4-6 | 6353ms | [panel/editAgent]
+2026-02-27 08:03:29.492 [info] ccreq:c5f11ccd.copilotmd | success | claude-opus-4.7 -> claude-opus-4-7 | 6353ms | [panel/editAgent]
 ```
 
 Fields:
@@ -25,7 +25,7 @@ Fields:
 | 2        | Level        | `[info]`                             | Log level                   |
 | 3        | Request ID   | `ccreq:c5f11ccd.copilotmd`           | Unique request identifier   |
 | 4        | Status       | `success`                            | success / error / cancelled |
-| 5        | Model        | `claude-opus-4.6 -> claude-opus-4-6` | Requested -> actual model   |
+| 5        | Model        | `claude-opus-4.7 -> claude-opus-4-7` | Requested -> actual model   |
 | 6        | Latency      | `6353ms`                             | Total response time         |
 | 7        | Request type | `[panel/editAgent]`                  | What triggered the request  |
 
@@ -77,7 +77,7 @@ Group requests by session and analyze patterns:
   loops where context accumulates
 - **Latency escalation**: If turns get progressively slower within a session,
   context is growing without hand-offs
-- **Model mismatch**: Heavy turns on gpt-4o-mini suggest wrong model routing;
+- **Model mismatch**: Heavy turns on a low-tier model (e.g. GPT-5 mini, Claude Haiku 4.5) when an Opus/Sonnet agent was selected suggest wrong model routing;
   fast turns on Opus suggest the task could use a lighter model
 
 ### Step 3: Audit Agent Definitions

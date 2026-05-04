@@ -66,7 +66,7 @@ class SessionSummary:
 
 
 def parse_model_field(raw: str) -> tuple[str, str]:
-    """Split 'claude-opus-4.6 -> claude-opus-4-6' into (requested, actual)."""
+    """Split 'claude-opus-4.7 -> claude-opus-4-7' into (requested, actual)."""
     raw = raw.strip()
     if " -> " in raw:
         parts = raw.split(" -> ", 1)

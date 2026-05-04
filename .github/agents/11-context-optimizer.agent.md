@@ -71,6 +71,14 @@ Read these before doing ANY work:
 
 ## Data Sources
 
+> **Per-turn budget reference**: when reasoning about how much of a model's
+> context window is actually available in VS Code Copilot Chat, consult
+> [`.github/skills/context-optimizer/references/token-estimation.md`](../skills/context-optimizer/references/token-estimation.md).
+> The Claude family is capped at 200K per turn in the Copilot Chat picker
+> (regardless of the 1M vendor-native window); the GPT-5 family runs at
+> 400K per turn. Use those numbers, not the vendor-native windows, when
+> sizing budgets.
+
 ### Primary: Chat Debug Logs
 
 Location pattern:
@@ -144,7 +152,7 @@ For each session, analyze request patterns:
 | Requests per session   | Total `ccreq` entries grouped by session        |
 | Avg latency by model   | Mean response time per model                    |
 | Long-tail turns        | Turns > 15s (likely context-heavy)              |
-| Model distribution     | % Opus vs GPT-5.3-Codex vs gpt-4o-mini          |
+| Model distribution     | % Opus vs Sonnet vs GPT-5.5 vs GPT-5.3-Codex    |
 | Request type breakdown | editAgent vs title vs progressMessages          |
 | Burst patterns         | Rapid sequential calls (< 2s gap = likely loop) |
 
