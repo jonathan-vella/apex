@@ -38,9 +38,11 @@
       "deprecated": false,
       "use_for": [
         "design-diagrams",
-        "adr-authoring"
+        "adr-authoring",
+        "iac-validation",
+        "deployment-preview"
       ],
-      "notes": "Active for Step 3 Design only after the 2026-05 GPT-5.5 cohort migration. Other Sonnet-cohort agents (Orchestrator Fast Path, Governance, CodeGen, Challenger) moved to GPT-5.5; Design stayed on Sonnet 4.6 because the Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded ADR drafting, multishot examples) suits ADR + diagram authoring better than the OpenAI outcome-first style."
+      "notes": "Active for Step 3 Design and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan) after the 2026-05 GPT-5.4 → Sonnet 4.6 subagent migration. The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. Other Sonnet-cohort agents (Orchestrator Fast Path, Governance, CodeGen, Challenger) moved to GPT-5.5 in the same cohort migration."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",
@@ -75,10 +77,7 @@
       "tier": "codex",
       "released": "2025-12",
       "deprecated": false,
-      "use_for": [
-        "cost-estimation",
-        "parametric-calculations"
-      ],
+      "use_for": ["cost-estimation", "parametric-calculations"],
       "notes": "Code/maths-focused. Used by cost-estimate-subagent for numerical reasoning."
     }
   },
