@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-04T16:39:04.472Z",
+  "generatedAt": "2026-05-04T17:00:28.317Z",
   "categories": [
     {
       "id": "agent",
@@ -205,7 +205,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04-design.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [

@@ -35,14 +35,12 @@
       "vendor": "Anthropic",
       "tier": "balanced",
       "released": "2026-01",
-      "deprecated": true,
+      "deprecated": false,
       "use_for": [
         "design-diagrams",
-        "iac-codegen",
-        "governance",
-        "challenger-review"
+        "adr-authoring"
       ],
-      "notes": "Deprecated 2026-05 in favor of GPT-5.5 for the Orchestrator + Sonnet cohort migration. Retained for audit history; not authorized for new agents."
+      "notes": "Active for Step 3 Design only after the 2026-05 GPT-5.5 cohort migration. Other Sonnet-cohort agents (Orchestrator Fast Path, Governance, CodeGen, Challenger) moved to GPT-5.5; Design stayed on Sonnet 4.6 because the Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded ADR drafting, multishot examples) suits ADR + diagram authoring better than the OpenAI outcome-first style."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",
@@ -102,7 +100,7 @@
       "01-orchestrator.agent.md": "GPT-5.5",
       "02-requirements.agent.md": "Claude Opus 4.7 (High reasoning)",
       "03-architect.agent.md": "Claude Opus 4.7 (High reasoning)",
-      "04-design.agent.md": "GPT-5.5",
+      "04-design.agent.md": "Claude Sonnet 4.6",
       "04g-governance.agent.md": "GPT-5.5",
       "05-iac-planner.agent.md": "Claude Opus 4.7 (High reasoning)",
       "06b-bicep-codegen.agent.md": "GPT-5.5",

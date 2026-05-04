@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): revert 04-Design from `GPT-5.5` to `Claude Sonnet 4.6` and
+  rewrite the agent body in Anthropic prompting-best-practices style
+  (XML-tagged blocks, role-first, multishot example, quote-grounded ADR
+  drafting, Sonnet 4.6 effort calibration). Draw.io MCP workflow preserved
+  verbatim. `Claude Sonnet 4.6` un-deprecated in the catalog (retained for
+  Step 3 Design only); the other Sonnet-cohort agents stay on GPT-5.5.
 - feat(agents): migrate the Orchestrator (was Claude Opus 4.7 (High reasoning))
   and the Sonnet 4.6 cohort (Orchestrator Fast Path, Design, Governance,
   Bicep CodeGen, Terraform CodeGen, Challenger, challenger-review-subagent)

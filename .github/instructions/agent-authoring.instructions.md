@@ -124,7 +124,12 @@ Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so d
 - **Opus-first agents** (requirements, architect, iac-plan, diagnose, context-optimizer,
   e2e-orchestrator) require deeper reasoning for architecture decisions, WAF assessments,
   planning accuracy, and complex analysis
-- **GPT-5.5 agents** (orchestrator, orchestrator fast path, design, governance,
+- **Claude Sonnet 4.6 agent** (design): retained for Step 3 because the Anthropic
+  prompting style (XML-tagged blocks, role-first, quote-grounded ADR drafting,
+  multishot examples) suits ADR + diagram authoring better than the OpenAI
+  outcome-first style. Default Sonnet 4.6 effort is `high`; the Design agent
+  pins effort to `medium` for typical work.
+- **GPT-5.5 agents** (orchestrator, orchestrator fast path, governance,
   bicep codegen, terraform codegen, challenger wrapper, challenger-review-subagent)
   use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
@@ -160,7 +165,7 @@ Current model assignments:
 | Orchestrator (Fast Path) | GPT-5.5                          | Streamlined orchestration |
 | Requirements             | Claude Opus 4.7 (High reasoning) | Deep understanding        |
 | Architect                | Claude Opus 4.7 (High reasoning) | WAF analysis + cost       |
-| Design                   | GPT-5.5                          | Diagram + ADR generation  |
+| Design                   | Claude Sonnet 4.6                | Diagram + ADR authoring (Anthropic prompting style) |
 | Governance               | GPT-5.5                          | Procedural discovery      |
 | IaC Planner (unified)    | Claude Opus 4.7 (High reasoning) | Planning accuracy         |
 | Bicep / Terraform Code   | GPT-5.5                          | Code generation           |

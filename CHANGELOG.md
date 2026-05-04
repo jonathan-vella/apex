@@ -20,6 +20,19 @@ for full details on this and all prior releases.
 
 ### Added
 
+- feat(agents): revert 04-Design from `GPT-5.5` to `Claude Sonnet 4.6` and
+  rewrite the agent body in Anthropic prompting-best-practices style. The
+  Design agent now uses XML-tagged blocks (`<role>`, `<context_awareness>`,
+  `<scope_fencing>`, `<output_contract>`, `<investigate_before_answering>`,
+  `<example>`), a role-first opening, multishot example for ADR + Draw.io
+  cell payloads, quote-grounded ADR drafting, Sonnet 4.6-specific effort
+  guidance (pin `medium` for typical work; raise to `high` only when
+  comparing layouts or alternatives), and decision-rule boundaries instead
+  of ALWAYS/NEVER absolutes. The Draw.io MCP-driven workflow contract is
+  preserved verbatim. `Claude Sonnet 4.6` flipped back to `deprecated: false`
+  in `.github/model-catalog.json` and `notes` updated to reflect that it is
+  retained for Step 3 Design only. The other Sonnet-cohort agents stay on
+  GPT-5.5.
 - feat(agents): migrate the Orchestrator (was Claude Opus 4.7 (High reasoning))
   and the Sonnet 4.6 cohort (Orchestrator Fast Path, Design, Governance,
   Bicep CodeGen, Terraform CodeGen, Challenger, challenger-review-subagent)

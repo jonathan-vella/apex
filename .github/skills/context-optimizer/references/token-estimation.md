@@ -50,6 +50,7 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 | Model           | Context Window | Practical Limit (80%) |
 | --------------- | -------------- | --------------------- |
 | Claude Opus 4.7 (High reasoning) | 200K tokens    | ~160K tokens          |
+| Claude Sonnet 4.6 | 200K tokens    | ~160K tokens          |
 | GPT-5.5         | 128K tokens    | ~102K tokens          |
 | GPT-5.4         | 128K tokens    | ~102K tokens          |
 | GPT-5.3-Codex   | 128K tokens    | ~102K tokens          |
