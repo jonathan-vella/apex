@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "generated_at": "2026-05-04T00:00:00Z",
+  "version": "1.1.0",
+  "generated_at": "2026-05-05T00:00:00Z",
   "sources": [
     {
       "id": "anthropic-prompting-best-practices",
@@ -303,6 +303,20 @@
       "source_id": "openai-prompting-guide",
       "source_anchor": "personality-and-behavior",
       "validator_check_id": "checkPersonalityScoping",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "prompt-model-source-001",
+      "vendor": "cross-vendor",
+      "model_families": ["any"],
+      "applies_to": "prompt",
+      "severity": "error",
+      "summary": "Prompts targeting a custom agent MUST NOT declare model:; prompts using agent: agent (or no agent:) MUST declare an explicit model:.",
+      "rationale": "When a prompt targets a custom agent (e.g., `agent: \"02-Requirements\"`), the agent's own model: is the source of truth — duplicating it on the prompt creates drift risk. When a prompt is generic (`agent: agent`), there is no inherited model, so an explicit model: is mandatory for the validator to classify the family. The validator resolves effective family via the target agent when the prompt omits model:.",
+      "source_id": "openai-upgrade-guide",
+      "source_anchor": "upgrade-posture",
+      "validator_check_id": "checkPromptModelSource",
       "promotion_date": null,
       "family_overrides": []
     }

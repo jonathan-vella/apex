@@ -1,7 +1,6 @@
 ---
 description: "Kick off a new Azure platform engineering project through the full multi-step workflow with the Orchestrator agent."
 agent: "01-Orchestrator"
-model: "GPT-5.5"
 argument-hint: "Describe the Azure platform engineering project you want to build end-to-end"
 ---
 
@@ -9,28 +8,40 @@ argument-hint: "Describe the Azure platform engineering project you want to buil
 
 Start a new Azure platform engineering project using the multi-step agentic workflow.
 
-## Prerequisites
+# Goal
 
-- No prior project artifacts required (this is the entry point)
-- The agent will create `agent-output/{project}/` and initialize session state
+Initialize a new project workspace under `agent-output/{project}/` with session
+state and an initial handoff, then route control to Step 1 (Requirements).
 
-## Variables
+# Success criteria
 
-- `{project}`: kebab-case project name derived from user description (max 30 chars)
+- `agent-output/{project}/` exists and contains a populated
+  `00-session-state.json` and `00-handoff.md`.
+- Session state has `project`, `region` (default `swedencentral`), and `branch` set.
+- The user has approved the project name and scope.
+- Control is handed to the `02-Requirements` agent.
 
-## Instructions
+# Constraints
 
-1. Ask the user to describe their project requirements in natural language.
-2. Create the project folder under `agent-output/{project}/`.
-3. Initialize `agent-output/{project}/00-session-state.json` from the template
-   at `.github/skills/azure-artifacts/templates/00-session-state.template.json`.
-4. Populate the session state with the project name, region (`swedencentral`), and branch.
-5. Create `agent-output/{project}/00-handoff.md` with initial context.
-6. Hand off to Step 1 (Requirements) by invoking the `02-Requirements` agent.
-
-## Constraints
-
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for region, naming, and security defaults.
+- No prior project artifacts required (this is the entry point).
+- `{project}` is kebab-case derived from user description, max 30 chars.
+- Read `.github/skills/azure-defaults/SKILL.digest.md` for region, naming,
+  and security defaults.
 - Read `.github/skills/workflow-engine/templates/workflow-graph.json` for the DAG model.
-- All outputs go to `agent-output/{project}/`.
-- Require human approval at every gate before advancing steps.
+- Initialize session state from
+  `.github/skills/azure-artifacts/templates/00-session-state.template.json`.
+- Require human approval at every workflow gate before advancing steps.
+
+# Output
+
+- `agent-output/{project}/00-session-state.json` (initialized from template)
+- `agent-output/{project}/00-handoff.md` (initial context for Step 1)
+- Handoff: invoke the `02-Requirements` agent with the project name.
+
+# Stop rules
+
+- Stop and ask the user if the project name is ambiguous, conflicts with an
+  existing folder under `agent-output/`, or exceeds 30 chars after kebab-casing.
+- Stop if `00-session-state.template.json` is missing — do not fabricate state.
+- Do not advance past Step 1 handoff in this prompt; the Orchestrator agent
+  controls subsequent gates.

@@ -7,38 +7,53 @@ agent: "08-As-Built"
 
 Generate comprehensive workload documentation after successful deployment.
 
-## Prerequisites
+# Goal
 
-Before running, confirm these artifacts exist in `agent-output/{project}/`:
+Produce the full as-built documentation suite (7 documents + updated project
+README) for the deployed workload, grounded in real Azure resource state where
+available.
 
-- `01-requirements.md` — Original requirements (required)
-- `02-architecture-assessment.md` — WAF assessment (required)
-- `04-implementation-plan.md` — Planned architecture (required)
-- `06-deployment-summary.md` — Deployment results (required)
-- `03-des-cost-estimate.md` — Original cost estimate (optional)
-- `05-implementation-reference.md` — IaC validation results (optional)
+# Success criteria
 
-## Instructions
+All seven documents exist in `agent-output/{project}/` and follow the H2
+template structure exactly:
 
-1. Read `agent-output/{project}/00-session-state.json` to confirm Step 6 is complete.
-2. Read all prior artifacts (Steps 1-6) from `agent-output/{project}/`.
-3. Read `.github/skills/azure-artifacts/references/07-docs-template.md` for the documentation
-   template structure.
-4. Query deployed resource state via `az resource list` for the project resource group.
-5. Generate the following documents in `agent-output/{project}/`:
-   - `07-design-document.md` — comprehensive design document.
-   - `07-operations-runbook.md` — day-2 operational procedures.
-   - `07-ab-cost-estimate.md` — as-built cost estimate (use Azure Pricing MCP).
-   - `07-compliance-matrix.md` — compliance control mapping.
-   - `07-backup-dr-plan.md` — backup and disaster recovery plan.
-   - `07-resource-inventory.md` — complete resource inventory.
-   - `07-documentation-index.md` — master documentation index.
-6. Update the project `README.md` with final progress and artifact links.
-7. Update `agent-output/{project}/00-session-state.json`: mark Step 7 `complete`.
+- `07-design-document.md`
+- `07-operations-runbook.md`
+- `07-ab-cost-estimate.md` (as-built cost via Azure Pricing MCP)
+- `07-compliance-matrix.md`
+- `07-backup-dr-plan.md`
+- `07-resource-inventory.md`
+- `07-documentation-index.md` (master index)
 
-## Constraints
+The project `README.md` is updated with final progress and artifact links.
+Session state has Step 7 `status = "complete"`.
 
+# Constraints
+
+- Read `agent-output/{project}/00-session-state.json`; confirm Step 6 is
+  `complete` before proceeding.
+- Required prior artifacts: `01-requirements.md`,
+  `02-architecture-assessment.md`, `04-implementation-plan.md`,
+  `06-deployment-summary.md`. Optional: `03-des-cost-estimate.md`,
+  `05-implementation-reference.md`.
+- Read `.github/skills/azure-artifacts/references/07-docs-template.md` for
+  the H2 template structure.
+- Query deployed resource state via `az resource list` for the project
+  resource group; use planned values as fallback only when resources are
+  not yet deployed.
 - All 7 documents are mandatory — do not skip any.
-- Follow the H2 structure from templates exactly.
-- Use real deployed resource data where available; fall back to planned values if not deployed.
 - No challenger review is required for Step 7.
+
+# Output
+
+- `agent-output/{project}/07-*.md` (7 files listed above)
+- Updated project `README.md`
+- Updated `agent-output/{project}/00-session-state.json`
+
+# Stop rules
+
+- Stop if any required prior artifact is missing — name the file and exit.
+- Stop if `az resource list` fails for an undeployed resource group; switch
+  to planned-values fallback and note the substitution in each document.
+- Stop if the H2 template file is missing — do not invent structure.

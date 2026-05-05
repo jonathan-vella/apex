@@ -26,6 +26,55 @@ for an existing Azure workload where **no prior artifacts exist** (no IaC, no re
 no architecture assessments). The agent discovers everything from the live Azure environment
 and user-provided context.
 
+# Goal
+
+Reconstruct a complete `agent-output/{project}/` workspace from a live Azure
+subscription + resource group(s), then hand off to the `08-As-Built` agent
+to produce the full Step-7 documentation suite plus a Draw.io diagram.
+
+# Success criteria
+
+- Phases 1–3 (interactive discovery) ran via `askQuestions` before any file
+  reads or shell commands.
+- Phase 4 produced a complete deployed-resource inventory for every
+  in-scope resource group.
+- Phase 5 wrote pseudo-artifacts mimicking Steps 1–6 outputs into
+  `agent-output/{project}/`.
+- Phase 6 invoked `08-As-Built` and the seven `07-*.md` documents plus the
+  Draw.io architecture diagram exist.
+- Project `README.md` updated with the as-built handoff entry.
+
+# Constraints
+
+- User has Azure CLI authenticated (`az account show` succeeds) with at
+  least Reader access to every in-scope resource group.
+- No prior artifacts exist for `{project}` — this prompt creates them.
+- `askQuestions` MUST be the first tool call. No file reads, searches, or
+  shell commands until Phases 1–3 complete.
+- Use real Azure data wherever available; mark synthesized values clearly
+  in the pseudo-artifacts.
+- Honour the H2 templates from `.github/skills/azure-artifacts/`.
+
+# Output
+
+- `agent-output/{project}/00-session-state.json` (initialized for Step 7
+  resumption)
+- `agent-output/{project}/01-requirements.md` through `06-deployment-summary.md`
+  as pseudo-artifacts derived from discovery
+- `agent-output/{project}/07-*.md` (seven documents) and the Draw.io diagram
+  via the `08-As-Built` handoff
+- Updated project `README.md`
+
+# Stop rules
+
+- Stop and ask if the user has not authenticated to Azure (`az account show`
+  fails) or lacks Reader on the target subscription.
+- Stop if any in-scope resource group does not exist or is empty — surface
+  the gap; do not synthesize resources.
+- Stop if `08-As-Built` cannot be invoked (missing prerequisite artifact);
+  list the missing pseudo-artifact and exit.
+- Do not write artifacts until interactive discovery (Phases 1–3) is complete.
+
 ## Mission
 
 1. Collect Azure environment details and workload requirements interactively (Phases 1-3)

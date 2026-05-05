@@ -12,6 +12,62 @@ Your job is to read the lessons learned and benchmark reports, merge them if
 multiple runs are selected, then produce **concrete, actionable improvements**
 to the agent/skill/validator/prompt system.
 
+<investigate_before_answering>
+- Lessons analysis depends on real telemetry. Before producing any
+  recommendations, confirm: (a) which runs under `agent-output/` qualify
+  (those containing `09-lessons-learned.json`); (b) whether a single run
+  or multi-run merge is in scope; (c) the desired output project name.
+- If `08-benchmark-scores.json` is missing for a selected run, note the
+  scoring gap and proceed with lessons-only analysis.
+</investigate_before_answering>
+
+<context>
+- Source artifacts per run (under `agent-output/{run-name}/`):
+  - `09-lessons-learned.json` (required)
+  - `08-benchmark-scores.json` (optional but preferred)
+  - `08-benchmark-report.md` (optional)
+- Schema reference: `tools/schemas/lesson-log.schema.json`.
+- This prompt produces improvement proposals targeted at agents, skills,
+  validators, and prompts — it does NOT mutate them directly; the user
+  decides what to implement.
+</context>
+
+<task>
+Run the multi-step analysis described in the body below:
+
+1. Step 0 — interactive run selection via `askQuestions`.
+2. Step 0b — merge data when multiple runs are selected.
+3. Read merged lessons + benchmark data.
+4. Group findings by target (agent / skill / validator / prompt) and by
+   recurrence.
+5. Produce a prioritised improvement plan with concrete edits per target.
+</task>
+
+<rules>
+- Use `askQuestions` for run selection — do not assume a single run.
+- Do NOT modify agent / skill / validator / prompt files; produce
+  recommendations only.
+- When merging runs, prefix lesson IDs with `R{n}-` and preserve the
+  source-run metadata.
+- Sort recurring lessons first (by frequency desc), then severity
+  (critical > high > medium > low), then step number.
+- Composite scores and dimension stats must be computed from the actual
+  run files, not inferred.
+</rules>
+
+<output_contract>
+- `agent-output/{output-project}/09-lessons-merged.json` (when multi-run)
+- `agent-output/{output-project}/08-benchmark-scores-combined.json` (when
+  multi-run and per-run scores exist)
+- `agent-output/{output-project}/08-benchmark-report-combined.md` (when
+  multi-run)
+- `agent-output/{output-project}/10-improvement-plan.md` — prioritised,
+  concrete edits per target with rationale tied to specific lessons /
+  scores.
+- Summary returned to the user: top 5 highest-impact improvements + any
+  recurring lessons.
+</output_contract>
+
 ## Step 0 — Run Selection (Interactive)
 
 Before reading any files, discover and present available runs:

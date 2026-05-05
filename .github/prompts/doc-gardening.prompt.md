@@ -22,6 +22,55 @@ tools:
 Scan the repository for entropy and update health metrics. All counts cited in outputs
 must come from `tools/registry/count-manifest.json` — never hard-code numbers.
 
+<investigate_before_answering>
+- Doc gardening is investigative work. Before producing recommendations,
+  confirm that the source-of-truth files exist (see Pre-flight) and that
+  the user wants a full sweep vs. a single area (freshness, drift, counts,
+  explorer graph, quality score, or tech-debt).
+- If freshness baseline (`freshness-report.json`) is missing, note that the
+  first run will create it and flag files relative to current mtime only.
+</investigate_before_answering>
+
+<context>
+- Required source-of-truth files: `QUALITY_SCORE.md`,
+  `tools/tests/exec-plans/tech-debt-tracker.md`,
+  `tools/registry/count-manifest.json`. Optional:
+  `freshness-report.json`.
+- Validators run by this prompt:
+  `tools/scripts/check-docs-freshness.mjs`,
+  `tools/scripts/validate-instruction-checks.mjs`,
+  `tools/scripts/validate-no-deprecated-refs.mjs`,
+  `tools/scripts/validate-skills.mjs`,
+  `tools/scripts/validate-agents.mjs`,
+  `tools/scripts/validate-no-hardcoded-counts.mjs`.
+- Architecture Explorer graph at
+  `site/public/architecture-explorer-graph.json` is regenerated via
+  `npm run build:explorer-graph`.
+</context>
+
+<task>
+Execute the seven gardening tasks in the Tasks section, in order. Stop and
+ask if any required source-of-truth file is missing (do not create
+silently). Produce the outputs listed below.
+</task>
+
+<rules>
+- Do NOT hard-code counts in any output — reference
+  `tools/registry/count-manifest.json`.
+- Do NOT silently create missing source-of-truth files; ask the user.
+- Validator runs are read-only — do not auto-fix findings (just report).
+- Quality-score and tech-debt updates require human review of each change.
+</rules>
+
+<output_contract>
+- Updated `QUALITY_SCORE.md` with revised grades and change-log entries.
+- Updated `tools/tests/exec-plans/tech-debt-tracker.md` with new and
+  resolved items.
+- Summary report to the user covering: freshness diff totals,
+  count-manifest conflicts (if any), explorer-graph staleness status,
+  validator results, and prioritised follow-ups.
+</output_contract>
+
 ## Pre-flight
 
 Before running tasks, verify target files exist. If any of the following are missing,

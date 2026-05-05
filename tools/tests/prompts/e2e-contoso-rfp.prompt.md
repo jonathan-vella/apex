@@ -1,10 +1,59 @@
 ---
 name: e2e-contoso-rfp
 description: "Run a single real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path."
+agent: agent
+model: "GPT-5.5"
 argument-hint: "Specify project name and IaC tool (Bicep or Terraform)"
 ---
 
 # E2E RALPH Loop — Contoso Service Hub (Real-Run Mode)
+
+# Goal
+
+Run the Contoso Service Hub benchmark end-to-end as a real automated
+workflow (Steps 1–6 with optional Step 7), exercising the production agents,
+MCP tools, and dry-run deployment paths under the depth-1 subagent
+constraint.
+
+# Success criteria
+
+- Pre-flight discovery executed and the user picked **New loop**,
+  **Continue**, or **Delete** for any existing `contoso-service-hub-*` runs.
+- A complete `agent-output/{project}/` exists with all expected workflow
+  artifacts for the steps run (01-requirements through 06-deployment-summary
+  at minimum).
+- All challenger and validator subagents invoked from depth 0 (this prompt)
+  rather than nested inside step agents.
+- Benchmark scoring captured (when the loop completes through Step 6).
+- No fabricated artifacts: every file is the output of a real agent run.
+
+# Constraints
+
+- This prompt runs at depth 0; step agents must be invoked as depth-1
+  subagents and must NOT call their own challengers (the orchestrator runs
+  them at depth 0 instead).
+- Treat the prompt body as scenario input and execution policy — not
+  permission to synthesize missing steps inline.
+- Use real workflow agents for every step that has one; do not inline-replace
+  agent behavior.
+- Pre-flight discovery is mandatory before any new run.
+- Delete operations require explicit user confirmation.
+
+# Output
+
+- `agent-output/{project}/` populated with the full workflow artifacts.
+- `infra/{bicep|terraform}/{project}/` (IaC source).
+- Benchmark score captured at the end of the run when scoring is reached.
+
+# Stop rules
+
+- Stop and ask if multiple existing runs are present and the user has not
+  picked one.
+- Stop deletion if the user does not confirm.
+- Stop the loop if any step agent fails twice in a row — surface the error
+  and the partial state; do not auto-retry indefinitely.
+- Do not advance past a step gate without the artifact the next step
+  requires.
 
 ## Pre-Flight: Discover Existing Runs
 

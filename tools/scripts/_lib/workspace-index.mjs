@@ -19,7 +19,7 @@ import {
   SUBAGENTS_DIR,
   SKILLS_DIR,
   INSTRUCTIONS_DIR,
-  PROMPTS_DIR,
+  PROMPT_SOURCE_DIRS,
 } from "./paths.mjs";
 
 let _agents = null;
@@ -127,19 +127,24 @@ export function resetIndex() {
  * Returns a Map of all prompt files: filename → { path, content, frontmatter, body }.
  * Prompt frontmatter uses string `model:` (not array, per agent-authoring convention).
  * `body` is the markdown after the closing `---`.
+ *
+ * Scans every directory listed in `PROMPT_SOURCE_DIRS` (production prompts in
+ * `.github/prompts/` plus E2E test prompts in `tools/tests/prompts/`).
  */
 export function getPromptFiles() {
   if (_prompts) return _prompts;
   _prompts = new Map();
-  if (!fs.existsSync(PROMPTS_DIR)) return _prompts;
-  for (const file of fs.readdirSync(PROMPTS_DIR)) {
-    if (!file.endsWith(".prompt.md")) continue;
-    const filePath = path.join(PROMPTS_DIR, file);
-    const content = fs.readFileSync(filePath, "utf-8");
-    const frontmatter = parseFrontmatter(content);
-    const fmEnd = content.indexOf("\n---", content.indexOf("---") + 3);
-    const body = fmEnd !== -1 ? content.substring(fmEnd + 4) : content;
-    _prompts.set(file, { path: filePath, content, frontmatter, body });
+  for (const dir of PROMPT_SOURCE_DIRS) {
+    if (!fs.existsSync(dir)) continue;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith(".prompt.md")) continue;
+      const filePath = path.join(dir, file);
+      const content = fs.readFileSync(filePath, "utf-8");
+      const frontmatter = parseFrontmatter(content);
+      const fmEnd = content.indexOf("\n---", content.indexOf("---") + 3);
+      const body = fmEnd !== -1 ? content.substring(fmEnd + 4) : content;
+      _prompts.set(file, { path: filePath, content, frontmatter, body });
+    }
   }
   return _prompts;
 }

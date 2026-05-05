@@ -270,7 +270,23 @@ function runAgentChecks() {
 // Part 3: Model-Prompt Alignment (was lint-model-alignment.mjs)
 // ============================================================================
 
-const PROMPTS_DIR = ".github/prompts";
+/**
+ * Build a Map<lowercase-agent-name, { model, path }> from getAgents().
+ * Shared by Check 1 (Prompt↔Agent model sync), Check 2 (handoff override
+ * redundancy), and the prompt-model-source rule in vendor-prompting.
+ */
+function buildAgentNameToModel() {
+  const map = new Map();
+  for (const [, agent] of getAgents()) {
+    if (agent.frontmatter?.name) {
+      map.set(agent.frontmatter.name.toLowerCase(), {
+        model: agent.frontmatter.model,
+        path: agent.path,
+      });
+    }
+  }
+  return map;
+}
 
 function classifyModel(modelStr) {
   if (!modelStr) return "unknown";
@@ -323,26 +339,12 @@ function runModelAlignment() {
 
   // Check 1: Prompt file model matches target agent
   console.log("  Check 1: Prompt ↔ Agent model sync");
-  if (fs.existsSync(PROMPTS_DIR)) {
-    const agents = getAgents();
-    const agentModelMap = new Map();
-    for (const [, agent] of agents) {
-      if (agent.frontmatter?.name) {
-        agentModelMap.set(agent.frontmatter.name.toLowerCase(), {
-          model: agent.frontmatter.model,
-          path: agent.path,
-        });
-      }
-    }
+  {
+    const agentModelMap = buildAgentNameToModel();
+    const prompts = getPromptFiles();
 
-    const promptFiles = fs
-      .readdirSync(PROMPTS_DIR)
-      .filter((f) => f.endsWith(".prompt.md"));
-
-    for (const file of promptFiles) {
-      const filePath = path.join(PROMPTS_DIR, file);
-      const content = fs.readFileSync(filePath, "utf-8");
-      const fm = parseFrontmatter(content);
+    for (const [file, prompt] of prompts) {
+      const fm = prompt.frontmatter;
       if (!fm) continue;
 
       r.tick();
@@ -379,13 +381,8 @@ function runModelAlignment() {
   {
     const agents = getAgents();
     const agentModelMap = new Map();
-    for (const [, agent] of agents) {
-      if (agent.frontmatter?.name) {
-        agentModelMap.set(
-          agent.frontmatter.name.toLowerCase(),
-          agent.frontmatter.model,
-        );
-      }
+    for (const [name, entry] of buildAgentNameToModel()) {
+      agentModelMap.set(name, entry.model);
     }
 
     for (const [filename, agent] of agents) {
@@ -598,6 +595,13 @@ const VENDOR_RULES = [
     appliesTo: "agent",
     sourceUrl:
       "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md#personality-and-behavior",
+  },
+  {
+    id: "prompt-model-source-001",
+    severity: "error",
+    appliesTo: "prompt",
+    sourceUrl:
+      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/vendor-prompting.instructions.md#prompt-model-source",
   },
 ];
 
@@ -893,6 +897,76 @@ function checkHandoffEnrichment(r, agent, file, family) {
 }
 
 /**
+ * Check 15: prompt-model-source-001
+ *
+ * Enforces the prompt-frontmatter HARD rule:
+ *   - `agent: "<custom-agent>"` → MUST NOT declare `model:` (let it inherit).
+ *   - `agent: agent` (generic) or no `agent:` → MUST declare explicit `model:`.
+ *
+ * Runs only on prompts. `agentNameToModel` is the lowercase-agent-name →
+ * { model, path } map produced by `buildAgentNameToModel()`.
+ */
+function checkPromptModelSource(r, prompt, file, agentNameToModel) {
+  const fm = prompt.frontmatter;
+  if (!fm) return;
+  const agentField = fm.agent;
+  const modelField = fm.model;
+  const isGenericAgent =
+    !agentField ||
+    (typeof agentField === "string" && agentField.toLowerCase() === "agent");
+
+  if (isGenericAgent) {
+    if (modelField === undefined || modelField === null || modelField === "") {
+      emit(
+        r,
+        "prompt-model-source-001",
+        "any",
+        file,
+        `prompt without a custom agent must declare an explicit \`model:\` (got agent="${agentField ?? "<missing>"}")`,
+      );
+    }
+    return;
+  }
+
+  // Custom-agent target.
+  const targetKey =
+    typeof agentField === "string" ? agentField.toLowerCase() : null;
+  const isKnownCustomAgent =
+    targetKey !== null && agentNameToModel.has(targetKey);
+
+  if (isKnownCustomAgent && modelField !== undefined && modelField !== null && modelField !== "") {
+    emit(
+      r,
+      "prompt-model-source-001",
+      "any",
+      file,
+      `redundant \`model:\` on prompt targeting custom agent "${agentField}"; remove it and let the agent's \`model:\` apply`,
+    );
+  }
+}
+
+/**
+ * Resolve a prompt's effective family using its own `model:` first, then
+ * falling back to the target custom agent's `model:`. Generic prompts
+ * (`agent: agent` or absent) classify only via their own `model:`.
+ */
+function resolvePromptFamily(prompt, agentNameToModel) {
+  const fm = prompt.frontmatter;
+  if (!fm) return "unknown";
+  if (fm.model) return classifyModel(fm.model);
+  const agentField = fm.agent;
+  if (
+    !agentField ||
+    (typeof agentField === "string" && agentField.toLowerCase() === "agent")
+  ) {
+    return "unknown";
+  }
+  const entry = agentNameToModel.get(agentField.toLowerCase());
+  if (!entry) return "unknown";
+  return classifyModel(entry.model);
+}
+
+/**
  * Emit a finding via the Reporter, applying family-severity overrides.
  */
 function emit(r, ruleId, family, file, message) {
@@ -940,6 +1014,9 @@ function runVendorPrompting() {
   const agents = getAgents();
   const prompts = getPromptFiles();
   const deprecated = loadDeprecatedModels();
+  // lowercase-agent-name → { model, path }; used by the prompt loop to
+  // resolve effective family and enforce prompt-model-source-001.
+  const agentNameToModel = buildAgentNameToModel();
 
   for (const [file, agent] of agents) {
     r.tick();
@@ -972,11 +1049,16 @@ function runVendorPrompting() {
   for (const [file, prompt] of prompts) {
     r.tick();
     const relPath = path.relative(process.cwd(), prompt.path);
-    const family = classifyModel(prompt.frontmatter?.model);
+    // Resolve the prompt's effective family via its own `model:` first,
+    // then via the target custom agent's `model:`. This keeps per-prompt
+    // vendor checks active even when `model:` is intentionally omitted on
+    // prompts that target a custom agent (see prompt-model-source-001).
+    const family = resolvePromptFamily(prompt, agentNameToModel);
 
     checkFrontmatterModelStyle(r, prompt, relPath, family, "prompt");
     checkClaudeNoPrefill(r, prompt, relPath, family);
     checkModelDeprecation(r, prompt, relPath, family, deprecated);
+    checkPromptModelSource(r, prompt, relPath, agentNameToModel);
   }
 
   r.summary();

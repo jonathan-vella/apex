@@ -2,14 +2,65 @@
 name: review-imported-iac
 agent: agent
 # Migrated 2026-05 to GPT-5.5 alongside the deploy + as-built cohort
-# retirement. Body reasoning style preserved verbatim; outcome-first skeleton not
-# applied (prompt is a procedural review checklist, not an agent body).
-model: GPT-5.5
+# retirement. Outcome-first skeleton retro-applied 2026-05 per the
+# vendor-prompting prompt-alignment sweep; procedural detail preserved below.
+model: "GPT-5.5"
 description: "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts."
 argument-hint: "Paste or select IaC, or provide a workspace path plus a project name"
 ---
 
 # Review Imported IaC
+
+# Goal
+
+Take pasted, selected, or workspace-resident Azure IaC (Bicep or Terraform) and
+produce a complete imported-IaC review: normalized repo layout, static
+validation, AVM audit, governance check, and a WAF review with cost context.
+
+# Success criteria
+
+- Source IaC normalized into `infra/{bicep|terraform}/{project}/`.
+- Static validation (`bicep lint` + `bicep build` OR `terraform fmt -check` +
+  `terraform validate`) passes.
+- AVM audit lists every resource and flags those that do not use AVM where
+  an AVM module exists.
+- Governance review run (when subscription is provided) and constraints
+  recorded.
+- WAF review document generated with cost context when workload inputs are
+  available.
+- All findings collected under `agent-output/{project}/` for later
+  consumption by the standard workflow.
+
+# Constraints
+
+- Use the repository's existing agents, validators, and conventions wherever
+  possible. Do NOT replace existing workflow steps with ad-hoc inline
+  behavior when a repo-native agent or validator already exists.
+- Never overwrite unrelated existing projects without explicit approval.
+- If the target project folder already exists and the user did not ask to
+  replace it, ask before making structural changes.
+- Collect missing inputs via a single `askQuestions` call — do not spread
+  intake across multiple turns.
+
+# Output
+
+- `infra/{bicep|terraform}/{project}/` (normalized source layout)
+- `agent-output/{project}/01-requirements.md` (intake summary)
+- `agent-output/{project}/02-architecture-assessment.md` (WAF review)
+- `agent-output/{project}/04-governance-constraints.md/.json` (when subscription available)
+- `agent-output/{project}/05-imported-iac-review.md` (audit report: AVM, lint, security)
+- Updated `agent-output/{project}/00-session-state.json`
+
+# Stop rules
+
+- Stop and ask for the IaC source if none of `${selection}`, pasted code,
+  or `${input:source_path}` resolves to readable IaC.
+- Stop if the target project folder is non-empty and the user has not
+  approved overwriting it.
+- Stop if static validation fails after one self-correction attempt; surface
+  the diagnostics for human review.
+- Stop governance review if no `${input:subscription}` is provided —
+  document the gap; do not invent policy data.
 
 ## Mission
 

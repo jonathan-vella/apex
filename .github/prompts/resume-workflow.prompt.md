@@ -1,49 +1,56 @@
 ---
 description: "Resume the multi-step workflow from where it left off by reading session state and routing to the correct agent."
 agent: "01-Orchestrator"
-model: "GPT-5.5"
 ---
 
 # Resume Workflow
 
 Resume the multi-step Azure platform engineering workflow from the last checkpoint.
 
-## Prerequisites
+# Goal
 
-- At least one project folder exists under `agent-output/` with `00-session-state.json`
-- The session state file contains `current_step` and step statuses
+Read session state for an existing project under `agent-output/`, determine
+the next workflow node from the DAG, and hand off to the correct agent —
+without re-executing completed work or losing earlier decisions.
 
-## Session State Detection
+# Success criteria
 
-The agent reads `00-session-state.json` to determine:
+- Correct project identified (auto-selected if only one; otherwise user-picked).
+- `current_step`, step statuses, sub-step checkpoint, and `decisions.iac_tool`
+  read from session state.
+- Next workflow node resolved against
+  `.github/skills/workflow-engine/templates/workflow-graph.json`.
+- User shown the current workflow status before any agent invocation.
+- Control handed to the correct agent for the next step (Bicep vs Terraform
+  routing respected).
 
-- Which step to resume from (`current_step`)
-- Whether to use Bicep or Terraform agents (`decisions.iac_tool`)
-- Any in-progress sub-step checkpoints (`steps.{N}.sub_step`)
+# Constraints
 
-## Instructions
+- At least one project folder exists under `agent-output/` with
+  `00-session-state.json`.
+- Read `agent-output/{project}/00-session-state.json` and the workflow graph
+  on every resume — do not cache stale state.
+- Routing rules:
+  - `complete` → follow `on_complete` edges → find next node.
+  - `in_progress` → resume from `sub_step` checkpoint.
+  - `pending` → execute this node.
+  - `skipped` → follow `on_skip` edges.
+- Gate nodes require user approval before continuing.
+- Do not re-execute completed steps unless the user explicitly asks.
+- Do not change decisions made in earlier steps (IaC tool, region, compliance).
 
-1. Scan `agent-output/` for project folders containing `00-session-state.json`.
-2. If multiple projects exist, ask the user which project to resume.
-3. Read `agent-output/{project}/00-session-state.json` to determine:
-   - `current_step` — the step number to resume from.
-   - `steps.{N}.status` — whether it is `pending`, `in_progress`, `complete`, or `skipped`.
-   - `steps.{N}.sub_step` — the checkpoint within an in-progress step.
-   - `decisions.iac_tool` — routes to Bicep or Terraform agents for Steps 4-6.
-4. Read `.github/skills/workflow-engine/templates/workflow-graph.json` for the DAG model.
-5. Follow the DAG to determine the next node:
-   - If `complete` → follow `on_complete` edges → find next node.
-   - If `in_progress` → resume from `sub_step` checkpoint.
-   - If `pending` → execute this node.
-   - If `skipped` → follow `on_skip` edges.
-6. If the next node is a gate → present status to user and wait for approval.
-7. Hand off to the correct agent for the next step.
+# Output
 
-## Constraints
+- A status summary printed for the user (project, current step, next agent).
+- Handoff to the resolved agent for the next workflow node.
 
-- Do NOT re-execute completed steps unless the user explicitly requests re-run.
-- Do NOT change decisions made in earlier steps (IaC tool, region, compliance).
-- Always present the current workflow status before resuming.
+# Stop rules
+
+- Stop and ask if multiple projects exist and the user did not specify one.
+- Stop if `00-session-state.json` is missing or fails schema validation.
+- Stop at any gate node that requires approval.
+- Do not invent a `decisions.iac_tool` value when it is missing — ask the
+  user (or route back to the relevant Step 4 agent).
 
 ## Graph Node → State Key Mapping
 

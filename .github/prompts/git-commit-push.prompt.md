@@ -44,6 +44,48 @@ tools:
 Stage all changes, create a conventional commit, and push to the current branch.
 Optionally open a pull request to `main` only if the user explicitly requests one.
 
+<context>
+- Workspace must be a git repository with a configured `origin` remote.
+- GitHub MCP tools must be available in the current session (no `gh auth`
+  needed in devcontainers — `GH_TOKEN` is set via VS Code User Settings).
+- Read `.github/skills/github-operations/SKILL.md` for the full contribution
+  lifecycle: branch naming, commit format, and PR creation.
+- Read `.github/skills/github-operations/references/branch-strategy.md` for
+  branch naming and scope rules.
+- Read `.github/skills/github-operations/references/commit-conventions.md`
+  for the conventional commit format.
+- Minimise round-trips: the only user confirmation is the commit message
+  review.
+</context>
+
+<task>
+Execute the git commit + push (+ optional PR) pipeline detailed in the
+Workflow section below. Do not skip the branch validation or the single
+commit-message gate.
+</task>
+
+<rules>
+- Never force-push (`--force`) unless the user explicitly asks.
+- Never commit directly to `main` — warn and stop if the current branch is `main`.
+- Always show the commit hash after a successful commit.
+- Always show the PR URL after a successful PR creation.
+- The only confirmation gate is the commit message review (Step 2 of the workflow).
+- Do not add extra round-trips beyond this one gate.
+- One-shot pipeline: do not pause to investigate before acting; follow the
+  defined workflow end-to-end.
+</rules>
+
+<output_contract>
+Print a summary table at the end:
+
+| Step         | Result                               |
+| ------------ | ------------------------------------ |
+| Files staged | N files                              |
+| Commit       | `<hash>` `<subject>`                 |
+| Push         | `origin/<branch>` — pushed / skipped |
+| Pull request | `<URL>` / not created                |
+</output_contract>
+
 ## Scope & Preconditions
 
 - Workspace must be a git repository with a configured `origin` remote.

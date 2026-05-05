@@ -23,6 +23,8 @@
     "lint:docs-freshness": "node tools/scripts/check-docs-freshness.mjs",
     "validate:agents": "node tools/scripts/validate-agents.mjs",
     "lint:agent-frontmatter": "node tools/scripts/validate-agents.mjs",
+    "lint:vendor-prompting": "node tools/scripts/validate-agents.mjs --only=vendor-prompting",
+    "test:vendor-prompting": "node --test tools/tests/vendor-prompting/run.test.mjs",
     "lint:skills-format": "node tools/scripts/validate-skills.mjs",
     "lint:governance-refs": "node tools/scripts/validate-governance-refs.mjs",
     "test:governance-discovery": "python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_discover.py -q",

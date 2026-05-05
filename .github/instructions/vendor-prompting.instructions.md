@@ -74,6 +74,14 @@ Applies when frontmatter `model:` matches `gpt-5.5`.
   non-negotiable). Info-only on first release.
 - **`model-deprecation-001`** — Cross-references
   [validate-deprecated-models.mjs](../../tools/scripts/validate-deprecated-models.mjs).
+- **`prompt-model-source-001`** — HARD rule (severity `error`):
+  prompts targeting a custom agent (e.g. `agent: "02-Requirements"`)
+  MUST NOT declare `model:` — let the agent's `model:` apply.
+  Prompts using `agent: agent` (or no `agent:`) MUST declare an
+  explicit `model:`. The validator resolves a prompt's effective
+  family via its target agent when `model:` is omitted, so the
+  per-prompt rules above (`claude-no-prefill-001`,
+  `model-deprecation-001`) keep firing on agent-targeting prompts.
 
 ## Family overrides
 

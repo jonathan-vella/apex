@@ -1,6 +1,7 @@
 ---
 description: "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report."
 agent: agent
+model: "Claude Opus 4.7 (High reasoning)"
 tools: vscode, execute, read, agent, search, web, 'microsoft-learn/*'
 argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works only')"
 ---
@@ -12,6 +13,64 @@ Orchestrate a peer review of every published documentation page in
 `site/public/architecture-explorer.html`. Two independent reviewers (A + B) run
 **in parallel**, then an adversarial pass runs after them with their JSON as
 context, then reconciliation into a prioritised triage report.
+
+<investigate_before_answering>
+- Docs peer review depends on a stable file inventory and on
+  `tools/registry/count-manifest.json` as the count source-of-truth. Before
+  spinning up reviewers, confirm: (a) the `sidebar` from
+  `site/astro.config.mjs` is readable; (b) the count manifest exists and is
+  current; (c) whether the user scoped to a specific docs section (per the
+  argument-hint).
+- Do not rely on hard-coded page lists; the sidebar is the source of truth
+  and changes over time.
+</investigate_before_answering>
+
+<context>
+- In scope: all `.md` / `.mdx` pages under `site/src/content/docs/`
+  (includes `demo/`, `concepts/`, `guides/`, `getting-started/`,
+  `reference/`, `project/`) plus `site/public/architecture-explorer.html`.
+- Out of scope: `tools/tests/exec-plans/`, `agent-output/`,
+  `site/public/demo/*` raw fixtures, `site/public/downloads/`.
+- Authoritative inputs:
+  - `site/astro.config.mjs` (`sidebar` = published-page list)
+  - `tools/registry/count-manifest.json` (computed entity counts)
+  - The agent / skill / instruction / prompt files listed in the
+    Source-of-truth table below.
+- Known filename note: `four-pillars.md` renders as "Core Concepts" in the
+  nav.
+</context>
+
+<task>
+Run the three-reviewer pipeline detailed in the body below:
+
+1. Step 0 — build the file inventory dynamically from
+   `site/astro.config.mjs`.
+2. Reviewer A and Reviewer B run **in parallel** against the inventory,
+   each producing a JSON findings file.
+3. Adversarial Reviewer C runs after A/B, with their JSON as context, and
+   produces additional / contested findings.
+4. Reconciliation step merges the three findings sets into a single
+   prioritised triage report.
+</task>
+
+<rules>
+- Never hard-code entity counts; compute them at review time from
+  `tools/registry/count-manifest.json` `computed_from` patterns.
+- Reviewers A and B must run in parallel — do not serialise them.
+- Adversarial Reviewer C only runs after A and B both complete.
+- Findings must be tied to a specific file + line and a specific
+  source-of-truth violation (or UX issue with screenshot / quote).
+- Read-only review — do not edit docs as part of this prompt.
+</rules>
+
+<output_contract>
+- `agent-output/_baselines/docs-peer-review-{timestamp}/reviewer-a.json`
+- `agent-output/_baselines/docs-peer-review-{timestamp}/reviewer-b.json`
+- `agent-output/_baselines/docs-peer-review-{timestamp}/reviewer-c-adversarial.json`
+- `agent-output/_baselines/docs-peer-review-{timestamp}/triage-report.md`
+  (prioritised, one row per finding, severity-tagged)
+- Summary returned to user: counts per severity + top 5 must-fix items.
+</output_contract>
 
 ## Scope
 
