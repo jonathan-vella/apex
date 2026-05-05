@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/iteration-log.schema.json",
+  "title": "APEX Iteration Log",
+  "description": "Shape of agent-output/{project}/08-iteration-log.json \u2014 per-step iteration records appended by the orchestrator. Read by tools/scripts/benchmark-e2e.mjs (scoreTimingPerformance, scoreRegenerationRate).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "entries"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "iteration-log-v1"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": [
+        "step"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "step": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 7
+            },
+            {
+              "type": "string",
+              "enum": [
+                "3_5"
+              ]
+            }
+          ],
+          "description": "Workflow step number (1..7) or '3_5' for the Governance sub-step."
+        },
+        "name": {
+          "type": "string"
+        },
+        "started": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "success",
+            "failure",
+            "skipped",
+            "in_progress"
+          ]
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Filenames produced by this iteration (e.g., '03-des-diagram.drawio')."
+        },
+        "artifact_retries": {
+          "type": "object",
+          "description": "Per-artifact retry counts. Keys are artifact filenames produced in this iteration; values are integers >= 0 counting how many times the artifact was regenerated before acceptance. Consumed by tools/scripts/benchmark-e2e.mjs scoreRegenerationRate() and aggregated for the regen-rate baseline (T-012). Added by T-011 (Draw.io Diagram Quality Uplift plan).",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "artifact_friction": {
+          "type": "object",
+          "description": "Per-artifact friction-event counts (out-of-band signal complementing artifact_retries). Counts: failed/erroring MCP calls collapsed by causal chain, redundant successful MCP calls (e.g., preview + final finish-diagram), and out-of-band file-level corrections (sed/manual edit on saved artifact). Consumed by scoreRegenerationRate() to form the cost composite (retries + friction). Added by T-012 capture (option C).",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

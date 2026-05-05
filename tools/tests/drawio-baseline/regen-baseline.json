@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/drawio-regen-baseline.schema.json",
+  "schema_version": "drawio-regen-baseline-v1",
+  "captured_at": "2026-05-05T16:13:08.978Z",
+  "captured_on_branch": "feat/vendor-prompting-enforcement",
+  "captured_on_commit": "e5d87e8d6828e1b33964845189911e10f87f5fbd",
+  "captured_by": "apex-orchestrator (G1 from session 50996f96, debug-log analysis)",
+  "scenarios_captured": 1,
+  "scenarios_total": 7,
+  "mean_retries_per_drawio": 0,
+  "mean_friction_per_drawio": 3,
+  "mean_cost_per_drawio": 3,
+  "per_scenario": {
+    "g1-three-tier-web": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch, 0 clear-diagram, 0 corrective edits). Friction events captured: (1) MCP infra setup [1 failed search-shapes + 6 debug terminal calls before retry succeeded]; (2) redundant finish-diagram preview before compressed export; (3) post-export palette correction via sed (#EFF6FF/#0078D4 -> #E7F5FF/#6C8EBF) instead of MCP edit-cells. Visual quality observed below 3/4 acceptance bar (rubric mean ~2.86).",
+      "rubric_mean": 2.857
+    }
+  },
+  "target_reduction_pct": 40,
+  "notes": "PARTIAL: 1/7 scenarios captured. Re-run after capturing remaining scenarios. mean_cost_per_drawio is the divisor used by scoreRegenerationRate() in benchmark-e2e.mjs."
+}

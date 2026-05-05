@@ -1,0 +1,1073 @@
+{
+  "plan_id": "drawio-quality-uplift",
+  "generated_at": "2026-05-05T14:42:09Z",
+  "argument_hint": "none (balanced coverage); user gate decision: backward compatibility not required",
+  "phases": [
+    {
+      "id": "P0-audit",
+      "title": "Current-State Audit",
+      "gate": "user-approval",
+      "executed_in_this_run": true,
+      "exit_criteria": [
+        "Findings table covers all 7 pain-point categories with file/line evidence",
+        "MCP Tool Surface Inventory enumerates every tool in tools/mcp-servers/drawio/src/ with file:line refs",
+        "Owning layer (agent / MCP / shared / validator / icon-library) identified for each finding",
+        "Sample real outputs (site/public/demo/*.drawio) inspected and quoted"
+      ]
+    },
+    {
+      "id": "P1-design",
+      "title": "Target-State Design",
+      "gate": "user-approval",
+      "executed_in_this_run": true,
+      "exit_criteria": [
+        "Quality rubric covers 7 dimensions with 0-4 anchored scale",
+        "Golden scenarios pack defined; each pain-point exercised by >=1 scenario",
+        "Validation strategy names integration points (benchmark-e2e.mjs, validate-drawio-files.mjs)",
+        "Hard constraints (agent context size, pure-Deno MCP) re-stated in roll-out section"
+      ]
+    },
+    {
+      "id": "P2-implementation",
+      "title": "Implementation",
+      "gate": "per-workstream-PR",
+      "executed_in_this_run": false,
+      "exit_criteria": [
+        "All P0 tasks merged; P1 tasks merged or scheduled; P2 tasks tracked in issues"
+      ]
+    },
+    {
+      "id": "P3-validation",
+      "title": "Validation & Roll-out",
+      "gate": "acceptance-review",
+      "executed_in_this_run": false,
+      "exit_criteria": [
+        "Golden scenarios regenerated post-change; side-by-side diff inspected for each",
+        "benchmark-e2e.mjs reports >=40% reduction in regen/retry-rate per .drawio vs. captured baseline",
+        "validator extensions pass on all 7 golden scenarios",
+        "All rubric dimensions score >=3/4 averaged across golden scenarios"
+      ]
+    }
+  ],
+  "workstreams": [
+    {
+      "id": "WS-AGENT-TYPE-DISPATCH",
+      "scope": "design-agent",
+      "title": "Diagram type dispatch in 04-Design",
+      "rationale": "Agent currently emits a single architecture template per project; the workflow has implicit support for logical/network/sequence/deployment diagrams but no selection logic.",
+      "pain_points": [
+        "type-mismatch",
+        "semantics",
+        "labels"
+      ]
+    },
+    {
+      "id": "WS-AGENT-ICONS-VARIANTS",
+      "scope": "design-agent",
+      "title": "Variant-aware icon prompting",
+      "rationale": "Library is current (V23-Nov-2025) but agent prompts do not disambiguate service tiers/SKUs; fuzzy match returns generic family icon for ambiguous queries.",
+      "pain_points": [
+        "icons"
+      ]
+    },
+    {
+      "id": "WS-AGENT-SEMANTICS-TEMPLATES",
+      "scope": "design-agent",
+      "title": "Semantic zone templates (subscription / region / trust boundary)",
+      "rationale": "Skill enforces VNet/RG groups but provides no templates for subscription scope, region label, trust-boundary perimeter, or external/internet zones.",
+      "pain_points": [
+        "semantics"
+      ]
+    },
+    {
+      "id": "WS-AGENT-LABELS-LEGEND",
+      "scope": "design-agent",
+      "title": "Legend & annotation conventions",
+      "rationale": "Legend is mandatory per validation-checklist but creation is fully manual; no copy-paste template; data-flow annotations are unstructured strings.",
+      "pain_points": [
+        "labels"
+      ]
+    },
+    {
+      "id": "WS-AGENT-SCALING-DECOMP",
+      "scope": "design-agent",
+      "title": "Large-graph decomposition strategy",
+      "rationale": "Agent has only an effort-tuning note for >20 resources and a 25-tool-call circuit breaker; no rules for splitting into overview + detail diagrams or paginating across <diagram> pages.",
+      "pain_points": [
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-MCP-LAYOUT",
+      "scope": "mcp-server",
+      "title": "Auto-arrange / hierarchical layout (proposed new capability)",
+      "rationale": "Source has no layout engine; suggest-group-sizing is formula-based vertical stacking only; all coordinates are caller-supplied. Proposed: pure-Deno layered layout (dagre-style).",
+      "pain_points": [
+        "layout",
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-MCP-PRESETS",
+      "scope": "mcp-server",
+      "title": "Expanded style presets (fonts / line weights / themes)",
+      "rationale": "get-style-presets returns colors and edge styles only; missing fonts, line weights, theme variants. Skill prescribes 14-16/12/11/10/9pt typography but agent has no preset to enforce.",
+      "pain_points": [
+        "styling"
+      ]
+    },
+    {
+      "id": "WS-MCP-LEGEND-GEN",
+      "scope": "mcp-server",
+      "title": "Legend generation tool (proposed new capability)",
+      "rationale": "No tool emits a legend block. Proposed: generate-legend scans current diagram for unique icons + edge-label tokens and emits a self-contained legend group.",
+      "pain_points": [
+        "labels"
+      ]
+    },
+    {
+      "id": "WS-MCP-ZONES-TEMPLATE",
+      "scope": "mcp-server",
+      "title": "Nested-zone template tool (proposed new capability)",
+      "rationale": "create-groups + add-cells-to-group exist but require manual nesting; no template for Subscription -> RG -> VNet -> Subnet hierarchy. Proposed: apply-zone-template.",
+      "pain_points": [
+        "semantics",
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-MCP-SCALE-PERF",
+      "scope": "mcp-server",
+      "title": "Parallel placeholder resolution + scale perf",
+      "rationale": "finish-diagram resolves placeholders serially; bottlenecks at >100 icons. Pure in-memory icon cache makes Promise.all batching safe.",
+      "pain_points": [
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-MCP-SEARCH-VARIANTS",
+      "scope": "mcp-server",
+      "title": "Variant-aware shape search",
+      "rationale": "search-shapes prioritises exact title then fuzzy fallback; no boost for tier/SKU keywords (premium, managed instance, hyperscale).",
+      "pain_points": [
+        "icons"
+      ]
+    },
+    {
+      "id": "WS-SHARED-RUBRIC",
+      "scope": "shared",
+      "title": "Diagram quality rubric (canonical)",
+      "rationale": "Validation-checklist references a 10-point rubric but no canonical 0-4 scale per dimension exists; needed by validator extensions and benchmark scoring.",
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-SHARED-GOLDEN",
+      "scope": "shared",
+      "title": "Golden scenario fixtures",
+      "rationale": "No fixed evaluation set exists; each PR is judged on ad-hoc projects. Stable fixtures enable before/after comparison and regression detection.",
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-SHARED-VALIDATOR",
+      "scope": "validator",
+      "title": "Validator extensions (overlap / density / type-fit / semantics / legend)",
+      "rationale": "Validator covers structural integrity + APEX palette + icon presence; no overlap, density, semantic-zone, type-fit, or legend checks.",
+      "pain_points": [
+        "layout",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ]
+    },
+    {
+      "id": "WS-SHARED-ICONS-MANIFEST",
+      "scope": "icon-library",
+      "title": "Icon manifest enrichment + freshness check",
+      "rationale": "manifest.json records sourceVersion (V23-November-2025) but has no per-service variant taxonomy and no automated drift detection against MS Learn.",
+      "pain_points": [
+        "icons"
+      ]
+    },
+    {
+      "id": "WS-SHARED-METRICS",
+      "scope": "shared",
+      "title": "Benchmark regen/retry-rate metric",
+      "rationale": "benchmark-e2e.mjs scores 8 dimensions but timing dimension tracks duration only, not retry count. 08-iteration-log.json has no per-artifact retry field.",
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T-001",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-RUBRIC",
+      "scope": "shared",
+      "title": "Author canonical quality-rubric.md in drawio skill references",
+      "rationale": "Single source of truth for the 7-dimension 0-4 rubric. Lives in skill references (not agent body) to respect agent context budget; validator and benchmark both consume it.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "File at .github/skills/drawio/references/quality-rubric.md exists",
+        "All 7 dimensions present with anchored 0-4 scale matching plan.md",
+        "Linked from SKILL.md, SKILL.digest.md (>=summary line), SKILL.minimal.md (>=pointer)",
+        "Validator and benchmark-e2e reference the rubric file path"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-002",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-GOLDEN",
+      "scope": "shared",
+      "title": "Author golden-scenario fixture pack (7 scenarios)",
+      "rationale": "Stable evaluation set covering all 7 pain-point categories. Required for side-by-side validation and regen-rate baseline.",
+      "priority": "P0",
+      "effort": "L",
+      "acceptance_criteria": [
+        "tools/tests/drawio-golden/<scenario-id>/{prompt.md, expected.json} exists for 7 scenarios",
+        "expected.json fields: diagram_type, min_resources, max_resources, expected_zones[], expected_edge_labels[], expected_legend_required",
+        "All 7 pain-point categories exercised by >=1 scenario per coverage matrix in plan.md",
+        "README.md describes how to run a scenario through the agent",
+        "Path correction (delivery): fixtures live under tools/tests/drawio-golden/ to match repo convention; schema at tools/schemas/drawio-golden-scenario.schema.json"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-003",
+      "phase": "P3-validation",
+      "workstream": "WS-SHARED-GOLDEN",
+      "scope": "shared",
+      "title": "Add render-golden-diff.mjs for side-by-side before/after comparison",
+      "rationale": "Validation strategy requires visual side-by-side at every PR; needs reproducible rendering pipeline against fixtures.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "tools/scripts/render-golden-diff.mjs renders each fixture pre/post and writes paired PNGs",
+        "Outputs HTML index with side-by-side panels per scenario",
+        "Exits non-zero if any fixture fails to render"
+      ],
+      "dependencies": [
+        "T-002"
+      ],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-004",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-ICONS-MANIFEST",
+      "scope": "icon-library",
+      "title": "Enrich manifest.json with variant taxonomy",
+      "rationale": "Encode service variants (App Service tiers, SQL editions, Storage redundancy) so search-shapes and agent prompts can disambiguate. Pure data; no MCP runtime change required.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "manifest.json gains variants{} mapping service-name -> [variant labels]",
+        "Schema documented in assets/drawio-libraries/azure-icons/README.md",
+        "Coverage for at minimum: App Service, SQL, Storage, Cosmos DB, AKS, Key Vault, Front Door, App Gateway, Container Apps, Functions"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "icons"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-005",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-ICONS-MANIFEST",
+      "scope": "icon-library",
+      "title": "Add check-azure-icons-freshness.mjs",
+      "rationale": "Detect drift when Microsoft publishes a new icon-set release (V24+); avoid silently shipping stale icons.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Script fetches MS Learn icon-set release page and parses current version label",
+        "Compares against manifest.sourceVersion; warns on drift",
+        "Wired into npm script (e.g., npm run check:azure-icons-freshness) and optional CI weekly job"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "icons"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-006",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-VALIDATOR",
+      "scope": "validator",
+      "title": "Add overlap detection check to validate-drawio-files.mjs",
+      "rationale": "Layout pain-point currently has no automated check; AABB collision among siblings is deterministic and cheap.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "New check enumerates sibling vertices and reports overlapping AABBs as advisory by default",
+        "APEX_DRAWIO_RUBRIC=strict promotes to error",
+        "False-positive rate <=5% on existing .drawio files in repo",
+        "Decision OQ-3 (resolved): false-positive ceiling fixed at <=5% measured against golden-scenario fixtures (T-002) and existing repo .drawio inventory"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "layout"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-007",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-VALIDATOR",
+      "scope": "validator",
+      "title": "Add density check (cells per canvas page)",
+      "rationale": "Scaling pain-point indicator: warn when cell count vs. canvas-page area exceeds threshold.",
+      "priority": "P0",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Threshold defined in references/quality-rubric.md and consumed by validator",
+        "Warns when ratio exceeds threshold; suggests pagination or decomposition",
+        "Strict mode escalates to error"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-008",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-VALIDATOR",
+      "scope": "validator",
+      "title": "Add diagram-type fit check by filename pattern",
+      "rationale": "Type-mismatch pain-point: detect when a runtime/sequence diagram lacks expected signatures (sequence-style edge labels) or a network diagram lacks zones.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Per-pattern signature rules declared in validator (filename pattern -> expected signatures)",
+        "Patterns covered: 03-des-diagram*, 04-dependency-diagram*, 04-runtime-diagram*, 07-ab-diagram*",
+        "Advisory by default; strict mode escalates"
+      ],
+      "dependencies": [
+        "T-001",
+        "T-016"
+      ],
+      "pain_points": [
+        "type-mismatch"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-009",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-VALIDATOR",
+      "scope": "validator",
+      "title": "Add semantic-zone presence check",
+      "rationale": "Semantics pain-point: when resource count >10, expect at least one container/group cell representing a zone.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Warning when image-cell count >10 and no container/group cells present",
+        "Threshold and rule documented in references/quality-rubric.md",
+        "Strict mode escalates"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "pain_points": [
+        "semantics"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-010",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-VALIDATOR",
+      "scope": "validator",
+      "title": "Add legend-presence check for architecture deliverables",
+      "rationale": "Labels pain-point: legend is mandatory per checklist but not enforced; flag missing legend cell when image cells exceed 8.",
+      "priority": "P0",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Detects legend by convention (named cell or labelled group) consistent with T-021 template",
+        "Warns when image-cell count >8 and no legend detected",
+        "Strict mode escalates"
+      ],
+      "dependencies": [
+        "T-021"
+      ],
+      "pain_points": [
+        "labels"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-011",
+      "phase": "P2-implementation",
+      "workstream": "WS-SHARED-METRICS",
+      "scope": "shared",
+      "title": "Extend 08-iteration-log.json with artifact_retries and update benchmark scoring",
+      "rationale": "benchmark-e2e currently tracks duration only; per-diagram regen rate needs first-class field.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Schema for 08-iteration-log.json updated with entries[].artifact_retries{ <filename>: <int> }",
+        "validate-session-state validates new field",
+        "scoreTimingPerformance() (or new scoreRegenerationRate()) aggregates *.drawio retries and computes mean retries per .drawio",
+        "Reported as a new dimension in 08-benchmark-scores.json and the markdown report",
+        "Delivery deviation (recorded): the new schema is enforced via .vscode/settings.json json.schemas association (same pattern as lesson-log.schema.json), not by extending validate-session-state.mjs. Rationale: validate-session-state.mjs is scoped to session-state files only; iteration-log is a separate artifact. Schema lives at tools/schemas/iteration-log.schema.json. Composite weight currently 0; flipped to non-zero by T-012 once baseline is captured."
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-012",
+      "phase": "P3-validation",
+      "workstream": "WS-SHARED-METRICS",
+      "scope": "shared",
+      "title": "Capture regen-rate baseline on main HEAD",
+      "rationale": "Before any code change lands, capture pre-change regen rate so post-change reduction can be measured.",
+      "priority": "P0",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Baseline captured by running npm run e2e:benchmark against current main HEAD over the 7 golden scenarios",
+        "Snapshot stored at tests/fixtures/drawio-baseline/regen-baseline.json (mean and per-scenario regen rate)",
+        "Target reduction set to >=40% mean regen rate per .drawio (rationale: 1.4x avg today implies sub-1.0 after change)",
+        "Procedure documented in references/quality-rubric.md or sibling reference"
+      ],
+      "dependencies": [
+        "T-002",
+        "T-011"
+      ],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-015",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-TYPE-DISPATCH",
+      "scope": "design-agent",
+      "title": "Add diagram-type dispatch to 04-design.agent.md (<=30 added lines)",
+      "rationale": "Selects logical / network / sequence / deployment diagram type from session-state inputs; bulk detail lives in references/diagram-types.md to keep agent under 350 lines.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Agent body net delta <=30 lines (current 411 -> <=441)",
+        "Dispatch reads decisions.architecture_type or workload_pattern from session state",
+        "References/diagram-types.md contains tool-call patterns; agent body links only",
+        "agent-frontmatter and context-optimization linters pass",
+        "Decision OQ-1 (resolved): dispatch lives in agent (not a new MCP tool) per user gate review"
+      ],
+      "dependencies": [
+        "T-016"
+      ],
+      "pain_points": [
+        "type-mismatch",
+        "semantics",
+        "labels"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-016",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-TYPE-DISPATCH",
+      "scope": "design-agent",
+      "title": "Author references/diagram-types.md in drawio skill",
+      "rationale": "Detail vehicle for type dispatch: per-type tool-call sequence, expected element kinds, label conventions. Keeps agent body lean.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "File at .github/skills/drawio/references/diagram-types.md exists",
+        "Covers 4 types: logical, network, sequence, deployment",
+        "Each type: when-to-use, expected resources, tool-call sketch, label/legend rules",
+        "Linked from SKILL.md and SKILL.digest.md"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "type-mismatch",
+        "semantics",
+        "labels"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-017",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-ICONS-VARIANTS",
+      "scope": "design-agent",
+      "title": "Update agent MCP-tool-call sequence to use get-shape-categories before search-shapes when variants matter",
+      "rationale": "Disambiguates fuzzy hits when prompts mention tier/SKU; pushes detail to icon-variants reference.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Conditional step inserted in agent's 8-step sequence (<=10 added lines in agent body)",
+        "Detail in references/icon-variants.md",
+        "Examples cover at least App Service Plans, SQL editions, Storage redundancy"
+      ],
+      "dependencies": [
+        "T-018",
+        "T-004"
+      ],
+      "pain_points": [
+        "icons"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-018",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-ICONS-VARIANTS",
+      "scope": "design-agent",
+      "title": "Author references/icon-variants.md in drawio skill",
+      "rationale": "Catalog of common service variants and prompt patterns so agent can ask for the right SKU without guessing.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "File present and lists variants for >=10 service families",
+        "Cross-references manifest.json variant taxonomy from T-004",
+        "Linked from SKILL.md"
+      ],
+      "dependencies": [
+        "T-004"
+      ],
+      "pain_points": [
+        "icons"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-019",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-SEMANTICS-TEMPLATES",
+      "scope": "design-agent",
+      "title": "Author references/semantic-zones.md (subscription / region / trust-boundary / external)",
+      "rationale": "Skill currently covers VNet/RG groups only; add templates for subscription scope, region label, trust boundary, internet/external box.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "File present with copy-pasteable mxCell snippets per zone type",
+        "Nesting rules documented (subscription -> RG -> VNet -> Subnet)",
+        "Linked from SKILL.md and references/abstraction-rules.md"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "semantics"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-020",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-SEMANTICS-TEMPLATES",
+      "scope": "design-agent",
+      "title": "Update 04-design.agent.md to reference semantic-zones template selection rule",
+      "rationale": "Pointer-only update; <=15 lines added so agent stays under context budget.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Agent body delta <=15 lines",
+        "Selection rule based on resource scope (single sub vs multi-sub, single region vs multi-region, has-public-ingress)",
+        "Detail in references/semantic-zones.md only"
+      ],
+      "dependencies": [
+        "T-019"
+      ],
+      "pain_points": [
+        "semantics"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-021",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-LABELS-LEGEND",
+      "scope": "design-agent",
+      "title": "Author references/legend-template.md with copy-paste legend block",
+      "rationale": "Validation-checklist mandates legend but no copy-paste template exists; agent crafts legend ad-hoc each run, raising regen rate.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "File present with mxCell legend block (icon, color, edge-style swatches)",
+        "Includes APEX-palette swatches matching style-reference.md",
+        "Linked from SKILL.md"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "labels"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-022",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-LABELS-LEGEND",
+      "scope": "design-agent",
+      "title": "Update agent handoff to require legend cell unless diagram_type=sequence",
+      "rationale": "Encodes legend mandate as agent contract; sequence diagrams use swim-lane labels instead.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Agent handoff template includes legend cell requirement",
+        "Exception path documented for sequence type",
+        "<=10 lines added to agent body"
+      ],
+      "dependencies": [
+        "T-015",
+        "T-021"
+      ],
+      "pain_points": [
+        "labels"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-023",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-SCALING-DECOMP",
+      "scope": "design-agent",
+      "title": "Author references/large-architecture-decomposition.md (>20 / >50 resource rules)",
+      "rationale": "Scaling pain-point currently has only an effort note; decomposition rules belong in skill reference, not agent body.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Rules cover: pagination across <diagram> pages, overview + detail pattern, hierarchical clustering heuristics",
+        "Tier breakpoints documented (<=8, 9-20, 21-50, >50)",
+        "Linked from SKILL.md"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-024",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-SCALING-DECOMP",
+      "scope": "design-agent",
+      "title": "Adjust agent circuit-breaker tiers (25 -> dynamic by resource count)",
+      "rationale": "Fixed 25-call cap hurts >20-resource scenarios; tier the cap by decisions.resource_count.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Cap: 25 for <=20 resources, 40 for 21-50, requires-decomposition for >50 (defers to T-023)",
+        "Rationale logged in agent body",
+        "<=10 lines net delta"
+      ],
+      "dependencies": [
+        "T-023"
+      ],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-025",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-LAYOUT",
+      "scope": "mcp-server",
+      "title": "Implement auto-arrange MCP tool (pure-Deno layered layout)",
+      "rationale": "No layout engine exists today; pure-Deno port of dagre-style layered algorithm satisfies pure-Deno constraint.",
+      "priority": "P1",
+      "effort": "L",
+      "acceptance_criteria": [
+        "New tool auto-arrange registered in tool_definitions.ts; handler in tools.ts or new layout module",
+        "Inputs: vertex IDs, edges, optional constraints (rankdir, spacing); Outputs: x,y per vertex",
+        "Pure standard library + existing deno.json deps; no new external deps unless deno-compatible and justified",
+        "Performance: arranges 50-vertex graph in <200ms on Deno bench",
+        "Tests added in tests/auto_arrange.test.ts",
+        "Backward-compat: existing diagrams unaffected unless tool explicitly invoked"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "layout",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-026",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-LAYOUT",
+      "scope": "mcp-server",
+      "title": "Implement detect-overlap MCP tool",
+      "rationale": "Provides authoritative AABB collision report; complements validator's structural overlap check (T-006) but available at build time.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Tool detect-overlap returns sibling AABB collisions with cell IDs and overlap area",
+        "Pure-Deno; no new deps",
+        "Tests cover nested/non-nested cases"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "layout"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-027",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-PRESETS",
+      "scope": "mcp-server",
+      "title": "Extend get-style-presets with fonts / line weights / theme variants",
+      "rationale": "Agent enforces 14-16/12/11/10/9pt typography manually; presets centralise the convention and reduce drift.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Presets returned: font.title, font.group, font.service, font.edge, font.footer; line-weight.primary/secondary; theme.light/dark/print",
+        "Backward-compat: existing color and edge presets unchanged",
+        "Tests updated"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "styling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-028",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-LEGEND-GEN",
+      "scope": "mcp-server",
+      "title": "Implement generate-legend MCP tool",
+      "rationale": "Legend creation is currently fully manual on the agent side; server-side generation uses authoritative diagram state.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Scans current diagram for unique icons + edge-label tokens",
+        "Emits a self-contained legend group cell block consistent with T-021 template",
+        "Idempotent: re-invocation updates rather than duplicates the legend",
+        "Tests cover empty, small (<=8 icons), and large (>20 icons) cases",
+        "Decision OQ-2 (resolved): legend positioned relative to current diagram bounds by default; caller may supply optional fixed x/y override"
+      ],
+      "dependencies": [
+        "T-021"
+      ],
+      "pain_points": [
+        "labels"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-029",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-ZONES-TEMPLATE",
+      "scope": "mcp-server",
+      "title": "Implement apply-zone-template MCP tool",
+      "rationale": "Codifies subscription -> RG -> VNet -> Subnet nesting that today requires manual create-groups + add-cells-to-group orchestration.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Tool accepts a zone manifest (subscriptions[].resource_groups[].vnets[].subnets[]) and emits nested groups",
+        "Returns mapping zone-id -> cell-id for downstream child placement",
+        "Pure-Deno; tests cover single-sub / multi-sub / multi-region"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "semantics",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-030",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-SCALE-PERF",
+      "scope": "mcp-server",
+      "title": "Parallelise finish-diagram placeholder resolution",
+      "rationale": "Today serial; in-memory cache is thread-safe (Deno is single-threaded; awaiting Promise.all is safe). Bottleneck shows at >100 placeholders.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Promise.all batched resolution (batch size configurable, default 32)",
+        "Bench shows >=3x throughput improvement at 100 placeholders",
+        "Backward-compat: same XML output bytes as serial path",
+        "Tests updated; bench added in tests/performance.bench.ts"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-031",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-SCALE-PERF",
+      "scope": "mcp-server",
+      "title": "Extend get-diagram-stats with density warning",
+      "rationale": "Surface scaling pressure earlier in the agent loop; complements validator T-007.",
+      "priority": "P2",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Stats response includes density_warning bool and suggested_action string",
+        "Threshold consistent with T-007 / quality-rubric.md",
+        "Tests cover under/at/over-threshold"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-032",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-SEARCH-VARIANTS",
+      "scope": "mcp-server",
+      "title": "Boost variant matches in search-shapes ranking",
+      "rationale": "When query mentions tier/SKU keywords (premium, managed instance, hyperscale), prefer variant-specific icons over family default.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Ranker consumes manifest.variants{} (T-004) when present",
+        "Tests: query 'app service premium plan' returns Premium-tier icon ahead of generic App Service Plan",
+        "No regression on existing unit tests"
+      ],
+      "dependencies": [
+        "T-004"
+      ],
+      "pain_points": [
+        "icons"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-033",
+      "phase": "P3-validation",
+      "workstream": "WS-SHARED-METRICS",
+      "scope": "shared",
+      "title": "Author run-drawio-quality-bench.mjs orchestrator",
+      "rationale": "Single command runs golden-scenario regen + side-by-side render + regen-rate comparison + validator suite.",
+      "priority": "P0",
+      "effort": "M",
+      "acceptance_criteria": [
+        "tools/scripts/run-drawio-quality-bench.mjs orchestrates T-002 fixtures, T-003 diff render, T-011 metrics, T-013 backcompat, validator suite",
+        "Emits consolidated PASS/FAIL summary and per-dimension scores",
+        "Runnable as npm run bench:drawio-quality"
+      ],
+      "dependencies": [
+        "T-002",
+        "T-003",
+        "T-011"
+      ],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-034",
+      "phase": "P3-validation",
+      "workstream": "WS-SHARED-VALIDATOR",
+      "scope": "shared",
+      "title": "Per-PR review checklist linking workstreams to validators and golden scenarios",
+      "rationale": "Ensures every uplift PR exercises the relevant golden(s) and validator extension(s).",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Checklist file referenced from PULL_REQUEST_TEMPLATE.md",
+        "For each workstream, lists which goldens to regen and which validator checks to assert",
+        "Reviewer can mark PASS/FAIL per row"
+      ],
+      "dependencies": [
+        "T-002",
+        "T-006",
+        "T-007",
+        "T-008",
+        "T-009",
+        "T-010"
+      ],
+      "pain_points": [
+        "icons",
+        "layout",
+        "styling",
+        "semantics",
+        "labels",
+        "type-mismatch",
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": null
+      }
+    }
+  ]
+}

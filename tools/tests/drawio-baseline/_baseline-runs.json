@@ -1,0 +1,78 @@
+{
+  "$schema": "../../schemas/drawio-baseline-runs.schema.json",
+  "_comment": [
+    "Per-scenario baseline observations captured on main HEAD before any uplift",
+    "code change lands. User edits this file after running each fixture through",
+    "the 04-Design agent in Copilot Chat. Run `node tools/scripts/capture-drawio-baseline.mjs`",
+    "after every entry to regenerate regen-baseline.json."
+  ],
+  "captured_on_branch": "feat/vendor-prompting-enforcement",
+  "captured_on_commit": "e5d87e8d6828e1b33964845189911e10f87f5fbd",
+  "captured_at": "2026-05-05T16:07:20Z",
+  "captured_by": "apex-orchestrator (G1 from session 50996f96, debug-log analysis)",
+  "scenarios": {
+    "g1-three-tier-web": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch, 0 clear-diagram, 0 corrective edits). Friction events captured: (1) MCP infra setup [1 failed search-shapes + 6 debug terminal calls before retry succeeded]; (2) redundant finish-diagram preview before compressed export; (3) post-export palette correction via sed (#EFF6FF/#0078D4 -> #E7F5FF/#6C8EBF) instead of MCP edit-cells. Visual quality observed below 3/4 acceptance bar (rubric mean ~2.86).",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 2,
+        "styling": 3,
+        "semantics": 2,
+        "labelling": 2,
+        "type_fit": 3,
+        "scalability": 4
+      },
+      "quality_issues": [
+        "Edge-label collision: 'SqlHTTPS' visible \u2014 two parallel edges (HTTPS to Storage and SQL/TDS to Azure SQL DB) had labels overlap into a fused string. Pain point #5.",
+        "Missing Managed Identity edges per prompt: prompt requires Web App -> Key Vault and Web App -> SQL via Managed Identity; only one Web App -> SQL edge rendered. Pain point #5.",
+        "Application Insights and Log Analytics Workspace placed below the resource group with no zone label and no telemetry edges from Web App. No 'Observability' or cross-cutting zone visible. Pain point #4.",
+        "No trust-boundary marker at the End User -> Web App public ingress. Pain point #4.",
+        "Web App -> Storage and Web App -> SQL edges visually overlap before fan-out, contributing to label collision. Pain point #2."
+      ]
+    },
+    "g2-hub-spoke-landing-zone": {
+      "retries": null,
+      "observations": "",
+      "friction_count": null,
+      "rubric_score": null,
+      "quality_issues": []
+    },
+    "g3-event-driven-microservices": {
+      "retries": null,
+      "observations": "",
+      "friction_count": null,
+      "rubric_score": null,
+      "quality_issues": []
+    },
+    "g4-ml-training-pipeline": {
+      "retries": null,
+      "observations": "",
+      "friction_count": null,
+      "rubric_score": null,
+      "quality_issues": []
+    },
+    "g5-enterprise-landing-zone": {
+      "retries": null,
+      "observations": "",
+      "friction_count": null,
+      "rubric_score": null,
+      "quality_issues": []
+    },
+    "g6-hyperscale-platform": {
+      "retries": null,
+      "observations": "",
+      "friction_count": null,
+      "rubric_score": null,
+      "quality_issues": []
+    },
+    "g7-multi-region-active-active": {
+      "retries": null,
+      "observations": "",
+      "friction_count": null,
+      "rubric_score": null,
+      "quality_issues": []
+    }
+  }
+}

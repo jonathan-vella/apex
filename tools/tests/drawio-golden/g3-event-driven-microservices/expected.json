@@ -1,0 +1,32 @@
+{
+  "schema_version": "drawio-golden-scenario-v1",
+  "id": "g3-event-driven-microservices",
+  "title": "Event-Driven Microservices (medium)",
+  "diagram_type": "sequence",
+  "scope": {
+    "subscriptions": 1,
+    "regions": 1,
+    "management_groups": 0
+  },
+  "min_resources": 10,
+  "max_resources": 14,
+  "expected_zones": [
+    "Ingress",
+    "Processing",
+    "Persistence"
+  ],
+  "expected_edge_labels": [
+    "HTTPS",
+    "AMQP",
+    "443",
+    "OAuth2"
+  ],
+  "expected_legend_required": false,
+  "expected_pages": 1,
+  "pain_points_exercised": [
+    "styling",
+    "labels",
+    "type-mismatch"
+  ],
+  "notes": "Sequence/runtime-flow diagram; logical zones not network zones; legend exempted per OQ-2 sequence carve-out (T-022)."
+}

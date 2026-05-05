@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/drawio-regen-baseline.schema.json",
+  "title": "APEX Draw.io Regen-Rate Baseline",
+  "description": "Generated baseline file consumed by tools/scripts/benchmark-e2e.mjs scoreRegenerationRate(). Captured by T-012 before any uplift code change lands.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "captured_at",
+    "mean_retries_per_drawio",
+    "per_scenario",
+    "mean_friction_per_drawio",
+    "mean_cost_per_drawio"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "drawio-regen-baseline-v1"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "captured_on_branch": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "captured_on_commit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "captured_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenarios_captured": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "scenarios_total": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mean_retries_per_drawio": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Mean retries per .drawio across all captured scenarios. Used by scoreRegenerationRate() as the divisor in 100 * max(0, 1 - current/baseline)."
+    },
+    "per_scenario": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "retries",
+          "friction_count"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "retries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "observations": {
+            "type": "string"
+          },
+          "friction_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rubric_mean": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 4
+          }
+        }
+      }
+    },
+    "target_reduction_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Target reduction percentage post-uplift. Default: 40."
+    },
+    "notes": {
+      "type": "string"
+    },
+    "mean_friction_per_drawio": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Mean friction_count across captured scenarios."
+    },
+    "mean_cost_per_drawio": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Composite cost: mean_retries_per_drawio + mean_friction_per_drawio. Used by scoreRegenerationRate() as the divisor in 100 * max(0, 1 - current_cost/baseline_cost). Provides a non-degenerate signal even when strict retries are 0."
+    }
+  }
+}

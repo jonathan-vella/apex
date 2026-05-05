@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/drawio-golden-scenario.schema.json",
+  "title": "APEX Draw.io Golden Scenario Expectation",
+  "description": "Expectation envelope for a single golden scenario in tools/tests/drawio-golden/. Consumed by render-golden-diff.mjs (T-003), validator extensions (T-006..T-010), and the orchestrator (T-033).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "diagram_type",
+    "min_resources",
+    "max_resources",
+    "expected_zones",
+    "expected_edge_labels",
+    "expected_legend_required",
+    "pain_points_exercised"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "drawio-golden-scenario-v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^g[1-9][0-9]*-[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "diagram_type": {
+      "type": "string",
+      "enum": [
+        "logical",
+        "network",
+        "sequence",
+        "deployment",
+        "logical+network",
+        "decomposed"
+      ],
+      "description": "Expected diagram type per references/diagram-types.md (T-016)."
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subscriptions": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "regions": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "management_groups": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "min_resources": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "max_resources": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "expected_zones": {
+      "type": "array",
+      "description": "Zone labels that must appear as group/container cells. Validator T-009 reads this list.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "expected_edge_labels": {
+      "type": "array",
+      "description": "Substrings that must appear in at least one edge label. Allows validator T-008 to assert type-fit signatures.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "expected_legend_required": {
+      "type": "boolean"
+    },
+    "expected_pages": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of <diagram> pages expected. Default 1; >1 implies decomposition (T-023)."
+    },
+    "pain_points_exercised": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "icons",
+          "layout",
+          "styling",
+          "semantics",
+          "labels",
+          "type-mismatch",
+          "scaling"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "rubric_targets": {
+      "type": "object",
+      "description": "Optional minimum scores per rubric dimension (0-4). Falls back to acceptance bar in references/quality-rubric.md when absent.",
+      "additionalProperties": false,
+      "properties": {
+        "icon_correctness": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "layout": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "styling": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "semantics": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "labelling": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "type_fit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "scalability": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

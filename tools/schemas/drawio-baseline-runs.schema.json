@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/drawio-baseline-runs.schema.json",
+  "title": "APEX Draw.io Baseline Runs (working file)",
+  "description": "User-edited file capturing per-scenario retry observations during T-012 baseline capture. Source for tools/tests/drawio-baseline/regen-baseline.json.",
+  "type": "object",
+  "required": [
+    "scenarios"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "_comment": {
+      "type": [
+        "string",
+        "array"
+      ]
+    },
+    "captured_on_branch": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "captured_on_commit": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^([0-9a-f]{7,40}|null)?$"
+    },
+    "captured_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "captured_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenarios": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "retries",
+          "friction_count",
+          "observations"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "retries": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Count of regeneration / significant-edit cycles beyond the first complete diagram. 0 = first pass succeeded; null = not yet captured."
+          },
+          "observations": {
+            "type": "string"
+          },
+          "friction_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Distinct friction events outside the strict retry rule. Counts: each failed/erroring MCP call collapsed by causal chain (e.g., 1 failed search-shapes + N debug calls = 1 event), each redundant successful MCP call (preview + final finish-diagram = +1), each out-of-band file-level correction (sed/manual edit on saved .drawio = +1). null = not yet captured."
+          },
+          "rubric_score": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional manual rubric score per dimension (0-4). Captured by reviewing the diagram against references/quality-rubric.md.",
+            "additionalProperties": false,
+            "properties": {
+              "icon_correctness": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "layout": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "styling": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "semantics": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "labelling": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "type_fit": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "scalability": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              }
+            }
+          },
+          "quality_issues": {
+            "type": "array",
+            "description": "Free-text quality issues observed in the diagram (rubric-style). Examples: 'SqlHTTPS edge-label collision', 'missing Managed Identity edge to Key Vault per prompt', 'App Insights/LA without observability zone'.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

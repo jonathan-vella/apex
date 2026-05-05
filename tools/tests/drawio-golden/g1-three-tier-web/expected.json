@@ -1,0 +1,29 @@
+{
+  "schema_version": "drawio-golden-scenario-v1",
+  "id": "g1-three-tier-web",
+  "title": "Three-Tier Web App (small)",
+  "diagram_type": "logical",
+  "scope": {
+    "subscriptions": 1,
+    "regions": 1,
+    "management_groups": 0
+  },
+  "min_resources": 6,
+  "max_resources": 10,
+  "expected_zones": [
+    "Resource Group"
+  ],
+  "expected_edge_labels": [
+    "HTTPS",
+    "SQL"
+  ],
+  "expected_legend_required": true,
+  "expected_pages": 1,
+  "pain_points_exercised": [
+    "icons",
+    "styling",
+    "labels",
+    "type-mismatch"
+  ],
+  "notes": "Single-sub / single-region defaults; no subscription or region zones expected."
+}

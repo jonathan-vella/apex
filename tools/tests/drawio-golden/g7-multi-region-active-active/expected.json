@@ -1,0 +1,30 @@
+{
+  "schema_version": "drawio-golden-scenario-v1",
+  "id": "g7-multi-region-active-active",
+  "title": "Multi-Region Active-Active (medium)",
+  "diagram_type": "logical",
+  "scope": {
+    "subscriptions": 1,
+    "regions": 2,
+    "management_groups": 0
+  },
+  "min_resources": 16,
+  "max_resources": 20,
+  "expected_zones": [
+    "Sweden Central",
+    "Germany West Central",
+    "Trust Boundary"
+  ],
+  "expected_edge_labels": [
+    "Multi-region writes",
+    "Geo-replication"
+  ],
+  "expected_legend_required": true,
+  "expected_pages": 1,
+  "pain_points_exercised": [
+    "semantics",
+    "labels",
+    "type-mismatch"
+  ],
+  "notes": "Two region zones explicit; trust boundary at Front Door public ingress; replication flows are first-class edges."
+}

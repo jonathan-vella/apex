@@ -1,0 +1,34 @@
+{
+  "schema_version": "drawio-golden-scenario-v1",
+  "id": "g6-hyperscale-platform",
+  "title": "Hyperscale Platform (extra-large)",
+  "diagram_type": "decomposed",
+  "scope": {
+    "subscriptions": 6,
+    "regions": 2,
+    "management_groups": 0
+  },
+  "min_resources": 50,
+  "max_resources": 60,
+  "expected_zones": [
+    "Sweden Central",
+    "Germany West Central",
+    "Platform Sub (SE)",
+    "App Sub (SE)",
+    "Data Sub (SE)",
+    "Platform Sub (DE)",
+    "App Sub (DE)",
+    "Data Sub (DE)"
+  ],
+  "expected_edge_labels": [
+    "Multi-master replication",
+    "Front Door routing"
+  ],
+  "expected_legend_required": true,
+  "expected_pages": 3,
+  "pain_points_exercised": [
+    "layout",
+    "scaling"
+  ],
+  "notes": "REQUIRES decomposition: 1 overview + 2 region-detail pages per T-023 tier `>50`. Per-page resource count must be <=30."
+}

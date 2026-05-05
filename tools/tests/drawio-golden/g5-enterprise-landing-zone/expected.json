@@ -1,0 +1,38 @@
+{
+  "schema_version": "drawio-golden-scenario-v1",
+  "id": "g5-enterprise-landing-zone",
+  "title": "Enterprise Landing Zone (large)",
+  "diagram_type": "logical+network",
+  "scope": {
+    "subscriptions": 5,
+    "regions": 1,
+    "management_groups": 4
+  },
+  "min_resources": 22,
+  "max_resources": 28,
+  "expected_zones": [
+    "Tenant Root",
+    "Platform MG",
+    "Landing Zones MG",
+    "Sandbox MG",
+    "Platform Subscription",
+    "Connectivity Subscription",
+    "Identity Subscription",
+    "App Shared Subscription",
+    "App Workload Subscription",
+    "Hub VNet",
+    "Trust Boundary"
+  ],
+  "expected_edge_labels": [
+    "VNet Peering",
+    "Private Link"
+  ],
+  "expected_legend_required": true,
+  "expected_pages": 1,
+  "pain_points_exercised": [
+    "layout",
+    "semantics",
+    "scaling"
+  ],
+  "notes": "First scenario where decomposition becomes optional (>=22 resources). Single page acceptable; >25 resources should trigger T-023 tier `21-50` decomposition guidance."
+}
