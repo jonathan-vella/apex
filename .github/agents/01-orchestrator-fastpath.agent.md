@@ -40,11 +40,11 @@ tools:
 handoffs:
   - label: "▶ Start Simple Project"
     agent: 01-Orchestrator (Fast Path)
-    prompt: "Begin the fast-path workflow for a simple Azure project."
+    prompt: "Begin the fast-path workflow for a simple Azure project. Input: user project description. Output: session-state at agent-output/{project}/00-session-state.json (fast-path mode)."
     send: false
   - label: "Step 1: Gather Requirements"
     agent: 02-Requirements
-    prompt: "Your FIRST action must be calling askQuestions. Start with Phase 1 Round 1 questions. You must complete all 4 questioning phases via askQuestions before generating any document. Complexity MUST be classified as simple."
+    prompt: "Your FIRST action must be calling askQuestions. Start with Phase 1 Round 1 questions. You must complete all 4 questioning phases via askQuestions before generating any document. Complexity MUST be classified as simple. Input: user requirements gathered via askQuestions. Output: agent-output/{project}/01-requirements.md."
     send: true
   - label: "Step 2: Architecture (Streamlined)"
     agent: 03-Architect
@@ -56,15 +56,15 @@ handoffs:
     send: true
   - label: "Step 4: Deploy"
     agent: 07b-Bicep Deploy
-    prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure. What-if is mandatory. User approval required."
+    prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure. What-if is mandatory. User approval required. Input: agent-output/{project}/02-architecture-assessment.md + 04-governance-constraints.md. Output: agent-output/{project}/04-implementation-plan.md + diagrams."
     send: false
   - label: "Step 5: Documentation (Streamlined)"
     agent: 08-As-Built
-    prompt: "Generate streamlined documentation for a simple project. Only: design document, operations runbook, resource inventory. Input: all prior artifacts in `agent-output/{project}/`."
+    prompt: "Generate streamlined documentation for a simple project. Only: design document, operations runbook, resource inventory. Input: all prior artifacts in `agent-output/{project}/`. Output: agent-output/{project}/07-as-built.md (streamlined single-file form)."
     send: true
   - label: "↩ Switch to Full Orchestrator"
     agent: 01-Orchestrator
-    prompt: "This project is too complex for fast-path. Switching to the full multi-step orchestrator workflow."
+    prompt: "This project is too complex for fast-path. Switching to the full multi-step orchestrator workflow. Input: current fast-path session state. Output: session state retargeted at 01-orchestrator with full gating."
     send: false
 ---
 
@@ -78,7 +78,9 @@ Before loading skill files, check whether `SKILL.digest.md` variants exist.
 Fast-path projects are small — prefer digest variants to preserve context for
 the combined Plan+Code step.
 
-Role: Fast-path orchestrator for `simple` Azure projects (≤3 resources, single env, no custom Deny policies). Combines Plan+Code, runs 1-pass review, and falls back to the main 01-Orchestrator the moment the project stops being simple.
+Role: Fast-path orchestrator for `simple` Azure projects (≤3 resources, single env, no
+custom Deny policies). Combines Plan+Code, runs 1-pass review, and falls back to the main
+01-Orchestrator the moment the project stops being simple.
 
 # Personality
 

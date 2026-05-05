@@ -1,3 +1,5 @@
+<!-- ref:family-support-v1 -->
+
 # Family Support Matrix
 
 > Source: [.github/skills/vendor-prompting/rules.json](../rules.json)

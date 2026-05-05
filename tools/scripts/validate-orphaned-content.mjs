@@ -19,6 +19,51 @@ import {
 import { Reporter } from "./_lib/reporter.mjs";
 import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
 
+// Skills declared in tools/registry/agent-registry.json — either as
+// `skills[]` (explicit reads) or `capability_skills[]` (auto-trigger
+// surface). The registry is the authoritative inventory for workflow
+// agents, so a skill listed there is wired even if no agent body
+// contains a `Read .github/skills/{name}` line (e.g. capability skills
+// that activate via description keyword).
+function readRegistrySkills() {
+  const registryPath = "tools/registry/agent-registry.json";
+  const wired = new Set();
+  if (!fs.existsSync(registryPath)) return wired;
+  let registry;
+  try {
+    registry = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
+  } catch {
+    return wired;
+  }
+  // Collect skills from a single agent entry (handles both flat entries
+  // and IaC-conditional entries with bicep/terraform variants).
+  function collect(entry) {
+    if (!entry || typeof entry !== "object") return;
+    if (Array.isArray(entry.skills)) {
+      for (const s of entry.skills) wired.add(s);
+    }
+    if (Array.isArray(entry.capability_skills)) {
+      for (const s of entry.capability_skills) wired.add(s);
+    }
+    // IaC-conditional entries nest one level deeper (bicep/terraform).
+    for (const value of Object.values(entry)) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        if (
+          Array.isArray(value.skills) ||
+          Array.isArray(value.capability_skills)
+        ) {
+          collect(value);
+        }
+      }
+    }
+  }
+  for (const entry of Object.values(registry.agents || {})) collect(entry);
+  for (const entry of Object.values(registry.subagents || {})) collect(entry);
+  return wired;
+}
+
+const REGISTRY_WIRED_SKILLS = readRegistrySkills();
+
 // Skills intentionally kept without direct agent references.
 // These are invoked dynamically by VS Code Copilot via skill descriptions
 // or used as general-purpose skills available to any conversation.
@@ -30,6 +75,7 @@ const KNOWN_UNLINKED_SKILLS = new Set([
   "azure-compliance",
   "azure-compute",
   "azure-cost-optimization",
+  "azure-diagrams",
   "azure-hosted-copilot-sdk",
   "azure-kusto",
   "azure-messaging",
@@ -109,6 +155,11 @@ const skills = getSkills();
 
 for (const [skill] of skills) {
   r.tick();
+  if (REGISTRY_WIRED_SKILLS.has(skill)) {
+    // Listed in agent-registry.json (skills[] or capability_skills[]) —
+    // wired by declaration even without an explicit body reference.
+    continue;
+  }
   if (!isSkillReferenced(skill, base, perSkill)) {
     if (KNOWN_UNLINKED_SKILLS.has(skill)) {
       // Intentionally unlinked — skip warning

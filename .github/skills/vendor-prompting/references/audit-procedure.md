@@ -1,3 +1,5 @@
+<!-- ref:audit-procedure-v1 -->
+
 # Audit Procedure
 
 End-to-end protocol for auditing a single `.agent.md` or `.prompt.md`
@@ -123,7 +125,7 @@ jq -r '.findings | group_by(.file) | .[] | {
 }' tmp/vendor-prompting-audits/_bulk.json
 ```
 
-For the live-audit gate (Phase 8 step 50 of the implementation plan),
+For the live-audit gate (Phase 8 of the implementation plan, item #50),
 reject the release if:
 
 - Any agent has `errors > 0`, OR

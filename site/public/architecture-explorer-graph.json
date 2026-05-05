@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-04T19:28:21.536Z",
+  "generatedAt": "2026-05-05T12:46:46.500Z",
   "categories": [
     {
       "id": "agent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 20
+      "count": 21
     },
     {
       "id": "validator",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 36
+      "count": 37
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 167,
-  "edgeCount": 749,
+  "nodeCount": 169,
+  "edgeCount": 759,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -1622,6 +1622,17 @@
       "meta": {}
     },
     {
+      "id": "prompt:project-wide-review",
+      "category": "prompt",
+      "label": "project-wide-review",
+      "description": "Conduct a phased, dependency-aware review of the entire project. Builds a transient review-index first, then walks every domain in upstream-to-downstream order with explicit blast-radius analysis at each gate.",
+      "path": ".github/prompts/project-wide-review.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/project-wide-review.prompt.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "prompt:resume-workflow",
       "category": "prompt",
       "label": "resume-workflow",
@@ -1758,19 +1769,6 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-session-state.mjs"
-      }
-    },
-    {
-      "id": "validator:validate-session-lock",
-      "category": "validator",
-      "label": "validate:session-lock",
-      "description": "node tools/scripts/validate-session-lock.mjs",
-      "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-session-lock.mjs"
       }
     },
     {
@@ -1913,10 +1911,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-no-hardcoded-counts.mjs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
+        "command": "node tools/scripts/validate-no-hardcoded-counts.mjs"
+      }
     },
     {
       "id": "validator:validate-hooks",
@@ -1982,10 +1978,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-terminology.mjs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
+        "command": "node tools/scripts/validate-terminology.mjs"
+      }
     },
     {
       "id": "validator:validate-model-consistency",
@@ -2037,6 +2031,19 @@
       },
       "meta": {
         "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs"
+      }
+    },
+    {
+      "id": "validator:test-classify-model",
+      "category": "validator",
+      "label": "test:classify-model",
+      "description": "node --test tools/tests/validate-agents/classify-model.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/validate-agents/classify-model.test.mjs"
       }
     },
     {
@@ -2107,10 +2114,21 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 -m pytest tools/tests/test_apex_recall/ -q",
-        "orphan": true
+        "command": "python3 -m pytest tools/tests/test_apex_recall/ -q"
+      }
+    },
+    {
+      "id": "validator:test-azure-pricing-mcp",
+      "category": "validator",
+      "label": "test:azure-pricing-mcp",
+      "description": "python3 -m pytest tools/mcp-servers/azure-pricing/tests -q",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
-      "parent": "group:validator-orphans"
+      "meta": {
+        "command": "python3 -m pytest tools/mcp-servers/azure-pricing/tests -q"
+      }
     },
     {
       "id": "workflow:azure-deprecation-tracker",
@@ -2300,11 +2318,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 7)",
-      "description": "7 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 4)",
+      "description": "4 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 7
+        "groupSize": 4
       }
     },
     {
@@ -3406,10 +3424,10 @@
       "kind": "uses"
     },
     {
-      "id": "agent:e2e-orchestrator--capability->skill:workflow-engine",
+      "id": "agent:e2e-orchestrator--uses->skill:workflow-engine",
       "source": "agent:e2e-orchestrator",
       "target": "skill:workflow-engine",
-      "kind": "capability"
+      "kind": "uses"
     },
     {
       "id": "agent:e2e-orchestrator--capability->skill:context-shredding",
@@ -3787,6 +3805,12 @@
       "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
       "source": "instruction:agent-authoring",
       "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:project-wide-review",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:project-wide-review",
       "kind": "applies-to"
     },
     {
@@ -5596,6 +5620,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:prompt--applies-to->prompt:project-wide-review",
+      "source": "instruction:prompt",
+      "target": "prompt:project-wide-review",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:prompt--applies-to->prompt:resume-workflow",
       "source": "instruction:prompt",
       "target": "prompt:resume-workflow",
@@ -5848,6 +5878,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:vendor-prompting--applies-to->prompt:project-wide-review",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:project-wide-review",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:vendor-prompting--applies-to->prompt:resume-workflow",
       "source": "instruction:vendor-prompting",
       "target": "prompt:resume-workflow",
@@ -5917,12 +5953,6 @@
       "id": "workflow:ci--runs->validator:validate-session-state",
       "source": "workflow:ci",
       "target": "validator:validate-session-state",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-session-lock",
-      "source": "workflow:ci",
-      "target": "validator:validate-session-lock",
       "kind": "runs"
     },
     {
@@ -6016,9 +6046,51 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:test-classify-model",
+      "source": "workflow:ci",
+      "target": "validator:test-classify-model",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-no-hardcoded-counts",
+      "source": "workflow:ci",
+      "target": "validator:validate-no-hardcoded-counts",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-terminology",
+      "source": "workflow:ci",
+      "target": "validator:validate-terminology",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:validate-hooks",
       "source": "workflow:ci",
       "target": "validator:validate-hooks",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:test-apex-recall",
+      "source": "workflow:ci",
+      "target": "validator:test-apex-recall",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:test-azure-pricing-mcp",
+      "source": "workflow:ci",
+      "target": "validator:test-azure-pricing-mcp",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:weekly-maintenance--runs->validator:lint-glob-audit",
+      "source": "workflow:weekly-maintenance",
+      "target": "validator:lint-glob-audit",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:weekly-maintenance--runs->validator:lint-orphaned-content",
+      "source": "workflow:weekly-maintenance",
+      "target": "validator:lint-orphaned-content",
       "kind": "runs"
     },
     {
@@ -6193,6 +6265,12 @@
       "id": "agent:07b-bicep-deploy--uses-mcp->mcp:github",
       "source": "agent:07b-bicep-deploy",
       "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:terraform",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:terraform",
       "kind": "uses-mcp"
     },
     {

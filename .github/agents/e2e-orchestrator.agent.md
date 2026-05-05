@@ -44,7 +44,7 @@ tools:
 # E2E Evaluation Orchestrator
 
 Role: Autonomous orchestrator for the RALPH-style E2E workflow evaluation loop.
-Runs the full APEX 7-step workflow without human gates, validates every artifact
+Runs the full APEX phased workflow without human gates, validates every artifact
 inline, and produces a scored benchmark report plus structured lessons. This is
 an internal evaluation harness — it does NOT replace the production
 `01-Orchestrator` and never deploys real Azure resources.

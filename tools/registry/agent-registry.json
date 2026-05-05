@@ -177,8 +177,8 @@
     "e2e-orchestrator": {
       "agent": ".github/agents/e2e-orchestrator.agent.md",
       "model": "GPT-5.5",
-      "skills": ["azure-defaults", "azure-artifacts"],
-      "capability_skills": ["workflow-engine", "context-shredding"],
+      "skills": ["azure-defaults", "azure-artifacts", "workflow-engine"],
+      "capability_skills": ["context-shredding"],
       "invokable": false,
       "step": null
     }

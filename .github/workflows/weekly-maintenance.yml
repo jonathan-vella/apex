@@ -142,7 +142,7 @@ jobs:
           retention-days: 30
 
   docs-freshness:
-    name: Check Docs Freshness
+    name: Quarterly Audit (glob, orphans, freshness)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -157,33 +157,69 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run freshness check
+      - name: Run quarterly audit (glob-audit + orphan-content + docs-freshness)
         id: freshness
         run: |
-          npm run lint:docs-freshness 2>&1 | tee freshness-output.txt
+          npm run audit:quarterly 2>&1 | tee freshness-output.txt
           EXIT_CODE=${PIPESTATUS[0]}
           echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
 
-      - name: Create issue for staleness
+      - name: Create issue for audit failures
         if: steps.freshness.outputs.exit_code != '0'
         run: |
           BODY=$(cat freshness-output.txt)
           {
-            echo "## Automatic Freshness Check Failed"
+            echo "## Quarterly Audit Failed"
             echo ""
-            echo "The weekly docs freshness check found issues:"
+            echo "The weekly run of \`npm run audit:quarterly\` found issues. This"
+            echo "aggregates three checkers: \`lint:glob-audit\`, \`lint:orphaned-content\`,"
+            echo "and \`lint:docs-freshness\`."
             echo ""
             echo '```'
             echo "$BODY"
             echo '```'
             echo ""
-            echo "**Action required**: Review the findings above and update stale documentation."
+            echo "**Action required**: Review the findings above and address"
+            echo "stale documentation, orphan content, or glob drift."
             echo ""
-            echo 'Run `npm run lint:docs-freshness` locally to reproduce.'
+            echo 'Run `npm run audit:quarterly` locally to reproduce.'
           } > issue-body.md
           gh issue create \
-            --title "Docs freshness: staleness detected ($(date +%Y-%m-%d))" \
+            --title "Quarterly audit: issues detected ($(date +%Y-%m-%d))" \
             --body-file issue-body.md \
             --label "documentation,maintenance"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  drawio-mcp-tests:
+    name: Drawio MCP Tests (Deno)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run drawio MCP test suite
+        run: npm run test:drawio-mcp
+
+  drawio-icon-converter-tests:
+    name: Drawio Icon Converter Tests (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: python3 -m pip install pytest
+
+      - name: Run icon converter tests
+        run: npm run test:convert-drawio-icons

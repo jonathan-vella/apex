@@ -30,7 +30,7 @@ tools:
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance
-    prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json in `agent-output/{project}/`."
+    prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json in `agent-output/{project}/`. Input: current Azure subscription policy state via REST. Output: agent-output/{project}/04-governance-constraints.md and .json."
     send: true
   - label: "▶ Revise Plan"
     agent: 05-IaC Planner
@@ -38,7 +38,7 @@ handoffs:
     send: true
   - label: "▶ Compare AVM Modules"
     agent: 05-IaC Planner
-    prompt: "Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps."
+    prompt: "Query AVM metadata for all planned resources. Compare available vs required parameters and flag any gaps. Input: agent-output/{project}/04-implementation-plan.md current module choices. Output: AVM trade-off matrix appended to the implementation plan."
     send: true
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen

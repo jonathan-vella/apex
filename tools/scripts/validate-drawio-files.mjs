@@ -434,21 +434,36 @@ async function validateDrawioFile(filePath) {
       }
 
       // Check 12: HTML escaping in value attributes
+      //
+      // We must check the RAW file content here, not the parsed value.
+      // `fast-xml-parser` decodes character entities by default
+      // (`processEntities: true`), so a properly escaped value like
+      // `&lt;font&gt;` shows up as `<font>` in `cell["@_value"]` — which
+      // would make the original "decoded contains tags + missing &lt;"
+      // heuristic flag every legitimately escaped cell.
+      //
+      // Instead, find this cell's opening tag in the raw XML and
+      // confirm the literal `value="..."` substring contains no
+      // unescaped `<` or `>` characters.
       const value = cell["@_value"];
       if (
         value &&
         typeof value === "string" &&
         style &&
-        style.includes("html=1")
+        style.includes("html=1") &&
+        /<[^>]+>/.test(value) // decoded value has tags — worth a raw check
       ) {
-        if (
-          /<[^>]+>/.test(value) &&
-          !value.includes("&lt;") &&
-          !value.includes("&gt;")
-        ) {
-          // Raw HTML tags in value attribute with html=1 — these should be XML-escaped
-          // Note: fast-xml-parser already unescapes, so we check the raw file for this
-          // This check catches the most obvious case where HTML is present but not escaped
+        const idEsc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const openTagRe = new RegExp(
+          `<(?:mxCell|UserObject|object)\\s+[^>]*\\bid="${idEsc}"[^>]*>`,
+        );
+        const match = content.match(openTagRe);
+        const valueAttrRe = /\bvalue="([^"]*)"/;
+        const rawValue = match && match[0].match(valueAttrRe)?.[1];
+        // Truly unescaped only if the raw substring contains a `<`
+        // followed by characters that look like a tag (not part of
+        // `&lt;`).
+        if (rawValue && /<[^&>]+>/.test(rawValue)) {
           console.warn(
             `⚠️  ${filePath}: Cell id="${id}" may have unescaped HTML in value`,
           );

@@ -7,10 +7,10 @@
                 <mxCell id="cell-2" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;arcSize=3;container=1;" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="160" y="55" width="650" height="460" as="geometry"/>
                 </mxCell>
-                <mxCell id="cell-3" value="" style="rounded=1;whiteSpace=wrap;fillColor=#e3f2fd;strokeColor=#90caf9;container=1;" parent="1" vertex="1" connectable="0">
+                <mxCell id="cell-3" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#90caf9;container=1;" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="180" y="90" width="220" height="180" as="geometry"/>
                 </mxCell>
-                <mxCell id="cell-4" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f3e5f5;strokeColor=#ba68c8;container=1;" parent="1" vertex="1" connectable="0">
+                <mxCell id="cell-4" value="" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#ba68c8;container=1;" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="440" y="90" width="350" height="400" as="geometry"/>
                 </mxCell>
                 <mxCell id="cell-5" value="" style="rounded=1;whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#BDBDBD;container=1;" parent="1" vertex="1" connectable="0">

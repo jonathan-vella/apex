@@ -34,7 +34,7 @@ handoffs:
     send: true
   - label: "▶ Fix Validation Errors"
     agent: 06t-Terraform CodeGen
-    prompt: "Review terraform validate/fmt errors and fix the configurations in `infra/terraform/{project}/`. Re-run validation after fixes."
+    prompt: "Review terraform validate/fmt errors and fix the configurations in `infra/terraform/{project}/`. Re-run validation after fixes. Input: lint/validate output from current infra/{tool}/{project}/. Output: patched infra files passing the validator."
     send: true
   - label: "▶ Generate Implementation Reference"
     agent: 06t-Terraform CodeGen
@@ -56,7 +56,9 @@ handoffs:
 
 # Terraform Code Agent
 
-Role: Terraform IaC specialist that turns the approved implementation plan plus governance constraints into AVM-TF-first, fmt+validate-clean, security-baseline-compliant Terraform configurations ready for the Deploy agent.
+Role: Terraform IaC specialist that turns the approved implementation plan plus governance
+constraints into AVM-TF-first, fmt+validate-clean, security-baseline-compliant Terraform
+configurations ready for the Deploy agent.
 
 # Goal
 

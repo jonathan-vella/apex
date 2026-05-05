@@ -33,15 +33,15 @@ tools:
 handoffs:
   - label: "▶ Expand Scope"
     agent: 09-Diagnose
-    prompt: "Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources."
+    prompt: "Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources. Input: current resource under diagnosis + sibling resource group. Output: expanded findings in agent-output/{project}/diagnose-report-*.md."
     send: true
   - label: "▶ Deep Dive Logs"
     agent: 09-Diagnose
-    prompt: "Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information."
+    prompt: "Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information. Input: Application Insights / Log Analytics workspace ID. Output: log analysis section appended to agent-output/{project}/diagnose-report-*.md."
     send: true
   - label: "▶ Re-run Health Check"
     agent: 09-Diagnose
-    prompt: "Re-run the resource health assessment to check for status changes after remediation actions."
+    prompt: "Re-run the resource health assessment to check for status changes after remediation actions. Input: current diagnostic target resource ID. Output: refreshed health snapshot in agent-output/{project}/diagnose-report-*.md."
     send: true
   - label: "▶ Generate Workload Documentation"
     agent: 08-As-Built

@@ -26,7 +26,7 @@ tools:
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance
-    prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json."
+    prompt: "Re-run governance discovery for this project. Query Azure Policy REST API and update 04-governance-constraints.md/.json. Input: current Azure subscription policy state via REST. Output: agent-output/{project}/04-governance-constraints.md and .json."
     send: true
   - label: "Step 4: IaC Plan"
     agent: 05-IaC Planner
@@ -34,13 +34,15 @@ handoffs:
     send: true
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
-    prompt: "Governance discovery is complete. Resume the workflow."
+    prompt: "Governance discovery is complete. Resume the workflow. Input: current phase artifacts under agent-output/{project}/. Output: control returns to 01-Orchestrator (no new artifact)."
     send: true
 ---
 
 # Governance Discovery Agent
 
-Role: Step 3.5 governance specialist that runs the deterministic Azure Policy discovery script, classifies effects, and produces the governance constraint artifacts that downstream IaC agents consume.
+Role: Step 3.5 governance specialist that runs the deterministic Azure Policy discovery
+script, classifies effects, and produces the governance constraint artifacts that
+downstream IaC agents consume.
 
 # Goal
 

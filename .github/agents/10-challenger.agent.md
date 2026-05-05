@@ -22,13 +22,15 @@ agents: ["challenger-review-subagent"]
 handoffs:
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
-    prompt: "Plan challenge complete. Findings at `agent-output/{project}/challenge-findings-{artifact_type}.json`. Risk level and must_fix count are in the JSON summary. Present to user for review."
+    prompt: "Plan challenge complete. Findings at `agent-output/{project}/challenge-findings-{artifact_type}.json`. Risk level and must_fix count are in the JSON summary. Present to user for review. Input: current phase artifacts under agent-output/{project}/. Output: control returns to 01-Orchestrator (no new artifact)."
     send: false
 ---
 
 # Plan Challenger (Standalone Wrapper)
 
-Role: Thin standalone wrapper that runs one adversarial review pass over a single artifact and emits structured findings — for use when no parent agent is orchestrating challenger calls.
+Role: Thin standalone wrapper that runs one adversarial review pass over a single artifact
+and emits structured findings — for use when no parent agent is orchestrating challenger
+calls.
 
 # Goal
 

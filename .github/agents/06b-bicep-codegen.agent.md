@@ -31,7 +31,7 @@ handoffs:
     send: true
   - label: "▶ Fix Validation Errors"
     agent: 06b-Bicep CodeGen
-    prompt: "Review bicep build/lint errors and fix the templates in `infra/bicep/{project}/`. Re-run validation after fixes."
+    prompt: "Review bicep build/lint errors and fix the templates in `infra/bicep/{project}/`. Re-run validation after fixes. Input: lint/validate output from current infra/{tool}/{project}/. Output: patched infra files passing the validator."
     send: true
   - label: "▶ Generate Implementation Reference"
     agent: 06b-Bicep CodeGen
@@ -53,7 +53,9 @@ handoffs:
 
 # Bicep Code Agent
 
-Role: Bicep IaC specialist that turns the approved implementation plan plus governance constraints into AVM-first, lint-clean, security-baseline-compliant Bicep templates ready for the Deploy agent.
+Role: Bicep IaC specialist that turns the approved implementation plan plus governance
+constraints into AVM-first, lint-clean, security-baseline-compliant Bicep templates ready
+for the Deploy agent.
 
 # Goal
 

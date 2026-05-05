@@ -1,3 +1,5 @@
+<!-- ref:gpt-5-prompting-v1 -->
+
 # OpenAI GPT-5.5 — Prompting Best Practices (Normalized)
 
 > Source: [openai/skills @ 724cd511c96593f642bddf13187217aa155d2554/prompting-guide.md](https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md)

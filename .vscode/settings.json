@@ -26,6 +26,14 @@
     {
       "fileMatch": [".github/data/governance-policy-baseline.fixture.json"],
       "url": "./tools/schemas/governance-baseline.schema.json"
+    },
+    {
+      "fileMatch": [".github/skills/vendor-prompting/rules.json"],
+      "url": "./tools/schemas/vendor-prompting-rules.schema.json"
+    },
+    {
+      "fileMatch": ["agent-output/*/09-lessons-learned.json"],
+      "url": "./tools/schemas/lesson-log.schema.json"
     }
   ],
   "editor.formatOnSave": true,

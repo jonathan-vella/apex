@@ -5,12 +5,22 @@
  * Reads `.vscode/settings.json` → `json.schemas` so editor and CI validation
  * stay in sync. Compiles each schema with Ajv (draft 2020-12) and validates
  * every mapped data file.
+ *
+ * Scope: this validator is the IDE-mapping channel. It only checks schemas
+ * registered in `.vscode/settings.json` `json.schemas`. Other schemas under
+ * `tools/schemas/` are loaded directly by dedicated validators
+ * (e.g. `validate-model-catalog.mjs`, `validate-workflow-graph.mjs`,
+ * `validate-session-state.mjs`, `validate-explorer-graph.mjs`,
+ * `validate-governance-refs.mjs`). Both channels are intentional: this one
+ * keeps the editor's red squigglies aligned with CI; the dedicated
+ * validators add semantic checks beyond raw schema conformance.
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, globSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -31,6 +41,7 @@ if (mappings.length === 0) {
 }
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
+addFormats(ajv);
 let failures = 0;
 
 for (const entry of mappings) {
@@ -45,22 +56,36 @@ for (const entry of mappings) {
   }
   const validate = ajv.compile(schema);
   for (const match of entry.fileMatch) {
-    const dataPath = resolve(ROOT, match);
-    let data;
-    try {
-      data = readJson(dataPath);
-    } catch (err) {
-      console.error(`❌ Cannot load data file ${match}: ${err.message}`);
-      failures += 1;
+    // Expand globs in fileMatch so a single mapping can cover an entire
+    // family (e.g. agent-output/*/09-lessons-learned.json). If a glob
+    // matches nothing it is silently skipped — that just means the
+    // file family is empty in this checkout.
+    const isGlob = /[*?[\]]/.test(match);
+    const matched = isGlob
+      ? globSync(match, { cwd: ROOT, nodir: true })
+      : [match];
+    if (isGlob && matched.length === 0) {
+      console.log(`ℹ️  ${match} (glob matched no files — skipped)`);
       continue;
     }
-    if (validate(data)) {
-      console.log(`✅ ${match} valid against ${entry.url}`);
-    } else {
-      failures += 1;
-      console.error(`❌ ${match} failed validation against ${entry.url}`);
-      for (const err of validate.errors ?? []) {
-        console.error(`   ${err.instancePath || "/"} ${err.message}`);
+    for (const rel of matched) {
+      const dataPath = resolve(ROOT, rel);
+      let data;
+      try {
+        data = readJson(dataPath);
+      } catch (err) {
+        console.error(`❌ Cannot load data file ${rel}: ${err.message}`);
+        failures += 1;
+        continue;
+      }
+      if (validate(data)) {
+        console.log(`✅ ${rel} valid against ${entry.url}`);
+      } else {
+        failures += 1;
+        console.error(`❌ ${rel} failed validation against ${entry.url}`);
+        for (const err of validate.errors ?? []) {
+          console.error(`   ${err.instancePath || "/"} ${err.message}`);
+        }
       }
     }
   }

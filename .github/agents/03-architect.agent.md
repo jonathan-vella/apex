@@ -24,15 +24,15 @@ tools:
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
-    prompt: "Re-query Azure Pricing MCP to update the cost estimate section with current pricing. Recalculate monthly and yearly totals."
+    prompt: "Re-query Azure Pricing MCP to update the cost estimate section with current pricing. Recalculate monthly and yearly totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md (refreshed pricing)."
     send: true
   - label: "▶ Deep Dive WAF Pillar"
     agent: 03-Architect
-    prompt: "Perform a deeper analysis on a specific WAF pillar. Which pillar should I analyze in more detail? (Security, Reliability, Performance, Cost, Operations)"
+    prompt: "Perform a deeper analysis on a specific WAF pillar. Which pillar should I analyze in more detail? (Security, Reliability, Performance, Cost, Operations) Input: agent-output/{project}/02-architecture-assessment.md. Output: expanded pillar analysis appended to the same assessment file."
     send: false
   - label: "▶ Compare SKU Options"
     agent: 03-Architect
-    prompt: "Compare alternative SKU options for key resources. Analyze trade-offs between cost, performance, and features."
+    prompt: "Compare alternative SKU options for key resources. Analyze trade-offs between cost, performance, and features. Input: current SKU choices in agent-output/{project}/02-architecture-assessment.md. Output: SKU trade-off matrix written to agent-output/{project}/03-des-sku-comparison.md."
     send: true
   - label: "▶ Save Assessment"
     agent: 03-Architect
@@ -40,11 +40,11 @@ handoffs:
     send: true
   - label: "▶ Generate Architecture Diagram"
     agent: 04-Design
-    prompt: "Use the drawio skill and MCP tools to generate an Azure architecture diagram for the assessed design. Use transactional mode. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill."
+    prompt: "Use the drawio skill and MCP tools to generate an Azure architecture diagram for the assessed design. Use transactional mode. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill. Input: agent-output/{project}/02-architecture-assessment.md. Output: agent-output/{project}/03-des-diagram.drawio + .png."
     send: true
   - label: "▶ Create ADR from Assessment"
     agent: 04-Design
-    prompt: "Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale."
+    prompt: "Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale. Input: agent-output/{project}/02-architecture-assessment.md decisions block. Output: agent-output/{project}/03-des-adr-*.md (one ADR per decision)."
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design

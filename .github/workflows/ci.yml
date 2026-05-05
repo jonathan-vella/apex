@@ -92,3 +92,42 @@ jobs:
           else
             echo "All handoff references are valid"
           fi
+
+  external-tests:
+    name: External Python tests (apex-recall + azure-pricing MCP)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # apex-recall ships its own deps via pyproject; install in editable mode
+          # so its tests can import the package without sys.path hacks.
+          python -m pip install -e tools/apex-recall
+          # azure-pricing tests live under the server's tests/ directory and
+          # import the server module via the same pattern.
+          python -m pip install -e tools/mcp-servers/azure-pricing
+          python -m pip install pytest
+
+      - name: Run apex-recall test suite
+        run: npm run test:apex-recall
+
+      - name: Run azure-pricing MCP test suite
+        run: npm run test:azure-pricing-mcp

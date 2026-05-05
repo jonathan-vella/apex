@@ -27,7 +27,7 @@ tools:
 handoffs:
   - label: "▶ Run Plan Only"
     agent: 07t-Terraform Deploy
-    prompt: "Execute terraform plan preview without applying. Show all planned changes, classify them, and present summary. Do NOT run terraform apply."
+    prompt: "Execute terraform plan preview without applying. Show all planned changes, classify them, and present summary. Do NOT run terraform apply. Input: infra/terraform/{project}/ working directory. Output: terraform plan output (chat) — no resources deployed."
     send: true
   - label: "▶ Deploy Next Phase"
     agent: 07t-Terraform Deploy
@@ -39,11 +39,11 @@ handoffs:
     send: true
   - label: "▶ Retry Deployment"
     agent: 07t-Terraform Deploy
-    prompt: "Retry the last failed deployment. Re-validate auth, re-run terraform validate, plan, and apply with the same phase parameters."
+    prompt: "Retry the last failed deployment. Re-validate auth, re-run terraform validate, plan, and apply with the same phase parameters. Input: previous deployment error + agent-output/{project}/06-deployment-summary.md. Output: updated 06-deployment-summary.md with retry status."
     send: true
   - label: "▶ Verify Resources"
     agent: 07t-Terraform Deploy
-    prompt: "Query deployed resources using Azure Resource Graph and `terraform output` to verify successful deployment. Check resource health status."
+    prompt: "Query deployed resources using Azure Resource Graph and `terraform output` to verify successful deployment. Check resource health status. Input: deployed Azure resource group inventory. Output: verification table appended to agent-output/{project}/06-deployment-summary.md."
     send: true
   - label: "Step 7: As-Built Documentation"
     agent: 08-As-Built
@@ -51,11 +51,11 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Use the drawio skill and MCP tools to generate an as-built architecture diagram documenting deployed infrastructure. Use transactional mode. Output `agent-output/{project}/07-ab-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill."
+    prompt: "Use the drawio skill and MCP tools to generate an as-built architecture diagram documenting deployed infrastructure. Use transactional mode. Output `agent-output/{project}/07-ab-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill. Input: deployed resource state via az resource list / terraform show. Output: agent-output/{project}/07-as-built-diagram.drawio + .png."
     send: true
   - label: "↩ Fix Deployment Issues"
     agent: 06t-Terraform CodeGen
-    prompt: "The deployment encountered errors. Review the error messages and fix the Terraform configurations in `infra/terraform/{project}/` to resolve the issues."
+    prompt: "The deployment encountered errors. Review the error messages and fix the Terraform configurations in `infra/terraform/{project}/` to resolve the issues. Input: deployment error log. Output: patched infra files + new what-if/plan preview."
     send: true
   - label: "↩ Return to Step 2"
     agent: 03-Architect

@@ -38,19 +38,19 @@ tools:
 handoffs:
   - label: "▶ Start New Project"
     agent: 01-Orchestrator
-    prompt: "Begin the multi-step workflow for a new Azure platform engineering project. Start by gathering requirements."
+    prompt: "Begin the multi-step workflow for a new Azure platform engineering project. Start by gathering requirements. Input: user project description. Output: session-state initialized at agent-output/{project}/00-session-state.json."
     send: false
   - label: "▶ Resume Workflow"
     agent: 01-Orchestrator
-    prompt: "Resume the workflow from where we left off. Check the agent-output folder for existing artifacts."
+    prompt: "Resume the workflow from where we left off. Check the agent-output folder for existing artifacts. Input: agent-output/{project}/00-session-state.json + existing artifacts. Output: next-phase decision logged in session state."
     send: false
   - label: "▶ Review Artifacts"
     agent: 01-Orchestrator
-    prompt: "Review all generated artifacts in the agent-output folder and provide a summary of current project state."
+    prompt: "Review all generated artifacts in the agent-output folder and provide a summary of current project state. Input: all files under agent-output/{project}/. Output: summary report of current project state (chat only)."
     send: true
   - label: "Step 1: Gather Requirements"
     agent: 02-Requirements
-    prompt: "Your FIRST action must be calling askQuestions to ask the user about their project. Do NOT read files, search, or generate content before asking. Start with Phase 1 Round 1 questions (project name, industry, company size, system type). You must complete all 4 questioning phases via askQuestions before generating any document."
+    prompt: "Your FIRST action must be calling askQuestions to ask the user about their project. Do NOT read files, search, or generate content before asking. Start with Phase 1 Round 1 questions (project name, industry, company size, system type). You must complete all 4 questioning phases via askQuestions before generating any document. Input: user requirements gathered via askQuestions. Output: agent-output/{project}/01-requirements.md."
     send: true
   - label: "Step 2: Architecture Assessment"
     agent: 03-Architect
@@ -82,11 +82,11 @@ handoffs:
     send: true
   - label: "⚡ Switch to Fast Path"
     agent: 01-Orchestrator (Fast Path)
-    prompt: "Switch to fast-path orchestrator for simple projects (≤3 resources, single env, no custom policies)."
+    prompt: "Switch to fast-path orchestrator for simple projects (≤3 resources, single env, no custom policies). Input: current agent-output/{project}/00-session-state.json. Output: session state retargeted at orchestrator-fast-path."
     send: false
   - label: "🔧 Diagnose Issues"
     agent: 09-Diagnose
-    prompt: "Troubleshoot issues with the current workflow or Azure resources."
+    prompt: "Troubleshoot issues with the current workflow or Azure resources. Input: deployed resource state + agent-output/{project}/. Output: agent-output/{project}/diagnose-report-*.md."
     send: false
   - label: "Step 4: IaC Plan (Terraform)"
     agent: 05-IaC Planner
@@ -104,7 +104,8 @@ handoffs:
 
 # Orchestrator Agent
 
-Role: Master orchestrator that drives the multi-step Azure platform engineering workflow end-to-end with mandatory human approval gates.
+Role: Master orchestrator that drives the multi-step Azure platform engineering workflow
+end-to-end with mandatory human approval gates.
 
 # Personality
 
@@ -482,13 +483,3 @@ At Gates 2 and 3, recommend starting a fresh chat session to prevent context exh
 
 At resumption, the Orchestrator runs `apex-recall show <project> --json` and restores full context
 from artifact paths — no information is lost. See [Resuming a Project](#resuming-a-project).
-
-<example title="Workflow routing after Step 2 completes">
-Input state: apex-recall show output shows steps.2.status = "complete", decisions.iac_tool = "Bicep"
-Decision logic:
-  1. Step 2 complete → check if Step 3 (Design) should run → user said "skip design"
-  2. Follow on_skip edge → next node = Step 3.5 (Governance)
-  3. Governance agent is GPT-5.5 → delegate via handoff (peer agent — do NOT wrap in `#runSubagent`)
-Output: Present Gate 2 with session break recommendation, then hand off to 04g-Governance
-  with prompt including project name and architecture artifact path.
-</example>

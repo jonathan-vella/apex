@@ -40,7 +40,8 @@ architectural weaknesses in Azure infrastructure artifacts.
 The parent agent writes the output file — you do NOT write files.
 Supports both single-lens and batch (multi-lens) execution modes.
 
-Role: Adversarial reviewer that runs one (or one batch of) review lens(es) over a single artifact and returns structured JSON findings to the parent agent.
+Role: Adversarial reviewer that runs one (or one batch of) review lens(es) over a single
+artifact and returns structured JSON findings to the parent agent.
 
 # Goal
 

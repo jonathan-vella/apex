@@ -23,10 +23,15 @@ script→npm-script→hook→CI, instruction→validator→rule registry) are ea
 break silently. Before proposing ANY change, confirm:
 
 - The transient review-index has been built (Phase 0).
+- The persistent review-plan (`review-plan.md`) has been created (Phase 0)
+  and is current with this session's progress.
 - For every finding, both upstream producers AND downstream consumers are listed.
 - The user has approved the gate before moving to the next phase.
 
 If review-index is missing or stale, re-build it. Do not infer edges from memory.
+If review-plan.md is missing, create it before doing anything else — a fresh
+chat must be able to resume from `review-plan.md` + `review-index.json` +
+`apex-recall show` alone.
 </investigate_before_answering>
 
 <context>
@@ -68,6 +73,28 @@ Read these orientation files BEFORE Phase 0:
 <task>
 Run the phases below in order. Stop at every gate; require user approval
 before advancing. Do NOT batch phases.
+
+## Resume vs. fresh start
+
+Before Phase 0, check whether a review is already in progress:
+
+```bash
+ls -1 agent-output/_baselines/ 2>/dev/null | grep '^review-' | tail -1
+```
+
+If the most recent `review-*/review-plan.md` exists and its Phase Status
+table has any row that is not `completed`:
+
+1. **Resume that review.** Read `review-plan.md` end-to-end, then
+   `review-index.json`, then `apex-recall show {review_id} --json`.
+2. Pick the first non-completed phase and continue from there.
+3. Do NOT create a new `{review_id}` and do NOT rebuild the index unless
+   it is missing or the user explicitly asks for a fresh start.
+4. Confirm the resume to the user with: phase about to run, last hot-fix
+   timestamp, count of open findings.
+
+Otherwise (no plan, all phases completed, or user requests a new sweep):
+start at Phase 0 with a fresh `{review_id}`.
 
 ## Argument-hint scoping
 
@@ -123,17 +150,37 @@ re-reading every body. This is the "knowledge graph" for this session.
      entry points and dependent npm/python packages.
    - `site_pages[]` — files under `site/src/content/docs/` with their
      `astro.config.mjs` sidebar position.
-3. Compute cross-domain edges:
+4. Compute cross-domain edges:
    - prompt → agent → skill → instruction
    - validator → rule registry (`vendor-prompting/rules.json`)
    - npm script → script file → validator(s) → hook(s) → CI workflow(s)
    - skill → consuming agents (reverse index)
    - instruction `applyTo` → file globs that match
-4. Save `agent-output/_baselines/{review_id}/review-index.json`.
-5. Save a one-page human summary at `review-index-summary.md` with
+5. Save `agent-output/_baselines/{review_id}/review-index.json`.
+6. Save a one-page human summary at `review-index-summary.md` with
    counts and any orphans detected (skills not read by any agent,
    validators not wired to npm scripts, etc.).
-6. **Gate 0**: present counts, top-5 orphans, and ask the user for
+7. Create the **persistent project plan** at
+   `agent-output/_baselines/{review_id}/review-plan.md`. This file is
+   the single source of truth across phases and across chat sessions.
+   It MUST contain:
+   - **Resume instructions** (how a fresh chat picks up the work).
+   - **Phase status table** (one row per phase 0–11 with `not-started` /
+     `in-progress` / `paused` / `completed` / `blocked`, started/completed
+     timestamps, gate name, link to domain report).
+   - **Scope decision** captured at Gate 0.
+   - **Counts snapshot** from `review-index.json` (refresh on rebuild).
+   - **Open findings table** (id, phase, severity, status, title, file,
+     resolution). Severities: `blocker` / `high` / `medium` / `low` /
+     `info`. Statuses: `open` / `in-progress` / `fixed` / `deferred` /
+     `accepted`.
+   - **Deferred-findings sub-table** (cosmetic / opt-in items).
+   - **Hot-fix log** (timestamp, finding id, file, verification command).
+   - **Decisions log** (timestamp, decision, rationale).
+   - **Artifacts index** (one row per expected output file).
+   - **Maintenance protocol** (start-of-phase, at-gate, on-approval,
+     on-hot-fix, on-scope-change — see template below).
+8. **Gate 0**: present counts, top-5 orphans, and ask the user for
    the review scope (full / single domain / specific files).
 
 ## Phase 1 — Validators & enforcement infrastructure
@@ -317,22 +364,40 @@ implement (or defers everything to follow-up sweeps).
 <rules>
 - Do NOT modify any file in Phases 0–10. Phases produce findings and
   domain reports only. Implementation happens after the final gate
-  approves an action plan.
+  approves an action plan. Exception: user-approved hot-fixes between
+  gates — these MUST be logged in `review-plan.md` Hot-Fix Log before
+  the edit tool is called.
 - Always use `tools/registry/count-manifest.json` for counts; never
   hard-code.
 - Use the review-index as the dependency map. If a phase cannot find
   a dependent in the index, re-run Phase 0 — do NOT guess.
 - Stop at every gate. Do not chain phases.
-- Use `apex-recall` to checkpoint after each gate so a fresh chat can
-  resume without rebuilding the index. Use the form
-  `apex-recall checkpoint {review_id} <phase-number> <gate-name> --json`
-  (e.g. `apex-recall checkpoint review-20260505T120000Z 0 phase-0-index --json`).
+- **Maintain `review-plan.md` continuously**. Update it:
+  - At the start of every phase (mark phase `in-progress`, set started
+    timestamp).
+  - At every gate (append findings, gate question, decision).
+  - On every user approval (mark phase `completed`, set completed
+    timestamp, advance to next phase row).
+  - On every hot-fix (Hot-Fix Log row + finding status flip BEFORE the
+    edit tool runs).
+  - On every scope change (Decisions Log row + paused-phase markers).
+  A fresh chat must be able to resume from `review-plan.md` +
+  `review-index.json` + `apex-recall show` alone.
+- Use `apex-recall` as a secondary checkpoint. Use `finding` (not
+  `checkpoint`, which only accepts workflow step keys 1–7) to log
+  phase-level summaries:
+  `apex-recall finding {review_id} --add "<one-line summary>" --json`
 - Defer cosmetic/style issues (e.g., handoff-enrichment baseline,
   density-rule info-level findings) to a separate sweep unless the
-  user explicitly opts in.
+  user explicitly opts in. Capture them in the Deferred sub-table of
+  `review-plan.md`.
 - For every finding, include: file path with line number, rule or
   invariant violated, upstream producers, downstream consumers,
   severity, suggested fix.
+- After any hot-fix that changes the structural inventory (new files,
+  deleted entities, renamed registry entries), regenerate
+  `review-index.json` and refresh the Counts Snapshot in
+  `review-plan.md`.
 </rules>
 
 <output_contract>
@@ -341,6 +406,10 @@ implement (or defers everything to follow-up sweeps).
   transient dependency map (Phase 0).
 - `agent-output/_baselines/{review_id}/review-index-summary.md` —
   human-readable counts + orphans (Phase 0).
+- `agent-output/_baselines/{review_id}/review-plan.md` —
+  **persistent project plan** (created in Phase 0, updated at every
+  phase transition, gate, hot-fix, and scope change). Single source of
+  truth across chat sessions.
 - `agent-output/_baselines/{review_id}/0{N}-{domain}.md` — one
   domain report per phase 1–10.
 - `agent-output/_baselines/{review_id}/00-master-review.md` —

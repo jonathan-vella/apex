@@ -26,7 +26,7 @@ tools:
 handoffs:
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
-    prompt: "Completed context optimization audit. Report saved. Advise on next steps."
+    prompt: "Completed context optimization audit. Report saved. Advise on next steps. Input: current phase artifacts under agent-output/{project}/. Output: control returns to 01-Orchestrator (no new artifact)."
     send: false
 ---
 
@@ -298,4 +298,20 @@ This agent is designed to be reusable across projects:
 
 - **Always**: Analyze debug logs, produce optimization recommendations, identify token waste
 - **Ask first**: Implementing changes to agent definitions, modifying skill files
+
+<output_contract>
+Primary artifact: agent-output/{project}/11-context-optimization-report.md — executive
+summary table (avg turns, avg latency, wasted tokens), finding categories
+(Critical / High / Medium / Low), recommended hand-off points, instruction
+consolidation list, agent-specific recommendations, implementation priority.
+Source data: VS Code Copilot debug logs (path supplied by user) plus the
+read-only audit of `.github/agents/`, `.github/skills/`, `.github/instructions/`.
+Session state: when invoked inside an active project, checkpoint findings via
+`apex-recall finding <project> --add "<one-line summary>" --json` so the
+report path and key metrics are recoverable from a fresh chat. Do not embed
+the report body in chat — return the path plus the executive summary table.
+This agent NEVER edits agent / skill / instruction files; it produces
+recommendations only.
+</output_contract>
+
 - **Never**: Modify agent definitions directly (recommendations only), change workflow behavior

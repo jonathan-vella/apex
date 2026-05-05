@@ -223,11 +223,14 @@ for (const filePath of instructionFiles) {
     continue;
   }
 
-  // Instructions targeting runtime-generated files (agent-output artifacts)
-  // won't have matches in a clean repo — skip with info message
+  // Instructions targeting runtime-generated files (agent-output artifacts,
+  // per-project IaC manifests) won't have matches in a clean repo — skip
+  // with an info message rather than warning. The instruction still loads
+  // automatically once the matching file exists.
   const RUNTIME_ONLY_PATTERNS = [
     "04-governance-constraints",
     "04-implementation-plan",
+    "azure.yaml", // produced under infra/{tool}/{project}/ by IaC agents
   ];
   const isRuntimeOnly = RUNTIME_ONLY_PATTERNS.some((p) => applyTo.includes(p));
   if (isRuntimeOnly) {

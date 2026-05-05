@@ -1,3 +1,5 @@
+<!-- ref:cross-model-rules-v1 -->
+
 # Cross-Model Rules
 
 Rules that apply regardless of model family — handoff design,

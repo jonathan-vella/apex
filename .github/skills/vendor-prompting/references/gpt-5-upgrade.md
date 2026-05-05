@@ -1,3 +1,5 @@
+<!-- ref:gpt-5-upgrade-v1 -->
+
 # OpenAI GPT-5.5 — Upgrade Guide (Normalized)
 
 > Source: [openai/skills @ 724cd511c96593f642bddf13187217aa155d2554/upgrade-guide.md](https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md)

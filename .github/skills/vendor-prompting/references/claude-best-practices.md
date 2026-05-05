@@ -1,3 +1,5 @@
+<!-- ref:claude-best-practices-v1 -->
+
 # Anthropic Claude — Prompting Best Practices (Normalized)
 
 > Source: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
