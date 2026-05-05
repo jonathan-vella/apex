@@ -40,30 +40,6 @@ handoffs:
 
 # Governance Discovery Agent
 
-<output_contract>
-
-This agent produces two artifacts:
-
-1. `04-governance-constraints.json` — machine-readable policy envelope (via discover.py)
-2. `04-governance-constraints.md` — human-readable governance narrative (from preview.md + annotation)
-
-Both must pass `npm run lint:artifact-templates` before handoff.
-
-</output_contract>
-
-<scope_fencing>
-Scope: Azure Policy discovery and governance artifact generation ONLY.
-Do NOT generate IaC code, deploy resources, modify architecture decisions,
-or assume policy state from best practices. Policy data comes from discover.py
-(live) or from the approved workflow baseline via render_cached_governance.py
-(cached). No other sources are permitted.
-</scope_fencing>
-
-<context_awareness>
-Before loading skill files, check if SKILL.digest.md variants exist.
-At >60% context, load digest variants; at >80% load SKILL.minimal.md.
-</context_awareness>
-
 Role: Step 3.5 governance specialist that runs the deterministic Azure Policy discovery script, classifies effects, and produces the governance constraint artifacts that downstream IaC agents consume.
 
 # Goal
@@ -91,8 +67,9 @@ deployment failures.
 
 - Preserve the `azure-governance-discovery` deterministic-discovery contract
   verbatim. Run `discover.py` (live) or `render_cached_governance.py`
-  (cached) — no other policy data sources are permitted (this preserves
-  the `<scope_fencing>` block).
+  (cached) — no other policy data sources are permitted (the
+  `## Scope Boundaries` section below is the single source of truth on
+  scope).
 - Preserve the pre-built terminal command set (Cmd 1–7) verbatim — copy
   them, do not compose new `jq` queries inline.
 - Read `iac-policy-compliance.md` BEFORE writing JSON (the downstream
@@ -113,9 +90,10 @@ deployment failures.
 
 # Output
 
-Per `<output_contract>`: the two governance artifacts, both passing the
-artifact lint. Update `agent-output/{project}/README.md` to mark Step 3.5
-complete and list the artifacts (per the azure-artifacts skill).
+The two governance artifacts described in `## Output Files` below, both
+passing the artifact lint. Update `agent-output/{project}/README.md` to
+mark Step 3.5 complete and list the artifacts (per the azure-artifacts
+skill).
 
 # Stop rules
 

@@ -104,16 +104,6 @@ handoffs:
 
 # Orchestrator Agent
 
-<context_awareness>
-Large agent definition (~850 lines). Monitor context usage. At >60% load SKILL.digest.md;
-at >80% switch to SKILL.minimal.md. Write 00-handoff.md at gates to preserve state.
-</context_awareness>
-
-<subagent_budget>
-Invoke no more than 3 subagents sequentially before checkpointing with the user.
-If a step requires more calls, checkpoint after the third and confirm before continuing.
-</subagent_budget>
-
 Role: Master orchestrator that drives the multi-step Azure platform engineering workflow end-to-end with mandatory human approval gates.
 
 # Personality
@@ -165,6 +155,10 @@ chat can resume losslessly.
 - Reasoning effort: rely on the Copilot runtime default. Do not request `high`
   reflexively — GPT-5.5 reasons more efficiently than predecessors; escalate
   only when a gate carries unresolved tradeoffs.
+- Subagent budget: invoke at most 3 subagents sequentially before
+  checkpointing with the user. If a step requires more calls, checkpoint
+  after the third and confirm before continuing. See `## Subagent Budget`
+  below for context-load guidance.
 
 # Output
 

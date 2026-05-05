@@ -934,7 +934,12 @@ function checkPromptModelSource(r, prompt, file, agentNameToModel) {
   const isKnownCustomAgent =
     targetKey !== null && agentNameToModel.has(targetKey);
 
-  if (isKnownCustomAgent && modelField !== undefined && modelField !== null && modelField !== "") {
+  if (
+    isKnownCustomAgent &&
+    modelField !== undefined &&
+    modelField !== null &&
+    modelField !== ""
+  ) {
     emit(
       r,
       "prompt-model-source-001",

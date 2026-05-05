@@ -72,10 +72,11 @@ handoffs:
 
 Streamlined orchestrator for **simple** Azure platform engineering projects.
 
-<context_awareness>
-Before loading skill files, check if SKILL.digest.md variants exist.
-Fast-path projects are small — prefer digest variants to preserve context for the combined Plan+Code step.
-</context_awareness>
+## Context awareness
+
+Before loading skill files, check whether `SKILL.digest.md` variants exist.
+Fast-path projects are small — prefer digest variants to preserve context for
+the combined Plan+Code step.
 
 Role: Fast-path orchestrator for `simple` Azure projects (≤3 resources, single env, no custom Deny policies). Combines Plan+Code, runs 1-pass review, and falls back to the main 01-Orchestrator the moment the project stops being simple.
 

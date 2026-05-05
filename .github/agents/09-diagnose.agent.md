@@ -78,6 +78,21 @@ If an Azure Resource Graph query or diagnostic command returns empty results:
    Do not report "no issues found" when the real problem is missing telemetry.
    </empty_result_recovery>
 
+<output_contract>
+Produce `agent-output/{project}/08-resource-health-report.md` with these
+sections:
+
+- Target resource (id, type, region, resource group)
+- Diagnostic findings (severity-tagged: critical / warning / info)
+- Evidence (KQL queries run, command outputs cited inline)
+- Remediation recommendations (actionable, one per finding)
+- Open questions for the user (if any blocked the diagnosis)
+
+Save the file via `apex-recall finding <project> --add` per finding so
+session state stays current. Do not embed the artifact body in chat —
+return the path plus a one-line summary.
+</output_contract>
+
 **HARD RULE — ASK BEFORE YOU READ**
 
 Your **first action** MUST be asking the user to identify the target resource.

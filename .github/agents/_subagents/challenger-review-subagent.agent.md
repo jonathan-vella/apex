@@ -190,7 +190,8 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 | Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
 | Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                        |
 
-<output_contract>
+## Output Contract
+
 Return ONLY valid JSON matching the schema below. No markdown wrapper, no explanation outside JSON.
 
 **Single-lens mode**: Required top-level fields: challenged_artifact, artifact_type, review_focus, pass_number,
@@ -201,13 +202,12 @@ challenge_summary, compact_for_parent, risk_level, must_fix_count, should_fix_co
 Each issue must have: severity, category, title, description, failure_scenario, artifact_section, suggested_mitigation.
 If `artifact_path` does not exist or is empty, return error JSON:
 `{"status": "artifact_not_found", "artifact_path": "...", "issues": []}`.
-</output_contract>
 
-<empty_result_recovery>
+## Empty-Result Recovery
+
 If the artifact file is empty (0 bytes) or contains only frontmatter with no content,
 return a single `must_fix` finding: "Artifact is empty or contains no substantive content."
 Do not attempt to review an empty artifact — flag it and return immediately.
-</empty_result_recovery>
 
 ## Output Format — Single-Lens Mode
 
