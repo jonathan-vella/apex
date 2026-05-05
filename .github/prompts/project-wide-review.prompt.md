@@ -61,22 +61,39 @@ Read these orientation files BEFORE Phase 0:
 - `lefthook.yml` (pre-commit / pre-push wiring)
 - `package.json` (npm script catalog)
 
-`{project}` for output paths in this prompt is the timestamped review folder
-(see Phase 0 for the path).
+`{review_id}` for output paths in this prompt is the timestamped review folder
+(see Phase 0 for the path; format: `review-YYYYMMDDTHHMMSSZ`).
 </context>
 
 <task>
 Run the phases below in order. Stop at every gate; require user approval
 before advancing. Do NOT batch phases.
 
+## Argument-hint scoping
+
+If the user supplied a single-domain `argument-hint` (e.g. `validators`,
+`registries`, `agents`, `skills`, `instructions`, `prompts`, `iac`, `mcp`,
+`site`, `tests`), still run **Phase 0** (build the index), then jump
+directly to the matching phase, then to **Phase 11** (master report
+scoped to the chosen domain). Skip the other phases entirely — do not
+run them silently.
+
+If the hint is `all` or absent, run every phase in order.
+
 ## Phase 0 — Build the transient review-index
 
 Goal: produce one JSON file that the rest of the review reads instead of
 re-reading every body. This is the "knowledge graph" for this session.
 
-1. Create `agent-output/_baselines/review-{ISO-timestamp}/`. Use that as
-   `{project}` for all subsequent outputs.
-2. Aggregate into `review-index.json`:
+1. Choose `{review_id} = review-$(date -u +%Y%m%dT%H%M%SZ)`. Create
+   `agent-output/_baselines/{review_id}/`. Use that as the output folder.
+2. Initialise apex-recall for the review session so checkpoints work:
+
+   ```bash
+   apex-recall init {review_id} --json   # if a session already exists, capture its state via `apex-recall show {review_id} --json` instead
+   ```
+
+3. Aggregate into `review-index.json`:
    - `agents[]` — from `tools/registry/agent-registry.json` plus parsed
      frontmatter (name, model, family, body_lines, declared skills,
      handoffs).
@@ -112,7 +129,7 @@ re-reading every body. This is the "knowledge graph" for this session.
    - npm script → script file → validator(s) → hook(s) → CI workflow(s)
    - skill → consuming agents (reverse index)
    - instruction `applyTo` → file globs that match
-4. Save `agent-output/_baselines/review-{timestamp}/review-index.json`.
+4. Save `agent-output/_baselines/{review_id}/review-index.json`.
 5. Save a one-page human summary at `review-index-summary.md` with
    counts and any orphans detected (skills not read by any agent,
    validators not wired to npm scripts, etc.).
@@ -134,7 +151,7 @@ For each `tools/scripts/validate-*.mjs` and `lint-*.mjs`:
 4. Identify each validator's blast radius — i.e., which files it
    guards. Save to the domain report.
 
-Domain report: `agent-output/_baselines/review-{timestamp}/01-validators.md`.
+Domain report: `agent-output/_baselines/{review_id}/01-validators.md`.
 
 **Gate 1**: present orphan/broken-validator findings; ask before fixing.
 
@@ -150,14 +167,19 @@ Sources of truth:
 - `.github/skills/workflow-engine/templates/workflow-graph.json`
 - `tools/schemas/*.schema.json`
 
-For each registry: confirm schema, regenerate (where applicable),
-diff against committed version, list dependents that read from it
+For each registry: confirm schema, compute the regenerated form
+**in memory only** (do NOT stage or write the regenerated file), diff
+against the committed version, and list dependents that read from it
 via the review-index.
+
+Gate 2 records any drift; the user approves any subsequent regeneration
+as a separate post-review action — not part of this read-only sweep.
 
 Domain report: `02-registries.md`.
 
-**Gate 2**: any drift between regenerated and committed versions
-requires user approval before re-staging.
+**Gate 2**: surface drift between computed and committed registry forms;
+implementation of regeneration (which mutates files) is deferred until
+the Phase 11 master report is approved.
 
 ## Phase 3 — Workflow graph + agents + subagents
 
@@ -213,6 +235,11 @@ Domain report: `05-prompts.md`.
 
 ## Phase 6 — IaC
 
+If no project subdirectories exist under `infra/bicep/` or
+`infra/terraform/` (only `AGENTS.md` and `.gitkeep` present), record
+"No IaC projects detected; skipping per-project checks" and run only
+step 4 below.
+
 For each project under `infra/bicep/` and `infra/terraform/`:
 
 1. Run `bicep build` + `bicep lint` OR `terraform fmt -check` +
@@ -254,7 +281,8 @@ Domain report: `08-site.md`.
    an npm script + by lefthook or a CI workflow.
 2. Run the test suites that are scoped to the changes.
 3. Verify the `lefthook.yml` `parallel: false` invariant still holds
-   (per `tools/registry/model-catalog.md` memory note).
+   (read `lefthook.yml` directly — the file's leading comment
+   documents why parallel execution is unsafe).
 
 Domain report: `09-tests-ci.md`.
 
@@ -296,7 +324,9 @@ implement (or defers everything to follow-up sweeps).
   a dependent in the index, re-run Phase 0 — do NOT guess.
 - Stop at every gate. Do not chain phases.
 - Use `apex-recall` to checkpoint after each gate so a fresh chat can
-  resume without rebuilding the index.
+  resume without rebuilding the index. Use the form
+  `apex-recall checkpoint {review_id} <phase-number> <gate-name> --json`
+  (e.g. `apex-recall checkpoint review-20260505T120000Z 0 phase-0-index --json`).
 - Defer cosmetic/style issues (e.g., handoff-enrichment baseline,
   density-rule info-level findings) to a separate sweep unless the
   user explicitly opts in.
@@ -306,15 +336,16 @@ implement (or defers everything to follow-up sweeps).
 </rules>
 
 <output_contract>
-- `agent-output/_baselines/review-{timestamp}/review-index.json` —
+
+- `agent-output/_baselines/{review_id}/review-index.json` —
   transient dependency map (Phase 0).
-- `agent-output/_baselines/review-{timestamp}/review-index-summary.md` —
+- `agent-output/_baselines/{review_id}/review-index-summary.md` —
   human-readable counts + orphans (Phase 0).
-- `agent-output/_baselines/review-{timestamp}/0{N}-{domain}.md` — one
+- `agent-output/_baselines/{review_id}/0{N}-{domain}.md` — one
   domain report per phase 1–10.
-- `agent-output/_baselines/review-{timestamp}/00-master-review.md` —
+- `agent-output/_baselines/{review_id}/00-master-review.md` —
   executive summary.
-- `agent-output/_baselines/review-{timestamp}/00-action-plan.md` —
+- `agent-output/_baselines/{review_id}/00-action-plan.md` —
   prioritized fix list with blast-radius notes.
 
 Final chat output to user: artifact paths + top-5 blockers, no
