@@ -101,4 +101,5 @@ Never call a tool repeatedly for individual items.
 | `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 | `references/quality-rubric.md`       | Canonical 0–4 quality rubric (7 dimensions, thresholds) |
 | `references/semantic-zones.md`       | Subscription / region / trust-boundary / external zone templates |
+| `references/diagram-types.md`        | Logical / network / sequence / deployment selection + signatures |
 > _See SKILL.md for full content._

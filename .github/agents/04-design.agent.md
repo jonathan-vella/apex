@@ -237,6 +237,51 @@ Architect already has the pricing tooling), or generate the cost-estimate
 markdown directly using the H2 template from the `azure-artifacts` skill.
 Save to `agent-output/{project}/03-des-cost-estimate.md`.
 
+## Diagram contract (T-012-baseline informed)
+
+Read these references before the first MCP tool call. Each rule resolves a
+failure mode observed in the T-012 baseline (see
+[`agent-output/_plans/drawio-quality-uplift/`](../../agent-output/_plans/drawio-quality-uplift/)).
+
+1. **Diagram type.** Pick one of `logical | network | sequence | deployment`
+   from the prompt cues in
+   [`drawio/references/diagram-types.md`](../skills/drawio/references/diagram-types.md).
+   Type determines zone palette, edge labels, and legend requirement.
+   Sequence diagrams omit the legend (OQ-2 carve-out, T-022).
+2. **Single-batch `search-shapes`.** The first `search-shapes` call MUST
+   contain every Azure icon you need. Splitting batches is workflow drift
+   (T-035) — measured as friction event #1 in 4 of 7 baseline captures. If
+   a follow-up shape is discovered later, add it via `shape_name` in
+   `add-cells` (the server resolves on demand).
+3. **Variant labels.** When the prompt names a tier/SKU (Premium, Hyperscale,
+   GZRS, NC24ads), put the variant in the cell **label** (e.g.,
+   `"Front Door Premium"`, `"GPU Cluster (A100)"`). The icon library uses
+   family icons — see
+   [`drawio/references/icon-variants.md`](../skills/drawio/references/icon-variants.md).
+4. **Semantic zones.** Render boundary cells per
+   [`drawio/references/semantic-zones.md`](../skills/drawio/references/semantic-zones.md):
+   subscription scope (≥2 subs), region zone (≥2 regions), trust boundary
+   (any public ingress: Front Door / App Gateway / APIM), external/on-prem
+   zone (any external dependency), observability zone (≥2 cross-cutting
+   services). Trust boundary is a CONTAINER cell, not a legend entry —
+   T-008 validator checks for the container.
+5. **Legend.** When image-cell count > 8 and type is not sequence, include
+   the copy-pasteable legend block from
+   [`drawio/references/legend-template.md`](../skills/drawio/references/legend-template.md).
+   Use `<br>` in HTML-rendered cells; never `&#xa;`.
+6. **Decomposition.** At >50 resources, decompose per
+   [`drawio/references/large-architecture-decomposition.md`](../skills/drawio/references/large-architecture-decomposition.md):
+   one overview page + one detail page per region/workload. Per-page cell
+   ceiling = 30. Multi-page merge today uses the Python ElementTree pattern
+   in that reference (T-037 will replace it).
+7. **Dynamic circuit-breaker** (T-024). Cap tool calls based on resource
+   count: ≤20 → 25 calls, 21–50 → 40 calls, >50 → 60 calls (decomposition
+   inflates call count legitimately). Replaces the prior fixed 25-call cap.
+
+The diagram quality rubric (7 dimensions, 0–4 anchors, acceptance bar 3/4)
+lives in
+[`drawio/references/quality-rubric.md`](../skills/drawio/references/quality-rubric.md).
+
 ## Style guidance for diagrams
 
 Aim for the enterprise reference-architecture look and the diagram quality

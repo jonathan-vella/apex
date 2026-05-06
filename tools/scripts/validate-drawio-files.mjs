@@ -214,6 +214,18 @@ async function validateDrawioFile(filePath) {
 
   let totalCells = 0;
   let totalImages = 0;
+  // File-level aggregators for T-008 type-fit and T-010 legend-presence.
+  // These checks need cross-diagram (multi-page) state — e.g., G6 has 3 pages
+  // but only the overview should carry the legend; trust boundary applies to
+  // the architecture, not each page.
+  const fileWide = {
+    imageCellCount: 0,
+    legendFound: false,
+    hasPublicIngress: false,
+    hasTrustBoundary: false,
+    hasVNetContainer: false, // for sequence type-fit check
+    vnetContainerSampleValue: "",
+  };
 
   for (const diagram of diagrams) {
     const model = diagram.mxGraphModel;
@@ -652,6 +664,200 @@ async function validateDrawioFile(filePath) {
           console.error(`❌ ${filePath}: ${note}`);
         } else {
           console.warn(`⚠️  ${filePath}: ${note}`);
+        }
+      }
+    }
+
+    // Check 16: Per-page density (T-007)
+    // Threshold from quality-rubric.md: density.warn_cells_per_sqpx = 1/4000.
+    // Density = total cells / (canvas-bounding-box area). Canvas area is
+    // computed from the union AABB of all positioned cells. Skip when
+    // canvas area is unrealistically small (placeholder diagrams).
+    if (ICON_REQUIRED_PATTERN.test(filePath.replaceAll("\\", "/"))) {
+      let maxX = 0;
+      let maxY = 0;
+      let positionedCells = 0;
+      for (const [, geo] of geoMap) {
+        if (geo.w > 0 && geo.h > 0) {
+          maxX = Math.max(maxX, geo.x + geo.w);
+          maxY = Math.max(maxY, geo.y + geo.h);
+          positionedCells++;
+        }
+      }
+      const canvasArea = maxX * maxY;
+      const MIN_CANVAS_AREA = 100000; // 1000 x 100 px sanity floor
+      if (canvasArea > MIN_CANVAS_AREA && positionedCells > 0) {
+        const density = positionedCells / canvasArea;
+        const WARN_DENSITY = 1 / 4000;
+        const FAIL_DENSITY = 1 / 2500;
+        if (density > FAIL_DENSITY) {
+          const msg = `Page density (T-007): ${positionedCells} cells in ${Math.round(canvasArea / 1000)}k px² = 1 cell per ${Math.round(1 / density)} px² (target ≤ 1/2500). Decompose per references/large-architecture-decomposition.md.`;
+          if (RUBRIC_MODE === "strict") {
+            console.error(`❌ ${filePath}: ${msg}`);
+            errors++;
+          } else {
+            console.warn(`⚠️  ${filePath}: ${msg}`);
+            warnings++;
+          }
+        } else if (density > WARN_DENSITY) {
+          console.warn(
+            `⚠️  ${filePath}: Page density (T-007): ${positionedCells} cells in ${Math.round(canvasArea / 1000)}k px² = 1 cell per ${Math.round(1 / density)} px² (warn at 1/4000)`,
+          );
+          warnings++;
+        }
+      }
+    }
+
+    // Check 17: Semantic zone-presence (T-009)
+    // When image-cell count exceeds the threshold, require at least one
+    // container/group cell. Threshold from quality-rubric.md:
+    // semantics.min_resources_for_zone = 10.
+    if (ICON_REQUIRED_PATTERN.test(filePath.replaceAll("\\", "/"))) {
+      const MIN_FOR_ZONE = 10;
+      let imageCellCount = 0;
+      let containerCount = 0;
+      for (const cell of contentCells) {
+        const style = cell["@_style"] || "";
+        if (
+          /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) ||
+          /(?:^|;)\s*image\s*=/i.test(style)
+        ) {
+          imageCellCount++;
+        }
+        if (/(?:^|;)\s*container\s*=\s*1\b/i.test(style)) {
+          containerCount++;
+        }
+      }
+      if (imageCellCount >= MIN_FOR_ZONE && containerCount === 0) {
+        const msg = `Semantic zone-presence (T-009): ${imageCellCount} icons with no container/group cell. Add a zone per references/semantic-zones.md.`;
+        if (RUBRIC_MODE === "strict") {
+          console.error(`❌ ${filePath}: ${msg}`);
+          errors++;
+        } else {
+          console.warn(`⚠️  ${filePath}: ${msg}`);
+          warnings++;
+        }
+      }
+    }
+
+    // Check 18: Legend presence (T-010) — file-level accumulator
+    // When image-cell count exceeds the threshold AND the filename does NOT
+    // match a sequence-type pattern (04-runtime-*), require a legend cell
+    // somewhere in the file (overview page for decomposed sets per
+    // references/legend-template.md). OQ-2 carve-out: sequence diagrams omit
+    // the legend. Threshold from quality-rubric.md:
+    // labels.min_image_cells_for_legend = 8.
+    {
+      const legendMarkers = [
+        /\blegend\b/i,
+        /\u2192/,            // → arrow (right)
+        /\u2194/,            // ↔ left-right arrow
+        /\u25b6/,            // ▶ play / variant marker
+        /\u2933/,            // ⤳ wave arrow (async)
+        /\u22ef/,            // ⋯ horizontal ellipsis (dotted)
+      ];
+      for (const cell of contentCells) {
+        const style = cell["@_style"] || "";
+        if (
+          /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) ||
+          /(?:^|;)\s*image\s*=/i.test(style)
+        ) {
+          fileWide.imageCellCount++;
+        }
+        if (!fileWide.legendFound) {
+          const value = (cell["@_value"] || "").toString();
+          if (legendMarkers.some((re) => re.test(value))) {
+            fileWide.legendFound = true;
+          }
+        }
+      }
+    }
+
+    // Check 19: Type-fit signature (T-008) — file-level accumulator
+    // Filename pattern → expected diagram type → expected signatures.
+    // Per references/diagram-types.md.
+    {
+      const publicIngressMarkers = [
+        /Front Door/i,
+        /Application Gateway/i,
+        /API Management/i,
+        /\bAPIM\b/,
+      ];
+      for (const cell of contentCells) {
+        const value = (cell["@_value"] || "").toString();
+        const style = cell["@_style"] || "";
+        if (publicIngressMarkers.some((re) => re.test(value))) {
+          fileWide.hasPublicIngress = true;
+        }
+        // Trust boundary: a CONTAINER cell with either red stroke #B85450
+        // (per semantic-zones.md trust-boundary template) or "Trust" in value.
+        // Restricted to containers to avoid false positives on icons that
+        // happen to use red accents.
+        const isContainer = /(?:^|;)\s*container\s*=\s*1\b/i.test(style);
+        if (
+          isContainer &&
+          (/strokeColor\s*=\s*#B85450/i.test(style) || /\bTrust\b/i.test(value))
+        ) {
+          fileWide.hasTrustBoundary = true;
+        }
+        // VNet container (for sequence-type warning)
+        if (
+          /(?:^|;)\s*container\s*=\s*1\b/i.test(style) &&
+          (/\bVNet\b/i.test(value) || /\bVirtual Network\b/i.test(value))
+        ) {
+          if (!fileWide.hasVNetContainer) {
+            fileWide.hasVNetContainer = true;
+            fileWide.vnetContainerSampleValue = value.slice(0, 60);
+          }
+        }
+      }
+    }
+  }
+
+  // File-level emission for T-010 legend-presence and T-008 type-fit.
+  // These checks aggregate across all diagrams in the file (e.g., G6 has 3
+  // pages; only the overview should carry the legend per legend-template.md).
+  {
+    const norm = filePath.replaceAll("\\", "/");
+    const isArch = ICON_REQUIRED_PATTERN.test(norm);
+    const isSequence = /(?:^|\/)04-runtime-diagram\.drawio$/.test(norm);
+    const isDes = /(?:^|\/)03-des-diagram\.drawio$/.test(norm);
+    if (isArch) {
+      // T-010 legend presence (skip for sequence per OQ-2 carve-out)
+      const MIN_FOR_LEGEND = 8;
+      if (
+        !isSequence &&
+        fileWide.imageCellCount >= MIN_FOR_LEGEND &&
+        !fileWide.legendFound
+      ) {
+        const msg = `Legend presence (T-010): ${fileWide.imageCellCount} icons across ${diagrams.length} page(s) with no legend cell. Add per references/legend-template.md.`;
+        if (RUBRIC_MODE === "strict") {
+          console.error(`❌ ${filePath}: ${msg}`);
+          errors++;
+        } else {
+          console.warn(`⚠️  ${filePath}: ${msg}`);
+          warnings++;
+        }
+      }
+      // T-008 type-fit signature
+      if (isSequence && fileWide.hasVNetContainer) {
+        const msg = `Type-fit signature (T-008): sequence diagram has a VNet container ("${fileWide.vnetContainerSampleValue}"). Sequence type uses logical zones (Ingress/Processing/Persistence) per references/diagram-types.md.`;
+        if (RUBRIC_MODE === "strict") {
+          console.error(`❌ ${filePath}: ${msg}`);
+          errors++;
+        } else {
+          console.warn(`⚠️  ${filePath}: ${msg}`);
+          warnings++;
+        }
+      }
+      if (isDes && fileWide.hasPublicIngress && !fileWide.hasTrustBoundary) {
+        const msg = `Type-fit signature (T-008): public-ingress shapes (Front Door / App Gateway / APIM) without a trust-boundary cell. Add per references/semantic-zones.md.`;
+        if (RUBRIC_MODE === "strict") {
+          console.error(`❌ ${filePath}: ${msg}`);
+          errors++;
+        } else {
+          console.warn(`⚠️  ${filePath}: ${msg}`);
+          warnings++;
         }
       }
     }

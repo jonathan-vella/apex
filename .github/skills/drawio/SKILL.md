@@ -187,6 +187,10 @@ validation checklist live in `references/validation-checklist.md`.
 | `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 | `references/quality-rubric.md`       | Canonical 0–4 quality rubric (7 dimensions, thresholds) |
 | `references/semantic-zones.md`       | Subscription / region / trust-boundary / external zone templates |
+| `references/diagram-types.md`        | Logical / network / sequence / deployment selection + signatures |
+| `references/legend-template.md`      | Copy-pasteable legend block (inline + two-column variants)         |
+| `references/icon-variants.md`        | Service tier / SKU disambiguation + single-batch contract         |
+| `references/large-architecture-decomposition.md` | Tier S/M/L/XL breakpoints, decomposition, density target |
 
 ### Quality Reference Examples
 
