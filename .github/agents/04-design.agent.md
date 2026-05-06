@@ -279,6 +279,16 @@ failure mode observed in the T-012 baseline (see
 7. **Dynamic circuit-breaker** (T-024). Cap tool calls based on resource
    count: ≤20 → 25 calls, 21–50 → 40 calls, >50 → 60 calls (decomposition
    inflates call count legitimately). Replaces the prior fixed 25-call cap.
+8. **Sibling spacing & validator-driven repair.** Paired sibling icons in
+   the same row need ≥120 px center-to-center spacing (≥1.2 × max label
+   width when labels are long); otherwise stack vertically (+80 px y) per
+   the rule in
+   [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#sibling-icon-spacing-label-collision-rule).
+   When the post-finish validator emits a `T-006` warning, repair via a
+   single MCP `edit-cells` batch that moves the offending cells — never
+   via `sed`/`python` edits on the saved file. File-level edits bypass the
+   diagram's cell-ID mapping and inflate friction without fixing the
+   underlying coordinate plan.
 
 The diagram quality rubric (7 dimensions, 0–4 anchors, acceptance bar 3/4)
 lives in

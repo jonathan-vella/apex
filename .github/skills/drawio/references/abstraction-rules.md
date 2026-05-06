@@ -53,6 +53,34 @@ outer shell with a smaller font than service labels.
 - Keep a clear icon zone at the top of each service box and a text zone below it
 - Standardize service-box label font sizes across peers; only reduce size for unusually narrow boxes
 
+## Sibling icon spacing (label-collision rule)
+
+The dominant cause of label fusion (`Web App 1Web App 2`, `Key Vault (PE)Storage (PE)`,
+`SQL MI Cosmos DB`) is paired sibling icons placed too close horizontally.
+The icon glyph is 48 px wide but Draw.io renders the cell label below the icon
+at a width derived from the label string and font size — typically 80–120 px.
+
+**Rule:** when two icon cells share a parent and a row, their **center-to-center
+horizontal distance** MUST be at least:
+
+```text
+max(120, 1.2 × max(labelWidth_a, labelWidth_b))
+```
+
+where `labelWidth ≈ valueLen × fontSize × 0.7` (matching the T-006 validator
+heuristic).
+
+If the parent container is too narrow for that spacing, **stack siblings
+vertically** instead — same `x`, `y` increment of 80 px between icons —
+rather than crowding them side by side.
+
+This rule is enforced by the T-006 sibling-overlap validator. When the
+validator emits a `T-006` warning post-finish, the correct repair is an
+**MCP `edit-cells` call** that moves the offending cells (single batch),
+NOT a `sed`/`python` edit on the saved file. File-level edits bypass the
+diagram's cell-ID mapping and inflate friction without addressing the
+underlying coordinate plan.
+
 ## Mixed Azure + Fabric diagrams
 
 When a workload contains both Azure platform services and Microsoft Fabric services:
