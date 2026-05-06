@@ -20,7 +20,8 @@ This skill captures only the repo-specific sequence and guardrails:
 - `add-cells` — add all vertices and edges in one batch (use `shape_name` + `temp_id`)
 - `add-cells-to-group` — assign all children to groups in one batch
 - `finish-diagram` or `export-diagram` — emit final XML with `compress: true`
-> _See SKILL.md for full content._
+
+Reusable call patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
 
 ## Icon Handling
 
@@ -58,6 +59,7 @@ Never call a tool repeatedly for individual items.
    Use `temp_id` for cross-refs, `shape_name` for icons.
 4. **`add-cells-to-group`** — ONE call with ALL assignments. Server auto-converts absolute → group-relative coords.
 5. **`edit-cells`/`edit-edges`** — ONE call if adjustments needed.
+6. **`finish-diagram`** (transactional) or **`export-diagram`** (default) — with `compress: true`.
 > _See SKILL.md for full content._
 
 ## Layout Conventions
@@ -71,6 +73,7 @@ Never call a tool repeatedly for individual items.
   `exitX`/`exitY` and never add `<Array as="points">` waypoints. Target specific icons,
   not groups, when a service inside a group is the endpoint.
 - **Cross-cutting services** (Azure Monitor, Entra ID, Key Vault, Defender, etc.):
+  place in a single light-grey rounded container at the bottom, 120px apart,
 > _See SKILL.md for full content._
 
 ## Gotchas
@@ -84,6 +87,7 @@ Never call a tool repeatedly for individual items.
 - **Never read large MCP responses through the LLM** — extract data via terminal
   (Python script) to avoid context-window inflation.
 - **Batch-only workflow** — every tool accepting arrays is called ONCE with ALL items.
+- **No edge anchors or waypoints** — never set `entryX/Y`, `exitX/Y`, or add
 > _See SKILL.md for full content._
 
 ## Reference Index
@@ -96,4 +100,5 @@ Never call a tool repeatedly for individual items.
 | `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
 | `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 | `references/quality-rubric.md`       | Canonical 0–4 quality rubric (7 dimensions, thresholds) |
+| `references/semantic-zones.md`       | Subscription / region / trust-boundary / external zone templates |
 > _See SKILL.md for full content._

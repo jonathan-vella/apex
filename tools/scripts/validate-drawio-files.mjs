@@ -516,6 +516,145 @@ async function validateDrawioFile(filePath) {
         warnings++;
       }
     }
+
+    // Check 15: Sibling AABB overlap (T-006)
+    // Detects axis-aligned bounding-box collisions between sibling icon (image)
+    // cells. Catches the dominant failure mode in the T-012 baseline
+    // (label collisions: SqlHTTPS, AMIAML SDKace, Web App 1Web App 2).
+    //
+    // Rules:
+    // - Only architecture deliverables (matches ICON_REQUIRED_PATTERN) — same
+    //   scope as palette check.
+    // - Vertex-vertex only (skip edges, which are paths not boxes).
+    // - Both cells must be image cells (have shape=image or image= in style)
+    //   — these are the icon vertices whose label collisions cause the
+    //   SqlHTTPS-family bug. Container/group cells are skipped.
+    // - Significant overlap only: intersection area must exceed MIN_OVERLAP_AREA
+    //   (50 px²) AND >=10% of the smaller box's area to filter clipping.
+    // - Coordinates resolved to canvas-absolute via parent walk so sibling
+    //   comparisons are meaningful across different parent groups.
+    // - Cap reports at MAX_REPORTS per file to avoid spam.
+    // - Decision D-OQ3: false-positive ceiling fixed at <=5%. Tuned against
+    //   the 7 captured baseline diagrams in tools/tests/drawio-baseline/.
+    // - Advisory by default; APEX_DRAWIO_RUBRIC=strict promotes to error.
+    if (ICON_REQUIRED_PATTERN.test(filePath.replaceAll("\\", "/"))) {
+      const MIN_OVERLAP_AREA = 50;
+      const OVERLAP_FRACTION = 0.10;
+      const MAX_REPORTS = 8;
+
+      const parentMap = new Map();
+      for (const cell of cells) {
+        if (cell["@_id"]) {
+          parentMap.set(cell["@_id"], cell["@_parent"]);
+        }
+      }
+      const absCache = new Map();
+      function getAbs(id) {
+        if (absCache.has(id)) return absCache.get(id);
+        const geo = geoMap.get(id);
+        if (!geo) return null;
+        let x = geo.x;
+        let y = geo.y;
+        let pid = parentMap.get(id);
+        while (pid && pid !== "0" && pid !== "1") {
+          const pGeo = geoMap.get(pid);
+          if (!pGeo) break;
+          x += pGeo.x;
+          y += pGeo.y;
+          pid = parentMap.get(pid);
+        }
+        const abs = { x, y, w: geo.w, h: geo.h };
+        absCache.set(id, abs);
+        return abs;
+      }
+
+      const iconCells = [];
+      for (const cell of contentCells) {
+        const id = cell["@_id"];
+        if (!id) continue;
+        if (cell["@_edge"] === "1") continue;
+        const style = cell["@_style"] || "";
+        const isImage =
+          /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) ||
+          /(?:^|;)\s*image\s*=/i.test(style);
+        if (!isImage) continue;
+        const abs = getAbs(id);
+        if (!abs || abs.w <= 0 || abs.h <= 0) continue;
+        // Estimate the rendered label box that Draw.io draws below the icon.
+        // Default Azure-icon style places the label under the icon
+        // (verticalLabelPosition=bottom). Label width is governed by the text
+        // length * approximate per-character pixel width at the configured
+        // font size; height is a fixed line height.
+        // Known root-cause from T-012 baseline: Web App 1 / Web App 2 sat at
+        // 48-px-wide icons spaced 10 px apart, but their ~80-px label boxes
+        // visually fused into "Web App 1Web App 2".
+        const value = (cell["@_value"] || "").toString();
+        // Strip HTML tags + entities for a fair character count.
+        const valueLen = value.replace(/&[#a-zA-Z0-9]+;/g, "x").replace(/<[^>]+>/g, "").length;
+        // Match font-size from style if explicitly set; default 11 (skill convention).
+        const fsMatch = style.match(/fontSize\s*=\s*([0-9]+(?:\.[0-9]+)?)/i);
+        const fontSize = fsMatch ? parseFloat(fsMatch[1]) : 11;
+        // ~0.7 em per character for sans-serif at small sizes (incl. padding);
+        // tuned against the T-012 baseline so that Web App 1 / Web App 2 at
+        // 48 px icons spaced 10 px apart trigger the check.
+        const labelW = Math.max(0, Math.min(240, valueLen * fontSize * 0.7));
+        const labelH = Math.round(fontSize * 1.4);
+        // Label box is centered horizontally on the icon and sits below it.
+        const renderedX = abs.x - Math.max(0, (labelW - abs.w) / 2);
+        const renderedW = Math.max(abs.w, labelW);
+        const renderedY = abs.y;
+        const renderedH = abs.h + labelH;
+        iconCells.push({
+          id,
+          x: renderedX,
+          y: renderedY,
+          w: renderedW,
+          h: renderedH,
+          // Keep raw icon AABB available for diagnostics.
+          iconBox: abs,
+        });
+      }
+
+      let reports = 0;
+      const reportedPairs = new Set();
+      for (let i = 0; i < iconCells.length && reports < MAX_REPORTS; i++) {
+        for (let j = i + 1; j < iconCells.length && reports < MAX_REPORTS; j++) {
+          const a = iconCells[i];
+          const b = iconCells[j];
+          const ix1 = Math.max(a.x, b.x);
+          const iy1 = Math.max(a.y, b.y);
+          const ix2 = Math.min(a.x + a.w, b.x + b.w);
+          const iy2 = Math.min(a.y + a.h, b.y + b.h);
+          const iw = ix2 - ix1;
+          const ih = iy2 - iy1;
+          if (iw <= 0 || ih <= 0) continue;
+          const overlapArea = iw * ih;
+          if (overlapArea < MIN_OVERLAP_AREA) continue;
+          const minBoxArea = Math.min(a.w * a.h, b.w * b.h);
+          if (overlapArea < OVERLAP_FRACTION * minBoxArea) continue;
+          const key = a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`;
+          if (reportedPairs.has(key)) continue;
+          reportedPairs.add(key);
+          const msg = `Sibling icon overlap (T-006): cells "${a.id}" and "${b.id}" share ${Math.round(overlapArea)} px² of bounding-box (${Math.round((overlapArea / minBoxArea) * 100)}% of smaller). Likely label collision — see .github/skills/drawio/references/quality-rubric.md (Dimension 5).`;
+          if (RUBRIC_MODE === "strict") {
+            console.error(`❌ ${filePath}: ${msg}`);
+            errors++;
+          } else {
+            console.warn(`⚠️  ${filePath}: ${msg}`);
+            warnings++;
+          }
+          reports++;
+        }
+      }
+      if (reports >= MAX_REPORTS) {
+        const note = `Sibling icon overlap (T-006): max report cap (${MAX_REPORTS}) reached; further collisions suppressed`;
+        if (RUBRIC_MODE === "strict") {
+          console.error(`❌ ${filePath}: ${note}`);
+        } else {
+          console.warn(`⚠️  ${filePath}: ${note}`);
+        }
+      }
+    }
   }
 
   // Azure icon embedding validation for architecture deliverables

@@ -186,6 +186,7 @@ validation checklist live in `references/validation-checklist.md`.
 | `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
 | `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
 | `references/quality-rubric.md`       | Canonical 0–4 quality rubric (7 dimensions, thresholds) |
+| `references/semantic-zones.md`       | Subscription / region / trust-boundary / external zone templates |
 
 ### Quality Reference Examples
 

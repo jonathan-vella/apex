@@ -159,3 +159,34 @@ remaining items are reviewer-judged during challenger passes.
 Validator behaviour: items flagged `automated: yes` are enforced; `partial` raises
 warnings only; `manual` items are surfaced in `drawio` skill checklists for
 reviewers (04-Design, 02-Architect challenger pass).
+
+## Check 15: Sibling Icon Overlap (T-006)
+
+For architecture deliverables, the validator checks for sibling icon (image)
+cells whose **rendered label boxes** overlap. Rationale: Draw.io renders cell
+labels below the icon at a width determined by the label string and font size;
+when two icons are placed too close horizontally (or vertically), their label
+boxes fuse into illegible strings (e.g., `Web App 1Web App 2`,
+`Key Vault (PE)Storage (PE)`).
+
+The check approximates the rendered label box at:
+
+- **Width** = `min(240, valueLen × fontSize × 0.7)` (default fontSize 11)
+- **Height** = `fontSize × 1.4` below the icon
+- **X** = centered horizontally on the icon
+
+Reports collisions where:
+
+- Both cells are icon (image) cells
+- Both have positive geometry
+- AABB intersection ≥ 50 px²
+- AND ≥ 10% of the smaller box's area
+
+Per Decision **D-OQ3** in [`agent-output/_plans/drawio-quality-uplift/plan.md`](../../../../agent-output/_plans/drawio-quality-uplift/plan.md),
+the false-positive ceiling is **≤5%**. Tuned against the 7 captured baseline
+diagrams in [`tools/tests/drawio-baseline/`](../../../../tools/tests/drawio-baseline/);
+current FP rate is 0%, with FN rate ≈ 57% (some Draw.io render-side label
+fusions are not AABB-detectable and remain out of scope for this check).
+
+Caps reports at 8 per file. Advisory by default; `APEX_DRAWIO_RUBRIC=strict`
+promotes to error.

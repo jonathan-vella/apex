@@ -375,7 +375,8 @@
         "New check enumerates sibling vertices and reports overlapping AABBs as advisory by default",
         "APEX_DRAWIO_RUBRIC=strict promotes to error",
         "False-positive rate <=5% on existing .drawio files in repo",
-        "Decision OQ-3 (resolved): false-positive ceiling fixed at <=5% measured against golden-scenario fixtures (T-002) and existing repo .drawio inventory"
+        "Decision OQ-3 (resolved): false-positive ceiling fixed at <=5% measured against golden-scenario fixtures (T-002) and existing repo .drawio inventory",
+        "DELIVERED: validate-drawio-files.mjs gains Check 15 (Sibling Icon Overlap, T-006). Models rendered label box (valueLen \u00d7 fontSize \u00d7 0.7 width, fontSize \u00d7 1.4 height). Tuned against G1-G7 baseline: 2/14 files flagged (G2, G6), 0 false positives, current FP rate <5% per D-OQ3. Advisory by default; APEX_DRAWIO_RUBRIC=strict promotes to error. Caps reports at 8/file. Documented in references/validation-checklist.md."
       ],
       "dependencies": [],
       "pain_points": [
@@ -670,7 +671,8 @@
       "acceptance_criteria": [
         "File present with copy-pasteable mxCell snippets per zone type",
         "Nesting rules documented (subscription -> RG -> VNet -> Subnet)",
-        "Linked from SKILL.md and references/abstraction-rules.md"
+        "Linked from SKILL.md and references/abstraction-rules.md",
+        "DELIVERED: .github/skills/drawio/references/semantic-zones.md created (217 lines). Covers subscription scope, region zone, trust boundary, external/on-prem zone, observability zone with copy-pasteable mxCell snippets, palette mapping, and a selection-rule pseudocode block. Linked from SKILL.md Reference Index. Anti-patterns section addresses 5 patterns observed in the T-012 baseline (G1-G7)."
       ],
       "dependencies": [],
       "pain_points": [
