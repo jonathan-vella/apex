@@ -1065,6 +1065,54 @@ export function createHandlers(logger?: ToolLogger) {
           curved: "edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;",
           arrow: "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;",
         },
+        // T-027: APEX architecture-deliverable presets, sourced from
+        // .github/skills/drawio/references/style-reference.md and
+        // semantic-zones.md. These match the validator's APEX_PALETTE so
+        // diagrams using them pass the palette-drift check by construction.
+        "apex-arch-fills": {
+          compute: "fillColor=#E7F5FF;strokeColor=#6C8EBF;",
+          data: "fillColor=#FFF2CC;strokeColor=#D6B656;",
+          security: "fillColor=#FFE6E6;strokeColor=#B85450;",
+          networking: "fillColor=#E6F5E6;strokeColor=#82B366;",
+          governance: "fillColor=#F5F5F5;strokeColor=#666666;",
+        },
+        "apex-arch-zones": {
+          subscription: "rounded=1;whiteSpace=wrap;html=1;fillColor=#E7F5FF;strokeColor=#6C8EBF;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;container=1;collapsible=0;",
+          region: "rounded=1;whiteSpace=wrap;html=1;fillColor=#E6F5E6;strokeColor=#82B366;dashed=1;dashPattern=12 4;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;container=1;collapsible=0;",
+          vnet: "rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#0078D4;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#0078D4;verticalAlign=top;align=left;spacingLeft=8;spacingTop=4;container=1;collapsible=0;",
+          "trust-boundary": "rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#B85450;dashed=1;dashPattern=4 4;strokeWidth=3;fontSize=11;fontStyle=2;fontColor=#B85450;verticalAlign=top;align=left;spacingLeft=8;spacingTop=4;container=1;collapsible=0;",
+          external: "rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;dashed=1;fontSize=12;fontStyle=1;fontColor=#7F6000;verticalAlign=top;align=center;spacingTop=8;container=1;collapsible=0;",
+          observability: "rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9673A6;dashed=1;fontSize=12;fontStyle=1;fontColor=#444;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;container=1;collapsible=0;",
+        },
+        "apex-arch-edges": {
+          // Edge role-specific styles for T-021 legend conventions.
+          sync: "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;endArrow=block;endFill=1;",
+          async: "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;dashed=1;dashPattern=8 4;endArrow=block;endFill=1;",
+          monitoring: "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=1;dashed=1;dashPattern=2 2;strokeColor=#666666;endArrow=open;",
+          replication: "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;dashed=1;dashPattern=12 4;startArrow=block;startFill=1;endArrow=block;endFill=1;",
+        },
+        // T-027: typography presets, sourced from style-reference.md APEX
+        // convention. Apply via fontSize / fontStyle keys on cell style.
+        fonts: {
+          "page-title": "fontSize=16;fontStyle=1;",
+          "group-label": "fontSize=12;fontStyle=1;",
+          "service-label": "fontSize=11;",
+          "edge-label": "fontSize=10;",
+          "footer": "fontSize=9;fontColor=#666666;",
+        },
+        // T-027: line-weight presets aligned with edge role.
+        "line-weights": {
+          "primary": "strokeWidth=2;",
+          "secondary": "strokeWidth=1;",
+          "emphasis": "strokeWidth=3;",
+        },
+        // T-027: theme variants. Caller composes alongside other presets;
+        // print theme drops fills for monochrome rendering.
+        themes: {
+          light: { background: "#FFFFFF" },
+          dark: { background: "#1E1E1E", textOverride: "fontColor=#FFFFFF;" },
+          print: { background: "#FFFFFF", fillOverride: "fillColor=none;" },
+        },
       };
       return successResult({ presets });
     },

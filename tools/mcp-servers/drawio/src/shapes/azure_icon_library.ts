@@ -758,7 +758,44 @@ export function searchAzureIcons(
     const titleMatch = searchTitle === normalizedQuery ? 1.0 : 0;
     const idMatch = searchId === normalizedQuery ? 0.95 : 0;
     const positionDecay = 1 - index / results.length * 0.2; // Up to 20% decay
-    const score = Math.max(titleMatch, idMatch) || 0.5 + 0.3 * positionDecay;
+    let score = Math.max(titleMatch, idMatch) || 0.5 + 0.3 * positionDecay;
+
+    // T-032 — variant-aware boost.
+    // When the query contains a tier/SKU keyword, prefer library shapes whose
+    // titles include the same keyword. This catches cases where the library
+    // genuinely differentiates variants (e.g., `Event Hubs` vs
+    // `Event Hubs Clusters` for Dedicated; `Storage Accounts` vs
+    // `Data Lake Storage Gen2` for HNS). When the library has only a family
+    // icon for the queried variant, no boost applies and the variant is
+    // expected to live in the cell label per references/icon-variants.md.
+    const VARIANT_BOOST = 0.15;
+    const variantKeywords = [
+      "premium",
+      "standard",
+      "basic",
+      "isolated",
+      "dedicated",
+      "managed instance",
+      "hyperscale",
+      "serverless",
+      "consumption",
+      "general purpose",
+      "business critical",
+      "gen2",
+      "hns",
+      "gzrs",
+      "zrs",
+      "ra-gzrs",
+      "multi-master",
+      "gpu",
+      "confidential",
+      "private",
+      "cni",
+    ];
+    const queryHasVariant = variantKeywords.find((kw) => normalizedQuery.includes(kw));
+    if (queryHasVariant && searchTitle.includes(queryHasVariant)) {
+      score = Math.min(1.0, score + VARIANT_BOOST);
+    }
 
     return {
       ...shape,

@@ -125,11 +125,17 @@ export function resolvePlaceholdersInXml(
 ): { xml: string; error?: never } | { error: string; details?: { placeholderId: string; shapeName: string }[] } {
   const placeholders = findPlaceholdersInXml(diagramXml);
   const failedResolutions: { placeholderId: string; shapeName: string }[] = [];
-  let updatedXml = diagramXml;
 
+  // T-030 — single-pass replace.
+  // Old behaviour ran one global regex per placeholder, each scanning the
+  // entire XML — O(N×M) where N is placeholder count and M is XML size.
+  // The shape resolver is synchronous (in-memory cache), so Promise.all
+  // would not help. We instead resolve all placeholders up front into a
+  // map keyed by ID, then walk the XML once with a global regex that
+  // matches any placeholder cell and dispatches by ID via callback.
+  const resolutions = new Map<string, string>(); // placeholderId -> new style
   for (const placeholder of placeholders) {
     const resolved = shapeResolver(placeholder.shapeName, placeholder.id);
-
     if (!resolved) {
       failedResolutions.push({
         placeholderId: placeholder.id,
@@ -137,26 +143,7 @@ export function resolvePlaceholdersInXml(
       });
       continue;
     }
-
-    // Find the cell element and update its style (remove placeholder marker, add real style).
-    // Escape the placeholder ID for safe regex interpolation.
-    const escapedId = placeholder.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const cellRegex = new RegExp(
-      `<mxCell\\s+id="${escapedId}"[^>]*style="([^"]*placeholder=1[^"]*)"`,
-      "g",
-    );
-
-    updatedXml = updatedXml.replace(cellRegex, (match) => {
-      // Remove the placeholder marker from the style
-      const newStyle = resolved.style;
-      return match.replace(/style="[^"]*"/, `style="${escapeXml(newStyle)}"`);
-    });
-
-    // If there's SVG image data, inject it
-    if (resolved.svgImage) {
-      // SVG data would be in a specific attribute - implementation depends on shape library format
-      // For now, the style update is sufficient as shapes are pulled from libraries
-    }
+    resolutions.set(placeholder.id, resolved.style);
   }
 
   if (failedResolutions.length > 0) {
@@ -165,6 +152,17 @@ export function resolvePlaceholdersInXml(
       details: failedResolutions,
     };
   }
+
+  // Single regex scans the full XML once. The id="..." capture group
+  // selects the placeholder ID; the callback looks up the resolved style.
+  // Cells without a registered ID are left unchanged (defensive — won't
+  // happen if findPlaceholdersInXml is consistent with this regex).
+  const cellRegex = /<mxCell\s+id="([^"]+)"[^>]*style="([^"]*placeholder=1[^"]*)"/g;
+  const updatedXml = diagramXml.replace(cellRegex, (match, id) => {
+    const newStyle = resolutions.get(id);
+    if (!newStyle) return match;
+    return match.replace(/style="[^"]*"/, `style="${escapeXml(newStyle)}"`);
+  });
 
   return { xml: updatedXml };
 }

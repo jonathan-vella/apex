@@ -148,9 +148,11 @@ that default for the work this agent does:
 ### 1. Diagram generation (Draw.io)
 
 The Draw.io MCP server is **not stateful between calls**. You must pass
-`diagram_xml` from each tool response into the next call. Save XML to a temp
-file between steps via terminal command so the payload does not bloat your
-context.
+`diagram_xml` from each tool response into the next call. The server returns
+`diagram_xml` inline in every response — pass it directly to the next call
+without a temp-file round-trip when payload < ~50 KB. Use a temp file only
+for larger payloads (multi-page decomposition, or files > 50 KB) where
+keeping the full XML in working memory would bloat your context.
 
 The server's `instructions` field auto-sends detailed layout rules (spacing,
 grid alignment, edge routing, group sizing, cross-cutting service placement).

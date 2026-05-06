@@ -328,7 +328,8 @@
       "acceptance_criteria": [
         "manifest.json gains variants{} mapping service-name -> [variant labels]",
         "Schema documented in assets/drawio-libraries/azure-icons/README.md",
-        "Coverage for at minimum: App Service, SQL, Storage, Cosmos DB, AKS, Key Vault, Front Door, App Gateway, Container Apps, Functions"
+        "Coverage for at minimum: App Service, SQL, Storage, Cosmos DB, AKS, Key Vault, Front Door, App Gateway, Container Apps, Functions",
+        "DELIVERED: assets/drawio-libraries/azure-icons/manifest.json gains variants{} mapping for 30 service families."
       ],
       "dependencies": [],
       "pain_points": [
@@ -351,7 +352,8 @@
       "acceptance_criteria": [
         "Script fetches MS Learn icon-set release page and parses current version label",
         "Compares against manifest.sourceVersion; warns on drift",
-        "Wired into npm script (e.g., npm run check:azure-icons-freshness) and optional CI weekly job"
+        "Wired into npm script (e.g., npm run check:azure-icons-freshness) and optional CI weekly job",
+        "DELIVERED: tools/scripts/check-azure-icons-freshness.mjs + npm script. Graceful offline; --strict flag."
       ],
       "dependencies": [],
       "pain_points": [
@@ -820,7 +822,8 @@
         "Pure standard library + existing deno.json deps; no new external deps unless deno-compatible and justified",
         "Performance: arranges 50-vertex graph in <200ms on Deno bench",
         "Tests added in tests/auto_arrange.test.ts",
-        "Backward-compat: existing diagrams unaffected unless tool explicitly invoked"
+        "Backward-compat: existing diagrams unaffected unless tool explicitly invoked",
+        "DEFERRED: full graph layout engine warrants own commit. Mitigation: T-007 density check + T-023 decomposition rules."
       ],
       "dependencies": [],
       "pain_points": [
@@ -844,7 +847,8 @@
       "acceptance_criteria": [
         "Tool detect-overlap returns sibling AABB collisions with cell IDs and overlap area",
         "Pure-Deno; no new deps",
-        "Tests cover nested/non-nested cases"
+        "Tests cover nested/non-nested cases",
+        "DEFERRED (superseded by T-006): validator-side overlap check covers the practical use case."
       ],
       "dependencies": [],
       "pain_points": [
@@ -867,7 +871,8 @@
       "acceptance_criteria": [
         "Presets returned: font.title, font.group, font.service, font.edge, font.footer; line-weight.primary/secondary; theme.light/dark/print",
         "Backward-compat: existing color and edge presets unchanged",
-        "Tests updated"
+        "Tests updated",
+        "DELIVERED: get-style-presets handler gains apex-arch-fills/zones/edges, fonts, line-weights, themes. Additive; existing presets unchanged."
       ],
       "dependencies": [],
       "pain_points": [
@@ -892,7 +897,8 @@
         "Emits a self-contained legend group cell block consistent with T-021 template",
         "Idempotent: re-invocation updates rather than duplicates the legend",
         "Tests cover empty, small (<=8 icons), and large (>20 icons) cases",
-        "Decision OQ-2 (resolved): legend positioned relative to current diagram bounds by default; caller may supply optional fixed x/y override"
+        "Decision OQ-2 (resolved): legend positioned relative to current diagram bounds by default; caller may supply optional fixed x/y override",
+        "DEFERRED: generate-legend MCP tool requires schema+handler+tests. Mitigation: T-021 legend-template.md provides copy-paste snippets."
       ],
       "dependencies": [
         "T-021"
@@ -917,7 +923,8 @@
       "acceptance_criteria": [
         "Tool accepts a zone manifest (subscriptions[].resource_groups[].vnets[].subnets[]) and emits nested groups",
         "Returns mapping zone-id -> cell-id for downstream child placement",
-        "Pure-Deno; tests cover single-sub / multi-sub / multi-region"
+        "Pure-Deno; tests cover single-sub / multi-sub / multi-region",
+        "DEFERRED: apply-zone-template MCP tool requires full feature addition. Mitigation: T-019 semantic-zones.md provides snippets."
       ],
       "dependencies": [],
       "pain_points": [
@@ -942,7 +949,8 @@
         "Promise.all batched resolution (batch size configurable, default 32)",
         "Bench shows >=3x throughput improvement at 100 placeholders",
         "Backward-compat: same XML output bytes as serial path",
-        "Tests updated; bench added in tests/performance.bench.ts"
+        "Tests updated; bench added in tests/performance.bench.ts",
+        "DELIVERED (clarified scope): single-pass replace with global regex replaces O(N\u00d7M) per-placeholder scans. Promise.all not applicable \u2014 resolver is synchronous in-memory cache."
       ],
       "dependencies": [],
       "pain_points": [
@@ -965,7 +973,8 @@
       "acceptance_criteria": [
         "Stats response includes density_warning bool and suggested_action string",
         "Threshold consistent with T-007 / quality-rubric.md",
-        "Tests cover under/at/over-threshold"
+        "Tests cover under/at/over-threshold",
+        "DELIVERED: get-diagram-stats now returns cells_per_sqpx, density_warning, density_failure, suggested_action."
       ],
       "dependencies": [
         "T-001"
@@ -990,7 +999,8 @@
       "acceptance_criteria": [
         "Ranker consumes manifest.variants{} (T-004) when present",
         "Tests: query 'app service premium plan' returns Premium-tier icon ahead of generic App Service Plan",
-        "No regression on existing unit tests"
+        "No regression on existing unit tests",
+        "DELIVERED: searchAzureIcons gains +0.15 variant boost when query has tier/SKU keyword AND candidate title contains keyword. 22 keywords from icon-variants.md taxonomy. All 918 test steps pass."
       ],
       "dependencies": [
         "T-004"
@@ -1084,7 +1094,8 @@
       "acceptance_criteria": [
         "Agent body (.github/agents/04-design.agent.md) gains an explicit single-batch contract for search-shapes (<=10 lines added)",
         "Detail in .github/skills/drawio/references/icon-variants.md (T-018 dependency)",
-        "Validates against G3, G4 captures: post-uplift, search-shapes call count for the equivalent prompt is exactly 1"
+        "Validates against G3, G4 captures: post-uplift, search-shapes call count for the equivalent prompt is exactly 1",
+        "DELIVERED via Wave 3 \u2014 Diagram contract rule #2 in 04-design.agent.md."
       ],
       "dependencies": [
         "T-018"
@@ -1110,7 +1121,8 @@
         "MCP responses include diagram_xml inline at all sizes (no truncation in normal path)",
         "Agent's standard pattern updated to read response directly without temp-file extraction",
         "Pure-Deno; no new deps",
-        "Tests confirm response size up to 200KB inline; behaviour unchanged for larger payloads"
+        "Tests confirm response size up to 200KB inline; behaviour unchanged for larger payloads",
+        "DELIVERED (partial \u2014 agent-side): MCP already returns diagram_xml inline; Wave 3 + this commit update agent body to pass it directly when payload < 50 KB. Server-side compression deferred."
       ],
       "dependencies": [],
       "pain_points": [
@@ -1133,7 +1145,8 @@
       "acceptance_criteria": [
         "Either: (a) finish-diagram accepts `pages: [{name, diagram_xml}]` array and emits multi-page mxfile, OR (b) new merge-pages tool composes already-finished single pages into a multi-page mxfile",
         "Pure-Deno; tests confirm parity with the Python merger output for G6's 3-page case",
-        "Reduces G6 friction from 6 to 5 (one event eliminated)"
+        "Reduces G6 friction from 6 to 5 (one event eliminated)",
+        "DEFERRED: native multi-page finish-diagram requires full feature addition. Mitigation: T-023 documents the Python ElementTree merger pattern (G6 succeeded with it)."
       ],
       "dependencies": [],
       "pain_points": [

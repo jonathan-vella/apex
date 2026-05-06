@@ -40,5 +40,132 @@
   "convertedAt": "2026-03-27T13:21:28.181442+00:00",
   "lastChecked": "2026-03",
   "sourceVersion": "V23-November-2025",
-  "style": "shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,<BASE64>"
+  "style": "shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,<BASE64>",
+  "variants": {
+    "_comment": "Service variant taxonomy consumed by T-018 icon-variants.md and T-032 search-shapes ranker. Maps each Azure service family to its tier/SKU labels. The icon library uses family icons; variants live in cell labels per the convention in references/icon-variants.md.",
+    "App Services": [
+      "Standard S1",
+      "Premium V3 P1v3",
+      "Isolated I1v2"
+    ],
+    "Function Apps": [
+      "Consumption",
+      "Premium",
+      "Dedicated",
+      "Flex Consumption"
+    ],
+    "Container Apps": [],
+    "Container Apps Environments": [],
+    "Kubernetes Services": [
+      "Public",
+      "Private",
+      "Azure CNI",
+      "Kubenet"
+    ],
+    "Virtual Machines": [
+      "B-series",
+      "D-series",
+      "Confidential"
+    ],
+    "Azure HPC Workbenches": [
+      "NC24ads_A100_v4",
+      "NC-series GPU"
+    ],
+    "Machine Learning": [],
+    "SQL Database": [
+      "Standard S1",
+      "Premium",
+      "Hyperscale",
+      "Serverless"
+    ],
+    "SQL Managed Instances": [
+      "General Purpose",
+      "Business Critical"
+    ],
+    "Azure Cosmos DB": [
+      "NoSQL single-region",
+      "Multi-master",
+      "MongoDB API",
+      "Cassandra API",
+      "PostgreSQL API"
+    ],
+    "Storage Accounts": [
+      "LRS",
+      "ZRS",
+      "GZRS",
+      "RA-GZRS"
+    ],
+    "Data Lake Storage Gen2": [
+      "HNS"
+    ],
+    "Cache Redis": [
+      "Basic",
+      "Standard",
+      "Premium",
+      "Enterprise"
+    ],
+    "Front Doors": [
+      "Standard",
+      "Premium"
+    ],
+    "Application Gateways": [
+      "WAF v2",
+      "Standard v2"
+    ],
+    "Firewalls": [
+      "Basic",
+      "Standard",
+      "Premium"
+    ],
+    "Bastions": [
+      "Basic",
+      "Standard",
+      "Premium"
+    ],
+    "Virtual Network Gateways": [
+      "VPN",
+      "ExpressRoute"
+    ],
+    "Load Balancers": [
+      "Basic",
+      "Standard",
+      "Gateway"
+    ],
+    "Key Vaults": [
+      "Standard",
+      "Premium"
+    ],
+    "Container Registries": [
+      "Basic",
+      "Standard",
+      "Premium"
+    ],
+    "Service Bus": [
+      "Basic",
+      "Standard",
+      "Premium"
+    ],
+    "Event Hubs": [
+      "Standard"
+    ],
+    "Event Hubs Clusters": [
+      "Dedicated"
+    ],
+    "Event Grid": [
+      "System topic",
+      "Custom topic",
+      "Domain"
+    ],
+    "Application Insights": [
+      "Workspace-based"
+    ],
+    "Log Analytics Workspaces": [],
+    "Microsoft Sentinel": [],
+    "Microsoft Defender for Cloud": [
+      "Free",
+      "Standard"
+    ]
+  },
+  "variantsTaxonomyVersion": "1.0",
+  "variantsTaxonomyUpdated": "2026-05-06"
 }

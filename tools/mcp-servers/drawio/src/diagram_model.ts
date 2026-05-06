@@ -114,6 +114,20 @@ interface DiagramStats {
   cells_with_text: number;
   cells_without_text: number;
   cells_by_layer: Record<string, number>;
+  /**
+   * T-031 — page density signal. Computed when bounds are available and
+   * canvas area is non-trivial. `cells_per_sqpx` is total cells divided by
+   * the bounding-box area (px²). `density_warning` is `true` when density
+   * exceeds the warn threshold (1 cell / 4000 px²); `density_failure` is
+   * `true` when it exceeds the fail threshold (1 / 2500). Thresholds match
+   * `density.warn_cells_per_sqpx` and `density.max_cells_per_sqpx` in
+   * `.github/skills/drawio/references/quality-rubric.md`. `suggested_action`
+   * gives the agent a hint when density is excessive.
+   */
+  cells_per_sqpx?: number;
+  density_warning?: boolean;
+  density_failure?: boolean;
+  suggested_action?: string;
 }
 
 export class DiagramModel {
@@ -1971,6 +1985,10 @@ export class DiagramModel {
     cells_with_text: number;
     cells_without_text: number;
     cells_by_layer: Record<string, number>;
+    cells_per_sqpx?: number;
+    density_warning?: boolean;
+    density_failure?: boolean;
+    suggested_action?: string;
   } {
     if (this.cachedStats) {
       return this.cloneStats(this.cachedStats);
@@ -2028,6 +2046,32 @@ export class DiagramModel {
       cells_without_text: totalCells - cellsWithText,
       cells_by_layer: cellsByLayer,
     };
+
+    // T-031 — page density. Compute only when bounds + a sane minimum
+    // canvas area exist. Thresholds match the quality-rubric values.
+    if (stats.bounds && totalCells > 0) {
+      const area =
+        (stats.bounds.maxX - stats.bounds.minX) *
+        (stats.bounds.maxY - stats.bounds.minY);
+      const MIN_CANVAS_AREA = 100_000; // 1000x100 px floor
+      if (area >= MIN_CANVAS_AREA) {
+        const density = totalCells / area;
+        const WARN_DENSITY = 1 / 4000;
+        const FAIL_DENSITY = 1 / 2500;
+        stats.cells_per_sqpx = density;
+        stats.density_warning = density > WARN_DENSITY;
+        stats.density_failure = density > FAIL_DENSITY;
+        if (stats.density_failure) {
+          stats.suggested_action =
+            `Page density is 1 cell per ${Math.round(1 / density)} px² (target ≤ 1/2500). ` +
+            `Decompose into multiple pages per references/large-architecture-decomposition.md.`;
+        } else if (stats.density_warning) {
+          stats.suggested_action =
+            `Page density is 1 cell per ${Math.round(1 / density)} px² (warn at 1/4000). ` +
+            `Consider widening the canvas or moving cross-cutting services into an observability zone.`;
+        }
+      }
+    }
 
     this.cachedStats = stats;
     return this.cloneStats(stats);
