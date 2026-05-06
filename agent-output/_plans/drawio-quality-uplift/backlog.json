@@ -297,7 +297,8 @@
       "acceptance_criteria": [
         "tools/scripts/render-golden-diff.mjs renders each fixture pre/post and writes paired PNGs",
         "Outputs HTML index with side-by-side panels per scenario",
-        "Exits non-zero if any fixture fails to render"
+        "Exits non-zero if any fixture fails to render",
+        "DELIVERED: tools/scripts/render-golden-diff.mjs renders side-by-side HTML viewer (one page per scenario + index). Uses public viewer.diagrams.net iframe to embed both pre and post .drawio inline \u2014 no Puppeteer/Cairo required. Run as `node tools/scripts/render-golden-diff.mjs --post=<run-id>`. Output at agent-output/_bench/drawio-quality-uplift/<run-id>/."
       ],
       "dependencies": [
         "T-002"
@@ -1025,7 +1026,8 @@
       "acceptance_criteria": [
         "tools/scripts/run-drawio-quality-bench.mjs orchestrates T-002 fixtures, T-003 diff render, T-011 metrics, T-013 backcompat, validator suite",
         "Emits consolidated PASS/FAIL summary and per-dimension scores",
-        "Runnable as npm run bench:drawio-quality"
+        "Runnable as npm run bench:drawio-quality",
+        "DELIVERED: tools/scripts/run-drawio-quality-bench.mjs orchestrator. Reads tools/tests/drawio-baseline/{_baseline-runs.json, regen-baseline.json}, runs validate-drawio-files.mjs, computes per-scenario validator-warning counts (T-006/7/8/9/10 + palette), per-scenario rubric mean from rubric_score, mean cost vs baseline, and emits Phase-3 verdict (BASELINE_VIEW / PASS / FAIL). Markdown + JSON reports. Wired as `npm run bench:drawio-quality`. --check flag exits 1 on Phase-3 fail."
       ],
       "dependencies": [
         "T-002",
@@ -1058,7 +1060,8 @@
       "acceptance_criteria": [
         "Checklist file referenced from PULL_REQUEST_TEMPLATE.md",
         "For each workstream, lists which goldens to regen and which validator checks to assert",
-        "Reviewer can mark PASS/FAIL per row"
+        "Reviewer can mark PASS/FAIL per row",
+        "DELIVERED: .github/checklists/drawio-uplift-pr-checklist.md (~190 lines) with Phase-3 acceptance gate, per-workstream gates (15 workstreams covered), per-scenario gates, backward-compat note (D-BC waiver). Linked from .github/PULL_REQUEST_TEMPLATE.md (new 'Draw.io changes' subsection)."
       ],
       "dependencies": [
         "T-002",

@@ -84,6 +84,10 @@ freshness-report.json
 # Baseline snapshots (local working data for context optimizer)
 agent-output/_baselines/
 
+# Draw.io quality bench runs (working data; commit only the canonical
+# baseline at tools/tests/drawio-baseline/regen-baseline.json)
+agent-output/_bench/
+
 # Astro Starlight (site/ is source code; only ignore build artifacts)
 site/dist/
 site/node_modules/

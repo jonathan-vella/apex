@@ -86,7 +86,9 @@
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform test:apex-recall test:azure-pricing-mcp",
     "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '\u2705 All validations passed'",
     "audit:quarterly": "run-p lint:glob-audit lint:orphaned-content lint:docs-freshness",
-    "check:azure-icons-freshness": "node tools/scripts/check-azure-icons-freshness.mjs"
+    "check:azure-icons-freshness": "node tools/scripts/check-azure-icons-freshness.mjs",
+    "bench:drawio-quality": "node tools/scripts/run-drawio-quality-bench.mjs",
+    "bench:drawio-diff": "node tools/scripts/render-golden-diff.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
