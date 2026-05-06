@@ -509,7 +509,11 @@ const REGEN_BASELINE_PATH = path.join(
 
 function scoreRegenerationRate() {
   const iterLog = readJson(path.join(OUTPUT_DIR, "08-iteration-log.json"));
-  if (!iterLog || !Array.isArray(iterLog.entries) || iterLog.entries.length === 0) {
+  if (
+    !iterLog ||
+    !Array.isArray(iterLog.entries) ||
+    iterLog.entries.length === 0
+  ) {
     return {
       score: 0,
       details: "No iteration log data; cannot compute regeneration rate",
@@ -616,7 +620,8 @@ function scoreRegenerationRate() {
     baseline_mean_retries_per_drawio: baselineRetryMean,
     baseline_mean_friction_per_drawio: baselineFrictionMean,
     baseline_mean_cost_per_drawio: baselineCostMean,
-    baseline_commit_sha: baseline.commit_sha || baseline.captured_on_commit || null,
+    baseline_commit_sha:
+      baseline.commit_sha || baseline.captured_on_commit || null,
     target_reduction_pct: baseline.target_reduction_pct || 40,
     grade: gradeScore(score),
   };
@@ -827,10 +832,9 @@ const composite = { score: compositeScore, grade: gradeScore(compositeScore) };
 
 // Print summary
 for (const [dim, result] of Object.entries(scores)) {
-  const display = typeof result.score === "number" ? `${result.score}/100` : "N/A";
-  console.log(
-    `  ${result.grade} ${dim.replace(/_/g, " ")}: ${display}`,
-  );
+  const display =
+    typeof result.score === "number" ? `${result.score}/100` : "N/A";
+  console.log(`  ${result.grade} ${dim.replace(/_/g, " ")}: ${display}`);
 }
 console.log(`\n  🏆 Composite: ${composite.score}/100 (${composite.grade})`);
 

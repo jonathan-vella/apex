@@ -4,10 +4,7 @@
   "title": "APEX Iteration Log",
   "description": "Shape of agent-output/{project}/08-iteration-log.json \u2014 per-step iteration records appended by the orchestrator. Read by tools/scripts/benchmark-e2e.mjs (scoreTimingPerformance, scoreRegenerationRate).",
   "type": "object",
-  "required": [
-    "schema_version",
-    "entries"
-  ],
+  "required": ["schema_version", "entries"],
   "additionalProperties": true,
   "properties": {
     "schema_version": {
@@ -31,9 +28,7 @@
   "$defs": {
     "entry": {
       "type": "object",
-      "required": [
-        "step"
-      ],
+      "required": ["step"],
       "additionalProperties": true,
       "properties": {
         "step": {
@@ -45,9 +40,7 @@
             },
             {
               "type": "string",
-              "enum": [
-                "3_5"
-              ]
+              "enum": ["3_5"]
             }
           ],
           "description": "Workflow step number (1..7) or '3_5' for the Governance sub-step."
@@ -69,12 +62,7 @@
         },
         "outcome": {
           "type": "string",
-          "enum": [
-            "success",
-            "failure",
-            "skipped",
-            "in_progress"
-          ]
+          "enum": ["success", "failure", "skipped", "in_progress"]
         },
         "artifacts": {
           "type": "array",

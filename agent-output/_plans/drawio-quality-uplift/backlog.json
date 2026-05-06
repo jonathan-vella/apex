@@ -418,12 +418,13 @@
       "scope": "validator",
       "title": "Add diagram-type fit check by filename pattern",
       "rationale": "Type-mismatch pain-point: detect when a runtime/sequence diagram lacks expected signatures (sequence-style edge labels) or a network diagram lacks zones.",
-      "priority": "P1",
+      "priority": "P0",
       "effort": "S",
       "acceptance_criteria": [
         "Per-pattern signature rules declared in validator (filename pattern -> expected signatures)",
         "Patterns covered: 03-des-diagram*, 04-dependency-diagram*, 04-runtime-diagram*, 07-ab-diagram*",
-        "Advisory by default; strict mode escalates"
+        "Advisory by default; strict mode escalates",
+        "Promoted P1->P0 post baseline capture (T-012): G3 (type-fit 4/4), G6 (4/4), G7 (4/4) scored highest on type-fit, while G5 (3/4 misclassified MG hierarchy) scored lowest on layout. Type-fit signature is the highest-leverage validator extension."
       ],
       "dependencies": [
         "T-001",
@@ -1067,6 +1068,78 @@
       "constraint_check": {
         "agent_context_safe": null,
         "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-035",
+      "phase": "P2-implementation",
+      "workstream": "WS-AGENT-ICONS-VARIANTS",
+      "scope": "design-agent",
+      "title": "Enforce single-batch search-shapes in 04-Design agent body",
+      "rationale": "T-012 baseline shows skill-batching drift in 4/7 captures (G3=3 calls, G4=4 calls, G5=2 calls, G6=2 calls). The skill says 'one batched call' but the rule isn't sticky at higher complexity. Promote from skill guidance to agent-body contract.",
+      "priority": "P1",
+      "effort": "S",
+      "acceptance_criteria": [
+        "Agent body (.github/agents/04-design.agent.md) gains an explicit single-batch contract for search-shapes (<=10 lines added)",
+        "Detail in .github/skills/drawio/references/icon-variants.md (T-018 dependency)",
+        "Validates against G3, G4 captures: post-uplift, search-shapes call count for the equivalent prompt is exactly 1"
+      ],
+      "dependencies": [
+        "T-018"
+      ],
+      "pain_points": [
+        "icons"
+      ],
+      "constraint_check": {
+        "agent_context_safe": true,
+        "mcp_pure_deno": null
+      }
+    },
+    {
+      "id": "T-036",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-SCALE-PERF",
+      "scope": "mcp-server",
+      "title": "Return inline diagram_xml from add-cells / add-cells-to-group / finish-diagram (proposed)",
+      "rationale": "T-012 baseline shows XML-extraction round-trips are the dominant friction (present in all 7 captures, ~25% of total friction). Today the agent has to read the MCP response from disk via python json.load + temp-file shuffles between every MCP call. If the MCP returned diagram_xml inline (already in response, but the agent doesn't trust the size), the round-trips disappear.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "MCP responses include diagram_xml inline at all sizes (no truncation in normal path)",
+        "Agent's standard pattern updated to read response directly without temp-file extraction",
+        "Pure-Deno; no new deps",
+        "Tests confirm response size up to 200KB inline; behaviour unchanged for larger payloads"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
+      }
+    },
+    {
+      "id": "T-037",
+      "phase": "P2-implementation",
+      "workstream": "WS-MCP-SCALE-PERF",
+      "scope": "mcp-server",
+      "title": "Native multi-page diagram support in MCP server (proposed)",
+      "rationale": "T-012 G6 capture shows the agent had to write a custom Python ElementTree merger to combine 3 single-page outputs. That's friction event 6/6 on G6. finish-diagram is single-page-only. A multi-page mode (or a new merge-pages tool) would eliminate this and align with the T-023 decomposition pattern.",
+      "priority": "P1",
+      "effort": "M",
+      "acceptance_criteria": [
+        "Either: (a) finish-diagram accepts `pages: [{name, diagram_xml}]` array and emits multi-page mxfile, OR (b) new merge-pages tool composes already-finished single pages into a multi-page mxfile",
+        "Pure-Deno; tests confirm parity with the Python merger output for G6's 3-page case",
+        "Reduces G6 friction from 6 to 5 (one event eliminated)"
+      ],
+      "dependencies": [],
+      "pain_points": [
+        "scaling"
+      ],
+      "constraint_check": {
+        "agent_context_safe": null,
+        "mcp_pure_deno": true
       }
     }
   ]

@@ -1,0 +1,158 @@
+{
+  "schema_version": "3.0",
+  "project": "g5-enterprise-landing-zone",
+  "iac_tool": "",
+  "region": "swedencentral",
+  "branch": "main",
+  "updated": "2026-05-06T08:23:45Z",
+  "current_step": 0,
+  "decisions": {
+    "region": "swedencentral",
+    "compliance": "",
+    "budget": "",
+    "architecture_pattern": "",
+    "deployment_strategy": "",
+    "complexity": ""
+  },
+  "open_findings": [],
+  "decision_log": [
+    {
+      "decision": "5-column subscription layout with MG hierarchy tree",
+      "timestamp": "2026-05-06T08:23:45Z",
+      "rationale": "Single-page layout: MG tree at top, 5 subscription groups in row (148px uniform), service icons auto-stacked inside groups",
+      "step": "3"
+    }
+  ],
+  "review_audit": {
+    "step_1": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_2": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_3_5": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_4": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_5": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_6": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    }
+  },
+  "steps": {
+    "1": {
+      "name": "Requirements",
+      "agent": "02-Requirements",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "2": {
+      "name": "Architecture",
+      "agent": "03-Architect",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3": {
+      "name": "Design",
+      "agent": "04-Design",
+      "status": "complete",
+      "sub_step": null,
+      "started": null,
+      "completed": "2026-05-06T08:23:45Z",
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3_5": {
+      "name": "Governance",
+      "agent": "04g-Governance",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "4": {
+      "name": "IaC Plan",
+      "agent": "",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "5": {
+      "name": "IaC Code",
+      "agent": "",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "6": {
+      "name": "Deploy",
+      "agent": "",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "7": {
+      "name": "As-Built",
+      "agent": "08-As-Built",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    }
+  }
+}

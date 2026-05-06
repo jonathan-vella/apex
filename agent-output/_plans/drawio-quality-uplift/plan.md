@@ -605,3 +605,46 @@ Canonical task data: [`backlog.json`](backlog.json). The table below is a naviga
 - Tasks by scope: design-agent = 10; mcp-server = 8; shared = 7; validator = 5; icon-library = 2 — aggregate 32.
 - Tasks by subsection: Design Agent = 10; MCP Server = 8; Shared = 14 — aggregate 32.
 - Tasks by pain-point category: icons = 12; layout = 10; styling = 8; semantics = 13; labels = 13; type-mismatch = 10; scaling = 14.
+
+---
+
+## T-012 Baseline Capture Summary (post-execution)
+
+> Captured 2026-05-06 against `feat/vendor-prompting-enforcement` HEAD.
+> Source: [`tools/tests/drawio-baseline/_baseline-runs.json`](../../../tools/tests/drawio-baseline/_baseline-runs.json) and [`tools/tests/drawio-baseline/regen-baseline.json`](../../../tools/tests/drawio-baseline/regen-baseline.json).
+
+| Scenario | retries | friction | cost | rubric mean |
+| --- | :-: | :-: | :-: | :-: |
+| G1 three-tier-web | 0 | 3 | 3 | 2.86 |
+| G2 hub-spoke-landing-zone | 0 | 4 | 4 | 2.86 |
+| G3 event-driven-microservices | 0 | 3 | 3 | 2.71 |
+| G4 ml-training-pipeline | 0 | 4 | 4 | 2.29 |
+| G5 enterprise-landing-zone | **1** | 5 | 6 | 2.14 |
+| G6 hyperscale-platform | 0 | 6 | 6 | **3.14** |
+| G7 multi-region-active-active | 0 | 3 | 3 | **3.43** |
+| **Mean / .drawio** | **0.14** | **4.00** | **4.14** | **2.78** |
+
+**Acceptance bar: 3/4 averaged across 7 scenarios.** Today: **2.78/4** — fails (5 of 7 scenarios below bar).
+
+**Cost reduction target (T-012):** post-uplift mean cost ≤ **2.49** (40% reduction from 4.14).
+
+**Strict-rule calibration:** retries fired only at G5 (>20-resource scaling threshold). Validates Option C — strict captures "agent gives up", friction captures workflow waste, both needed.
+
+### Plan adjustments arising from baseline data
+
+- **T-008** (type-fit signature validator) promoted P1 → P0. Type-fit scored highest in the 3 best captures (G3=4, G6=4, G7=4) and lowest in the worst (G5=3 with structural MG-hierarchy collapse).
+- **T-035** added (P1, design-agent): enforce single-batch `search-shapes` in agent body — drift in 4 of 7 captures.
+- **T-036** added (P1, mcp-server): return inline `diagram_xml` from MCP responses — eliminates XML-extraction round-trips that account for ~25% of friction.
+- **T-037** added (P1, mcp-server): native multi-page support in `finish-diagram` (or a new `merge-pages` tool) — eliminates the custom Python ElementTree merger G6 had to write.
+
+### Quality-issue catalogue (top 5 by frequency)
+
+| Issue | Affected | Pain point |
+| --- | :-: | --- |
+| Trust boundary missing at public ingress | 5/7 | #4 semantics |
+| Edge-label collisions | 6/7 | #5 labels, #2 layout |
+| Cross-cutting drift (services floating without zone) | 4/7 | #4 semantics |
+| Out-of-band palette correction (sed/regex post-export) | 4/7 | #3 styling |
+| Skill-batching drift (multi-batch search-shapes) | 4/7 | #1 icons (workflow) |
+
+Full per-scenario findings: see `quality_issues[]` in [`_baseline-runs.json`](../../../tools/tests/drawio-baseline/_baseline-runs.json).
