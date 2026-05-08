@@ -348,8 +348,15 @@ if (postRunsPath) {
 }
 md.push("");
 md.push(
-  `Run side-by-side render with \`node tools/scripts/render-golden-diff.mjs --post=${POST_RUN_ID || "<run-id>"}\` once the post-uplift recapture exists.`,
+  `Run side-by-side render with the following command once the post-uplift`,
 );
+md.push("recapture exists:");
+md.push("");
+md.push("```bash");
+md.push(
+  `node tools/scripts/render-golden-diff.mjs --post=${POST_RUN_ID || "<run-id>"}`,
+);
+md.push("```");
 md.push("");
 
 fs.writeFileSync(mdOut, md.join("\n"));

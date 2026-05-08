@@ -40,4 +40,9 @@ Post-uplift comparison vs. baseline at `tools/tests/drawio-baseline/regen-baseli
 - Working file: `tools/tests/drawio-baseline/_baseline-runs.json`
 - Post-uplift runs: `agent-output/_bench/drawio-quality-uplift/2026-05-06-postup/post-runs.json`
 
-Run side-by-side render with `node tools/scripts/render-golden-diff.mjs --post=2026-05-06-postup` once the post-uplift recapture exists.
+Run side-by-side render with the following command once the post-uplift
+recapture exists:
+
+```bash
+node tools/scripts/render-golden-diff.mjs --post=2026-05-06-postup
+```
