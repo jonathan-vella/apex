@@ -158,15 +158,41 @@ function pct(n) {
 
 // ── Main ───────────────────────────────────────────────────────────────
 
-const runs = readJson(RUNS_PATH);
+const baselineRuns = readJson(RUNS_PATH);
 const baseline = readJson(BASELINE_PATH);
 
-if (!runs || !baseline) {
+if (!baselineRuns || !baseline) {
   console.error(
     `❌ baseline data missing. Expected:\n  ${RUNS_PATH}\n  ${BASELINE_PATH}\n` +
       `Run T-012 capture first (see references/quality-rubric.md).`,
   );
   process.exit(1);
+}
+
+// When --post=<run-id> is supplied, load the post-uplift recapture data
+// from agent-output/_bench/drawio-quality-uplift/<run-id>/post-runs.json
+// and use it as the "current" data set. Without --post, the baseline
+// itself is reported as "current" (BASELINE_VIEW).
+let runs = baselineRuns;
+let postRunsPath = null;
+if (POST_RUN_ID) {
+  postRunsPath = path.join(
+    "agent-output",
+    "_bench",
+    "drawio-quality-uplift",
+    POST_RUN_ID,
+    "post-runs.json",
+  );
+  const postRuns = readJson(postRunsPath);
+  if (!postRuns) {
+    console.error(
+      `❌ post-uplift data missing. Expected:\n  ${postRunsPath}\n` +
+        `Recapture each scenario through the agent and record observations\n` +
+        `in this file (see references/quality-rubric.md baseline-capture procedure).`,
+    );
+    process.exit(1);
+  }
+  runs = postRuns;
 }
 
 const validatorOutput = runValidatorScopedTo();
@@ -317,6 +343,9 @@ md.push(`- JSON snapshot: \`${jsonOut}\``);
 md.push(`- This report: \`${mdOut}\``);
 md.push(`- Baseline source: \`${BASELINE_PATH}\``);
 md.push(`- Working file: \`${RUNS_PATH}\``);
+if (postRunsPath) {
+  md.push(`- Post-uplift runs: \`${postRunsPath}\``);
+}
 md.push("");
 md.push(
   `Run side-by-side render with \`node tools/scripts/render-golden-diff.mjs --post=${POST_RUN_ID || "<run-id>"}\` once the post-uplift recapture exists.`,
