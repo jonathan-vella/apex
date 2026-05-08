@@ -13,13 +13,14 @@ multiple runs are selected, then produce **concrete, actionable improvements**
 to the agent/skill/validator/prompt system.
 
 <investigate_before_answering>
+
 - Lessons analysis depends on real telemetry. Before producing any
   recommendations, confirm: (a) which runs under `agent-output/` qualify
   (those containing `09-lessons-learned.json`); (b) whether a single run
   or multi-run merge is in scope; (c) the desired output project name.
 - If `08-benchmark-scores.json` is missing for a selected run, note the
   scoring gap and proceed with lessons-only analysis.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - Source artifacts per run (under `agent-output/{run-name}/`):
@@ -41,7 +42,7 @@ Run the multi-step analysis described in the body below:
 4. Group findings by target (agent / skill / validator / prompt) and by
    recurrence.
 5. Produce a prioritised improvement plan with concrete edits per target.
-</task>
+   </task>
 
 <rules>
 - Use `askQuestions` for run selection — do not assume a single run.
@@ -56,6 +57,7 @@ Run the multi-step analysis described in the body below:
 </rules>
 
 <output_contract>
+
 - `agent-output/{output-project}/09-lessons-merged.json` (when multi-run)
 - `agent-output/{output-project}/08-benchmark-scores-combined.json` (when
   multi-run and per-run scores exist)
@@ -66,7 +68,7 @@ Run the multi-step analysis described in the body below:
   scores.
 - Summary returned to the user: top 5 highest-impact improvements + any
   recurring lessons.
-</output_contract>
+  </output_contract>
 
 ## Step 0 — Run Selection (Interactive)
 

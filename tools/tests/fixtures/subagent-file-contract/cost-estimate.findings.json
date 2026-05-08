@@ -63,10 +63,7 @@
   ],
   "savings_status": "QUANTIFIED",
   "savings_reason": "RI eligible compute identified",
-  "eligible_strategies": [
-    "Reserved Instances (3yr)",
-    "Azure Hybrid Benefit (SQL)"
-  ],
+  "eligible_strategies": ["Reserved Instances (3yr)", "Azure Hybrid Benefit (SQL)"],
   "data_source": "Azure Pricing MCP",
   "queried_at": "2026-05-08T12:00:00Z",
   "confidence": "High",

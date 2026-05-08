@@ -111,7 +111,7 @@ async function fetchGithub(source) {
       { encoding: "utf-8" },
     );
     return { ok: true, body: out, method: "gh-api" };
-  } catch (e) {
+  } catch (_e) {
     // Fall back to anonymous raw
     const url = `https://raw.githubusercontent.com/${source.repo}/${source.ref}/${source.apiPath}`;
     const result = await fetchAnonymous({ url });
@@ -189,7 +189,7 @@ async function main() {
     }
   }
 
-  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n", "utf-8");
+  fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
 
   // Update source-freshness manifest
   fs.mkdirSync(path.dirname(FRESHNESS_MANIFEST), { recursive: true });
@@ -216,7 +216,7 @@ async function main() {
     if (existing >= 0) freshness.sources[existing] = fresh;
     else freshness.sources.push(fresh);
   }
-  fs.writeFileSync(FRESHNESS_MANIFEST, JSON.stringify(freshness, null, 2) + "\n", "utf-8");
+  fs.writeFileSync(FRESHNESS_MANIFEST, `${JSON.stringify(freshness, null, 2)}\n`, "utf-8");
 
   console.log(`\nSnapshots: ${SNAPSHOT_DIR}`);
   console.log(`Manifest:  ${MANIFEST_PATH}`);

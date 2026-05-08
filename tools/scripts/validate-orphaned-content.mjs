@@ -11,11 +11,7 @@
  */
 
 import fs from "node:fs";
-import {
-  getAgents,
-  getSkills,
-  getInstructions,
-} from "./_lib/workspace-index.mjs";
+import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
 
@@ -62,11 +58,7 @@ function gatherReferenceContent() {
   }
 
   // Top-level config files
-  for (const f of [
-    COPILOT_INSTRUCTIONS,
-    "AGENTS.md",
-    ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md",
-  ]) {
+  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md", ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md"]) {
     if (fs.existsSync(f)) corpus.push(fs.readFileSync(f, "utf-8"));
   }
 
@@ -87,8 +79,7 @@ const { corpus, perSkill } = gatherReferenceContent();
 //   - .github/skills/{name}/SKILL.digest.md
 //   - .github/skills/{name}/SKILL.minimal.md
 // (skills/{name}/SKILL[.tier].md without the leading .github/ also matches.)
-const SKILL_REFERENCE_PATTERN =
-  /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
+const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
 
 function findSkillReferences(searchContent) {
   const found = new Set();
@@ -111,7 +102,7 @@ for (const [skill] of skills) {
     .filter(([name]) => name !== skill)
     .map(([, content]) => content)
     .join("\n");
-  const searchContent = corpus + "\n" + otherSkills;
+  const searchContent = `${corpus}\n${otherSkills}`;
 
   // Primary check: explicit `Read .github/skills/{name}/SKILL[.digest|.minimal].md`
   // pattern. Falls back to less precise containment checks for non-canonical
