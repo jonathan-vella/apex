@@ -2,23 +2,30 @@
 
 # GitHub Operations (Minimal)
 
-**MCP Priority Protocol (Mandatory)**:
-Follow this protocol for every GitHub task:
+**Contribution Lifecycle**:
+```text
 
-**Issues (MCP Tools)**:
-### Available Tools
+**Branch Naming (Mandatory)**:
+Before any commit or PR, validate the branch name:
 
-**Pull Requests (MCP Tools)**:
-### Available Tools
+**Conventional Commits (Mandatory)**:
+Commit messages **must** follow Conventional Commits format (enforced by commitlint):
+
+**Tool Priority Protocol (Mandatory)**:
+1. Identify required operation (issue, PR, search, Actions, release, etc.)
+
+**Issues (gh CLI primary, MCP fallback)**:
+Use `gh issue ...` by default. MCP tools are available as a fallback when
+
+**Pull Requests (gh CLI primary, MCP fallback)**:
+Use `gh pr ...` by default (`gh pr create`, `gh pr merge`, `gh pr edit`,
 
 **CLI Commands (gh)**:
-📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI commands covering:
+📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI
 
 **Global Flags**:
 
 **DO / DON'T**:
-
-**References**:
 
 **Reference Index**:
 
