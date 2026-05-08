@@ -185,6 +185,8 @@ guidance, agents should read these on demand:
 - **Bicep conventions**: `infra/bicep/AGENTS.md`
 - **Terraform conventions**: `infra/terraform/AGENTS.md`
 - **azd multi-project rules**: `.github/instructions/azure-yaml.instructions.md` (auto-loaded for `azure.yaml`)
+- **Terminal hygiene** (no `mv -i`/`rm -i`/`read -p`, pipe long output to file):
+  `.github/instructions/no-interactive-shell.instructions.md` — enforced by `npm run lint:safe-shell`
 - **Azure infrastructure defaults**: `.github/skills/azure-defaults/SKILL.md`
 - **Workflow DAG (machine-readable)**: `.github/skills/workflow-engine/templates/workflow-graph.json`
 - **Full validation reference**: [Validation & Linting Reference](https://jonathan-vella.github.io/azure-agentic-infraops/reference/validation-reference/)

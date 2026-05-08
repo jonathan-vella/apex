@@ -70,6 +70,7 @@ run_check() {
 run_check "Version sync" "1" "npm run lint:version-sync" "version-sync" &
 run_check "Deprecated refs" "1" "npm run lint:deprecated-refs" "deprecated-refs" &
 run_check "Terminology" "1" "npm run validate:terminology" "terminology" &
+run_check "Safe shell (no interactive prompts)" "1" "npm run lint:safe-shell" "safe-shell" &
 
 # ── File-type-scoped checks ──
 run_check "Bicep lint" "$BICEP_COUNT" "shopt -s nullglob; for f in infra/bicep/*/main.bicep; do bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
