@@ -5,86 +5,98 @@
 Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Contribution Lifecycle
-
-```text
-1. Create branch (naming convention) →
-2. Make changes →
-3. Commit (conventional commits) →
-4. Push (pre-push hooks validate) →
-5. Create PR (MCP tools) →
-6. Review + Merge
-```
+> _See SKILL.md for full content._
 
 ## Branch Naming (Mandatory)
 
-Validate branch: `git rev-parse --abbrev-ref HEAD`
+Before any commit or PR, validate the branch name:
 
-| Type          | Prefixes                                                                             | File Scope                          |
-| ------------- | ------------------------------------------------------------------------------------ | ----------------------------------- |
-| Domain-scoped | `docs/`, `agents/`, `skills/`, `infra/`, `scripts/`, `instructions/`                 | Restricted (see branch-strategy.md) |
-| Cross-cutting | `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/` | Any files                           |
-
-📋 Full rules: `references/branch-strategy.md`
+```bash
+git rev-parse --abbrev-ref HEAD
+```
+> _See SKILL.md for full content._
 
 ## Conventional Commits (Mandatory)
 
-Format: `<type>[scope]: <description>`
-Enforced by commitlint hook.
+Commit messages **must** follow Conventional Commits format (enforced by commitlint):
 
-📋 Full workflow: `references/commit-conventions.md`
-
-## MCP Priority Protocol (Mandatory)
-
-1. Check whether an MCP tool exists for the operation
-2. If MCP exists, use MCP only
-3. Use `gh` CLI only when no equivalent MCP tool is available
-
+```text
+<type>[optional scope]: <description>
+```
 > _See SKILL.md for full content._
 
-## Issues (MCP Tools)
+## Tool Priority Protocol (Mandatory)
 
-`mcp_github_list_issues`, `mcp_github_issue_read`, `mcp_github_issue_write`, `mcp_github_search_issues`, `mcp_github_add_issue_comment`.
+1. Identify required operation (issue, PR, search, Actions, release, etc.)
+2. Use `gh` CLI by default — it is always available in this dev container and
+   is the more stable primitive
+3. Fall back to MCP tools only when the operation has no `gh` CLI equivalent
+   (e.g., rich PR review thread management, bulk GraphQL queries, Copilot
+   code review requests)
+> _See SKILL.md for full content._
 
-## Pull Requests (MCP Tools)
+## Issues (gh CLI primary, MCP fallback)
 
-`mcp_github_create_pull_request`, `mcp_github_merge_pull_request`, `mcp_github_update_pull_request`, `mcp_github_pull_request_review_write`, `mcp_github_request_copilot_review`, `mcp_github_search_pull_requests`.
+Use `gh issue ...` by default. MCP tools are available as a fallback when
+`gh` cannot satisfy the operation (e.g., bulk GraphQL queries).
 
+| Tool                           | Purpose                |
+| ------------------------------ | ---------------------- |
+| `mcp_github_list_issues`       | List repository issues |
+> _See SKILL.md for full content._
+
+## Pull Requests (gh CLI primary, MCP fallback)
+
+Use `gh pr ...` by default (`gh pr create`, `gh pr merge`, `gh pr edit`,
+`gh pr review`, `gh pr list`). The MCP tools below are reserved as a fallback
+for operations the CLI does not cover well — notably rich PR review thread
+management and Copilot review requests.
+
+| Tool                                   | Purpose               |
 > _See SKILL.md for full content._
 
 ## CLI Commands (gh)
 
-📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI commands covering:
-
-- **Repositories** — create, clone, fork, view, edit, sync
-- **GitHub Actions** — workflow list/run/enable, run watch/rerun/download
-- **Releases** — create, list, view, download, delete
-- **Secrets & Variables** — set, list, get, delete
-- **API Requests** — GET, POST, pagination, GraphQL
-- **Auth & Search** — login, labels, repo/code/issue search
+📋 **Reference**: Read `references/detailed-commands.md` for complete `gh` CLI
+commands covering repos, Actions, releases, secrets, API, and auth.
 
 > **IMPORTANT**: `gh api -f` does not support object values. Use multiple
+> `-f` flags with hierarchical keys and string values instead.
 
+## Global Flags
+
+| Flag                | Description                |
+| ------------------- | -------------------------- |
+| `--repo OWNER/REPO` | Target specific repository |
+| `--json FIELDS`     | Output JSON with fields    |
+| `--jq EXPRESSION`   | Filter JSON output         |
+| `--web`             | Open in browser            |
 > _See SKILL.md for full content._
-
-Global flags: `--repo OWNER/REPO`, `--json FIELDS`, `--jq EXPRESSION`, `--web`, `--paginate`.
 
 ## DO / DON'T
 
-- **DO**: Use MCP tools first for issues and PRs; `gh` CLI for Actions, releases, repos, secrets, API
-- **DON'T**: Create issues/PRs without confirming repo; merge without user confirmation
-
+- **DO**: Validate branch name before committing or creating PRs
+- **DO**: Use `gh` CLI by default for issues, PRs, Actions, releases, repos, secrets, API
+- **DO**: Fall back to MCP tools when `gh` CLI lacks an equivalent (e.g., review threads, GraphQL bulk queries)
+- **DO**: Confirm repository context before creating issues/PRs
+- **DO**: Search for existing issues/PRs before creating duplicates
+- **DO**: Check for PR templates before creating PRs
 > _See SKILL.md for full content._
 
 ## Reference Index
 
-| Reference          | File                               | Content                                      |
-| ------------------ | ---------------------------------- | -------------------------------------------- |
-| Branch Strategy    | `references/branch-strategy.md`    | Naming convention, scope tables, enforcement |
-| Commit Conventions | `references/commit-conventions.md` | Format, types, staging, safety protocol      |
-| Smart PR Flow      | `references/smart-pr-flow.md`      | PR lifecycle states, auto-labels, auto-merge |
-| CLI Commands       | `references/detailed-commands.md`  | Repos, Actions, Releases, Secrets, API, Auth |
+| Reference          | File                               | Content                                             |
+| ------------------ | ---------------------------------- | --------------------------------------------------- |
+| Branch Strategy    | `references/branch-strategy.md`    | Naming convention, scope tables, enforcement layers |
+| Commit Conventions | `references/commit-conventions.md` | Format, types, staging workflow, safety protocol    |
+| Smart PR Flow      | `references/smart-pr-flow.md`      | PR lifecycle states, auto-labels, auto-merge        |
+| CLI Commands       | `references/detailed-commands.md`  | Repos, Actions, Releases, Secrets, API, Auth        |
 
 ## Smart PR Flow
 
-Automated PR lifecycle for infrastructure deployments. Label-based state tracking,
-auto-label rules, watchdog pattern. **Read** `references/smart-pr-flow.md` for details.
+Automated PR lifecycle for infrastructure deployments. Defines label-based
+state tracking, auto-label rules on CI pass/fail, and a watchdog pattern
+for the deploy agent.
+
+For full details: **Read** `references/smart-pr-flow.md`
+> _See SKILL.md for full content._

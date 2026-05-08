@@ -56,12 +56,14 @@ full `SKILL.md` is reserved for skill-authoring/debugging. See the
 
 - Messages starting with `gh` are GitHub operations (e.g., `gh pr create`,
   `gh workflow run`, `gh api`). Follow `.github/skills/github-operations/SKILL.digest.md`
-  (MCP-first, `gh` CLI fallback).
+  (`gh` CLI-first, MCP fallback).
 
-### GitHub MCP Priority (Mandatory)
+### GitHub Tool Priority (Mandatory)
 
-For issues and pull requests, prefer GitHub MCP tools over `gh` CLI; only fall
-back to `gh` for operations with no MCP write equivalent. In devcontainers,
+For issues and pull requests, prefer the `gh` CLI over GitHub MCP tools — the
+CLI is always available in this dev container and is the more stable primitive.
+Fall back to MCP only when an operation has no `gh` CLI equivalent (e.g., rich
+PR review thread management or bulk GraphQL queries). In devcontainers,
 do not run `gh auth` commands unless the user explicitly asks for CLI auth
 troubleshooting (`GH_TOKEN` is set via VS Code User Settings →
 `terminal.integrated.env.linux`; shell exports do not propagate reliably).
