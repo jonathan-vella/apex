@@ -122,8 +122,9 @@ jobs:
           # so its tests can import the package without sys.path hacks.
           python -m pip install -e tools/apex-recall
           # azure-pricing tests live under the server's tests/ directory and
-          # import the server module via the same pattern.
-          python -m pip install -e tools/mcp-servers/azure-pricing
+          # import the server module via the same pattern. Install with [dev]
+          # extras so pytest-asyncio (required by the async fixtures) is present.
+          python -m pip install -e 'tools/mcp-servers/azure-pricing[dev]'
           python -m pip install pytest
 
       - name: Run apex-recall test suite

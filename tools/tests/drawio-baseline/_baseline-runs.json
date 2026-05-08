@@ -1,0 +1,173 @@
+{
+  "$schema": "../../schemas/drawio-baseline-runs.schema.json",
+  "_comment": [
+    "Per-scenario baseline observations captured on main HEAD before any uplift",
+    "code change lands. User edits this file after running each fixture through",
+    "the 04-Design agent in Copilot Chat. Run `node tools/scripts/capture-drawio-baseline.mjs`",
+    "after every entry to regenerate regen-baseline.json."
+  ],
+  "captured_on_branch": "feat/vendor-prompting-enforcement",
+  "captured_on_commit": "e5d87e8d6828e1b33964845189911e10f87f5fbd",
+  "captured_at": "2026-05-05T16:07:20Z",
+  "captured_by": "apex-orchestrator (G1 from session 50996f96, debug-log analysis)",
+  "scenarios": {
+    "g1-three-tier-web": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch, 0 clear-diagram, 0 corrective edits). Friction events captured: (1) MCP infra setup [1 failed search-shapes + 6 debug terminal calls before retry succeeded]; (2) redundant finish-diagram preview before compressed export; (3) post-export palette correction via sed (#EFF6FF/#0078D4 -> #E7F5FF/#6C8EBF) instead of MCP edit-cells. Visual quality observed below 3/4 acceptance bar (rubric mean ~2.86).",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 2,
+        "styling": 3,
+        "semantics": 2,
+        "labelling": 2,
+        "type_fit": 3,
+        "scalability": 4
+      },
+      "quality_issues": [
+        "Edge-label collision: 'SqlHTTPS' visible \u2014 two parallel edges (HTTPS to Storage and SQL/TDS to Azure SQL DB) had labels overlap into a fused string. Pain point #5.",
+        "Missing Managed Identity edges per prompt: prompt requires Web App -> Key Vault and Web App -> SQL via Managed Identity; only one Web App -> SQL edge rendered. Pain point #5.",
+        "Application Insights and Log Analytics Workspace placed below the resource group with no zone label and no telemetry edges from Web App. No 'Observability' or cross-cutting zone visible. Pain point #4.",
+        "No trust-boundary marker at the End User -> Web App public ingress. Pain point #4.",
+        "Web App -> Storage and Web App -> SQL edges visually overlap before fan-out, contributing to label collision. Pain point #2."
+      ]
+    },
+    "g2-hub-spoke-landing-zone": {
+      "retries": 0,
+      "friction_count": 4,
+      "observations": "Strict retries=0 (1 add-cells batch, 0 clear-diagram, 0 corrective edits). Friction events captured: (1) failed read_file on references/semantic-zones.md [T-019 deferred dependency; ref does not yet exist] + 5 recovery terminal calls; (2) two search-shapes calls instead of one batched call (skill convention violated); (3) 8 terminal calls extracting placeholder XML between add-cells and finish-diagram (G1 needed 4 - extra XML mining); (4) post-export palette correction via sed (#E6F2FA -> #e6f5e6) - same pattern as G1. Improvement vs G1: single finish-diagram call (no preview+final). Source: Copilot Chat session e88ecb6b-2df2-4b73-a033-f05c8bbe3368.",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 2,
+        "styling": 3,
+        "semantics": 3,
+        "labelling": 2,
+        "type_fit": 3,
+        "scalability": 3
+      },
+      "quality_issues": [
+        "Paired-shape label collisions: 'Web App 1Web App 2', 'Key Vault (PE)Storage (PE)', 'SQL MI (PL Cosmos DB (PL)' \u2014 sibling cells in subnet groups positioned too close (same bug family as G1's SqlHTTPS edge collision). Pain points #2, #5.",
+        "Trust Boundary marker positioned outside the On-Premises Network container instead of visually wrapping the perimeter \u2014 boundary intent reads as a label rather than a zone. Pain point #4.",
+        "Failed dependency: agent attempted to read `references/semantic-zones.md` per prompt link, but the file does not yet exist (T-019 deferred). Surfaces as 1 friction event + 5 recovery calls. Pain point #4 (missing skill reference).",
+        "Skill-convention violation: agent issued two separate `search-shapes` calls (initial 18 queries + follow-up 4 queries) instead of one batched call as required by SKILL.md. Pain point #1 (workflow drift).",
+        "Palette enforcement is too late: validator catches drift only post-export; agent corrects via out-of-band `sed -i` instead of MCP `edit-cells`. Same workflow as G1. Pain point #3."
+      ]
+    },
+    "g3-event-driven-microservices": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch with 24 cells, 0 clear-diagram, 0 corrective edits). Friction events: (1) THREE search-shapes calls (9+4+3 queries) instead of one batch \u2014 skill-convention drift worsening vs G2 (which had 2); (2) post-export palette correction via sed (#e6f2fa -> #dae8fc) \u2014 same pattern as G1/G2; (3) create_file at [25] writing an artifact outside the standard save-drawio.py flow. Improvements: only 2 XML-mining calls between add-cells and finish-diagram (G1=3, G2=8). Sequence type correctly identified \u2014 legend correctly omitted per OQ-2 carve-out. Source: Copilot Chat session 16bcee18-21df-4f58-8228-8a26bb005a65.",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 1,
+        "styling": 3,
+        "semantics": 3,
+        "labelling": 1,
+        "type_fit": 4,
+        "scalability": 3
+      },
+      "quality_issues": [
+        "REGRESSION (Layout 1/4): 50% of canvas empty \u2014 App Insights + Log Analytics floating bottom-left with no observability zone, no telemetry edges from any Container App. Same floating cross-cutting pattern as G1. Pain point #2, #4.",
+        "REGRESSION (Labelling 1/4): Multiple fused edge labels \u2014 'HTTPS / OAuth2HTTPS / OAuth2' (Client->APIM and APIM->orders-api parallel labels merged), 'AMQPAMQPHTTPS :443' (3-way merge), 'HTTPS :443LS :6380' (TLS truncated/merged with port). This is the SqlHTTPS bug from G1 amplified across multiple parallel edges. Pain point #5, #2.",
+        "WRONG EDGE TARGET: 'change feed' edge drawn from Cosmos DB to Redis Cache (should target Event Grid per prompt). Indicates agent loses semantic intent during edge layout. Pain point #5 (semantic correctness).",
+        "Skill-convention drift WORSENING: 3 separate search-shapes calls (G1=2, G2=2, G3=3) \u2014 agent is splitting batches more, not less. Pain point #1 (workflow drift).",
+        "Trust boundary missing at APIM public ingress per prompt. Pain point #4.",
+        "Bright side: Type-fit 4/4 \u2014 agent correctly identified sequence/runtime type and applied logical zones (Ingress/Processing/Persistence) instead of forcing VNet/network template. Validates the eventual T-015/T-016 type-dispatch design."
+      ]
+    },
+    "g4-ml-training-pipeline": {
+      "retries": 0,
+      "friction_count": 4,
+      "observations": "Strict retries=0 (1 add-cells batch with 16 cells; the edit-cells at [12] is a pre-batch group-label correction, not a retry under the rule). Friction events: (1) FOUR search-shapes calls (10+8+6+7=31 queries) \u2014 drift continues monotonically G1=2 G2=2 G3=3 G4=4; (2) group-label correction via edit-cells after create-groups (forgot to set titles); (3) multiple python XML-extraction round-trips between add-cells and add-cells-to-group; (4) post-export palette correction via Python re.sub (escalation from sed) \u2014 same chronic pattern. Improvements: first scenario to use create-groups + add-cells-to-group containment workflow (proper). Source: Copilot Chat session cbc7eb7b-872b-44af-ac07-82249a9051e4.",
+      "rubric_score": {
+        "icon_correctness": 3,
+        "layout": 1,
+        "styling": 3,
+        "semantics": 2,
+        "labelling": 1,
+        "type_fit": 3,
+        "scalability": 3
+      },
+      "quality_issues": [
+        "REGRESSION (Labelling 1/4): 'AMIAML SDKace' triple-label fusion on the AML Workspace icon \u2014 three separate labels overlapped into a single illegible string. This is the worst label collision observed across G1-G4 and confirms the pattern is amplifying with workflow complexity (groups + edges + multiple resources at one point). Pain point #5.",
+        "REGRESSION (Layout 1/4): 60% of canvas empty. Cross-cutting items (Key Vault, Application Insights, Log Analytics) placed in a useless mid-zone with no observability container, no trust boundary, no edges to compute. Same pattern as G1/G3, more pronounced. Pain points #2, #4.",
+        "Variant requirement partly met: GPU Cluster labelled '(A100)', ADLS Gen2 labelled '(HNS)', ACR labelled 'Premium' \u2014 variant info is in TEXT labels but icons themselves are generic family icons. Rubric anchor 3/4: 'correct families, but stale icon-set version' applies. Pain point #1.",
+        "Missing zones: prompt expected 'ML Workspace' and 'Data Zone' (delivered) but security/observability zone for KV+AI+LA absent. Pain point #4.",
+        "Skill-convention drift WORSENING: search-shapes call counts G1=2, G2=2, G3=3, G4=4 \u2014 strictly monotonic. Each scenario splits batches more than the last. SKILL.md 'single batch' rule is being eroded as scenario complexity increases. Pain point #1 (workflow drift).",
+        "Bright spots: (a) first scenario to use create-groups + add-cells-to-group containment workflow correctly, (b) best legend yet \u2014 accurately enumerates variant rationale (GPU=A100, ADLS=Gen2, ACR=Premium) and edge meanings (AML SDK / ABFS / Pull). Validates T-021 + T-028 legend design."
+      ]
+    },
+    "g5-enterprise-landing-zone": {
+      "retries": 1,
+      "friction_count": 5,
+      "observations": "FIRST SCENARIO TO TRIGGER THE STRICT RETRY RULE. Tool sequence: search-shapes [7] -> search-shapes [8] -> create-groups [10] -> add-cells [12] -> add-cells-to-group [15] -> add-cells-to-group [20] (recovery) -> finish-diagram [27] -> CLEAR-DIAGRAM [29] -> create-groups [30] -> add-cells [31] -> add-cells-to-group [35] -> finish-diagram [38] -> finish-diagram [46] (final). retries=1 (clear-diagram + full rebuild at [29]-[31]). Friction events: (1) 2 search-shapes calls; (2) duplicate add-cells-to-group at [15] and [20]; (3) two intermediate finish-diagram round-trips ([27], [38]) before final at [46]; (4) format-debugging cycles ([41]-[45]) including comparing to G1 diagram format; (5) post-validation cleanup loop. Cost = 1 retry + 5 friction = 6 (highest so far). Source: Copilot Chat session e6e5cc83-34bd-419e-bceb-002159ff6aa4.",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 1,
+        "styling": 3,
+        "semantics": 2,
+        "labelling": 1,
+        "type_fit": 3,
+        "scalability": 1
+      },
+      "quality_issues": [
+        "STRICT RETRY TRIGGERED: clear-diagram + full rebuild at [29]-[31]. Agent built diagram, found it unsatisfactory, rebuilt from scratch \u2014 exactly the strict-rule pattern. First scenario to do so. Validates that the strict rule does fire at higher complexity even with current agent behaviour.",
+        "MG hierarchy STRUCTURALLY INCORRECT: prompt specifies Tenant Root MG -> {Platform MG -> {Connectivity MG, Identity MG}, Landing Zones MG, Sandbox MG}. Diagram shows Connectivity MG and Identity MG as peers of Platform/Landing Zones/Sandbox. Two-level nesting collapsed to one. Pain point #4 (semantics).",
+        "Subscription column header collisions: 'Connectivity MG hub VNet 10.0.0.0/16', 'Identity MG... Subscription', 'M VNet Peering ID' fragment near Identity. Same paired-label collision family as G2-G4 but applied to subscription headers. Pain points #2, #5.",
+        "AKS / ACR duplication: prompt has one AKS cluster + ACR Premium. Diagram shows AKS (Private, CNI) + AKS (Shared) + Container Registry + ACR (Shared) \u2014 misinterpreted shared services in App Shared subscription. Pain point #5 (semantic correctness).",
+        "Cross-subscription edge violation: bidirectional VNet Peering arrow drawn as a long line from Connectivity column to App Workload column, crossing through Identity Subscription and App Shared Subscription containers. Violates 'edges should not cross unrelated containers'. Pain point #2.",
+        "Trust Boundary in legend only \u2014 symbol described but no actual boundary rendered. Pain point #4.",
+        "REGRESSION (Scalability 1/4): first scenario at the >20-resource decomposition threshold. T-023 reference does not yet exist; agent attempted self-decomposition (clear+rebuild) but ended up with a single-page result that fails layout. Bottom 50% of canvas still empty. Validates T-023 priority.",
+        "Bright spots: (a) first capture to TRIGGER THE STRICT RETRY RULE (validates Option C measurement design \u2014 strict still fires at the right complexity); (b) good legend covering MG / subscription scope / peering / private link / trust boundary symbol; (c) no out-of-band sed/regex palette correction this time (palette was correct from add-cells)."
+      ]
+    },
+    "g6-hyperscale-platform": {
+      "retries": 0,
+      "friction_count": 6,
+      "observations": "FIRST SCENARIO TO DELIVER MULTI-PAGE DECOMPOSITION. Three sequential page builds (Overview / Sweden Central / Germany West Central), each its own create-groups -> add-cells -> add-cells-to-group -> finish-diagram -> save. Per-page cells: 30 / 24 / 24, all within T-023 tier `>50` ceiling (<=30). Strict retries=0 (no clear-diagram, no full rebuild \u2014 sequential page builds are NOT retries under the rule because each page is a distinct batch on a clean slate). Friction events: (1) 2 search-shapes calls; (2) page-1 XML-extraction round-trips; (3) add-cells-to-group called twice on page 1 (recovery from missing assignments); (4) page-2 XML-extraction round-trips; (5) page-3 XML-extraction round-trips; (6) custom Python ElementTree multi-page merger at [47] \u2014 agent had to write its own merger because MCP server doesn't support multi-page diagrams natively. Cost = 0 + 6 = 6 (tied with G5 but G5 was failing; G6 is succeeding at a harder task). Source: Copilot Chat session 808477bd-80cb-42ac-b881-8e0e3c3a249f.",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 2,
+        "styling": 3,
+        "semantics": 3,
+        "labelling": 2,
+        "type_fit": 4,
+        "scalability": 4
+      },
+      "quality_issues": [
+        "BREAKTHROUGH: first scenario to score 4/4 on Scalability AND 4/4 on Type-fit. Multi-page decomposition delivered correctly: 3 pages (Overview / Sweden Central / Germany West Central) with per-page cell counts 30/24/24, all within the T-023 tier `>50` ceiling of 30. Validates T-008 (type-fit signature) and T-023 (decomposition rules) priority \u2014 the agent CAN do this today, just at high friction cost.",
+        "BREAKTHROUGH: rubric mean 3.14/4 \u2014 first capture above the 3/4 acceptance bar. Confirms hypothesis that decomposed diagrams have room for layout/labelling to breathe.",
+        "HTML-entity bug in legend text: '&#xa;' literal sequences appear in the legend cell value instead of being rendered as newlines. Legend reads as one long line: 'Legend&#xa;Blue = Sweden Central (Primary)&#xa;Green = Germany West Central...'. Same family as G3 fused labels (text-rendering pipeline issue). Pain point #5.",
+        "Edge-label collisions on global edges: 'Multi-master repli Multi-master replication' (label appears twice fused) and 'Front Door routing' stacked on Cosmos+EventHubs. Less severe than G2-G5 due to fewer parallel edges per endpoint. Pain point #5.",
+        "MCP server gap exposed: agent had to write a custom Python ElementTree merger to combine the 3 single-page outputs into one multi-page .drawio. Validates a NEW workstream \u2014 the MCP server's finish-diagram tool is single-page-only. Should be tracked as proposed multi-page-finish capability.",
+        "Custom-merge approach is fragile: relies on element order, namespace handling, and string concatenation. A native multi-page mode in finish-diagram would eliminate friction event #6 (~17% of the total).",
+        "Trust boundary missing at Front Door public ingress (same as G3). Pain point #4.",
+        "Cross-cutting drift continues: Sentinel + Defender for Cloud floating bottom of overview page with no observability zone. Pain point #4."
+      ]
+    },
+    "g7-multi-region-active-active": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch with 24 cells, 0 clear-diagram, 0 corrective edits). Friction events: (1) XML-extraction round-trips between add-cells and add-cells-to-group; (2) XML-extraction round-trips between add-cells-to-group and finish-diagram; (3) post-validation regex correction at [23] (palette warning). Cost = 0 + 3 = 3, tied with G1 and G3 for lowest. Notable: FIRST SCENARIO SINCE G2 to obey the single-batched search-shapes rule (G3=3 calls, G4=4 calls, G5=2 calls, G6=2 calls, G7=1 call). Skill-batching drift is NOT monotonic \u2014 correlates with prompt shape-variety, not session age. G7 has only 8 distinct shapes, fewest of any G3-G7 scenario. Source: Copilot Chat session 63a11d98-964b-4e52-ab75-f07dde54a8a6.",
+      "rubric_score": {
+        "icon_correctness": 4,
+        "layout": 3,
+        "styling": 3,
+        "semantics": 3,
+        "labelling": 3,
+        "type_fit": 4,
+        "scalability": 4
+      },
+      "quality_issues": [
+        "BEST CAPTURE: rubric mean 3.43/4 \u2014 second above-bar scenario after G6 (3.14/4). G7 nails type-fit (4/4) and scalability (4/4) without needing decomposition. Validates that medium-complexity prompts with explicit zone/edge cues produce strong output today.",
+        "Region symmetry near-perfect: Sweden Central and Germany West Central columns mirror with paired Web App, Cosmos, Storage, Key Vault, App Insights at exact alignment. No paired-label collision because each region has 1 of each (no internal pairs to collide).",
+        "Replication edges are first-class: 'Multi-region writes' (Cosmos\u2194Cosmos dashed bidirectional), 'Geo-replication' (Storage\u2194Storage dashed) \u2014 explicit, labelled, no fusion. First scenario where complex edges DON'T collide.",
+        "Mild DNS+HTTPS label collision at top: 'HTTPS (weighted) DNS' fragment where DNS-Zone label and Front-Door routing edge share an endpoint and labels stack. Less severe than G2-G6 because only 2 edges share the endpoint.",
+        "Telemetry edge direction ambiguous: arrow drawn between the two App Insights instances with label '\u2191Telemetry'. Prompt says shared Log Analytics in Sweden Central; agent rendered cross-region App Insights link instead of App\u2192AppInsights\u2192LA. Pain point #5 (semantic correctness, minor).",
+        "Trust boundary still missing at Front Door public ingress (same as G3, G5, G6). Pain point #4.",
+        "Inline legend: '\u2192 HTTPS weighted routing | \u2194 Multi-region writes (Cosmos DB) | \u2194 Geo-replication (Storage GZRS) | \u2192 Telemetry' \u2014 concise, encodes edge meanings, sits below the diagram. Different format from G4/G6 (vertical list) but equally readable.",
+        "Bright signal: NO empty canvas \u2014 first scenario since G2 with good density and balanced layout. Validates that single-region or 2-region medium prompts (15-20 resources) are the agent's sweet spot."
+      ]
+    }
+  }
+}

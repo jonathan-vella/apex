@@ -1,0 +1,59 @@
+{
+  "$schema": "../../schemas/drawio-regen-baseline.schema.json",
+  "schema_version": "drawio-regen-baseline-v1",
+  "captured_at": "2026-05-06T09:35:35.197Z",
+  "captured_on_branch": "feat/vendor-prompting-enforcement",
+  "captured_on_commit": "e5d87e8d6828e1b33964845189911e10f87f5fbd",
+  "captured_by": "apex-orchestrator (G1 from session 50996f96, debug-log analysis)",
+  "scenarios_captured": 7,
+  "scenarios_total": 7,
+  "mean_retries_per_drawio": 0.143,
+  "mean_friction_per_drawio": 4,
+  "mean_cost_per_drawio": 4.143,
+  "per_scenario": {
+    "g1-three-tier-web": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch, 0 clear-diagram, 0 corrective edits). Friction events captured: (1) MCP infra setup [1 failed search-shapes + 6 debug terminal calls before retry succeeded]; (2) redundant finish-diagram preview before compressed export; (3) post-export palette correction via sed (#EFF6FF/#0078D4 -> #E7F5FF/#6C8EBF) instead of MCP edit-cells. Visual quality observed below 3/4 acceptance bar (rubric mean ~2.86).",
+      "rubric_mean": 2.857
+    },
+    "g2-hub-spoke-landing-zone": {
+      "retries": 0,
+      "friction_count": 4,
+      "observations": "Strict retries=0 (1 add-cells batch, 0 clear-diagram, 0 corrective edits). Friction events captured: (1) failed read_file on references/semantic-zones.md [T-019 deferred dependency; ref does not yet exist] + 5 recovery terminal calls; (2) two search-shapes calls instead of one batched call (skill convention violated); (3) 8 terminal calls extracting placeholder XML between add-cells and finish-diagram (G1 needed 4 - extra XML mining); (4) post-export palette correction via sed (#E6F2FA -> #e6f5e6) - same pattern as G1. Improvement vs G1: single finish-diagram call (no preview+final). Source: Copilot Chat session e88ecb6b-2df2-4b73-a033-f05c8bbe3368.",
+      "rubric_mean": 2.857
+    },
+    "g3-event-driven-microservices": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch with 24 cells, 0 clear-diagram, 0 corrective edits). Friction events: (1) THREE search-shapes calls (9+4+3 queries) instead of one batch — skill-convention drift worsening vs G2 (which had 2); (2) post-export palette correction via sed (#e6f2fa -> #dae8fc) — same pattern as G1/G2; (3) create_file at [25] writing an artifact outside the standard save-drawio.py flow. Improvements: only 2 XML-mining calls between add-cells and finish-diagram (G1=3, G2=8). Sequence type correctly identified — legend correctly omitted per OQ-2 carve-out. Source: Copilot Chat session 16bcee18-21df-4f58-8228-8a26bb005a65.",
+      "rubric_mean": 2.714
+    },
+    "g4-ml-training-pipeline": {
+      "retries": 0,
+      "friction_count": 4,
+      "observations": "Strict retries=0 (1 add-cells batch with 16 cells; the edit-cells at [12] is a pre-batch group-label correction, not a retry under the rule). Friction events: (1) FOUR search-shapes calls (10+8+6+7=31 queries) — drift continues monotonically G1=2 G2=2 G3=3 G4=4; (2) group-label correction via edit-cells after create-groups (forgot to set titles); (3) multiple python XML-extraction round-trips between add-cells and add-cells-to-group; (4) post-export palette correction via Python re.sub (escalation from sed) — same chronic pattern. Improvements: first scenario to use create-groups + add-cells-to-group containment workflow (proper). Source: Copilot Chat session cbc7eb7b-872b-44af-ac07-82249a9051e4.",
+      "rubric_mean": 2.286
+    },
+    "g5-enterprise-landing-zone": {
+      "retries": 1,
+      "friction_count": 5,
+      "observations": "FIRST SCENARIO TO TRIGGER THE STRICT RETRY RULE. Tool sequence: search-shapes [7] -> search-shapes [8] -> create-groups [10] -> add-cells [12] -> add-cells-to-group [15] -> add-cells-to-group [20] (recovery) -> finish-diagram [27] -> CLEAR-DIAGRAM [29] -> create-groups [30] -> add-cells [31] -> add-cells-to-group [35] -> finish-diagram [38] -> finish-diagram [46] (final). retries=1 (clear-diagram + full rebuild at [29]-[31]). Friction events: (1) 2 search-shapes calls; (2) duplicate add-cells-to-group at [15] and [20]; (3) two intermediate finish-diagram round-trips ([27], [38]) before final at [46]; (4) format-debugging cycles ([41]-[45]) including comparing to G1 diagram format; (5) post-validation cleanup loop. Cost = 1 retry + 5 friction = 6 (highest so far). Source: Copilot Chat session e6e5cc83-34bd-419e-bceb-002159ff6aa4.",
+      "rubric_mean": 2.143
+    },
+    "g6-hyperscale-platform": {
+      "retries": 0,
+      "friction_count": 6,
+      "observations": "FIRST SCENARIO TO DELIVER MULTI-PAGE DECOMPOSITION. Three sequential page builds (Overview / Sweden Central / Germany West Central), each its own create-groups -> add-cells -> add-cells-to-group -> finish-diagram -> save. Per-page cells: 30 / 24 / 24, all within T-023 tier `>50` ceiling (<=30). Strict retries=0 (no clear-diagram, no full rebuild — sequential page builds are NOT retries under the rule because each page is a distinct batch on a clean slate). Friction events: (1) 2 search-shapes calls; (2) page-1 XML-extraction round-trips; (3) add-cells-to-group called twice on page 1 (recovery from missing assignments); (4) page-2 XML-extraction round-trips; (5) page-3 XML-extraction round-trips; (6) custom Python ElementTree multi-page merger at [47] — agent had to write its own merger because MCP server doesn't support multi-page diagrams natively. Cost = 0 + 6 = 6 (tied with G5 but G5 was failing; G6 is succeeding at a harder task). Source: Copilot Chat session 808477bd-80cb-42ac-b881-8e0e3c3a249f.",
+      "rubric_mean": 3.143
+    },
+    "g7-multi-region-active-active": {
+      "retries": 0,
+      "friction_count": 3,
+      "observations": "Strict retries=0 (1 add-cells batch with 24 cells, 0 clear-diagram, 0 corrective edits). Friction events: (1) XML-extraction round-trips between add-cells and add-cells-to-group; (2) XML-extraction round-trips between add-cells-to-group and finish-diagram; (3) post-validation regex correction at [23] (palette warning). Cost = 0 + 3 = 3, tied with G1 and G3 for lowest. Notable: FIRST SCENARIO SINCE G2 to obey the single-batched search-shapes rule (G3=3 calls, G4=4 calls, G5=2 calls, G6=2 calls, G7=1 call). Skill-batching drift is NOT monotonic — correlates with prompt shape-variety, not session age. G7 has only 8 distinct shapes, fewest of any G3-G7 scenario. Source: Copilot Chat session 63a11d98-964b-4e52-ab75-f07dde54a8a6.",
+      "rubric_mean": 3.429
+    }
+  },
+  "target_reduction_pct": 40,
+  "notes": "Complete capture across all 7 golden scenarios."
+}
