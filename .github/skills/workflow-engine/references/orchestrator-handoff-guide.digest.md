@@ -51,16 +51,16 @@ Artifact: agent-output/{project}/{filename}
 
 ## Gate Identifiers (per workflow-graph.json)
 
-| Gate | After                    | Required content in chat                                 |
-| ---- | ------------------------ | -------------------------------------------------------- |
-| 1    | Step 1 Requirements      | Artifact + Challenger findings                           |
-| 2    | Step 2 Architecture      | Artifact + Cost Estimate + (optional) review summary     |
-| 2.5  | Step 3.5 Governance      | Artifact + Blockers/Warnings + Challenger findings       |
-| 3    | Step 4 IaC Plan          | Plan + dependency/runtime diagrams + deployment strategy |
-| 4    | Step 5 IaC Code          | Templates path + validation status + Challenger findings |
-| 5    | Step 6 Deploy            | Deployment summary + what-if/plan preview                |
-| 6    | Step 7 As-Built          | Documentation suite paths + cost delta                   |
-| Post | Lessons                  | `09-lessons-learned.json/.md` summary                    |
+| Gate | After               | Required content in chat                                 |
+| ---- | ------------------- | -------------------------------------------------------- |
+| 1    | Step 1 Requirements | Artifact + Challenger findings                           |
+| 2    | Step 2 Architecture | Artifact + Cost Estimate + (optional) review summary     |
+| 2.5  | Step 3.5 Governance | Artifact + Blockers/Warnings + Challenger findings       |
+| 3    | Step 4 IaC Plan     | Plan + dependency/runtime diagrams + deployment strategy |
+| 4    | Step 5 IaC Code     | Templates path + validation status + Challenger findings |
+| 5    | Step 6 Deploy       | Deployment summary + what-if/plan preview                |
+| 6    | Step 7 As-Built     | Documentation suite paths + cost delta                   |
+| Post | Lessons             | `09-lessons-learned.json/.md` summary                    |
 
 Heavy-context gates (where SESSION BREAK is recommended): **2** and **3**.
 Other gates do not need the break recommendation.

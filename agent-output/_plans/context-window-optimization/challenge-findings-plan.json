@@ -1,0 +1,136 @@
+{
+  "artifact": "agent-output/_plans/context-window-optimization/plan-contextWindowOptimization.prompt.md",
+  "review_pass": 1,
+  "lens": "comprehensive",
+  "verdict": "NEEDS_REVISION",
+  "summary": "Plan is well-structured and the phasing order is sound. Three must-fix issues block safe execution: (1) the subagent file-output contract has no path/race convention, (2) Phase 4 contains a factual error (digest coverage is 47/47 not 47/51) plus an unfalsifiable success criterion, (3) two Astro doc pages that prescribe the soon-to-be-deleted registry fields are not in the change set. Five should-fix items address ordering, mismatched paths, ineffective controls, and aggressive trim targets.",
+  "must_fix_count": 3,
+  "should_fix_count": 5,
+  "suggestion_count": 6,
+  "findings": [
+    {
+      "id": "MF-1",
+      "severity": "must_fix",
+      "phase": 1,
+      "title": "Subagent output path convention is undefined; reruns will silently overwrite",
+      "evidence": "Plan specifies `challenge-findings-{artifact}-pass{N}.json` and `03-des-cost-estimate.json` but does not say (a) what `{artifact}` is for non-step artifacts, (b) who increments `{N}` (subagent? parent? apex-recall?), (c) what happens on retry/failure, (d) whether parent passes the path in or subagent computes it. nordic-foods already has `challenge-findings-requirements.json` (no pass suffix) — backward compatibility is unaddressed.",
+      "impact": "Two parallel review passes (e.g., Architect + Cost in same Step 2) will collide on `03-des-cost-estimate.json`. Reruns of the challenger overwrite previous findings, breaking apex-recall audit trail. `08-as-built` reads earlier findings — broken if files moved/renumbered.",
+      "fix": "Before Phase 1 lands: (a) document the canonical path scheme in `subagent-integration.md` (parent-supplies-path-as-input is safest), (b) require an atomic write (`write to .tmp then rename`), (c) require subagent to refuse if target exists unless parent passes `--overwrite`, (d) keep step-namespaced paths (cost-estimate runs in Step 2 → use `02-cost-estimate.json`, NOT `03-des-`), (e) make pass-number explicit in path or drop it and append to JSON array."
+    },
+    {
+      "id": "MF-2",
+      "severity": "must_fix",
+      "phase": 4,
+      "title": "Digest coverage claim is wrong (47/47 not 47/51); success criterion is unfalsifiable",
+      "evidence": "Plan §Phase 4.3 says \"47/51 [skills have digests]; where digest does not exist, generate one or accept full read.\" Repository has exactly 47 skill directories and 47 SKILL.digest.md files (verified via `find .github/skills -name SKILL.digest.md`). Plan §Verification 4 says \"confirm baseline drop\" but defines no measurement methodology and no numeric target.",
+      "impact": "Reviewers cannot validate Phase 4 success. The \"generate digests for the 4 missing\" subtask is busy-work that doesn't exist. The bigger risk: without baseline numbers, Phase 4 may ship visible churn (AGENTS.md trim, SKILL.md→digest sweep) with no proof of context savings.",
+      "fix": "(a) Replace \"47/51\" with \"all 47 skills\" and drop the \"generate missing digest\" sub-task. (b) Define a concrete baseline: capture prompt-token count for a single canonical Step 1 invocation pre/post change (chat debug log token field, or a one-liner script that sums included files). (c) Set a numeric target (e.g., ≥X% reduction) before merging."
+    },
+    {
+      "id": "MF-3",
+      "severity": "must_fix",
+      "phase": 2,
+      "title": "Two Astro doc pages instruct authors to update the deleted registry fields",
+      "evidence": "`site/src/content/docs/concepts/how-it-works/skills-and-instructions.md:199` reads \"Also add the skill to the agent's entry in `tools/registry/agent-registry.json`\". `site/src/content/docs/concepts/how-it-works/four-pillars.md:70` describes the registry as \"Agent role → file, model, required skills\". Plan §Phase 2 lists `docs/**/*.md` for cleanup (validator references) but not these site pages.",
+      "impact": "After Phase 2 ships, contributors following published docs will edit the registry, hit the (newly tightened) schema rejection, and file confused issues. Misalignment between docs site and registry is a recurring drift source the project has been trying to fix.",
+      "fix": "Add to Phase 2 file list: `site/src/content/docs/concepts/how-it-works/skills-and-instructions.md` (rewrite §\"Wire it to an agent\" — skills are wired by the agent body's `Read .github/skills/{name}/...` line, not the registry) and `site/src/content/docs/concepts/how-it-works/four-pillars.md` line 70 (drop \"required skills\" from the table cell). Run `npm run lint:md` after."
+    },
+    {
+      "id": "SF-1",
+      "severity": "should_fix",
+      "phase": 1,
+      "title": "Cost-estimate path uses `03-des-` prefix but subagent runs in Step 2",
+      "evidence": "Plan §Phase 1.2 specifies `agent-output/{project}/03-des-cost-estimate.json`. The cost-estimate-subagent is invoked by Architect (Step 2). The `03-des-` prefix is reserved for Step 3 Design artifacts.",
+      "impact": "Confuses the artifact-prefix convention enforced by `lint:artifact-templates`. May fail the validator outright depending on the rule.",
+      "fix": "Use `02-cost-estimate.json` (Architect step) or `02-architecture-cost.json` to align with existing `02-architecture-assessment.md`. Sanity-check against `lint:artifact-templates` rules before merging."
+    },
+    {
+      "id": "SF-2",
+      "severity": "should_fix",
+      "phase": 2,
+      "title": "Orphan validator's new grep pattern is brittle",
+      "evidence": "Plan §Phase 2.4 proposes deriving \"wired skills\" from grep of `Read .github/skills/{name}` against agent bodies. Existing agents use multiple phrasings: `Read .github/skills/{name}/SKILL.md`, `SKILL.digest.md`, `SKILL.minimal.md`, fenced code blocks with the path, and tool-call text like `Use the {name} skill`.",
+      "impact": "False negatives mark wired skills as orphans; false positives may also occur. CI noise → engineers ignore the validator.",
+      "fix": "Make the regex explicit and tested: `\\.github/skills/[a-z0-9-]+/SKILL(\\.digest|\\.minimal)?\\.md`. Add a small fixture test under `tools/tests/` that asserts the parser finds known skill references. Document the supported phrasings in an instruction file so authors don't drift."
+    },
+    {
+      "id": "SF-3",
+      "severity": "should_fix",
+      "phase": 3,
+      "title": "`safe-shell.mjs` lints static files but the actual problem is runtime chat behavior",
+      "evidence": "The original bloat came from a chat-time `mv -i` and `rm -i` invocation, not from a forbidden pattern committed in an `.agent.md` file. Plan adds a static lint that scans agent/prompt files for `mv -i`, `rm -i`, etc. None of those patterns exist in agent files today.",
+      "impact": "False sense of coverage. The lint will pass forever while the chat-time issue can recur. Engineers think the problem is fixed.",
+      "fix": "Either (a) drop `safe-shell.mjs` and rely on the instruction file alone (preferred — the issue is behavioral), or (b) keep it but expand scope to also lint shell snippets inside instructions/skills/READMEs and explicitly call out in the plan that this is documentation-aid, not runtime enforcement. Also widen the regex to cover `bash -c '... -i'`."
+    },
+    {
+      "id": "SF-4",
+      "severity": "should_fix",
+      "phase": 3,
+      "title": "\"Run `clear` after large outputs\" is ineffective for chat context",
+      "evidence": "Plan §Phase 3.1 rule 4: \"Run `clear` after large outputs to keep scrollback clean.\" `clear` resets terminal display only; the conversation transcript already captured the output and will be replayed on every subsequent turn.",
+      "impact": "Misleads agents into thinking they have mitigated the bloat after producing it.",
+      "fix": "Remove this rule. Replace with: \"If you produced a >50-line output by mistake, do not attempt to clear it — it is already in transcript. Note the bloat in apex-recall lessons and avoid repeating.\""
+    },
+    {
+      "id": "SF-5",
+      "severity": "should_fix",
+      "phase": 4,
+      "title": "AGENTS.md <80-line target conflicts with content Copilot relies on every turn",
+      "evidence": "Current `AGENTS.md` is ~210 lines including Setup Commands, Build & Validation, Code Style, Security Baseline, Commit guidelines, Workflow table, Conventions Detail. <80 lines requires removing entire Setup/Build/Style sections that the auto-loaded baseline currently uses for command discovery.",
+      "impact": "Aggressive trim may force agents to read additional pointer files on every turn, increasing not decreasing per-turn baseline.",
+      "fix": "Replace fixed line target with a measured token target (e.g., \"reduce loaded-token contribution by ≥30%\"). Keep Setup, Build, and Workflow tables. Move only Code Style + Security Baseline to digest pointers (these are also redundantly captured in `azure-defaults` and `iac-policy-compliance.md`)."
+    },
+    {
+      "id": "S-1",
+      "severity": "suggestion",
+      "phase": 1,
+      "title": "Document subagent → apex-recall artifact registration",
+      "fix": "When subagent writes to disk, the parent should call `apex-recall artifact <project> --add <path>` (or equivalent) so resume-from-graph sees the file. Add this step to the new `subagent-integration.md` contract."
+    },
+    {
+      "id": "S-2",
+      "severity": "suggestion",
+      "phase": 1,
+      "title": "Add fixture-based contract test for subagent file mode",
+      "fix": "Add `tools/tests/subagent-file-contract.test.mjs` that asserts: (a) summary message is ≤2KB / ≤15 lines, (b) declared file_path exists post-call, (c) summary numeric counts match file content. Without this, drift will reappear silently."
+    },
+    {
+      "id": "S-3",
+      "severity": "suggestion",
+      "phase": 2,
+      "title": "Per-phase rollback steps not documented",
+      "fix": "Add a \"Rollback\" subsection to each phase. Phase 2 rollback is non-trivial: must re-add `skills` data per agent (lossy if values were not preserved in git). Recommend tagging the pre-Phase-2 commit (`git tag pre-skills-removal`) and including the tag in the PR description."
+    },
+    {
+      "id": "S-4",
+      "severity": "suggestion",
+      "phase": 1,
+      "title": "Standalone `10-Challenger` agent contract not addressed",
+      "fix": "`.github/agents/10-challenger.agent.md` is a thin wrapper around `challenger-review-subagent`. Verify its instructions don't conflict with the new file-mode contract; either delegate fully or update its body too. Add to Phase 1 file list explicitly."
+    },
+    {
+      "id": "S-5",
+      "severity": "suggestion",
+      "phase": 1,
+      "title": "Verify vendor-prompting compliance after subagent edits",
+      "fix": "Subagent files are GPT-5.5 / Claude — flipping core constraints can break the outcome-first/XML structure rules enforced by `npm run lint:vendor-prompting`. Add this validator to the Phase 1 verification checklist."
+    },
+    {
+      "id": "S-6",
+      "severity": "suggestion",
+      "phase": 4,
+      "title": "Reconcile \"prefer digest by default\" with `context-shredding` tier system",
+      "fix": "`context-shredding` skill prescribes tier selection by context utilization (>60% → digest, >80% → minimal). Phase 4.3's \"replace SKILL.md with SKILL.digest.md by default\" contradicts the tiered approach. Reconcile in the plan: either (a) override the tier rule (and update the skill), or (b) keep tier rule and target only the highest-utilization agents. Don't ship contradictory guidance."
+    }
+  ],
+  "verified_assumptions": [
+    "47/47 skills have SKILL.digest.md (plan's 47/51 is wrong)",
+    "Runtime consumers of skills/capability_skills limited to the 4 scripts named in plan + agent-registry.schema.json",
+    "count-manifest.json derives skill count from filesystem, not registry — safe",
+    "No MCP server, plugin, GitHub Action, or Astro template reads the skill arrays at runtime"
+  ],
+  "out_of_scope_concerns_noted": [
+    "Phase 5 token-budget validator deferral is acceptable but the diagnosis cited it as the only structural prevention — note this in the deferred-followup tracker.",
+    "feat/vendor-prompting-enforcement branch likely conflicts with Phase 2; rebase coordination already noted in plan."
+  ]
+}

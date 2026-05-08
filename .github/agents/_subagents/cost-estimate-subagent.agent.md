@@ -32,7 +32,7 @@ The parent agent provides:
   patterns:
   - Architect (Step 2): `agent-output/{project}/02-cost-estimate.json`
   - As-Built (Step 7): `agent-output/{project}/07-ab-cost-estimate.json`
-  The subagent does not compute the path.
+    The subagent does not compute the path.
 - `overwrite`: Optional boolean. Default `false`. If `false` and the target
   file already exists, the subagent fails fast with an explicit error.
 - `compare_regions`: Optional. If `true`, run region recommendation for primary compute SKUs.
@@ -122,14 +122,14 @@ If `azure_bulk_estimate` returns no pricing data for a SKU, try the SKU with
 "Estimate unavailable" with confidence "Low". Do not fabricate prices —
 flag unknowns explicitly in the output.
 
-| Tool                     | When to Use                                                             | Max Calls |
-| ------------------------ | ----------------------------------------------------------------------- | --------- |
-| `azure_bulk_estimate`    | **DEFAULT** — all resources in ONE call with `resources` array          | **1**     |
-| `azure_region_recommend` | Cheapest region for compute SKUs only (group by VM family if possible)  | 1–2       |
+| Tool                     | When to Use                                                            | Max Calls |
+| ------------------------ | ---------------------------------------------------------------------- | --------- |
+| `azure_bulk_estimate`    | **DEFAULT** — all resources in ONE call with `resources` array         | **1**     |
+| `azure_region_recommend` | Cheapest region for compute SKUs only (group by VM family if possible) | 1–2       |
 | `azure_price_search`     | Fallback for non-compute services or RI/SP pricing                     | 1–3       |
-| `azure_price_compare`    | Compare pricing across regions or SKUs (only when parent requests it)   | 0–1       |
-| `azure_discover_skus`    | Only if a SKU name is unknown — NEVER for SKUs already in requirements  | 0–1       |
-| `azure_cost_estimate`    | **FALLBACK ONLY** — single resource if `azure_bulk_estimate` fails      | 0         |
+| `azure_price_compare`    | Compare pricing across regions or SKUs (only when parent requests it)  | 0–1       |
+| `azure_discover_skus`    | Only if a SKU name is unknown — NEVER for SKUs already in requirements | 0–1       |
+| `azure_cost_estimate`    | **FALLBACK ONLY** — single resource if `azure_bulk_estimate` fails     | 0         |
 
 ### Mandatory: Bulk Estimate First
 
@@ -210,7 +210,9 @@ Write the full breakdown to `output_path` atomically. The JSON shape:
       "notes": "{details}"
     }
   ],
-  "optimization_notes": ["{region comparison results, RI savings, tier downgrade options}"],
+  "optimization_notes": [
+    "{region comparison results, RI savings, tier downgrade options}"
+  ],
   "savings_status": "QUANTIFIED | NOT_QUANTIFIED | NOT_APPLICABLE",
   "savings_reason": "{why savings were/were not quantified}",
   "eligible_strategies": ["{list of applicable strategies with prerequisites}"],

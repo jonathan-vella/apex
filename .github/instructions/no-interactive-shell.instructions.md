@@ -17,13 +17,13 @@ applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.gi
 **NEVER** use `mv -i`, `rm -i`, `cp -i`, `read -p`, or any prompt-driven
 shell builtin (including inside `bash -c '...'`).
 
-| Forbidden                                    | Use instead                                    |
-| -------------------------------------------- | ---------------------------------------------- |
-| `mv -i src dst`                              | `mv -f src dst`                                |
-| `rm -i path`                                 | `rm -f path` (or skip — let the user delete)   |
-| `cp -i src dst`                              | `cp -f src dst`                                |
-| `read -p "Continue? " ans`                   | Use `vscode_askQuestions` to gather input      |
-| `bash -c 'rm -i x'`                          | `rm -f x`                                      |
+| Forbidden                  | Use instead                                  |
+| -------------------------- | -------------------------------------------- |
+| `mv -i src dst`            | `mv -f src dst`                              |
+| `rm -i path`               | `rm -f path` (or skip — let the user delete) |
+| `cp -i src dst`            | `cp -f src dst`                              |
+| `read -p "Continue? " ans` | Use `vscode_askQuestions` to gather input    |
+| `bash -c 'rm -i x'`        | `rm -f x`                                    |
 
 If the user genuinely needs confirmation, use the `vscode_askQuestions`
 tool — never an interactive shell prompt.

@@ -4,25 +4,25 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": null
     },
     "orchestrator-fast-path": {
       "agent": ".github/agents/01-orchestrator-fastpath.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": null
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Opus 4.7 (High reasoning)",
       "invokable": true,
       "step": 1
     },
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Opus 4.7 (High reasoning)",
       "invokable": true,
       "step": 2
     },
@@ -34,24 +34,24 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": 3.5
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Opus 4.7 (High reasoning)",
       "invokable": true,
       "step": 4
     },
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "Claude Sonnet 4.6"
+        "model": "GPT-5.5"
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "Claude Sonnet 4.6"
+        "model": "GPT-5.5"
       },
       "invokable": true,
       "step": 5
@@ -59,42 +59,42 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "GPT-5.4"
+        "model": "GPT-5.5"
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "GPT-5.4"
+        "model": "GPT-5.5"
       },
       "invokable": true,
       "step": 6
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "GPT-5.4",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": 7
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Opus 4.7",
       "invokable": true,
       "step": null
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": null
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "Claude Opus 4.7 (High reasoning)",
       "invokable": true,
       "step": null
     },
     "e2e-orchestrator": {
       "agent": ".github/agents/e2e-orchestrator.agent.md",
-      "model": "Claude Opus 4.6",
+      "model": "GPT-5.5",
       "invokable": false,
       "step": null
     }
@@ -102,7 +102,7 @@
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "GPT-5.5",
       "invokable": false
     },
     "cost-estimate-subagent": {
@@ -112,22 +112,22 @@
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "invokable": false
     },
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "GPT-5.4",
+      "model": "Claude Sonnet 4.6",
       "invokable": false
     }
   }

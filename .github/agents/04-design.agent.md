@@ -119,8 +119,8 @@ the architecture assessment is missing.
 3. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming.
 4. `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for
    `03-des-cost-estimate.md`.
-5. `.github/skills/drawio/SKILL.md` — Draw.io diagram generation contract.
-6. `.github/skills/azure-adr/SKILL.md` — ADR format and conventions.
+5. `.github/skills/drawio/SKILL.digest.md` — Draw.io diagram generation contract.
+6. `.github/skills/azure-adr/SKILL.digest.md` — ADR format and conventions.
 
 Load reference files (e.g. swim-lane layouts, edge-label rules, Python chart
 templates) on demand, not at startup.

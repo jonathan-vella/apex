@@ -79,8 +79,7 @@ const RULES = [
   {
     id: "bash-c-interactive",
     // bash -c '... -i ...' wrapping mv/rm/cp/read with -i flag
-    pattern:
-      /\bbash\s+-c\s+['"][^'"]*\b(?:mv|rm|cp|read)\b[^'"]*-i[^'"]*['"]/,
+    pattern: /\bbash\s+-c\s+['"][^'"]*\b(?:mv|rm|cp|read)\b[^'"]*-i[^'"]*['"]/,
     why: "interactive flag inside bash -c '...' still hangs the chat turn",
     fix: "remove the -i flag; use -f or vscode_askQuestions instead",
   },

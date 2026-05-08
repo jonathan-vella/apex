@@ -53,11 +53,11 @@ escalation for >80% context utilization or when the caller passes an explicit
 minimal-mode flag. The full `SKILL.md` is reserved for skill-authoring or
 debugging contexts where the digest is insufficient.
 
-| Context Usage / Mode               | Skill Variant | Path Pattern       | Approx Tokens |
-| ---------------------------------- | ------------- | ------------------ | ------------- |
-| **Default** (any utilization)      | Digest        | `SKILL.digest.md`  | 150-320       |
-| > 80% utilization or minimal flag  | Minimal       | `SKILL.minimal.md` | 40-100        |
-| Skill authoring / debugging only   | Full          | `SKILL.md`         | 400-800       |
+| Context Usage / Mode              | Skill Variant | Path Pattern       | Approx Tokens |
+| --------------------------------- | ------------- | ------------------ | ------------- |
+| **Default** (any utilization)     | Digest        | `SKILL.digest.md`  | 150-320       |
+| > 80% utilization or minimal flag | Minimal       | `SKILL.minimal.md` | 40-100        |
+| Skill authoring / debugging only  | Full          | `SKILL.md`         | 400-800       |
 
 All 47 skill directories in this repository ship a `SKILL.digest.md` file, so
 no missing-digest fallback path is needed.

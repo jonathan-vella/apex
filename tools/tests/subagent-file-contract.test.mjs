@@ -82,7 +82,9 @@ describe("subagent file-mode contract", () => {
 
     it("(a) summary stays within byte and line budgets", () => {
       const bytes = Buffer.byteLength(fixture.summary, "utf8");
-      const lines = fixture.summary.split(/\r?\n/).filter((l) => l.length).length;
+      const lines = fixture.summary
+        .split(/\r?\n/)
+        .filter((l) => l.length).length;
       assert.ok(
         bytes <= SUMMARY_BYTE_BUDGET,
         `summary is ${bytes} bytes; budget is ${SUMMARY_BYTE_BUDGET}`,
@@ -94,7 +96,10 @@ describe("subagent file-mode contract", () => {
     });
 
     it("(b) the declared file_path exists post-call", () => {
-      const outputPath = path.join(tmpDir, "challenge-findings-architecture-pass1.json");
+      const outputPath = path.join(
+        tmpDir,
+        "challenge-findings-architecture-pass1.json",
+      );
       const result = simulateSubagentWrite({
         outputPath,
         payload: fixture.findings,
@@ -134,10 +139,16 @@ describe("subagent file-mode contract", () => {
         "challenge-findings-architecture-pass1-rerun.json",
       );
       // Initial write succeeds.
-      const first = simulateSubagentWrite({ outputPath, payload: fixture.findings });
+      const first = simulateSubagentWrite({
+        outputPath,
+        payload: fixture.findings,
+      });
       assert.equal(first.ok, true);
       // Second write without overwrite is refused.
-      const second = simulateSubagentWrite({ outputPath, payload: fixture.findings });
+      const second = simulateSubagentWrite({
+        outputPath,
+        payload: fixture.findings,
+      });
       assert.equal(second.ok, false);
       assert.equal(second.error, "refuse_on_exists");
       // Third write with overwrite: true succeeds.
@@ -155,7 +166,9 @@ describe("subagent file-mode contract", () => {
 
     it("(a) summary stays within byte and line budgets", () => {
       const bytes = Buffer.byteLength(fixture.summary, "utf8");
-      const lines = fixture.summary.split(/\r?\n/).filter((l) => l.length).length;
+      const lines = fixture.summary
+        .split(/\r?\n/)
+        .filter((l) => l.length).length;
       assert.ok(bytes <= SUMMARY_BYTE_BUDGET);
       assert.ok(lines <= SUMMARY_LINE_BUDGET);
     });
@@ -182,9 +195,15 @@ describe("subagent file-mode contract", () => {
 
     it("(d) refuse-on-exists also applies to cost estimates", () => {
       const outputPath = path.join(tmpDir, "02-cost-estimate-rerun.json");
-      const first = simulateSubagentWrite({ outputPath, payload: fixture.findings });
+      const first = simulateSubagentWrite({
+        outputPath,
+        payload: fixture.findings,
+      });
       assert.equal(first.ok, true);
-      const second = simulateSubagentWrite({ outputPath, payload: fixture.findings });
+      const second = simulateSubagentWrite({
+        outputPath,
+        payload: fixture.findings,
+      });
       assert.equal(second.ok, false);
       assert.equal(second.error, "refuse_on_exists");
     });

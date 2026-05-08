@@ -73,16 +73,16 @@ prevents repeated JSON dumps from bloating the conversation.
 The parent agent **always** supplies `output_path` explicitly. The subagent
 never invents or guesses a path.
 
-| Subagent                       | Caller (step)                | Canonical `output_path`                                                          |
-| ------------------------------ | ---------------------------- | -------------------------------------------------------------------------------- |
-| `challenger-review-subagent`   | Requirements (1)             | `agent-output/{project}/challenge-findings-requirements.json`                    |
-| `challenger-review-subagent`   | Architect (2) — architecture | `agent-output/{project}/challenge-findings-architecture-pass{N}.json`            |
-| `challenger-review-subagent`   | Architect (2) — cost         | `agent-output/{project}/challenge-findings-cost-estimate.json`                   |
-| `challenger-review-subagent`   | Governance (3.5)             | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`    |
-| `challenger-review-subagent`   | IaC Planner (4)              | `agent-output/{project}/challenge-findings-plan-pass{N}.json`                    |
-| `challenger-review-subagent`   | Bicep / Terraform CodeGen (5)| `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`                |
-| `cost-estimate-subagent`       | Architect (2)                | `agent-output/{project}/02-cost-estimate.json`                                   |
-| `cost-estimate-subagent`       | As-Built (7)                 | `agent-output/{project}/07-ab-cost-estimate.json`                                |
+| Subagent                     | Caller (step)                 | Canonical `output_path`                                                       |
+| ---------------------------- | ----------------------------- | ----------------------------------------------------------------------------- |
+| `challenger-review-subagent` | Requirements (1)              | `agent-output/{project}/challenge-findings-requirements.json`                 |
+| `challenger-review-subagent` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture-pass{N}.json`         |
+| `challenger-review-subagent` | Architect (2) — cost          | `agent-output/{project}/challenge-findings-cost-estimate.json`                |
+| `challenger-review-subagent` | Governance (3.5)              | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json` |
+| `challenger-review-subagent` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan-pass{N}.json`                 |
+| `challenger-review-subagent` | Bicep / Terraform CodeGen (5) | `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`             |
+| `cost-estimate-subagent`     | Architect (2)                 | `agent-output/{project}/02-cost-estimate.json`                                |
+| `cost-estimate-subagent`     | As-Built (7)                  | `agent-output/{project}/07-ab-cost-estimate.json`                             |
 
 Pass numbering uses `pass{N}` for multi-pass reviews; single-pass artifacts
 omit the suffix. Backward compatibility: the legacy
@@ -117,6 +117,7 @@ After the subagent returns its compact summary, the parent agent MUST:
    `apex-recall` has no dedicated `artifact` subcommand; the existing
    `checkpoint` subcommand stamps the new file in session state, and the
    file index picks the new file up on the next `reindex`.
+
 3. When re-running after revisions, set `overwrite: true` explicitly.
 
 ### Why the contract was flipped
