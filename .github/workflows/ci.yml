@@ -62,14 +62,19 @@ jobs:
         run: |
           echo "Validating agent handoff references..."
 
-          grep -rh "agent:" .github/agents/ --include="*.agent.md" 2>/dev/null | \
-            grep -v "^---" | \
-            sed 's/.*agent: *//' | \
+          # Anchor on indented YAML frontmatter lines so prose like
+          # "subagent: foo" or "agent name:" in body markdown doesn't slip
+          # through. Real handoff entries always look like `    agent: NAME`
+          # under a `handoffs:` list.
+          grep -rhE "^[[:space:]]+agent:[[:space:]]" .github/agents/ --include="*.agent.md" 2>/dev/null | \
+            sed 's/^[[:space:]]*agent:[[:space:]]*//' | \
             tr -d '"' | \
             sort -u > /tmp/handoffs.txt
 
-          grep -rh "^name:" .github/agents/ --include="*.agent.md" 2>/dev/null | \
-            sed 's/name: *//' | \
+          # `name:` lives at column 0 of the YAML frontmatter, so anchor
+          # to start-of-line with no leading whitespace.
+          grep -rhE "^name:[[:space:]]" .github/agents/ --include="*.agent.md" 2>/dev/null | \
+            sed 's/^name:[[:space:]]*//' | \
             tr -d '"' | \
             sort -u > /tmp/agents.txt
 
