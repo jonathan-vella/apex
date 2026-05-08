@@ -58,7 +58,8 @@ const FIXTURES_DIR = path.join("tools", "tests", "drawio-golden");
 // G1..G7 outputs to disk; T-033 re-uses them as the "before" state.
 const SCENARIO_DRAWIO = {
   "g1-three-tier-web": "agent-output/g1-three-tier/03-des-diagram.drawio",
-  "g2-hub-spoke-landing-zone": "agent-output/g2-hub-spoke/03-des-diagram.drawio",
+  "g2-hub-spoke-landing-zone":
+    "agent-output/g2-hub-spoke/03-des-diagram.drawio",
   "g3-event-driven-microservices":
     "agent-output/g3-event-driven-microservices/03-des-diagram.drawio",
   "g4-ml-training-pipeline":
@@ -104,10 +105,10 @@ function runValidatorScopedTo(file) {
   // the agent-output/ scan to the specific scenario dir so other captures
   // do not pollute counts.
   try {
-    const out = execSync(
-      `node tools/scripts/validate-drawio-files.mjs 2>&1`,
-      { encoding: "utf8", cwd: REPO_ROOT },
-    );
+    const out = execSync(`node tools/scripts/validate-drawio-files.mjs 2>&1`, {
+      encoding: "utf8",
+      cwd: REPO_ROOT,
+    });
     return out;
   } catch (e) {
     // validator returns non-zero only on errors; warnings come on stderr.
@@ -143,10 +144,7 @@ function countValidatorWarnings(validatorOutput, drawioPath) {
 function pickRunId() {
   if (POST_RUN_ID) return POST_RUN_ID;
   // Default: timestamp + "baseline-view" so multiple runs don't collide.
-  const ts = new Date()
-    .toISOString()
-    .replace(/[:.]/g, "")
-    .slice(0, 15); // YYYYMMDDTHHMMSS
+  const ts = new Date().toISOString().replace(/[:.]/g, "").slice(0, 15); // YYYYMMDDTHHMMSS
   return `${ts}-baseline-view`;
 }
 
@@ -230,12 +228,11 @@ const verdict = {
   acceptance_bar: ACCEPTANCE_BAR,
   rubric_met: rubricMet,
   completeness_met: completeness,
-  phase_3_gate:
-    !POST_RUN_ID
-      ? "BASELINE_VIEW"
-      : completeness && reductionMet && rubricMet
-        ? "PASS"
-        : "FAIL",
+  phase_3_gate: !POST_RUN_ID
+    ? "BASELINE_VIEW"
+    : completeness && reductionMet && rubricMet
+      ? "PASS"
+      : "FAIL",
 };
 
 // ── Output ─────────────────────────────────────────────────────────────
@@ -269,9 +266,7 @@ md.push("## Verdict");
 md.push("");
 md.push(`| Metric | Value |`);
 md.push(`| --- | --- |`);
-md.push(
-  `| Phase-3 gate | **${verdict.phase_3_gate}** |`,
-);
+md.push(`| Phase-3 gate | **${verdict.phase_3_gate}** |`);
 md.push(
   `| Scenarios captured | ${verdict.scenarios_evaluated}/${verdict.scenarios_total} |`,
 );
@@ -295,8 +290,7 @@ md.push(`| --- | :-: | :-: | :-: | :-: | --- |`);
 for (const s of perScenario) {
   const rub = s.rubric_mean === null ? "n/a" : s.rubric_mean.toFixed(2);
   const v = s.validator;
-  const vstr =
-    `${v["T-006"]}/${v["T-007"]}/${v["T-008"]}/${v["T-009"]}/${v["T-010"]} + ${v.palette}`;
+  const vstr = `${v["T-006"]}/${v["T-007"]}/${v["T-008"]}/${v["T-009"]}/${v["T-010"]} + ${v.palette}`;
   md.push(
     `| ${s.id} | ${s.retries} | ${s.friction} | ${s.cost} | ${rub} | ${vstr} |`,
   );
@@ -333,7 +327,9 @@ fs.writeFileSync(mdOut, md.join("\n"));
 
 // Console summary
 console.log(`Quality bench (${runId})`);
-console.log(`  scenarios       : ${verdict.scenarios_evaluated}/${verdict.scenarios_total}`);
+console.log(
+  `  scenarios       : ${verdict.scenarios_evaluated}/${verdict.scenarios_total}`,
+);
 console.log(`  baseline cost   : ${baselineCost?.toFixed(2) ?? "n/a"}`);
 console.log(`  current cost    : ${meanCost.toFixed(2)}`);
 console.log(

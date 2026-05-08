@@ -68,8 +68,9 @@ to Step 3.5 (Governance) or Step 4 (IaC Planning).
 <context_awareness>
 This is a large agent definition. Before loading skill files, check whether
 `SKILL.digest.md` variants exist. At >60% context, load digest variants; at
->80% switch to `SKILL.minimal.md` and stop re-reading predecessor artifacts.
-</context_awareness>
+
+> 80% switch to `SKILL.minimal.md` and stop re-reading predecessor artifacts.
+> </context_awareness>
 
 <scope_fencing>
 You generate design artifacts only: architecture diagrams, ADRs, and
@@ -284,11 +285,56 @@ failure mode observed in the T-012 baseline (see
    width when labels are long); otherwise stack vertically (+80 px y) per
    the rule in
    [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#sibling-icon-spacing-label-collision-rule).
-   When the post-finish validator emits a `T-006` warning, repair via a
-   single MCP `edit-cells` batch that moves the offending cells — never
-   via `sed`/`python` edits on the saved file. File-level edits bypass the
-   diagram's cell-ID mapping and inflate friction without fixing the
-   underlying coordinate plan.
+
+   **NEVER** repair validator warnings via `sed`, `python`, file-level
+   `multi_replace_string_in_file`, or any other terminal-based edit on the
+   saved `.drawio`. The ONLY acceptable repair is a single MCP `edit-cells`
+   batch invoked on the live diagram state. File-level edits:
+
+   - bypass the diagram's cell-ID mapping (subsequent MCP calls cannot
+     find cells by `temp_id`),
+   - desynchronize the placeholder → SVG resolution state (your next
+     `finish-diagram` call may regenerate stale cells),
+   - violate the watermark integrity (re-export will rewrite the file
+     unpredictably).
+
+   Three of the seven post-uplift recaptures (G2, G4, G7) regressed the
+   cost metric specifically because the agent reached for `sed` /
+   `multi_replace_string_in_file` instead of `edit-cells`. Do not repeat
+   this. If the validator emits a `T-006` (overlap), `T-007` (density),
+   or `T-009` (zone) warning, the response is **always** an MCP
+   `edit-cells` batch that moves or restyles the offending cells — even
+   for one-cell fixes.
+9. **Edge labels must not pass through icon-label boxes.** Edge-label-on-
+   icon-label collisions (e.g., `orAMQPipi`, `AMIAML SDKace`,
+   `Connectivity MGtform`) are caused when an edge routes its waypoint
+   labels across the rendered text region of an icon. Two rules:
+
+   - Edge **labels** sit at the midpoint of an edge by default; if the
+     edge midpoint falls within ±40 px of any icon center, set
+     `labelBackgroundColor=#FFFFFF` AND nudge the label position via
+     `labelPosition` / `verticalLabelPosition` so it sits in clear space
+     (typically above or below the edge run, not on it).
+   - Long edges crossing zone boundaries must use elbow or single-bend
+     routing; never run a straight diagonal across an icon's label
+     region. See
+     [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#edge-labels-and-label-on-icon-collisions).
+10. **Always emit a diagram title.** Every architecture deliverable starts
+    with a top-of-canvas title cell using the page-title style preset:
+    `{Project / Workload Name} — {Region}` for single-region or
+    `{Workload} — Multi-Region` for multi-region; for decomposed sets,
+    append `· {Page Name}` to each page. The title is page 1 cell
+    `(title-page-1)` placed at `(canvas_width/2, 12)` with `align=center;
+    fontSize=16; fontStyle=1`. G1 recapture missed this; do not repeat.
+11. **Observability zone is not optional when ≥2 cross-cutting services
+    appear.** When the prompt names two or more of {Application Insights,
+    Log Analytics, Azure Monitor, Microsoft Sentinel, Defender for Cloud,
+    Azure Policy, Container Registry as governance}, render an explicit
+    `Observability` container at the canvas bottom per the snippet in
+    [`drawio/references/semantic-zones.md`](../skills/drawio/references/semantic-zones.md#snippet--observability-zone-cross-cutting).
+    Do **not** leave them floating as bare icons — four of seven
+    post-uplift recaptures (G1, G3, G5, G6) left cross-cutting services
+    floating without a container.
 
 The diagram quality rubric (7 dimensions, 0–4 anchors, acceptance bar 3/4)
 lives in
@@ -364,11 +410,19 @@ names come from `search-shapes` results):
 {
   "transactional": true,
   "cells": [
-    { "type": "vertex", "temp_id": "fd",  "shape_name": "Front Doors",
-      "label": "Azure Front Door (Premium)" },
-    { "type": "vertex", "temp_id": "app", "shape_name": "App Services",
-      "label": "Web app (Sweden Central)" },
-    { "type": "edge",   "source": "fd",   "target": "app", "label": "HTTPS" }
+    {
+      "type": "vertex",
+      "temp_id": "fd",
+      "shape_name": "Front Doors",
+      "label": "Azure Front Door (Premium)"
+    },
+    {
+      "type": "vertex",
+      "temp_id": "app",
+      "shape_name": "App Services",
+      "label": "Web app (Sweden Central)"
+    },
+    { "type": "edge", "source": "fd", "target": "app", "label": "HTTPS" }
   ]
 }
 ```
@@ -391,7 +445,7 @@ Run `apex-recall show <project> --json` for full project context — do not read
 - Resume: read `sub_step` from the apex-recall output to detect resume
   point.
 - Decisions: `apex-recall decide <project> --decision "<text>"
-  --rationale "<why>" --step 3 --json` for diagram-tool choices, ADR
+--rationale "<why>" --step 3 --json` for diagram-tool choices, ADR
   outcomes, and design-pattern selections.
 - On completion: `apex-recall complete-step <project> 3 --json`.
 

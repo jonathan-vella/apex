@@ -81,6 +81,45 @@ NOT a `sed`/`python` edit on the saved file. File-level edits bypass the
 diagram's cell-ID mapping and inflate friction without addressing the
 underlying coordinate plan.
 
+## Edge labels and label-on-icon collisions
+
+The second-most-frequent visible regression in the T-012 baseline→post-uplift
+recaptures (after sibling-icon collisions) was **edge-label-on-icon-label
+fusion**: an edge's waypoint label rendered on top of an icon's label,
+fusing the two into illegible strings. Examples observed:
+
+- `orAMQPipi` — G3, `orders-api` icon label fused with the AMQP edge label.
+- `AMIAML SDKace` — G4, AML Workspace icon label fused with the AML SDK
+  edge label and another fragment.
+- `Connectivity MGtform` — G5, Connectivity MG and Platform Subscription
+  labels collided with a tree edge label between them.
+- `SerAMQPChange Feed` — G3, Service Bus label fused with two adjacent
+  edge labels.
+
+**Rule:** when constructing edge labels, the edge midpoint MUST NOT fall
+within ±40 px of any icon's center. Three mitigations, in order of
+preference:
+
+1. **Reroute the edge** so its midpoint lies in open canvas space, using
+   elbow/orthogonal segments. The midpoint of an orthogonal edge is the
+   geometric center of its longest segment.
+2. **Force a label position** on the edge that sits in clear space:
+
+   ```text
+   labelPosition=center;verticalLabelPosition=top;align=center;verticalAlign=bottom;
+   ```
+
+   This pushes the label above the edge run rather than on it. Combine
+   with `labelBackgroundColor=#FFFFFF` to mask any underlying icon label.
+3. **Shorten the edge label** to one or two tokens. Long descriptive
+   labels like `Multi-master writes (active-active)` collide more than
+   short labels like `AMQP`; let the legend carry the full descriptor.
+
+**Validator coverage:** T-006 catches sibling-icon overlap; this class of
+collision is caught by T-006-edge (proposed extension). Until the
+validator catches it deterministically, the agent is responsible for
+following the rules above at edge-construction time.
+
 ## Mixed Azure + Fabric diagrams
 
 When a workload contains both Azure platform services and Microsoft Fabric services:

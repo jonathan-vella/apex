@@ -77,8 +77,7 @@ const SCENARIOS = [
   {
     id: "g5-enterprise-landing-zone",
     title: "G5 — Enterprise Landing Zone",
-    baseline:
-      "agent-output/g5-enterprise-landing-zone/03-des-diagram.drawio",
+    baseline: "agent-output/g5-enterprise-landing-zone/03-des-diagram.drawio",
   },
   {
     id: "g6-hyperscale-platform",
@@ -137,11 +136,7 @@ function embedDrawio(xmlString, label) {
 
 function renderScenarioPage(scenario) {
   const beforeXml = readMaybe(scenario.baseline);
-  const afterPath = path.join(
-    RUN_DIR,
-    scenario.id,
-    "03-des-diagram.drawio",
-  );
+  const afterPath = path.join(RUN_DIR, scenario.id, "03-des-diagram.drawio");
   const afterXml = readMaybe(afterPath);
 
   const html = `<!DOCTYPE html>
