@@ -109,7 +109,7 @@
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-n": "^17.15.1",
     "fast-xml-parser": "^5.7.0",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "jsdom": "^29.0.1",
     "lefthook": "^2.1.4",
     "markdown-link-check": "^3.14.2",
