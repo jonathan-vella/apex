@@ -17,7 +17,7 @@ file's `model:` value must equal the target agent's `model:` value.
 # .prompt.md
 ---
 agent: 03-Architect
-model: "Claude Opus 4.7 (High reasoning)" # MUST match agent's model:
+model: "Claude Opus 4.7" # MUST match agent's model:
 ---
 ```
 
@@ -37,7 +37,7 @@ stale during model rollouts.
 # Bad
 handoffs:
   - agent: 03-Architect
-    model: "Claude Opus 4.7 (High reasoning)"   # redundant — matches Architect's own
+    model: "Claude Opus 4.7"   # redundant — matches Architect's own
     prompt: "..."
 
 # Good
@@ -53,10 +53,10 @@ handoffs:
 
 **Rule** (`frontmatter-model-style-001`):
 
-- `.agent.md` files: array form — `model: ["Claude Opus 4.7 (High reasoning)"]`
-- `.prompt.md` files: string form — `model: "Claude Opus 4.7 (High reasoning)"`
-- Bareword form (`model: Claude Opus 4.7 (High reasoning)`) is
-  **forbidden** — YAML misparses parenthetical qualifiers.
+- `.agent.md` files: array form — `model: ["Claude Opus 4.7"]`
+- `.prompt.md` files: string form — `model: "Claude Opus 4.7"`
+- Bareword form for labels with parenthetical qualifiers (e.g.,
+  `model: Claude Foo (suffix)`) is **forbidden** — YAML misparses parens.
 
 **Severity**: error. This breaks frontmatter loading entirely.
 

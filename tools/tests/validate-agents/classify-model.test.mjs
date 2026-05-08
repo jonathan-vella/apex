@@ -19,7 +19,7 @@ import {
 
 test("classifyModel: Claude Opus 4.7 → claude-opus", () => {
   assert.equal(
-    classifyModel("Claude Opus 4.7 (High reasoning)"),
+    classifyModel("Claude Opus 4.7"),
     "claude-opus",
   );
   assert.equal(classifyModel(["Claude Opus 4.7"]), "claude-opus");

@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://jonathan-vella.github.io/azure-agentic-infraops/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed
+
+- chore(catalog): drop the `(High reasoning)` suffix from the Opus 4.7 label.
+  `Claude Opus 4.7 (High reasoning)` and `Claude Opus 4.7` were two distinct
+  catalog entries pointing at the same SKU. Reasoning-effort policy is now a
+  per-agent decision documented in
+  `.github/instructions/agent-authoring.instructions.md` (see the
+  "Reasoning-effort policy" subsection), not encoded in the model label.
+  Updates: 4 agent frontmatters (Requirements, Architect, IaC Planner,
+  Context Optimizer), 4 prompt frontmatters, 5 registry rows, model catalog
+  (entries merged + assignments regenerated), vendor-prompting rules and
+  fixtures, classify-model test, and supporting docs. Historical changelog
+  entries left intact (audit-trail integrity).
+
 ### Added
 
 - feat(agents): migrate the three remaining GPT-5.4 main agents

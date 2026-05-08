@@ -4,19 +4,7 @@ model: ["Claude Sonnet 4.6"]
 description: Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses drawio skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.
 user-invocable: true
 agents: []
-tools:
-  [
-    vscode/memory,
-    vscode/runCommand,
-    execute/runInTerminal,
-    read,
-    agent,
-    edit,
-    search,
-    azure-mcp/search,
-    "drawio/*",
-    todo,
-  ]
+tools: [vscode/memory, vscode/runCommand, execute/runInTerminal, read, agent, edit, search, "drawio/*", todo]
 handoffs:
   - label: "▶ Generate Diagram (Draw.io)"
     agent: 04-Design

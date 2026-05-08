@@ -75,8 +75,9 @@ the `model:` value and matching substrings in this order:
 | Anything else            | `unknown`       | Validator emits ERROR               |
 
 If `model:` is an array (agents only), the **first entry** decides the
-family. Bareword YAML (`model: Claude Opus 4.7 (High reasoning)`) is
-forbidden — see [rule frontmatter-model-style-001](rules.json).
+family. Bareword YAML for labels with parenthetical qualifiers (e.g.,
+`model: Claude Foo (suffix)`) is forbidden — see
+[rule frontmatter-model-style-001](rules.json).
 
 ## Reference Index
 

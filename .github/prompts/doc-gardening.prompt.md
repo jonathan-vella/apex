@@ -1,7 +1,7 @@
 ---
 description: "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md."
 agent: agent
-model: "Claude Opus 4.7 (High reasoning)"
+model: "Claude Opus 4.7"
 tools:
   [
     vscode,

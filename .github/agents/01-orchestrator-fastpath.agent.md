@@ -34,7 +34,6 @@ tools:
     search/textSearch,
     web,
     web/fetch,
-    "azure-mcp/*",
     todo,
   ]
 handoffs:

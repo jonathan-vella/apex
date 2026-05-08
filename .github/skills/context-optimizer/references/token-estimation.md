@@ -47,14 +47,13 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 
 ## Model Context Limits
 
-| Model                            | Context Window | Practical Limit (80%) |
-| -------------------------------- | -------------- | --------------------- |
-| Claude Opus 4.7 (High reasoning) | 200K tokens    | ~160K tokens          |
-| Claude Opus 4.7                  | 200K tokens    | ~160K tokens          |
-| Claude Sonnet 4.6                | 200K tokens    | ~160K tokens          |
-| GPT-5.5                          | 128K tokens    | ~102K tokens          |
-| GPT-5.3-Codex                    | 128K tokens    | ~102K tokens          |
-| gpt-4o-mini                      | 128K tokens    | ~102K tokens          |
+| Model             | Context Window | Practical Limit (80%) |
+| ----------------- | -------------- | --------------------- |
+| Claude Opus 4.7   | 200K tokens    | ~160K tokens          |
+| Claude Sonnet 4.6 | 200K tokens    | ~160K tokens          |
+| GPT-5.5           | 128K tokens    | ~102K tokens          |
+| GPT-5.3-Codex     | 128K tokens    | ~102K tokens          |
+| gpt-4o-mini       | 128K tokens    | ~102K tokens          |
 
 The "practical limit" accounts for output generation headroom.
 Quality typically degrades before hitting the hard limit.
@@ -63,11 +62,11 @@ Quality typically degrades before hitting the hard limit.
 
 Based on empirical observation of streaming responses:
 
-| Model                            | Latency < 5s | 5-10s     | 10-20s     | 20-30s      | > 30s      |
-| -------------------------------- | ------------ | --------- | ---------- | ----------- | ---------- |
-| Claude Opus 4.7 (High reasoning) | < 20K in     | 20-60K in | 60-120K in | 120-160K in | Near limit |
-| GPT-5.3-Codex                    | < 15K in     | 15-40K in | 40-80K in  | 80-100K in  | Near limit |
-| gpt-4o-mini                      | < 10K in     | 10-30K in | 30-60K in  | 60-80K in   | Near limit |
+| Model            | Latency < 5s | 5-10s     | 10-20s     | 20-30s      | > 30s      |
+| ---------------- | ------------ | --------- | ---------- | ----------- | ---------- |
+| Claude Opus 4.7  | < 20K in     | 20-60K in | 60-120K in | 120-160K in | Near limit |
+| GPT-5.3-Codex    | < 15K in     | 15-40K in | 40-80K in  | 80-100K in  | Near limit |
+| gpt-4o-mini      | < 10K in     | 10-30K in | 30-60K in  | 60-80K in   | Near limit |
 
 "in" = input tokens. These are rough bands — output length, streaming
 overhead, and server load all affect latency.

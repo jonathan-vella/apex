@@ -1,9 +1,9 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
   "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-model-consistency.mjs; the catalog enforces the label allow-list and assignment integrity via validate-model-catalog.mjs.",
-  "last_updated": "2026-05-04",
+  "last_updated": "2026-05-08",
   "models": {
-    "Claude Opus 4.7 (High reasoning)": {
+    "Claude Opus 4.7": {
       "vendor": "Anthropic",
       "tier": "frontier",
       "released": "2026-05",
@@ -12,19 +12,10 @@
         "orchestration",
         "architecture",
         "iac-planning",
-        "context-optimization"
-      ],
-      "notes": "Highest-reasoning tier. Reserve for steps with creative or multi-artifact decisions (Requirements, Architect, IaC Planner, Context Optimizer)."
-    },
-    "Claude Opus 4.7": {
-      "vendor": "Anthropic",
-      "tier": "frontier",
-      "released": "2026-05",
-      "deprecated": false,
-      "use_for": [
+        "context-optimization",
         "diagnosis"
       ],
-      "notes": "Base Opus 4.7 SKU (no reasoning effort suffix). Used by 09-Diagnose where the interactive approval-first flow benefits from default reasoning effort. For high-effort planning/architecture work, prefer 'Claude Opus 4.7 (High reasoning)'."
+      "notes": "Active Opus 4.7 SKU. Reasoning-effort policy (high vs default) is a per-agent / per-call concern, NOT a separate model label. See `.github/instructions/agent-authoring.instructions.md` (\"Reasoning-effort policy\" section) for guidance on which agents run at high effort."
     },
     "Claude Opus 4.6": {
       "vendor": "Anthropic",
@@ -38,7 +29,7 @@
         "diagnosis",
         "context-optimization"
       ],
-      "notes": "Deprecated 2026-05 in favor of Claude Opus 4.7 (High reasoning). Retained for audit history; not authorized for new agents."
+      "notes": "Deprecated 2026-05 in favor of Claude Opus 4.7. Retained for audit history; not authorized for new agents."
     },
     "Claude Sonnet 4.6": {
       "vendor": "Anthropic",
@@ -111,11 +102,11 @@
     "agents": {
       "01-orchestrator-fastpath.agent.md": "GPT-5.5",
       "01-orchestrator.agent.md": "GPT-5.5",
-      "02-requirements.agent.md": "Claude Opus 4.7 (High reasoning)",
-      "03-architect.agent.md": "Claude Opus 4.7 (High reasoning)",
+      "02-requirements.agent.md": "Claude Opus 4.7",
+      "03-architect.agent.md": "Claude Opus 4.7",
       "04-design.agent.md": "Claude Sonnet 4.6",
       "04g-governance.agent.md": "GPT-5.5",
-      "05-iac-planner.agent.md": "Claude Opus 4.7 (High reasoning)",
+      "05-iac-planner.agent.md": "Claude Opus 4.7",
       "06b-bicep-codegen.agent.md": "GPT-5.5",
       "06t-terraform-codegen.agent.md": "GPT-5.5",
       "07b-bicep-deploy.agent.md": "GPT-5.5",
@@ -123,7 +114,7 @@
       "08-as-built.agent.md": "GPT-5.5",
       "09-diagnose.agent.md": "Claude Opus 4.7",
       "10-challenger.agent.md": "GPT-5.5",
-      "11-context-optimizer.agent.md": "Claude Opus 4.7 (High reasoning)",
+      "11-context-optimizer.agent.md": "Claude Opus 4.7",
       "e2e-orchestrator.agent.md": "GPT-5.5"
     },
     "subagents": {

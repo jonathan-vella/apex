@@ -1,7 +1,7 @@
 ---
 name: fixture-bad-claude
 description: "Bad Claude agent fixture — intentionally violates several vendor-prompting rules to validate detection logic."
-model: ["Claude Opus 4.7 (High reasoning)"]
+model: ["Claude Opus 4.7"]
 user-invocable: true
 agents: []
 tools: [read]

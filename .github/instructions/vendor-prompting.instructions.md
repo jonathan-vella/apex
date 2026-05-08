@@ -18,9 +18,9 @@ The machine-readable rule registry is
 These break runtime if violated:
 
 - **`frontmatter-model-style-001`** — `.agent.md` must use array
-  form for `model:` (e.g., `model: ["Claude Opus 4.7 (High reasoning)"]`).
-  `.prompt.md` must use string form. Bareword form
-  (`model: Claude Opus 4.7 (High reasoning)`) breaks YAML.
+  form for `model:` (e.g., `model: ["Claude Opus 4.7"]`).
+  `.prompt.md` must use string form. Bareword form for labels with
+  parenthetical qualifiers (e.g., `model: Claude Foo (suffix)`) breaks YAML.
 
 ## Vendor rules
 

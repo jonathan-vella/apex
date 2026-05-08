@@ -1,6 +1,6 @@
 ---
 name: 02-Requirements
-model: ["Claude Opus 4.7 (High reasoning)"]
+model: ["Claude Opus 4.7"]
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 target: vscode
@@ -16,7 +16,6 @@ tools:
     edit,
     search,
     web,
-    "azure-mcp/*",
     "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,

@@ -1,7 +1,7 @@
 ---
 description: "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report."
 agent: agent
-model: "Claude Opus 4.7 (High reasoning)"
+model: "Claude Opus 4.7"
 tools: vscode, execute, read, agent, search, web, 'microsoft-learn/*'
 argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works only')"
 ---

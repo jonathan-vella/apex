@@ -27,22 +27,13 @@
       "format": "date-time"
     },
     "captured_on_branch": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": ["string", "null"]
     },
     "captured_on_commit": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": ["string", "null"]
     },
     "captured_by": {
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": ["string", "null"]
     },
     "scenarios_captured": {
       "type": "integer",
@@ -61,10 +52,7 @@
       "type": "object",
       "additionalProperties": {
         "type": "object",
-        "required": [
-          "retries",
-          "friction_count"
-        ],
+        "required": ["retries", "friction_count"],
         "additionalProperties": false,
         "properties": {
           "retries": {

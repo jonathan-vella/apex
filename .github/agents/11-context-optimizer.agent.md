@@ -1,6 +1,6 @@
 ---
 name: 11-Context Optimizer
-model: ["Claude Opus 4.7 (High reasoning)"]
+model: ["Claude Opus 4.7"]
 description: Analyzes Copilot Chat debug logs to audit context window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports with specific agent/skill refactoring recommendations. Reusable across any project with custom agents. Does NOT modify agent definitions directly — produces recommendations only.
 user-invocable: true
 agents: ["*"]

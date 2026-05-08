@@ -194,7 +194,7 @@ This section walks through creating a new agent from scratch.
 Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
 source of truth, but the current repo pattern is:
 
-- **Planning agents** (accuracy-first) — typically `Claude Opus 4.7 (High reasoning)`
+- **Planning agents** (accuracy-first) — typically `Claude Opus 4.7` at high reasoning effort
 - **Orchestrator + Fast Path** — `GPT-5.5` with the OpenAI outcome-first prompting style
   (Role / Personality / Goal / Success / Constraints / Output / Stop)
 - **Design + Governance + Code generation + Challenger** — `GPT-5.5` for balanced

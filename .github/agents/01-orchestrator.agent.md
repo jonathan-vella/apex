@@ -30,8 +30,6 @@ tools:
     web,
     web/fetch,
     web/githubRepo,
-    "azure-mcp/*",
-    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
   ]
@@ -453,7 +451,7 @@ Orchestrator with the project name — no special resume prompt needed.
 
 | Tier     | Model                            | Used For                                                                             |
 | -------- | -------------------------------- | ------------------------------------------------------------------------------------ |
-| `high`   | Claude Opus 4.7 (High reasoning) | Requirements, Architecture, Planning, Context Optimizer, E2E Orchestrator            |
+| `high`   | Claude Opus 4.7                  | Requirements, Architecture, Planning, Context Optimizer, E2E Orchestrator            |
 | `base`   | Claude Opus 4.7                  | Diagnose (interactive approval-first flow uses default reasoning effort)             |
 | `medium` | GPT-5.5                          | Orchestrator, Fast Path, Governance, CodeGen, Deploy, As-Built, Challenger, E2E loop |
 | `medium` | Claude Sonnet 4.6                | Design, Bicep/Terraform validate + preview subagents (Anthropic prompting style)     |

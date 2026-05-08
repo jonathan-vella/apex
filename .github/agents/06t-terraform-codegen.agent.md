@@ -19,8 +19,6 @@ tools:
     "azure-mcp/*",
     "microsoft-learn/*",
     "terraform/*",
-    "azure-mcp/*",
-    "microsoft-learn/*",
     todo,
     ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
     ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,

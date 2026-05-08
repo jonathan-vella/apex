@@ -111,20 +111,21 @@ change in the registry.
 
 **Frontmatter form:**
 
-- Agents (`*.agent.md`): array form — `model: ["Claude Opus 4.7 (High reasoning)"]`
-- Prompts (`*.prompt.md`): string form — `model: "Claude Opus 4.7 (High reasoning)"`
-- Registry JSON: string form — `"model": "Claude Opus 4.7 (High reasoning)"`
+- Agents (`*.agent.md`): array form — `model: ["Claude Opus 4.7"]`
+- Prompts (`*.prompt.md`): string form — `model: "Claude Opus 4.7"`
+- Registry JSON: string form — `"model": "Claude Opus 4.7"`
 
-**Do not** use the YAML bareword form (e.g., `model: Claude Opus 4.7 (High reasoning)`)
-— the parenthetical qualifier is misparsed by YAML and breaks frontmatter loading.
-Always quote.
+**Do not** use the YAML bareword form (e.g., `model: Claude Opus 4.7`) when a
+label contains parenthetical qualifiers — YAML misparses parens and breaks
+frontmatter loading. Always quote (or use the array form for agents).
 
-Agents that specify `Claude Opus 4.7 (High reasoning)` as priority model do so deliberately:
+Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
 
-- **Opus-first agents** (requirements, architect, iac-plan, context-optimizer)
-  use `Claude Opus 4.7 (High reasoning)` for architecture decisions, WAF assessments,
-  planning accuracy, and complex analysis. Diagnose uses base `Claude Opus 4.7`
-  (no reasoning suffix) so the interactive approval-first flow runs on default effort.
+- **Opus-first agents** (requirements, architect, iac-plan, context-optimizer,
+  diagnose) use `Claude Opus 4.7` for architecture decisions, WAF assessments,
+  planning accuracy, and complex analysis. Reasoning effort is a per-agent
+  policy (see "Reasoning-effort policy" below) — not encoded in the model
+  label.
 - **Claude Sonnet 4.6 agents** (design, plus the four IaC validation/preview
   subagents `bicep-validate`, `bicep-whatif`, `terraform-validate`,
   `terraform-plan`): Anthropic prompting style (XML-tagged blocks, role-first,
@@ -165,21 +166,43 @@ Current model assignments:
 | ----------------------------------- | -------------------------------- | -------------------------------------------- |
 | Orchestrator                        | GPT-5.5                          | Outcome-first orchestration                  |
 | Orchestrator (Fast Path)            | GPT-5.5                          | Streamlined orchestration                    |
-| Requirements                        | Claude Opus 4.7 (High reasoning) | Deep understanding                           |
-| Architect                           | Claude Opus 4.7 (High reasoning) | WAF analysis + cost                          |
+| Requirements                        | Claude Opus 4.7                  | Deep understanding (high effort)             |
+| Architect                           | Claude Opus 4.7                  | WAF analysis + cost (high effort)            |
 | Design                              | Claude Sonnet 4.6                | Diagram + ADR (Anthropic style)              |
 | Governance                          | GPT-5.5                          | Procedural discovery                         |
-| IaC Planner (unified)               | Claude Opus 4.7 (High reasoning) | Planning accuracy                            |
+| IaC Planner (unified)               | Claude Opus 4.7                  | Planning accuracy (high effort)              |
 | Bicep / Terraform Code              | GPT-5.5                          | Code generation                              |
 | Deploy (Bicep + TF)                 | GPT-5.5                          | Deployment execution (outcome-first)         |
 | As-Built                            | GPT-5.5                          | Documentation generation (outcome-first)     |
 | Diagnose                            | Claude Opus 4.7                  | Interactive troubleshooting (default effort) |
-| Context Optimizer                   | Claude Opus 4.7 (High reasoning) | Deep analysis                                |
+| Context Optimizer                   | Claude Opus 4.7                  | Deep analysis (high effort)                  |
 | E2E Orchestrator                    | GPT-5.5                          | Autonomous benchmark loop                    |
 | Challenger wrapper                  | GPT-5.5                          | Structured review                            |
 | Challenger subagent                 | GPT-5.5                          | Structured review                            |
 | Bicep/TF validate+preview subagents | Claude Sonnet 4.6                | Isolated validation (Anthropic style)        |
 | Cost estimate subagent              | GPT-5.3-Codex                    | High-throughput pricing                      |
+
+#### Reasoning-effort policy
+
+Reasoning effort is a **per-agent** policy, not a model-label suffix. The
+catalog records one entry per Anthropic SKU (`Claude Opus 4.7`,
+`Claude Sonnet 4.6`); whether an agent runs at default or high reasoning
+effort is documented in this section and inferred from the agent's role:
+
+- **High effort** — Requirements, Architect, IaC Planner, Context Optimizer.
+  These agents tackle creative, multi-artifact decisions where extra
+  reasoning produces measurably better outcomes (WAF trade-offs, plan
+  accuracy, deep audits). Sonnet-tier agents pin to `medium` for typical work
+  and only escalate for large change sets.
+- **Default effort** — Diagnose. The interactive approval-first flow benefits
+  from default effort: Diagnose alternates short reasoning bursts with user
+  confirmations, so deep multi-step deliberation per turn would just slow the
+  flow without improving accuracy.
+- **Effort tuning is a per-call concern** — Copilot Chat / VS Code respects
+  the user's per-turn reasoning-effort selector and any harness-level
+  override. The policy above is the project's recommended default; no
+  validator enforces it. If you change an agent's effort policy, update this
+  table and the agent's body if the body explicitly references effort.
 
 **Source-of-truth chain:**
 

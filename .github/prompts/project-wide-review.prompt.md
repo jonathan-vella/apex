@@ -1,7 +1,7 @@
 ---
 description: "Conduct a phased, dependency-aware review of the entire project. Builds a transient review-index first, then walks every domain in upstream-to-downstream order with explicit blast-radius analysis at each gate."
 agent: agent
-model: "Claude Opus 4.7 (High reasoning)"
+model: "Claude Opus 4.7"
 tools:
   - vscode
   - read

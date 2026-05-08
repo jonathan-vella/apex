@@ -34,7 +34,7 @@
     {
       "family": "claude-opus",
       "status": "enforced",
-      "label_examples": ["Claude Opus 4.7 (High reasoning)", "Claude Opus 4.6"],
+      "label_examples": ["Claude Opus 4.7", "Claude Opus 4.6"],
       "rule_subset_note": "All Claude rules apply at default severity."
     },
     {
@@ -257,7 +257,7 @@
       "applies_to": "both",
       "severity": "error",
       "summary": ".agent.md must use array form for model:; .prompt.md must use string form.",
-      "rationale": "YAML bareword form misparses parenthetical qualifiers (e.g., 'Claude Opus 4.7 (High reasoning)') and breaks frontmatter loading. Array vs string is the canonical convention for each file type.",
+      "rationale": "YAML bareword form misparses parenthetical qualifiers (e.g., a hypothetical 'Claude Opus 4.7 (some suffix)' label) and breaks frontmatter loading. Array vs string is the canonical convention for each file type.",
       "source_id": "openai-upgrade-guide",
       "source_anchor": "upgrade-posture",
       "validator_check_id": "checkFrontmatterModelStyle",

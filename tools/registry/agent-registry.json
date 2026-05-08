@@ -16,13 +16,13 @@
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "Claude Opus 4.7",
       "invokable": true,
       "step": 1
     },
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "Claude Opus 4.7",
       "invokable": true,
       "step": 2
     },
@@ -40,7 +40,7 @@
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "Claude Opus 4.7",
       "invokable": true,
       "step": 4
     },
@@ -88,7 +88,7 @@
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Opus 4.7 (High reasoning)",
+      "model": "Claude Opus 4.7",
       "invokable": true,
       "step": null
     },
