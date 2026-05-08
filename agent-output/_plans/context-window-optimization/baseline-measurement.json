@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 4 (auto-load baseline trim) measurement record. Captures before/after token estimates for the per-turn auto-loaded baseline files. Token estimates are chars/4 (OpenAI rule of thumb); they are approximate but sufficient for verifying the ≥30% / ≥20% reduction targets defined in the plan. Re-run the measurement script in plan-contextWindowOptimization.prompt.md (Phase 4 baseline measurement protocol) when AGENTS.md or copilot-instructions.md is materially edited.",
+  "method": "chars/4 (OpenAI rule-of-thumb token estimate)",
+  "before": {
+    "AGENTS.md": {
+      "lines": 189,
+      "chars": 8978,
+      "est_tokens": 2245
+    },
+    ".github/copilot-instructions.md": {
+      "lines": 104,
+      "chars": 6765,
+      "est_tokens": 1691
+    },
+    "captured_at": "pre-Phase-4 commit on feat/context-window-optimization",
+    "baseline_total_est_tokens": 3936
+  },
+  "after": {
+    "AGENTS.md": {
+      "est_tokens": 1559,
+      "reduction_pct": 30.6
+    },
+    ".github/copilot-instructions.md": {
+      "est_tokens": 1071,
+      "reduction_pct": 36.7
+    },
+    "trimmed_total_est_tokens": 2630,
+    "total_reduction_pct": 33.2
+  },
+  "targets": {
+    "AGENTS.md": ">=30% token reduction",
+    ".github/copilot-instructions.md": ">=20% token reduction"
+  },
+  "targets_met": {
+    "AGENTS.md": true,
+    ".github/copilot-instructions.md": true
+  },
+  "trim_strategy": {
+    "AGENTS.md": [
+      "Setup Commands: collapsed prose blocks; one-liners for clone/install/setup",
+      "Build & Validation: kept top npm scripts; pointed to validation-reference URL for the full ~30 scripts",
+      "Code Style: replaced full table block with pointer to azure-defaults/SKILL.digest.md",
+      "Security Baseline: replaced bullet list with pointer to references/iac-policy-compliance.md",
+      "Agent Workflow: kept table; trimmed verbose footer lines",
+      "Commit Guidelines: collapsed type table to inline list",
+      "Conventions Detail: tightened bullet copy"
+    ],
+    ".github/copilot-instructions.md": [
+      "apex-recall section: collapsed multi-paragraph commentary into a single command block",
+      "Multi-Step Workflow: removed full duplicate table; pointed to AGENTS.md#agent-workflow + workflow-graph.json",
+      "Skills section: simplified to digest-default + minimal-escalation + full-as-debug",
+      "Chat Triggers: tightened gh trigger and GitHub MCP block into compact paragraphs",
+      "Explore Subagent: kept table; trimmed surrounding prose"
+    ],
+    "agent_prompts": [
+      "Swept .github/agents/*.agent.md and .github/agents/_subagents/*.agent.md for `Read .github/skills/{X}/SKILL.md` (full); replaced with `SKILL.digest.md` (10 files, 13 references). All 47 skill directories already ship a SKILL.digest.md."
+    ],
+    "context_shredding_skill": [
+      "Updated the Skill Loading Tiers table (around line 50) so SKILL.digest.md is the default; SKILL.minimal.md is the >80%-utilization escalation; full SKILL.md is reserved for skill-authoring/debugging.",
+      "The Compression Tiers table (around line 20) for artifact loading is unrelated and was NOT touched."
+    ],
+    "workflow_engine_handoff_digest": [
+      "New file: .github/skills/workflow-engine/references/orchestrator-handoff-guide.digest.md (≤120 lines).",
+      "Updated 01-orchestrator.agent.md to read the digest by default; full file remains for fallback (gate authoring, debugging)."
+    ]
+  },
+  "verification_notes": [
+    "Re-run via: node -e 'const fs = require(\"fs\"); for (const f of [\"AGENTS.md\",\".github/copilot-instructions.md\"]) { const c = fs.readFileSync(f,\"utf8\"); console.log(f, Math.round(c.length/4), \"tokens\"); }'",
+    "More accurate measurement requires tiktoken (Python) or @dqbd/tiktoken (JS).",
+    "Commit a fresh measurement to this file when baseline files are materially edited."
+  ]
+}

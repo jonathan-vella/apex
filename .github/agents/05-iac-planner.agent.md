@@ -100,8 +100,8 @@ Always specify Azure Storage Account backend only.
 3. **Read** artifact template files: `azure-artifacts/templates/04-implementation-plan.template.md` + `04-governance-constraints.template.md`
 4. **Read** `.github/skills/python-diagrams/SKILL.digest.md` — diagram conventions, design tokens, Azure component imports
 5. **IaC-specific skill** (read on-demand during Phase 2):
-   - Bicep → `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
-   - Terraform → `.github/skills/terraform-patterns/SKILL.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
+   - Bicep → `.github/skills/azure-bicep-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, module composition
+   - Terraform → `.github/skills/terraform-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
 
 ## DO / DON'T
 

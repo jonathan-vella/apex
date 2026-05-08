@@ -47,16 +47,20 @@ Before loading any artifact file:
 
 ## Skill Loading Tiers
 
-Skills also have compression tiers (digest and minimal variants):
+Skills have three compression tiers. The default for context-window-optimized
+agents is `SKILL.digest.md` (no longer `SKILL.md`). `SKILL.minimal.md` is the
+escalation for >80% context utilization or when the caller passes an explicit
+minimal-mode flag. The full `SKILL.md` is reserved for skill-authoring or
+debugging contexts where the digest is insufficient.
 
-| Context Usage | Skill Variant | Path Pattern       | Approx Tokens |
-| ------------- | ------------- | ------------------ | ------------- |
-| < 60%         | Full          | `SKILL.md`         | 400-800       |
-| 60-80%        | Digest        | `SKILL.digest.md`  | 150-320       |
-| > 80%         | Minimal       | `SKILL.minimal.md` | 40-100        |
+| Context Usage / Mode               | Skill Variant | Path Pattern       | Approx Tokens |
+| ---------------------------------- | ------------- | ------------------ | ------------- |
+| **Default** (any utilization)      | Digest        | `SKILL.digest.md`  | 150-320       |
+| > 80% utilization or minimal flag  | Minimal       | `SKILL.minimal.md` | 40-100        |
+| Skill authoring / debugging only   | Full          | `SKILL.md`         | 400-800       |
 
-Available for: `azure-defaults`, `azure-artifacts`,
-`golden-principles`, `context-shredding`.
+All 47 skill directories in this repository ship a `SKILL.digest.md` file, so
+no missing-digest fallback path is needed.
 
 ## Reference Index
 

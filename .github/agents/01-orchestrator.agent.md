@@ -232,7 +232,7 @@ after Step 1 completes.
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — foundational quality principles for all agents
 2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags
 3. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — artifact file naming and structure overview
-4. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
+4. **Read** `.github/skills/workflow-engine/SKILL.digest.md` — DAG model, node types, edge conditions
 
 After reading skills, extract key facts (region, tags, naming, security baseline,
 complexity, AVM-first) into the `## Skill Context` section of `00-handoff.md`.
@@ -362,14 +362,16 @@ lessons narrative as a completion artifact.
 
 ## Approval Gates, Handoff Document & Delegation Rules
 
-**Read** `.github/skills/workflow-engine/references/orchestrator-handoff-guide.md` for:
+**Read** `.github/skills/workflow-engine/references/orchestrator-handoff-guide.digest.md` for:
 
 - IaC routing logic (Bicep vs Terraform agent mapping)
 - Complexity routing (review pass counts)
-- Gate templates (Gates 1-5 with exact presentation format)
-- Phase Handoff Document format (`00-handoff.md` required H2 sections)
+- Gate template skeleton + which gates need a SESSION BREAK
 - Step delegation rules (interactive vs autonomous steps)
-- Subagent integration matrix and pricing accuracy gate
+
+If the digest is insufficient (e.g., authoring a new gate template, or
+debugging a routing decision the digest doesn't explain), escalate to
+the full `orchestrator-handoff-guide.md`.
 
 **Key rules** (always enforced regardless of reference file):
 

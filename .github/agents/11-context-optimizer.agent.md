@@ -48,7 +48,7 @@ Read these before doing ANY work:
 
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — the 10 operating invariants
 2. **Read** `AGENTS.md` — project map and agent roster
-3. **Read** `.github/skills/context-optimizer/SKILL.md` — analysis methodology,
+3. **Read** `.github/skills/context-optimizer/SKILL.digest.md` — analysis methodology,
    log parsing patterns, and report template
 
 ## What This Agent Does

@@ -127,8 +127,8 @@ Before doing any work, read these skills:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
-3. Read `.github/skills/drawio/SKILL.md` — diagram generation contract
-4. Read `.github/skills/python-diagrams/SKILL.md` — WAF/cost chart generation
+3. Read `.github/skills/drawio/SKILL.digest.md` — diagram generation contract
+4. Read `.github/skills/python-diagrams/SKILL.digest.md` — WAF/cost chart generation
 5. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
 6. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
