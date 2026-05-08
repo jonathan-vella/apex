@@ -67,7 +67,7 @@ the agent system.
 
 | Registry       | Path                                                           | Purpose                                      |
 | -------------- | -------------------------------------------------------------- | -------------------------------------------- |
-| Agent Registry | `tools/registry/agent-registry.json`                                  | Agent role → file, model, required skills    |
+| Agent Registry | `tools/registry/agent-registry.json`                                  | Agent role → file, model, step               |
 | Workflow Graph | `.github/skills/workflow-engine/templates/workflow-graph.json` | Multi-step DAG with nodes, edges, conditions |
 
 ## AGENTS.md — The Table of Contents

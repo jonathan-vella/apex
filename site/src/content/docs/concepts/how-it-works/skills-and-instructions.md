@@ -193,16 +193,20 @@ Add a skill reference in the relevant agent's `.agent.md` body:
 ```markdown
 ## MANDATORY: Read Skills First
 
-1. **Read** `.github/skills/my-new-skill/SKILL.md`
+1. **Read** `.github/skills/my-new-skill/SKILL.digest.md`
 ```
 
-Also add the skill to the agent's entry in `tools/registry/agent-registry.json`:
+That's the entire wiring. The skill is now connected to the agent.
+There is no separate registry entry to update — skill wiring is
+discovered at runtime by `tools/scripts/validate-orphaned-content.mjs`,
+which scans agent bodies for `Read .github/skills/{name}/SKILL[.digest|.minimal].md`
+references.
 
-```json
-{
-  "skills": ["existing-skill", "my-new-skill"]
-}
-```
+> Earlier versions of the registry carried a `skills` (and
+> `capability_skills`) array on each entry. Those fields were removed in
+> the context-window-optimization pass — they duplicated information
+> already present in agent bodies and made every agent edit a two-file
+> change.
 
 ### Step 5: Validate
 

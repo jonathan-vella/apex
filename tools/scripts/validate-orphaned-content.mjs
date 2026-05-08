@@ -11,51 +11,13 @@
  */
 
 import fs from "node:fs";
-import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
+import {
+  getAgents,
+  getSkills,
+  getInstructions,
+} from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
-
-// Skills declared in tools/registry/agent-registry.json — either as
-// `skills[]` (explicit reads) or `capability_skills[]` (auto-trigger
-// surface). The registry is the authoritative inventory for workflow
-// agents, so a skill listed there is wired even if no agent body
-// contains a `Read .github/skills/{name}` line (e.g. capability skills
-// that activate via description keyword).
-function readRegistrySkills() {
-  const registryPath = "tools/registry/agent-registry.json";
-  const wired = new Set();
-  if (!fs.existsSync(registryPath)) return wired;
-  let registry;
-  try {
-    registry = JSON.parse(fs.readFileSync(registryPath, "utf-8"));
-  } catch {
-    return wired;
-  }
-  // Collect skills from a single agent entry (handles both flat entries
-  // and IaC-conditional entries with bicep/terraform variants).
-  function collect(entry) {
-    if (!entry || typeof entry !== "object") return;
-    if (Array.isArray(entry.skills)) {
-      for (const s of entry.skills) wired.add(s);
-    }
-    if (Array.isArray(entry.capability_skills)) {
-      for (const s of entry.capability_skills) wired.add(s);
-    }
-    // IaC-conditional entries nest one level deeper (bicep/terraform).
-    for (const value of Object.values(entry)) {
-      if (value && typeof value === "object" && !Array.isArray(value)) {
-        if (Array.isArray(value.skills) || Array.isArray(value.capability_skills)) {
-          collect(value);
-        }
-      }
-    }
-  }
-  for (const entry of Object.values(registry.agents || {})) collect(entry);
-  for (const entry of Object.values(registry.subagents || {})) collect(entry);
-  return wired;
-}
-
-const REGISTRY_WIRED_SKILLS = readRegistrySkills();
 
 // Skills intentionally kept without direct agent references.
 // These are invoked dynamically by VS Code Copilot via skill descriptions
@@ -68,7 +30,6 @@ const KNOWN_UNLINKED_SKILLS = new Set([
   "azure-compliance",
   "azure-compute",
   "azure-cost-optimization",
-  "azure-diagrams",
   "azure-hosted-copilot-sdk",
   "azure-kusto",
   "azure-messaging",
@@ -89,47 +50,54 @@ const r = new Reporter("Orphaned Content Validator");
 r.header();
 
 // Gather reference corpus from cached index + top-level config.
-// Splits the corpus into a base (agents + instructions + top-level config)
-// and a per-skill map so that orphan checks can avoid an O(n^2) string
-// concatenation (rebuilding "all-other-skills" once per skill).
 function gatherReferenceContent() {
-  const baseParts = [];
+  const corpus = [];
   const perSkill = {};
 
-  for (const [, agent] of getAgents()) baseParts.push(agent.content);
-  for (const [, instr] of getInstructions()) baseParts.push(instr.content);
+  for (const [, agent] of getAgents()) corpus.push(agent.content);
+  for (const [, instr] of getInstructions()) corpus.push(instr.content);
 
   for (const [name, skill] of getSkills()) {
     if (skill.content) perSkill[name] = skill.content;
   }
 
   // Top-level config files
-  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md", ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md"]) {
-    if (fs.existsSync(f)) baseParts.push(fs.readFileSync(f, "utf-8"));
+  for (const f of [
+    COPILOT_INSTRUCTIONS,
+    "AGENTS.md",
+    ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md",
+  ]) {
+    if (fs.existsSync(f)) corpus.push(fs.readFileSync(f, "utf-8"));
   }
 
-  return { base: baseParts.join("\n"), perSkill };
+  return { corpus: corpus.join("\n"), perSkill };
 }
 
-const { base, perSkill } = gatherReferenceContent();
+const { corpus, perSkill } = gatherReferenceContent();
 
-// Pre-compute the trigger strings used to detect a skill reference. The
-// regex form below is built per-skill but the substring set is constant
-// per check.
-function isSkillReferenced(skill, base, perSkill) {
-  const triggers = [`${skill}/SKILL.md`, `skills/${skill}`, `${skill}/references/`, `${skill}/`, `\`${skill}\``];
-  // Fast path: check the base corpus first (most refs live in agents).
-  for (const t of triggers) {
-    if (base.includes(t)) return true;
+// Skill reference regex (Phase 2 of context-window optimization).
+//
+// Skill wiring is now discovered via this regex sweep over agent bodies
+// and other reference content rather than via tools/registry/agent-registry.json.
+// The pattern explicitly allows SKILL.md, SKILL.digest.md, and SKILL.minimal.md
+// so that context-shredding tier references count as wiring.
+//
+// Supported phrasings:
+//   - .github/skills/{name}/SKILL.md
+//   - .github/skills/{name}/SKILL.digest.md
+//   - .github/skills/{name}/SKILL.minimal.md
+// (skills/{name}/SKILL[.tier].md without the leading .github/ also matches.)
+const SKILL_REFERENCE_PATTERN =
+  /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
+
+function findSkillReferences(searchContent) {
+  const found = new Set();
+  let m;
+  SKILL_REFERENCE_PATTERN.lastIndex = 0;
+  while ((m = SKILL_REFERENCE_PATTERN.exec(searchContent)) !== null) {
+    found.add(m[1]);
   }
-  // Slow path: scan other skills' contents (excluding self).
-  for (const [name, content] of Object.entries(perSkill)) {
-    if (name === skill) continue;
-    for (const t of triggers) {
-      if (content.includes(t)) return true;
-    }
-  }
-  return false;
+  return found;
 }
 
 // Check skills — exclude the skill's own SKILL.md to prevent self-referencing
@@ -138,12 +106,25 @@ const skills = getSkills();
 
 for (const [skill] of skills) {
   r.tick();
-  if (REGISTRY_WIRED_SKILLS.has(skill)) {
-    // Listed in agent-registry.json (skills[] or capability_skills[]) —
-    // wired by declaration even without an explicit body reference.
-    continue;
-  }
-  if (!isSkillReferenced(skill, base, perSkill)) {
+  // Build search content: agents + instructions + config + OTHER skills (not self)
+  const otherSkills = Object.entries(perSkill)
+    .filter(([name]) => name !== skill)
+    .map(([, content]) => content)
+    .join("\n");
+  const searchContent = corpus + "\n" + otherSkills;
+
+  // Primary check: explicit `Read .github/skills/{name}/SKILL[.digest|.minimal].md`
+  // pattern. Falls back to less precise containment checks for non-canonical
+  // mentions (e.g., references/ subpaths, inline backticks) so renamed skills
+  // are still picked up.
+  const wiredSkills = findSkillReferences(searchContent);
+  const isReferenced =
+    wiredSkills.has(skill) ||
+    searchContent.includes(`skills/${skill}/references/`) ||
+    searchContent.includes(`skills/${skill}/templates/`) ||
+    searchContent.includes(`\`${skill}\``);
+
+  if (!isReferenced) {
     if (KNOWN_UNLINKED_SKILLS.has(skill)) {
       // Intentionally unlinked — skip warning
     } else {

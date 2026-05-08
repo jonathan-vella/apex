@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/agent-registry.schema.json",
   "title": "APEX Agent Registry",
-  "description": "Shape of tools/registry/agent-registry.json. Each entry declares `skills` (explicitly read at runtime) and optional `capability_skills` (auto-triggered via description keywords). A skill must not appear in both arrays on the same entry; that invariant is enforced by scripts/validate-agent-registry.mjs.",
+  "description": "Shape of tools/registry/agent-registry.json. Maps agent role keys to {agent path, model, step, invokable}. Skills are wired by the agent body's `Read .github/skills/{name}/...` line (discovered at runtime via the orphan-content validator regex), not by an entry in this registry.",
   "type": "object",
   "required": ["$schema", "description", "agents"],
   "additionalProperties": true,
@@ -27,8 +27,8 @@
   "$defs": {
     "agentEntry": {
       "type": "object",
-      "required": ["agent", "model", "skills"],
-      "additionalProperties": true,
+      "required": ["agent", "model"],
+      "additionalProperties": false,
       "properties": {
         "agent": {
           "type": "string",
@@ -39,19 +39,6 @@
           "type": "string",
           "minLength": 1,
           "description": "Model name. Must equal the `model` field in the agent's YAML frontmatter (validated by validate-model-consistency.mjs). Catalog entry is documentation only and is not enforced."
-        },
-        "skills": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/skillName" },
-          "uniqueItems": true,
-          "description": "Skills explicitly read at runtime via `Read .github/skills/{name}/...`."
-        },
-        "capability_skills": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/skillName" },
-          "uniqueItems": true,
-          "minItems": 1,
-          "description": "Skills authorized for auto-trigger via description keywords. Must not overlap with `skills`."
         },
         "invokable": {
           "type": "boolean",
@@ -66,7 +53,7 @@
     "skillName": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
-      "description": "Skill name (kebab-case, must exist in .github/skills/)."
+      "description": "Reserved for future use (currently unreferenced after skill arrays were removed). Skill names are kebab-case and must match a directory under .github/skills/."
     },
     "agentEntryOrIacConditional": {
       "oneOf": [
