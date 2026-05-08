@@ -111,6 +111,7 @@ preference:
 
    This pushes the label above the edge run rather than on it. Combine
    with `labelBackgroundColor=#FFFFFF` to mask any underlying icon label.
+
 3. **Shorten the edge label** to one or two tokens. Long descriptive
    labels like `Multi-master writes (active-active)` collide more than
    short labels like `AMQP`; let the legend carry the full descriptor.

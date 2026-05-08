@@ -290,7 +290,6 @@ failure mode observed in the T-012 baseline (see
    `multi_replace_string_in_file`, or any other terminal-based edit on the
    saved `.drawio`. The ONLY acceptable repair is a single MCP `edit-cells`
    batch invoked on the live diagram state. File-level edits:
-
    - bypass the diagram's cell-ID mapping (subsequent MCP calls cannot
      find cells by `temp_id`),
    - desynchronize the placeholder → SVG resolution state (your next
@@ -305,11 +304,11 @@ failure mode observed in the T-012 baseline (see
    or `T-009` (zone) warning, the response is **always** an MCP
    `edit-cells` batch that moves or restyles the offending cells — even
    for one-cell fixes.
+
 9. **Edge labels must not pass through icon-label boxes.** Edge-label-on-
    icon-label collisions (e.g., `orAMQPipi`, `AMIAML SDKace`,
    `Connectivity MGtform`) are caused when an edge routes its waypoint
    labels across the rendered text region of an icon. Two rules:
-
    - Edge **labels** sit at the midpoint of an edge by default; if the
      edge midpoint falls within ±40 px of any icon center, set
      `labelBackgroundColor=#FFFFFF` AND nudge the label position via
@@ -319,13 +318,14 @@ failure mode observed in the T-012 baseline (see
      routing; never run a straight diagonal across an icon's label
      region. See
      [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#edge-labels-and-label-on-icon-collisions).
+
 10. **Always emit a diagram title.** Every architecture deliverable starts
     with a top-of-canvas title cell using the page-title style preset:
     `{Project / Workload Name} — {Region}` for single-region or
     `{Workload} — Multi-Region` for multi-region; for decomposed sets,
     append `· {Page Name}` to each page. The title is page 1 cell
     `(title-page-1)` placed at `(canvas_width/2, 12)` with `align=center;
-    fontSize=16; fontStyle=1`. G1 recapture missed this; do not repeat.
+fontSize=16; fontStyle=1`. G1 recapture missed this; do not repeat.
 11. **Observability zone is not optional when ≥2 cross-cutting services
     appear.** When the prompt names two or more of {Application Insights,
     Log Analytics, Azure Monitor, Microsoft Sentinel, Defender for Cloud,
