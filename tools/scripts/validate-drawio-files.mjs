@@ -26,13 +26,7 @@ import { Reporter } from "./_lib/reporter.mjs";
 const _r = new Reporter("Draw.io File Validation");
 
 // Directories to scan for .drawio files
-const SCAN_DIRS = [
-  "agent-output",
-  "assets",
-  ".github/skills/drawio",
-  "tmp",
-  "site/public/demo",
-];
+const SCAN_DIRS = ["agent-output", "assets", ".github/skills/drawio", "tmp", "site/public/demo"];
 
 // Architecture deliverables that MUST have Azure icons
 const ICON_REQUIRED_PATTERN =
@@ -59,9 +53,7 @@ const APEX_PALETTE = new Set([
   "#fff",
 ]);
 
-const RUBRIC_MODE = (
-  process.env.APEX_DRAWIO_RUBRIC || "advisory"
-).toLowerCase();
+const RUBRIC_MODE = (process.env.APEX_DRAWIO_RUBRIC || "advisory").toLowerCase();
 
 // Error/warning counters — synced to Reporter at summary time.
 let errors = 0;
@@ -123,18 +115,12 @@ function extractCells(root) {
     // UserObject/object wrappers
     for (const wrapperName of ["UserObject", "object"]) {
       if (item[wrapperName]) {
-        const wrappers = Array.isArray(item[wrapperName])
-          ? item[wrapperName]
-          : [item[wrapperName]];
+        const wrappers = Array.isArray(item[wrapperName]) ? item[wrapperName] : [item[wrapperName]];
         for (const wrapper of wrappers) {
           const id = wrapper["@_id"];
           const innerCell = wrapper.mxCell || {};
           // Spread innerCell FIRST so explicit wrapper keys take precedence
-          const {
-            "@_id": _innerId,
-            "@_value": _innerVal,
-            ...safeInnerCell
-          } = innerCell;
+          const { "@_id": _innerId, "@_value": _innerVal, ...safeInnerCell } = innerCell;
           cells.push({
             type: "UserObject",
             ...safeInnerCell,
@@ -174,14 +160,10 @@ async function validateDrawioFile(filePath) {
   if (!parsed.mxfile) {
     // Allow bare <mxGraphModel> as simplified format
     if (parsed.mxGraphModel) {
-      console.warn(
-        `⚠️  ${filePath}: Uses simplified mxGraphModel format (no mxfile wrapper)`,
-      );
+      console.warn(`⚠️  ${filePath}: Uses simplified mxGraphModel format (no mxfile wrapper)`);
       warnings++;
     } else {
-      console.error(
-        `❌ ${filePath}: Root element must be <mxfile> or <mxGraphModel>`,
-      );
+      console.error(`❌ ${filePath}: Root element must be <mxfile> or <mxGraphModel>`);
       errors++;
       return;
     }
@@ -247,17 +229,13 @@ async function validateDrawioFile(filePath) {
 
     // Check 4: Structural cells (id="0" and id="1")
     const hasRoot = cells.some((c) => c["@_id"] === "0");
-    const hasLayer = cells.some(
-      (c) => c["@_id"] === "1" && c["@_parent"] === "0",
-    );
+    const hasLayer = cells.some((c) => c["@_id"] === "1" && c["@_parent"] === "0");
     if (!hasRoot) {
       console.error(`❌ ${filePath}: Missing structural cell <mxCell id="0"/>`);
       errors++;
     }
     if (!hasLayer) {
-      console.error(
-        `❌ ${filePath}: Missing structural cell <mxCell id="1" parent="0"/>`,
-      );
+      console.error(`❌ ${filePath}: Missing structural cell <mxCell id="1" parent="0"/>`);
       errors++;
     }
 
@@ -279,9 +257,7 @@ async function validateDrawioFile(filePath) {
     }
 
     // Content cells (not structural)
-    const contentCells = cells.filter(
-      (c) => c["@_id"] !== "0" && !(c["@_id"] === "1" && c["@_parent"] === "0"),
-    );
+    const contentCells = cells.filter((c) => c["@_id"] !== "0" && !(c["@_id"] === "1" && c["@_parent"] === "0"));
 
     for (const cell of contentCells) {
       const id = cell["@_id"] || "unknown";
@@ -289,19 +265,13 @@ async function validateDrawioFile(filePath) {
       // Check 6: Valid parent references
       if (cell["@_parent"]) {
         if (!cellIds.has(cell["@_parent"])) {
-          console.error(
-            `❌ ${filePath}: Cell id="${id}" references non-existent parent="${cell["@_parent"]}"`,
-          );
+          console.error(`❌ ${filePath}: Cell id="${id}" references non-existent parent="${cell["@_parent"]}"`);
           errors++;
         }
       } else if (cell["@_id"] !== "0") {
-        const isLayer = cells.some(
-          (other) => other["@_parent"] === cell["@_id"],
-        );
+        const isLayer = cells.some((other) => other["@_parent"] === cell["@_id"]);
         if (!isLayer) {
-          console.warn(
-            `⚠️  ${filePath}: Cell id="${id}" has no parent attribute`,
-          );
+          console.warn(`⚠️  ${filePath}: Cell id="${id}" has no parent attribute`);
           warnings++;
         }
       }
@@ -310,9 +280,7 @@ async function validateDrawioFile(filePath) {
       const isVertex = cell["@_vertex"] === "1";
       const isEdge = cell["@_edge"] === "1";
       if (isVertex && isEdge) {
-        console.error(
-          `❌ ${filePath}: Cell id="${id}" has both vertex="1" and edge="1"`,
-        );
+        console.error(`❌ ${filePath}: Cell id="${id}" has both vertex="1" and edge="1"`);
         errors++;
       }
 
@@ -321,15 +289,11 @@ async function validateDrawioFile(filePath) {
         const source = cell["@_source"];
         const target = cell["@_target"];
         if (source && !cellIds.has(source)) {
-          console.error(
-            `❌ ${filePath}: Edge id="${id}" references non-existent source="${source}"`,
-          );
+          console.error(`❌ ${filePath}: Edge id="${id}" references non-existent source="${source}"`);
           errors++;
         }
         if (target && !cellIds.has(target)) {
-          console.error(
-            `❌ ${filePath}: Edge id="${id}" references non-existent target="${target}"`,
-          );
+          console.error(`❌ ${filePath}: Edge id="${id}" references non-existent target="${target}"`);
           errors++;
         }
       }
@@ -349,9 +313,7 @@ async function validateDrawioFile(filePath) {
           if (eqIdx > 0) {
             const key = part.substring(0, eqIdx);
             if (/\s/.test(key)) {
-              console.warn(
-                `⚠️  ${filePath}: Cell id="${id}" has spaces in style key "${key.trim()}"`,
-              );
+              console.warn(`⚠️  ${filePath}: Cell id="${id}" has spaces in style key "${key.trim()}"`);
               warnings++;
             }
           }
@@ -367,16 +329,12 @@ async function validateDrawioFile(filePath) {
           totalImages++;
 
           // Validate base64 payload integrity (catch silent corruption)
-          const b64Match = style.match(
-            /image=data:image\/svg\+xml;base64,([A-Za-z0-9+/=\s]+)/,
-          );
+          const b64Match = style.match(/image=data:image\/svg\+xml;base64,([A-Za-z0-9+/=\s]+)/);
           if (b64Match) {
             const payload = b64Match[1];
             // Check for whitespace inside the base64 string (corruption indicator)
             if (/\s/.test(payload)) {
-              console.error(
-                `❌ ${filePath}: Cell id="${id}" has corrupted base64 icon payload (contains whitespace)`,
-              );
+              console.error(`❌ ${filePath}: Cell id="${id}" has corrupted base64 icon payload (contains whitespace)`);
               errors++;
             }
             // Check minimum viable SVG payload length (a real Azure icon is >200 chars)
@@ -398,9 +356,7 @@ async function validateDrawioFile(filePath) {
           parallelogram: "parallelogramPerimeter",
           trapezoid: "trapezoidPerimeter",
         };
-        for (const [shapeName, expectedPerimeter] of Object.entries(
-          perimeterShapes,
-        )) {
+        for (const [shapeName, expectedPerimeter] of Object.entries(perimeterShapes)) {
           // Check if shape is set as bare token or via shape= key
           const hasShape =
             style.startsWith(shapeName + ";") ||
@@ -418,18 +374,14 @@ async function validateDrawioFile(filePath) {
       // Check 9 & 13: Geometry validation for vertices
       if (isVertex) {
         if (!cell.mxGeometry) {
-          console.warn(
-            `⚠️  ${filePath}: Vertex id="${id}" has no mxGeometry element`,
-          );
+          console.warn(`⚠️  ${filePath}: Vertex id="${id}" has no mxGeometry element`);
           warnings++;
         } else {
           const geo = cell.mxGeometry;
           const w = parseFloat(geo["@_width"]);
           const h = parseFloat(geo["@_height"]);
           if (w < 0 || h < 0) {
-            console.error(
-              `❌ ${filePath}: Cell id="${id}" has negative dimensions (${w}x${h})`,
-            );
+            console.error(`❌ ${filePath}: Cell id="${id}" has negative dimensions (${w}x${h})`);
             errors++;
           }
         }
@@ -438,9 +390,7 @@ async function validateDrawioFile(filePath) {
       // Check 9 (edges): Verify edge geometry has relative="1"
       if (isEdge && cell.mxGeometry) {
         if (cell.mxGeometry["@_relative"] !== "1") {
-          console.warn(
-            `⚠️  ${filePath}: Edge id="${id}" geometry missing relative="1"`,
-          );
+          console.warn(`⚠️  ${filePath}: Edge id="${id}" geometry missing relative="1"`);
           warnings++;
         }
       }
@@ -466,9 +416,7 @@ async function validateDrawioFile(filePath) {
         /<[^>]+>/.test(value) // decoded value has tags — worth a raw check
       ) {
         const idEsc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const openTagRe = new RegExp(
-          `<(?:mxCell|UserObject|object)\\s+[^>]*\\bid="${idEsc}"[^>]*>`,
-        );
+        const openTagRe = new RegExp(`<(?:mxCell|UserObject|object)\\s+[^>]*\\bid="${idEsc}"[^>]*>`);
         const match = content.match(openTagRe);
         const valueAttrRe = /\bvalue="([^"]*)"/;
         const rawValue = match && match[0].match(valueAttrRe)?.[1];
@@ -476,9 +424,7 @@ async function validateDrawioFile(filePath) {
         // followed by characters that look like a tag (not part of
         // `&lt;`).
         if (rawValue && /<[^&>]+>/.test(rawValue)) {
-          console.warn(
-            `⚠️  ${filePath}: Cell id="${id}" may have unescaped HTML in value`,
-          );
+          console.warn(`⚠️  ${filePath}: Cell id="${id}" may have unescaped HTML in value`);
           warnings++;
         }
       }
@@ -518,10 +464,7 @@ async function validateDrawioFile(filePath) {
       // A child positioned far outside its parent likely used canvas coords
       // Allow small overshoot (labels can extend slightly beyond container)
       const tolerance = 50;
-      if (
-        childX > parentGeo.w + tolerance ||
-        childY > parentGeo.h + tolerance
-      ) {
+      if (childX > parentGeo.w + tolerance || childY > parentGeo.h + tolerance) {
         console.warn(
           `⚠️  ${filePath}: Cell id="${id}" at (${childX},${childY}) may use canvas coords instead of parent-relative (parent "${parentId}" is ${parentGeo.w}×${parentGeo.h})`,
         );
@@ -551,7 +494,7 @@ async function validateDrawioFile(filePath) {
     // - Advisory by default; APEX_DRAWIO_RUBRIC=strict promotes to error.
     if (ICON_REQUIRED_PATTERN.test(filePath.replaceAll("\\", "/"))) {
       const MIN_OVERLAP_AREA = 50;
-      const OVERLAP_FRACTION = 0.10;
+      const OVERLAP_FRACTION = 0.1;
       const MAX_REPORTS = 8;
 
       const parentMap = new Map();
@@ -586,9 +529,7 @@ async function validateDrawioFile(filePath) {
         if (!id) continue;
         if (cell["@_edge"] === "1") continue;
         const style = cell["@_style"] || "";
-        const isImage =
-          /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) ||
-          /(?:^|;)\s*image\s*=/i.test(style);
+        const isImage = /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) || /(?:^|;)\s*image\s*=/i.test(style);
         if (!isImage) continue;
         const abs = getAbs(id);
         if (!abs || abs.w <= 0 || abs.h <= 0) continue;
@@ -718,10 +659,7 @@ async function validateDrawioFile(filePath) {
       let containerCount = 0;
       for (const cell of contentCells) {
         const style = cell["@_style"] || "";
-        if (
-          /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) ||
-          /(?:^|;)\s*image\s*=/i.test(style)
-        ) {
+        if (/(?:^|;)\s*shape\s*=\s*image\b/i.test(style) || /(?:^|;)\s*image\s*=/i.test(style)) {
           imageCellCount++;
         }
         if (/(?:^|;)\s*container\s*=\s*1\b/i.test(style)) {
@@ -750,18 +688,15 @@ async function validateDrawioFile(filePath) {
     {
       const legendMarkers = [
         /\blegend\b/i,
-        /\u2192/,            // → arrow (right)
-        /\u2194/,            // ↔ left-right arrow
-        /\u25b6/,            // ▶ play / variant marker
-        /\u2933/,            // ⤳ wave arrow (async)
-        /\u22ef/,            // ⋯ horizontal ellipsis (dotted)
+        /\u2192/, // → arrow (right)
+        /\u2194/, // ↔ left-right arrow
+        /\u25b6/, // ▶ play / variant marker
+        /\u2933/, // ⤳ wave arrow (async)
+        /\u22ef/, // ⋯ horizontal ellipsis (dotted)
       ];
       for (const cell of contentCells) {
         const style = cell["@_style"] || "";
-        if (
-          /(?:^|;)\s*shape\s*=\s*image\b/i.test(style) ||
-          /(?:^|;)\s*image\s*=/i.test(style)
-        ) {
+        if (/(?:^|;)\s*shape\s*=\s*image\b/i.test(style) || /(?:^|;)\s*image\s*=/i.test(style)) {
           fileWide.imageCellCount++;
         }
         if (!fileWide.legendFound) {
@@ -777,12 +712,7 @@ async function validateDrawioFile(filePath) {
     // Filename pattern → expected diagram type → expected signatures.
     // Per references/diagram-types.md.
     {
-      const publicIngressMarkers = [
-        /Front Door/i,
-        /Application Gateway/i,
-        /API Management/i,
-        /\bAPIM\b/,
-      ];
+      const publicIngressMarkers = [/Front Door/i, /Application Gateway/i, /API Management/i, /\bAPIM\b/];
       for (const cell of contentCells) {
         const value = (cell["@_value"] || "").toString();
         const style = cell["@_style"] || "";
@@ -794,10 +724,7 @@ async function validateDrawioFile(filePath) {
         // Restricted to containers to avoid false positives on icons that
         // happen to use red accents.
         const isContainer = /(?:^|;)\s*container\s*=\s*1\b/i.test(style);
-        if (
-          isContainer &&
-          (/strokeColor\s*=\s*#B85450/i.test(style) || /\bTrust\b/i.test(value))
-        ) {
+        if (isContainer && (/strokeColor\s*=\s*#B85450/i.test(style) || /\bTrust\b/i.test(value))) {
           fileWide.hasTrustBoundary = true;
         }
         // VNet container (for sequence-type warning)
@@ -825,11 +752,7 @@ async function validateDrawioFile(filePath) {
     if (isArch) {
       // T-010 legend presence (skip for sequence per OQ-2 carve-out)
       const MIN_FOR_LEGEND = 8;
-      if (
-        !isSequence &&
-        fileWide.imageCellCount >= MIN_FOR_LEGEND &&
-        !fileWide.legendFound
-      ) {
+      if (!isSequence && fileWide.imageCellCount >= MIN_FOR_LEGEND && !fileWide.legendFound) {
         const msg = `Legend presence (T-010): ${fileWide.imageCellCount} icons across ${diagrams.length} page(s) with no legend cell. Add per references/legend-template.md.`;
         if (RUBRIC_MODE === "strict") {
           console.error(`❌ ${filePath}: ${msg}`);
@@ -867,9 +790,7 @@ async function validateDrawioFile(filePath) {
   const normalizedPath = filePath.replaceAll("\\", "/");
   if (ICON_REQUIRED_PATTERN.test(normalizedPath)) {
     if (totalImages === 0) {
-      console.error(
-        `❌ ${filePath}: Architecture deliverable has no embedded Azure icons (image cells)`,
-      );
+      console.error(`❌ ${filePath}: Architecture deliverable has no embedded Azure icons (image cells)`);
       errors++;
     }
 
@@ -903,9 +824,7 @@ async function validateDrawioFile(filePath) {
   }
 
   filesChecked++;
-  console.log(
-    `✅ ${filePath}: Valid (${totalCells} cells, ${totalImages} images)`,
-  );
+  console.log(`✅ ${filePath}: Valid (${totalCells} cells, ${totalImages} images)`);
 }
 
 // Main
@@ -928,7 +847,4 @@ _r.errors = errors;
 _r.warnings = warnings;
 _r.checked = filesChecked;
 _r.summary("Draw.io validation");
-_r.exitOnError(
-  "Draw.io validation passed",
-  `${errors} draw.io validation error(s) found`,
-);
+_r.exitOnError("Draw.io validation passed", `${errors} draw.io validation error(s) found`);

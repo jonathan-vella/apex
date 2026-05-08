@@ -107,9 +107,7 @@ for (const [key, entry] of walk(registry)) {
   }
 }
 
-console.log(
-  `\n📊 Registry skill-coverage: checked ${checked}, ${errors} error(s), ${warnings} warning(s)`,
-);
+console.log(`\n📊 Registry skill-coverage: checked ${checked}, ${errors} error(s), ${warnings} warning(s)`);
 
 if (errors > 0) {
   console.error("❌ Registry skill-coverage validation failed\n");

@@ -18,9 +18,18 @@ export function parseJsonc(content) {
     let escapeNext = false;
     for (let i = 0; i < line.length - 1; i++) {
       const char = line[i];
-      if (escapeNext) { escapeNext = false; continue; }
-      if (char === "\\") { escapeNext = true; continue; }
-      if (char === '"') { inString = !inString; continue; }
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+      if (char === "\\") {
+        escapeNext = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
       if (!inString && char === "/" && line[i + 1] === "/") {
         return line.substring(0, i);
       }

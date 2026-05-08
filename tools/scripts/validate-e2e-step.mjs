@@ -26,9 +26,7 @@ import { execSync } from "node:child_process";
 // Support --project=name or positional project name before step arg
 const rawArgs = process.argv.slice(2);
 const projectFlag = rawArgs.find((a) => a.startsWith("--project="));
-const PROJECT = projectFlag
-  ? projectFlag.split("=")[1]
-  : "contoso-service-hub-run-1";
+const PROJECT = projectFlag ? projectFlag.split("=")[1] : "contoso-service-hub-run-1";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
 const TF_DIR = path.join("infra", "terraform", PROJECT);
@@ -36,14 +34,8 @@ const TF_DIR = path.join("infra", "terraform", PROJECT);
 // Detect IaC tool from session state
 function detectIacTool() {
   try {
-    const state = JSON.parse(
-      fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"),
-    );
-    return (
-      state.iac_tool ||
-      state.decisions?.iac_tool ||
-      "Bicep"
-    ).toLowerCase();
+    const state = JSON.parse(fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"));
+    return (state.iac_tool || state.decisions?.iac_tool || "Bicep").toLowerCase();
   } catch {
     return "bicep";
   }
@@ -55,11 +47,7 @@ const IAC_TOOL = detectIacTool();
 const EXPECTED_H2S = {
   1: {
     file: "01-requirements.md",
-    headings: [
-      "## 🎯 Project Overview",
-      "## 🚀 Functional Requirements",
-      "## ⚡ Non-Functional Requirements (NFRs)",
-    ],
+    headings: ["## 🎯 Project Overview", "## 🚀 Functional Requirements", "## ⚡ Non-Functional Requirements (NFRs)"],
   },
   2: {
     file: "02-architecture-assessment.md",
@@ -97,17 +85,11 @@ const EXPECTED_H2S = {
 // Per-step validator commands (compose existing validators)
 const STEP_VALIDATORS = {
   all: ["npm run validate:session-state --silent 2>&1"],
-  1: [
-    "npm run lint:artifact-templates --silent 2>&1",
-    "npm run lint:h2-sync --silent 2>&1",
-  ],
+  1: ["npm run lint:artifact-templates --silent 2>&1", "npm run lint:h2-sync --silent 2>&1"],
   2: ["npm run lint:artifact-templates --silent 2>&1"],
   3: [],
   3.5: ["npm run lint:governance-refs --silent 2>&1"],
-  4: [
-    "npm run lint:artifact-templates --silent 2>&1",
-    "npm run lint:h2-sync --silent 2>&1",
-  ],
+  4: ["npm run lint:artifact-templates --silent 2>&1", "npm run lint:h2-sync --silent 2>&1"],
   5: [],
   6: [],
   7: [],
@@ -124,9 +106,7 @@ function fileExists(filePath) {
 function globFiles(dir, pattern) {
   try {
     const files = fs.readdirSync(dir);
-    const regex = new RegExp(
-      "^" + pattern.replace(/\*/g, ".*").replace(/\?/g, ".") + "$",
-    );
+    const regex = new RegExp("^" + pattern.replace(/\*/g, ".*").replace(/\?/g, ".") + "$");
     return files.filter((f) => regex.test(f));
   } catch {
     return [];
@@ -134,8 +114,7 @@ function globFiles(dir, pattern) {
 }
 
 function checkH2Headings(filePath, expectedH2s) {
-  if (!expectedH2s || expectedH2s.length === 0)
-    return { pass: true, missing: [] };
+  if (!expectedH2s || expectedH2s.length === 0) return { pass: true, missing: [] };
   try {
     const content = fs.readFileSync(filePath, "utf-8");
     const missing = expectedH2s.filter((h2) => !content.includes(h2));
@@ -199,15 +178,11 @@ function preValidateStep(step) {
     // Step 7: check multiple 07-*.md files
     const matches = globFiles(OUTPUT_DIR, spec.pattern);
     if (matches.length < spec.minFiles) {
-      findings.push(
-        `Expected ≥${spec.minFiles} files matching ${spec.pattern}, found ${matches.length}`,
-      );
+      findings.push(`Expected ≥${spec.minFiles} files matching ${spec.pattern}, found ${matches.length}`);
     }
   } else if (step === 3) {
     const adrMatches = globFiles(OUTPUT_DIR, "03-des-*.md");
-    const hasDrawio = fileExists(
-      path.join(OUTPUT_DIR, "03-des-diagram.drawio"),
-    );
+    const hasDrawio = fileExists(path.join(OUTPUT_DIR, "03-des-diagram.drawio"));
     const hasLegacyPython = globFiles(OUTPUT_DIR, "03-des-*.py").length > 0;
 
     if (adrMatches.length === 0) {
@@ -225,9 +200,7 @@ function preValidateStep(step) {
     } else {
       const h2Check = checkH2Headings(planPath, spec.headings);
       if (!h2Check.pass) {
-        findings.push(
-          `Missing H2 headings in ${spec.file}: ${h2Check.missing.join(", ")}`,
-        );
+        findings.push(`Missing H2 headings in ${spec.file}: ${h2Check.missing.join(", ")}`);
       }
     }
 
@@ -239,9 +212,7 @@ function preValidateStep(step) {
       fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.py"));
 
     if (!hasDrawio && !hasLegacyPython) {
-      findings.push(
-        "Missing Step 4 diagrams: expected Draw.io or legacy Python diagram source files",
-      );
+      findings.push("Missing Step 4 diagrams: expected Draw.io or legacy Python diagram source files");
     }
   } else if (spec.files) {
     // Multiple specific files (e.g., Step 3, 3.5)
@@ -266,9 +237,7 @@ function preValidateStep(step) {
     } else {
       const h2Check = checkH2Headings(filePath, spec.headings);
       if (!h2Check.pass) {
-        findings.push(
-          `Missing H2 headings in ${spec.file}: ${h2Check.missing.join(", ")}`,
-        );
+        findings.push(`Missing H2 headings in ${spec.file}: ${h2Check.missing.join(", ")}`);
       }
     }
   }
@@ -302,17 +271,12 @@ function validateStep(step) {
 
   // Run step-specific validators
   const findings = [];
-  const commands = [
-    ...(STEP_VALIDATORS.all || []),
-    ...(STEP_VALIDATORS[step] || []),
-  ];
+  const commands = [...(STEP_VALIDATORS.all || []), ...(STEP_VALIDATORS[step] || [])];
 
   // Step 5: IaC build/validate
   if (step === 5) {
     if (IAC_TOOL === "terraform") {
-      const initResult = runCommand(
-        `terraform -chdir=${TF_DIR} init -backend=false -input=false`,
-      );
+      const initResult = runCommand(`terraform -chdir=${TF_DIR} init -backend=false -input=false`);
       if (!initResult.success) {
         findings.push(`terraform init failed: ${initResult.output}`);
       }
@@ -340,9 +304,7 @@ function validateStep(step) {
   for (const cmd of commands) {
     const result = runCommand(cmd);
     if (!result.success) {
-      findings.push(
-        `Validator failed (${cmd.split(" ")[2] || cmd}): ${result.output.slice(0, 500)}`,
-      );
+      findings.push(`Validator failed (${cmd.split(" ")[2] || cmd}): ${result.output.slice(0, 500)}`);
     }
   }
 
@@ -350,12 +312,7 @@ function validateStep(step) {
   let artifactCount = 0;
   try {
     const files = fs.readdirSync(OUTPUT_DIR);
-    const stepPrefix =
-      step === 7
-        ? "07-"
-        : step === 3.5
-          ? "04-governance"
-          : `0${Math.floor(step)}-`;
+    const stepPrefix = step === 7 ? "07-" : step === 3.5 ? "04-governance" : `0${Math.floor(step)}-`;
     artifactCount = files.filter((f) => f.startsWith(stepPrefix)).length;
   } catch {
     /* empty */
@@ -377,18 +334,14 @@ const isPre = args[0] === "pre";
 const stepArg = isPre ? args[1] : args[0];
 
 if (!stepArg) {
-  console.error(
-    "Usage: node tools/scripts/validate-e2e-step.mjs [--project=name] [pre] <step|all>",
-  );
+  console.error("Usage: node tools/scripts/validate-e2e-step.mjs [--project=name] [pre] <step|all>");
   process.exit(1);
 }
 
 if (stepArg === "all") {
   const results = [];
   for (const step of [1, 2, 3, 3.5, 4, 5, 6, 7]) {
-    results.push(
-      isPre ? { step, ...preValidateStep(step) } : validateStep(step),
-    );
+    results.push(isPre ? { step, ...preValidateStep(step) } : validateStep(step));
   }
   const allPass = results.every((r) => r.pass);
   console.log(JSON.stringify({ all_pass: allPass, steps: results }, null, 2));
@@ -399,9 +352,7 @@ if (stepArg === "all") {
     console.error(`Invalid step: ${stepArg}`);
     process.exit(1);
   }
-  const result = isPre
-    ? { step, ...preValidateStep(step) }
-    : validateStep(step);
+  const result = isPre ? { step, ...preValidateStep(step) } : validateStep(step);
   console.log(JSON.stringify(result, null, 2));
   process.exit(result.pass ? 0 : 1);
 }

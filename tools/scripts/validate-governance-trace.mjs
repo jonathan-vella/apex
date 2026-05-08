@@ -29,9 +29,7 @@ r.header();
 
 const logPath = process.argv[2];
 if (!logPath || !fs.existsSync(logPath)) {
-  console.error(
-    "Usage: node tools/scripts/validate-governance-trace.mjs <debug-log.json>",
-  );
+  console.error("Usage: node tools/scripts/validate-governance-trace.mjs <debug-log.json>");
   process.exit(2);
 }
 
@@ -74,20 +72,12 @@ const discoverInvocations = spans.filter((s) => {
 });
 
 if (discoverInvocations.length > 0) {
-  r.ok?.(
-    "discovery",
-    `discover.py invoked ${discoverInvocations.length} time(s)`,
-  );
+  r.ok?.("discovery", `discover.py invoked ${discoverInvocations.length} time(s)`);
   console.log(`  ✅ discover.py invoked ${discoverInvocations.length} time(s)`);
 } else {
-  const govSpans = spans.filter(
-    (s) => s.attrs["gen_ai.agent.name"] === "04g-Governance",
-  );
+  const govSpans = spans.filter((s) => s.attrs["gen_ai.agent.name"] === "04g-Governance");
   if (govSpans.length === 0) {
-    r.warn(
-      "discovery",
-      "No 04g-Governance spans found in trace — governance phase may not have run",
-    );
+    r.warn("discovery", "No 04g-Governance spans found in trace — governance phase may not have run");
   } else {
     r.error(
       "discovery",
@@ -110,9 +100,7 @@ const reQuerySubagents = spans.filter((s) => {
   if (s.name !== "runSubagent") return false;
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
   if (args.includes("challenger-review-subagent")) return false;
-  return azureReQueryPatterns.some((p) =>
-    args.toLowerCase().includes(p.toLowerCase()),
-  );
+  return azureReQueryPatterns.some((p) => args.toLowerCase().includes(p.toLowerCase()));
 });
 
 r.tick();
@@ -130,8 +118,7 @@ const inlineRestCalls = spans.filter((s) => {
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
   if (args.includes(DISCOVER_MARKER)) return false; // discover.py is the sanctioned path
   return (
-    (s.attrs["gen_ai.tool.name"] === "run_in_terminal" ||
-      s.attrs["gen_ai.tool.name"] === "execution_subagent") &&
+    (s.attrs["gen_ai.tool.name"] === "run_in_terminal" || s.attrs["gen_ai.tool.name"] === "execution_subagent") &&
     args.includes("az rest")
   );
 });
@@ -151,11 +138,7 @@ if (inlineRestCalls.length === 0) {
 // each execution_subagent call adds 60-170s of overhead.
 const validationPattern = /lint:|json\.tool|ajv|re-?validate|validation/i;
 const validationSubagents = spans.filter((s) => {
-  if (
-    s.name !== "execution_subagent" &&
-    s.attrs["gen_ai.tool.name"] !== "execution_subagent"
-  )
-    return false;
+  if (s.name !== "execution_subagent" && s.attrs["gen_ai.tool.name"] !== "execution_subagent") return false;
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
   return validationPattern.test(args);
 });

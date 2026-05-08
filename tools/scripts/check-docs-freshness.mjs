@@ -79,9 +79,7 @@ async function checkProhibitedRefs(cachedSiteMdFiles) {
   // Scan site docs and instructions
   // Exclude CHANGELOG files — they are historical records that may legitimately
   // reference paths that have since been removed or restructured.
-  const mdFiles = [...cachedSiteMdFiles].filter(
-    (f) => !relative(ROOT, f).toLowerCase().includes("changelog"),
-  );
+  const mdFiles = [...cachedSiteMdFiles].filter((f) => !relative(ROOT, f).toLowerCase().includes("changelog"));
   for (const dir of scanPaths) {
     mdFiles.push(...(await collectMdFiles(dir, [])));
   }
@@ -121,12 +119,7 @@ async function checkSupersededLinks(cachedSiteMdFiles) {
     for (let i = 0; i < lines.length; i++) {
       for (const pattern of deprecatedPaths) {
         if (pattern.test(lines[i])) {
-          addFinding(
-            rel,
-            i + 1,
-            "Link to removed directory in live docs",
-            "MEDIUM",
-          );
+          addFinding(rel, i + 1, "Link to removed directory in live docs", "MEDIUM");
         }
       }
     }
@@ -188,12 +181,7 @@ async function checkVersionHeaders(cachedSiteMdFiles) {
     const lines = content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       if (versionPattern.test(lines[i])) {
-        addFinding(
-          rel,
-          i + 1,
-          "Hardcoded version header — use [Current Version](../VERSION.md) instead",
-          "LOW",
-        );
+        addFinding(rel, i + 1, "Hardcoded version header — use [Current Version](../VERSION.md) instead", "LOW");
       }
     }
   }
@@ -226,15 +214,9 @@ async function main() {
   // Write JSON report (always, even when clean)
   const report = {
     findings,
-    summary:
-      findings.length === 0
-        ? "No issues found"
-        : `${findings.length} issue(s) found`,
+    summary: findings.length === 0 ? "No issues found" : `${findings.length} issue(s) found`,
   };
-  await writeFile(
-    join(ROOT, "freshness-report.json"),
-    JSON.stringify(report, null, 2) + "\n",
-  );
+  await writeFile(join(ROOT, "freshness-report.json"), JSON.stringify(report, null, 2) + "\n");
   console.log("📄 Report written to freshness-report.json");
 
   if (findings.length === 0) {
@@ -245,8 +227,7 @@ async function main() {
   console.log("=".repeat(50));
   console.log(`📋 ${findings.length} issue(s) found\n`);
   for (const f of findings) {
-    const icon =
-      f.severity === "HIGH" ? "❌" : f.severity === "MEDIUM" ? "⚠️" : "ℹ️";
+    const icon = f.severity === "HIGH" ? "❌" : f.severity === "MEDIUM" ? "⚠️" : "ℹ️";
     const loc = f.line > 0 ? `${f.file}:${f.line}` : f.file;
     console.log(`${icon} [${f.severity}] ${loc}`);
     console.log(`   ${f.issue}\n`);

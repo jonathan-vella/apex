@@ -45,7 +45,5 @@ export function extractH2Sections(content) {
  * @returns {string}
  */
 export function normalizeHeading(heading) {
-  return heading
-    .replace(/[\p{Extended_Pictographic}\u{FE0E}\u{FE0F}]+\s*/gu, "")
-    .trim();
+  return heading.replace(/[\p{Extended_Pictographic}\u{FE0E}\u{FE0F}]+\s*/gu, "").trim();
 }

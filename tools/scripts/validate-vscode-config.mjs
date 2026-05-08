@@ -72,9 +72,7 @@ function checkRequiredExtensionsInList(sourceName, extensions) {
   const normalized = new Set(extensions.map(normalizeExtensionId));
   for (const requiredExtension of REQUIRED_EXTENSIONS) {
     if (!normalized.has(normalizeExtensionId(requiredExtension))) {
-      errors.push(
-        `❌ Missing required extension in ${sourceName}: ${requiredExtension}`,
-      );
+      errors.push(`❌ Missing required extension in ${sourceName}: ${requiredExtension}`);
     }
   }
 }
@@ -88,10 +86,7 @@ import { parseJsonc } from "./_lib/parse-jsonc.mjs";
  * Check devcontainer.json for required settings
  */
 function validateDevcontainer() {
-  const devcontainerPath = resolve(
-    REPO_ROOT,
-    ".devcontainer/devcontainer.json",
-  );
+  const devcontainerPath = resolve(REPO_ROOT, ".devcontainer/devcontainer.json");
 
   if (!existsSync(devcontainerPath)) {
     errors.push("❌ .devcontainer/devcontainer.json not found");
@@ -118,9 +113,7 @@ function validateDevcontainer() {
 
     // Check if subagent setting is true
     if (settings["chat.customAgentInSubagent.enabled"] !== true) {
-      errors.push(
-        "❌ chat.customAgentInSubagent.enabled must be true for Orchestrator",
-      );
+      errors.push("❌ chat.customAgentInSubagent.enabled must be true for Orchestrator");
     }
 
     // Check agent paths
@@ -129,9 +122,7 @@ function validateDevcontainer() {
       warnings.push("⚠️  .github/agents not in chat.agentFilesLocations");
     }
     if (!agentPaths[".github/agents/_subagents"]) {
-      warnings.push(
-        "⚠️  .github/agents/_subagents not in chat.agentFilesLocations",
-      );
+      warnings.push("⚠️  .github/agents/_subagents not in chat.agentFilesLocations");
     }
 
     // Check skills path
@@ -144,9 +135,7 @@ function validateDevcontainer() {
 
     const duplicates = findDuplicateExtensions(extensions);
     for (const duplicate of duplicates) {
-      warnings.push(
-        `⚠️  Duplicate extension in devcontainer.json: ${duplicate}`,
-      );
+      warnings.push(`⚠️  Duplicate extension in devcontainer.json: ${duplicate}`);
     }
 
     return extensions;
@@ -163,9 +152,7 @@ function validateExtensions() {
   const extensionsPath = resolve(REPO_ROOT, ".vscode/extensions.json");
 
   if (!existsSync(extensionsPath)) {
-    warnings.push(
-      "⚠️  .vscode/extensions.json not found (optional but recommended)",
-    );
+    warnings.push("⚠️  .vscode/extensions.json not found (optional but recommended)");
     return [];
   }
 
@@ -179,9 +166,7 @@ function validateExtensions() {
     checkRequiredExtensionsInList("extensions.json", recommendations);
 
     for (const ext of REQUIRED_EXTENSIONS) {
-      const found = recommendations.some(
-        (r) => normalizeExtensionId(r) === normalizeExtensionId(ext),
-      );
+      const found = recommendations.some((r) => normalizeExtensionId(r) === normalizeExtensionId(ext));
       if (found) {
         console.log(`   ✓ ${ext}`);
       }
@@ -212,18 +197,12 @@ function crossCheckExtensions(devcontainerExts, extensionsJsonExts) {
   const devSet = new Set(devcontainerExts.map(normalizeExtensionId));
   const extSet = new Set(extensionsJsonExts.map(normalizeExtensionId));
 
-  const onlyInDevcontainer = [...devSet]
-    .filter((extension) => !extSet.has(extension))
-    .sort();
-  const onlyInExtensionsJson = [...extSet]
-    .filter((extension) => !devSet.has(extension))
-    .sort();
+  const onlyInDevcontainer = [...devSet].filter((extension) => !extSet.has(extension)).sort();
+  const onlyInExtensionsJson = [...extSet].filter((extension) => !devSet.has(extension)).sort();
 
   for (const extension of onlyInDevcontainer) {
     if (!ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS.has(extension)) {
-      errors.push(
-        `❌ Non-allowlisted extension only in devcontainer.json: ${extension}`,
-      );
+      errors.push(`❌ Non-allowlisted extension only in devcontainer.json: ${extension}`);
     }
   }
 
@@ -238,12 +217,8 @@ function crossCheckExtensions(devcontainerExts, extensionsJsonExts) {
     console.log(`   ℹ allowlisted devcontainer-only extension: ${extension}`);
   }
 
-  console.log(
-    `   ✓ ${devcontainerExts.length} extensions in devcontainer.json`,
-  );
-  console.log(
-    `   ✓ ${extensionsJsonExts.length} extensions in extensions.json`,
-  );
+  console.log(`   ✓ ${devcontainerExts.length} extensions in devcontainer.json`);
+  console.log(`   ✓ ${extensionsJsonExts.length} extensions in extensions.json`);
 }
 
 // Main execution

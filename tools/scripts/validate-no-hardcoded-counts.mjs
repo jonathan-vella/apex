@@ -16,12 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
-import {
-  AGENTS_DIR,
-  SUBAGENTS_DIR,
-  SKILLS_DIR,
-  INSTRUCTIONS_DIR,
-} from "./_lib/paths.mjs";
+import { AGENTS_DIR, SUBAGENTS_DIR, SKILLS_DIR, INSTRUCTIONS_DIR } from "./_lib/paths.mjs";
 import { parseJsonc } from "./_lib/parse-jsonc.mjs";
 
 const ROOT = process.cwd();
@@ -29,12 +24,7 @@ const r = new Reporter("No Hard-Coded Counts Validator");
 
 // ─── Part 1: Manifest validation ────────────────────────────────────────────
 
-const MANIFEST_PATH = path.join(
-  ROOT,
-  "tools",
-  "registry",
-  "count-manifest.json",
-);
+const MANIFEST_PATH = path.join(ROOT, "tools", "registry", "count-manifest.json");
 
 function loadManifest() {
   if (!fs.existsSync(MANIFEST_PATH)) {
@@ -64,10 +54,9 @@ function computeActualCounts() {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
     const nodeScripts = pkg.scripts?.["validate:_node"] || "";
     const extScripts = pkg.scripts?.["validate:_external"] || "";
-    const all = [
-      ...nodeScripts.split(/\s+/),
-      ...extScripts.split(/\s+/),
-    ].filter((s) => s.startsWith("lint:") || s.startsWith("validate:"));
+    const all = [...nodeScripts.split(/\s+/), ...extScripts.split(/\s+/)].filter(
+      (s) => s.startsWith("lint:") || s.startsWith("validate:"),
+    );
     validatorCount = all.length;
   }
 
@@ -76,8 +65,7 @@ function computeActualCounts() {
   if (fs.existsSync(dcPath)) {
     try {
       const dcContent = parseJsonc(fs.readFileSync(dcPath, "utf-8"));
-      extensionCount =
-        dcContent?.customizations?.vscode?.extensions?.length || 0;
+      extensionCount = dcContent?.customizations?.vscode?.extensions?.length || 0;
     } catch {
       extensionCount = -1;
     }
@@ -110,10 +98,7 @@ function validateManifest(manifest) {
 
     // Static value entries are checked directly
     if (entry.value !== undefined) {
-      r.check(
-        `${key}: manifest value (${entry.value}) matches actual (${actual})`,
-        entry.value === actual,
-      );
+      r.check(`${key}: manifest value (${entry.value}) matches actual (${actual})`, entry.value === actual);
     } else {
       // Auto-computed entries: just report the actual for reference
       r.ok(`${key}: ${actual} (computed from ${entry.computed_from})`);
@@ -177,12 +162,7 @@ const ALLOWLIST_LINE_PATTERNS = [
 ];
 
 const SCAN_DIRS = [".github", "docs", "scripts", "mcp", ".devcontainer"];
-const SCAN_ROOT_FILES = [
-  "AGENTS.md",
-  "README.md",
-  "QUALITY_SCORE.md",
-  "CONTRIBUTING.md",
-];
+const SCAN_ROOT_FILES = ["AGENTS.md", "README.md", "QUALITY_SCORE.md", "CONTRIBUTING.md"];
 
 const TEXT_EXTS = new Set([
   ".md",

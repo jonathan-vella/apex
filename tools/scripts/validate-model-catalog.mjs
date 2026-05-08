@@ -76,19 +76,13 @@ function main() {
   for (const [model, origins] of fmModels) {
     r.tick();
     if (!declared.has(model)) {
-      r.error(
-        `frontmatter model "${model}"`,
-        `not declared in catalog.models — used by ${origins.join(", ")}`,
-      );
+      r.error(`frontmatter model "${model}"`, `not declared in catalog.models — used by ${origins.join(", ")}`);
     }
   }
   for (const [model, origins] of regModels) {
     r.tick();
     if (!declared.has(model)) {
-      r.error(
-        `registry model "${model}"`,
-        `not declared in catalog.models — used by ${origins.join(", ")}`,
-      );
+      r.error(`registry model "${model}"`, `not declared in catalog.models — used by ${origins.join(", ")}`);
     }
   }
 
@@ -98,15 +92,9 @@ function main() {
   const actual = catalog.assignments;
   r.tick();
   if (!actual) {
-    r.error(
-      "assignments",
-      "missing from catalog — run `node tools/scripts/generate-model-catalog.mjs`",
-    );
+    r.error("assignments", "missing from catalog — run `node tools/scripts/generate-model-catalog.mjs`");
   } else if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-    r.error(
-      "assignments",
-      "out of sync with frontmatter — run `node tools/scripts/generate-model-catalog.mjs`",
-    );
+    r.error("assignments", "out of sync with frontmatter — run `node tools/scripts/generate-model-catalog.mjs`");
   }
 
   // Check 3: deprecated models not used in active assignments
@@ -124,10 +112,7 @@ function main() {
   }
 
   r.summary();
-  r.exitOnError(
-    "Model catalog validation passed",
-    "Model catalog validation failed — see errors above",
-  );
+  r.exitOnError("Model catalog validation passed", "Model catalog validation failed — see errors above");
 }
 
 main();

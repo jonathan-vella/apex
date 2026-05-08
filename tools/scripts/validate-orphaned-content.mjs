@@ -11,11 +11,7 @@
  */
 
 import fs from "node:fs";
-import {
-  getAgents,
-  getSkills,
-  getInstructions,
-} from "./_lib/workspace-index.mjs";
+import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
 
@@ -48,10 +44,7 @@ function readRegistrySkills() {
     // IaC-conditional entries nest one level deeper (bicep/terraform).
     for (const value of Object.values(entry)) {
       if (value && typeof value === "object" && !Array.isArray(value)) {
-        if (
-          Array.isArray(value.skills) ||
-          Array.isArray(value.capability_skills)
-        ) {
+        if (Array.isArray(value.skills) || Array.isArray(value.capability_skills)) {
           collect(value);
         }
       }
@@ -111,11 +104,7 @@ function gatherReferenceContent() {
   }
 
   // Top-level config files
-  for (const f of [
-    COPILOT_INSTRUCTIONS,
-    "AGENTS.md",
-    ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md",
-  ]) {
+  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md", ".github/prompts/plan-agenticWorkflowOverhaul.prompt.md"]) {
     if (fs.existsSync(f)) baseParts.push(fs.readFileSync(f, "utf-8"));
   }
 
@@ -128,13 +117,7 @@ const { base, perSkill } = gatherReferenceContent();
 // regex form below is built per-skill but the substring set is constant
 // per check.
 function isSkillReferenced(skill, base, perSkill) {
-  const triggers = [
-    `${skill}/SKILL.md`,
-    `skills/${skill}`,
-    `${skill}/references/`,
-    `${skill}/`,
-    `\`${skill}\``,
-  ];
+  const triggers = [`${skill}/SKILL.md`, `skills/${skill}`, `${skill}/references/`, `${skill}/`, `\`${skill}\``];
   // Fast path: check the base corpus first (most refs live in agents).
   for (const t of triggers) {
     if (base.includes(t)) return true;

@@ -77,9 +77,7 @@ function main() {
   if (checkOnly) {
     const same = JSON.stringify(prev) === JSON.stringify(next);
     if (!same) {
-      console.error(
-        "❌ model-catalog.json `assignments` block is out of sync with frontmatter.",
-      );
+      console.error("❌ model-catalog.json `assignments` block is out of sync with frontmatter.");
       console.error("   Run: node tools/scripts/generate-model-catalog.mjs");
       process.exit(1);
     }
@@ -91,9 +89,7 @@ function main() {
   writeCatalog(catalog);
   const agentCount = Object.keys(next.agents).length;
   const subCount = Object.keys(next.subagents).length;
-  console.log(
-    `✅ Regenerated assignments: ${agentCount} agents, ${subCount} subagents`,
-  );
+  console.log(`✅ Regenerated assignments: ${agentCount} agents, ${subCount} subagents`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

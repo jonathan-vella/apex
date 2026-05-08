@@ -49,13 +49,8 @@ if (!mcpConfig?.servers?.drawio) {
     r.error(`drawio server must use type: "stdio", got "${drawio.type}"`);
   } else if (drawio.command !== "deno") {
     r.error(`drawio command must be "deno", got "${drawio.command}"`);
-  } else if (
-    !drawio.args ||
-    !drawio.args.some((a) => a.includes("mcp-servers/drawio"))
-  ) {
-    r.error(
-      "drawio args must include the drawio MCP server path (tools/mcp-servers/drawio)",
-    );
+  } else if (!drawio.args || !drawio.args.some((a) => a.includes("mcp-servers/drawio"))) {
+    r.error("drawio args must include the drawio MCP server path (tools/mcp-servers/drawio)");
   } else {
     r.ok("MCP config includes valid drawio server (Deno stdio)");
   }

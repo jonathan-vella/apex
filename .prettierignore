@@ -1,0 +1,20 @@
+# Paths Prettier should ignore. Keep in sync with eslint.config.mjs ignores.
+node_modules/
+site/dist/
+site/.astro/
+agent-output/
+tmp/
+infra/
+logs/
+assets/
+**/*.min.js
+
+# Deno-managed: uses deno fmt
+tools/mcp-servers/drawio/
+
+# Caches
+.eslintcache
+node_modules/.cache/
+
+# Build artefacts
+*.tsbuildinfo

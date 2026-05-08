@@ -63,10 +63,7 @@ function checkEntry(key, entry, lookup) {
   }
   const fm = findAgentFrontmatter(lookup, registryAgentPath);
   if (!fm) {
-    r.error(
-      `Agent "${key}"`,
-      `agent file not found in workspace index: ${registryAgentPath}`,
-    );
+    r.error(`Agent "${key}"`, `agent file not found in workspace index: ${registryAgentPath}`);
     return;
   }
   const yamlModel = normalizeModel(fm.model);
@@ -81,10 +78,7 @@ function checkEntry(key, entry, lookup) {
     return;
   }
   if (yamlModel !== regModel) {
-    r.error(
-      `Agent "${key}"`,
-      `frontmatter model "${yamlModel}" does not equal registry model "${regModel}"`,
-    );
+    r.error(`Agent "${key}"`, `frontmatter model "${yamlModel}" does not equal registry model "${regModel}"`);
   }
 }
 

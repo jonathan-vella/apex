@@ -34,9 +34,7 @@ function readJson(path) {
 const settings = readJson(join(ROOT, ".vscode/settings.json"));
 const mappings = settings["json.schemas"] ?? [];
 if (mappings.length === 0) {
-  console.log(
-    "No json.schemas mappings in .vscode/settings.json — nothing to validate.",
-  );
+  console.log("No json.schemas mappings in .vscode/settings.json — nothing to validate.");
   process.exit(0);
 }
 
@@ -61,9 +59,7 @@ for (const entry of mappings) {
     // matches nothing it is silently skipped — that just means the
     // file family is empty in this checkout.
     const isGlob = /[*?[\]]/.test(match);
-    const matched = isGlob
-      ? globSync(match, { cwd: ROOT, nodir: true })
-      : [match];
+    const matched = isGlob ? globSync(match, { cwd: ROOT, nodir: true }) : [match];
     if (isGlob && matched.length === 0) {
       console.log(`ℹ️  ${match} (glob matched no files — skipped)`);
       continue;

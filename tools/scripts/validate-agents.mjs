@@ -53,9 +53,7 @@ const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const RECOMMENDED_FIELDS = ["agents", "model"];
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 
-const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set([
-  "e2e-orchestrator.agent.md",
-]);
+const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-orchestrator.agent.md"]);
 
 function runFrontmatterValidation() {
   const r = new Reporter("Agent Frontmatter Validator");
@@ -74,10 +72,7 @@ function runFrontmatterValidation() {
     else mainCount++;
 
     if (BLOCK_SCALAR_PATTERN.test(content)) {
-      r.error(
-        relativePath,
-        "description uses a YAML block scalar (>, >-, | or |-). Use a single-line inline string.",
-      );
+      r.error(relativePath, "description uses a YAML block scalar (>, >-, | or |-). Use a single-line inline string.");
     }
 
     if (!frontmatter) {
@@ -96,24 +91,13 @@ function runFrontmatterValidation() {
     if (isSubagent) {
       const ui = frontmatter["user-invocable"];
       if (ui !== "false" && ui !== "never" && ui !== false) {
-        r.error(
-          relativePath,
-          `Subagent must have user-invocable: false or never (got: ${ui})`,
-        );
+        r.error(relativePath, `Subagent must have user-invocable: false or never (got: ${ui})`);
       }
     } else {
       const ui = frontmatter["user-invocable"];
       const filename = relativePath.split("/").pop();
-      if (
-        ui !== "true" &&
-        ui !== "always" &&
-        ui !== true &&
-        !ALLOWED_NON_INVOCABLE_MAIN_AGENTS.has(filename)
-      ) {
-        r.warn(
-          relativePath,
-          `Main agent should have user-invocable: true (got: ${ui})`,
-        );
+      if (ui !== "true" && ui !== "always" && ui !== true && !ALLOWED_NON_INVOCABLE_MAIN_AGENTS.has(filename)) {
+        r.warn(relativePath, `Main agent should have user-invocable: true (got: ${ui})`);
       }
     }
 
@@ -126,25 +110,17 @@ function runFrontmatterValidation() {
     }
 
     if ("agents" in frontmatter && !Array.isArray(frontmatter.agents)) {
-      r.error(
-        relativePath,
-        `'agents' parsed as ${typeof frontmatter.agents}, expected array`,
-      );
+      r.error(relativePath, `'agents' parsed as ${typeof frontmatter.agents}, expected array`);
     }
 
     if (content.includes("handoffs:")) {
-      const handoffMatch = content.match(
-        /handoffs:[\s\S]*?(?=\n[a-z-]+:|---|\n#|$)/i,
-      );
+      const handoffMatch = content.match(/handoffs:[\s\S]*?(?=\n[a-z-]+:|---|\n#|$)/i);
       if (handoffMatch) {
         const handoffSection = handoffMatch[0];
         const labelCount = (handoffSection.match(/label:/g) || []).length;
         const sendCount = (handoffSection.match(/send:/g) || []).length;
         if (labelCount > 0 && sendCount === 0) {
-          r.warn(
-            relativePath,
-            "Handoffs missing 'send' property (1.109 feature)",
-          );
+          r.warn(relativePath, "Handoffs missing 'send' property (1.109 feature)");
         }
       }
     }
@@ -231,13 +207,8 @@ function runAgentChecks() {
 
     if (bodyLines > MAX_BODY_LINES) {
       const totalLines = content.split("\n").length;
-      r.errorAnnotation(
-        filePath,
-        `${file} body is ${bodyLines} lines (>${MAX_BODY_LINES}; total: ${totalLines})`,
-      );
-      console.log(
-        `  Fix: Extract verbose sections to skill references/ or scripts/.`,
-      );
+      r.errorAnnotation(filePath, `${file} body is ${bodyLines} lines (>${MAX_BODY_LINES}; total: ${totalLines})`);
+      console.log(`  Fix: Extract verbose sections to skill references/ or scripts/.`);
     }
 
     const { total, perKeyword, lines } = analyzeLanguage(body);
@@ -251,9 +222,7 @@ function runAgentChecks() {
         filePath,
         `${file}: ${total} absolute-language keywords in ${lines} lines (${density.toFixed(1)}/100 > ${MAX_DENSITY_PER_100}/100). Breakdown: ${breakdown}`,
       );
-      console.log(
-        `  Fix: Soften language or extract content to skill references.`,
-      );
+      console.log(`  Fix: Soften language or extract content to skill references.`);
     }
   }
 
@@ -360,10 +329,7 @@ function runModelAlignment() {
       const agentNorm = normalizeModel(agentEntry.model);
 
       if (promptNorm && agentNorm && promptNorm !== agentNorm) {
-        r.warn(
-          file,
-          `prompt model "${promptModel}" does not match agent "${targetAgent}" model "${agentEntry.model}"`,
-        );
+        r.warn(file, `prompt model "${promptModel}" does not match agent "${targetAgent}" model "${agentEntry.model}"`);
         r.record({
           ruleId: "legacy-001",
           severity: "warn",
@@ -453,12 +419,7 @@ function runModelAlignment() {
   }
 
   // Check 4: Claude non-ONE-SHOT research agents missing investigate block
-  const INVESTIGATE_AGENTS = [
-    "03-architect",
-    "05-iac-planner",
-    "09-diagnose",
-    "11-context-optimizer",
-  ];
+  const INVESTIGATE_AGENTS = ["03-architect", "05-iac-planner", "09-diagnose", "11-context-optimizer"];
 
   console.log("  Check 4: Claude investigate_before_answering");
   {
@@ -469,9 +430,7 @@ function runModelAlignment() {
       const family = classifyModel(agent.frontmatter.model);
       if (!isClaude(family)) continue;
 
-      const matchesKnown = INVESTIGATE_AGENTS.some((prefix) =>
-        filename.startsWith(prefix),
-      );
+      const matchesKnown = INVESTIGATE_AGENTS.some((prefix) => filename.startsWith(prefix));
       if (!matchesKnown) continue;
 
       r.tick();
@@ -479,16 +438,12 @@ function runModelAlignment() {
       const body = getBody(agent.content);
 
       if (!body.includes("<investigate_before_answering>")) {
-        r.warn(
-          relPath,
-          "Claude research agent missing <investigate_before_answering> block",
-        );
+        r.warn(relPath, "Claude research agent missing <investigate_before_answering> block");
         r.record({
           ruleId: "legacy-004",
           severity: "warn",
           file: relPath,
-          message:
-            "Claude research agent missing <investigate_before_answering> block",
+          message: "Claude research agent missing <investigate_before_answering> block",
           sourceUrl:
             "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
         });
@@ -635,10 +590,7 @@ function effectiveSeverity(rule, family) {
 }
 
 /** Names of agents whose contract is ONE-SHOT (single round, no investigate). */
-const ONE_SHOT_AGENT_NAMES = new Set([
-  "02-Requirements",
-  "challenger-review-subagent",
-]);
+const ONE_SHOT_AGENT_NAMES = new Set(["02-Requirements", "challenger-review-subagent"]);
 
 /** XML blocks that are Claude-only and forbidden in GPT agents. */
 const CLAUDE_ONLY_XML = [
@@ -651,21 +603,10 @@ const CLAUDE_ONLY_XML = [
 ];
 
 /** Required H1 sections for GPT-5.5 outcome-first skeleton. */
-const GPT55_REQUIRED_SECTIONS = [
-  "# Goal",
-  "# Success criteria",
-  "# Constraints",
-  "# Output",
-  "# Stop rules",
-];
+const GPT55_REQUIRED_SECTIONS = ["# Goal", "# Success criteria", "# Constraints", "# Output", "# Stop rules"];
 
 /** Permitted absolute-language paragraph keywords (Check 8R). */
-const PERMITTED_ABSOLUTE_CONTEXTS = [
-  /security baseline/i,
-  /governance/i,
-  /approval gate/i,
-  /non-negotiable/i,
-];
+const PERMITTED_ABSOLUTE_CONTEXTS = [/security baseline/i, /governance/i, /approval gate/i, /non-negotiable/i];
 
 const ABSOLUTE_WORDS = ["ALWAYS", "NEVER", "MUST", "HARD RULE"];
 const ABSOLUTE_DENSITY_THRESHOLD = 0.05;
@@ -697,9 +638,7 @@ function checkClaudeOneShotNoInvestigate(r, agent, file, family) {
 function checkGpt55Skeleton(r, agent, file, family) {
   if (family !== "gpt-5.5" && family !== "gpt-5.4") return;
   const body = getBody(agent.content);
-  const missing = GPT55_REQUIRED_SECTIONS.filter(
-    (h) => !new RegExp(`^${h}\\b`, "m").test(body),
-  );
+  const missing = GPT55_REQUIRED_SECTIONS.filter((h) => !new RegExp(`^${h}\\b`, "m").test(body));
   if (missing.length > 0) {
     emit(
       r,
@@ -712,8 +651,7 @@ function checkGpt55Skeleton(r, agent, file, family) {
   // Personality scoping (rule personality-scoping-001 piggybacked)
   const ui = agent.frontmatter?.["user-invocable"];
   const isUserFacing =
-    (ui === true || ui === "true" || ui === "always") &&
-    /Orchestrator/i.test(agent.frontmatter?.name || "");
+    (ui === true || ui === "true" || ui === "always") && /Orchestrator/i.test(agent.frontmatter?.name || "");
   const hasPersonality = /^# Personality\b/m.test(body);
   if (hasPersonality && !isUserFacing && !agent.isSubagent) {
     emit(
@@ -732,13 +670,7 @@ function checkGptNoClaudeXml(r, agent, file, family) {
   const body = getBody(agent.content);
   for (const xml of CLAUDE_ONLY_XML) {
     if (body.includes(xml)) {
-      emit(
-        r,
-        "gpt-no-claude-xml-001",
-        family,
-        file,
-        `GPT agent contains Claude-only XML block ${xml}`,
-      );
+      emit(r, "gpt-no-claude-xml-001", family, file, `GPT agent contains Claude-only XML block ${xml}`);
     }
   }
 }
@@ -816,13 +748,7 @@ function checkGpt55StopRulesNonEmpty(r, agent, file, family) {
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith("<!--"));
   if (sectionBody.length === 0) {
-    emit(
-      r,
-      "gpt55-stop-rules-non-empty-001",
-      family,
-      file,
-      `# Stop rules section is empty (header only)`,
-    );
+    emit(r, "gpt55-stop-rules-non-empty-001", family, file, `# Stop rules section is empty (header only)`);
   }
 }
 
@@ -831,21 +757,9 @@ function checkFrontmatterModelStyle(r, item, file, family, fileType) {
   const m = item.frontmatter?.model;
   if (m === undefined || m === null) return;
   if (fileType === "agent" && !Array.isArray(m)) {
-    emit(
-      r,
-      "frontmatter-model-style-001",
-      family,
-      file,
-      `.agent.md model: must be array form, got ${typeof m}`,
-    );
+    emit(r, "frontmatter-model-style-001", family, file, `.agent.md model: must be array form, got ${typeof m}`);
   } else if (fileType === "prompt" && Array.isArray(m)) {
-    emit(
-      r,
-      "frontmatter-model-style-001",
-      family,
-      file,
-      `.prompt.md model: must be string form, got array`,
-    );
+    emit(r, "frontmatter-model-style-001", family, file, `.prompt.md model: must be string form, got array`);
   }
 }
 
@@ -853,9 +767,7 @@ function checkFrontmatterModelStyle(r, item, file, family, fileType) {
 function checkClaudeOutputContract(r, agent, file, family) {
   if (!isClaude(family)) return;
   const handoffs = parseStructuredHandoffs(agent.content);
-  const isArtifactProducer =
-    handoffs.length > 0 &&
-    handoffs.some((h) => /agent-output\//.test(h?.prompt || ""));
+  const isArtifactProducer = handoffs.length > 0 && handoffs.some((h) => /agent-output\//.test(h?.prompt || ""));
   if (!isArtifactProducer) return;
   const body = getBody(agent.content);
   if (body.includes("<output_contract>")) return;
@@ -874,17 +786,10 @@ function checkHandoffEnrichment(r, agent, file, family) {
   if (handoffs.length === 0) return;
   for (const [i, h] of handoffs.entries()) {
     if (!h?.prompt || typeof h.prompt !== "string") continue;
-    const hasInput =
-      /agent-output\/.+\.md/i.test(h.prompt) || /\bInput\b/i.test(h.prompt);
-    const hasOutput =
-      /Output\s*:/i.test(h.prompt) || /agent-output\/.+\.md/i.test(h.prompt);
+    const hasInput = /agent-output\/.+\.md/i.test(h.prompt) || /\bInput\b/i.test(h.prompt);
+    const hasOutput = /Output\s*:/i.test(h.prompt) || /agent-output\/.+\.md/i.test(h.prompt);
     if (!hasInput || !hasOutput) {
-      const missing = [
-        !hasInput && "input reference",
-        !hasOutput && "output reference",
-      ]
-        .filter(Boolean)
-        .join(" and ");
+      const missing = [!hasInput && "input reference", !hasOutput && "output reference"].filter(Boolean).join(" and ");
       emit(
         r,
         "handoff-enrichment-001",
@@ -911,9 +816,7 @@ function checkPromptModelSource(r, prompt, file, agentNameToModel) {
   if (!fm) return;
   const agentField = fm.agent;
   const modelField = fm.model;
-  const isGenericAgent =
-    !agentField ||
-    (typeof agentField === "string" && agentField.toLowerCase() === "agent");
+  const isGenericAgent = !agentField || (typeof agentField === "string" && agentField.toLowerCase() === "agent");
 
   if (isGenericAgent) {
     if (modelField === undefined || modelField === null || modelField === "") {
@@ -929,17 +832,10 @@ function checkPromptModelSource(r, prompt, file, agentNameToModel) {
   }
 
   // Custom-agent target.
-  const targetKey =
-    typeof agentField === "string" ? agentField.toLowerCase() : null;
-  const isKnownCustomAgent =
-    targetKey !== null && agentNameToModel.has(targetKey);
+  const targetKey = typeof agentField === "string" ? agentField.toLowerCase() : null;
+  const isKnownCustomAgent = targetKey !== null && agentNameToModel.has(targetKey);
 
-  if (
-    isKnownCustomAgent &&
-    modelField !== undefined &&
-    modelField !== null &&
-    modelField !== ""
-  ) {
+  if (isKnownCustomAgent && modelField !== undefined && modelField !== null && modelField !== "") {
     emit(
       r,
       "prompt-model-source-001",
@@ -960,10 +856,7 @@ function resolvePromptFamily(prompt, agentNameToModel) {
   if (!fm) return "unknown";
   if (fm.model) return classifyModel(fm.model);
   const agentField = fm.agent;
-  if (
-    !agentField ||
-    (typeof agentField === "string" && agentField.toLowerCase() === "agent")
-  ) {
+  if (!agentField || (typeof agentField === "string" && agentField.toLowerCase() === "agent")) {
     return "unknown";
   }
   const entry = agentNameToModel.get(agentField.toLowerCase());
@@ -1093,9 +986,7 @@ function listRules() {
   }
   console.log("Inline rule catalog (validate-agents.mjs):\n");
   for (const rule of VENDOR_RULES) {
-    console.log(
-      `  ${rule.id.padEnd(36)} severity=${rule.severity.padEnd(5)} appliesTo=${rule.appliesTo}`,
-    );
+    console.log(`  ${rule.id.padEnd(36)} severity=${rule.severity.padEnd(5)} appliesTo=${rule.appliesTo}`);
   }
   if (!registry) {
     console.log("\n(no rules.json present to cross-check)");
@@ -1104,24 +995,16 @@ function listRules() {
   const inlineIds = new Set(VENDOR_RULES.map((r) => r.id));
   const registryIds = new Set(registry.rules.map((r) => r.id));
   const inlineOnly = [...inlineIds].filter((id) => !registryIds.has(id));
-  const registryOnly = [...registryIds].filter(
-    (id) => !inlineIds.has(id) && !id.startsWith("legacy-"),
-  );
+  const registryOnly = [...registryIds].filter((id) => !inlineIds.has(id) && !id.startsWith("legacy-"));
   console.log("\nCross-check vs rules.json:");
   if (inlineOnly.length === 0 && registryOnly.length === 0) {
-    console.log(
-      "  ✅ inline catalog and rules.json are in sync (legacy-* rules excluded)",
-    );
+    console.log("  ✅ inline catalog and rules.json are in sync (legacy-* rules excluded)");
   } else {
     if (inlineOnly.length > 0) {
-      console.log(
-        `  ❌ in inline catalog but missing from rules.json: ${inlineOnly.join(", ")}`,
-      );
+      console.log(`  ❌ in inline catalog but missing from rules.json: ${inlineOnly.join(", ")}`);
     }
     if (registryOnly.length > 0) {
-      console.log(
-        `  ❌ in rules.json but missing from inline catalog: ${registryOnly.join(", ")}`,
-      );
+      console.log(`  ❌ in rules.json but missing from inline catalog: ${registryOnly.join(", ")}`);
     }
     process.exit(1);
   }
@@ -1178,10 +1061,7 @@ function main() {
 
   log("🤖 Agent Validators (consolidated)\n");
 
-  const partsToRun =
-    opts.only && opts.only.length > 0
-      ? opts.only.filter((p) => PARTS[p])
-      : Object.keys(PARTS);
+  const partsToRun = opts.only && opts.only.length > 0 ? opts.only.filter((p) => PARTS[p]) : Object.keys(PARTS);
 
   if (opts.only && opts.only.some((p) => !PARTS[p])) {
     const unknown = opts.only.filter((p) => !PARTS[p]);

@@ -66,8 +66,7 @@ const SCENARIOS = [
   {
     id: "g3-event-driven-microservices",
     title: "G3 — Event-Driven Microservices",
-    baseline:
-      "agent-output/g3-event-driven-microservices/03-des-diagram.drawio",
+    baseline: "agent-output/g3-event-driven-microservices/03-des-diagram.drawio",
   },
   {
     id: "g4-ml-training-pipeline",
@@ -87,17 +86,11 @@ const SCENARIOS = [
   {
     id: "g7-multi-region-active-active",
     title: "G7 — Multi-Region Active-Active",
-    baseline:
-      "agent-output/g7-multi-region-active-active/03-des-diagram.drawio",
+    baseline: "agent-output/g7-multi-region-active-active/03-des-diagram.drawio",
   },
 ];
 
-const RUN_DIR = path.join(
-  "agent-output",
-  "_bench",
-  "drawio-quality-uplift",
-  POST_RUN_ID,
-);
+const RUN_DIR = path.join("agent-output", "_bench", "drawio-quality-uplift", POST_RUN_ID);
 fs.mkdirSync(RUN_DIR, { recursive: true });
 
 function readMaybe(p) {
@@ -106,11 +99,7 @@ function readMaybe(p) {
 }
 
 function escapeHtml(s) {
-  return s
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+  return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
 // Draw.io viewer's `?xml=` parameter accepts URI-encoded XML, but for large

@@ -45,9 +45,7 @@ Skipped files (accelerator-specific):
   process.exit(0);
 }
 
-console.log(
-  `\n🔄 Sync Workflows from ${UPSTREAM_OWNER}/${UPSTREAM_REPO}@${UPSTREAM_REF}\n`,
-);
+console.log(`\n🔄 Sync Workflows from ${UPSTREAM_OWNER}/${UPSTREAM_REPO}@${UPSTREAM_REF}\n`);
 
 async function fetchJSON(url) {
   const res = await fetch(url);
@@ -77,17 +75,11 @@ async function main() {
   }
 
   if (!Array.isArray(files)) {
-    console.error(
-      "❌ Unexpected API response (not an array). Check the upstream repo path.",
-    );
+    console.error("❌ Unexpected API response (not an array). Check the upstream repo path.");
     process.exit(1);
   }
 
-  const ymlFiles = files.filter(
-    (f) =>
-      f.type === "file" &&
-      (f.name.endsWith(".yml") || f.name.endsWith(".yaml")),
-  );
+  const ymlFiles = files.filter((f) => f.type === "file" && (f.name.endsWith(".yml") || f.name.endsWith(".yaml")));
 
   if (ymlFiles.length === 0) {
     console.log("No workflow files found in upstream.");
@@ -126,9 +118,7 @@ async function main() {
     }
   }
 
-  console.log(
-    `\n${dryRun ? "Dry run: " : ""}${synced} synced, ${skipped} skipped\n`,
-  );
+  console.log(`\n${dryRun ? "Dry run: " : ""}${synced} synced, ${skipped} skipped\n`);
 }
 
 main().catch((err) => {

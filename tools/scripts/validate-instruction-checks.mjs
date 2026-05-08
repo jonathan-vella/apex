@@ -41,10 +41,7 @@ function collectFiles(dirs, extensions) {
       recursive: true,
     })) {
       const full = path.join(entry.parentPath || entry.path, entry.name);
-      if (
-        entry.isFile() &&
-        extensions.some((ext) => entry.name.endsWith(ext))
-      ) {
+      if (entry.isFile() && extensions.some((ext) => entry.name.endsWith(ext))) {
         files.push(full);
       }
     }
@@ -89,8 +86,7 @@ function globHasMatch(pattern) {
   try {
     const matches = globSync(expanded, {
       cwd: ROOT,
-      exclude: (p) =>
-        p === ".venv" || p === "node_modules" || p === "dist" || p === "build",
+      exclude: (p) => p === ".venv" || p === "node_modules" || p === "dist" || p === "build",
     });
     return matches.length > 0;
   } catch {
@@ -122,9 +118,7 @@ for (const [fileName, instr] of instructions) {
   const relPath = path.relative(ROOT, filePath);
 
   if (!fm) {
-    console.log(
-      `::error file=${relPath},line=1::Missing YAML frontmatter (requires description and applyTo)`,
-    );
+    console.log(`::error file=${relPath},line=1::Missing YAML frontmatter (requires description and applyTo)`);
     r.error(`${relPath}: Missing YAML frontmatter`);
     continue;
   }
@@ -132,23 +126,17 @@ for (const [fileName, instr] of instructions) {
   for (const field of REQUIRED_FIELDS) {
     if (!fm[field]) {
       const display = REQUIRED_FIELDS_DISPLAY[REQUIRED_FIELDS.indexOf(field)];
-      console.log(
-        `::error file=${relPath},line=1::Missing required frontmatter field: ${display}`,
-      );
+      console.log(`::error file=${relPath},line=1::Missing required frontmatter field: ${display}`);
       r.error(`${relPath}: Missing required field: ${display}`);
     }
   }
 
-  const unknownFields = Object.keys(fm).filter(
-    (k) => !ALLOWED_FIELDS.includes(k),
-  );
+  const unknownFields = Object.keys(fm).filter((k) => !ALLOWED_FIELDS.includes(k));
   if (unknownFields.length > 0) {
     console.log(
       `::error file=${relPath},line=1::Unknown frontmatter fields: ${unknownFields.join(", ")} (allowed: ${ALLOWED_FIELDS_DISPLAY.join(", ")})`,
     );
-    r.error(
-      `${relPath}: Unknown frontmatter fields: ${unknownFields.join(", ")}`,
-    );
+    r.error(`${relPath}: Unknown frontmatter fields: ${unknownFields.join(", ")}`);
   }
 }
 
@@ -157,17 +145,11 @@ for (const [fileName, instr] of instructions) {
 console.log("\n" + "─".repeat(60));
 console.log("📄 Part 2: Instruction file references exist\n");
 
-const scanDirs = [
-  ".github/agents",
-  ".github/skills",
-  ".github/instructions",
-  ".github/prompts",
-];
+const scanDirs = [".github/agents", ".github/skills", ".github/instructions", ".github/prompts"];
 const scanExts = [".md"];
 const allMdFiles = collectFiles(scanDirs, scanExts);
 
-const instructionRefPattern =
-  /[Rr]ead\s+[`"]?\.github\/instructions\/([^`"\s)]+)[`"]?/g;
+const instructionRefPattern = /[Rr]ead\s+[`"]?\.github\/instructions\/([^`"\s)]+)[`"]?/g;
 
 const foundInstructionRefs = new Map();
 
@@ -185,10 +167,7 @@ for (const filePath of allMdFiles) {
 }
 
 for (const [refFile, sources] of foundInstructionRefs) {
-  check(
-    `${refFile} (referenced by ${sources.length} file(s))`,
-    fileExists(refFile),
-  );
+  check(`${refFile} (referenced by ${sources.length} file(s))`, fileExists(refFile));
 }
 
 if (foundInstructionRefs.size === 0) {
@@ -200,10 +179,7 @@ if (foundInstructionRefs.size === 0) {
 console.log("\n" + "─".repeat(60));
 console.log("📄 Part 3: applyTo glob patterns have matching files\n");
 
-const instructionFiles = collectFiles(
-  [".github/instructions"],
-  [".instructions.md"],
-);
+const instructionFiles = collectFiles([".github/instructions"], [".instructions.md"]);
 
 for (const filePath of instructionFiles) {
   const content = fs.readFileSync(filePath, "utf-8");
@@ -217,9 +193,7 @@ for (const filePath of instructionFiles) {
   const applyTo = applyToMatch[1].trim();
 
   if (applyTo === "**" || applyTo === "*") {
-    console.log(
-      `  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (universal — skipped)`,
-    );
+    console.log(`  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (universal — skipped)`);
     continue;
   }
 
@@ -234,18 +208,12 @@ for (const filePath of instructionFiles) {
   ];
   const isRuntimeOnly = RUNTIME_ONLY_PATTERNS.some((p) => applyTo.includes(p));
   if (isRuntimeOnly) {
-    console.log(
-      `  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (runtime-generated — skipped)`,
-    );
+    console.log(`  ℹ️  ${path.basename(relFile)}: applyTo="${applyTo}" (runtime-generated — skipped)`);
     continue;
   }
 
   const hasMatch = globHasMatch(applyTo);
-  check(
-    `${path.basename(relFile)}: applyTo="${applyTo}" has matching files`,
-    hasMatch,
-    "warn",
-  );
+  check(`${path.basename(relFile)}: applyTo="${applyTo}" has matching files`, hasMatch, "warn");
 }
 
 // ── Part 4: Skill SKILL.md references exist ──
@@ -253,8 +221,7 @@ for (const filePath of instructionFiles) {
 console.log("\n" + "─".repeat(60));
 console.log("📄 Part 4: Skill SKILL.md references exist\n");
 
-const skillRefPattern =
-  /[Rr]ead\s+[`"]?\.github\/skills\/([^/`"\s]+)\/SKILL\.md[`"]?/g;
+const skillRefPattern = /[Rr]ead\s+[`"]?\.github\/skills\/([^/`"\s]+)\/SKILL\.md[`"]?/g;
 
 const foundSkillRefs = new Map();
 
@@ -273,10 +240,7 @@ for (const filePath of allMdFiles) {
 }
 
 for (const [skillFile, sources] of foundSkillRefs) {
-  check(
-    `${skillFile} (referenced by ${sources.length} file(s))`,
-    fileExists(skillFile),
-  );
+  check(`${skillFile} (referenced by ${sources.length} file(s))`, fileExists(skillFile));
 }
 
 if (foundSkillRefs.size === 0) {
@@ -311,10 +275,7 @@ for (const filePath of allMdFiles) {
 }
 
 for (const [refPath, sources] of crossRefs) {
-  check(
-    `${refPath} (cross-referenced by ${sources.size} file(s))`,
-    fileExists(refPath),
-  );
+  check(`${refPath} (cross-referenced by ${sources.size} file(s))`, fileExists(refPath));
 }
 
 if (crossRefs.size === 0) {

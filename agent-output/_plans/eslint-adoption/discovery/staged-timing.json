@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-05-08",
+  "method": "POC harness in /tmp/eslint-poc, simulated pre-commit hook = eslint --cache + prettier --check --cache against the explicit file list. Cold cache only (matching Phase 1.5 protocol). 3 runs, take median.",
+  "set_definitions_match_phase_1_5": true,
+  "results_ms": {
+    "set1": {
+      "runs": [851, 783, 800],
+      "median": 800,
+      "files": 1
+    },
+    "set5": {
+      "runs": [1235, 1252, 1207],
+      "median": 1235,
+      "files": 5
+    },
+    "set20": {
+      "runs": [1442, 1460, 1417],
+      "median": 1442,
+      "files": 20
+    }
+  },
+  "delta_vs_baseline": {
+    "set1": {
+      "baseline_ms": 691,
+      "new_ms": 800,
+      "delta_ms": 109,
+      "delta_pct_of_baseline": 15.8,
+      "absolute_gate_ms": 800,
+      "percentage_gate_pct": 30,
+      "absolute_gate_pass": true,
+      "percentage_gate_pass": true,
+      "verdict": "PASS — both 800ms-absolute and 30%-of-baseline gates satisfied."
+    },
+    "set20": {
+      "baseline_ms": 696,
+      "new_ms": 1442,
+      "delta_ms": 746,
+      "delta_pct_of_baseline": 107.2,
+      "absolute_gate_ms": 3000,
+      "percentage_gate_pct": 50,
+      "absolute_gate_pass": true,
+      "percentage_gate_pass": false,
+      "verdict": "MIXED — 3-second absolute gate satisfied with massive headroom (746ms << 3000ms), but the 50%-of-baseline percentage gate is tripped (107.2% delta vs 50% allowed). The Phase 1.5 baseline of 696ms is dominated by lefthook process-startup overhead rather than real validation work, which makes the percentage gate brittle in this codebase. Absolute timing remains low: total chain is ~1.4s — still well within the original (now-replaced) 5s ceiling. Phase 3.1 must record this percentage-gate trip and weigh it against the absolute number."
+    }
+  },
+  "absolute_floor_observation": "Even under Phase 1.5's existing chain, JS-only stages already pay ~691ms of fixed overhead (lefthook startup + glob evaluation across all rules), so the 'real work' added by ESLint+Prettier on staged-20 is ~750ms — split roughly between ESLint's ~700ms config + workspace lint and Prettier's ~50ms incremental. This is consistent with industry expectations for ESLint 9 cold-cache JS lint of 20 files.",
+  "additional_full_repo_metrics": {
+    "eslint_tools_full_run_cold_ms": 1724,
+    "eslint_site_full_run_cold_ms": 719,
+    "prettier_full_repo_check_cold_ms": 8793,
+    "note_prettier_full_repo": "Prettier full-repo check covers all .md/.json/.yaml/.mjs files (thousands), so 8.8s is expected and irrelevant to the staged-set workflow that the pre-commit hook will use. CI (`npm run format:check`) is the only consumer of the full-repo number."
+  }
+}

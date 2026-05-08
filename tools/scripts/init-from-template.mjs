@@ -18,25 +18,8 @@ const TEMPLATE_REPO = "azure-agentic-infraops-accelerator";
 const TEMPLATE_SLUG = `${TEMPLATE_OWNER}/${TEMPLATE_REPO}`;
 const TEMPLATE_URL = `https://github.com/${TEMPLATE_SLUG}`;
 
-const SKIP_DIRS = new Set([
-  ".git",
-  "node_modules",
-  "site",
-  ".venv",
-  "__pycache__",
-]);
-const SKIP_EXTS = new Set([
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".gif",
-  ".ico",
-  ".svg",
-  ".woff",
-  ".woff2",
-  ".zip",
-  ".gz",
-]);
+const SKIP_DIRS = new Set([".git", "node_modules", "site", ".venv", "__pycache__"]);
+const SKIP_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".woff", ".woff2", ".zip", ".gz"]);
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || args.includes("--dry");
@@ -61,9 +44,7 @@ Options:
 
 /** Parse a GitHub HTTPS or SSH remote URL into an "owner/repo" slug. */
 function parseSlug(remoteUrl) {
-  const https = remoteUrl.match(
-    /^https:\/\/github\.com\/([^/]+)\/([^/.]+?)(\.git)?$/,
-  );
+  const https = remoteUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/.]+?)(\.git)?$/);
   if (https) return `${https[1]}/${https[2]}`;
   const ssh = remoteUrl.match(/^git@github\.com:([^/]+)\/([^/.]+?)(\.git)?$/);
   if (ssh) return `${ssh[1]}/${ssh[2]}`;
@@ -82,8 +63,7 @@ function findAffected(dir, results = []) {
       if (SKIP_EXTS.has(ext.toLowerCase())) continue;
       try {
         const content = readFileSync(fullPath, "utf8");
-        if (content.includes(TEMPLATE_SLUG))
-          results.push({ fullPath, content });
+        if (content.includes(TEMPLATE_SLUG)) results.push({ fullPath, content });
       } catch {
         // Binary or unreadable — skip silently
       }
@@ -102,27 +82,21 @@ try {
     encoding: "utf8",
   }).trim();
 } catch {
-  console.error(
-    "❌ Could not detect git remote 'origin'. Are you inside a git repository?",
-  );
+  console.error("❌ Could not detect git remote 'origin'. Are you inside a git repository?");
   process.exit(1);
 }
 
 const newSlug = parseSlug(remoteUrl);
 if (!newSlug) {
   console.error(`❌ Cannot parse a GitHub slug from remote URL: ${remoteUrl}`);
-  console.error(
-    "   Expected: https://github.com/owner/repo  or  git@github.com:owner/repo",
-  );
+  console.error("   Expected: https://github.com/owner/repo  or  git@github.com:owner/repo");
   process.exit(1);
 }
 
 const newUrl = `https://github.com/${newSlug}`;
 
 if (newSlug === TEMPLATE_SLUG) {
-  console.log(
-    "ℹ️  Remote matches the template repository — nothing to replace.",
-  );
+  console.log("ℹ️  Remote matches the template repository — nothing to replace.");
   process.exit(0);
 }
 
@@ -133,9 +107,7 @@ console.log("");
 const affected = findAffected(".");
 
 if (affected.length === 0) {
-  console.log(
-    "✅ No files contain template references. Repository already initialized.",
-  );
+  console.log("✅ No files contain template references. Repository already initialized.");
   process.exit(0);
 }
 
@@ -165,6 +137,4 @@ console.log(`   → ${newUrl}`);
 console.log("");
 console.log("💡 Next steps:");
 console.log("   1. Review changes:  git diff");
-console.log(
-  "   2. Commit:          git add -A && git commit -m 'chore: initialize from template'",
-);
+console.log("   2. Commit:          git add -A && git commit -m 'chore: initialize from template'");

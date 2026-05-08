@@ -37,77 +37,35 @@ const r = new Reporter("IaC Security Baseline");
 // --- Bicep security anti-patterns ---
 // Each entry: [regex, description]
 const BICEP_VIOLATIONS = [
-  [
-    /minimumTlsVersion\s*:\s*'TLS1_0'/i,
-    "TLS 1.0 is NOT allowed — MUST be TLS1_2 or higher",
-  ],
-  [
-    /minimumTlsVersion\s*:\s*'TLS1_1'/i,
-    "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher",
-  ],
-  [
-    /minTlsVersion\s*:\s*'TLS1_0'/i,
-    "TLS 1.0 is NOT allowed — MUST be TLS1_2 or higher",
-  ],
-  [
-    /minTlsVersion\s*:\s*'TLS1_1'/i,
-    "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher",
-  ],
+  [/minimumTlsVersion\s*:\s*'TLS1_0'/i, "TLS 1.0 is NOT allowed — MUST be TLS1_2 or higher"],
+  [/minimumTlsVersion\s*:\s*'TLS1_1'/i, "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher"],
+  [/minTlsVersion\s*:\s*'TLS1_0'/i, "TLS 1.0 is NOT allowed — MUST be TLS1_2 or higher"],
+  [/minTlsVersion\s*:\s*'TLS1_1'/i, "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher"],
   [/supportsHttpsTrafficOnly\s*:\s*false/i, "HTTPS-only traffic MUST be true"],
-  [
-    /allowBlobPublicAccess\s*:\s*true/i,
-    "Public blob access MUST be disabled (false)",
-  ],
-  [
-    /publicNetworkAccess\s*:\s*'Enabled'/i,
-    "Public network access SHOULD be disabled for production data services",
-  ],
+  [/allowBlobPublicAccess\s*:\s*true/i, "Public blob access MUST be disabled (false)"],
+  [/publicNetworkAccess\s*:\s*'Enabled'/i, "Public network access SHOULD be disabled for production data services"],
   [/httpsOnly\s*:\s*false/i, "HTTPS-only MUST be enabled"],
   // --- MUST-FAIL: SQL Entra-only auth ---
-  [
-    /azureADOnlyAuthentication\s*:\s*false/i,
-    "SQL Entra-only auth required (azureADOnlyAuthentication must be true)",
-  ],
+  [/azureADOnlyAuthentication\s*:\s*false/i, "SQL Entra-only auth required (azureADOnlyAuthentication must be true)"],
   // --- MUST-FAIL: Redis non-SSL port ---
-  [
-    /enableNonSslPort\s*:\s*true/i,
-    "Redis non-SSL port NOT allowed (enableNonSslPort must be false)",
-  ],
+  [/enableNonSslPort\s*:\s*true/i, "Redis non-SSL port NOT allowed (enableNonSslPort must be false)"],
   // --- MUST-FAIL: FTPS state ---
-  [
-    /ftpsState\s*:\s*'AllAllowed'/i,
-    "FTPS must be Disabled or FtpsOnly (AllAllowed not permitted)",
-  ],
+  [/ftpsState\s*:\s*'AllAllowed'/i, "FTPS must be Disabled or FtpsOnly (AllAllowed not permitted)"],
   // --- MUST-FAIL: Remote debugging ---
-  [
-    /remoteDebuggingEnabled\s*:\s*true/i,
-    "Remote debugging NOT allowed in production",
-  ],
+  [/remoteDebuggingEnabled\s*:\s*true/i, "Remote debugging NOT allowed in production"],
   // --- MUST-FAIL: Cosmos DB local auth ---
-  [
-    /disableLocalAuth\s*:\s*false/i,
-    "Cosmos DB local auth must be disabled (disableLocalAuth must be true)",
-  ],
+  [/disableLocalAuth\s*:\s*false/i, "Cosmos DB local auth must be disabled (disableLocalAuth must be true)"],
   // --- MUST-FAIL: MySQL/PostgreSQL SSL ---
-  [
-    /sslEnforcement\s*:\s*'Disabled'/i,
-    "MySQL/PostgreSQL SSL enforcement required (sslEnforcement must be Enabled)",
-  ],
+  [/sslEnforcement\s*:\s*'Disabled'/i, "MySQL/PostgreSQL SSL enforcement required (sslEnforcement must be Enabled)"],
   // --- MUST-FAIL: Storage shared key access ---
   [
     /allowSharedKeyAccess\s*:\s*true/i,
     "Storage shared key access must be disabled (allowSharedKeyAccess must be false) — use Entra ID auth",
   ],
   // --- MUST-FAIL: App Service HTTP/2 ---
-  [
-    /http20Enabled\s*:\s*false/i,
-    "App Service HTTP/2 should be enabled (http20Enabled must be true)",
-  ],
+  [/http20Enabled\s*:\s*false/i, "App Service HTTP/2 should be enabled (http20Enabled must be true)"],
   // --- MUST-FAIL: Container Registry admin user ---
-  [
-    /adminUserEnabled\s*:\s*true/i,
-    "Container Registry admin user must be disabled — use managed identity",
-  ],
+  [/adminUserEnabled\s*:\s*true/i, "Container Registry admin user must be disabled — use managed identity"],
 ];
 
 // --- Bicep WARN-ONLY patterns (flag but don't block) ---
@@ -116,10 +74,7 @@ const BICEP_WARNINGS = [
     /networkAcls\s*:\s*\{[^}]*defaultAction\s*:\s*'Allow'/i,
     "Key Vault network ACLs default action should be Deny, not Allow",
   ],
-  [
-    /allowedOrigins\s*:\s*\[\s*'\*'\s*\]/i,
-    "Wildcard CORS origin (*) should be restricted to specific domains",
-  ],
+  [/allowedOrigins\s*:\s*\[\s*'\*'\s*\]/i, "Wildcard CORS origin (*) should be restricted to specific domains"],
   [
     /defaultToOAuthAuthentication\s*:\s*false/i,
     "Storage should default to Entra ID auth (defaultToOAuthAuthentication should be true)",
@@ -128,42 +83,18 @@ const BICEP_WARNINGS = [
 
 // --- Terraform security anti-patterns ---
 const TERRAFORM_VIOLATIONS = [
-  [
-    /min_tls_version\s*=\s*"1\.0"/i,
-    "TLS 1.0 is NOT allowed — MUST be 1.2 or higher",
-  ],
-  [
-    /min_tls_version\s*=\s*"1\.1"/i,
-    "TLS 1.1 is NOT allowed — MUST be 1.2 or higher",
-  ],
-  [
-    /minimum_tls_version\s*=\s*"1\.0"/i,
-    "TLS 1.0 is NOT allowed — MUST be 1.2 or higher",
-  ],
-  [
-    /minimum_tls_version\s*=\s*"1\.1"/i,
-    "TLS 1.1 is NOT allowed — MUST be 1.2 or higher",
-  ],
-  [
-    /https_traffic_only_enabled\s*=\s*false/i,
-    "HTTPS-only traffic MUST be true",
-  ],
-  [
-    /enable_https_traffic_only\s*=\s*false/i,
-    "HTTPS-only traffic MUST be true (legacy attribute)",
-  ],
-  [
-    /allow_nested_items_to_be_public\s*=\s*true/i,
-    "Public blob access MUST be disabled (false)",
-  ],
+  [/min_tls_version\s*=\s*"1\.0"/i, "TLS 1.0 is NOT allowed — MUST be 1.2 or higher"],
+  [/min_tls_version\s*=\s*"1\.1"/i, "TLS 1.1 is NOT allowed — MUST be 1.2 or higher"],
+  [/minimum_tls_version\s*=\s*"1\.0"/i, "TLS 1.0 is NOT allowed — MUST be 1.2 or higher"],
+  [/minimum_tls_version\s*=\s*"1\.1"/i, "TLS 1.1 is NOT allowed — MUST be 1.2 or higher"],
+  [/https_traffic_only_enabled\s*=\s*false/i, "HTTPS-only traffic MUST be true"],
+  [/enable_https_traffic_only\s*=\s*false/i, "HTTPS-only traffic MUST be true (legacy attribute)"],
+  [/allow_nested_items_to_be_public\s*=\s*true/i, "Public blob access MUST be disabled (false)"],
   [
     /public_network_access_enabled\s*=\s*true/i,
     "Public network access SHOULD be disabled for production data services",
   ],
-  [
-    /allow_blob_public_access\s*=\s*true/i,
-    "Public blob access MUST be disabled (legacy attribute)",
-  ],
+  [/allow_blob_public_access\s*=\s*true/i, "Public blob access MUST be disabled (legacy attribute)"],
   [/https_only\s*=\s*false/i, "HTTPS-only MUST be enabled"],
   // --- MUST-FAIL: SQL Entra-only auth ---
   [
@@ -171,20 +102,11 @@ const TERRAFORM_VIOLATIONS = [
     "SQL Entra-only auth required (azuread_authentication_only must be true)",
   ],
   // --- MUST-FAIL: Redis non-SSL port ---
-  [
-    /enable_non_ssl_port\s*=\s*true/i,
-    "Redis non-SSL port NOT allowed (enable_non_ssl_port must be false)",
-  ],
+  [/enable_non_ssl_port\s*=\s*true/i, "Redis non-SSL port NOT allowed (enable_non_ssl_port must be false)"],
   // --- MUST-FAIL: FTPS state ---
-  [
-    /ftps_state\s*=\s*"AllAllowed"/i,
-    "FTPS must be Disabled or FtpsOnly (AllAllowed not permitted)",
-  ],
+  [/ftps_state\s*=\s*"AllAllowed"/i, "FTPS must be Disabled or FtpsOnly (AllAllowed not permitted)"],
   // --- MUST-FAIL: Remote debugging ---
-  [
-    /remote_debugging_enabled\s*=\s*true/i,
-    "Remote debugging NOT allowed in production",
-  ],
+  [/remote_debugging_enabled\s*=\s*true/i, "Remote debugging NOT allowed in production"],
   // --- MUST-FAIL: Cosmos DB local auth ---
   [
     /local_authentication_disabled\s*=\s*false/i,
@@ -196,32 +118,17 @@ const TERRAFORM_VIOLATIONS = [
     "MySQL/PostgreSQL SSL enforcement required (ssl_enforcement_enabled must be true)",
   ],
   // --- MUST-FAIL: Storage shared key access ---
-  [
-    /shared_access_key_enabled\s*=\s*true/i,
-    "Storage shared key access must be disabled — use Entra ID auth",
-  ],
+  [/shared_access_key_enabled\s*=\s*true/i, "Storage shared key access must be disabled — use Entra ID auth"],
   // --- MUST-FAIL: App Service HTTP/2 ---
-  [
-    /http2_enabled\s*=\s*false/i,
-    "App Service HTTP/2 should be enabled (http2_enabled must be true)",
-  ],
+  [/http2_enabled\s*=\s*false/i, "App Service HTTP/2 should be enabled (http2_enabled must be true)"],
   // --- MUST-FAIL: Container Registry admin user ---
-  [
-    /admin_enabled\s*=\s*true/i,
-    "Container Registry admin user must be disabled — use managed identity",
-  ],
+  [/admin_enabled\s*=\s*true/i, "Container Registry admin user must be disabled — use managed identity"],
 ];
 
 // --- Terraform WARN-ONLY patterns ---
 const TERRAFORM_WARNINGS = [
-  [
-    /default_action\s*=\s*"Allow"/i,
-    "Key Vault network ACLs default action should be Deny, not Allow",
-  ],
-  [
-    /allowed_origins\s*=\s*\[\s*"\*"\s*\]/i,
-    "Wildcard CORS origin (*) should be restricted to specific domains",
-  ],
+  [/default_action\s*=\s*"Allow"/i, "Key Vault network ACLs default action should be Deny, not Allow"],
+  [/allowed_origins\s*=\s*\[\s*"\*"\s*\]/i, "Wildcard CORS origin (*) should be restricted to specific domains"],
   [
     /default_to_oauth_authentication\s*=\s*false/i,
     "Storage should default to Entra ID auth (default_to_oauth_authentication should be true)",

@@ -15,10 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  parseFrontmatter,
-  getBody,
-} from "../../scripts/_lib/parse-frontmatter.mjs";
+import { parseFrontmatter, getBody } from "../../scripts/_lib/parse-frontmatter.mjs";
 import { Reporter } from "../../scripts/_lib/reporter.mjs";
 import { classifyModel } from "../../scripts/validate-agents.mjs";
 
@@ -33,11 +30,7 @@ const PROMPT_FIXTURES = path.join(__dirname, "fixtures", "prompts");
 const EXPECTATIONS = {
   "fixture-good-claude.agent.md": {
     mustHave: [],
-    mustNotHave: [
-      "claude-no-prefill-001",
-      "handoff-enrichment-001",
-      "frontmatter-model-style-001",
-    ],
+    mustNotHave: ["claude-no-prefill-001", "handoff-enrichment-001", "frontmatter-model-style-001"],
   },
   "fixture-bad-claude.agent.md": {
     mustHave: ["claude-no-prefill-001", "handoff-enrichment-001"],
@@ -54,12 +47,7 @@ const EXPECTATIONS = {
     ],
   },
   "fixture-bad-gpt55.agent.md": {
-    mustHave: [
-      "gpt55-skeleton-001",
-      "gpt-no-claude-xml-001",
-      "personality-scoping-001",
-      "handoff-enrichment-001",
-    ],
+    mustHave: ["gpt55-skeleton-001", "gpt-no-claude-xml-001", "personality-scoping-001", "handoff-enrichment-001"],
     mustNotHave: [],
   },
 };
@@ -104,24 +92,15 @@ async function lintFixture(filePath) {
   // expected when bad fixtures fire error-severity rules like
   // prompt-model-source-001) does not throw — we still need stdout.
   const { spawnSync } = await import("node:child_process");
-  const result = spawnSync(
-    "node",
-    [
-      "tools/scripts/validate-agents.mjs",
-      "--only=vendor-prompting",
-      "--format=json",
-    ],
-    { encoding: "utf-8", cwd: process.cwd() },
-  );
+  const result = spawnSync("node", ["tools/scripts/validate-agents.mjs", "--only=vendor-prompting", "--format=json"], {
+    encoding: "utf-8",
+    cwd: process.cwd(),
+  });
   if (!result.stdout) {
-    throw new Error(
-      `validate-agents.mjs produced no stdout (exit ${result.status}, stderr: ${result.stderr})`,
-    );
+    throw new Error(`validate-agents.mjs produced no stdout (exit ${result.status}, stderr: ${result.stderr})`);
   }
   const parsed = JSON.parse(result.stdout);
-  return parsed.findings.filter((f) =>
-    f.file.endsWith(path.basename(filePath)),
-  );
+  return parsed.findings.filter((f) => f.file.endsWith(path.basename(filePath)));
 }
 
 for (const [fixture, exp] of Object.entries(EXPECTATIONS)) {
@@ -142,10 +121,7 @@ for (const [fixture, exp] of Object.entries(EXPECTATIONS)) {
 
     const ruleIds = new Set(findings.map((f) => f.ruleId));
     for (const must of exp.mustHave) {
-      assert.ok(
-        ruleIds.has(must),
-        `${fixture}: expected rule "${must}" to fire. Got: [${[...ruleIds].join(", ")}]`,
-      );
+      assert.ok(ruleIds.has(must), `${fixture}: expected rule "${must}" to fire. Got: [${[...ruleIds].join(", ")}]`);
     }
     for (const mustNot of exp.mustNotHave) {
       assert.ok(
@@ -174,10 +150,7 @@ for (const [fixture, exp] of Object.entries(PROMPT_EXPECTATIONS)) {
 
     const ruleIds = new Set(findings.map((f) => f.ruleId));
     for (const must of exp.mustHave) {
-      assert.ok(
-        ruleIds.has(must),
-        `${fixture}: expected rule "${must}" to fire. Got: [${[...ruleIds].join(", ")}]`,
-      );
+      assert.ok(ruleIds.has(must), `${fixture}: expected rule "${must}" to fire. Got: [${[...ruleIds].join(", ")}]`);
     }
     for (const mustNot of exp.mustNotHave) {
       assert.ok(

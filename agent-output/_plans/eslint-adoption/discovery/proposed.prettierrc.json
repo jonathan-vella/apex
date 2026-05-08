@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "tabWidth": 2,
+  "endOfLine": "lf",
+  "printWidth": 120,
+  "singleQuote": false,
+  "arrowParens": "always",
+  "trailingComma": "all",
+  "semi": true,
+  "bracketSpacing": true,
+  "overrides": [
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "printWidth": 120,
+        "proseWrap": "preserve"
+      }
+    },
+    {
+      "files": ["*.astro"],
+      "options": {
+        "parser": "astro"
+      }
+    }
+  ]
+}

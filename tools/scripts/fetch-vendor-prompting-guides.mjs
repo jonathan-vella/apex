@@ -72,20 +72,16 @@ function sha256(text) {
 function fetchAnonymous(source) {
   return new Promise((resolve) => {
     https
-      .get(
-        source.url,
-        { headers: { "User-Agent": "vendor-prompting-fetcher" } },
-        (res) => {
-          if (res.statusCode === 301 || res.statusCode === 302) {
-            // Naive single-hop redirect handler
-            const loc = res.headers.location;
-            if (loc) {
-              return https.get(loc, (r2) => collect(r2, resolve));
-            }
+      .get(source.url, { headers: { "User-Agent": "vendor-prompting-fetcher" } }, (res) => {
+        if (res.statusCode === 301 || res.statusCode === 302) {
+          // Naive single-hop redirect handler
+          const loc = res.headers.location;
+          if (loc) {
+            return https.get(loc, (r2) => collect(r2, resolve));
           }
-          collect(res, resolve);
-        },
-      )
+        }
+        collect(res, resolve);
+      })
       .on("error", (err) => resolve({ ok: false, error: err.message }));
   });
 }
@@ -95,8 +91,7 @@ function collect(res, resolve) {
   res.setEncoding("utf-8");
   res.on("data", (c) => (data += c));
   res.on("end", () => {
-    if (res.statusCode === 200)
-      resolve({ ok: true, body: data, method: "raw" });
+    if (res.statusCode === 200) resolve({ ok: true, body: data, method: "raw" });
     else resolve({ ok: false, error: `HTTP ${res.statusCode}` });
   });
   res.on("error", (err) => resolve({ ok: false, error: err.message }));
@@ -142,9 +137,7 @@ async function main() {
     process.exit(2);
   }
   const registry = JSON.parse(fs.readFileSync(RULES_PATH, "utf-8"));
-  const expectedHashes = Object.fromEntries(
-    registry.sources.map((s) => [s.id, s.sha256]),
-  );
+  const expectedHashes = Object.fromEntries(registry.sources.map((s) => [s.id, s.sha256]));
 
   const manifest = [];
   const drift = [];
@@ -180,9 +173,7 @@ async function main() {
 
     const entry = {
       source_id: source.id,
-      url:
-        source.url ||
-        `https://github.com/${source.repo}/blob/${source.ref}/${source.apiPath}`,
+      url: source.url || `https://github.com/${source.repo}/blob/${source.ref}/${source.apiPath}`,
       ref: source.ref || null,
       sha256: sha,
       fetched_at: new Date().toISOString(),
@@ -198,11 +189,7 @@ async function main() {
     }
   }
 
-  fs.writeFileSync(
-    MANIFEST_PATH,
-    JSON.stringify(manifest, null, 2) + "\n",
-    "utf-8",
-  );
+  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n", "utf-8");
 
   // Update source-freshness manifest
   fs.mkdirSync(path.dirname(FRESHNESS_MANIFEST), { recursive: true });
@@ -217,9 +204,7 @@ async function main() {
   }
   for (const entry of manifest) {
     if (entry.fetch_method === "failed") continue;
-    const existing = freshness.sources.findIndex(
-      (s) => s.source_id === entry.source_id,
-    );
+    const existing = freshness.sources.findIndex((s) => s.source_id === entry.source_id);
     const fresh = {
       source_id: entry.source_id,
       owner: "vendor-prompting",
@@ -231,11 +216,7 @@ async function main() {
     if (existing >= 0) freshness.sources[existing] = fresh;
     else freshness.sources.push(fresh);
   }
-  fs.writeFileSync(
-    FRESHNESS_MANIFEST,
-    JSON.stringify(freshness, null, 2) + "\n",
-    "utf-8",
-  );
+  fs.writeFileSync(FRESHNESS_MANIFEST, JSON.stringify(freshness, null, 2) + "\n", "utf-8");
 
   console.log(`\nSnapshots: ${SNAPSHOT_DIR}`);
   console.log(`Manifest:  ${MANIFEST_PATH}`);

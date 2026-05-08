@@ -67,8 +67,7 @@ const ARTIFACT_NAMES = [
 
 function parseMarkdownH2Blocks(text) {
   const result = new Map();
-  const sectionRegex =
-    /###\s+([\w.-]+\.md)(?:\s+[^\n]*)?\n+```(?:markdown|text)?\n([\s\S]*?)```/g;
+  const sectionRegex = /###\s+([\w.-]+\.md)(?:\s+[^\n]*)?\n+```(?:markdown|text)?\n([\s\S]*?)```/g;
   let match;
 
   while ((match = sectionRegex.exec(text)) !== null) {
@@ -92,9 +91,7 @@ function parseMarkdownH2Blocks(text) {
 function parseValidatorHeadings(text) {
   const result = new Map();
 
-  const blockMatch = text.match(
-    /(?:const|export const) ARTIFACT_HEADINGS\s*=\s*\{([\s\S]*?)\n\};/,
-  );
+  const blockMatch = text.match(/(?:const|export const) ARTIFACT_HEADINGS\s*=\s*\{([\s\S]*?)\n\};/);
   if (!blockMatch) return result;
 
   const block = blockMatch[1];
@@ -142,17 +139,13 @@ function runH2Sync() {
 
   const h2RefExists = exists(H2_REF_PATH);
   if (!h2RefExists) {
-    console.log(
-      `  ⚠️  ${H2_REF_PATH} not found — skipping instruction-file comparison`,
-    );
+    console.log(`  ⚠️  ${H2_REF_PATH} not found — skipping instruction-file comparison`);
   }
 
   const skillHeadings = parseMarkdownH2Blocks(readText(SKILL_PATH));
 
   if (fs.existsSync(SKILL_REFS_DIR)) {
-    const refFiles = fs
-      .readdirSync(SKILL_REFS_DIR)
-      .filter((f) => f.endsWith(".md"));
+    const refFiles = fs.readdirSync(SKILL_REFS_DIR).filter((f) => f.endsWith(".md"));
     for (const refFile of refFiles) {
       const refPath = path.join(SKILL_REFS_DIR, refFile);
       const refHeadings = parseMarkdownH2Blocks(readText(refPath));
@@ -164,9 +157,7 @@ function runH2Sync() {
     }
   }
 
-  const h2RefHeadings = h2RefExists
-    ? parseMarkdownH2Blocks(readText(H2_REF_PATH))
-    : new Map();
+  const h2RefHeadings = h2RefExists ? parseMarkdownH2Blocks(readText(H2_REF_PATH)) : new Map();
   const validatorHeadings = parseValidatorHeadings(readText(VALIDATOR_PATH));
 
   console.log(
@@ -178,9 +169,7 @@ function runH2Sync() {
     const b = stripReferences(sourceB);
 
     if (a.length !== b.length) {
-      console.log(
-        `::error::${artifactName}: ${nameA} has ${a.length} headings, ${nameB} has ${b.length}`,
-      );
+      console.log(`::error::${artifactName}: ${nameA} has ${a.length} headings, ${nameB} has ${b.length}`);
       const inANotB = a.filter((h) => !b.includes(h));
       const inBNotA = b.filter((h) => !a.includes(h));
       if (inANotB.length > 0) {
@@ -210,16 +199,12 @@ function runH2Sync() {
     const validator = validatorHeadings.get(artifactName);
 
     if (!skill) {
-      console.log(
-        `::error file=${SKILL_PATH}::${artifactName}: missing from SKILL.md + references/`,
-      );
+      console.log(`::error file=${SKILL_PATH}::${artifactName}: missing from SKILL.md + references/`);
       syncErrors++;
       continue;
     }
     if (!validator) {
-      console.log(
-        `::error file=${VALIDATOR_PATH}::${artifactName}: missing from ARTIFACT_HEADINGS`,
-      );
+      console.log(`::error file=${VALIDATOR_PATH}::${artifactName}: missing from ARTIFACT_HEADINGS`);
       syncErrors++;
       continue;
     }
@@ -234,9 +219,7 @@ function runH2Sync() {
     console.log(`\n❌ ${syncErrors} sync error(s) found`);
     return 1;
   }
-  console.log(
-    `✅ All ${ARTIFACT_NAMES.length} artifact types in sync across sources\n`,
-  );
+  console.log(`✅ All ${ARTIFACT_NAMES.length} artifact types in sync across sources\n`);
   return 0;
 }
 
@@ -268,10 +251,7 @@ const OPTIONAL_ALLOWED = {
   "01-requirements.md": ["## References"],
   "02-architecture-assessment.md": ["## References"],
   "04-implementation-plan.md": ["## References"],
-  "04-governance-constraints.md": [
-    "## 📜 Compliance Frameworks",
-    "## References",
-  ],
+  "04-governance-constraints.md": ["## 📜 Compliance Frameworks", "## References"],
   "04-preflight-check.md": ["## References"],
   "05-implementation-reference.md": ["## Next Steps", "## References"],
   "06-deployment-summary.md": ["## References"],
@@ -289,10 +269,7 @@ const OPTIONAL_ALLOWED = {
     "## Validation Commands",
     "## References",
   ],
-  "07-backup-dr-plan.md": [
-    "## 3. Disaster Recovery Architecture",
-    "## References",
-  ],
+  "07-backup-dr-plan.md": ["## 3. Disaster Recovery Architecture", "## References"],
   "07-compliance-matrix.md": ["## Security Controls Summary", "## References"],
   "07-documentation-index.md": ["## Architecture Overview", "## References"],
   "03-des-cost-estimate.md": ["## References"],
@@ -352,10 +329,7 @@ const TEMPLATES = {
 
 const STANDARD_DOC = ".github/instructions/markdown.instructions.md";
 
-const COST_ESTIMATE_ARTIFACTS = [
-  "03-des-cost-estimate.md",
-  "07-ab-cost-estimate.md",
-];
+const COST_ESTIMATE_ARTIFACTS = ["03-des-cost-estimate.md", "07-ab-cost-estimate.md"];
 
 const DIAGRAM_ARTIFACT_EXPECTATIONS = {
   "04-implementation-plan.md": [
@@ -384,10 +358,7 @@ let hasHardFailure = false;
 let hasWarning = false;
 
 function escapeGitHubCommandValue(value) {
-  return value
-    .replaceAll("%", "%25")
-    .replaceAll("\r", "%0D")
-    .replaceAll("\n", "%0A");
+  return value.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
 }
 
 function annotate(level, { title, filePath, line, message }) {
@@ -445,30 +416,21 @@ function extractFencedBlocks(text) {
 }
 
 function validateCostDistribution(filePath, text, reportFn = error) {
-  const costDistributionSection = text.match(
-    /### Cost Distribution[\s\S]*?(?=\n### |\n## |$)/,
-  );
+  const costDistributionSection = text.match(/### Cost Distribution[\s\S]*?(?=\n### |\n## |$)/);
 
   const sectionText = costDistributionSection?.[0] ?? text;
   const hasMarkdownTable = /\|[^\n]+\|\n\|[\s:-]+\|/.test(sectionText);
-  const hasChartImage = /!\[[^\]]*\]\((?:\.\/)?[^)]+\.(png|svg)\)/i.test(
-    sectionText,
-  );
+  const hasChartImage = /!\[[^\]]*\]\((?:\.\/)?[^)]+\.(png|svg)\)/i.test(sectionText);
 
   if (!hasMarkdownTable && !hasChartImage) {
-    reportFn(
-      `${filePath} must include a cost distribution markdown table or a linked chart image (.png/.svg).`,
-      { filePath, line: 1 },
-    );
+    reportFn(`${filePath} must include a cost distribution markdown table or a linked chart image (.png/.svg).`, {
+      filePath,
+      line: 1,
+    });
   }
 }
 
-function validateDiagramArtifactReferences(
-  filePath,
-  artifactName,
-  text,
-  reportFn = error,
-) {
+function validateDiagramArtifactReferences(filePath, artifactName, text, reportFn = error) {
   const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
 
   function refPresent(ref) {
@@ -477,17 +439,11 @@ function validateDiagramArtifactReferences(
 
   for (const expected of expectedReferences) {
     if (!refPresent(expected.image)) {
-      reportFn(
-        `${filePath} is missing required diagram image reference: ${expected.image}`,
-        { filePath, line: 1 },
-      );
+      reportFn(`${filePath} is missing required diagram image reference: ${expected.image}`, { filePath, line: 1 });
     }
 
     if (!refPresent(expected.source)) {
-      reportFn(
-        `${filePath} is missing required diagram source reference: ${expected.source}`,
-        { filePath, line: 1 },
-      );
+      reportFn(`${filePath} is missing required diagram source reference: ${expected.source}`, { filePath, line: 1 });
     }
   }
 }
@@ -497,25 +453,15 @@ function validateDiagramArtifactFiles(filePath, artifactName, reportFn = warn) {
   const artifactDir = path.dirname(filePath);
 
   for (const expected of expectedReferences) {
-    const imagePath = path.normalize(
-      path.join(artifactDir, expected.image.replace(/^\.\//, "")),
-    );
-    const sourcePath = path.normalize(
-      path.join(artifactDir, expected.source.replace(/^\.\//, "")),
-    );
+    const imagePath = path.normalize(path.join(artifactDir, expected.image.replace(/^\.\//, "")));
+    const sourcePath = path.normalize(path.join(artifactDir, expected.source.replace(/^\.\//, "")));
 
     if (!exists(imagePath)) {
-      reportFn(
-        `${filePath} requires diagram image artifact: ${expected.image}`,
-        { filePath, line: 1 },
-      );
+      reportFn(`${filePath} requires diagram image artifact: ${expected.image}`, { filePath, line: 1 });
     }
 
     if (!exists(sourcePath)) {
-      reportFn(
-        `${filePath} requires diagram source artifact: ${expected.source}`,
-        { filePath, line: 1 },
-      );
+      reportFn(`${filePath} requires diagram source artifact: ${expected.source}`, { filePath, line: 1 });
     }
   }
 }
@@ -527,10 +473,7 @@ function validateStandardComponents(filePath, text, reportFn = warn) {
   }
 
   if (!text.includes("![Step]")) {
-    reportFn(
-      `${filePath} is missing the badge row (![Step], ![Status], ![Agent]).`,
-      { filePath, line: 1 },
-    );
+    reportFn(`${filePath} is missing the badge row (![Step], ![Status], ![Agent]).`, { filePath, line: 1 });
   }
 
   if (!text.includes("<details")) {
@@ -596,10 +539,10 @@ function validateTrafficLight(filePath, text, reportFn = warn) {
     if (!hasGreen) missing.push("✅");
     if (!hasYellow) missing.push("⚠️");
     if (!hasRed) missing.push("❌");
-    reportFn(
-      `${filePath} should contain traffic-light indicators (missing: ${missing.join(", ")}).`,
-      { filePath, line: 1 },
-    );
+    reportFn(`${filePath} should contain traffic-light indicators (missing: ${missing.join(", ")}).`, {
+      filePath,
+      line: 1,
+    });
   }
 }
 
@@ -670,12 +613,10 @@ function validateTemplate(artifactName) {
   const META_HEADINGS = ["## Template Instructions", "## Required Structure"];
   const trueExtras = extraH2.filter((h) => !META_HEADINGS.includes(h));
   if (trueExtras.length > 0) {
-    warn(
-      `Template ${templatePath} contains extra H2 headings: ${trueExtras.join(
-        ", ",
-      )}`,
-      { filePath: templatePath, line: 1 },
-    );
+    warn(`Template ${templatePath} contains extra H2 headings: ${trueExtras.join(", ")}`, {
+      filePath: templatePath,
+      line: 1,
+    });
   }
 
   if (COST_ESTIMATE_ARTIFACTS.includes(artifactName)) {
@@ -714,15 +655,10 @@ function validateAgentLinks() {
     const agentText = readText(agentPath);
     const templatePath = TEMPLATES[artifactName];
 
-    const relativeTemplatePath = path.relative(
-      path.dirname(agentPath),
-      templatePath,
-    );
+    const relativeTemplatePath = path.relative(path.dirname(agentPath), templatePath);
 
     const refsTemplate = agentText.includes(relativeTemplatePath);
-    const refsSkill =
-      agentText.includes("azure-artifacts") ||
-      agentText.includes("azure-defaults");
+    const refsSkill = agentText.includes("azure-artifacts") || agentText.includes("azure-defaults");
 
     if (!refsTemplate && !refsSkill) {
       error(
@@ -769,34 +705,30 @@ function validateStandardsReference() {
   const text = readText(STANDARD_DOC);
 
   if (!text.includes("template") && !text.includes(".template.md")) {
-    warn(
-      `Standards file ${STANDARD_DOC} should reference template-first approach`,
-      { filePath: STANDARD_DOC, line: 1 },
-    );
+    warn(`Standards file ${STANDARD_DOC} should reference template-first approach`, {
+      filePath: STANDARD_DOC,
+      line: 1,
+    });
   }
 }
 
 function validateGovernanceDiscovery(relPath, text, reportFn = error) {
-  const discoverySourceMatch = text.match(
-    /## (?:🔍\s*)?Discovery Source[\s\S]*?(?=##|$)/,
-  );
+  const discoverySourceMatch = text.match(/## (?:🔍\s*)?Discovery Source[\s\S]*?(?=##|$)/);
   if (!discoverySourceMatch) {
-    reportFn(
-      `Governance constraints ${relPath} missing Discovery Source section content`,
-      { filePath: relPath, line: 1, title: "Governance Discovery Missing" },
-    );
+    reportFn(`Governance constraints ${relPath} missing Discovery Source section content`, {
+      filePath: relPath,
+      line: 1,
+      title: "Governance Discovery Missing",
+    });
     return;
   }
 
   const discoveryContent = discoverySourceMatch[0];
 
-  const hasQueryResults =
-    /\d+\s*(policies|tags|constraints)\s*discovered/i.test(discoveryContent);
+  const hasQueryResults = /\d+\s*(policies|tags|constraints)\s*discovered/i.test(discoveryContent);
   const hasTimestamp = /\d{4}-\d{2}-\d{2}|T\d{2}:\d{2}/i.test(discoveryContent);
 
-  const hasPlaceholders = /\{X\}|\{subscription|UNVERIFIED/i.test(
-    discoveryContent,
-  );
+  const hasPlaceholders = /\{X\}|\{subscription|UNVERIFIED/i.test(discoveryContent);
 
   if (hasPlaceholders) {
     reportFn(
@@ -832,14 +764,11 @@ function validateNoDuplicateH1(relPath) {
 function validateArtifactCompliance(relPath) {
   const basename = path.basename(relPath);
 
-  const artifactType = Object.keys(ARTIFACT_HEADINGS).find((key) =>
-    basename.endsWith(key),
-  );
+  const artifactType = Object.keys(ARTIFACT_HEADINGS).find((key) => basename.endsWith(key));
 
   if (!artifactType) return;
 
-  const strictness =
-    GLOBAL_STRICTNESS || ARTIFACT_STRICTNESS[artifactType] || "standard";
+  const strictness = GLOBAL_STRICTNESS || ARTIFACT_STRICTNESS[artifactType] || "standard";
 
   if (!exists(relPath)) return;
 
@@ -882,10 +811,10 @@ function validateArtifactCompliance(relPath) {
     for (const optional of optionals) {
       const optPos = h2.indexOf(optional);
       if (optPos !== -1 && optPos < anchorPos) {
-        warn(
-          `Artifact ${relPath} has optional heading '${optional}' before anchor '${anchor}' (consider moving it).`,
-          { filePath: relPath, line: 1 },
-        );
+        warn(`Artifact ${relPath} has optional heading '${optional}' before anchor '${anchor}' (consider moving it).`, {
+          filePath: relPath,
+          line: 1,
+        });
       }
     }
   }
@@ -893,10 +822,7 @@ function validateArtifactCompliance(relPath) {
   const recognized = [...required, ...optionals];
   const extras = h2.filter((h) => !recognized.includes(h));
   if (extras.length > 0 && strictness === "standard") {
-    warn(
-      `Artifact ${relPath} contains extra H2 headings: ${extras.join(", ")}`,
-      { filePath: relPath, line: 1 },
-    );
+    warn(`Artifact ${relPath} contains extra H2 headings: ${extras.join(", ")}`, { filePath: relPath, line: 1 });
   }
 
   if (artifactType === "04-governance-constraints.md") {
@@ -929,8 +855,7 @@ function validateArtifactCompliance(relPath) {
 // Governance JSON Schema Validation (AJV)
 // ============================================================================
 
-const GOVERNANCE_SCHEMA_PATH =
-  "tools/schemas/governance-constraints.schema.json";
+const GOVERNANCE_SCHEMA_PATH = "tools/schemas/governance-constraints.schema.json";
 const GOVERNANCE_JSON_BASENAME = "04-governance-constraints.json";
 
 let _governanceValidator = null;
@@ -972,10 +897,11 @@ function findGovernanceJsonArtifacts() {
 function validateGovernanceJsonArtifacts() {
   const validator = getGovernanceValidator();
   if (!validator) {
-    warn(
-      `Governance schema not found at ${GOVERNANCE_SCHEMA_PATH}; skipping JSON validation.`,
-      { filePath: GOVERNANCE_SCHEMA_PATH, line: 1, title: TITLE_MISSING },
-    );
+    warn(`Governance schema not found at ${GOVERNANCE_SCHEMA_PATH}; skipping JSON validation.`, {
+      filePath: GOVERNANCE_SCHEMA_PATH,
+      line: 1,
+      title: TITLE_MISSING,
+    });
     return;
   }
 
@@ -1037,9 +963,7 @@ function findArtifacts() {
 function runTemplateValidation() {
   console.log("═══ Part 2: Artifact Template Compliance ═══\n");
 
-  const modeDesc = GLOBAL_STRICTNESS
-    ? `global: ${GLOBAL_STRICTNESS}`
-    : "per-artifact";
+  const modeDesc = GLOBAL_STRICTNESS ? `global: ${GLOBAL_STRICTNESS}` : "per-artifact";
   console.log(`Strictness: ${modeDesc}\n`);
 
   console.log("Step 1: Validating templates...");
@@ -1066,9 +990,7 @@ function runTemplateValidation() {
   console.log("Step 5b: Validating governance JSON against schema (AJV)...");
   validateGovernanceJsonArtifacts();
 
-  console.log(
-    "Step 6: Checking for duplicate H1 headers (resume integrity)...",
-  );
+  console.log("Step 6: Checking for duplicate H1 headers (resume integrity)...");
   for (const artifact of artifacts) {
     validateNoDuplicateH1(artifact);
   }
@@ -1175,13 +1097,9 @@ function analyzeArtifact(filePath) {
   const actualH2s = extractH2HeadingsFromContent(content);
   const requiredH2s = ARTIFACT_HEADINGS[artifactType];
 
-  const missing = requiredH2s.filter(
-    (h) => !actualH2s.some((a) => headingMatch(a, h)),
-  );
+  const missing = requiredH2s.filter((h) => !actualH2s.some((a) => headingMatch(a, h)));
   const extra = actualH2s.filter(
-    (h) =>
-      !requiredH2s.some((r) => headingMatch(h, r)) &&
-      normalizeH2(h) !== "## References",
+    (h) => !requiredH2s.some((r) => headingMatch(h, r)) && normalizeH2(h) !== "## References",
   );
 
   const fixable = [];
@@ -1308,13 +1226,9 @@ Options:
   if (totalIssues === 0) {
     console.log("✅ All artifacts are compliant!");
   } else if (applyMode) {
-    console.log(
-      `Fixed ${fixedCount} file(s). ${totalIssues - fixedCount} issue(s) require manual fix.`,
-    );
+    console.log(`Fixed ${fixedCount} file(s). ${totalIssues - fixedCount} issue(s) require manual fix.`);
   } else {
-    console.log(
-      `Found ${totalIssues} issue(s). Run with --apply to auto-fix where possible.`,
-    );
+    console.log(`Found ${totalIssues} issue(s). Run with --apply to auto-fix where possible.`);
   }
 }
 

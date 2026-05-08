@@ -27,11 +27,7 @@ const r = new Reporter("Deprecated Models Deny-List");
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
-const SCAN_GLOBS = [
-  ".github/agents",
-  ".github/prompts",
-  "tools/tests/prompts",
-];
+const SCAN_GLOBS = [".github/agents", ".github/prompts", "tools/tests/prompts"];
 const ALLOWED_FILES = new Set([
   ".github/model-catalog.json",
   "CHANGELOG.md",
@@ -112,10 +108,7 @@ function main() {
     }
   }
   r.summary();
-  r.exitOnError(
-    "No deprecated model labels found.",
-    "Deprecated model labels detected — see annotations above.",
-  );
+  r.exitOnError("No deprecated model labels found.", "Deprecated model labels detected — see annotations above.");
 }
 
 main();

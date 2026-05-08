@@ -20,18 +20,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const RUNS_PATH = path.join(
-  "tools",
-  "tests",
-  "drawio-baseline",
-  "_baseline-runs.json",
-);
-const OUT_PATH = path.join(
-  "tools",
-  "tests",
-  "drawio-baseline",
-  "regen-baseline.json",
-);
+const RUNS_PATH = path.join("tools", "tests", "drawio-baseline", "_baseline-runs.json");
+const OUT_PATH = path.join("tools", "tests", "drawio-baseline", "regen-baseline.json");
 const TOTAL_SCENARIOS = 7;
 const TARGET_REDUCTION_PCT = 40;
 
@@ -73,32 +63,21 @@ function status(runs) {
         rubMean = ` rubric=${m.toFixed(2)}/4`;
       }
     }
-    console.log(
-      `  [x] ${id.padEnd(34)} retries=${v.retries} friction=${fric}${rubMean}`,
-    );
+    console.log(`  [x] ${id.padEnd(34)} retries=${v.retries} friction=${fric}${rubMean}`);
   }
   for (const [id] of pending) {
     console.log(`  [ ] ${id.padEnd(34)} retries=? friction=?`);
   }
   console.log("");
   if (captured.length > 0) {
-    const meanR =
-      captured.reduce((s, [, v]) => s + v.retries, 0) / captured.length;
-    const withFric = captured.filter(
-      ([, v]) => typeof v.friction_count === "number",
-    );
-    const meanF = withFric.length
-      ? withFric.reduce((s, [, v]) => s + v.friction_count, 0) / withFric.length
-      : null;
+    const meanR = captured.reduce((s, [, v]) => s + v.retries, 0) / captured.length;
+    const withFric = captured.filter(([, v]) => typeof v.friction_count === "number");
+    const meanF = withFric.length ? withFric.reduce((s, [, v]) => s + v.friction_count, 0) / withFric.length : null;
     const meanCost = meanF === null ? meanR : meanR + meanF;
     console.log(`Mean (captured so far):`);
     console.log(`  retries / .drawio:  ${meanR.toFixed(2)}`);
-    console.log(
-      `  friction / .drawio: ${meanF === null ? "n/a" : meanF.toFixed(2)}`,
-    );
-    console.log(
-      `  cost / .drawio:     ${meanCost.toFixed(2)} (retries + friction)`,
-    );
+    console.log(`  friction / .drawio: ${meanF === null ? "n/a" : meanF.toFixed(2)}`);
+    console.log(`  cost / .drawio:     ${meanCost.toFixed(2)} (retries + friction)`);
   }
   return captured.length === entries.length;
 }
@@ -107,36 +86,24 @@ function compose(runs) {
   const entries = Object.entries(runs.scenarios);
   const captured = entries.filter(([, v]) => v.retries !== null);
   if (captured.length === 0) {
-    console.error(
-      "ERROR: no scenarios captured yet. Edit _baseline-runs.json first.",
-    );
+    console.error("ERROR: no scenarios captured yet. Edit _baseline-runs.json first.");
     process.exit(1);
   }
-  const meanRetries =
-    captured.reduce((s, [, v]) => s + v.retries, 0) / captured.length;
-  const withFric = captured.filter(
-    ([, v]) => typeof v.friction_count === "number",
-  );
-  const meanFric = withFric.length
-    ? withFric.reduce((s, [, v]) => s + v.friction_count, 0) / withFric.length
-    : 0;
+  const meanRetries = captured.reduce((s, [, v]) => s + v.retries, 0) / captured.length;
+  const withFric = captured.filter(([, v]) => typeof v.friction_count === "number");
+  const meanFric = withFric.length ? withFric.reduce((s, [, v]) => s + v.friction_count, 0) / withFric.length : 0;
   const meanCost = meanRetries + meanFric;
   const perScenario = Object.fromEntries(
     captured.map(([id, v]) => {
       const entry = {
         retries: v.retries,
-        friction_count:
-          typeof v.friction_count === "number" ? v.friction_count : 0,
+        friction_count: typeof v.friction_count === "number" ? v.friction_count : 0,
         observations: v.observations || "",
       };
       if (v.rubric_score && typeof v.rubric_score === "object") {
-        const dims = Object.values(v.rubric_score).filter(
-          (n) => typeof n === "number",
-        );
+        const dims = Object.values(v.rubric_score).filter((n) => typeof n === "number");
         if (dims.length) {
-          entry.rubric_mean = Number(
-            (dims.reduce((s, n) => s + n, 0) / dims.length).toFixed(3),
-          );
+          entry.rubric_mean = Number((dims.reduce((s, n) => s + n, 0) / dims.length).toFixed(3));
         }
       }
       return [id, entry];
@@ -181,12 +148,8 @@ if (args.has("--check")) {
 const baseline = compose(runs);
 writeJson(OUT_PATH, baseline);
 console.log(`✅ wrote ${OUT_PATH}`);
-console.log(
-  `   captured: ${baseline.scenarios_captured}/${baseline.scenarios_total}`,
-);
+console.log(`   captured: ${baseline.scenarios_captured}/${baseline.scenarios_total}`);
 console.log(`   mean retries / .drawio:  ${baseline.mean_retries_per_drawio}`);
 console.log(`   mean friction / .drawio: ${baseline.mean_friction_per_drawio}`);
-console.log(
-  `   mean cost / .drawio:     ${baseline.mean_cost_per_drawio} (retries + friction)`,
-);
+console.log(`   mean cost / .drawio:     ${baseline.mean_cost_per_drawio} (retries + friction)`);
 console.log(`   target reduction: >=${baseline.target_reduction_pct}%`);

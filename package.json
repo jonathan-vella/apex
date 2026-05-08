@@ -84,7 +84,7 @@
     "validate:_node": "run-p validate:artifacts validate:agents validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config validate:instruction-checks lint:governance-refs validate:session-state validate:workflow-graph lint:workflow-table-sync validate:agent-registry lint:registry-coverage validate:skill-checks lint:json lint:json-schemas lint:glob-audit lint:orphaned-content lint:docs-freshness validate:no-hardcoded-counts validate:hooks validate:iac-security-baseline validate:vscode lint:drawio validate:terminology validate:model-consistency validate:deprecated-models validate:model-catalog validate:explorer-graph test:classify-model",
     "validate:_node-ci": "run-p validate:artifacts validate:agents validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config lint:governance-refs validate:instruction-checks validate:session-state validate:workflow-graph lint:workflow-table-sync validate:agent-registry lint:registry-coverage validate:skill-checks lint:json lint:json-schemas lint:glob-audit lint:orphaned-content validate:vscode lint:drawio validate:model-consistency validate:deprecated-models validate:model-catalog validate:explorer-graph test:classify-model validate:no-hardcoded-counts validate:terminology",
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform test:apex-recall test:azure-pricing-mcp",
-    "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '\u2705 All validations passed'",
+    "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'",
     "audit:quarterly": "run-p lint:glob-audit lint:orphaned-content lint:docs-freshness",
     "check:azure-icons-freshness": "node tools/scripts/check-azure-icons-freshness.mjs",
     "bench:drawio-quality": "node tools/scripts/run-drawio-quality-bench.mjs",
@@ -100,7 +100,8 @@
     "lefthook": "^2.1.4",
     "markdown-link-check": "^3.14.2",
     "markdownlint-cli2": "^0.21.0",
-    "npm-run-all2": "^8.0.4"
+    "npm-run-all2": "^8.0.4",
+    "prettier": "^3.6.2"
   },
   "repository": {
     "type": "git",

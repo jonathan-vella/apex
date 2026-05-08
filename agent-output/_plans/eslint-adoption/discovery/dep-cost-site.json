@@ -1,0 +1,42 @@
+{
+  "stage": "B",
+  "label": "site-additions (delta over Stage A)",
+  "packages_added_on_top_of_stage_A": [
+    "typescript-eslint@8.18.2",
+    "eslint-plugin-astro@1.3.1"
+  ],
+  "stage_a_node_modules_size_mb": 140,
+  "stage_a_transitive_count": 283,
+  "post_node_modules_size_mb": 167,
+  "post_transitive_count": 295,
+  "post_audit": { "info": 0, "low": 2, "moderate": 1, "high": 1, "critical": 0, "total": 4 },
+  "deltas_vs_stage_a": {
+    "size_mb": 27,
+    "transitive_count": 12,
+    "npm_install_reported_added": 41,
+    "audit_low": 0,
+    "audit_moderate": 0,
+    "audit_high": 0,
+    "audit_critical": 0
+  },
+  "deltas_vs_baseline": {
+    "size_mb": 53,
+    "transitive_count": 63,
+    "npm_install_reported_added": 121
+  },
+  "audit_blocker_check": {
+    "rule": ">=1 critical OR >=3 high CVEs in transitive deps with no published fix",
+    "result": "PASS — Stage B adds 0 new critical/high beyond Stage A. The 1 high (ip-address) and 1 moderate were already present in baseline; total CVE picture unchanged from Stage A."
+  },
+  "install_time_seconds": 7,
+  "two_x_threshold_check": {
+    "rule_from_plan": "If Stage B delta > 2× Stage A delta in either MB or transitive package count, default Phase 3.1 to Adopt-narrow (tools-only).",
+    "size_ratio_b_over_a": 1.04,
+    "transitive_ratio_b_over_a": 0.24,
+    "result": "PASS — neither MB nor transitive count exceeds 2× threshold. Adopt-full remains a viable default; Phase 3.1 evaluates it on its own merits."
+  },
+  "notes": [
+    "npm reports `added 41 packages` but `find node_modules -maxdepth 2 -name package.json` only sees +12 because typescript-eslint deps overlap with the existing `acorn`/`semver` subtree. Both counts are recorded for transparency.",
+    "Stage B added zero new audit findings; the 4 total are still: 2 low, 1 moderate, 1 high — same as post-Stage A."
+  ]
+}

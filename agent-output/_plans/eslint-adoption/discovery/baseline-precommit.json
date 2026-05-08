@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-05-08",
+  "method": "npx lefthook run pre-commit --force --no-stage-fixed --no-tty --file <list>",
+  "runs_per_set": 3,
+  "aggregator": "median",
+  "set_definitions": {
+    "set1": [
+      "tools/scripts/validate-skills.mjs"
+    ],
+    "set5": [
+      "tools/scripts/validate-skills.mjs",
+      "tools/scripts/validate-agents.mjs",
+      "tools/scripts/validate-artifacts.mjs",
+      "tools/scripts/_lib/parse-frontmatter.mjs",
+      "tools/scripts/_lib/regex-helpers.mjs"
+    ],
+    "set20": [
+      "tools/scripts/_lib/artifact-headings.mjs",
+      "tools/scripts/_lib/glob-helpers.mjs",
+      "tools/scripts/_lib/h2-parser.mjs",
+      "tools/scripts/_lib/model-helpers.mjs",
+      "tools/scripts/_lib/parse-frontmatter.mjs",
+      "tools/scripts/_lib/parse-jsonc.mjs",
+      "tools/scripts/_lib/paths.mjs",
+      "tools/scripts/_lib/regex-helpers.mjs",
+      "tools/scripts/_lib/reporter.mjs",
+      "tools/scripts/_lib/workspace-index.mjs",
+      "tools/scripts/benchmark-e2e.mjs",
+      "tools/scripts/capture-drawio-baseline.mjs",
+      "tools/scripts/check-azure-icons-freshness.mjs",
+      "tools/scripts/check-docs-freshness.mjs",
+      "tools/scripts/combine-e2e-runs.mjs",
+      "tools/scripts/fetch-azure-deprecations.mjs",
+      "tools/scripts/fetch-vendor-prompting-guides.mjs",
+      "tools/scripts/generate-explorer-graph.mjs",
+      "tools/scripts/generate-model-catalog.mjs",
+      "tools/scripts/generate-skill-digests.mjs"
+    ]
+  },
+  "results_ms": {
+    "set1": {
+      "runs": [802, 671, 691],
+      "median": 691
+    },
+    "set5": {
+      "runs": [709, 691, 674],
+      "median": 691
+    },
+    "set20": {
+      "runs": [696, 689, 701],
+      "median": 696
+    }
+  },
+  "interpretation": "Baseline cost on JS/MJS-only stages is ~691ms regardless of set size. None of the existing pre-commit globs (markdown-lint, link-check, h2-sync, artifact-validation, agents, model-catalog-sync, instructions, secrets-baseline, python-lint, terraform-fmt, terraform-validate) match .mjs files in tools/scripts/. The ~691ms is dominated by lefthook process startup + per-hook glob evaluation, not real work. This is the reality contributors pay today on a JS-only stage.",
+  "delta_gates_resolved_for_phase_2_4": {
+    "set1_baseline_ms": 691,
+    "set1_gate_30pct_ms": 207,
+    "set1_gate_absolute_ms": 800,
+    "set1_effective_gate_ms": 207,
+    "set20_baseline_ms": 696,
+    "set20_gate_50pct_ms": 348,
+    "set20_gate_absolute_ms": 3000,
+    "set20_effective_gate_ms": 348,
+    "note": "Gates trip on the OR of (delta > pct-of-baseline) OR (delta > absolute). For this codebase the percentage gate is stricter than the absolute gate at both staged-1 and staged-20, so the effective ceilings are 207ms (set1) and 348ms (set20). Phase 2.4 must compare against these."
+  }
+}

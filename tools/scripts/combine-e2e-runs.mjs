@@ -44,9 +44,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 if (runs.length < 2) {
-  console.error(
-    "Usage: combine-e2e-runs.mjs <run1> <run2> [run3...] [--output <dir>]",
-  );
+  console.error("Usage: combine-e2e-runs.mjs <run1> <run2> [run3...] [--output <dir>]");
   console.error("  Provide at least 2 run directory names from agent-output/");
   process.exit(1);
 }
@@ -223,9 +221,7 @@ function combineScores() {
   // Compute per-dimension stats
   const dimStats = {};
   for (const dim of dims) {
-    const values = perRun
-      .map((r) => r.data.scores?.[dim]?.score)
-      .filter((v) => v != null);
+    const values = perRun.map((r) => r.data.scores?.[dim]?.score).filter((v) => v != null);
     if (values.length === 0) continue;
     dimStats[dim] = {
       scores: perRun.map((r) => ({
@@ -241,9 +237,7 @@ function combineScores() {
   }
 
   // Composite stats
-  const composites = perRun
-    .map((r) => r.data.composite?.score)
-    .filter((v) => v != null);
+  const composites = perRun.map((r) => r.data.composite?.score).filter((v) => v != null);
 
   return {
     combined_from: runs,
@@ -255,9 +249,7 @@ function combineScores() {
     per_run: perRun.map((r) => ({ run: r.run, ...r.data })),
     dimension_stats: dimStats,
     composite_stats: {
-      avg: Math.round(
-        composites.reduce((a, b) => a + b, 0) / composites.length,
-      ),
+      avg: Math.round(composites.reduce((a, b) => a + b, 0) / composites.length),
       min: Math.min(...composites),
       max: Math.max(...composites),
       range: Math.max(...composites) - Math.min(...composites),
@@ -296,9 +288,7 @@ function generateReport(combinedScores, combinedLessons) {
   lines.push("| --- | --- |");
   lines.push(`| Runs Combined | ${runs.length} |`);
   lines.push(`| Avg Composite | ${comp.avg}/100 (${gradeFor(comp.avg)}) |`);
-  lines.push(
-    `| Score Range | ${comp.min}–${comp.max} (spread: ${comp.range}) |`,
-  );
+  lines.push(`| Score Range | ${comp.min}–${comp.max} (spread: ${comp.range}) |`);
   lines.push("");
 
   // Per-run composite
@@ -314,23 +304,14 @@ function generateReport(combinedScores, combinedLessons) {
   // Dimension comparison table
   lines.push("## Per-Dimension Comparison");
   lines.push("");
-  const dimHeader = [
-    "Dimension",
-    ...runs.map((r) => r.replace("contoso-service-hub-", "")),
-    "Avg",
-    "Δ",
-  ];
+  const dimHeader = ["Dimension", ...runs.map((r) => r.replace("contoso-service-hub-", "")), "Avg", "Δ"];
   lines.push(`| ${dimHeader.join(" | ")} |`);
   lines.push(`| ${dimHeader.map(() => "---").join(" | ")} |`);
 
   for (const [dim, stats] of Object.entries(dims)) {
     const name = dim.replace(/_/g, " ");
-    const perRun = stats.scores.map((s) =>
-      s.score != null ? `${s.score}` : "—",
-    );
-    lines.push(
-      `| ${name} | ${perRun.join(" | ")} | **${stats.avg}** | ${stats.range} |`,
-    );
+    const perRun = stats.scores.map((s) => (s.score != null ? `${s.score}` : "—"));
+    lines.push(`| ${name} | ${perRun.join(" | ")} | **${stats.avg}** | ${stats.range} |`);
   }
   lines.push("");
 
@@ -339,9 +320,7 @@ function generateReport(combinedScores, combinedLessons) {
   if (recurring.length > 0) {
     lines.push("## Recurring Lessons (Systemic Issues)");
     lines.push("");
-    lines.push(
-      "These lessons appeared in multiple runs, signaling systemic patterns:",
-    );
+    lines.push("These lessons appeared in multiple runs, signaling systemic patterns:");
     lines.push("");
     lines.push("| Theme | Frequency | Runs |");
     lines.push("| --- | --- | --- |");
@@ -378,9 +357,7 @@ function generateReport(combinedScores, combinedLessons) {
   lines.push("");
   lines.push("| Category | Count |");
   lines.push("| --- | --- |");
-  for (const [cat, count] of Object.entries(byCategory).sort(
-    (a, b) => b[1] - a[1],
-  )) {
+  for (const [cat, count] of Object.entries(byCategory).sort((a, b) => b[1] - a[1])) {
     lines.push(`| ${cat} | ${count} |`);
   }
   lines.push("");
@@ -392,9 +369,7 @@ function generateReport(combinedScores, combinedLessons) {
   lines.push("## Top Improvement Areas");
   lines.push("");
   for (const [dim, stats] of weakest) {
-    lines.push(
-      `- **${dim.replace(/_/g, " ")}**: avg ${stats.avg}/100 (range ${stats.min}–${stats.max})`,
-    );
+    lines.push(`- **${dim.replace(/_/g, " ")}**: avg ${stats.avg}/100 (range ${stats.min}–${stats.max})`);
   }
   lines.push("");
 
@@ -436,13 +411,8 @@ function main() {
   console.log("  → Combining lessons learned...");
   const combinedLessons = combineLessons();
   const lessonsPath = path.join(outDir, "09-lessons-learned.json");
-  fs.writeFileSync(
-    lessonsPath,
-    JSON.stringify(combinedLessons.lessons, null, 2),
-  );
-  console.log(
-    `    ${combinedLessons.lessons.length} lessons (${combinedLessons.recurring.length} recurring themes)`,
-  );
+  fs.writeFileSync(lessonsPath, JSON.stringify(combinedLessons.lessons, null, 2));
+  console.log(`    ${combinedLessons.lessons.length} lessons (${combinedLessons.recurring.length} recurring themes)`);
 
   // Combine scores
   console.log("  → Combining benchmark scores...");
@@ -471,15 +441,10 @@ function main() {
     recurring_themes: combinedLessons.recurring.length,
     composite_avg: combinedScores?.composite_stats?.avg ?? null,
   };
-  fs.writeFileSync(
-    path.join(outDir, "00-combine-meta.json"),
-    JSON.stringify(meta, null, 2),
-  );
+  fs.writeFileSync(path.join(outDir, "00-combine-meta.json"), JSON.stringify(meta, null, 2));
 
   console.log(`\n✓ Combined output written to ${outDir}/`);
-  console.log(
-    "  Use e2e-analyze-lessons.prompt.md with project = " + outputName,
-  );
+  console.log("  Use e2e-analyze-lessons.prompt.md with project = " + outputName);
 }
 
 main();

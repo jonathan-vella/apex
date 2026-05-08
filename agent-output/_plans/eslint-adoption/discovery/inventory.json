@@ -1,0 +1,616 @@
+{
+  "generated_at": "2026-05-08T12:58:52.935Z",
+  "summary": {
+    "total": 65,
+    "by_scope": {
+      "tools/scripts": 54,
+      "tools/tests": 2,
+      "site": 9
+    },
+    "by_kind": {
+      "helper": 10,
+      "validator": 44,
+      "test": 2,
+      "mjs": 4,
+      "astro": 4,
+      "typescript": 1
+    },
+    "by_convention": {
+      "async-helper": 34,
+      "sync-process-exit": 31
+    },
+    "by_ext": {
+      ".mjs": 60,
+      ".astro": 4,
+      ".ts": 1
+    },
+    "total_lines": 16243
+  },
+  "files": [
+    {
+      "path": "tools/scripts/_lib/artifact-headings.mjs",
+      "size_bytes": 5601,
+      "lines": 171,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/glob-helpers.mjs",
+      "size_bytes": 2116,
+      "lines": 76,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/h2-parser.mjs",
+      "size_bytes": 1375,
+      "lines": 52,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/model-helpers.mjs",
+      "size_bytes": 1761,
+      "lines": 55,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/parse-frontmatter.mjs",
+      "size_bytes": 4795,
+      "lines": 161,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/parse-jsonc.mjs",
+      "size_bytes": 1136,
+      "lines": 38,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/paths.mjs",
+      "size_bytes": 1160,
+      "lines": 30,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/regex-helpers.mjs",
+      "size_bytes": 921,
+      "lines": 33,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/_lib/reporter.mjs",
+      "size_bytes": 3434,
+      "lines": 132,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/_lib/workspace-index.mjs",
+      "size_bytes": 4734,
+      "lines": 151,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "helper",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/benchmark-e2e.mjs",
+      "size_bytes": 27848,
+      "lines": 869,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/capture-drawio-baseline.mjs",
+      "size_bytes": 6392,
+      "lines": 193,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/check-azure-icons-freshness.mjs",
+      "size_bytes": 3149,
+      "lines": 112,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/check-docs-freshness.mjs",
+      "size_bytes": 8168,
+      "lines": 259,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/combine-e2e-runs.mjs",
+      "size_bytes": 14728,
+      "lines": 486,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/fetch-azure-deprecations.mjs",
+      "size_bytes": 6381,
+      "lines": 236,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/fetch-vendor-prompting-guides.mjs",
+      "size_bytes": 8152,
+      "lines": 269,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/generate-explorer-graph.mjs",
+      "size_bytes": 20691,
+      "lines": 685,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/generate-model-catalog.mjs",
+      "size_bytes": 3480,
+      "lines": 102,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/generate-skill-digests.mjs",
+      "size_bytes": 7419,
+      "lines": 252,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/init-from-template.mjs",
+      "size_bytes": 4617,
+      "lines": 171,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/lint-json.mjs",
+      "size_bytes": 1092,
+      "lines": 42,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/render-golden-diff.mjs",
+      "size_bytes": 9108,
+      "lines": 255,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/run-drawio-quality-bench.mjs",
+      "size_bytes": 13278,
+      "lines": 385,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/sync-workflows.mjs",
+      "size_bytes": 3770,
+      "lines": 138,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-agent-registry.mjs",
+      "size_bytes": 5369,
+      "lines": 190,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-agents.mjs",
+      "size_bytes": 38447,
+      "lines": 1230,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-artifacts.mjs",
+      "size_bytes": 41828,
+      "lines": 1349,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-deprecated-models.mjs",
+      "size_bytes": 3621,
+      "lines": 122,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-drawio-files.mjs",
+      "size_bytes": 33909,
+      "lines": 935,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-e2e-step.mjs",
+      "size_bytes": 11819,
+      "lines": 408,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-explorer-graph.mjs",
+      "size_bytes": 4916,
+      "lines": 170,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-glob-audit.mjs",
+      "size_bytes": 2207,
+      "lines": 78,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-governance-refs.mjs",
+      "size_bytes": 7926,
+      "lines": 239,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-governance-trace.mjs",
+      "size_bytes": 5456,
+      "lines": 175,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-hooks.mjs",
+      "size_bytes": 8284,
+      "lines": 293,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-iac-security-baseline.mjs",
+      "size_bytes": 10532,
+      "lines": 336,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-instruction-checks.mjs",
+      "size_bytes": 9575,
+      "lines": 328,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-json-schemas.mjs",
+      "size_bytes": 3405,
+      "lines": 99,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-mcp-config.mjs",
+      "size_bytes": 1892,
+      "lines": 66,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-model-catalog.mjs",
+      "size_bytes": 4267,
+      "lines": 134,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-model-consistency.mjs",
+      "size_bytes": 3803,
+      "lines": 125,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-no-deprecated-refs.mjs",
+      "size_bytes": 9625,
+      "lines": 323,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-no-hardcoded-counts.mjs",
+      "size_bytes": 8621,
+      "lines": 287,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-orphaned-content.mjs",
+      "size_bytes": 6047,
+      "lines": 191,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-registry-skill-coverage.mjs",
+      "size_bytes": 3682,
+      "lines": 120,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-session-state.mjs",
+      "size_bytes": 10918,
+      "lines": 399,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-skill-checks.mjs",
+      "size_bytes": 4170,
+      "lines": 140,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-skills.mjs",
+      "size_bytes": 10263,
+      "lines": 375,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-terminology.mjs",
+      "size_bytes": 6043,
+      "lines": 208,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-version-sync.mjs",
+      "size_bytes": 1692,
+      "lines": 65,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/scripts/validate-vscode-config.mjs",
+      "size_bytes": 8374,
+      "lines": 279,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-workflow-graph.mjs",
+      "size_bytes": 7482,
+      "lines": 276,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "tools/scripts/validate-workflow-table-sync.mjs",
+      "size_bytes": 5788,
+      "lines": 209,
+      "ext": ".mjs",
+      "scope": "tools/scripts",
+      "kind": "validator",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/tests/validate-agents/classify-model.test.mjs",
+      "size_bytes": 2986,
+      "lines": 90,
+      "ext": ".mjs",
+      "scope": "tools/tests",
+      "kind": "test",
+      "convention": "async-helper"
+    },
+    {
+      "path": "tools/tests/vendor-prompting/run.test.mjs",
+      "size_bytes": 6244,
+      "lines": 190,
+      "ext": ".mjs",
+      "scope": "tools/tests",
+      "kind": "test",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/astro.config.mjs",
+      "size_bytes": 8252,
+      "lines": 211,
+      "ext": ".mjs",
+      "scope": "site",
+      "kind": "mjs",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/check-links.mjs",
+      "size_bytes": 3469,
+      "lines": 125,
+      "ext": ".mjs",
+      "scope": "site",
+      "kind": "mjs",
+      "convention": "sync-process-exit"
+    },
+    {
+      "path": "site/src/components/AgentChat.astro",
+      "size_bytes": 8926,
+      "lines": 336,
+      "ext": ".astro",
+      "scope": "site",
+      "kind": "astro",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/src/components/DemoNavigationEnhancer.astro",
+      "size_bytes": 8431,
+      "lines": 269,
+      "ext": ".astro",
+      "scope": "site",
+      "kind": "astro",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/src/components/Footer.astro",
+      "size_bytes": 1631,
+      "lines": 63,
+      "ext": ".astro",
+      "scope": "site",
+      "kind": "astro",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/src/components/demo/DemoOverview.astro",
+      "size_bytes": 6080,
+      "lines": 166,
+      "ext": ".astro",
+      "scope": "site",
+      "kind": "astro",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/src/content.config.ts",
+      "size_bytes": 270,
+      "lines": 8,
+      "ext": ".ts",
+      "scope": "site",
+      "kind": "typescript",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/src/data/demoSteps.mjs",
+      "size_bytes": 10078,
+      "lines": 281,
+      "ext": ".mjs",
+      "scope": "site",
+      "kind": "mjs",
+      "convention": "async-helper"
+    },
+    {
+      "path": "site/src/data/siteConfig.mjs",
+      "size_bytes": 52,
+      "lines": 2,
+      "ext": ".mjs",
+      "scope": "site",
+      "kind": "mjs",
+      "convention": "async-helper"
+    }
+  ]
+}

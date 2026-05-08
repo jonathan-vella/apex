@@ -14,13 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseFrontmatter } from "./parse-frontmatter.mjs";
-import {
-  AGENTS_DIR,
-  SUBAGENTS_DIR,
-  SKILLS_DIR,
-  INSTRUCTIONS_DIR,
-  PROMPT_SOURCE_DIRS,
-} from "./paths.mjs";
+import { AGENTS_DIR, SUBAGENTS_DIR, SKILLS_DIR, INSTRUCTIONS_DIR, PROMPT_SOURCE_DIRS } from "./paths.mjs";
 
 let _agents = null;
 let _skills = null;
@@ -74,9 +68,7 @@ export function getSkills() {
       content = fs.readFileSync(skillFile, "utf-8");
       frontmatter = parseFrontmatter(content);
     }
-    const refFiles = hasRefs
-      ? fs.readdirSync(refsDir).filter((f) => f.endsWith(".md"))
-      : [];
+    const refFiles = hasRefs ? fs.readdirSync(refsDir).filter((f) => f.endsWith(".md")) : [];
     _skills.set(entry.name, {
       dir: skillDir,
       content,

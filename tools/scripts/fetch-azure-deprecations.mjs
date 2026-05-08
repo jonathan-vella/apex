@@ -111,9 +111,7 @@ async function fetchAzureUpdates() {
       const content = title + " " + description;
 
       // Check if this update is about deprecation
-      const isDeprecation = DEPRECATION_KEYWORDS.some((keyword) =>
-        content.includes(keyword),
-      );
+      const isDeprecation = DEPRECATION_KEYWORDS.some((keyword) => content.includes(keyword));
 
       if (isDeprecation) {
         deprecations.push({
@@ -138,12 +136,8 @@ async function fetchAzureUpdates() {
 
 function extractServiceName(title) {
   // Extract service name from title (basic extraction)
-  const match = title?.match(
-    /Azure\s+([A-Za-z\s]+?)(?:\s+(?:is|will|retirement|deprecation))/i,
-  );
-  return match
-    ? match[1].trim()
-    : title?.split(" ").slice(0, 3).join(" ") || "Unknown";
+  const match = title?.match(/Azure\s+([A-Za-z\s]+?)(?:\s+(?:is|will|retirement|deprecation))/i);
+  return match ? match[1].trim() : title?.split(" ").slice(0, 3).join(" ") || "Unknown";
 }
 
 function extractSunsetDate(description) {
@@ -187,9 +181,7 @@ async function main() {
   const allDeprecations = [...KNOWN_DEPRECATIONS];
 
   for (const rss of rssDeprecations) {
-    const exists = allDeprecations.some(
-      (d) => d.service === rss.service && d.sku === rss.sku,
-    );
+    const exists = allDeprecations.some((d) => d.service === rss.service && d.sku === rss.sku);
     if (!exists) {
       allDeprecations.push(rss);
     }
@@ -211,9 +203,7 @@ async function main() {
 
   writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
 
-  console.log(
-    `\n✅ Wrote ${allDeprecations.length} deprecations to ${OUTPUT_FILE}`,
-  );
+  console.log(`\n✅ Wrote ${allDeprecations.length} deprecations to ${OUTPUT_FILE}`);
 
   // Summary
   const upcoming = allDeprecations.filter((d) => {

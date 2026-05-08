@@ -29,12 +29,7 @@ const stepDefinitions = [
       "The opening artifact captures what the catering outlet needs: an online ordering app for pastizzi, Cisk, and Kinnie with GDPR compliance and a EUR 100-500 monthly budget.",
     focus:
       "Read this step to understand the workload goals, compliance scope, and budget constraints before architecture narrows the solution space.",
-    sections: [
-      "Business context",
-      "Functional requirements",
-      "Compliance & security",
-      "Budget & scaling",
-    ],
+    sections: ["Business context", "Functional requirements", "Compliance & security", "Budget & scaling"],
     items: [
       { label: "Overview", slug: "demo/01-requirements" },
       {
@@ -92,11 +87,7 @@ const stepDefinitions = [
       "Three ADRs (App Service S1, Table Storage, public network posture), architecture diagram, and cost breakdown with distribution and projection charts.",
     focus:
       "Look here for the diagrams, architecture decisions, and cost visuals that make the plan auditable before coding starts.",
-    sections: [
-      "Architecture diagram",
-      "Architecture decisions",
-      "Cost estimates",
-    ],
+    sections: ["Architecture diagram", "Architecture decisions", "Cost estimates"],
   },
   {
     id: "governance",
@@ -137,8 +128,7 @@ const stepDefinitions = [
     artifact: "Implementation plan and dependency flow",
     summary:
       "12 resources across 10 AVM Bicep modules deployed in 5 phases. Governance-adapted tag contract expands from 4 to 9 required tags.",
-    focus:
-      "Understand how the codebase is organized and how deployment is staged for safe delivery.",
+    focus: "Understand how the codebase is organized and how deployment is staged for safe delivery.",
     sections: ["Module structure", "Implementation tasks", "Dependency flow"],
   },
   {
@@ -157,8 +147,7 @@ const stepDefinitions = [
     artifact: "Bicep templates and validation results",
     summary:
       "AVM-first Bicep output with 10 modules. Bicep build, lint, and security baseline all pass. Preflight check confirms AVM versions.",
-    focus:
-      "Review how planning decisions become concrete Bicep code and how the validation loop tightens quality.",
+    focus: "Review how planning decisions become concrete Bicep code and how the validation loop tightens quality.",
     sections: ["File structure", "Validation results", "AVM modules"],
   },
   {
@@ -177,8 +166,7 @@ const stepDefinitions = [
     artifact: "Deployment execution summary",
     summary:
       "Deployed via azd provision in 5 minutes. S1 was unavailable in swedencentral — auto-switched to P0v3. All 12 resources provisioned successfully.",
-    focus:
-      "Inspect the preflight checks, deployment phases, and final resource outputs from the live rollout.",
+    focus: "Inspect the preflight checks, deployment phases, and final resource outputs from the live rollout.",
     sections: ["Preflight checks", "Deployment phases", "Outputs"],
   },
   {
@@ -223,8 +211,7 @@ const stepDefinitions = [
     artifact: "Cross-step findings",
     summary:
       "Four independent adversarial reviews found 1 critical (ACR SKU mismatch), 2 high, 10 medium, and 13 low findings across all workflow steps.",
-    focus:
-      "See where the system pushed back, what it caught, and how adversarial review improves the final output.",
+    focus: "See where the system pushed back, what it caught, and how adversarial review improves the final output.",
     sections: ["Requirements", "Architecture", "Governance", "Implementation"],
   },
 ];

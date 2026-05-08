@@ -38,14 +38,8 @@ const TF_DIR = path.join("infra", "terraform", PROJECT);
 // Detect IaC tool from session state
 function detectIacTool() {
   try {
-    const state = JSON.parse(
-      fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"),
-    );
-    return (
-      state.iac_tool ||
-      state.decisions?.iac_tool ||
-      "Bicep"
-    ).toLowerCase();
+    const state = JSON.parse(fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"));
+    return (state.iac_tool || state.decisions?.iac_tool || "Bicep").toLowerCase();
   } catch {
     return "bicep";
   }
@@ -204,9 +198,7 @@ function scoreArtifactCompleteness() {
     },
   ];
 
-  const handledAlternatives = new Set(
-    alternativeGroups.flatMap((group) => group.names),
-  );
+  const handledAlternatives = new Set(alternativeGroups.flatMap((group) => group.names));
 
   for (const [name, spec] of Object.entries(EXPECTED_ARTIFACTS)) {
     if (handledAlternatives.has(name)) {
@@ -280,21 +272,15 @@ function scoreCodeQuality() {
       return { score: 0, details: "main.tf not found", grade: "F" };
     }
 
-    const initPass = runCmd(
-      `terraform -chdir=${TF_DIR} init -backend=false -input=false`,
-    );
-    const validatePass = initPass
-      ? runCmd(`terraform -chdir=${TF_DIR} validate`)
-      : false;
+    const initPass = runCmd(`terraform -chdir=${TF_DIR} init -backend=false -input=false`);
+    const validatePass = initPass ? runCmd(`terraform -chdir=${TF_DIR} validate`) : false;
     const fmtPass = runCmd(`terraform fmt -check -recursive ${TF_DIR}`);
 
     // Check for AVM-TF module usage
     let avmCount = 0;
     try {
       const content = fs.readFileSync(mainTf, "utf-8");
-      avmCount = (
-        content.match(/registry\.terraform\.io\/Azure\/avm-res-/g) || []
-      ).length;
+      avmCount = (content.match(/registry\.terraform\.io\/Azure\/avm-res-/g) || []).length;
     } catch {
       /* empty */
     }
@@ -349,8 +335,7 @@ function scoreCodeQuality() {
 
 function scoreReviewThoroughness() {
   const state = readJson(path.join(OUTPUT_DIR, "00-session-state.json"));
-  if (!state || !state.review_audit)
-    return { score: 0, details: "No review audit data", grade: "F" };
+  if (!state || !state.review_audit) return { score: 0, details: "No review audit data", grade: "F" };
 
   let stepsWithReview = 0;
   let totalSteps = 0;
@@ -366,28 +351,18 @@ function scoreReviewThoroughness() {
     }
   }
 
-  const score =
-    totalSteps > 0 ? Math.round((stepsWithReview / totalSteps) * 100) : 0;
+  const score = totalSteps > 0 ? Math.round((stepsWithReview / totalSteps) * 100) : 0;
   return { score, details, grade: gradeScore(score) };
 }
 
 function scoreWafCoverage() {
   const archFile = path.join(OUTPUT_DIR, "02-architecture-assessment.md");
-  if (!fileExists(archFile))
-    return { score: 0, details: "No architecture assessment", grade: "F" };
+  if (!fileExists(archFile)) return { score: 0, details: "No architecture assessment", grade: "F" };
 
   try {
     const content = fs.readFileSync(archFile, "utf-8");
-    const pillars = [
-      "Security",
-      "Reliability",
-      "Performance",
-      "Cost",
-      "Operations",
-    ];
-    const found = pillars.filter((p) =>
-      content.toLowerCase().includes(p.toLowerCase()),
-    );
+    const pillars = ["Security", "Reliability", "Performance", "Cost", "Operations"];
+    const found = pillars.filter((p) => content.toLowerCase().includes(p.toLowerCase()));
     const score = Math.round((found.length / pillars.length) * 100);
     return { score, pillars_found: found, grade: gradeScore(score) };
   } catch {
@@ -403,8 +378,7 @@ function scoreCostAccuracy() {
   const state = readJson(path.join(OUTPUT_DIR, "00-session-state.json"));
   const budget = state?.decisions?.budget || "";
   const budgetMatch = budget.match(/(\d+)/);
-  if (!budgetMatch)
-    return { score: 50, details: "No budget in decisions", grade: "D" };
+  if (!budgetMatch) return { score: 50, details: "No budget in decisions", grade: "D" };
 
   // Check if cost estimate exists
   const costFile = path.join(OUTPUT_DIR, "03-des-cost-estimate.md");
@@ -454,9 +428,7 @@ function scoreSessionStateIntegrity() {
     checks.push("decision_log: empty or missing");
   }
   if (state.steps) {
-    const completedSteps = Object.values(state.steps).filter(
-      (s) => s.status === "complete",
-    ).length;
+    const completedSteps = Object.values(state.steps).filter((s) => s.status === "complete").length;
     const stepScore = Math.min(40, Math.round((completedSteps / 8) * 40));
     score += stepScore;
     checks.push(`steps completed: ${completedSteps}/8`);
@@ -470,8 +442,7 @@ function scoreTimingPerformance() {
   if (!iterLog || !iterLog.entries || iterLog.entries.length === 0) {
     return {
       score: 0,
-      details:
-        "No iteration log data — orchestrator failed to populate 08-iteration-log.json",
+      details: "No iteration log data — orchestrator failed to populate 08-iteration-log.json",
       grade: "F",
     };
   }
@@ -500,20 +471,11 @@ function scoreTimingPerformance() {
 // uplift code change lands; the post-change reduction target is >=40%.
 // Path matches the rubric's `regen_rate.baseline_path` and the golden-
 // scenario fixture pack location (tools/tests/drawio-golden/).
-const REGEN_BASELINE_PATH = path.join(
-  "tools",
-  "tests",
-  "drawio-baseline",
-  "regen-baseline.json",
-);
+const REGEN_BASELINE_PATH = path.join("tools", "tests", "drawio-baseline", "regen-baseline.json");
 
 function scoreRegenerationRate() {
   const iterLog = readJson(path.join(OUTPUT_DIR, "08-iteration-log.json"));
-  if (
-    !iterLog ||
-    !Array.isArray(iterLog.entries) ||
-    iterLog.entries.length === 0
-  ) {
+  if (!iterLog || !Array.isArray(iterLog.entries) || iterLog.entries.length === 0) {
     return {
       score: 0,
       details: "No iteration log data; cannot compute regeneration rate",
@@ -551,8 +513,7 @@ function scoreRegenerationRate() {
   if (drawioArtifacts.size === 0) {
     return {
       score: null,
-      details:
-        "No .drawio artifacts recorded with artifact_retries; dimension not applicable to this run",
+      details: "No .drawio artifacts recorded with artifact_retries; dimension not applicable to this run",
       drawio_artifacts: 0,
       total_retries: 0,
       total_friction: 0,
@@ -571,9 +532,7 @@ function scoreRegenerationRate() {
     return {
       score: null,
       details:
-        "No regen-rate baseline at " +
-        REGEN_BASELINE_PATH +
-        " (captured by T-012); reporting raw current means only",
+        "No regen-rate baseline at " + REGEN_BASELINE_PATH + " (captured by T-012); reporting raw current means only",
       drawio_artifacts: drawioArtifacts.size,
       total_retries: totalRetries,
       total_friction: totalFriction,
@@ -589,9 +548,7 @@ function scoreRegenerationRate() {
   // baseline lacks the friction field (older baselines).
   const baselineRetryMean = baseline.mean_retries_per_drawio;
   const baselineFrictionMean =
-    typeof baseline.mean_friction_per_drawio === "number"
-      ? baseline.mean_friction_per_drawio
-      : 0;
+    typeof baseline.mean_friction_per_drawio === "number" ? baseline.mean_friction_per_drawio : 0;
   const baselineCostMean =
     typeof baseline.mean_cost_per_drawio === "number"
       ? baseline.mean_cost_per_drawio
@@ -620,8 +577,7 @@ function scoreRegenerationRate() {
     baseline_mean_retries_per_drawio: baselineRetryMean,
     baseline_mean_friction_per_drawio: baselineFrictionMean,
     baseline_mean_cost_per_drawio: baselineCostMean,
-    baseline_commit_sha:
-      baseline.commit_sha || baseline.captured_on_commit || null,
+    baseline_commit_sha: baseline.commit_sha || baseline.captured_on_commit || null,
     target_reduction_pct: baseline.target_reduction_pct || 40,
     grade: gradeScore(score),
   };
@@ -679,8 +635,7 @@ function generateBenchmarkReport(scores, composite) {
 
   if (state?.steps) {
     for (const [num, step] of Object.entries(state.steps)) {
-      const stepIters =
-        iterLog?.entries?.filter((e) => String(e.step) === num).length || 0;
+      const stepIters = iterLog?.entries?.filter((e) => String(e.step) === num).length || 0;
       report += `| ${num} | ${step.name} | ${step.status} | ${stepIters} | ${step.artifacts?.length || 0} artifacts |\n`;
     }
   }
@@ -710,11 +665,7 @@ function generateBenchmarkReport(scores, composite) {
     report += `| - | -------- | -------- | ----- | ---------- |\n`;
 
     for (const lesson of sorted) {
-      const appliesTo = (
-        lesson.applies_to_paths ||
-        lesson.applies_to ||
-        []
-      ).join(", ");
+      const appliesTo = (lesson.applies_to_paths || lesson.applies_to || []).join(", ");
       report += `| ${lesson.id} | ${lesson.severity} | ${lesson.category} | ${lesson.title} | ${appliesTo} |\n`;
     }
   }
@@ -752,18 +703,11 @@ function runCompare() {
 
   const results = [];
   for (const proj of projects) {
-    const scoresPath = path.join(
-      agentOutputDir,
-      proj,
-      "08-benchmark-scores.json",
-    );
+    const scoresPath = path.join(agentOutputDir, proj, "08-benchmark-scores.json");
     const existingScores = readJson(scoresPath);
     if (existingScores?.composite) {
-      const state = readJson(
-        path.join(agentOutputDir, proj, "00-session-state.json"),
-      );
-      const iacTool =
-        state?.iac_tool || state?.decisions?.iac_tool || "Unknown";
+      const state = readJson(path.join(agentOutputDir, proj, "00-session-state.json"));
+      const iacTool = state?.iac_tool || state?.decisions?.iac_tool || "Unknown";
       results.push({
         project: proj,
         iac_tool: iacTool,
@@ -775,9 +719,7 @@ function runCompare() {
   }
 
   if (results.length === 0) {
-    console.log(
-      "  ⚠️  No benchmark scores found. Run benchmarks on individual projects first.",
-    );
+    console.log("  ⚠️  No benchmark scores found. Run benchmarks on individual projects first.");
     process.exit(0);
   }
 
@@ -790,9 +732,7 @@ function runCompare() {
     );
   }
 
-  const avgScore = Math.round(
-    results.reduce((sum, r) => sum + r.score, 0) / results.length,
-  );
+  const avgScore = Math.round(results.reduce((sum, r) => sum + r.score, 0) / results.length);
   console.log(`\n  📊 Average composite: ${avgScore}/100`);
   process.exit(0);
 }
@@ -832,8 +772,7 @@ const composite = { score: compositeScore, grade: gradeScore(compositeScore) };
 
 // Print summary
 for (const [dim, result] of Object.entries(scores)) {
-  const display =
-    typeof result.score === "number" ? `${result.score}/100` : "N/A";
+  const display = typeof result.score === "number" ? `${result.score}/100` : "N/A";
   console.log(`  ${result.grade} ${dim.replace(/_/g, " ")}: ${display}`);
 }
 console.log(`\n  🏆 Composite: ${composite.score}/100 (${composite.grade})`);
@@ -845,10 +784,7 @@ const scoresJson = {
   scores,
   composite,
 };
-fs.writeFileSync(
-  path.join(OUTPUT_DIR, "08-benchmark-scores.json"),
-  JSON.stringify(scoresJson, null, 2),
-);
+fs.writeFileSync(path.join(OUTPUT_DIR, "08-benchmark-scores.json"), JSON.stringify(scoresJson, null, 2));
 
 // Write markdown report
 const report = generateBenchmarkReport(scores, composite);

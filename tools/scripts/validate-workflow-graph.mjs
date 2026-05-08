@@ -17,8 +17,7 @@ import fs from "node:fs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const GRAPH_PATH =
-  ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
 
 const r = new Reporter("Workflow Graph Validator");
 
@@ -144,27 +143,19 @@ function validateChallenger(nodeId, challenger) {
   if (challenger.complexity_matrix) {
     for (const tier of COMPLEXITY_TIERS) {
       if (!challenger.complexity_matrix[tier]) {
-        r.error(
-          `Node "${nodeId}" challenger.complexity_matrix missing required tier: "${tier}"`,
-        );
+        r.error(`Node "${nodeId}" challenger.complexity_matrix missing required tier: "${tier}"`);
         continue;
       }
       const entry = challenger.complexity_matrix[tier];
       if (typeof entry.passes !== "number" || entry.passes < 1) {
-        r.error(
-          `Node "${nodeId}" challenger.complexity_matrix.${tier}.passes must be a positive integer`,
-        );
+        r.error(`Node "${nodeId}" challenger.complexity_matrix.${tier}.passes must be a positive integer`);
       }
       if (!Array.isArray(entry.lenses) || entry.lenses.length === 0) {
-        r.error(
-          `Node "${nodeId}" challenger.complexity_matrix.${tier}.lenses must be a non-empty array`,
-        );
+        r.error(`Node "${nodeId}" challenger.complexity_matrix.${tier}.lenses must be a non-empty array`);
       } else {
         for (const lens of entry.lenses) {
           if (!VALID_LENSES.includes(lens)) {
-            r.error(
-              `Node "${nodeId}" challenger.complexity_matrix.${tier} has invalid lens: "${lens}"`,
-            );
+            r.error(`Node "${nodeId}" challenger.complexity_matrix.${tier} has invalid lens: "${lens}"`);
           }
         }
       }
@@ -172,18 +163,11 @@ function validateChallenger(nodeId, challenger) {
   }
 
   // Validate skip_condition references valid fields
-  if (
-    challenger.skip_condition &&
-    typeof challenger.skip_condition === "string"
-  ) {
+  if (challenger.skip_condition && typeof challenger.skip_condition === "string") {
     const allowedFields = ["complexity", "open_findings"];
-    const hasValidRef = allowedFields.some((f) =>
-      challenger.skip_condition.includes(f),
-    );
+    const hasValidRef = allowedFields.some((f) => challenger.skip_condition.includes(f));
     if (!hasValidRef) {
-      r.warn(
-        `Node "${nodeId}" challenger.skip_condition does not reference known fields (complexity, open_findings)`,
-      );
+      r.warn(`Node "${nodeId}" challenger.skip_condition does not reference known fields (complexity, open_findings)`);
     }
   }
 }
@@ -206,9 +190,7 @@ for (const [nodeId, node] of Object.entries(graph.nodes)) {
       // Try matching by common patterns
       const kebab = agentName.toLowerCase().replace(/\s+/g, "-");
       if (!agentFiles.has(kebab)) {
-        r.warn(
-          `Node "${nodeId}" references agent "${agentName}" — not found in agent files`,
-        );
+        r.warn(`Node "${nodeId}" references agent "${agentName}" — not found in agent files`);
       }
     }
   }
@@ -239,16 +221,12 @@ for (const edge of graph.edges) {
 
   const validConditions = ["on_complete", "on_skip", "on_fail"];
   if (!validConditions.includes(edge.condition)) {
-    r.error(
-      `Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`,
-    );
+    r.error(`Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`);
   }
 }
 
 // Check for orphan nodes (not targeted by any edge and not a root)
-const rootNodes = Object.values(graph.nodes).filter(
-  (n) => !n.requires || n.requires.length === 0,
-);
+const rootNodes = Object.values(graph.nodes).filter((n) => !n.requires || n.requires.length === 0);
 const rootNodeIds = new Set(rootNodes.map((n) => n.id));
 
 for (const nodeId of nodeIds) {

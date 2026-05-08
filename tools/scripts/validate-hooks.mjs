@@ -85,9 +85,7 @@ if (hookDirs.length === 0) {
   process.exit(1);
 }
 
-console.log(
-  `Found ${hookDirs.length} hook directories: ${hookDirs.join(", ")}\n`,
-);
+console.log(`Found ${hookDirs.length} hook directories: ${hookDirs.join(", ")}\n`);
 
 // ── 2. Validate each hook directory ──
 const discoveredDirs = [];
@@ -122,9 +120,7 @@ for (const dir of hookDirs) {
   // 2d. Validate event names and entries
   for (const [event, entries] of Object.entries(hookConfig.hooks)) {
     if (!VALID_EVENTS.has(event)) {
-      fail(
-        `${dir}/hooks.json has invalid event name: "${event}". Valid: ${[...VALID_EVENTS].join(", ")}`,
-      );
+      fail(`${dir}/hooks.json has invalid event name: "${event}". Valid: ${[...VALID_EVENTS].join(", ")}`);
       continue;
     }
 
@@ -136,9 +132,7 @@ for (const dir of hookDirs) {
     for (const entry of entries) {
       // 2e. Validate type
       if (entry.type !== "command") {
-        fail(
-          `${dir}/hooks.json entry type must be "command", got "${entry.type}"`,
-        );
+        fail(`${dir}/hooks.json entry type must be "command", got "${entry.type}"`);
       }
 
       // 2f. Validate command path
@@ -147,9 +141,7 @@ for (const dir of hookDirs) {
         continue;
       }
 
-      const { scriptPath: commandScriptPath, usesBash } = parseCommand(
-        entry.command,
-      );
+      const { scriptPath: commandScriptPath, usesBash } = parseCommand(entry.command);
 
       if (commandScriptPath.endsWith(".sh") && !usesBash) {
         fail(
@@ -161,9 +153,7 @@ for (const dir of hookDirs) {
 
       const scriptPath = resolve(REPO_ROOT, commandScriptPath);
       if (!existsSync(scriptPath)) {
-        fail(
-          `${dir}/hooks.json references missing script: ${commandScriptPath}`,
-        );
+        fail(`${dir}/hooks.json references missing script: ${commandScriptPath}`);
       } else {
         pass(`Script exists: ${commandScriptPath}`);
 
@@ -171,9 +161,7 @@ for (const dir of hookDirs) {
         const scriptContent = readFileSync(scriptPath, "utf-8");
         const lines = scriptContent.split("\n");
         if (!lines[0]?.startsWith("#!/usr/bin/env bash")) {
-          fail(
-            `Script ${commandScriptPath} missing shebang (#!/usr/bin/env bash)`,
-          );
+          fail(`Script ${commandScriptPath} missing shebang (#!/usr/bin/env bash)`);
         } else {
           pass(`Script has correct shebang`);
         }
@@ -187,14 +175,8 @@ for (const dir of hookDirs) {
 
       // 2h. Validate timeout
       if (entry.timeout !== undefined) {
-        if (
-          typeof entry.timeout !== "number" ||
-          entry.timeout < MIN_TIMEOUT ||
-          entry.timeout > MAX_TIMEOUT
-        ) {
-          fail(
-            `${dir}/hooks.json timeout must be ${MIN_TIMEOUT}-${MAX_TIMEOUT}s, got ${entry.timeout}`,
-          );
+        if (typeof entry.timeout !== "number" || entry.timeout < MIN_TIMEOUT || entry.timeout > MAX_TIMEOUT) {
+          fail(`${dir}/hooks.json timeout must be ${MIN_TIMEOUT}-${MAX_TIMEOUT}s, got ${entry.timeout}`);
         } else {
           pass(`Timeout: ${entry.timeout}s`);
         }
@@ -258,10 +240,7 @@ if (!existsSync(DEVCONTAINER_PATH)) {
   }
 
   if (devcontainer) {
-    const dcHookLocations =
-      devcontainer?.customizations?.vscode?.settings?.[
-        "chat.hookFilesLocations"
-      ] || {};
+    const dcHookLocations = devcontainer?.customizations?.vscode?.settings?.["chat.hookFilesLocations"] || {};
 
     for (const dir of discoveredDirs) {
       const settingsKey = `.github/hooks/${dir}`;
@@ -276,9 +255,7 @@ if (!existsSync(DEVCONTAINER_PATH)) {
     for (const key of Object.keys(dcHookLocations)) {
       const dirName = basename(key);
       if (!discoveredDirs.includes(dirName)) {
-        warn(
-          `devcontainer.json references non-existent hook directory: ${key}`,
-        );
+        warn(`devcontainer.json references non-existent hook directory: ${key}`);
       }
     }
   }

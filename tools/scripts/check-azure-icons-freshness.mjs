@@ -15,14 +15,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const MANIFEST_PATH = path.join(
-  "assets",
-  "drawio-libraries",
-  "azure-icons",
-  "manifest.json",
-);
-const ICONS_PAGE_URL =
-  "https://learn.microsoft.com/en-us/azure/architecture/icons/";
+const MANIFEST_PATH = path.join("assets", "drawio-libraries", "azure-icons", "manifest.json");
+const ICONS_PAGE_URL = "https://learn.microsoft.com/en-us/azure/architecture/icons/";
 
 const args = new Set(process.argv.slice(2));
 const STRICT = args.has("--strict");
@@ -59,14 +53,11 @@ let upstreamHtml;
 try {
   const res = await fetch(ICONS_PAGE_URL, {
     headers: {
-      "User-Agent":
-        "apex-icons-freshness-check/1.0 (+https://github.com/jonathan-vella/azure-agentic-infraops)",
+      "User-Agent": "apex-icons-freshness-check/1.0 (+https://github.com/jonathan-vella/azure-agentic-infraops)",
     },
   });
   if (!res.ok) {
-    warn(
-      `Upstream check skipped: HTTP ${res.status} from ${ICONS_PAGE_URL} (offline or rate-limited)`,
-    );
+    warn(`Upstream check skipped: HTTP ${res.status} from ${ICONS_PAGE_URL} (offline or rate-limited)`);
     process.exit(0);
   }
   upstreamHtml = await res.text();
@@ -84,8 +75,7 @@ const latestUpstream = upstreamVersions[upstreamVersions.length - 1] || null;
 
 if (!latestUpstream) {
   warn(
-    `Could not parse a version label from ${ICONS_PAGE_URL}. ` +
-      `Page format may have changed; manifest unchanged.`,
+    `Could not parse a version label from ${ICONS_PAGE_URL}. ` + `Page format may have changed; manifest unchanged.`,
   );
   process.exit(0);
 }

@@ -1,0 +1,83 @@
+Phase 1.2(b) — Prettier diff count using proposed config (cold cache)
+
+Run: 2026-05-08
+Config: tmp/eslint-discovery/proposed.prettierrc.json
+File set: tmp/eslint-discovery/inventory.json (65 files in scope)
+
+Results
+-------
+- JS / TS / MJS files checked: 61
+- JS / TS / MJS files needing reformat: 50  (82.0%)
+- Astro files checked (with prettier-plugin-astro): 4
+- Astro files needing reformat: 4  (100%)
+- Total in-scope files needing reformat: 54 of 65  (83.1%)
+
+Wall-clock (cold, first run, npx download):
+- JS/TS pass: 2.858s real
+- Astro pass: 1.247s real
+- Total: ~4.1s real
+
+Files needing reformat (first 50)
+---------------------------------
+tools/scripts/_lib/glob-helpers.mjs
+tools/scripts/_lib/h2-parser.mjs
+tools/scripts/_lib/parse-jsonc.mjs
+tools/scripts/_lib/workspace-index.mjs
+tools/scripts/benchmark-e2e.mjs
+tools/scripts/capture-drawio-baseline.mjs
+tools/scripts/check-azure-icons-freshness.mjs
+tools/scripts/check-docs-freshness.mjs
+tools/scripts/combine-e2e-runs.mjs
+tools/scripts/fetch-azure-deprecations.mjs
+tools/scripts/fetch-vendor-prompting-guides.mjs
+tools/scripts/generate-explorer-graph.mjs
+tools/scripts/generate-model-catalog.mjs
+tools/scripts/generate-skill-digests.mjs
+tools/scripts/init-from-template.mjs
+tools/scripts/render-golden-diff.mjs
+tools/scripts/run-drawio-quality-bench.mjs
+tools/scripts/sync-workflows.mjs
+tools/scripts/validate-agent-registry.mjs
+tools/scripts/validate-agents.mjs
+tools/scripts/validate-artifacts.mjs
+tools/scripts/validate-deprecated-models.mjs
+tools/scripts/validate-drawio-files.mjs
+tools/scripts/validate-e2e-step.mjs
+tools/scripts/validate-explorer-graph.mjs
+tools/scripts/validate-glob-audit.mjs
+tools/scripts/validate-governance-refs.mjs
+tools/scripts/validate-governance-trace.mjs
+tools/scripts/validate-hooks.mjs
+tools/scripts/validate-iac-security-baseline.mjs
+tools/scripts/validate-instruction-checks.mjs
+tools/scripts/validate-json-schemas.mjs
+tools/scripts/validate-mcp-config.mjs
+tools/scripts/validate-model-catalog.mjs
+tools/scripts/validate-model-consistency.mjs
+tools/scripts/validate-no-deprecated-refs.mjs
+tools/scripts/validate-no-hardcoded-counts.mjs
+tools/scripts/validate-orphaned-content.mjs
+tools/scripts/validate-registry-skill-coverage.mjs
+tools/scripts/validate-session-state.mjs
+tools/scripts/validate-skill-checks.mjs
+tools/scripts/validate-skills.mjs
+tools/scripts/validate-terminology.mjs
+tools/scripts/validate-vscode-config.mjs
+tools/scripts/validate-workflow-graph.mjs
+tools/scripts/validate-workflow-table-sync.mjs
+tools/tests/validate-agents/classify-model.test.mjs
+tools/tests/vendor-prompting/run.test.mjs
+site/astro.config.mjs
+site/src/data/demoSteps.mjs
+
+Astro files needing reformat (4)
+--------------------------------
+site/src/components/AgentChat.astro
+site/src/components/DemoNavigationEnhancer.astro
+site/src/components/Footer.astro
+site/src/components/demo/DemoOverview.astro
+
+Implication for Phase 3.2
+-------------------------
+A one-time mass-reformat will touch 54 files. Per the plan, this lands as a single mechanical commit on
+chore/prettier-mass-reformat with a .git-blame-ignore-revs entry to keep `git blame` clean.

@@ -19,12 +19,7 @@ import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_LINES_WITH_WILDCARD } from "./_lib/paths.mjs";
 
 const MAX_LINES_WITH_BROAD_MD = 200;
-const BROAD_MD_GLOBS = new Set([
-  "**/*.md",
-  '"**/*.md"',
-  "**/*.{md,mdx}",
-  '"**/*.{md,mdx}"',
-]);
+const BROAD_MD_GLOBS = new Set(["**/*.md", '"**/*.md"', "**/*.{md,mdx}", '"**/*.{md,mdx}"']);
 
 const r = new Reporter("Glob Audit Validator");
 r.header();
@@ -37,9 +32,7 @@ for (const [file, instr] of instructions) {
 
   if (!fm || !fm.applyTo) continue;
 
-  const applyTo = Array.isArray(fm.applyTo)
-    ? fm.applyTo.join(", ")
-    : String(fm.applyTo);
+  const applyTo = Array.isArray(fm.applyTo) ? fm.applyTo.join(", ") : String(fm.applyTo);
   const trimmed = applyTo.trim();
   const lineCount = content.split("\n").length;
 
@@ -47,17 +40,10 @@ for (const [file, instr] of instructions) {
   const isBroadMarkdown = BROAD_MD_GLOBS.has(trimmed);
 
   if (isFullWildcard) {
-    r.warnAnnotation(
-      instr.path,
-      `${file} has applyTo: "**" (matches every file) — narrow to specific extensions`,
-    );
-    console.log(
-      '  Fix: Narrow the glob to specific extensions (e.g., "**/*.{js,ts,py,bicep,tf}")',
-    );
+    r.warnAnnotation(instr.path, `${file} has applyTo: "**" (matches every file) — narrow to specific extensions`);
+    console.log('  Fix: Narrow the glob to specific extensions (e.g., "**/*.{js,ts,py,bicep,tf}")');
     if (lineCount > MAX_LINES_WITH_WILDCARD) {
-      console.log(
-        `  Note: also ${lineCount} lines (>${MAX_LINES_WITH_WILDCARD}) — impact amplified.`,
-      );
+      console.log(`  Note: also ${lineCount} lines (>${MAX_LINES_WITH_WILDCARD}) — impact amplified.`);
     }
     continue;
   }
@@ -67,9 +53,7 @@ for (const [file, instr] of instructions) {
       instr.path,
       `${file} applies to all markdown (${trimmed}) and is ${lineCount} lines (>${MAX_LINES_WITH_BROAD_MD})`,
     );
-    console.log(
-      "  Fix: Scope to specific folders (site/src/content/docs/**, .github/**, root *.md)",
-    );
+    console.log("  Fix: Scope to specific folders (site/src/content/docs/**, .github/**, root *.md)");
   }
 }
 

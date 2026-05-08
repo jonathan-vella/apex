@@ -41,9 +41,7 @@ export function walkFiles(dir, extensions, options = {}) {
   if (!fs.existsSync(root)) return [];
 
   const exts = Array.isArray(extensions) ? extensions : [extensions];
-  const excludeDirs = options.excludeDirs
-    ? new Set([...ALWAYS_EXCLUDE, ...options.excludeDirs])
-    : ALWAYS_EXCLUDE;
+  const excludeDirs = options.excludeDirs ? new Set([...ALWAYS_EXCLUDE, ...options.excludeDirs]) : ALWAYS_EXCLUDE;
 
   const results = [];
 
@@ -62,9 +60,7 @@ export function walkFiles(dir, extensions, options = {}) {
         }
       } else if (entry.isFile()) {
         if (exts.some((ext) => entry.name.endsWith(ext))) {
-          results.push(
-            path.relative(process.cwd(), path.join(currentDir, entry.name)),
-          );
+          results.push(path.relative(process.cwd(), path.join(currentDir, entry.name)));
         }
       }
     }

@@ -32,8 +32,7 @@ const KNOWN_OVERSIZED = new Set([
   "azure-quotas",
 ]);
 
-const AUTO_GEN_HEADER =
-  "<!-- digest:auto-generated from SKILL.md — do not edit manually -->";
+const AUTO_GEN_HEADER = "<!-- digest:auto-generated from SKILL.md — do not edit manually -->";
 
 const skills = getSkills();
 
@@ -59,9 +58,7 @@ for (const [skill, info] of skills) {
         skillPath,
         `${skill}/SKILL.md is ${lineCount} lines (>${MAX_SKILL_LINES_WITHOUT_REFS}) without references/`,
       );
-      console.log(
-        `  Fix: Create ${refsDir}/ and move detailed content to reference files.`,
-      );
+      console.log(`  Fix: Create ${refsDir}/ and move detailed content to reference files.`);
     }
   } else if (lineCount > MAX_SKILL_LINES_WITHOUT_REFS && hasRefs) {
     r.warn(
@@ -86,10 +83,7 @@ for (const [skill, info] of skills) {
 
   const digestRatio = digestLines / lineCount;
   if (digestRatio > 0.6) {
-    r.warn(
-      skill,
-      `Digest is ${Math.round(digestRatio * 100)}% of source (target: <60%)`,
-    );
+    r.warn(skill, `Digest is ${Math.round(digestRatio * 100)}% of source (target: <60%)`);
   }
 
   const sourceH2s = extractH2Headings(info.content);
@@ -98,19 +92,14 @@ for (const [skill, info] of skills) {
     const normalized = h2.replace(/\s*\(.*\)$/, "").trim();
     const matchesSource = sourceH2s.some(
       (sh2) =>
-        sh2.includes(normalized) ||
-        normalized.includes(sh2) ||
-        sh2.replace(/\s*\(.*\)$/, "").trim() === normalized,
+        sh2.includes(normalized) || normalized.includes(sh2) || sh2.replace(/\s*\(.*\)$/, "").trim() === normalized,
     );
     if (!matchesSource) {
       r.warn(skill, `Digest H2 "${h2}" not found in source SKILL.md`);
     }
   }
 
-  r.ok(
-    skill,
-    `digest: ${digestLines} lines (${Math.round(digestRatio * 100)}% of source)`,
-  );
+  r.ok(skill, `digest: ${digestLines} lines (${Math.round(digestRatio * 100)}% of source)`);
 
   if (fs.existsSync(minimalPath)) {
     const minimalContent = fs.readFileSync(minimalPath, "utf-8");
@@ -122,16 +111,10 @@ for (const [skill, info] of skills) {
 
     const minimalRatio = minimalLines / digestLines;
     if (minimalRatio > 0.5) {
-      r.warn(
-        skill,
-        `Minimal is ${Math.round(minimalRatio * 100)}% of digest (target: <50%)`,
-      );
+      r.warn(skill, `Minimal is ${Math.round(minimalRatio * 100)}% of digest (target: <50%)`);
     }
 
-    r.ok(
-      skill,
-      `minimal: ${minimalLines} lines (${Math.round(minimalRatio * 100)}% of digest)`,
-    );
+    r.ok(skill, `minimal: ${minimalLines} lines (${Math.round(minimalRatio * 100)}% of digest)`);
   }
 }
 

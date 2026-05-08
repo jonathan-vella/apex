@@ -28,12 +28,7 @@ function validateAgentEntry(key, entry, skillNames) {
     for (const variant of ["bicep", "terraform"]) {
       if (entry[variant]) {
         validateAgentFile(key, entry[variant].agent);
-        validateSkills(
-          `${key} (${variant})`,
-          entry[variant].skills,
-          entry[variant].capability_skills,
-          skillNames,
-        );
+        validateSkills(`${key} (${variant})`, entry[variant].skills, entry[variant].capability_skills, skillNames);
       }
     }
     return;
@@ -67,19 +62,13 @@ function validateSkills(key, skills, capabilitySkills, skillNames) {
     }
     for (const skill of capabilitySkills) {
       if (!skillNames.has(skill)) {
-        r.error(
-          `Agent "${key}"`,
-          `references non-existent capability skill: "${skill}"`,
-        );
+        r.error(`Agent "${key}"`, `references non-existent capability skill: "${skill}"`);
       }
     }
     const skillSet = new Set(skills);
     for (const cap of capabilitySkills) {
       if (skillSet.has(cap)) {
-        r.error(
-          `Agent "${key}"`,
-          `skill "${cap}" appears in both skills[] and capability_skills[]`,
-        );
+        r.error(`Agent "${key}"`, `skill "${cap}" appears in both skills[] and capability_skills[]`);
       }
     }
   }
@@ -138,10 +127,7 @@ for (const [file, agent] of getAgents()) {
 function crossCheckModel(registryKey, registryModel, agentFilePath) {
   if (!registryModel || !agentFilePath) return;
   for (const [file, fm] of agentMap) {
-    if (
-      agentFilePath.endsWith(file) ||
-      file.endsWith(agentFilePath.replace(/^\.github\/agents\//, ""))
-    ) {
+    if (agentFilePath.endsWith(file) || file.endsWith(agentFilePath.replace(/^\.github\/agents\//, ""))) {
       const yamlModel = Array.isArray(fm.model) ? fm.model[0] : fm.model;
       if (yamlModel) {
         const cleanYaml = yamlModel.replace(/ \(copilot\)$/, "");
@@ -158,20 +144,11 @@ function crossCheckModel(registryKey, registryModel, agentFilePath) {
   }
 }
 
-const allEntries = [
-  ...Object.entries(registry.agents || {}),
-  ...Object.entries(registry.subagents || {}),
-];
+const allEntries = [...Object.entries(registry.agents || {}), ...Object.entries(registry.subagents || {})];
 for (const [key, entry] of allEntries) {
   if (entry.bicep || entry.terraform) {
-    if (entry.bicep)
-      crossCheckModel(key + " (bicep)", entry.bicep.model, entry.bicep.agent);
-    if (entry.terraform)
-      crossCheckModel(
-        key + " (terraform)",
-        entry.terraform.model,
-        entry.terraform.agent,
-      );
+    if (entry.bicep) crossCheckModel(key + " (bicep)", entry.bicep.model, entry.bicep.agent);
+    if (entry.terraform) crossCheckModel(key + " (terraform)", entry.terraform.model, entry.terraform.agent);
   } else {
     crossCheckModel(key, entry.model, entry.agent);
   }

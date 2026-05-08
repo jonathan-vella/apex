@@ -58,18 +58,12 @@ const FIXTURES_DIR = path.join("tools", "tests", "drawio-golden");
 // G1..G7 outputs to disk; T-033 re-uses them as the "before" state.
 const SCENARIO_DRAWIO = {
   "g1-three-tier-web": "agent-output/g1-three-tier/03-des-diagram.drawio",
-  "g2-hub-spoke-landing-zone":
-    "agent-output/g2-hub-spoke/03-des-diagram.drawio",
-  "g3-event-driven-microservices":
-    "agent-output/g3-event-driven-microservices/03-des-diagram.drawio",
-  "g4-ml-training-pipeline":
-    "agent-output/g4-ml-training/03-des-diagram.drawio",
-  "g5-enterprise-landing-zone":
-    "agent-output/g5-enterprise-landing-zone/03-des-diagram.drawio",
-  "g6-hyperscale-platform":
-    "agent-output/g6-hyperscale-platform/03-des-diagram.drawio",
-  "g7-multi-region-active-active":
-    "agent-output/g7-multi-region-active-active/03-des-diagram.drawio",
+  "g2-hub-spoke-landing-zone": "agent-output/g2-hub-spoke/03-des-diagram.drawio",
+  "g3-event-driven-microservices": "agent-output/g3-event-driven-microservices/03-des-diagram.drawio",
+  "g4-ml-training-pipeline": "agent-output/g4-ml-training/03-des-diagram.drawio",
+  "g5-enterprise-landing-zone": "agent-output/g5-enterprise-landing-zone/03-des-diagram.drawio",
+  "g6-hyperscale-platform": "agent-output/g6-hyperscale-platform/03-des-diagram.drawio",
+  "g7-multi-region-active-active": "agent-output/g7-multi-region-active-active/03-des-diagram.drawio",
 };
 
 const RUBRIC_DIMENSIONS = [
@@ -91,9 +85,7 @@ function readJson(p) {
 
 function rubricMean(scen) {
   if (!scen?.rubric_score) return null;
-  const dims = RUBRIC_DIMENSIONS.map((d) => scen.rubric_score[d]).filter(
-    (n) => typeof n === "number",
-  );
+  const dims = RUBRIC_DIMENSIONS.map((d) => scen.rubric_score[d]).filter((n) => typeof n === "number");
   if (dims.length === 0) return null;
   return dims.reduce((s, n) => s + n, 0) / dims.length;
 }
@@ -126,9 +118,7 @@ function countValidatorWarnings(validatorOutput, drawioPath) {
     "T-010": 0, // legend
     palette: 0,
   };
-  const fileLines = validatorOutput
-    .split("\n")
-    .filter((l) => l.includes(drawioPath));
+  const fileLines = validatorOutput.split("\n").filter((l) => l.includes(drawioPath));
   for (const line of fileLines) {
     if (line.includes("(T-006)")) counts["T-006"]++;
     else if (line.includes("(T-007)")) counts["T-007"]++;
@@ -176,13 +166,7 @@ if (!baselineRuns || !baseline) {
 let runs = baselineRuns;
 let postRunsPath = null;
 if (POST_RUN_ID) {
-  postRunsPath = path.join(
-    "agent-output",
-    "_bench",
-    "drawio-quality-uplift",
-    POST_RUN_ID,
-    "post-runs.json",
-  );
+  postRunsPath = path.join("agent-output", "_bench", "drawio-quality-uplift", POST_RUN_ID, "post-runs.json");
   const postRuns = readJson(postRunsPath);
   if (!postRuns) {
     console.error(
@@ -198,16 +182,12 @@ if (POST_RUN_ID) {
 const validatorOutput = runValidatorScopedTo();
 
 const perScenario = [];
-const captured = Object.entries(runs.scenarios).filter(
-  ([, v]) => v.retries !== null,
-);
+const captured = Object.entries(runs.scenarios).filter(([, v]) => v.retries !== null);
 
 for (const [id, scen] of captured) {
   const drawio = SCENARIO_DRAWIO[id];
   const rubric = rubricMean(scen);
-  const validator = drawio
-    ? countValidatorWarnings(validatorOutput, drawio)
-    : { total: 0 };
+  const validator = drawio ? countValidatorWarnings(validatorOutput, drawio) : { total: 0 };
   perScenario.push({
     id,
     retries: scen.retries,
@@ -221,23 +201,17 @@ for (const [id, scen] of captured) {
   });
 }
 
-const meanCost =
-  perScenario.length > 0
-    ? perScenario.reduce((s, x) => s + x.cost, 0) / perScenario.length
-    : 0;
+const meanCost = perScenario.length > 0 ? perScenario.reduce((s, x) => s + x.cost, 0) / perScenario.length : 0;
 const meanRubric = (() => {
   const xs = perScenario.map((x) => x.rubric_mean).filter((n) => n !== null);
   if (xs.length === 0) return null;
   return xs.reduce((s, n) => s + n, 0) / xs.length;
 })();
 const baselineCost = baseline.mean_cost_per_drawio ?? null;
-const reduction = baselineCost
-  ? Math.max(0, 1 - meanCost / baselineCost)
-  : null;
+const reduction = baselineCost ? Math.max(0, 1 - meanCost / baselineCost) : null;
 
 // Phase-3 acceptance gate
-const reductionMet =
-  reduction !== null && reduction >= TARGET_REDUCTION_PCT / 100;
+const reductionMet = reduction !== null && reduction >= TARGET_REDUCTION_PCT / 100;
 const rubricMet = meanRubric !== null && meanRubric >= ACCEPTANCE_BAR;
 const completeness = perScenario.length === 7;
 
@@ -254,30 +228,18 @@ const verdict = {
   acceptance_bar: ACCEPTANCE_BAR,
   rubric_met: rubricMet,
   completeness_met: completeness,
-  phase_3_gate: !POST_RUN_ID
-    ? "BASELINE_VIEW"
-    : completeness && reductionMet && rubricMet
-      ? "PASS"
-      : "FAIL",
+  phase_3_gate: !POST_RUN_ID ? "BASELINE_VIEW" : completeness && reductionMet && rubricMet ? "PASS" : "FAIL",
 };
 
 // ── Output ─────────────────────────────────────────────────────────────
 
 const runId = pickRunId();
-const outDir = path.join(
-  "agent-output",
-  "_bench",
-  "drawio-quality-uplift",
-  runId,
-);
+const outDir = path.join("agent-output", "_bench", "drawio-quality-uplift", runId);
 ensureDir(outDir);
 const jsonOut = path.join(outDir, "quality-bench.json");
 const mdOut = path.join(outDir, "quality-bench.md");
 
-fs.writeFileSync(
-  jsonOut,
-  JSON.stringify({ verdict, per_scenario: perScenario }, null, 2) + "\n",
-);
+fs.writeFileSync(jsonOut, JSON.stringify({ verdict, per_scenario: perScenario }, null, 2) + "\n");
 
 const md = [];
 md.push(`# Draw.io Quality Bench — ${runId}`);
@@ -293,49 +255,31 @@ md.push("");
 md.push(`| Metric | Value |`);
 md.push(`| --- | --- |`);
 md.push(`| Phase-3 gate | **${verdict.phase_3_gate}** |`);
-md.push(
-  `| Scenarios captured | ${verdict.scenarios_evaluated}/${verdict.scenarios_total} |`,
-);
-md.push(
-  `| Baseline mean cost / .drawio | ${baselineCost?.toFixed(2) ?? "n/a"} |`,
-);
+md.push(`| Scenarios captured | ${verdict.scenarios_evaluated}/${verdict.scenarios_total} |`);
+md.push(`| Baseline mean cost / .drawio | ${baselineCost?.toFixed(2) ?? "n/a"} |`);
 md.push(`| Current mean cost / .drawio | ${meanCost.toFixed(2)} |`);
-md.push(
-  `| Cost reduction | ${reduction === null ? "n/a" : pct(reduction)} (target ≥${TARGET_REDUCTION_PCT}%) |`,
-);
+md.push(`| Cost reduction | ${reduction === null ? "n/a" : pct(reduction)} (target ≥${TARGET_REDUCTION_PCT}%) |`);
 md.push(
   `| Current mean rubric | ${meanRubric === null ? "n/a" : meanRubric.toFixed(2)}/4 (target ≥${ACCEPTANCE_BAR}/4) |`,
 );
 md.push("");
 md.push("## Per-scenario summary");
 md.push("");
-md.push(
-  `| ID | retries | friction | cost | rubric | validator (T-006/7/8/9/10 + palette) |`,
-);
+md.push(`| ID | retries | friction | cost | rubric | validator (T-006/7/8/9/10 + palette) |`);
 md.push(`| --- | :-: | :-: | :-: | :-: | --- |`);
 for (const s of perScenario) {
   const rub = s.rubric_mean === null ? "n/a" : s.rubric_mean.toFixed(2);
   const v = s.validator;
   const vstr = `${v["T-006"]}/${v["T-007"]}/${v["T-008"]}/${v["T-009"]}/${v["T-010"]} + ${v.palette}`;
-  md.push(
-    `| ${s.id} | ${s.retries} | ${s.friction} | ${s.cost} | ${rub} | ${vstr} |`,
-  );
+  md.push(`| ${s.id} | ${s.retries} | ${s.friction} | ${s.cost} | ${rub} | ${vstr} |`);
 }
 md.push("");
 md.push("## Phase-3 exit criteria (per plan §Validation Strategy)");
 md.push("");
-md.push(
-  `- ${verdict.completeness_met ? "✅" : "❌"} All 7 golden scenarios captured`,
-);
-md.push(
-  `- ${verdict.reduction_met ? "✅" : "❌"} Mean cost reduction ≥ ${TARGET_REDUCTION_PCT}% vs. baseline`,
-);
-md.push(
-  `- ${verdict.rubric_met ? "✅" : "❌"} Mean rubric ≥ ${ACCEPTANCE_BAR}/4 across all dimensions`,
-);
-md.push(
-  `- ${"⚪"} Validator extensions clean on all 7 goldens (manual gate — see per-scenario validator column)`,
-);
+md.push(`- ${verdict.completeness_met ? "✅" : "❌"} All 7 golden scenarios captured`);
+md.push(`- ${verdict.reduction_met ? "✅" : "❌"} Mean cost reduction ≥ ${TARGET_REDUCTION_PCT}% vs. baseline`);
+md.push(`- ${verdict.rubric_met ? "✅" : "❌"} Mean rubric ≥ ${ACCEPTANCE_BAR}/4 across all dimensions`);
+md.push(`- ${"⚪"} Validator extensions clean on all 7 goldens (manual gate — see per-scenario validator column)`);
 md.push("");
 md.push("## Artifacts");
 md.push("");
@@ -347,15 +291,11 @@ if (postRunsPath) {
   md.push(`- Post-uplift runs: \`${postRunsPath}\``);
 }
 md.push("");
-md.push(
-  `Run side-by-side render with the following command once the post-uplift`,
-);
+md.push(`Run side-by-side render with the following command once the post-uplift`);
 md.push("recapture exists:");
 md.push("");
 md.push("```bash");
-md.push(
-  `node tools/scripts/render-golden-diff.mjs --post=${POST_RUN_ID || "<run-id>"}`,
-);
+md.push(`node tools/scripts/render-golden-diff.mjs --post=${POST_RUN_ID || "<run-id>"}`);
 md.push("```");
 md.push("");
 
@@ -363,14 +303,10 @@ fs.writeFileSync(mdOut, md.join("\n"));
 
 // Console summary
 console.log(`Quality bench (${runId})`);
-console.log(
-  `  scenarios       : ${verdict.scenarios_evaluated}/${verdict.scenarios_total}`,
-);
+console.log(`  scenarios       : ${verdict.scenarios_evaluated}/${verdict.scenarios_total}`);
 console.log(`  baseline cost   : ${baselineCost?.toFixed(2) ?? "n/a"}`);
 console.log(`  current cost    : ${meanCost.toFixed(2)}`);
-console.log(
-  `  cost reduction  : ${reduction === null ? "n/a" : pct(reduction)} (target ≥${TARGET_REDUCTION_PCT}%)`,
-);
+console.log(`  cost reduction  : ${reduction === null ? "n/a" : pct(reduction)} (target ≥${TARGET_REDUCTION_PCT}%)`);
 console.log(
   `  current rubric  : ${meanRubric === null ? "n/a" : meanRubric.toFixed(2)}/4 (target ≥${ACCEPTANCE_BAR}/4)`,
 );

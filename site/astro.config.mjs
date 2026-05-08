@@ -17,15 +17,13 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "APEX",
-      description:
-        "Agentic Platform Engineering eXperience for Azure — from requirements to deploy-ready IaC",
+      description: "Agentic Platform Engineering eXperience for Azure — from requirements to deploy-ready IaC",
       favicon: "/images/favicon.svg",
       logo: {
         src: "./src/assets/images/logo.svg",
       },
       editLink: {
-        baseUrl:
-          "https://github.com/jonathan-vella/azure-agentic-infraops/edit/main/site/",
+        baseUrl: "https://github.com/jonathan-vella/azure-agentic-infraops/edit/main/site/",
       },
       lastUpdated: true,
       social: [
@@ -40,8 +38,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image",
-            content:
-              "https://jonathan-vella.github.io/azure-agentic-infraops/images/og-card.png",
+            content: "https://jonathan-vella.github.io/azure-agentic-infraops/images/og-card.png",
           },
         },
         {

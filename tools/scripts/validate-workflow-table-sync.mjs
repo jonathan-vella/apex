@@ -17,8 +17,7 @@
 import fs from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const GRAPH_PATH =
-  ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
 const TABLE_FILES = [".github/copilot-instructions.md", "AGENTS.md"];
 
 const r = new Reporter("Workflow Table Sync");
@@ -32,15 +31,12 @@ function loadGraphSteps() {
   const steps = new Map();
 
   for (const [id, node] of Object.entries(graph.nodes)) {
-    if (node.type !== "agent-step" && node.type !== "subagent-fan-out")
-      continue;
+    if (node.type !== "agent-step" && node.type !== "subagent-fan-out") continue;
 
     // step-1 → "1", step-3_5 → "3.5", step-5b → "5", step-6t → "6"
     const num = id.replace("step-", "").replace("_", ".").replace(/[bt]$/, "");
 
-    const gate = node.gate
-      ? node.gate.charAt(0).toUpperCase() + node.gate.slice(1)
-      : "—";
+    const gate = node.gate ? node.gate.charAt(0).toUpperCase() + node.gate.slice(1) : "—";
 
     // Merge Bicep/Terraform branches into one step number
     if (steps.has(num)) {
@@ -169,10 +165,7 @@ function validate() {
     for (const { stepNum } of tableSteps) {
       if (stepNum.toLowerCase() === "post") continue;
       if (!graphSteps.has(stepNum)) {
-        r.error(
-          file,
-          `Table row "${stepNum}" not found in workflow-graph.json`,
-        );
+        r.error(file, `Table row "${stepNum}" not found in workflow-graph.json`);
       }
     }
 
@@ -185,14 +178,8 @@ function validate() {
 
       const jsonGate = jsonStep.gate;
       // Normalize for comparison: both sides to lowercase
-      if (
-        gate.toLowerCase().replace("—", "—") !==
-        jsonGate.toLowerCase().replace("—", "—")
-      ) {
-        r.error(
-          file,
-          `Step ${stepNum} gate mismatch: table="${gate}" vs graph="${jsonGate}"`,
-        );
+      if (gate.toLowerCase().replace("—", "—") !== jsonGate.toLowerCase().replace("—", "—")) {
+        r.error(file, `Step ${stepNum} gate mismatch: table="${gate}" vs graph="${jsonGate}"`);
       }
     }
 

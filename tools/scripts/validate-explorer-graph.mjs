@@ -18,10 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "../..");
-const GRAPH_PATH = join(
-  REPO_ROOT,
-  "site/public/architecture-explorer-graph.json",
-);
+const GRAPH_PATH = join(REPO_ROOT, "site/public/architecture-explorer-graph.json");
 
 const SOURCE_DIRS = [
   ".github/agents",
@@ -31,11 +28,7 @@ const SOURCE_DIRS = [
   ".github/prompts",
   ".github/workflows",
 ];
-const SOURCE_FILES = [
-  ".vscode/mcp.json",
-  "tools/registry/agent-registry.json",
-  "package.json",
-];
+const SOURCE_FILES = [".vscode/mcp.json", "tools/registry/agent-registry.json", "package.json"];
 
 const errors = [];
 const warnings = [];
@@ -53,9 +46,7 @@ function newestMtime(path) {
 
 function main() {
   if (!existsSync(GRAPH_PATH)) {
-    errors.push(
-      `Graph file missing: ${GRAPH_PATH}\n   Run: node tools/scripts/generate-explorer-graph.mjs`,
-    );
+    errors.push(`Graph file missing: ${GRAPH_PATH}\n   Run: node tools/scripts/generate-explorer-graph.mjs`);
     report();
     return;
   }
@@ -85,9 +76,7 @@ function main() {
   // Node paths exist
   for (const n of graph.nodes || []) {
     if (!n.id || !n.category || !n.label) {
-      errors.push(
-        `Invalid node (missing id/category/label): ${JSON.stringify(n).slice(0, 120)}`,
-      );
+      errors.push(`Invalid node (missing id/category/label): ${JSON.stringify(n).slice(0, 120)}`);
     }
     if (n.path && !existsSync(join(REPO_ROOT, n.path))) {
       errors.push(`Node "${n.id}" references missing file: ${n.path}`);
@@ -106,13 +95,9 @@ function main() {
 
   // Category counts
   for (const cat of graph.categories || []) {
-    const actual = (graph.nodes || []).filter(
-      (n) => n.category === cat.id,
-    ).length;
+    const actual = (graph.nodes || []).filter((n) => n.category === cat.id).length;
     if (cat.count !== actual) {
-      errors.push(
-        `Category "${cat.id}" count mismatch: manifest=${cat.count} actual=${actual}`,
-      );
+      errors.push(`Category "${cat.id}" count mismatch: manifest=${cat.count} actual=${actual}`);
     }
   }
 
@@ -121,8 +106,7 @@ function main() {
   // making the graph always appear stale. Skip the mtime-based freshness
   // check in CI — structural errors are still enforced.
   if (process.env.EXPLORER_GRAPH_STRICT !== "1") {
-    const graphMs =
-      Date.parse(graph.generatedAt) || statSync(GRAPH_PATH).mtimeMs;
+    const graphMs = Date.parse(graph.generatedAt) || statSync(GRAPH_PATH).mtimeMs;
     let newestSource = 0;
     let newestName = "";
     for (const d of SOURCE_DIRS) {
