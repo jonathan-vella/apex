@@ -205,7 +205,7 @@ For each non-trivial architectural decision in the architecture assessment:
 
 1. Read the relevant section of `02-architecture-assessment.md` and quote it
    in the ADR `## Context` section. Do not paraphrase from memory.
-2. Follow the format in `.github/skills/azure-adr/SKILL.md` (Context →
+2. Follow the format in `.github/skills/azure-adr/SKILL.digest.md` (Context →
    Decision → Consequences) and include WAF pillar trade-offs in the
    `## Decision` rationale.
 3. Number ADRs sequentially: `03-des-adr-0001-{slug}.md`,

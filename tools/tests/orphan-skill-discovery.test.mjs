@@ -15,8 +15,7 @@ import assert from "node:assert/strict";
 // Mirror of SKILL_REFERENCE_PATTERN in
 // tools/scripts/validate-orphaned-content.mjs. Keep in sync — the fixture
 // test exists specifically to detect drift in the regex.
-const SKILL_REFERENCE_PATTERN =
-  /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
+const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
 
 function findSkillReferences(content) {
   const found = new Set();
@@ -45,12 +44,7 @@ describe("orphan-skill-discovery regex", () => {
   });
 
   it("finds references inside fenced code blocks", () => {
-    const content = [
-      "Run this:",
-      "```bash",
-      "cat .github/skills/microsoft-docs/SKILL.digest.md",
-      "```",
-    ].join("\n");
+    const content = ["Run this:", "```bash", "cat .github/skills/microsoft-docs/SKILL.digest.md", "```"].join("\n");
     assert.deepEqual([...findSkillReferences(content)], ["microsoft-docs"]);
   });
 
@@ -84,10 +78,7 @@ describe("orphan-skill-discovery regex", () => {
 
   it("matches kebab-case skill names", () => {
     const content = `Read .github/skills/azure-cost-optimization/SKILL.md`;
-    assert.deepEqual(
-      [...findSkillReferences(content)],
-      ["azure-cost-optimization"],
-    );
+    assert.deepEqual([...findSkillReferences(content)], ["azure-cost-optimization"]);
   });
 
   it("ignores uppercase / mixed-case skill names (must be kebab-case)", () => {

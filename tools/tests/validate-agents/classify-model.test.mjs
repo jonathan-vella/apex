@@ -10,18 +10,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import {
-  classifyModel,
-  isClaude,
-  isGpt55,
-  isGptFamily,
-} from "../../scripts/validate-agents.mjs";
+import { classifyModel, isClaude, isGpt55, isGptFamily } from "../../scripts/validate-agents.mjs";
 
 test("classifyModel: Claude Opus 4.7 → claude-opus", () => {
-  assert.equal(
-    classifyModel("Claude Opus 4.7"),
-    "claude-opus",
-  );
+  assert.equal(classifyModel("Claude Opus 4.7"), "claude-opus");
   assert.equal(classifyModel(["Claude Opus 4.7"]), "claude-opus");
 });
 

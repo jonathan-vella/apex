@@ -35,16 +35,8 @@ const SCAN_GLOBS = [
   { dir: ".github/prompts", suffix: ".md" },
 ];
 // For skills, only the canonical SKILL files (not nested references/).
-const SKILL_FILE_NAMES = new Set([
-  "SKILL.md",
-  "SKILL.digest.md",
-  "SKILL.minimal.md",
-]);
-const SCAN_ROOT_FILES = [
-  "AGENTS.md",
-  "README.md",
-  ".github/copilot-instructions.md",
-];
+const SKILL_FILE_NAMES = new Set(["SKILL.md", "SKILL.digest.md", "SKILL.minimal.md"]);
+const SCAN_ROOT_FILES = ["AGENTS.md", "README.md", ".github/copilot-instructions.md"];
 
 // Each rule:
 //   id: short rule id for the report
@@ -211,14 +203,7 @@ function lintFile(absPath) {
     // Inside a fence, only scan shell-flavored fences. Other fences (json,
     // yaml, text, etc.) cannot be executed as shell commands.
     if (inFence) {
-      const SHELL_FENCES = new Set([
-        "",
-        "bash",
-        "sh",
-        "zsh",
-        "shell",
-        "console",
-      ]);
+      const SHELL_FENCES = new Set(["", "bash", "sh", "zsh", "shell", "console"]);
       if (!SHELL_FENCES.has(fenceLang)) return;
     }
     for (const rule of RULES) {
@@ -246,21 +231,15 @@ function main() {
     const rel = path.relative(ROOT, file);
     console.error(`\n❌ ${rel}`);
     for (const f of findings) {
-      console.error(
-        `   Line ${f.line} [${f.rule}]: ${f.snippet}\n     why: ${f.why}\n     fix: ${f.fix}`,
-      );
+      console.error(`   Line ${f.line} [${f.rule}]: ${f.snippet}\n     why: ${f.why}\n     fix: ${f.fix}`);
     }
   }
   if (totalViolations === 0) {
     console.log(`✅ safe-shell: scanned ${files.length} files, 0 violations`);
     process.exit(0);
   }
-  console.error(
-    `\n❌ safe-shell: ${totalViolations} violation(s) across ${files.length} files`,
-  );
-  console.error(
-    "   See .github/instructions/no-interactive-shell.instructions.md for the full ruleset.",
-  );
+  console.error(`\n❌ safe-shell: ${totalViolations} violation(s) across ${files.length} files`);
+  console.error("   See .github/instructions/no-interactive-shell.instructions.md for the full ruleset.");
   process.exit(1);
 }
 

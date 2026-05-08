@@ -4,8 +4,12 @@
  *
  * Validates tools/registry/agent-registry.json:
  * - All referenced .agent.md files exist
- * - All referenced skills exist in .github/skills/
  * - Cross-checks registry model strings against the agent YAML frontmatter
+ *
+ * Skill wiring is no longer carried by the registry — it is discovered at
+ * runtime via the orphan-content validator's regex sweep over agent bodies
+ * (`Read .github/skills/{name}/SKILL[.digest|.minimal].md`). See
+ * tools/scripts/validate-orphaned-content.mjs.
  *
  * Model allow-listing is intentionally NOT performed here. The agent frontmatter
  * is the canonical source of truth; this validator only confirms registry mirrors it.
@@ -16,26 +20,24 @@
  */
 
 import fs from "node:fs";
-import { getSkillNames, getAgents } from "./_lib/workspace-index.mjs";
+import { getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
 
 const r = new Reporter("Agent Registry Validator");
 
-function validateAgentEntry(key, entry, skillNames) {
+function validateAgentEntry(key, entry) {
   // Handle IaC-conditional entries (bicep/terraform variants)
   if (entry.bicep || entry.terraform) {
     for (const variant of ["bicep", "terraform"]) {
       if (entry[variant]) {
         validateAgentFile(key, entry[variant].agent);
-        validateSkills(`${key} (${variant})`, entry[variant].skills, entry[variant].capability_skills, skillNames);
       }
     }
     return;
   }
 
   validateAgentFile(key, entry.agent);
-  validateSkills(key, entry.skills, entry.capability_skills, skillNames);
 }
 
 function validateAgentFile(key, agentPath) {
@@ -45,32 +47,6 @@ function validateAgentFile(key, agentPath) {
   }
   if (!fs.existsSync(agentPath)) {
     r.error(`Agent "${key}"`, `file not found: ${agentPath}`);
-  }
-}
-
-function validateSkills(key, skills, capabilitySkills, skillNames) {
-  if (!Array.isArray(skills)) return;
-  for (const skill of skills) {
-    if (!skillNames.has(skill)) {
-      r.error(`Agent "${key}"`, `references non-existent skill: "${skill}"`);
-    }
-  }
-  if (capabilitySkills !== undefined) {
-    if (!Array.isArray(capabilitySkills)) {
-      r.error(`Agent "${key}"`, "capability_skills must be an array");
-      return;
-    }
-    for (const skill of capabilitySkills) {
-      if (!skillNames.has(skill)) {
-        r.error(`Agent "${key}"`, `references non-existent capability skill: "${skill}"`);
-      }
-    }
-    const skillSet = new Set(skills);
-    for (const cap of capabilitySkills) {
-      if (skillSet.has(cap)) {
-        r.error(`Agent "${key}"`, `skill "${cap}" appears in both skills[] and capability_skills[]`);
-      }
-    }
   }
 }
 
@@ -97,13 +73,11 @@ try {
   process.exit(1);
 }
 
-const skillNames = getSkillNames();
-
 // Validate agents
 let agentCount = 0;
 if (registry.agents) {
   for (const [key, entry] of Object.entries(registry.agents)) {
-    validateAgentEntry(key, entry, skillNames);
+    validateAgentEntry(key, entry);
     agentCount++;
   }
 }
@@ -112,7 +86,7 @@ if (registry.agents) {
 let subagentCount = 0;
 if (registry.subagents) {
   for (const [key, entry] of Object.entries(registry.subagents)) {
-    validateAgentEntry(key, entry, skillNames);
+    validateAgentEntry(key, entry);
     subagentCount++;
   }
 }

@@ -18,10 +18,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const FIXTURE_DIR = new URL(
-  "./fixtures/subagent-file-contract/",
-  import.meta.url,
-).pathname;
+const FIXTURE_DIR = new URL("./fixtures/subagent-file-contract/", import.meta.url).pathname;
 
 const SUMMARY_BYTE_BUDGET = 2 * 1024;
 const SUMMARY_LINE_BUDGET = 15;
@@ -82,24 +79,13 @@ describe("subagent file-mode contract", () => {
 
     it("(a) summary stays within byte and line budgets", () => {
       const bytes = Buffer.byteLength(fixture.summary, "utf8");
-      const lines = fixture.summary
-        .split(/\r?\n/)
-        .filter((l) => l.length).length;
-      assert.ok(
-        bytes <= SUMMARY_BYTE_BUDGET,
-        `summary is ${bytes} bytes; budget is ${SUMMARY_BYTE_BUDGET}`,
-      );
-      assert.ok(
-        lines <= SUMMARY_LINE_BUDGET,
-        `summary has ${lines} non-empty lines; budget is ${SUMMARY_LINE_BUDGET}`,
-      );
+      const lines = fixture.summary.split(/\r?\n/).filter((l) => l.length).length;
+      assert.ok(bytes <= SUMMARY_BYTE_BUDGET, `summary is ${bytes} bytes; budget is ${SUMMARY_BYTE_BUDGET}`);
+      assert.ok(lines <= SUMMARY_LINE_BUDGET, `summary has ${lines} non-empty lines; budget is ${SUMMARY_LINE_BUDGET}`);
     });
 
     it("(b) the declared file_path exists post-call", () => {
-      const outputPath = path.join(
-        tmpDir,
-        "challenge-findings-architecture-pass1.json",
-      );
+      const outputPath = path.join(tmpDir, "challenge-findings-architecture-pass1.json");
       const result = simulateSubagentWrite({
         outputPath,
         payload: fixture.findings,
@@ -111,33 +97,14 @@ describe("subagent file-mode contract", () => {
 
     it("(c) summary numeric counts match the file content", () => {
       const summary = parseSummary(fixture.summary);
-      assert.equal(
-        summary.must_fix_count,
-        fixture.findings.must_fix_count,
-        "must_fix_count mismatch",
-      );
-      assert.equal(
-        summary.should_fix_count,
-        fixture.findings.should_fix_count,
-        "should_fix_count mismatch",
-      );
-      assert.equal(
-        summary.suggestion_count,
-        fixture.findings.suggestion_count,
-        "suggestion_count mismatch",
-      );
-      assert.equal(
-        summary.risk_level,
-        fixture.findings.risk_level,
-        "risk_level mismatch",
-      );
+      assert.equal(summary.must_fix_count, fixture.findings.must_fix_count, "must_fix_count mismatch");
+      assert.equal(summary.should_fix_count, fixture.findings.should_fix_count, "should_fix_count mismatch");
+      assert.equal(summary.suggestion_count, fixture.findings.suggestion_count, "suggestion_count mismatch");
+      assert.equal(summary.risk_level, fixture.findings.risk_level, "risk_level mismatch");
     });
 
     it("(d) re-running without overwrite: true is rejected", () => {
-      const outputPath = path.join(
-        tmpDir,
-        "challenge-findings-architecture-pass1-rerun.json",
-      );
+      const outputPath = path.join(tmpDir, "challenge-findings-architecture-pass1-rerun.json");
       // Initial write succeeds.
       const first = simulateSubagentWrite({
         outputPath,
@@ -166,9 +133,7 @@ describe("subagent file-mode contract", () => {
 
     it("(a) summary stays within byte and line budgets", () => {
       const bytes = Buffer.byteLength(fixture.summary, "utf8");
-      const lines = fixture.summary
-        .split(/\r?\n/)
-        .filter((l) => l.length).length;
+      const lines = fixture.summary.split(/\r?\n/).filter((l) => l.length).length;
       assert.ok(bytes <= SUMMARY_BYTE_BUDGET);
       assert.ok(lines <= SUMMARY_LINE_BUDGET);
     });
@@ -185,10 +150,7 @@ describe("subagent file-mode contract", () => {
 
     it("(c) summary totals match the file content", () => {
       const summary = parseSummary(fixture.summary);
-      assert.equal(
-        Number(summary.monthly_total.toString().replace(/[$,]/g, "")),
-        fixture.findings.monthly_total,
-      );
+      assert.equal(Number(summary.monthly_total.toString().replace(/[$,]/g, "")), fixture.findings.monthly_total);
       assert.equal(summary.region, fixture.findings.region);
       assert.equal(summary.status, fixture.findings.status);
     });
