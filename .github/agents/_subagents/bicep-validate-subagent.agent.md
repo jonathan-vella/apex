@@ -43,13 +43,14 @@ parent IaC agent.
 <context_awareness>
 Skill loading tiers (apply per the `context-shredding` skill):
 
-- ≤60% context — read full SKILL.md for `azure-defaults` and `iac-common`
-  (`.github/skills/azure-defaults/SKILL.md`,
-  `.github/skills/iac-common/SKILL.md`).
-- 60–80% — load `.github/skills/azure-defaults/SKILL.digest.md` and
-  `.github/skills/iac-common/SKILL.digest.md`.
-- ≥80% — load `.github/skills/azure-defaults/SKILL.minimal.md` and
+- Default — read `.github/skills/azure-defaults/SKILL.digest.md` and
+  `.github/skills/iac-common/SKILL.digest.md`. The digest is sufficient
+  for AVM versions, CAF naming, security baseline, and IaC review checks.
+- ≥80% context utilization — escalate to
+  `.github/skills/azure-defaults/SKILL.minimal.md` and
   `.github/skills/iac-common/SKILL.minimal.md`.
+- Full `SKILL.md` is reserved for skill-authoring or debugging contexts
+  where the digest is insufficient — not for production reviews.
 
 Read `04-governance-constraints.md` from `agent-output/{project}/` whenever
 the parent agent provides a project name; if absent, note the gap in findings
