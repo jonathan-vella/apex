@@ -61,7 +61,7 @@ if (!outputName) {
     .replace(/-?run-?\d*$/, "")
     .replace(/-\d+$/, "")
     .replace(/-$/, "");
-  outputName = (outputName || "e2e") + "-combined";
+  outputName = `${outputName || "e2e"}-combined`;
 }
 
 const outDir = path.join(AGENT_OUTPUT, outputName);
@@ -75,7 +75,7 @@ function readJson(filePath) {
   }
 }
 
-function readText(filePath) {
+function _readText(filePath) {
   try {
     return fs.readFileSync(filePath, "utf-8");
   } catch {
@@ -444,7 +444,7 @@ function main() {
   fs.writeFileSync(path.join(outDir, "00-combine-meta.json"), JSON.stringify(meta, null, 2));
 
   console.log(`\n✓ Combined output written to ${outDir}/`);
-  console.log("  Use e2e-analyze-lessons.prompt.md with project = " + outputName);
+  console.log(`  Use e2e-analyze-lessons.prompt.md with project = ${outputName}`);
 }
 
 main();

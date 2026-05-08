@@ -113,7 +113,7 @@ const ALLOWED_FIELDS_DISPLAY = [...REQUIRED_FIELDS_DISPLAY, ...OPTIONAL_FIELDS];
 const instructions = getInstructions();
 console.log(`Found ${instructions.size} instruction file(s)\n`);
 
-for (const [fileName, instr] of instructions) {
+for (const [_fileName, instr] of instructions) {
   const { path: filePath, frontmatter: fm } = instr;
   const relPath = path.relative(ROOT, filePath);
 
@@ -142,7 +142,7 @@ for (const [fileName, instr] of instructions) {
 
 // ── Part 2: Instruction file references exist ──
 
-console.log("\n" + "─".repeat(60));
+console.log(`\n${"─".repeat(60)}`);
 console.log("📄 Part 2: Instruction file references exist\n");
 
 const scanDirs = [".github/agents", ".github/skills", ".github/instructions", ".github/prompts"];
@@ -176,7 +176,7 @@ if (foundInstructionRefs.size === 0) {
 
 // ── Part 3: applyTo globs have matching files ──
 
-console.log("\n" + "─".repeat(60));
+console.log(`\n${"─".repeat(60)}`);
 console.log("📄 Part 3: applyTo glob patterns have matching files\n");
 
 const instructionFiles = collectFiles([".github/instructions"], [".instructions.md"]);
@@ -218,7 +218,7 @@ for (const filePath of instructionFiles) {
 
 // ── Part 4: Skill SKILL.md references exist ──
 
-console.log("\n" + "─".repeat(60));
+console.log(`\n${"─".repeat(60)}`);
 console.log("📄 Part 4: Skill SKILL.md references exist\n");
 
 const skillRefPattern = /[Rr]ead\s+[`"]?\.github\/skills\/([^/`"\s]+)\/SKILL\.md[`"]?/g;
@@ -249,7 +249,7 @@ if (foundSkillRefs.size === 0) {
 
 // ── Part 5: Cross-references between instruction files ──
 
-console.log("\n" + "─".repeat(60));
+console.log(`\n${"─".repeat(60)}`);
 console.log("📄 Part 5: Cross-references between instruction files\n");
 
 const crossRefPattern = /[`"]?([a-z][\w-]+\.instructions\.md)[`"]?/g;

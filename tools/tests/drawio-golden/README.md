@@ -29,15 +29,15 @@ JSON schema: [`tools/schemas/drawio-golden-scenario.schema.json`](../../schemas/
 
 ## Pain-point coverage matrix
 
-| Pain point         | G1 | G2 | G3 | G4 | G5 | G6 | G7 |
-| ------------------ | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| #1 Icons           | x  |    |    | x  |    |    |    |
-| #2 Layout          |    | x  |    |    | x  | x  |    |
-| #3 Styling         | x  | x  | x  |    |    |    |    |
-| #4 Semantics       |    | x  |    | x  | x  |    | x  |
-| #5 Labels          | x  |    | x  |    |    |    | x  |
-| #6 Type-fit        | x  |    | x  |    |    |    | x  |
-| #7 Scaling         |    |    |    |    | x  | x  |    |
+| Pain point   | G1  | G2  | G3  | G4  | G5  | G6  | G7  |
+| ------------ | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| #1 Icons     |  x  |     |     |  x  |     |     |     |
+| #2 Layout    |     |  x  |     |     |  x  |  x  |     |
+| #3 Styling   |  x  |  x  |  x  |     |     |     |     |
+| #4 Semantics |     |  x  |     |  x  |  x  |     |  x  |
+| #5 Labels    |  x  |     |  x  |     |     |     |  x  |
+| #6 Type-fit  |  x  |     |  x  |     |     |     |  x  |
+| #7 Scaling   |     |     |     |     |  x  |  x  |     |
 
 Every pain-point category is exercised by ≥ 1 scenario.
 
@@ -87,16 +87,16 @@ procedure above is the path.
 
 `expected.json` is consumed by these tasks:
 
-| Field                         | Consumer task | Used for |
-| ----------------------------- | ------------- | -------- |
-| `diagram_type`                | T-008         | Type-fit signature check (filename pattern + expected zones) |
-| `min_resources` / `max_resources` | T-007, T-033 | Resource-count range and density gate |
-| `expected_zones`              | T-009         | Semantic zone-presence check |
-| `expected_edge_labels`        | T-008         | Type-fit signature: at least one edge must contain each substring |
-| `expected_legend_required`    | T-010         | Legend-presence check (sequence type may set `false` per OQ-2 / T-022 carve-out) |
-| `expected_pages`              | T-007, T-023  | Decomposition expectation (>1 implies multi-page) |
-| `pain_points_exercised`       | T-033 reporting | Maps scenario back to pain-point coverage matrix |
-| `rubric_targets` (optional)   | T-033, T-011  | Per-dimension overrides; falls back to acceptance bar in `quality-rubric.md` |
+| Field                             | Consumer task   | Used for                                                                         |
+| --------------------------------- | --------------- | -------------------------------------------------------------------------------- |
+| `diagram_type`                    | T-008           | Type-fit signature check (filename pattern + expected zones)                     |
+| `min_resources` / `max_resources` | T-007, T-033    | Resource-count range and density gate                                            |
+| `expected_zones`                  | T-009           | Semantic zone-presence check                                                     |
+| `expected_edge_labels`            | T-008           | Type-fit signature: at least one edge must contain each substring                |
+| `expected_legend_required`        | T-010           | Legend-presence check (sequence type may set `false` per OQ-2 / T-022 carve-out) |
+| `expected_pages`                  | T-007, T-023    | Decomposition expectation (>1 implies multi-page)                                |
+| `pain_points_exercised`           | T-033 reporting | Maps scenario back to pain-point coverage matrix                                 |
+| `rubric_targets` (optional)       | T-033, T-011    | Per-dimension overrides; falls back to acceptance bar in `quality-rubric.md`     |
 
 ## Baseline capture (T-012)
 

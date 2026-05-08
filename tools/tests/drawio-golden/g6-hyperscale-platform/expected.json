@@ -20,15 +20,9 @@
     "App Sub (DE)",
     "Data Sub (DE)"
   ],
-  "expected_edge_labels": [
-    "Multi-master replication",
-    "Front Door routing"
-  ],
+  "expected_edge_labels": ["Multi-master replication", "Front Door routing"],
   "expected_legend_required": true,
   "expected_pages": 3,
-  "pain_points_exercised": [
-    "layout",
-    "scaling"
-  ],
+  "pain_points_exercised": ["layout", "scaling"],
   "notes": "REQUIRES decomposition: 1 overview + 2 region-detail pages per T-023 tier `>50`. Per-page resource count must be <=30."
 }

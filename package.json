@@ -88,14 +88,26 @@
     "audit:quarterly": "run-p lint:glob-audit lint:orphaned-content lint:docs-freshness",
     "check:azure-icons-freshness": "node tools/scripts/check-azure-icons-freshness.mjs",
     "bench:drawio-quality": "node tools/scripts/run-drawio-quality-bench.mjs",
-    "bench:drawio-diff": "node tools/scripts/render-golden-diff.mjs"
+    "bench:drawio-diff": "node tools/scripts/render-golden-diff.mjs",
+    "lint:js": "eslint --cache --cache-location node_modules/.cache/eslint/ --quiet --format=compact",
+    "lint:js:warnings": "eslint --cache --cache-location node_modules/.cache/eslint/ --format=compact",
+    "lint:js:json": "eslint --cache --cache-location node_modules/.cache/eslint/ --quiet --format=json",
+    "lint:js:ci": "npm run lint:js -- --max-warnings=0 tools/scripts tools/tests",
+    "format": "prettier --write --cache --cache-location node_modules/.cache/prettier/ --log-level warn .",
+    "format:check": "prettier --check --cache --cache-location node_modules/.cache/prettier/ --log-level warn ."
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/js": "^9.17.0",
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-formatter-compact": "^8.40.0",
+    "eslint-plugin-n": "^17.15.1",
     "fast-xml-parser": "^5.7.0",
+    "js-yaml": "^4.1.0",
     "jsdom": "^29.0.1",
     "lefthook": "^2.1.4",
     "markdown-link-check": "^3.14.2",
@@ -124,5 +136,8 @@
     "dompurify": ">=3.3.2",
     "nanoid": ">=3.3.8",
     "mermaid": ">=11.4.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

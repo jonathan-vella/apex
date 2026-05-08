@@ -91,12 +91,10 @@ function generateDigest(skillDir) {
     }
   }
 
-  return (
-    digestLines
-      .join("\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trimEnd() + "\n"
-  );
+  return `${digestLines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd()}\n`;
 }
 
 function generateMinimal(skillDir, digestContent) {
@@ -108,7 +106,7 @@ function generateMinimal(skillDir, digestContent) {
 
   const digestLineCount = digestContent.split("\n").length;
   if (digestLineCount < 14) {
-    return [AUTO_GEN_HEADER, `# ${title} (Minimal)`, "Read `SKILL.md` for full content."].join("\n") + "\n";
+    return `${[AUTO_GEN_HEADER, `# ${title} (Minimal)`, "Read `SKILL.md` for full content."].join("\n")}\n`;
   }
 
   const targetLines = Math.max(7, Math.floor(digestLineCount * 0.4));
@@ -134,12 +132,10 @@ function generateMinimal(skillDir, digestContent) {
   }
   minimalLines.push("Read `SKILL.md` or `SKILL.digest.md` for full content.");
 
-  return (
-    minimalLines
-      .join("\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trimEnd() + "\n"
-  );
+  return `${minimalLines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd()}\n`;
 }
 
 const args = process.argv.slice(2);

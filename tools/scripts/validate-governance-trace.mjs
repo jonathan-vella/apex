@@ -21,7 +21,6 @@
  */
 
 import fs from "node:fs";
-import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
 
 const r = new Reporter("Governance Phase Trace Validator");

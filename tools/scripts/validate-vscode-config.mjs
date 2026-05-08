@@ -8,9 +8,9 @@
  * 3. Devcontainer.json extension drift is explicitly allowlisted
  */
 
-import { readFileSync, existsSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,8 +47,8 @@ const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
   "mutantdino.resourcemonitor",
 ]);
 
-let errors = [];
-let warnings = [];
+const errors = [];
+const warnings = [];
 
 function normalizeExtensionId(extensionId) {
   return String(extensionId || "")
@@ -223,25 +223,25 @@ function crossCheckExtensions(devcontainerExts, extensionsJsonExts) {
 
 // Main execution
 console.log("🔍 VS Code 1.109 Configuration Validator\n");
-console.log("=".repeat(50) + "\n");
+console.log(`${"=".repeat(50)}\n`);
 
 const devcontainerExts = validateDevcontainer();
 const extensionsJsonExts = validateExtensions();
 crossCheckExtensions(devcontainerExts, extensionsJsonExts);
 
 // Summary
-console.log("\n" + "=".repeat(50));
+console.log(`\n${"=".repeat(50)}`);
 console.log("📊 Validation Summary\n");
 
 if (warnings.length > 0) {
   console.log("Warnings:");
-  warnings.forEach((w) => console.log("  " + w));
+  warnings.forEach((w) => console.log(`  ${w}`));
 }
 
 if (errors.length > 0) {
   console.log("\nErrors:");
-  errors.forEach((e) => console.log("  " + e));
-  console.log("\n❌ Validation FAILED with " + errors.length + " error(s)");
+  errors.forEach((e) => console.log(`  ${e}`));
+  console.log(`\n❌ Validation FAILED with ${errors.length} error(s)`);
   console.log("\n🔧 Remediation:");
   console.log("   1. Review devcontainer.json customizations.vscode.settings");
   console.log("   2. Ensure all required VS Code 1.109 settings are present");

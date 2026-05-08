@@ -13,7 +13,7 @@
  * npm run sync:workflows -- --dry-run
  */
 
-import { mkdirSync, writeFileSync, existsSync, readdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const UPSTREAM_OWNER = "jonathan-vella";

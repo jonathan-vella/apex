@@ -33,7 +33,7 @@ const REPO_ROOT = resolve(dirname(__filename), "../..");
 const OUT_PATH = join(REPO_ROOT, "site/public/architecture-explorer-graph.json");
 
 const GITHUB_BASE = "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/";
-const DOCS_BASE = "/azure-agentic-infraops/";
+const _DOCS_BASE = "/azure-agentic-infraops/";
 
 /** @type {Array<{id: string, key: string, label: string, color: string, shape: string}>} */
 const CATEGORIES = [
@@ -276,7 +276,7 @@ function collectValidators() {
     description: scripts[name] || "",
     path: "package.json",
     links: {
-      source: GITHUB_BASE + "package.json",
+      source: `${GITHUB_BASE}package.json`,
     },
     meta: { command: scripts[name] || "" },
   }));
@@ -291,7 +291,7 @@ function collectMcpServers() {
     label: name,
     description: cfg.type === "http" ? `HTTP: ${cfg.url}` : `stdio: ${cfg.command || ""}`,
     path: ".vscode/mcp.json",
-    links: { source: GITHUB_BASE + ".vscode/mcp.json" },
+    links: { source: `${GITHUB_BASE}.vscode/mcp.json` },
     meta: { type: cfg.type || "" },
   }));
 }
@@ -372,7 +372,7 @@ function buildEdges(nodes) {
   const registryAgents = registry.agents || {};
   const registrySubagents = registry.subagents || {};
   const allRegistryEntries = { ...registryAgents, ...registrySubagents };
-  for (const [roleSlug, entry] of Object.entries(allRegistryEntries)) {
+  for (const [_roleSlug, entry] of Object.entries(allRegistryEntries)) {
     // Handle nested entries (iac-code.bicep, deploy.terraform)
     const subEntries = entry.skills
       ? [entry]
@@ -634,9 +634,9 @@ function main() {
     edges,
   };
 
-  writeFileSync(OUT_PATH, JSON.stringify(graph, null, 2) + "\n");
+  writeFileSync(OUT_PATH, `${JSON.stringify(graph, null, 2)}\n`);
   console.log(`✅ Generated ${relative(REPO_ROOT, OUT_PATH)} — ${nodes.length} nodes, ${edges.length} edges`);
-  console.log("   " + categories.map((c) => `${c.label}:${c.count}`).join("  "));
+  console.log(`   ${categories.map((c) => `${c.label}:${c.count}`).join("  ")}`);
 }
 
 main();

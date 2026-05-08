@@ -359,10 +359,10 @@ async function validateDrawioFile(filePath) {
         for (const [shapeName, expectedPerimeter] of Object.entries(perimeterShapes)) {
           // Check if shape is set as bare token or via shape= key
           const hasShape =
-            style.startsWith(shapeName + ";") ||
-            style.includes(";" + shapeName + ";") ||
-            style.includes("shape=" + shapeName);
-          if (hasShape && !style.includes("perimeter=" + expectedPerimeter)) {
+            style.startsWith(`${shapeName};`) ||
+            style.includes(`;${shapeName};`) ||
+            style.includes(`shape=${shapeName}`);
+          if (hasShape && !style.includes(`perimeter=${expectedPerimeter}`)) {
             console.warn(
               `⚠️  ${filePath}: Cell id="${id}" uses shape "${shapeName}" without perimeter=${expectedPerimeter}`,
             );

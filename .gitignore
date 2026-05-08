@@ -112,3 +112,7 @@ crash.*.log
 
 # Vendor-prompting raw fetched snapshots (committed canonical prose lives one level up)
 .github/skills/vendor-prompting/references/.snapshots/
+
+# ESLint + Prettier caches
+.eslintcache
+node_modules/.cache/

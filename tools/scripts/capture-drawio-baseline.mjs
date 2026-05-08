@@ -30,7 +30,7 @@ function readJson(p) {
 }
 
 function writeJson(p, v) {
-  fs.writeFileSync(p, JSON.stringify(v, null, 2) + "\n");
+  fs.writeFileSync(p, `${JSON.stringify(v, null, 2)}\n`);
 }
 
 function gitInfo() {

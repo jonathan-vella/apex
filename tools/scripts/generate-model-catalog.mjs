@@ -65,7 +65,7 @@ function loadCatalog() {
 
 function writeCatalog(catalog) {
   // Match repo convention: 2-space indent, trailing newline.
-  fs.writeFileSync(CATALOG_PATH, JSON.stringify(catalog, null, 2) + "\n");
+  fs.writeFileSync(CATALOG_PATH, `${JSON.stringify(catalog, null, 2)}\n`);
 }
 
 function main() {

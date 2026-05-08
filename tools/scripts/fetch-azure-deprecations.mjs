@@ -7,7 +7,7 @@
  * Outputs: .github/data/azure-deprecations.json
  */
 
-import { writeFileSync, existsSync, readFileSync } from "fs";
+import { writeFileSync, existsSync, readFileSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
 
 const OUTPUT_FILE = ".github/data/azure-deprecations.json";
@@ -108,7 +108,7 @@ async function fetchAzureUpdates() {
     for (const item of items) {
       const title = (item.title || "").toLowerCase();
       const description = (item.description || "").toLowerCase();
-      const content = title + " " + description;
+      const content = `${title} ${description}`;
 
       // Check if this update is about deprecation
       const isDeprecation = DEPRECATION_KEYWORDS.some((keyword) => content.includes(keyword));
@@ -165,10 +165,10 @@ async function main() {
   console.log("🔍 Azure Deprecation Tracker\n");
 
   // Load existing data if available
-  let existingData = { deprecations: [], lastUpdated: null };
+  let _existingData = { deprecations: [], lastUpdated: null };
   if (existsSync(OUTPUT_FILE)) {
     try {
-      existingData = JSON.parse(readFileSync(OUTPUT_FILE, "utf8"));
+      _existingData = JSON.parse(readFileSync(OUTPUT_FILE, "utf8"));
     } catch {
       console.warn("Could not parse existing deprecation data");
     }

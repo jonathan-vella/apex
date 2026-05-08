@@ -194,14 +194,14 @@ function checkTagCasingDuplicates(relPath, content) {
  * Recursively find files matching an extension under a directory.
  * @deprecated Use walkFiles from _lib/glob-helpers.mjs for new code.
  */
-function findFiles(dir, ext) {
+function _findFiles(dir, ext) {
   const results = [];
   if (!fs.existsSync(dir)) return results;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...findFiles(fullPath, ext));
+      results.push(..._findFiles(fullPath, ext));
     } else if (entry.name.endsWith(ext)) {
       results.push(fullPath);
     }

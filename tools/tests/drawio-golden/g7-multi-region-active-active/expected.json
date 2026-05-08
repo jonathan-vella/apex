@@ -10,21 +10,10 @@
   },
   "min_resources": 16,
   "max_resources": 20,
-  "expected_zones": [
-    "Sweden Central",
-    "Germany West Central",
-    "Trust Boundary"
-  ],
-  "expected_edge_labels": [
-    "Multi-region writes",
-    "Geo-replication"
-  ],
+  "expected_zones": ["Sweden Central", "Germany West Central", "Trust Boundary"],
+  "expected_edge_labels": ["Multi-region writes", "Geo-replication"],
   "expected_legend_required": true,
   "expected_pages": 1,
-  "pain_points_exercised": [
-    "semantics",
-    "labels",
-    "type-mismatch"
-  ],
+  "pain_points_exercised": ["semantics", "labels", "type-mismatch"],
   "notes": "Two region zones explicit; trust boundary at Front Door public ingress; replication flows are first-class edges."
 }

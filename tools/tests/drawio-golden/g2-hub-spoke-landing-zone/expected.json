@@ -19,16 +19,9 @@
     "Data Spoke VNet",
     "Trust Boundary"
   ],
-  "expected_edge_labels": [
-    "VNet Peering",
-    "ExpressRoute"
-  ],
+  "expected_edge_labels": ["VNet Peering", "ExpressRoute"],
   "expected_legend_required": true,
   "expected_pages": 1,
-  "pain_points_exercised": [
-    "layout",
-    "styling",
-    "semantics"
-  ],
+  "pain_points_exercised": ["layout", "styling", "semantics"],
   "notes": "Three subscription scopes; explicit trust boundary between hub and spokes; PE-only subnet in app spoke."
 }

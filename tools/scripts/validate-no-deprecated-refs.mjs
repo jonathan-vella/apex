@@ -151,7 +151,7 @@ const DEPRECATED_PATTERNS = [
 ];
 
 // Folders to scan
-const SCAN_FOLDERS = [
+const _SCAN_FOLDERS = [
   "site/src/content/docs",
   ".github/agents",
   ".github/skills",
@@ -278,7 +278,7 @@ async function main() {
   }
 
   // Summary
-  console.log("\n" + "=".repeat(50));
+  console.log(`\n${"=".repeat(50)}`);
   if (errorCount > 0) {
     console.log(`❌ Found ${errorCount} error(s) and ${warnCount} warning(s)`);
     console.log("\n💡 Errors must be fixed before merge");

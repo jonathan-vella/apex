@@ -133,7 +133,7 @@ function fileExists(fp) {
 function globMatch(dir, pattern) {
   try {
     const files = fs.readdirSync(dir);
-    const re = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
+    const re = new RegExp(`^${pattern.replace(/\*/g, ".*")}$`);
     return files.filter((f) => re.test(f));
   } catch {
     return [];
@@ -531,8 +531,7 @@ function scoreRegenerationRate() {
   if (!baseline || typeof baseline.mean_retries_per_drawio !== "number") {
     return {
       score: null,
-      details:
-        "No regen-rate baseline at " + REGEN_BASELINE_PATH + " (captured by T-012); reporting raw current means only",
+      details: `No regen-rate baseline at ${REGEN_BASELINE_PATH} (captured by T-012); reporting raw current means only`,
       drawio_artifacts: drawioArtifacts.size,
       total_retries: totalRetries,
       total_friction: totalFriction,

@@ -23,16 +23,9 @@
     "Hub VNet",
     "Trust Boundary"
   ],
-  "expected_edge_labels": [
-    "VNet Peering",
-    "Private Link"
-  ],
+  "expected_edge_labels": ["VNet Peering", "Private Link"],
   "expected_legend_required": true,
   "expected_pages": 1,
-  "pain_points_exercised": [
-    "layout",
-    "semantics",
-    "scaling"
-  ],
+  "pain_points_exercised": ["layout", "semantics", "scaling"],
   "notes": "First scenario where decomposition becomes optional (>=22 resources). Single page acceptable; >25 resources should trigger T-023 tier `21-50` decomposition guidance."
 }

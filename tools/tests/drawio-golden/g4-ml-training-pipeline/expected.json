@@ -10,20 +10,10 @@
   },
   "min_resources": 9,
   "max_resources": 12,
-  "expected_zones": [
-    "ML Workspace",
-    "Data Zone"
-  ],
-  "expected_edge_labels": [
-    "AML SDK",
-    "ABFS",
-    "Pull"
-  ],
+  "expected_zones": ["ML Workspace", "Data Zone"],
+  "expected_edge_labels": ["AML SDK", "ABFS", "Pull"],
   "expected_legend_required": true,
   "expected_pages": 1,
-  "pain_points_exercised": [
-    "icons",
-    "semantics"
-  ],
+  "pain_points_exercised": ["icons", "semantics"],
   "notes": "Variant-aware icons required: GPU compute (NC-series), ACR Premium, ADLS Gen2 (Storage with HNS)."
 }

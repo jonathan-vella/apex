@@ -13,12 +13,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import {
-  getAgents,
-  getSkills,
-  getInstructions,
-  getSkillNames as getSkillNamesFromIndex,
-} from "./_lib/workspace-index.mjs";
+import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { getRawFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { MAX_SKILL_LINES_WITHOUT_REFS, SKILLS_DIR, INSTRUCTIONS_DIR } from "./_lib/paths.mjs";

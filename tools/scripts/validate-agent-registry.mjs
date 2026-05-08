@@ -147,8 +147,8 @@ function crossCheckModel(registryKey, registryModel, agentFilePath) {
 const allEntries = [...Object.entries(registry.agents || {}), ...Object.entries(registry.subagents || {})];
 for (const [key, entry] of allEntries) {
   if (entry.bicep || entry.terraform) {
-    if (entry.bicep) crossCheckModel(key + " (bicep)", entry.bicep.model, entry.bicep.agent);
-    if (entry.terraform) crossCheckModel(key + " (terraform)", entry.terraform.model, entry.terraform.agent);
+    if (entry.bicep) crossCheckModel(`${key} (bicep)`, entry.bicep.model, entry.bicep.agent);
+    if (entry.terraform) crossCheckModel(`${key} (terraform)`, entry.terraform.model, entry.terraform.agent);
   } else {
     crossCheckModel(key, entry.model, entry.agent);
   }

@@ -107,7 +107,7 @@ export class Reporter {
     console.log(`\n${"─".repeat(50)}`);
   }
 
-  summary(label) {
+  summary(_label) {
     this.separator();
     const parts = [];
     if (this.checked > 0) parts.push(`Checked: ${this.checked}`);

@@ -216,7 +216,7 @@ async function main() {
     findings,
     summary: findings.length === 0 ? "No issues found" : `${findings.length} issue(s) found`,
   };
-  await writeFile(join(ROOT, "freshness-report.json"), JSON.stringify(report, null, 2) + "\n");
+  await writeFile(join(ROOT, "freshness-report.json"), `${JSON.stringify(report, null, 2)}\n`);
   console.log("📄 Report written to freshness-report.json");
 
   if (findings.length === 0) {

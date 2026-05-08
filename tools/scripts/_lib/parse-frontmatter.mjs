@@ -31,7 +31,7 @@ export function parseFrontmatter(content) {
         pendingKey = null;
         if (trimmed.includes("]")) {
           const values = trimmed
-            .replace(/[\[\]]/g, "")
+            .replace(/[[\]]/g, "")
             .split(",")
             .map((v) => v.trim().replace(/"/g, ""))
             .filter(Boolean);
@@ -47,7 +47,7 @@ export function parseFrontmatter(content) {
         pendingKey = null;
         const value = trimmed
           .replace(/^-\s*/, "")
-          .replace(/["\[\],]/g, "")
+          .replace(/["[\],]/g, "")
           .trim();
         if (value) currentValue.push(value);
         continue;
@@ -62,7 +62,7 @@ export function parseFrontmatter(content) {
         const value = line
           .trim()
           .replace(/^-\s*/, "")
-          .replace(/["\[\],]/g, "")
+          .replace(/["[\],]/g, "")
           .trim();
         if (value) currentValue.push(value);
         continue;
@@ -101,7 +101,7 @@ export function parseFrontmatter(content) {
         currentValue = [];
         if (rawValue.includes("]")) {
           const values = rawValue
-            .replace(/[\[\]]/g, "")
+            .replace(/[[\]]/g, "")
             .split(",")
             .map((v) => v.trim().replace(/"/g, ""))
             .filter(Boolean);

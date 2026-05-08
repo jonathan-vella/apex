@@ -16,7 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
-import { parseFrontmatter, getBody } from "./_lib/parse-frontmatter.mjs";
+import { getBody } from "./_lib/parse-frontmatter.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_BODY_LINES } from "./_lib/paths.mjs";
 
@@ -63,7 +63,7 @@ function runFrontmatterValidation() {
   let mainCount = 0;
   let subCount = 0;
 
-  for (const [file, agent] of agents) {
+  for (const [_file, agent] of agents) {
     r.tick();
     const { path: filePath, content, frontmatter, isSubagent } = agent;
     const relativePath = filePath;
@@ -351,7 +351,7 @@ function runModelAlignment() {
       agentModelMap.set(name, entry.model);
     }
 
-    for (const [filename, agent] of agents) {
+    for (const [_filename, agent] of agents) {
       const handoffs = agent.frontmatter?.handoffs;
       if (!Array.isArray(handoffs)) continue;
 
@@ -388,7 +388,7 @@ function runModelAlignment() {
   {
     const agents = getAgents();
 
-    for (const [filename, agent] of agents) {
+    for (const [_filename, agent] of agents) {
       if (!agent.frontmatter?.model) continue;
       const family = classifyModel(agent.frontmatter.model);
       if (!isClaude(family)) continue;
@@ -741,7 +741,9 @@ function checkClaudeNoPrefill(r, item, file, family) {
 function checkGpt55StopRulesNonEmpty(r, agent, file, family) {
   if (family !== "gpt-5.5") return;
   const body = getBody(agent.content);
-  const m = body.match(/^# Stop rules\s*\n([\s\S]*?)(?=^# |\z)/m);
+  // Match section body up to the next H1 heading or the end of the document.
+  // (`$` with the `m` flag matches end-of-line; we need end-of-string here, hence the explicit alternative.)
+  const m = body.match(/^# Stop rules\s*\n([\s\S]*?)(?=^# |$(?![\s\S]))/m);
   if (!m) return; // Missing section is caught by skeleton check
   const sectionBody = m[1]
     .split("\n")
@@ -916,7 +918,7 @@ function runVendorPrompting() {
   // resolve effective family and enforce prompt-model-source-001.
   const agentNameToModel = buildAgentNameToModel();
 
-  for (const [file, agent] of agents) {
+  for (const [_file, agent] of agents) {
     r.tick();
     const relPath = path.relative(process.cwd(), agent.path);
     const family = classifyModel(agent.frontmatter?.model);
@@ -944,7 +946,7 @@ function runVendorPrompting() {
     checkHandoffEnrichment(r, agent, relPath, family);
   }
 
-  for (const [file, prompt] of prompts) {
+  for (const [_file, prompt] of prompts) {
     r.tick();
     const relPath = path.relative(process.cwd(), prompt.path);
     // Resolve the prompt's effective family via its own `model:` first,

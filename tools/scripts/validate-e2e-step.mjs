@@ -106,7 +106,7 @@ function fileExists(filePath) {
 function globFiles(dir, pattern) {
   try {
     const files = fs.readdirSync(dir);
-    const regex = new RegExp("^" + pattern.replace(/\*/g, ".*").replace(/\?/g, ".") + "$");
+    const regex = new RegExp(`^${pattern.replace(/\*/g, ".*").replace(/\?/g, ".")}$`);
     return files.filter((f) => regex.test(f));
   } catch {
     return [];
@@ -135,7 +135,7 @@ function runCommand(cmd) {
   } catch (err) {
     return {
       success: false,
-      output: (err.stdout || "").trim() + "\n" + (err.stderr || "").trim(),
+      output: `${(err.stdout || "").trim()}\n${(err.stderr || "").trim()}`,
     };
   }
 }

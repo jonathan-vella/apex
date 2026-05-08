@@ -174,7 +174,7 @@ if (allViolations.length === 0) {
   for (const [file, violations] of byFile) {
     console.log(`\n  📄 ${file}`);
     for (const v of violations) {
-      const icon = v.severity === "error" ? "❌" : "⚠️";
+      const _icon = v.severity === "error" ? "❌" : "⚠️";
       const msg = `L${v.line}: "${v.pattern}" → "${v.replacement}" (${v.reason})`;
       if (v.severity === "error") {
         r.error(file, msg);

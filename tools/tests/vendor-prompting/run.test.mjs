@@ -15,10 +15,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { parseFrontmatter, getBody } from "../../scripts/_lib/parse-frontmatter.mjs";
-import { Reporter } from "../../scripts/_lib/reporter.mjs";
-import { classifyModel } from "../../scripts/validate-agents.mjs";
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(__dirname, "fixtures", "agents");
 const PROMPT_FIXTURES = path.join(__dirname, "fixtures", "prompts");
@@ -81,10 +77,6 @@ const PROMPT_EXPECTATIONS = {
  * lets us assert structured findings directly.
  */
 async function lintFixture(filePath) {
-  // Re-import the validator's check functions via dynamic import. We rely on
-  // the fact that the validator module is import-safe (it guards main()
-  // behind a `if (process.argv[1] === __filename)` check).
-  const validator = await import("../../scripts/validate-agents.mjs");
   // The check functions are not exported; instead we run the validator
   // module's internal logic by simulating a single-file invocation.
   // For audit-grade fidelity we shell out to the CLI in JSON mode.

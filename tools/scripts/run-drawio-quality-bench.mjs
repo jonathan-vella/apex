@@ -52,7 +52,7 @@ const REPO_ROOT = process.cwd();
 const BASELINE_DIR = path.join("tools", "tests", "drawio-baseline");
 const RUNS_PATH = path.join(BASELINE_DIR, "_baseline-runs.json");
 const BASELINE_PATH = path.join(BASELINE_DIR, "regen-baseline.json");
-const FIXTURES_DIR = path.join("tools", "tests", "drawio-golden");
+const _FIXTURES_DIR = path.join("tools", "tests", "drawio-golden");
 
 // Fixture id -> reference .drawio under agent-output/. T-012 captured these
 // G1..G7 outputs to disk; T-033 re-uses them as the "before" state.
@@ -90,7 +90,7 @@ function rubricMean(scen) {
   return dims.reduce((s, n) => s + n, 0) / dims.length;
 }
 
-function runValidatorScopedTo(file) {
+function runValidatorScopedTo(_file) {
   // Run the validator on a single file by exporting a scoped scan path via
   // env. The validator currently scans fixed dirs; we approximate per-file
   // counts by grepping its full output. For the captured baseline, scope
@@ -239,7 +239,7 @@ ensureDir(outDir);
 const jsonOut = path.join(outDir, "quality-bench.json");
 const mdOut = path.join(outDir, "quality-bench.md");
 
-fs.writeFileSync(jsonOut, JSON.stringify({ verdict, per_scenario: perScenario }, null, 2) + "\n");
+fs.writeFileSync(jsonOut, `${JSON.stringify({ verdict, per_scenario: perScenario }, null, 2)}\n`);
 
 const md = [];
 md.push(`# Draw.io Quality Bench — ${runId}`);
