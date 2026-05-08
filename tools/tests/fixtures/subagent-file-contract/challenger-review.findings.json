@@ -1,0 +1,41 @@
+{
+  "challenged_artifact": "agent-output/sample/02-architecture-assessment.md",
+  "artifact_type": "architecture",
+  "review_focus": "security-governance",
+  "pass_number": 1,
+  "challenge_summary": "Storage account allows public blob access; missing diagnostic settings on Key Vault; SQL admin auth not Entra-only.",
+  "compact_for_parent": "Pass 1 (security-governance) | MEDIUM | 1 must_fix, 2 should_fix | Key: [Storage public blob]; [KV diagnostics]; [SQL Entra-only]",
+  "risk_level": "medium",
+  "must_fix_count": 1,
+  "should_fix_count": 2,
+  "suggestion_count": 3,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Storage account allows public blob access",
+      "description": "allowBlobPublicAccess is true; violates baseline.",
+      "failure_scenario": "Azure Policy Deny will block deployment.",
+      "artifact_section": "## Storage",
+      "suggested_mitigation": "Set allowBlobPublicAccess: false on all storage accounts."
+    },
+    {
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "Key Vault missing diagnostic settings",
+      "description": "No audit log retention defined.",
+      "failure_scenario": "Loss of audit visibility for secrets access.",
+      "artifact_section": "## Key Vault",
+      "suggested_mitigation": "Add diagnosticSettings module with 90-day retention."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "SQL admin auth not Entra-only",
+      "description": "SQL still allows username/password auth.",
+      "failure_scenario": "Credential leak risk.",
+      "artifact_section": "## SQL Database",
+      "suggested_mitigation": "Set azureADOnlyAuthentication: true."
+    }
+  ]
+}

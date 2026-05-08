@@ -356,7 +356,18 @@ pass routing table, model selection, and conditional skip rules.
 Follow the conditional pass rules from `adversarial-review-protocol.md` —
 skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`;
 skip pass 3 if pass 2 has 0 `must_fix`.
-Write results to `challenge-findings-iac-code-pass{N}.json`. Fix any `must_fix` items, re-validate, re-run failing pass.
+
+For each pass, pass these inputs to the subagent:
+
+- `output_path` = `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`
+- `overwrite` = `false` (set to `true` only when re-running after revisions)
+
+The subagent writes the JSON file at `output_path` and returns a compact
+summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
+from disk only if you need full finding details for fix triage. Fix any
+`must_fix` items, re-validate, re-run the failing pass.
+**Checkpoint** (MANDATORY) after each pass:
+`apex-recall checkpoint <project> 5 phase_4_5_challenger_pass{N} --json`
 
 **Review audit** (MANDATORY): `apex-recall review-audit <project> 5 --passes-executed <N> --json`
 

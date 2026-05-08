@@ -368,7 +368,11 @@ policies. Do not re-run Phase 1 between challenger passes.
    - `review_focus` = `comprehensive`
    - `pass_number` = `1`
    - `prior_findings` = `null`
-2. Write returned JSON to `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
+   - `output_path` = `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
+   - `overwrite` = `false` (set to `true` only when re-running after revisions)
+2. The subagent writes the JSON file at `output_path` and returns a compact
+   summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
+   from disk only if you need full finding details for the Gate 2.5 summary.
 3. If any `must_fix` findings: batch-fix ALL findings in one edit pass.
 4. Include challenger findings summary in the Gate 2.5 presentation below
 5. **Review audit** (MANDATORY): `apex-recall review-audit <project> 3_5 --passes-executed 1 --json`

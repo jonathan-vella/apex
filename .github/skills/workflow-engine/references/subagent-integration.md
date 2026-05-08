@@ -59,3 +59,70 @@ For Step 2 (Architect): `askQuestions` is a fallback for missing info.
 If `01-requirements.md` is complete, `#runSubagent` works fine. If the
 Architect detects missing info with no upstream requirements, consider
 sending the user back to Step 1 instead.
+
+## File-Mode Contract for Subagent Output (Phase 1 of Context-Window Optimization)
+
+`challenger-review-subagent` and `cost-estimate-subagent` follow a **file-mode
+contract**: the subagent writes its full structured output to a parent-supplied
+path on disk and returns only a compact summary (≤15 lines, ≤2 KB) to the
+parent's chat context. This keeps parent agents' context windows small and
+prevents repeated JSON dumps from bloating the conversation.
+
+### Path convention
+
+The parent agent **always** supplies `output_path` explicitly. The subagent
+never invents or guesses a path.
+
+| Subagent                       | Caller (step)                | Canonical `output_path`                                                          |
+| ------------------------------ | ---------------------------- | -------------------------------------------------------------------------------- |
+| `challenger-review-subagent`   | Requirements (1)             | `agent-output/{project}/challenge-findings-requirements.json`                    |
+| `challenger-review-subagent`   | Architect (2) — architecture | `agent-output/{project}/challenge-findings-architecture-pass{N}.json`            |
+| `challenger-review-subagent`   | Architect (2) — cost         | `agent-output/{project}/challenge-findings-cost-estimate.json`                   |
+| `challenger-review-subagent`   | Governance (3.5)             | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`    |
+| `challenger-review-subagent`   | IaC Planner (4)              | `agent-output/{project}/challenge-findings-plan-pass{N}.json`                    |
+| `challenger-review-subagent`   | Bicep / Terraform CodeGen (5)| `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`                |
+| `cost-estimate-subagent`       | Architect (2)                | `agent-output/{project}/02-cost-estimate.json`                                   |
+| `cost-estimate-subagent`       | As-Built (7)                 | `agent-output/{project}/07-ab-cost-estimate.json`                                |
+
+Pass numbering uses `pass{N}` for multi-pass reviews; single-pass artifacts
+omit the suffix. Backward compatibility: the legacy
+`nordic-foods/challenge-findings-requirements.json` (no `-pass` suffix) is
+grandfathered. Parents may read either name; new writes always use the new
+convention.
+
+### Atomic write + refuse-on-exists
+
+The subagent:
+
+1. Writes to `{output_path}.tmp` first.
+2. Renames `{output_path}.tmp` → `{output_path}` only after a successful
+   complete write. Partial writes never appear under the canonical name.
+3. Refuses to overwrite an existing file unless the parent explicitly passes
+   `overwrite: true`. This protects against silent loss on retries or
+   parallel runs.
+
+### Parent responsibilities
+
+After the subagent returns its compact summary, the parent agent MUST:
+
+1. Avoid pasting the full JSON inline in chat. Read `output_path` from disk
+   only when full finding details are needed (e.g., Gate presentation, fix
+   triage).
+2. Record the artifact in session state via:
+
+   ```bash
+   apex-recall checkpoint <project> <step> <phase-tag> --json
+   ```
+
+   `apex-recall` has no dedicated `artifact` subcommand; the existing
+   `checkpoint` subcommand stamps the new file in session state, and the
+   file index picks the new file up on the next `reindex`.
+3. When re-running after revisions, set `overwrite: true` explicitly.
+
+### Why the contract was flipped
+
+Previously parents wrote the JSON, which forced the subagent to return the
+full payload via chat. On multi-pass reviews this dumped 5–10 KB of JSON
+into the parent's context per pass. The file-mode contract pushes that
+weight to disk and replaces it with a 15-line summary, cutting per-turn
+context floor on review-heavy steps (2, 4, 5).

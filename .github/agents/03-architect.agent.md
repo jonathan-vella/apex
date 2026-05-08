@@ -231,14 +231,21 @@ that did not originate from a subagent response.
 Delegate ALL pricing work to `cost-estimate-subagent` to keep your context focused on WAF analysis:
 
 1. **Prepare resource list** — compile resource types, SKUs, region, and quantities from your assessment
-2. **Delegate to `cost-estimate-subagent`** — provide the resource list and region
-3. **Receive cost breakdown** — structured table with monthly/yearly totals and per-resource rates
-4. **Integrate verbatim** — copy the subagent's prices into both
+2. **Delegate to `cost-estimate-subagent`** — provide:
+   - `resource_list`, `project_name`, `region`
+   - `output_path` = `agent-output/{project}/02-cost-estimate.json`
+   - `overwrite` = `false` (set to `true` only when re-running after revisions)
+   - Optional: `compare_regions: true`, `include_ri_savings: true`
+3. **Receive compact summary** — the subagent writes the full JSON breakdown to
+   `output_path` and returns a ≤15-line summary (status, region, monthly_total,
+   yearly_total, file_path, confidence). **Do NOT paste subagent JSON inline.**
+   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_4_pricing --json`
+4. **Read the JSON file** from `output_path` to populate both
    `02-architecture-assessment.md` (Cost Assessment table) and
-   `03-des-cost-estimate.md` line items. Do NOT round, adjust, or "correct"
-   subagent figures
-5. **Cross-check totals** — verify that the sum of line items equals the
-   reported total. Flag any discrepancy to the user before proceeding
+   `03-des-cost-estimate.md` line items. Copy figures verbatim — do NOT round,
+   adjust, or "correct" them.
+5. **Cross-check totals** — verify that the sum of `resources[].monthly_cost`
+   equals `monthly_total`. Flag any discrepancy to the user before proceeding.
 
 ### What Goes Where
 
@@ -298,8 +305,12 @@ Invoke `challenger-review-subagent`:
 - `review_focus` = `comprehensive`
 - `pass_number` = `1`
 - `prior_findings` = `null`
+- `output_path` = `agent-output/{project}/challenge-findings-cost-estimate.json`
+- `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-Write result to `agent-output/{project}/challenge-findings-cost-estimate.json`.
+The subagent writes the JSON file at `output_path` and returns a compact
+summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
+from disk only if you need full finding details for the Gate presentation.
 
 ### Parallel Execution Strategy
 
@@ -320,8 +331,14 @@ For each architecture pass, invoke the appropriate challenger subagent via `#run
 - `review_focus` = per-pass value from protocol lens table
 - `pass_number` = `1` / `2` / `3`
 - `prior_findings` = `null` for pass 1; compact string for passes 2-3
+- `output_path` = `agent-output/{project}/challenge-findings-architecture-pass{N}.json`
+- `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-Write each result to `agent-output/{project}/challenge-findings-architecture-pass{N}.json`.
+The subagent writes each pass's JSON file at `output_path` and returns a compact
+summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read each file
+from disk only if you need full finding details for the Gate presentation.
+**Checkpoint** (MANDATORY) after each pass:
+`apex-recall checkpoint <project> 2 phase_6_challenger_pass{N} --json`
 
 ## Approval Gate
 

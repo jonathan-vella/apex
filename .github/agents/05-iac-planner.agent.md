@@ -279,7 +279,21 @@ skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`.
 **Model routing**: Pass 1 (security-governance) → `challenger-review-subagent`.
 Pass 2 → `challenger-review-subagent` with `review_focus = "architecture-reliability"`.
 
-Write results to `agent-output/{project}/challenge-findings-plan-pass{N}.json`.
+For each pass, pass these inputs to the subagent:
+
+- `artifact_path` = `agent-output/{project}/04-implementation-plan.md`
+- `project_name` = `{project}`
+- `artifact_type` = `implementation-plan`
+- `review_focus` = per-pass value (security-governance / architecture-reliability)
+- `pass_number` = `1` / `2`
+- `prior_findings` = `null` for pass 1; pass 1's `compact_for_parent` for pass 2
+- `output_path` = `agent-output/{project}/challenge-findings-plan-pass{N}.json`
+- `overwrite` = `false` (set to `true` only when re-running after revisions)
+
+The subagent writes the JSON file at `output_path` and returns a compact
+summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
+from disk only if you need full finding details for the Gate presentation.
+**Checkpoint** (MANDATORY) after each pass: `apex-recall checkpoint <project> 4 phase_4_challenger_pass{N} --json`
 
 **Review audit** (MANDATORY): `apex-recall review-audit <project> 4 --passes-executed <N> --json`
 

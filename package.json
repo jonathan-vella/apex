@@ -37,6 +37,7 @@
     "lint:python": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
     "lint:python:fix": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check --fix src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check --fix src/",
     "test:apex-recall": "python3 -m pytest tools/tests/test_apex_recall/ -q",
+    "test:subagent-file-contract": "node --test tools/tests/subagent-file-contract.test.mjs",
     "lint:drawio": "node tools/scripts/validate-drawio-files.mjs",
     "lint:terraform-fmt": "terraform fmt -check -recursive infra/terraform/",
     "validate:terraform": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",

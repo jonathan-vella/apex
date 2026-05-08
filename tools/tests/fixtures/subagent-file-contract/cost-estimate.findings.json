@@ -1,0 +1,73 @@
+{
+  "status": "COMPLETE",
+  "project_name": "sample",
+  "region": "swedencentral",
+  "currency": "USD",
+  "monthly_total": 1234.56,
+  "yearly_total": 14814.72,
+  "resources": [
+    {
+      "name": "app-service",
+      "service_name": "Azure App Service",
+      "sku": "P1v3",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.158,
+      "monthly_cost": 115.34,
+      "notes": "Linux plan, zone-redundant"
+    },
+    {
+      "name": "sql-db",
+      "service_name": "Azure SQL Database",
+      "sku": "GP_S_Gen5_2",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.367,
+      "monthly_cost": 267.91,
+      "notes": "Serverless, 2 vCore max"
+    },
+    {
+      "name": "storage",
+      "service_name": "Azure Blob Storage",
+      "sku": "Standard_ZRS_Hot",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.038,
+      "monthly_cost": 27.74,
+      "notes": "Estimate based on 500 GB"
+    },
+    {
+      "name": "key-vault",
+      "service_name": "Azure Key Vault",
+      "sku": "Standard",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.005,
+      "monthly_cost": 3.65,
+      "notes": "10K operations/month assumed"
+    },
+    {
+      "name": "front-door",
+      "service_name": "Azure Front Door Service",
+      "sku": "Standard",
+      "region": "global",
+      "quantity": 1,
+      "hourly_rate": 1.123,
+      "monthly_cost": 819.92,
+      "notes": "Includes WAF + 1 TB egress"
+    }
+  ],
+  "optimization_notes": [
+    "Reserved Instance for App Service P1v3: ~30% savings on 3yr commit",
+    "Serverless SQL is already cost-optimized for variable load"
+  ],
+  "savings_status": "QUANTIFIED",
+  "savings_reason": "RI eligible compute identified",
+  "eligible_strategies": ["Reserved Instances (3yr)", "Azure Hybrid Benefit (SQL)"],
+  "data_source": "Azure Pricing MCP",
+  "queried_at": "2026-05-08T12:00:00Z",
+  "confidence": "High",
+  "unresolved_items": [],
+  "mcp_calls_used": 2,
+  "budget_exceeded": false
+}

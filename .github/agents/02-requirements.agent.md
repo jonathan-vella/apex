@@ -294,7 +294,12 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
    - `review_focus` = `comprehensive`
    - `pass_number` = `1`
    - `prior_findings` = `null`
-2. Write returned JSON to `agent-output/{project}/challenge-findings-requirements.json`
+   - `output_path` = `agent-output/{project}/challenge-findings-requirements.json`
+   - `overwrite` = `false` (set to `true` only when re-running after revisions)
+2. The subagent writes the JSON file at `output_path` and returns a compact
+   summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
+   from disk only if you need full finding details to synthesize Gate 1.
+   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 1 phase_6_challenger --json`
 3. **Present findings directly in chat** — render a markdown table so the user
    sees every finding without opening the JSON file:
    - Print the overall assessment from `summary.overall_assessment`

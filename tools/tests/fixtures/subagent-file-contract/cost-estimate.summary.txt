@@ -1,0 +1,13 @@
+COST ESTIMATE COMPLETE
+file_path: agent-output/sample/02-cost-estimate.json
+status: COMPLETE
+region: swedencentral
+currency: USD
+monthly_total: 1234.56
+yearly_total: 14814.72
+resource_count: 5
+unresolved_items: 0
+savings_status: QUANTIFIED
+confidence: High
+mcp_calls_used: 2/5
+budget_exceeded: false

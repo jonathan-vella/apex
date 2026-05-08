@@ -288,9 +288,17 @@ Delegate pricing to `cost-estimate-subagent`:
 
 1. **Query deployed resources** — use `az resource list` / Resource Graph to get actual SKUs, tiers, and quantities
 2. **Prepare resource list** — compile actual (not planned) resource types, SKUs, region, and quantities
-3. **Delegate to `cost-estimate-subagent`** — provide the deployed resource list and region
-4. **Integrate verbatim** — copy subagent prices into `07-ab-cost-estimate.md`. Do NOT round, adjust, or "correct" figures
-5. **Cross-check with 03-des-cost-estimate.md** — note any delta between planned and as-built costs
+3. **Delegate to `cost-estimate-subagent`** — provide:
+   - `resource_list`, `project_name`, `region`
+   - `output_path` = `agent-output/{project}/07-ab-cost-estimate.json`
+   - `overwrite` = `false` (set to `true` only when re-running after revisions)
+4. **Receive compact summary** — the subagent writes the full JSON breakdown to
+   `output_path` and returns a ≤15-line summary (status, region, monthly_total,
+   yearly_total, file_path, confidence). **Do NOT paste subagent JSON inline.**
+   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 7 phase_3_pricing --json`
+5. **Read the JSON file** from `output_path` to populate `07-ab-cost-estimate.md`.
+   Copy figures verbatim — do NOT round, adjust, or "correct" them.
+6. **Cross-check with 03-des-cost-estimate.md** — note any delta between planned and as-built costs
 
 ### Phase 3: As-Built Charts
 

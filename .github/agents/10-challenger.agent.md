@@ -128,10 +128,13 @@ Invoke `challenger-review-subagent` with:
 - `review_focus` (from step 4 or `"comprehensive"`)
 - `pass_number` = `1`
 - `prior_findings` = `null`
+- `output_path` = `agent-output/{project}/challenge-findings-{artifact_type}.json`
+- `overwrite` = `false` (set to `true` only when re-running after revisions)
 
 ### Multi-Pass Review (total_passes = 2 or 3)
 
-**Pass 1** → Invoke `challenger-review-subagent` with `review_focus = "security-governance"`, `pass_number = 1`
+**Pass 1** → Invoke `challenger-review-subagent` with `review_focus = "security-governance"`, `pass_number = 1`,
+`output_path = agent-output/{project}/challenge-findings-{artifact_type}-pass1.json`, `overwrite = false`.
 
 **Passes 2–3** → Invoke `challenger-review-subagent` in batch mode with:
 
@@ -140,6 +143,8 @@ Invoke `challenger-review-subagent` with:
   - 3-pass: `[{"review_focus": "architecture-reliability", "pass_number": 2},`
     `{"review_focus": "cost-feasibility", "pass_number": 3}]`
 - `prior_findings` = compact_for_parent from pass 1
+- `output_path` = `agent-output/{project}/challenge-findings-{artifact_type}-batch.json`
+- `overwrite` = `false`
 
 ### Lens Rotation Table
 
@@ -149,8 +154,10 @@ Invoke `challenger-review-subagent` with:
 | 2            | security-governance | architecture-reliability | —                |
 | 3            | security-governance | architecture-reliability | cost-feasibility |
 
-1. **Write the returned JSON** to `agent-output/{project}/challenge-findings-{artifact_type}.json`
-2. **Present findings directly in chat** — render a markdown table with columns:
+1. The subagent writes the JSON to `output_path` and returns a compact
+   summary (≤15 lines). **Do NOT paste subagent JSON inline.**
+2. **Present findings directly in chat** — read the JSON file from disk to
+   render a markdown table with columns:
    **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
    — list every finding from the JSON (must_fix first, then should_fix, then suggestion).
    Show totals: `N must-fix, N should-fix, N suggestion`.
@@ -158,7 +165,9 @@ Invoke `challenger-review-subagent` with:
 
 ## Output Contract
 
-Expected output: JSON written to `agent-output/{project}/challenge-findings-{artifact_type}.json`
+Expected output: JSON written by the subagent at the caller-supplied `output_path`
+(canonical pattern: `agent-output/{project}/challenge-findings-{artifact_type}.json`
+or `…-pass{N}.json` for multi-pass).
 Format: See challenger-review-subagent output format specification.
 Fields: challenged_artifact, artifact_type, review_focus, risk_level, must_fix_count, should_fix_count, issues[].
 Presentation: Render findings as markdown table in chat (ID, Severity, Title, WAF Pillar, Recommendation).
