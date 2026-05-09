@@ -5,6 +5,7 @@ from mcp.types import Tool, ToolAnnotations
 from .databricks.tools import get_databricks_tool_definitions
 from .github_pricing.tools import get_github_pricing_tool_definitions
 from .response_format import RESPONSE_FORMAT_SCHEMA
+from .schemas import get_output_schema
 
 # Phase 4.17 — admin-tier tools (spot/simulate/find_orphaned). The probe in
 # ``admin/__init__.py`` raises ImportError when ``[admin]`` extras are missing;
@@ -92,6 +93,7 @@ def get_tool_definitions() -> list[Tool]:
                         "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                 },
+                outputSchema=get_output_schema("azure_price_search"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -120,6 +122,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["service_name"],
                 },
+                outputSchema=get_output_schema("azure_price_compare"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -152,6 +155,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["service_name", "sku_name", "region"],
                 },
+                outputSchema=get_output_schema("azure_cost_estimate"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -187,6 +191,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["service_name"],
                 },
+                outputSchema=get_output_schema("azure_discover_skus"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -213,6 +218,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["service_hint"],
                 },
+                outputSchema=get_output_schema("azure_sku_discovery"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -241,6 +247,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["service_name", "sku_name"],
                 },
+                outputSchema=get_output_schema("azure_region_recommend"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -281,6 +288,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["service_name"],
                 },
+                outputSchema=get_output_schema("azure_ri_pricing"),
                 annotations=_READ_ANNOTATIONS,
             ),
             Tool(
@@ -405,6 +413,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["resources"],
                 },
+                outputSchema=get_output_schema("azure_bulk_estimate"),
                 annotations=_READ_ANNOTATIONS,
             ),
         ]

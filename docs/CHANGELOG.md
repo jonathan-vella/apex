@@ -11,23 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- feat(pricing-mcp): **Azure Pricing MCP v5.0 — independent fork**
-  modernization. Re-attributes the server (formerly upstream
-  `msftnadavbh/AzurePricingMCP`) to `jonathan-vella/azure-agentic-infraops`,
-  introduces a `response_format` parameter (`compact|table|full`,
-  default `compact`) on 11 high-volume read tools, deprecates
-  `azure_discover_skus` to a thin alias of `azure_sku_discovery`, splits
-  `[azure]` extras → `[admin]` (with deprecation alias), drops the
-  HTTP transport + Dockerfile entirely (every consumer is stdio per
+- feat(pricing-mcp): **Azure Pricing MCP v5.0 → v5.2 — independent fork**
+  modernization, shipped as three commits on the same
+  `feat/azure-pricing-mcp-v5` branch. Re-attributes the server (formerly
+  upstream `msftnadavbh/AzurePricingMCP`) to
+  `jonathan-vella/azure-agentic-infraops`, introduces a `response_format`
+  parameter (`compact|table|full`, default `compact`) on 11 high-volume
+  read tools, deprecates `azure_discover_skus` to a thin alias of
+  `azure_sku_discovery`, splits `[azure]` extras → `[admin]` (with
+  deprecation alias + multi-import probe), extracts spot/orphaned tools
+  to `azure_pricing_mcp/admin/`, migrates `models.py` from `@dataclass`
+  to `pydantic.BaseModel`, attaches `outputSchema` + emits
+  structured-content envelopes on every in-scope tool, drops the HTTP
+  transport + Dockerfile entirely (every consumer is stdio per
   `.vscode/mcp.json`), adds in-flight request coalescing + a 60 s
-  negative-result TTL + a disk-backed retirement cache, and bumps the
-  changelog dating policy. Aggregate compact response is ~46 % of the v4
-  byte baseline (~12 KB / ~3000 tokens saved per workload). Phase 4.14
-  (pydantic outputSchema), Phase 4.15 (FastMCP rewrite + `lifespan`),
-  and Phase 4.17 (admin/ package extraction) are deferred to v5.1. See
+  negative-result TTL + a disk-backed retirement cache, eliminates the
+  if/elif tool-dispatch ladder, and bumps the changelog dating policy.
+  Aggregate compact response is ~46 % of the v4 byte baseline (~12 KB /
+  ~3000 tokens saved per workload). Final test count: 216 tests pass
+  (208 from v5.1 + 8 new v5.2 schema tests). See
   [`tools/mcp-servers/azure-pricing/CHANGELOG.md`](../tools/mcp-servers/azure-pricing/CHANGELOG.md)
-  for the full per-tool entry. Cost-estimate-subagent prompts now use
-  `response_format: "compact"` (replaces the bogus `output_format`
+  for the full per-version entries. Cost-estimate-subagent prompts now
+  use `response_format: "compact"` (replaces the bogus `output_format`
   argument that v4 silently dropped) and `azure_sku_discovery` (replaces
   references to `azure_discover_skus`).
 

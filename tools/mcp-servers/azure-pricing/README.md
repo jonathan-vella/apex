@@ -144,6 +144,25 @@ Azure Retail Prices API   +   MicrosoftDocs/azure-compute-docs
 clean. The aiohttp session is opened once via
 `async with AzurePricingServer(): ...` and shared across every tool call.
 
+## What's new in v5.2
+
+- **`outputSchema` on every in-scope tool.** All 11 high-volume read
+  tools now declare a permissive pydantic-derived JSON Schema in
+  `Tool.outputSchema`, and the handlers emit a structured-content
+  payload validated against it. MCP clients can now consume both the
+  rendered text and the underlying typed dict in a single tool call.
+- **`MCPToolResponse` envelope.** A small list-subclass that carries an
+  optional `.structured` payload as an attribute. Existing list-shape
+  callers (and every test from v5.0/v5.1) work unchanged; the
+  dispatcher in `server.py` translates `.structured` into the SDK's
+  tuple form when present.
+- **`schemas.py` registry.** Per-tool envelope models with
+  `extra="allow"` so service-layer additions stay contract-stable.
+  Permissive by design — strict typing scheduled for v6.0.
+- **No behavior change for legacy text-only tools.** Out-of-scope
+  trivial-response tools (`get_customer_discount`, `azure_ptu_sizing`,
+  `simulate_eviction`, etc.) still return plain `list[TextContent]`.
+
 ## What's new in v5.1
 
 - **`models.py` is now pydantic.** All 6 internal models migrated from
@@ -216,7 +235,7 @@ tools/mcp-servers/azure-pricing/
 │   └── github_pricing/       # GitHub pricing sub-package
 ├── tests/                    # pytest suite + fixtures (incl. baseline-bytes.json)
 ├── scripts/                  # install.py, setup helpers, dev/ debug scripts
-├── pyproject.toml            # uv-driven; v5.1.0
+├── pyproject.toml            # uv-driven; v5.2.0
 ├── CHANGELOG.md
 └── README.md                 # (you are here)
 ```

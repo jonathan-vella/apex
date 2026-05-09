@@ -5,6 +5,7 @@ from __future__ import annotations
 from mcp.types import Tool, ToolAnnotations
 
 from ..response_format import RESPONSE_FORMAT_SCHEMA
+from ..schemas import get_output_schema
 
 _READ_ANNOTATIONS = ToolAnnotations(readOnlyHint=True, idempotentHint=True, destructiveHint=False)
 _DESTRUCTIVE_ANNOTATIONS = ToolAnnotations(
@@ -128,6 +129,7 @@ def get_admin_tool_definitions() -> list[Tool]:
                     "response_format": RESPONSE_FORMAT_SCHEMA,
                 },
             },
+            outputSchema=get_output_schema("find_orphaned_resources"),
             annotations=_READ_ANNOTATIONS,
         ),
     ]

@@ -31,6 +31,7 @@ class GitHubPricingHandlers:
 
     async def handle_github_pricing(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle ``github_pricing`` tool calls."""
+        from ..mcp_response import MCPToolResponse, strip_private_keys
         from ..response_format import coerce_response_format
 
         fmt = coerce_response_format(arguments.pop("response_format", "compact"))
@@ -40,7 +41,10 @@ class GitHubPricingHandlers:
             copilot_plan=arguments.get("copilot_plan"),
         )
         text = format_github_pricing_response(result, fmt)
-        return [TextContent(type="text", text=text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_github_cost_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle ``github_cost_estimate`` tool calls."""

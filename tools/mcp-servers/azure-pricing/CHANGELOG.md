@@ -10,6 +10,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > order of v3.x releases is approximate. From v5.0.0 onward, dates reflect the
 > actual fork-release date in this repository.
 
+## [5.2.0] - 2026-05-09
+
+> **Closes the v5.1 `outputSchema` deferral.** Structured-content emission +
+> `outputSchema` attachment land in v5.2 on the same
+> `feat/azure-pricing-mcp-v5` branch.
+
+### Added
+
+- **`outputSchema` on every in-scope tool.** All 11 high-volume read
+  tools (`azure_price_search`, `azure_price_compare`,
+  `azure_cost_estimate`, `azure_region_recommend`, `azure_ri_pricing`,
+  `azure_bulk_estimate`, `azure_sku_discovery`, `azure_discover_skus`,
+  `find_orphaned_resources`, `databricks_dbu_pricing`,
+  `github_pricing`) now declare a JSON Schema dict in their
+  `Tool.outputSchema` field, derived from a pydantic envelope in the
+  new `azure_pricing_mcp.schemas` module via
+  `BaseModel.model_json_schema()`.
+- **Structured-content emission.** Each in-scope handler returns the
+  new `MCPToolResponse` envelope (a `list[TextContent]` subclass with
+  an optional `.structured` payload). The dispatcher in `server.py`
+  translates `.structured` into the SDK's
+  `tuple[list[ContentBlock], dict]` form so `CallToolResult` populates
+  both `content` and `structuredContent`. The MCP SDK validates the
+  structured payload against `outputSchema` automatically (jsonschema).
+- **`mcp_response.py` module.** Hosts `MCPToolResponse` +
+  `strip_private_keys` (drops underscore-prefixed keys from the
+  service-layer dict so private metadata like `_discount_metadata`
+  doesn't bleed into the structured envelope).
+- **`schemas.py` module.** Registry of 11 permissive output envelopes
+  with `extra="allow"` so service-layer additions don't break the
+  contract. `OUTPUT_SCHEMAS` dict + `get_output_schema(tool_name)`
+  helper expose the schemas to `tools.py`.
+- **8 new tests** in `tests/test_output_schemas.py` cover: every
+  in-scope tool has populated `outputSchema`, out-of-scope tools have
+  none (else SDK errors), `MCPToolResponse` list-subclass behaviour,
+  `strip_private_keys`, end-to-end structured emission for
+  `handle_price_search` and `handle_bulk_estimate`, plain-list
+  back-compat for legacy handlers, and permissive-schema validation
+  against payloads with extra fields.
+
+### Design notes
+
+- **Permissive over strict.** All envelopes use
+  `model_config = ConfigDict(extra="allow")` so unknown service-layer
+  fields pass validation. JSON Schema validation acts as a *guard*
+  against gross shape regressions, not a strict typed contract — that
+  strict typing is scheduled for v6.0 once every service-layer return
+  path is fully audited.
+- **Why a list-subclass instead of a tuple return type?** The
+  alternative (handlers return `tuple[list, dict]`) would have forced
+  a 26-site test rewrite — every test that does
+  `result = await handler(...); result[0].text` would break because
+  `result[0]` would be the list, not the TextContent.
+  `MCPToolResponse` keeps the v5.0/v5.1 callable contract intact.
+
+### Verification
+
+- 216 tests pass (208 from v5.1 + 8 new schema tests).
+- Aggregate compact bench unchanged at 45.9% of v4 baseline.
+- `lint:md` / `lint:json` / `lint:python` (ruff check + ruff format) clean.
+
 ## [5.1.0] - 2026-05-09
 
 > **Closes the v5.0 deferral list.** Phases 4.14, 4.15, and 4.17 from the
@@ -35,13 +96,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `find_orphaned_resources` now live under `src/azure_pricing_mcp/admin/`
   with their own `tools.py`, `handlers.py`, and `__init__.py`. The
   package's `__init__` performs an **import-time probe** of `azure.identity`
-  + `azure.core.credentials`; failure raises `ImportError` and the parent
-  server quietly skips admin-tool registration with a logged hint:
-  `"[admin] extras not installed — admin tools unavailable. Install with:
-  pip install 'azure-pricing-mcp[admin]'"`. Importers that miss the extras
-  but try to invoke an admin tool anyway get a friendly install hint
-  response (the `_admin_unavailable` fallback handler).
-  - **Probe scope correction** vs the original plan: the v5 implementation
+  - `azure.core.credentials`; failure raises `ImportError` and the parent
+    server quietly skips admin-tool registration with a logged hint:
+    `"[admin] extras not installed — admin tools unavailable. Install with:
+pip install 'azure-pricing-mcp[admin]'"`. Importers that miss the extras
+    but try to invoke an admin tool anyway get a friendly install hint
+    response (the `_admin_unavailable` fallback handler).
+  * **Probe scope correction** vs the original plan: the v5 implementation
     talks to Azure Resource Graph + Compute + Cost Management via raw
     aiohttp REST calls, not via the `azure-mgmt-*` SDKs. The probe was
     narrowed accordingly (`azure.identity` + `azure.core.credentials`)
@@ -70,14 +131,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (kill the ladder + lifespan-owned session) without the structural
   rewrite. A full FastMCP rewrite remains an option for v6.0 if MCP-side
   ergonomics ever justify the cost.
-- **`outputSchema` attachment** is not yet shipped: per the MCP spec,
-  `outputSchema` describes the structured data a tool returns alongside
-  textContent. Our handlers return `TextContent` only; attaching schemas
-  without a structured-content payload would advertise a contract we
-  don't fulfil. The pydantic migration in this release lays the
-  groundwork — every formatter input is now a pydantic-shaped dict with
-  derivable JSON Schema. Emitting structured content + populating
-  `outputSchema` is scheduled for v5.2.
+- **`outputSchema` attachment shipped in v5.2** (see entry above). The
+  pydantic migration in v5.1 laid the groundwork — every formatter
+  input is a pydantic-shaped dict with derivable JSON Schema. v5.2
+  ships the actual `Tool.outputSchema` attachment + structured-content
+  emission via `MCPToolResponse`.
 
 ### Internal
 

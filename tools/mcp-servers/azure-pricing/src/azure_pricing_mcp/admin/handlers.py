@@ -16,6 +16,7 @@ from ..formatters import (
     format_spot_eviction_rates_response,
     format_spot_price_history_response,
 )
+from ..mcp_response import MCPToolResponse, strip_private_keys
 from ..response_format import coerce_response_format
 from ..services.orphaned import OrphanedResourcesService
 from ..services.spot import SpotService
@@ -80,4 +81,7 @@ class AdminHandlers:
             all_subscriptions=arguments.get("all_subscriptions", True),
         )
         text = format_orphaned_resources_response(result, fmt)
-        return [TextContent(type="text", text=text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=text)],
+            structured=strip_private_keys(result),
+        )

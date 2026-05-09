@@ -21,6 +21,7 @@ from .formatters import (
     format_sku_discovery_response,
 )
 from .github_pricing.handlers import GitHubPricingHandlers
+from .mcp_response import MCPToolResponse, strip_private_keys
 from .response_format import DEFAULT_RESPONSE_FORMAT, ResponseFormat, coerce_response_format
 from .services import BulkEstimateService, DatabricksService, PricingService, PTUService, SKUService
 
@@ -186,7 +187,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
             if discount_tip:
                 response_text += f"\n\n{discount_tip}"
 
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_price_compare(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_price_compare tool calls."""
@@ -197,7 +201,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
 
         response_text = format_price_compare_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_region_recommend(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_region_recommend tool calls."""
@@ -208,7 +215,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
 
         response_text = format_region_recommend_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_cost_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_cost_estimate tool calls."""
@@ -219,7 +229,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
         self._attach_discount_metadata(result, discount_pct, discount_specified, used_default)
 
         response_text = format_cost_estimate_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_bulk_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_bulk_estimate tool calls."""
@@ -228,7 +241,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
             self._bulk_service = BulkEstimateService(self._pricing_service)
         result = await self._bulk_service.bulk_estimate(**arguments)
         response_text = format_bulk_estimate_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_discover_skus(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_discover_skus tool calls (deprecated alias — see Phase 4.12).
@@ -250,9 +266,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
         # preserved even though we use the canonical implementation.
         if not result.get("service_found"):
             response_text = format_discover_skus_response(result, fmt)
+            structured = strip_private_keys(result)
         else:
             # Reshape the canonical response to the v4 list-of-dicts shape that
-            # format_discover_skus_response expects.
+            # format_discover_skus_response (and DiscoverSKUsOutput schema) expect.
             shaped = {
                 "service_name": result.get("service_found", arguments.get("service_hint", "")),
                 "total_skus": result.get("total_skus", 0),
@@ -267,17 +284,24 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
                 ],
             }
             response_text = format_discover_skus_response(shaped, fmt)
-        return [TextContent(type="text", text=response_text)]
+            structured = shaped
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=structured,
+        )
 
     async def handle_sku_discovery(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_sku_discovery tool calls."""
         fmt = _pop_response_format(arguments)
         result = await self._sku_service.discover_service_skus(**arguments)
         response_text = format_sku_discovery_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     async def handle_customer_discount(self, arguments: dict[str, Any]) -> list[TextContent]:
-        """Handle get_customer_discount tool calls."""
+        """Handle get_customer_discount tool calls (no outputSchema — trivial response)."""
         result = await self._pricing_service.get_customer_discount(**arguments)
         response_text = format_customer_discount_response(result)
         return [TextContent(type="text", text=response_text)]
@@ -287,7 +311,10 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
         fmt = _pop_response_format(arguments)
         result = await self._pricing_service.get_ri_pricing(**arguments)
         response_text = format_ri_pricing_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
+        return MCPToolResponse(
+            [TextContent(type="text", text=response_text)],
+            structured=strip_private_keys(result),
+        )
 
     def _get_ptu_service(self) -> PTUService:
         """Get or create the PTUService (lazy initialization)."""

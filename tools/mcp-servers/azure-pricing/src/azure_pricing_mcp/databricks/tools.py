@@ -3,6 +3,7 @@
 from mcp.types import Tool, ToolAnnotations
 
 from ..response_format import RESPONSE_FORMAT_SCHEMA
+from ..schemas import get_output_schema
 
 _READ_ANNOTATIONS = ToolAnnotations(readOnlyHint=True, idempotentHint=True, destructiveHint=False)
 
@@ -46,6 +47,7 @@ def get_databricks_tool_definitions() -> list[Tool]:
                     "response_format": RESPONSE_FORMAT_SCHEMA,
                 },
             },
+            outputSchema=get_output_schema("databricks_dbu_pricing"),
             annotations=_READ_ANNOTATIONS,
         ),
         Tool(

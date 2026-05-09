@@ -178,7 +178,17 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
         handler = dispatch.get(name)
         if handler is None:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
-        return await handler(arguments)
+        result = await handler(arguments)
+
+        # v5.2 — when a handler emits a ``MCPToolResponse`` carrying a
+        # ``.structured`` payload, convert to the SDK's tuple form so
+        # ``CallToolResult.structuredContent`` is populated and the
+        # outputSchema validator runs against it. Plain ``list`` returns
+        # (legacy text-only handlers) pass through unchanged.
+        structured = getattr(result, "structured", None)
+        if structured is not None:
+            return list(result), structured
+        return result
 
 
 @overload
