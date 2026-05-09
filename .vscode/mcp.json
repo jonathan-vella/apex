@@ -44,9 +44,12 @@
         "run",
         "-P",
         "--no-check",
-        "--cached-only",
+        "--frozen",
         "${workspaceFolder}/tools/mcp-servers/drawio/src/index.ts"
-      ]
+      ],
+      "env": {
+        "DENO_DIR": "${userHome}/.cache/deno"
+      }
     }
   }
 }

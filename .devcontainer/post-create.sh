@@ -126,10 +126,13 @@ if command -v deno &>/dev/null; then
         fi
     fi
     # Pre-cache drawio MCP server dependencies to eliminate first-start latency.
-    # Must run from the project dir so deno.json import map is resolved correctly.
+    # Use `deno cache <entrypoint>` (canonical) so all transitive imports
+    # (JSR, npm, https) are pulled into $DENO_DIR. `deno install` (no args)
+    # only manages package.json-style deps and does NOT traverse JSR imports
+    # like @std/dotenv, which causes --cached-only startups to fail.
     DRAWIO_DIR="${PWD}/tools/mcp-servers/drawio"
     if [ -f "$DRAWIO_DIR/deno.json" ]; then
-        (cd "$DRAWIO_DIR" && deno install) 2>/dev/null \
+        (cd "$DRAWIO_DIR" && deno cache --frozen src/index.ts) >/dev/null 2>&1 \
             && printf "        ✅ drawio-mcp-server deps cached\n" \
             || printf "        ⚠️  drawio dep cache skipped\n"
     fi
