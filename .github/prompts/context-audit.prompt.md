@@ -21,7 +21,7 @@ opportunities across agents.
 - Copilot Chat debug logging must be enabled in VS Code.
 - Log files live under
   `~/.vscode-server/data/logs/*/exthost1/GitHub.copilot-chat/`.
-- Read `.github/skills/context-optimizer/SKILL.md` for audit methodology
+- Read `.github/skills/context-management/SKILL.md` for audit methodology
   (token accounting, hand-off detection, skill-loading heuristics).
 </context>
 

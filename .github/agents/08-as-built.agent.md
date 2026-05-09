@@ -115,7 +115,7 @@ Before doing any work, read these skills:
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
 3. Read `.github/skills/drawio/SKILL.digest.md` — diagram generation contract
 4. Read `.github/skills/python-diagrams/SKILL.digest.md` — WAF/cost chart generation
-5. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for predecessor artifacts
+5. Read `.github/skills/context-management/SKILL.digest.md` — runtime compression for predecessor artifacts (Mode A)
 6. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
@@ -242,7 +242,7 @@ Compact before generating the 7-document suite.
    - Compliance requirements from `01-requirements.md`
    - Cost estimate baseline from `03-des-cost-estimate.md` (monthly total)
 2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
+   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
 3. **Do NOT re-read predecessor artifacts during doc generation** — rely on
    the summary above and query Azure CLI for specific resource details as needed
 4. **Update session state** — run `apex-recall checkpoint <project> 7 phase_1.5_compacted --json`

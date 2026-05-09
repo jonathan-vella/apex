@@ -262,7 +262,7 @@ upstream of skills (instructions define authoring contracts).
 2. For every skill: `SKILL.md` size ≤ MAX_SKILL_LINES_WITHOUT_REFS
    (or has a `references/` directory); `description` triggers
    correctly; `SKILL.digest.md` and `SKILL.minimal.md` exist when
-   the agent definition mentions context-shredding.
+   the agent definition mentions context-management (Mode A: Runtime Compression).
 3. Detect orphan skills (no agent references) and orphan instructions
    (`applyTo` matches no file).
 

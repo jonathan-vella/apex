@@ -119,10 +119,10 @@ Choices: [
    - If `az quota list` returns `BadRequest` error, the resource provider doesn't support quota API
 
 3. **For resources that don't support quota API** (e.g., Microsoft.DocumentDB, or when you get `BadRequest` from `az quota list`):
-   - Invoke **azure-resource-lookup** skill to count existing deployments of that resource type in the selected subscription and region
+   - Invoke **azure-resources** skill (Mode A: Lookup) to count existing deployments of that resource type in the selected subscription and region
    - Use the count to calculate: `Total After Deployment = Current Count + Planned Deployment`
    - Reference [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) for the limit value
-   - Document in provisioning checklist as "Fetched from: azure-resource-lookup + Official docs"
+   - Document in provisioning checklist as "Fetched from: azure-resources (Mode A: Lookup) + Official docs"
 
 4. **Validate deployment capacity**:
    - Compare planned deployment quantities against available quota (limit - current usage)

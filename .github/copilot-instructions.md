@@ -3,13 +3,6 @@
 > VS Code Copilot-specific orchestration instructions.
 > For general project conventions, build commands, and code style, see the root `AGENTS.md`.
 
-## Quick Start
-
-1. Open Chat (`Ctrl+Shift+I`) → Select **Orchestrator** → Describe your project
-2. The Orchestrator guides you through all steps with approval gates
-
-Subagent support is pre-configured in `.vscode/settings.json`.
-
 ## Session State — apex-recall
 
 All session state flows through `apex-recall`. Do not read or write
@@ -50,7 +43,7 @@ Skills auto-discover via the `description` field in `.github/skills/{name}/SKILL
 Agents wire skills by reading the file directly. Default tier is
 `SKILL.digest.md`; `SKILL.minimal.md` is the >80%-utilization escalation;
 full `SKILL.md` is reserved for skill-authoring/debugging. See the
-`context-shredding` skill for tier selection.
+`context-management` skill for tier selection.
 
 ## Chat Triggers
 

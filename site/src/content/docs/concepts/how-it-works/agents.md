@@ -70,7 +70,7 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | 08-As-Built                 | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
 | 09-Diagnose                 | Azure resource troubleshooting                  | azure-diagnostics                              |
 | 10-Challenger               | Standalone adversarial review                   | —                                              |
-| 11-Context Optimizer        | Context window audit and optimisation           | context-optimizer                              |
+| 11-Context Optimizer        | Context window audit and optimisation           | context-management                             |
 | e2e-orchestrator            | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the

@@ -81,7 +81,7 @@ per-turn budget for the Claude family (Opus 4.7, Sonnet 4.6, Haiku 4.5). The
 GPT-5 family (GPT-5.5, GPT-5.3-Codex) has a 400,000-token per-turn
 budget in VS Code Copilot Chat, so the available conversation pool roughly
 doubles. See
-[`context-optimizer/references/token-estimation.md`](../skills/context-optimizer/references/token-estimation.md)
+[`context-management/references/token-estimation.md`](../skills/context-management/references/token-estimation.md)
 for the per-model breakdown including request multipliers.
 
 ## Anti-Patterns
@@ -132,9 +132,9 @@ so the choice is auditable.
 
 When loading an artifact file, check conversation length. If estimated context
 usage exceeds 60% of the model limit, use the compression tier system from the
-`context-shredding` skill:
+`context-management` skill (Mode A: Runtime Compression):
 
-1. **Read** `.github/skills/context-shredding/SKILL.md` for tier definitions
+1. **Read** `.github/skills/context-management/SKILL.md` for tier definitions
 2. Select tier: `full` (<60%), `summarized` (60-80%), `minimal` (>80%)
 3. Apply compression template for the specific artifact being loaded
 4. Compress older/less-critical artifacts first when loading multiple files
@@ -142,4 +142,4 @@ usage exceeds 60% of the model limit, use the compression tier system from the
 ## Skill Loading
 
 Load skills referenced in the agent body's "Read Skills" section.
-Use context-shredding tiers to select the right compression level.
+Use context-management runtime tiers to select the right compression level.

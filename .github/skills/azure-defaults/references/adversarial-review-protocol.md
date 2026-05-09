@@ -190,7 +190,7 @@ single-pass invocations — conditional gating (skip pass 3 if pass 2 has
 ## Context Shredding for Challenger Inputs
 
 When passing predecessor artifacts to the challenger, apply context shredding
-(from the `context-shredding` skill) based on current context usage:
+(from the `context-management` skill, Mode A: Runtime Compression) based on current context usage:
 
 - **< 60% context**: Pass full artifact
 - **60–80% context**: Pass only key H2 sections (resource list, SKU decisions,

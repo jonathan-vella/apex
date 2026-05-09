@@ -19,26 +19,17 @@ import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
 // These are invoked dynamically by VS Code Copilot via skill descriptions
 // or used as general-purpose skills available to any conversation.
 const KNOWN_UNLINKED_SKILLS = new Set([
-  "appinsights-instrumentation",
-  "azure-ai",
-  "azure-aigateway",
   "azure-cloud-migrate",
   "azure-compliance",
   "azure-compute",
   "azure-cost-optimization",
-  "azure-hosted-copilot-sdk",
   "azure-kusto",
-  "azure-messaging",
   "azure-quotas",
   "azure-rbac",
-  "azure-resource-lookup",
-  "azure-resource-visualizer",
+  "azure-resources",
   "azure-storage",
-  "copilot-customization",
-  "count-registry",
   "entra-app-registration",
   "mermaid",
-  "microsoft-foundry",
   "python-diagrams",
 ]);
 
@@ -72,7 +63,7 @@ const { corpus, perSkill } = gatherReferenceContent();
 // Skill wiring is now discovered via this regex sweep over agent bodies
 // and other reference content rather than via tools/registry/agent-registry.json.
 // The pattern explicitly allows SKILL.md, SKILL.digest.md, and SKILL.minimal.md
-// so that context-shredding tier references count as wiring.
+// so that context-management tier references count as wiring.
 //
 // Supported phrasings:
 //   - .github/skills/{name}/SKILL.md

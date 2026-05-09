@@ -41,7 +41,7 @@ PASS/FAIL diagnostic and verdict for the parent IaC agent.
 </role>
 
 <context_awareness>
-Skill loading tiers (apply per the `context-shredding` skill):
+Skill loading tiers (apply per the `context-management` skill, Mode A):
 
 - Default — read `.github/skills/azure-defaults/SKILL.digest.md` and
   `.github/skills/iac-common/SKILL.digest.md`. The digest is sufficient

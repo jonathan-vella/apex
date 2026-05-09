@@ -13,8 +13,6 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | "Check docs for staleness"     | Freshness audit with auto-fix       |
 | "Explain how this repo works"  | Architectural Q&A                   |
 | "Proofread the docs"           | Language, tone, and accuracy review |
-| "Generate a changelog entry"   | Changelog from git history          |
-
 > _See SKILL.md for full content._
 
 ## Prerequisites
@@ -27,24 +25,20 @@ None — all tools and references are workspace-local.
 
 All markdown documentation **except** `agent-output/**/*.md`:
 
-- `docs/` — user-facing docs (quickstart, workflow, troubleshooting, etc.)
-- `docs/prompt-guide/` — agent & skill prompt examples
+- `site/src/content/docs/` — published user-facing docs (quickstart, workflow, troubleshooting, etc.)
 - `tools/tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
-
 > _See SKILL.md for full content._
 
 ## Step-by-Step Workflows
 
 ### Workflow 1: Update Existing Documentation
 
-1. **Identify target files**: Determine which files in `docs/` need updates.
+1. **Identify target files**: Determine which files in `site/src/content/docs/` need updates.
 2. **Read latest version**: Always read the current file before editing.
 3. **Load standards**: Read `references/doc-standards.md` for conventions.
 4. **Apply changes**: Follow the doc-standards conventions strictly:
    - 120-char line limit (CI enforced)
-   - Single H1 rule (title only)
-
 > _See SKILL.md for full content._
 
 ## Guardrails
@@ -73,9 +67,9 @@ All markdown documentation **except** `agent-output/**/*.md`:
 
 ## Reference Index
 
-| Reference                              | When to Load                                      |
-| -------------------------------------- | ------------------------------------------------- |
-| `references/doc-standards.md`          | When checking documentation standards             |
-| `references/freshness-checklist.md`    | When running freshness audits                     |
-| `references/repo-architecture.md`      | When analyzing repo structure                     |
-| `references/extended-workflows.md`     | Changelog generation, proofreading, freshness fix |
+| Reference                           | When to Load                                      |
+| ----------------------------------- | ------------------------------------------------- |
+| `references/doc-standards.md`       | When checking documentation standards             |
+| `references/freshness-checklist.md` | When running freshness audits                     |
+| `references/repo-architecture.md`   | When analyzing repo structure                     |
+| `references/extended-workflows.md`  | Changelog generation, proofreading, freshness fix |

@@ -144,13 +144,16 @@ and PowerShell (`pwsh`).
 A documentation feature that renders tabbed content blocks, showing Bicep and
 Terraform examples side-by-side without duplicating page structure.
 
-### Context Shredding
+### Context Management
 
-Runtime context compression technique for agents approaching model context limits.
-Defines three tiers — `full`, `summarized`, and `minimal` — with per-artifact
-compression templates. Managed by the `context-shredding` skill.
+Unified skill covering two context-window concerns. Mode A (Runtime Compression)
+defines the three tiers — `full`, `summarized`, `minimal` — used by orchestrator
+and codegen agents before loading large artifacts. Mode B (Diagnostic Audit)
+provides log parsing, token profiling, and hand-off gap analysis used by the
+11-Context Optimizer agent. Replaces the legacy `context-shredding` and
+`context-optimizer` skills.
 
-📁 **See**: `.github/skills/context-shredding/SKILL.md`
+📁 **See**: `.github/skills/context-management/SKILL.md`
 
 ### Circuit Breaker
 

@@ -48,8 +48,8 @@ Read these before doing ANY work:
 
 1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — the 10 operating invariants
 2. **Read** `AGENTS.md` — project map and agent roster
-3. **Read** `.github/skills/context-optimizer/SKILL.digest.md` — analysis methodology,
-   log parsing patterns, and report template
+3. **Read** `.github/skills/context-management/SKILL.digest.md` — covers both runtime
+   compression (Mode A) and the diagnostic-audit methodology this agent uses (Mode B)
 
 ## What This Agent Does
 
@@ -73,7 +73,7 @@ Read these before doing ANY work:
 
 > **Per-turn budget reference**: when reasoning about how much of a model's
 > context window is actually available in VS Code Copilot Chat, consult
-> [`.github/skills/context-optimizer/references/token-estimation.md`](../skills/context-optimizer/references/token-estimation.md).
+> [`.github/skills/context-management/references/token-estimation.md`](../skills/context-management/references/token-estimation.md).
 > The Claude family is capped at 200K per turn in the Copilot Chat picker
 > (regardless of the 1M vendor-native window); the GPT-5 family runs at
 > 400K per turn. Use those numbers, not the vendor-native windows, when
@@ -134,7 +134,7 @@ Store the label for Phase 6.
 2. Run the log parser script to extract structured data:
 
    ```bash
-   python3 .github/skills/context-optimizer/scripts/parse-chat-logs.py \
+   python3 .github/skills/context-management/scripts/parse-chat-logs.py \
      --log-dir ~/.vscode-server/data/logs/ \
      --output /tmp/context-audit.json
    ```
@@ -280,7 +280,7 @@ This agent is designed to be reusable across projects:
 - **Log parser script** works with any VS Code Copilot Chat installation
 - **Agent/skill/instruction auditing** uses generic glob patterns
 - To use in another project: copy `.github/agents/11-context-optimizer.agent.md`,
-  `.github/skills/context-optimizer/`, and
+  `.github/skills/context-management/`, and
   `.github/instructions/context-optimization.instructions.md`
 - **Baseline scripts**: also copy `tools/scripts/snapshot-agent-context.sh` and
   `tools/scripts/diff-context-baseline.sh` for before/after comparison

@@ -131,7 +131,7 @@ Execution` and `## Post-Deployment Verification` for the surrounding workflow.
 - Stop and surface the verification failure verbatim if Azure Resource Graph
   does not confirm the deployed resource state.
 
-Context tiers: follow context-shredding skill.
+Context tiers: follow context-management skill (Mode A: Runtime Compression).
 
 ## Subagent Budget
 

@@ -1,11 +1,5 @@
 # APEX
 
-> Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.
-
-A multi-agent orchestration system for Azure platform engineering.
-Specialized AI agents collaborate through a structured multi-step workflow:
-**Requirements → Architecture → Design → Governance → Plan → Code → Deploy → Documentation**.
-
 ## Setup Commands
 
 ```bash
@@ -38,10 +32,6 @@ npm run lint:safe-shell                  # No interactive shell prompts in commi
 
 # Full list (≈30 scripts) → npm run | grep -E "^  (lint|validate|test):" or
 # https://jonathan-vella.github.io/azure-agentic-infraops/reference/validation-reference/
-
-# E2E Ralph Loop
-npm run e2e:validate                     # Validate artifacts (structural, no agent invocation)
-npm run e2e:benchmark                    # Benchmark scoring (8 dimensions, 0-100)
 
 # Pre-commit/pre-push hooks (installed via lefthook on `npm run prepare`)
 git push                                 # Triggers diff-based-push-check.sh automatically

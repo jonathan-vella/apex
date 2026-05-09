@@ -72,7 +72,7 @@ Do not rely on parametric knowledge for pricing — delegate to cost-estimate-su
 </investigate_before_answering>
 
 <context_awareness>
-Context tiers: follow context-shredding skill. At >80% switch to SKILL.minimal.md.
+Context tiers: follow context-management skill (Mode A: Runtime Compression). At >80% switch to SKILL.minimal.md.
 </context_awareness>
 
 <output_contract>
@@ -125,7 +125,7 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
    - `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md`
    - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
-4. **Read** `.github/skills/context-shredding/SKILL.digest.md` — runtime compression tiers for loading large artifacts
+4. **Read** `.github/skills/context-management/SKILL.digest.md` — runtime compression tiers for loading large artifacts (Mode A)
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

@@ -16,27 +16,20 @@ VS Code skill loading (`chat.agentSkillsLocations`).
 
 | Plugin Skill                  | Status                                                                       |
 | ----------------------------- | ---------------------------------------------------------------------------- |
-| `appinsights-instrumentation` | Active (secondary)                                                           |
-| `azure-ai`                    | Active (secondary)                                                           |
-| `azure-aigateway`             | Active (secondary)                                                           |
 | `azure-cloud-migrate`         | Active (secondary)                                                           |
 | `azure-compliance`            | Active (secondary)                                                           |
 | `azure-compute`               | Active (secondary)                                                           |
 | `azure-cost-optimization`     | Active (secondary)                                                           |
 | `azure-deploy`                | Active (secondary for deploy agents) — azd-only for new projects; deploy.ps1 deprecated |
 | `azure-diagnostics`           | Active — merged with former `azure-troubleshooting`                          |
-| `azure-hosted-copilot-sdk`    | Active (secondary)                                                           |
 | `azure-kusto`                 | Active (secondary)                                                           |
-| `azure-messaging`             | Active (secondary)                                                           |
 | `azure-prepare`               | Active (secondary)                                                           |
 | `azure-quotas`                | Active (secondary)                                                           |
 | `azure-rbac`                  | Active (secondary)                                                           |
-| `azure-resource-lookup`       | Active (secondary)                                                           |
-| `azure-resource-visualizer`   | Active (secondary)                                                           |
+| `azure-resources`             | Active (secondary) — consolidates former `azure-resource-lookup` + `azure-resource-visualizer` |
 | `azure-storage`               | Active (secondary)                                                           |
 | `azure-validate`              | Active (primary for deploy agents) — merged with preflight from `iac-common` |
 | `entra-app-registration`      | Active (secondary)                                                           |
-| `microsoft-foundry`           | Active (secondary)                                                           |
 
 ## Upgrade Procedure
 

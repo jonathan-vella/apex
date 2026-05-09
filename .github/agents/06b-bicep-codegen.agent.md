@@ -151,7 +151,7 @@ Before doing any work, read these skills:
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/azure-bicep-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, managed identity, module composition
 5. Read `.github/instructions/iac-bicep-best-practices.instructions.md` — governance mandate, dynamic tag list
-6. Read `.github/skills/context-shredding/SKILL.digest.md` — runtime compression for large plan/governance artifacts
+6. Read `.github/skills/context-management/SKILL.digest.md` — runtime compression for large plan/governance artifacts (Mode A)
 
 ## Do
 
@@ -285,7 +285,7 @@ Compact the conversation before proceeding to code generation.
    - Deployment strategy from `04-implementation-plan.md` (phased/single)
    - Resource list with module paths and key parameters
 2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
+   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
 4. **Update session state** — run `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`

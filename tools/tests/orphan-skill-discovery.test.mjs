@@ -49,8 +49,8 @@ describe("orphan-skill-discovery regex", () => {
   });
 
   it("finds references without the leading `.github/` prefix", () => {
-    const content = `See skills/context-shredding/SKILL.md`;
-    assert.deepEqual([...findSkillReferences(content)], ["context-shredding"]);
+    const content = `See skills/context-management/SKILL.md`;
+    assert.deepEqual([...findSkillReferences(content)], ["context-management"]);
   });
 
   it("collects multiple distinct skills in one document", () => {

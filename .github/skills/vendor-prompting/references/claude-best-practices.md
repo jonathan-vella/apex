@@ -55,7 +55,7 @@ contract.
 
 **Rule** (`legacy-003`): Claude agents whose body exceeds 350 lines
 should include `<context_awareness>` to opt into the
-[context-shredding skill](../../context-shredding/SKILL.md) tier
+[context-management skill](../../context-management/SKILL.md) tier
 selection.
 
 ## Rule R-CL-4 — Migrate away from prefilled responses

@@ -102,31 +102,21 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `azure-diagnostics`           | `azure-diagnostics/`           | Troubleshooting     | "troubleshoot", "KQL", "health check"     |
 | `python-diagrams`             | `python-diagrams/`             | Document Creation   | "create chart", "WAF chart"               |
 | `mermaid`                     | `mermaid/`                     | Document Creation   | "mermaid diagram", "flowchart"            |
-| `azure-diagrams`              | `azure-diagrams/`              | Routing             | Routes to drawio/python-diagrams/mermaid  |
-| `azure-hosted-copilot-sdk`    | `azure-hosted-copilot-sdk/`    | SDK                 | "copilot SDK", "copilot app"              |
 | `azure-kusto`                 | `azure-kusto/`                 | Data & Analytics    | "KQL queries", "Azure Data Explorer"      |
-| `azure-messaging`             | `azure-messaging/`             | Messaging           | "event hub", "service bus"                |
 | `azure-prepare`               | `azure-prepare/`               | Deployment          | "create app", "prepare Azure"             |
 | `azure-quotas`                | `azure-quotas/`                | Capacity            | "check quotas", "service limits"          |
 | `azure-rbac`                  | `azure-rbac/`                  | Identity            | "RBAC role", "least privilege"            |
-| `azure-resource-lookup`       | `azure-resource-lookup/`       | Discovery           | "list resources", "find VMs"              |
-| `azure-resource-visualizer`   | `azure-resource-visualizer/`   | Visualization       | "visualize resources", "resource diagram" |
+| `azure-resources`             | `azure-resources/`             | Discovery           | "list resources", "resource diagram"      |
 | `azure-storage`               | `azure-storage/`               | Storage             | "blob storage", "file shares"             |
 | `azure-validate`              | `azure-validate/`              | Validation          | "validate app", "preflight checks"        |
-| `context-optimizer`           | `context-optimizer/`           | Meta                | "context optimization", "token waste"     |
-| `context-shredding`           | `context-shredding/`           | Meta                | "compress context", "context budget"      |
+| `context-management`          | `context-management/`          | Meta                | "context optimization", "compress context" |
 | `copilot-customization`       | `copilot-customization/`       | Meta                | "customization", "instructions", "agents" |
-| `count-registry`              | `count-registry/`              | Meta                | "entity count", "how many agents"         |
 | `docs-writer`                 | `docs-writer/`                 | Documentation       | "update docs", "check staleness"          |
 | `entra-app-registration`      | `entra-app-registration/`      | Identity            | "app registration", "Entra ID"            |
 | `github-operations`           | `github-operations/`           | Workflow            | "commit", "create issue", "create PR"     |
 | `golden-principles`           | `golden-principles/`           | Meta                | "operating principles", "agent rules"     |
 | `iac-common`                  | `iac-common/`                  | IaC Patterns        | "deploy patterns", "circuit breaker"      |
-| `make-skill-template`         | `make-skill-template/`         | Meta                | "create skill"                            |
-| `microsoft-code-reference`    | `microsoft-code-reference/`    | SDK Reference       | "Azure SDK", "code sample"                |
 | `microsoft-docs`              | `microsoft-docs/`              | Documentation       | "Azure docs", "quickstart"                |
-| `microsoft-foundry`           | `microsoft-foundry/`           | AI Platform         | "Foundry agent", "deploy agent"           |
-| `microsoft-skill-creator`     | `microsoft-skill-creator/`     | Meta                | "create skill for Microsoft tech"         |
 | `terraform-patterns`          | `terraform-patterns/`          | IaC Patterns        | "terraform pattern", "AVM-TF", "HCL"      |
 | `terraform-search-import`     | `terraform-search-import/`     | IaC Import          | "import resources", "terraform import"    |
 | `terraform-test`              | `terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"           |

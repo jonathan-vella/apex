@@ -60,14 +60,13 @@ export function getSkills() {
     if (!entry.isDirectory()) continue;
     const skillDir = path.join(SKILLS_DIR, entry.name);
     const skillFile = path.join(skillDir, "SKILL.md");
+    // Skip container directories like `archived_skills/` that have no SKILL.md
+    // at the top level — those are inactive skill stores, not active skills.
+    if (!fs.existsSync(skillFile)) continue;
     const refsDir = path.join(skillDir, "references");
     const hasRefs = fs.existsSync(refsDir);
-    let content = null;
-    let frontmatter = null;
-    if (fs.existsSync(skillFile)) {
-      content = fs.readFileSync(skillFile, "utf-8");
-      frontmatter = parseFrontmatter(content);
-    }
+    const content = fs.readFileSync(skillFile, "utf-8");
+    const frontmatter = parseFrontmatter(content);
     const refFiles = hasRefs ? fs.readdirSync(refsDir).filter((f) => f.endsWith(".md")) : [];
     _skills.set(entry.name, {
       dir: skillDir,

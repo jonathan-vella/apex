@@ -121,7 +121,7 @@
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Large Claude agents (>350 body lines) should include <context_awareness> block.",
-      "rationale": "Anthropic recommends explicit context budgeting for long system prompts; <context_awareness> activates context-shredding routing.",
+      "rationale": "Anthropic recommends explicit context budgeting for long system prompts; <context_awareness> activates context-management runtime-compression routing.",
       "source_id": "anthropic-prompting-best-practices",
       "source_anchor": "context-awareness-and-multi-window-workflows",
       "validator_check_id": "checkClaudeContextAwareness",

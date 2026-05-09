@@ -24,49 +24,28 @@ graph TB
     B -->|"Yes"| C["Action"]
     B -->|"No"| D["Skip"]
 ```
-
 > _See SKILL.md for full content._
 
 ## Theming (Dark Mode Compatible)
 
 Include a neutral theme directive for dark mode compatibility:
-
-```mermaid
-%%{
-  init: {
-    'theme': 'base',
-    'themeVariables': {
-      'primaryColor': '#ffffff',
-      'primaryTextColor': '#333333',
-
 > _See SKILL.md for full content._
 
 ## Node Styling
 
 Use `classDef` for consistent node styling:
-
-```mermaid
-graph TB
-    classDef default fill:#ffffff,stroke:#e91e63,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-    classDef gate fill:#ffffff,stroke:#3b82f6,stroke-width:2px,color:#1f2937,rx:8px,ry:8px;
-
-    S1["Step 1"]
-    G1{{"Gate"}}:::gate
-
 > _See SKILL.md for full content._
 
 ## Azure Resource Visualization
 
 For visualizing live Azure resource groups as Mermaid diagrams, use the
-`azure-resource-visualizer` skill which outputs resource relationship diagrams
-in Mermaid format. That skill handles Azure Resource Graph queries, resource
-discovery, and relationship mapping.
+`azure-resources` skill (Mode B: Visualize) which outputs resource relationship
+diagrams in Mermaid format. That skill handles Azure Resource Graph queries,
+resource discovery, and relationship mapping.
 
 ### Resource Diagram Conventions
 
 - Group by layer: Network, Compute, Data, Security, Monitoring
-- Include resource details in node labels (use `<br/>` for line breaks)
-
 > _See SKILL.md for full content._
 
 ## Astro / Starlight Integration
@@ -78,9 +57,6 @@ Use fenced code blocks with `mermaid` language:
 ```mermaid
 graph LR
   A --> B
-```
-````
-
 > _See SKILL.md for full content._
 
 ## Guardrails
@@ -93,6 +69,10 @@ committing.
 **DON'T:** Use Mermaid for WAF/cost charts (use `python-diagrams`) · Use Mermaid
 for primary architecture diagrams with Azure icons (use `drawio`) · Omit
 theme directives · Create overly complex diagrams that don't render well ·
-Use inline Mermaid for diagrams that need icon embedding.
-
 > _See SKILL.md for full content._
+
+## Scope Exclusions
+
+Does NOT: generate Draw.io architecture diagrams · produce Python charts ·
+generate Bicep/Terraform · create ADRs · deploy resources · embed Azure service
+icons (use `drawio` skill).

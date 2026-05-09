@@ -62,7 +62,7 @@ behavior, and output generation length.
 Run the log parser to extract structured data:
 
 ```bash
-python3 .github/skills/context-optimizer/scripts/parse-chat-logs.py \
+python3 .github/skills/context-management/scripts/parse-chat-logs.py \
   --log-dir ~/.vscode-server/data/logs/ \
   --output /tmp/context-audit.json
 ```

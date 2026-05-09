@@ -236,7 +236,7 @@ Context usage reaches ~80% by the end of the deployment strategy gate.
    - Deployment strategy choice (phased/single, phase grouping)
    - Key decisions from `02-architecture-assessment.md` (resource list, SKUs)
 2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-shredding` skill, >80% tier)
+   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved files on disk (`04-governance-constraints.md/json`)
 4. **Update session state** — run `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`

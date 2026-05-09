@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-08T19:28:47.658Z",
+  "generatedAt": "2026-05-09T21:11:56.146Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 47
+      "count": 33
     },
     {
       "id": "instruction",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 22
+      "count": 23
     },
     {
       "id": "validator",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 37
+      "count": 38
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 171,
-  "edgeCount": 764,
+  "nodeCount": 159,
+  "edgeCount": 672,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -80,7 +80,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.3-Codex",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -91,7 +91,7 @@
           "08-As-Built",
           "06t-Terraform CodeGen",
           "07t-Terraform Deploy",
-          "challenger-review-subagent"
+          "10-Challenger"
         ],
         "handoffTargets": [
           "01-Orchestrator (Fast Path)",
@@ -100,6 +100,7 @@
           "05-IaC Planner",
           "07b-Bicep Deploy",
           "08-As-Built",
+          "10-Challenger",
           "01-Orchestrator"
         ]
       }
@@ -114,7 +115,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.3-Codex",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -126,6 +127,7 @@
           "07b-Bicep Deploy",
           "08-As-Built",
           "09-Diagnose",
+          "10-Challenger",
           "06t-Terraform CodeGen",
           "07t-Terraform Deploy"
         ],
@@ -141,6 +143,7 @@
           "08-As-Built",
           "01-Orchestrator (Fast Path)",
           "09-Diagnose",
+          "10-Challenger",
           "06t-Terraform CodeGen",
           "07t-Terraform Deploy"
         ]
@@ -212,8 +215,6 @@
           "04-Design",
           "03-Architect",
           "04g-Governance",
-          "06b-Bicep CodeGen",
-          "06t-Terraform CodeGen",
           "01-Orchestrator"
         ]
       }
@@ -556,17 +557,6 @@
       }
     },
     {
-      "id": "skill:appinsights-instrumentation",
-      "category": "skill",
-      "label": "appinsights-instrumentation",
-      "description": "Guidance for instrumenting webapps with Azure Application Insights. Provides telemetry patterns, SDK setup, and configuration references. WHEN: how to instrument app, App Insights SDK, telemetry patterns, what is App Insights, Application Insights guidance, instrumentation examples, APM best practices.",
-      "path": ".github/skills/appinsights-instrumentation/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/appinsights-instrumentation/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:azure-adr",
       "category": "skill",
       "label": "azure-adr",
@@ -574,28 +564,6 @@
       "path": ".github/skills/azure-adr/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-adr/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:azure-ai",
-      "category": "skill",
-      "label": "azure-ai",
-      "description": "Use for Azure AI: Search, Speech, OpenAI, Document Intelligence. Helps with search, vector/hybrid search, speech-to-text, text-to-speech, transcription, OCR. WHEN: AI Search, query search, vector search, hybrid search, semantic search, speech-to-text, text-to-speech, transcribe, OCR, convert text to speech.",
-      "path": ".github/skills/azure-ai/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-ai/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:azure-aigateway",
-      "category": "skill",
-      "label": "azure-aigateway",
-      "description": "Configure Azure API Management as an AI Gateway for AI models, MCP tools, and agents. WHEN: semantic caching, token limit, content safety, load balancing, AI model governance, MCP rate limiting, jailbreak detection, add Azure OpenAI backend, add AI Foundry model, test AI gateway, LLM policies, configure AI backend, token metrics, AI cost control, convert API to MCP, import OpenAPI to gateway.",
-      "path": ".github/skills/azure-aigateway/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-aigateway/SKILL.md"
       },
       "meta": {}
     },
@@ -699,17 +667,6 @@
       "meta": {}
     },
     {
-      "id": "skill:azure-diagrams",
-      "category": "skill",
-      "label": "azure-diagrams",
-      "description": "ROUTING SKILL — delegates to specialized diagram skills. USE FOR: any diagram request when the caller does not know which tool to use. Routes to drawio, python-diagrams, or mermaid based on diagram type.",
-      "path": ".github/skills/azure-diagrams/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagrams/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:azure-governance-discovery",
       "category": "skill",
       "label": "azure-governance-discovery",
@@ -721,17 +678,6 @@
       "meta": {}
     },
     {
-      "id": "skill:azure-hosted-copilot-sdk",
-      "category": "skill",
-      "label": "azure-hosted-copilot-sdk",
-      "description": "Build and deploy GitHub Copilot SDK apps to Azure. WHEN: build copilot app, create copilot app, copilot SDK, @github/copilot-sdk, scaffold copilot project, copilot-powered app, deploy copilot app, host on azure, azure model, BYOM, bring your own model, use my own model, azure openai model, DefaultAzureCredential, self-hosted model, copilot SDK service, chat app with copilot, copilot-sdk-service template, azd init copilot, CopilotClient, createSession, sendAndWait, GitHub Models API.",
-      "path": ".github/skills/azure-hosted-copilot-sdk/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-hosted-copilot-sdk/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:azure-kusto",
       "category": "skill",
       "label": "azure-kusto",
@@ -739,17 +685,6 @@
       "path": ".github/skills/azure-kusto/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-kusto/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:azure-messaging",
-      "category": "skill",
-      "label": "azure-messaging",
-      "description": "Troubleshoot and resolve issues with Azure Messaging SDKs for Event Hubs and Service Bus. Covers connection failures, authentication errors, message processing issues, and SDK configuration problems. WHEN: event hub SDK error, service bus SDK issue, messaging connection failure, AMQP error, event processor host issue, message lock lost, send timeout, receiver disconnected, SDK troubleshooting, azure messaging SDK, event hub consumer, service bus queue issue, topic subscription error, enable logging event hub, service bus logging, eventhub python, servicebus java, eventhub javascript, servicebus dotnet, event hub checkpoint, event hub not receiving messages, service bus dead letter.",
-      "path": ".github/skills/azure-messaging/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-messaging/SKILL.md"
       },
       "meta": {}
     },
@@ -787,24 +722,13 @@
       "meta": {}
     },
     {
-      "id": "skill:azure-resource-lookup",
+      "id": "skill:azure-resources",
       "category": "skill",
-      "label": "azure-resource-lookup",
-      "description": "List, find, and show Azure resources. Answers \\\"list my VMs\\\", \\\"show my storage accounts\\\", \\\"list websites\\\", \\\"find container apps\\\", \\\"what resources do I have\\\", and similar queries for any Azure resource type. USE FOR: list resources, list virtual machines, list VMs, list storage accounts, list websites, list web apps, list container apps, show resources, find resources, what resources do I have, list resources in resource group, list resources in subscription, find resources by tag, find orphaned resources, resource inventory, count resources by type, cross-subscription resource query, Azure Resource Graph, resource discovery, list container registries, list SQL servers, list Key Vaults, show resource groups, list app services, find resources across subscriptions, find unattached disks, tag analysis. DO NOT USE FOR: deploying resources (use azure-deploy), creating or modifying resources, cost optimization (use azure-cost-optimization), writing application code, non-Azure clouds.",
-      "path": ".github/skills/azure-resource-lookup/SKILL.md",
+      "label": "azure-resources",
+      "description": "List, find, and visualize existing Azure resources. Two modes: LOOKUP for query/inventory work (list VMs, find orphaned resources, tag audits, cross-subscription queries via Azure Resource Graph) and VISUALIZE for generating Mermaid architecture diagrams of a resource group. USE FOR: list resources, list virtual machines, list VMs, list storage accounts, list websites, list web apps, list container apps, show resources, find resources, what resources do I have, list resources in resource group, list resources in subscription, find resources by tag, find orphaned resources, resource inventory, count resources by type, cross-subscription resource query, Azure Resource Graph, resource discovery, list container registries, list SQL servers, list Key Vaults, show resource groups, list app services, find resources across subscriptions, find unattached disks, tag analysis, create architecture diagram, visualize Azure resources, show resource relationships, generate Mermaid diagram, analyze resource group, diagram my resources, architecture visualization, resource topology, map Azure infrastructure. DO NOT USE FOR: deploying or modifying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), performance troubleshooting (use azure-diagnostics), code generation (use relevant service skill).",
+      "path": ".github/skills/azure-resources/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resource-lookup/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:azure-resource-visualizer",
-      "category": "skill",
-      "label": "azure-resource-visualizer",
-      "description": "Analyze Azure resource groups and generate detailed Mermaid architecture diagrams showing the relationships between individual resources. USE FOR: create architecture diagram, visualize Azure resources, show resource relationships, generate Mermaid diagram, analyze resource group, diagram my resources, architecture visualization, resource topology, map Azure infrastructure DO NOT USE FOR: creating/modifying resources (use azure-deploy), security scanning (use azure-security), performance troubleshooting (use azure-diagnostics), code generation (use relevant service skill)",
-      "path": ".github/skills/azure-resource-visualizer/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resource-visualizer/SKILL.md"
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resources/SKILL.md"
       },
       "meta": {}
     },
@@ -831,46 +755,13 @@
       "meta": {}
     },
     {
-      "id": "skill:context-optimizer",
+      "id": "skill:context-management",
       "category": "skill",
-      "label": "context-optimizer",
-      "description": "Audits agent context window usage via debug logs, token profiling, and redundancy detection. USE FOR: context optimization, token waste analysis, debug log parsing, hand-off gap analysis. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
-      "path": ".github/skills/context-optimizer/SKILL.md",
+      "label": "context-management",
+      "description": "Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
+      "path": ".github/skills/context-management/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-optimizer/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:context-shredding",
-      "category": "skill",
-      "label": "context-shredding",
-      "description": "Runtime context compression for agents approaching model context limits. Defines 3 compression tiers (full/summarized/minimal) with per-artifact templates. USE FOR: reducing artifact loading size at runtime, context budget management. DO NOT USE FOR: diagnostic context auditing (use context-optimizer), Azure infrastructure.",
-      "path": ".github/skills/context-shredding/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-shredding/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:copilot-customization",
-      "category": "skill",
-      "label": "copilot-customization",
-      "description": "Authoritative reference for VS Code Copilot customization mechanisms: instructions, prompt files, custom agents, agent skills, MCP servers, hooks, and plugins. Use when deciding which customization type to use, creating new .instructions.md/.prompt.md/.agent.md/SKILL.md/mcp.json files from scratch, or debugging why a customization is not loading. DO NOT USE FOR: routine file edits where the format is already known.",
-      "path": ".github/skills/copilot-customization/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/copilot-customization/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:count-registry",
-      "category": "skill",
-      "label": "count-registry",
-      "description": "Provides canonical entity counts from count-manifest.json. Use when agents need to reference how many agents, skills, instructions, or validators exist. Prevents hard-coded counts. WHEN: agent count, skill count, how many agents, how many skills, entity inventory, project statistics.",
-      "path": ".github/skills/count-registry/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/count-registry/SKILL.md"
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md"
       },
       "meta": {}
     },
@@ -941,17 +832,6 @@
       "meta": {}
     },
     {
-      "id": "skill:make-skill-template",
-      "category": "skill",
-      "label": "make-skill-template",
-      "description": "Scaffolds new Agent Skills with SKILL.md frontmatter, folder structure, and bundled resources. USE FOR: create a skill, scaffold skill, new skill template, add agent capability. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions.",
-      "path": ".github/skills/make-skill-template/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/make-skill-template/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:mermaid",
       "category": "skill",
       "label": "mermaid",
@@ -963,17 +843,6 @@
       "meta": {}
     },
     {
-      "id": "skill:microsoft-code-reference",
-      "category": "skill",
-      "label": "microsoft-code-reference",
-      "description": "Look up Microsoft API references, find working code samples, and verify SDK code is correct. USE FOR: Azure SDK method verification, .NET/Python package lookups, code sample discovery, error troubleshooting, catching hallucinated methods and deprecated patterns. DO NOT USE FOR: conceptual documentation (use microsoft-docs), skill creation (use microsoft-skill-creator), Bicep/Terraform module lookups (use azure-bicep-patterns or terraform-patterns).",
-      "path": ".github/skills/microsoft-code-reference/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-code-reference/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:microsoft-docs",
       "category": "skill",
       "label": "microsoft-docs",
@@ -981,28 +850,6 @@
       "path": ".github/skills/microsoft-docs/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-docs/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:microsoft-foundry",
-      "category": "skill",
-      "label": "microsoft-foundry",
-      "description": "Deploy, evaluate, and manage Foundry agents end-to-end: Docker build, ACR push, hosted/prompt agent create, container start, batch eval, prompt optimization, agent.yaml, dataset curation from traces. USE FOR: deploy agent to Foundry, hosted agent, create agent, invoke agent, evaluate agent, run batch eval, optimize prompt, deploy model, Foundry project, RBAC, role assignment, permissions, quota, capacity, region, troubleshoot agent, deployment failure, create dataset from traces, dataset versioning, eval trending, create AI Services, Cognitive Services, create Foundry resource, provision resource, knowledge index, agent monitoring, customize deployment, onboard, availability, standard agent setup, capability host. DO NOT USE FOR: Azure Functions, App Service, general Azure deploy (use azure-deploy), general Azure prep (use azure-prepare).",
-      "path": ".github/skills/microsoft-foundry/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-foundry/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:microsoft-skill-creator",
-      "category": "skill",
-      "label": "microsoft-skill-creator",
-      "description": "Create agent skills for Microsoft technologies using Learn MCP tools. USE FOR: generating skills that teach agents about Azure services, .NET libraries, Microsoft 365 APIs, VS Code extensions, Bicep modules, or any Microsoft technology. DO NOT USE FOR: general skill scaffolding without Microsoft tech focus (use make-skill-template), Azure infrastructure deployment, Bicep/Terraform code generation.",
-      "path": ".github/skills/microsoft-skill-creator/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-skill-creator/SKILL.md"
       },
       "meta": {}
     },
@@ -1624,6 +1471,17 @@
       "meta": {}
     },
     {
+      "id": "prompt:plan-azurepricingmcpv5",
+      "category": "prompt",
+      "label": "plan-azurePricingMcpV5",
+      "description": "",
+      "path": ".github/prompts/plan-azurePricingMcpV5.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-azurePricingMcpV5.prompt.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "prompt:plan-docspeerreview",
       "category": "prompt",
       "label": "plan-docsPeerReview",
@@ -1635,13 +1493,13 @@
       "meta": {}
     },
     {
-      "id": "prompt:plan-drawioqualityuplift",
+      "id": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "category": "prompt",
-      "label": "plan-drawioQualityUplift",
-      "description": "Produce a phased, tactical plan to uplift the quality of Draw.io diagrams generated by the Design agent and the Draw.io MCP server. Output: markdown plan + machine-readable backlog JSON.",
-      "path": ".github/prompts/plan-drawioQualityUplift.prompt.md",
+      "label": "plan-verifyAgentHandOffsInLineWithWorkflow",
+      "description": "",
+      "path": ".github/prompts/plan-verifyAgentHandOffsInLineWithWorkflow.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-drawioQualityUplift.prompt.md"
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-verifyAgentHandOffsInLineWithWorkflow.prompt.md"
       },
       "meta": {}
     },
@@ -1819,6 +1677,19 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-workflow-table-sync.mjs"
+      }
+    },
+    {
+      "id": "validator:lint-workflow-handoffs",
+      "category": "validator",
+      "label": "lint:workflow-handoffs",
+      "description": "node tools/scripts/validate-agents.mjs --only=workflow-handoffs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-agents.mjs --only=workflow-handoffs"
       }
     },
     {
@@ -2087,13 +1958,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
+      "description": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
       },
       "meta": {
-        "command": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
+        "command": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2410,9 +2281,9 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--delegates->subagent:challenger-review-subagent",
+      "id": "agent:01-orchestrator-fast-path--delegates->agent:10-challenger",
       "source": "agent:01-orchestrator-fast-path",
-      "target": "subagent:challenger-review-subagent",
+      "target": "agent:10-challenger",
       "kind": "delegates"
     },
     {
@@ -2467,6 +2338,12 @@
       "id": "agent:01-orchestrator--delegates->agent:09-diagnose",
       "source": "agent:01-orchestrator",
       "target": "agent:09-diagnose",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:01-orchestrator--delegates->agent:10-challenger",
+      "source": "agent:01-orchestrator",
+      "target": "agent:10-challenger",
       "kind": "delegates"
     },
     {
@@ -2692,6 +2569,12 @@
       "kind": "hands-off"
     },
     {
+      "id": "agent:01-orchestrator-fast-path--hands-off->agent:10-challenger",
+      "source": "agent:01-orchestrator-fast-path",
+      "target": "agent:10-challenger",
+      "kind": "hands-off"
+    },
+    {
       "id": "agent:01-orchestrator-fast-path--hands-off->agent:01-orchestrator",
       "source": "agent:01-orchestrator-fast-path",
       "target": "agent:01-orchestrator",
@@ -2758,6 +2641,12 @@
       "kind": "hands-off"
     },
     {
+      "id": "agent:01-orchestrator--hands-off->agent:10-challenger",
+      "source": "agent:01-orchestrator",
+      "target": "agent:10-challenger",
+      "kind": "hands-off"
+    },
+    {
       "id": "agent:01-orchestrator--hands-off->agent:06t-terraform-codegen",
       "source": "agent:01-orchestrator",
       "target": "agent:06t-terraform-codegen",
@@ -2821,18 +2710,6 @@
       "id": "agent:04-design--hands-off->agent:04g-governance",
       "source": "agent:04-design",
       "target": "agent:04g-governance",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04-design--hands-off->agent:06b-bicep-codegen",
-      "source": "agent:04-design",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04-design--hands-off->agent:06t-terraform-codegen",
-      "source": "agent:04-design",
-      "target": "agent:06t-terraform-codegen",
       "kind": "hands-off"
     },
     {
@@ -3304,15 +3181,21 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-authoring--applies-to->prompt:plan-azurepricingmcpv5",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:plan-azurepricingmcpv5",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
       "source": "instruction:agent-authoring",
       "target": "prompt:plan-docspeerreview",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->prompt:plan-drawioqualityuplift",
+      "id": "instruction:agent-authoring--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "source": "instruction:agent-authoring",
-      "target": "prompt:plan-drawioqualityuplift",
+      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "kind": "applies-to"
     },
     {
@@ -3334,27 +3217,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:appinsights-instrumentation",
-      "source": "instruction:agent-skills",
-      "target": "skill:appinsights-instrumentation",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:azure-adr",
       "source": "instruction:agent-skills",
       "target": "skill:azure-adr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:azure-ai",
-      "source": "instruction:agent-skills",
-      "target": "skill:azure-ai",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:azure-aigateway",
-      "source": "instruction:agent-skills",
-      "target": "skill:azure-aigateway",
       "kind": "applies-to"
     },
     {
@@ -3412,33 +3277,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-diagrams",
-      "source": "instruction:agent-skills",
-      "target": "skill:azure-diagrams",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:azure-governance-discovery",
       "source": "instruction:agent-skills",
       "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-hosted-copilot-sdk",
-      "source": "instruction:agent-skills",
-      "target": "skill:azure-hosted-copilot-sdk",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:azure-kusto",
       "source": "instruction:agent-skills",
       "target": "skill:azure-kusto",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:azure-messaging",
-      "source": "instruction:agent-skills",
-      "target": "skill:azure-messaging",
       "kind": "applies-to"
     },
     {
@@ -3460,15 +3307,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-resource-lookup",
+      "id": "instruction:agent-skills--applies-to->skill:azure-resources",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-resource-lookup",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:azure-resource-visualizer",
-      "source": "instruction:agent-skills",
-      "target": "skill:azure-resource-visualizer",
+      "target": "skill:azure-resources",
       "kind": "applies-to"
     },
     {
@@ -3484,27 +3325,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:context-optimizer",
+      "id": "instruction:agent-skills--applies-to->skill:context-management",
       "source": "instruction:agent-skills",
-      "target": "skill:context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:context-shredding",
-      "source": "instruction:agent-skills",
-      "target": "skill:context-shredding",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:copilot-customization",
-      "source": "instruction:agent-skills",
-      "target": "skill:copilot-customization",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:count-registry",
-      "source": "instruction:agent-skills",
-      "target": "skill:count-registry",
+      "target": "skill:context-management",
       "kind": "applies-to"
     },
     {
@@ -3544,39 +3367,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:make-skill-template",
-      "source": "instruction:agent-skills",
-      "target": "skill:make-skill-template",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:mermaid",
       "source": "instruction:agent-skills",
       "target": "skill:mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:microsoft-code-reference",
-      "source": "instruction:agent-skills",
-      "target": "skill:microsoft-code-reference",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:microsoft-docs",
       "source": "instruction:agent-skills",
       "target": "skill:microsoft-docs",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:microsoft-foundry",
-      "source": "instruction:agent-skills",
-      "target": "skill:microsoft-foundry",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:microsoft-skill-creator",
-      "source": "instruction:agent-skills",
-      "target": "skill:microsoft-skill-creator",
       "kind": "applies-to"
     },
     {
@@ -3748,27 +3547,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:appinsights-instrumentation",
-      "source": "instruction:context-optimization",
-      "target": "skill:appinsights-instrumentation",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->skill:azure-adr",
       "source": "instruction:context-optimization",
       "target": "skill:azure-adr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:azure-ai",
-      "source": "instruction:context-optimization",
-      "target": "skill:azure-ai",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:azure-aigateway",
-      "source": "instruction:context-optimization",
-      "target": "skill:azure-aigateway",
       "kind": "applies-to"
     },
     {
@@ -3826,33 +3607,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-diagrams",
-      "source": "instruction:context-optimization",
-      "target": "skill:azure-diagrams",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->skill:azure-governance-discovery",
       "source": "instruction:context-optimization",
       "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-hosted-copilot-sdk",
-      "source": "instruction:context-optimization",
-      "target": "skill:azure-hosted-copilot-sdk",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->skill:azure-kusto",
       "source": "instruction:context-optimization",
       "target": "skill:azure-kusto",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:azure-messaging",
-      "source": "instruction:context-optimization",
-      "target": "skill:azure-messaging",
       "kind": "applies-to"
     },
     {
@@ -3874,15 +3637,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-resource-lookup",
+      "id": "instruction:context-optimization--applies-to->skill:azure-resources",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-resource-lookup",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:azure-resource-visualizer",
-      "source": "instruction:context-optimization",
-      "target": "skill:azure-resource-visualizer",
+      "target": "skill:azure-resources",
       "kind": "applies-to"
     },
     {
@@ -3898,27 +3655,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:context-optimizer",
+      "id": "instruction:context-optimization--applies-to->skill:context-management",
       "source": "instruction:context-optimization",
-      "target": "skill:context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:context-shredding",
-      "source": "instruction:context-optimization",
-      "target": "skill:context-shredding",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:copilot-customization",
-      "source": "instruction:context-optimization",
-      "target": "skill:copilot-customization",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:count-registry",
-      "source": "instruction:context-optimization",
-      "target": "skill:count-registry",
+      "target": "skill:context-management",
       "kind": "applies-to"
     },
     {
@@ -3958,39 +3697,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:make-skill-template",
-      "source": "instruction:context-optimization",
-      "target": "skill:make-skill-template",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->skill:mermaid",
       "source": "instruction:context-optimization",
       "target": "skill:mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:microsoft-code-reference",
-      "source": "instruction:context-optimization",
-      "target": "skill:microsoft-code-reference",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->skill:microsoft-docs",
       "source": "instruction:context-optimization",
       "target": "skill:microsoft-docs",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:microsoft-foundry",
-      "source": "instruction:context-optimization",
-      "target": "skill:microsoft-foundry",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:microsoft-skill-creator",
-      "source": "instruction:context-optimization",
-      "target": "skill:microsoft-skill-creator",
       "kind": "applies-to"
     },
     {
@@ -4168,27 +3883,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:appinsights-instrumentation",
-      "source": "instruction:docs-trigger",
-      "target": "skill:appinsights-instrumentation",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:azure-adr",
       "source": "instruction:docs-trigger",
       "target": "skill:azure-adr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-ai",
-      "source": "instruction:docs-trigger",
-      "target": "skill:azure-ai",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-aigateway",
-      "source": "instruction:docs-trigger",
-      "target": "skill:azure-aigateway",
       "kind": "applies-to"
     },
     {
@@ -4246,33 +3943,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-diagrams",
-      "source": "instruction:docs-trigger",
-      "target": "skill:azure-diagrams",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:azure-governance-discovery",
       "source": "instruction:docs-trigger",
       "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-hosted-copilot-sdk",
-      "source": "instruction:docs-trigger",
-      "target": "skill:azure-hosted-copilot-sdk",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:azure-kusto",
       "source": "instruction:docs-trigger",
       "target": "skill:azure-kusto",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-messaging",
-      "source": "instruction:docs-trigger",
-      "target": "skill:azure-messaging",
       "kind": "applies-to"
     },
     {
@@ -4294,15 +3973,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-resource-lookup",
+      "id": "instruction:docs-trigger--applies-to->skill:azure-resources",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-resource-lookup",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-resource-visualizer",
-      "source": "instruction:docs-trigger",
-      "target": "skill:azure-resource-visualizer",
+      "target": "skill:azure-resources",
       "kind": "applies-to"
     },
     {
@@ -4318,27 +3991,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:context-optimizer",
+      "id": "instruction:docs-trigger--applies-to->skill:context-management",
       "source": "instruction:docs-trigger",
-      "target": "skill:context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:context-shredding",
-      "source": "instruction:docs-trigger",
-      "target": "skill:context-shredding",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:copilot-customization",
-      "source": "instruction:docs-trigger",
-      "target": "skill:copilot-customization",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:count-registry",
-      "source": "instruction:docs-trigger",
-      "target": "skill:count-registry",
+      "target": "skill:context-management",
       "kind": "applies-to"
     },
     {
@@ -4378,39 +4033,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:make-skill-template",
-      "source": "instruction:docs-trigger",
-      "target": "skill:make-skill-template",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:mermaid",
       "source": "instruction:docs-trigger",
       "target": "skill:mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:microsoft-code-reference",
-      "source": "instruction:docs-trigger",
-      "target": "skill:microsoft-code-reference",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:microsoft-docs",
       "source": "instruction:docs-trigger",
       "target": "skill:microsoft-docs",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:microsoft-foundry",
-      "source": "instruction:docs-trigger",
-      "target": "skill:microsoft-foundry",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:microsoft-skill-creator",
-      "source": "instruction:docs-trigger",
-      "target": "skill:microsoft-skill-creator",
       "kind": "applies-to"
     },
     {
@@ -4744,27 +4375,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:appinsights-instrumentation",
-      "source": "instruction:markdown",
-      "target": "skill:appinsights-instrumentation",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:azure-adr",
       "source": "instruction:markdown",
       "target": "skill:azure-adr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:azure-ai",
-      "source": "instruction:markdown",
-      "target": "skill:azure-ai",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:azure-aigateway",
-      "source": "instruction:markdown",
-      "target": "skill:azure-aigateway",
       "kind": "applies-to"
     },
     {
@@ -4822,33 +4435,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-diagrams",
-      "source": "instruction:markdown",
-      "target": "skill:azure-diagrams",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:azure-governance-discovery",
       "source": "instruction:markdown",
       "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-hosted-copilot-sdk",
-      "source": "instruction:markdown",
-      "target": "skill:azure-hosted-copilot-sdk",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:azure-kusto",
       "source": "instruction:markdown",
       "target": "skill:azure-kusto",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:azure-messaging",
-      "source": "instruction:markdown",
-      "target": "skill:azure-messaging",
       "kind": "applies-to"
     },
     {
@@ -4870,15 +4465,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-resource-lookup",
+      "id": "instruction:markdown--applies-to->skill:azure-resources",
       "source": "instruction:markdown",
-      "target": "skill:azure-resource-lookup",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:azure-resource-visualizer",
-      "source": "instruction:markdown",
-      "target": "skill:azure-resource-visualizer",
+      "target": "skill:azure-resources",
       "kind": "applies-to"
     },
     {
@@ -4894,27 +4483,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:context-optimizer",
+      "id": "instruction:markdown--applies-to->skill:context-management",
       "source": "instruction:markdown",
-      "target": "skill:context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:context-shredding",
-      "source": "instruction:markdown",
-      "target": "skill:context-shredding",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:copilot-customization",
-      "source": "instruction:markdown",
-      "target": "skill:copilot-customization",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:count-registry",
-      "source": "instruction:markdown",
-      "target": "skill:count-registry",
+      "target": "skill:context-management",
       "kind": "applies-to"
     },
     {
@@ -4954,39 +4525,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:make-skill-template",
-      "source": "instruction:markdown",
-      "target": "skill:make-skill-template",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:mermaid",
       "source": "instruction:markdown",
       "target": "skill:mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:microsoft-code-reference",
-      "source": "instruction:markdown",
-      "target": "skill:microsoft-code-reference",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:microsoft-docs",
       "source": "instruction:markdown",
       "target": "skill:microsoft-docs",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:microsoft-foundry",
-      "source": "instruction:markdown",
-      "target": "skill:microsoft-foundry",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:markdown--applies-to->skill:microsoft-skill-creator",
-      "source": "instruction:markdown",
-      "target": "skill:microsoft-skill-creator",
       "kind": "applies-to"
     },
     {
@@ -5158,27 +4705,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:appinsights-instrumentation",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:appinsights-instrumentation",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:azure-adr",
       "source": "instruction:no-interactive-shell",
       "target": "skill:azure-adr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-ai",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-ai",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-aigateway",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-aigateway",
       "kind": "applies-to"
     },
     {
@@ -5236,33 +4765,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-diagrams",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-diagrams",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:azure-governance-discovery",
       "source": "instruction:no-interactive-shell",
       "target": "skill:azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-hosted-copilot-sdk",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-hosted-copilot-sdk",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:azure-kusto",
       "source": "instruction:no-interactive-shell",
       "target": "skill:azure-kusto",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-messaging",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-messaging",
       "kind": "applies-to"
     },
     {
@@ -5284,15 +4795,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-resource-lookup",
+      "id": "instruction:no-interactive-shell--applies-to->skill:azure-resources",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-resource-lookup",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-resource-visualizer",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-resource-visualizer",
+      "target": "skill:azure-resources",
       "kind": "applies-to"
     },
     {
@@ -5308,27 +4813,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:context-optimizer",
+      "id": "instruction:no-interactive-shell--applies-to->skill:context-management",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:context-shredding",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:context-shredding",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:copilot-customization",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:copilot-customization",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:count-registry",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:count-registry",
+      "target": "skill:context-management",
       "kind": "applies-to"
     },
     {
@@ -5368,39 +4855,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:make-skill-template",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:make-skill-template",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:mermaid",
       "source": "instruction:no-interactive-shell",
       "target": "skill:mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:microsoft-code-reference",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:microsoft-code-reference",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:microsoft-docs",
       "source": "instruction:no-interactive-shell",
       "target": "skill:microsoft-docs",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:microsoft-foundry",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:microsoft-foundry",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:microsoft-skill-creator",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:microsoft-skill-creator",
       "kind": "applies-to"
     },
     {
@@ -5542,15 +5005,21 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-azurepricingmcpv5",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:plan-azurepricingmcpv5",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:plan-docspeerreview",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:plan-docspeerreview",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-drawioqualityuplift",
+      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "source": "instruction:no-interactive-shell",
-      "target": "prompt:plan-drawioqualityuplift",
+      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "kind": "applies-to"
     },
     {
@@ -5680,15 +5149,21 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:prompt--applies-to->prompt:plan-azurepricingmcpv5",
+      "source": "instruction:prompt",
+      "target": "prompt:plan-azurepricingmcpv5",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:prompt--applies-to->prompt:plan-docspeerreview",
       "source": "instruction:prompt",
       "target": "prompt:plan-docspeerreview",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:prompt--applies-to->prompt:plan-drawioqualityuplift",
+      "id": "instruction:prompt--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "source": "instruction:prompt",
-      "target": "prompt:plan-drawioqualityuplift",
+      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "kind": "applies-to"
     },
     {
@@ -5944,15 +5419,21 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:vendor-prompting--applies-to->prompt:plan-azurepricingmcpv5",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:plan-azurepricingmcpv5",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:vendor-prompting--applies-to->prompt:plan-docspeerreview",
       "source": "instruction:vendor-prompting",
       "target": "prompt:plan-docspeerreview",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->prompt:plan-drawioqualityuplift",
+      "id": "instruction:vendor-prompting--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "source": "instruction:vendor-prompting",
-      "target": "prompt:plan-drawioqualityuplift",
+      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
       "kind": "applies-to"
     },
     {
@@ -6043,6 +5524,12 @@
       "id": "workflow:ci--runs->validator:lint-workflow-table-sync",
       "source": "workflow:ci",
       "target": "validator:lint-workflow-table-sync",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-workflow-handoffs",
+      "source": "workflow:ci",
+      "target": "validator:lint-workflow-handoffs",
       "kind": "runs"
     },
     {
@@ -6253,12 +5740,6 @@
       "id": "agent:04-design--uses-mcp->mcp:github",
       "source": "agent:04-design",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04-design--uses-mcp->mcp:terraform",
-      "source": "agent:04-design",
-      "target": "mcp:terraform",
       "kind": "uses-mcp"
     },
     {
@@ -6544,27 +6025,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "skill:appinsights-instrumentation--refs->skill:azure-prepare",
-      "source": "skill:appinsights-instrumentation",
-      "target": "skill:azure-prepare",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-adr--refs->skill:drawio",
       "source": "skill:azure-adr",
       "target": "skill:drawio",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-aigateway--refs->skill:azure-ai",
-      "source": "skill:azure-aigateway",
-      "target": "skill:azure-ai",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-aigateway--refs->skill:azure-prepare",
-      "source": "skill:azure-aigateway",
-      "target": "skill:azure-prepare",
       "kind": "refs"
     },
     {
@@ -6610,12 +6073,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-deploy--refs->skill:azure-aigateway",
-      "source": "skill:azure-deploy",
-      "target": "skill:azure-aigateway",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-deploy--refs->skill:azure-prepare",
       "source": "skill:azure-deploy",
       "target": "skill:azure-prepare",
@@ -6634,51 +6091,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-diagrams--refs->skill:drawio",
-      "source": "skill:azure-diagrams",
-      "target": "skill:drawio",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-diagrams--refs->skill:mermaid",
-      "source": "skill:azure-diagrams",
-      "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-diagrams--refs->skill:python-diagrams",
-      "source": "skill:azure-diagrams",
-      "target": "skill:python-diagrams",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-governance-discovery--refs->skill:azure-artifacts",
       "source": "skill:azure-governance-discovery",
       "target": "skill:azure-artifacts",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-hosted-copilot-sdk--refs->skill:azure-deploy",
-      "source": "skill:azure-hosted-copilot-sdk",
-      "target": "skill:azure-deploy",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-hosted-copilot-sdk--refs->skill:azure-prepare",
-      "source": "skill:azure-hosted-copilot-sdk",
-      "target": "skill:azure-prepare",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-hosted-copilot-sdk--refs->skill:azure-validate",
-      "source": "skill:azure-hosted-copilot-sdk",
-      "target": "skill:azure-validate",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-prepare--refs->skill:azure-aigateway",
-      "source": "skill:azure-prepare",
-      "target": "skill:azure-aigateway",
       "kind": "refs"
     },
     {
@@ -6694,51 +6109,39 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-prepare--refs->skill:azure-hosted-copilot-sdk",
-      "source": "skill:azure-prepare",
-      "target": "skill:azure-hosted-copilot-sdk",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-prepare--refs->skill:azure-validate",
       "source": "skill:azure-prepare",
       "target": "skill:azure-validate",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resource-lookup--refs->skill:azure-cost-optimization",
-      "source": "skill:azure-resource-lookup",
+      "id": "skill:azure-resources--refs->skill:azure-compliance",
+      "source": "skill:azure-resources",
+      "target": "skill:azure-compliance",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-resources--refs->skill:azure-cost-optimization",
+      "source": "skill:azure-resources",
       "target": "skill:azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resource-lookup--refs->skill:azure-deploy",
-      "source": "skill:azure-resource-lookup",
+      "id": "skill:azure-resources--refs->skill:azure-deploy",
+      "source": "skill:azure-resources",
       "target": "skill:azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resource-visualizer--refs->skill:azure-deploy",
-      "source": "skill:azure-resource-visualizer",
-      "target": "skill:azure-deploy",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-resource-visualizer--refs->skill:azure-diagnostics",
-      "source": "skill:azure-resource-visualizer",
+      "id": "skill:azure-resources--refs->skill:azure-diagnostics",
+      "source": "skill:azure-resources",
       "target": "skill:azure-diagnostics",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resource-visualizer--refs->skill:mermaid",
-      "source": "skill:azure-resource-visualizer",
+      "id": "skill:azure-resources--refs->skill:mermaid",
+      "source": "skill:azure-resources",
       "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-storage--refs->skill:azure-messaging",
-      "source": "skill:azure-storage",
-      "target": "skill:azure-messaging",
       "kind": "refs"
     },
     {
@@ -6757,18 +6160,6 @@
       "id": "skill:azure-validate--refs->skill:azure-prepare",
       "source": "skill:azure-validate",
       "target": "skill:azure-prepare",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:context-shredding--refs->skill:context-optimizer",
-      "source": "skill:context-shredding",
-      "target": "skill:context-optimizer",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:copilot-customization--refs->skill:context-optimizer",
-      "source": "skill:copilot-customization",
-      "target": "skill:context-optimizer",
       "kind": "refs"
     },
     {
@@ -6832,9 +6223,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:mermaid--refs->skill:azure-resource-visualizer",
+      "id": "skill:mermaid--refs->skill:azure-resources",
       "source": "skill:mermaid",
-      "target": "skill:azure-resource-visualizer",
+      "target": "skill:azure-resources",
       "kind": "refs"
     },
     {
@@ -6847,72 +6238,6 @@
       "id": "skill:mermaid--refs->skill:python-diagrams",
       "source": "skill:mermaid",
       "target": "skill:python-diagrams",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-code-reference--refs->skill:azure-bicep-patterns",
-      "source": "skill:microsoft-code-reference",
-      "target": "skill:azure-bicep-patterns",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-code-reference--refs->skill:azure-storage",
-      "source": "skill:microsoft-code-reference",
-      "target": "skill:azure-storage",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-code-reference--refs->skill:microsoft-docs",
-      "source": "skill:microsoft-code-reference",
-      "target": "skill:microsoft-docs",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-code-reference--refs->skill:microsoft-skill-creator",
-      "source": "skill:microsoft-code-reference",
-      "target": "skill:microsoft-skill-creator",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-code-reference--refs->skill:terraform-patterns",
-      "source": "skill:microsoft-code-reference",
-      "target": "skill:terraform-patterns",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-docs--refs->skill:microsoft-code-reference",
-      "source": "skill:microsoft-docs",
-      "target": "skill:microsoft-code-reference",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-docs--refs->skill:microsoft-skill-creator",
-      "source": "skill:microsoft-docs",
-      "target": "skill:microsoft-skill-creator",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-foundry--refs->skill:azure-ai",
-      "source": "skill:microsoft-foundry",
-      "target": "skill:azure-ai",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-foundry--refs->skill:azure-deploy",
-      "source": "skill:microsoft-foundry",
-      "target": "skill:azure-deploy",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-foundry--refs->skill:azure-prepare",
-      "source": "skill:microsoft-foundry",
-      "target": "skill:azure-prepare",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:microsoft-skill-creator--refs->skill:make-skill-template",
-      "source": "skill:microsoft-skill-creator",
-      "target": "skill:make-skill-template",
       "kind": "refs"
     },
     {
@@ -6937,12 +6262,6 @@
       "id": "skill:terraform-search-import--refs->skill:terraform-patterns",
       "source": "skill:terraform-search-import",
       "target": "skill:terraform-patterns",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:vendor-prompting--refs->skill:copilot-customization",
-      "source": "skill:vendor-prompting",
-      "target": "skill:copilot-customization",
       "kind": "refs"
     }
   ]

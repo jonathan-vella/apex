@@ -194,7 +194,7 @@ Master orchestrator for the multi-step Azure platform engineering workflow.
 ## Context Awareness
 
 Before loading large skill files, check if SKILL.digest.md or SKILL.minimal.md variants exist.
-If context approaches 80%, switch to compressed variants per the context-shredding skill.
+If context approaches 80%, switch to compressed variants per the context-management skill (Mode A: Runtime Compression).
 At gates, write 00-handoff.md to preserve state for potential session breaks.
 
 ## Subagent Budget

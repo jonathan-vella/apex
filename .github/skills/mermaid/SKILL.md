@@ -130,9 +130,9 @@ graph TB
 ## Azure Resource Visualization
 
 For visualizing live Azure resource groups as Mermaid diagrams, use the
-`azure-resource-visualizer` skill which outputs resource relationship diagrams
-in Mermaid format. That skill handles Azure Resource Graph queries, resource
-discovery, and relationship mapping.
+`azure-resources` skill (Mode B: Visualize) which outputs resource relationship
+diagrams in Mermaid format. That skill handles Azure Resource Graph queries,
+resource discovery, and relationship mapping.
 
 ### Resource Diagram Conventions
 
