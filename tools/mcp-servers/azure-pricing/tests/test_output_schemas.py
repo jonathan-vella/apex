@@ -20,13 +20,24 @@ from azure_pricing_mcp.mcp_response import MCPToolResponse, strip_private_keys
 from azure_pricing_mcp.schemas import OUTPUT_SCHEMAS
 from azure_pricing_mcp.tools import get_tool_definitions
 
-IN_SCOPE_TOOLS = set(OUTPUT_SCHEMAS.keys())
+
+def _get_in_scope_tools():
+    """Get in-scope tools, excluding admin-only tools if admin not available."""
+    all_in_scope = set(OUTPUT_SCHEMAS.keys())
+    try:
+        import azure.core.credentials  # noqa: F401
+        import azure.identity  # noqa: F401
+        return all_in_scope
+    except ImportError:
+        # Admin extras not available; exclude admin-only tools
+        return all_in_scope - {"find_orphaned_resources", "spot_eviction_rates", "spot_price_history", "simulate_eviction"}
 
 
 def test_in_scope_tools_have_output_schema():
     """Every tool in OUTPUT_SCHEMAS must declare outputSchema in its Tool def."""
     defs = {d.name: d for d in get_tool_definitions()}
-    for tool_name in IN_SCOPE_TOOLS:
+    in_scope = _get_in_scope_tools()
+    for tool_name in in_scope:
         assert tool_name in defs, f"{tool_name} missing from tool list"
         assert defs[tool_name].outputSchema is not None, f"{tool_name} has no outputSchema"
 
@@ -35,8 +46,9 @@ def test_out_of_scope_tools_have_no_output_schema():
     """Trivial-response tools should NOT advertise outputSchema until they
     emit structured content (else SDK errors on dispatch)."""
     defs = {d.name: d for d in get_tool_definitions()}
+    in_scope = _get_in_scope_tools()
     for tool_name in defs:
-        if tool_name not in IN_SCOPE_TOOLS:
+        if tool_name not in in_scope:
             assert defs[tool_name].outputSchema is None, (
                 f"{tool_name} has outputSchema but is not in-scope; SDK will "
                 f"error if its handler doesn't emit structured content"

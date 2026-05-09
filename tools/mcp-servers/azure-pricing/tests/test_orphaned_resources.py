@@ -72,12 +72,14 @@ def service(mock_credential_manager):
 
 
 class TestToolDefinition:
+    @pytest.mark.admin_required
     def test_find_orphaned_resources_tool_exists(self):
         """The find_orphaned_resources tool must be registered."""
         tools = get_tool_definitions()
         names = [t.name for t in tools]
         assert "find_orphaned_resources" in names
 
+    @pytest.mark.admin_required
     def test_find_orphaned_resources_schema(self):
         """Schema must declare days (int) and all_subscriptions (bool)."""
         tools = get_tool_definitions()
@@ -756,6 +758,7 @@ class TestHandler:
         assert hasattr(handlers, "handle_find_orphaned_resources")
 
     @pytest.mark.asyncio
+    @pytest.mark.admin_required
     async def test_handler_returns_text_content(self):
         """Handler must return a list of TextContent."""
         pricing = MagicMock()
@@ -781,6 +784,7 @@ class TestHandler:
         assert "No Orphaned Resources Found" in result[0].text
 
     @pytest.mark.asyncio
+    @pytest.mark.admin_required
     async def test_handler_lazy_creates_service(self):
         """If no orphaned_service provided, handler should create one lazily."""
         pricing = MagicMock()
