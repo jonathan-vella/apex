@@ -19,21 +19,7 @@ agents:
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
   ]
-tools:
-  [
-    vscode,
-    execute,
-    read,
-    agent,
-    browser,
-    edit,
-    search,
-    web,
-    web/fetch,
-    web/githubRepo,
-    todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-  ]
+tools: [vscode, execute, read, agent, browser, edit, search, web, web/fetch, web/githubRepo, todo]
 handoffs:
   - label: "▶ Start New Project"
     agent: 01-Orchestrator
