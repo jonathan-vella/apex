@@ -24,9 +24,12 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
-          ALLOWED="^(docs|agents|skills|infra|scripts|instructions|fix|chore|feat|ci|refactor|perf|test|build|revert)/"
+          # ``dependabot/...`` is reserved by GitHub for Dependabot-authored
+          # PRs and cannot be renamed; allow the prefix unconditionally so
+          # version-bump PRs aren't blocked by branch naming.
+          ALLOWED="^(docs|agents|skills|infra|scripts|instructions|fix|chore|feat|ci|refactor|perf|test|build|revert|dependabot)/"
           if [[ ! "$BRANCH" =~ $ALLOWED ]]; then
-            echo "::error::Branch '$BRANCH' does not follow naming convention. Use an approved prefix: docs/, agents/, skills/, infra/, scripts/, instructions/, fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/"
+            echo "::error::Branch '$BRANCH' does not follow naming convention. Use an approved prefix: docs/, agents/, skills/, infra/, scripts/, instructions/, fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/, dependabot/"
             exit 1
           fi
           echo "✅ Branch '$BRANCH' follows naming convention"
@@ -48,7 +51,7 @@ jobs:
 
           # Cross-cutting prefixes are exempt
           case "$PREFIX" in
-            feat|fix|chore|refactor|revert|perf|test|build|ci)
+            feat|fix|chore|refactor|revert|perf|test|build|ci|dependabot)
               echo "ℹ️  Branch prefix '$PREFIX/' is cross-cutting — no file scope restriction"
               exit 0
               ;;
