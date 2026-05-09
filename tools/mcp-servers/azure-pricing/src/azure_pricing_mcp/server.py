@@ -120,25 +120,10 @@ def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) 
     ``async with pricing_server:`` block in :func:`main`. Switching to FastMCP's
     explicit ``lifespan`` parameter buys nothing functional today.
     """
-    # Build the dispatch table once at registration time. Lookup is O(1)
-    # vs the v5.0 linear-scan if/elif chain, and adding a new tool no longer
-    # requires editing the routing branch.
-
-    def _admin(method_name: str):
-        """Resolve an admin-tier handler method, falling back to the
-        ``[admin]`` extras-not-installed friendly response if the method is
-        missing on the runtime ``ToolHandlers`` (admin mixin failed to load)."""
-
-        async def _resolve(arguments: dict[str, Any]) -> Any:
-            handlers = pricing_server.tool_handlers
-            handler = getattr(handlers, method_name, None)
-            if handler is None:
-                from .handlers import _admin_unavailable
-
-                return _admin_unavailable(method_name.replace("handle_", ""))
-            return await handler(arguments)
-
-        return _resolve
+    # Build a static dispatch table on each call (cheap dict literal vs the
+    # v5.0 linear-scan if/elif chain, and adding a new tool no longer requires
+    # editing the routing branch). Late binding via ``pricing_server.tool_handlers``
+    # ensures each lookup picks up the lazily-initialized handler instance.
 
     @server.call_tool()
     async def handle_call_tool(name: str, arguments: dict[str, Any]) -> Any:

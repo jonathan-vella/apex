@@ -2,24 +2,23 @@
 
 from mcp.types import Tool, ToolAnnotations
 
+# Phase 4.17 — admin-tier tools (spot/simulate/find_orphaned). The admin
+# subpackage is always importable, but admin tools are only registered when the
+# ``[admin]`` extras are installed (azure-identity is needed at runtime).
+from .admin import get_admin_tool_definitions as _get_admin_tool_definitions
+from .admin import is_admin_available
 from .databricks.tools import get_databricks_tool_definitions
 from .github_pricing.tools import get_github_pricing_tool_definitions
 from .response_format import RESPONSE_FORMAT_SCHEMA
 from .schemas import get_output_schema
 
-# Phase 4.17 — admin-tier tools (spot/simulate/find_orphaned). The probe in
-# ``admin/__init__.py`` raises ImportError when ``[admin]`` extras are missing;
-# in that case we silently skip admin-tool registration.
-try:
-    from .admin.tools import get_admin_tool_definitions
+_ADMIN_AVAILABLE = is_admin_available()
 
-    _ADMIN_AVAILABLE = True
-except ImportError:
-    _ADMIN_AVAILABLE = False
 
-    def get_admin_tool_definitions() -> list[Tool]:  # type: ignore[no-redef]
-        """Fallback: returns empty list when [admin] extras aren't installed."""
-        return []
+def get_admin_tool_definitions() -> list[Tool]:
+    """Return admin-tier tool definitions, or empty list when [admin] extras
+    aren't installed."""
+    return _get_admin_tool_definitions() if _ADMIN_AVAILABLE else []
 
 
 # v5.0 — Phase 4.13: shared MCP tool annotation presets. Read tools are

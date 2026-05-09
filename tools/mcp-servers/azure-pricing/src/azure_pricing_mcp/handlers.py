@@ -5,6 +5,11 @@ from typing import Any
 
 from mcp.types import TextContent
 
+# Phase 4.17 — admin-tier handlers (spot/simulate/find_orphaned). The admin
+# subpackage is always importable; ``is_admin_available()`` reports whether the
+# ``[admin]`` extras (azure-identity + azure-core) are installed at runtime.
+from .admin import AdminHandlers as _AdminHandlers
+from .admin import is_admin_available
 from .config import DEFAULT_CUSTOMER_DISCOUNT
 from .databricks.handlers import DatabricksHandlers
 from .formatters import (
@@ -25,37 +30,8 @@ from .mcp_response import MCPToolResponse, strip_private_keys
 from .response_format import DEFAULT_RESPONSE_FORMAT, ResponseFormat, coerce_response_format
 from .services import BulkEstimateService, DatabricksService, PricingService, PTUService, SKUService
 
-# Phase 4.17 — admin-tier handlers (spot/simulate/find_orphaned). Composed in
-# only when the [admin] extras are installed (probe in admin/__init__.py).
-try:
-    from .admin.handlers import AdminHandlers as _AdminHandlers
-
-    _ADMIN_OK = True
-    _ADMIN_IMPORT_ERROR: str | None = None
-except ImportError as _exc:
-    _ADMIN_OK = False
-    _ADMIN_IMPORT_ERROR = str(_exc)
-
-    class _AdminHandlers:  # type: ignore[no-redef]
-        """No-op fallback when [admin] extras are missing.
-
-        Tool registration in ``server.py``/``tools.py`` already filters admin
-        tools out of ``list_tools`` when the probe fails, so these methods
-        should never be invoked in practice — but provide a friendly error
-        path just in case (e.g. an old client cached the v4 tool list).
-        """
-
-        async def handle_spot_eviction_rates(self, arguments: dict[str, Any]) -> list[TextContent]:
-            return _admin_unavailable("spot_eviction_rates")
-
-        async def handle_spot_price_history(self, arguments: dict[str, Any]) -> list[TextContent]:
-            return _admin_unavailable("spot_price_history")
-
-        async def handle_simulate_eviction(self, arguments: dict[str, Any]) -> list[TextContent]:
-            return _admin_unavailable("simulate_eviction")
-
-        async def handle_find_orphaned_resources(self, arguments: dict[str, Any]) -> list[TextContent]:
-            return _admin_unavailable("find_orphaned_resources")
+_ADMIN_OK = is_admin_available()
+_ADMIN_IMPORT_ERROR: str | None = None if _ADMIN_OK else "azure-identity not installed"
 
 
 def _admin_unavailable(tool_name: str) -> list[TextContent]:

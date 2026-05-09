@@ -9,9 +9,7 @@ import pytest
 
 def pytest_configure(config):
     """Register custom markers."""
-    config.addinivalue_line(
-        "markers", "admin_required: skip test if admin extras (azure-identity, etc.) not available"
-    )
+    config.addinivalue_line("markers", "admin_required: skip test if admin extras (azure-identity, etc.) not available")
 
 
 # Detect admin availability at collection time
@@ -20,6 +18,7 @@ def _admin_available():
     try:
         import azure.core.credentials  # noqa: F401
         import azure.identity  # noqa: F401
+
         return True
     except ImportError:
         return False

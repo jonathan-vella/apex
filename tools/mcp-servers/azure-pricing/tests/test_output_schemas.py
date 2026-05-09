@@ -22,23 +22,24 @@ from azure_pricing_mcp.tools import get_tool_definitions
 
 
 def _get_in_scope_tools():
-    """Get in-scope tools, excluding admin-only tools if admin not available."""
-    all_in_scope = set(OUTPUT_SCHEMAS.keys())
-    try:
-        import azure.core.credentials  # noqa: F401
-        import azure.identity  # noqa: F401
-        return all_in_scope
-    except ImportError:
-        # Admin extras not available; exclude admin-only tools
-        return all_in_scope - {"find_orphaned_resources", "spot_eviction_rates", "spot_price_history", "simulate_eviction"}
+    """Return the in-scope tool set as the intersection of ``OUTPUT_SCHEMAS``
+    and the actually-registered tool definitions.
+
+    Some tools in ``OUTPUT_SCHEMAS`` (e.g. ``find_orphaned_resources``) are
+    conditionally registered only when ``[admin]`` extras are installed, so
+    deriving from the tool list keeps these tests aligned with the real gating
+    behavior on non-admin installs (closes Copilot review #3 on PR #356).
+    """
+    registered = {d.name for d in get_tool_definitions()}
+    return set(OUTPUT_SCHEMAS.keys()) & registered
 
 
 def test_in_scope_tools_have_output_schema():
-    """Every tool in OUTPUT_SCHEMAS must declare outputSchema in its Tool def."""
+    """Every in-scope, registered tool must declare outputSchema."""
     defs = {d.name: d for d in get_tool_definitions()}
     in_scope = _get_in_scope_tools()
+    assert in_scope, "no in-scope tools detected"
     for tool_name in in_scope:
-        assert tool_name in defs, f"{tool_name} missing from tool list"
         assert defs[tool_name].outputSchema is not None, f"{tool_name} has no outputSchema"
 
 

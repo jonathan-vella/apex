@@ -72,16 +72,23 @@ def service(mock_credential_manager):
 
 
 class TestToolDefinition:
-    @pytest.mark.admin_required
     def test_find_orphaned_resources_tool_exists(self):
-        """The find_orphaned_resources tool must be registered."""
+        """The find_orphaned_resources tool must be registered when [admin]
+        extras are installed. Skipped on installs without the extras."""
+        try:
+            import azure.identity  # noqa: F401
+        except ImportError:
+            pytest.skip("[admin] extras not installed")
         tools = get_tool_definitions()
         names = [t.name for t in tools]
         assert "find_orphaned_resources" in names
 
-    @pytest.mark.admin_required
     def test_find_orphaned_resources_schema(self):
         """Schema must declare days (int) and all_subscriptions (bool)."""
+        try:
+            import azure.identity  # noqa: F401
+        except ImportError:
+            pytest.skip("[admin] extras not installed")
         tools = get_tool_definitions()
         tool = next(t for t in tools if t.name == "find_orphaned_resources")
         props = tool.inputSchema["properties"]
@@ -758,9 +765,12 @@ class TestHandler:
         assert hasattr(handlers, "handle_find_orphaned_resources")
 
     @pytest.mark.asyncio
-    @pytest.mark.admin_required
     async def test_handler_returns_text_content(self):
-        """Handler must return a list of TextContent."""
+        """Handler must return a list of TextContent.
+
+        Uses a mocked OrphanedResourcesService so it works without the
+        ``[admin]`` extras (closes Copilot review #2 on PR #356).
+        """
         pricing = MagicMock()
         sku = MagicMock()
         mock_orphaned = MagicMock()
@@ -784,9 +794,13 @@ class TestHandler:
         assert "No Orphaned Resources Found" in result[0].text
 
     @pytest.mark.asyncio
-    @pytest.mark.admin_required
     async def test_handler_lazy_creates_service(self):
-        """If no orphaned_service provided, handler should create one lazily."""
+        """If no orphaned_service provided, handler should create one lazily.
+
+        ``OrphanedResourcesService.__init__`` does not raise when azure-identity
+        is missing — the credential manager surfaces the error lazily on auth
+        calls — so this test runs without the ``[admin]`` extras.
+        """
         pricing = MagicMock()
         sku = MagicMock()
         handlers = ToolHandlers(pricing, sku)

@@ -7,26 +7,39 @@ This subpackage hosts tools that require an Azure subscription + the
 - ``spot_eviction_rates`` / ``spot_price_history`` / ``simulate_eviction``
 - ``find_orphaned_resources``
 
-Importing this subpackage probes for the required SDK at module load. If the
-probe fails, the import raises ``ImportError`` and the parent server skips
-admin-tool registration with a logged hint.
+The package itself is importable without the optional dependencies — admin
+handler methods and tool definitions remain accessible (services lazy-import
+``azure.identity`` at runtime via ``..auth``). Use ``is_admin_available()`` to
+detect whether the SDK is installed before registering admin tools.
 
-Multi-import probe scope (Phase 4.17): only the modules actually used by the
-admin services. The plan listed ``azure.mgmt.resourcegraph`` /
-``azure.mgmt.compute`` / ``azure.mgmt.costmanagement`` but the v5 implementation
-talks to those services via raw aiohttp REST calls; only ``azure.identity`` is
-materially required at runtime.
+This design lets unit tests using mocks compose ``AdminHandlers`` without
+needing the real Azure SDK installed (closes Copilot review #2 on PR #356).
 """
 
 from __future__ import annotations
 
-import azure.core.credentials  # noqa: F401  (TYPE-CHECK target in ..auth)
-
-# Multi-import probe — runs at import time. Any failure here raises ImportError
-# and the parent ``server.create_server`` falls back gracefully.
-import azure.identity  # noqa: F401  (auth — used by ..auth)
-
 from .handlers import AdminHandlers
 from .tools import get_admin_tool_definitions
 
-__all__ = ["AdminHandlers", "get_admin_tool_definitions"]
+
+def is_admin_available() -> bool:
+    """Return True iff the ``[admin]`` extras (azure-identity + azure-core) are
+    importable. Probed lazily on first call.
+
+    Multi-import probe scope (Phase 4.17): only the modules actually used by
+    the admin services. The plan listed ``azure.mgmt.resourcegraph`` /
+    ``azure.mgmt.compute`` / ``azure.mgmt.costmanagement`` but the v5
+    implementation talks to those services via raw aiohttp REST calls; only
+    ``azure.identity`` and ``azure.core.credentials`` are materially required
+    at runtime.
+    """
+    try:
+        import azure.core.credentials  # noqa: F401
+        import azure.identity  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
+__all__ = ["AdminHandlers", "get_admin_tool_definitions", "is_admin_available"]
