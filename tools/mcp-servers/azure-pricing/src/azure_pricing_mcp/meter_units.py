@@ -137,6 +137,7 @@ def select_primary_meter(
     items: list[dict[str, Any]],
     *,
     requested_sku: str | None = None,
+    usage: dict[str, float] | None = None,
 ) -> dict[str, Any] | None:
     """Pick the most likely primary billing meter from a search-results list.
 
@@ -151,6 +152,17 @@ def select_primary_meter(
     expensive variant when the user passed a generic SKU name like
     ``"Standard"`` and the API also returned ``"Standard B1"`` etc.
 
+    v5.4 — when ``usage`` is provided with one of the workload keys
+    (``transactions_per_month``, ``gb_stored``, ``gb_transferred``,
+    ``seconds_runtime``), meters whose dimension matches a *supplied* usage
+    key are promoted to the top of the dimension ranking. This prevents
+    selecting a per-GB/month storage meter when the caller actually supplied
+    transaction counts. Additionally, tie-breaks switch from descending price
+    (which v5.3 used to surface the "actual" SKU rate over $0.0001 add-ons)
+    to *ascending* price within the matching dimension, because the cheapest
+    matching meter is usually the typical baseline rate (e.g. Key Vault
+    operations at $0.03/10K vs renewals at $0.15/10K).
+
     Returns ``None`` if the input list is empty.
     """
     if not items:
@@ -158,8 +170,28 @@ def select_primary_meter(
 
     requested_lower = requested_sku.lower().strip() if requested_sku else None
 
-    def rank(item: dict[str, Any]) -> tuple[int, int, float]:
+    # v5.4 — Map of MeterDimension → usage key. Used to score whether a
+    # meter's dimension matches a supplied usage param.
+    dimension_to_usage = {
+        MeterDimension.TRANSACTIONS: "transactions_per_month",
+        MeterDimension.GB_MONTH: "gb_stored",
+        MeterDimension.GB: "gb_transferred",
+        MeterDimension.SECOND: "seconds_runtime",
+    }
+    usage = usage or {}
+    usage_priorities: set[MeterDimension] = {
+        dim for dim, key in dimension_to_usage.items() if usage.get(key) is not None
+    }
+
+    def rank(item: dict[str, Any]) -> tuple[int, int, int, float]:
         unit = parse_unit_of_measure(item.get("unitOfMeasure"))
+
+        # v5.4 — prefer a dimension that has a matching usage param
+        # (e.g., when usage.transactions_per_month is set, TRANSACTIONS
+        # meters out-rank GB_MONTH meters even though GB_MONTH normally
+        # ranks higher).
+        usage_match_rank = 0 if unit.dimension in usage_priorities else 1
+
         if unit.dimension == MeterDimension.HOUR:
             dimension_rank = 0
         elif unit.dimension == MeterDimension.DAY:
@@ -188,11 +220,15 @@ def select_primary_meter(
             if item_sku == requested_lower:
                 sku_match_rank = 0
 
-        # Tie-breaker: higher non-zero price first within the same
-        # (sku-match, dimension) bucket — this surfaces the actual SKU rate
-        # over add-on overage meters at $0.0001.
-        price = -float(item.get("retailPrice", 0) or 0)
-        return (sku_match_rank, dimension_rank, price)
+        # Tie-breaker: when usage was supplied, prefer the LOWER-priced
+        # meter in the matching dimension (typical baseline rate; e.g.
+        # Key Vault Operations $0.03/10K rather than Renewals $0.15/10K).
+        # Otherwise, fall back to v5.3 behaviour (higher price first to
+        # surface the "actual" SKU rate over $0.0001 add-ons).
+        rate = float(item.get("retailPrice", 0) or 0)
+        price_tiebreak = rate if usage and unit.dimension in usage_priorities else -rate
+
+        return (sku_match_rank, usage_match_rank, dimension_rank, price_tiebreak)
 
     return min(items, key=rank)
 
@@ -202,17 +238,29 @@ def project_monthly_cost(
     *,
     hours_per_month: float = HOURS_PER_MONTH,
     days_per_month: float = DAYS_PER_MONTH,
+    usage: dict[str, float] | None = None,
 ) -> tuple[float, MeterUnit, str | None]:
     """Project a meter to a monthly cost.
 
     Returns ``(monthly_cost, parsed_unit, warning)`` where ``warning`` is None
-    when the projection is reliable. For ``GB_MONTH`` / ``GB`` / ``TRANSACTIONS``
-    / ``UNKNOWN`` meters we emit ``$0.0`` and a human-readable warning so the
-    caller (cost-estimate-subagent) can flag the line item rather than fabricate
-    a number.
+    when the projection is reliable.
+
+    v5.4 — accepts an optional ``usage`` dict that lets callers supply
+    workload estimates so non-time-based meters can be projected too:
+
+    * ``transactions_per_month`` → applied to ``TRANSACTIONS`` meters
+      (e.g. Key Vault Standard ops, Storage Tables write ops).
+    * ``gb_stored`` → applied to ``GB_MONTH`` storage-retention meters.
+    * ``gb_transferred`` → applied to ``GB`` egress meters.
+    * ``seconds_runtime`` → applied to ``SECOND`` meters
+      (e.g. ACR build tasks).
+
+    Without a relevant usage entry, the projection still returns ``$0.0``
+    with an informational warning so the caller knows to supply usage data.
     """
     unit = parse_unit_of_measure(item.get("unitOfMeasure"))
     rate = float(item.get("retailPrice", 0) or 0)
+    usage = usage or {}
 
     if unit.dimension == MeterDimension.HOUR:
         return rate * hours_per_month / unit.quantity, unit, None
@@ -222,41 +270,117 @@ def project_monthly_cost(
         return rate / unit.quantity, unit, None
 
     if unit.dimension == MeterDimension.SECOND:
-        # 1 second of compute → 730h * 3600s/h. Most SECOND meters in this
-        # API are build-task / runtime adders ($0.0001/sec), not the primary
-        # compute meter — refuse to project blindly.
+        runtime = usage.get("seconds_runtime")
+        if runtime is not None:
+            return rate * float(runtime) / unit.quantity, unit, None
         return (
             0.0,
             unit,
             (
                 "Per-second meter cannot be projected without a runtime estimate; "
-                "supply a usage estimate via azure_cost_estimate or document at $0."
+                "supply usage.seconds_runtime to enable projection."
             ),
         )
 
     if unit.dimension == MeterDimension.GB_MONTH:
+        gb_stored = usage.get("gb_stored")
+        if gb_stored is not None:
+            return rate * float(gb_stored) / unit.quantity, unit, None
         return (
             0.0,
             unit,
-            (
-                f"Per-GB/month storage meter (${rate}/{unit.raw}) — supply a storage "
-                "volume estimate; not projected as compute."
-            ),
+            (f"Per-GB/month storage meter (${rate}/{unit.raw}) — supply usage.gb_stored to enable projection."),
         )
+
     if unit.dimension == MeterDimension.GB:
+        gb_transferred = usage.get("gb_transferred")
+        if gb_transferred is not None:
+            return rate * float(gb_transferred) / unit.quantity, unit, None
         return (
             0.0,
             unit,
-            (
-                f"Per-GB transfer meter (${rate}/{unit.raw}) — supply a transfer "
-                "volume estimate; not projected as compute."
-            ),
+            (f"Per-GB transfer meter (${rate}/{unit.raw}) — supply usage.gb_transferred to enable projection."),
         )
+
     if unit.dimension == MeterDimension.TRANSACTIONS:
+        txns = usage.get("transactions_per_month")
+        if txns is not None:
+            return rate * float(txns) / unit.quantity, unit, None
         return (
             0.0,
             unit,
-            (f"Per-transaction meter (${rate}/{unit.raw}) — supply an ops/month estimate; not projected as compute."),
+            (f"Per-transaction meter (${rate}/{unit.raw}) — supply usage.transactions_per_month to enable projection."),
         )
 
     return 0.0, unit, f"Unrecognised unitOfMeasure '{unit.raw}'; refusing to project."
+
+
+def project_all_relevant_meters(
+    items: list[dict[str, Any]],
+    *,
+    usage: dict[str, float],
+    hours_per_month: float = HOURS_PER_MONTH,
+    days_per_month: float = DAYS_PER_MONTH,
+) -> tuple[float, list[dict[str, Any]]]:
+    """Sum projections across every meter that has a matching usage param.
+
+    Used by ``estimate_costs`` when the caller supplies a ``usage`` dict so
+    multi-meter SKUs (e.g. Storage Account: Tables write ops + Blob storage
+    + retrieval ops) get every billable dimension projected and summed,
+    rather than collapsing to the single primary meter.
+
+    Returns ``(total_monthly, sub_lines)`` where each sub-line documents
+    one meter's contribution.
+    """
+    if not items or not usage:
+        return 0.0, []
+
+    sub_lines: list[dict[str, Any]] = []
+    total = 0.0
+
+    # Map of usage key → MeterDimension so we know which usage params
+    # gate which meter dimensions.
+    relevant_dimensions = {
+        MeterDimension.TRANSACTIONS: "transactions_per_month",
+        MeterDimension.GB_MONTH: "gb_stored",
+        MeterDimension.GB: "gb_transferred",
+        MeterDimension.SECOND: "seconds_runtime",
+    }
+
+    seen_keys: set[tuple[str, str, str]] = set()  # (sku, product, unit) — dedupe duplicate meters
+
+    for item in items:
+        unit = parse_unit_of_measure(item.get("unitOfMeasure"))
+        usage_key = relevant_dimensions.get(unit.dimension)
+        if usage_key is None:
+            continue
+        if usage.get(usage_key) is None:
+            continue
+        # Dedupe: the API often returns the same meter twice in different
+        # productName / regional variants. Pick the first occurrence.
+        dedupe = (
+            (item.get("skuName") or "").strip(),
+            (item.get("productName") or "").strip(),
+            (item.get("unitOfMeasure") or "").strip(),
+        )
+        if dedupe in seen_keys:
+            continue
+        seen_keys.add(dedupe)
+
+        cost, _, _ = project_monthly_cost(
+            item, hours_per_month=hours_per_month, days_per_month=days_per_month, usage=usage
+        )
+        if cost <= 0:
+            continue
+        total += cost
+        sub_lines.append(
+            {
+                "product_name": item.get("productName"),
+                "sku_name": item.get("skuName"),
+                "retail_price": item.get("retailPrice"),
+                "unit_of_measure": item.get("unitOfMeasure"),
+                "monthly_cost": round(cost, 4),
+            }
+        )
+
+    return total, sub_lines

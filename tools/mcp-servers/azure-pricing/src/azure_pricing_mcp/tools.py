@@ -376,7 +376,9 @@ def get_tool_definitions() -> list[Tool]:
                     "Estimate costs for multiple Azure resources in a single call. "
                     "Returns per-resource and total monthly/yearly costs. "
                     "Ideal for full-stack cost estimates. Supports service-name aliases, "
-                    "request deduplication, and concurrent pricing lookups."
+                    "request deduplication, concurrent pricing lookups, and v5.4 "
+                    "usage-aware projection (transactions_per_month, gb_stored, etc.) "
+                    "for transaction-based and storage-retention meters."
                 ),
                 inputSchema={
                     "type": "object",
@@ -385,7 +387,9 @@ def get_tool_definitions() -> list[Tool]:
                             "type": "array",
                             "description": (
                                 "List of resources to estimate. Each must have service_name, sku_name, region. "
-                                "Optional: quantity (default 1), hours_per_month (default 730)."
+                                "Optional: quantity (default 1), hours_per_month (default 730), "
+                                "usage (transactions_per_month / gb_stored / gb_transferred / seconds_runtime), "
+                                "product_filter (substring of productName, e.g. 'Tables' for Storage Account)."
                             ),
                             "items": {
                                 "type": "object",
@@ -402,6 +406,40 @@ def get_tool_definitions() -> list[Tool]:
                                         "type": "number",
                                         "description": "Usage hours per month (default: 730)",
                                         "default": 730,
+                                    },
+                                    "usage": {
+                                        "type": "object",
+                                        "description": (
+                                            "Workload estimates for non-time-based meters. "
+                                            "Keys: transactions_per_month, gb_stored, gb_transferred, "
+                                            "seconds_runtime."
+                                        ),
+                                        "properties": {
+                                            "transactions_per_month": {
+                                                "type": "number",
+                                                "description": "Operations per month (e.g., 100K Key Vault ops, 2.6M Storage Tables write ops).",
+                                            },
+                                            "gb_stored": {
+                                                "type": "number",
+                                                "description": "GB of data retained per month.",
+                                            },
+                                            "gb_transferred": {
+                                                "type": "number",
+                                                "description": "GB of egress / data transfer per month.",
+                                            },
+                                            "seconds_runtime": {
+                                                "type": "number",
+                                                "description": "Seconds of per-second-billed compute (e.g., ACR build tasks).",
+                                            },
+                                        },
+                                    },
+                                    "product_filter": {
+                                        "type": "string",
+                                        "description": (
+                                            "Substring matched against productName. Use this to "
+                                            "disambiguate multi-product services like Storage Account "
+                                            "(Tables / Block Blob / Queue / Files share the same skuName)."
+                                        ),
                                     },
                                 },
                                 "required": ["service_name", "sku_name", "region"],

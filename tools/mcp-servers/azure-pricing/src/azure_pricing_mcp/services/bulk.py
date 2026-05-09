@@ -32,8 +32,21 @@ def _resolve_service_alias(name: str) -> str:
 
 
 def _dedup_key(res: dict[str, Any]) -> str:
-    """Build a deduplication key from service_name + sku_name + region."""
-    return f"{res.get('service_name', '')}|{res.get('sku_name', '')}|{res.get('region', '')}".lower()
+    """Build a deduplication key from service_name + sku_name + region + usage + product_filter.
+
+    Resources with different ``usage`` or ``product_filter`` assumptions are
+    kept separate so that e.g. one Storage Account at 100K ops/mo doesn't
+    collapse with another at 2.6M ops/mo.
+    """
+    base = f"{res.get('service_name', '')}|{res.get('sku_name', '')}|{res.get('region', '')}".lower()
+    parts = [base]
+    usage = res.get("usage")
+    if usage:
+        parts.append("|".join(f"{k}={v}" for k, v in sorted(usage.items())))
+    pf = res.get("product_filter")
+    if pf:
+        parts.append(f"pf={pf}")
+    return "|".join(parts)
 
 
 class BulkEstimateService:
@@ -52,8 +65,14 @@ class BulkEstimateService:
 
         Each entry in *resources* must contain:
             service_name, sku_name, region
-        Optional keys:
-            quantity (default 1), hours_per_month (default 730)
+
+        Optional keys per resource:
+            quantity (default 1) — multiplier for total cost
+            hours_per_month (default 730) — runtime hours
+            usage (dict) — workload estimates passed to ``estimate_costs``;
+                see ``meter_units.project_monthly_cost`` for supported keys
+                (``transactions_per_month``, ``gb_stored``, ``gb_transferred``,
+                ``seconds_runtime``).
         """
         # Phase A: resolve service aliases
         for res in resources:
@@ -64,7 +83,9 @@ class BulkEstimateService:
                     res["_original_service_name"] = original
                     res["service_name"] = resolved
 
-        # Phase B: deduplicate identical specs, summing quantities
+        # Phase B: deduplicate identical specs, summing quantities. Resources
+        # with custom ``usage`` params are NOT deduplicated against unparam
+        # siblings — different usage assumptions are different line items.
         deduped: dict[str, dict[str, Any]] = {}
         original_indices: dict[str, list[int]] = {}
         for idx, res in enumerate(resources):
@@ -100,6 +121,8 @@ class BulkEstimateService:
 
             quantity = res.get("quantity", 1)
             hours_per_month = res.get("hours_per_month", 730)
+            usage = res.get("usage") or None
+            product_filter = res.get("product_filter") or None
             last_exc: Exception | None = None
 
             async with sem:
@@ -114,6 +137,10 @@ class BulkEstimateService:
                         }
                         if region:
                             estimate_kwargs["region"] = region
+                        if usage:
+                            estimate_kwargs["usage"] = usage
+                        if product_filter:
+                            estimate_kwargs["product_filter"] = product_filter
                         estimate = await self._pricing.estimate_costs(**estimate_kwargs)
 
                         if "error" in estimate:
@@ -126,7 +153,7 @@ class BulkEstimateService:
                         monthly = estimate["on_demand_pricing"]["monthly_cost"] * quantity
                         yearly = estimate["on_demand_pricing"]["yearly_cost"] * quantity
 
-                        return {
+                        line_item: dict[str, Any] = {
                             "indices": indices,
                             "service_name": estimate.get("service_name"),
                             "sku_name": estimate.get("sku_name"),
@@ -137,7 +164,10 @@ class BulkEstimateService:
                             "quantity": quantity,
                             "monthly_cost": monthly,
                             "yearly_cost": yearly,
-                        }, None
+                        }
+                        if estimate.get("projection_warning"):
+                            line_item["projection_warning"] = estimate["projection_warning"]
+                        return line_item, None
 
                     except Exception as exc:
                         last_exc = exc

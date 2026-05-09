@@ -10,6 +10,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > order of v3.x releases is approximate. From v5.0.0 onward, dates reflect the
 > actual fork-release date in this repository.
 
+## [5.4.0] - 2026-05-09
+
+> **Usage-aware projection release.** Closes the gap between v5.3 and the
+> [`bmit-2026/malta-catering`](https://github.com/jonathan-vella/bmit-2026/blob/main/agent-output/malta-catering/03-des-cost-estimate.md)
+> reference cost estimate. v5.3 fixed unit projection but couldn't price
+> transaction-based or storage-retention meters without explicit usage data;
+> v5.4 adds the data path. Verified within 5% of the reference on a 7-line
+> 8-resource workload (the remaining gap is Storage Tables write ops where
+> the reference's $0.0325/10K rate is no longer in the Azure API).
+
+### Added
+
+- **`usage` parameter** on `estimate_costs` and per-resource on
+  `azure_bulk_estimate`. Supplies workload estimates so non-time-based
+  meters can be projected:
+  - `transactions_per_month` — applied to per-10K/1M transaction meters
+    (e.g. Key Vault Operations, Storage Tables write ops).
+  - `gb_stored` — applied to per-GB/month storage-retention meters.
+  - `gb_transferred` — applied to per-GB egress meters.
+  - `seconds_runtime` — applied to per-second meters (e.g. ACR build tasks).
+
+  Without `usage`, those meters still return $0 with a warning (v5.3
+  behaviour preserved).
+
+- **`product_filter` parameter** on `estimate_costs` and per-resource
+  on `azure_bulk_estimate`. Substring match against `productName` so
+  multi-product services like Storage Account (Tables / Block Blob /
+  Queues / Files share the same skuName) can be modelled as separate
+  line items with their own usage assumptions.
+
+- **Zero-cost service static fallbacks** in `_STATIC_FALLBACK_PRICES`:
+  - Virtual Network Standard (no per-VNet base charge).
+  - Resource Group (organisational container).
+  - Managed Identity (only authenticated resources cost money).
+
+  Without these, v5.3's meter selector matched unrelated meters
+  (e.g. "Virtual Network Standard" → "Public IP Prefix Standard" at
+  $0.006/hr → bogus $4.38/mo).
+
+### Changed
+
+- **Static-fallback check moved BEFORE the API search.** v5.3 only
+  consulted the fallback table when the API returned no results, which
+  caused VNet/RG to match unrelated meters. v5.4 checks fallbacks
+  first, then falls through to the API when no rule matches.
+
+- **`select_primary_meter` is `usage`-aware.** When usage is supplied
+  with a dimension-matching key, meters whose dimension matches a
+  *supplied* key are promoted to the top of the dimension ranking
+  (e.g. TRANSACTIONS meters out-rank GB_MONTH when
+  `usage.transactions_per_month` is set).
+
+- **Tie-break direction switches when usage is supplied.** v5.3 used
+  descending price (right for surfacing the actual SKU rate over
+  $0.0001 add-ons). v5.4 uses ascending price within the matching
+  dimension when usage is supplied, because the cheapest matching
+  meter is usually the typical baseline rate (Key Vault Operations
+  $0.03/10K vs Renewals $0.15/10K).
+
+- **Private Endpoint static fallback** tuned to Microsoft's published
+  flat $7.20/PE/month from the public pricing page. v5.3 used
+  $0.01/hr × 730 = $7.30 (close but not what Microsoft publishes).
+
+- **`_lookup_static_fallback`** now supports rules with empty `sku_match`
+  (catch-all per service, used for Resource Group / Managed Identity).
+
+### Verification
+
+- 269 tests pass (was 255; +14 new regression tests in
+  `tests/test_usage_aware_projection.py`).
+- Reproduction of the bmit-2026/malta-catering reference workload now
+  returns **$147.22/mo** vs the reference's **$154.87/mo** (95% match).
+  The $7.65 gap is the Storage Tables write-ops line: reference used
+  $0.0325/10K ($8.45/mo); current Microsoft API returns $0.00036/10K
+  for swedencentral Standard LRS ($0.09/mo). v5.4 uses live API data
+  so the result is more accurate.
+
 ## [5.3.0] - 2026-05-09
 
 > **Bug-fix release.** Closes 4 distinct cost-projection bugs surfaced by

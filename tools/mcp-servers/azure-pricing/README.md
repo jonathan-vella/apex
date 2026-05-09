@@ -144,6 +144,41 @@ Azure Retail Prices API   +   MicrosoftDocs/azure-compute-docs
 clean. The aiohttp session is opened once via
 `async with AzurePricingServer(): ...` and shared across every tool call.
 
+## What's new in v5.4
+
+- **Usage-aware projection.** `azure_bulk_estimate` and
+  `azure_cost_estimate` accept a `usage` dict per resource so
+  transaction-based and storage-retention meters get projected
+  correctly. Keys: `transactions_per_month`, `gb_stored`,
+  `gb_transferred`, `seconds_runtime`. Without `usage`, those meters
+  still return $0 with a warning (v5.3 behaviour preserved).
+- **`product_filter` per resource.** Substring match against
+  `productName` so multi-product services like Storage Account
+  (Tables / Block Blob / Queues / Files share the same skuName) can be
+  modelled as separate line items with their own usage assumptions.
+- **Zero-cost service fallbacks.** Virtual Network base, Resource Group,
+  and Managed Identity now resolve to `$0` via static fallbacks
+  instead of matching unrelated meters (e.g. v5.3 picked
+  "Public IP Prefix Standard" for "Virtual Network / Standard"
+  → bogus $4.38/mo).
+- **Smarter meter tie-breaks.** When `usage` is supplied, the meter
+  selector prefers the dimension matching the supplied usage key, then
+  picks the **cheapest** rate in that dimension (typical baseline) —
+  reverses v5.3's descending-price tie-break which was right for
+  surfacing the actual SKU rate over add-ons but wrong for picking
+  Key Vault Operations ($0.03/10K) over Renewals ($0.15/10K).
+- **Private Endpoint static fallback** tuned to Microsoft's flat
+  $7.20/PE/month from the public pricing page (was $0.01/hr × 730 = $7.30).
+- **Reproducibility verified** against the
+  [bmit-2026 malta-catering](https://github.com/jonathan-vella/bmit-2026/blob/main/agent-output/malta-catering/03-des-cost-estimate.md)
+  reference cost estimate (generated 2026-04-14): v5.4 returns $147.22
+  for the same 8-resource workload vs the reference's $154.87 — within
+  5%. The remaining $7.65 gap is the Storage Tables write-ops line, where
+  the reference used $0.0325/10K ($8.45/mo); the current Microsoft API
+  returns $0.00036/10K for swedencentral Standard LRS ($0.09/mo). v5.4
+  uses live API data, so the result is **more accurate** than the
+  reference for that line.
+
 ## What's new in v5.3
 
 - **Unit-aware monthly-cost projection.** Fixes the v5.0–v5.2 bug where
@@ -265,7 +300,7 @@ tools/mcp-servers/azure-pricing/
 │   └── github_pricing/       # GitHub pricing sub-package
 ├── tests/                    # pytest suite + fixtures (incl. baseline-bytes.json)
 ├── scripts/                  # install.py, setup helpers, dev/ debug scripts
-├── pyproject.toml            # uv-driven; v5.3.0
+├── pyproject.toml            # uv-driven; v5.4.0
 ├── CHANGELOG.md
 └── README.md                 # (you are here)
 ```

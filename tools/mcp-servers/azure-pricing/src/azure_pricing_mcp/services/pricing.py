@@ -160,23 +160,73 @@ _STATIC_FALLBACK_PRICES: list[dict[str, Any]] = [
         "service_name": "Virtual Network",
         "sku_name": "Private Endpoint Standard",
         "product_name": "Private Link — Standard Endpoint (static fallback)",
-        "monthly_cost": 7.30,  # $0.01/hr × 730 hours
-        "unit_of_measure": "1 Hour",
+        "monthly_cost": 7.20,  # Microsoft's flat per-PE rate (matches public pricing page)
+        "unit_of_measure": "1 Endpoint/Month",
         "source": "learn.microsoft.com — private link pricing page (2026-05)",
-        "note": "Public Retail Prices API does not surface this meter. $0.01/hour per endpoint + data processing; baseline assumes one endpoint, no data processing.",
+        "note": "Public Retail Prices API does not surface this meter. Flat $7.20/endpoint/month + data processing; baseline assumes no data processing.",
+    },
+    # v5.4 — known zero-cost services. Without these, the meter selector
+    # picks an unrelated meter (e.g. "Virtual Network Standard" matched
+    # "Public IP Prefix Standard" at $0.006/hr → bogus $4.38/mo).
+    {
+        "service_match": "Virtual Network",
+        "sku_match": "Standard",
+        # Match must NOT be too broad — Private Endpoint Standard is also
+        # under "Virtual Network" service. The lookup function checks rules
+        # in declared order, so the more-specific Private Endpoint entry
+        # above wins for that case.
+        "service_name": "Virtual Network",
+        "sku_name": "Standard",
+        "product_name": "Virtual Network (no base charge)",
+        "monthly_cost": 0.0,
+        "unit_of_measure": "n/a",
+        "source": "learn.microsoft.com — virtual network pricing page (2026-05)",
+        "note": "Virtual Networks have no per-VNet base charge. Egress, peering, NAT Gateway, and VPN Gateway cost extra and must be priced separately.",
+    },
+    {
+        "service_match": "Resource Group",
+        "sku_match": "",  # any SKU
+        "service_name": "Resource Group",
+        "sku_name": "n/a",
+        "product_name": "Resource Group (no charge)",
+        "monthly_cost": 0.0,
+        "unit_of_measure": "n/a",
+        "source": "learn.microsoft.com — Azure resource model (2026-05)",
+        "note": "Resource Groups are organisational containers and have no cost.",
+    },
+    {
+        "service_match": "Managed Identity",
+        "sku_match": "",
+        "service_name": "Managed Identity",
+        "sku_name": "n/a",
+        "product_name": "Managed Identity (no charge)",
+        "monthly_cost": 0.0,
+        "unit_of_measure": "n/a",
+        "source": "learn.microsoft.com — managed identity pricing (2026-05)",
+        "note": "Managed Identities themselves are free; only the resources they authenticate to incur cost.",
     },
 ]
 
 
 def _lookup_static_fallback(service_name: str, sku_name: str) -> dict[str, Any] | None:
-    """Return a static fallback meter or None when no rule matches."""
-    if not service_name or not sku_name:
+    """Return a static fallback meter or None when no rule matches.
+
+    Rules with an empty ``sku_match`` apply to any SKU under the matching
+    service (used for "no-charge" services like Resource Group). The list is
+    iterated in declared order; more-specific rules (longer ``sku_match``)
+    should appear before more-general ones.
+    """
+    if not service_name:
         return None
     svc_lower = service_name.lower()
-    sku_lower = sku_name.lower()
+    sku_lower = (sku_name or "").lower()
     for entry in _STATIC_FALLBACK_PRICES:
-        if entry["service_match"].lower() in svc_lower and entry["sku_match"].lower() in sku_lower:
-            return entry
+        if entry["service_match"].lower() not in svc_lower:
+            continue
+        sku_match = entry["sku_match"].lower()
+        if sku_match and sku_match not in sku_lower:
+            continue
+        return entry
     return None
 
 
@@ -645,20 +695,32 @@ class PricingService:
         hours_per_month: float = 730,
         currency_code: str = "USD",
         discount_percentage: float | None = None,
+        usage: dict[str, float] | None = None,
+        product_filter: str | None = None,
     ) -> dict[str, Any]:
         """Estimate monthly costs based on usage.
 
+        v5.4 — accepts an optional ``usage`` dict that lets callers supply
+        workload estimates so non-time-based meters can be projected:
+
+        * ``transactions_per_month`` → applied to per-10K/1M transaction meters
+          (e.g. Key Vault Standard ops, Storage Tables write ops).
+        * ``gb_stored`` → applied to per-GB/month storage-retention meters.
+        * ``gb_transferred`` → applied to per-GB egress meters.
+        * ``seconds_runtime`` → applied to per-second meters.
+
+        Usage is applied to the **primary** meter selected by
+        ``select_primary_meter``. For multi-product services like Storage
+        Account that have separate meters per product (Tables, Blobs, Files,
+        Queues), use ``product_filter`` to narrow the search to a single
+        product, or model each product as a separate ``bulk_estimate`` line
+        item with its own ``usage`` dict.
+
         v5.3 — unit-aware projection. The Azure Retail Prices API frequently
         returns multiple meters per SKU (e.g., ACR Premium has 7: GB/Month,
-        1/Day, 1 Second, …). The previous implementation picked the first hit
-        and multiplied ``retailPrice × 730``, which produced bogus monthly
-        totals when the first meter was a per-GB or per-Day rate.
-
-        v5.3 selects the most likely primary billing meter (Hour > Day >
-        Month > GB-Month > …) and projects to monthly using the meter's
-        actual dimension. Non-time-based meters (GB-Month, transactions)
-        return ``monthly_cost = 0`` with a warning rather than a fabricated
-        number — see ``meter_units.project_monthly_cost``.
+        1/Day, 1 Second, …). Picks the most likely primary billing meter
+        (Hour > Day > Month > GB-Month > …) and projects to monthly using
+        the meter's actual dimension.
         """
         from ..meter_units import (
             MeterDimension,
@@ -671,6 +733,37 @@ class PricingService:
         # is in productName, not skuName.
         original_sku = sku_name
         sku_name = _normalize_sku_for_search(sku_name)
+
+        # v5.4 — Static-fallback check FIRST (not last). Known zero-cost
+        # services (Virtual Network base, Resource Group, Managed Identity)
+        # and un-API'd flat-fee meters (Private DNS Zone, Private Endpoint)
+        # use the static table. Without this, the meter selector picks an
+        # unrelated meter (e.g. "Virtual Network Standard" matched
+        # "Public IP Prefix Standard" at $0.006/hr → bogus $4.38/mo).
+        fallback = _lookup_static_fallback(service_name, original_sku)
+        if fallback is not None:
+            return {
+                "service_name": fallback["service_name"],
+                "sku_name": fallback["sku_name"],
+                "region": region,
+                "product_name": fallback["product_name"],
+                "unit_of_measure": fallback["unit_of_measure"],
+                "meter_dimension": "static_fallback",
+                "currency": currency_code,
+                "on_demand_pricing": {
+                    "hourly_rate": round(fallback["monthly_cost"] / hours_per_month, 6) if hours_per_month else 0.0,
+                    "daily_cost": round(fallback["monthly_cost"] / 30.4375, 2),
+                    "monthly_cost": fallback["monthly_cost"],
+                    "yearly_cost": fallback["monthly_cost"] * 12,
+                },
+                "usage_assumptions": {
+                    "hours_per_month": hours_per_month,
+                    "hours_per_day": round(hours_per_month / 30.44, 2),
+                },
+                "savings_plans": [],
+                "available_meters": [],
+                "projection_warning": (f"Static fallback used: {fallback['note']} (source: {fallback['source']})"),
+            }
 
         # Fetch up to 50 candidate meters so we can heuristically pick the
         # right one (v5.0 only fetched 5 — too few to find the daily flat-fee
@@ -702,34 +795,6 @@ class PricingService:
                     result = alt_result
                     break
 
-        # v5.3 — last-resort static fallback for SKUs the public API doesn't
-        # expose (Private DNS Zone, Private Endpoint base hours).
-        if not result["items"]:
-            fallback = _lookup_static_fallback(service_name, original_sku)
-            if fallback is not None:
-                return {
-                    "service_name": fallback["service_name"],
-                    "sku_name": fallback["sku_name"],
-                    "region": region,
-                    "product_name": fallback["product_name"],
-                    "unit_of_measure": fallback["unit_of_measure"],
-                    "meter_dimension": "static_fallback",
-                    "currency": currency_code,
-                    "on_demand_pricing": {
-                        "hourly_rate": round(fallback["monthly_cost"] / hours_per_month, 6),
-                        "daily_cost": round(fallback["monthly_cost"] / 30.4375, 2),
-                        "monthly_cost": fallback["monthly_cost"],
-                        "yearly_cost": fallback["monthly_cost"] * 12,
-                    },
-                    "usage_assumptions": {
-                        "hours_per_month": hours_per_month,
-                        "hours_per_day": round(hours_per_month / 30.44, 2),
-                    },
-                    "savings_plans": [],
-                    "available_meters": [],
-                    "projection_warning": (f"Static fallback used: {fallback['note']} (source: {fallback['source']})"),
-                }
-
         if not result["items"]:
             return {
                 "error": f"No pricing found for {sku_name} in {region}",
@@ -745,7 +810,17 @@ class PricingService:
             "items"
         ]
 
-        item = select_primary_meter(consumption, requested_sku=sku_name)
+        # v5.4 — narrow to a specific productName when the caller supplied
+        # ``product_filter``. Useful for multi-product services like Storage
+        # Account where the API returns Tables/Blob/Queue/Files meters
+        # under the same skuName and the agent wants only one.
+        if product_filter:
+            pf_lower = product_filter.lower()
+            filtered = [it for it in consumption if pf_lower in (it.get("productName") or "").lower()]
+            if filtered:
+                consumption = filtered
+
+        item = select_primary_meter(consumption, requested_sku=sku_name, usage=usage)
         if item is None:
             return {
                 "error": f"No consumption meter found for {sku_name} in {region}",
@@ -764,7 +839,9 @@ class PricingService:
         else:
             projection_item = item
 
-        monthly_cost, unit, warning = project_monthly_cost(projection_item, hours_per_month=hours_per_month)
+        monthly_cost, unit, warning = project_monthly_cost(
+            projection_item, hours_per_month=hours_per_month, usage=usage
+        )
         # daily_cost / yearly_cost are still rate-based for back-compat with
         # v5.x consumers that read ``hourly_rate`` directly.
         if unit.dimension == MeterDimension.HOUR:
@@ -840,6 +917,9 @@ class PricingService:
             "savings_plans": savings_estimates,
             "available_meters": all_meters,
         }
+
+        if usage:
+            estimate_result["usage_assumptions"]["usage"] = usage
 
         if warning:
             estimate_result["projection_warning"] = warning
