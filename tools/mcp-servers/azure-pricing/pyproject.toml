@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "azure-pricing-mcp"
-version = "5.2.0"
+version = "5.3.0"
 description = "A Model Context Protocol server for querying Azure retail pricing information (independent fork, part of azure-agentic-infraops)."
 readme = "README.md"
 requires-python = ">=3.14"

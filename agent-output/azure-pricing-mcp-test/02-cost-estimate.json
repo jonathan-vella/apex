@@ -1,0 +1,132 @@
+{
+  "status": "PARTIAL",
+  "project_name": "azure-pricing-mcp-test",
+  "region": "swedencentral",
+  "currency": "USD",
+  "monthly_total": 146.03,
+  "yearly_total": 1752.36,
+  "resources": [
+    {
+      "name": "Virtual Network",
+      "service_name": "Virtual Network",
+      "sku": "Standard",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "No per-VNet base charge expected for this design."
+    },
+    {
+      "name": "App Service Plan",
+      "service_name": "Azure App Service",
+      "sku": "S1 (Linux)",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.1,
+      "monthly_cost": 73.0,
+      "notes": "Bulk estimate: Azure App Service Standard Plan, 1 Hour meter, 730 hours/month."
+    },
+    {
+      "name": "Web App",
+      "service_name": "Azure App Service",
+      "sku": "Linux container (on S1 plan)",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "Compute cost included in App Service Plan."
+    },
+    {
+      "name": "Container Registry",
+      "service_name": "Container Registry",
+      "sku": "Premium",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.1,
+      "monthly_cost": 73.0,
+      "notes": "Bulk estimate result used. Assumes baseline Premium registry monthly meter as returned by MCP."
+    },
+    {
+      "name": "Storage Account",
+      "service_name": "Storage Account",
+      "sku": "Standard LRS GPv2",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "Estimate unavailable from MCP for requested SKU filter. Includes Blob + Table (~10 GiB, low TPS) but no validated meter match returned."
+    },
+    {
+      "name": "Key Vault",
+      "service_name": "Key Vault",
+      "sku": "Standard",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.03,
+      "notes": "Price search meter: Operations at $0.03 per 10K. Assumption: ~10K operations/month."
+    },
+    {
+      "name": "Private DNS Zones",
+      "service_name": "Azure DNS",
+      "sku": "Private DNS Zone",
+      "region": "swedencentral",
+      "quantity": 3,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "Estimate unavailable from MCP for requested SKU filter."
+    },
+    {
+      "name": "Private Endpoints",
+      "service_name": "Virtual Network",
+      "sku": "Private Endpoint Standard",
+      "region": "swedencentral",
+      "quantity": 3,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "Estimate unavailable from MCP for requested SKU filter."
+    },
+    {
+      "name": "Log Analytics Workspace",
+      "service_name": "Log Analytics",
+      "sku": "Per-GB Pay-As-You-Go",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "Assumed within included free ingestion (<5 GiB/month). No billable overage modeled."
+    },
+    {
+      "name": "Application Insights",
+      "service_name": "Application Insights",
+      "sku": "Workspace-based",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "Assumed within included free ingestion (<5 GiB/month). No billable overage modeled."
+    }
+  ],
+  "optimization_notes": [
+    "Region comparison skipped as requested (compare_regions=false).",
+    "RI/Savings Plan analysis skipped as requested (include_ri_savings=false).",
+    "Line-item total verified: sum(resources.monthly_cost) = 146.03 USD."
+  ],
+  "savings_status": "NOT_QUANTIFIED",
+  "savings_reason": "Baseline consumption estimate requested; reservation and savings analyses were disabled.",
+  "eligible_strategies": [
+    "Reserved Instances for stable compute",
+    "Savings Plan for committed compute spend",
+    "Right-sizing after production telemetry"
+  ],
+  "data_source": "Azure Pricing MCP",
+  "queried_at": "2026-05-09T00:00:00Z",
+  "confidence": "Low",
+  "unresolved_items": [
+    "Storage Account Standard LRS GPv2 (meter match not returned)",
+    "Private DNS Zone (meter match not returned)",
+    "Private Endpoint Standard (meter match not returned)"
+  ],
+  "mcp_calls_used": 5,
+  "budget_exceeded": false
+}

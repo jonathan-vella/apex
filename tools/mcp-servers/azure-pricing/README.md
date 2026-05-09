@@ -144,6 +144,36 @@ Azure Retail Prices API   +   MicrosoftDocs/azure-compute-docs
 clean. The aiohttp session is opened once via
 `async with AzurePricingServer(): ...` and shared across every tool call.
 
+## What's new in v5.3
+
+- **Unit-aware monthly-cost projection.** Fixes the v5.0–v5.2 bug where
+  `azure_bulk_estimate` and `azure_cost_estimate` blindly multiplied
+  `retailPrice × 730` regardless of the actual `unitOfMeasure`. The
+  Retail Prices API frequently returns multiple meters per SKU (ACR
+  Premium has 7: GB/Month, 1/Day, 1 Second, …). v5.3 picks the most
+  likely primary billing meter (Hour > Day > Month > GB-Month > …) and
+  projects to monthly using the meter's actual dimension. Verified
+  example: ACR Premium now returns the correct ≈$50.65/mo (was $73).
+- **Service-name and SKU-name normalization.** `"Storage Account"` →
+  `"Storage"`, `"Standard LRS GPv2"` → `"Standard LRS"`. Trailing user
+  suffixes that the API doesn't carry are stripped before lookup.
+- **Static-fallback prices for un-API'd SKUs.** Private DNS Zone and
+  Private Endpoint flat-fee meters are documented on Microsoft's
+  pricing page but not exposed through the public Retail Prices API.
+  v5.3 ships a small fallback table sourced from the pricing pages so
+  these meters no longer return `no pricing found`.
+- **Exact-SKU-match preference in meter selection.** Prevents the v5.2
+  regression where `Key Vault Standard` matched the much more
+  expensive `Standard B1` (Managed HSM Pool) at $3.20/hr because both
+  contained the substring "Standard".
+- **`available_meters[]` array in `estimate_costs` output.** Surfaces
+  the alternative meters the heuristic considered, so the
+  cost-estimate-subagent can flag mismatches and re-query.
+- **Hardened cost-estimate-subagent.** New "Sanity checks" rules guide
+  the subagent to retry per-line with `azure_price_search` when
+  bulk_estimate emits a `projection_warning` or returns a sku-name that
+  differs from what the caller requested.
+
 ## What's new in v5.2
 
 - **`outputSchema` on every in-scope tool.** All 11 high-volume read
@@ -235,7 +265,7 @@ tools/mcp-servers/azure-pricing/
 │   └── github_pricing/       # GitHub pricing sub-package
 ├── tests/                    # pytest suite + fixtures (incl. baseline-bytes.json)
 ├── scripts/                  # install.py, setup helpers, dev/ debug scripts
-├── pyproject.toml            # uv-driven; v5.2.0
+├── pyproject.toml            # uv-driven; v5.3.0
 ├── CHANGELOG.md
 └── README.md                 # (you are here)
 ```

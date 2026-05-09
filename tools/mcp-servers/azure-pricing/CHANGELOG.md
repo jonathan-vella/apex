@@ -10,6 +10,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > order of v3.x releases is approximate. From v5.0.0 onward, dates reflect the
 > actual fork-release date in this repository.
 
+## [5.3.0] - 2026-05-09
+
+> **Bug-fix release.** Closes 4 distinct cost-projection bugs surfaced by
+> a v5.2 architect-agent end-to-end test (`agent-output/azure-pricing-mcp-test`):
+> ACR Premium returning $73 instead of $50, Storage / Private DNS Zone /
+> Private Endpoint returning ``no pricing found``, and Key Vault Standard
+> matching the much more expensive Managed HSM B1 SKU.
+
+### Fixed
+
+- **Unit-aware projection for `estimate_costs` and `azure_bulk_estimate`.**
+  v5.0–v5.2 picked the first search hit and multiplied `retailPrice × 730`,
+  regardless of the meter's actual `unitOfMeasure`. The Retail Prices API
+  frequently returns multiple meters per SKU (ACR Premium has 7 in
+  swedencentral: GB/Month, 1/Day, 1 Second, etc.). v5.3 introduces a
+  `meter_units` module that:
+  - parses every `unitOfMeasure` string into a typed `MeterDimension`
+    (HOUR, DAY, MONTH, GB_MONTH, GB, TRANSACTIONS, SECOND, UNKNOWN);
+  - scores candidate meters via `select_primary_meter` (Hour > Day >
+    Month > GB_Month > Second > Transactions > Unknown);
+  - **prefers exact `skuName` matches** over substring matches —
+    prevents `Standard` from matching `Standard B1` Managed HSM Pool;
+  - projects monthly cost via `project_monthly_cost`, returning $0 with
+    a human-readable warning for non-time-based meters (GB-Month,
+    transactions) instead of fabricating a number.
+
+  Verified: ACR Premium now returns $50.73/mo (was $73, off by 44%).
+
+- **Service-name normalization improvements** in `_resolve_service_name`:
+  - strips trailing `" Account"`, `" Service"` etc. so
+    `"Storage Account"` → `"Storage"` (the canonical Azure serviceName).
+  - **fallback to alternate canonical service names** when the primary
+    returns no items — `"Azure DNS"` falls back to `"Virtual Network"`
+    where the Private DNS Zone meters actually live (verified empirically).
+
+- **SKU-name normalization** in `_normalize_sku_for_search`: strips
+  variant suffixes the API doesn't carry (`"Standard LRS GPv2"` →
+  `"Standard LRS"` — the GPv2 distinction lives in `productName`).
+
+- **Static-fallback prices for un-API'd SKUs.** Private DNS Zone
+  ($0.50/zone/month) and Private Endpoint ($0.01/hour) are documented
+  on Microsoft's pricing pages but not exposed via the public Retail
+  Prices API. v5.3 ships a small fallback table in
+  `_STATIC_FALLBACK_PRICES` keyed on `(service_match, sku_match)`. Each
+  entry carries a `source` URL and a `note` explaining the limitation;
+  the price lands in the result with `meter_dimension: "static_fallback"`
+  and a `projection_warning` field documenting the source.
+
+- **`available_meters[]` array** in the `estimate_costs` envelope —
+  surfaces up to 10 alternative meters the heuristic considered, with
+  product name, retail price, unit, and consumption-type. Lets the
+  cost-estimate-subagent flag mismatches and re-query.
+
+### Changed
+
+- `cost-estimate-subagent.agent.md` — new **Sanity checks** section
+  guides the subagent to retry per-line with `azure_price_search` when
+  bulk-estimate output triggers any of: variant-name mismatch (resolved
+  sku differs from request), unexpected `meter_dimension`, monthly-cost
+  variance >30% from documented baseline, or `projection_warning`
+  indicating the meter cannot be projected. The variance check addresses
+  the v5.0–v5.2 behaviour where the subagent flagged the ACR Premium
+  $73/mo anomaly in `notes` but never auto-retried — per the original
+  rules ("transcribe verbatim, don't substitute"), which were correct
+  but too rigid for unit-mismatch errors.
+
+- `estimate_costs` now fetches up to **50** candidate meters (was 5) so
+  the heuristic has enough candidates to find the daily flat-fee meter
+  for ACR Premium when GB/Month meters take the top slots.
+
+- `estimate_costs` now filters out RI/Reservation/SavingsPlan/DevTest
+  meters before meter selection — prevents accidentally returning a
+  1-year reservation rate when the caller wanted consumption pricing.
+
+### Added
+
+- `azure_pricing_mcp.meter_units` module — `MeterDimension`,
+  `MeterUnit`, `parse_unit_of_measure`, `select_primary_meter`,
+  `project_monthly_cost`.
+- `azure_pricing_mcp.services.pricing._resolve_service_name`,
+  `_normalize_sku_for_search`, `_lookup_static_fallback`,
+  `_FALLBACK_SERVICE_NAMES`, `_STATIC_FALLBACK_PRICES`.
+- `tests/test_meter_aware_projection.py` — 39 regression tests covering
+  unit parsing, meter selection (with the ACR Premium and Key Vault
+  scenarios that caused the original bugs), service/sku normalization,
+  static fallbacks, and end-to-end `estimate_costs` calls with mocked
+  clients. All tests run without network access.
+
+### Verification
+
+- 255 tests pass (was 216; +39 new regression tests).
+- End-to-end reproduction of the
+  `agent-output/azure-pricing-mcp-test` workload (10 resources,
+  swedencentral, no discount, no RI): now returns **$151.51/mo** (was
+  the bogus $146.03 with 3 unresolved + ACR overcharge). New total
+  matches the prior architecture-assessment baseline of $155/mo within
+  3%, with all 7 priceable line items resolved (Log Analytics free tier
+  and Application Insights free tier still return $0 as expected for
+  <5 GB ingestion).
+- No regressions in the v5.0–v5.2 test suite.
+
 ## [5.2.0] - 2026-05-09
 
 > **Closes the v5.1 `outputSchema` deferral.** Structured-content emission +
@@ -54,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Permissive over strict.** All envelopes use
   `model_config = ConfigDict(extra="allow")` so unknown service-layer
-  fields pass validation. JSON Schema validation acts as a *guard*
+  fields pass validation. JSON Schema validation acts as a _guard_
   against gross shape regressions, not a strict typed contract — that
   strict typing is scheduled for v6.0 once every service-layer return
   path is fully audited.

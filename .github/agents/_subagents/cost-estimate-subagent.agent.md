@@ -145,6 +145,44 @@ If `azure_bulk_estimate` returns no pricing data for a SKU, try the SKU with
 entry describing what was tried. Don't substitute approximations or fabricate
 prices — surface unknowns explicitly in `unresolved_items`.
 
+## Sanity checks (v5.3)
+
+After every `azure_bulk_estimate` call, inspect the structured response for
+the following anomalies and **retry per-line with `azure_price_search`**
+when triggered:
+
+1. **Variant-name mismatch**. The MCP returns the **resolved** `sku_name`
+   in each `line_items[*].sku_name`. If the resolved SKU differs from what
+   you sent (e.g. you sent `"Standard"` and got back `"Standard B1"`), the
+   server may have selected a more expensive variant. Re-query with a more
+   specific SKU string.
+
+2. **Unit-of-measure unexpected for service type**. Compute services
+   (App Service, VMs, AKS) should resolve to `meter_dimension: "hour"` or
+   `"day"`. Storage / DNS / endpoints often resolve to `"gb_month"`,
+   `"static_fallback"`, or come back with `monthly_cost: 0` and a
+   `projection_warning` field. **A `projection_warning` is informational, not
+   an error** — but if the warning indicates the meter cannot be projected
+   (per-GB/month, per-transaction, per-second), record the line as
+   `Estimate unavailable` and supply a usage estimate via
+   `azure_cost_estimate` with the relevant volume.
+
+3. **Cost variance vs documented baseline**. If a `monthly_cost` differs by
+   >30% from the prior architecture-assessment estimate (when supplied) or
+   from the published Microsoft pricing-page baseline, flag the line for
+   re-query. The MCP exposes `available_meters[]` in the structured response
+   so you can inspect alternative meters before retrying.
+
+4. **`projection_warning: "static fallback"`**. Treat as a known-good price
+   from the v5.3 static-fallback table (Private DNS Zone, Private Endpoint).
+   No retry needed; the warning text documents the source.
+
+When a retry is required, call `azure_price_search` with `validate_sku: false`
+to surface every meter, then pick the one whose `unitOfMeasure` matches the
+expected billing dimension. **Document the retry in the line-item `notes`**
+so the parent agent (and the audit trail) sees why the value differs from
+the bulk-estimate output.
+
 | Tool                     | When to use                                                            | Max calls |
 | ------------------------ | ---------------------------------------------------------------------- | --------- |
 | `azure_bulk_estimate`    | Default — all resources in ONE call with `resources` array             | **1**     |
