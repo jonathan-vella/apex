@@ -213,19 +213,27 @@ if [ -d "$MCP_DIR" ]; then
     # site-packages live under lib/python3.X/. Rebuild when version drifts
     # or when ``python -m pip`` cannot import (covers both broken-pip and
     # missing-venv cases).
-    SYS_PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    #
+    # Probe is fault-tolerant: ``|| echo ""`` keeps ``set -e`` from killing
+    # the whole post-create run if python3 is temporarily unavailable. The
+    # version comparison below gates on both values being non-empty.
+    SYS_PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "")
     VENV_PY_VER=""
     if [ -f "$MCP_DIR/.venv/pyvenv.cfg" ]; then
         VENV_PY_VER=$(grep -E '^version' "$MCP_DIR/.venv/pyvenv.cfg" 2>/dev/null \
             | head -1 | awk '{print $3}' | cut -d'.' -f1-2)
     fi
     REBUILD_VENV=0
+    REBUILD_REASON=""
     if [ ! -f "$MCP_DIR/.venv/bin/python" ]; then
         REBUILD_VENV=1
-    elif [ -n "$VENV_PY_VER" ] && [ "$VENV_PY_VER" != "$SYS_PY_VER" ]; then
+        REBUILD_REASON="missing venv"
+    elif [ -n "$VENV_PY_VER" ] && [ -n "$SYS_PY_VER" ] && [ "$VENV_PY_VER" != "$SYS_PY_VER" ]; then
         REBUILD_VENV=1
+        REBUILD_REASON="Python ${VENV_PY_VER} → ${SYS_PY_VER} drift"
     elif ! "$MCP_DIR/.venv/bin/python" -m pip --version >/dev/null 2>&1; then
         REBUILD_VENV=1
+        REBUILD_REASON="broken pip"
     fi
     if [ "$REBUILD_VENV" -eq 1 ]; then
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
@@ -241,7 +249,11 @@ if [ -d "$MCP_DIR" ]; then
     cd - > /dev/null
 
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then
-        step_done "MCP server installed & health check passed"
+        if [ -n "$REBUILD_REASON" ]; then
+            step_done "MCP server installed & health check passed (rebuilt: ${REBUILD_REASON})"
+        else
+            step_done "MCP server installed & health check passed"
+        fi
     else
         step_warn "MCP server installed but health check failed"
     fi
