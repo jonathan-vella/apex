@@ -10,6 +10,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > order of v3.x releases is approximate. From v5.0.0 onward, dates reflect the
 > actual fork-release date in this repository.
 
+## [5.1.0] - 2026-05-09
+
+> **Closes the v5.0 deferral list.** Phases 4.14, 4.15, and 4.17 from the
+> original modernization plan — previously deferred — landed in v5.1 in a
+> single follow-up release on the same `feat/azure-pricing-mcp-v5` branch.
+
+### Changed
+
+- **`models.py` migrated from `@dataclass` to `pydantic.BaseModel`** (Phase 4.14).
+  The 6 internal models (`PricingItem`, `SKUInfo`, `RegionRecommendation`,
+  `CostEstimate`, `SavingsPlanEstimate`, `RIComparison`,
+  `VMSeriesRetirementInfo`) now derive from a shared `_Model` base with
+  `model_config = ConfigDict(populate_by_name=True, extra="ignore")`. This
+  unblocks future MCP `outputSchema` derivation (every model can emit JSON
+  Schema via `BaseModel.model_json_schema()`) and structured-content
+  serialization via `BaseModel.model_dump(mode="json")`.
+- **Retirement disk cache** (Phase 3.8) updated to use pydantic
+  `model_dump(mode="json")` and `model_validate()` instead of
+  `dataclasses.asdict()` / `dataclasses.fields()`. Older v5.0 disk-cache
+  files re-hydrate cleanly thanks to `extra="ignore"`.
+- **Admin-tier tools extracted to `azure_pricing_mcp.admin/`** (Phase 4.17):
+  `spot_eviction_rates`, `spot_price_history`, `simulate_eviction`,
+  `find_orphaned_resources` now live under `src/azure_pricing_mcp/admin/`
+  with their own `tools.py`, `handlers.py`, and `__init__.py`. The
+  package's `__init__` performs an **import-time probe** of `azure.identity`
+  + `azure.core.credentials`; failure raises `ImportError` and the parent
+  server quietly skips admin-tool registration with a logged hint:
+  `"[admin] extras not installed — admin tools unavailable. Install with:
+  pip install 'azure-pricing-mcp[admin]'"`. Importers that miss the extras
+  but try to invoke an admin tool anyway get a friendly install hint
+  response (the `_admin_unavailable` fallback handler).
+  - **Probe scope correction** vs the original plan: the v5 implementation
+    talks to Azure Resource Graph + Compute + Cost Management via raw
+    aiohttp REST calls, not via the `azure-mgmt-*` SDKs. The probe was
+    narrowed accordingly (`azure.identity` + `azure.core.credentials`)
+    to match what the code actually imports.
+- **Tool dispatch ladder eliminated** (Phase 4.15) — the v5.0
+  `if name == "x" / elif` chain in `server.py::_register_tool_handlers`
+  was replaced with an O(1) dispatch dict. Adding a new tool no longer
+  requires editing a routing branch; the dict is built once at
+  registration time and looks up the handler method by name.
+- **aiohttp session lifespan ownership** (Phase 4.15 sub-goal) was
+  already in place via `AzurePricingServer.__aenter__/__aexit__` and the
+  `async with pricing_server:` pattern in `main()`. v5.1 documents this
+  explicitly via an architecture comment in `server.py`.
+
+### Phase-4 design clarifications
+
+- **FastMCP migration** — the v5.0 plan called for a switch to
+  `mcp.server.fastmcp.FastMCP` with `@mcp.tool()` decorators. After
+  evaluating the `FastMCP.add_tool()` API, we found it derives
+  `inputSchema` from function signatures only, while we maintain rich
+  hand-curated `inputSchema` definitions in `tools.py` (with shared
+  fragments, MCP annotations, response-format injection, etc.). A literal
+  FastMCP migration would force re-deriving every schema from a function
+  signature, forcing the test-suite rewrite the plan flagged as risk E3.
+  v5.1 instead delivers the **stated motivations** for the migration
+  (kill the ladder + lifespan-owned session) without the structural
+  rewrite. A full FastMCP rewrite remains an option for v6.0 if MCP-side
+  ergonomics ever justify the cost.
+- **`outputSchema` attachment** is not yet shipped: per the MCP spec,
+  `outputSchema` describes the structured data a tool returns alongside
+  textContent. Our handlers return `TextContent` only; attaching schemas
+  without a structured-content payload would advertise a contract we
+  don't fulfil. The pydantic migration in this release lays the
+  groundwork — every formatter input is now a pydantic-shaped dict with
+  derivable JSON Schema. Emitting structured content + populating
+  `outputSchema` is scheduled for v5.2.
+
+### Internal
+
+- New file: `src/azure_pricing_mcp/admin/__init__.py` — admin import probe.
+- New file: `src/azure_pricing_mcp/admin/tools.py` — admin tool definitions.
+- New file: `src/azure_pricing_mcp/admin/handlers.py` — admin handler mixin.
+- `handlers.py::ToolHandlers` now mixes in `AdminHandlers` conditionally
+  (`_AdminHandlers` is the real mixin when `[admin]` is installed, or a
+  no-op fallback that emits friendly install hints otherwise).
+- `tools.py` now appends `get_admin_tool_definitions()` to the canonical
+  list when the probe succeeds; the spot/orphaned/simulate-eviction tool
+  definitions were removed from the inline list.
+- Verification: 208 tests pass (unchanged from v5.0); aggregate compact
+  bench unchanged at 45.9% of v4 baseline.
+
 ## [5.0.0] - 2026-05-09
 
 > **Independent fork.** This release marks the v5.0 transition of the server
@@ -41,17 +124,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `service_hint`. Compact-mode responses now prepend
   `[deprecated v5.0; use azure_sku_discovery]`. **Removal scheduled for v6.0.**
 - **`[azure]` extras renamed → `[admin]`.** The Azure-management-SDK extras
-  (azure-identity + azure-mgmt-*) are now installed via `pip install '.[admin]'`.
+  (azure-identity + azure-mgmt-\*) are now installed via `pip install '.[admin]'`.
   The legacy `[azure]` name remains as a deprecation alias for one release and
   will be removed in v6.0.
 - **HTTP transport removed.** v4 shipped an optional Streamable HTTP transport
   intended for Docker delivery. v5.0 drops both: the `--transport http`,
   `--host`, and `--port` CLI flags are gone; `mcp.server.streamable_http_manager`
-  + `starlette` + `uvicorn` are no longer runtime dependencies. Every
-  consumer in this repo uses **stdio** (per `.vscode/mcp.json`). The
-  legacy `mcp.server.sse.SseServerTransport` was already deprecated
-  upstream. To re-add a remote transport later, plumb a Streamable HTTP
-  path through `mcp.server.streamable_http`.
+  - `starlette` + `uvicorn` are no longer runtime dependencies. Every
+    consumer in this repo uses **stdio** (per `.vscode/mcp.json`). The
+    legacy `mcp.server.sse.SseServerTransport` was already deprecated
+    upstream. To re-add a remote transport later, plumb a Streamable HTTP
+    path through `mcp.server.streamable_http`.
 - **Dockerfile removed.** The `Dockerfile`, `.dockerignore`,
   `scripts/healthcheck.py`, and `scripts/docker-build.{sh,ps1}` helpers
   are gone. The server is delivered as a Python package installed into
@@ -92,7 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `${XDG_CACHE_HOME:-~/.cache}/azure-pricing-mcp/retirement.json`. Cold starts
   no longer pay the GitHub round-trip for the MicrosoftDocs retirement
   markdown when a cached file exists within `RETIREMENT_CACHE_TTL` (24 h).
-- **Multi-stage Dockerfile** — *removed in this same release.* (See the
+- **Multi-stage Dockerfile** — _removed in this same release._ (See the
   Breaking section above.) The plan called for a multi-stage `uv` builder,
   but follow-up review concluded no consumer needed the container delivery
   vehicle, so the Dockerfile was deleted along with the HTTP transport that
@@ -166,27 +249,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase-0b token baselines captured at `tests/fixtures/baseline-bytes.json`.
 - Phase-0d consumer grep at `tests/fixtures/consumer-grep.txt`.
 
-### Deferred to v5.1
+### Deferred to v5.1 (shipped in v5.1.0 — see entry above)
 
-The following Phase-4 plan items are tightly coupled (each blocks the next)
-and require a full test-suite rewrite. They land in v5.1 once that work is
-sequenced:
+The following Phase-4 plan items were originally deferred to a v5.1 release.
+They all shipped on the same `feat/azure-pricing-mcp-v5` branch as v5.1.0
+(see the v5.1.0 entry at the top of this file for details):
 
-- **Phase 4.14** — Migrate the dataclasses in `models.py` for the 11
-  in-scope tools to `pydantic.BaseModel` to populate MCP `outputSchema`
-  fields automatically.
-- **Phase 4.15** — Rewrite `server.py` with `mcp.server.fastmcp.FastMCP`
-  decorators + a `lifespan` async context manager that owns the shared
-  `aiohttp.ClientSession`. The current `if name == "x":` ladder
-  (~70 lines) collapses into one decorated handler per tool.
-- **Phase 4.17** — Extract admin-tier tools (`spot_*`, `simulate_eviction`,
-  `find_orphaned_resources`) into a new `azure_pricing_mcp/admin/`
-  package and gate registration via a multi-import probe (`azure.identity`
-  + `azure.mgmt.resourcegraph` + `azure.mgmt.compute` +
-  `azure.mgmt.costmanagement`). Today the admin SDKs are still imported
-  by the existing `services/` modules whether or not the user installed
-  `[admin]` extras; v5.0 ships the rename + deprecation alias of the
-  extras themselves but keeps the import structure unchanged.
+- **Phase 4.14** — pydantic migration of `models.py` (DONE in v5.1).
+- **Phase 4.15** — eliminate the `if name == "x":` dispatch ladder + verify
+  lifespan-owned aiohttp session (DONE in v5.1; the full FastMCP decorator
+  rewrite was evaluated and deferred to v6.0 — see v5.1 entry for the
+  design rationale).
+- **Phase 4.17** — extract `admin/` package with multi-import probe gating
+  (DONE in v5.1; probe scope corrected to match what the code actually
+  imports — `azure.identity` + `azure.core.credentials` rather than the
+  full `azure-mgmt-*` set).
 
 ### No-op (plan item retired)
 
@@ -342,6 +419,7 @@ sequenced:
 ### ⚠️ Breaking Changes
 
 #### Entry Point Changed
+
 - **Console script entry point changed from `main` to `run`**
   - The `run()` function is now the synchronous entry point that wraps `asyncio.run(main())`
   - Existing console script configurations (`azure-pricing-mcp`) will continue to work
@@ -349,22 +427,25 @@ sequenced:
   - This change improves the structure by clearly separating sync/async entry points
 
 #### `create_server()` Return Value
+
 - **`create_server()` now returns a tuple `(Server, AzurePricingServer)` by default**
   - This change exposes the pricing server for testing and advanced use cases
   - Use `create_server(return_pricing_server=False)` for the previous behavior (returns only `Server`)
   - The `AzurePricingServer` instance is needed for lifecycle management
 
 #### Session Lifecycle Management
+
 - **HTTP session is now managed at the server level, not per-tool-call**
   - Previously: Each tool call created and destroyed a new HTTP session (inefficient)
   - Now: A single HTTP session is created at server startup and reused for all tool calls
   - This significantly improves performance and reduces overhead
   - When using `AzurePricingServer` directly, you must manage its lifecycle:
+
     ```python
     # Option 1: Context manager (recommended)
     async with AzurePricingServer() as pricing_server:
         result = await pricing_server.tool_handlers.handle_price_search(...)
-    
+
     # Option 2: Manual lifecycle management
     pricing_server = AzurePricingServer()
     await pricing_server.initialize()
@@ -411,18 +492,20 @@ sequenced:
 ### Migration Guide
 
 #### For Console Script Users
+
 No changes required. The `azure-pricing-mcp` command continues to work.
 
 #### For Library Users
 
 1. **If you call `create_server()`:**
+
    ```python
    # Old (v2.x)
    server = create_server()
-   
+
    # New (v3.0) - if you don't need pricing_server
    server = create_server(return_pricing_server=False)
-   
+
    # New (v3.0) - if you need pricing_server for testing
    server, pricing_server = create_server()
    ```

@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import re
-from dataclasses import asdict, fields, is_dataclass
 from datetime import datetime
 from typing import Any
 
@@ -180,12 +179,11 @@ class RetirementService:
                 return None
             data: dict[str, VMSeriesRetirementInfo] = {}
             for key, raw in payload["entries"].items():
-                # Re-hydrate dataclass; older payloads may carry extra fields.
-                allowed = {f.name for f in fields(VMSeriesRetirementInfo)}
-                clean = {k: v for k, v in raw.items() if k in allowed}
-                if "status" in clean and isinstance(clean["status"], str):
-                    clean["status"] = RetirementStatus(clean["status"])
-                data[key] = VMSeriesRetirementInfo(**clean)
+                # pydantic ``extra='ignore'`` silently drops unknown fields
+                # (e.g. older payloads carrying retired columns).
+                if "status" in raw and isinstance(raw["status"], str):
+                    raw = {**raw, "status": RetirementStatus(raw["status"])}
+                data[key] = VMSeriesRetirementInfo.model_validate(raw)
             # Hydrate in-memory cache so subsequent calls hit it directly.
             self._cache_time = cached_at
             return data
@@ -205,8 +203,9 @@ class RetirementService:
                 "ttl_seconds": int(RETIREMENT_CACHE_TTL.total_seconds()),
                 "entries": {
                     key: {
-                        **(asdict(info) if is_dataclass(info) else dict(info)),
-                        "status": info.status.value if hasattr(info.status, "value") else str(info.status),
+                        # ``mode='json'`` serialises the RetirementStatus enum to
+                        # its string value; pydantic also handles datetimes etc.
+                        **info.model_dump(mode="json"),
                     }
                     for key, info in data.items()
                 },

@@ -13,23 +13,71 @@ from .formatters import (
     format_cost_estimate_response,
     format_customer_discount_response,
     format_discover_skus_response,
-    format_orphaned_resources_response,
     format_price_compare_response,
     format_price_search_response,
     format_ptu_sizing_response,
     format_region_recommend_response,
     format_ri_pricing_response,
-    format_simulate_eviction_response,
     format_sku_discovery_response,
-    format_spot_eviction_rates_response,
-    format_spot_price_history_response,
 )
 from .github_pricing.handlers import GitHubPricingHandlers
 from .response_format import DEFAULT_RESPONSE_FORMAT, ResponseFormat, coerce_response_format
-from .services import BulkEstimateService, DatabricksService, PricingService, PTUService, SKUService, SpotService
-from .services.orphaned import OrphanedResourcesService
+from .services import BulkEstimateService, DatabricksService, PricingService, PTUService, SKUService
+
+# Phase 4.17 — admin-tier handlers (spot/simulate/find_orphaned). Composed in
+# only when the [admin] extras are installed (probe in admin/__init__.py).
+try:
+    from .admin.handlers import AdminHandlers as _AdminHandlers
+
+    _ADMIN_OK = True
+    _ADMIN_IMPORT_ERROR: str | None = None
+except ImportError as _exc:
+    _ADMIN_OK = False
+    _ADMIN_IMPORT_ERROR = str(_exc)
+
+    class _AdminHandlers:  # type: ignore[no-redef]
+        """No-op fallback when [admin] extras are missing.
+
+        Tool registration in ``server.py``/``tools.py`` already filters admin
+        tools out of ``list_tools`` when the probe fails, so these methods
+        should never be invoked in practice — but provide a friendly error
+        path just in case (e.g. an old client cached the v4 tool list).
+        """
+
+        async def handle_spot_eviction_rates(self, arguments: dict[str, Any]) -> list[TextContent]:
+            return _admin_unavailable("spot_eviction_rates")
+
+        async def handle_spot_price_history(self, arguments: dict[str, Any]) -> list[TextContent]:
+            return _admin_unavailable("spot_price_history")
+
+        async def handle_simulate_eviction(self, arguments: dict[str, Any]) -> list[TextContent]:
+            return _admin_unavailable("simulate_eviction")
+
+        async def handle_find_orphaned_resources(self, arguments: dict[str, Any]) -> list[TextContent]:
+            return _admin_unavailable("find_orphaned_resources")
+
+
+def _admin_unavailable(tool_name: str) -> list[TextContent]:
+    """Friendly response when an admin-tier tool is invoked without [admin] extras."""
+    msg = (
+        f"❌ Tool `{tool_name}` requires the `[admin]` extras "
+        "(azure-identity + azure-mgmt-* SDKs).\n\n"
+        "Install with: `pip install 'azure-pricing-mcp[admin]'`"
+    )
+    if _ADMIN_IMPORT_ERROR:
+        msg += f"\n\nDetails: {_ADMIN_IMPORT_ERROR}"
+    return [TextContent(type="text", text=msg)]
+
 
 logger = logging.getLogger(__name__)
+
+if not _ADMIN_OK:
+    logger.info(
+        "[admin] extras not installed — admin tools (spot/simulate_eviction/"
+        "find_orphaned_resources) unavailable. Install with: "
+        "pip install 'azure-pricing-mcp[admin]'. (%s)",
+        _ADMIN_IMPORT_ERROR,
+    )
 
 
 def _pop_response_format(arguments: dict[str, Any]) -> ResponseFormat:
@@ -42,15 +90,21 @@ def _pop_response_format(arguments: dict[str, Any]) -> ResponseFormat:
     return coerce_response_format(raw)
 
 
-class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers):
-    """Handlers for MCP tool calls."""
+class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers, _AdminHandlers):
+    """Handlers for MCP tool calls.
+
+    v5.1 — admin-tier handlers (spot, simulate_eviction, find_orphaned_resources)
+    are composed in via the ``_AdminHandlers`` mixin **only when** the
+    ``[admin]`` extras are installed. Otherwise a fallback mixin emits a
+    friendly install hint per call.
+    """
 
     def __init__(
         self,
         pricing_service: PricingService,
         sku_service: SKUService,
-        spot_service: SpotService | None = None,
-        orphaned_service: OrphanedResourcesService | None = None,
+        spot_service: Any | None = None,  # SpotService when [admin] is installed
+        orphaned_service: Any | None = None,  # OrphanedResourcesService when [admin] is installed
         databricks_service: DatabricksService | None = None,
         bulk_service: BulkEstimateService | None = None,
     ) -> None:
@@ -235,18 +289,6 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers):
         response_text = format_ri_pricing_response(result, fmt)
         return [TextContent(type="text", text=response_text)]
 
-    def _get_spot_service(self) -> SpotService:
-        """Get or create the SpotService (lazy initialization)."""
-        if self._spot_service is None:
-            self._spot_service = SpotService()
-        return self._spot_service
-
-    def _get_orphaned_service(self) -> OrphanedResourcesService:
-        """Get or create the OrphanedResourcesService (lazy initialization)."""
-        if self._orphaned_service is None:
-            self._orphaned_service = OrphanedResourcesService()
-        return self._orphaned_service
-
     def _get_ptu_service(self) -> PTUService:
         """Get or create the PTUService (lazy initialization)."""
         if self._ptu_service is None:
@@ -254,47 +296,6 @@ class ToolHandlers(DatabricksHandlers, GitHubPricingHandlers):
             client = getattr(self._pricing_service, "_client", None)
             self._ptu_service = PTUService(client=client)
         return self._ptu_service
-
-    async def handle_spot_eviction_rates(self, arguments: dict[str, Any]) -> list[TextContent]:
-        """Handle spot_eviction_rates tool calls."""
-        spot_service = self._get_spot_service()
-        result = await spot_service.get_eviction_rates(
-            skus=arguments["skus"],
-            locations=arguments["locations"],
-        )
-        response_text = format_spot_eviction_rates_response(result)
-        return [TextContent(type="text", text=response_text)]
-
-    async def handle_spot_price_history(self, arguments: dict[str, Any]) -> list[TextContent]:
-        """Handle spot_price_history tool calls."""
-        spot_service = self._get_spot_service()
-        result = await spot_service.get_price_history(
-            sku=arguments["sku"],
-            location=arguments["location"],
-            os_type=arguments.get("os_type", "linux"),
-        )
-        response_text = format_spot_price_history_response(result)
-        return [TextContent(type="text", text=response_text)]
-
-    async def handle_simulate_eviction(self, arguments: dict[str, Any]) -> list[TextContent]:
-        """Handle simulate_eviction tool calls."""
-        spot_service = self._get_spot_service()
-        result = await spot_service.simulate_eviction(
-            vm_resource_id=arguments["vm_resource_id"],
-        )
-        response_text = format_simulate_eviction_response(result)
-        return [TextContent(type="text", text=response_text)]
-
-    async def handle_find_orphaned_resources(self, arguments: dict[str, Any]) -> list[TextContent]:
-        """Handle find_orphaned_resources tool calls."""
-        fmt = _pop_response_format(arguments)
-        orphaned_service = self._get_orphaned_service()
-        result = await orphaned_service.find_orphaned_resources(
-            days=arguments.get("days", 60),
-            all_subscriptions=arguments.get("all_subscriptions", True),
-        )
-        response_text = format_orphaned_resources_response(result, fmt)
-        return [TextContent(type="text", text=response_text)]
 
     async def handle_ptu_sizing(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle azure_ptu_sizing tool calls."""

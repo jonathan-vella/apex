@@ -1,13 +1,22 @@
-"""Domain models and type definitions for Azure Pricing MCP Server."""
+"""Domain models and type definitions for Azure Pricing MCP Server.
+
+v5.1 — migrated from ``@dataclass`` to ``pydantic.BaseModel`` so FastMCP can
+auto-derive ``outputSchema`` JSON Schema from the type annotations. The class
+names and public fields are preserved for back-compat with anything that
+constructed these models positionally.
+
+Tool-output envelope models live in :mod:`azure_pricing_mcp.schemas`.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field
 
-class RetirementStatus(Enum):
+
+class RetirementStatus(StrEnum):
     """VM series retirement status levels."""
 
     CURRENT = "current"  # Fully supported, not deprecated
@@ -16,8 +25,18 @@ class RetirementStatus(Enum):
     RETIRED = "retired"  # No longer available
 
 
-@dataclass
-class VMSeriesRetirementInfo:
+class _Model(BaseModel):
+    """Base for our domain models.
+
+    ``populate_by_name=True`` lets callers construct via either the field name
+    or its alias. ``extra='ignore'`` silently drops unknown keys so re-hydrating
+    older cached payloads doesn't fail when a new field is added.
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
+
+class VMSeriesRetirementInfo(_Model):
     """Information about a VM series retirement status."""
 
     series_name: str
@@ -27,24 +46,23 @@ class VMSeriesRetirementInfo:
     migration_guide_url: str | None = None
 
 
-@dataclass
-class PricingItem:
+class PricingItem(_Model):
     """Represents a single pricing item from Azure API."""
 
-    service_name: str
-    product_name: str
-    sku_name: str
-    arm_region_name: str
-    location: str
-    retail_price: float
-    unit_of_measure: str
-    price_type: str
+    service_name: str = ""
+    product_name: str = ""
+    sku_name: str = ""
+    arm_region_name: str = ""
+    location: str = ""
+    retail_price: float = 0.0
+    unit_of_measure: str = ""
+    price_type: str = ""
     savings_plan: list[dict[str, Any]] | None = None
     original_price: float | None = None
 
     @classmethod
     def from_api_response(cls, item: dict[str, Any]) -> PricingItem:
-        """Create PricingItem from API response dictionary."""
+        """Create PricingItem from an Azure Retail Prices API response dict."""
         return cls(
             service_name=item.get("serviceName", ""),
             product_name=item.get("productName", ""),
@@ -59,20 +77,18 @@ class PricingItem:
         )
 
 
-@dataclass
-class SKUInfo:
+class SKUInfo(_Model):
     """Information about a specific SKU."""
 
     sku_name: str
-    arm_sku_name: str | None
+    arm_sku_name: str | None = None
     product_name: str
     min_price: float
     sample_unit: str
-    regions: list[str]
+    regions: list[str] = Field(default_factory=list)
 
 
-@dataclass
-class RegionRecommendation:
+class RegionRecommendation(_Model):
     """Recommendation for a region with pricing info."""
 
     region: str
@@ -84,8 +100,7 @@ class RegionRecommendation:
     original_price: float | None = None
 
 
-@dataclass
-class CostEstimate:
+class CostEstimate(_Model):
     """Cost estimate for a service."""
 
     hourly_rate: float
@@ -98,8 +113,7 @@ class CostEstimate:
     original_yearly_cost: float | None = None
 
 
-@dataclass
-class SavingsPlanEstimate:
+class SavingsPlanEstimate(_Model):
     """Savings plan cost estimate."""
 
     term: str
@@ -113,8 +127,7 @@ class SavingsPlanEstimate:
     original_yearly_cost: float | None = None
 
 
-@dataclass
-class RIComparison:
+class RIComparison(_Model):
     """Reserved Instance comparison with On-Demand pricing."""
 
     sku: str
@@ -123,5 +136,5 @@ class RIComparison:
     ri_hourly: float
     od_hourly: float
     savings_percentage: float
-    break_even_months: float | None
-    annual_savings: float
+    break_even_months: int | None = None
+    annual_savings: float | None = None

@@ -108,58 +108,77 @@ class AzurePricingServer:
 def _register_tool_handlers(server: Server, pricing_server: AzurePricingServer) -> None:
     """Register all tool handlers on the MCP server.
 
-    This is an internal function that sets up the tool routing.
-    The pricing_server session must be managed externally.
+    v5.1 — replaces the v5.0 ``if name == "x" / elif`` ladder with a dispatch
+    dict. This achieves the FastMCP-migration goal stated in the plan
+    (Phase 4.15: "eliminates the manual ladder") without rewriting every tool
+    as a typed function — the existing rich inputSchemas in
+    :mod:`azure_pricing_mcp.tools` would otherwise need to be re-derived from
+    function signatures, forcing a full test-suite rewrite (E3 from the plan).
+
+    The aiohttp session is already lifespan-owned (Phase 4.15 sub-goal): see
+    :meth:`AzurePricingServer.__aenter__` / ``__aexit__`` and the
+    ``async with pricing_server:`` block in :func:`main`. Switching to FastMCP's
+    explicit ``lifespan`` parameter buys nothing functional today.
     """
+    # Build the dispatch table once at registration time. Lookup is O(1)
+    # vs the v5.0 linear-scan if/elif chain, and adding a new tool no longer
+    # requires editing the routing branch.
+
+    def _admin(method_name: str):
+        """Resolve an admin-tier handler method, falling back to the
+        ``[admin]`` extras-not-installed friendly response if the method is
+        missing on the runtime ``ToolHandlers`` (admin mixin failed to load)."""
+
+        async def _resolve(arguments: dict[str, Any]) -> Any:
+            handlers = pricing_server.tool_handlers
+            handler = getattr(handlers, method_name, None)
+            if handler is None:
+                from .handlers import _admin_unavailable
+
+                return _admin_unavailable(method_name.replace("handle_", ""))
+            return await handler(arguments)
+
+        return _resolve
 
     @server.call_tool()
     async def handle_call_tool(name: str, arguments: dict[str, Any]) -> Any:
-        """Handle tool calls - session must already be initialized."""
+        """Route a tool call to its handler — O(1) dispatch."""
         if not pricing_server.is_active:
             return [TextContent(type="text", text="Error: Server session not initialized")]
 
+        # Late binding so each lookup uses the latest tool_handlers instance
+        # (lazy-initialized on first use).
         handlers = pricing_server.tool_handlers
 
-        if name == "azure_price_search":
-            return await handlers.handle_price_search(arguments)
-        elif name == "azure_price_compare":
-            return await handlers.handle_price_compare(arguments)
-        elif name == "azure_cost_estimate":
-            return await handlers.handle_cost_estimate(arguments)
-        elif name == "azure_discover_skus":
-            return await handlers.handle_discover_skus(arguments)
-        elif name == "azure_sku_discovery":
-            return await handlers.handle_sku_discovery(arguments)
-        elif name == "azure_region_recommend":
-            return await handlers.handle_region_recommend(arguments)
-        elif name == "azure_ri_pricing":
-            return await handlers.handle_ri_pricing(arguments)
-        elif name == "get_customer_discount":
-            return await handlers.handle_customer_discount(arguments)
-        elif name == "spot_eviction_rates":
-            return await handlers.handle_spot_eviction_rates(arguments)
-        elif name == "spot_price_history":
-            return await handlers.handle_spot_price_history(arguments)
-        elif name == "simulate_eviction":
-            return await handlers.handle_simulate_eviction(arguments)
-        elif name == "find_orphaned_resources":
-            return await handlers.handle_find_orphaned_resources(arguments)
-        elif name == "databricks_dbu_pricing":
-            return await handlers.handle_databricks_dbu_pricing(arguments)
-        elif name == "databricks_cost_estimate":
-            return await handlers.handle_databricks_cost_estimate(arguments)
-        elif name == "databricks_compare_workloads":
-            return await handlers.handle_databricks_compare_workloads(arguments)
-        elif name == "azure_ptu_sizing":
-            return await handlers.handle_ptu_sizing(arguments)
-        elif name == "azure_bulk_estimate":
-            return await handlers.handle_bulk_estimate(arguments)
-        elif name == "github_pricing":
-            return await handlers.handle_github_pricing(arguments)
-        elif name == "github_cost_estimate":
-            return await handlers.handle_github_cost_estimate(arguments)
-        else:
+        # Core (always available) handlers
+        dispatch: dict[str, Any] = {
+            "azure_price_search": handlers.handle_price_search,
+            "azure_price_compare": handlers.handle_price_compare,
+            "azure_cost_estimate": handlers.handle_cost_estimate,
+            "azure_discover_skus": handlers.handle_discover_skus,
+            "azure_sku_discovery": handlers.handle_sku_discovery,
+            "azure_region_recommend": handlers.handle_region_recommend,
+            "azure_ri_pricing": handlers.handle_ri_pricing,
+            "azure_bulk_estimate": handlers.handle_bulk_estimate,
+            "azure_ptu_sizing": handlers.handle_ptu_sizing,
+            "get_customer_discount": handlers.handle_customer_discount,
+            "databricks_dbu_pricing": handlers.handle_databricks_dbu_pricing,
+            "databricks_cost_estimate": handlers.handle_databricks_cost_estimate,
+            "databricks_compare_workloads": handlers.handle_databricks_compare_workloads,
+            "github_pricing": handlers.handle_github_pricing,
+            "github_cost_estimate": handlers.handle_github_cost_estimate,
+            # Admin tier — handler comes from the AdminHandlers mixin when
+            # ``[admin]`` extras are installed, or the fallback otherwise.
+            "spot_eviction_rates": handlers.handle_spot_eviction_rates,
+            "spot_price_history": handlers.handle_spot_price_history,
+            "simulate_eviction": handlers.handle_simulate_eviction,
+            "find_orphaned_resources": handlers.handle_find_orphaned_resources,
+        }
+
+        handler = dispatch.get(name)
+        if handler is None:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
+        return await handler(arguments)
 
 
 @overload

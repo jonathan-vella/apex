@@ -235,9 +235,7 @@ Write the full breakdown to `output_path` atomically. The JSON shape:
       "notes": "{details}"
     }
   ],
-  "optimization_notes": [
-    "{region comparison results, RI savings, tier downgrade options}"
-  ],
+  "optimization_notes": ["{region comparison results, RI savings, tier downgrade options}"],
   "savings_status": "QUANTIFIED | NOT_QUANTIFIED | NOT_APPLICABLE",
   "savings_reason": "{why savings were/were not quantified}",
   "eligible_strategies": ["{list of applicable strategies with prerequisites}"],
@@ -310,12 +308,12 @@ Override defaults with values from `01-requirements.md` if available.
 
 ## Error handling
 
-| Error                | Action                                                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SKU not found        | Try one alternative SKU name once. If still not found, mark `Estimate unavailable`, `confidence: Low`, and add a `notes` entry. Don't approximate.                                    |
-| Region not available | Use nearest available region, flag the substitution in `notes`, set `confidence: Medium`.                                                                                             |
+| Error                | Action                                                                                                                                                                                    |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SKU not found        | Try one alternative SKU name once. If still not found, mark `Estimate unavailable`, `confidence: Low`, and add a `notes` entry. Don't approximate.                                        |
+| Region not available | Use nearest available region, flag the substitution in `notes`, set `confidence: Medium`.                                                                                                 |
 | API timeout          | Retry once on transient timeout. If the second attempt fails, mark `Estimate unavailable`, `confidence: Low`, and add a `notes` entry describing the timeout. Don't substitute estimates. |
-| No pricing data      | Mark `Estimate unavailable`, `confidence: Low`, and include the Azure Pricing Calculator URL in `notes` as a manual-lookup pointer. Don't fabricate.                                  |
+| No pricing data      | Mark `Estimate unavailable`, `confidence: Low`, and include the Azure Pricing Calculator URL in `notes` as a manual-lookup pointer. Don't fabricate.                                      |
 
 ## Pricing provenance
 

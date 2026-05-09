@@ -138,11 +138,11 @@ When sandboxing is enabled, tool calls are auto-approved (they run in a controll
 
 From `.vscode/mcp.json`:
 
-| Server          | Type  | Purpose                                                   |
-| --------------- | ----- | --------------------------------------------------------- |
-| `github`        | http  | GitHub Copilot MCP (issues, PRs, repos)                   |
+| Server          | Type  | Purpose                                                            |
+| --------------- | ----- | ------------------------------------------------------------------ |
+| `github`        | http  | GitHub Copilot MCP (issues, PRs, repos)                            |
 | `azure-pricing` | stdio | Azure Pricing MCP v5.0 (independent fork; response_format compact) |
-| `terraform`     | stdio | Terraform registry queries                                |
+| `terraform`     | stdio | Terraform registry queries                                         |
 
 ## Common Mistakes
 

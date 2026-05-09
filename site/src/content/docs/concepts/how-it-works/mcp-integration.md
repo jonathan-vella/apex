@@ -65,39 +65,39 @@ and is pre-configured in the dev container via the
 
 ## Azure Pricing MCP Server
 
-| Property  | Value                                                 |
-| --------- | ----------------------------------------------------- |
-| Transport | stdio                                                 |
-| Command   | Python (`azure_pricing_mcp` module)                   |
-| Auth      | None for pricing; Azure credentials for Spot VM tools |
-| Tools     | Multiple (see tool list below)                        |
-| Source    | `tools/mcp-servers/azure-pricing/` (custom, built in-repo)      |
+| Property  | Value                                                      |
+| --------- | ---------------------------------------------------------- |
+| Transport | stdio                                                      |
+| Command   | Python (`azure_pricing_mcp` module)                        |
+| Auth      | None for pricing; Azure credentials for Spot VM tools      |
+| Tools     | Multiple (see tool list below)                             |
+| Source    | `tools/mcp-servers/azure-pricing/` (custom, built in-repo) |
 
 This is a **custom MCP server built specifically for this project**. It
 queries the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
 and provides tools for cost estimation, SKU discovery, and FinOps:
 
-| Tool                          | Purpose                                              |
-| ----------------------------- | ---------------------------------------------------- |
-| `azure_price_search`          | Search retail prices with filters                    |
-| `azure_price_compare`         | Compare prices across regions/SKUs                   |
-| `azure_cost_estimate`         | Estimate costs based on usage                        |
-| `azure_sku_discovery`         | Intelligent SKU name matching (canonical)            |
-| `azure_discover_skus`         | **⚠️ Deprecated v5.0** — use `azure_sku_discovery`   |
-| `azure_region_recommend`      | Find cheapest regions                                |
-| `azure_ri_pricing`            | Reserved Instance pricing and savings                |
-| `azure_bulk_estimate`         | Multi-resource estimate in one call                  |
-| `get_customer_discount`       | Customer discount percentage                         |
-| `spot_eviction_rates`         | Spot VM eviction rates (requires `[admin]` extras)   |
-| `spot_price_history`          | Spot VM price history (90 days)                      |
-| `simulate_eviction`           | Simulate Spot VM eviction                            |
-| `find_orphaned_resources`     | Detect unused Azure resources (`[admin]` extras)     |
-| `azure_ptu_sizing`            | Estimate PTUs for Azure OpenAI deployments           |
-| `databricks_dbu_pricing`      | Search Databricks DBU rates                          |
-| `databricks_cost_estimate`    | Estimate Databricks costs                            |
-| `databricks_compare_workloads`| Compare Databricks workload costs                    |
-| `github_pricing`              | GitHub pricing catalog (Plans, Copilot, Actions)     |
-| `github_cost_estimate`        | GitHub cost estimation                               |
+| Tool                           | Purpose                                            |
+| ------------------------------ | -------------------------------------------------- |
+| `azure_price_search`           | Search retail prices with filters                  |
+| `azure_price_compare`          | Compare prices across regions/SKUs                 |
+| `azure_cost_estimate`          | Estimate costs based on usage                      |
+| `azure_sku_discovery`          | Intelligent SKU name matching (canonical)          |
+| `azure_discover_skus`          | **⚠️ Deprecated v5.0** — use `azure_sku_discovery` |
+| `azure_region_recommend`       | Find cheapest regions                              |
+| `azure_ri_pricing`             | Reserved Instance pricing and savings              |
+| `azure_bulk_estimate`          | Multi-resource estimate in one call                |
+| `get_customer_discount`        | Customer discount percentage                       |
+| `spot_eviction_rates`          | Spot VM eviction rates (requires `[admin]` extras) |
+| `spot_price_history`           | Spot VM price history (90 days)                    |
+| `simulate_eviction`            | Simulate Spot VM eviction                          |
+| `find_orphaned_resources`      | Detect unused Azure resources (`[admin]` extras)   |
+| `azure_ptu_sizing`             | Estimate PTUs for Azure OpenAI deployments         |
+| `databricks_dbu_pricing`       | Search Databricks DBU rates                        |
+| `databricks_cost_estimate`     | Estimate Databricks costs                          |
+| `databricks_compare_workloads` | Compare Databricks workload costs                  |
+| `github_pricing`               | GitHub pricing catalog (Plans, Copilot, Actions)   |
+| `github_cost_estimate`         | GitHub cost estimation                             |
 
 The server includes user-friendly service name mappings
 (e.g., `"front door"` → `"Azure Front Door Service"`,
@@ -116,14 +116,14 @@ Primarily scoped to the **Architect** agent (Step 2), the
 
 ## Draw.io MCP Server
 
-| Property  | Value                                                    |
-| --------- | -------------------------------------------------------- |
-| Transport | stdio                                                    |
+| Property  | Value                                                       |
+| --------- | ----------------------------------------------------------- |
+| Transport | stdio                                                       |
 | Command   | Deno (`tools/mcp-servers/drawio/src/index.ts`)              |
-| Auth      | None                                                     |
-| Icons     | 700+ built-in Azure service icons                        |
+| Auth      | None                                                        |
+| Icons     | 700+ built-in Azure service icons                           |
 | Source    | `tools/mcp-servers/drawio/` (simonkurtz-MSFT fork, in-repo) |
-| Purpose   | Azure architecture diagrams via batch MCP tools          |
+| Purpose   | Azure architecture diagrams via batch MCP tools             |
 
 The Draw.io MCP server provides agents with batch diagram creation tools
 for generating Azure architecture diagrams as `.drawio` files. It includes

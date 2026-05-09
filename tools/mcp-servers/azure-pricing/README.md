@@ -10,7 +10,7 @@ region recommendations, RI/SP analysis, multi-resource cost estimates, plus
 ad-hoc tools for Azure Databricks, GitHub, Spot VMs, and orphaned-resource
 detection.
 
-> **v5.0 — independent fork.** This server now lives in
+> **v5.1 — independent fork.** This server now lives in
 > [`jonathan-vella/azure-agentic-infraops`](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/tools/mcp-servers/azure-pricing)
 > as part of the APEX agentic platform-engineering toolkit. Upstream
 > contributors credited in [Acknowledgments](#acknowledgments).
@@ -50,35 +50,35 @@ Tools marked **rf** accept a `response_format` parameter
 
 ### Core (always available)
 
-| Tool                           | Purpose                                                 | rf  |
-| ------------------------------ | ------------------------------------------------------- | --- |
-| `azure_price_search`           | Search retail prices with filters                       | yes |
-| `azure_price_compare`          | Compare prices across regions/SKUs                      | yes |
-| `azure_cost_estimate`          | Usage-based cost estimation (single resource)           | yes |
-| `azure_region_recommend`       | Find cheapest regions for a service+SKU                 | yes |
-| `azure_ri_pricing`             | Reserved Instance pricing & savings analysis            | yes |
+| Tool                           | Purpose                                                  | rf  |
+| ------------------------------ | -------------------------------------------------------- | --- |
+| `azure_price_search`           | Search retail prices with filters                        | yes |
+| `azure_price_compare`          | Compare prices across regions/SKUs                       | yes |
+| `azure_cost_estimate`          | Usage-based cost estimation (single resource)            | yes |
+| `azure_region_recommend`       | Find cheapest regions for a service+SKU                  | yes |
+| `azure_ri_pricing`             | Reserved Instance pricing & savings analysis             | yes |
 | `azure_bulk_estimate`          | Multi-resource cost estimate in **one** call (preferred) | yes |
-| `azure_sku_discovery`          | Fuzzy SKU lookup (canonical)                            | yes |
-| `azure_discover_skus`          | **Deprecated v5.0** — alias of `azure_sku_discovery`    | yes |
-| `get_customer_discount`        | Customer discount metadata                              | —   |
-| `azure_ptu_sizing`             | Estimate PTUs for Azure OpenAI deployments              | —   |
-| `databricks_dbu_pricing`       | Databricks DBU rates by workload + region               | yes |
-| `databricks_cost_estimate`     | Databricks cost projection                              | —   |
-| `databricks_compare_workloads` | Compare DBU rates across workloads                      | —   |
-| `github_pricing`               | GitHub catalog (Plans, Copilot, Actions, …)             | yes |
-| `github_cost_estimate`         | GitHub cost projection                                  | —   |
+| `azure_sku_discovery`          | Fuzzy SKU lookup (canonical)                             | yes |
+| `azure_discover_skus`          | **Deprecated v5.0** — alias of `azure_sku_discovery`     | yes |
+| `get_customer_discount`        | Customer discount metadata                               | —   |
+| `azure_ptu_sizing`             | Estimate PTUs for Azure OpenAI deployments               | —   |
+| `databricks_dbu_pricing`       | Databricks DBU rates by workload + region                | yes |
+| `databricks_cost_estimate`     | Databricks cost projection                               | —   |
+| `databricks_compare_workloads` | Compare DBU rates across workloads                       | —   |
+| `github_pricing`               | GitHub catalog (Plans, Copilot, Actions, …)              | yes |
+| `github_cost_estimate`         | GitHub cost projection                                   | —   |
 
 ### Admin tier (require `[admin]` extras + Azure auth)
 
 Install with `pip install -e ".[admin]"` and authenticate via
 `az login` or `DefaultAzureCredential` env vars.
 
-| Tool                      | Purpose                                       | Annotation                |
-| ------------------------- | --------------------------------------------- | ------------------------- |
-| `spot_eviction_rates`     | Spot VM eviction rates                        | readOnly                  |
-| `spot_price_history`      | 90-day Spot price history                     | readOnly                  |
-| `simulate_eviction`       | Trigger a Spot eviction (testing)             | **destructive + openWorld** |
-| `find_orphaned_resources` | Detect orphans + cost rollup                  | readOnly                  |
+| Tool                      | Purpose                           | Annotation                  |
+| ------------------------- | --------------------------------- | --------------------------- |
+| `spot_eviction_rates`     | Spot VM eviction rates            | readOnly                    |
+| `spot_price_history`      | 90-day Spot price history         | readOnly                    |
+| `simulate_eviction`       | Trigger a Spot eviction (testing) | **destructive + openWorld** |
+| `find_orphaned_resources` | Detect orphans + cost rollup      | readOnly                    |
 
 Full input schemas live in
 [`src/azure_pricing_mcp/tools.py`](src/azure_pricing_mcp/tools.py) — the
@@ -100,16 +100,16 @@ numbers; results land in
 
 All knobs are env-var driven; defaults are tuned for typical agent flows.
 
-| Env var                              | Default | Purpose                                                        |
-| ------------------------------------ | ------- | -------------------------------------------------------------- |
-| `AZURE_PRICING_HTTP_TIMEOUT`         | 30.0 s  | Per-request timeout for the Retail Prices API.                 |
-| `AZURE_PRICING_HTTP_POOL_SIZE`       | 20      | Total connections in the aiohttp pool.                         |
-| `AZURE_PRICING_HTTP_POOL_PER_HOST`   | 10      | Per-host cap (Azure Retail Prices is a single host).           |
-| `AZURE_PRICING_DEDUP_TTL`            | 300 s   | Reuse window for successful pricing responses.                 |
-| `AZURE_PRICING_NEG_TTL`              | 60 s    | Short reuse window for empty (`Items: []`) responses.          |
-| `AZURE_PRICING_DEDUP_MAX_ENTRIES`    | 512     | LRU cap for the in-memory dedup cache.                         |
-| `AZURE_PRICING_CACHE_DIR`            | `${XDG_CACHE_HOME:-~/.cache}/azure-pricing-mcp` | Disk-backed retirement cache. |
-| `AZURE_PRICING_SSL_VERIFY`           | `true`  | Set to `false` behind a proxy with self-signed certs.          |
+| Env var                            | Default                                         | Purpose                                               |
+| ---------------------------------- | ----------------------------------------------- | ----------------------------------------------------- |
+| `AZURE_PRICING_HTTP_TIMEOUT`       | 30.0 s                                          | Per-request timeout for the Retail Prices API.        |
+| `AZURE_PRICING_HTTP_POOL_SIZE`     | 20                                              | Total connections in the aiohttp pool.                |
+| `AZURE_PRICING_HTTP_POOL_PER_HOST` | 10                                              | Per-host cap (Azure Retail Prices is a single host).  |
+| `AZURE_PRICING_DEDUP_TTL`          | 300 s                                           | Reuse window for successful pricing responses.        |
+| `AZURE_PRICING_NEG_TTL`            | 60 s                                            | Short reuse window for empty (`Items: []`) responses. |
+| `AZURE_PRICING_DEDUP_MAX_ENTRIES`  | 512                                             | LRU cap for the in-memory dedup cache.                |
+| `AZURE_PRICING_CACHE_DIR`          | `${XDG_CACHE_HOME:-~/.cache}/azure-pricing-mcp` | Disk-backed retirement cache.                         |
+| `AZURE_PRICING_SSL_VERIFY`         | `true`                                          | Set to `false` behind a proxy with self-signed certs. |
 
 In-flight request coalescing is automatic: N concurrent calls with the same
 `(filter, currency, limit)` key share one HTTP round-trip via an
@@ -144,6 +144,23 @@ Azure Retail Prices API   +   MicrosoftDocs/azure-compute-docs
 clean. The aiohttp session is opened once via
 `async with AzurePricingServer(): ...` and shared across every tool call.
 
+## What's new in v5.1
+
+- **`models.py` is now pydantic.** All 6 internal models migrated from
+  `@dataclass` to `pydantic.BaseModel`, unblocking future MCP
+  `outputSchema` derivation and structured-content emission.
+- **Admin tier extracted to `admin/` package.** Spot VM tools and
+  orphaned-resource detection now live under
+  `azure_pricing_mcp/admin/` with an import-time probe that gates
+  registration on the presence of `azure-identity`. Without `[admin]`
+  extras, those tools simply aren't registered and the server logs a
+  friendly install hint.
+- **Tool dispatch ladder eliminated.** The v5.0 `if name == "x" / elif`
+  chain in `server.py` is now an O(1) dispatch dict. Adding a tool no
+  longer requires editing a routing branch.
+- **No behavior change for existing consumers.** All 208 tests pass
+  unchanged; aggregate compact bench unchanged at 45.9% of v4 baseline.
+
 ## What's new in v5.0
 
 - **Token-efficient default.** New `response_format` parameter
@@ -168,13 +185,13 @@ Full release notes: [CHANGELOG.md](CHANGELOG.md).
 
 ## Migration from v4
 
-| v4                                    | v5                                                              |
-| ------------------------------------- | --------------------------------------------------------------- |
-| `output_format: "compact"`            | `response_format: "compact"` (was silently dropped in v4)       |
-| `azure_discover_skus(service_name=…)` | `azure_sku_discovery(service_hint=…)` — alias still works       |
-| `pip install '.[azure]'`              | `pip install '.[admin]'` (`[azure]` is a deprecation alias)     |
-| `pip install -r requirements.txt`     | `uv pip install -e ".[dev]"` (uv.lock is the source of truth)   |
-| `--transport http` (Docker/SSE)       | _removed_ — stdio only                                          |
+| v4                                    | v5                                                            |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `output_format: "compact"`            | `response_format: "compact"` (was silently dropped in v4)     |
+| `azure_discover_skus(service_name=…)` | `azure_sku_discovery(service_hint=…)` — alias still works     |
+| `pip install '.[azure]'`              | `pip install '.[admin]'` (`[azure]` is a deprecation alias)   |
+| `pip install -r requirements.txt`     | `uv pip install -e ".[dev]"` (uv.lock is the source of truth) |
+| `--transport http` (Docker/SSE)       | _removed_ — stdio only                                        |
 
 If a client depends on the verbose v4 string shape (e.g. parses
 `Found N pricing results...` + JSON dump), pin
@@ -192,13 +209,14 @@ tools/mcp-servers/azure-pricing/
 │   ├── response_format.py    # ResponseFormat literal + RESPONSE_FORMAT_SCHEMA
 │   ├── client.py             # aiohttp.ClientSession + Retail Prices API
 │   ├── config.py             # Defaults + env-var bindings
-│   ├── models.py             # Typed dataclasses
+│   ├── models.py             # pydantic models (v5.1)
 │   ├── services/             # PricingService, SKUService, Bulk, Spot, …
+│   ├── admin/                # Admin-tier tools — gated by [admin] extras (v5.1)
 │   ├── databricks/           # Databricks DBU sub-package
 │   └── github_pricing/       # GitHub pricing sub-package
 ├── tests/                    # pytest suite + fixtures (incl. baseline-bytes.json)
 ├── scripts/                  # install.py, setup helpers, dev/ debug scripts
-├── pyproject.toml            # uv-driven; v5.0.0
+├── pyproject.toml            # uv-driven; v5.1.0
 ├── CHANGELOG.md
 └── README.md                 # (you are here)
 ```
