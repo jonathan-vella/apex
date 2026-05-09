@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`select_primary_meter` is `usage`-aware.** When usage is supplied
   with a dimension-matching key, meters whose dimension matches a
-  *supplied* key are promoted to the top of the dimension ranking
+  _supplied_ key are promoted to the top of the dimension ranking
   (e.g. TRANSACTIONS meters out-rank GB_MONTH when
   `usage.transactions_per_month` is set).
 
@@ -92,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > **Bug-fix release.** Closes 4 distinct cost-projection bugs surfaced by
 > a v5.2 architect-agent end-to-end test (`agent-output/azure-pricing-mcp-test`):
 > ACR Premium returning $73 instead of $50, Storage / Private DNS Zone /
-> Private Endpoint returning ``no pricing found``, and Key Vault Standard
+> Private Endpoint returning `no pricing found`, and Key Vault Standard
 > matching the much more expensive Managed HSM B1 SKU.
 
 ### Fixed

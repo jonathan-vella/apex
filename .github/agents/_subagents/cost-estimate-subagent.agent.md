@@ -168,10 +168,11 @@ when triggered:
    `azure_cost_estimate` with the relevant volume.
 
 3. **Cost variance vs documented baseline**. If a `monthly_cost` differs by
-   >30% from the prior architecture-assessment estimate (when supplied) or
-   from the published Microsoft pricing-page baseline, flag the line for
-   re-query. The MCP exposes `available_meters[]` in the structured response
-   so you can inspect alternative meters before retrying.
+
+   > 30% from the prior architecture-assessment estimate (when supplied) or
+   > from the published Microsoft pricing-page baseline, flag the line for
+   > re-query. The MCP exposes `available_meters[]` in the structured response
+   > so you can inspect alternative meters before retrying.
 
 4. **`projection_warning: "static fallback"`**. Treat as a known-good price
    from the v5.3 static-fallback table (Private DNS Zone, Private Endpoint).
