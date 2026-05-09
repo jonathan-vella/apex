@@ -55,6 +55,37 @@ npm run fix:artifact-h2 agent-output/{project}/{file}.md          # analyze
 npm run fix:artifact-h2 agent-output/{project}/{file}.md --apply  # auto-fix
 ```
 
+## Revision Workflow (Targeted Edits Over Full Rewrites)
+
+When revising an existing artifact in response to challenger findings,
+user per-finding decisions, or any post-creation change, use targeted
+edit tools — not `create_file`.
+
+| Situation                                      | Tool                              |
+| ---------------------------------------------- | --------------------------------- |
+| First-time creation of the artifact            | `create_file`                     |
+| Single-spot fix                                | `replace_string_in_file`          |
+| Multiple fixes in one or more files            | `multi_replace_string_in_file`    |
+| Restructuring ≥ 50% of the file or H2 ordering | `create_file` (documented in ADR) |
+
+**Bundle every accepted fix from a review pass into a single
+`multi_replace_string_in_file` call** — do not iterate finding-by-finding.
+A 24-finding revision is one tool call, not 24.
+
+**Why this is enforced**: a full rewrite of a 200-line artifact emits
+8–18 K output tokens that re-enter the context on every subsequent
+turn. A multi-edit patch emits 200–800 tokens. For a single Step-2
+revision cycle this is the difference between staying under and
+breaching the 200 K context window. See
+[`context-optimization.instructions.md`](./context-optimization.instructions.md#targeted-edits-over-full-rewrites)
+for the full anti-pattern table.
+
+**Exception path**: when a structural rewrite is genuinely required
+(H2 reordering, template version bump, >50 % of lines changed), use
+`create_file` and record a decision via
+`apex-recall decide <project> --decision "Full rewrite of <artifact>" --rationale "<why>" --step <N> --json`
+so the choice is auditable.
+
 ## Common Errors and Fixes
 
 - `missing required H2 headings: ## Outputs (Expected)`

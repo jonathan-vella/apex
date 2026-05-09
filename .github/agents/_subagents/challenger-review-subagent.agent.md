@@ -319,6 +319,15 @@ Keep under 200 characters. Include only the top 3 `must_fix` titles.
 If no significant risks found, return empty `issues` array with `risk_level: "low"`.
 Do NOT repeat issues already in `prior_findings`.
 
+> **Per-finding decisions are out of scope for this subagent.** Parent
+> agents may compute and persist `issue_id` and `user_decision` fields
+> **in a sidecar `challenge-findings-{type}-decisions.json` file** —
+> never in the JSON written by this subagent. The atomic-write contract
+> defined in `## File Write Protocol` (refuse-on-exists / overwrite) is
+> unchanged. See
+> `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
+> §`Per-Finding Decision Protocol` for the sidecar schema.
+
 ## Output Format — Batch Mode
 
 When `batch_lenses` is provided, execute each lens sequentially and persist the consolidated

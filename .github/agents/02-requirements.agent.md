@@ -306,16 +306,16 @@ This phase is required before presenting Gate 1. Do NOT skip it, even for simple
    - List every finding from the `findings` array (must_fix first, then should_fix, then suggestion)
    - Show totals: `N must-fix, N should-fix, N suggestion`
    - Reference the JSON path for machine-readable details
-4. **Use `askQuestions`** to gather the user's decision (brief summary only —
-   the detailed findings are already visible in chat above):
-   - Question description: `"Challenger found N must-fix and N should-fix issues. See details in chat above. Revise or proceed?"`
-   - Ask a single-select question: _"How would you like to proceed?"_ with options:
-     1. **Revise requirements (recommended)** — fix must-fix items and optionally address should-fix
-        (recommended if any must-fix findings exist, mark as `recommended`)
-     2. **Proceed to Architecture** — accept findings as-is and move to Step 2
-   - If the user chooses to revise: apply fixes to `01-requirements.md`, then
-     re-run the challenger review (repeat from step 1 above)
-   - If the user chooses to proceed: present final handoff to Architect agent
+4. **Per-finding decision gate** — follow `## Per-Finding Decision Protocol`
+   in [.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
+   Sources merged for the panel: `challenge-findings-requirements.json` only
+   (single-source, single-pass). Sidecar:
+   `agent-output/{project}/challenge-findings-requirements-decisions.json`.
+   - On **Revise** (matrix row 1): apply Accepted fixes to `01-requirements.md`,
+     re-run the challenger from step 1 with `overwrite: true`, then re-build
+     the panel skipping issues whose `issue_id` already has a sidecar entry
+     (per protocol section 2c).
+   - On **Proceed**: present final handoff to Architect agent.
      **On completion** (MANDATORY): `apex-recall complete-step <project> 1 --json`
 
 ---
