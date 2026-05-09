@@ -97,7 +97,7 @@ jobs:
 
       - name: Create issue if modules are found
         if: ${{ github.event.inputs.create_issue != 'false' && steps.extract.outputs.module_count != '0' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
