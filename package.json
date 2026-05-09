@@ -108,7 +108,7 @@
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^9.17.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-n": "^17.15.1",
     "fast-xml-parser": "^5.7.0",
