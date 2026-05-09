@@ -167,4 +167,17 @@ export const ARTIFACT_HEADINGS = {
     "## 💡 Recommendations",
     "## 📎 Appendix: Full Lesson Details",
   ],
+  // Workflow gate companion file (relaxed strictness; overwritten at every gate).
+  // Required H2s sourced from
+  // .github/skills/workflow-engine/references/orchestrator-handoff-guide.md
+  // (see "Phase Handoff Document" section). Headings are plain (no emoji)
+  // because the guide uses plain headings.
+  "00-handoff.md": [
+    "## Completed Steps",
+    "## Key Decisions",
+    "## Open Challenger Findings (must_fix only)",
+    "## Context for Next Step",
+    "## Skill Context",
+    "## Artifacts",
+  ],
 };

@@ -99,14 +99,86 @@
             "description": "Target node ID."
           },
           "condition": {
-            "type": "string",
-            "enum": ["on_complete", "on_skip", "on_fail"]
+            "description": "Edge condition. May be a single string or array of strings (each from the same enum) so a single from/to pair can express multiple semantics (e.g. ['on_fail', 'on_refine']).",
+            "oneOf": [
+              { "$ref": "#/$defs/edgeCondition" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/$defs/edgeCondition" },
+                "minItems": 1
+              }
+            ]
           }
+        }
+      }
+    },
+    "return_edges": {
+      "type": "array",
+      "description": "Backward / refinement edges that complement edges[]. Sources/targets are step IDs (not gates). Allowed by handoff validators when handoffs[].agent matches a return target.",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "condition", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "condition": {
+            "oneOf": [
+              { "$ref": "#/$defs/edgeCondition" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/$defs/edgeCondition" },
+                "minItems": 1
+              }
+            ]
+          },
+          "reason": { "type": "string", "minLength": 1 },
+          "ui_label_pattern": {
+            "type": "string",
+            "description": "Regex (anchored or unanchored) matching the handoff button label that produces this return."
+          }
+        }
+      }
+    },
+    "challenger": {
+      "type": "object",
+      "description": "Top-level challenger config. wrapper_agent is the legal handoffs[] target (UI button); review_subagent is the legal agents[] dispatch entry. They are NOT interchangeable.",
+      "required": ["wrapper_agent", "review_subagent"],
+      "additionalProperties": false,
+      "properties": {
+        "wrapper_agent": { "type": "string", "minLength": 1 },
+        "review_subagent": { "type": "string", "minLength": 1 }
+      }
+    },
+    "orchestrator_targets": {
+      "type": "array",
+      "description": "Agent names that may be handed off to from anywhere as legal 'return to orchestrator' targets.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "ui_pseudo_targets": {
+      "type": "array",
+      "description": "Non-agent UI hooks that may appear in handoffs[].agent (e.g. the literal `agent: agent` 'Open in Editor' sentinel).",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": ["2.1", "2.2"],
+          "description": "Workflow graph schema version. Validators refuse unknown majors per D2 (graceful degradation)."
         }
       }
     }
   },
   "$defs": {
+    "edgeCondition": {
+      "type": "string",
+      "enum": ["on_complete", "on_skip", "on_fail", "on_refine"]
+    },
     "challengerTier": {
       "type": "object",
       "required": ["passes", "lenses"],

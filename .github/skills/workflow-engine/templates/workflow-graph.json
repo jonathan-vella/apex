@@ -25,7 +25,7 @@
       "name": "Architecture",
       "agent": "03-Architect",
       "requires": ["gate-1"],
-      "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md"],
+      "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md", "03-des-sku-comparison.md"],
       "gate": "approval",
       "challenger": {
         "default_passes": 1,
@@ -39,11 +39,7 @@
           },
           "complex": {
             "passes": 3,
-            "lenses": [
-              "security-governance",
-              "architecture-reliability",
-              "cost-feasibility"
-            ]
+            "lenses": ["security-governance", "architecture-reliability", "cost-feasibility"]
           }
         }
       }
@@ -72,10 +68,7 @@
       "name": "Governance",
       "agent": "04g-Governance",
       "requires": ["gate-2"],
-      "produces": [
-        "04-governance-constraints.md",
-        "04-governance-constraints.json"
-      ],
+      "produces": ["04-governance-constraints.md", "04-governance-constraints.json"],
       "gate": "approval",
       "challenger": null
     },
@@ -143,11 +136,7 @@
           },
           "complex": {
             "passes": 3,
-            "lenses": [
-              "security-governance",
-              "architecture-reliability",
-              "cost-feasibility"
-            ]
+            "lenses": ["security-governance", "architecture-reliability", "cost-feasibility"]
           }
         }
       }
@@ -172,11 +161,7 @@
           },
           "complex": {
             "passes": 3,
-            "lenses": [
-              "security-governance",
-              "architecture-reliability",
-              "cost-feasibility"
-            ]
+            "lenses": ["security-governance", "architecture-reliability", "cost-feasibility"]
           }
         }
       }
@@ -267,8 +252,114 @@
     { "from": "step-6t", "to": "gate-5", "condition": "on_complete" },
     { "from": "gate-5", "to": "step-7", "condition": "on_complete" }
   ],
+  "return_edges": [
+    {
+      "from": "step-2",
+      "to": "step-1",
+      "condition": "on_refine",
+      "reason": "Architect identifies requirement gaps — return for refinement",
+      "ui_label_pattern": "^↩ Return to Step 1$"
+    },
+    {
+      "from": "step-3",
+      "to": "step-2",
+      "condition": "on_refine",
+      "reason": "Design step surfaces architecture re-evaluation needs",
+      "ui_label_pattern": "^↩ Return to Step 2$"
+    },
+    {
+      "from": "step-4",
+      "to": "step-2",
+      "condition": "on_refine",
+      "reason": "IaC Planner finds architecture rework needed",
+      "ui_label_pattern": "^↩ Return to Step 2$"
+    },
+    {
+      "from": "step-4",
+      "to": "step-3_5",
+      "condition": "on_refine",
+      "reason": "IaC Planner needs fresh governance discovery",
+      "ui_label_pattern": "^▶ Refresh Governance$"
+    },
+    {
+      "from": "step-5b",
+      "to": "step-4",
+      "condition": "on_refine",
+      "reason": "Bicep CodeGen finds plan inadequate — return to planning",
+      "ui_label_pattern": "^↩ Return to Step 4$"
+    },
+    {
+      "from": "step-5t",
+      "to": "step-4",
+      "condition": "on_refine",
+      "reason": "Terraform CodeGen finds plan inadequate — return to planning",
+      "ui_label_pattern": "^↩ Return to Step 4$"
+    },
+    {
+      "from": "step-6b",
+      "to": "step-5b",
+      "condition": "on_fail",
+      "reason": "Bicep deployment failed — fix code and retry",
+      "ui_label_pattern": "^↩ Fix Deployment Issues$"
+    },
+    {
+      "from": "step-6b",
+      "to": "step-2",
+      "condition": "on_refine",
+      "reason": "Bicep deployment surfaces architecture gap",
+      "ui_label_pattern": "^↩ Return to Step 2$"
+    },
+    {
+      "from": "step-6t",
+      "to": "step-5t",
+      "condition": "on_fail",
+      "reason": "Terraform deployment failed — fix code and retry",
+      "ui_label_pattern": "^↩ Fix Deployment Issues$"
+    },
+    {
+      "from": "step-6t",
+      "to": "step-2",
+      "condition": "on_refine",
+      "reason": "Terraform deployment surfaces architecture gap",
+      "ui_label_pattern": "^↩ Return to Step 2$"
+    },
+    {
+      "from": "step-1",
+      "to": "step-1",
+      "condition": "on_refine",
+      "reason": "Requirements self-refinement loop",
+      "ui_label_pattern": "^▶ Refine Requirements$"
+    },
+    {
+      "from": "step-2",
+      "to": "step-2",
+      "condition": "on_refine",
+      "reason": "Architect self-refinement loop (cost refresh, deep dive, SKU compare, save)",
+      "ui_label_pattern": "^▶ (Refresh Cost Estimate|Deep Dive WAF Pillar|Compare SKU Options|Save Assessment)$"
+    },
+    {
+      "from": "step-3_5",
+      "to": "step-3_5",
+      "condition": "on_refine",
+      "reason": "Governance self-refresh loop",
+      "ui_label_pattern": "^▶ Refresh Governance$"
+    },
+    {
+      "from": "step-4",
+      "to": "step-4",
+      "condition": "on_refine",
+      "reason": "IaC Planner self-refinement loop (revise plan, compare AVM)",
+      "ui_label_pattern": "^▶ (Revise Plan|Compare AVM Modules)$"
+    }
+  ],
+  "challenger": {
+    "wrapper_agent": "10-Challenger",
+    "review_subagent": "challenger-review-subagent"
+  },
+  "orchestrator_targets": ["01-Orchestrator", "01-Orchestrator (Fast Path)"],
+  "ui_pseudo_targets": ["agent"],
   "metadata": {
-    "version": "2.1",
+    "version": "2.2",
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
     "total_steps": 7,

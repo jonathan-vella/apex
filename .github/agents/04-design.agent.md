@@ -22,14 +22,6 @@ handoffs:
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API, produce 04-governance-constraints.md/.json, and run adversarial review."
     send: true
-  - label: "⏭️ Skip Steps 3.5 & 4: Bicep Code"
-    agent: 06b-Bicep CodeGen
-    prompt: "WARNING: Skipping governance discovery and implementation planning. IaC will be generated without Azure Policy constraint validation — deployment may fail if policies block resources. Generate Bicep templates based on architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save to `infra/bicep/{project}/`."
-    send: false
-  - label: "⏭️ Skip Steps 3.5 & 4: Terraform Code"
-    agent: 06t-Terraform CodeGen
-    prompt: "WARNING: Skipping governance discovery and implementation planning. IaC will be generated without Azure Policy constraint validation — deployment may fail if policies block resources. Generate Terraform configurations based on architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Save to `infra/terraform/{project}/`."
-    send: false
   - label: "↩ Return to Step 2"
     agent: 03-Architect
     prompt: "Returning to architecture assessment for further refinement. Review `agent-output/{project}/02-architecture-assessment.md` for re-evaluation."

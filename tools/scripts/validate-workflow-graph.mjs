@@ -210,6 +210,20 @@ for (const [nodeId, node] of Object.entries(graph.nodes)) {
 
 // Validate edges
 const edgeTargets = new Set();
+const VALID_CONDITIONS = ["on_complete", "on_skip", "on_fail", "on_refine"];
+function validateCondition(label, value) {
+  const values = Array.isArray(value) ? value : [value];
+  if (values.length === 0) {
+    r.error(`${label} has empty condition array`);
+    return;
+  }
+  for (const v of values) {
+    if (!VALID_CONDITIONS.includes(v)) {
+      r.error(`${label} has invalid condition: "${v}"`);
+    }
+  }
+}
+
 for (const edge of graph.edges) {
   if (!nodeIds.has(edge.from)) {
     r.error(`Edge references non-existent source node: "${edge.from}"`);
@@ -219,9 +233,121 @@ for (const edge of graph.edges) {
   }
   edgeTargets.add(edge.to);
 
-  const validConditions = ["on_complete", "on_skip", "on_fail"];
-  if (!validConditions.includes(edge.condition)) {
-    r.error(`Edge ${edge.from} → ${edge.to} has invalid condition: "${edge.condition}"`);
+  validateCondition(`Edge ${edge.from} → ${edge.to}`, edge.condition);
+}
+
+// Validate metadata.version
+const expectedMajor = "2";
+const knownVersions = new Set(["2.1", "2.2"]);
+const metaVersion = graph.metadata?.version;
+if (metaVersion === undefined) {
+  r.warn("metadata.version missing — older consumers may rely on it");
+} else if (!knownVersions.has(metaVersion)) {
+  r.error(`metadata.version "${metaVersion}" is not a known version (expected one of: ${[...knownVersions].join(", ")})`);
+} else if (!metaVersion.startsWith(`${expectedMajor}.`)) {
+  r.error(`metadata.version major must be "${expectedMajor}" (got "${metaVersion}")`);
+}
+
+// Validate top-level challenger block (introduced in 2.2)
+if (graph.challenger !== undefined) {
+  const c = graph.challenger;
+  if (typeof c !== "object" || c === null || Array.isArray(c)) {
+    r.error("Top-level challenger must be an object");
+  } else {
+    for (const field of ["wrapper_agent", "review_subagent"]) {
+      if (typeof c[field] !== "string" || c[field].trim() === "") {
+        r.error(`challenger.${field} must be a non-empty string`);
+      }
+    }
+    if (c.wrapper_agent && !agentFiles.has(c.wrapper_agent)) {
+      r.warn(`challenger.wrapper_agent "${c.wrapper_agent}" not found in agent files`);
+    }
+    // review_subagent lives under _subagents/ and may not match getAgents()
+    // exactly; accept silently here, validate-agents will cross-check.
+  }
+}
+
+// Validate orchestrator_targets[]
+if (graph.orchestrator_targets !== undefined) {
+  if (!Array.isArray(graph.orchestrator_targets)) {
+    r.error("orchestrator_targets must be an array");
+  } else {
+    for (const target of graph.orchestrator_targets) {
+      if (typeof target !== "string" || target.trim() === "") {
+        r.error(`orchestrator_targets entry must be a non-empty string (got: ${JSON.stringify(target)})`);
+      } else if (!agentFiles.has(target)) {
+        r.warn(`orchestrator_targets entry "${target}" not found in agent files`);
+      }
+    }
+  }
+}
+
+// Validate ui_pseudo_targets[]
+if (graph.ui_pseudo_targets !== undefined) {
+  if (!Array.isArray(graph.ui_pseudo_targets)) {
+    r.error("ui_pseudo_targets must be an array");
+  } else {
+    for (const target of graph.ui_pseudo_targets) {
+      if (typeof target !== "string" || target.trim() === "") {
+        r.error(`ui_pseudo_targets entry must be a non-empty string (got: ${JSON.stringify(target)})`);
+      }
+    }
+  }
+}
+
+// Validate return_edges[]
+if (graph.return_edges !== undefined) {
+  if (!Array.isArray(graph.return_edges)) {
+    r.error("return_edges must be an array");
+  } else {
+    // Build a set of (from,to,cond) tuples from edges[] for duplicate detection
+    const edgeTuples = new Set();
+    for (const edge of graph.edges) {
+      const conds = Array.isArray(edge.condition) ? edge.condition : [edge.condition];
+      for (const c of conds) edgeTuples.add(`${edge.from}|${edge.to}|${c}`);
+    }
+    const seen = new Set();
+    for (const [i, re] of graph.return_edges.entries()) {
+      if (typeof re !== "object" || re === null || Array.isArray(re)) {
+        r.error(`return_edges[${i}] must be an object`);
+        continue;
+      }
+      const label = `return_edges[${i}] (${re.from} → ${re.to})`;
+      if (!nodeIds.has(re.from)) {
+        r.error(`${label}: from references non-existent node`);
+      }
+      if (!nodeIds.has(re.to)) {
+        r.error(`${label}: to references non-existent node`);
+      }
+      if (typeof re.reason !== "string" || re.reason.trim() === "") {
+        r.error(`${label}: reason must be a non-empty string`);
+      }
+      validateCondition(label, re.condition);
+
+      const conds = Array.isArray(re.condition) ? re.condition : [re.condition];
+      for (const c of conds) {
+        const tuple = `${re.from}|${re.to}|${c}`;
+        if (edgeTuples.has(tuple)) {
+          r.error(`${label}: duplicates edges[] tuple (${tuple.replace(/\|/g, ", ")})`);
+        }
+        if (seen.has(tuple)) {
+          r.error(`${label}: duplicate within return_edges (${tuple.replace(/\|/g, ", ")})`);
+        }
+        seen.add(tuple);
+      }
+
+      if (re.ui_label_pattern !== undefined) {
+        if (typeof re.ui_label_pattern !== "string") {
+          r.error(`${label}: ui_label_pattern must be a string`);
+        } else {
+          try {
+            new RegExp(re.ui_label_pattern);
+          } catch (e) {
+            r.error(`${label}: ui_label_pattern invalid regex (${e.message})`);
+          }
+        }
+      }
+    }
   }
 }
 

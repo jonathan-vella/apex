@@ -87,6 +87,14 @@ tools: [read/readFile, edit/createFile, agent, "azure-mcp/*"]
 - Do not set `model` on individual handoff entries unless the target agent requires a specific
   model that differs from the agent's own frontmatter `model` value.
 
+> **Schema note:** VS Code Copilot's handoff schema permits only
+> `label`, `agent`, `prompt`, and the optional `send`,
+> `showContinueOn`, `model` properties. Any other property (including
+> `kind:`) is flagged as "Unknown property" by the editor. Workflow-
+> handoff validation derives the relationship to the DAG structurally
+> from `(label, agent)` instead of relying on an inline taxonomy
+> field — see `.github/skills/workflow-engine/references/handoff-validation-rules.md`.
+
 #### `user-invocable`
 
 - Boolean (default `true`). Controls whether the agent appears in the agents dropdown.
@@ -162,25 +170,25 @@ The migrated GPT-5.5 cohort follows the OpenAI GPT-5.5 prompting guide:
 
 Current model assignments:
 
-| Agent / Group                       | Model                            | Rationale                                    |
-| ----------------------------------- | -------------------------------- | -------------------------------------------- |
-| Orchestrator                        | GPT-5.5                          | Outcome-first orchestration                  |
-| Orchestrator (Fast Path)            | GPT-5.5                          | Streamlined orchestration                    |
-| Requirements                        | Claude Opus 4.7                  | Deep understanding (high effort)             |
-| Architect                           | Claude Opus 4.7                  | WAF analysis + cost (high effort)            |
-| Design                              | Claude Sonnet 4.6                | Diagram + ADR (Anthropic style)              |
-| Governance                          | GPT-5.5                          | Procedural discovery                         |
-| IaC Planner (unified)               | Claude Opus 4.7                  | Planning accuracy (high effort)              |
-| Bicep / Terraform Code              | GPT-5.5                          | Code generation                              |
-| Deploy (Bicep + TF)                 | GPT-5.5                          | Deployment execution (outcome-first)         |
-| As-Built                            | GPT-5.5                          | Documentation generation (outcome-first)     |
-| Diagnose                            | Claude Opus 4.7                  | Interactive troubleshooting (default effort) |
-| Context Optimizer                   | Claude Opus 4.7                  | Deep analysis (high effort)                  |
-| E2E Orchestrator                    | GPT-5.5                          | Autonomous benchmark loop                    |
-| Challenger wrapper                  | GPT-5.5                          | Structured review                            |
-| Challenger subagent                 | GPT-5.5                          | Structured review                            |
-| Bicep/TF validate+preview subagents | Claude Sonnet 4.6                | Isolated validation (Anthropic style)        |
-| Cost estimate subagent              | GPT-5.3-Codex                    | High-throughput pricing                      |
+| Agent / Group                       | Model             | Rationale                                    |
+| ----------------------------------- | ----------------- | -------------------------------------------- |
+| Orchestrator                        | GPT-5.5           | Outcome-first orchestration                  |
+| Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                    |
+| Requirements                        | Claude Opus 4.7   | Deep understanding (high effort)             |
+| Architect                           | Claude Opus 4.7   | WAF analysis + cost (high effort)            |
+| Design                              | Claude Sonnet 4.6 | Diagram + ADR (Anthropic style)              |
+| Governance                          | GPT-5.5           | Procedural discovery                         |
+| IaC Planner (unified)               | Claude Opus 4.7   | Planning accuracy (high effort)              |
+| Bicep / Terraform Code              | GPT-5.5           | Code generation                              |
+| Deploy (Bicep + TF)                 | GPT-5.5           | Deployment execution (outcome-first)         |
+| As-Built                            | GPT-5.5           | Documentation generation (outcome-first)     |
+| Diagnose                            | Claude Opus 4.7   | Interactive troubleshooting (default effort) |
+| Context Optimizer                   | Claude Opus 4.7   | Deep analysis (high effort)                  |
+| E2E Orchestrator                    | GPT-5.5           | Autonomous benchmark loop                    |
+| Challenger wrapper                  | GPT-5.5           | Structured review                            |
+| Challenger subagent                 | GPT-5.5           | Structured review                            |
+| Bicep/TF validate+preview subagents | Claude Sonnet 4.6 | Isolated validation (Anthropic style)        |
+| Cost estimate subagent              | GPT-5.3-Codex     | High-throughput pricing                      |
 
 #### Reasoning-effort policy
 
