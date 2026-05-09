@@ -1,0 +1,116 @@
+# Dependabot configuration for automated dependency updates.
+#
+# Scope: dev container features, GitHub Actions, npm (root + site), and the
+# two in-repo Python packages (azure-pricing MCP, apex-recall). Top-level
+# requirements.txt is intentionally out of scope (managed via uv pin in
+# .devcontainer/post-start.sh).
+#
+# Update cadence is weekly to balance freshness with PR noise. Open PR limit
+# is conservative (3 per ecosystem) to avoid review-queue overload.
+#
+# Reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # ─── Dev container features ───────────────────────────────────────────────
+  # Tracks ghcr.io/devcontainers/features/* digests in
+  # .devcontainer/devcontainer.json + regenerates devcontainer-lock.json.
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(devcontainer)"
+    labels:
+      - "dependencies"
+      - "devcontainer"
+
+  # ─── GitHub Actions ────────────────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      # Bundle minor/patch bumps of first-party actions (actions/*) to keep
+      # PR volume manageable; security/major bumps still PR individually.
+      actions-minor:
+        patterns:
+          - "actions/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ─── npm: repo root (validators, lint tooling) ─────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "npm"
+    groups:
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ─── npm: docs site (Astro/Starlight) ──────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/site"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(site)"
+    labels:
+      - "dependencies"
+      - "site"
+    groups:
+      astro-ecosystem:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+          - "@astrolibs/*"
+          - "starlight*"
+          - "@starlight/*"
+
+  # ─── Python: azure-pricing MCP server ──────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/tools/mcp-servers/azure-pricing"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(pricing-mcp)"
+    labels:
+      - "dependencies"
+      - "azure-pricing-mcp"
+
+  # ─── Python: apex-recall CLI ───────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/tools/apex-recall"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(apex-recall)"
+    labels:
+      - "dependencies"
+      - "apex-recall"
