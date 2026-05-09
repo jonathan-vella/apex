@@ -529,7 +529,7 @@ class TestScannerResourceTypes:
             "currency": "USD",
             "note": "Scanned 1 subscription(s).",
         }
-        output = format_orphaned_resources_response(result)
+        output = format_orphaned_resources_response(result, "full")
 
         assert "Orphaned SQL Elastic Pool (1)" in output
         assert "Orphaned Application Gateway (1)" in output
@@ -649,7 +649,7 @@ class TestFormatter:
             "lookback_days": 60,
             "currency": "USD",
         }
-        output = format_orphaned_resources_response(result)
+        output = format_orphaned_resources_response(result, "full")
         assert "No Orphaned Resources Found" in output
 
     def test_groups_by_type_in_output(self):
@@ -690,7 +690,7 @@ class TestFormatter:
             "currency": "USD",
             "note": "Scanned 1 subscription(s).",
         }
-        output = format_orphaned_resources_response(result)
+        output = format_orphaned_resources_response(result, "full")
 
         # Must contain per-type section headers
         assert "Unattached Disk (2)" in output
@@ -710,7 +710,7 @@ class TestFormatter:
             "message": "Azure auth required.",
             "help": "Run: az login",
         }
-        output = format_orphaned_resources_response(result)
+        output = format_orphaned_resources_response(result, "full")
         assert "Authentication Required" in output
 
     def test_cost_none_shows_na(self):
@@ -737,7 +737,7 @@ class TestFormatter:
             "currency": "USD",
             "note": "",
         }
-        output = format_orphaned_resources_response(result)
+        output = format_orphaned_resources_response(result, "full")
         assert "N/A" in output
 
 
@@ -771,7 +771,11 @@ class TestHandler:
             }
         )
         handlers = ToolHandlers(pricing, sku, orphaned_service=mock_orphaned)
-        result = await handlers.handle_find_orphaned_resources({"days": 30, "all_subscriptions": False})
+        # Pass response_format='full' to assert against the v4 verbose string
+        # shape; default flipped to 'compact' in v5.0.
+        result = await handlers.handle_find_orphaned_resources(
+            {"days": 30, "all_subscriptions": False, "response_format": "full"}
+        )
         assert len(result) == 1
         assert result[0].type == "text"
         assert "No Orphaned Resources Found" in result[0].text

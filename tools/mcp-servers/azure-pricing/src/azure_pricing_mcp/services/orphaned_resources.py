@@ -12,7 +12,7 @@ a friendly error message with instructions for how to authenticate.
 
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import aiohttp
@@ -336,7 +336,7 @@ class OrphanedResourceScanner:
         if not token:
             return None
 
-        end_date = datetime.now(timezone.utc)
+        end_date = datetime.now(UTC)
         start_date = end_date - timedelta(days=days)
 
         url = (

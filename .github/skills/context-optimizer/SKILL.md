@@ -1,7 +1,7 @@
 ---
 name: context-optimizer
 description: "Audits agent context window usage via debug logs, token profiling, and redundancy detection. USE FOR: context optimization, token waste analysis, debug log parsing, hand-off gap analysis. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments."
-compatibility: Requires Python 3.10+ for log parser script
+compatibility: Requires Python 3.14 for log parser script
 ---
 
 # Context Window Optimization Skill
@@ -38,7 +38,7 @@ prioritized optimization reports.
 
 ## Prerequisites
 
-- Python 3.10+ (for log parser script)
+- Python 3.14 (for log parser script)
 - Access to VS Code Copilot Chat debug logs
 - Agent definitions in `.github/agents/*.agent.md` (or equivalent)
 

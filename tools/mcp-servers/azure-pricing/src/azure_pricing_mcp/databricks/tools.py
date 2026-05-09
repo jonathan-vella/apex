@@ -1,6 +1,10 @@
 """Tool definitions for Databricks DBU pricing."""
 
-from mcp.types import Tool
+from mcp.types import Tool, ToolAnnotations
+
+from ..response_format import RESPONSE_FORMAT_SCHEMA
+
+_READ_ANNOTATIONS = ToolAnnotations(readOnlyHint=True, idempotentHint=True, destructiveHint=False)
 
 
 def get_databricks_tool_definitions() -> list[Tool]:
@@ -39,8 +43,10 @@ def get_databricks_tool_definitions() -> list[Tool]:
                         "description": "Currency code (default: USD)",
                         "default": "USD",
                     },
+                    "response_format": RESPONSE_FORMAT_SCHEMA,
                 },
             },
+            annotations=_READ_ANNOTATIONS,
         ),
         Tool(
             name="databricks_cost_estimate",
@@ -103,6 +109,7 @@ def get_databricks_tool_definitions() -> list[Tool]:
                 },
                 "required": ["workload_type", "dbu_count"],
             },
+            annotations=_READ_ANNOTATIONS,
         ),
         Tool(
             name="databricks_compare_workloads",
@@ -154,5 +161,6 @@ def get_databricks_tool_definitions() -> list[Tool]:
                     },
                 },
             },
+            annotations=_READ_ANNOTATIONS,
         ),
     ]

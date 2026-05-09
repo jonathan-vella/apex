@@ -2,9 +2,19 @@
 
 from typing import Any
 
+from azure_pricing_mcp.response_format import (
+    DEFAULT_RESPONSE_FORMAT,
+    ResponseFormat,
+    coerce_response_format,
+)
 
-def format_databricks_dbu_pricing_response(result: dict[str, Any]) -> str:
+
+def format_databricks_dbu_pricing_response(
+    result: dict[str, Any],
+    response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT,
+) -> str:
     """Format the Databricks DBU pricing response for display."""
+    fmt = coerce_response_format(response_format)
     workloads = result.get("workloads", {})
     if not workloads:
         return _format_empty_pricing(result)
@@ -14,30 +24,35 @@ def format_databricks_dbu_pricing_response(result: dict[str, Any]) -> str:
     currency = result.get("currency", "USD")
     total = result.get("total_items", 0)
 
-    lines = [
-        f"### Azure Databricks DBU Pricing - {region}\n",
-        f"**Currency:** {currency}",
-        f"**Total SKUs:** {total}",
-    ]
-    if tier_filter:
-        lines.append(f"**Tier filter:** {tier_filter}")
-    if result.get("workload_filter"):
-        lines.append(f"**Workload filter:** {result['workload_filter']} -> {result.get('resolved_workload')}")
-    lines.append("")
+    if fmt == "compact":
+        lines = [f"DBU pricing ({region}, {currency}, {total} SKUs)."]
+        if tier_filter:
+            lines.append(f"Tier: {tier_filter}.")
+        lines.append("")
+    else:
+        lines = [
+            f"### Azure Databricks DBU Pricing - {region}\n",
+            f"**Currency:** {currency}",
+            f"**Total SKUs:** {total}",
+        ]
+        if tier_filter:
+            lines.append(f"**Tier filter:** {tier_filter}")
+        if result.get("workload_filter"):
+            lines.append(f"**Workload filter:** {result['workload_filter']} -> {result.get('resolved_workload')}")
+        lines.append("")
 
     lines.append("| Workload | Tier | DBU Rate/hr | Unit |")
     lines.append("|----------|------|-------------|------|")
-
     for workload_label in sorted(workloads.keys()):
         entries = workloads[workload_label]
         for entry in sorted(entries, key=lambda e: (e["tier"], e["workload"])):
             lines.append(f"| {workload_label} | {entry['tier']} | ${entry['dbu_rate']:.4f} | {entry['unit']} |")
 
-    lines.append("")
-    lines.append(
-        "*DBU rates cover Databricks compute charges only. VM, storage, and networking are billed separately.*"
-    )
-
+    if fmt == "full":
+        lines.append("")
+        lines.append(
+            "*DBU rates cover Databricks compute charges only. VM, storage, and networking are billed separately.*"
+        )
     return "\n".join(lines)
 
 

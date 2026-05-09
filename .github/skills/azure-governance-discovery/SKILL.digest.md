@@ -4,7 +4,7 @@
 
 name: azure-governance-discovery
 description: "Deterministic Azure Policy discovery script (discover.py) used by 04g-Governance Phase 1."
-compatibility: Python 3.10+, Azure CLI on PATH.
+compatibility: Python 3.14, Azure CLI on PATH.
 
 ---
 

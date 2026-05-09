@@ -150,7 +150,9 @@ class SpotService:
             return auth_error
 
         # Check eviction cache with TTL
-        cache_key = f"eviction:{','.join(sorted(s.lower() for s in skus))}:{','.join(sorted(loc.lower() for loc in locations))}"
+        cache_key = (
+            f"eviction:{','.join(sorted(s.lower() for s in skus))}:{','.join(sorted(loc.lower() for loc in locations))}"
+        )
         if self._eviction_cache and self._eviction_cache_time:
             if (datetime.now() - self._eviction_cache_time) < SPOT_CACHE_TTL:
                 cached = self._eviction_cache.get(cache_key)
@@ -303,9 +305,7 @@ SpotResources
                 "expected_format": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}",
             }
 
-        url = (
-            f"https://management.azure.com{vm_resource_id}" f"/simulateEviction?api-version={AZURE_COMPUTE_API_VERSION}"
-        )
+        url = f"https://management.azure.com{vm_resource_id}/simulateEviction?api-version={AZURE_COMPUTE_API_VERSION}"
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",

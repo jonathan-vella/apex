@@ -440,7 +440,7 @@ class TestDatabricksFormatters:
             "available_workload_types": ["all-purpose", "jobs"],
         }
 
-        output = format_databricks_dbu_pricing_response(result)
+        output = format_databricks_dbu_pricing_response(result, "full")
         assert "eastus" in output
         assert f"${dbu_rate:.4f}" in output
         assert "Premium" in output
@@ -458,7 +458,7 @@ class TestDatabricksFormatters:
             "available_workload_types": ["all-purpose", "jobs"],
         }
 
-        output = format_databricks_dbu_pricing_response(result)
+        output = format_databricks_dbu_pricing_response(result, "full")
         assert "No Databricks DBU pricing found" in output
         assert "not recognized" in output
 

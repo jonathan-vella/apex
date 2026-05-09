@@ -1,5 +1,7 @@
 """HTTP client for Azure Pricing API."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import random
@@ -31,7 +33,7 @@ class AzurePricingClient:
         self._base_url = AZURE_PRICING_BASE_URL
         self._api_version = DEFAULT_API_VERSION
 
-    async def __aenter__(self) -> "AzurePricingClient":
+    async def __aenter__(self) -> AzurePricingClient:
         """Async context manager entry."""
         ssl_context = None
         if not SSL_VERIFY:
@@ -89,7 +91,7 @@ class AzurePricingClient:
                             if retry_after:
                                 wait_time = float(retry_after)
                             else:
-                                wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (2 ** attempt) + random.uniform(0, 1)
+                                wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (2**attempt) + random.uniform(0, 1)
                             logger.warning(
                                 f"Rate limited (429). Retrying in {wait_time:.1f}s "
                                 f"(attempt {attempt + 1}/{max_retries + 1})"
@@ -105,10 +107,9 @@ class AzurePricingClient:
 
             except aiohttp.ClientResponseError as e:
                 if e.status == 429 and attempt < max_retries:
-                    wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (2 ** attempt) + random.uniform(0, 1)
+                    wait_time = RATE_LIMIT_RETRY_BASE_WAIT * (2**attempt) + random.uniform(0, 1)
                     logger.warning(
-                        f"Rate limited (429). Retrying in {wait_time:.1f}s "
-                        f"(attempt {attempt + 1}/{max_retries + 1})"
+                        f"Rate limited (429). Retrying in {wait_time:.1f}s (attempt {attempt + 1}/{max_retries + 1})"
                     )
                     await asyncio.sleep(wait_time)
                     last_exception = e

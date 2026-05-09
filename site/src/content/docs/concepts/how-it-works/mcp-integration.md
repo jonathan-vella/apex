@@ -82,16 +82,16 @@ and provides tools for cost estimation, SKU discovery, and FinOps:
 | `azure_price_search`          | Search retail prices with filters                    |
 | `azure_price_compare`         | Compare prices across regions/SKUs                   |
 | `azure_cost_estimate`         | Estimate costs based on usage                        |
-| `azure_discover_skus`         | List available SKUs for a service                    |
-| `azure_sku_discovery`         | Intelligent SKU name matching                        |
+| `azure_sku_discovery`         | Intelligent SKU name matching (canonical)            |
+| `azure_discover_skus`         | **⚠️ Deprecated v5.0** — use `azure_sku_discovery`   |
 | `azure_region_recommend`      | Find cheapest regions                                |
 | `azure_ri_pricing`            | Reserved Instance pricing and savings                |
 | `azure_bulk_estimate`         | Multi-resource estimate in one call                  |
 | `get_customer_discount`       | Customer discount percentage                         |
-| `spot_eviction_rates`         | Spot VM eviction rates (requires Azure auth)         |
+| `spot_eviction_rates`         | Spot VM eviction rates (requires `[admin]` extras)   |
 | `spot_price_history`          | Spot VM price history (90 days)                      |
 | `simulate_eviction`           | Simulate Spot VM eviction                            |
-| `find_orphaned_resources`     | Detect unused Azure resources with cost analysis     |
+| `find_orphaned_resources`     | Detect unused Azure resources (`[admin]` extras)     |
 | `azure_ptu_sizing`            | Estimate PTUs for Azure OpenAI deployments           |
 | `databricks_dbu_pricing`      | Search Databricks DBU rates                          |
 | `databricks_cost_estimate`    | Estimate Databricks costs                            |

@@ -34,10 +34,30 @@ HTTP_POOL_PER_HOST = int(os.environ.get("AZURE_PRICING_HTTP_POOL_PER_HOST", "10"
 # Override via AZURE_PRICING_DEDUP_TTL for longer/shorter horizons.
 REQUEST_DEDUP_TTL = float(os.environ.get("AZURE_PRICING_DEDUP_TTL", "300.0"))
 
+# Negative-result TTL (Phase 3.11).
+#
+# Empty pricing responses (``Items: []``) cache for a much shorter window than
+# successful hits because agents often retry within seconds when an SKU name
+# is wrong. 60 s avoids paying full HTTP latency on retries while staying
+# short enough that a corrected SKU is not poisoned by the previous miss.
+NEGATIVE_CACHE_TTL = float(os.environ.get("AZURE_PRICING_NEG_TTL", "60.0"))
+
 # Max in-memory dedup cache entries. When exceeded, entries older than
 # REQUEST_DEDUP_TTL are evicted. 512 covers typical multi-SKU bulk
 # estimates (10-20 SKUs x 3-5 regions) with headroom.
 REQUEST_DEDUP_MAX_ENTRIES = int(os.environ.get("AZURE_PRICING_DEDUP_MAX_ENTRIES", "512"))
+
+# Disk-backed retirement cache path (Phase 3.8).
+#
+# Retirement docs come from a public MicrosoftDocs/azure-compute-docs file
+# that changes only when Microsoft updates the retirement schedule
+# (typically <1x/month). Caching to disk avoids the GitHub round-trip on
+# every cold start of the server.
+RETIREMENT_DISK_CACHE_DIR = os.environ.get(
+    "AZURE_PRICING_CACHE_DIR",
+    os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "azure-pricing-mcp"),
+)
+RETIREMENT_DISK_CACHE_FILE = "retirement.json"
 
 # SSL verification configuration
 # Set to False if behind a corporate proxy with self-signed certificates

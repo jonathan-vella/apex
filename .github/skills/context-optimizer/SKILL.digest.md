@@ -28,7 +28,7 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Prerequisites
 
-- Python 3.10+ (for log parser script)
+- Python 3.14 (for log parser script)
 - Access to VS Code Copilot Chat debug logs
 - Agent definitions in `.github/agents/*.agent.md` (or equivalent)
 

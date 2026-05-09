@@ -290,7 +290,7 @@ class PTUService:
         # Check if deployment type is available for this model
         if min_ptus is None or increment is None:
             return {
-                "error": (f"Model '{canonical_name}' does not support " f"{deploy_meta['label']} deployments."),
+                "error": (f"Model '{canonical_name}' does not support {deploy_meta['label']} deployments."),
                 "suggestion": "Try GlobalProvisioned or DataZoneProvisioned instead.",
             }
 

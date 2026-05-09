@@ -51,5 +51,6 @@ calling `azure_cost_estimate` per resource. It accepts a `resources`
 array and returns aggregated totals.
 
 Each resource supports a `quantity` parameter (default: 1) for
-multi-instance scenarios. Use `output_format: "compact"` to reduce
-response size when detailed metadata is not needed.
+multi-instance scenarios. The default `response_format` is `compact`
+in v5.0 — pass `response_format: "full"` only when you need the verbose
+v4 string shape (e.g., for back-compat with a parser).

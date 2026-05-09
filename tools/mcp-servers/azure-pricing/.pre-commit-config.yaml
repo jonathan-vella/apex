@@ -12,50 +12,33 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ["--maxkb=1000"]
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
       - id: detect-private-key
       - id: mixed-line-ending
 
-  # Python code formatting with Black
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
-        language_version: python3.10
-        args: ['--line-length=120']
-
-  # Python linting with Ruff
+  # Python linting + formatting with Ruff (v5.0: replaces black; sync'd with CI gates)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.7.4
     hooks:
       - id: ruff
-        args: ['--fix', '--exit-non-zero-on-fix']
+        args: ["--fix", "--exit-non-zero-on-fix"]
+      - id: ruff-format
 
-  # Type checking with MyPy
+  # Type checking with MyPy (sync'd with CI gate `npm run lint:python:types`)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.13.0
     hooks:
       - id: mypy
-        additional_dependencies: [
-          'types-requests',
-          'types-aiohttp',
-          'pydantic>=2.0.0'
-        ]
-        args: ['--config-file=pyproject.toml']
+        additional_dependencies: ["types-requests", "types-aiohttp", "pydantic>=2.10.0"]
+        args: ["--config-file=pyproject.toml"]
 
-  # Security checks
+  # Security checks (sync'd with CI gate `npm run lint:python:security`)
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.6
+    rev: 1.8.0
     hooks:
       - id: bandit
-        args: ['-c', 'pyproject.toml']
-        additional_dependencies: ['bandit[toml]']
-
-  # Dockerfile linting
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
-    hooks:
-      - id: hadolint-docker
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]

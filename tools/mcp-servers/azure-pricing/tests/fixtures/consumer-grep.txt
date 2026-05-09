@@ -1,0 +1,26 @@
+# Phase 0d: Consumer grep — output-shape and tool-name references
+# Excludes: the plan file itself, the MCP server source, and the .venv
+# Generated: 2026-05-09T05:17:34Z
+
+## A. agent-output substring patterns (existing artifact text — verifies if any agent-generated docs hardcoded the strings)
+  (no matches)
+
+## B. output_format references (B1 — should all become response_format)
+.github/skills/azure-defaults/references/pricing-guidance.md:54:multi-instance scenarios. Use `output_format: "compact"` to reduce
+.github/agents/_subagents/cost-estimate-subagent.agent.md:160:and returns aggregated totals. Use `output_format: "compact"` to reduce response size.
+.github/agents/_subagents/cost-estimate-subagent.agent.md:251:Use `output_format: "compact"` when calling `azure_bulk_estimate` and aggregate
+
+## C. azure_discover_skus references (must be migrated to azure_sku_discovery)
+.github/agents/_subagents/cost-estimate-subagent.agent.md:154:| `azure_discover_skus`    | Only if a SKU name is unknown — not for SKUs already in requirements   | 0–1       |
+.github/agents/_subagents/cost-estimate-subagent.agent.md:197:- Don't call `azure_discover_skus` for SKUs already specified in requirements.
+.github/agents/_subagents/cost-estimate-subagent.agent.md:295:Call 5: azure_discover_skus     → only if SKU name is ambiguous         [optional]
+.github/agents/03-architect.agent.md:266:| `azure_discover_skus`    | Only if SKU name is unknown                         | Avoid     |
+site/src/content/docs/concepts/how-it-works/mcp-integration.md:85:| `azure_discover_skus`         | List available SKUs for a service                    |
+
+## D. azure_sku_discovery references (canonical)
+.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md:33:**MCP Tools Used**: {azure_price_search, azure_cost_estimate, azure_bulk_estimate, azure_region_recommend, azure_sku_discovery}
+.github/skills/azure-artifacts/references/cost-estimate-sections.md:17:azure_bulk_estimate, azure_region_recommend, azure_sku_discovery}
+site/src/content/docs/concepts/how-it-works/mcp-integration.md:86:| `azure_sku_discovery`         | Intelligent SKU name matching                        |
+
+## E. azure-pricing/[azure] extras references (must become [admin])
+  (no matches)

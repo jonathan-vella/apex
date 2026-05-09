@@ -145,13 +145,18 @@ class BulkEstimateService:
                             wait = BULK_RETRY_BASE_WAIT * (2 ** (attempt - 1))
                             logger.warning(
                                 "Bulk item %s attempt %d failed, retrying in %.1fs: %s",
-                                indices, attempt, wait, exc,
+                                indices,
+                                attempt,
+                                wait,
+                                exc,
                             )
                             await asyncio.sleep(wait)
 
                 logger.warning(
                     "Bulk estimate failed for items %s after %d attempts: %s",
-                    indices, BULK_ITEM_MAX_RETRIES, last_exc,
+                    indices,
+                    BULK_ITEM_MAX_RETRIES,
+                    last_exc,
                 )
                 return None, {
                     "indices": indices,
@@ -159,10 +164,7 @@ class BulkEstimateService:
                     "input": res,
                 }
 
-        tasks = [
-            _estimate_one(res, idxs)
-            for res, idxs in zip(deduped_list, index_map, strict=True)
-        ]
+        tasks = [_estimate_one(res, idxs) for res, idxs in zip(deduped_list, index_map, strict=True)]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Phase D: aggregate

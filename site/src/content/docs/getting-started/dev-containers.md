@@ -238,7 +238,7 @@ The Dev Container includes:
 | **Azure**              | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP                      |
 | **Terraform**          | Terraform (latest), tfsec, HashiCorp Terraform MCP Server                |
 | **PowerShell**         | PowerShell 7+, Az modules                                                |
-| **Python**             | Python 3.13+, diagrams library, graphviz                                 |
+| **Python**             | Python 3.14, diagrams library, graphviz                                  |
 | **Node.js**            | Node LTS+, npm, markdownlint                                             |
 | **APEX Tools**         | `apex-recall` CLI (progressive session recall)                           |
 | **VS Code Extensions** | Comprehensive set of extensions (Bicep, Terraform, Copilot, Azure, etc.) |

@@ -31,12 +31,15 @@ class GitHubPricingHandlers:
 
     async def handle_github_pricing(self, arguments: dict[str, Any]) -> list[TextContent]:
         """Handle ``github_pricing`` tool calls."""
+        from ..response_format import coerce_response_format
+
+        fmt = coerce_response_format(arguments.pop("response_format", "compact"))
         service = self._get_github_pricing_service()
         result = await service.get_pricing(
             product=arguments.get("product"),
             copilot_plan=arguments.get("copilot_plan"),
         )
-        text = format_github_pricing_response(result)
+        text = format_github_pricing_response(result, fmt)
         return [TextContent(type="text", text=text)]
 
     async def handle_github_cost_estimate(self, arguments: dict[str, Any]) -> list[TextContent]:

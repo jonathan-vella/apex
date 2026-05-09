@@ -1,6 +1,10 @@
 """Tool definitions for GitHub Pricing."""
 
-from mcp.types import Tool
+from mcp.types import Tool, ToolAnnotations
+
+from ..response_format import RESPONSE_FORMAT_SCHEMA
+
+_READ_ANNOTATIONS = ToolAnnotations(readOnlyHint=True, idempotentHint=True, destructiveHint=False)
 
 
 def get_github_pricing_tool_definitions() -> list[Tool]:
@@ -35,8 +39,10 @@ def get_github_pricing_tool_definitions() -> list[Tool]:
                             "Values: 'Free', 'Pro', 'Pro+', 'Business', 'Enterprise'."
                         ),
                     },
+                    "response_format": RESPONSE_FORMAT_SCHEMA,
                 },
             },
+            annotations=_READ_ANNOTATIONS,
         ),
         Tool(
             name="github_cost_estimate",
@@ -110,5 +116,6 @@ def get_github_pricing_tool_definitions() -> list[Tool]:
                     },
                 },
             },
+            annotations=_READ_ANNOTATIONS,
         ),
     ]

@@ -2,7 +2,7 @@
 name = "azure-agentic-infraops"
 version = "0.10.0"
 description = "APEX - Agentic Platform Engineering eXperience for Azure"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 
 [tool.ruff]
 # Exclude infrastructure folder and generated files
@@ -18,8 +18,8 @@ exclude = [
 # Line length to match markdown lint
 line-length = 120
 
-# Target Python 3.10+
-target-version = "py310"
+# Target Python 3.14 (latest stable)
+target-version = "py314"
 
 [tool.ruff.lint]
 # Enable common rule sets

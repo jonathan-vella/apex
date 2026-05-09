@@ -362,6 +362,9 @@ class TestHandlerDiscountIntegration:
         result = await tool_handlers.handle_price_search(
             {
                 "service_name": "Virtual Machines",
+                # Discount tips are suppressed in compact mode (v5 token win) —
+                # request 'full' to preserve the v4 tip assertion.
+                "response_format": "full",
             }
         )
 
@@ -401,6 +404,8 @@ class TestHandlerDiscountIntegration:
             {
                 "service_name": "Virtual Machines",
                 "show_with_discount": True,
+                # Tips are emitted only in 'full' mode in v5.0.
+                "response_format": "full",
             }
         )
 

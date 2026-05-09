@@ -99,7 +99,7 @@ Description. **Why this matters**: impact explanation.
 ### Project Context
 
 - **IaC**: Azure Bicep (AVM-first), Terraform
-- **Scripts**: PowerShell 7+, Node.js (`.mjs`), bash, Python 3.10+
+- **Scripts**: PowerShell 7+, Node.js (`.mjs`), bash, Python 3.14
 - **Build**: `npm run lint:md`, `npm run validate:all`
 - **Style**: Conventional Commits, 120-char lines, TLS 1.2+, managed identity
 

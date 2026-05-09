@@ -10,9 +10,7 @@ Data should be updated when the upstream doc table changes.
 DATA_VERSION = "2026-02-01"
 
 # Authoritative source URL for PTU model tables.
-DATA_SOURCE_URL = (
-    "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/" "provisioned-throughput-onboarding"
-)
+DATA_SOURCE_URL = "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/provisioned-throughput-onboarding"
 
 # Max PTUs per single deployment (hard limit from Azure quotas/limits docs).
 MAX_PTUS_PER_DEPLOYMENT = 100_000

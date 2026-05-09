@@ -1,4 +1,10 @@
-"""Response formatters for Azure Pricing MCP Server."""
+"""Response formatters for Azure Pricing MCP Server.
+
+v5.0 — every public ``format_*_response`` for the 11 in-scope tools accepts a
+``response_format`` keyword argument (``compact`` | ``table`` | ``full``,
+default ``compact``). Compact mode emits a token-efficient markdown summary;
+``full`` reproduces the verbose v4 string for back-compat.
+"""
 
 import json
 from typing import Any
@@ -12,6 +18,11 @@ from azure_pricing_mcp.databricks.formatters import (
 )
 from azure_pricing_mcp.databricks.formatters import (
     format_databricks_dbu_pricing_response as format_databricks_dbu_pricing_response,
+)
+from azure_pricing_mcp.response_format import (
+    DEFAULT_RESPONSE_FORMAT,
+    ResponseFormat,
+    coerce_response_format,
 )
 
 # Discount tip messages
@@ -48,10 +59,68 @@ def _get_discount_tip(result: dict[str, Any]) -> str:
     return DISCOUNT_TIP_NO_DISCOUNT
 
 
-def format_price_search_response(result: dict[str, Any]) -> str:
-    """Format the price search response for display."""
+def format_price_search_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
+    """Format the price search response.
+
+    ``compact`` / ``table`` modes emit a markdown table only (largest token win
+    in v5.0 — drops the v4 ``json.dumps(items, indent=2)`` dump). ``full``
+    preserves the verbose v4 string for back-compat.
+    """
+    fmt = coerce_response_format(response_format)
     items = result.get("items", [])
 
+    if fmt in ("compact", "table"):
+        return _format_price_search_compact(result, items, table_only=fmt == "table")
+
+    # fmt == "full" — original verbose path retained verbatim for v4 back-compat
+    return _format_price_search_full(result, items)
+
+
+def _format_price_search_compact(result: dict[str, Any], items: list[dict[str, Any]], *, table_only: bool) -> str:
+    """Token-efficient markdown table. No JSON dump, no decorative footers."""
+    if not items or result.get("count", 0) == 0:
+        if table_only:
+            return "| service | sku | region | price | unit |\n|---|---|---|---|---|\n"
+        # Compact "no results" path stays terse.
+        msg = "No pricing results found."
+        if "sku_validation" in result:
+            v = result["sku_validation"]
+            sugg = v.get("suggestions") or []
+            if sugg:
+                msg += " Did you mean: " + ", ".join(s.get("sku_name", "?") for s in sugg[:3]) + "?"
+        return msg
+
+    lines: list[str] = []
+    discount = result.get("discount_applied")
+    if not table_only:
+        lines.append(f"Found {result['count']} prices.")
+        if discount:
+            lines.append(f"Discount: {discount['percentage']}%.")
+        lines.append("")
+
+    lines.append("| service | sku | region | price | unit | type | savings_plan_1y | savings_plan_3y |")
+    lines.append("|---|---|---|---|---|---|---|---|")
+    for item in items:
+        plans = {p.get("term", ""): p.get("retailPrice") for p in item.get("savingsPlan", []) or []}
+        sp1 = plans.get("1 Year")
+        sp3 = plans.get("3 Years")
+        lines.append(
+            f"| {item.get('serviceName', '')} "
+            f"| {item.get('skuName', '')} "
+            f"| {item.get('armRegionName') or item.get('location', '')} "
+            f"| {item.get('retailPrice', 0)} "
+            f"| {item.get('unitOfMeasure', '')} "
+            f"| {item.get('type', '')} "
+            f"| {sp1 if sp1 is not None else '—'} "
+            f"| {sp3 if sp3 is not None else '—'} |"
+        )
+    return "\n".join(lines)
+
+
+def _format_price_search_full(result: dict[str, Any], items: list[dict[str, Any]]) -> str:
+    """Original v4 verbose path — preserved byte-for-byte for back-compat."""
     if items:
         formatted_items = []
         for item in items:
@@ -82,52 +151,36 @@ def format_price_search_response(result: dict[str, Any]) -> str:
 
         if result["count"] > 0:
             response_text = f"Found {result['count']} Azure pricing results:\n\n"
-
-            # Add retirement warnings FIRST
             if "retirement_warnings" in result and result["retirement_warnings"]:
                 response_text += _format_retirement_warnings(result["retirement_warnings"])
-
-            # Add discount information
             if "discount_applied" in result:
                 response_text += f"💰 **Customer Discount Applied: {result['discount_applied']['percentage']}%**\n"
                 response_text += f"   {result['discount_applied']['note']}\n\n"
-
-            # Add SKU validation info
             if "sku_validation" in result:
                 response_text += _format_sku_validation(result["sku_validation"])
-
-            # Add clarification info
             if "clarification" in result:
                 response_text += _format_clarification(result["clarification"])
-
-            # Add summary of savings
             if "discount_applied" in result:
                 response_text += _format_savings_summary(formatted_items)
-
             response_text += "**Detailed Pricing:**\n"
             response_text += json.dumps(formatted_items, indent=2)
-
             return response_text
-        else:
-            return "No valid pricing results found."
-    else:
-        response_text = "No pricing results found for the specified criteria."
+        return "No valid pricing results found."
 
-        if "discount_applied" in result:
-            response_text += f"\n\n💰 Note: Your {result['discount_applied']['percentage']}% customer discount would have been applied to any results."
-
-        if "sku_validation" in result:
-            validation = result["sku_validation"]
-            response_text += f"\n\n⚠️ {validation['message']}\n"
-            if validation["suggestions"]:
-                response_text += "\n🔍 Did you mean one of these SKUs?\n"
-                for suggestion in validation["suggestions"][:5]:
-                    response_text += f"   • {suggestion['sku_name']}: ${suggestion['price']} per {suggestion['unit']}"
-                    if suggestion["region"]:
-                        response_text += f" (in {suggestion['region']})"
-                    response_text += "\n"
-
-        return response_text
+    response_text = "No pricing results found for the specified criteria."
+    if "discount_applied" in result:
+        response_text += f"\n\n💰 Note: Your {result['discount_applied']['percentage']}% customer discount would have been applied to any results."
+    if "sku_validation" in result:
+        validation = result["sku_validation"]
+        response_text += f"\n\n⚠️ {validation['message']}\n"
+        if validation["suggestions"]:
+            response_text += "\n🔍 Did you mean one of these SKUs?\n"
+            for suggestion in validation["suggestions"][:5]:
+                response_text += f"   • {suggestion['sku_name']}: ${suggestion['price']} per {suggestion['unit']}"
+                if suggestion["region"]:
+                    response_text += f" (in {suggestion['region']})"
+                response_text += "\n"
+    return response_text
 
 
 def _format_retirement_warnings(warnings: list[dict[str, Any]]) -> str:
@@ -199,34 +252,95 @@ def _format_savings_summary(formatted_items: list[dict[str, Any]]) -> str:
     return ""
 
 
-def format_price_compare_response(result: dict[str, Any]) -> str:
+def format_price_compare_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
     """Format the price comparison response for display."""
-    response_text = f"Price comparison for {result['service_name']}:\n\n"
+    fmt = coerce_response_format(response_format)
+    if fmt in ("compact", "table"):
+        comparisons = result.get("comparisons", [])
+        if not comparisons:
+            return "No comparison results." if fmt == "compact" else ""
+        rows = comparisons if isinstance(comparisons, list) else list(comparisons.values())
+        if not rows or not isinstance(rows[0], dict):
+            return f"Comparison ({result.get('service_name', '?')}): {comparisons}"
+        cols = list(rows[0].keys())
+        lines = []
+        if fmt == "compact":
+            lines.append(f"Comparison: {result.get('service_name', '?')}")
+            disc = result.get("discount_applied")
+            if disc:
+                lines.append(f"Discount: {disc['percentage']}%.")
+            lines.append("")
+        lines.append("| " + " | ".join(cols) + " |")
+        lines.append("|" + "|".join(["---"] * len(cols)) + "|")
+        for row in rows:
+            lines.append("| " + " | ".join(str(row.get(c, "")) for c in cols) + " |")
+        return "\n".join(lines)
 
+    response_text = f"Price comparison for {result['service_name']}:\n\n"
     if "discount_applied" in result:
         response_text += f"💰 {result['discount_applied']['percentage']}% discount applied - {result['discount_applied']['note']}\n\n"
-
     response_text += json.dumps(result["comparisons"], indent=2)
-
     return response_text
 
 
-def format_region_recommend_response(result: dict[str, Any]) -> str:
+def format_region_recommend_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
     """Format the region recommendation response for display."""
+    fmt = coerce_response_format(response_format)
     if "error" in result:
         return f"Error: {result['error']}"
 
     recommendations = result.get("recommendations", [])
     if not recommendations:
-        return "No region recommendations found for the specified criteria."
+        return (
+            "No region recommendations found."
+            if fmt == "compact"
+            else "No region recommendations found for the specified criteria."
+        )
 
+    if fmt in ("compact", "table"):
+        lines = []
+        if fmt == "compact":
+            summary = result.get("summary") or {}
+            lines.append(
+                f"Region recs: {result.get('service_name', '?')} {result.get('sku_name', '?')} "
+                f"({result.get('total_regions_found', 0)} regions, {result.get('currency', 'USD')})."
+            )
+            if summary:
+                lines.append(
+                    f"Cheapest: {summary.get('cheapest_location', '?')} "
+                    f"(${summary.get('cheapest_price', 0):.6f}); max savings {summary.get('max_savings_percentage', 0):.1f}%."
+                )
+            disc = result.get("discount_applied")
+            if disc:
+                lines.append(f"Discount: {disc['percentage']}%.")
+            lines.append("")
+
+        lines.append("| rank | region | location | price | unit | spot | savings_vs_max |")
+        lines.append("|---|---|---|---|---|---|---|")
+        for i, rec in enumerate(recommendations, 1):
+            spot = rec.get("spot_price")
+            lines.append(
+                f"| {i} "
+                f"| {rec.get('region', 'N/A')} "
+                f"| {rec.get('location', 'N/A')} "
+                f"| {rec.get('retail_price', 0):.6f} "
+                f"| {rec.get('unit_of_measure', '')} "
+                f"| {f'{spot:.6f}' if spot else '—'} "
+                f"| {rec.get('savings_vs_most_expensive', 0):.1f}% |"
+            )
+        return "\n".join(lines)
+
+    # full — verbose v4 path
     response_text = f"""🌍 Region Recommendations for {result["service_name"]} - {result["sku_name"]}
 
 Currency: {result["currency"]}
 Total regions found: {result["total_regions_found"]}
 Showing top: {result["showing_top"]}
 """
-
     if "discount_applied" in result:
         response_text += f"\n💰 {result['discount_applied']['percentage']}% discount applied - {result['discount_applied']['note']}\n"
 
@@ -258,7 +372,6 @@ Showing top: {result["showing_top"]}
             f"| {rank_display} | {region} | {location} | ${price:.6f}/{unit} | {spot_display} | {savings:.1f}% |\n"
         )
 
-    # Spot pricing note
     spot_available = [rec for rec in recommendations if rec.get("spot_price")]
     if spot_available:
         response_text += "\n💡 **Spot Pricing Available:**\n"
@@ -282,10 +395,37 @@ Showing top: {result["showing_top"]}
     return response_text
 
 
-def format_cost_estimate_response(result: dict[str, Any]) -> str:
+def format_cost_estimate_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
     """Format the cost estimate response for display."""
+    fmt = coerce_response_format(response_format)
     if "error" in result:
         return f"Error: {result['error']}"
+
+    if fmt in ("compact", "table"):
+        od = result.get("on_demand_pricing", {}) or {}
+        lines = []
+        if fmt == "compact":
+            lines.append(
+                f"Cost: {result.get('service_name', '?')} {result.get('sku_name', '?')} "
+                f"in {result.get('region', '?')} ({result.get('currency', 'USD')})."
+            )
+            disc = result.get("discount_applied")
+            if disc:
+                lines.append(f"Discount: {disc['percentage']}%.")
+            lines.append("")
+        lines.append("| metric | value |")
+        lines.append("|---|---|")
+        lines.append(f"| hourly_rate | {od.get('hourly_rate', 0)} |")
+        lines.append(f"| monthly_cost | {od.get('monthly_cost', 0)} |")
+        lines.append(f"| yearly_cost | {od.get('yearly_cost', 0)} |")
+        for plan in result.get("savings_plans", []) or []:
+            lines.append(
+                f"| sp_{plan.get('term', '').replace(' ', '_').lower()}_monthly "
+                f"| {plan.get('monthly_cost', 0)} ({plan.get('savings_percent', 0)}% off) |"
+            )
+        return "\n".join(lines)
 
     estimate_text = f"""
 Cost Estimate for {result["service_name"]} - {result["sku_name"]}
@@ -338,89 +478,139 @@ Original Pricing (before discount):
     return estimate_text
 
 
-def format_discover_skus_response(result: dict[str, Any]) -> str:
-    """Format the discover SKUs response for display."""
+def format_discover_skus_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
+    """Format the discover SKUs response for display.
+
+    v5.0 — ``azure_discover_skus`` is a deprecation alias of ``azure_sku_discovery``.
+    Compact mode prepends a ``[deprecated]`` line so callers see the migration hint.
+    """
+    fmt = coerce_response_format(response_format)
     skus = result.get("skus", [])
-    if skus:
-        return f"Found {result['total_skus']} SKUs for {result['service_name']}:\n\n" + json.dumps(skus, indent=2)
-    else:
+    if not skus:
         return "No SKUs found for the specified service."
 
+    if fmt in ("compact", "table"):
+        lines = []
+        if fmt == "compact":
+            lines.append(
+                f"[deprecated v5.0; use azure_sku_discovery] {result['total_skus']} SKUs for {result['service_name']}."
+            )
+            lines.append("")
+        # Render whatever shape ``skus`` has — list of dicts is the common case.
+        if isinstance(skus, list) and skus and isinstance(skus[0], dict):
+            cols = ["skuName", "productName", "minPrice", "regions"]
+            present = [c for c in cols if any(c in s for s in skus[:5])]
+            if not present:
+                present = list(skus[0].keys())[:5]
+            lines.append("| " + " | ".join(present) + " |")
+            lines.append("|" + "|".join(["---"] * len(present)) + "|")
+            for sku in skus:
+                lines.append(
+                    "| "
+                    + " | ".join(
+                        ",".join(map(str, sku[c])) if isinstance(sku.get(c), list) else str(sku.get(c, ""))
+                        for c in present
+                    )
+                    + " |"
+                )
+            return "\n".join(lines)
+        return "\n".join(lines) + "\n" + json.dumps(skus, indent=None, separators=(",", ":"))
 
-def format_sku_discovery_response(result: dict[str, Any]) -> str:
+    return f"Found {result['total_skus']} SKUs for {result['service_name']}:\n\n" + json.dumps(skus, indent=2)
+
+
+def format_sku_discovery_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
     """Format the SKU discovery response for display."""
-    if result["service_found"]:
-        service_name = result["service_found"]
-        original_search = result["original_search"]
-        skus = result["skus"]
-        total_skus = result["total_skus"]
-        match_type = result.get("match_type", "exact")
+    fmt = coerce_response_format(response_format)
+    if not result.get("service_found"):
+        # Suggestion path stays similar in all formats — it's already terse.
+        return _format_sku_discovery_no_match(result)
 
-        response_text = f"SKU Discovery for '{original_search}'"
+    service_name = result["service_found"]
+    skus: dict[str, dict[str, Any]] = result["skus"]
+    total_skus = result["total_skus"]
 
-        if match_type == "exact_mapping":
-            response_text += f" (mapped to: {service_name})"
+    if fmt in ("compact", "table"):
+        lines = []
+        if fmt == "compact":
+            lines.append(f"SKUs ({total_skus}) for {service_name} (search='{result['original_search']}').")
+            lines.append("")
+        lines.append("| product | sku | min_price | unit | regions |")
+        lines.append("|---|---|---|---|---|")
+        for sku_name, sku_data in sorted(skus.items()):
+            lines.append(
+                f"| {sku_data.get('product_name', '')} "
+                f"| {sku_name} "
+                f"| {sku_data.get('min_price', 0)} "
+                f"| {sku_data.get('sample_unit', '')} "
+                f"| {len(sku_data.get('regions', []))} |"
+            )
+        return "\n".join(lines)
 
-        response_text += f"\n\nFound {total_skus} SKUs for {service_name}:\n\n"
+    # full — v4 verbose path
+    original_search = result["original_search"]
+    match_type = result.get("match_type", "exact")
+    response_text = f"SKU Discovery for '{original_search}'"
+    if match_type == "exact_mapping":
+        response_text += f" (mapped to: {service_name})"
+    response_text += f"\n\nFound {total_skus} SKUs for {service_name}:\n\n"
 
-        products: dict[str, list[tuple]] = {}
-        for sku_name, sku_data in skus.items():
-            product = sku_data["product_name"]
-            if product not in products:
-                products[product] = []
-            products[product].append((sku_name, sku_data))
+    products: dict[str, list[tuple]] = {}
+    for sku_name, sku_data in skus.items():
+        product = sku_data["product_name"]
+        products.setdefault(product, []).append((sku_name, sku_data))
 
-        for product, product_skus in products.items():
-            response_text += f"📦 {product}:\n"
-            for sku_name, sku_data in sorted(product_skus)[:10]:
-                min_price = sku_data.get("min_price", 0)
-                unit = sku_data.get("sample_unit", "Unknown")
-                region_count = len(sku_data.get("regions", []))
-
-                response_text += f"   • {sku_name}\n"
-                response_text += f"     Price: ${min_price} per {unit}"
-                if region_count > 1:
-                    response_text += f" (available in {region_count} regions)"
-                response_text += "\n"
+    for product, product_skus in products.items():
+        response_text += f"📦 {product}:\n"
+        for sku_name, sku_data in sorted(product_skus)[:10]:
+            min_price = sku_data.get("min_price", 0)
+            unit = sku_data.get("sample_unit", "Unknown")
+            region_count = len(sku_data.get("regions", []))
+            response_text += f"   • {sku_name}\n"
+            response_text += f"     Price: ${min_price} per {unit}"
+            if region_count > 1:
+                response_text += f" (available in {region_count} regions)"
             response_text += "\n"
+        response_text += "\n"
+    return response_text
 
-        return response_text
+
+def _format_sku_discovery_no_match(result: dict[str, Any]) -> str:
+    """Helper: format the 'no match' branch of the SKU-discovery response."""
+    suggestions = result.get("suggestions", [])
+    original_search = result["original_search"]
+    if suggestions:
+        response_text = f"No exact match found for '{original_search}'\n\n"
+        response_text += "🔍 Did you mean one of these services?\n\n"
+        for i, suggestion in enumerate(suggestions[:5], 1):
+            service_name = suggestion["service_name"]
+            match_reason = suggestion["match_reason"]
+            sample_items = suggestion["sample_items"]
+            response_text += f"{i}. {service_name}\n   Reason: {match_reason}\n"
+            if sample_items:
+                response_text += "   Sample SKUs:\n"
+                for item in sample_items[:3]:
+                    sku = item.get("skuName", "Unknown")
+                    price = item.get("retailPrice", 0)
+                    unit = item.get("unitOfMeasure", "Unknown")
+                    response_text += f"     • {sku}: ${price} per {unit}\n"
+            response_text += "\n"
+        response_text += "💡 Try using one of the exact service names above."
     else:
-        suggestions = result.get("suggestions", [])
-        original_search = result["original_search"]
-
-        if suggestions:
-            response_text = f"No exact match found for '{original_search}'\n\n"
-            response_text += "🔍 Did you mean one of these services?\n\n"
-
-            for i, suggestion in enumerate(suggestions[:5], 1):
-                service_name = suggestion["service_name"]
-                match_reason = suggestion["match_reason"]
-                sample_items = suggestion["sample_items"]
-
-                response_text += f"{i}. {service_name}\n"
-                response_text += f"   Reason: {match_reason}\n"
-
-                if sample_items:
-                    response_text += "   Sample SKUs:\n"
-                    for item in sample_items[:3]:
-                        sku = item.get("skuName", "Unknown")
-                        price = item.get("retailPrice", 0)
-                        unit = item.get("unitOfMeasure", "Unknown")
-                        response_text += f"     • {sku}: ${price} per {unit}\n"
-                response_text += "\n"
-
-            response_text += "💡 Try using one of the exact service names above."
-        else:
-            response_text = f"No matches found for '{original_search}'\n\n"
-            response_text += "💡 Try using terms like:\n"
-            response_text += "• 'app service' or 'web app' for Azure App Service\n"
-            response_text += "• 'vm' or 'virtual machine' for Virtual Machines\n"
-            response_text += "• 'storage' or 'blob' for Storage services\n"
-            response_text += "• 'sql' or 'database' for SQL Database\n"
-            response_text += "• 'kubernetes' or 'aks' for Azure Kubernetes Service"
-
-        return response_text
+        response_text = (
+            f"No matches found for '{original_search}'\n\n"
+            "💡 Try using terms like:\n"
+            "• 'app service' or 'web app' for Azure App Service\n"
+            "• 'vm' or 'virtual machine' for Virtual Machines\n"
+            "• 'storage' or 'blob' for Storage services\n"
+            "• 'sql' or 'database' for SQL Database\n"
+            "• 'kubernetes' or 'aks' for Azure Kubernetes Service"
+        )
+    return response_text
 
 
 def format_customer_discount_response(result: dict[str, Any]) -> str:
@@ -437,10 +627,47 @@ Applicable Services: {result["applicable_services"]}
 """
 
 
-def format_ri_pricing_response(result: dict[str, Any]) -> str:
+def format_ri_pricing_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
     """Format the RI pricing response for display."""
-    response_lines = []
+    fmt = coerce_response_format(response_format)
+    if fmt in ("compact", "table"):
+        lines = []
+        comparison = result.get("comparison") or []
+        if comparison:
+            if fmt == "compact":
+                lines.append("RI savings:")
+            lines.append("| sku | region | term | savings | ri_hourly | od_hourly | break_even_mo | annual_savings |")
+            lines.append("|---|---|---|---|---|---|---|---|")
+            for c in comparison:
+                lines.append(
+                    f"| {c.get('sku', '')} | {c.get('region', '')} | {c.get('term', '')} "
+                    f"| {c.get('savings_percentage', 0)}% "
+                    f"| {c.get('ri_hourly', 0)} | {c.get('od_hourly', 0)} "
+                    f"| {c.get('break_even_months', '—')} "
+                    f"| ${c.get('annual_savings', 0):,} |"
+                )
+        ri_items = result.get("ri_items") or []
+        if ri_items and fmt == "full":
+            pass  # full path handled below
+        if ri_items:
+            if fmt == "compact":
+                lines.append("")
+                lines.append(f"Raw RI ({result.get('count', 0)} items, top {min(10, len(ri_items))}):")
+            lines.append("| sku | region | price | unit | term |")
+            lines.append("|---|---|---|---|---|")
+            for it in ri_items[:10]:
+                lines.append(
+                    f"| {it.get('skuName', '')} | {it.get('armRegionName', '')} "
+                    f"| {it.get('retailPrice', 0)} | {it.get('unitOfMeasure', '')} "
+                    f"| {it.get('reservationTerm', '')} |"
+                )
+        if not lines:
+            return "No Reserved Instance pricing found."
+        return "\n".join(lines)
 
+    response_lines: list[str] = []
     if result.get("comparison"):
         response_lines.append("### Reserved Instance Savings Analysis\n")
         for comp in result["comparison"]:
@@ -623,13 +850,15 @@ def _get_eviction_rate_emoji(rate: str) -> str:
 # =============================================================================
 
 
-def format_orphaned_resources_response(result: dict[str, Any]) -> str:
+def format_orphaned_resources_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
     """Format the orphaned resources scan response for display.
 
-    Groups resources by type and renders per-type summary sections
-    with a cost breakdown table.
+    ``compact`` collapses the per-type detail tables into a single summary table
+    plus a count column; ``full`` keeps the v4 per-type detail blocks.
     """
-    # Handle authentication / API errors
+    fmt = coerce_response_format(response_format)
     if "error" in result:
         return _format_spot_error(result)
 
@@ -640,6 +869,8 @@ def format_orphaned_resources_response(result: dict[str, Any]) -> str:
     currency = result.get("currency", "USD")
 
     if total_orphaned == 0:
+        if fmt == "compact":
+            return f"No orphaned resources across {len(subscriptions)} subscription(s)."
         return (
             "### ✅ No Orphaned Resources Found\n\n"
             f"Scanned {len(subscriptions)} subscription(s) — "
@@ -649,18 +880,29 @@ def format_orphaned_resources_response(result: dict[str, Any]) -> str:
             "or DDoS Protection Plans detected."
         )
 
-    # Collect all orphaned resources across subscriptions
     all_orphaned: list[dict[str, Any]] = []
     for sub in subscriptions:
         all_orphaned.extend(sub.get("orphaned_resources", []))
 
-    # Group by orphan type
     by_type: dict[str, list[dict[str, Any]]] = {}
     for resource in all_orphaned:
         res_type = resource.get("orphan_type", "Unknown")
-        if res_type not in by_type:
-            by_type[res_type] = []
-        by_type[res_type].append(resource)
+        by_type.setdefault(res_type, []).append(resource)
+
+    if fmt in ("compact", "table"):
+        lines = []
+        if fmt == "compact":
+            lines.append(
+                f"Orphaned: {total_orphaned} across {len(subscriptions)} sub(s); "
+                f"~${total_cost:,.2f} {currency} ({lookback}d)."
+            )
+            lines.append("")
+        lines.append("| type | count | cost |")
+        lines.append("|---|---|---|")
+        for rtype in sorted(by_type.keys()):
+            type_cost = sum(r.get("estimated_cost_usd") or 0.0 for r in by_type[rtype])
+            lines.append(f"| {rtype} | {len(by_type[rtype])} | ${type_cost:,.2f} |")
+        return "\n".join(lines)
 
     response_lines = [
         "### 🔍 Orphaned Resource Report\n",
@@ -669,7 +911,6 @@ def format_orphaned_resources_response(result: dict[str, Any]) -> str:
         f"**Subscriptions scanned:** {len(subscriptions)}\n",
     ]
 
-    # Per-type summary table
     response_lines.append("#### Summary by Type\n")
     response_lines.append("| Resource Type | Count | Est. Cost |")
     response_lines.append("|---------------|-------|-----------|")
@@ -679,7 +920,6 @@ def format_orphaned_resources_response(result: dict[str, Any]) -> str:
         response_lines.append(f"| {rtype} | {len(resources)} | ${type_cost:,.2f} |")
     response_lines.append("")
 
-    # Detail per type
     for rtype in sorted(by_type.keys()):
         resources = by_type[rtype]
         response_lines.append(f"#### {rtype} ({len(resources)})\n")
@@ -803,7 +1043,7 @@ def format_ptu_sizing_response(result: dict[str, Any]) -> str:
 
     # ── Footer ──────────────────────────────────────────────────────────
     lines.append(
-        f"---\n📖 Data version: {result.get('data_version', 'N/A')} | " f"[Source]({result.get('data_source', '')})"
+        f"---\n📖 Data version: {result.get('data_version', 'N/A')} | [Source]({result.get('data_source', '')})"
     )
 
     return "\n".join(lines)
@@ -814,10 +1054,47 @@ def format_ptu_sizing_response(result: dict[str, Any]) -> str:
 # =============================================================================
 
 
-def format_bulk_estimate_response(result: dict[str, Any]) -> str:
-    """Format bulk cost estimate result as Markdown."""
+def format_bulk_estimate_response(
+    result: dict[str, Any], response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT
+) -> str:
+    """Format bulk cost estimate result."""
+    fmt = coerce_response_format(response_format)
     if "error" in result:
         return f"❌ **Error**: {result.get('message', result['error'])}"
+
+    line_items = result.get("line_items", [])
+    totals = result.get("totals", {}) or {}
+    errors = result.get("errors", []) or []
+
+    if fmt in ("compact", "table"):
+        lines = []
+        if fmt == "compact":
+            lines.append(
+                f"Bulk: {result.get('successful', 0)}/{result.get('resource_count', 0)} priced "
+                f"({result.get('failed', 0)} failed). Monthly ${totals.get('monthly', 0):,.2f}, "
+                f"yearly ${totals.get('yearly', 0):,.2f} {result.get('currency', 'USD')}."
+            )
+            lines.append("")
+        if line_items:
+            lines.append("| service | sku | region | qty | monthly | yearly |")
+            lines.append("|---|---|---|---|---|---|")
+            for item in line_items:
+                lines.append(
+                    f"| {item.get('service_name', '')} | {item.get('sku_name', '')} "
+                    f"| {item.get('region', '')} | {item.get('quantity', 1)} "
+                    f"| {item.get('monthly_cost', 0):,.2f} "
+                    f"| {item.get('yearly_cost', 0):,.2f} |"
+                )
+        if errors and fmt == "compact":
+            lines.append("")
+            lines.append("Failed:")
+            for err in errors:
+                inp = err.get("input", {})
+                lines.append(
+                    f"- {inp.get('service_name', '?')}/{inp.get('sku_name', '?')} "
+                    f"in {inp.get('region', '?')}: {err.get('error', '?')}"
+                )
+        return "\n".join(lines)
 
     lines = [
         "# 📦 Bulk Cost Estimate",
@@ -830,7 +1107,6 @@ def format_bulk_estimate_response(result: dict[str, Any]) -> str:
         "",
     ]
 
-    line_items = result.get("line_items", [])
     if line_items:
         lines.append("## Line Items")
         lines.append("")
@@ -847,13 +1123,11 @@ def format_bulk_estimate_response(result: dict[str, Any]) -> str:
             )
         lines.append("")
 
-    totals = result.get("totals", {})
     lines.append("## Totals")
     lines.append("")
     lines.append(f"- **Monthly**: ${totals.get('monthly', 0):,.2f}")
     lines.append(f"- **Yearly**: ${totals.get('yearly', 0):,.2f}")
 
-    errors = result.get("errors", [])
     if errors:
         lines.append("")
         lines.append("## ⚠️ Failed Items")

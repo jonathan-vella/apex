@@ -1,12 +1,12 @@
 ---
-description: 'Python coding conventions for diagram generation, MCP servers, and tooling scripts'
-applyTo: '**/*.py'
+description: "Python coding conventions for diagram generation, MCP servers, and tooling scripts"
+applyTo: "**/*.py"
 ---
 
 # Python Guidelines
 
-Instructions for writing clean, consistent Python in this repository. Target Python 3.10+
-with Ruff for linting and formatting.
+Instructions for writing clean, consistent Python in this repository. Target Python 3.14
+(latest stable) with Ruff for linting and formatting.
 
 ## Project Context
 

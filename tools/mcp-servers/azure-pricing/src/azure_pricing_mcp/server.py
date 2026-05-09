@@ -9,6 +9,8 @@ Version 3.0.0 Breaking Changes:
 - Session lifecycle is managed at the server level, not per-tool-call
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from typing import Any, Literal, overload
@@ -54,7 +56,7 @@ class AzurePricingServer:
             self._databricks_service = DatabricksService(self._client)
         return self._databricks_service
 
-    async def __aenter__(self) -> "AzurePricingServer":
+    async def __aenter__(self) -> AzurePricingServer:
         """Async context manager entry - initializes the HTTP session."""
         if not self._session_active:
             await self._client.__aenter__()
@@ -206,80 +208,25 @@ def create_server(return_pricing_server: bool = True) -> Server | tuple[Server, 
 async def main() -> None:
     """Main entry point for the server.
 
-    This function manages the complete server lifecycle including:
-    - Parsing command-line arguments
-    - Initializing the pricing server session (kept alive for all tool calls)
-    - Running the appropriate transport (stdio or HTTP)
-    - Properly shutting down resources on exit
+    Manages the server lifecycle: creates the ``AzurePricingServer`` (whose
+    ``aiohttp.ClientSession`` is opened ONCE under ``async with``), then runs
+    the stdio transport for local MCP clients (VS Code, Claude Desktop).
+
+    v5.0: The HTTP transport (and its Docker delivery vehicle) was removed —
+    every consumer of this server uses stdio. To re-add a remote transport
+    later, plumb a Streamable HTTP path through ``mcp.server.streamable_http``.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Azure Pricing MCP Server")
-    parser.add_argument(
-        "--transport",
-        choices=["stdio", "http"],
-        default="stdio",
-        help="Transport type: stdio (for local MCP clients) or http (for remote access)",
-    )
-    parser.add_argument(
-        "--host",
-        default="127.0.0.1",
-        help="Host to bind HTTP server (default: 127.0.0.1, use 0.0.0.0 for Docker)",
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8080,
-        help="Port for HTTP server (default: 8080)",
-    )
-
-    args, _ = parser.parse_known_args()
-
     server, pricing_server = create_server()
 
-    # Initialize the pricing server session ONCE and keep it alive
-    # This avoids creating a new HTTP session for every tool call
+    # Initialize the pricing server session ONCE and keep it alive for all
+    # tool calls — avoids per-call session creation.
     async with pricing_server:
-        if args.transport == "http":
-            # Use HTTP transport for remote access (Docker use case)
-            from mcp.server.sse import SseServerTransport
-            from starlette.applications import Starlette
-            from starlette.requests import Request
-            from starlette.responses import Response
-            from starlette.routing import Mount, Route
-
-            logger.info(f"Starting HTTP MCP server on {args.host}:{args.port}")
-
-            sse = SseServerTransport("/messages/")
-
-            async def handle_sse(request: Request) -> Response:
-                async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
-                    initialization_options = server.create_initialization_options(
-                        notification_options=NotificationOptions(tools_changed=True)
-                    )
-                    await server.run(streams[0], streams[1], initialization_options)
-                return Response()
-
-            app = Starlette(
-                routes=[
-                    Route("/sse", endpoint=handle_sse),
-                    Mount("/messages/", app=sse.handle_post_message),
-                ]
+        logger.info("Starting stdio MCP server")
+        async with stdio_server() as (read_stream, write_stream):
+            initialization_options = server.create_initialization_options(
+                notification_options=NotificationOptions(tools_changed=True)
             )
-
-            import uvicorn
-
-            config = uvicorn.Config(app, host=args.host, port=args.port, log_level="info")
-            server_instance = uvicorn.Server(config)
-            await server_instance.serve()
-        else:
-            # Use stdio transport for local MCP clients (VS Code, Claude Desktop)
-            logger.info("Starting stdio MCP server")
-            async with stdio_server() as (read_stream, write_stream):
-                initialization_options = server.create_initialization_options(
-                    notification_options=NotificationOptions(tools_changed=True)
-                )
-                await server.run(read_stream, write_stream, initialization_options)
+            await server.run(read_stream, write_stream, initialization_options)
 
 
 def run() -> None:

@@ -1,12 +1,13 @@
 """Pricing service for Azure Pricing MCP Server."""
 
+import asyncio
 import json
 import logging
 from datetime import datetime
 from typing import Any
 
 from ..client import AzurePricingClient
-from ..config import DEFAULT_CUSTOMER_DISCOUNT, REQUEST_DEDUP_TTL, SERVICE_NAME_MAPPINGS
+from ..config import DEFAULT_CUSTOMER_DISCOUNT, NEGATIVE_CACHE_TTL, REQUEST_DEDUP_TTL, SERVICE_NAME_MAPPINGS
 from .retirement import RetirementService
 
 logger = logging.getLogger(__name__)
@@ -55,6 +56,10 @@ class PricingService:
         self._client = client
         self._retirement_service = retirement_service
         self._request_cache: dict[str, tuple[dict[str, Any], datetime]] = {}
+        # Phase 3.9: in-flight request coalescing. When N concurrent agent
+        # calls hit the same (filter, currency, limit) key, share one
+        # asyncio.Future so only one HTTP request is in flight.
+        self._inflight: dict[str, asyncio.Future[dict[str, Any]]] = {}
 
     async def _fetch_prices_cached(
         self,
@@ -62,22 +67,53 @@ class PricingService:
         currency_code: str = "USD",
         limit: int | None = None,
     ) -> dict[str, Any]:
-        """Fetch prices with request-level deduplication cache."""
+        """Fetch prices with request-level deduplication + in-flight coalescing.
+
+        Cache layers (Phase 3 hardening):
+        1. Completed-result cache (TTL: ``REQUEST_DEDUP_TTL`` for hits,
+           ``NEGATIVE_CACHE_TTL`` for empty results — Phase 3.11).
+        2. In-flight ``asyncio.Future`` map so concurrent callers with the
+           same key share one HTTP round-trip (Phase 3.9).
+        """
         cache_key = json.dumps({"f": filter_conditions, "c": currency_code, "l": limit}, sort_keys=True)
+        now = datetime.now()
+
+        # Layer 1: completed-result cache with negative-result short TTL.
         if cache_key in self._request_cache:
-            result, cached_time = self._request_cache[cache_key]
-            if (datetime.now() - cached_time).total_seconds() < REQUEST_DEDUP_TTL:
-                return result
-        result = await self._client.fetch_prices(filter_conditions, currency_code, limit)
-        self._request_cache[cache_key] = (result, datetime.now())
-        # Evict old entries when cache exceeds configured capacity.
-        # Lazy eviction keeps hot paths fast; only pays cost on overflow.
+            cached_result, cached_time = self._request_cache[cache_key]
+            age = (now - cached_time).total_seconds()
+            is_empty = not cached_result.get("Items")
+            ttl = NEGATIVE_CACHE_TTL if is_empty else REQUEST_DEDUP_TTL
+            if age < ttl:
+                return cached_result
+
+        # Layer 2: in-flight coalescing.
+        if cache_key in self._inflight:
+            return await self._inflight[cache_key]
+
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[dict[str, Any]] = loop.create_future()
+        self._inflight[cache_key] = future
+        try:
+            result = await self._client.fetch_prices(filter_conditions, currency_code, limit)
+            self._request_cache[cache_key] = (result, datetime.now())
+            future.set_result(result)
+        except Exception as exc:
+            future.set_exception(exc)
+            raise
+        finally:
+            # Pop only after the future has been set/raised; concurrent
+            # awaiters resolved via ``await self._inflight[cache_key]`` above.
+            self._inflight.pop(cache_key, None)
+
+        # Lazy eviction when cache exceeds configured capacity. Keeps hot
+        # paths fast; only pays cost on overflow.
         from ..config import REQUEST_DEDUP_MAX_ENTRIES
+
         if len(self._request_cache) > REQUEST_DEDUP_MAX_ENTRIES:
             cutoff = datetime.now()
             self._request_cache = {
-                k: v for k, v in self._request_cache.items()
-                if (cutoff - v[1]).total_seconds() < REQUEST_DEDUP_TTL
+                k: v for k, v in self._request_cache.items() if (cutoff - v[1]).total_seconds() < REQUEST_DEDUP_TTL
             }
         return result
 

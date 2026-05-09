@@ -1,5 +1,7 @@
 """Domain models and type definitions for Azure Pricing MCP Server."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -41,7 +43,7 @@ class PricingItem:
     original_price: float | None = None
 
     @classmethod
-    def from_api_response(cls, item: dict[str, Any]) -> "PricingItem":
+    def from_api_response(cls, item: dict[str, Any]) -> PricingItem:
         """Create PricingItem from API response dictionary."""
         return cls(
             service_name=item.get("serviceName", ""),

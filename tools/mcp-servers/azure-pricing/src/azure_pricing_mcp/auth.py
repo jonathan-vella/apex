@@ -54,7 +54,7 @@ class AzureCredentialManager:
 
         if not _check_azure_identity_available():
             self._initialization_error = (
-                "azure-identity package not installed. " "Install with: pip install azure-pricing-mcp[spot]"
+                "azure-identity package not installed. Install with: pip install azure-pricing-mcp[spot]"
             )
             return
 

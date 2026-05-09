@@ -453,17 +453,32 @@ class TestToolHandlers:
 
     @pytest.mark.asyncio
     async def test_handle_discover_skus(self, tool_handlers):
-        """Test SKU discovery handler."""
-        with patch.object(tool_handlers._sku_service, "discover_skus") as mock_discover:
+        """v5.0 — ``azure_discover_skus`` is now an alias of ``azure_sku_discovery``.
+
+        Verifies: (a) the canonical service is called, (b) the v4 ``service_name``
+        argument is translated to ``service_hint``, (c) the deprecation header
+        appears in compact mode.
+        """
+        with patch.object(tool_handlers._sku_service, "discover_service_skus") as mock_discover:
             mock_discover.return_value = {
-                "service_name": "Virtual Machines",
-                "skus": [
-                    {"sku_name": "D4s v3", "sample_price": 0.096},
-                    {"sku_name": "D8s v3", "sample_price": 0.192},
-                ],
+                "service_found": "Virtual Machines",
+                "original_search": "Virtual Machines",
+                "match_type": "exact_mapping",
                 "total_skus": 2,
-                "price_type": "Consumption",
-                "region_filter": None,
+                "skus": {
+                    "D4s v3": {
+                        "product_name": "Virtual Machines D-Series",
+                        "min_price": 0.096,
+                        "sample_unit": "1 Hour",
+                        "regions": ["eastus"],
+                    },
+                    "D8s v3": {
+                        "product_name": "Virtual Machines D-Series",
+                        "min_price": 0.192,
+                        "sample_unit": "1 Hour",
+                        "regions": ["eastus"],
+                    },
+                },
             }
 
             result = await tool_handlers.handle_discover_skus({"service_name": "Virtual Machines"})
@@ -472,6 +487,10 @@ class TestToolHandlers:
             assert len(result) == 1
             assert "D4s v3" in result[0].text
             assert "D8s v3" in result[0].text
+            assert "deprecated v5.0" in result[0].text
+            # service_name -> service_hint translation
+            mock_discover.assert_called_once()
+            assert mock_discover.call_args.kwargs.get("service_hint") == "Virtual Machines"
 
     @pytest.mark.asyncio
     async def test_handle_sku_discovery(self, tool_handlers):

@@ -4,23 +4,39 @@ from __future__ import annotations
 
 from typing import Any
 
+from azure_pricing_mcp.response_format import (
+    DEFAULT_RESPONSE_FORMAT,
+    ResponseFormat,
+    coerce_response_format,
+)
+
 # ── github_pricing ──────────────────────────────────────────────────────
 
 
-def format_github_pricing_response(result: dict[str, Any]) -> str:
+def format_github_pricing_response(
+    result: dict[str, Any],
+    response_format: ResponseFormat | str = DEFAULT_RESPONSE_FORMAT,
+) -> str:
     """Format the ``github_pricing`` response for display."""
+    fmt = coerce_response_format(response_format)
     sections = result.get("sections", {})
     if not sections:
         return _format_empty_pricing(result)
 
-    lines: list[str] = [
-        "### GitHub Pricing\n",
-        f"**Currency:** {result.get('currency', 'USD')}",
-        f"**Data version:** {result.get('data_version', 'N/A')}",
-    ]
-    if result.get("resolved_category"):
-        lines.append(f"**Category:** {result['resolved_category']}")
-    lines.append("")
+    if fmt == "compact":
+        lines: list[str] = [f"GitHub pricing ({result.get('currency', 'USD')}, v{result.get('data_version', 'N/A')})"]
+        if result.get("resolved_category"):
+            lines[0] += f" [{result['resolved_category']}]"
+        lines.append("")
+    else:
+        lines = [
+            "### GitHub Pricing\n",
+            f"**Currency:** {result.get('currency', 'USD')}",
+            f"**Data version:** {result.get('data_version', 'N/A')}",
+        ]
+        if result.get("resolved_category"):
+            lines.append(f"**Category:** {result['resolved_category']}")
+        lines.append("")
 
     if "plans" in sections:
         _append_plans_section(lines, sections["plans"])
@@ -35,10 +51,11 @@ def format_github_pricing_response(result: dict[str, Any]) -> str:
     if "storage" in sections:
         _append_storage_section(lines, sections["storage"])
 
-    lines.append(
-        f"\n*Prices are list prices in USD sourced from github.com/pricing. "
-        f"Data last verified: {result.get('data_version', 'N/A')}.*"
-    )
+    if fmt == "full":
+        lines.append(
+            f"\n*Prices are list prices in USD sourced from github.com/pricing. "
+            f"Data last verified: {result.get('data_version', 'N/A')}.*"
+        )
     return "\n".join(lines)
 
 

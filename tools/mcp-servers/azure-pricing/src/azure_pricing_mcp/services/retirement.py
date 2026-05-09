@@ -1,8 +1,11 @@
 """VM retirement status service for Azure Pricing MCP Server."""
 
 import asyncio
+import json
 import logging
+import os
 import re
+from dataclasses import asdict, fields, is_dataclass
 from datetime import datetime
 from typing import Any
 
@@ -11,6 +14,8 @@ from ..config import (
     PREVIOUS_GEN_URL,
     RETIRED_SIZES_URL,
     RETIREMENT_CACHE_TTL,
+    RETIREMENT_DISK_CACHE_DIR,
+    RETIREMENT_DISK_CACHE_FILE,
     VM_SERIES_REPLACEMENTS,
 )
 from ..models import RetirementStatus, VMSeriesRetirementInfo
@@ -156,17 +161,82 @@ class RetirementService:
         self._cache: dict[str, VMSeriesRetirementInfo] | None = None
         self._cache_time: datetime | None = None
 
+    @property
+    def _disk_cache_path(self) -> str:
+        return os.path.join(RETIREMENT_DISK_CACHE_DIR, RETIREMENT_DISK_CACHE_FILE)
+
+    def _read_disk_cache(self) -> dict[str, VMSeriesRetirementInfo] | None:
+        """Read retirement data from disk cache, honouring RETIREMENT_CACHE_TTL.
+
+        Returns None on any failure (corrupt JSON, missing file, expired) so
+        the caller falls back to a fresh fetch.
+        """
+        path = self._disk_cache_path
+        try:
+            with open(path) as fh:
+                payload = json.load(fh)
+            cached_at = datetime.fromisoformat(payload["cached_at"])
+            if (datetime.now() - cached_at) >= RETIREMENT_CACHE_TTL:
+                return None
+            data: dict[str, VMSeriesRetirementInfo] = {}
+            for key, raw in payload["entries"].items():
+                # Re-hydrate dataclass; older payloads may carry extra fields.
+                allowed = {f.name for f in fields(VMSeriesRetirementInfo)}
+                clean = {k: v for k, v in raw.items() if k in allowed}
+                if "status" in clean and isinstance(clean["status"], str):
+                    clean["status"] = RetirementStatus(clean["status"])
+                data[key] = VMSeriesRetirementInfo(**clean)
+            # Hydrate in-memory cache so subsequent calls hit it directly.
+            self._cache_time = cached_at
+            return data
+        except FileNotFoundError:
+            return None
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            logger.warning("retirement disk cache unreadable (%s): %s", path, exc)
+            return None
+
+    def _write_disk_cache(self, data: dict[str, VMSeriesRetirementInfo]) -> None:
+        """Persist retirement data to disk so cold starts skip the GitHub fetch."""
+        path = self._disk_cache_path
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            payload = {
+                "cached_at": datetime.now().isoformat(),
+                "ttl_seconds": int(RETIREMENT_CACHE_TTL.total_seconds()),
+                "entries": {
+                    key: {
+                        **(asdict(info) if is_dataclass(info) else dict(info)),
+                        "status": info.status.value if hasattr(info.status, "value") else str(info.status),
+                    }
+                    for key, info in data.items()
+                },
+            }
+            tmp = f"{path}.tmp"
+            with open(tmp, "w") as fh:
+                json.dump(payload, fh, indent=2)
+            os.replace(tmp, path)
+        except OSError as exc:
+            logger.warning("retirement disk cache write failed (%s): %s", path, exc)
+
     async def get_retirement_data(self) -> dict[str, VMSeriesRetirementInfo]:
         """Get retirement data, using cache if valid or fetching fresh data."""
         now = datetime.now()
 
-        # Check if cache is valid
+        # In-memory cache (hot path).
         if self._cache is not None and self._cache_time is not None and (now - self._cache_time) < RETIREMENT_CACHE_TTL:
+            return self._cache
+
+        # Phase 3.8: warm from disk cache before paying for the GitHub fetch.
+        disk = self._read_disk_cache()
+        if disk is not None:
+            self._cache = disk
             return self._cache
 
         # Fetch fresh data
         self._cache = await self._fetch_retirement_data()
         self._cache_time = now
+        # Persist for the next cold start.
+        self._write_disk_cache(self._cache)
         return self._cache
 
     async def _fetch_retirement_data(self) -> dict[str, VMSeriesRetirementInfo]:

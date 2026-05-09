@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "policy": {
+    "per_tool_pct_target": 0.5,
+    "per_tool_tiny_baseline_bytes": 1000,
+    "aggregate_pct_target": 0.5,
+    "full_pct_target": 1.0
+  },
+  "v4_baseline_total": 22477,
+  "compact_total": 10316,
+  "compact_pct_of_v4": 45.9,
+  "full_total": 22477,
+  "full_pct_of_v4": 100.0,
+  "aggregate_pass": true,
+  "per_tool": [
+    {
+      "tool": "azure_bulk_estimate",
+      "v4_bytes": 2567,
+      "compact_bytes": 2369,
+      "compact_pct_of_v4": 92.3,
+      "compact_tokens": 593,
+      "full_bytes": 2567,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": false,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_price_search",
+      "v4_bytes": 7929,
+      "compact_bytes": 1608,
+      "compact_pct_of_v4": 20.3,
+      "compact_tokens": 402,
+      "full_bytes": 7929,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": true,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_region_recommend",
+      "v4_bytes": 1212,
+      "compact_bytes": 439,
+      "compact_pct_of_v4": 36.2,
+      "compact_tokens": 110,
+      "full_bytes": 1212,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": true,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_cost_estimate",
+      "v4_bytes": 942,
+      "compact_bytes": 257,
+      "compact_pct_of_v4": 27.3,
+      "compact_tokens": 65,
+      "full_bytes": 942,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": true,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_price_compare",
+      "v4_bytes": 444,
+      "compact_bytes": 244,
+      "compact_pct_of_v4": 55.0,
+      "compact_tokens": 61,
+      "full_bytes": 444,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": true,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_sku_discovery",
+      "v4_bytes": 1123,
+      "compact_bytes": 967,
+      "compact_pct_of_v4": 86.1,
+      "compact_tokens": 242,
+      "full_bytes": 1123,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": false,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_discover_skus",
+      "v4_bytes": 2367,
+      "compact_bytes": 1206,
+      "compact_pct_of_v4": 51.0,
+      "compact_tokens": 302,
+      "full_bytes": 2367,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": false,
+      "full_pass": true
+    },
+    {
+      "tool": "azure_ri_pricing",
+      "v4_bytes": 1000,
+      "compact_bytes": 944,
+      "compact_pct_of_v4": 94.4,
+      "compact_tokens": 236,
+      "full_bytes": 1000,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": false,
+      "full_pass": true
+    },
+    {
+      "tool": "find_orphaned_resources",
+      "v4_bytes": 2602,
+      "compact_bytes": 281,
+      "compact_pct_of_v4": 10.8,
+      "compact_tokens": 71,
+      "full_bytes": 2602,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": true,
+      "full_pass": true
+    },
+    {
+      "tool": "databricks_dbu_pricing",
+      "v4_bytes": 819,
+      "compact_bytes": 672,
+      "compact_pct_of_v4": 82.1,
+      "compact_tokens": 168,
+      "full_bytes": 819,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": true,
+      "full_pass": true
+    },
+    {
+      "tool": "github_pricing",
+      "v4_bytes": 1472,
+      "compact_bytes": 1329,
+      "compact_pct_of_v4": 90.3,
+      "compact_tokens": 332,
+      "full_bytes": 1472,
+      "full_pct_of_v4": 100.0,
+      "compact_pass": false,
+      "full_pass": true
+    }
+  ]
+}

@@ -1,62 +1,64 @@
 [build-system]
-requires = ["setuptools>=65.0", "wheel"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "azure-pricing-mcp"
-version = "4.0.0"
-description = "A Model Context Protocol server for querying Azure retail pricing information"
+version = "5.0.0"
+description = "A Model Context Protocol server for querying Azure retail pricing information (independent fork, part of azure-agentic-infraops)."
 readme = "README.md"
-requires-python = ">=3.10"
-license = {text = "MIT"}
+requires-python = ">=3.14"
+license = "MIT"
 authors = [
-    {name = "Nadav Ben Haim"},
-    {name = "Michael Liav"}
+    {name = "Jonathan Vella"}
 ]
 maintainers = [
-    {name = "Nadav Ben Haim"}
+    {name = "Jonathan Vella"}
 ]
-keywords = ["azure", "pricing", "mcp", "model-context-protocol", "cloud-costs", "cost-estimation"]
+keywords = ["azure", "pricing", "mcp", "model-context-protocol", "cloud-costs", "cost-estimation", "apex"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
 dependencies = [
-    "mcp>=1.0.0",
-    "aiohttp>=3.9.0",
-    "pydantic>=2.0.0",
-    "uvicorn>=0.27.0",
-    "starlette>=0.36.0",
-    "sse-starlette>=1.8.0",
+    "mcp>=1.27.0",
+    "aiohttp>=3.11.0",
+    "pydantic>=2.10.0",
+    "cachetools>=5.5.0",
 ]
 
 [project.optional-dependencies]
-azure = [
-    "azure-identity>=1.15.0",
-    "azure-mgmt-compute>=30.0.0",
-    "azure-mgmt-network>=30.0.0",
-    "azure-mgmt-resource>=20.0.0",
-    "azure-mgmt-subscription>=3.0.0",
-    "azure-mgmt-web>=10.1.0",
+# v5.0: "admin" is the canonical name for tools that need an Azure subscription
+# (azure-identity + azure-mgmt-* SDKs). The empty "azure" alias below is
+# preserved for one release as a deprecation shim; both currently install the
+# same set. Remove [azure] in v6.0.
+admin = [
+    "azure-identity>=1.19.0",
+    "azure-mgmt-compute>=33.0.0",
+    "azure-mgmt-network>=28.0.0",
+    "azure-mgmt-resource>=23.0.0",
+    "azure-mgmt-subscription>=3.1.1",
+    "azure-mgmt-web>=8.0.0",
     "azure-mgmt-resourcegraph>=8.0.1",
     "azure-mgmt-costmanagement>=4.0.1",
 ]
+# Deprecated alias of [admin]. Will be removed in v6.0.
+azure = [
+    "azure-pricing-mcp[admin]",
+]
 dev = [
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-mock>=3.12.0",
-    "black>=23.0.0",
-    "mypy>=1.0.0",
-    "ruff>=0.1.0",
-    "pre-commit>=3.5.0",
-    "bandit>=1.7.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "mypy>=1.13.0",
+    "ruff>=0.7.0",
+    "pre-commit>=4.0.0",
+    "bandit>=1.8.0",
+    "tiktoken>=0.8.0",
 ]
 
 [project.urls]
@@ -76,27 +78,15 @@ where = ["src"]
 include = ["azure_pricing_mcp*"]
 exclude = ["tests*"]
 
-[tool.black]
-line-length = 120
-target-version = ['py310', 'py311', 'py312']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
-
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py314"
+
+[tool.ruff.format]
+# v5.0: ruff format replaces black
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
 
 [tool.ruff.lint]
 select = [
@@ -109,7 +99,7 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501",  # line too long, handled by ruff format
     "B008",  # do not perform function calls in argument defaults
     "C901",  # too complex
 ]
@@ -118,7 +108,7 @@ ignore = [
 "__init__.py" = ["F401"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.14"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false

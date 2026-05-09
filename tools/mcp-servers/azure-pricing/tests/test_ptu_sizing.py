@@ -108,9 +108,9 @@ class TestPTUModelTable:
         """If regional is supported, both min and increment must be set; if not, both None."""
         for model_id, info in PTU_MODEL_TABLE.items():
             if info["regional_min_ptus"] is None:
-                assert (
-                    info["regional_increment"] is None
-                ), f"Model '{model_id}': regional_min is None but increment is not"
+                assert info["regional_increment"] is None, (
+                    f"Model '{model_id}': regional_min is None but increment is not"
+                )
             else:
                 assert info["regional_min_ptus"] > 0
                 assert info["regional_increment"] is not None

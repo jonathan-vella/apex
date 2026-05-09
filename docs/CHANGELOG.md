@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(pricing-mcp): **Azure Pricing MCP v5.0 — independent fork**
+  modernization. Re-attributes the server (formerly upstream
+  `msftnadavbh/AzurePricingMCP`) to `jonathan-vella/azure-agentic-infraops`,
+  introduces a `response_format` parameter (`compact|table|full`,
+  default `compact`) on 11 high-volume read tools, deprecates
+  `azure_discover_skus` to a thin alias of `azure_sku_discovery`, splits
+  `[azure]` extras → `[admin]` (with deprecation alias), drops the
+  HTTP transport + Dockerfile entirely (every consumer is stdio per
+  `.vscode/mcp.json`), adds in-flight request coalescing + a 60 s
+  negative-result TTL + a disk-backed retirement cache, and bumps the
+  changelog dating policy. Aggregate compact response is ~46 % of the v4
+  byte baseline (~12 KB / ~3000 tokens saved per workload). Phase 4.14
+  (pydantic outputSchema), Phase 4.15 (FastMCP rewrite + `lifespan`),
+  and Phase 4.17 (admin/ package extraction) are deferred to v5.1. See
+  [`tools/mcp-servers/azure-pricing/CHANGELOG.md`](../tools/mcp-servers/azure-pricing/CHANGELOG.md)
+  for the full per-tool entry. Cost-estimate-subagent prompts now use
+  `response_format: "compact"` (replaces the bogus `output_format`
+  argument that v4 silently dropped) and `azure_sku_discovery` (replaces
+  references to `azure_discover_skus`).
+
 - chore(catalog): drop the `(High reasoning)` suffix from the Opus 4.7 label.
   `Claude Opus 4.7 (High reasoning)` and `Claude Opus 4.7` were two distinct
   catalog entries pointing at the same SKU. Reasoning-effort policy is now a

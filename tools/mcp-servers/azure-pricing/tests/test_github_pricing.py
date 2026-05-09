@@ -271,7 +271,7 @@ class TestFormatters:
     @pytest.mark.asyncio
     async def test_format_pricing_full(self, service):
         result = await service.get_pricing()
-        text = format_github_pricing_response(result)
+        text = format_github_pricing_response(result, "full")
         assert "### GitHub Pricing" in text
         assert "GitHub Plans" in text
         assert "GitHub Copilot" in text
@@ -281,7 +281,7 @@ class TestFormatters:
     @pytest.mark.asyncio
     async def test_format_pricing_copilot_only(self, service):
         result = await service.get_pricing(product="copilot")
-        text = format_github_pricing_response(result)
+        text = format_github_pricing_response(result, "full")
         assert "Copilot" in text
         assert "GitHub Plans" not in text  # plans section excluded
 
@@ -304,7 +304,7 @@ class TestFormatters:
             "data_version": GITHUB_PRICING_DATA_VERSION,
             "currency": "USD",
         }
-        text = format_github_pricing_response(result)
+        text = format_github_pricing_response(result, "full")
         assert "not recognized" in text
         assert "Available categories" in text
 

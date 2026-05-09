@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "captured_for": "azure-pricing-mcp v4.0.0 -> v5.0.0 baseline",
+  "harness_version": "phase-0b",
+  "token_estimate_method": "chars/4 heuristic",
+  "fixture_workload": "10 resources x 3 regions, USD, with discount metadata",
+  "thresholds": {
+    "compact_max_pct_of_baseline": 0.2,
+    "full_max_pct_of_baseline": 0.8
+  },
+  "tools": {
+    "azure_bulk_estimate": {
+      "byte_size": 2567,
+      "char_count": 2564,
+      "estimated_tokens": 641,
+      "compact_target_bytes": 513,
+      "full_target_bytes": 2053
+    },
+    "azure_price_search": {
+      "byte_size": 7929,
+      "char_count": 7923,
+      "estimated_tokens": 1981,
+      "compact_target_bytes": 1585,
+      "full_target_bytes": 6343
+    },
+    "azure_region_recommend": {
+      "byte_size": 1212,
+      "char_count": 1166,
+      "estimated_tokens": 292,
+      "compact_target_bytes": 242,
+      "full_target_bytes": 969
+    },
+    "azure_cost_estimate": {
+      "byte_size": 942,
+      "char_count": 939,
+      "estimated_tokens": 235,
+      "compact_target_bytes": 188,
+      "full_target_bytes": 753
+    },
+    "azure_price_compare": {
+      "byte_size": 444,
+      "char_count": 441,
+      "estimated_tokens": 111,
+      "compact_target_bytes": 88,
+      "full_target_bytes": 355
+    },
+    "azure_sku_discovery": {
+      "byte_size": 1123,
+      "char_count": 1090,
+      "estimated_tokens": 273,
+      "compact_target_bytes": 224,
+      "full_target_bytes": 898
+    },
+    "azure_discover_skus": {
+      "byte_size": 2367,
+      "char_count": 2367,
+      "estimated_tokens": 592,
+      "compact_target_bytes": 473,
+      "full_target_bytes": 1893
+    },
+    "azure_ri_pricing": {
+      "byte_size": 1000,
+      "char_count": 1000,
+      "estimated_tokens": 250,
+      "compact_target_bytes": 200,
+      "full_target_bytes": 800
+    },
+    "find_orphaned_resources": {
+      "byte_size": 2602,
+      "char_count": 2599,
+      "estimated_tokens": 650,
+      "compact_target_bytes": 520,
+      "full_target_bytes": 2081
+    },
+    "databricks_dbu_pricing": {
+      "byte_size": 819,
+      "char_count": 819,
+      "estimated_tokens": 205,
+      "compact_target_bytes": 163,
+      "full_target_bytes": 655
+    },
+    "github_pricing": {
+      "byte_size": 1472,
+      "char_count": 1469,
+      "estimated_tokens": 368,
+      "compact_target_bytes": 294,
+      "full_target_bytes": 1177
+    }
+  }
+}

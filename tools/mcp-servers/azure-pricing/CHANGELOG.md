@@ -5,6 +5,197 @@ All notable changes to the Azure Pricing MCP Server will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **Note on dates.** Entries up to and including v4.0.0 carry the date the
+> upstream project last batch-edited them (`2026-03-03`); the actual chronological
+> order of v3.x releases is approximate. From v5.0.0 onward, dates reflect the
+> actual fork-release date in this repository.
+
+## [5.0.0] - 2026-05-09
+
+> **Independent fork.** This release marks the v5.0 transition of the server
+> into the [`jonathan-vella/azure-agentic-infraops`](https://github.com/jonathan-vella/azure-agentic-infraops)
+> monorepo as part of the APEX agentic platform. Substantial contributions from
+> the upstream project (`msftnadavbh/AzurePricingMCP`) are gratefully
+> acknowledged in [README.md](README.md#-acknowledgments).
+>
+> The corresponding rollback tag is `v4.0.0-final`.
+
+### Breaking
+
+- **Default response shape changed.** All high-volume read tools now return a
+  token-efficient compact markdown table by default. Callers that depend on the
+  v4 verbose string shape (with embedded `json.dumps(...)` blob, decorative
+  emoji, and inline discount tips) MUST pass `response_format: "full"` to
+  preserve byte-for-byte v4 output. Empirical reduction across the canonical
+  workload: aggregate compact total is ~46% of the v4 baseline (~12 KB / ~3000
+  tokens saved per workload). The biggest win is `azure_price_search` (7929 →
+  1612 bytes; the JSON dump removal).
+- **`output_format` parameter removed.** The agent prompts in v4 referenced an
+  `output_format` argument that was never implemented in the server (silently
+  dropped). v5.0 replaces it with the real `response_format` parameter
+  (`compact|table|full`). Callers passing `output_format` will see no effect;
+  pass `response_format` instead.
+- **`azure_discover_skus` deprecated → alias.** The tool is preserved as a
+  thin alias that forwards to `azure_sku_discovery` (the canonical
+  fuzzy-matching implementation). The v4 `service_name` argument is translated
+  to `service_hint`. Compact-mode responses now prepend
+  `[deprecated v5.0; use azure_sku_discovery]`. **Removal scheduled for v6.0.**
+- **`[azure]` extras renamed → `[admin]`.** The Azure-management-SDK extras
+  (azure-identity + azure-mgmt-*) are now installed via `pip install '.[admin]'`.
+  The legacy `[azure]` name remains as a deprecation alias for one release and
+  will be removed in v6.0.
+- **HTTP transport removed.** v4 shipped an optional Streamable HTTP transport
+  intended for Docker delivery. v5.0 drops both: the `--transport http`,
+  `--host`, and `--port` CLI flags are gone; `mcp.server.streamable_http_manager`
+  + `starlette` + `uvicorn` are no longer runtime dependencies. Every
+  consumer in this repo uses **stdio** (per `.vscode/mcp.json`). The
+  legacy `mcp.server.sse.SseServerTransport` was already deprecated
+  upstream. To re-add a remote transport later, plumb a Streamable HTTP
+  path through `mcp.server.streamable_http`.
+- **Dockerfile removed.** The `Dockerfile`, `.dockerignore`,
+  `scripts/healthcheck.py`, and `scripts/docker-build.{sh,ps1}` helpers
+  are gone. The server is delivered as a Python package installed into
+  the dev-container venv (or any host venv) and wired via `mcp.json`. No
+  container delivery vehicle is shipped today.
+- **Build-system / dependency manifest.** `requirements.txt` is gone — the uv
+  lockfile is now the source of truth (`uv pip install -e ".[dev]"` is the
+  canonical install command). `MANIFEST.in` was deleted (it referenced
+  non-existent files and we don't publish sdists). `wheel` was dropped from
+  `[build-system].requires` (modern setuptools handles wheel building). Python
+  floor: **>= 3.14** (drops 3.10–3.13 support).
+- **`black` removed.** `ruff format` now handles formatting; the `[tool.black]`
+  block was removed from `pyproject.toml` and the black hook removed from
+  `.pre-commit-config.yaml`.
+
+### Added
+
+- **`response_format` parameter** (`compact | table | full`, default `compact`)
+  on the 11 high-volume read tools: `azure_price_search`, `azure_price_compare`,
+  `azure_cost_estimate`, `azure_region_recommend`, `azure_sku_discovery`,
+  `azure_discover_skus`, `azure_ri_pricing`, `azure_bulk_estimate`,
+  `find_orphaned_resources`, `databricks_dbu_pricing`, `github_pricing`.
+  See [CHANGELOG.md](CHANGELOG.md) and the **Tuning** + **Response format**
+  sections of [README.md](README.md) for per-tool baselines and env-var
+  knobs.
+- **MCP tool annotations** on all 19 tools (`readOnlyHint`, `idempotentHint`,
+  `destructiveHint`, `openWorldHint` per the current MCP spec).
+  `simulate_eviction` is the only tool flagged as destructive + open-world;
+  every other tool is read-only + idempotent.
+- **In-flight request coalescing** in `PricingService._fetch_prices_cached`:
+  concurrent agent calls with the same `(filter, currency, limit)` key now
+  share one `asyncio.Future` instead of issuing N HTTP round-trips.
+- **Negative-result cache** with configurable TTL via `AZURE_PRICING_NEG_TTL`
+  (default 60 s). Empty `Items` responses no longer poison the dedup cache for
+  the full 5-min TTL — agents that retry with a corrected SKU pay only one
+  HTTP latency.
+- **Disk-backed retirement cache** at
+  `${XDG_CACHE_HOME:-~/.cache}/azure-pricing-mcp/retirement.json`. Cold starts
+  no longer pay the GitHub round-trip for the MicrosoftDocs retirement
+  markdown when a cached file exists within `RETIREMENT_CACHE_TTL` (24 h).
+- **Multi-stage Dockerfile** — *removed in this same release.* (See the
+  Breaking section above.) The plan called for a multi-stage `uv` builder,
+  but follow-up review concluded no consumer needed the container delivery
+  vehicle, so the Dockerfile was deleted along with the HTTP transport that
+  it served.
+- **`AZURE_PRICING_CACHE_DIR`** env var for overriding the disk-cache root
+  (e.g. in containers).
+- **`npm run bench:azure-pricing`** harness comparing every formatter's
+  compact + full output against the v4 byte-baseline at
+  `tests/fixtures/baseline-bytes.json`. Aggregate target: compact ≤ 50% of v4.
+- **`v4.0.0-final` git tag** marking the rollback point before v5.0 work began.
+
+### Performance
+
+- `azure_price_search` compact mode: 7929 → 1612 bytes (~80% reduction;
+  the json.dumps dump is gone).
+- `find_orphaned_resources` compact mode: 2602 → 281 bytes (collapses
+  per-type detail tables into a single summary row).
+- `azure_cost_estimate` compact mode: 942 → 257 bytes.
+- `azure_region_recommend` compact mode: 1212 → 439 bytes.
+- Aggregate across 11 in-scope tools: 22477 → 10316 bytes (~46% of v4).
+
+### Changed
+
+- **Re-attributed** all metadata (authors, maintainers, repo URLs, badges) to
+  `jonathan-vella/azure-agentic-infraops`. Upstream contributors recognised
+  in `README.md` Acknowledgments.
+- **Shared input-schema constants** (`_DISCOUNT_PERCENTAGE_SCHEMA`,
+  `_SHOW_WITH_DISCOUNT_SCHEMA`, `_CURRENCY_CODE_SCHEMA`) replace the
+  3-line description blocks repeated across 4+ tools, shrinking the
+  `tools/list` response.
+- **Pinned every runtime dep to its latest stable** as of May 2026
+  (`mcp >=1.27.0`, `aiohttp >=3.11.0`, `pydantic >=2.10.0`, `uvicorn >=0.32.0`,
+  `starlette >=0.41.0`). Dev deps similarly bumped (`pytest >=8.3.0`,
+  `ruff >=0.7.0`, `mypy >=1.13.0`, `pre-commit >=4.0.0`).
+- **`cachetools >= 5.5.0`** added to runtime deps (typed TTL cache scaffolding
+  used by Phase-3 cache layers).
+- **`tiktoken >= 0.8.0`** added to dev deps (token-budget bench harness).
+- **`.pre-commit-config.yaml` synced with CI gates** (ruff lint + format,
+  mypy, bandit). Drops the legacy black hook.
+- Pre-commit + CI now run `ruff format --check` (in `npm run lint:python`).
+
+### Removed
+
+- `Dockerfile`, `.dockerignore`, `scripts/healthcheck.py`,
+  `scripts/docker-build.sh`, `scripts/docker-build.ps1` — no consumer
+  needed the container delivery vehicle.
+- HTTP transport from `server.py` (the `--transport`, `--host`, `--port`
+  CLI flags + the `StreamableHTTPSessionManager`/`Starlette`/`uvicorn`
+  block).
+- `tests/test_http_transport.py` — 6 tests covering the dropped HTTP path.
+- `uvicorn` and `starlette` runtime dependencies (only used by the dropped
+  HTTP transport).
+- `sse-starlette` runtime dependency (was already removed upstream of the
+  HTTP-transport drop).
+- `requirements.txt` (uv.lock is now canonical).
+- `MANIFEST.in` (broken; referenced non-existent files; no sdist publishing).
+- `scripts/setup.py` (legacy; pyproject.toml is canonical).
+- Dead `register_tool_handlers()` function in `handlers.py` (the active
+  routing has lived in `server.py::_register_tool_handlers` since v3.0.0).
+- `docs/TOOLS.md`, `docs/PERFORMANCE.md`, `ARCHITECTURE.md` — their
+  essentials folded into `README.md` for a single canonical doc surface.
+- Default discount-tip footer in compact mode (suppressed to save tokens;
+  still emitted in full mode).
+
+### Internal
+
+- Dev-only scripts moved to `scripts/dev/` (`debug_handler_return.py`,
+  `debug_suggestions.py`, `simulate_mcp_call.py`, `exact_mcp_handler_test.py`,
+  `find_app_service.py`, `run_server.py`). Production scripts in
+  `scripts/` (`install.py`, `setup.ps1`, `test_setup.ps1`).
+- Phase-0b token baselines captured at `tests/fixtures/baseline-bytes.json`.
+- Phase-0d consumer grep at `tests/fixtures/consumer-grep.txt`.
+
+### Deferred to v5.1
+
+The following Phase-4 plan items are tightly coupled (each blocks the next)
+and require a full test-suite rewrite. They land in v5.1 once that work is
+sequenced:
+
+- **Phase 4.14** — Migrate the dataclasses in `models.py` for the 11
+  in-scope tools to `pydantic.BaseModel` to populate MCP `outputSchema`
+  fields automatically.
+- **Phase 4.15** — Rewrite `server.py` with `mcp.server.fastmcp.FastMCP`
+  decorators + a `lifespan` async context manager that owns the shared
+  `aiohttp.ClientSession`. The current `if name == "x":` ladder
+  (~70 lines) collapses into one decorated handler per tool.
+- **Phase 4.17** — Extract admin-tier tools (`spot_*`, `simulate_eviction`,
+  `find_orphaned_resources`) into a new `azure_pricing_mcp/admin/`
+  package and gate registration via a multi-import probe (`azure.identity`
+  + `azure.mgmt.resourcegraph` + `azure.mgmt.compute` +
+  `azure.mgmt.costmanagement`). Today the admin SDKs are still imported
+  by the existing `services/` modules whether or not the user installed
+  `[admin]` extras; v5.0 ships the rename + deprecation alias of the
+  extras themselves but keeps the import structure unchanged.
+
+### No-op (plan item retired)
+
+- **Phase 3.10** — `recommend_regions` parallelization. Audit confirmed
+  this function does ONE `search_prices(limit=500)` call and groups results
+  by region in-memory; the only loop iterates 1–3 SKU-name variants with
+  early exit on first hit. Parallelizing would waste API quota without
+  improving latency.
+
 ## [4.0.0] - 2026-03-03
 
 ### Changed

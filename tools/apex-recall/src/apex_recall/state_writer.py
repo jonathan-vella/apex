@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 import time
+from datetime import UTC
 from pathlib import Path
 
 from .config import find_workspace_root, get_agent_output_dir
@@ -78,8 +79,8 @@ def validate_step_key(step: str) -> str:
 
 
 def _iso_now() -> str:
-    from datetime import datetime, timezone
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    from datetime import datetime
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 # ── Atomic file operations ──────────────────────────────────────────────────

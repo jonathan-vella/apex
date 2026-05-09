@@ -1,9 +1,38 @@
 """Tool definitions for Azure Pricing MCP Server."""
 
-from mcp.types import Tool
+from mcp.types import Tool, ToolAnnotations
 
 from .databricks.tools import get_databricks_tool_definitions
 from .github_pricing.tools import get_github_pricing_tool_definitions
+from .response_format import RESPONSE_FORMAT_SCHEMA
+
+# v5.0 — Phase 4.13: shared MCP tool annotation presets. Read tools are
+# read-only + idempotent; ``simulate_eviction`` is destructive +
+# open-world (mutates remote Azure resources).
+_READ_ANNOTATIONS = ToolAnnotations(readOnlyHint=True, idempotentHint=True, destructiveHint=False)
+_DESTRUCTIVE_ANNOTATIONS = ToolAnnotations(
+    readOnlyHint=False, idempotentHint=False, destructiveHint=True, openWorldHint=True
+)
+
+# v5.0 — Phase 2.6: shared inputSchema fragments. Repeating these descriptions
+# verbatim across 4+ tools wastes tokens in agent ``tools/list`` responses.
+_DISCOUNT_PERCENTAGE_SCHEMA: dict = {
+    "type": "number",
+    "description": (
+        "Discount percentage to apply to retail prices (e.g. 10 for 10%). "
+        "If omitted and ``show_with_discount`` is false, no discount is applied."
+    ),
+}
+_SHOW_WITH_DISCOUNT_SCHEMA: dict = {
+    "type": "boolean",
+    "description": "Apply the default discount when ``discount_percentage`` is not given.",
+    "default": False,
+}
+_CURRENCY_CODE_SCHEMA: dict = {
+    "type": "string",
+    "description": "Currency code (default: USD).",
+    "default": "USD",
+}
 
 
 def get_tool_definitions() -> list[Tool]:
@@ -36,32 +65,23 @@ def get_tool_definitions() -> list[Tool]:
                             "type": "string",
                             "description": "Price type: 'Consumption', 'Reservation', or 'DevTestConsumption'",
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
                         "limit": {
                             "type": "integer",
                             "description": "Maximum number of results (default: 50)",
                             "default": 50,
                         },
-                        "discount_percentage": {
-                            "type": "number",
-                            "description": "Discount percentage to apply to prices (e.g., 10 for 10% discount). If not specified and show_with_discount is false, no discount is applied. If show_with_discount is true, defaults to 10%.",
-                        },
-                        "show_with_discount": {
-                            "type": "boolean",
-                            "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
-                            "default": False,
-                        },
+                        "discount_percentage": _DISCOUNT_PERCENTAGE_SCHEMA,
+                        "show_with_discount": _SHOW_WITH_DISCOUNT_SCHEMA,
                         "validate_sku": {
                             "type": "boolean",
                             "description": "Whether to validate SKU names and provide suggestions (default: true)",
                             "default": True,
                         },
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="azure_price_compare",
@@ -82,23 +102,14 @@ def get_tool_definitions() -> list[Tool]:
                             "items": {"type": "string"},
                             "description": "List of regions to compare (if not provided, compares SKUs)",
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
-                        "discount_percentage": {
-                            "type": "number",
-                            "description": "Discount percentage to apply to prices (e.g., 10 for 10% discount). If not specified and show_with_discount is false, no discount is applied. If show_with_discount is true, defaults to 10%.",
-                        },
-                        "show_with_discount": {
-                            "type": "boolean",
-                            "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
-                            "default": False,
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
+                        "discount_percentage": _DISCOUNT_PERCENTAGE_SCHEMA,
+                        "show_with_discount": _SHOW_WITH_DISCOUNT_SCHEMA,
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["service_name"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="azure_cost_estimate",
@@ -123,27 +134,23 @@ def get_tool_definitions() -> list[Tool]:
                             "description": "Expected hours of usage per month (default: 730 for full month)",
                             "default": 730,
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
-                        "discount_percentage": {
-                            "type": "number",
-                            "description": "Discount percentage to apply to prices (e.g., 10 for 10% discount). If not specified and show_with_discount is false, no discount is applied. If show_with_discount is true, defaults to 10%.",
-                        },
-                        "show_with_discount": {
-                            "type": "boolean",
-                            "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
-                            "default": False,
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
+                        "discount_percentage": _DISCOUNT_PERCENTAGE_SCHEMA,
+                        "show_with_discount": _SHOW_WITH_DISCOUNT_SCHEMA,
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["service_name", "sku_name", "region"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="azure_discover_skus",
-                description="Discover available SKUs for a specific Azure service",
+                description=(
+                    "[DEPRECATED v5.0 — use azure_sku_discovery] "
+                    "Discover available SKUs for a specific Azure service. "
+                    "This tool is now a thin alias of azure_sku_discovery and will be "
+                    "removed in v6.0."
+                ),
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -165,9 +172,11 @@ def get_tool_definitions() -> list[Tool]:
                             "description": "Maximum number of SKUs to return (default: 100)",
                             "default": 100,
                         },
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["service_name"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="azure_sku_discovery",
@@ -183,19 +192,17 @@ def get_tool_definitions() -> list[Tool]:
                             "type": "string",
                             "description": "Optional Azure region to filter results",
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
                         "limit": {
                             "type": "integer",
                             "description": "Maximum number of results (default: 30)",
                             "default": 30,
                         },
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["service_hint"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="azure_region_recommend",
@@ -216,23 +223,14 @@ def get_tool_definitions() -> list[Tool]:
                             "description": "Number of top recommendations to return (default: 10)",
                             "default": 10,
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
-                        "discount_percentage": {
-                            "type": "number",
-                            "description": "Discount percentage to apply to prices (e.g., 10 for 10% discount). If not specified and show_with_discount is false, no discount is applied. If show_with_discount is true, defaults to 10%.",
-                        },
-                        "show_with_discount": {
-                            "type": "boolean",
-                            "description": "Set to true to apply a discount; uses default 10% unless discount_percentage is explicitly specified.",
-                            "default": False,
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
+                        "discount_percentage": _DISCOUNT_PERCENTAGE_SCHEMA,
+                        "show_with_discount": _SHOW_WITH_DISCOUNT_SCHEMA,
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["service_name", "sku_name"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="azure_ri_pricing",
@@ -257,11 +255,7 @@ def get_tool_definitions() -> list[Tool]:
                             "description": "Reservation term ('1 Year' or '3 Years')",
                             "enum": ["1 Year", "3 Years"],
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
                         "compare_on_demand": {
                             "type": "boolean",
                             "description": "Compare with On-Demand prices to calculate savings (default: true)",
@@ -272,9 +266,11 @@ def get_tool_definitions() -> list[Tool]:
                             "description": "Maximum number of results (default: 50)",
                             "default": 50,
                         },
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["service_name"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="get_customer_discount",
@@ -288,6 +284,7 @@ def get_tool_definitions() -> list[Tool]:
                         }
                     },
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             # Spot VM Tools (require Azure authentication)
             Tool(
@@ -309,6 +306,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["skus", "locations"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="spot_price_history",
@@ -333,6 +331,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["sku", "location"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             Tool(
                 name="simulate_eviction",
@@ -347,11 +346,12 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["vm_resource_id"],
                 },
+                annotations=_DESTRUCTIVE_ANNOTATIONS,
             ),
             # Orphaned Resources Tool (requires Azure authentication)
             Tool(
                 name="find_orphaned_resources",
-                description="Detect orphaned Azure resources (unattached disks, public IPs, App Service Plans, SQL Elastic Pools, Application Gateways, NAT Gateways, Load Balancers, Private DNS Zones, Private Endpoints, Virtual Network Gateways, DDoS Protection Plans) across subscriptions and compute their real historical cost via Azure Cost Management. Requires Azure authentication (az login or environment variables).",
+                description="Detect orphaned Azure resources (unattached disks, public IPs, App Service Plans, SQL Elastic Pools, Application Gateways, NAT Gateways, Load Balancers, Private DNS Zones, Private Endpoints, Virtual Network Gateways, DDoS Protection Plans) across subscriptions and compute their real historical cost via Azure Cost Management. Requires the [admin] extras + Azure authentication (az login or environment variables).",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -365,8 +365,10 @@ def get_tool_definitions() -> list[Tool]:
                             "description": "Scan all accessible subscriptions (default: true). Set to false to scan only the first subscription.",
                             "default": True,
                         },
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             # PTU Sizing + Cost Planner (no auth required for sizing; public API for cost)
             Tool(
@@ -430,6 +432,7 @@ def get_tool_definitions() -> list[Tool]:
                     },
                     "required": ["model", "deployment_type", "rpm", "avg_input_tokens", "avg_output_tokens"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
             # Bulk cost estimation
             Tool(
@@ -469,18 +472,13 @@ def get_tool_definitions() -> list[Tool]:
                                 "required": ["service_name", "sku_name", "region"],
                             },
                         },
-                        "currency_code": {
-                            "type": "string",
-                            "description": "Currency code (default: USD)",
-                            "default": "USD",
-                        },
-                        "discount_percentage": {
-                            "type": "number",
-                            "description": "Discount percentage to apply to all resources",
-                        },
+                        "currency_code": _CURRENCY_CODE_SCHEMA,
+                        "discount_percentage": _DISCOUNT_PERCENTAGE_SCHEMA,
+                        "response_format": RESPONSE_FORMAT_SCHEMA,
                     },
                     "required": ["resources"],
                 },
+                annotations=_READ_ANNOTATIONS,
             ),
         ]
         + get_databricks_tool_definitions()

@@ -1,7 +1,7 @@
 ---
 name: azure-governance-discovery
 description: "Deterministic Azure Policy discovery: lists effective policy assignments at subscription scope (including MG-inherited), pulls definitions and exemptions, classifies effects, filters Defender auto-assignments, and emits the governance-constraints JSON envelope via a Python script. USE FOR: 04g-Governance Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration — those stay in the parent agent."
-compatibility: Requires Python 3.10+, Azure CLI on PATH, read access to the target subscription.
+compatibility: Requires Python 3.14, Azure CLI on PATH, read access to the target subscription.
 ---
 
 # Azure Governance Discovery Skill

@@ -263,7 +263,7 @@ The subagent uses these Azure Pricing MCP tools on your behalf:
 | `azure_region_recommend` | Find cheapest region for compute SKUs               | Optional  |
 | `azure_price_search`     | RI/SP pricing lookup only (not for base prices)     | Optional  |
 | `azure_cost_estimate`    | Fallback for single resource if bulk fails          | Avoid     |
-| `azure_discover_skus`    | Only if SKU name is unknown                         | Avoid     |
+| `azure_sku_discovery`    | Only if SKU name is unknown                         | Avoid     |
 
 **Tip**: The subagent targets ≤ 5 MCP calls total. When providing the resource list,
 include service_name, SKU, region, and quantity so it can use `azure_bulk_estimate` in one call.
