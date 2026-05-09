@@ -77,8 +77,24 @@ The full machine-readable DAG is in:
 
 ## Reference Index
 
-| Reference            | File                                    | Content                                             |
-| -------------------- | --------------------------------------- | --------------------------------------------------- |
-| Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for the multi-step workflow                |
-| Orchestrator Handoff    | `references/orchestrator-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
-| Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |
+| Reference                | File                                       | Content                                                 |
+| ------------------------ | ------------------------------------------ | ------------------------------------------------------- |
+| Workflow Graph           | `templates/workflow-graph.json`            | Full DAG for the multi-step workflow                    |
+| Orchestrator Handoff     | `references/orchestrator-handoff-guide.md` | Gate templates, IaC routing, delegation rules           |
+| Subagent Integration     | `references/subagent-integration.md`       | Subagent matrix, pricing accuracy, review protocols     |
+| Handoff Validation Rules | `references/handoff-validation-rules.md`   | B1a–B5 rule reference (`workflow-handoffs` PART)        |
+| Track Parity Spec        | `references/track-parity-spec.md`          | B4 normalization spec for Bicep/Terraform parity        |
+| Schema Evolution         | `references/schema-evolution.md`           | D1 versioning policy + D2 rollback (`metadata.version`) |
+
+## Validation Surfaces
+
+The workflow graph is enforced at three points:
+
+| Validator                                                    | Rule registry                        | Scope                                         |
+| ------------------------------------------------------------ | ------------------------------------ | --------------------------------------------- |
+| `tools/scripts/validate-workflow-graph.mjs`                  | inline                               | Graph shape + schema                          |
+| `tools/scripts/validate-agents.mjs --only=workflow-handoffs` | `WORKFLOW_HANDOFF_RULES`             | `handoffs[]` UI buttons + `agents[]` dispatch |
+| `tools/scripts/validate-artifacts.mjs`                       | `ARTIFACT_HEADINGS["00-handoff.md"]` | Gate-companion file H2 sync                   |
+
+Run all three together via `npm run validate:_node` (CI) or
+`npm run lint:workflow-handoffs` (focused).

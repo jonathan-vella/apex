@@ -19,8 +19,23 @@ import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
 import { getBody } from "./_lib/parse-frontmatter.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_BODY_LINES } from "./_lib/paths.mjs";
+import {
+  loadWorkflowGraph,
+  isVersionAtLeast22,
+  getAgentToStepMap,
+  forwardReachable,
+  findReturnEdge,
+  isCrossTrackJump,
+  normalizeTrackLabel,
+  normalizeTrackTarget,
+  buildSubagentInventory,
+  extractArtifactRefs,
+  collectAllProducedArtifacts,
+  isProducedArtifact,
+} from "./_lib/workflow-handoffs.mjs";
 
 let overallFailed = false;
+let suggestMode = false;
 /** Aggregated structured findings across all parts (used by --format=json). */
 const allFindings = [];
 
@@ -972,6 +987,514 @@ function runVendorPrompting() {
 }
 
 // ============================================================================
+// Part 5: Workflow Handoff Validation (B0–B5, separate registry)
+// ============================================================================
+
+/**
+ * Workflow-handoff rule registry. Distinct from `VENDOR_RULES` so the
+ * `lint:vendor-prompting` cross-check against `vendor-prompting/rules.json`
+ * stays scoped to vendor rules only (D-C5).
+ */
+const WORKFLOW_HANDOFF_RULES = [
+  {
+    id: "workflow-handoff-target-001",
+    severity: "warn",
+    appliesTo: "agent",
+    sourceUrl:
+      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b1a",
+  },
+  {
+    id: "workflow-handoff-artifact-sync-001",
+    severity: "warn",
+    appliesTo: "agent",
+    sourceUrl:
+      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b2",
+  },
+  {
+    id: "workflow-handoff-self-loop-bound-001",
+    severity: "warn",
+    appliesTo: "agent",
+    sourceUrl:
+      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b3",
+  },
+  {
+    id: "workflow-handoff-track-parity-001",
+    severity: "warn",
+    appliesTo: "agent",
+    sourceUrl:
+      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b4",
+  },
+  {
+    id: "workflow-handoff-subagent-dispatch-001",
+    severity: "warn",
+    appliesTo: "agent",
+    sourceUrl:
+      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b5",
+  },
+];
+
+/** B1a: agent names whose `handoffs[]` are skipped entirely as sources. */
+const HANDOFF_TARGET_EXCLUDED_SOURCES = new Set([
+  "01-Orchestrator",
+  "01-Orchestrator (Fast Path)",
+  "01-Orchestrator-fastpath",
+  "09-Diagnose",
+  "11-Context Optimizer",
+  "11-Context-Optimizer",
+  "10-Challenger",
+]);
+
+/** B5: agents allowed to declare `agents: ["*"]` even without `cross_cutting: true`. */
+const CROSS_CUTTING_ALLOWLIST = new Set(["11-Context Optimizer", "11-Context-Optimizer"]);
+
+/** Maximum self-loops per agent (B3). */
+const SELF_LOOP_MAX = 6;
+
+/** Steps that may dispatch `cost-estimate-subagent` (B5). */
+const COST_ESTIMATE_AUTHORITATIVE_AGENTS = new Set(["03-Architect", "08-As-Built"]);
+
+/** B5: top-level agent names recognized as artifact-producers for the
+ * challenger-review-subagent legality check. An agent qualifies when EITHER:
+ *   - it maps to a workflow node with non-empty `produces[]`, OR
+ *   - its `handoffs[]` reference any `agent-output/` path (existing
+ *     `isArtifactProducer` heuristic), OR
+ *   - it appears in `CHALLENGER_DISPATCHER_ALLOWLIST` (orchestrator-style
+ *     agents and the Challenger wrapper that legitimately delegate
+ *     Challenger across peer artifacts without producing their own).
+ *
+ * The union catches Orchestrator-style agents that dispatch Challenger
+ * over peer artifacts without authoring artifacts themselves. */
+function buildArtifactProducerSet(graph, agents) {
+  const producers = new Set(CHALLENGER_DISPATCHER_ALLOWLIST);
+  if (graph?.nodes) {
+    for (const node of Object.values(graph.nodes)) {
+      if (typeof node.agent === "string" && Array.isArray(node.produces) && node.produces.length > 0) {
+        producers.add(node.agent);
+      }
+    }
+  }
+  for (const [, agent] of agents) {
+    const name = agent.frontmatter?.name;
+    if (!name) continue;
+    const handoffs = parseStructuredHandoffs(agent.content);
+    if (handoffs.some((h) => /agent-output\//.test(h?.prompt || ""))) {
+      producers.add(name);
+    }
+  }
+  return producers;
+}
+
+/** Orchestrator-style agents that may dispatch the challenger-review subagent
+ *  even when they don't produce artifacts directly. */
+const CHALLENGER_DISPATCHER_ALLOWLIST = new Set([
+  "01-Orchestrator",
+  "01-Orchestrator (Fast Path)",
+  "10-Challenger",
+  "E2E Orchestrator",
+]);
+
+/** Lookup helper for the workflow-handoff rule registry. */
+function workflowRuleById(id) {
+  return WORKFLOW_HANDOFF_RULES.find((rule) => rule.id === id);
+}
+
+/**
+ * Emit a workflow-handoff finding via the Reporter. Honors D2 graceful
+ * degradation: when `metadata.version < "2.2"`, every workflow-handoff
+ * finding downgrades to `info` (the rules still run, but the runtime
+ * has not opted in to the new fields).
+ *
+ * Also honors B1a's cross-track jump escalation: callers pass
+ * `escalateToError = true` to bypass the default severity.
+ */
+function emitWorkflowHandoff(r, ruleId, file, message, { escalateToError = false, isV22 = true } = {}) {
+  const rule = workflowRuleById(ruleId);
+  if (!rule) {
+    r.warn(file, `[unregistered rule ${ruleId}] ${message}`);
+    return;
+  }
+  let sev = rule.severity;
+  if (escalateToError) sev = "error";
+  if (!isV22) sev = "info"; // graceful degradation
+  if (sev === "error") r.error(file, `[${ruleId}] ${message}`);
+  else if (sev === "warn") r.warn(file, `[${ruleId}] ${message}`);
+  else r.info(file, `[${ruleId}] ${message}`);
+  r.record({
+    ruleId,
+    severity: sev,
+    file,
+    message,
+    sourceUrl: rule.sourceUrl,
+  });
+}
+
+/**
+ * Print a unified-diff-style comment for `--suggest`. Writes to stdout
+ * only; never modifies files. Format mimics `git diff -u` so the
+ * suggestion is copy-pasteable. Each suggestion is a tiny self-contained
+ * comment hint placed right before the offending handoff entry.
+ */
+function printSuggestion(file, label, message) {
+  if (!suggestMode) return;
+  console.log(`--- a/${file}`);
+  console.log(`+++ b/${file}`);
+  console.log(`@@ handoffs[*] (label: "${label || "?"}") @@`);
+  console.log(`+# SUGGESTION: ${message}`);
+}
+
+/** B1a: target legality. Returns `{ legal, escalate }`. */
+function evaluateHandoffTarget(graph, sourceAgent, sourceStep, handoff, agentToStep, sourceIsArtifactProducer) {
+  const target = handoff?.agent;
+  if (typeof target !== "string" || target === "") {
+    return { legal: false, escalate: false, reason: "missing handoff.agent" };
+  }
+  // 1. ui_pseudo_targets[]
+  if (Array.isArray(graph.ui_pseudo_targets) && graph.ui_pseudo_targets.includes(target)) {
+    return { legal: true, escalate: false };
+  }
+  // 2. Self-loop
+  if (target === sourceAgent) {
+    return { legal: true, escalate: false };
+  }
+  // 3. orchestrator_targets[]
+  if (Array.isArray(graph.orchestrator_targets) && graph.orchestrator_targets.includes(target)) {
+    return { legal: true, escalate: false };
+  }
+  // 4. challenger.wrapper_agent
+  if (graph.challenger?.wrapper_agent === target) {
+    // Only artifact-producing agents may dispatch the challenger wrapper UI.
+    // (Subagents and gates don't have a meaningful Challenger button.)
+    if (!sourceIsArtifactProducer) {
+      return { legal: false, escalate: false, reason: "non-artifact-producing source has Challenger button" };
+    }
+    return { legal: true, escalate: false };
+  }
+  // 5–6. forward / return edges (require both source and target to map to a step)
+  const targetStep = agentToStep.get(target);
+  if (!sourceStep || !targetStep) {
+    return { legal: false, escalate: false, reason: "no step mapping for source or target agent" };
+  }
+  // Cross-track first (always illegal at error severity)
+  if (isCrossTrackJump(sourceStep, targetStep)) {
+    return { legal: false, escalate: true, reason: `cross-track jump ${sourceStep} → ${targetStep}` };
+  }
+  if (forwardReachable(graph, sourceStep, targetStep)) {
+    return { legal: true, escalate: false };
+  }
+  if (findReturnEdge(graph, sourceStep, targetStep)) {
+    return { legal: true, escalate: false };
+  }
+  return { legal: false, escalate: false, reason: `no DAG edge from ${sourceStep} to ${targetStep}` };
+}
+
+/** B2: artifact-sync — verify Input/Output paths against source/target produces[]. */
+function evaluateArtifactSync(graph, sourceStep, handoff, agentToStep, allProduced) {
+  const refs = extractArtifactRefs(handoff?.prompt);
+  if (refs.length === 0) return [];
+  const issues = [];
+  const sourceNode = sourceStep ? graph.nodes?.[sourceStep] : null;
+  const sourceProduces = new Set(
+    (sourceNode?.produces || []).map((p) => p.replace(/.*\//, "")).filter((p) => p.endsWith(".md") || p.includes("*")),
+  );
+  const targetStep = agentToStep.get(handoff?.agent);
+  const targetNode = targetStep ? graph.nodes?.[targetStep] : null;
+  const targetProduces = new Set(
+    (targetNode?.produces || []).map((p) => p.replace(/.*\//, "")).filter((p) => p.endsWith(".md") || p.includes("*")),
+  );
+  const isSelf = handoff?.agent && sourceNode?.agent === handoff.agent;
+  for (const ref of refs) {
+    if (ref.role === "input") {
+      // Input must be produced by source step OR by any upstream step (i.e.
+      // somewhere in the graph). We use the union of all `produces[]`.
+      if (!isProducedArtifact(ref.path, allProduced)) {
+        issues.push(`Input "${ref.path}" not produced by any workflow step`);
+      }
+    } else if (ref.role === "output") {
+      const expected = isSelf ? sourceProduces : targetProduces;
+      if (expected.size === 0) {
+        // Target step has no produces[] — fall back to source's.
+        if (!isProducedArtifact(ref.path, sourceProduces)) {
+          issues.push(`Output "${ref.path}" not declared in source step's produces[]`);
+        }
+      } else if (!isProducedArtifact(ref.path, expected)) {
+        issues.push(
+          `Output "${ref.path}" not in ${isSelf ? "source" : "target"} step's produces[] (${[...expected].join(", ") || "none"})`,
+        );
+      }
+    }
+    // role="unknown" is allowed (some prompts mention paths in passing).
+  }
+  return issues;
+}
+
+/**
+ * B5: validate `agents:` dispatch list.
+ *
+ * Returns an array of `{ entry, message }` issues. Entries are either
+ * recognized top-level agent names or subagent names. The wildcard
+ * `"*"` is allowed for cross-cutting agents. `challenger-review-subagent`
+ * requires an artifact-producing source; `cost-estimate-subagent`
+ * requires source ∈ {03-Architect, 08-As-Built}.
+ */
+function evaluateSubagentDispatch(
+  sourceAgentName,
+  agentsField,
+  fmCrossCutting,
+  knownAgentNames,
+  knownSubagentNames,
+  artifactProducers,
+) {
+  if (!Array.isArray(agentsField)) return [];
+  const issues = [];
+  for (const entry of agentsField) {
+    if (entry === "*") {
+      const isAllowed =
+        fmCrossCutting === true || fmCrossCutting === "true" || CROSS_CUTTING_ALLOWLIST.has(sourceAgentName);
+      if (!isAllowed) {
+        issues.push({ entry, message: `agents: ["*"] requires cross_cutting: true or allowlist membership` });
+      }
+      continue;
+    }
+    if (typeof entry !== "string") {
+      issues.push({ entry: String(entry), message: "non-string agents[] entry" });
+      continue;
+    }
+    if (!knownAgentNames.has(entry) && !knownSubagentNames.has(entry)) {
+      issues.push({ entry, message: `unknown agent or subagent "${entry}"` });
+      continue;
+    }
+    if (entry === "challenger-review-subagent" && !artifactProducers.has(sourceAgentName)) {
+      issues.push({
+        entry,
+        message: `challenger-review-subagent requires artifact-producing source (got "${sourceAgentName}")`,
+      });
+    }
+    if (entry === "cost-estimate-subagent" && !COST_ESTIMATE_AUTHORITATIVE_AGENTS.has(sourceAgentName)) {
+      issues.push({
+        entry,
+        message: `cost-estimate-subagent only valid from 03-Architect or 08-As-Built (got "${sourceAgentName}")`,
+      });
+    }
+  }
+  return issues;
+}
+
+/** Parse `cross_cutting:` from frontmatter. Accepts boolean or "true"/"false". */
+function getCrossCuttingFlag(fm) {
+  if (!fm) return undefined;
+  const v = fm.cross_cutting ?? fm["cross-cutting"];
+  return v;
+}
+
+/** Build set of all main agent names (frontmatter `name:` strings). */
+function buildAgentNameSet(agents) {
+  const out = new Set();
+  for (const [, agent] of agents) {
+    if (agent.frontmatter?.name) out.add(agent.frontmatter.name);
+  }
+  return out;
+}
+
+/**
+ * B4 helper — return a structural tuple list for one agent's handoffs.
+ * Each tuple is `{ label, target }` where `label` is normalized
+ * (Bicep/Terraform tokens stripped, What-If/Plan canonicalized to
+ * Preview) and `target` collapses 06b/06t and 07b/07t to their roles.
+ */
+function buildTrackTupleList(agentEntry) {
+  const handoffs = parseStructuredHandoffs(agentEntry.content);
+  return handoffs.map((h) => ({
+    label: normalizeTrackLabel(h?.label || ""),
+    target: normalizeTrackTarget(h?.agent || ""),
+  }));
+}
+
+/** Compare two tuple lists structurally. Returns array of mismatch reasons. */
+function diffTrackTuples(aList, bList, aName, bName) {
+  const issues = [];
+  if (aList.length !== bList.length) {
+    issues.push(`handoff count differs: ${aName}=${aList.length} vs ${bName}=${bList.length}`);
+  }
+  const aSet = new Map(aList.map((t) => [`${t.label}|${t.target}`, t]));
+  const bSet = new Map(bList.map((t) => [`${t.label}|${t.target}`, t]));
+  for (const key of aSet.keys()) {
+    if (!bSet.has(key)) issues.push(`${aName} has tuple [${key}] not present in ${bName}`);
+  }
+  for (const key of bSet.keys()) {
+    if (!aSet.has(key)) issues.push(`${bName} has tuple [${key}] not present in ${aName}`);
+  }
+  return issues;
+}
+
+function runWorkflowHandoffs() {
+  const r = new Reporter("Workflow Handoff Rules");
+  r.header();
+
+  const graph = loadWorkflowGraph();
+  if (!graph) {
+    r.warn(GRAPH_PATH_HUMAN, "workflow graph not found — workflow-handoff rules skipped");
+    r.summary();
+    allFindings.push(...r.findings);
+    return;
+  }
+  const isV22 = isVersionAtLeast22(graph);
+  if (!isV22) {
+    console.log(
+      "  ℹ️  workflow-graph metadata.version < 2.2 — running rules at info severity (D2 graceful degradation)\n",
+    );
+  }
+
+  const agents = getAgents();
+  const agentToStep = getAgentToStepMap(graph);
+  const knownAgentNames = buildAgentNameSet(agents);
+  const knownSubagentNames = buildSubagentInventory();
+  const artifactProducers = buildArtifactProducerSet(graph, agents);
+  const allProduced = collectAllProducedArtifacts(graph);
+
+  // ── per-agent rules: B1a, B1b, B2, B3, B5 ────────────────────────────
+  for (const [_filename, agent] of agents) {
+    r.tick();
+    const fm = agent.frontmatter;
+    const sourceAgent = fm?.name;
+    if (!sourceAgent) continue;
+    const relPath = path.relative(process.cwd(), agent.path);
+    const isExcluded = HANDOFF_TARGET_EXCLUDED_SOURCES.has(sourceAgent);
+    const sourceStep = agentToStep.get(sourceAgent);
+    const sourceIsArtifactProducer = artifactProducers.has(sourceAgent);
+    const handoffs = parseStructuredHandoffs(agent.content);
+
+    // ── B1a + B1b ────────────────────────────────────────────────────
+    if (!isExcluded && handoffs.length > 0) {
+      for (const [i, h] of handoffs.entries()) {
+        // B1a: target legality
+        const verdict = evaluateHandoffTarget(graph, sourceAgent, sourceStep, h, agentToStep, sourceIsArtifactProducer);
+        if (!verdict.legal) {
+          const msg = `handoffs[${i}] (${h?.label || "?"}) target "${h?.agent || "?"}" — ${verdict.reason}`;
+          emitWorkflowHandoff(r, "workflow-handoff-target-001", relPath, msg, {
+            escalateToError: verdict.escalate,
+            isV22,
+          });
+          printSuggestion(relPath, h?.label, `Update target to a legal forward/return/orchestrator/UI target.`);
+        }
+      }
+    }
+
+    // ── B2: artifact-sync ────────────────────────────────────────────
+    if (!isExcluded) {
+      for (const [i, h] of handoffs.entries()) {
+        const issues = evaluateArtifactSync(graph, sourceStep, h, agentToStep, allProduced);
+        for (const issue of issues) {
+          emitWorkflowHandoff(
+            r,
+            "workflow-handoff-artifact-sync-001",
+            relPath,
+            `handoffs[${i}] (${h?.label || "?"}) ${issue}`,
+            { isV22 },
+          );
+        }
+      }
+    }
+
+    // ── B3: self-loop bound + enrichment-aware ──────────────────────
+    const selfLoops = handoffs.map((h, i) => ({ h, i })).filter(({ h }) => h?.agent === sourceAgent);
+    if (selfLoops.length > SELF_LOOP_MAX) {
+      emitWorkflowHandoff(
+        r,
+        "workflow-handoff-self-loop-bound-001",
+        relPath,
+        `agent has ${selfLoops.length} self-loop handoffs (max ${SELF_LOOP_MAX})`,
+        { isV22 },
+      );
+    }
+    // Per-loop enrichment: same regex as `checkHandoffEnrichment`.
+    for (const { h, i } of selfLoops) {
+      if (typeof h?.prompt !== "string") continue;
+      const hasInput = /agent-output\/.+\.md/i.test(h.prompt) || /\bInput\b/i.test(h.prompt);
+      const hasOutput = /Output\s*:/i.test(h.prompt) || /agent-output\/.+\.md/i.test(h.prompt);
+      if (!hasInput || !hasOutput) {
+        const missing = [!hasInput && "input reference", !hasOutput && "output reference"]
+          .filter(Boolean)
+          .join(" and ");
+        emitWorkflowHandoff(
+          r,
+          "workflow-handoff-self-loop-bound-001",
+          relPath,
+          `self-loop handoffs[${i}] (${h?.label || "?"}) missing ${missing} — see also: handoff-enrichment-001`,
+          { isV22 },
+        );
+      }
+    }
+
+    // ── B5: agents[] dispatch list ──────────────────────────────────
+    const fmCrossCutting = getCrossCuttingFlag(fm);
+    const subagentIssues = evaluateSubagentDispatch(
+      sourceAgent,
+      fm?.agents,
+      fmCrossCutting,
+      knownAgentNames,
+      knownSubagentNames,
+      artifactProducers,
+    );
+    for (const { entry, message } of subagentIssues) {
+      emitWorkflowHandoff(
+        r,
+        "workflow-handoff-subagent-dispatch-001",
+        relPath,
+        `agents[] entry "${entry}" — ${message}`,
+        { isV22 },
+      );
+    }
+  }
+
+  // ── B4: track parity (cross-pair comparison) ────────────────────────
+  const TRACK_PAIRS = [
+    ["06b-Bicep CodeGen", "06t-Terraform CodeGen"],
+    ["07b-Bicep Deploy", "07t-Terraform Deploy"],
+  ];
+  // Test hook: extra pairs as JSON (e.g. '[["track-a","track-b"]]') to let
+  // synthetic fixtures exercise B4 in isolation. Production runs leave this unset.
+  if (process.env.WORKFLOW_HANDOFFS_TEST_TRACK_PAIRS) {
+    try {
+      const extra = JSON.parse(process.env.WORKFLOW_HANDOFFS_TEST_TRACK_PAIRS);
+      if (Array.isArray(extra)) for (const p of extra) if (Array.isArray(p) && p.length === 2) TRACK_PAIRS.push(p);
+    } catch {
+      /* ignore malformed JSON — fail-open */
+    }
+  }
+  // Re-index agents by name for the parity check.
+  const byName = new Map();
+  for (const [, agent] of agents) {
+    if (agent.frontmatter?.name) byName.set(agent.frontmatter.name, agent);
+  }
+  for (const [aName, bName] of TRACK_PAIRS) {
+    const a = byName.get(aName);
+    const b = byName.get(bName);
+    if (!a || !b) continue;
+    const aTuples = buildTrackTupleList(a);
+    const bTuples = buildTrackTupleList(b);
+    const diffs = diffTrackTuples(aTuples, bTuples, aName, bName);
+    if (diffs.length > 0) {
+      const aRel = path.relative(process.cwd(), a.path);
+      const bRel = path.relative(process.cwd(), b.path);
+      for (const d of diffs) {
+        emitWorkflowHandoff(r, "workflow-handoff-track-parity-001", `${aRel} ↔ ${bRel}`, d, { isV22 });
+      }
+    }
+  }
+
+  r.summary();
+  if (r.errors > 0) {
+    overallFailed = true;
+    console.log("❌ Workflow handoff check FAILED\n");
+  } else {
+    console.log("✅ Workflow handoff check passed\n");
+  }
+  allFindings.push(...r.findings);
+}
+
+const GRAPH_PATH_HUMAN = ".github/skills/workflow-engine/templates/workflow-graph.json";
+
+// ============================================================================
 // Self-check: cross-reference VENDOR_RULES vs rules.json
 // ============================================================================
 
@@ -987,7 +1510,12 @@ function listRules() {
     }
   }
   console.log("Inline rule catalog (validate-agents.mjs):\n");
+  console.log("  ── vendor-prompting ─────────────────────────");
   for (const rule of VENDOR_RULES) {
+    console.log(`  ${rule.id.padEnd(36)} severity=${rule.severity.padEnd(5)} appliesTo=${rule.appliesTo}`);
+  }
+  console.log("\n  ── workflow-handoffs ────────────────────────");
+  for (const rule of WORKFLOW_HANDOFF_RULES) {
     console.log(`  ${rule.id.padEnd(36)} severity=${rule.severity.padEnd(5)} appliesTo=${rule.appliesTo}`);
   }
   if (!registry) {
@@ -998,7 +1526,7 @@ function listRules() {
   const registryIds = new Set(registry.rules.map((r) => r.id));
   const inlineOnly = [...inlineIds].filter((id) => !registryIds.has(id));
   const registryOnly = [...registryIds].filter((id) => !inlineIds.has(id) && !id.startsWith("legacy-"));
-  console.log("\nCross-check vs rules.json:");
+  console.log("\nCross-check vs rules.json (vendor-prompting only — workflow-handoff rules intentionally separate):");
   if (inlineOnly.length === 0 && registryOnly.length === 0) {
     console.log("  ✅ inline catalog and rules.json are in sync (legacy-* rules excluded)");
   } else {
@@ -1021,13 +1549,15 @@ const PARTS = {
   structural: runAgentChecks,
   "model-alignment": runModelAlignment,
   "vendor-prompting": runVendorPrompting,
+  "workflow-handoffs": runWorkflowHandoffs,
 };
 
 function parseArgs(argv) {
-  const opts = { only: null, format: "text", listRules: false, color: true };
+  const opts = { only: null, format: "text", listRules: false, color: true, suggest: false };
   for (const a of argv) {
     if (a === "--list-rules") opts.listRules = true;
     else if (a === "--no-color") opts.color = false;
+    else if (a === "--suggest") opts.suggest = true;
     else if (a.startsWith("--only=")) {
       opts.only = a
         .slice(7)
@@ -1048,6 +1578,8 @@ function main() {
     listRules();
     return;
   }
+
+  suggestMode = opts.suggest === true;
 
   const isJson = opts.format === "json";
   const log = isJson ? () => {} : console.log;

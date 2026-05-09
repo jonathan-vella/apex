@@ -17,10 +17,10 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 The workflow is a Directed Acyclic Graph (DAG) with:
 
-| Concept     | Description                                                     |
-| ----------- | --------------------------------------------------------------- |
-| **Node**    | A unit of work (agent step, gate, validation, or fan-out)       |
-| **Edge**    | A dependency between nodes with a condition                     |
+| Concept  | Description                                               |
+| -------- | --------------------------------------------------------- |
+| **Node** | A unit of work (agent step, gate, validation, or fan-out) |
+| **Edge** | A dependency between nodes with a condition               |
 
 > _See SKILL.md for full content._
 
@@ -44,3 +44,13 @@ The full machine-readable DAG is in:
 | Workflow Graph       | `templates/workflow-graph.json`         | Full DAG for the multi-step workflow                |
 | Orchestrator Handoff    | `references/orchestrator-handoff-guide.md` | Gate templates, IaC routing, delegation rules       |
 | Subagent Integration | `references/subagent-integration.md`    | Subagent matrix, pricing accuracy, review protocols |
+| Handoff Validation Rules | `references/handoff-validation-rules.md` | B1a–B5 rule reference (`workflow-handoffs` PART) |
+| Track Parity Spec    | `references/track-parity-spec.md`       | B4 normalization spec for Bicep/Terraform parity    |
+| Schema Evolution     | `references/schema-evolution.md`        | D1 versioning policy + D2 rollback                  |
+
+## Validation Surfaces (workflow-handoffs)
+
+- `npm run lint:workflow-handoffs` — runs the `workflow-handoffs` PART of `validate-agents.mjs` (rules B1a–B5).
+- `npm run test:workflow-handoffs` — synthetic fixture suite (6 agents + 3 `00-handoff.md`).
+- `validate-artifacts.mjs` — enforces H2 sync for `00-handoff.md`.
+```

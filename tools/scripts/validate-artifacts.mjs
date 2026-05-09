@@ -245,6 +245,8 @@ const ARTIFACT_STRICTNESS = {
   "07-ab-cost-estimate.md": "standard",
   "README.md": "relaxed",
   "09-lessons-learned.md": "relaxed",
+  // Gate companion: overwritten at every gate; staleness between gates is normal.
+  "00-handoff.md": "relaxed",
 };
 
 const OPTIONAL_ALLOWED = {
@@ -276,6 +278,7 @@ const OPTIONAL_ALLOWED = {
   "07-ab-cost-estimate.md": ["## References"],
   "README.md": [],
   "09-lessons-learned.md": ["## References"],
+  "00-handoff.md": [],
 };
 
 const TITLE_DRIFT = "Artifact Template Drift";
@@ -303,6 +306,8 @@ const AGENTS = {
   "07-ab-cost-estimate.md": ".github/skills/azure-artifacts/SKILL.md",
   "README.md": null,
   "09-lessons-learned.md": null,
+  // Gate companion file — sourced from workflow-engine, not azure-artifacts.
+  "00-handoff.md": null,
 };
 
 const TEMPLATE_DIR = ".github/skills/azure-artifacts/templates";
@@ -471,6 +476,11 @@ function validateStandardComponents(filePath, text, reportFn = warn) {
   if (basename === "README.md" || basename === "PROJECT-README.template.md") {
     return;
   }
+  // 00-handoff.md is a compact gate companion file; the standard
+  // badge / TOC / attribution / nav components do not apply.
+  if (basename === "00-handoff.md") {
+    return;
+  }
 
   if (!text.includes("![Step]")) {
     reportFn(`${filePath} is missing the badge row (![Step], ![Status], ![Agent]).`, { filePath, line: 1 });
@@ -571,6 +581,11 @@ function validateCollapsibleBlocks(filePath, text, reportFn = warn) {
 
 function validateTemplate(artifactName) {
   const templatePath = TEMPLATES[artifactName];
+
+  // Companion files (e.g. 00-handoff.md) and post-workflow artifacts
+  // (README.md, 09-lessons-learned.md) have no template file; skip
+  // the template-on-disk check for them.
+  if (!templatePath) return;
 
   if (!exists(templatePath)) {
     error(`Missing template file: ${templatePath}`, {
@@ -848,6 +863,46 @@ function validateArtifactCompliance(relPath) {
   }
   if (COLLAPSIBLE_TEMPLATES.includes(artifactType)) {
     validateCollapsibleBlocks(relPath, text, warn);
+  }
+
+  if (artifactType === "00-handoff.md") {
+    validateHandoffCompanion(relPath, text);
+  }
+}
+
+const HANDOFF_LINE_CAP = 60;
+
+/**
+ * Gate companion (`00-handoff.md`) bespoke checks:
+ *   - line cap ≤ 60 (configurable; default per orchestrator-handoff-guide.md)
+ *   - cohesion (info severity): `## Artifacts` lists at least one path
+ *
+ * The full per-step `produces[]` cohesion check would require parsing
+ * `## Completed Steps` and reconciling with the workflow graph; for
+ * now we keep the cohesion check at info severity and limited to a
+ * "non-empty Artifacts section" heuristic. See
+ * `references/handoff-validation-rules.md` (C2 cohesion) for the
+ * rationale.
+ */
+function validateHandoffCompanion(relPath, text) {
+  const lines = text.split("\n");
+  if (lines.length > HANDOFF_LINE_CAP) {
+    warn(
+      `Gate companion ${relPath} is ${lines.length} lines (>${HANDOFF_LINE_CAP}); compact gate snapshot exceeded — paths only, no embedded content.`,
+      { filePath: relPath, line: HANDOFF_LINE_CAP + 1 },
+    );
+  }
+  // Cohesion: `## Artifacts` must list at least one bulleted path.
+  const artifactsSection = text.match(/^##\s+Artifacts\s*$([\s\S]*?)(?=^## |\Z)/m);
+  if (artifactsSection) {
+    const body = artifactsSection[1];
+    const hasBullet = /^\s*[-*]\s+\S+/m.test(body);
+    if (!hasBullet) {
+      // info-only by design (relaxed strictness; state churn between gates).
+      console.log(
+        `::notice file=${relPath}::Gate companion has empty '## Artifacts' section — list at least one path under it.`,
+      );
+    }
   }
 }
 
