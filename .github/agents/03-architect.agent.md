@@ -157,6 +157,11 @@ These skills are your single source of truth. Do NOT use hardcoded values.
 - Do not claim zone redundancy without SKU verification (e.g., APIM Standard v2 does NOT support AZ)
 - Do not skip memory reservation in capacity sizing — Azure Managed Redis reserves ~20%
 - RPS calculation: `monthly_txn / (days × hours × 3600)`. Apply 3-5× concentration for peaks
+- **Do not re-create artifacts with `create_file` to apply revisions.**
+  First-time creation uses `create_file`; every subsequent revision
+  (challenger fixes, per-finding Apply/Skip/Defer decisions) bundles
+  all changes into a single `multi_replace_string_in_file` call. See
+  azure-artifacts skill "Revision Workflow".
 
 ## Core Workflow
 
@@ -351,23 +356,27 @@ from disk only if you need full finding details for the Gate presentation.
 3. Show aggregate totals across all passes: `N must-fix, N should-fix`
 4. Reference the JSON file paths for machine-readable details
 
-Then use `askQuestions` to gather the decision (brief summary only —
-detailed findings are already visible in chat above):
+Then run the **Per-Finding Decision Protocol** from
+[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
 
-- Question description:
-  `"Challenger: N must-fix, N should-fix across M passes. Revise or proceed?"`
-- Ask a single-select question: _"How would you like to proceed?"_
-  with options:
-  1. **Revise architecture** — address must-fix findings before
-     proceeding (recommended if any must-fix findings exist, mark
-     as `recommended`)
-  2. **Proceed to IaC Planning** — accept findings as-is and move
-     to Step 4
-- If the user chooses to revise: apply fixes to
-  `02-architecture-assessment.md`, re-run the challenger review,
-  then repeat this gate
-- If the user chooses to proceed: present final handoff to IaC
-  Planner agent
+- **Sources merged for the panel** (per protocol section 2e): in this
+  order — `challenge-findings-cost-estimate.json` → `challenge-findings-architecture-pass1.json` → `pass2.json` → `pass3.json`
+  (omit passes that did not run).
+- **Sidecar**:
+  `agent-output/{project}/challenge-findings-architecture-decisions.json`.
+  All decisions across cost-estimate and architecture passes land in this
+  single sidecar — `artifact_type: "architecture"`.
+- **On Revise** (matrix row 2): apply Accepted fixes to
+  `02-architecture-assessment.md` (and `02-cost-estimate.json` /
+  `03-des-cost-estimate.md` for cost-estimate findings) using a
+  **single `multi_replace_string_in_file` call** that bundles every
+  Accepted finding's edit — do NOT re-emit the artifact via
+  `create_file`. See azure-artifacts skill "Revision Workflow". Then
+  re-run **all relevant passes** of the challenger per the configured
+  pass count (`overwrite: true`), then re-build the panel skipping
+  issues whose `issue_id` already has a sidecar entry (protocol
+  section 2c).
+- **On Proceed**: present final handoff to IaC Planner agent.
 
 ## Output Files
 

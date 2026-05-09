@@ -213,3 +213,255 @@ After all passes, present a merged summary:
     - agent-output/{project}/challenge-findings-{type}-pass1.json
     - ...
 ```
+
+For per-finding decisions before the summary, follow `## Per-Finding Decision Protocol`.
+
+## Per-Finding Decision Protocol
+
+Replaces the legacy single-binary "Approve / Revise" gate with a per-finding
+interactive flow. After all challenger passes for an artifact complete, the
+parent agent presents one batched `askQuestions` call where each in-scope
+finding (`must_fix` + `should_fix`) is its own question with four action
+options. Decisions are persisted in a sidecar JSON file and via
+`apex-recall finding`. A final aggregated proceed/revise gate follows.
+
+### 2a. Sidecar file location
+
+Decisions are written to:
+
+```text
+agent-output/{project}/challenge-findings-{artifact-type}-decisions.json
+```
+
+The challenger subagent **never reads or writes this file** — it is owned
+by the parent agent. Schema:
+
+```json
+{
+  "challenged_artifact": "agent-output/{project}/{artifact}.md",
+  "artifact_type": "requirements|architecture|cost-estimate|governance|plan",
+  "decisions": [
+    {
+      "issue_id": "<8-char hash>",
+      "source_file": "challenge-findings-{type}-pass{N}.json",
+      "pass_number": 1,
+      "issue_index": 3,
+      "severity": "must_fix",
+      "title": "...",
+      "action": "accept|reject|defer|edit",
+      "note": "free text or null",
+      "decided_at": "<ISO-8601>"
+    }
+  ]
+}
+```
+
+**Atomic write**: write to `{path}.tmp`, then `os.rename` over the target.
+**Append on Revise re-runs**: never overwrite. Existing entries with a
+matching `issue_id` are kept and skipped on the next panel build.
+
+### 2b. Stable issue identity
+
+```text
+issue_id = sha256(category + "|" + title + "|" + artifact_section).hexdigest()[0:8]
+```
+
+Computed by the parent agent at panel-build time. The challenger
+subagent's JSON schema is **not** modified — `issue_id` is a parent-side
+derivation. Re-running against the same finding produces the same hash,
+which makes Resume / Revise idempotent.
+
+### 2c. Auto-load existing decisions on Resume / Revise
+
+Before building the panel:
+
+1. If `challenge-findings-{type}-decisions.json` exists, read it.
+2. Compute `issue_id` for every finding in the merged source set (2e).
+3. Skip any issue whose `issue_id` is already present in
+   `decisions[].issue_id`.
+
+If the sidecar is absent, treat as "no prior decisions" — legacy
+artifacts that pre-date this protocol work unchanged.
+
+### 2d. Unattended mode
+
+If the environment variable `APEX_UNATTENDED=1` is set, the protocol
+**bypasses `askQuestions` entirely**:
+
+- All `must_fix` → `action: "defer"`,
+  `note: "auto-deferred (unattended)"`.
+- All `should_fix` → `action: "defer"`, same note.
+- All `suggestion` → unchanged (auto-deferred as in attended mode).
+- Final aggregated gate auto-proceeds.
+- Agent emits a chat warning listing every deferred `must_fix` title so
+  the user can audit the run later.
+
+This unblocks `e2e-orchestrator.agent.md` and `npm run e2e:benchmark`.
+
+### 2e. Multi-source merge order
+
+When an agent has multiple `challenge-findings-*.json` sources (Architect
+merges cost-estimate + arch pass 1/2/3; Planner merges arch pass 1/2/3),
+build one batched panel using this order:
+
+1. All `must_fix` first, sorted by `(source-order, original-index)`.
+2. All `should_fix` next, same sort.
+
+Source order for Architect:
+`cost-estimate → architecture pass 1 → pass 2 → pass 3`.
+Source order for Planner: `pass 1 → pass 2 → pass 3`.
+
+**No dedup logic** — the challenger subagent's existing `prior_findings`
+contract already prevents cross-pass duplicates.
+
+### 2f. Soft cap on panel size
+
+Default cap: **12 questions**. If `must_fix + should_fix > 12`:
+
+1. Render the full summary table in chat (unchanged).
+2. Build the panel from the top 12 by severity (must_fix first, sorted
+   per 2e).
+3. Auto-defer the rest with
+   `note: "auto-deferred (panel cap; re-run gate after revising must_fix)"`.
+4. Emit a chat warning:
+   `Panel capped at 12 of {N} findings; {M} auto-deferred.`
+
+The cap is a constant. Agents do not override it.
+
+### 2g. `askQuestions` payload shape
+
+Per finding:
+
+| Field | Value |
+| --- | --- |
+| `header` | `{artifact-type}-pass{N}-{idx}` (≤50 chars). Examples: `architecture-pass1-3`, `cost-estimate-pass1-0`. **Hard rule** — must be unique across the merged batched call. |
+| `question` | `title` (≤200 chars; truncate with `…`). |
+| `message` | Markdown block with severity badge + `category` + `description` + `failure_scenario` + `artifact_section` + `suggested_mitigation`. |
+| `options` | Four fixed labels (in this order): `Accept (apply mitigation)`, `Reject (accept risk)`, `Defer (carry to handoff)`, `Edit (custom guidance)`. |
+| `recommended` | `Accept` for `must_fix`; `Defer` for `should_fix`. |
+| `allowFreeformInput` | `true` (enables Edit + per-finding notes). |
+
+### 2h. Edit / freeText / skipped semantics
+
+Deterministic — no agent-level interpretation:
+
+| User input | Resulting `action` | Resulting `note` |
+| --- | --- | --- |
+| `Edit` selected + non-empty `freeText` | `edit` | `<freeText>` |
+| `Edit` selected + empty `freeText` | `defer` | `"Edit selected without guidance — auto-deferred."` |
+| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection | `<freeText>` if present, else `null` |
+| `skipped: true` | `defer` | `"User skipped — auto-deferred."` |
+
+### 2i. Persist decisions (sidecar + apex-recall)
+
+For each answered question:
+
+1. Append a `decisions[]` entry to the sidecar JSON (atomic write per 2a).
+2. Run:
+
+   ```bash
+   apex-recall finding <project> --add "{severity}|{action}|{issue_id}|{title}|{note}" --json
+   ```
+
+   Pipe-delimited single-line format (Sg2). Consumers split on `|` with
+   **max 4 splits** so titles or notes that contain `|` remain intact.
+   Use the literal string `null` (no quotes) when `note` is null.
+
+### 2j. No-op gate clarification
+
+If `must_fix + should_fix == 0`:
+
+- **Skip the per-finding panel only.**
+- Agents still render their summary blocks (WAF scores, governance
+  summary, plan summary, etc.).
+- The final aggregated gate becomes a trivial Proceed confirmation.
+
+### 2k. Revise behavior matrix
+
+| Agent | On user `Revise` final-gate choice |
+| --- | --- |
+| 02-Requirements | Apply Accepted fixes → re-run challenger (`overwrite: true`) → re-build panel (skipping issues with prior decisions per 2c) → re-present gate. |
+| 03-Architect | Same as Requirements; re-run all relevant passes per the configured pass count. |
+| 04g-Governance | Apply Accepted fixes → **DO NOT re-run challenger** (cap = 1 pass) → re-present final aggregated gate only with the existing decision sidecar. |
+| 05-IaC Planner | Same as Requirements. |
+
+### 2l. Final aggregated gate
+
+After the per-finding panel completes (or is skipped per 2j / 2d):
+
+1. Render a decisions table in chat:
+
+   ```text
+   ID       Severity    Title                                  Action   Note
+   a1b2c3d4 must_fix    Missing private endpoint on storage    accept   Adopt PE in Phase 2
+   e5f6g7h8 should_fix  Cosmos DB region pair                  defer    —
+   ```
+
+2. Present a single `askQuestions` with options:
+
+   - `Revise (apply Accepted findings)` —
+     `recommended: true` if any `must_fix` had `action == "accept"`;
+     otherwise not recommended.
+   - `Proceed (handoff next step)` — recommended otherwise.
+   - **Governance only**: also `Refresh governance` (preserved from the
+     existing 04g Phase 3 gate).
+
+### 2m. Payload example
+
+Two-finding panel for an Architect gate. Source files merged per 2e
+(`challenge-findings-cost-estimate.json` first, then
+`challenge-findings-architecture-pass1.json`).
+
+```json
+{
+  "questions": [
+    {
+      "header": "cost-estimate-pass1-0",
+      "question": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
+      "message": "**must_fix** · cost-feasibility\n\n**Description**: Configured 4000 RU/s autoscale max but plan caps at 2900.\n\n**Failure scenario**: Burst traffic triggers autoscale to ceiling, monthly bill overruns committed budget.\n\n**Artifact section**: §4 Cost — Cosmos DB row.\n\n**Suggested mitigation**: Lower max_throughput to 2900 or split workload across two containers.",
+      "options": [
+        { "label": "Accept (apply mitigation)", "recommended": true },
+        { "label": "Reject (accept risk)" },
+        { "label": "Defer (carry to handoff)" },
+        { "label": "Edit (custom guidance)" }
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "architecture-pass1-2",
+      "question": "Storage account allows public blob access",
+      "message": "**must_fix** · security-governance\n\n**Description**: …",
+      "options": [
+        { "label": "Accept (apply mitigation)", "recommended": true },
+        { "label": "Reject (accept risk)" },
+        { "label": "Defer (carry to handoff)" },
+        { "label": "Edit (custom guidance)" }
+      ],
+      "allowFreeformInput": true
+    }
+  ]
+}
+```
+
+Resulting sidecar entry for the first answered question (user picked
+`Accept` with note "Lower to 2500"):
+
+```json
+{
+  "issue_id": "a1b2c3d4",
+  "source_file": "challenge-findings-cost-estimate.json",
+  "pass_number": 1,
+  "issue_index": 0,
+  "severity": "must_fix",
+  "title": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
+  "action": "accept",
+  "note": "Lower to 2500",
+  "decided_at": "2026-05-09T14:32:11Z"
+}
+```
+
+Corresponding `apex-recall` call:
+
+```bash
+apex-recall finding my-project --add "must_fix|accept|a1b2c3d4|Cosmos DB autoscale max RU/s exceeds budget by 38%|Lower to 2500" --json
+```

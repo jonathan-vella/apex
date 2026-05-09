@@ -49,6 +49,20 @@ Artifact: agent-output/{project}/{filename}
 ❓ {Review prompt + confirm-to-proceed}
 ```
 
+## Subagent Tier Rule (handoff-only routing)
+
+The `01-Orchestrator` and `01-Orchestrator (Fast Path)` run at **codex** tier.
+Per the VS Code [subagent cost-tier rule](https://code.visualstudio.com/docs/copilot/agents/subagents),
+`#runSubagent` cannot raise the subagent above the parent's tier — higher-tier
+targets silently fall back to codex.
+
+Consequence: the orchestrator delegates **every** step (and the challenger)
+via handoff buttons defined in its `handoffs:` frontmatter. The user clicks
+the button, VS Code switches agent mode, and the target agent runs at its
+native tier. Cost-estimate, validate, what-if/plan, and challenger subagents
+are still invoked via `#runSubagent`, but by the **step agents** (medium or
+high tier) — not by the orchestrator.
+
 ## Gate Identifiers (per workflow-graph.json)
 
 | Gate | After               | Required content in chat                                 |

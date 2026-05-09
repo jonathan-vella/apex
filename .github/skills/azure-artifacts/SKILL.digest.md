@@ -26,6 +26,18 @@ After saving step artifact(s), update the README:
 
 > _See SKILL.md for full content._
 
+## Revision Workflow (Targeted Edits)
+
+First-time creation uses `create_file`. **All revisions** (challenger
+findings, per-finding Apply/Skip/Defer decisions, gate revisions)
+MUST use `multi_replace_string_in_file` — bundle every accepted fix
+into **one tool call**, not one per finding. Re-emitting a full
+artifact via `create_file` costs 8–18 K output tokens that re-enter
+context on every subsequent turn. Exception: H2 reorder or > 50 % of
+lines changed (log via `apex-recall decide`).
+
+> _See SKILL.md for full Revision Workflow table and exception logging._
+
 ## Placeholder Syntax
 
 All templates use single-brace `{placeholder-name}` syntax (lowercase, hyphen-separated). No Mustache `{{double-braces}}`.

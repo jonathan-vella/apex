@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator (Fast Path)
 description: "Experimental fast-path orchestrator for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Orchestrator agent."
-model: ["GPT-5.5"]
+model: ["GPT-5.3-Codex"]
 argument-hint: Describe a simple Azure platform engineering project (≤3 resources)
 user-invocable: true
 agents:
@@ -14,7 +14,7 @@ agents:
     "08-As-Built",
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
-    "challenger-review-subagent",
+    "10-Challenger",
   ]
 tools:
   [
@@ -61,6 +61,10 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate streamlined documentation for a simple project. Only: design document, operations runbook, resource inventory. Input: all prior artifacts in `agent-output/{project}/`. Output: agent-output/{project}/07-as-built.md (streamlined single-file form)."
     send: true
+  - label: "🔍 Run Challenger Review"
+    agent: 10-Challenger
+    prompt: "Run a 1-pass adversarial review on the artifact specified by the current gate (Requirements, Architecture, or combined Plan+Code). Input: artifact path passed by the orchestrator. Output: agent-output/{project}/challenge-findings-{type}.json plus an inline summary. Re-enter the fast-path orchestrator after the user reviews the findings."
+    send: true
   - label: "↩ Switch to Full Orchestrator"
     agent: 01-Orchestrator
     prompt: "This project is too complex for fast-path. Switching to the full multi-step orchestrator workflow. Input: current fast-path session state. Output: session state retargeted at 01-orchestrator with full gating."
@@ -100,8 +104,9 @@ Deny policies, auth failure, malformed CLI output) and handing off to the main
 - `decisions.complexity == "simple"` is verified before Step 2 begins.
 - The Step 3 governance pre-check passes (auth OK, no Deny policies, valid
   JSON response) — otherwise fast-path exits cleanly to main orchestrator.
-- Steps 1, 3 (Plan portion), and Deploy approval are interactive handoffs;
-  Steps 2, 3 (Code portion), 5 are `#runSubagent` invocations.
+- All step transitions are delivered as **handoff buttons** — the fast-path
+  orchestrator never wraps step agents or the challenger in `#runSubagent`.
+  See [Subagent Tier Rule](#subagent-tier-rule).
 - Final artifact set: `01-requirements.md`, `02-architecture-assessment.md`,
   `03-des-cost-estimate.md`, `04-implementation-plan.md`, IaC under
   `infra/{tool}/{project}/`, `06-deployment-summary.md`, streamlined
@@ -155,10 +160,11 @@ The fast path combines and streamlines the standard multi-step workflow:
 
 ### Step 1: Requirements (same as standard)
 
-**Present the Step 1 handoff** to the `02-Requirements` agent — do NOT
-use `#runSubagent`. The Requirements agent needs `askQuestions` to
-interview the user interactively (Phases 1-4). Subagents cannot present
-interactive question panels.
+**Present the Step 1 handoff** to the `02-Requirements` agent. The fast-path
+orchestrator runs at codex tier and never invokes step agents via
+`#runSubagent` (see [Subagent Tier Rule](#subagent-tier-rule)). The
+Requirements agent needs `askQuestions` to interview the user interactively
+(Phases 1–4), and runs at its own (Opus) tier when entered via the handoff.
 
 The output MUST include
 `## 📊 Complexity Classification` with `complexity: simple`.
@@ -174,10 +180,12 @@ If missing or not `simple`, STOP with error before proceeding.
 
 ### Step 2: Architecture (streamlined)
 
-Delegate to `03-Architect` agent. For simple projects per the review
-matrix in `azure-defaults/references/adversarial-review-protocol.md`:
+**Present the Step 2 handoff** to the `03-Architect` agent. For simple
+projects per the review matrix in
+`azure-defaults/references/adversarial-review-protocol.md`:
 
-- 1-pass comprehensive review (standard default)
+- 1-pass comprehensive review (standard default) — surface the **Run
+  Challenger Review** handoff after the artifact is approved.
 - Skip detailed cost comparison (single-tier is sufficient)
 - WAF assessment is still mandatory
 
@@ -187,10 +195,11 @@ This is the key optimization — Plan and Code are combined.
 Review pass counts follow the `simple` row of the review matrix in
 `azure-defaults/references/adversarial-review-protocol.md`.
 
-1. **Present the IaC Planner handoff** (`05-IaC Planner`) — the Planner
+1. **Present the IaC Planner handoff** (`05-IaC Planner`). The Planner
    routes internally based on `decisions.iac_tool` in session state and
    uses `askQuestions` for the Deployment Strategy Gate, so it must run
-   as a direct handoff, not via `#runSubagent`.
+   as a handoff (the fast-path orchestrator does not use `#runSubagent`
+   for any step — see [Subagent Tier Rule](#subagent-tier-rule)).
    - **Governance pre-check (required)**: Before skipping full governance
      discovery, run this validation:
      1. Validate auth: `az account show --query id -o tsv` — if this fails (exit code non-zero),
@@ -209,38 +218,63 @@ Review pass counts follow the `simple` row of the review matrix in
      6. If the array is empty or contains only Audit/Modify policies:
         proceed without full governance discovery (documented exception).
    - Single deployment phase (no phased deployment needed)
-2. Immediately delegate to the IaC CodeGen agent (06b or 06t) via `#runSubagent`
+2. After the Planner returns, **present the IaC CodeGen handoff** (06b or 06t)
+   — not via `#runSubagent`.
    - **Accepted risk**: No intermediate approval gate between Plan and Code
      (production workflow has `gate-3` here). This is acceptable for `simple`
      projects only because: single deployment phase, ≤3 resources, 1-pass
      review at Code stage catches plan errors. If plan quality degrades,
      re-introduce the gate.
-   - 1-pass comprehensive adversarial review (standard default)
-   - Standard validation (lint + review subagents)
+   - 1-pass comprehensive adversarial review surfaced via the **Run Challenger
+     Review** handoff button.
+   - Standard validation (lint + review subagents — these are owned by the
+     CodeGen agent, which runs at medium tier, so its `#runSubagent` calls to
+     Sonnet 4.6 validate/preview subagents stay within tier).
 
 ### Step 4: Deploy (same as standard)
 
-Delegate to Deploy agent (07b or 07t). What-if/plan is still mandatory.
+**Present the Deploy handoff** to 07b or 07t. What-if/plan is still mandatory.
 User approval is still required.
 Per the review matrix, deploy adversarial review is **skipped** for
 simple projects with no open findings.
 
 ### Step 5: Documentation (streamlined)
 
-Delegate to `08-As-Built` agent. For simple projects:
+**Present the Step 5 handoff** to the `08-As-Built` agent. For simple projects:
 
 - Generate only: design document, operations runbook, resource inventory
 - Skip: compliance matrix, backup/DR plan (not needed for simple)
 
 ### Checkpoint Fallback (Safety Net)
 
-After each subagent or handoff returns, verify the step was recorded:
+After the user returns from each handoff, verify the step was recorded:
 
 1. Run `apex-recall show <project> --json` and check `steps.{N}.status`
 2. If the step agent did NOT call `complete-step` (status still `in_progress`
    or `pending`): run `apex-recall complete-step <project> {N} --json`
 3. If key decisions are missing (e.g., `decisions.iac_tool` after Step 1):
    extract from the artifact and run `apex-recall decide <project> --key <k> --value <v> --json`
+
+## Subagent Tier Rule
+
+VS Code Copilot enforces a **cost-tier ceiling** on `#runSubagent`: a
+subagent cannot exceed the cost tier of the parent. If the parent requests a
+higher-tier model, the subagent silently falls back to the parent's tier.
+[Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
+
+The fast-path orchestrator runs at **codex** tier (GPT-5.3-Codex), the same
+as the main orchestrator. The step agents (Requirements, Architect, Planner,
+CodeGen, Deploy, As-Built) and the Challenger run at **medium** or **high**
+tiers. Calling them via `#runSubagent` would silently downgrade them.
+
+Fix: **handoff-only routing**. Every transition out of the fast-path
+orchestrator is a handoff button. The user clicks the button, VS Code
+switches agent mode, and the target agent runs at its native tier.
+
+The validate / what-if / plan subagents (Sonnet 4.6, medium tier) used by
+the CodeGen and Deploy agents are still invoked via `#runSubagent`, but by
+those **medium-tier parents** — not by this orchestrator — so they stay
+within the tier ceiling.
 
 ## Boundaries
 

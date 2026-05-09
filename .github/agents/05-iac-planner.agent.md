@@ -309,18 +309,25 @@ from disk only if you need full finding details for the Gate presentation.
 3. Show aggregate totals: `N must-fix, N should-fix`
 4. Reference the JSON file paths for machine-readable details
 
-Then use `askQuestions` to gather the decision:
+Then run the **Per-Finding Decision Protocol** from
+[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
 
-- Question description: `"Challenger found N must-fix and N should-fix. See details in chat above. Revise or proceed?"`
-- Ask a single-select question: _"How would you like to proceed?"_
-  with options:
-  1. **Revise plan** — address must-fix findings before proceeding
-     (recommended if any must-fix findings exist, mark as `recommended`)
-  2. **Proceed to Code Generation** — accept findings as-is and move to Step 5
-- If the user chooses to revise: apply fixes to
-  `04-implementation-plan.md`, re-run the challenger review, then repeat
-- If the user chooses to proceed: present final handoff to the appropriate
-  CodeGen agent (Bicep or Terraform based on `decisions.iac_tool`)
+- **Sources merged for the panel** (per protocol section 2e): in this
+  order — `challenge-findings-plan-pass1.json` → `pass2.json`
+  (omit passes that did not run; max 2 passes per Phase 4.3–4.4).
+- **Sidecar**:
+  `agent-output/{project}/challenge-findings-plan-decisions.json`
+  (`artifact_type: "plan"`).
+- **On Revise** (matrix row 4): apply Accepted fixes to
+  `04-implementation-plan.md` using a **single
+  `multi_replace_string_in_file` call** that bundles every Accepted
+  finding's edit — do NOT re-emit the plan via `create_file`. See
+  azure-artifacts skill "Revision Workflow". Then re-run all relevant
+  passes of the challenger (`overwrite: true`), then re-build the
+  panel skipping issues whose `issue_id` already has a sidecar entry
+  (protocol section 2c).
+- **On Proceed**: present final handoff to the appropriate CodeGen
+  agent (Bicep or Terraform based on `decisions.iac_tool`).
   **On completion** (MANDATORY): `apex-recall complete-step <project> 4 --json`
 
 ## Output Files

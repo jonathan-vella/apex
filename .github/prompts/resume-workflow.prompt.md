@@ -21,8 +21,11 @@ without re-executing completed work or losing earlier decisions.
 - Next workflow node resolved against
   `.github/skills/workflow-engine/templates/workflow-graph.json`.
 - User shown the current workflow status before any agent invocation.
-- Control handed to the correct agent for the next step (Bicep vs Terraform
-  routing respected).
+- Next agent surfaced as a **handoff button** (matching the label in the
+  `01-Orchestrator` agent's `handoffs:` frontmatter). The user clicks the
+  button to enter the next agent. The orchestrator never auto-invokes a step
+  agent or the challenger via `#runSubagent` (Bicep vs Terraform routing
+  respected when picking which handoff label to surface).
 
 # Constraints
 
@@ -30,6 +33,12 @@ without re-executing completed work or losing earlier decisions.
   `00-session-state.json`.
 - Read `agent-output/{project}/00-session-state.json` and the workflow graph
   on every resume — do not cache stale state.
+- **Handoff-only routing.** The `01-Orchestrator` runs at codex tier; per the
+  VS Code [subagent cost-tier rule](https://code.visualstudio.com/docs/copilot/agents/subagents),
+  any `#runSubagent` call would silently downgrade higher-tier step agents.
+  This prompt therefore **never** wraps a step agent or the challenger in
+  `#runSubagent`. After resolving the next node, present its matching
+  handoff button (from the orchestrator's `handoffs:` list) and stop.
 - Routing rules:
   - `complete` → follow `on_complete` edges → find next node.
   - `in_progress` → resume from `sub_step` checkpoint.
@@ -42,13 +51,17 @@ without re-executing completed work or losing earlier decisions.
 # Output
 
 - A status summary printed for the user (project, current step, next agent).
-- Handoff to the resolved agent for the next workflow node.
+- The matching **handoff button** for the next workflow node, surfaced from
+  the orchestrator's `handoffs:` list. No content is auto-injected into the
+  next agent — the user clicks the button to enter that agent at its native
+  tier.
 
 # Stop rules
 
 - Stop and ask if multiple projects exist and the user did not specify one.
 - Stop if `00-session-state.json` is missing or fails schema validation.
 - Stop at any gate node that requires approval.
+- Stop after surfacing the next handoff button — do not call `#runSubagent`.
 - Do not invent a `decisions.iac_tool` value when it is missing — ask the
   user (or route back to the relevant Step 4 agent).
 
@@ -69,3 +82,27 @@ Step 3_5 (Governance) uses underscores in both systems to avoid `parseInt("3.5")
 | `step-6b`     | `"6"`           | `step_6`               | 07b-Bicep Deploy      | `decisions.iac_tool == "Bicep"`     |
 | `step-6t`     | `"6"`           | `step_6`               | 07t-Terraform Deploy  | `decisions.iac_tool == "Terraform"` |
 | `step-7`      | `"7"`           | (none)                 | 08-As-Built           | —                                   |
+
+## Graph Node → Handoff Button Label
+
+When the next node has been resolved, surface the matching handoff button
+from the `01-Orchestrator` `handoffs:` frontmatter — never call
+`#runSubagent`.
+
+| Graph Node ID | Handoff button label                                                                                      |
+| ------------- | --------------------------------------------------------------------------------------------------------- |
+| `step-1`      | `Step 1: Gather Requirements`                                                                             |
+| `step-2`      | `Step 2: Architecture Assessment`                                                                         |
+| `step-3`      | `Step 3: Design Artifacts` (optional — may be skipped to `step-3_5`)                                      |
+| `step-3_5`    | `Step 3.5: Governance Discovery`                                                                          |
+| `step-4`      | `Step 4: Implementation Plan` (Bicep) **or** `Step 4: IaC Plan (Terraform)` based on `decisions.iac_tool` |
+| `step-5b`     | `Step 5: Generate Bicep`                                                                                  |
+| `step-5t`     | `Step 5: Generate Terraform`                                                                              |
+| `step-6b`     | `Step 6: Deploy`                                                                                          |
+| `step-6t`     | `Step 6: Deploy (Terraform)`                                                                              |
+| `step-7`      | `Step 7: As-Built Documentation`                                                                          |
+| Challenger    | `🔍 Run Challenger Review` — surface at any gate that needs review                                        |
+
+If the resolved node has no matching handoff label (e.g., a custom or
+deprecated node), STOP and ask the user how to proceed instead of falling
+back to `#runSubagent`.

@@ -387,14 +387,27 @@ policies. Do not re-run Phase 1 between challenger passes.
 2. Show the governance-to-plan adaptation summary (which Deny policies
    will constrain IaC code)
 
-Then use `askQuestions` to gather the decision:
+Then run the **Per-Finding Decision Protocol** from
+[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
 
-- Question description: `"Governance discovery found N blockers and N warnings.`
-  `How would you like to proceed?"`
-- Options:
-  1. **Approve governance** — proceed to IaC Planning (recommended if 0 must-fix)
-  2. **Refresh governance** — re-run discovery (if policies were recently changed)
-  3. **Enter custom answer** — for manual overrides
+- **Sources merged for the panel**: `challenge-findings-governance.json`
+  (single-source — Phase 2.5 caps challenger at max 1 pass).
+- **Sidecar**:
+  `agent-output/{project}/challenge-findings-governance-decisions.json`.
+- **Final aggregated gate (per protocol section 2l)**: include the
+  Governance-only third option `Refresh governance` alongside `Revise`
+  and `Proceed`. Use this option when the user reports that policies
+  changed and discovery should restart from Phase 0.45.
+- **On Revise** (matrix row 3): apply Accepted fixes to
+  `04-governance-constraints.md` / `.json` using a **single
+  `multi_replace_string_in_file` call** that bundles every Accepted
+  finding's edit — do NOT re-emit either artifact via `create_file`.
+  See azure-artifacts skill "Revision Workflow". Then re-present this
+  final aggregated gate **only** with the existing decision sidecar.
+  **Do NOT re-run the challenger** — the 1-pass cap in Phase 2.5
+  applies to Revise loops as well.
+- **On Refresh governance**: restart from Phase 0.45 (skip cache).
+- **On Proceed**: present final handoff to IaC Planner.
 
 **On approval** (MANDATORY): `apex-recall complete-step <project> 3_5 --json`
 

@@ -4,13 +4,13 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.3-Codex",
       "invokable": true,
       "step": null
     },
     "orchestrator-fast-path": {
       "agent": ".github/agents/01-orchestrator-fastpath.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.3-Codex",
       "invokable": true,
       "step": null
     },

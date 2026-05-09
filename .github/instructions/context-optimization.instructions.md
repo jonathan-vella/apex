@@ -93,6 +93,40 @@ for the per-model breakdown including request multipliers.
 | Repeating instructions across agents | Single instruction file + `applyTo` glob   |
 | Reading entire files when grep works | Use `grep_search` for targeted extraction  |
 | No hand-offs in 30+ turn sessions    | Split at logical boundaries with subagents |
+| `create_file` to revise a file       | Use `multi_replace_string_in_file` (below) |
+
+## Targeted Edits Over Full Rewrites
+
+**Rule**: Use `create_file` only for first-time artifact creation.
+All revisions MUST use `replace_string_in_file` or
+`multi_replace_string_in_file`.
+
+| Situation                                       | Correct tool                    |
+| ----------------------------------------------- | ------------------------------- |
+| Initial draft of any file                       | `create_file`                   |
+| Single-spot fix                                 | `replace_string_in_file`        |
+| Multiple fixes across one or more files         | `multi_replace_string_in_file`  |
+| Structural rewrite (≥ 50 % lines or H2 reorder) | `create_file` (with logged ADR) |
+
+**Bundle all accepted findings into one call.** A 24-finding revision
+is one `multi_replace_string_in_file` call, not 24 sequential edits.
+
+**Cost model** (measured empirically against a Step-2 Architect run
+that consumed 200 K of input tokens):
+
+- Full rewrite of a 200-line artifact: **8–18 K output tokens**, all of
+  which re-enter the context window as input on every subsequent turn.
+- Equivalent multi-edit patch (24 findings): **200–800 tokens** total.
+- Multiplier: **20–60× cheaper per revision**.
+
+For any agent that runs adversarial review and applies fixes
+(`03-Architect`, `05-IaC Planner`, `04g-Governance`), the revision
+phase is the dominant context-bloat risk. Use targeted edits.
+
+**Exception logging**: when a full rewrite is genuinely required
+(template bump, > 50 % of lines changed, H2 reordering), record the
+rationale via `apex-recall decide ... --rationale "Full rewrite: <reason>"`
+so the choice is auditable.
 
 ## Runtime Compression
 
