@@ -57,22 +57,31 @@ if [ -d "$MCP_DIR" ]; then
             | head -1 | awk '{print $3}' | cut -d'.' -f1-2)
     fi
     REBUILD_VENV=0
+    REBUILD_REASON=""
     if [ ! -f "$MCP_DIR/.venv/bin/python" ]; then
         REBUILD_VENV=1
+        REBUILD_REASON="missing venv"
     elif [ -n "$VENV_PY_VER" ] && [ -n "$SYS_PY_VER" ] && [ "$VENV_PY_VER" != "$SYS_PY_VER" ]; then
         REBUILD_VENV=1
+        REBUILD_REASON="Python ${VENV_PY_VER} → ${SYS_PY_VER} drift"
     elif ! "$MCP_DIR/.venv/bin/python" -m pip --version >/dev/null 2>&1; then
         REBUILD_VENV=1
+        REBUILD_REASON="broken pip"
     fi
     if [ "$REBUILD_VENV" -eq 1 ]; then
         printf "    azure-pricing-mcp     "
+        # Capture stderr to a log so failures are diagnosable without re-running
+        # under set -x. Log path stays in /tmp so it's gitignore-safe.
+        REBUILD_LOG="/tmp/azure-pricing-mcp-rebuild.log"
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
-        if python3 -m venv "$MCP_DIR/.venv" 2>/dev/null \
-            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip >/dev/null 2>&1 \
-            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]" >/dev/null 2>&1; then
-            printf "✅ rebuilt (Python version drift)\n"
+        if { python3 -m venv "$MCP_DIR/.venv" \
+            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip \
+            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]"; } > "$REBUILD_LOG" 2>&1; then
+            printf "✅ rebuilt (%s)\n" "$REBUILD_REASON"
+            rm -f "$REBUILD_LOG" 2>/dev/null || true
         else
-            printf "⚠️  rebuild failed (continuing)\n"
+            printf "⚠️  rebuild failed (%s) — see %s\n" "$REBUILD_REASON" "$REBUILD_LOG"
+            tail -3 "$REBUILD_LOG" 2>/dev/null | sed 's/^/        /' || true
         fi
     elif [ -f "$MCP_DIR/.venv/bin/python" ]; then
         "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>/dev/null || true
