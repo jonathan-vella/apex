@@ -46,12 +46,42 @@ fi
 
 # ─── Azure Pricing MCP ───────────────────────────────────────────────────────
 MCP_DIR="${WORKSPACE_FOLDER:-$PWD}/tools/mcp-servers/azure-pricing"
-if [ -f "$MCP_DIR/.venv/bin/pip" ]; then
-    "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>/dev/null || true
-    printf "    azure-pricing-mcp     "
-    "$MCP_DIR/.venv/bin/pip" install --quiet -e "$MCP_DIR[azure]" \
-        && printf "✅ updated\n" \
-        || printf "⚠️  update failed (continuing)\n"
+if [ -d "$MCP_DIR" ]; then
+    # Detect stale venv (Python minor mismatch after container upgrade) or
+    # broken pip. Rebuild rather than chasing a half-broken venv on every
+    # post-start run (post-create.sh has matching logic).
+    SYS_PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "")
+    VENV_PY_VER=""
+    if [ -f "$MCP_DIR/.venv/pyvenv.cfg" ]; then
+        VENV_PY_VER=$(grep -E '^version' "$MCP_DIR/.venv/pyvenv.cfg" 2>/dev/null \
+            | head -1 | awk '{print $3}' | cut -d'.' -f1-2)
+    fi
+    REBUILD_VENV=0
+    if [ ! -f "$MCP_DIR/.venv/bin/python" ]; then
+        REBUILD_VENV=1
+    elif [ -n "$VENV_PY_VER" ] && [ -n "$SYS_PY_VER" ] && [ "$VENV_PY_VER" != "$SYS_PY_VER" ]; then
+        REBUILD_VENV=1
+    elif ! "$MCP_DIR/.venv/bin/python" -m pip --version >/dev/null 2>&1; then
+        REBUILD_VENV=1
+    fi
+    if [ "$REBUILD_VENV" -eq 1 ]; then
+        printf "    azure-pricing-mcp     "
+        rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
+        if python3 -m venv "$MCP_DIR/.venv" 2>/dev/null \
+            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip >/dev/null 2>&1 \
+            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]" >/dev/null 2>&1; then
+            printf "✅ rebuilt (Python version drift)\n"
+        else
+            printf "⚠️  rebuild failed (continuing)\n"
+        fi
+    elif [ -f "$MCP_DIR/.venv/bin/python" ]; then
+        "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>/dev/null || true
+        printf "    azure-pricing-mcp     "
+        # ``[admin]`` is canonical (v5.x); ``[azure]`` is a deprecated alias.
+        "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]" \
+            && printf "✅ updated\n" \
+            || printf "⚠️  update failed (continuing)\n"
+    fi
 fi
 
 # ─── npm local dependencies ──────────────────────────────────────────────────

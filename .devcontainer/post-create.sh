@@ -208,15 +208,36 @@ pwsh -NoProfile -Command "
 step_start "💰" "Setting up Azure Pricing MCP Server..."
 MCP_DIR="${PWD}/tools/mcp-servers/azure-pricing"
 if [ -d "$MCP_DIR" ]; then
-    if [ ! -f "$MCP_DIR/.venv/bin/pip" ]; then
+    # Detect a stale venv: created with a different Python minor (e.g. 3.13
+    # venv on a container upgraded to 3.14) leaves bin/pip orphaned because
+    # site-packages live under lib/python3.X/. Rebuild when version drifts
+    # or when ``python -m pip`` cannot import (covers both broken-pip and
+    # missing-venv cases).
+    SYS_PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    VENV_PY_VER=""
+    if [ -f "$MCP_DIR/.venv/pyvenv.cfg" ]; then
+        VENV_PY_VER=$(grep -E '^version' "$MCP_DIR/.venv/pyvenv.cfg" 2>/dev/null \
+            | head -1 | awk '{print $3}' | cut -d'.' -f1-2)
+    fi
+    REBUILD_VENV=0
+    if [ ! -f "$MCP_DIR/.venv/bin/python" ]; then
+        REBUILD_VENV=1
+    elif [ -n "$VENV_PY_VER" ] && [ "$VENV_PY_VER" != "$SYS_PY_VER" ]; then
+        REBUILD_VENV=1
+    elif ! "$MCP_DIR/.venv/bin/python" -m pip --version >/dev/null 2>&1; then
+        REBUILD_VENV=1
+    fi
+    if [ "$REBUILD_VENV" -eq 1 ]; then
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
         python3 -m venv "$MCP_DIR/.venv"
     fi
 
-    "$MCP_DIR/.venv/bin/pip" install --quiet --upgrade pip 2>&1 | tail -1 || true
+    "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>&1 | tail -1 || true
 
     cd "$MCP_DIR"
-    "$MCP_DIR/.venv/bin/pip" install --quiet -e ".[azure]" 2>&1 | tail -1 || true
+    # ``[admin]`` is the canonical extras name (v5.x). ``[azure]`` is preserved
+    # as a deprecated alias for one release (removed in v6.0). Prefer admin.
+    "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e ".[admin]" 2>&1 | tail -1 || true
     cd - > /dev/null
 
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then
