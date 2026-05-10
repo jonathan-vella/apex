@@ -53,7 +53,7 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 - [x] Run sensei standard-mode score: drawio
 - [x] Generate `batch-3-audit.md`
 - [x] Commit `chore(skills): Audit batch 3 report (sensei standard)`
-- [ ] **Updates** — user issues `update batch 3` or `update <skill>` to apply audit recommendations + commit
+- [x] **Updates** — user issued `update batch 3`; all 7 diffs applied, azure-resources fixed from Invalid (1367→574 chars), drawio + docs-writer rewritten to High tier, 6/7 now pass GEPA ≥ 0.7 (was 1/7), azure-validate reaches 1.00, commit recorded
 
 ### Batch 4 — entra-app-registration → microsoft-docs
 

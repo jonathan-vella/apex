@@ -1,6 +1,6 @@
 ---
 name: docs-writer
-description: Maintains repository documentation accuracy and freshness; use for doc updates, agent or skill changes, staleness checks, changelog entries, and repo explanation requests.
+description: "**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: \"update docs\", \"doc gardening\", \"staleness check\", \"changelog entry\", \"repo explanation\", \"agent change docs\", \"skill change docs\". USE FOR: post-merge doc updates, agent/skill freshness audits, changelog drafting, README/CONTRIBUTING gardening. DO NOT USE FOR: agent definitions themselves (edit `.agent.md` directly), skill SKILL.md content (use sensei), site theme/build (out of scope)."
 license: MIT
 compatibility: Works with GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
 metadata:
