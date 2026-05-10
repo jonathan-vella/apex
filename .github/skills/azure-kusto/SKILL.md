@@ -46,7 +46,7 @@ Key capabilities:
 - **Resource Management**: List clusters and databases
 - **Analytics**: Aggregations, time series, anomaly detection, machine learning
 
-## Core Workflow
+## Steps
 
 1. **Discover Resources**: List available clusters and databases in subscription
 2. **Explore Schema**: Retrieve table structures to understand data model
@@ -94,7 +94,7 @@ Query results include:
 
 📋 **Reference**: Read `references/query-patterns.md` for complete function reference and performance tips.
 
-## Best Practices
+## Rules
 
 - Always include time range filters to optimize query performance
 - Use `take` or `limit` for exploratory queries to avoid large result sets

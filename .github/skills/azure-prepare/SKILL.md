@@ -68,6 +68,16 @@ After the specialized skill completes, resume at Phase 1 Step 4 (Select Recipe).
 
 ---
 
+## Steps
+
+Two-phase workflow (full detail in [Phase 1: Planning](#phase-1-planning-blocking--complete-before-any-execution) and [Phase 2: Execution](#phase-2-execution-only-after-plan-approval) below):
+
+1. **Step 0** — Specialized Technology Check (route to `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, etc., before continuing)
+2. **Phase 1 (Planning, BLOCKING)** — Analyze workspace → gather requirements → scan codebase → select recipe (AZD/AZCLI/Bicep/Terraform) → plan architecture → write `infra/{iac}/{project}/.azure/plan.md` → present plan + ask for approval
+3. **⛔ Approval gate** — do NOT proceed until the user approves the plan
+4. **Phase 2 (Execution, post-approval)** — Research components → confirm Azure context → generate artifacts → harden security → mark plan `Ready for Validation`
+5. **Hand off to `azure-validate`** — prerequisite: plan status is `Ready for Validation`. Deployment of the validated artifacts is `azure-deploy`'s job.
+
 ## Phase 1: Planning (BLOCKING — Complete Before Any Execution)
 
 Create `infra/{iac}/{project}/.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.

@@ -378,3 +378,40 @@ User issued `update batch 2`. All 7 proposed before/after diffs were applied, in
 - **azure-prepare body-token bloat** — body remains at ~2400 tokens after the description trim. Body restructuring (move workflow examples to `references/`) is out of scope for this Stage A frontmatter pass.
 - **azure-quotas body-token bloat** — body at ~2700 tokens, the largest in batch 2. Similar deferral.
 - **`INVOKES:` opportunities for the remaining 5 skills** — `azure-defaults` (no MCP, pure reference), `azure-deploy` (could declare `INVOKES: azure-azd MCP, azure-deploy MCP`), `azure-diagnostics` (could declare `INVOKES: azure-monitor MCP, applicationinsights MCP`), `azure-governance-discovery` (uses `az policy` CLI, could declare), `azure-prepare` (could declare a long list of MCPs). Deferred — adding `INVOKES:` shifts agent routing semantics and warrants its own dedicated pass.
+
+---
+
+## Post-update — Round 2 (2026-05-10)
+
+User issued `update post-gepa` for the body-section pass. Hybrid heading strategy applied.
+
+### Edits applied
+
+| Skill                      | `## Rules` source                       | `## Steps` source                          |
+| -------------------------- | --------------------------------------- | ------------------------------------------ |
+| azure-defaults             | **Author** (8-rule list — AVM, region, tags, suffix, security, deprecations, naming) | **Author** (7-step apply-defaults flow)   |
+| azure-diagnostics          | _already present_                       | Rename `## Quick Diagnosis Flow`           |
+| azure-governance-discovery | **Author** (8-rule list — deterministic, schema, exit codes) | Rename `## Usage` |
+| azure-kusto                | Rename `## Best Practices`              | Rename `## Core Workflow`                  |
+| azure-prepare              | _already present_                       | **Author** (5-step planning + execution gate summary) |
+| azure-quotas               | Rename `## Best Practices`              | Rename `## Workflow Summary`               |
+
+### Score deltas
+
+| Skill                      | Round 1 | Round 2     | Δ     |
+| -------------------------- | ------- | ----------- | ----- |
+| azure-defaults             | 0.67    | **1.00** ✓  | +0.33 |
+| azure-diagnostics          | 0.83    | **1.00** ✓  | +0.17 |
+| azure-governance-discovery | 0.67    | **1.00** ✓  | +0.33 |
+| azure-kusto                | 0.67    | **1.00** ✓  | +0.33 |
+| azure-prepare              | 0.83    | **1.00** ✓  | +0.17 |
+| azure-quotas               | 0.67    | **1.00** ✓  | +0.33 |
+
+### Aggregate (batch 2)
+
+| Metric                    | Round 1 | Round 2     |
+| ------------------------- | ------- | ----------- |
+| Skills at score = 1.00    | 1 / 7 (azure-deploy already)  | **7 / 7** ✓ |
+| Skills at score ≥ 0.83    | 4 / 7   | **7 / 7** ✓ |
+
+Validators: all pass.

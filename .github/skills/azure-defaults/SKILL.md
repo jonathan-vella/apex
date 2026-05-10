@@ -116,6 +116,31 @@ For the full Bicep + Terraform AVM module registry, read
 
 ---
 
+## Rules
+
+- **AVM-first is non-negotiable** — NEVER write raw Bicep/Terraform for a resource that has an AVM module available
+- **Default region** is `swedencentral` (EU GDPR-compliant); fail over to `germanywestcentral`; use `westeurope` for Static Web Apps
+- **Required tags** (PascalCase, exact casing): `Environment`, `ManagedBy`, `Project`, `Owner` — always defer to `04-governance-constraints.md` for the project's actual required tag list
+- **Tag casing is case-sensitive** — never emit both `owner` and `Owner` in the same template (`AmbiguousPolicyEvaluationPaths` error)
+- **Unique suffix** — generate `uniqueString(resourceGroup().id)` ONCE per deployment and pass to all modules
+- **Security baseline** is non-negotiable: HTTPS-only, TLS 1.2 minimum, no public blob, public network disabled for prod data services, Managed Identity over keys
+- **Never recommend deprecated services for greenfield** — Azure AD B2C, CDN WAF classic, App Gateway v1, Redis Enterprise E50; verify retirement timeline against multi-year RI commitments
+- **CAF naming** — follow the abbreviation + length-cap table; load `references/naming-full-examples.md` when generating length-constrained names
+
+## Steps
+
+Applying defaults when generating Azure infrastructure:
+
+1. **Read Quick Reference** — confirm region, tags, suffix, and security baseline match this skill
+2. **Cross-check governance** — read `04-governance-constraints.md` for project-specific tag and policy requirements
+3. **Pick AVM modules** — query the AVM registry for every resource type before writing raw Bicep/Terraform
+4. **Apply naming** — use the CAF abbreviations table; load `references/naming-full-examples.md` for length-constrained resources
+5. **Apply tags** — emit all 4 required tags (PascalCase) on every taggable resource
+6. **Apply security baseline** — wire HTTPS-only, TLS 1.2, no public blob, Managed Identity, public network access settings
+7. **Validate** — run `npm run validate:iac-security-baseline` and the appropriate `lint:bicep` / `terraform fmt && validate`
+
+---
+
 ## Template-First Output Rules
 
 | Rule         | Requirement                                    |

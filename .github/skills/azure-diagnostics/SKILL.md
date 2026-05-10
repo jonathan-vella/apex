@@ -36,7 +36,7 @@ Activate this skill when user wants to:
 
 ---
 
-## Quick Diagnosis Flow
+## Steps
 
 1. **Identify symptoms** - What's failing?
 2. **Check resource health** - Is Azure healthy?

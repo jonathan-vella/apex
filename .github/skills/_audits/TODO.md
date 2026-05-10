@@ -105,11 +105,11 @@ User explicitly approved expanding scope beyond the original frontmatter-only pr
 
 ### Batch 2 — azure-defaults → azure-quotas (6 skills, azure-deploy already 1.00)
 
-- [ ] Sensei pre-audit (Round 2)
-- [ ] Apply hybrid heading edits (azure-defaults, azure-diagnostics, azure-governance-discovery, azure-kusto, azure-prepare, azure-quotas)
-- [ ] Validators + batch re-score
-- [ ] Append "Post-update — Round 2" to `batch-2-audit.md`
-- [ ] Commit `feat(skills): Add ## Rules / ## Steps body sections (batch 2, round 2)`
+- [x] Sensei pre-audit (Round 2)
+- [x] Apply hybrid heading edits (azure-defaults, azure-diagnostics, azure-governance-discovery, azure-kusto, azure-prepare, azure-quotas)
+- [x] Validators + batch re-score
+- [x] Append "Post-update — Round 2" to `batch-2-audit.md`
+- [x] Commit `feat(skills): Add ## Rules / ## Steps body sections (batch 2, round 2)` — all 6 → 1.00 ✓
 
 ### Batch 3 — azure-rbac → drawio (6 skills, azure-validate already 1.00)
 

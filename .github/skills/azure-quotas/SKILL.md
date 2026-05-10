@@ -86,7 +86,7 @@ See [troubleshooting.md](references/troubleshooting.md) for common errors (`Exte
 - [Request quota increases](https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal)
 - [Portal — My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas)
 
-## Best Practices
+## Rules
 
 1. ✅ Always check quotas before deployment
 2. ✅ Run `az quota list` first to discover correct quota resource names
@@ -96,7 +96,7 @@ See [troubleshooting.md](references/troubleshooting.md) for common errors (`Exte
 6. ✅ Document quota sources (CLI vs docs)
 7. ✅ Monitor usage; alert at 80% threshold (Portal)
 
-## Workflow Summary
+## Steps
 
 1. Install: `az extension add --name quota`
 2. Discover quota resource names: `az quota list --scope ...` (match by `localizedValue`)
