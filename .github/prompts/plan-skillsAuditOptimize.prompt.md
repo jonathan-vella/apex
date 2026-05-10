@@ -1,32 +1,32 @@
 ---
-description: 'Three-phase programme to audit, optimize, and re-audit all skills using sensei standard mode and GEPA with Claude Opus 4.7. Runs alphabetical batches with strict user-gated optimize steps.'
+description: 'Two-stage audit programme for skills frontmatter compliance: sensei standard mode (read-only) per batch, then GEPA score-all (read-only). User applies updates between stages on demand. No LLM calls, no trigger-harness, no optimize subcommand.'
 agent: agent
 model: 'Claude Opus 4.7'
 tools: vscode, execute, read, agent, search, terminal
-argument-hint: 'phase=0|audit|optimize|gepa-final, batch=1..5 (optional), skill=<name> (optional)'
+argument-hint: 'audit batch N | update batch N | update <skill> | gepa audit | update post-gepa'
 ---
 
-# Plan: Skills audit-then-optimize programme
+# Plan: Skills audit-then-update programme
 
-**TL;DR** — Three-phase programme on the `feat/skills-sensei` branch: (1) baseline audit each of 5 alphabetical batches (6–7 skills) with sensei standard mode, producing strict read-only reports; (2) optimize each batch with sensei + GEPA (Claude Opus 4.7) only when the user says `optimize batch <N>` or `optimize <skill>`; (3) final GEPA audit across all 33 skills. Tracker (`TODO.md`) and reports live under `.github/skills/_audits/`.
+**TL;DR** — Two read-only audit stages, with user-driven updates in between. Stage A: sensei standard-mode audit per batch (5 batches). Stage B: a single GEPA score-all audit across all skills (deterministic, no LLM, no harness). The user decides when and what to update; the agent never applies changes automatically.
 
 ## Locked decisions
 
 | Topic | Decision |
 |---|---|
 | Scope | All 33 active skills under `.github/skills/`, excluding `sensei` (submodule) and `archived_skills/` |
-| Batching | 5 alphabetical chunks of 6–7 skills each |
-| Audit semantics | Strict audit-only — no file edits until user says "optimize batch N" |
+| Stage A batching | 5 alphabetical chunks of 6–7 skills each (per-batch reports + commits) |
+| Stage B | Single global GEPA score-all pass across all skills |
+| Audit semantics | Strict read-only — no skill-file edits during audit runs |
+| Update trigger | `update batch <N>`, `update <skill>`, or `update post-gepa` — explicit, user-issued |
 | Files location | `.github/skills/_audits/` |
-| Tracker format | Single `TODO.md` with checkboxes per skill per phase |
-| Report format | Both — concise summary table + detailed appendix per batch |
-| Harness strategy | LLM-seed `tests/{skill}/triggers.test.ts`, then user reviews/edits before optimize |
-| GEPA LLM | GitHub Models / `claude-opus-4.7-1m-internal` |
-| Commit cadence | Per-batch: 1 commit for audit reports, 1 commit for approved edits |
-| Optimize trigger | `optimize batch <N>` or `optimize <skill>` — explicit, per-batch/per-skill |
-| Final GEPA audit | All 33 skills, baseline + optimized in a single report |
+| Tracker format | Single `TODO.md` with checkboxes per skill per stage |
+| Report format | Both — concise summary table + detailed appendix per batch and one for Stage B |
+| Commit cadence | Per-batch: 1 audit commit, then optional 1 update commit. Stage B: 1 audit commit, then optional 1 update commit. |
+| LLM usage | **None.** GEPA is run in `score` mode only. |
+| Test harness | **None.** GEPA `score` does not require `tests/{skill}/triggers.test.ts`. |
 
-## Batch composition
+## Batch composition (Stage A only)
 
 | Batch | Skills | Count |
 |---|---|---|
@@ -36,84 +36,93 @@ argument-hint: 'phase=0|audit|optimize|gepa-final, batch=1..5 (optional), skill=
 | 4 | entra-app-registration, github-operations, golden-principles, iac-common, mermaid, microsoft-docs | 6 |
 | 5 | python-diagrams, terraform-patterns, terraform-search-import, terraform-test, vendor-prompting, workflow-engine | 6 |
 
-> Note: `azure-adr` was already touched in earlier sensei runs this session. Batch 1 re-baselines it for consistency; user may opt to exclude it from re-optimization.
+## Stages
 
-## Phases
-
-### Phase 0 — Scaffolding (one-time, no user gate)
+### Phase 0 — Scaffolding (one-time, no user gate, **done**)
 
 1. Create `.github/skills/_audits/` directory.
-2. Generate `TODO.md` with the per-skill checklist for all 3 phases.
-3. Add helper script `tools/scripts/run-sensei-audit.mjs` that wraps `npm run tokens count` + the GEPA `score` evaluator so per-batch audits are repeatable. Output: JSON per skill that the batch-report generator consumes.
-4. Add npm script `audit:skills:gepa` running the GEPA score-all CLI.
+2. Generate `TODO.md` with the per-skill checklist for both stages.
+3. Add wrapper script `tools/scripts/run-sensei-audit.mjs` (reads frontmatter + token CLI + GEPA `score` evaluator → JSON per skill).
+4. Add npm scripts: `audit:skills` (wrapper) and `audit:skills:gepa` (raw GEPA `score-all`).
 5. Commit Phase 0 artifacts only.
 
-### Phase 1 — Standard-mode audit per batch (5 iterations)
+### Stage A — Standard-mode audit per batch (5 batches, read-only)
 
-For each batch (in order):
+For each batch (in order, on user trigger `audit batch <N>` or auto-sequenced if user says `audit batches 1-5`):
 
-1. Run sensei standard-mode scoring **read-only** for each skill in the batch. No frontmatter edits, no git changes to skills.
-2. Generate `.github/skills/_audits/batch-N-audit.md` with:
-   - Summary table (skill, current score, top issue, recommended action)
+1. Run `npm run audit:skills -- --batch <N>` (read-only — uses sensei standard scoring + GEPA `score`).
+2. Generate `.github/skills/_audits/batch-<N>-audit.md` with:
+   - Summary table (skill, current adherence, GEPA score, tokens, top issue, recommended action)
    - Detailed appendix per skill: full current frontmatter, scoring breakdown, concrete proposed before/after diff (text only — not applied), token delta projection, MCP-integration check (where INVOKES applies).
 3. Tick the matching boxes in `TODO.md`.
-4. Commit `chore(skills): Audit batch N report (sensei standard)`.
-5. Hand off to user for review. **Stop and wait** for the user to say `optimize batch N` before any edits are made.
+4. Commit `chore(skills): Audit batch <N> report (sensei standard)`.
+5. Hand off to user for review. **Stop and wait.**
 
-### Phase 2 — Optimize approved batches (user-gated)
+### Stage A updates — user-gated (`update batch <N>` or `update <skill>`)
 
-Only when user issues `optimize batch <N>` or `optimize <skill>`:
+When the user issues `update batch <N>` or `update <skill>`:
 
-1. **Author trigger harness** for each in-scope skill in the batch:
-   - LLM-seed `tests/{skill}/triggers.test.ts` based on the audit findings (5–7 should-trigger, 5–7 should-not-trigger prompts each).
-   - Show the seed harness diff. User reviews/edits before any optimize call runs.
-2. **Install GEPA** if not already present: `pip install --user 'gepa>=0.3.0'` or `uv pip install --system 'gepa>=0.3.0'`.
-3. **Configure LLM endpoint**: set `OPENAI_API_BASE=https://models.github.ai/inference` and `OPENAI_API_KEY=$(gh auth token)`; pass `--model claude-opus-4.7-1m-internal` to the GEPA optimizer (override sensei's `openai/gpt-4o` default).
-4. **Run GEPA optimize** per skill: `python .github/skills/sensei/scripts/src/gepa/auto_evaluator.py optimize --skill <name> --skills-dir .github/skills --tests-dir tests --model claude-opus-4.7-1m-internal`.
-5. Apply only the GEPA-proposed changes that improve the score AND pass `npm run validate:agents` + `validate:agent-registry` + `lint:vendor-prompting`. Reject candidates that violate repo rules.
-6. Commit `feat(skills): Optimize batch N (GEPA + Claude Opus)`.
-7. Tick the matching boxes in `TODO.md`.
+1. Apply the proposed before/after diffs from `batch-<N>-audit.md` for each skill in the batch (or the named skill).
+2. Run validators: `npm run validate:agents`, `validate:agent-registry`, `lint:vendor-prompting`, `validate:skills`. Reject any skill change that fails validators.
+3. Re-score the updated skills via `npm run audit:skills -- --skills <name1>,<name2>` — append a "Post-update" section to `batch-<N>-audit.md` showing before/after scores.
+4. Commit `feat(skills): Update batch <N> per audit findings`.
+5. Tick the matching update boxes in `TODO.md`.
 
-### Phase 3 — Final GEPA-mode audit (after all batches optimized)
+> **User control**: at any point the user may edit skill files manually instead of issuing `update batch <N>`. The agent honors hand edits and re-scores on request.
 
-1. Run GEPA `score-all` across all 33 skills: `python .github/skills/sensei/scripts/src/gepa/auto_evaluator.py score-all --skills-dir .github/skills --tests-dir tests --json`.
-2. Generate `.github/skills/_audits/final-gepa-audit.md` with:
-   - Summary table: every skill's baseline score (from batch reports) vs. current GEPA score, delta column.
-   - Top wins (largest improvements).
-   - Skills still below 0.7 with diagnosis.
-   - Trigger-accuracy summary per skill (true positive / false positive rates from the harness).
-3. Tick the final boxes in `TODO.md`.
-4. Commit `docs(skills): Final GEPA audit report`.
+### Stage B — GEPA-mode audit (single global pass, read-only)
+
+Triggered when the user says `gepa audit` (typically after Stage A completes, but the user may run it at any time):
+
+1. Run `npm run audit:skills:gepa` to get GEPA `score-all` output across all 33 skills (deterministic, no LLM).
+2. Cross-join with the sensei standard scores from Stage A reports (if available).
+3. Generate `.github/skills/_audits/gepa-audit.md` with:
+   - Summary table: skill, GEPA score, token count, deltas vs. last Stage A audit (where available), top issue, suggested action.
+   - Detailed appendix per skill: GEPA's `quality_detail` breakdown (`description_length`, `has_use_for`, `has_when`, `has_rules`, `has_steps`, `no_bad_patterns`), feedback strings, false-positive flags (e.g., the GEPA TODO/FIXME regex misfiring on quality-checklist text).
+4. Tick the Stage B boxes in `TODO.md`.
+5. Commit `chore(skills): GEPA audit report`.
+6. Hand off to user for review. **Stop and wait.**
+
+### Stage B updates — user-gated (`update post-gepa` or `update <skill>`)
+
+When the user issues `update post-gepa` or per-skill `update <skill>`:
+
+1. Apply proposed changes from `gepa-audit.md` (typically smaller deltas — adding `WHEN:` or `USE FOR:` literals, fixing GEPA-detected gaps).
+2. Run validators (same as Stage A updates).
+3. Re-run `npm run audit:skills:gepa` and append a "Post-update" section to `gepa-audit.md`.
+4. Commit `feat(skills): Update skills per GEPA audit findings`.
 
 ## Relevant files
 
-- `.github/skills/_audits/TODO.md` — programme tracker (created in Phase 0)
-- `.github/skills/_audits/batch-{1..5}-audit.md` — per-batch reports
-- `.github/skills/_audits/final-gepa-audit.md` — Phase 3 deliverable
+- `.github/skills/_audits/TODO.md` — programme tracker
+- `.github/skills/_audits/batch-{1..5}-audit.md` — Stage A per-batch reports
+- `.github/skills/_audits/gepa-audit.md` — Stage B global report
 - `tools/scripts/run-sensei-audit.mjs` — wrapper for repeatable audit runs
-- `tests/{skill}/triggers.test.ts` × 33 — GEPA harness, authored per-batch in Phase 2
-- `package.json` — adds `audit:skills:gepa` npm script
+- `package.json` — `audit:skills` and `audit:skills:gepa` npm scripts
 - `.github/skills/sensei/scripts/src/gepa/auto_evaluator.py` — upstream evaluator (read-only; no edits to submodule)
-- `.github/skills/{skill}/SKILL.md` — modified only in Phase 2 after explicit optimize command
+- `.github/skills/{skill}/SKILL.md` — modified only on explicit `update batch <N>`, `update <skill>`, or `update post-gepa`
 
 ## Verification
 
-| Phase | Verification |
+| Stage | Check |
 |---|---|
-| 0 | `ls .github/skills/_audits/TODO.md`; `npm run audit:skills:gepa --dry-run` |
-| 1 | `npm run validate:agents && npm run validate:agent-registry` (no skill files changed); each `batch-N-audit.md` parses via `npm run lint:md` |
-| 2 | After each optimize: `npm run validate:agents`, `npm run validate:agent-registry`, `npm run lint:vendor-prompting`, `npm run validate:iac-security-baseline` (sanity), token check via `cd .github/skills/sensei && npm run tokens -- check ../{skill}/SKILL.md` |
-| 3 | `final-gepa-audit.md` shows ≥ 0.7 score for ≥ 80% of skills; trigger accuracy ≥ 0.85 for optimized skills |
+| 0 (done) | `ls .github/skills/_audits/TODO.md`; `npm run audit:skills -- --skills azure-adr` returns valid JSON |
+| Stage A audit | `npm run validate:skills` (no skill files changed during audit); `batch-<N>-audit.md` parses as markdown |
+| Stage A update | After each update: `npm run validate:agents`, `validate:agent-registry`, `validate:skills`, `lint:vendor-prompting`; re-score deltas appended to report |
+| Stage B audit | `npm run audit:skills:gepa` returns valid JSON; `gepa-audit.md` parses as markdown |
+| Stage B update | Same validators as Stage A update; final `audit:skills:gepa` run shows ≥ target improvement |
 
 ## Decisions / scope boundaries
 
-- **In scope**: 33 active skills' frontmatter; per-skill trigger harnesses; per-batch and final reports; minor wrapper scripts.
-- **Out of scope**: Skill body content rewrites beyond what GEPA proposes; archived skills; the sensei submodule itself; the accelerator-side workflow (already addressed in prior turn); any agent (`.agent.md`) or prompt (`.prompt.md`) files.
-- **`azure-adr` re-baseline**: re-audited in Batch 1 alongside others for consistency; user decides at optimize time whether to re-touch.
+- **In scope**: 33 active skills' frontmatter; per-batch and one Stage B report; minor wrapper scripts.
+- **Out of scope**: Skill body content rewrites; archived skills; the sensei submodule itself; agent (`.agent.md`) and prompt (`.prompt.md`) files; GEPA `optimize` subcommand; trigger test harnesses; LLM-driven rewrites.
+- **`azure-adr` re-baseline**: re-audited in Batch 1 alongside others for consistency.
 - **Submodule isolation**: no edits ever land in `.github/skills/sensei/`. We consume its scripts read-only.
+- **No automated rewrites**: every skill-file change requires an explicit user `update` command.
 
 ## Resolved considerations
 
-1. **GEPA LLM** — `claude-opus-4.7-1m-internal` on GitHub Models. Passed to `auto_evaluator.py optimize --model claude-opus-4.7-1m-internal`. No model-list discovery needed at runtime.
-2. **Trigger-harness location** — repo-root `tests/{skill}/triggers.test.ts` (sensei default). Created during Phase 2 only for skills entering optimization.
-3. **Accelerator sync exclusion** — Phase 0 will add an action item to `TODO.md` listing the additional `EXCLUDE_PATHS` entries the accelerator's `weekly-upstream-sync.yml` will need: `.github/skills/_audits/` and `tests/` (alongside the earlier sensei exclusions). Applied to the accelerator repo separately when the user is ready.
+1. **No LLM dependency** — Stage B runs GEPA in `score` mode only (`auto_evaluator.py score-all ...`). Deterministic, instant, free.
+2. **No test harness** — `score-all` does not require `tests/{skill}/triggers.test.ts`. The harness scaffolding work is removed from the plan entirely.
+3. **No `gepa` Python package** — the `score` subcommand uses only Python stdlib + the regex-based content quality scorer in `auto_evaluator.py`.
+4. **Accelerator sync exclusion** — Phase 0 added an action item to `TODO.md` for extending `EXCLUDE_PATHS` in the accelerator's `weekly-upstream-sync.yml` to include `.github/skills/_audits/` (alongside earlier sensei exclusions). Applied to the accelerator repo separately when the user is ready.
